@@ -6,6 +6,7 @@ area: test
 files:
   - test/example/priv/playwright/tests/admin-design.spec.ts
 source: phase 191 Wave 4 recapture (191-04) — surfaced in snapshot-recapture-gate.sh admin-design step
+resolves_phase: 199
 ---
 
 ## What

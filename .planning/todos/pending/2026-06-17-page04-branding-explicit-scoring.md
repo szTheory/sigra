@@ -7,7 +7,7 @@ files:
   - guides/reference/admin-quality-ledger.md
   - lib/sigra/admin/live/branding_live.ex
 source: 189-VERIFICATION.md (PAGE-04 human item), ROADMAP v1.39 SC #4
-resolves_phase: 191
+resolves_phase: 203
 ---
 
 ## Why deferred

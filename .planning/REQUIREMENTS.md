@@ -67,4 +67,22 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| _(filled by roadmap)_ | | |
+| LEDGER-01 | Phase 199 | Pending |
+| LEDGER-02 | Phase 199 | Pending |
+| FIXT-01 | Phase 199 | Pending |
+| FIXT-02 | Phase 199 | Pending |
+| DETAIL-01 | Phase 200 | Pending |
+| DETAIL-02 | Phase 200 | Pending |
+| DETAIL-03 | Phase 200 | Pending |
+| DETAIL-04 | Phase 200 | Pending |
+| INDEX-01 | Phase 201 | Pending |
+| INDEX-02 | Phase 201 | Pending |
+| INDEX-03 | Phase 201 | Pending |
+| INDEX-04 | Phase 201 | Pending |
+| AUDIT-01 | Phase 202 | Pending |
+| AUDIT-02 | Phase 202 | Pending |
+| AUDIT-03 | Phase 202 | Pending |
+| PROP-01 | Phase 203 | Pending |
+| PROP-02 | Phase 203 | Pending |
+| RATIFY-01 | Phase 204 | Pending |
+| RATIFY-02 | Phase 204 | Pending |
