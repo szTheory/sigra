@@ -91,6 +91,8 @@ echo "Test A: 2→1 decrease is caught by the guard (must exit non-zero)"
 # Mutate the working tree: change Tier from 2 → 1 (do NOT commit).
 sed -i.bak 's/| 2    | axe gate passing/| 1    | axe gate passing/' "$LEDGER_PATH"
 rm -f "${LEDGER_PATH}.bak"
+grep -q '| 1    | axe gate passing' "$LEDGER_PATH" \
+  || { echo "FATAL: self-test fixture mutation did not apply (heredoc reformatted?)" >&2; exit 2; }
 
 # Run the guard; capture both exit code and stderr.
 GUARD_STDERR_A="$TMPDIR_ROOT/stderr_a.txt"
