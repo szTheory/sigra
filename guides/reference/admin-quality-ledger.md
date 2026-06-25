@@ -29,6 +29,30 @@ grep -E '^\| [a-z]' guides/reference/admin-quality-ledger.md \
 Tiers may only increase over time. The monotonic guard fails CI if any tier cell decreases
 between the base branch and the PR branch.
 
+## Asserting Tier 2
+
+A maintainer asserts that a ledger cell reached Tier 2 by making two changes together:
+
+1. **Flip the Tier column to `2`** — the bare integer `2` (no decorators, no footnote markers,
+   no asterisks). Column-4 must remain a single `[012]` value so the monotonic guard's
+   `awk -F'|'` positional parse keeps working. **Decorators in column-4 are forbidden** — they
+   break the guard parse and will cause false-pass CI.
+
+2. **Expand the Evidence column** to cite the specific spec/test proving each APPLICABLE
+   Tier-2 proxy for that surface. Reference the proxy list in
+   `admin-fractal-scorecard.md` → _Tier-2 Award-grade Add-on_ for the full set of proxies and
+   their automated/manual gate designations. Example evidence expansion for a page LiveView:
+   - axe-while-open: admin-modal-interaction.spec.ts passes
+   - APG gates: admin-modal-interaction.spec.ts 7 gates pass
+   - content-equivalence: admin-design.spec.ts MG-5/6 + un-skipped equivalence test pass
+   - glossary-clean: glossary_test.exs passes
+   - motion-tokens: reviewed — no `transition: all`; uses `--sg-duration-*`/`--sg-ease-*`
+   - density/rhythm: reviewed — consistent `sg-stack--6`/`--4` cadence
+   - target-size: reviewed — all interactive targets ≥ 24×24 CSS pixels
+
+The monotonic guard already treats `2` as a numerically higher integer than `1` and `0`, so
+Tier-2 cells are automatically forward-only protected against regression once set.
+
 ## Quality Ledger
 
 | Item | Level | Tier | Evidence |
@@ -78,10 +102,14 @@ All ~35 quality-ledger cells are locked at **Tier 1 (Ratified)** as of Phase 192
 --base origin/main`) protects every cell permanently — no future PR may decrease any tier.
 Tier 1 is the minimum floor from this point forward.
 
-**Tier 2 is NOT declared here.** Tier 2 ("Award-grade") is subjective (see Tier Vocabulary
-above) and requires objective proxies ratcheted separately in a future milestone. It is
-never a build-failing monotonic integer on an aesthetic verdict. See D-02 in the
-192-CONTEXT.md for the earned-separately path.
+**Tier 2 is objectively earnable from this point forward.** The Tier-2 ("Award-grade")
+proxies are now defined in `admin-fractal-scorecard.md` → _Tier-2 Award-grade Add-on_ (added
+in Phase 199). A cell earns Tier 2 by satisfying all applicable proxies and asserting them
+per the _Asserting Tier 2_ convention above. The same monotonic guard that locks Tier 1 as
+the floor also protects any Tier-2 cell against regression — `2` is numerically higher than
+`1` and the guard already enforces forward-only integers. Phase 192 locked all cells at Tier 1
+as the minimum floor; Phase 199 established the objective proxy contract for Tier 2.
+Ratcheting individual surfaces to Tier 2 begins in Phases 200-204.
 
 **Proof method:** compare-mode zero-drift idempotency (not force-recapture) — re-rendering
 all 6 Playwright projects produces zero PNG delta; both allowlists verified at steady-state
