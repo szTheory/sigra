@@ -365,7 +365,10 @@ test.describe('Design gallery board snapshots', () => {
       await expect(page.getByRole('link', { name: 'Export CSV' })).toBeAttached();
     }
 
-    await page.goto('/admin/users');
+    // Filter to the seeded admin (admin@demo.tasklane.test) deterministically — the users index
+    // orders by inserted_at DESC so the harness-created login user would otherwise be first-listed
+    // with only ~3 audit events (insufficient to trigger pagination at page_size 25).
+    await page.goto('/admin/users?q=admin%40demo.tasklane.test');
     await waitForLiveViewReady(page);
     const userDetailHref = await page
       .locator('[data-testid="admin-users-desktop-results"] a', { hasText: 'Open user' })
