@@ -8,8 +8,9 @@ defmodule Example.Demo.Seeds do
   scheduled-deletion, non-platform org admin, passkey-only, and deletion-scheduled
   org member). It also seeds the Acme Corp and
   Beta Labs organizations, memberships, a pending invitation, the Acme Corp SSO
-  enterprise connection, multiple active admin sessions, and a rich audit trail
-  (>=15 rows, >=6 distinct action values).
+  enterprise connection, multiple active admin sessions, a list-scale bulk user
+  cohort (~36 loadtest-* users for pagination stress), and a rich audit trail
+  (>=25 admin self-tied rows, >=6 distinct action values — FIXT-01 pagination threshold).
 
   Calling `run/0` twice is safe: all inserts use `on_conflict: :nothing` keyed on
   existing unique indexes (D-02), except audit events which use a count-threshold
@@ -469,12 +470,20 @@ defmodule Example.Demo.Seeds do
 
   ## ── Audit events (D-11) ──────────────────────────────────────────────────────
   #
-  # Insert >=15 rows across >=6 distinct action values.
+  # Insert >=25 rows (FIXT-01) across >=6 distinct action values.
   # CORRECTION 1: auth.*/session.*/mfa.* are reserved prefixes — pass
   #   `allow_reserved: true` on every insert (AuditEvent.changeset/3 arg 3).
   # CORRECTION 2: Admin detail filters by effective_user_id OR target_id, NOT
   #   actor_id alone. Set effective_user_id: admin.id on admin-tied rows.
   # IDEMPOTENCY: No unique index on audit_events — use count-threshold guard.
+  #
+  # @audit_actions provides admin self-tied (effective_user_id: admin.id) rows.
+  # Combined with the 2 admin rows in persona_audit_events (offsets 28-29), the
+  # total admin self-tied count must be >=25 (FIXT-01 threshold for pagination).
+  # These 27 rows + 2 persona-admin rows = 29 total admin-tied events (>=25 ✓).
+  # New rows use offset_days > 33 to avoid colliding with persona_audit_events
+  # (offsets 18-33). Vary action prefixes and outcomes across the full
+  # ~w(success failure error) vocabulary — at least one `error` outcome included.
 
   @audit_actions [
     {"auth.login.success", "success", 0},
@@ -494,7 +503,19 @@ defmodule Example.Demo.Seeds do
     {"session.create", "success", 14},
     {"mfa.enroll.success", "success", 15},
     {"auth.login.success", "success", 16},
-    {"session.revoke_all", "success", 17}
+    {"session.revoke_all", "success", 17},
+    # FIXT-01: Additional admin-tied rows to cross the >=25 self-tied threshold.
+    # Continues the deterministic offset spread beyond persona_audit_events (max offset 33).
+    # Includes error outcome to exercise full ~w(success failure error) vocab (D-11).
+    {"auth.login.success", "success", 34},
+    {"session.create", "success", 35},
+    {"mfa.regenerate_backup_codes", "success", 36},
+    {"admin.impersonation.start", "success", 37},
+    {"auth.login.failure", "failure", 38},
+    {"session.revoke_all", "success", 39},
+    {"auth.login.failure", "error", 40},
+    {"mfa.disable", "success", 41},
+    {"admin.impersonation.stop", "success", 42}
   ]
 
   defp persona_audit_events do
