@@ -392,6 +392,54 @@ test.describe('Design gallery board snapshots', () => {
     }
   });
 
+  test('filter form submits via real GET submission and returns filtered results', async ({ page }) => {
+    // D-02 guard: the filter input must be inside a <form method="get"> so that
+    // typing + clicking Search actually submits the form. This test navigates to
+    // the Users index WITHOUT a pre-built ?q= query string and performs a real
+    // form submission — a filter input accidentally placed outside the form would
+    // cause this test to time-out waiting for filtered results, catching the D-01
+    // reflow risk that the existing equivalence spec (which navigates via
+    // page.goto('/admin/users?q=...')) would silently miss.
+    await page.goto('/admin/users');
+    await waitForLiveViewReady(page);
+
+    // Verify we start on the unfiltered index (full user list present).
+    const desktopResults = page.locator('[data-testid="admin-users-desktop-results"]');
+    const mobileResults = page.locator('[data-testid="admin-users-mobile-results"]');
+    await expect(desktopResults).toBeAttached();
+    await expect(mobileResults).toBeAttached();
+
+    // Type a deterministic query into the search input (placeholder: "Email, user id, or name").
+    // Target the stable seeded platform admin — present in all test runs.
+    const searchInput = page.getByPlaceholder('Email, user id, or name');
+    await expect(searchInput, 'search input should be present').toBeAttached();
+    await searchInput.fill('admin@demo.tasklane.test');
+
+    // Click the "Search" submit button — this is the real form submission (not goto).
+    // If the input is outside the <form>, clicking Search navigates with an empty ?q=
+    // and no filtered results appear, failing the assertion below.
+    await Promise.all([
+      page.waitForURL((url) => url.searchParams.get('q') === 'admin@demo.tasklane.test', {
+        timeout: 30_000,
+      }),
+      page.getByRole('button', { name: 'Search' }).click(),
+    ]);
+    await waitForLiveViewReady(page);
+
+    // Assert the filtered result appears in both desktop and mobile containers.
+    await assertUserResultEquivalence(
+      desktopResults,
+      mobileResults,
+      'filter form submit — filtered users',
+    );
+
+    // Confirm the result row contains the queried email address in at least one container.
+    const desktopText = await desktopResults.textContent();
+    expect(desktopText, 'desktop results should contain the searched email').toContain(
+      'admin@demo.tasklane.test',
+    );
+  });
+
   test('reused group examples render byte-coherently for equivalent data', async ({ page }) => {
     for (const pair of [
       ['mg-2-coherence-a', 'mg-2-coherence-b'],
