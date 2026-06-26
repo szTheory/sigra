@@ -1,10 +1,11 @@
 ---
 phase: 202
 slug: audit-surfaces-elevation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-26
+reviewed_at: 2026-06-26
 ---
 
 # Phase 202 — UI Design Contract
