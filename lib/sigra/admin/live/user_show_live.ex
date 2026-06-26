@@ -100,32 +100,21 @@ defmodule Sigra.Admin.Live.UserShowLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
-        <div class="sg-cluster sg-cluster--between sg-cluster--start sg-cluster--3">
-          <div class="sg-stack sg-stack--1">
-            <p class="sg-page-kicker">Identity &amp; Status</p>
-            <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
-            <span class="sg-muted sg-text-sm">{@detail.user.email}</span>
-            <code class="sg-code">{@detail.user.id}</code>
-          </div>
-          <div class="sg-cluster sg-cluster--2">
-            <span :for={{label, tone} <- status_pills(@detail)} class="sg-status-pill" data-tone={tone}>
-              {label}
-            </span>
-          </div>
+        <p class="sg-page-kicker">User</p>
+        <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+        <div class="sg-cluster sg-cluster--2">
+          <span class="sg-muted sg-text-sm">{@detail.user.email}</span>
+          <code class="sg-code">{@detail.user.id}</code>
         </div>
 
         <dl class="sg-summary-facts">
           <div>
+            <dt class="sg-kv__term">Sessions</dt>
+            <dd class="sg-kv__value sg-summary-facts__num">{length(@detail.sessions)}</dd>
+          </div>
+          <div>
             <dt class="sg-kv__term">MFA</dt>
             <dd class="sg-kv__value">{mfa_value(@detail.security.mfa_status)}</dd>
-          </div>
-          <div>
-            <dt class="sg-kv__term">Passkeys</dt>
-            <dd class="sg-kv__value sg-summary-facts__num">{passkey_count(@detail.security)}</dd>
-          </div>
-          <div>
-            <dt class="sg-kv__term">Active</dt>
-            <dd class="sg-kv__value sg-summary-facts__num">{length(@detail.sessions)}</dd>
           </div>
           <div>
             <dt class="sg-kv__term">Last seen</dt>
@@ -136,6 +125,12 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <.notice :if={summary_alert(@detail)} tone={elem(summary_alert(@detail), 0)}>
           {elem(summary_alert(@detail), 1)}
         </.notice>
+
+        <div class="sg-cluster sg-cluster--2">
+          <span :for={{label, tone} <- status_pills(@detail)} class="sg-status-pill" data-tone={tone}>
+            {label}
+          </span>
+        </div>
       </header>
 
       <section class="sg-card sg-stack sg-stack--3">
@@ -473,10 +468,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
 
   defp activity_value(_), do: "Not available"
-
-  # Normalised passkey count for the summary strip (nil → 0).
-  defp passkey_count(%{passkey_count: n}) when is_integer(n), do: n
-  defp passkey_count(_), do: 0
 
   # Most-recent session activity across all sessions, reusing the absolute
   # formatter. Guards the empty case so Enum.max is never called on [].
