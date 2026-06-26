@@ -106,7 +106,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 201-04-PLAN.md — Prove honest pagination at list-scale + recapture global-user-index/mg-* through the recapture gate, canaries stable, allowlists empty (D-08/D-10)
+- [x] 201-04-PLAN.md — Prove honest pagination at list-scale + recapture global-user-index/mg-* through the recapture gate, canaries stable, allowlists empty (D-08/D-10)
 
 **UI hint**: yes
 
@@ -301,7 +301,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
-| 201. Users Index Elevation | v1.41 | 3/4 | In Progress|  |
+| 201. Users Index Elevation | v1.41 | 4/4 | Complete   | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
