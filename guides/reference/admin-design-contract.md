@@ -252,35 +252,44 @@ The three archetypes define how components compose into full pages. All composit
 
 **Source:** `user_show_live.ex`
 
-**Current component composition:**
+**JTBD-first component composition (Phase 200 — v1.41 ADMIN-UX-ELEVATION):**
 
 ```
 <section class="sg-stack sg-stack--6">
   scope_ribbon
 
-  <header class="sg-page-header">               [open identity header]
-    <p class="sg-page-kicker">
-    <h1 class="sg-page-title">
-    <dl class="sg-summary-facts">
-    notice
+  <header class="sg-page-header">               [1] calm identity bar — JTBD scan target
+    <p class="sg-page-kicker">User</p>
+    <h1 class="sg-page-title">                  [display_name || email]
+    <p class="sg-page-copy">                    [secondary: muted email + sg-code UUID]
+    <dl class="sg-summary-facts">               [compact metrics: Sessions + MFA + Last seen]
+    notice                                      [single priority alert: locked>unconfirmed>no-MFA]
+    [status pills cluster]                      [status_pills/1 at bottom of header]
 
-  <section class="sg-card sg-stack sg-stack--3"> [Sessions card]
-    <div class="sg-table-panel">               [session table]
+  <section class="sg-card sg-stack sg-stack--3"> [2] Sessions bounded preview (display-only)
+    <div class="sg-cluster sg-cluster--between"> [header cluster: heading + count + Manage sessions link]
+    <div class="sg-table-panel">               [max 3 rows, no revoke buttons]
     empty_state                                [zero sessions]
 
-  <div class="sg-detail-grid">                 [2-column detail grid]
+  <div class="sg-detail-grid">                 [3] 2-column detail grid
     <section class="sg-detail-panel">          [Security panel]
     <section class="sg-detail-panel">          [Identities panel]
 
-  <section class="sg-card sg-stack sg-stack--3"> [Organizations card]
-  <section class="sg-card sg-stack sg-stack--3"> [Recent Audit card]
-  <section class="sg-danger-panel sg-stack">   [Danger Zone]
-  <div class="sg-confirm-overlay">            [confirm dialog]
+  <section class="sg-card sg-stack sg-stack--3"> [4] Organizations bounded preview (max 3 rows)
+  <section class="sg-card sg-stack sg-stack--3"> [5] Recent Audit card + "View full audit" link-out
+
+  [extra_detail_sections/1 host seam]           [6] Host-injected sections — rendered here, BEFORE Danger Zone
+
+  <section class="sg-danger-panel sg-stack">   [7] Danger Zone — impersonation start form
 ```
 
 **Notes:**
 
 - Detail headers use the open `sg-page-header` pattern. The former boxed identity-card outlier was reconciled in v1.34.
+- **JTBD-first order (Phase 200):** the Sessions card is positioned first after the identity bar — it is the primary admin JTBD for this page (understand session state → manage sessions). Security/Identities grid and Organizations follow as secondary context.
+- **Bounded previews (Phase 200):** Sessions and Organizations show max 3 rows, display-only. Session revoke controls were moved to `UserSessionsLive` (the dedicated `/admin/users/:id/sessions` surface). The "Manage sessions" link-out and "View all organizations" link-out connect the preview to the full surface.
+- **APG confirm dialog location:** the `sg-confirm-overlay` / `sg-confirm-dialog` confirm dialog now lives on `UserSessionsLive`, not on the detail page. Do not re-add a confirm overlay to `user_show_live.ex`; the detail page is intentionally calm (no destructive actions).
+- **`extra_detail_sections/1` host seam (preserved — semver contract):** host apps inject custom sections via the `extra_detail_sections/1` callback. These sections render at position [6] — AFTER all lib-owned sections (identity bar, previews, grid, audit) and BEFORE the Danger Zone. The render uses dual atom/string `:title`/`:body` key reads (`Map.get(section, :title) || Map.get(section, "title")`) to maintain backward compatibility with both map formats. This seam position and key contract are frozen from this point forward.
 - Summary alerts use the shared `<.notice>` component.
 - Admin confirmation dialogs use the Sigra-owned `sg-confirm-overlay` / `sg-confirm-dialog` pattern. Do not use generic `.modal[open]` in the admin shell; the bundled default modal rules globally lock root scroll and can leak unstyled modal chrome into admin surfaces.
 
