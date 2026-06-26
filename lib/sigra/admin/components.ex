@@ -714,7 +714,179 @@ defmodule Sigra.Admin.Components do
   end
 
   # ---------------------------------------------------------------------------
-  # Private helpers for audit_row/1
+  # audit_table_row/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the desktop audit table row (`<tr>`) for the shared 4-column audit table.
+
+  This is the single shared component for byte-coherent desktop-table markup across
+  both audit pages:
+  - `AuditIndexLive` desktop table body
+  - `AuditUserLive` desktop table body
+
+  Column order is FROZEN (td:nth-child positional selectors depend on this):
+  1. Occurred — timestamp only
+  2. Event — `action_label` pill + optional `action_badge` pill + `<details>` disclosure
+     holding both raw codes (`event_id` and action code) as `code.sg-code` text nodes
+  3. Actor — `actor_summary` span (first) + conditional detail lines
+  4. Outcome — risk pill or muted span
+
+  Both raw `code.sg-code` nodes live inside the Event `<td>` disclosure so the
+  `firstTexts(desktop, 'code.sg-code', 2)` content-equivalence assertion still returns
+  exactly 2 (D-06 contract preserved).
+
+  Tone is derived via the shared private `audit_tone/1` (single source of truth, D-08).
+  Timestamp uses `format_timestamp/1` (with-seconds) for forensic precision, consistent
+  across both pages.
+
+  ## Examples
+
+      <.audit_table_row row={row} />
+
+      <.audit_table_row :for={row <- @rows} row={row} />
+
+  """
+  attr :row, :map, required: true, doc: "the presenter row map for the audit event"
+
+  def audit_table_row(assigns) do
+    ~H"""
+    <tr data-tone={audit_tone(@row)}>
+      <td class="sg-nowrap">
+        <div class="sg-stack sg-stack--1">
+          <span class="sg-text-sm">{format_timestamp(@row.inserted_at)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="sg-stack sg-stack--1">
+          <div class="sg-cluster sg-cluster--2">
+            <span class="sg-status-pill" data-tone={audit_tone(@row)}>{@row.action_label}</span>
+            <span :if={@row.action_badge} class="sg-status-pill" data-tone="info">{@row.action_badge}</span>
+          </div>
+          <details>
+            <summary class="sg-text-sm sg-muted">Event codes</summary>
+            <div class="sg-stack sg-stack--1">
+              <code class="sg-code">{@row.id}</code>
+              <code class="sg-code">{@row.action}</code>
+            </div>
+          </details>
+        </div>
+      </td>
+      <td>
+        <div class="sg-stack sg-stack--1 sg-text-sm">
+          <span>{@row.actor_summary}</span>
+          <span :if={@row.action_badge} class="sg-muted">Actor: {@row.actor_label}</span>
+          <span :if={@row.action_badge} class="sg-muted">Effective user: {@row.effective_user_label}</span>
+        </div>
+      </td>
+      <td class="sg-show-desktop sg-text-sm">
+        <span :if={audit_tone(@row) == "risk"} class="sg-status-pill" data-tone="risk">{@row.outcome}</span>
+        <span :if={audit_tone(@row) != "risk"} class="sg-muted">{@row.outcome}</span>
+      </td>
+    </tr>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # audit_pagination_nav/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the honest-cursor pagination `<nav>` for both audit pages.
+
+  The nav is rendered only when `multi_page?/1` is true (i.e., at least one of
+  `meta.previous_page` or `meta.next_page` is non-nil). When results fit a single
+  page the nav is absent entirely — honest cursor pagination (D-10).
+
+  The per-page href divergence (index `page_path/3` vs per-user `page_path/4` with
+  `user_id`/`return_to`) is kept in each LiveView; the caller pre-builds the hrefs
+  and passes them in (D-09 legitimate divergence stays per-page).
+
+  ## Examples
+
+      <.audit_pagination_nav
+        meta={@meta}
+        prev_href={page_path(@admin_scope, @current_params, @meta && @meta.previous_page)}
+        next_href={page_path(@admin_scope, @current_params, @meta && @meta.next_page)}
+      />
+
+  """
+  attr :meta, :map, required: true, doc: "cursor pagination meta map from the audit explorer"
+
+  attr :prev_href, :string,
+    required: true,
+    doc: "href for the Previous page link, pre-built by the caller"
+
+  attr :next_href, :string,
+    required: true,
+    doc: "href for the Next page link, pre-built by the caller"
+
+  def audit_pagination_nav(assigns) do
+    ~H"""
+    <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
+      <a
+        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
+        href={@prev_href}
+        aria-disabled={to_string(is_nil(@meta.previous_page))}
+        aria-label="Previous page"
+      >
+        <span aria-hidden="true">&larr;</span>
+        <span class="sr-only">Previous page</span>
+      </a>
+      <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
+      <a
+        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
+        href={@next_href}
+        aria-disabled={to_string(is_nil(@meta.next_page))}
+        aria-label="Next page"
+      >
+        <span aria-hidden="true">&rarr;</span>
+        <span class="sr-only">Next page</span>
+      </a>
+    </nav>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # audit_empty_state/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the audit zero-state, parametrized for per-page copy.
+
+  Wraps the generic `empty_state/1` with audit-specific attributes. The `title` attr
+  supplies the heading; the inner block renders the per-page body copy (e.g., the
+  filter-aware copy with "Clear all filters" link on the index page, vs the simple
+  "no scoped events" copy on the per-user page).
+
+  ## Examples
+
+      <.audit_empty_state title="No audit events match this view">
+        <p class="sg-muted sg-text-sm">No audit events match the active filters.</p>
+        <div class="sg-cluster sg-cluster--center">
+          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
+        </div>
+      </.audit_empty_state>
+
+      <.audit_empty_state title="No audit events for this user">
+        <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
+      </.audit_empty_state>
+
+  """
+  attr :title, :string, required: true, doc: "the heading for the audit empty state"
+
+  slot :inner_block, doc: "per-page body copy rendered below the title"
+
+  def audit_empty_state(assigns) do
+    ~H"""
+    <.empty_state title={@title}>
+      {render_slot(@inner_block)}
+    </.empty_state>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # Private helpers for audit_row/1, audit_table_row/1, audit_pagination_nav/1
   # ---------------------------------------------------------------------------
 
   # Single source of truth for audit tone derivation (D-10).
@@ -723,6 +895,21 @@ defmodule Sigra.Admin.Components do
   defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
   defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
   defp audit_tone(_row), do: nil
+
+  # Honest-cursor pagination guard: returns true iff at least one of
+  # previous_page/next_page is non-nil. Cursor pagination has no total_pages key.
+  # Matches the byte-identical private guards in AuditIndexLive/AuditUserLive (D-10).
+  defp multi_page?(nil), do: false
+
+  defp multi_page?(meta) do
+    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+  end
+
+  # Timestamp formatter (with seconds) for the desktop audit table Occurred column.
+  # Used by audit_table_row/1 to display forensic-precision timestamps.
+  # Matches the private format_timestamp/1 in AuditIndexLive (same format string).
+  defp format_timestamp(%DateTime{} = dt), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S")
+  defp format_timestamp(_timestamp), do: ""
 
   # Date formatting helper for audit timestamps (D-09 fix).
   # Handles %DateTime{} and %NaiveDateTime{} (formats as "%Y-%m-%d %H:%M", no seconds).
