@@ -212,39 +212,72 @@ The three archetypes define how components compose into full pages. All composit
 
 **Source:** `users_index_live.ex`
 
-**Current component composition:**
+**Search-first composition (Phase 201 — v1.41 ADMIN-UX-ELEVATION):**
 
 ```
 <section class="sg-stack sg-stack--6">
-  <header class="sg-page-header">           [open header — locked winner per COHR-02]
-    <p class="sg-page-kicker">
-    <h1 class="sg-page-title">
-    <p class="sg-page-copy">
-    <dl class="sg-metric-grid">             [summary_chip strip]
-      summary_chip x N
+  <header class="sg-page-header">               [1] identity / orientation bar
+    <p class="sg-page-kicker">User operations</p>
+    <h1 class="sg-page-title">                  [Users or org-scoped heading]
 
-  scope_ribbon                              [body scope indicator]
+  <.scope_ribbon>                               [2] scope indicator
 
-  <form class="sg-filter-panel sg-stack">  [filter panel]
-    <div class="sg-search-row">
-    <div class="sg-cluster">               [quick_filter chips — checkbox-based]
-      quick_filter x N
-    <div class="sg-stack sg-stack--3">     [expandable more-filters section]
+  <section class="sg-stack sg-stack--4"         [3] FIND USERS — dominant first affordance
+    aria-labelledby="find-users-heading">
+    <h2 class="sg-section-heading">Find users</h2>
+    <form method="get" class="sg-filter-panel sg-stack">
+      <div class="sg-search-row">               Search input + Submit + Clear
+      <div class="sg-cluster sg-cluster--start"> [applied_chip row — contiguous with panel]
+        <.applied_chip> x N + "Clear all" link  [present only when filters active]
+      <div class="sg-cluster">                  Quick filter checkboxes (quick_filter x N)
+      <div class="sg-stack sg-stack--3">        "More filters" disclosure + advanced grid
 
-  <div class="sg-cluster sg-cluster--start"> [applied_chip row — present when filters active]
-    applied_chip x N
-    <a "Clear all">
+  <section class="sg-stack sg-stack--3">        [4] USER HEALTH — demoted slim metric strip
+    <h2 class="sg-section-heading">User health</h2>
+    <dl class="sg-metric-grid">
+      <.summary_chip> Total users (neutral)     [3 chips only: Total + Locked + Deletion]
+      <.summary_chip> Locked (risk when > 0)
+      <.summary_chip> Deletion scheduled (warn when > 0)
 
-  <div class="sg-table-panel sg-show-desktop">  [desktop table]
+  <div data-testid="admin-users-desktop-results" [5] desktop table
+       class="sg-table-panel sg-show-desktop">
     <table class="sg-table">
+      <thead><tr>
+        <th>User</th>                           [column order FROZEN per D-06]
+        <th>Status</th>
+        <th>Organizations</th>
+        <th>Activity</th>
+        <th class="sg-cell-right">Action</th>
+      </thead>
+      <tbody><tr :for={row <- @rows}>
+        <td> <.user_name_stack> — name/email/id identity stack
+        <td> <.user_status_cluster> — reduced status pills + extra_badges seam
+        <td>                      — org summary
+        <td>                      — activity/registered + extra_columns seam
+        <td>                      — "Open user" action link
 
-  <div class="sg-stack sg-show-mobile">    [mobile card stack]
-    <article class="sg-card sg-stack"> x N
+  <div data-testid="admin-users-mobile-results"  [6] mobile card stack
+       class="sg-stack sg-stack--3 sg-show-mobile">
+    <article :for={row <- @rows} class="sg-card sg-stack sg-stack--3">
+      <.user_name_stack>                        — same field slice as desktop td 1
+      <.user_status_cluster>                    — same field slice as desktop td 2
+      <dl class="sg-kv">                        — org / activity / registered / extra_columns
 
-  <div class="sg-empty-state sg-stack">   [zero-rows state]
+  <.empty_state>                                [7] zero-row state
 
-  <nav class="sg-cluster sg-cluster--between">  [pagination]
+  <nav>                                         [8] pagination (only when multi_page?)
 ```
+
+**Notes:**
+
+- **Search-first (Phase 201):** The Find Users filter panel is the dominant first affordance below the page header. The metric strip (User health) is demoted below the panel as a secondary summary — operators scan for exceptions, not aggregates, as the primary action.
+- **Applied chips contiguous with filter panel (D-01):** The applied-chip row sits directly inside `<form>` below the search row — it is NOT a detached sibling `<div>` after `</form>`. Chips are navigation-only `<a>` tags (no named inputs) so the GET form submission is unaffected (D-02).
+- **Slim metric strip (D-03):** The User health section emits exactly 3 summary chips: Total (neutral), Locked (risk), Deletion scheduled (warn). Coverage KPIs (Confirmed, MFA, Passkeys) are omitted from the list view — they would add noise without decision value in a scan context.
+- **Reduced pill vocabulary (D-04):** `status_pills/1` emits only decision-bearing signals: Unconfirmed (warn), No MFA (warn), Locked (risk), Deletion scheduled (warn). The always-present "Confirmed" branch is dropped — absence of Unconfirmed implies confirmed.
+- **`<.user_row_fields>` DRY note (D-05):** Two private field-slice function components — `user_name_stack/1` (name/email/id identity stack) and `user_status_cluster/1` (status pills + extra_badges) — are each authored once and called from both the desktop `<td>` and the mobile `<article>`. The desktop `<td>` boundaries and mobile card shell are layout-specific; all inner field content is shared.
+- **Five-column order FROZEN (D-06):** Desktop table columns are: User / Status / Organizations / Activity / Action. This order is frozen and must not change without updating the `td:nth-child(3)/(4)` positional selectors in `admin-design.spec.ts:assertUserResultEquivalence` in the same change.
+- **Host seams preserved (D-07):** `extra_badges` is rendered inside `user_status_cluster/1` (called from both layouts). `extra_columns` is rendered in the layout-specific shells (desktop activity `<td>` and mobile `dl`). Both seams are preserved in both layouts.
+- **Page header emits only kicker + title:** The `<header class="sg-page-header">` emits a kicker `<p>` and title `<h1>`. No `<p class="sg-page-copy">` or `<dl class="sg-metric-grid">` lives inside the page header — those were in the pre-Phase-201 structure and are now stale. The metric grid is a separate demoted `<section>` at position [4].
 
 ---
 
