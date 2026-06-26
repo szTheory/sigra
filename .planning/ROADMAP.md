@@ -78,7 +78,7 @@
 
 **Wave 3** *(blocked on Waves 1-2)*
 
-- [ ] 200-03-PLAN.md — Checkpoints (user-sessions + user-detail) + recapture + ledger Tier-2 ratchet + design-contract update (DETAIL-03, DETAIL-04)
+- [x] 200-03-PLAN.md — Checkpoints (user-sessions + user-detail) + recapture + ledger Tier-2 ratchet + design-contract update (DETAIL-03, DETAIL-04)
 
 **UI hint**: yes
 
@@ -287,7 +287,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
-| 200. User Detail Elevation | v1.41 | 2/3 | In Progress|  |
+| 200. User Detail Elevation | v1.41 | 3/3 | Complete   | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |

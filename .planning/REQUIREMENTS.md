@@ -22,7 +22,7 @@
 - [x] **DETAIL-01**: User sees a calm, scannable identity header (primary identity + one priority alert + key metrics) instead of stacked pills + a 4-fact `<dl>` + alert.
 - [x] **DETAIL-02**: The 9-panel stack is restructured into a deliberate JTBD-first composition (grouped sections / progressive disclosure / link-outs for unbounded Sessions · Organizations · Recent-audit) **while preserving the documented host-injected extra-section seams**.
 - [x] **DETAIL-03**: The session revoke / revoke-all destructive flow is clearly separated and safely confirmed (APG dialog: focus trap + restore, Escape, click-outside, no scrim-hidden modal).
-- [ ] **DETAIL-04**: User Detail is award-grade across the full matrix (320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content, keyboard, reduced-motion); `user-show-live` ledger cell ratcheted to Tier 2.
+- [x] **DETAIL-04**: User Detail is award-grade across the full matrix (320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content, keyboard, reduced-motion); `user-show-live` ledger cell ratcheted to Tier 2.
 
 ### Users Index elevation (`users_index_live.ex`)
 
@@ -74,7 +74,7 @@
 | DETAIL-01 | Phase 200 | Complete |
 | DETAIL-02 | Phase 200 | Complete |
 | DETAIL-03 | Phase 200 | Complete |
-| DETAIL-04 | Phase 200 | Pending |
+| DETAIL-04 | Phase 200 | Complete |
 | INDEX-01 | Phase 201 | Pending |
 | INDEX-02 | Phase 201 | Pending |
 | INDEX-03 | Phase 201 | Pending |
