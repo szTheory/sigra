@@ -74,7 +74,7 @@
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 200-02-PLAN.md — Recompose user_show_live.ex: calm identity bar + JTBD previews/link-outs + remove session flow + preserve host seam (DETAIL-01, DETAIL-02)
+- [x] 200-02-PLAN.md — Recompose user_show_live.ex: calm identity bar + JTBD previews/link-outs + remove session flow + preserve host seam (DETAIL-01, DETAIL-02)
 
 **Wave 3** *(blocked on Waves 1-2)*
 
@@ -287,7 +287,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
-| 200. User Detail Elevation | v1.41 | 1/3 | In Progress|  |
+| 200. User Detail Elevation | v1.41 | 2/3 | In Progress|  |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |

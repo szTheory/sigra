@@ -6,13 +6,13 @@ current_phase: 200
 current_phase_name: user-detail-elevation
 status: executing
 stopped_at: Phase 200 UI-SPEC approved
-last_updated: "2026-06-26T01:40:50.211Z"
+last_updated: "2026-06-26T01:49:41.857Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 17
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 200 (user-detail-elevation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-26
 
@@ -145,6 +145,7 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: D-04 confirmed: guard logic unchanged; D-05 delivered: hermetic bash self-test proves 2→1 decrease is caught; D-07 confirmed: --base wiring byte-unchanged
 - [Phase ?]: Filter /admin/users with ?q= to deterministically target >=25-event seeded admin; avoids inserted_at DESC ordering pollution by harness login user
 - [Phase 200]: Plan 200-01: Confirm copy uses UI-SPEC verbatim on new UserSessionsLive surface (Cancel/Revoke + consequence+reversibility confirm body) rather than user_show_live.ex legacy phrasing — New surface authored award-grade from start per D-04; UI-SPEC Copywriting Contract is authoritative
+- [Phase ?]: Danger Zone 'Revoke all sessions' button removed — session revocation deferred entirely to UserSessionsLive per D-04
 
 ### Pending Todos
 
@@ -239,7 +240,7 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-26T01:39:33.988Z
+Last session: 2026-06-26T01:49:41.848Z
 Stopped at: Phase 200 UI-SPEC approved
 Resume file: 
 
@@ -321,3 +322,4 @@ None
 | Phase 199 P03 | 6min | 4 tasks | 2 files |
 | Phase 199-foundation-tier-2-scorecard-stress-fixtures P04 | 25min | 4 tasks | 1 files |
 | Phase 200 P01 | 236 | 3 tasks | 5 files |
+| Phase 200 P02 | 304s | 3 tasks | 1 files |
