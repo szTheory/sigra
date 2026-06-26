@@ -260,19 +260,10 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <tbody>
             <tr :for={row <- @rows}>
               <td>
-                <div class="sg-stack sg-stack--1">
-                  <span class="sg-strong">{primary_name(row)}</span>
-                  <span class="sg-muted sg-text-sm sg-truncate" title={row.user.email}>{row.user.email}</span>
-                  <code class="sg-code">{row.user.id}</code>
-                </div>
+                <.user_name_stack row={row} />
               </td>
               <td>
-                <div class="sg-cluster sg-cluster--2">
-                  <span :for={{label, tone} <- status_pills(row)} class="sg-status-pill" data-tone={tone}>
-                    {label}
-                  </span>
-                  <span :for={badge <- row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
-                </div>
+                <.user_status_cluster row={row} />
               </td>
               <td>
                 <div class="sg-stack sg-stack--1 sg-text-sm">
@@ -303,18 +294,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         class="sg-stack sg-stack--3 sg-show-mobile"
       >
         <article :for={row <- @rows} class="sg-card sg-stack sg-stack--3">
-          <div class="sg-stack sg-stack--1">
-            <span class="sg-strong">{primary_name(row)}</span>
-            <span class="sg-muted sg-text-sm sg-truncate" title={row.user.email}>{row.user.email}</span>
-            <code class="sg-code">{row.user.id}</code>
-          </div>
+          <.user_name_stack row={row} />
 
-          <div class="sg-cluster sg-cluster--2">
-            <span :for={{label, tone} <- status_pills(row)} class="sg-status-pill" data-tone={tone}>
-              {label}
-            </span>
-            <span :for={badge <- row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
-          </div>
+          <.user_status_cluster row={row} />
 
           <dl class="sg-kv">
             <div>
@@ -408,6 +390,36 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       />
       <span>{String.replace(@key, "_", " ")}</span>
     </label>
+    """
+  end
+
+  # Shared field-slice: name / email / id identity stack.
+  # Rendered in both the desktop <td> (User column) and the mobile <article> header.
+  attr :row, :map, required: true
+
+  defp user_name_stack(assigns) do
+    ~H"""
+    <div class="sg-stack sg-stack--1">
+      <span class="sg-strong">{primary_name(@row)}</span>
+      <span class="sg-muted sg-text-sm sg-truncate" title={@row.user.email}>{@row.user.email}</span>
+      <code class="sg-code">{@row.user.id}</code>
+    </div>
+    """
+  end
+
+  # Shared field-slice: reduced status pills + host extra_badges cluster.
+  # Rendered in both the desktop <td> (Status column) and the mobile <article> badge area.
+  # extra_badges seam (D-07) is preserved in both desktop and mobile via this shared component.
+  attr :row, :map, required: true
+
+  defp user_status_cluster(assigns) do
+    ~H"""
+    <div class="sg-cluster sg-cluster--2">
+      <span :for={{label, tone} <- status_pills(@row)} class="sg-status-pill" data-tone={tone}>
+        {label}
+      </span>
+      <span :for={badge <- @row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
+    </div>
     """
   end
 
