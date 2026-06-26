@@ -164,6 +164,26 @@ async function assertUserResultEquivalence(desktop: Locator, mobile: Locator, la
 }
 
 async function assertAuditResultEquivalence(desktop: Locator, mobile: Locator, label: string) {
+  // Strict guard on the un-sliced desktop locator: the FIRST row inside the desktop
+  // container must expose exactly 2 code.sg-code nodes (one event-id code + one action
+  // code, both inside the Event-cell <details>).
+  //
+  // Fails LOUDLY on under-extraction (<2: codes left the Event <td>, became data-attrs,
+  // or are hidden from the DOM rather than just visually collapsed by <details>) AND on
+  // over-extraction (>2: a stray code node leaked into the first row's cell).
+  //
+  // Scoped to tbody tr:first-child so the same guard works for both:
+  //   • gallery MG-6 (1 static row in [data-testid="mg-6-desktop-results"])
+  //   • live /admin/audit and per-user audit (N rows; we assert the per-row count)
+  //
+  // Do NOT assert on firstTexts(…).length — that helper already .slice(0,2) and filters
+  // falsy, so its return is capped at 2 and can never reveal a 3rd stray node (over-
+  // extraction silently passes). The raw first-row locator count closes that gap.
+  expect(
+    await desktop.locator('tbody tr').first().locator('code.sg-code').count(),
+    `${label}: desktop must expose exactly 2 audit codes`,
+  ).toBe(2);
+
   const tokens = [
     ...(await firstTexts(desktop, 'code.sg-code', 2)),
     ...(await firstTexts(desktop, '.sg-status-pill', 2)),
