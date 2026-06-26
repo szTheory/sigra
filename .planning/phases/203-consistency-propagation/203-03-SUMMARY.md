@@ -89,9 +89,14 @@ None. The new test exercises an existing admin-gated surface (`/admin/auth-brand
 
 ## Self-Check: PASSED
 
-- [x] `test/example/priv/playwright/tests/admin-modal-interaction.spec.ts` modified ✓
-- [x] Commit 57b8cc18 exists ✓
-- [x] New branding test passes (1 passed on chromium lane) ✓
+- [x] `test/example/priv/playwright/tests/admin-modal-interaction.spec.ts` modified and exists on disk ✓
+- [x] `203-03-SUMMARY.md` created ✓
+- [x] Task commit 57b8cc18 exists ✓
+- [x] Docs commit b16a4e61 exists ✓
+- [x] New branding test passes (1 passed on chromium lane against localhost:4011) ✓
 - [x] Existing user-sessions case untouched (not deleted, not weakened) ✓
-- [x] No toHaveScreenshot( actual calls ✓
+- [x] No `toHaveScreenshot(` actual calls (0 count) ✓
+- [x] `grep -c 'restore-defaults-overlay'` = 4 (>= 1 required) ✓
+- [x] `grep -c 'restore-defaults-title'` = 4 (>= 1 required) ✓
+- [x] `grep -c 'user-session-confirm-overlay'` = 2 (>= 1 required) ✓
 - [x] aria-labelledby asserts restore-defaults-title (Pitfall 4 avoided) ✓
