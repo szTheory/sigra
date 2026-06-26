@@ -122,11 +122,27 @@
   3. Both audit surfaces are award-grade across the full matrix (320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content/keyboard/reduced-motion); `audit-index-live` and `audit-user-live` ledger cells are ratcheted to Tier 2 with proxy evidence.
 
 **Plans**: 5 plans
+**Wave 1**
+
 - [ ] 202-01-PLAN.md — Extract shared public audit components (table-row + inline-code `<details>`, pagination nav, empty-state) into components.ex
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 202-02-PLAN.md — Per-user audit surgery: collapse 3 forms→1, add `<details>` disclosure, adopt shared components, preserve return_to
 - [ ] 202-03-PLAN.md — Global audit rewire: add `<details>` disclosure, adopt shared components, delete dup helpers
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 202-04-PLAN.md — Test lockstep: strengthen content-equivalence helper (strict 2-code guard, D-06) + deterministic ExUnit pagination test (D-10)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 202-05-PLAN.md — Ratchet 2 ledger cells to Tier 2, add Audit Explorer archetype, golden-diff + recapture
+
+**Cross-cutting constraints:**
+
+- The page renders its desktop table via the shared `audit_table_row/1`, pagination via `audit_pagination_nav/1`, and empty-state via `audit_empty_state/1`; the private `audit_tone/1` copy is deleted.
+
 **UI hint**: yes
 
 ### Phase 203: Consistency Propagation
