@@ -129,7 +129,7 @@
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 202-02-PLAN.md — Per-user audit surgery: collapse 3 forms→1, add `<details>` disclosure, adopt shared components, preserve return_to
-- [ ] 202-03-PLAN.md — Global audit rewire: add `<details>` disclosure, adopt shared components, delete dup helpers
+- [x] 202-03-PLAN.md — Global audit rewire: add `<details>` disclosure, adopt shared components, delete dup helpers
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -323,7 +323,7 @@ Archive:
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
-| 202. Audit Surfaces Elevation | v1.41 | 2/5 | In Progress|  |
+| 202. Audit Surfaces Elevation | v1.41 | 3/5 | In Progress|  |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
