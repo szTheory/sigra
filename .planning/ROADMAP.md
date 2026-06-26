@@ -94,7 +94,11 @@
   3. The desktop-table and mobile-card presentations are content-equivalent and share markup/components (DRY); inline row actions are clear; pagination affordances are absent when there is nothing to paginate.
   4. The page is award-grade across the full matrix including list-scale fixtures; the `users-index-live` ledger cell is ratcheted to Tier 2 with proxy evidence.
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 201-01-PLAN.md — Recompose users_index_live.ex: consolidate filter panel + relocate applied chips (D-01/D-02), demote+slim metric strip (D-03), reduce pills (D-04), DRY shared row component + frozen column order (D-05/D-06), resolve sg-chevron (D-11)
+- [ ] 201-02-PLAN.md — Emit non-empty extra_list_badges/extra_list_columns from the example hook to exercise the host seam (D-07)
+- [ ] 201-03-PLAN.md — Real form-submit Playwright test (D-02) + frozen selector confirm (D-06), ratchet users-index-live ledger to Tier 2 (D-09), rewrite List Archetype design-contract block (D-12)
+- [ ] 201-04-PLAN.md — Prove honest pagination at list-scale + recapture global-user-index/mg-* through the recapture gate, canaries stable, allowlists empty (D-08/D-10)
 **UI hint**: yes
 
 ### Phase 202: Audit Surfaces Elevation
