@@ -82,72 +82,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
-      <% total_users = summary_count(@summary_posture, :total) %>
-      <% confirmed_users = summary_count(@summary_posture, :confirmed) %>
-      <% mfa_users = summary_count(@summary_posture, :mfa_enabled) %>
-      <% passkey_users = summary_count(@summary_posture, :passkey_users) %>
-      <% locked_users = summary_count(@summary_posture, :locked_out) %>
-      <% deletion_scheduled_users = summary_count(@summary_posture, :deletion_scheduled) %>
-      <section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
-        <h2 id="users-health-heading" class="sg-section-heading">User health</h2>
-        <dl class="sg-metric-grid" aria-label="User health summary">
-          <.summary_chip
-            id="users-metric-total"
-            icon="users"
-            label="Total users"
-            value={total_users}
-            value_suffix="total users"
-          />
-          <.summary_chip
-            id="users-metric-confirmed"
-            icon="check"
-            label="Confirmed users"
-            value={confirmed_users}
-            value_suffix="confirmed"
-            subvalue={summary_percent(confirmed_users, total_users)}
-            help="These users confirmed their email and can sign in normally."
-          />
-          <.summary_chip
-            id="users-metric-mfa"
-            icon="mfa"
-            label="MFA enrolled"
-            value={mfa_users}
-            value_suffix="MFA enabled"
-            subvalue={summary_percent(mfa_users, total_users)}
-            help="These users have multifactor authentication enabled. Higher coverage lowers account takeover risk."
-          />
-          <.summary_chip
-            id="users-metric-passkeys"
-            icon="fingerprint"
-            label="Passkey users"
-            value={passkey_users}
-            value_suffix="with passkeys"
-            subvalue={summary_percent(passkey_users, total_users)}
-            help="These users have at least one passkey. Passkeys make phishing attacks harder."
-          />
-          <.summary_chip
-            id="users-metric-locked"
-            icon="lock"
-            label="Locked users"
-            value={locked_users}
-            value_suffix="locked out"
-            subvalue={summary_percent(locked_users, total_users)}
-            help="These users are locked out after failed sign-in attempts. Review the user before unlocking."
-            tone={summary_tone(locked_users, "risk")}
-          />
-          <.summary_chip
-            id="users-metric-deletion"
-            icon="clock"
-            label="Deletion scheduled"
-            value={deletion_scheduled_users}
-            value_suffix="pending deletion"
-            subvalue={summary_percent(deletion_scheduled_users, total_users)}
-            help="These users are scheduled for deletion. Access is disabled and active sessions are revoked."
-            tone={summary_tone(deletion_scheduled_users, "warn")}
-          />
-        </dl>
-      </section>
-
       <section class="sg-stack sg-stack--4" aria-labelledby="find-users-heading">
       <div class="sg-stack sg-stack--1">
         <h2 id="find-users-heading" class="sg-section-heading">Find users</h2>
@@ -170,6 +104,15 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost">Clear</a>
         </div>
 
+        <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
+          <.applied_chip
+            :for={chip <- applied_chips(@current_params)}
+            label={chip.label}
+            remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+          />
+          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+        </div>
+
         <div class="sg-cluster">
           <.quick_filter :for={key <- @quick_filter_keys} key={key} params={@current_params} />
         </div>
@@ -182,7 +125,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             aria-expanded={to_string(@filters_open?)}
           >
             More filters
-            <span class="sg-chevron" aria-hidden="true">▾</span>
           </button>
 
           <div :if={@filters_open?} class="sg-form-grid sg-form-grid--cols">
@@ -232,15 +174,43 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <input type="hidden" name="order_by" value={param_value(@current_params, "order_by", "inserted_at")} />
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
+      </section>
 
-      <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <.applied_chip
-          :for={chip <- applied_chips(@current_params)}
-          label={chip.label}
-          remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
-        />
-        <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
-      </div>
+      <% total_users = summary_count(@summary_posture, :total) %>
+      <% locked_users = summary_count(@summary_posture, :locked_out) %>
+      <% deletion_scheduled_users = summary_count(@summary_posture, :deletion_scheduled) %>
+      <section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
+        <h2 id="users-health-heading" class="sg-section-heading">User health</h2>
+        <dl class="sg-metric-grid" aria-label="User health summary">
+          <.summary_chip
+            id="users-metric-total"
+            icon="users"
+            label="Total users"
+            value={total_users}
+            value_suffix="total users"
+          />
+          <.summary_chip
+            id="users-metric-locked"
+            icon="lock"
+            label="Locked users"
+            value={locked_users}
+            value_suffix="locked out"
+            subvalue={summary_percent(locked_users, total_users)}
+            help="These users are locked out after failed sign-in attempts. Review the user before unlocking."
+            tone={summary_tone(locked_users, "risk")}
+          />
+          <.summary_chip
+            id="users-metric-deletion"
+            icon="clock"
+            label="Deletion scheduled"
+            value={deletion_scheduled_users}
+            value_suffix="pending deletion"
+            subvalue={summary_percent(deletion_scheduled_users, total_users)}
+            help="These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+            tone={summary_tone(deletion_scheduled_users, "warn")}
+          />
+        </dl>
+      </section>
 
       <div
         id="admin-users-desktop-results"
@@ -370,7 +340,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <span class="sr-only">Next page</span>
         </a>
       </nav>
-      </section>
     </section>
     """
   end
