@@ -26,9 +26,9 @@
 
 ### Users Index elevation (`users_index_live.ex`)
 
-- [ ] **INDEX-01**: User filters through **one coherent panel** (search + quick toggles + advanced + applied state) instead of three separate blocks.
-- [ ] **INDEX-02**: The user-health metric strip is demoted/slimmed so it never delays access to search, and per-row status pills are reduced to the ones that carry decision value.
-- [ ] **INDEX-03**: The desktop-table ⇄ mobile-card presentation is content-equivalent and DRY, with clear inline row actions and honest pagination (no pagination affordance when there is nothing to paginate).
+- [x] **INDEX-01**: User filters through **one coherent panel** (search + quick toggles + advanced + applied state) instead of three separate blocks.
+- [x] **INDEX-02**: The user-health metric strip is demoted/slimmed so it never delays access to search, and per-row status pills are reduced to the ones that carry decision value.
+- [x] **INDEX-03**: The desktop-table ⇄ mobile-card presentation is content-equivalent and DRY, with clear inline row actions and honest pagination (no pagination affordance when there is nothing to paginate).
 - [ ] **INDEX-04**: Users Index is award-grade across the full matrix (including list-scale fixtures); `users-index-live` ledger cell ratcheted to Tier 2.
 
 ### Audit surfaces elevation (`audit_index_live.ex` + `audit_user_live.ex`)
@@ -75,9 +75,9 @@
 | DETAIL-02 | Phase 200 | Complete |
 | DETAIL-03 | Phase 200 | Complete |
 | DETAIL-04 | Phase 200 | Complete |
-| INDEX-01 | Phase 201 | Pending |
-| INDEX-02 | Phase 201 | Pending |
-| INDEX-03 | Phase 201 | Pending |
+| INDEX-01 | Phase 201 | Complete |
+| INDEX-02 | Phase 201 | Complete |
+| INDEX-03 | Phase 201 | Complete |
 | INDEX-04 | Phase 201 | Pending |
 | AUDIT-01 | Phase 202 | Pending |
 | AUDIT-02 | Phase 202 | Pending |

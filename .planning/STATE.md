@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
 current_phase: 201
-current_phase_name: Users Index Elevation
+current_phase_name: users-index-elevation
 status: executing
 stopped_at: Phase 201 UI-SPEC approved
-last_updated: "2026-06-26T09:09:41.809Z"
+last_updated: "2026-06-26T09:22:02.155Z"
 last_activity: 2026-06-26
-last_activity_desc: Phase 200 complete, transitioned to Phase 201
+last_activity_desc: Phase 201 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 11
+  completed_plans: 8
   percent: 33
 ---
 
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 200 — user-detail-elevation
+**Current focus:** Phase 201 — users-index-elevation
 
 ## Current Position
 
-Phase: 201 — Users Index Elevation
-Plan: Not started
+Phase: 201 (users-index-elevation) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-26 — Phase 200 complete, transitioned to Phase 201
+Last activity: 2026-06-26 -- Phase 201 execution started
 
 Progress: [███████░░░] 71%
 
@@ -147,6 +147,9 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: Filter /admin/users with ?q= to deterministically target >=25-event seeded admin; avoids inserted_at DESC ordering pollution by harness login user
 - [Phase 200]: Plan 200-01: Confirm copy uses UI-SPEC verbatim on new UserSessionsLive surface (Cancel/Revoke + consequence+reversibility confirm body) rather than user_show_live.ex legacy phrasing — New surface authored award-grade from start per D-04; UI-SPEC Copywriting Contract is authoritative
 - [Phase ?]: Danger Zone 'Revoke all sessions' button removed — session revocation deferred entirely to UserSessionsLive per D-04
+- [Phase ?]: Applied chips consolidated inside GET form as navigation-only a tags; GET form contract preserved (D-01/D-02)
+- [Phase ?]: status_pills/1 reduced to Unconfirmed/No MFA (warn)/Locked/Deletion scheduled; Confirmed and 4-way security cond dropped (D-04)
+- [Phase ?]: DRY per-row presentation via user_name_stack/1 and user_status_cluster/1 field-slice components for both desktop td and mobile article (D-05)
 
 ### Pending Todos
 
@@ -241,11 +244,11 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-26T08:35:36.102Z
+Last session: 2026-06-26T09:21:45.939Z
 Stopped at: Phase 201 UI-SPEC approved
 Resume file: 
 
-.planning/phases/201-users-index-elevation/201-UI-SPEC.md
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
@@ -325,3 +328,4 @@ Resume file:
 | Phase 200 P01 | 236 | 3 tasks | 5 files |
 | Phase 200 P02 | 304s | 3 tasks | 1 files |
 | Phase 200 P03 | 600 | 3 tasks | 6 files |
+| Phase 201 P01 | 274 | 3 tasks | 1 files |

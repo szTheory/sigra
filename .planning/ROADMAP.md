@@ -97,7 +97,7 @@
 **Plans**: 4 plans
 **Wave 1**
 
-- [ ] 201-01-PLAN.md — Recompose users_index_live.ex: consolidate filter panel + relocate applied chips (D-01/D-02), demote+slim metric strip (D-03), reduce pills (D-04), DRY shared row component + frozen column order (D-05/D-06), resolve sg-chevron (D-11)
+- [x] 201-01-PLAN.md — Recompose users_index_live.ex: consolidate filter panel + relocate applied chips (D-01/D-02), demote+slim metric strip (D-03), reduce pills (D-04), DRY shared row component + frozen column order (D-05/D-06), resolve sg-chevron (D-11)
 - [ ] 201-02-PLAN.md — Emit non-empty extra_list_badges/extra_list_columns from the example hook to exercise the host seam (D-07)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -301,7 +301,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
-| 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
+| 201. Users Index Elevation | v1.41 | 1/4 | In Progress|  |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
