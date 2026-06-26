@@ -156,11 +156,17 @@
   2. `guides/reference/admin-design-contract.md` and `admin-ui-principles.md` are updated to document any evolved archetypes or interaction patterns introduced during the elevation phases; the one-term-per-concept glossary remains drift-guarded; no archetype change is silent.
 
 **Plans**: 5 plans
+**Wave 1**
+
 - [ ] 203-01-PLAN.md — Overview pill alignment (drop org Confirmed pill D-02, demote global coverage chip D-03) + glossary/CSS-untouched gate
 - [ ] 203-02-PLAN.md — Promote branding color_field/preview_pair/detail_input to components.ex (D-05) + CSS triple-copy lockstep gate (D-12)
 - [ ] 203-03-PLAN.md — Branding #restore-defaults-overlay modal-interaction test: 7 APG gates + axe-while-open (D-06) — prerequisite for branding Tier-2 evidence
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 203-04-PLAN.md — Docs: add Branding/Workbench archetype to contract (D-07) + UI-principles touch-up (D-11)
 - [ ] 203-05-PLAN.md — Ratchet index-live/organization-live/branding-live cells 1→2 + fold PAGE-04 (D-08/D-09) + idempotent global-overview/org-overview recapture (D-10)
+
 **UI hint**: yes
 
 ### Phase 204: Terminal Ratification
