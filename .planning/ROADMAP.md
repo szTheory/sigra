@@ -22,7 +22,7 @@
 **Milestone Goal:** Streamline the highest-impact generated admin/operator pages to award-grade (Tier-2) quality — deliberate, JTBD-first, internally coherent, mobile-first, accessible (WCAG 2.2 AA), on-brand in light/dark/system — and ratchet them forward-only via the existing quality-ledger monotonic guard so quality can only ever increase.
 
 - [x] **Phase 199: Foundation — Tier-2 Scorecard & Stress Fixtures** — Define objective Tier-2 proxies, extend quality ledger + fractal scorecard + monotonic guard to make Tier 2 earnable and guarded; stress-fixture demo seed data (≥25-event persona, list-scale users, overflow strings, multi-session/org). Covers LEDGER-01, LEDGER-02, FIXT-01, FIXT-02. (completed 2026-06-25)
-- [ ] **Phase 200: User Detail Elevation** — Award-grade pass on `user_show_live.ex`: calm identity header, JTBD-first restructuring of the 9-panel stack with progressive disclosure, safe confirmed destructive flow, proven across the full viewport/theme/state matrix. Covers DETAIL-01, DETAIL-02, DETAIL-03, DETAIL-04.
+- [x] **Phase 200: User Detail Elevation** — Award-grade pass on `user_show_live.ex`: calm identity header, JTBD-first restructuring of the 9-panel stack with progressive disclosure, safe confirmed destructive flow, proven across the full viewport/theme/state matrix. Covers DETAIL-01, DETAIL-02, DETAIL-03, DETAIL-04. (completed 2026-06-26)
 - [ ] **Phase 201: Users Index Elevation** — Award-grade pass on `users_index_live.ex`: consolidated filter panel, demoted metric strip, DRY desktop/mobile presentation, honest pagination, stress-proven against list-scale fixtures. Covers INDEX-01, INDEX-02, INDEX-03, INDEX-04.
 - [ ] **Phase 202: Audit Surfaces Elevation** — Award-grade pass on `audit_index_live.ex` + `audit_user_live.ex`: unified filter form with advanced-disclosure, reduced column density, mobile-first stacking, Export surfaced, pagination proven on ≥25-event fixture. Covers AUDIT-01, AUDIT-02, AUDIT-03.
 - [ ] **Phase 203: Consistency Propagation** — Roll the elevated bar to Overviews, Branding workbench, and design gallery/MG-1..11; update design contract + UI principles docs for any evolved archetypes; same-job → same-component, no net-new surfaces. Covers PROP-01, PROP-02.
@@ -287,7 +287,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
-| 200. User Detail Elevation | v1.41 | 3/3 | Complete   | 2026-06-26 |
+| 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
