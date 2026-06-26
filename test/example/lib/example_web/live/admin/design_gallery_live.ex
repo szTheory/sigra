@@ -453,24 +453,24 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
         <h2 class="sg-section-heading">Component Groups</h2>
         <div class="sg-stack sg-stack--6">
           <%!-- board-mg-1: Metric / Summary Strip --%>
+          <%!-- Mirrors the slim 3-chip User health metric strip (Plan 201: Total + Locked + Deletion scheduled). --%>
           <div id="board-mg-1" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-1 Metric / Summary Strip</p>
             <div class="sg-stack sg-stack--3">
               <div data-testid="mg-1-populated" class="sg-stack sg-stack--2">
                 <p class="sg-muted sg-text-xs">populated</p>
                 <dl class="sg-metric-grid">
-                  <.summary_chip label="Total Users" value={3_842} />
-                  <.summary_chip label="Active Sessions" value={127} tone="info" />
-                  <.summary_chip label="Failed Logins" value={7} tone="risk" />
-                  <.summary_chip label="MFA Enabled" value={94} value_unit="%" tone="ok" />
+                  <.summary_chip label="Total users" value={3_842} />
+                  <.summary_chip label="Locked users" value={7} tone="risk" />
+                  <.summary_chip label="Deletion scheduled" value={3} tone="warn" />
                 </dl>
               </div>
               <div data-testid="mg-1-zero" class="sg-stack sg-stack--2">
                 <p class="sg-muted sg-text-xs">zero</p>
                 <dl class="sg-metric-grid">
-                  <.summary_chip label="Total Users" value={0} />
-                  <.summary_chip label="Active Sessions" value={0} tone="info" />
-                  <.summary_chip label="Failed Logins" value={0} tone="ok" />
+                  <.summary_chip label="Total users" value={0} />
+                  <.summary_chip label="Locked users" value={0} />
+                  <.summary_chip label="Deletion scheduled" value={0} />
                 </dl>
               </div>
               <div data-testid="mg-1-loading" class="sg-metric-grid" aria-busy="true">
@@ -487,6 +487,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           </div>
 
           <%!-- board-mg-2: Filter Panel + Applied-chip Row --%>
+          <%!-- Applied chips sit contiguous with the filter panel (inside the form), per Plan 201 D-01. --%>
           <div id="board-mg-2" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-2 Filter Panel + Applied-chip Row</p>
             <div class="sg-stack sg-stack--3">
@@ -497,8 +498,13 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       <span class="sg-field-label">Search</span>
                       <input id="mg2-search" class="sg-input" value="alice" />
                     </label>
-                    <button type="button" class="sg-btn sg-btn--primary">Apply filters</button>
+                    <button type="button" class="sg-btn sg-btn--primary">Search</button>
                     <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                  </div>
+                  <div class="sg-cluster sg-cluster--start">
+                    <.applied_chip label="Status: Active" remove_href="?status=" />
+                    <.applied_chip label="Search: alice" remove_href="?q=" />
+                    <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
                   </div>
                   <div class="sg-cluster sg-cluster--start">
                     <label class="sg-filter-chip">
@@ -509,11 +515,6 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     </label>
                   </div>
                 </form>
-                <div class="sg-cluster sg-cluster--start">
-                  <.applied_chip label="Status: Active" remove_href="?status=" />
-                  <.applied_chip label="Search: alice" remove_href="?q=" />
-                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all filters</a>
-                </div>
               </div>
               <div data-testid="mg-2-zero" class="sg-stack sg-stack--3">
                 <form class="sg-filter-panel sg-stack sg-stack--3">
@@ -636,7 +637,8 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                           </div>
                         </td>
                         <td>
-                          <span class="sg-status-pill" data-tone="ok">Active</span>
+                          <%!-- Secured row: no pills (absence of Unconfirmed/No MFA/Locked/Deletion means healthy). --%>
+                          <div class="sg-cluster sg-cluster--2"></div>
                         </td>
                         <td>
                           <div class="sg-stack sg-stack--1 sg-text-sm">
@@ -659,6 +661,42 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                           </a>
                         </td>
                       </tr>
+                      <tr>
+                        <td>
+                          <div class="sg-stack sg-stack--1">
+                            <span class="sg-strong">Bob User</span>
+                            <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
+                              bob@example.test
+                            </span>
+                            <code class="sg-code">user_188_bob</code>
+                          </div>
+                        </td>
+                        <td>
+                          <%!-- Unsecured row: No MFA (warn). --%>
+                          <div class="sg-cluster sg-cluster--2">
+                            <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span class="sg-muted">1 organization</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span>Seen this week</span>
+                            <span class="sg-muted">Registered 2026-02-14</span>
+                          </div>
+                        </td>
+                        <td class="sg-cell-right">
+                          <a
+                            class="sg-btn sg-btn--secondary sg-btn--sm"
+                            href="/admin/users/user_188_bob"
+                          >
+                            Open user
+                          </a>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -671,7 +709,8 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       </span>
                       <code class="sg-code">user_188_alice</code>
                     </div>
-                    <span class="sg-status-pill" data-tone="ok">Active</span>
+                    <%!-- Secured row: no pills. --%>
+                    <div class="sg-cluster sg-cluster--2"></div>
                     <dl class="sg-kv">
                       <div>
                         <dt class="sg-meta-label">Organizations</dt>
@@ -690,6 +729,39 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     <a
                       class="sg-btn sg-btn--secondary sg-btn--block"
                       href="/admin/users/user_188_alice"
+                    >
+                      Open user
+                    </a>
+                  </article>
+                  <article class="sg-card sg-stack sg-stack--3">
+                    <div class="sg-stack sg-stack--1">
+                      <span class="sg-strong">Bob User</span>
+                      <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
+                        bob@example.test
+                      </span>
+                      <code class="sg-code">user_188_bob</code>
+                    </div>
+                    <%!-- Unsecured row: No MFA (warn). --%>
+                    <div class="sg-cluster sg-cluster--2">
+                      <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                    </div>
+                    <dl class="sg-kv">
+                      <div>
+                        <dt class="sg-meta-label">Organizations</dt>
+                        <dd class="sg-meta-value sg-muted sg-text-sm">1 organization</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Activity</dt>
+                        <dd class="sg-meta-value">Seen this week</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Registered</dt>
+                        <dd class="sg-meta-value">2026-02-14</dd>
+                      </div>
+                    </dl>
+                    <a
+                      class="sg-btn sg-btn--secondary sg-btn--block"
+                      href="/admin/users/user_188_bob"
                     >
                       Open user
                     </a>
