@@ -1,6 +1,8 @@
 defmodule Sigra.Admin.Live.UserShowLive do
   @moduledoc """
-  Admin user detail surface with scope-safe session controls.
+  Admin user detail surface: identity bar, bounded session/org previews with link-outs,
+  security/identities grid, recent audit, host-injected extra sections, and danger zone.
+  Session revocation lives on Sigra.Admin.Live.UserSessionsLive (/admin/users/:id/sessions).
   """
 
   use Phoenix.LiveView
