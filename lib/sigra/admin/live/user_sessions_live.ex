@@ -38,15 +38,21 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
 
   @impl true
   def handle_event("open_revoke_session", %{"token" => encoded_token}, socket) do
-    {:noreply,
-     assign(socket, :confirm_action, %{
-       type: :revoke_session,
-       token: Base.url_decode64!(encoded_token, padding: false),
-       title: "Revoke this session?",
-       copy: revoke_session_copy(socket.assigns.detail),
-       confirm_label: "Revoke",
-       cancel_label: "Cancel"
-     })}
+    case Base.url_decode64(encoded_token, padding: false) do
+      {:ok, token} ->
+        {:noreply,
+         assign(socket, :confirm_action, %{
+           type: :revoke_session,
+           token: token,
+           title: "Revoke this session?",
+           copy: revoke_session_copy(socket.assigns.detail),
+           confirm_label: "Revoke",
+           cancel_label: "Cancel"
+         })}
+
+      :error ->
+        {:noreply, put_flash(socket, :error, "Invalid session reference.")}
+    end
   end
 
   def handle_event("open_revoke_all_sessions", _params, socket) do
