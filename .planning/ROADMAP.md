@@ -165,7 +165,7 @@
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 203-04-PLAN.md — Docs: add Branding/Workbench archetype to contract (D-07) + UI-principles touch-up (D-11)
-- [ ] 203-05-PLAN.md — Ratchet index-live/organization-live/branding-live cells 1→2 + fold PAGE-04 (D-08/D-09) + idempotent global-overview/org-overview recapture (D-10)
+- [x] 203-05-PLAN.md — Ratchet index-live/organization-live/branding-live cells 1→2 + fold PAGE-04 (D-08/D-09) + idempotent global-overview/org-overview recapture (D-10)
 
 **UI hint**: yes
 
@@ -335,7 +335,7 @@ Archive:
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete    | 2026-06-26 |
-| 203. Consistency Propagation | v1.41 | 4/5 | In Progress|  |
+| 203. Consistency Propagation | v1.41 | 5/5 | Complete   | 2026-06-26 |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
