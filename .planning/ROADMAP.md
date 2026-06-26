@@ -124,7 +124,7 @@
 **Plans**: 5 plans
 **Wave 1**
 
-- [ ] 202-01-PLAN.md — Extract shared public audit components (table-row + inline-code `<details>`, pagination nav, empty-state) into components.ex
+- [x] 202-01-PLAN.md — Extract shared public audit components (table-row + inline-code `<details>`, pagination nav, empty-state) into components.ex
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -323,7 +323,7 @@ Archive:
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
-| 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
+| 202. Audit Surfaces Elevation | v1.41 | 1/5 | In Progress|  |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |

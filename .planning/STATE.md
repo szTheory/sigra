@@ -3,16 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
 current_phase: 202
+current_phase_name: audit-surfaces-elevation
 status: executing
 stopped_at: Phase 202 UI-SPEC approved
-last_updated: "2026-06-26T16:42:44.449Z"
+last_updated: "2026-06-26T16:52:59.543Z"
 last_activity: 2026-06-26
-last_activity_desc: Phase 202 planning complete
+last_activity_desc: Phase 202 execution started
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 16
+  completed_plans: 12
   percent: 50
 ---
 
@@ -24,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 202 — audit surfaces elevation
+**Current focus:** Phase 202 — audit-surfaces-elevation
 
 ## Current Position
 
-Phase: 202
-Plan: Not started
+Phase: 202 (audit-surfaces-elevation) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-06-26 — Phase 202 planning complete
+Last activity: 2026-06-26 — Phase 202 execution started
 
 Progress: [███████░░░] 71%
 
@@ -155,6 +156,9 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: D-09: users-index-live ratcheted to bare Tier 2; overlay-axe + APG gates marked N/A (no modal dialog); monotonic guard passes 36 cells vs origin/main
 - [Phase ?]: D-12: List Archetype block in admin-design-contract.md rewritten to search-first elevated composition (Phase 201); stale sg-page-copy/metric-strip-first/detached-chip claims removed
 - [Phase ?]: 201-04: Unfiltered /admin/users for list-scale pagination proof; getByRole Next page assertion; mg-6 not recaptured (markup unchanged)
+- [Phase ?]: audit_table_row/1 uses format_timestamp/1 with-seconds for byte-coherent timestamps
+- [Phase ?]: audit_table_row/1 places both code.sg-code nodes inside Event <td> <details> — keeps 4-column positional contract frozen and D-06 equivalence intact
+- [Phase ?]: multi_page?/1 moved to components.ex as private helper owned by audit_pagination_nav/1; pre-built prev_href/next_href pass-in keeps per-page routing divergence in each LiveView
 
 ### Pending Todos
 
@@ -249,11 +253,11 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-26T16:17:16.011Z
+Last session: 2026-06-26T16:52:13.398Z
 Stopped at: Phase 202 UI-SPEC approved
 Resume file: 
 
-.planning/phases/202-audit-surfaces-elevation/202-UI-SPEC.md
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
@@ -336,3 +340,4 @@ Resume file:
 | Phase 201 P01 | 274 | 3 tasks | 1 files |
 | Phase 201 P02 | 34s | 1 tasks | 1 files |
 | Phase 201 P03 | 185s | - tasks | - files |
+| Phase 202 P01 | 136s | 3 tasks | 1 files |
