@@ -8,8 +8,17 @@ files:
   - test/example/test/example_web/live/admin_audit_index_live_test.exs
   - test/example/priv/playwright/tests/admin-design.spec.ts
 source: 202-REVIEW.md (WR-01, WR-02) — Phase 202 code-review gate
-resolves_phase: 203
+resolves_phase: 204
 ---
+
+> **Re-tagged 2026-06-26 (Phase 203 close):** originally tagged `resolves_phase: 203`,
+> but Phase 203's chartered scope was consistency propagation (Overviews, Branding
+> workbench, ledger) and none of its five plans touched the per-user audit tests — so it
+> was NOT resolved by 203. Moved to **Phase 204 (Terminal Ratification)**, which already
+> owns the remaining downstream audit work (mobile baseline recapture). Still genuinely
+> open: `admin_audit_user_live_test.exs` has zero pagination coverage. (The global-index
+> leg referenced below was already closed by Phase 202's D-10 boundary test.)
+
 
 ## Why deferred
 
