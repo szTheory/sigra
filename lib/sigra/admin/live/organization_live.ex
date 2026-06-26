@@ -102,7 +102,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
                 <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
                 <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
                 <span :if={member.deletion_scheduled?} class="sg-status-pill" data-tone="warn">Deletion scheduled</span>
-                <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
                 <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
               </div>
             </div>
