@@ -1,10 +1,12 @@
 ---
 phase: 202-audit-surfaces-elevation
 verified: 2026-06-26T00:00:00Z
-status: human_needed
+status: passed
 score: 8/9 must-haves verified
 behavior_unverified: 1
-overrides_applied: 0
+overrides_applied: 1
+deferred_items: 1
+resolution: "SC-3 mobile visual leg deferred to Phase 204 by user decision (2026-06-26); tracked as verification debt — see Resolution section + 202-UAT.md G1."
 human_verification:
   - test: "Open /admin/audit and /admin/users/:id/audit at mobile viewport width (320–430px), light/dark/system, and visually confirm the elevated audit surfaces are award-grade: the collapsed single filter form, the `<details>` advanced-disclosure, the folded-in Failures/Impersonation quick toggles, and the mobile audit cards stack correctly and read cleanly."
     expected: "Both audit surfaces render award-grade at mobile width with the post-Phase-202 single-form + disclosure composition; no overflow, no broken stacking, brand-coherent in dark and system themes."
@@ -15,8 +17,28 @@ human_verification:
 
 **Phase Goal:** Both audit surfaces (`audit_index_live.ex` and `audit_user_live.ex`) are award-grade — a single, unified filter experience with advanced-disclosure, reduced column density, mobile-first stacking, and pagination proven against the ≥25-event fixture — while staying byte-coherent with each other.
 **Verified:** 2026-06-26
-**Status:** human_needed
+**Status:** passed (1 item deferred to Phase 204 by decision — see Resolution)
 **Re-verification:** No — initial verification
+
+## Resolution (2026-06-26)
+
+The verifier returned `human_needed` on a single item: the **SC-3 mobile visual leg**
+for both audit surfaces. Investigation during execute-phase confirmed this is **not**
+a Phase 202 defect — the audit code is verified award-grade and byte-coherent, and the
+chromium + dark checkpoint baselines were recaptured clean. The mobile baselines could
+not be recaptured because the two audit mobile captures sit downstream of the
+`impersonation-banner` checkpoint in a single linear Playwright test, behind a
+pre-existing `.vt-status-pill` axe contrast failure (3.33:1) in **Tasklane demo
+styling** — unrelated to the audit pages. Unblocking it requires fixing that demo-CSS
+contrast and recapturing through a clean gate, which is **Phase 204 (Terminal
+Ratification)'s explicit charter**.
+
+**Decision (user, via execute-phase auto-close):** accept Phase 202 as complete with
+the mobile visual leg recorded as **verification debt assigned to Phase 204**, rather
+than expand Phase 202 into demo-CSS work. The mobile leg is NOT claimed verified — it is
+explicitly deferred. Tracked in
+`.planning/todos/pending/2026-06-26-audit-mobile-baseline-recapture-phase204.md` and
+`202-UAT.md` gap **G1**. The 8 verified must-haves stand on their own evidence above.
 
 ## Goal Achievement
 
