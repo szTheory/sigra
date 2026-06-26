@@ -70,7 +70,7 @@
 **Plans**: 3 plans
 **Wave 1**
 
-- [ ] 200-01-PLAN.md — New lib-owned UserSessionsLive + /admin/users/:id/sessions route (3-file lockstep) + APG confirm move + glossary scope (DETAIL-02, DETAIL-03)
+- [x] 200-01-PLAN.md — New lib-owned UserSessionsLive + /admin/users/:id/sessions route (3-file lockstep) + APG confirm move + glossary scope (DETAIL-02, DETAIL-03)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -287,7 +287,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
-| 200. User Detail Elevation | v1.41 | 0/TBD | Not started | - |
+| 200. User Detail Elevation | v1.41 | 1/3 | In Progress|  |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
