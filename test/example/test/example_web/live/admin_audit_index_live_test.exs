@@ -126,6 +126,56 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
       refute html =~ "raw-metadata-should-not-render"
       refute html =~ "metadata"
     end
+
+    test "pagination nav renders at >=26 events and is absent at <=25", %{conn: conn} do
+      # Uses the direct-insert seam (insert_audit_event/1) so this test never depends on
+      # MIX_ENV=dev seeds and is fully deterministic in ExUnit's SQL sandbox.
+
+      # ── PRESENT case: 26 events → multi_page?/1 is true → nav renders ──────────────
+      # Insert 26 self-tied events (actor = effective_user = admin) past the default
+      # page_size=25 hidden input so multi_page?/1 sets next_page non-nil.
+      admin_present = platform_admin_fixture()
+
+      for _i <- 1..26 do
+        insert_audit_event(%{
+          action: "session.create",
+          actor_id: admin_present.id,
+          effective_user_id: admin_present.id,
+          target_id: admin_present.id
+        })
+      end
+
+      html_present =
+        conn
+        |> log_in_user(admin_present)
+        |> get("/admin/audit?actor=#{admin_present.id}")
+        |> html_response(200)
+
+      assert html_present =~ ~s(aria-label="Next page"),
+             "pagination nav must render when there are >=26 events at page_size=25"
+
+      # ── ABSENT case: filter to 1 event → single-page result → nav absent ───────────────
+      # Use the action_prefix filter to scope to a single event — no next_page cursor,
+      # so multi_page?/1 is false and the nav is suppressed. This avoids the need for a
+      # separate Repo transaction (ConnCase uses one shared sandbox transaction per test).
+      unique_action = "session.absent.#{System.unique_integer([:positive])}"
+
+      insert_audit_event(%{
+        action: unique_action,
+        actor_id: admin_present.id,
+        effective_user_id: admin_present.id,
+        target_id: admin_present.id
+      })
+
+      html_absent =
+        conn
+        |> log_in_user(admin_present)
+        |> get("/admin/audit?action=#{URI.encode(unique_action)}")
+        |> html_response(200)
+
+      refute html_absent =~ ~s(aria-label="Next page"),
+             "pagination nav must be absent when the result is a single-page set"
+    end
   end
 
   defp platform_admin_fixture do
