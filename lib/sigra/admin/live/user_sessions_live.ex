@@ -238,7 +238,7 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
   defp pluralize(count, label), do: "#{count} #{label}s"
 
   defp sanitize_return_to(path, admin_scope, user_id) when is_binary(path) do
-    if String.starts_with?(path, ["/admin/users", "/admin/organizations/"]) do
+    if users_index_path?(path, admin_scope) do
       path
     else
       default_return_to(admin_scope, user_id)
