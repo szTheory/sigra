@@ -133,7 +133,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 202-04-PLAN.md — Test lockstep: strengthen content-equivalence helper (strict 2-code guard, D-06) + deterministic ExUnit pagination test (D-10)
+- [x] 202-04-PLAN.md — Test lockstep: strengthen content-equivalence helper (strict 2-code guard, D-06) + deterministic ExUnit pagination test (D-10)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -323,7 +323,7 @@ Archive:
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
-| 202. Audit Surfaces Elevation | v1.41 | 3/5 | In Progress|  |
+| 202. Audit Surfaces Elevation | v1.41 | 4/5 | In Progress|  |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
