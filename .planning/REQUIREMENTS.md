@@ -40,7 +40,7 @@
 ### Consistency propagation
 
 - [x] **PROP-01**: The lean Overviews (`index_live.ex`, `organization_live.ex`) and the Branding workbench (`branding_live.ex`) match the elevated bar (same-job → same-component; no net-new surfaces), and the `/admin/_design` gallery + MG-1..MG-11 reflect the elevated compositions.
-- [ ] **PROP-02**: The admin design contract + UI principles docs are updated to document any evolved archetypes/interaction patterns (forward, never silently); the one-term-per-concept glossary stays drift-guarded.
+- [x] **PROP-02**: The admin design contract + UI principles docs are updated to document any evolved archetypes/interaction patterns (forward, never silently); the one-term-per-concept glossary stays drift-guarded.
 
 ### Terminal ratification
 
@@ -83,6 +83,6 @@
 | AUDIT-02 | Phase 202 | Complete |
 | AUDIT-03 | Phase 202 | Complete |
 | PROP-01 | Phase 203 | Complete |
-| PROP-02 | Phase 203 | Pending |
+| PROP-02 | Phase 203 | Complete |
 | RATIFY-01 | Phase 204 | Pending |
 | RATIFY-02 | Phase 204 | Pending |
