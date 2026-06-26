@@ -158,7 +158,7 @@
 **Plans**: 5 plans
 **Wave 1**
 
-- [ ] 203-01-PLAN.md — Overview pill alignment (drop org Confirmed pill D-02, demote global coverage chip D-03) + glossary/CSS-untouched gate
+- [x] 203-01-PLAN.md — Overview pill alignment (drop org Confirmed pill D-02, demote global coverage chip D-03) + glossary/CSS-untouched gate
 - [ ] 203-02-PLAN.md — Promote branding color_field/preview_pair/detail_input to components.ex (D-05) + CSS triple-copy lockstep gate (D-12)
 - [ ] 203-03-PLAN.md — Branding #restore-defaults-overlay modal-interaction test: 7 APG gates + axe-while-open (D-06) — prerequisite for branding Tier-2 evidence
 
@@ -335,7 +335,7 @@ Archive:
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete    | 2026-06-26 |
-| 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
+| 203. Consistency Propagation | v1.41 | 1/5 | In Progress|  |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
