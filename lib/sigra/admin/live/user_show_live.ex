@@ -8,7 +8,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
   import Sigra.Admin.Components
 
   alias Sigra.Admin.Scope
-  alias Sigra.Admin.Users.Actions
   alias Sigra.Admin.Users.Detail
 
   @impl true
@@ -18,7 +17,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
      |> assign(:sigra_config, runtime_config!())
      |> assign(:detail, nil)
      |> assign(:return_to, nil)
-     |> assign(:confirm_action, nil)
      |> assign(:admin_breadcrumbs, nil)
      |> assign(:page_title, "User")}
   end
@@ -33,64 +31,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
      socket
      |> assign(:detail, detail)
      |> assign(:return_to, return_to)
-     |> assign(:confirm_action, nil)
      |> assign(:admin_breadcrumbs, user_breadcrumbs(admin_scope, detail, return_to))
      |> assign(:page_title, detail.display_name || detail.user.email)}
-  end
-
-  @impl true
-  def handle_event("open_revoke_session", %{"token" => encoded_token}, socket) do
-    {:noreply,
-     assign(socket, :confirm_action, %{
-       type: :revoke_session,
-       token: Base.url_decode64!(encoded_token, padding: false),
-       title: "Revoke this session?",
-       copy: revoke_session_copy(socket.assigns.detail),
-       confirm_label: "Revoke session",
-       cancel_label: "Keep sessions"
-     })}
-  end
-
-  def handle_event("open_revoke_all_sessions", _params, socket) do
-    {:noreply,
-     assign(socket, :confirm_action, %{
-       type: :revoke_all_sessions,
-       title: "Revoke all sessions?",
-       copy: revoke_all_sessions_copy(socket.assigns.detail),
-       confirm_label: "Revoke all sessions",
-       cancel_label: "Keep sessions"
-     })}
-  end
-
-  def handle_event("cancel_confirm", _params, socket) do
-    {:noreply, assign(socket, :confirm_action, nil)}
-  end
-
-  def handle_event("confirm_action", _params, socket) do
-    detail = socket.assigns.detail
-    config = socket.assigns.sigra_config
-    admin_scope = socket.assigns.admin_scope
-
-    case socket.assigns.confirm_action do
-      %{type: :revoke_session, token: token} ->
-        :ok = Actions.revoke_session(config, admin_scope, detail.user.id, token)
-
-        {:noreply,
-         socket
-         |> reload_detail(detail.user.id)
-         |> put_flash(:info, "Session revoked.")}
-
-      %{type: :revoke_all_sessions} ->
-        {_count, nil} = Actions.revoke_all_sessions(config, admin_scope, detail.user.id)
-
-        {:noreply,
-         socket
-         |> reload_detail(detail.user.id)
-         |> put_flash(:info, "All active sessions revoked.")}
-
-      _ ->
-        {:noreply, socket}
-    end
   end
 
   @impl true
@@ -139,15 +81,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
             <h2 class="sg-section-heading">Sessions</h2>
             <p class="sg-section-copy">{pluralize(length(@detail.sessions), "active session")}</p>
           </div>
-
-          <button
-            :if={@detail.sessions != []}
-            type="button"
-            phx-click="open_revoke_all_sessions"
-            class="sg-btn sg-btn--danger sg-btn--sm"
-          >
-            Revoke all sessions
-          </button>
+          <a class="sg-btn sg-btn--secondary sg-btn--sm" href={sessions_path(@admin_scope, @detail.user.id, @return_to)}>
+            Manage sessions
+          </a>
         </div>
 
         <div :if={@detail.sessions != []} class="sg-table-panel">
@@ -157,11 +93,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
                 <th>Type</th>
                 <th>IP address</th>
                 <th>Last activity</th>
-                <th class="sg-cell-right">Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr :for={session <- @detail.sessions}>
+              <tr :for={session <- Enum.take(@detail.sessions, 3)}>
                 <td><span class="sg-strong">{session_type(session)}</span></td>
                 <td><code class="sg-code">{session.ip || "Unknown IP"}</code></td>
                 <td class="sg-muted">
@@ -170,22 +105,12 @@ defmodule Sigra.Admin.Live.UserShowLive do
                     {relative_activity(session.last_active_at)}
                   </span>
                 </td>
-                <td class="sg-cell-right">
-                  <button
-                    type="button"
-                    phx-click="open_revoke_session"
-                    phx-value-token={Base.url_encode64(session.hashed_token, padding: false)}
-                    class="sg-btn sg-btn--danger sg-btn--sm"
-                  >
-                    Revoke session
-                  </button>
-                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p></.empty_state>
+        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">This user has no active sessions in the current scope.</p></.empty_state>
       </section>
 
       <div class="sg-detail-grid">
@@ -221,12 +146,21 @@ defmodule Sigra.Admin.Live.UserShowLive do
       </div>
 
       <section class="sg-card sg-stack sg-stack--3">
-        <div class="sg-stack sg-stack--1">
-          <h2 class="sg-section-heading">Organizations</h2>
-          <p class="sg-section-copy">Tenant memberships and scoped support pivots for this user.</p>
+        <div class="sg-cluster sg-cluster--between">
+          <div class="sg-stack sg-stack--1">
+            <h2 class="sg-section-heading">Organizations</h2>
+            <p class="sg-section-copy">{pluralize(length(@detail.organizations), "organization")}</p>
+          </div>
+          <a
+            :if={length(@detail.organizations) > 3}
+            class="sg-btn sg-btn--secondary sg-btn--sm"
+            href={pivot_path(@admin_scope, @detail.user.id, hd(@detail.organizations), @return_to)}
+          >
+            View all organizations
+          </a>
         </div>
         <div class="sg-list">
-          <article :for={organization <- @detail.organizations} class="sg-list-row sg-stack sg-stack--3">
+          <article :for={organization <- Enum.take(@detail.organizations, 3)} class="sg-list-row sg-stack sg-stack--3">
             <div class="sg-cluster sg-cluster--between">
               <div class="sg-stack sg-stack--1">
                 <span class="sg-meta-label">Organization</span>
@@ -243,7 +177,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </a>
             </div>
           </article>
-          <.empty_state :if={@detail.organizations == []} title="No organization memberships"><p class="sg-muted sg-text-sm">This user is not a member of any organization.</p></.empty_state>
+          <.empty_state :if={@detail.organizations == []} title="No organizations"><p class="sg-muted sg-text-sm">This user has not joined any organizations.</p></.empty_state>
         </div>
       </section>
 
@@ -267,10 +201,14 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
+      <section :for={section <- @detail.extra_detail_sections} class="sg-card sg-stack sg-stack--2">
+        <h2 class="sg-section-heading">{Map.get(section, :title) || Map.get(section, "title")}</h2>
+        <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
+      </section>
+
       <section class="sg-danger-panel sg-stack sg-stack--3">
         <div class="sg-stack sg-stack--1">
-          <h2 class="sg-section-heading">Danger Zone</h2>
-          <p class="sg-muted sg-text-sm">Revoking a session signs the user out of that device immediately.</p>
+          <h2 class="sg-section-heading">Danger zone</h2>
           <p class="sg-muted sg-text-sm">
             Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.
           </p>
@@ -286,53 +224,14 @@ defmodule Sigra.Admin.Live.UserShowLive do
             <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
             <button type="submit" class="sg-btn sg-btn--primary sg-btn--sm">Start impersonation</button>
           </form>
-
-          <button
-            :if={@detail.danger_zone.revoke_all_sessions?}
-            type="button"
-            phx-click="open_revoke_all_sessions"
-            class="sg-btn sg-btn--danger sg-btn--sm"
-          >
-            Revoke all sessions
-          </button>
         </div>
 
         <p :if={!show_impersonation_start?(@current_scope)} class="sg-muted sg-text-sm">
           End impersonation before starting another session.
         </p>
       </section>
-
-      <section :for={section <- @detail.extra_detail_sections} class="sg-card sg-stack sg-stack--2">
-        <h2 class="sg-section-heading">{Map.get(section, :title) || Map.get(section, "title")}</h2>
-        <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
-      </section>
-
-      <div :if={@confirm_action} id="user-session-confirm-overlay" phx-hook="ConfirmDialog" class="sg-confirm-overlay" role="presentation">
-        <section
-          class="sg-confirm-dialog"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="user-session-confirm-title"
-        >
-          <p id="user-session-confirm-title" class="sg-section-heading">{@confirm_action.title}</p>
-          <p class="sg-text-sm" style="margin-top: var(--sg-space-3);">{@confirm_action.copy}</p>
-          <div class="sg-confirm-dialog__actions">
-            <button type="button" phx-click="cancel_confirm" data-sg-confirm-cancel class="sg-btn sg-btn--ghost sg-btn--sm">
-              {@confirm_action.cancel_label}
-            </button>
-            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">
-              {@confirm_action.confirm_label}
-            </button>
-          </div>
-        </section>
-      </div>
     </section>
     """
-  end
-
-  defp reload_detail(socket, user_id) do
-    detail = Detail.load!(socket.assigns.sigra_config, socket.assigns.admin_scope, user_id)
-    assign(socket, detail: detail, confirm_action: nil)
   end
 
   defp sanitize_return_to(path, admin_scope) when is_binary(path) do
@@ -395,6 +294,15 @@ defmodule Sigra.Admin.Live.UserShowLive do
     with_return_to("/admin/users/#{user_id}/audit", return_to)
   end
 
+  defp sessions_path(%Scope{mode: :organization, organization_slug: slug}, user_id, return_to)
+       when is_binary(slug) do
+    with_return_to("/admin/organizations/#{slug}/users/#{user_id}/sessions", return_to)
+  end
+
+  defp sessions_path(_admin_scope, user_id, return_to) do
+    with_return_to("/admin/users/#{user_id}/sessions", return_to)
+  end
+
   defp impersonation_start_path(%Scope{mode: :organization, organization_slug: slug}, user_id)
        when is_binary(slug) do
     "/admin/organizations/#{slug}/users/#{user_id}/impersonation"
@@ -411,14 +319,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp show_impersonation_start?(%{impersonating_from: %_{}}), do: false
   defp show_impersonation_start?(_current_scope), do: true
-
-  defp revoke_session_copy(detail) do
-    "Revoke this session for #{detail.user.email}? This signs them out of that browser or device."
-  end
-
-  defp revoke_all_sessions_copy(detail) do
-    "Revoke every active session for #{detail.user.email}? This signs them out everywhere."
-  end
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
     do: "Organization-scoped user operations for #{name}"
