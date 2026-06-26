@@ -2,7 +2,7 @@
 phase: 203
 slug: consistency-propagation
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-26
 ---
@@ -47,7 +47,16 @@ created: 2026-06-26
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| _populated by planner_ | — | — | PROP-01 / PROP-02 | — | — | — | — | — | ⬜ pending |
+| 203-01-01 | 01 | 1 | PROP-01 | T-203-01-T | HEEx auto-escape; pure pill deletion, no raw/1 | compile+grep | `mix compile --warnings-as-errors && grep -c 'data-tone=ok>Confirmed' organization_live.ex` (expect 0) | ✅ | ⬜ pending |
+| 203-01-02 | 01 | 1 | PROP-01 | — | demote coverage KPI; no unused-binding warning | compile+grep | `mix compile --warnings-as-errors && grep -c overview-metric-auth-coverage index_live.ex` (expect 0) | ✅ | ⬜ pending |
+| 203-01-03 | 01 | 1 | PROP-01 | — | glossary-clean; zero new CSS (D-12 untripped) | unit+md5 | `mix test test/sigra/admin/glossary_test.exs && md5 (three sigra_admin.css) sort -u` (expect 1 hash) | ✅ | ⬜ pending |
+| 203-02-01 | 02 | 1 | PROP-01 | T-203-02 | promoted components attr/slot; no raw/1 | compile+grep | `mix compile --warnings-as-errors` + privates_remaining=0 / public_added=3 | ✅ | ⬜ pending |
+| 203-02-02 | 02 | 1 | PROP-01 | T-203-02-CSS | CSS triple-copy byte parity; golden-diff | golden+md5 | `md5 (three css) sort -u` (1 hash) + `mix test test/sigra/install/golden_diff_test.exs` (phx_new 1.8.7) | ✅ | ⬜ pending |
+| 203-03-01 | 03 | 1 | PROP-01 | T-203-03-a11y | 7 APG focus-trap/restore + axe-while-open; branding selectors | e2e | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test admin-modal-interaction.spec.ts --project=chromium` | ⚠️ Wave 0 — add branding case | ⬜ pending |
+| 203-04-01 | 04 | 2 | PROP-02 | T-203-04-doc | Workbench archetype documented forward; glossary-clean | grep+unit | `grep -c 'Branding/Workbench Archetype' admin-design-contract.md && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 203-04-02 | 04 | 2 | PROP-02 | — | additive UI-principles/Overview touch-up; glossary-clean | unit | `mix test test/sigra/admin/glossary_test.exs && git diff --stat (two docs)` | ✅ | ⬜ pending |
+| 203-05-01 | 05 | 2 | PROP-01 | T-203-05-R/T | bare-2 ratchet; honest N/A proxies; PAGE-04 fold; monotonic guard | guard | `git fetch origin main; bash scripts/ci/quality-ledger-monotonic.sh --base origin/main && grep three cells` | ✅ | ⬜ pending |
+| 203-05-02 | 05 | 2 | PROP-01 | T-203-05-canary | idempotent recapture; MG/canary byte-stable; allowlists empty | gate | `RECAPTURE_DRYRUN=1 bash scripts/ci/snapshot-recapture-gate.sh global-overview org-overview && bash -n scripts/ci/snapshot-recapture-gate.sh` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -71,11 +80,11 @@ created: 2026-06-26
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (none expected — net-new D-06 test is a first-class task)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s (ExUnit; Playwright/recapture lanes out-of-band by design)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (all 10 tasks carry an automated command; the single net-new D-06 test is a first-class task in Plan 03)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (every task has one)
+- [x] Wave 0 covers all MISSING references (only the D-06 branding modal case is net-new; it is a first-class task, not scaffolding)
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s (ExUnit compile/unit/grep tasks; Playwright/recapture lanes out-of-band by design)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending — Per-Task Verification Map to be populated from plan `<automated>` blocks after planning.
+**Approval:** approved — Per-Task Verification Map populated from plan `<automated>` blocks; every task has an automated verify.
