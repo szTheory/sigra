@@ -137,7 +137,7 @@
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 202-05-PLAN.md — Ratchet 2 ledger cells to Tier 2, add Audit Explorer archetype, golden-diff + recapture
+- [x] 202-05-PLAN.md — Ratchet 2 ledger cells to Tier 2, add Audit Explorer archetype, golden-diff + recapture
 
 **Cross-cutting constraints:**
 
@@ -323,7 +323,7 @@ Archive:
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
-| 202. Audit Surfaces Elevation | v1.41 | 4/5 | In Progress|  |
+| 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete   | 2026-06-26 |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
