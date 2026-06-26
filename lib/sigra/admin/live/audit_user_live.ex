@@ -78,9 +78,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         </div>
       </header>
 
-      <div class="sg-cluster sg-cluster--2">
-        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
-          <input type="hidden" name="return_to" value={@return_to} />
+      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
+        <div class="sg-cluster">
           <label class="sg-filter-chip">
             <input
               type="checkbox"
@@ -91,9 +90,6 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             />
             <span>Failures</span>
           </label>
-        </form>
-        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
-          <input type="hidden" name="return_to" value={@return_to} />
           <label class="sg-filter-chip">
             <input
               type="checkbox"
@@ -104,50 +100,51 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             />
             <span>Impersonation</span>
           </label>
-        </form>
-      </div>
-
-      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
-        <div class="sg-form-grid sg-form-grid--cols">
-          <label class="sg-field">
-            <span class="sg-field-label">Action prefix</span>
-            <input
-              type="text"
-              name="action_prefix"
-              value={param_value(@current_params, "action_prefix")}
-              class="sg-input"
-              placeholder="e.g. session or admin.impersonation"
-            />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Outcome</span>
-            <select name="outcome" class="sg-select">
-              <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
-              <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
-                Success
-              </option>
-              <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
-                Failure
-              </option>
-            </select>
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Actor</span>
-            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Occurred from</span>
-            <input type="text" name="from" value={param_value(@current_params, "from")} class="sg-input" placeholder="2026-05-01" />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Occurred to</span>
-            <input type="text" name="to" value={param_value(@current_params, "to")} class="sg-input" placeholder="2026-05-31" />
-          </label>
         </div>
+
+        <details>
+          <summary>More filters</summary>
+          <div class="sg-form-grid sg-form-grid--cols">
+            <label class="sg-field">
+              <span class="sg-field-label">Action prefix</span>
+              <input
+                type="text"
+                name="action_prefix"
+                value={param_value(@current_params, "action_prefix")}
+                class="sg-input"
+                placeholder="e.g. session or admin.impersonation"
+              />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Outcome</span>
+              <select name="outcome" class="sg-select">
+                <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
+                <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
+                  Success
+                </option>
+                <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
+                  Failure
+                </option>
+              </select>
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Actor</span>
+              <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Occurred from</span>
+              <input type="date" name="from" value={param_value(@current_params, "from")} class="sg-input" />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Occurred to</span>
+              <input type="date" name="to" value={param_value(@current_params, "to")} class="sg-input" />
+            </label>
+          </div>
+        </details>
 
         <div class="sg-cluster">
           <button type="submit" class="sg-btn sg-btn--primary">Apply filters</button>
