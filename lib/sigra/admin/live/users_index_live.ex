@@ -411,23 +411,19 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     """
   end
 
-  # Compact, scannable status as tone pills. `nil` tone renders the neutral pill.
+  # Compact, scannable status as tone pills. Only decision-bearing signals are surfaced.
+  # Confirmed is dropped (absence of Unconfirmed implies confirmed — green pills are noise).
+  # Security cond is collapsed: only No MFA (warn) when unsecured; secured rows show no security pill.
   defp status_pills(row) do
-    confirmation =
-      if row.user.confirmed_at, do: {"Confirmed", "ok"}, else: {"Unconfirmed", "warn"}
-
-    security =
-      cond do
-        row.has_mfa and row.passkey_count > 0 -> {"MFA + passkeys", "ok"}
-        row.has_mfa -> {"MFA", "ok"}
-        row.passkey_count > 0 -> {"Passkeys", "ok"}
-        true -> {"No MFA", nil}
-      end
-
-    [confirmation, security]
+    []
+    |> maybe_append(is_nil(row.user.confirmed_at), {"Unconfirmed", "warn"})
+    |> maybe_append(no_security?(row), {"No MFA", "warn"})
     |> maybe_append(row.user.locked_at, {"Locked", "risk"})
     |> maybe_append(row.user.deleted_at, {"Deletion scheduled", "warn"})
   end
+
+  # True when the row has neither MFA nor any passkeys — the only unsecured state worth surfacing.
+  defp no_security?(row), do: not row.has_mfa and row.passkey_count == 0
 
   defp maybe_append(pills, nil, _pill), do: pills
   defp maybe_append(pills, _present, pill), do: pills ++ [pill]
