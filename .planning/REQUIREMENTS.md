@@ -33,8 +33,8 @@
 
 ### Audit surfaces elevation (`audit_index_live.ex` + `audit_user_live.ex`)
 
-- [ ] **AUDIT-01**: The global and per-user audit filters are a **single form with an advanced-disclosure** (quick toggles folded in), with Export surfaced to the filter action row rather than buried in pagination.
-- [ ] **AUDIT-02**: Audit row/column density is reduced (codes deferred to drill-down) and mobile-first stacked, with pagination proven on the ≥25-event fixture; the two audit pages stay byte-coherent.
+- [x] **AUDIT-01**: The global and per-user audit filters are a **single form with an advanced-disclosure** (quick toggles folded in), with Export surfaced to the filter action row rather than buried in pagination.
+- [x] **AUDIT-02**: Audit row/column density is reduced (codes deferred to drill-down) and mobile-first stacked, with pagination proven on the ≥25-event fixture; the two audit pages stay byte-coherent.
 - [ ] **AUDIT-03**: Both audit surfaces are award-grade across the full matrix; `audit-index-live` and `audit-user-live` ledger cells ratcheted to Tier 2.
 
 ### Consistency propagation
@@ -79,8 +79,8 @@
 | INDEX-02 | Phase 201 | Complete |
 | INDEX-03 | Phase 201 | Complete |
 | INDEX-04 | Phase 201 | Complete |
-| AUDIT-01 | Phase 202 | Pending |
-| AUDIT-02 | Phase 202 | Pending |
+| AUDIT-01 | Phase 202 | Complete |
+| AUDIT-02 | Phase 202 | Complete |
 | AUDIT-03 | Phase 202 | Pending |
 | PROP-01 | Phase 203 | Pending |
 | PROP-02 | Phase 203 | Pending |
