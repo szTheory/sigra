@@ -5,10 +5,10 @@ defmodule Sigra.Admin.GlossaryTest do
   # ---------------------------------------------------------------------------
   # Admin Glossary Drift Guard (D-07)
   #
-  # Parses the 8 in-scope admin source files for banned synonym terms.
+  # Parses the 9 in-scope admin source files for banned synonym terms.
   # Violations fail with: file:line — found '#{term}' — use '#{canonical}' instead (#{description})
   #
-  # Scope (D-08): exactly the 7 admin LiveViews + components.ex.
+  # Scope (D-08): exactly the 8 admin LiveViews + components.ex.
   # Generated auth forms/emails under priv/templates/sigra.install/ are host-owned, never scanned.
   #
   # Carve-out (D-09): branding_live.ex auth-replica block (class="sigra-auth sigra-auth--preview")
@@ -23,6 +23,7 @@ defmodule Sigra.Admin.GlossaryTest do
     "lib/sigra/admin/live/organization_live.ex",
     "lib/sigra/admin/live/users_index_live.ex",
     "lib/sigra/admin/live/user_show_live.ex",
+    "lib/sigra/admin/live/user_sessions_live.ex",
     "lib/sigra/admin/live/branding_live.ex",
     "lib/sigra/admin/live/audit_index_live.ex",
     "lib/sigra/admin/live/audit_user_live.ex",
