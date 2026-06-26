@@ -164,34 +164,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows} data-tone={audit_tone(row)}>
-              <td class="sg-nowrap">
-                <div class="sg-stack sg-stack--1">
-                  <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
-                  <code class="sg-code">{row.id}</code>
-                </div>
-              </td>
-              <td>
-                <div class="sg-stack sg-stack--1">
-                  <div class="sg-cluster sg-cluster--2">
-                    <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
-                    <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
-                  </div>
-                  <code class="sg-code">{row.action}</code>
-                </div>
-              </td>
-              <td>
-                <div class="sg-stack sg-stack--1 sg-text-sm">
-                  <span>{row.actor_summary}</span>
-                  <span :if={row.action_badge} class="sg-muted">Actor: {row.actor_label}</span>
-                  <span :if={row.action_badge} class="sg-muted">Effective user: {row.effective_user_label}</span>
-                </div>
-              </td>
-              <td class="sg-show-desktop sg-text-sm">
-                <span :if={audit_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
-                <span :if={audit_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
-              </td>
-            </tr>
+            <.audit_table_row :for={row <- @rows} row={row} />
           </tbody>
         </table>
       </div>
@@ -205,7 +178,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
-      <.empty_state :if={@rows == []} title="No audit events match this view">
+      <.audit_empty_state :if={@rows == []} title="No audit events match this view">
         <%= if any_filter_active?(@current_params) do %>
           <p class="sg-muted sg-text-sm">No audit events match the active filters. Clear one or more to widen the timeline.</p>
           <div class="sg-cluster sg-cluster--center">
@@ -214,39 +187,16 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <% else %>
           <p class="sg-muted sg-text-sm">Audit events appear here as activity is recorded. Adjust the filters above to focus on a specific actor, outcome, or time range.</p>
         <% end %>
-      </.empty_state>
+      </.audit_empty_state>
 
-      <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
-        <a
-          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
-          href={page_path(@admin_scope, @current_params, @meta.previous_page)}
-          aria-disabled={to_string(is_nil(@meta.previous_page))}
-          aria-label="Previous page"
-        >
-          <span aria-hidden="true">&larr;</span>
-          <span class="sr-only">Previous page</span>
-        </a>
-        <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
-        <a
-          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
-          href={page_path(@admin_scope, @current_params, @meta.next_page)}
-          aria-disabled={to_string(is_nil(@meta.next_page))}
-          aria-label="Next page"
-        >
-          <span aria-hidden="true">&rarr;</span>
-          <span class="sr-only">Next page</span>
-        </a>
-      </nav>
+      <.audit_pagination_nav
+        meta={@meta}
+        prev_href={page_path(@admin_scope, @current_params, @meta && @meta.previous_page)}
+        next_href={page_path(@admin_scope, @current_params, @meta && @meta.next_page)}
+      />
     </section>
     """
   end
-
-  # Severity tone: failures pop as risk, impersonation as info, routine success
-  # stays calm (neutral zebra). Keeps the timeline scannable, not a wall.
-  # Unified body — identical to Components.audit_tone/1 (D-10 single source of truth).
-  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
-  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
-  defp audit_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =
@@ -302,23 +252,6 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
   end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
-
-  # Honest pagination guard: hide nav entirely when results fit one page.
-  # Unlike users_index_live's %Flop.Meta{} struct, the audit explorer returns a
-  # cursor-based meta map (current_page/previous_page/next_page) with no
-  # :total_pages key, so referencing meta.total_pages here would raise KeyError.
-  # Cursor pagination never knows a total page count — a previous or next cursor
-  # is the honest (D-09) signal that more than one page exists.
-  defp multi_page?(nil), do: false
-
-  defp multi_page?(meta) do
-    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
-  end
-
-  defp format_timestamp(%DateTime{} = timestamp),
-    do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M:%S")
-
-  defp format_timestamp(_timestamp), do: ""
 
   defp sort_path(admin_scope, params, field) do
     next_direction =
