@@ -407,4 +407,90 @@ The three archetypes define how components compose into full pages. All composit
 
 ---
 
+### Branding/Workbench Archetype
+
+**Source:** `branding_live.ex` (`/admin/auth-branding`)
+
+**Elevated composition (Phase 203 — v1.41 ADMIN-UX-ELEVATION):**
+
+```
+<section class="sg-stack sg-stack--6">
+  <link phx-track-static rel="stylesheet" href="/assets/sigra_auth.css" />
+
+  <header class="sg-page-header">               [1] identity / orientation bar
+    <p class="sg-page-kicker">Branding</p>
+    <h1 class="sg-page-title">Auth forms and emails</h1>
+    <p class="sg-page-copy">                    [brief scope copy]
+
+  <.scope_ribbon copy="Global auth/email profile" />  [2] global-only scope ribbon
+
+  <.notice :if={@error} tone={:risk} role="alert">  [3] validation error notice (conditional)
+
+  <section class="sg-branding-editor sg-stack sg-stack--4"  [4] workbench editor
+    data-testid="admin-auth-branding-workbench">
+    <div class="sg-toolbar">                    [toolbar: heading + source label + draft badge]
+
+    <nav class="sg-tabs" aria-label="Branding sections">  [5] tab navigation
+      <.link patch={panel_path(:light)}> Light     — three tabs, state managed via LiveView
+      <.link patch={panel_path(:dark)}> Dark        assigns (:active_panel); patch navigation,
+      <.link patch={panel_path(:details)}> Details  NOT JS toggle
+
+    <section class="sg-stack sg-stack--4">     [6] active panel body
+      <form id="auth-branding-form" phx-hook="AuthBrandingPreview" ...>
+
+        [Panel: Light]                          [7a] disclosed panel — hidden when not active
+        <section id="branding-panel-light" class="sg-branding-panel"
+          aria-labelledby="branding-tab-light" hidden={@active_panel != :light}>
+          <div class="sg-branding-workbench">
+            <section class="sg-card ... sg-branding-workbench__controls">
+              <fieldset>                        — color input grid
+                <.color_field :for={...}> x 7  — promoted from private; now in components.ex
+            <.preview_pair ...>                 — promoted from private; now in components.ex
+                                               — per-panel preview rail (login + email previews)
+
+        [Panel: Dark]                           [7b] disclosed panel (same structure as Light)
+
+        [Panel: Details]                        [7c] disclosed panel — identity / links / email
+        <section id="branding-panel-details" ... >
+          <div class="sg-branding-workbench">
+            <section class="sg-card ... sg-branding-workbench__controls">
+              <.detail_input :for={...}>        — promoted from private; now in components.ex
+            <.preview_pair ...>                 — per-panel preview rail
+
+      [form footer — outside panel sections, inside <form>]
+        <div class="sg-cluster">               [8] form action row
+          <button type="submit">Save</button>
+          <button type="button" phx-click="discard_changes">Discard changes</button>
+          <button :if={admin_profile?} type="button"
+            phx-click="open_restore_defaults"
+            class="sg-btn sg-btn--danger">     — destructive action: triggers ConfirmDialog
+            Restore config defaults
+
+  <div :if={@restore_defaults_open?} id="restore-defaults-overlay"
+    phx-hook="ConfirmDialog"                   [9] ConfirmDialog APG modal
+    class="sg-confirm-overlay" role="presentation">
+    <section class="sg-confirm-dialog"
+      role="dialog" aria-modal="true"
+      aria-labelledby="restore-defaults-title">
+      <p id="restore-defaults-title">Restore defaults?</p>
+      <p class="sg-text-sm">                   — consequence + reversibility body
+      <div class="sg-confirm-dialog__actions">
+        <button data-sg-confirm-cancel>Cancel</button>  — initial focus target (APG)
+        <button class="... is-armed">Restore defaults</button>  — armed destructive confirm
+```
+
+**Notes:**
+
+- **Single-instance workbench (not a list-driven surface):** The branding workbench is one per admin install — a configuration workbench, not a repeatable list or detail screen. Do NOT apply the List or Detail archetype to it; do NOT add a results table, pagination, or per-row action controls.
+- **Tab navigation via LiveView assigns (D-07):** The `sg-tabs` nav uses LiveView `patch` navigation (URL `?panel=light|dark|details`), not JS toggle. Tab state lives in `@active_panel` assign; each disclosed panel section is `hidden={@active_panel != :panel_atom}`. This is the correct pattern for workbench-style tab state — it survives page refresh and supports deep-linking.
+- **Three disclosed panels — Identity, Colors (Light/Dark), Details:** The Light and Dark panels each contain a color-input grid (using the promoted `color_field` component) plus a per-panel preview rail (using the promoted `preview_pair` component). The Details panel contains a form-input grid (using the promoted `detail_input` component) plus a preview rail. Panel activation is exclusive — only one panel is visible at a time.
+- **Promoted components — `color_field` / `preview_pair` / `detail_input` (Phase 203 D-05):** These three components were private to `branding_live.ex` and are now public in `Sigra.Admin.Components`. This satisfies the same-job → same-component invariant (UI-Principles :29) by routing the preview-workbench markup through the shared component module, not hiding it inside the LiveView private helpers.
+- **ConfirmDialog restore-defaults (D-06 / D-07):** The `#restore-defaults-overlay` dialog at line 349 uses the same `phx-hook="ConfirmDialog"` + `data-sg-confirm-cancel` contract as the user-sessions dialog. The 7 APG gates apply: overlay visible on trigger click, initial focus on `[data-sg-confirm-cancel]`, Tab containment, Shift+Tab containment, Escape closes (focus returns to trigger), click-outside scrim dismisses, and `role="dialog"` + `aria-modal="true"` + `aria-labelledby="restore-defaults-title"` all present. axe-while-open is clean at `wcag2a/wcag2aa/wcag21a/wcag21aa/wcag22aa`.
+- **Content-equivalence proxy N/A:** There is no desktop/mobile results table to compare for content-equivalence. This proxy is explicitly N/A for the branding workbench (no result rows, no pagination).
+- **No pagination:** The workbench renders a single configuration form across three tab panels. No paginated data.
+- **No `page_back` control:** The branding workbench is reachable from the admin Overview as a top-level workspace page (breadcrumbs: `Overview / Auth branding`). `page_back` is not used because the path can be expressed as a breadcrumb hierarchy.
+- **Microcopy glossary-clean:** All copy on this surface is auto-guarded by `glossary_test.exs`.
+
+---
+
 **Ratified:** v1.34 ADMIN-UI-COHERENCE (2026-06-05). This contract reflects the final Phases 154–160 implementation reality. All "same job → same component" principles are enforced by the committed Playwright baselines and the ExUnit component byte-golden suite.
