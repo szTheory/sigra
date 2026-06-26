@@ -5,15 +5,15 @@ milestone_name: ADMIN-UX-ELEVATION
 current_phase: 201
 current_phase_name: users-index-elevation
 status: executing
-stopped_at: Completed 201-02-PLAN.md
-last_updated: "2026-06-26T09:25:41.112Z"
+stopped_at: Completed 201-03-PLAN.md
+last_updated: "2026-06-26T09:34:10.493Z"
 last_activity: 2026-06-26
 last_activity_desc: Phase 201 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
   percent: 33
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 201 (users-index-elevation) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-06-26 -- Phase 201 execution started
 
@@ -151,6 +151,10 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: status_pills/1 reduced to Unconfirmed/No MFA (warn)/Locked/Deletion scheduled; Confirmed and 4-way security cond dropped (D-04)
 - [Phase ?]: DRY per-row presentation via user_name_stack/1 and user_status_cluster/1 field-slice components for both desktop td and mobile article (D-05)
 - [Phase ?]: Used binary 'Example badge' for extra_list_badges and %{label: Region, value: us-east} for extra_list_columns — matches badge_text/1 binary clause and column_text/2 label+value map clause; closes D-07 host-seam blind spot (INDEX-03)
+- [Phase ?]: D-02: GET-form contract proven by real form submission
+- [Phase ?]: D-06: td:nth-child(3)/(4) selectors confirmed targeting Organizations/Activity post-201-01 recompose; no selector change needed (column order frozen)
+- [Phase ?]: D-09: users-index-live ratcheted to bare Tier 2; overlay-axe + APG gates marked N/A (no modal dialog); monotonic guard passes 36 cells vs origin/main
+- [Phase ?]: D-12: List Archetype block in admin-design-contract.md rewritten to search-first elevated composition (Phase 201); stale sg-page-copy/metric-strip-first/detached-chip claims removed
 
 ### Pending Todos
 
@@ -245,8 +249,8 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-26T09:25:41.105Z
-Stopped at: Completed 201-02-PLAN.md
+Last session: 2026-06-26T09:34:10.484Z
+Stopped at: Completed 201-03-PLAN.md
 Resume file: 
 
 None
@@ -331,3 +335,4 @@ None
 | Phase 200 P03 | 600 | 3 tasks | 6 files |
 | Phase 201 P01 | 274 | 3 tasks | 1 files |
 | Phase 201 P02 | 34s | 1 tasks | 1 files |
+| Phase 201 P03 | 185s | - tasks | - files |

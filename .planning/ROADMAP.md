@@ -102,7 +102,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 201-03-PLAN.md — Real form-submit Playwright test (D-02) + frozen selector confirm (D-06), ratchet users-index-live ledger to Tier 2 (D-09), rewrite List Archetype design-contract block (D-12)
+- [x] 201-03-PLAN.md — Real form-submit Playwright test (D-02) + frozen selector confirm (D-06), ratchet users-index-live ledger to Tier 2 (D-09), rewrite List Archetype design-contract block (D-12)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -301,7 +301,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
-| 201. Users Index Elevation | v1.41 | 2/4 | In Progress|  |
+| 201. Users Index Elevation | v1.41 | 3/4 | In Progress|  |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
 | 203. Consistency Propagation | v1.41 | 0/TBD | Not started | - |
 | 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
