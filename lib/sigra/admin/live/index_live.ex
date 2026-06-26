@@ -79,8 +79,6 @@ defmodule Sigra.Admin.Live.IndexLive do
       <% new_this_month = summary_count(@summary_growth, :new_this_month) %>
       <% active_this_week = summary_count(@summary_activity, :active_this_week) %>
       <% active_this_month = summary_count(@summary_activity, :active_this_month) %>
-      <% mfa_users = summary_count(@summary_posture, :mfa_enabled) %>
-      <% passkey_users = summary_count(@summary_posture, :passkey_users) %>
       <section class="sg-stack sg-stack--3" aria-labelledby="admin-user-snapshot-heading">
         <h2 id="admin-user-snapshot-heading" class="sg-section-heading">User snapshot</h2>
         <dl class="sg-metric-grid" aria-label="User snapshot">
@@ -110,16 +108,6 @@ defmodule Sigra.Admin.Live.IndexLive do
             subvalue={month_detail(active_this_week, active_this_month)}
             help="Users with session activity since Monday UTC and since the first day of this month."
           />
-          <.summary_chip
-            id="overview-metric-auth-coverage"
-            icon="mfa"
-            label="Authentication coverage"
-            value={percent_of(mfa_users, total_users)}
-            value_unit="%"
-            value_suffix="MFA coverage"
-            subvalue={"#{percent_of(passkey_users, total_users)}% passkey coverage"}
-            help="Coverage uses total users as the denominator."
-          />
         </dl>
       </section>
     </section>
@@ -143,14 +131,6 @@ defmodule Sigra.Admin.Live.IndexLive do
 
   defp month_detail(count, count), do: nil
   defp month_detail(_week_count, month_count), do: "#{month_count} this month"
-
-  defp percent_of(_count, total) when total in [nil, 0], do: 0
-
-  defp percent_of(count, total) do
-    (count / total * 100)
-    |> Float.round()
-    |> trunc()
-  end
 
   defp runtime_config! do
     Sigra.Admin.runtime_config!("Sigra admin overview")
