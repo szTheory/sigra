@@ -2,7 +2,7 @@ defmodule Sigra.Admin.Components do
   @moduledoc """
   Lib-owned canonical admin component set for Sigra's admin LiveViews.
 
-  Provides 13 flat, stateless `Phoenix.Component` function components that consolidate
+  Provides 16 flat, stateless `Phoenix.Component` function components that consolidate
   the duplicated admin chrome across LiveViews. Security-critical design and a11y fixes
   propagate to host apps via `mix deps.update` (D-05).
 
@@ -26,6 +26,9 @@ defmodule Sigra.Admin.Components do
     - `field_help/1` — Label-adjacent explanatory tooltip trigger
     - `skeleton/1` — Loading-shape placeholder
     - `audit_row/1` — Audit event card (sg-list-row) with unified tone and date formatting
+    - `detail_input/1` — Text input field for the auth branding Details panel (D-05)
+    - `color_field/1` — Colour picker control for auth branding Light/Dark palettes (D-05)
+    - `preview_pair/1` — Login + email preview rail for auth branding panels (D-05)
 
   """
   use Phoenix.Component
@@ -886,8 +889,210 @@ defmodule Sigra.Admin.Components do
   end
 
   # ---------------------------------------------------------------------------
+  # detail_input/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a single text input field for the auth branding Details panel.
+
+  The `id` and `help_id` are derived deterministically from `name` using the
+  `branding-<name>` convention (underscores replaced with hyphens) so the label
+  `for` and `<.field_help>` `id` always stay in sync.
+
+  ## Examples
+
+      <.detail_input name="product_name" label="Product name" value={@value} required />
+
+      <.detail_input
+        name="logo_url"
+        label="Logo URL"
+        value={@value}
+        help="Shown on generated auth screens and email headers when set."
+      />
+  """
+  attr :name, :string, required: true, doc: "the form field name (used in both the HTML name and id)"
+  attr :label, :string, required: true, doc: "the visible label for the field"
+  attr :value, :string, required: true, doc: "the current field value"
+  attr :required, :boolean, default: false, doc: "marks the input as required"
+  attr :help, :string, default: nil, doc: "optional help tooltip copy"
+
+  def detail_input(assigns) do
+    assigns =
+      assigns
+      |> assign(:id, branding_field_id(assigns.name))
+      |> assign(:help_id, branding_help_id(assigns.name))
+
+    ~H"""
+    <div class="sg-field">
+      <span class="sg-field-label-row">
+        <label class="sg-field-label" for={@id}>{@label}</label>
+        <.field_help :if={@help} id={@help_id} label={@label}>{@help}</.field_help>
+      </span>
+      <input
+        id={@id}
+        class="sg-input"
+        name={"branding[#{@name}]"}
+        value={@value}
+        required={@required}
+      />
+    </div>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # color_field/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a colour picker control for the auth branding Light/Dark palette panels.
+
+  The control pairs a native `<input type="color">` (hidden circle) with a
+  sibling span that mirrors the current hex value as readable text. Client-side
+  hooks update the span in real-time as the picker changes.
+
+  Uses the `data-sg-auth-branding-color` and `data-sg-auth-branding-color-value`
+  attribute hooks so `AuthBrandingPreview` can push live CSS variable updates.
+
+  ## Examples
+
+      <.color_field :for={{name, label} <- @light_color_fields}
+        name={name}
+        label={label}
+        value={field_value(@draft_params, name)}
+      />
+  """
+  attr :name, :string, required: true, doc: "the form field name; also used as the hook data attribute value"
+  attr :label, :string, required: true, doc: "the accessible label for the colour picker"
+  attr :value, :string, required: true, doc: "the current hex colour value (e.g., \"#c2410c\")"
+
+  def color_field(assigns) do
+    ~H"""
+    <label class="sg-field sg-color-field">
+      <span class="sg-field-label">{@label}</span>
+      <span class="sg-color-field__control">
+        <input
+          class="sg-color-field__input"
+          type="color"
+          name={"branding[#{@name}]"}
+          value={@value}
+          aria-label={@label}
+          phx-throttle="120"
+          data-sg-auth-branding-color={@name}
+        />
+        <span
+          class="sg-color-field__value sg-muted sg-text-sm sg-tabular"
+          data-sg-auth-branding-color-value={@name}
+        >
+          {@value}
+        </span>
+      </span>
+    </label>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # preview_pair/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the side-by-side login + email preview rail for a single branding panel
+  (Light, Dark, or Details).
+
+  The two preview surfaces are wrapped in `sg-branding-preview-rail` and accept
+  `data-sg-auth-branding-preview` attribute hooks that the `AuthBrandingPreview`
+  client hook reads to push live CSS variable updates as the palette changes.
+
+  The `active` flag controls which `data-testid` values are emitted so Playwright
+  assertions can target the live panel's previews regardless of tab position.
+
+  ## Examples
+
+      <.preview_pair
+        profile={@preview_profile}
+        theme="light"
+        active={@active_panel == :light}
+        login_testid="admin-auth-branding-light-login-preview"
+        email_testid="admin-auth-branding-light-email-preview"
+        email_surface_testid="admin-auth-branding-light-email-preview-surface"
+      />
+  """
+  attr :profile, :any, required: true, doc: "the %Sigra.Branding.Profile{} used to derive CSS variables and preview content"
+  attr :theme, :string, required: true, doc: "the data-theme attribute value (\"light\" or \"dark\")"
+  attr :active, :boolean, required: true, doc: "true when this panel is the currently visible tab"
+  attr :login_testid, :string, required: true, doc: "data-testid for the login preview card (used when not active)"
+  attr :email_testid, :string, required: true, doc: "data-testid for the email preview card (used when not active)"
+  attr :email_surface_testid, :string, required: true, doc: "data-testid for the email preview surface (used when not active)"
+
+  def preview_pair(assigns) do
+    ~H"""
+    <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
+      <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
+        <h2 class="sg-section-heading">Sign-in preview</h2>
+        <div
+          class="sigra-auth sigra-auth--preview"
+          data-theme={@theme}
+          data-sg-auth-branding-preview="login"
+          data-sg-auth-branding-preview-theme={@theme}
+          style={Sigra.Branding.css_variables(@profile)}
+        >
+          <section class="sigra-auth__viewport">
+            <div class="sigra-auth__panel">
+              <div class="sigra-auth__brand">
+                <img :if={@profile.logo_url} src={@profile.logo_url} alt={@profile.logo_alt} class="sigra-auth__logo" />
+                <div :if={!@profile.logo_url} class="sigra-auth__mark" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <p class="sigra-auth__product">{@profile.product_name}</p>
+              </div>
+              <div class="mx-auto max-w-sm">
+                <h1>Log in</h1>
+                <p>Use a magic link, passkey, password, or enterprise SSO.</p>
+                <div class="sigra-auth-preview-form">
+                  <label>Email<input type="email" value="alex@example.com" /></label>
+                  <button type="button" class="btn btn-primary w-full">Send magic link</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="sg-card sg-stack sg-stack--3" data-testid={if @active, do: "admin-email-preview", else: @email_testid}>
+        <h2 class="sg-section-heading">Email preview</h2>
+        <div
+          class="sigra-auth-email-preview"
+          data-theme={@theme}
+          data-sg-auth-branding-preview="email"
+          data-sg-auth-branding-preview-theme={@theme}
+          data-testid={if @active, do: "admin-email-preview-surface", else: @email_surface_testid}
+          style={Sigra.Branding.css_variables(@profile)}
+        >
+          <div class="sigra-auth-email-preview__message">
+            <strong>{@profile.product_name}</strong>
+            <p>
+              Confirm your email address by clicking the button below.
+            </p>
+            <span class="sigra-auth-email-preview__button">
+              Confirm email
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
   # Private helpers for audit_row/1, audit_table_row/1, audit_pagination_nav/1
   # ---------------------------------------------------------------------------
+
+  # Deterministic id for a branding form field ("branding-<name>" with "_" → "-").
+  # Used by detail_input/1 to keep the <label for> and input id in sync.
+  defp branding_field_id(name), do: "branding-" <> String.replace(name, "_", "-")
+
+  # Help-tooltip id derived from the field id ("branding-<name>-help").
+  # Used by detail_input/1 to wire <.field_help id> consistently.
+  defp branding_help_id(name), do: branding_field_id(name) <> "-help"
 
   # Single source of truth for audit tone derivation (D-10).
   # Retires the divergent row_tone/1 (×2) in AuditIndexLive/AuditUserLive and
