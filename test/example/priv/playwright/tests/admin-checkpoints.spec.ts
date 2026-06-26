@@ -207,11 +207,21 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     // D-28: "global user index" — proves admin shell chrome, Global scope
     // label, dense list layout, and action visibility on the primary admin
     // entry page.
-    await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
+    //
+    // INDEX-03 / D-08: Navigate to the unfiltered list so the multi-page
+    // pagination <nav> is the captured state. A ?q= filter that resolves to a
+    // single user would produce the single-page all_results_label instead of
+    // the <nav> and fail to prove list-scale pagination (D-08).
+    // The targetEmail row appears on page 1 (just registered, sorted DESC).
+    await page.goto('/admin/users');
     await waitForLiveViewReady(page);
     await expect(page.locator('header').first()).toContainText('Admin');
     await expect(page.locator('header').first()).toContainText('Global');
     await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
+    // D-08: multi-page pagination <nav> must render (list-scale proof).
+    // The nav uses class sg-cluster--between (no aria-label attribute); the prev/next
+    // links inside it carry their own aria-labels.
+    await expect(page.getByRole('link', { name: 'Next page' })).toBeVisible();
     await captureAndVerify(page, testInfo, 'global-user-index');
     await assertCheckpointScreenshot(page, testInfo, 'global-user-index');
 
