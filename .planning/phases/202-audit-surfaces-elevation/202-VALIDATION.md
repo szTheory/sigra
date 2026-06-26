@@ -1,9 +1,9 @@
 ---
 phase: 202
 slug: audit-surfaces-elevation
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: ready
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-26
 ---
 
@@ -38,11 +38,22 @@ created: 2026-06-26
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| {N}-01-01 | 01 | 1 | AUDIT-{XX} | — | N/A | unit | `{command}` | ✅ / ❌ W0 | ⬜ pending |
+| 202-01-01 | 01 | 1 | AUDIT-02 | T-202-02 | HEEx auto-escape; no `raw/1` in shared row | compile | `mix compile --warnings-as-errors` | ✅ | ⬜ pending |
+| 202-01-02 | 01 | 1 | AUDIT-02 | — | N/A | compile | `mix compile --warnings-as-errors` | ✅ | ⬜ pending |
+| 202-01-03 | 01 | 1 | AUDIT-02 | — | N/A | compile | `mix compile --warnings-as-errors` | ✅ | ⬜ pending |
+| 202-02-01 | 02 | 2 | AUDIT-01 | T-202U-01 | `return_to` survives once; existing sanitizer preserved; GET-form contract | compile | `cd test/example && mix compile --warnings-as-errors` | ✅ | ⬜ pending |
+| 202-02-02 | 02 | 2 | AUDIT-01, AUDIT-02 | T-202U-02/03 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /Users/jon/projects/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 202-03-01 | 03 | 2 | AUDIT-01 | T-202I-03 | `<details>` disclosure; GET-form contract; HEEx auto-escape | compile | `cd test/example && mix compile --warnings-as-errors` | ✅ | ⬜ pending |
+| 202-03-02 | 03 | 2 | AUDIT-01, AUDIT-02 | T-202I-01/02 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /Users/jon/projects/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 202-04-01 | 04 | 3 | AUDIT-02, AUDIT-03 | T-202T-01 | strict un-sliced 2-code guard (loud-fail vacuous pass) | e2e | `cd test/example/priv/playwright && npx playwright test admin-design.spec.ts --grep "content-equivalent"` | ✅ | ⬜ pending |
+| 202-04-02 | 04 | 3 | AUDIT-02 | T-202T-02 | deterministic pagination proof, no dev seeds | unit | `cd test/example && mix test test/example_web/live/admin_audit_index_live_test.exs` | ✅ | ⬜ pending |
+| 202-05-01 | 05 | 4 | AUDIT-03 | T-202R-01/02/03 | bare-`2` ledger ratchet; monotonic guard; CSS triple-copy parity | guard | `bash scripts/ci/quality-ledger-monotonic.sh --base origin/main` | ✅ | ⬜ pending |
+| 202-05-02 | 05 | 4 | AUDIT-03 | — | Audit Explorer archetype; glossary-clean | grep+unit | `grep -c "Audit Explorer Archetype" guides/reference/admin-design-contract.md && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 202-05-03 | 05 | 4 | AUDIT-03 | T-202R-04 | audit baselines recaptured + canary byte-stable (git assertions) | gate | `bash -n scripts/ci/snapshot-recapture-gate.sh` + git-status audit/canary byte assertions (see plan) | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
-*Populated by the planner per the RESEARCH.md `## Validation Architecture` map (pagination ExUnit test; `assertAuditResultEquivalence` lockstep; glossary-clean; ledger monotonic-guard parse; CSS triple-copy golden-diff; snapshot-recapture-gate routing).*
+*Populated from each plan's `<automated>` verify block per the RESEARCH.md `## Validation Architecture` map (pagination ExUnit test; `assertAuditResultEquivalence` lockstep + strict un-sliced 2-code guard; glossary-clean; ledger monotonic-guard parse; CSS triple-copy golden-diff; snapshot-recapture-gate routing with byte-level git assertions). Every task carries an automated verify — no Wave-0 scaffolding gap.*
 
 ---
 
@@ -64,11 +75,11 @@ created: 2026-06-26
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s (ExUnit)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (all 11 tasks carry an automated command; no MISSING references)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (every task has one)
+- [x] Wave 0 covers all MISSING references (none — existing ExUnit + Playwright infrastructure covers all requirements; net-new tests are first-class tasks in 202-04)
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s (ExUnit compile/unit tasks; Playwright/recapture lanes run out-of-band by design)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved — Per-Task Verification Map populated from plan `<automated>` blocks; every task has an automated verify.

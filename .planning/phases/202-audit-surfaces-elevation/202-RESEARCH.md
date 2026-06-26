@@ -518,7 +518,9 @@ today; reconcile or keep both intentionally. `[VERIFIED: components.ex:723,732 +
 **No `[ASSUMED]` claims about packages, compliance, retention, or security standards** — this phase
 adds none. All package/dep claims are N/A (no installs).
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three questions are settled in the Phase-202 plans. Resolutions inline below for a clean audit trail.
 
 1. **Align `from`/`to` input type across the two pages?**
    - What we know: index uses `type="date"`, per-user uses `type="text"` (`audit_index_live.ex:119`
@@ -527,11 +529,19 @@ adds none. All package/dep claims are N/A (no installs).
      shared markup" or a deliberate per-page difference.
    - Recommendation: converge to `type="date"` when both feed the shared advanced-disclosure fieldset
      — it's a coherence win and removes one divergence. Flag for the planner; trivial either way.
+   - **RESOLVED (202-02 Task 1):** Converge the per-user `from`/`to` inputs to `type="date"` to match
+     the index advanced-disclosure fieldset, with a documented fallback to `type="text"` (noted in the
+     SUMMARY) only if an existing test breaks. Coherence win taken.
 
 2. **Shared `<thead>` or per-page `<thead>`?**
    - What we know: column labels are identical today (Occurred/Event/Actor/Outcome).
    - Recommendation: share the whole `<table>` (thead+tbody) for maximal byte-coherence; the sort link
      href is the only per-page difference and can be passed in.
+   - **RESOLVED (202-01 canonical Wave-1 decision, consumed by 202-02/03 Task 2):** Settle on a
+     **row-only shared component** — `audit_table_row/1` renders the `<tr>` only; the `<thead>` STAYS
+     per-page in each LiveView. (The thead carries per-page sort-link hrefs; keeping it per-page avoids
+     threading a sort-href builder through the shared component while the `<tr>` body — the duplicated
+     surface — is still fully DRY.) Both Wave-2 plans key off this Wave-1 decision, not off each other.
 
 3. **Does `mg-6` markup actually change?**
    - What we know: D-12 says recapture `mg-6` IFF its markup changes; `mg-6` mirrors the live audit
@@ -539,6 +549,10 @@ adds none. All package/dep claims are N/A (no installs).
    - Recommendation: if the desktop row component is restructured (codes into disclosure), `mg-6`'s
      audit-feed board likely changes → recapture. Confirm during execution by running the gallery
      equivalence check; route only if the snapshot drifts.
+   - **RESOLVED (202-05 Task 3 — drift-gated route):** `mg-6` is recaptured ONLY IF the gallery
+     audit-feed board markup actually drifts; the executor runs the gallery equivalence check first and
+     routes `mg-6` through `snapshot-recapture-gate.sh` only on confirmed drift. `audit-explorer` /
+     `user-audit` recapture unconditionally; `mg-6` is recapture-iff-drift.
 
 ## Sources
 
