@@ -1095,7 +1095,7 @@ a.vt-panel {
   background: color-mix(in oklab, var(--vt-color-caution) 22%, transparent);
   color: color-mix(
     in oklab,
-    var(--vt-color-caution) 62%,
+    var(--vt-color-caution) 45%,
     var(--vt-color-ink)
   );
   font-size: var(--sg-text-2xs);
@@ -1108,7 +1108,7 @@ a.vt-panel {
    in the Vaultr teal, vs the base caution amber used for "needs attention". */
 .vt-status-pill--ok {
   background: color-mix(in oklab, var(--vt-color-primary) 18%, transparent);
-  color: color-mix(in oklab, var(--vt-color-primary) 64%, var(--vt-color-ink));
+  color: color-mix(in oklab, var(--vt-color-primary) 45%, var(--vt-color-ink));
 }
 
 .vt-table-panel {
