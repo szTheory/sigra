@@ -5,16 +5,16 @@ milestone_name: ADMIN-UX-ELEVATION
 current_phase: 204
 current_phase_name: terminal-ratification
 status: executing
-stopped_at: Completed 204-02-PLAN.md
-last_updated: "2026-06-27T02:11:01.215Z"
+stopped_at: Completed 204-03-PLAN.md
+last_updated: "2026-06-27T03:50:11.461Z"
 last_activity: 2026-06-27
 last_activity_desc: Phase 204 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 26
-  completed_plans: 23
-  percent: 83
+  completed_plans: 24
+  percent: 92
 ---
 
 # Project State
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 204 (terminal-ratification) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
-Last activity: 2026-06-27 — Phase 204 execution started
+Last activity: 2026-06-27 — Completed 204-03: pill contrast fix + mobile baseline recapture
 
-Progress: [█████████░] 94%
+Progress: [█████████░] 92%
 
 Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
@@ -179,6 +179,9 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: 204-01: page_size=25 query param used in boundary tests for deterministic 25/26 threshold independent of default config
 - [Phase ?]: 204-02: Delete phase_192_known_failure_contract_test.exs — all 3 Phase192 known failures resolved, test.skip() quarantine already lifted in Phase 197 D-11b
 - [Phase ?]: 204-02: Update phase148 example README assertion to 'Tasklane is a fictional project/work tracker' — matches actual post-rename README; stronger Tasklane identity lock than old 'Vaultr is the runnable local companion' string
+- [Phase ?]: 204-03: color-mix ratio lowered from 62%/64% to 45% for .vt-status-pill and .vt-status-pill--ok — clears WCAG AA 4.5:1 on both light and dark themes; axe gate passes on impersonation-banner mobile
+- [Phase ?]: 204-03: org-scoped-admin mobile baseline included in D-05 commit as additional stale baseline from Phase 203 pill-drop on org roster; mobile lane was aborting before reaching this checkpoint
+- [Phase ?]: 204-03: recapture gate --require-all is a pre-commit check only; post-commit zero-drift proven by --base HEAD canary guard showing 0 changed slugs; admin-design 1px failures are pre-existing CI-only rendering artifacts
 
 ### Pending Todos
 
@@ -369,3 +372,4 @@ None
 | Phase 203 P05 | 490s | 2 tasks | 2 files |
 | Phase 204 P01 | 129s | - tasks | - files |
 | Phase 204 P02 | 157s | 2 tasks | 4 files |
+| Phase 204 P03 | 93min | 2 tasks | 3 files |
