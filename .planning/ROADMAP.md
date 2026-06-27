@@ -192,7 +192,7 @@
 
 **Wave 3** *(blocked on 204-03)*
 
-- [ ] 204-04-PLAN.md — Generated-host parity: install-golden byte-diff (phx_new 1.8.7) + admin-acceptance-smoke styled-admin render (D-12)
+- [x] 204-04-PLAN.md — Generated-host parity: install-golden byte-diff (phx_new 1.8.7) + admin-acceptance-smoke styled-admin render (D-12)
 
 **Wave 4** *(terminal — after all evidence)*
 
@@ -354,7 +354,7 @@ Archive:
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete    | 2026-06-26 |
 | 203. Consistency Propagation | v1.41 | 5/5 | Complete    | 2026-06-26 |
-| 204. Terminal Ratification | v1.41 | 3/5 | In Progress|  |
+| 204. Terminal Ratification | v1.41 | 4/5 | In Progress|  |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |

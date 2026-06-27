@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
-current_phase: 204
-current_phase_name: terminal-ratification
 status: executing
-stopped_at: Completed 204-03-PLAN.md
-last_updated: "2026-06-27T03:50:11.461Z"
-last_activity: 2026-06-27
-last_activity_desc: Phase 204 execution started
+stopped_at: Completed 204-02-PLAN.md
+last_updated: "2026-06-27T04:00:42.706Z"
+last_activity: "2026-06-27 — Completed 204-03: pill contrast fix + mobile baseline recapture"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 26
-  completed_plans: 24
-  percent: 92
+  completed_plans: 25
+  percent: 83
 ---
 
 # Project State
@@ -30,7 +27,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 204 (terminal-ratification) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-27 — Completed 204-03: pill contrast fix + mobile baseline recapture
 
@@ -182,6 +179,8 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: 204-03: color-mix ratio lowered from 62%/64% to 45% for .vt-status-pill and .vt-status-pill--ok — clears WCAG AA 4.5:1 on both light and dark themes; axe gate passes on impersonation-banner mobile
 - [Phase ?]: 204-03: org-scoped-admin mobile baseline included in D-05 commit as additional stale baseline from Phase 203 pill-drop on org roster; mobile lane was aborting before reaching this checkpoint
 - [Phase ?]: 204-03: recapture gate --require-all is a pre-commit check only; post-commit zero-drift proven by --base HEAD canary guard showing 0 changed slugs; admin-design 1px failures are pre-existing CI-only rendering artifacts
+- [Phase 204-04]: Install-golden byte-diff green against phx_new 1.8.7; admin-acceptance-smoke exit 0 on fresh generated host; RATIFY-01 generated-host parity closed
+- [Phase 204-04]: Stale sigra_admin_smoke_dev DB on system Postgres (port 5432) from prior partial run caused first smoke attempt to fail ecto.migrate; dropped manually; second run clean
 
 ### Pending Todos
 
@@ -276,7 +275,7 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-27T02:11:01.206Z
+Last session: 2026-06-27T04:00:42.702Z
 Stopped at: Completed 204-02-PLAN.md
 Resume file: 
 
@@ -373,3 +372,4 @@ None
 | Phase 204 P01 | 129s | - tasks | - files |
 | Phase 204 P02 | 157s | 2 tasks | 4 files |
 | Phase 204 P03 | 93min | 2 tasks | 3 files |
+| Phase 204 P04 | 5min | 2 tasks | 0 files |
