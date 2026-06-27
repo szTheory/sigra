@@ -1105,7 +1105,7 @@ a.vt-panel {
 }
 
 /* Positive variant — an active/healthy state (e.g. MFA on, passkey registered)
-   in the Vaultr teal, vs the base caution amber used for "needs attention". */
+   in the Tasklane teal, vs the base caution amber used for "needs attention". */
 .vt-status-pill--ok {
   background: color-mix(in oklab, var(--vt-color-primary) 18%, transparent);
   color: color-mix(in oklab, var(--vt-color-primary) 45%, var(--vt-color-ink));

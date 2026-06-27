@@ -238,8 +238,13 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
       assert html =~ "<details>",
              "<details> disclosure element must exist in the Event cell"
 
-      refute html =~ "<details open",
-             "<details> must NOT have the open attribute — it must be default-collapsed"
+      # Scope the "not force-opened" check to the desktop results table so a future
+      # unrelated <details open> elsewhere on the page (e.g. the "More filters"
+      # panel) can't spuriously fail this Event-cell disclosure lock.
+      desktop_results_region = extract_desktop_results_region(html)
+
+      refute desktop_results_region =~ "<details open",
+             "Event-cell <details> in the desktop results table must NOT be force-opened — it must be default-collapsed"
 
       # The <summary> affordance is the visible label
       assert html =~ "<summary",
@@ -270,13 +275,11 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
   end
 
   defp extract_next_href(html) do
-    case Regex.run(~r/aria-label="Next page"[^>]*>|href="([^"]+)"[^>]*aria-label="Next page"/, html) do
-      _ ->
-        case Regex.run(~r/href="([^"]+)"[^<]*(?:<[^>]+>)*[^<]*Next page/, html) do
-          [_, href] -> href
-          _ -> extract_next_href_forward(html)
-        end
-    end
+    # Delegate to the forward extractor, which anchors on the aria-label="Next page"
+    # attribute within the same <a> tag (handles both attribute orders). The
+    # previous outer wrapper made its first regex dead code and matched on the
+    # unscoped literal "Next page" text — replaced with the correctly-anchored path.
+    extract_next_href_forward(html)
   end
 
   defp extract_next_href_forward(html) do
@@ -295,6 +298,18 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
           [_, href] -> href
           _ -> ""
         end
+    end
+  end
+
+  defp extract_desktop_results_region(html) do
+    # Slice the rendered HTML from the desktop results table testid forward so
+    # assertions about the desktop Event cell are not affected by other regions
+    # (filters panel, mobile cards) on the same page.
+    marker = ~s(data-testid="admin-audit-user-desktop-results")
+
+    case :binary.match(html, marker) do
+      {start, _} -> binary_part(html, start, byte_size(html) - start)
+      :nomatch -> ""
     end
   end
 
