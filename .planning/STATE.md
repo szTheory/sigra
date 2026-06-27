@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
-current_phase: 204
-status: verifying
+current_phase: 41
+status: Awaiting next milestone
 stopped_at: Completed 204-02-PLAN.md
-last_updated: "2026-06-27T05:17:38.422Z"
+last_updated: "2026-06-27T14:02:04.092Z"
 last_activity: 2026-06-27
-last_activity_desc: Phase 204 complete
+last_activity_desc: Milestone v1.41 completed and archived
 progress:
   total_phases: 6
   completed_phases: 6
@@ -29,14 +29,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 204
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-27 — Phase 204 complete
-
-Progress: [█████████░] 92%
-
-Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
+Phase: Milestone v1.41 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-27 — Milestone v1.41 completed and archived
 
 ## Accumulated Context
 
@@ -278,6 +274,28 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 | seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — this milestone's source seed (audit playbook); resolved in substance, seed kept as reference | v1.40 |
 | seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — folded into PW-03 / Phase 197 (addressed) | v1.40 |
 
+### Acknowledged at v1.41 close (2026-06-27)
+
+9 open artifact items acknowledged and deferred at milestone close (audit verdict `tech_debt`: 18/18 requirements satisfied, 0 critical blockers). The resolvable cruft was genuinely resolved before close, not buried: the `stale-known-failure-contract-tests` todo was fixed by Phase 204-02 (moved to `todos/resolved/`), and the 10 superseded admin-ui-pass-2 / stale-doc quick-tasks were marked `status: complete` on their canonical summaries. The residual below is irreducible forward backlog (features + review-debt), dormant future-bet seeds, and one already-non-blocking deferred UAT.
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| uat_gap | 202-UAT.md [deferred, 0 pending scenarios] | non-blocking — deferred, no open scenarios | v1.41 |
+| todo | 2026-06-18-token-reference-completeness-ci-guard | tracked — CI guard for admin-token-reference completeness | v1.41 |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked — non-blocking demo-DX polish | v1.41 |
+| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (schema migrate path) | v1.41 |
+| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (Playwright sharding); overlaps SEED-005 | v1.41 |
+| todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature | v1.41 |
+| todo | 2026-06-21-app-css-comment-corruption-cleanup | tracked — demo app.css orphaned-comment cleanup (IN-01 Vaultr→Tasklane part done in 204) | v1.41 |
+| todo | 2026-06-22-vaultr-authed-rebrand-residuals | tracked — demo rebrand residuals | v1.41 |
+| todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label feature | v1.41 |
+| todo | 2026-06-24-oban-enqueue-unguarded-when-compiled-but-unsupervised | tracked — Oban-optional robustness | v1.41 |
+| todo | 2026-06-25-phase199-code-review-info-hardening | tracked — deferred code-review info items | v1.41 |
+| todo | 2026-06-25-phase200-code-review-deferred | tracked — deferred code-review items | v1.41 |
+| seed | SEED-004-phx-new-button-forward-compat | dormant | v1.41 |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant | v1.41 |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | v1.41 |
+
 ## Session Continuity
 
 Last session: 2026-06-27T04:13:27.624Z
@@ -341,7 +359,7 @@ None
 
 ## Operator Next Steps
 
-- Start Phase 199 with `/gsd-plan-phase 199`
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 

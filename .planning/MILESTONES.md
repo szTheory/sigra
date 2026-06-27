@@ -1,5 +1,39 @@
 # Milestones
 
+## v1.41 ADMIN-UX-ELEVATION (Shipped: 2026-06-27)
+
+**Phases completed:** 6 phases, 26 plans, 56 tasks
+
+**Key accomplishments:**
+
+- Tier-2 award-grade proxies encoded in fractal scorecard with 4 automated gates (axe, APG, content-equivalence, glossary) and 3 manual proxies, plus ledger assertion convention and reconciled terminal-ratification prose.
+- `scripts/ci/quality-ledger-monotonic.test.sh`
+- 29 admin self-tied audit events (>=25 FIXT-01 threshold), a 36-user ugly bulk loadtest cohort inserted before personas, and explicit FIXT-02 multi-session/multi-org breadth on admin — all idempotent with Pitfall-3 persona-count invariants intact.
+- MG-5/MG-6 content-equivalence test un-skipped and passing via deterministic ?q= seed-admin URL filter, proving >=25-event audit pagination renders (FIXT-01, D-13/D-15)
+- Net-new `UserSessionsLive` with full session table and APG confirm dialog, wired to `/admin/users/:id/sessions` across example + installer + golden fixture in lockstep, and scoped into the glossary drift guard.
+- `user_show_live.ex` restructured into a calm JTBD-first identity bar + bounded Sessions/Organizations previews with link-outs, session revoke flow fully removed, host extra-section seam preserved in correct position before Danger Zone.
+- New `user-sessions` Playwright checkpoint with 3 baseline PNGs captured live, `user-show-live` ratcheted to Tier 2 with full proxy evidence, `user-sessions` L3 ledger cell added clean, and admin design contract Detail Archetype updated to document the JTBD-first composition and preserved `extra_detail_sections/1` host seam.
+- Recomposed users_index_live.ex search-first with consolidated filter panel, demoted 3-chip metric strip, DRY shared field-slice components, and reduced decision-bearing pill vocabulary.
+- Emit non-empty badge + column from example `SigraAdminUsers` hooks so the live `assertUserResultEquivalence` spec exercises the `extra_badges`/`extra_columns` seam in both desktop and mobile layouts (INDEX-03 / D-07).
+- GET-form contract proven by real form-submit Playwright test, users-index-live ratcheted to bare Tier 2 with proxy evidence, and List Archetype block rewritten to the elevated search-first composition.
+- Recaptured global-user-index at list-scale against 2500-user dev DB (100 pages), proving honest pagination via unfiltered navigation + Next page assertion; synced mg-1/mg-2/mg-5 gallery boards to elevated Plans 01-03 markup; canaries byte-stable; zero-drift idempotency proven; allowlists empty.
+- Extracted three new public function components (`audit_table_row/1`, `audit_pagination_nav/1`, `audit_empty_state/1`) into `components.ex` with inline `<details>` code disclosure and honest-cursor nav guard.
+- Collapsed audit_user_live.ex from three GET forms into one unified sg-filter-panel with folded-in checkbox toggles, native `<details>` advanced-disclosure, and Wave-1 shared component calls replacing all hand-written desktop table/pagination/empty-state markup.
+- Added native `<details>` advanced-disclosure to the global audit filter form and rewired desktop table / pagination / empty-state to Wave-1 shared components, deleting three private duplicate helpers.
+- Added strict per-row 2-code count guard to `assertAuditResultEquivalence` (closing D-06 Pitfall 1) and a deterministic ExUnit pagination boundary test at the ≥26/≤25 threshold using the existing direct-insert seam.
+- Ratcheted `audit-index-live` and `audit-user-live` ledger cells from Tier 1 to bare Tier 2 with honest applicable proxy evidence (N/A overlay-axe + APG), added the Audit Explorer Archetype block to the design contract, and recaptured audit-explorer/user-audit chromium+dark checkpoint baselines through the recapture gate with zero-drift idempotency proven.
+- Org roster drops always-on Confirmed pill and global overview drops Authentication coverage chip — same status signals now render identically across org overview, global overview, and Users Index (D-02/D-03, zero new CSS)
+- Added branding #restore-defaults-overlay 7-APG + axe-while-open ConfirmDialog test to admin-modal-interaction.spec.ts — the hard prerequisite for D-08 branding-live Tier-2 overlay-axe/APG evidence.
+- Fifth archetype block (Branding/Workbench) added to design contract, and UI principles updated with branding component routing and reduced-pill convention as evolved patterns (PROP-02).
+- Three ledger cells ratcheted from bare `1` to bare `2` with honest Tier-2 proxy evidence; PAGE-04 todo resolved; global-overview + org-overview baselines proved idempotent via zero-drift compare-mode; both allowlists empty for Phase 204's terminal reset.
+- Two deterministic ExUnit tests lock the per-user audit pagination boundary at 25/26 events and the desktop Event-cell inline-code disclosure archetype, closing WR-01 and WR-02.
+- 1. [Rule 1 - Bug] Phase148 example README assertion used stale Vaultr phrasing
+- .vt-status-pill contrast raised from ~3.33:1 to ≥4.5:1 via color-mix ratio change (62%→45% caution/primary), unblocking the admin-checkpoints-mobile axe gate and enabling same-commit canary rebase + stale org-scoped-admin baseline update
+- Byte-diff green (phx_new 1.8.7) + admin-acceptance-smoke exit 0 — freshly generated host renders the elevated styled admin, closing RATIFY-01 generated-host parity
+- Tier-2 lock verified (36 cells, exit 0, no new ratchet in Phase 204); v1.41 adversarial milestone audit written with four RATIFY-02 checks all passing; Phase 201 ticked and RATIFY-01/02 confirmed satisfied — milestone closes honestly.
+
+---
+
 ## v1.40 CI-PERF (Shipped: 2026-06-21)
 
 **Phases completed:** 6 phases (193–198), 20 plans, 40 tasks
