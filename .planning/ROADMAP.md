@@ -179,7 +179,25 @@
   1. All Playwright baselines are recaptured through `snapshot-recapture-gate.sh` with both allowlists (checkpoints and design) reset to empty; the monotonic guard exits 0 vs `origin/main`; the full admin surface is axe-clean including all overlays in their open state; generated-host parity is proven (install-golden byte-diff green with phx_new 1.8.7 + admin-acceptance smoke renders the elevated, styled admin UI on a freshly generated host).
   2. A final adversarial milestone review confirms: no usability-for-aesthetics regression (pages work better for operators, not just look better); no generated-host-contract friction (host extension seams intact, contract doc updated); no broken dark/mobile/keyboard/reduced-motion paths; no screenshot-only quality (all interactions work, not just static captures); all ratcheted Tier-2 ledger cells are locked.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+**Wave 1** *(independent — run in parallel)*
+
+- [ ] 204-01-PLAN.md — Test hardening: per-user audit pagination boundary (WR-02/D-06) + Event-codes disclosure lock (WR-01/D-07)
+- [ ] 204-02-PLAN.md — Clean `mix test`: delete stale Phase192 known-failure contract + reconcile Vaultr→Tasklane doc/test drift (D-08/D-09)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 204-03-PLAN.md — `.vt-status-pill` contrast fix + same-commit canary/audit recapture + zero-drift idempotency + monotonic guard (D-01..D-05/D-11)
+
+**Wave 3** *(blocked on 204-03)*
+
+- [ ] 204-04-PLAN.md — Generated-host parity: install-golden byte-diff (phx_new 1.8.7) + admin-acceptance-smoke styled-admin render (D-12)
+
+**Wave 4** *(terminal — after all evidence)*
+
+- [ ] 204-05-PLAN.md — Tier-2 lock verification + adversarial milestone review (v1.41-MILESTONE-AUDIT.md) + close housekeeping (D-10/D-11/D-13)
+
 **UI hint**: yes
 
 <details>
