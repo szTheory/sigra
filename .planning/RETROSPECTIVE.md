@@ -25,6 +25,38 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.41 — ADMIN-UX-ELEVATION
+
+**Shipped:** 2026-06-27
+**Phases:** 6 (199–204) | **Plans:** 26 | **Tasks:** 56
+
+### What Was Built
+Turned the v1.39-built grading machinery (quality ledger, fractal scorecard, monotonic guard, Playwright baselines) into actual page elevation. Defined objective, machine-checkable Tier-2 proxies + stress-fixture seed data (Phase 199); elevated User Detail into a JTBD-first identity bar with a net-new `UserSessionsLive` (Phase 200); recomposed Users Index search-first with a consolidated filter panel and DRY desktop/mobile presentation (Phase 201); collapsed both Audit surfaces to a single unified filter form with `<details>` disclosure and shared extracted components (Phase 202); propagated the bar to Overviews + Branding workbench with reduced-pill consistency (Phase 203); and ratified terminally — recaptured baselines with empty allowlists, generated-host parity, and an adversarial milestone audit (Phase 204). 7 ledger cells locked at Tier 2 behind the forward-only guard.
+
+### What Worked
+- **Forward-only ratchet as the spine.** Every phase ended by ratcheting ledger cells and proving the monotonic guard green vs `origin/main` — quality could only increase, and the terminal phase just *verified the lock* rather than re-litigating it.
+- **Wave-based execution with shared-component extraction first.** Pulling `audit_table_row/1` etc. into `components.ex` in an early wave let later waves rewire against them — desktop↔mobile content-equivalence fell out of the shared seam.
+- **Honest proxies over subjective verdicts.** Tier-2 was earnable on cited evidence (axe-while-open, APG focus-trap, content-equivalence, glossary-clean), so the close was defensible.
+
+### What Was Inefficient
+- **Worktree auto-degrade (#683) forced sequential execution** every phase (origin/HEAD unresolved), so parallelizable waves ran one-at-a-time on `main`. Setting `worktree.baseRef:"head"` would reclaim parallelism.
+- **Environment fragility mid-execution.** The Docker daemon died during Phase 204, taking the test Postgres with it; recovery (restart Docker, reboot PG on a new dynamic port, refresh `tmp/db.env`, kill a leaked example server) cost a detour. The dynamic-port DX absorbed it, but the daemon dependency is a single point of failure for the env-heavy snapshot/parity lanes.
+- **Citation drift surfaced late.** The `audit-user-live` ledger cell cited the *index* test for pagination; the per-user test gap rode forward through 202→203 as a re-tagged todo until 204-01 finally added the deterministic boundary test.
+
+### Patterns Established
+- **Same-commit recapture + canary honesty:** a contrast fix and its recaptured (non-allowlistable) canary PNG must land in one commit so the `--base HEAD` guard sees the new pixels as the established baseline (Phase 204 D-05).
+- **Generated-host parity as a first-class close gate:** install-golden byte-diff (pinned phx_new 1.8.7) + admin-acceptance-smoke on a freshly scaffolded host, not just example-app proof.
+- **Terminal ratification verifies, never ratchets:** the closing phase confirms the lock and runs the adversarial audit; new Tier-2 flips are prohibited there.
+
+### Key Lessons
+- A "ratification" phase whose `mix test` still trips stale self-healing contracts isn't terminal — fold contract-debt cleanup (Phase192/148) into the gate, not after it.
+- Run env-heavy lanes (Playwright recapture, fresh-host scaffold) only after confirming Docker + the dynamic-port DB are live; a mid-run daemon death is recoverable but expensive.
+- Resolve-the-resolvable before a milestone close beats blanket-acknowledge: the pre-close audit shrank from 19 → 9 once superseded quick-tasks were marked terminal and the done todo was closed, leaving only genuine forward/dormant deferrals.
+
+### Cost Observations
+- Model mix: orchestrator Opus; executors + verifier + reviewer Sonnet (`claude-sonnet-4-6`).
+- Notable: the two env-heavy plans (204-03 snapshot recapture ~93 min; 204-04 fresh-host scaffold) dominated wall-clock; the test/doc/CSS plans were minutes each.
+
 ## Milestone: v1.40 — CI-PERF
 
 **Shipped:** 2026-06-21
