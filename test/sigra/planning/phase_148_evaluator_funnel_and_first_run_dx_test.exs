@@ -32,7 +32,7 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert mix_exs =~ ~s(main: "demo-showcase")
     assert mix_exs =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
 
-    assert llms =~ "- [Demo Showcase — Vaultr Example App](demo-showcase.md)"
+    assert llms =~ "- [Demo Showcase — Tasklane Example App](demo-showcase.md)"
     assert llms =~ "- [Troubleshooting install](troubleshooting-install.md)"
     assert llms =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
   end
@@ -50,12 +50,12 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert showcase =~ "mix setup && mix phx.server"
 
     for email <- [
-          "admin@demo.vaultr.test",
-          "alice@demo.vaultr.test",
-          "bob@demo.vaultr.test",
-          "carol@demo.vaultr.test",
-          "dave@demo.vaultr.test",
-          "frank@demo.vaultr.test"
+          "admin@demo.tasklane.test",
+          "alice@demo.tasklane.test",
+          "bob@demo.tasklane.test",
+          "carol@demo.tasklane.test",
+          "dave@demo.tasklane.test",
+          "frank@demo.tasklane.test"
         ] do
       assert showcase =~ email
     end
@@ -73,7 +73,7 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert showcase =~ "not compliance evidence"
 
     assert example =~
-             "Vaultr is the runnable local companion for Sigra's canonical evaluator walkthrough:"
+             "Tasklane is a fictional **project/work tracker**"
 
     assert example =~ "[Demo Showcase](https://hexdocs.pm/sigra/demo-showcase.html)"
   end
