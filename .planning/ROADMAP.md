@@ -354,7 +354,7 @@ Archive:
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete    | 2026-06-26 |
 | 203. Consistency Propagation | v1.41 | 5/5 | Complete    | 2026-06-26 |
-| 204. Terminal Ratification | v1.41 | 5/5 | Complete   | 2026-06-27 |
+| 204. Terminal Ratification | v1.41 | 5/5 | Complete    | 2026-06-27 |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
