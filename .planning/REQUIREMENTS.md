@@ -45,7 +45,7 @@
 ### Terminal ratification
 
 - [ ] **RATIFY-01**: All baselines recaptured through the gate with both allowlists reset to empty; monotonic guard green vs `origin/main`; full-surface axe clean (including overlays-open); generated-host parity proven (install-golden byte-diff + admin-acceptance smoke).
-- [ ] **RATIFY-02**: A final adversarial milestone review confirms no usability-for-aesthetics regression, no generated-host-contract friction, and no broken dark/mobile/keyboard/reduced-motion paths; Tier-2 cells locked.
+- [x] **RATIFY-02**: A final adversarial milestone review confirms no usability-for-aesthetics regression, no generated-host-contract friction, and no broken dark/mobile/keyboard/reduced-motion paths; Tier-2 cells locked.
 
 ---
 
@@ -85,4 +85,4 @@
 | PROP-01 | Phase 203 | Complete |
 | PROP-02 | Phase 203 | Complete |
 | RATIFY-01 | Phase 204 | Pending |
-| RATIFY-02 | Phase 204 | Pending |
+| RATIFY-02 | Phase 204 | Complete |

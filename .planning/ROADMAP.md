@@ -183,7 +183,7 @@
 
 **Wave 1** *(independent — run in parallel)*
 
-- [ ] 204-01-PLAN.md — Test hardening: per-user audit pagination boundary (WR-02/D-06) + Event-codes disclosure lock (WR-01/D-07)
+- [x] 204-01-PLAN.md — Test hardening: per-user audit pagination boundary (WR-02/D-06) + Event-codes disclosure lock (WR-01/D-07)
 - [ ] 204-02-PLAN.md — Clean `mix test`: delete stale Phase192 known-failure contract + reconcile Vaultr→Tasklane doc/test drift (D-08/D-09)
 
 **Wave 2** *(blocked on Wave 1)*
@@ -354,7 +354,7 @@ Archive:
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
 | 202. Audit Surfaces Elevation | v1.41 | 5/5 | Complete    | 2026-06-26 |
 | 203. Consistency Propagation | v1.41 | 5/5 | Complete    | 2026-06-26 |
-| 204. Terminal Ratification | v1.41 | 0/TBD | Not started | - |
+| 204. Terminal Ratification | v1.41 | 1/5 | In Progress|  |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |

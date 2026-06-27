@@ -2,16 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
+current_phase: 204
+current_phase_name: terminal-ratification
 status: executing
 stopped_at: Phase 204 context gathered (assumptions mode)
-last_updated: "2026-06-27T01:35:28.780Z"
-last_activity: 2026-06-27 -- Phase 204 planning complete
+last_updated: "2026-06-27T02:05:20.221Z"
+last_activity: 2026-06-27
+last_activity_desc: Phase 204 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 26
-  completed_plans: 21
-  percent: 81
+  completed_plans: 22
+  percent: 83
 ---
 
 # Project State
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 203 — consistency-propagation
+**Current focus:** Phase 204 — terminal-ratification
 
 ## Current Position
 
-Phase: 204 — Terminal Ratification
-Plan: Not started
+Phase: 204 (terminal-ratification) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-06-27 -- Phase 204 planning complete
+Last activity: 2026-06-27 — Phase 204 execution started
 
 Progress: [█████████░] 94%
 
@@ -172,6 +175,8 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: D-08: Ratcheted index-live, organization-live, branding-live from bare 1 to bare 2; monotonic guard passes forward-only (36 cells)
 - [Phase ?]: D-09: PAGE-04 branding-scoring todo folded into branding-live row; resolved (no new ledger row)
 - [Phase ?]: D-10: global-overview + org-overview baselines idempotent; both allowlists empty at phase close
+- [Phase ?]: 204-01: extract_disclosure_region targets Event codes summary specifically to skip More filters details earlier on page
+- [Phase ?]: 204-01: page_size=25 query param used in boundary tests for deterministic 25/26 threshold independent of default config
 
 ### Pending Todos
 
@@ -266,11 +271,11 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-27T01:06:48.135Z
+Last session: 2026-06-27T02:04:28.472Z
 Stopped at: Phase 204 context gathered (assumptions mode)
 Resume file: 
 
-.planning/phases/204-terminal-ratification/204-CONTEXT.md
+None
 | --- | --- | --- | --- |
 | Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
 | Phase 162 | 1 plan | same session | Brand DNA + voice |
@@ -360,3 +365,4 @@ Resume file:
 | Phase 203 P03 | 216s | 1 tasks | 1 files |
 | Phase 203 P04 | 156s | - tasks | - files |
 | Phase 203 P05 | 490s | 2 tasks | 2 files |
+| Phase 204 P01 | 129s | - tasks | - files |
