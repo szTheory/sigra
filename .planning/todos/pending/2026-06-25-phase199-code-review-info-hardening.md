@@ -1,6 +1,7 @@
 ---
 created: 2026-06-25T00:00:00.000Z
 status: pending
+resolves_phase: 205
 title: Phase 199 code-review INFO findings — fixture/self-test hardening
 area: test
 files:
