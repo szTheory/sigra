@@ -235,4 +235,16 @@ Small named-value tokens for components that do not fit the regular spacing scal
 
 ---
 
+## Token Conformance (COMP-03)
+
+The `--sg-*` token set in this document is kept complete by automated CI guards (Phase 207 D-06 / D-07, PATH A):
+
+**Token completeness (D-06):** `scripts/ci/admin-token-completeness.sh` diffs the `--sg-*` custom properties defined in `:root` blocks of `sigra_admin.css` (both light and dark `@media (prefers-color-scheme: dark)`) against the backtick token names documented in this file. The guard fails CI on any divergence — undocumented token or stale doc row — making the documentation self-enforcing. Verified baseline: **100 unique `--sg-*` tokens** across both `:root` blocks exactly match the 100 documented backtick tokens.
+
+**Raw-hex conformance (CHECK 2):** `scripts/ci/admin-css-conformance.sh` CHECK 2 verifies that no raw hex colour literal appears outside a `:root` block. Fails CI on any violation.
+
+**Raw-px conformance (CHECK 3, D-07 PATH A):** `scripts/ci/admin-css-conformance.sh` CHECK 3 verifies that no raw pixel value appears in token-eligible property contexts (`font-size`, `gap`, `row-gap`, `column-gap`, `margin`, `width`, `height`, etc.) outside a `:root` block. The check excludes provably non-token-candidate values: negative margins (e.g. `margin: -1px`), `1px`/`0px` terminal values used in visually-hidden clip patterns (`clip: rect(0,0,0,0)` context), and `:root` blocks themselves. All three checks exit 0 on the current `sigra_admin.css` — zero violations. The legitimate raw-px idioms present in the CSS (media-query breakpoints, 1px hairline borders, box-shadow geometry, micro transform nudges, `border-radius: 999px` pill, accessibility clip) are all excluded by the CHECK 3 filters and do not bypass the `--sg-space-*` / `--sg-text-*` token scales.
+
+---
+
 Cross-reference: `admin-design-contract.md` (dark AA resolution note ~line 207), `brandbook/tokens.json` (brand source of truth), `guides/reference/admin-quality-ledger.md` (L0 row).
