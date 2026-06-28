@@ -178,7 +178,7 @@ Plans:
 | --- | --- | --- | --- | --- |
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete   | 2026-06-28 |
+| 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
