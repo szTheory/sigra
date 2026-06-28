@@ -48,7 +48,12 @@
   2. The `/admin/_design` gallery renders all meta-component groups in `board-cfg-*` real-page composite configurations (not just isolated boards), and `admin-design.spec.ts` snapshots those composites clean across chromium/mobile/dark
   3. `.planning/v1.42-IA-DIAGNOSTIC.md` is committed with a persona panel reading across all 8 admin pages and a prioritized disposition list for the component/group/page work
   4. Demo seed/persona data for the `@demo.tasklane.test` cohort covers error/boundary/edge states (empty, long-string/UUID overflow, ≥25-event actor, failed/warning status, permission-denied) with `loadtest-` marker — `mix test` CI fixture is unmodified
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 205-01-PLAN.md — Author admin-persona-jtbd-rubric.md + bidirectional cross-refs into scorecard/ledger + IN-04 Terminal-Ratification prose fix (INSTR-01)
+- [ ] 205-02-PLAN.md — FIXT-01 seed fixtures: zoe persona, ghost-org, i18n/RTL loadtest user, Seeds.bulk_cohort_size/0, @seconds_per_day, IN-01/02/03/05 hardening (FIXT-01)
+- [ ] 205-03-PLAN.md — board-cfg-* real-page composites in design_gallery_live.ex + CONFIG_BOARDS in admin-design.spec.ts + baseline captures (INSTR-02)
+- [ ] 205-04-PLAN.md — .planning/v1.42-IA-DIAGNOSTIC.md: 8-page inventory + persona-panel pass + prioritized disposition list for 206-210 (INSTR-03)
 **UI hint**: yes
 
 ### Phase 206: L1 Component Elevation Wave A
