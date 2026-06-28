@@ -60,7 +60,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 205-03-PLAN.md — board-cfg-* real-page composites in design_gallery_live.ex + CONFIG_BOARDS in admin-design.spec.ts + baseline captures (INSTR-02)
+- [x] 205-03-PLAN.md — board-cfg-* real-page composites in design_gallery_live.ex + CONFIG_BOARDS in admin-design.spec.ts + baseline captures (INSTR-02)
 - [ ] 205-04-PLAN.md — .planning/v1.42-IA-DIAGNOSTIC.md: 8-page inventory + persona-panel pass + prioritized disposition list for 206-210 (INSTR-03)
 
 **UI hint**: yes
@@ -158,7 +158,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 205. Foundation | v1.42 | 2/4 | In Progress|  |
+| 205. Foundation | v1.42 | 3/4 | In Progress|  |
 | 206. L1 Component Elevation Wave A | v1.42 | 0/? | Not started | - |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 0/? | Not started | - |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
