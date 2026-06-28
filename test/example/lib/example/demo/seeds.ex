@@ -46,6 +46,13 @@ defmodule Example.Demo.Seeds do
   # the `loadtest-` local-part prefix (Pitfall-3 resolution — seeds_test.exs).
   @bulk_cohort_size 36
 
+  # Seconds per day — used for deterministic DateTime.add/3 offsets (IN-03).
+  @seconds_per_day 86_400
+
+  @doc "Returns the target size of the loadtest- bulk user cohort."
+  @spec bulk_cohort_size() :: non_neg_integer()
+  def bulk_cohort_size, do: @bulk_cohort_size
+
   @doc """
   Seeds the demo database idempotently.
 
@@ -60,7 +67,7 @@ defmodule Example.Demo.Seeds do
     # test in admin-design.spec.ts which opens the first user's audit feed).
     seed_bulk_users()
     users = seed_users()
-    {acme, beta} = seed_organizations()
+    {acme, beta, _ghost} = seed_organizations()
     seed_memberships(users, acme, beta)
     seed_invitation(acme)
     seed_mfa_credentials(users)
@@ -139,6 +146,7 @@ defmodule Example.Demo.Seeds do
             |> then(fn user ->
               # Confirm each bulk user so they appear in the list like real users.
               if user.confirmed_at do
+                # Already confirmed — only reachable on partial-cohort re-runs (idempotency recovery path)
                 user
               else
                 user
@@ -152,6 +160,32 @@ defmodule Example.Demo.Seeds do
       case result do
         {:ok, _} -> :ok
         {:error, reason} -> raise "seed_bulk_users/0 failed: #{inspect(reason)}"
+      end
+    end
+
+    # D-18: i18n/RTL overflow user — exercises multi-byte CJK, RTL Arabic, combining
+    # diacritics, and emoji rendering in the admin UI display-name column.
+    # Uses the `loadtest-` prefix so it is EXCLUDED from Personas.all() count queries.
+    # Seeded OUTSIDE the @bulk_cohort_size count guard so the 36-user threshold
+    # remains stable (this is an extra user, not part of the 36).
+    # D-19 determinism: all values are static string literals — no randomness.
+    i18n_email = "loadtest-i18n-rtl@demo.tasklane.test"
+
+    i18n_exists =
+      Repo.aggregate(from(u in User, where: u.email == ^i18n_email), :count)
+
+    if i18n_exists < 1 do
+      user =
+        upsert_user(%{
+          email: i18n_email,
+          display_name: "张三李四 مستخدم café résumé 🌏 Test",
+          password: "I18nRtl1!LoadTest2026"
+        })
+
+      if is_nil(user.confirmed_at) do
+        user
+        |> User.confirm_changeset()
+        |> Repo.update!()
       end
     end
 
@@ -293,7 +327,11 @@ defmodule Example.Demo.Seeds do
   defp seed_organizations do
     acme = upsert_organization("Acme Corp", "acme-corp")
     beta = upsert_organization("Beta Labs", "beta-labs")
-    {acme, beta}
+    # D-16: ghost-org is a zero-member organization (no memberships, no invitations,
+    # no enterprise connection) so the org-detail page has a navigable empty state.
+    # Seeded idempotently via upsert_organization/2; not passed to seed_memberships.
+    ghost = upsert_organization("Ghost Org", "ghost-org")
+    {acme, beta, ghost}
   end
 
   defp upsert_organization(name, slug) do
@@ -510,7 +548,7 @@ defmodule Example.Demo.Seeds do
       # leaves precision at {0, 0} (which Ecto rejects), so set {0, 6} explicitly.
       active_at =
         @seed_reference_ts
-        |> DateTime.add(-session.offset_days * 86_400, :second)
+        |> DateTime.add(-session.offset_days * @seconds_per_day, :second)
         |> Map.put(:microsecond, {0, 6})
 
       %UserSession{}
@@ -797,7 +835,7 @@ defmodule Example.Demo.Seeds do
           # occurred_at values below. Reordering @audit_actions / persona_audit_events/0
           # changes which row sorts first.
           occurred_at =
-            DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
+            DateTime.add(@seed_reference_ts, -offset_days * @seconds_per_day, :second)
 
           %AuditEvent{}
           |> AuditEvent.changeset(
@@ -820,7 +858,7 @@ defmodule Example.Demo.Seeds do
           subject = Map.fetch!(users, event.email)
           actor = Map.fetch!(users, event.actor)
           organization_id = event.org && Map.fetch!(organizations, event.org).id
-          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * 86_400, :second)
+          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * @seconds_per_day, :second)
 
           %AuditEvent{}
           |> AuditEvent.changeset(
