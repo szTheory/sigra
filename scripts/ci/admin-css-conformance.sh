@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Phase 206 (L1-COMPONENT-ELEVATION): merge-blocking CSS conformance guard.
-# Fails CI if sigra_admin.css contains forbidden patterns.
+# Phase 206/207 (L1-COMPONENT-ELEVATION / L1/L0-ELEVATION): merge-blocking CSS
+# conformance guard. Fails CI if sigra_admin.css contains forbidden patterns.
 #
 # Checks:
 #   (a) No `transition: all` shorthand anywhere in the file.
 #   (b) No raw hex color literals outside :root token-definition blocks.
+#   (c) No raw px values in token-eligible property contexts (D-07, Phase 207).
 #
 # Usage:
 #   bash scripts/ci/admin-css-conformance.sh [<css-file>]
@@ -27,6 +28,10 @@ Usage: admin-css-conformance.sh [<css-file>]
 Merge-blocking CSS conformance guard. Fails if sigra_admin.css contains:
   (a) transition: all shorthand (use specific transition properties instead)
   (b) raw hex color literals outside :root token-definition blocks (use var() references)
+  (c) raw px values in token-eligible property contexts outside :root (use var(--sg-*) tokens)
+      Token-eligible: font-size, gap, padding, margin, width, height and variants.
+      Explicitly skipped: box-shadow, border, border-radius, transform, @media,
+      negative values, and the visually-hidden clip pattern.
 
 Default target: ROOT/priv/templates/sigra.install/admin/sigra_admin.css
 EOF
@@ -154,6 +159,88 @@ if [[ -n "$HEX_MATCHES" ]]; then
   violations=1
 else
   echo "admin-css-conformance: CHECK 2 PASS — no raw hex outside :root found"
+fi
+
+# ------------------------------------------------------------------------------
+# CHECK 3: No raw px values in token-eligible property contexts (D-07)
+# Token-eligible properties are those whose values should use --sg-space-* or
+# --sg-text-* tokens: font-size, gap, row-gap, column-gap, padding, margin,
+# width, height, and their -top/-right/-bottom/-left/-inline/-block variants.
+#
+# Explicitly SKIPPED (not flagged — these are legitimate CSS idioms that must
+# remain raw px):
+#   - box-shadow, border, border-*, outline, border-radius, transform, @media
+#   - visually-hidden clip pattern: negative margin (-1px) and 1px/0px
+#     width/height/padding in blocks containing clip: or overflow: hidden
+#   - Negative values (e.g. margin: -1px) — never a design-token candidate
+#
+# Strategy: strip :root blocks (reuse CHECK 2 awk), then filter to only the
+# token-eligible property declarations, skip negatives, skip clip-pattern lines,
+# and grep for bare Npx values that are NOT inside var().
+# ------------------------------------------------------------------------------
+echo "admin-css-conformance: CHECK 3 — no raw px in token-eligible contexts in ${CSS_FILE}"
+
+PX_MATCHES=$(awk '
+BEGIN {
+  in_root = 0
+  root_entry_depth = 0
+  brace_depth = 0
+}
+{
+  line = $0
+  emit = 1
+
+  if (in_root) {
+    n = split(line, chars, "")
+    for (i = 1; i <= n; i++) {
+      if (chars[i] == "{") brace_depth++
+      if (chars[i] == "}") {
+        brace_depth--
+        if (brace_depth < root_entry_depth) {
+          in_root = 0
+          break
+        }
+      }
+    }
+    emit = 0
+  } else {
+    if (line ~ /:root[[:space:]]*\{/) {
+      in_root = 1
+      root_entry_depth = brace_depth + 1
+      n = split(line, chars, "")
+      for (i = 1; i <= n; i++) {
+        if (chars[i] == "{") brace_depth++
+        if (chars[i] == "}") brace_depth--
+      }
+      emit = 0
+    } else {
+      n = split(line, chars, "")
+      for (i = 1; i <= n; i++) {
+        if (chars[i] == "{") brace_depth++
+        if (chars[i] == "}") brace_depth--
+      }
+      emit = 1
+    }
+  }
+
+  if (emit) print NR ":" line
+}' "$CSS_FILE" \
+  | grep -E '^\d+:[[:space:]]*(font-size|(row-gap|column-gap|gap)|(padding|padding-top|padding-right|padding-bottom|padding-left|padding-inline|padding-block|padding-inline-start|padding-inline-end|padding-block-start|padding-block-end)|(margin|margin-top|margin-right|margin-bottom|margin-left|margin-inline|margin-block)|(width|height|min-width|min-height|max-width|max-height|inline-size|block-size))[[:space:]]*:' \
+  | grep -E '[0-9]+px' \
+  | grep -v 'var(--' \
+  | grep -vE ':[[:space:]]*-[0-9]' \
+  | grep -vE 'clip[[:space:]]*:|overflow[[:space:]]*:[[:space:]]*hidden' \
+  | grep -vE ':[[:space:]]*(0px|1px)[[:space:]]*;?[[:space:]]*$' \
+  || true)
+
+if [[ -n "$PX_MATCHES" ]]; then
+  echo "admin-css-conformance: FAIL: raw px in token-eligible context found:" >&2
+  while IFS= read -r line; do
+    echo "  $line" >&2
+  done <<< "$PX_MATCHES"
+  violations=1
+else
+  echo "admin-css-conformance: CHECK 3 PASS — no raw px in token-eligible contexts found"
 fi
 
 # ------------------------------------------------------------------------------
