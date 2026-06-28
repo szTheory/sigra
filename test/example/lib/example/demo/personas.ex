@@ -1,6 +1,6 @@
 defmodule Example.Demo.Personas do
   @moduledoc """
-  Single source of truth for the nine demo personas used by `Example.Demo.Seeds`.
+  Single source of truth for the ten demo personas used by `Example.Demo.Seeds`.
 
   This is a pure-data module: no DB calls, no dependencies on other Example modules.
   Consumed both by the seed orchestrator (plan 03) and the `/demo/credentials` LiveView
@@ -12,6 +12,11 @@ defmodule Example.Demo.Personas do
   Passwords are public-by-design demo credentials. Each password satisfies
   `Sigra.PasswordPolicy` rules (12+ chars, mixed case, digit, symbol).
   Never use these passwords in production.
+
+  The tenth persona, Zoe, is a zero-state confirmed user: no MFA, no passkey,
+  no OAuth identity, no org memberships, no sessions, no audit events. She drives
+  empty-panel rendering on the admin user-detail page — a distinct surface from
+  "filter to nothing" (D-15).
   """
 
   # Demo-only — intentionally deterministic. Never use in production.
@@ -31,7 +36,7 @@ defmodule Example.Demo.Personas do
   def email(local) when is_binary(local), do: local <> "@" <> @demo_domain
 
   @doc """
-  Returns the list of all nine demo personas as maps.
+  Returns the list of all ten demo personas as maps.
 
   Each persona map contains:
   - `:email` — fixed `@demo.tasklane.test` address
@@ -175,6 +180,20 @@ defmodule Example.Demo.Personas do
         org_owner: nil,
         org_admin: nil,
         org_member: :acme
+      },
+      %{
+        email: email("zoe"),
+        display_name: "Zoe",
+        password: "ZoeDemoPass1!Empty",
+        confirmed: true,
+        totp: false,
+        passkey: false,
+        locked: false,
+        scheduled_deletion: false,
+        identity_github: false,
+        org_owner: nil,
+        org_admin: nil,
+        org_member: nil
       }
     ]
   end
@@ -182,7 +201,7 @@ defmodule Example.Demo.Personas do
   @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
-  '@') for all nine @demo.tasklane.test personas.
+  '@') for all ten @demo.tasklane.test personas.
   """
   @spec feature_map() :: %{String.t() => String.t()}
   def feature_map do
@@ -196,7 +215,9 @@ defmodule Example.Demo.Personas do
       "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console",
       "pat" =>
         "Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index",
-      "grace" => "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill"
+      "grace" => "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill",
+      "zoe" =>
+        "Zero-state user — confirmed, no MFA/passkey/identity/org/sessions/audit; drives empty panels on user detail"
     }
   end
 
