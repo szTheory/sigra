@@ -1177,6 +1177,194 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           </div>
         </div>
       </section>
+
+      <%!-- ================================================================
+           Page Composites — board-cfg-* (D-08, D-09)
+           Each composite mirrors a full admin page archetype in its loaded
+           (populated) state. All assigns are static literals — no DB, no
+           Repo, no Ecto.Query imports.
+           ================================================================ --%>
+      <section class="sg-stack sg-stack--4">
+        <h2 class="sg-section-heading">Page Composites</h2>
+        <div class="sg-stack sg-stack--6">
+
+          <%!-- board-cfg-overview — Overview archetype; see index_live.ex + admin-design-contract.md Overview Archetype --%>
+          <section id="board-cfg-overview" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">Platform admin</p>
+              <h1 class="sg-page-title">Overview</h1>
+              <p class="sg-page-copy">
+                Monitor platform health and respond to alerts before they escalate.
+              </p>
+            </header>
+            <.notice tone={:risk}>
+              2 accounts locked —
+              <.notice_link href="/admin/users?locked=true">Review accounts</.notice_link>
+            </.notice>
+            <div class="sg-grid sg-grid--3">
+              <.task_card
+                title="Manage users"
+                body="Review accounts, unlock users, and manage access."
+                href="/admin/users"
+                action="Open users"
+              />
+              <.task_card
+                title="Review audit trail"
+                body="Inspect recent activity and investigate anomalies."
+                href="/admin/audit"
+                action="Open audit"
+              />
+              <.task_card
+                title="Manage organizations"
+                body="Add, remove, or reconfigure organization memberships."
+                href="/admin/organizations"
+                action="Open organizations"
+              />
+            </div>
+          </section>
+
+          <%!-- board-cfg-users-list — List archetype; see users_index_live.ex + admin-design-contract.md List Archetype --%>
+          <section id="board-cfg-users-list" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">User operations</p>
+              <h1 class="sg-page-title">Users</h1>
+            </header>
+            <.scope_ribbon copy="Viewing all organizations" />
+            <section class="sg-stack sg-stack--4">
+              <h2 class="sg-section-heading">Find users</h2>
+              <form class="sg-filter-panel sg-stack sg-stack--3">
+                <div class="sg-search-row">
+                  <label class="sg-field" for="cfg-users-search">
+                    <span class="sg-field-label">Search</span>
+                    <input id="cfg-users-search" class="sg-input" value="" placeholder="Email, user id, or name" />
+                  </label>
+                  <button type="button" class="sg-btn sg-btn--primary">Search</button>
+                  <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                </div>
+                <div class="sg-cluster sg-cluster--start">
+                  <.applied_chip label="Status: Locked" remove_href="?status=" />
+                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+                </div>
+              </form>
+            </section>
+            <section class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">User health</h2>
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Total users" value={46} />
+                <.summary_chip label="Locked" value={2} tone="risk" />
+                <.summary_chip label="Deletion scheduled" value={1} tone="warn" />
+              </dl>
+            </section>
+          </section>
+
+          <%!-- board-cfg-user-detail — Detail archetype; see user_show_live.ex + admin-design-contract.md Detail Archetype --%>
+          <section id="board-cfg-user-detail" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">User detail</p>
+              <h1 class="sg-page-title">alice@demo.tasklane.test</h1>
+            </header>
+            <.scope_ribbon copy="Platform admin" />
+            <.page_back return_to="/admin/users" label="Back to users" />
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">Identity</h2>
+              <div class="sg-stack sg-stack--2">
+                <span class="sg-strong">Alice Admin</span>
+                <code class="sg-code">alice@demo.tasklane.test</code>
+                <div class="sg-cluster sg-cluster--2">
+                  <span class="sg-status-pill" data-tone="info">MFA enabled</span>
+                </div>
+              </div>
+            </article>
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">Sessions</h2>
+              <div class="sg-list">
+                <article class="sg-list-row sg-stack sg-stack--2">
+                  <div class="sg-cluster sg-cluster--between">
+                    <span class="sg-strong">Chrome on macOS</span>
+                    <span class="sg-status-pill" data-tone="ok">Current</span>
+                  </div>
+                  <span class="sg-muted sg-text-sm">Last seen today</span>
+                </article>
+              </div>
+            </article>
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">MFA credentials</h2>
+              <.empty_state title="No MFA credentials">
+                <p class="sg-muted sg-text-sm">This user has not enrolled any MFA methods.</p>
+              </.empty_state>
+            </article>
+          </section>
+
+          <%!-- board-cfg-audit — Audit archetype; see audit_index_live.ex + admin-design-contract.md --%>
+          <section id="board-cfg-audit" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">Audit</p>
+              <h1 class="sg-page-title">Audit events</h1>
+            </header>
+            <section class="sg-stack sg-stack--4">
+              <form class="sg-filter-panel sg-stack sg-stack--3">
+                <div class="sg-cluster sg-cluster--start">
+                  <label class="sg-field" for="cfg-audit-from">
+                    <span class="sg-field-label">From</span>
+                    <input id="cfg-audit-from" class="sg-input" type="date" value="2026-01-01" />
+                  </label>
+                  <label class="sg-field" for="cfg-audit-to">
+                    <span class="sg-field-label">To</span>
+                    <input id="cfg-audit-to" class="sg-input" type="date" value="2026-01-31" />
+                  </label>
+                  <button type="button" class="sg-btn sg-btn--primary">Apply</button>
+                  <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                </div>
+                <div class="sg-cluster sg-cluster--start">
+                  <.applied_chip label="Action: login" remove_href="?action=" />
+                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+                </div>
+              </form>
+            </section>
+            <div class="sg-table-panel">
+              <table class="sg-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Actor</th>
+                    <th>Target</th>
+                    <th>Occurred at</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <.audit_table_row row={
+                    %{
+                      id: "evt-cfg-01",
+                      inserted_at: ~N[2026-01-15 10:30:00],
+                      action: "auth.login.success",
+                      action_label: "Login succeeded",
+                      action_badge: nil,
+                      actor_label: "alice@demo.tasklane.test",
+                      effective_user_label: "alice@demo.tasklane.test",
+                      actor_summary: "alice@demo.tasklane.test",
+                      outcome: "success"
+                    }
+                  } />
+                  <.audit_table_row row={
+                    %{
+                      id: "evt-cfg-02",
+                      inserted_at: ~N[2026-01-15 09:00:00],
+                      action: "auth.login.failure",
+                      action_label: "Login failed",
+                      action_badge: nil,
+                      actor_label: "unknown@example.com",
+                      effective_user_label: "unknown@example.com",
+                      actor_summary: "unknown@example.com",
+                      outcome: "failure"
+                    }
+                  } />
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </section>
     </section>
     """
   end
