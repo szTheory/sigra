@@ -77,12 +77,12 @@ Plans:
   3. All 8 components render correctly in light/dark/system with no raw hex values outside `--sg-*` token vars; documented target-size is cited
   4. All 8 L1 ledger rows are flipped to bare `2` with evidence citations and `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 Plans:
 **Wave 1** *(parallel)*
 
-- [ ] 206-01-PLAN.md — Build admin-css-conformance.sh CI guard + self-test (D-05)
+- [x] 206-01-PLAN.md — Build admin-css-conformance.sh CI guard + self-test (D-05)
 - [ ] 206-02-PLAN.md — Audit 8 L1 components; fix raw hex gap in sigra_admin.css; byte-coherence propagation (D-02, D-03, D-06)
 
 **Wave 2** *(depends on Wave 1)*
@@ -171,7 +171,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 206. L1 Component Elevation Wave A | v1.42 | 0/? | Not started | - |
+| 206. L1 Component Elevation Wave A | v1.42 | 1/4 | In Progress|  |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 0/? | Not started | - |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |
