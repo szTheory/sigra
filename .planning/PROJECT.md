@@ -32,6 +32,19 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
+## Current Milestone: v1.42 ADMIN-DS-ELEVATION
+
+**Goal:** Drive the *building blocks* of the generated admin/operator design system to award-grade (Tier-2) — every L1 component and every L2 meta-component group — then run an adversarial persona/JTBD judgment pass over all pages to kill info-dump and reach deliberate, internally-coherent, Apple-like IA; ratchet every remaining ledger cell (token layer, `user-sessions` page, 3 persona flows) to Tier-2, forward-only via the existing monotonic guard.
+
+**Thesis (post-1.0 posture):** v1.41 ADMIN-UX-ELEVATION elevated the heavy *page compositions* (L3) — 7/8 pages are Tier-2 — but the components (L1, all 13) and meta-component groups (L2, MG-1..MG-11) the brief is explicitly about are still Tier-1, as are the L0 token layer and the 3 L4 flows. This milestone is the **building-blocks-up complement**: systematically elevate components → groups, then judge pages from the user's lens, so the whole fractal reaches Tier-2. The new durable deliverable is a **reusable adversarial persona/JTBD judge instrument** (rubric + per-surface scored review docs cited in the ledger) that formalizes judgment-level review without becoming a flaky CI gate.
+
+**Target features:**
+- A committed, re-runnable **adversarial persona/JTBD judge instrument** (3 lenses: platform admin / support investigator / org admin; fixed questions: "is each element earning its place / is the IA muddy / is this redundant-coherent-least-surprising"), plus a deepened `/admin/_design` gallery rendering groups in real page configurations and an up-front IA diagnostic.
+- **Component + group elevation**: all 13 L1 components and all 11 L2 meta-component groups to Tier-2 — on-brand color/type/spacing/radius/shadow/motion in light/dark/system, full interaction states, mobile-first, accessible, on-brand microcopy; evaluated on their own merit and in real configurations.
+- **Judgment page pass + remaining cells**: kill info-dump/redundancy/verbosity across all 8 pages under the monotonic guard, elevate the `user-sessions` page and the 3 persona flows to Tier-2, then terminal ratification (every cell `2`, baselines recaptured, allowlists empty, generated-host parity proven).
+
+Phases continue from **205** (205 foundation → 206/207 components → 208 groups → 209 page judgment → 210 user-sessions + flows → 211 ratification). Plan: `~/.claude/plans/design-system-stress-test-steady-kazoo.md`.
+
 ## Latest Shipped Milestone: v1.41 ADMIN-UX-ELEVATION (shipped 2026-06-27)
 
 **Goal:** Streamline the highest-impact generated admin/operator pages to award-grade (Tier-2) quality — deliberate, JTBD-first, internally coherent, mobile-first, accessible (WCAG 2.2 AA), on-brand in light/dark/system — and ratchet them forward-only via the existing quality-ledger monotonic guard so quality can only ever increase.

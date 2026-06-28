@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.41
-milestone_name: ADMIN-UX-ELEVATION
-current_phase: 41
-status: Awaiting next milestone
-stopped_at: Completed 204-02-PLAN.md
-last_updated: "2026-06-27T14:02:04.092Z"
-last_activity: 2026-06-27
-last_activity_desc: Milestone v1.41 completed and archived
+milestone: v1.42
+milestone_name: ADMIN-DS-ELEVATION
+status: planning
+last_updated: "2026-06-28T16:10:49.046Z"
+last_activity: 2026-06-28
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 26
-  completed_plans: 26
-  percent: 100
-current_phase_name: terminal-ratification
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.41 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-27 — Milestone v1.41 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-28 — Milestone v1.42 started
 
 ## Accumulated Context
 
