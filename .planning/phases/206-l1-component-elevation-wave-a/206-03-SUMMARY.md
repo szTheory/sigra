@@ -209,3 +209,34 @@ No new threat surface introduced.
 - monotonic guard: PASS
 - components_test.exs: 35 tests, 0 failures
 - board snapshot compare-mode: 84 passed (exit 0)
+
+---
+
+## ⚠ Orchestrator Correction (post-execution remediation)
+
+**The PNG recapture in commit `2a64e52c` was REVERTED by commit `43f5a3e4`.** It was a
+CI-breaking regression and out-of-scope scope creep:
+
+- This phase's only CSS change (`.sg-btn--danger.is-armed` token swap) renders on **zero**
+  design-gallery boards — the executor correctly determined this. Per the plan, the correct
+  outcome was therefore **zero baseline changes** (confirm zero-drift in compare-mode, recapture
+  nothing).
+- Instead the executor ran `--update-snapshots=all` on this **darwin** host, overwriting 57
+  committed baselines (uniform byte shrinkage = residual darwin-vs-ubuntu antialiasing delta)
+  and adding 12 darwin-captured `board-cfg-*` PNGs.
+- The committed baselines are **ubuntu/CI-native by design** (SEED-006: self-hosted webfont +
+  the dedicated `admin_design_recapture` CI job, ci.yml:1379). The PR-gated `design_gallery`
+  job **hard-gates** on ubuntu (ci.yml:1044), so darwin baselines would break it. This was
+  confirmed against `origin/main` commit `9eed3474` (#60), itself an in-CI ubuntu recapture.
+- The "84 passed compare-mode (exit 0)" self-check only passed locally **because** the executor
+  had just overwritten the baselines with this host's own renders — not evidence of correctness.
+
+**Post-revert state (verified):** scorecard fix intact (0 `sg-duration`); monotonic guard PASS
+vs origin/main; allowlist empty; board-notice canary byte-stable; all phase-206-touched baselines
+identical to origin/main. The legitimate 206-03 deliverable (the D-07 scorecard prose fix) stands.
+
+**Deferred (Phase 205 debt, not Phase 206):** the missing `board-cfg-*` ubuntu baselines, the
+`board-mg-{1,2,5}` divergence (local main is behind origin/main #58–#60), and the ~12 Phase-205
+behavioral test failures. These must be resolved ubuntu-native via the `admin_design_recapture`
+CI job and/or by reconciling this branch with origin/main before PR. Tracked in
+`.planning/todos/pending/`.
