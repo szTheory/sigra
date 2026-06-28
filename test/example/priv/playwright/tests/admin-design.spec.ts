@@ -79,10 +79,17 @@ async function assertBoardScreenshot(page: Page, testInfo: TestInfo, boardId: st
   const dark = testInfo.project.name.includes('dark');
   const mobile = testInfo.project.name.includes('mobile');
   const ci = process.env.CI === 'true';
+  // CONFIG_BOARDS are full-page composites with more surface area than isolated MG boards.
+  // Apply a higher maxDiffPixels/maxDiffPixelRatio budget to absorb rendering variance (D-10).
+  const isCfgBoard = boardId.startsWith('board-cfg-');
   const locator = page.locator(`#${boardId}`);
   await expect(locator).toHaveScreenshot(`${boardId}.png`, {
-    maxDiffPixels: ci ? 200_000 : dark ? 75_000 : mobile ? 45_000 : 30_000,
-    maxDiffPixelRatio: ci ? 0.22 : dark ? 0.1 : mobile ? 0.08 : 0.06,
+    maxDiffPixels: isCfgBoard
+      ? (ci ? 300_000 : dark ? 120_000 : mobile ? 80_000 : 50_000)
+      : (ci ? 200_000 : dark ? 75_000 : mobile ? 45_000 : 30_000),
+    maxDiffPixelRatio: isCfgBoard
+      ? (ci ? 0.30 : dark ? 0.15 : mobile ? 0.12 : 0.09)
+      : (ci ? 0.22 : dark ? 0.1 : mobile ? 0.08 : 0.06),
   });
 }
 
@@ -107,6 +114,8 @@ const GROUP_BOARDS = [
   'board-mg-10',
   'board-mg-11',
 ] as const;
+
+const CONFIG_BOARDS = ['board-cfg-overview', 'board-cfg-users-list', 'board-cfg-user-detail', 'board-cfg-audit'] as const;
 
 const GROUP_STATE_MARKERS: Record<(typeof GROUP_BOARDS)[number], string[]> = {
   'board-mg-1': ['mg-1-populated', 'mg-1-zero', 'mg-1-loading', 'mg-1-error'],
@@ -245,7 +254,7 @@ test.describe('Design gallery board snapshots', () => {
     await waitForLiveViewReady(page);
   });
 
-  for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS]) {
+  for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
     test(`board: ${boardId}`, async ({ page }, testInfo) => {
       await assertBoardScreenshot(page, testInfo, boardId);
     });
@@ -263,7 +272,7 @@ test.describe('Design gallery board snapshots', () => {
     for (const width of RESPONSIVE_WIDTHS) {
       await page.setViewportSize({ width, height: 900 });
 
-      for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS]) {
+      for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
         const board = page.locator(`#${boardId}`);
         await expect(board, `${boardId} should exist at ${width}px`).toBeVisible();
 
@@ -293,6 +302,16 @@ test.describe('Design gallery board snapshots', () => {
           overflowingChild: null,
         });
       }
+    }
+  });
+
+  test('config boards expose expected archetype sections', async ({ page }) => {
+    for (const boardId of CONFIG_BOARDS) {
+      const board = page.locator(`#${boardId}`);
+      await expect(board, `${boardId} should be visible`).toBeVisible();
+      // Each composite must have an h1 or h2 (archetype header)
+      const headings = board.locator('h1, h2');
+      await expect(headings.first(), `${boardId} should have at least one heading`).toBeVisible();
     }
   });
 
