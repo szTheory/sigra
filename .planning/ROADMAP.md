@@ -51,11 +51,11 @@
   3. `.planning/v1.42-IA-DIAGNOSTIC.md` is committed with a persona panel reading across all 8 admin pages and a prioritized disposition list for the component/group/page work
   4. Demo seed/persona data for the `@demo.tasklane.test` cohort covers error/boundary/edge states (empty, long-string/UUID overflow, ≥25-event actor, failed/warning status, permission-denied) with `loadtest-` marker — `mix test` CI fixture is unmodified
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 205-01-PLAN.md — Author admin-persona-jtbd-rubric.md + bidirectional cross-refs into scorecard/ledger + IN-04 Terminal-Ratification prose fix (INSTR-01)
+- [x] 205-01-PLAN.md — Author admin-persona-jtbd-rubric.md + bidirectional cross-refs into scorecard/ledger + IN-04 Terminal-Ratification prose fix (INSTR-01)
 - [ ] 205-02-PLAN.md — FIXT-01 seed fixtures: zoe persona, ghost-org, i18n/RTL loadtest user, Seeds.bulk_cohort_size/0, @seconds_per_day, IN-01/02/03/05 hardening (FIXT-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -158,7 +158,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 205. Foundation | v1.42 | 0/? | Not started | - |
+| 205. Foundation | v1.42 | 1/4 | In Progress|  |
 | 206. L1 Component Elevation Wave A | v1.42 | 0/? | Not started | - |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 0/? | Not started | - |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
