@@ -66,7 +66,7 @@ Deferred unless a concrete adopter/security/product signal promotes them.
 
 ## Traceability
 
-Intended mapping (roadmapper validates and finalizes in ROADMAP.md). Phases continue from 204.
+Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from 204.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -93,4 +93,4 @@ Intended mapping (roadmapper validates and finalizes in ROADMAP.md). Phases cont
 
 ---
 *Requirements defined: 2026-06-28*
-*Last updated: 2026-06-28 after milestone v1.42 definition*
+*Last updated: 2026-06-28 — traceability finalized by roadmapper; 15/15 mapped, 0 unmapped*
