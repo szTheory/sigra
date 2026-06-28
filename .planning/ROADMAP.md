@@ -77,7 +77,19 @@ Plans:
   3. All 8 components render correctly in light/dark/system with no raw hex values outside `--sg-*` token vars; documented target-size is cited
   4. All 8 L1 ledger rows are flipped to bare `2` with evidence citations and `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1** *(parallel)*
+
+- [ ] 206-01-PLAN.md — Build admin-css-conformance.sh CI guard + self-test (D-05)
+- [ ] 206-02-PLAN.md — Audit 8 L1 components; fix raw hex gap in sigra_admin.css; byte-coherence propagation (D-02, D-03, D-06)
+
+**Wave 2** *(depends on Wave 1)*
+
+- [ ] 206-03-PLAN.md — Scorecard token-name fix (D-07); snapshot-recapture gate for affected boards (D-09)
+- [ ] 206-04-PLAN.md — Flip all 8 L1 ledger rows to bare tier 2 with rich evidence; monotonic guard green (D-08)
+
 **UI hint**: yes
 
 ### Phase 207: L1 Component Elevation Wave B + L0 Token Layer
