@@ -3,6 +3,7 @@ created: 2026-06-18T00:00:00.000Z
 status: pending
 title: optional CI guard for admin-token-reference completeness (186 IN-03, deferred)
 area: test
+resolves_phase: 207
 files:
   - guides/reference/admin-token-reference.md
   - test/example/priv/playwright/tests/admin-theme.spec.ts
