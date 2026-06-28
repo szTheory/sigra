@@ -12,7 +12,7 @@
 
 - [x] **INSTR-01**: A committed adversarial persona/JTBD rubric (`guides/reference/admin-persona-jtbd-rubric.md`) defines the 3 lenses (platform admin / support investigator / org admin, sourced from the demo personas), the fixed verdict questions (earning its place? / IA muddy? / redundant-coherent-least-surprising?), an ordinal `keep`/`tighten`/`kill` scale, and a fixed output schema — cross-referenced from the fractal scorecard and quality ledger.
 - [x] **INSTR-02**: The dev-only `/admin/_design` gallery renders meta-component groups in real page configurations (`board-cfg-*` composites, not just isolated boards), registered in `admin-design.spec.ts` across chromium/mobile/dark and snapshot-clean.
-- [ ] **INSTR-03**: An up-front IA diagnostic runs the persona panel across all 8 admin pages and is committed (`.planning/v1.42-IA-DIAGNOSTIC.md`) to prioritize the component/group/page work.
+- [x] **INSTR-03**: An up-front IA diagnostic runs the persona panel across all 8 admin pages and is committed (`.planning/v1.42-IA-DIAGNOSTIC.md`) to prioritize the component/group/page work.
 
 ### Fixtures (FIXT)
 
@@ -72,7 +72,7 @@ Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from
 |-------------|-------|--------|
 | INSTR-01 | Phase 205 | Complete |
 | INSTR-02 | Phase 205 | Complete |
-| INSTR-03 | Phase 205 | Pending |
+| INSTR-03 | Phase 205 | Complete |
 | FIXT-01 | Phase 205 | Complete |
 | COMP-01 | Phase 206 | Pending |
 | COMP-02 | Phase 207 | Pending |
