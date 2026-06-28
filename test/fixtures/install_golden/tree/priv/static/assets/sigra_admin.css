@@ -503,7 +503,7 @@
   .sg-btn--danger[data-armed="true"],
   .sg-btn--danger.is-armed {
     background: var(--sg-color-risk);
-    color: #fff;
+    color: var(--sg-color-on-brand);
   }
 
   .sg-btn--sm {
