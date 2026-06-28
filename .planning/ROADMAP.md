@@ -77,7 +77,7 @@ Plans:
   3. All 8 components render correctly in light/dark/system with no raw hex values outside `--sg-*` token vars; documented target-size is cited
   4. All 8 L1 ledger rows are flipped to bare `2` with evidence citations and `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0
 
-**Plans**: 1/4 plans executed
+**Plans**: 3/4 plans executed
 
 Plans:
 **Wave 1** *(parallel)*
@@ -87,7 +87,7 @@ Plans:
 
 **Wave 2** *(depends on Wave 1)*
 
-- [ ] 206-03-PLAN.md — Scorecard token-name fix (D-07); snapshot-recapture gate for affected boards (D-09)
+- [x] 206-03-PLAN.md — Scorecard token-name fix (D-07); snapshot-recapture gate for affected boards (D-09)
 - [ ] 206-04-PLAN.md — Flip all 8 L1 ledger rows to bare tier 2 with rich evidence; monotonic guard green (D-08)
 
 **UI hint**: yes
@@ -171,7 +171,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 206. L1 Component Elevation Wave A | v1.42 | 2/4 | In Progress|  |
+| 206. L1 Component Elevation Wave A | v1.42 | 3/4 | In Progress|  |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 0/? | Not started | - |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |

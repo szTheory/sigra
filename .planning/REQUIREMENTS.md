@@ -20,7 +20,7 @@
 
 ### Component & Token Elevation (COMP)
 
-- [ ] **COMP-01**: The 8 highest-reuse L1 components (`notice`, `notice_link`, `stat`, `stat_link`, `summary_chip`, `task_card`, `applied_chip`, `audit_row`) meet Tier-2 on their own merit — full interaction states, motion-token conformance (no `transition: all`, `prefers-reduced-motion` strips movement), light/dark/system, documented target-size, on-brand microcopy, per-component axe clean across chromium/mobile/dark.
+- [x] **COMP-01**: The 8 highest-reuse L1 components (`notice`, `notice_link`, `stat`, `stat_link`, `summary_chip`, `task_card`, `applied_chip`, `audit_row`) meet Tier-2 on their own merit — full interaction states, motion-token conformance (no `transition: all`, `prefers-reduced-motion` strips movement), light/dark/system, documented target-size, on-brand microcopy, per-component axe clean across chromium/mobile/dark.
 - [ ] **COMP-02**: The 5 remaining L1 components (`empty_state`, `page_back`, `scope_ribbon`, `field_help`, `skeleton`) meet the same Tier-2 bar across the 3 projects.
 - [ ] **COMP-03**: The L0 token layer is elevated to Tier-2 with documented brand-token conformance (no raw hex/px outside `--sg-*` tokens; light/dark/system parity) and a refreshed `admin-token-reference.md` citation.
 
@@ -74,7 +74,7 @@ Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from
 | INSTR-02 | Phase 205 | Complete |
 | INSTR-03 | Phase 205 | Complete |
 | FIXT-01 | Phase 205 | Complete |
-| COMP-01 | Phase 206 | Pending |
+| COMP-01 | Phase 206 | Complete |
 | COMP-02 | Phase 207 | Pending |
 | COMP-03 | Phase 207 | Pending |
 | GROUP-01 | Phase 208 | Pending |
