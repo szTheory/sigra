@@ -162,7 +162,7 @@ To assert Tier 2 for a ledger cell, see `admin-quality-ledger.md` → _Asserting
 - **Motion-token conformance / no `transition: all`** — a reviewer greps the surface's HEEX
   template and scoped CSS for the literal `transition: all` shorthand (which bypasses
   `prefers-reduced-motion` guards) and confirms all transitions reference `--sg-motion-*`
-  and `--sg-motion-*` and `--sg-ease` / `--sg-ease-*` tokens rather than raw millisecond/cubic-bezier values.
+  and `--sg-ease` / `--sg-ease-*` tokens rather than raw millisecond/cubic-bezier values.
 - **Density / whitespace rhythm** — a reviewer confirms the surface uses a consistent
   `sg-stack--N` tier for vertical rhythm between sections (consistent with the L3
   page-vertical-rhythm add-on: `sg-stack--6` between major sections, `sg-stack--4` inside
