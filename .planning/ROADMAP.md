@@ -104,7 +104,11 @@ Plans:
   3. All 5 component ledger rows and the `token-layer` ledger row are flipped to bare `2` with evidence; monotonic guard exits 0
   4. All 13 L1 ledger cells and the L0 cell now read `2` — the entire component + token layer is Tier-2
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 207-01-PLAN.md — COMP-03 token guards: build admin-token-completeness.sh + .test.sh (D-06); resolve D-07 raw-px (narrow CHECK 3 or D-07a fallback)
+- [ ] 207-02-PLAN.md — COMP-02 audit of the 5 L1 components on isolated boards; narrow CSS fix only if a real gap surfaces (expected: none), byte-coherent across 3 copies
+- [ ] 207-03-PLAN.md — Snapshot recapture of affected board-* PNGs (no-op if no CSS edit) + refresh admin-token-reference.md to cite conformance evidence; canaries stable, allowlists empty
+- [ ] 207-04-PLAN.md — Flip 6 ledger rows (token-layer L0 + 5 L1) to bare 2 with rich evidence; monotonic guard exits 0; full L0/L1 column Tier-2
 **UI hint**: yes
 
 ### Phase 208: L2 Meta-Component Group Elevation
