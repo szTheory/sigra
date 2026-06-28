@@ -83,7 +83,7 @@ Plans:
 **Wave 1** *(parallel)*
 
 - [x] 206-01-PLAN.md — Build admin-css-conformance.sh CI guard + self-test (D-05)
-- [ ] 206-02-PLAN.md — Audit 8 L1 components; fix raw hex gap in sigra_admin.css; byte-coherence propagation (D-02, D-03, D-06)
+- [x] 206-02-PLAN.md — Audit 8 L1 components; fix raw hex gap in sigra_admin.css; byte-coherence propagation (D-02, D-03, D-06)
 
 **Wave 2** *(depends on Wave 1)*
 
@@ -171,7 +171,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 206. L1 Component Elevation Wave A | v1.42 | 1/4 | In Progress|  |
+| 206. L1 Component Elevation Wave A | v1.42 | 2/4 | In Progress|  |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 0/? | Not started | - |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |
