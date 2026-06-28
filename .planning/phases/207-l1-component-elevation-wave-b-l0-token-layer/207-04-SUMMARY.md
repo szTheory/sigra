@@ -154,6 +154,9 @@ No new network endpoints, auth paths, file access patterns, or schema changes. T
 ## Self-Check: PASSED
 
 - `guides/reference/admin-quality-ledger.md` modified — FOUND (bd772413)
+- `207-04-SUMMARY.md` created — FOUND
+- commit bd772413 verified in git log — PASS
+- commit 57b2ad94 (metadata) verified in git log — PASS
 - All 6 rows at bare tier 2 (`grep -xc 2` returns 6) — PASS
 - No decorated tier values (grep returns empty) — PASS
 - 5 L1 rows cite `assertBoardScreenshot` (count = 5) — PASS
@@ -163,4 +166,4 @@ No new network endpoints, auth paths, file access patterns, or schema changes. T
 - `quality-ledger-monotonic.sh --base origin/main` exits 0 (36 cells) — PASS
 - `quality-ledger-monotonic.test.sh` exits 0 (6/6) — PASS
 - Full L0/L1 column at Tier-2 (`grep -vxc 2` returns 0) — PASS
-- `git diff --stat` shows only admin-quality-ledger.md — PASS
+- `git diff --stat` shows only admin-quality-ledger.md modified in plan task commit — PASS
