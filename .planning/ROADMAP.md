@@ -40,91 +40,118 @@
 ## Phase Details
 
 ### Phase 205: Foundation
+
 **Goal**: The judge instrument, gallery configurations, and stress fixtures are in place — every downstream phase can run the rubric and render realistic states
 **Depends on**: Nothing (first phase of milestone; continues from Phase 204)
 **Requirements**: INSTR-01, INSTR-02, INSTR-03, FIXT-01
 **Success Criteria** (what must be TRUE):
+
   1. `guides/reference/admin-persona-jtbd-rubric.md` exists, defines the 3 lenses (platform admin / support investigator / org admin), the 3 fixed verdict questions, an ordinal keep/tighten/kill scale, and a fixed output schema — cross-referenced from the fractal scorecard and quality ledger
   2. The `/admin/_design` gallery renders all meta-component groups in `board-cfg-*` real-page composite configurations (not just isolated boards), and `admin-design.spec.ts` snapshots those composites clean across chromium/mobile/dark
   3. `.planning/v1.42-IA-DIAGNOSTIC.md` is committed with a persona panel reading across all 8 admin pages and a prioritized disposition list for the component/group/page work
   4. Demo seed/persona data for the `@demo.tasklane.test` cohort covers error/boundary/edge states (empty, long-string/UUID overflow, ≥25-event actor, failed/warning status, permission-denied) with `loadtest-` marker — `mix test` CI fixture is unmodified
+
 **Plans**: 4 plans
 Plans:
+**Wave 1**
+
 - [ ] 205-01-PLAN.md — Author admin-persona-jtbd-rubric.md + bidirectional cross-refs into scorecard/ledger + IN-04 Terminal-Ratification prose fix (INSTR-01)
 - [ ] 205-02-PLAN.md — FIXT-01 seed fixtures: zoe persona, ghost-org, i18n/RTL loadtest user, Seeds.bulk_cohort_size/0, @seconds_per_day, IN-01/02/03/05 hardening (FIXT-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 205-03-PLAN.md — board-cfg-* real-page composites in design_gallery_live.ex + CONFIG_BOARDS in admin-design.spec.ts + baseline captures (INSTR-02)
 - [ ] 205-04-PLAN.md — .planning/v1.42-IA-DIAGNOSTIC.md: 8-page inventory + persona-panel pass + prioritized disposition list for 206-210 (INSTR-03)
+
 **UI hint**: yes
 
 ### Phase 206: L1 Component Elevation Wave A
+
 **Goal**: The 8 highest-reuse L1 components are award-grade — every interactive state, motion-token conformant, light/dark/system correct, accessible, and axe-clean across all 3 Playwright projects
 **Depends on**: Phase 205
 **Requirements**: COMP-01
 **Success Criteria** (what must be TRUE):
+
   1. Each of the 8 components (`notice`, `notice_link`, `stat`, `stat_link`, `summary_chip`, `task_card`, `applied_chip`, `audit_row`) passes per-component axe-clean across chromium/mobile/dark Playwright projects (0 violations)
   2. No component uses `transition: all`; all component-level transitions are wrapped in `@media (prefers-reduced-motion: reduce)` that strips movement — verified by code review or automated check
   3. All 8 components render correctly in light/dark/system with no raw hex values outside `--sg-*` token vars; documented target-size is cited
   4. All 8 L1 ledger rows are flipped to bare `2` with evidence citations and `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 207: L1 Component Elevation Wave B + L0 Token Layer
+
 **Goal**: The remaining 5 L1 components and the L0 token layer reach Tier-2, completing the full 13-component + token-layer elevation
 **Depends on**: Phase 206
 **Requirements**: COMP-02, COMP-03
 **Success Criteria** (what must be TRUE):
+
   1. Each of the 5 remaining components (`empty_state`, `page_back`, `scope_ribbon`, `field_help`, `skeleton`) passes axe-clean across chromium/mobile/dark and has no `transition: all` / motion violating `prefers-reduced-motion`
   2. The L0 token layer has documented brand-token conformance (no raw hex/px outside `--sg-*` tokens; light/dark/system parity) and `admin-token-reference.md` is refreshed to cite the conformance evidence
   3. All 5 component ledger rows and the `token-layer` ledger row are flipped to bare `2` with evidence; monotonic guard exits 0
   4. All 13 L1 ledger cells and the L0 cell now read `2` — the entire component + token layer is Tier-2
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 208: L2 Meta-Component Group Elevation
+
 **Goal**: All 11 L2 meta-component groups are award-grade on both isolated boards and real-page configurations — every L0/L1/L2 building block is Tier-2, which is the precondition for the page judgment pass
 **Depends on**: Phase 207
 **Requirements**: GROUP-01, GROUP-02
 **Success Criteria** (what must be TRUE):
+
   1. MG-1 through MG-11 each pass axe-clean on their isolated gallery boards across chromium/mobile/dark (0 violations); no card-in-card nesting, intra-group single-tier rhythm, right-component-for-job verified
   2. Every group's `board-cfg-*` real-page composite passes snapshot-clean across chromium/mobile/dark; MG-5 and MG-6 desktop↔mobile content-equivalence assertions are green (table+mobile-card swap proven)
   3. Zero/loading/error states are defined and rendered for each group that can enter those states; byte-coherent reuse verified across groups
   4. All 11 L2 ledger rows are flipped to bare `2` with evidence; monotonic guard exits 0; every L0/L1/L2 cell reads `2`
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 209: Judgment-Level Page Pass
+
 **Goal**: All 8 admin pages have received an adversarial persona/JTBD review and every actionable verdict is resolved — info-dump, redundancy, and verbosity are remediated under the monotonic guard
 **Depends on**: Phase 208
 **Requirements**: PAGE-01, PAGE-02
 **Success Criteria** (what must be TRUE):
+
   1. A scored review doc (`.planning/uat-evidence/v1.42-persona-jtbd/<surface>.md`) exists for each of the 8 admin pages with 3-persona verdicts and a per-surface disposition (`clean`/`actionable`/`blocked`); a roll-up index (`.planning/v1.42-PERSONA-JTBD-PANEL.md`) links all 8 docs
   2. Every `actionable` verdict from the panel has either a committed remediation diff or an explicit written waiver with rationale — no unresolved actionable verdicts remain
   3. No Tier-2 page regresses — `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0 after all remediations land
   4. Page Playwright baselines are recaptured under allowlist-then-clear discipline; both allowlists are empty at phase close and the canary is byte-stable
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 210: Remaining Cell Elevation
+
 **Goal**: The `user-sessions` page and 3 persona flows reach Tier-2, completing the elevation of every remaining ledger cell
 **Depends on**: Phase 209
 **Requirements**: PAGE-03, FLOW-01
 **Success Criteria** (what must be TRUE):
+
   1. The `user-sessions` page passes: overlay axe-clean, all 7 APG focus-trap/restore gates (it owns the confirm dialog), glossary-clean microcopy, motion/density/target-size satisfied — each cited in the ledger evidence cell; `user-sessions` ledger row reads bare `2`
   2. Each of the 3 persona flows (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`) proves happy/error/boundary/edge paths, scope/return-context continuity, full keyboard operability, calm reduced-motion, and theme persistence in Playwright
   3. Each flow cites its persona review doc (from Phase 209) as evidence and has a ledger row flipped to bare `2`
   4. The monotonic guard exits 0; every ledger cell is now Tier-2 — the whole fractal is complete
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 211: Terminal Ratification
+
 **Goal**: The milestone is closed and auditable — every ledger cell reads 2, all automated gates are green, and generated-host parity is proven end-to-end
 **Depends on**: Phase 210
 **Requirements**: GATE-01, GATE-02
 **Success Criteria** (what must be TRUE):
+
   1. Every cell in `guides/reference/admin-quality-ledger.md` reads bare `2` (no decorators); `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0
   2. All admin Playwright baselines are recaptured with both allowlists (checkpoint + design-gallery) empty and both canaries byte-stable; compare-mode re-render shows zero PNG drift (idempotency proven)
   3. Installer↔example byte-parity and golden fixture stay green; a fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin with no regressions
   4. An adversarial milestone audit doc is committed, recording the persona-JTBD verdicts as Tier-2 evidence and confirming no critical blockers remain
+
 **Plans**: TBD
 
 ## Progress
