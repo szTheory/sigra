@@ -40,7 +40,8 @@ defmodule Example.Demo.SeedsTest do
   # We apply `not like(u.email, "loadtest-%")` to the query in snapshot_counts/0
   # (line ~40) AND to the SEED-02/03 catalog count (line ~122), which are two
   # independent queries. The bulk cohort is counted separately in its own test.
-  @bulk_cohort_size 36
+  # IN-02: bulk_cohort_size is now exposed as Seeds.bulk_cohort_size/0 (SSoT);
+  # no local @bulk_cohort_size attribute here to prevent drift.
 
   defp demo_user!(email), do: Accounts.get_user_by_email(email)
 
@@ -61,7 +62,7 @@ defmodule Example.Demo.SeedsTest do
       demo_users: length(demo_user_ids),
       organizations:
         Repo.aggregate(
-          from(o in Organization, where: o.slug in ^["acme-corp", "beta-labs"]),
+          from(o in Organization, where: o.slug in ^["acme-corp", "beta-labs", "ghost-org"]),
           :count
         ),
       memberships:
@@ -123,7 +124,7 @@ defmodule Example.Demo.SeedsTest do
 
       # And the first run actually produced data (guards against a vacuous pass).
       assert first.demo_users == length(Personas.all())
-      assert first.organizations == 2
+      assert first.organizations == 3
     end
   end
 
@@ -250,9 +251,50 @@ defmodule Example.Demo.SeedsTest do
       assert passkey_count >= 1
     end
 
-    test "Acme Corp and Beta Labs organizations exist" do
+    test "Acme Corp, Beta Labs, and Ghost Org organizations exist" do
       assert Repo.get_by(Organization, slug: "acme-corp")
       assert Repo.get_by(Organization, slug: "beta-labs")
+      assert Repo.get_by(Organization, slug: "ghost-org")
+    end
+
+    test "zoe is the zero-state persona with zero sessions, identities, orgs, and audit events" do
+      zoe = demo_user!("zoe@demo.tasklane.test")
+      assert zoe != nil, "zoe persona must be seeded"
+      assert zoe.confirmed_at != nil, "zoe must be confirmed"
+
+      assert Repo.aggregate(from(s in UserSession, where: s.user_id == ^zoe.id), :count) == 0,
+             "zoe should have 0 UserSession rows (zero-state)"
+
+      assert Repo.aggregate(from(ui in UserIdentity, where: ui.user_id == ^zoe.id), :count) ==
+               0,
+             "zoe should have 0 UserIdentity rows (zero-state)"
+
+      assert Repo.aggregate(
+               from(m in OrganizationMembership, where: m.user_id == ^zoe.id),
+               :count
+             ) == 0,
+             "zoe should have 0 OrganizationMembership rows (zero-state)"
+
+      assert Repo.aggregate(from(a in AuditEvent, where: a.effective_user_id == ^zoe.id), :count) ==
+               0,
+             "zoe should have 0 AuditEvent rows (zero-state)"
+    end
+
+    test "ghost-org has zero memberships and zero invitations" do
+      ghost = Repo.get_by(Organization, slug: "ghost-org")
+      assert ghost != nil, "ghost-org must be seeded"
+
+      assert Repo.aggregate(
+               from(m in OrganizationMembership, where: m.organization_id == ^ghost.id),
+               :count
+             ) == 0,
+             "ghost-org should have 0 OrganizationMembership rows"
+
+      assert Repo.aggregate(
+               from(i in OrganizationInvitation, where: i.organization_id == ^ghost.id),
+               :count
+             ) == 0,
+             "ghost-org should have 0 OrganizationInvitation rows"
     end
 
     test "exactly one pending invitation to invited@demo.tasklane.test" do
@@ -392,15 +434,21 @@ defmodule Example.Demo.SeedsTest do
       :ok
     end
 
-    test "bulk cohort contains exactly @bulk_cohort_size users after run/0" do
+    test "bulk cohort contains exactly Seeds.bulk_cohort_size() users after run/0" do
+      # Exclude the D-18 i18n/RTL overflow user (loadtest-i18n-rtl@...) which is
+      # an extra user outside the @bulk_cohort_size count (D-18 design intent).
       count =
         Repo.aggregate(
-          from(u in User, where: like(u.email, "loadtest-%")),
+          from(u in User,
+            where:
+              like(u.email, "loadtest-%") and
+                u.email != ^"loadtest-i18n-rtl@demo.tasklane.test"
+          ),
           :count
         )
 
-      assert count == @bulk_cohort_size,
-             "expected #{@bulk_cohort_size} bulk cohort users; got #{count}"
+      assert count == Seeds.bulk_cohort_size(),
+             "expected #{Seeds.bulk_cohort_size()} bulk cohort users; got #{count}"
     end
 
     test "bulk cohort emails are absent from Personas.all()" do
@@ -419,14 +467,19 @@ defmodule Example.Demo.SeedsTest do
       # First run already done in setup; run a second time and check count is unchanged.
       assert :ok = Seeds.run()
 
+      # Exclude the D-18 i18n/RTL overflow user which is extra to the @bulk_cohort_size count.
       count =
         Repo.aggregate(
-          from(u in User, where: like(u.email, "loadtest-%")),
+          from(u in User,
+            where:
+              like(u.email, "loadtest-%") and
+                u.email != ^"loadtest-i18n-rtl@demo.tasklane.test"
+          ),
           :count
         )
 
-      assert count == @bulk_cohort_size,
-             "second run/0 changed bulk count; expected #{@bulk_cohort_size}, got #{count} (no-op idempotency violated)"
+      assert count == Seeds.bulk_cohort_size(),
+             "second run/0 changed bulk count; expected #{Seeds.bulk_cohort_size()}, got #{count} (no-op idempotency violated)"
     end
   end
 

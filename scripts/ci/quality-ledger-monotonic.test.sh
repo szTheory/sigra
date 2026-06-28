@@ -137,6 +137,78 @@ else
   fail "Guard exited non-zero ($GUARD_EXIT_B) on no-change run; stderr: $(cat "$GUARD_STDERR_B")"
 fi
 
+# ---- Test C: 1→2 increase MUST exit 0 --------------------------------
+echo "Test C: 1→2 increase exits 0 (guard allows monotonic tier promotion)"
+
+# Restore the working tree to committed baseline.
+git -C "$REPO" checkout -- guides/reference/admin-quality-ledger.md
+
+# Mutate working tree: raise visual-baseline from 1 → 2 (an allowed monotonic increase).
+sed -i.bak 's/| visual-baseline   | global | 1    | PNGs in CI checkpoint lane/| visual-baseline   | global | 2    | PNGs in CI checkpoint lane/' "$LEDGER_PATH"
+rm -f "${LEDGER_PATH}.bak"
+grep -q '| visual-baseline   | global | 2    |' "$LEDGER_PATH" \
+  || { echo "FATAL: Test C fixture mutation did not apply" >&2; exit 2; }
+
+GUARD_STDERR_C="$TMPDIR_ROOT/stderr_c.txt"
+set +e
+(
+  cd "$REPO"
+  bash scripts/ci/quality-ledger-monotonic.sh --base "$BASE_COMMIT" 2>"$GUARD_STDERR_C"
+)
+GUARD_EXIT_C=$?
+set -e
+
+if [[ "$GUARD_EXIT_C" -eq 0 ]]; then
+  pass "Guard exited 0 on 1→2 increase (monotonic promotion is allowed)"
+else
+  fail "Guard exited non-zero ($GUARD_EXIT_C) on 1→2 increase (should have been 0); stderr: $(cat "$GUARD_STDERR_C")"
+fi
+
+if grep -q "tier decreased" "$GUARD_STDERR_C" 2>/dev/null; then
+  fail "Guard stderr incorrectly contains 'tier decreased' on a 1→2 increase"
+else
+  pass "Guard stderr has no 'tier decreased' on a 1→2 increase"
+fi
+
+# ---- Test D: decorated column-4 ("2*") is invisible to the guard parse ------
+# WHY: The ledger doc explicitly forbids decorators on tier cells (e.g. "2*", "2+")
+# because the guard's awk parse uses /^[012]$/ — a strict match that rejects anything
+# other than a bare 0, 1, or 2. A decorated cell like "2*" is silently skipped by
+# the guard, making the row UNPROTECTED: the guard will not detect a decrease on it.
+# This test proves that behavior empirically, converting the doc warning into an
+# enforced contract so future authors understand the consequence before they use decorators.
+echo "Test D: decorated column-4 ('2*') is invisible to the guard parse (exits 0, row unprotected)"
+
+# Restore the working tree to committed baseline.
+git -C "$REPO" checkout -- guides/reference/admin-quality-ledger.md
+
+# Mutate working tree: change accessibility tier from "2" → "2*" (decorated).
+# The base commit has accessibility=2. After this mutation, the working tree has "2*".
+# Because "2*" does not match /^[012]$/, the guard skips the row entirely —
+# the decrease from 2→(invisible) is not detected, and the guard exits 0.
+sed -i.bak 's/| accessibility     | page   | 2    | axe gate passing/| accessibility     | page   | 2*   | axe gate passing/' "$LEDGER_PATH"
+rm -f "${LEDGER_PATH}.bak"
+grep -q '| accessibility     | page   | 2\*   |' "$LEDGER_PATH" \
+  || { echo "FATAL: Test D fixture mutation did not apply" >&2; exit 2; }
+
+GUARD_STDERR_D="$TMPDIR_ROOT/stderr_d.txt"
+set +e
+(
+  cd "$REPO"
+  bash scripts/ci/quality-ledger-monotonic.sh --base "$BASE_COMMIT" 2>"$GUARD_STDERR_D"
+)
+GUARD_EXIT_D=$?
+set -e
+
+# Expected: guard exits 0 — the "2*" row is invisible to the awk parse, so no
+# decrease is detected. This is the DOCUMENTED-BUT-DANGEROUS behavior: the row
+# loses protection the moment a decorator is added.
+if [[ "$GUARD_EXIT_D" -eq 0 ]]; then
+  pass "Test D: decorated '2*' is invisible to the guard parse (exits 0, not protected)"
+else
+  fail "Test D: unexpected non-zero exit ($GUARD_EXIT_D) on decorated '2*' cell; stderr: $(cat "$GUARD_STDERR_D")"
+fi
+
 # ---- Summary -----------------------------------------------------------
 echo ""
 echo "----------------------------------------"
