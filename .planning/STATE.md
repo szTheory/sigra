@@ -4,16 +4,16 @@ milestone: v1.42
 milestone_name: ADMIN-DS-ELEVATION
 current_phase: 206
 current_phase_name: l1-component-elevation-wave-a
-status: executing
+status: verifying
 stopped_at: Phase 206 context gathered (assumptions mode)
-last_updated: "2026-06-28T21:27:53.837Z"
+last_updated: "2026-06-28T21:39:33.773Z"
 last_activity: 2026-06-28
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
-  percent: 14
+  completed_plans: 8
+  percent: 29
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 206 (l1-component-elevation-wave-a) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-28
 
 ## Accumulated Context
@@ -189,6 +189,8 @@ Last activity: 2026-06-28
 - [Phase ?]: D-14 disposition table uses High/Med/Low + P1/P2/P3; kill-from-any-lens auto-promotion applied; org-admin kill on Overview/Branding categorized as correct 403 gate, not surface flaw
 - [Phase ?]: No board in design gallery renders .sg-btn--danger.is-armed; zero boards visually affected by Plan 02 CSS fix; full darwin recapture done for rendering drift
 - [Phase ?]: admin-fractal-scorecard.md D-07: scorecard proxy prose updated to cite --sg-motion-* and --sg-ease / --sg-ease-* tokens (removed duplicate artifact)
+- [Phase ?]: applied_chip remove control cited as ~22×22 CSS px (near-threshold; D-08 precedent)
+- [Phase ?]: All 8 L1 ledger rows flipped to bare tier 2 with accurate per-component evidence strings from 206-02 audit; monotonic guard exits 0 (36 cells)
 
 ### Pending Todos
 
@@ -305,7 +307,7 @@ Last activity: 2026-06-28
 
 ## Session Continuity
 
-Last session: 2026-06-28T21:27:53.829Z
+Last session: 2026-06-28T21:39:18.882Z
 Stopped at: Phase 206 context gathered (assumptions mode)
 Resume file: 
 
@@ -408,3 +410,4 @@ None
 | Phase 205 P02 | 35 | 3 tasks | 4 files |
 | Phase 205 P04 | 4 | 1 tasks | 1 files |
 | Phase 206 P03 | 33m | 2 tasks | 70 files |
+| Phase 206 P04 | ~4m | 2 tasks | 1 files |
