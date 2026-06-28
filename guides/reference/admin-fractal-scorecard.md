@@ -120,6 +120,15 @@ user detail → impersonation → audit review → sign-out).
   provides enough personas and state that a Playwright test can reproduce the entire flow
   without any out-of-band setup.
 
+### Persona-JTBD Rubric (Cross-Reference)
+
+The 3 L4 flow cells (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`)
+have corresponding admin-operator lenses in the Persona-JTBD Rubric. That rubric provides
+the adversarial refutation-prompt verdict questions (earning-its-place / IA-muddy /
+redundant-coherent-least-surprising), the keep/tighten/kill ordinal scale, and the fixed
+YAML output schema for Phase 209 per-surface evidence docs. See
+[`admin-persona-jtbd-rubric.md`](admin-persona-jtbd-rubric.md).
+
 ### Tier-2 Award-grade Add-on
 
 A surface earns Tier 2 only when, **in addition to its Tier-1 ratification**, every

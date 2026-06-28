@@ -94,6 +94,13 @@ Tier-2 cells are automatically forward-only protected against regression once se
 | flow-support-investigator | L4 | 1 | [admin-flow-support-investigator.spec.ts — investigator posture: find→audit→impersonate→return, banner continuity, ConfirmDialog APG gates, theme](../../test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts) |
 | flow-org-admin | L4 | 1 | [admin-flow-org-admin.spec.ts — org admin JTBD: tenant-bounded access, 403 permission-denied, empty audit boundary, theme](../../test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts) |
 
+## Persona-JTBD Rubric (Cross-Reference)
+
+The L4 `flow-*` cells are the ledger binding points for the Persona-JTBD Rubric. Each lens
+maps 1:1 to an L4 flow cell. Per-surface panel verdicts (Phase 209) instantiate the rubric
+output schema and roll up into `v1.42-PERSONA-JTBD-PANEL.md` (a Phase 209 artifact). See
+[`admin-persona-jtbd-rubric.md`](admin-persona-jtbd-rubric.md).
+
 ## Terminal Ratification — Phase 192
 
 All ~35 quality-ledger cells are locked at **Tier 1 (Ratified)** as of Phase 192
@@ -110,7 +117,7 @@ per the _Asserting Tier 2_ convention above. The same monotonic guard that locks
 the floor also protects any Tier-2 cell against regression — `2` is numerically higher than
 `1` and the guard already enforces forward-only integers. Phase 192 locked all cells at Tier 1
 as the minimum floor; Phase 199 established the objective proxy contract for Tier 2.
-Ratcheting individual surfaces to Tier 2 begins in Phases 200-204.
+Ratcheting individual surfaces to Tier 2 began in Phases 200-204 (v1.41 ADMIN-DS-ELEVATION milestone, completed 2026-06-27). v1.42 ADMIN-DS-ELEVATION continues this work in Phases 205-211; see `.planning/ROADMAP.md` for the current phase map.
 
 **Proof method:** compare-mode zero-drift idempotency (not force-recapture) — re-rendering
 all 6 Playwright projects produces zero PNG delta; both allowlists verified at steady-state
