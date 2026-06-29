@@ -43,20 +43,40 @@ The 206-03 executor noted ~12 behavioral failures introduced by Phase 205 (e.g.
 `board-cfg-audit` table overflow at 320px, a filter-form GET test, MG-5/6 equivalence,
 group-boards catalog). Out of scope for Phase 206. Triage under Phase 205/207.
 
-## 4. NOW BLOCKS Phase 208 (paused 2026-06-29)
-Phase 208 Plan 02 (capture the 12 net-new `board-cfg-*` PNG baselines) is blocked on
-exactly items #1 + #2 above: the board-cfg board code (`da980c7a`) is not on `origin/main`
-(local `main` is 291 commits ahead), so the `admin_design_recapture` CI job cannot produce
-the baselines, and darwin/local capture is forbidden (D-05, reverted at 43f5a3e4).
+## 4. NOW BLOCKS Phase 208 (paused 2026-06-29) — the blocker is bigger than a push
 
+Phase 208 Plan 02 (capture the 12 net-new `board-cfg-*` PNG baselines) is blocked.
 Phase 208 is **paused as tracked debt**: 208-01 is complete (audit: zero CSS gaps,
 cite-and-flip); 208-02 + 208-03 remain incomplete.
 
-**To unblock + resume:**
-1. `git push origin main` (lands the board-cfg code + 291 commits on origin/main)
-2. Wait for the `admin_design_recapture` CI job (~15 min); it opens a `recapture-admin-design` PR
-3. Review the PR: exactly 12 `board-cfg-*` PNGs, no `board-cfg-org` (D-06), `board-mg-*` unchanged
-   (Plan 01 verdict was "CSS edited: no"); confirm `board-notice` shows as *added* in the canary guard
-4. Merge the PR into main
-5. Resume: `/gsd-execute-phase 208` — re-runs 208-02 (now the 12 PNGs exist) and then 208-03 (ledger flip)
-6. Move this todo to `.planning/todos/resolved/`
+### The real constraints (investigated 2026-06-29 — supersedes any "just push main" note)
+
+- **`origin/main` is PR-protected** (ruleset 14941512): direct push is rejected (GH013).
+  5 required status checks gate every merge, including **"Example Playwright smoke
+  (full lifecycle)"** — the job that runs the hard-gating `design_gallery` step.
+- **`admin_design_recapture` never runs on PRs** — `if: github.event_name != 'pull_request'`
+  (ci.yml:1389). It runs only on push-to-main, the nightly `schedule`, or
+  `workflow_dispatch` **from a `v*` tag** (`release_ref_guard` blocks any other dispatch
+  ref; this is why `gh workflow run "CI" --ref main` red-fails in ~3 min).
+- **Chicken-and-egg:** a PR adding the board-cfg code fails `design_gallery` on the
+  *missing* board-cfg snapshots → required check red → cannot merge. But the snapshots can
+  only be produced by `admin_design_recapture`, which only runs against code already on
+  main (or a `v*` tag). Darwin/local capture is forbidden (D-05, reverted at 43f5a3e4).
+- **Root cause is the un-shipped backlog:** local `main` is ~291 commits / 9 days ahead of
+  `origin/main` (v1.38–v1.42). Scheduled CI on origin/main is already failing nightly.
+  Shipping that backlog through branch protection is a strategic effort in its own right.
+- **`v*` tagging is discouraged** by project policy (Hex version-collision risk; "default
+  to NOT tagging at close"), which rules out the otherwise-obvious tag→dispatch escape.
+
+### Decision (2026-06-29)
+Per Jon: keep 208 paused; **tackle the 291-commit backlog migration as its own piece of
+work**, not inside phase 208. Candidate approaches to evaluate when picked up:
+  (a) milestone PR for the backlog + a baseline-bootstrap sequence, or
+  (b) a controlled, reviewable CI change allowing a branch-ref `workflow_dispatch` of
+      `admin_design_recapture` (no `v*` tag) so recapture can run against a feature branch
+      and open a baselines PR.
+
+### To resume Phase 208 (after the backlog + baselines are on origin/main)
+- `/gsd-execute-phase 208` — re-runs 208-02 (the 12 board-cfg PNGs now exist) and then
+  208-03 (ledger flip), then phase verification.
+- Move this todo to `.planning/todos/resolved/`.
