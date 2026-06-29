@@ -44,6 +44,13 @@ jobs:
           fi
           case "${GITHUB_REF}" in
             refs/tags/v*) ;;
+            refs/heads/wip/recapture-trigger)
+              # TEMPORARY (Phase 208 baseline bootstrap): allow admin_design_recapture
+              # to run via workflow_dispatch from this throwaway branch so the 12 net-new
+              # board-cfg-* baselines can be captured CI-native without a v* tag. This
+              # branch is never merged to main, so this allowance never reaches main.
+              echo "TEMP bootstrap: allowing recapture dispatch from ${GITHUB_REF}"
+              ;;
             *)
               echo "Manual CI release-evidence runs must use refs/tags/v*; got ${GITHUB_REF}"
               echo "Run with: gh workflow run \"CI\" --ref v1.0.0"
