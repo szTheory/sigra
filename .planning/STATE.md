@@ -5,7 +5,7 @@ milestone_name: ADMIN-DS-ELEVATION
 current_phase: 208
 current_phase_name: l2-meta-component-group-elevation
 status: paused
-stopped_at: 208-02 blocked on CI-native board-cfg baselines (push origin/main); 208-01 complete
+stopped_at: 208-02 blocked — origin/main PR-protected + baseline chicken-and-egg; backlog migration is its own work; 208-01 complete
 last_updated: "2026-06-29T19:18:32.921Z"
 last_activity: 2026-06-29
 progress:
