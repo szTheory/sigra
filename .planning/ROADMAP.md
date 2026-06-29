@@ -125,7 +125,12 @@ Plans:
   3. Zero/loading/error states are defined and rendered for each group that can enter those states; byte-coherent reuse verified across groups
   4. All 11 L2 ledger rows are flipped to bare `2` with evidence; monotonic guard exits 0; every L0/L1/L2 cell reads `2`
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+- [ ] 208-01-PLAN.md — Audit 11 board-mg-* groups + 4 board-cfg-* composites vs L2 Tier-2 proxies; cite wired gates; narrow sg-* fix only if a real gap surfaces (D-02/D-04)
+- [ ] 208-02-PLAN.md — Capture 12 net-new board-cfg-* PNGs CI-native via admin_design_recapture (fold Phase-205 baseline debt); canaries stable; allowlists empty (D-05/D-10)
+- [ ] 208-03-PLAN.md — Flip 11 mg-* L2 ledger rows to bare 2 with rich evidence; monotonic guard exits 0; full L0/L1/L2 column Tier-2 (D-06/D-07/D-08/D-09)
+
 **UI hint**: yes
 
 ### Phase 209: Judgment-Level Page Pass
