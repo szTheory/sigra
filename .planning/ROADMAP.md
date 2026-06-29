@@ -140,6 +140,17 @@ Plans:
 
 **UI hint**: yes
 
+### Phase 208.1: v1.42 CI-Gate Remediation (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 208
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 208.1 to break down)
+
 ### Phase 209: Judgment-Level Page Pass
 
 **Goal**: All 8 admin pages have received an adversarial persona/JTBD review and every actionable verdict is resolved — info-dump, redundancy, and verbosity are remediated under the monotonic guard

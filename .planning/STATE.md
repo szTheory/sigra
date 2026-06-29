@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.42
-milestone_name: ADMIN-DS-ELEVATION
+milestone_name: CI-Gate Remediation
 current_phase: 208
 current_phase_name: l2-meta-component-group-elevation
 status: paused
 stopped_at: 208-02 blocked — origin/main PR-protected + baseline chicken-and-egg; backlog migration is its own work; 208-01 complete
-last_updated: "2026-06-29T19:18:32.921Z"
+last_updated: "2026-06-29T23:48:48.369Z"
 last_activity: 2026-06-29
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 3
   total_plans: 15
   completed_plans: 14
-  percent: 43
+  percent: 38
 ---
 
 # Project State
@@ -30,7 +30,8 @@ See: `.planning/PROJECT.md`
 
 Phase: 208 (l2-meta-component-group-elevation) — PAUSED (tracked debt)
 Plan: 1 of 3 complete; 208-02 blocked, 208-03 pending
-Status: Paused — 208-02 (board-cfg PNG baselines) blocked on CI-native capture; see `.planning/todos/pending/2026-06-28-phase205-debt-ci-native-board-baselines.md` §4
+Status: Paused — deeper root cause found: admin Playwright gates never CI-validated (~15 real failures). See `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`.
+Next: Phase 208.1 (v1.42 CI-Gate Remediation) inserted — run `/gsd-plan-phase 208.1`
 Last activity: 2026-06-29
 
 ## Accumulated Context
@@ -204,6 +205,10 @@ Last activity: 2026-06-29
 ### Blockers/Concerns
 
 - None.
+
+### Roadmap Evolution
+
+- Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
 
 ## Quick Tasks Completed
 
