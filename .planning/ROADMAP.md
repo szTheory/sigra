@@ -125,14 +125,14 @@ Plans:
   3. Zero/loading/error states are defined and rendered for each group that can enter those states; byte-coherent reuse verified across groups
   4. All 11 L2 ledger rows are flipped to bare `2` with evidence; monotonic guard exits 0; every L0/L1/L2 cell reads `2`
 
-**Plans**: 3 plans
+**Plans**: 2/3 plans executed
 **Wave 1**
 
 - [x] 208-01-PLAN.md — Audit 11 board-mg-* groups + 4 board-cfg-* composites vs L2 Tier-2 proxies; cite wired gates; narrow sg-* fix only if a real gap surfaces (D-02/D-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 208-02-PLAN.md — Capture 12 net-new board-cfg-* PNGs CI-native via admin_design_recapture (fold Phase-205 baseline debt); canaries stable; allowlists empty (D-05/D-10)
+- [x] 208-02-PLAN.md — Capture 12 net-new board-cfg-* PNGs CI-native via admin_design_recapture (fold Phase-205 baseline debt); canaries stable; allowlists empty (D-05/D-10)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -191,7 +191,7 @@ Plans:
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 208. L2 Meta-Component Group Elevation | v1.42 | 1/3 | In Progress|  |
+| 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
