@@ -26,8 +26,8 @@
 
 ### Meta-Component Group Elevation (GROUP)
 
-- [ ] **GROUP-01**: All 11 L2 meta-component groups (MG-1…MG-11) meet Tier-2 on their isolated boards — intra-group single-tier rhythm, no accidental card-in-card, right-component-for-job, defined zero/loading/error states, byte-coherent reuse — across chromium/mobile/dark.
-- [ ] **GROUP-02**: Every group also passes in its real page configuration (`board-cfg-*`), with desktop↔mobile content-equivalence proven where the group has a table+mobile-card swap (MG-5/MG-6 equivalence assertions green).
+- [x] **GROUP-01**: All 11 L2 meta-component groups (MG-1…MG-11) meet Tier-2 on their isolated boards — intra-group single-tier rhythm, no accidental card-in-card, right-component-for-job, defined zero/loading/error states, byte-coherent reuse — across chromium/mobile/dark.
+- [x] **GROUP-02**: Every group also passes in its real page configuration (`board-cfg-*`), with desktop↔mobile content-equivalence proven where the group has a table+mobile-card swap (MG-5/MG-6 equivalence assertions green).
 
 ### Page Judgment Pass (PAGE)
 
@@ -77,8 +77,8 @@ Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from
 | COMP-01 | Phase 206 | Complete |
 | COMP-02 | Phase 207 | Complete |
 | COMP-03 | Phase 207 | Complete |
-| GROUP-01 | Phase 208 | Pending |
-| GROUP-02 | Phase 208 | Pending |
+| GROUP-01 | Phase 208 | Complete |
+| GROUP-02 | Phase 208 | Complete |
 | PAGE-01 | Phase 209 | Pending |
 | PAGE-02 | Phase 209 | Pending |
 | PAGE-03 | Phase 210 | Pending |

@@ -128,7 +128,7 @@ Plans:
 **Plans**: 3 plans
 **Wave 1**
 
-- [ ] 208-01-PLAN.md — Audit 11 board-mg-* groups + 4 board-cfg-* composites vs L2 Tier-2 proxies; cite wired gates; narrow sg-* fix only if a real gap surfaces (D-02/D-04)
+- [x] 208-01-PLAN.md — Audit 11 board-mg-* groups + 4 board-cfg-* composites vs L2 Tier-2 proxies; cite wired gates; narrow sg-* fix only if a real gap surfaces (D-02/D-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -191,7 +191,7 @@ Plans:
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 208. L2 Meta-Component Group Elevation | v1.42 | 0/? | Not started | - |
+| 208. L2 Meta-Component Group Elevation | v1.42 | 1/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 0/? | Not started | - |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
