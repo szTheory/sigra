@@ -142,10 +142,19 @@ Plans:
 
 ### Phase 208.1: v1.42 CI-Gate Remediation (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** The required "Example Playwright smoke (full lifecycle)" CI check passes green on the v1.42 backlog — the ~15 real, never-CI-validated admin Playwright behavioral failures are fixed — so the backlog can ship through branch protection and Phase 208 can complete. Must run before the Phase 209 page pass (which assumes these gates are green).
+
 **Depends on:** Phase 208
+**Requirements**: TBD (run /gsd-plan-phase 208.1)
+**Evidence**: `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md` (full inventory + triage + root cause)
 **Plans:** 0 plans
+
+Scope (from findings):
+1. Fix the 2 env-independent `admin_design` gallery bugs — `board-mg-1` `.sg-metric` count (6≠7) and `board-cfg-audit` `table.sg-table` 320px overflow.
+2. Reconcile the redesign-broken behavioral specs (`admin_behavior`, `non_admin`, `demo_showcase`) — desktop+mobile dual-DOM strict-mode selector breakage, sudo heading, org empty-state, demo persona visibility.
+3. Capture the 12 net-new `board-cfg-*` baselines CI-native (reuse `wip/recapture-trigger` once `admin-design` is green).
+4. Re-validate the unsound "cite-and-flip" audits in 205/206/207/208 by actually running the specs (not re-reading code).
+5. Use the real CI required check as the arbiter; then resume the one-PR backlog ship.
 
 Plans:
 
