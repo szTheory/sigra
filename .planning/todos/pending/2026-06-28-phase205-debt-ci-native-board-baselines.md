@@ -42,3 +42,21 @@ complete to avoid mid-execution conflicts (v1.40 CI-PERF is a large change set).
 The 206-03 executor noted ~12 behavioral failures introduced by Phase 205 (e.g.
 `board-cfg-audit` table overflow at 320px, a filter-form GET test, MG-5/6 equivalence,
 group-boards catalog). Out of scope for Phase 206. Triage under Phase 205/207.
+
+## 4. NOW BLOCKS Phase 208 (paused 2026-06-29)
+Phase 208 Plan 02 (capture the 12 net-new `board-cfg-*` PNG baselines) is blocked on
+exactly items #1 + #2 above: the board-cfg board code (`da980c7a`) is not on `origin/main`
+(local `main` is 291 commits ahead), so the `admin_design_recapture` CI job cannot produce
+the baselines, and darwin/local capture is forbidden (D-05, reverted at 43f5a3e4).
+
+Phase 208 is **paused as tracked debt**: 208-01 is complete (audit: zero CSS gaps,
+cite-and-flip); 208-02 + 208-03 remain incomplete.
+
+**To unblock + resume:**
+1. `git push origin main` (lands the board-cfg code + 291 commits on origin/main)
+2. Wait for the `admin_design_recapture` CI job (~15 min); it opens a `recapture-admin-design` PR
+3. Review the PR: exactly 12 `board-cfg-*` PNGs, no `board-cfg-org` (D-06), `board-mg-*` unchanged
+   (Plan 01 verdict was "CSS edited: no"); confirm `board-notice` shows as *added* in the canary guard
+4. Merge the PR into main
+5. Resume: `/gsd-execute-phase 208` — re-runs 208-02 (now the 12 PNGs exist) and then 208-03 (ledger flip)
+6. Move this todo to `.planning/todos/resolved/`

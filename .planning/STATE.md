@@ -4,8 +4,8 @@ milestone: v1.42
 milestone_name: ADMIN-DS-ELEVATION
 current_phase: 208
 current_phase_name: l2-meta-component-group-elevation
-status: executing
-stopped_at: Completed 208-01-PLAN.md
+status: paused
+stopped_at: 208-02 blocked on CI-native board-cfg baselines (push origin/main); 208-01 complete
 last_updated: "2026-06-29T19:18:32.921Z"
 last_activity: 2026-06-29
 progress:
@@ -28,9 +28,9 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 208 (l2-meta-component-group-elevation) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Phase: 208 (l2-meta-component-group-elevation) — PAUSED (tracked debt)
+Plan: 1 of 3 complete; 208-02 blocked, 208-03 pending
+Status: Paused — 208-02 (board-cfg PNG baselines) blocked on CI-native capture; see `.planning/todos/pending/2026-06-28-phase205-debt-ci-native-board-baselines.md` §4
 Last activity: 2026-06-29
 
 ## Accumulated Context
