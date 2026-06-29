@@ -76,6 +76,13 @@ work**, not inside phase 208. Candidate approaches to evaluate when picked up:
       `admin_design_recapture` (no `v*` tag) so recapture can run against a feature branch
       and open a baselines PR.
 
+### DEEPER ROOT CAUSE FOUND (2026-06-29) — see findings doc
+The bootstrap recapture run (CI 28401914980) **failed**: the admin-design Playwright gates
+have ~15 real behavioral failures that were never CI-validated (several phase audits were
+code-level reads that never ran the specs). The backlog can't ship green until these are fixed.
+Full inventory + triage + remediation approach: **`.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`**.
+A dedicated remediation phase is being planned. This baseline-debt todo is subsumed by that effort.
+
 ### To resume Phase 208 (after the backlog + baselines are on origin/main)
 - `/gsd-execute-phase 208` — re-runs 208-02 (the 12 board-cfg PNGs now exist) and then
   208-03 (ledger flip), then phase verification.
