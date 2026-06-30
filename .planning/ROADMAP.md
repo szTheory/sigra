@@ -145,9 +145,9 @@ Plans:
 **Goal:** The required "Example Playwright smoke (full lifecycle)" CI check passes green on the v1.42 backlog — the ~15 real, never-CI-validated admin Playwright behavioral failures are fixed — so the backlog can ship through branch protection and Phase 208 can complete. Must run before the Phase 209 page pass (which assumes these gates are green).
 
 **Depends on:** Phase 208
-**Requirements**: TBD (run /gsd-plan-phase 208.1)
+**Requirements**: 208.1-S1-env-independent-gallery-bugs, 208.1-S2-behavioral-spec-reconciliation, 208.1-S3-baseline-capture, 208.1-S4-cite-and-flip-revalidation, 208.1-S5-ci-arbiter-ship
 **Evidence**: `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md` (full inventory + triage + root cause)
-**Plans:** 0 plans
+**Plans:** 4 plans (3 waves)
 
 Scope (from findings):
 1. Fix the 2 env-independent `admin_design` gallery bugs — `board-mg-1` `.sg-metric` count (6≠7) and `board-cfg-audit` `table.sg-table` 320px overflow.
@@ -158,7 +158,10 @@ Scope (from findings):
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 208.1 to break down)
+- [ ] 208.1-01-PLAN.md — Wave 1: fix 2 env-independent admin_design gallery bugs (board-mg-1 count→6, board-cfg-audit 320px responsive swap); design lane behaviorally green
+- [ ] 208.1-02-PLAN.md — Wave 2: reconcile admin_behavior dual-DOM strict-mode + stale sudo heading + audit disclosure selectors; no admin_checkpoints regression
+- [ ] 208.1-03-PLAN.md — Wave 2: reconcile non_admin (orgs, passkey-login) + demo_showcase persona visibility; cite-and-flip re-validation (RUN the 205/206/207/208 specs)
+- [ ] 208.1-04-PLAN.md — Wave 3 (depends_on W1+W2): CI-native capture of 12 board-cfg baselines; drive required check green; delete wip/recapture-trigger guard-relax
 
 ### Phase 209: Judgment-Level Page Pass
 
