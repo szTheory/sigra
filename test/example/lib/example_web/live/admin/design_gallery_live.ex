@@ -1321,7 +1321,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 </div>
               </form>
             </section>
-            <div class="sg-table-panel">
+            <div data-testid="cfg-audit-desktop-results" class="sg-table-panel sg-show-desktop">
               <table class="sg-table">
                 <thead>
                   <tr>
@@ -1360,6 +1360,42 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   } />
                 </tbody>
               </table>
+            </div>
+            <div data-testid="cfg-audit-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+              <.audit_row
+                row={
+                  %{
+                    id: "evt-cfg-01",
+                    inserted_at: ~N[2026-01-15 10:30:00],
+                    action: "auth.login.success",
+                    action_label: "Login succeeded",
+                    action_badge: nil,
+                    actor_label: "alice@demo.tasklane.test",
+                    effective_user_label: "alice@demo.tasklane.test",
+                    actor_summary: "alice@demo.tasklane.test",
+                    outcome: "success"
+                  }
+                }
+                show_detail
+                show_codes
+              />
+              <.audit_row
+                row={
+                  %{
+                    id: "evt-cfg-02",
+                    inserted_at: ~N[2026-01-15 09:00:00],
+                    action: "auth.login.failure",
+                    action_label: "Login failed",
+                    action_badge: nil,
+                    actor_label: "unknown@example.com",
+                    effective_user_label: "unknown@example.com",
+                    actor_summary: "unknown@example.com",
+                    outcome: "failure"
+                  }
+                }
+                show_detail
+                show_codes
+              />
             </div>
           </section>
 
