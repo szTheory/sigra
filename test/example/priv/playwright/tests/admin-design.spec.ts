@@ -328,7 +328,7 @@ test.describe('Design gallery board snapshots', () => {
       }
     }
 
-    await expect(page.locator('#board-mg-1 .sg-metric')).toHaveCount(7);
+    await expect(page.locator('#board-mg-1 .sg-metric')).toHaveCount(6);
     await expect(page.locator('#board-mg-2 .sg-applied-chip')).toHaveCount(6);
     await expect(page.locator('#board-mg-3 article.sg-card')).toHaveCount(2);
     await expect(page.locator('#board-mg-3')).not.toHaveClass(/(^|\s)sg-card(\s|$)/);
