@@ -6,14 +6,14 @@ current_phase: 208.1
 current_phase_name: v1-42-ci-gate-remediation
 status: executing
 stopped_at: Completed 208.1-01-PLAN.md
-last_updated: "2026-06-30T03:12:31.872Z"
+last_updated: "2026-06-30T03:31:16.359Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 208.1 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 19
-  completed_plans: 15
+  completed_plans: 16
   percent: 38
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 208.1 (v1-42-ci-gate-remediation) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Next: Phase 208.1 (v1.42 CI-Gate Remediation) inserted — run `/gsd-plan-phase 208.1`
 Last activity: 2026-06-30 -- Phase 208.1 execution started
@@ -200,6 +200,10 @@ Last activity: 2026-06-30 -- Phase 208.1 execution started
 - [Phase ?]: mg-3 uses deliberate state-N/A note pattern (mg-3-zero-note / mg-3-loading-note); mg-9 and mg-11 render real states not N/A notes (D-08, Phase 208-01)
 - [Phase ?]: Fix TEST count to 6 for board-mg-1 .sg-metric — cite-and-flip audit never counted actual DOM nodes (208.1-01)
 - [Phase ?]: board-cfg-audit responsive fix mirrors MG-5/MG-6: sg-show-desktop table + sg-show-mobile audit_row cards (208.1-01)
+- [Phase 208.1-02]: admin-user-operations 'No active sessions': getByText(exact:true) prevents substring match on inner slot text triggering strict-mode 2-element resolution
+- [Phase 208.1-02]: admin-modal-interaction Phase 200 D-04 routing: navigate to sessions page via 'Manage sessions' before asserting 'Revoke session' button
+- [Phase 208.1-02]: Sudo heading reconciled to 'Re-enter your password' across installer template + impersonation.spec.ts + admin-generated.spec.ts
+- [Phase 208.1-02]: admin-audit: open 'More filters' disclosure + scope to desktop results pane + assert 'Session Create' pill not hidden event code inside closed details disclosure
 
 ### Pending Todos
 
@@ -320,7 +324,7 @@ Last activity: 2026-06-30 -- Phase 208.1 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-30T03:12:31.865Z
+Last session: 2026-06-30T03:31:16.353Z
 Stopped at: Completed 208.1-01-PLAN.md
 Resume file: 
 
