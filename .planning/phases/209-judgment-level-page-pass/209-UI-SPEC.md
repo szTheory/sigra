@@ -55,7 +55,17 @@ Declared values from `--sg-space-*` tokens (4px base, rem units):
 | `--sg-space-10` | 2.5rem | 40px | Page-level section gaps, `sg-stack--6` rhythm |
 | `--sg-space-12` | 3rem | 48px | Top-level page stack gaps |
 
-Exceptions:
+**Standard values** (multiples of 4, within the {4, 8, 16, 24, 32, 48, 64} canonical set): `--sg-space-1` (4px), `--sg-space-2` (8px), `--sg-space-4` (16px), `--sg-space-6` (24px), `--sg-space-8` (32px), `--sg-space-12` (48px).
+
+**Documented exceptions** (multiples of 4; fall outside the standard {4, 8, 16, 24, 32, 48, 64} set — each justified below):
+
+| Token | Value | Justification |
+|-------|-------|---------------|
+| `--sg-space-3` | 12px | Compact list rows and form field gaps where 8px is too tight (elements visually merge) and 16px wastes too much vertical rhythm. 12px is the midpoint that preserves scannable row density in the admin table/list archetype without crowding. |
+| `--sg-space-5` | 20px | Medium section gaps between related content groups (e.g. filter panel to table body) where 16px under-separates sibling sections and 24px introduces too much visual weight. 20px maintains the section hierarchy without inflating the layout. |
+| `--sg-space-10` | 40px | Page-level section gaps and `sg-stack--6` rhythm where 32px is too tight for major page sections and 48px is reserved for top-level page stack gaps (`--sg-space-12`). 40px distinguishes major structural separations from minor ones within the page frame. |
+
+**Other exceptions:**
 - Touch target minimum 44px (APG requirement) — enforced via explicit `min-height`/`min-width` on interactive controls, not via spacing tokens.
 - `--sg-space-7` (1.75rem / 28px) exists in the token set; use only when `--sg-space-6` and `--sg-space-8` both misfit a specific component (rare).
 
@@ -73,11 +83,12 @@ Declared type scale from `--sg-text-*` and `--sg-weight-*` / `--sg-leading-*` to
 | Body / table cells | `--sg-text-sm` | 14px | `--sg-weight-regular` | 450 | `--sg-leading-normal` | 1.5 |
 | Default body | `--sg-text-base` | 16px | `--sg-weight-regular` | 450 | `--sg-leading-normal` | 1.5 |
 | Section headings | `--sg-text-md` | 18px | `--sg-weight-semibold` | 700 | `--sg-leading-snug` | 1.3 |
-| Page headings (H1) | `--sg-text-lg` | ~23px | `--sg-weight-bold` | 800 | `--sg-leading-tight` | 1.1 |
 
-Only 4 type sizes are used in admin page bodies: `xs`, `sm`, `base`, and `md`. The `lg`/`xl`/`2xl` sizes are reserved for H1 page titles and kicker labels respectively — do not introduce new sizes.
+**Reserved display size (outside the 4-size body scale):** H1 page titles use `--sg-text-lg` (~23px, weight 800, `--sg-leading-tight` 1.1) — a display size reserved exclusively for H1 page headings. Do not use `lg` in page body content. `xl`/`2xl` are kicker-label sizes; same restriction applies.
 
-Font weights in use: **regular (450)** for body/table copy and **semibold (700)** for section headings. Bold (800) is reserved for H1 page titles only.
+**Font weights (body scale — exactly 2):** regular (450) for body and table copy; semibold (700) for section headings.
+
+**Reserved display weight (outside the 2-weight body scale):** H1 page titles use weight 800 (`--sg-weight-bold`) — a display weight paired with `--sg-text-lg` for H1 headings only. Do not apply weight 800 to any other element.
 
 Source: `sigra_admin.css:34–51`.
 
@@ -110,6 +121,12 @@ Accent must **not** be applied to headings, icons, status pills, body copy, or d
 **Status signal rule (from `admin-ui-principles.md` Phase 203 D-02/D-03):** emit **only decision-bearing** status pills. Do not add always-present positive-confirmation pills ("Confirmed", "MFA active") — their absence implies the confirmed state.
 
 Source: `sigra_admin.css:57–188`, `brandbook/tokens.css`, `guides/reference/admin-design-contract.md`.
+
+---
+
+## Visuals
+
+**Primary visual anchor:** H1 page title (entity name, email, or resource type) — draws the eye first on every admin page. On leaf screens the H1 is the subject entity's display name or email; on list screens it is the resource type noun (e.g. "Users", "Audit"). This is the single dominant focal point per screen; no competing visual hierarchy element should match its weight.
 
 ---
 
