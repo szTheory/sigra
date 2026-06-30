@@ -147,9 +147,10 @@ Plans:
 **Depends on:** Phase 208
 **Requirements**: 208.1-S1-env-independent-gallery-bugs, 208.1-S2-behavioral-spec-reconciliation, 208.1-S3-baseline-capture, 208.1-S4-cite-and-flip-revalidation, 208.1-S5-ci-arbiter-ship
 **Evidence**: `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md` (full inventory + triage + root cause)
-**Plans:** 4 plans (4 waves)
+**Plans:** 1/4 plans executed
 
 Scope (from findings):
+
 1. Fix the 2 env-independent `admin_design` gallery bugs — `board-mg-1` `.sg-metric` count (6≠7) and `board-cfg-audit` `table.sg-table` 320px overflow.
 2. Reconcile the redesign-broken behavioral specs (`admin_behavior`, `non_admin`, `demo_showcase`) — desktop+mobile dual-DOM strict-mode selector breakage, sudo heading, org empty-state, demo persona visibility.
 3. Capture the 12 net-new `board-cfg-*` baselines CI-native (reuse `wip/recapture-trigger` once `admin-design` is green).
@@ -158,7 +159,7 @@ Scope (from findings):
 
 Plans:
 
-- [ ] 208.1-01-PLAN.md — Wave 1: fix 2 env-independent admin_design gallery bugs (board-mg-1 count→6, board-cfg-audit 320px responsive swap); design lane behaviorally green
+- [x] 208.1-01-PLAN.md — Wave 1: fix 2 env-independent admin_design gallery bugs (board-mg-1 count→6, board-cfg-audit 320px responsive swap); design lane behaviorally green
 - [ ] 208.1-02-PLAN.md — Wave 2: reconcile admin_behavior dual-DOM strict-mode + stale sudo heading (incl. installer template + admin-generated spec) + audit disclosure selectors; no admin_checkpoints regression
 - [ ] 208.1-03-PLAN.md — Wave 3 (depends_on 02): reconcile non_admin (orgs, passkey-login) + demo_showcase persona visibility; cite-and-flip re-validation (RUN the 205/206/207/208 specs, escalate non-trivial new failures)
 - [ ] 208.1-04-PLAN.md — Wave 4 (depends_on 01/02/03): CI-native capture of 12 board-cfg baselines; drive required check green (automated gh assertion); delete wip/recapture-trigger guard-relax

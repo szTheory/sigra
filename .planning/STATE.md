@@ -2,17 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-current_phase: 208
-current_phase_name: l2-meta-component-group-elevation
-status: paused
-stopped_at: 208-02 blocked — origin/main PR-protected + baseline chicken-and-egg; backlog migration is its own work; 208-01 complete
-last_updated: "2026-06-29T23:48:48.369Z"
-last_activity: 2026-06-29
+current_phase: 208.1
+current_phase_name: v1-42-ci-gate-remediation
+status: executing
+stopped_at: Completed 208.1-01-PLAN.md
+last_updated: "2026-06-30T03:12:31.872Z"
+last_activity: 2026-06-30
+last_activity_desc: Phase 208.1 execution started
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 15
-  completed_plans: 14
+  total_plans: 19
+  completed_plans: 15
   percent: 38
 ---
 
@@ -24,15 +25,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 208 — l2-meta-component-group-elevation
+**Current focus:** Phase 208.1 — v1-42-ci-gate-remediation
 
 ## Current Position
 
-Phase: 208 (l2-meta-component-group-elevation) — PAUSED (tracked debt)
-Plan: 1 of 3 complete; 208-02 blocked, 208-03 pending
-Status: Paused — deeper root cause found: admin Playwright gates never CI-validated (~15 real failures). See `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`.
+Phase: 208.1 (v1-42-ci-gate-remediation) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Next: Phase 208.1 (v1.42 CI-Gate Remediation) inserted — run `/gsd-plan-phase 208.1`
-Last activity: 2026-06-29
+Last activity: 2026-06-30 -- Phase 208.1 execution started
 
 ## Accumulated Context
 
@@ -197,6 +198,8 @@ Last activity: 2026-06-29
 - [Phase ?]: CSS edited: no — zero genuine sg-* gaps found in 11 board-mg-* groups + 4 board-cfg-* composites; cite-and-flip confirmed (Phase 208-01)
 - [Phase ?]: MG-7/MG-8 are isolated-board-only by design; no board-cfg-org composite exists or should be authored (D-06, Phase 208-01)
 - [Phase ?]: mg-3 uses deliberate state-N/A note pattern (mg-3-zero-note / mg-3-loading-note); mg-9 and mg-11 render real states not N/A notes (D-08, Phase 208-01)
+- [Phase ?]: Fix TEST count to 6 for board-mg-1 .sg-metric — cite-and-flip audit never counted actual DOM nodes (208.1-01)
+- [Phase ?]: board-cfg-audit responsive fix mirrors MG-5/MG-6: sg-show-desktop table + sg-show-mobile audit_row cards (208.1-01)
 
 ### Pending Todos
 
@@ -317,8 +320,8 @@ Last activity: 2026-06-29
 
 ## Session Continuity
 
-Last session: 2026-06-29T19:18:32.912Z
-Stopped at: Completed 208-01-PLAN.md
+Last session: 2026-06-30T03:12:31.865Z
+Stopped at: Completed 208.1-01-PLAN.md
 Resume file: 
 
 None
@@ -423,3 +426,4 @@ None
 | Phase 206 P04 | ~4m | 2 tasks | 1 files |
 | Phase 207 P03 | ~31 minutes | 2 tasks | 1 files |
 | Phase 208 P01 | 1m | 2 tasks | 0 files |
+| Phase 208.1-v1-42-ci-gate-remediation P01 | 13min | 3 tasks | 2 files |
