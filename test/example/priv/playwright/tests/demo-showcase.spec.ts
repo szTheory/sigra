@@ -9,7 +9,7 @@ import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
 
 // Phase 143 Plan 2: evaluator-facing demo showcase spec.
 //
-// Exercises the nine seeded demo personas using structural assertions
+// Exercises the ten seeded demo personas using structural assertions
 // (data-testid and email-based locators — never display-name text) and
 // captures four committed PNG baselines for evaluator-facing screenshots.
 //
@@ -47,6 +47,7 @@ const DEMO_LOCALS = [
   "morgan",
   "pat",
   "grace",
+  "zoe",
 ];
 
 function rgbChannels(value: string): [number, number, number] {
@@ -820,7 +821,7 @@ test.describe("demo-showcase", () => {
     await page.goto("/");
     await expect(
       page.locator('[data-testid="home-stat-personas"]'),
-    ).toContainText("9");
+    ).toContainText("10");
     await expect(
       page.locator('[data-testid="home-featured-personas"]'),
     ).toContainText("morgan@demo.tasklane.test");
@@ -881,7 +882,7 @@ test.describe("demo-showcase", () => {
     await page.goto("/users/sessions");
     await waitForLiveViewReady(page);
     await expect(
-      page.getByText(/active|just now|current/i).first(),
+      page.getByText(/active|just now|current/i).filter({ visible: true }).first(),
     ).toBeVisible();
 
     const elapsedMs = Date.now() - startedAt;
@@ -895,7 +896,7 @@ test.describe("demo-showcase", () => {
     page,
   }, testInfo) => {
     // ──────────────────────────────────────────────────────────────────
-    // Step 1: /demo/credentials — assert all 9 persona rows by data-testid
+    // Step 1: /demo/credentials — assert all 10 persona rows by data-testid
     // ──────────────────────────────────────────────────────────────────
     await page.goto("/demo/credentials");
     await waitForLiveViewReady(page);
@@ -914,9 +915,9 @@ test.describe("demo-showcase", () => {
     await loginDemoAdmin(page);
 
     // ──────────────────────────────────────────────────────────────────
-    // Step 3: /admin/users?q=demo.tasklane.test — assert all 9 demo emails
+    // Step 3: /admin/users?q=demo.tasklane.test — assert all 9 core demo emails (page_size=50 avoids loadtest-* pushing to page 2)
     // ──────────────────────────────────────────────────────────────────
-    await page.goto("/admin/users?q=demo.tasklane.test");
+    await page.goto("/admin/users?q=demo.tasklane.test&page_size=50");
     await waitForLiveViewReady(page);
 
     for (const email of DEMO_EMAILS) {
