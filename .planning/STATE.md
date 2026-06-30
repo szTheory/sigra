@@ -4,17 +4,17 @@ milestone: v1.42
 milestone_name: CI-Gate Remediation
 current_phase: 208.1
 current_phase_name: v1-42-ci-gate-remediation
-status: executing
-stopped_at: Completed 208.1-01-PLAN.md
-last_updated: "2026-06-30T05:05:09.102Z"
+status: complete
+stopped_at: "Phase 208.1 complete — Example Playwright smoke (full lifecycle) GREEN on CI (PR #63, run 28451828047). Milestone snapshot-canary drift + NoopTest flake deferred as v1.42 integration debt."
+last_updated: "2026-06-30T15:10:00.000Z"
 last_activity: 2026-06-30
-last_activity_desc: Phase 208.1 execution started
+last_activity_desc: Phase 208.1 complete — admin Playwright CI gate green
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 19
-  completed_plans: 17
-  percent: 38
+  completed_plans: 18
+  percent: 50
 ---
 
 # Project State
@@ -29,11 +29,12 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 208.1 (v1-42-ci-gate-remediation) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Next: Phase 208.1 (v1.42 CI-Gate Remediation) inserted — run `/gsd-plan-phase 208.1`
-Last activity: 2026-06-30 -- Phase 208.1 execution started
+Phase: 208.1 (v1-42-ci-gate-remediation) — COMPLETE (verified 5/5 scope items)
+Plan: 4 of 4 complete
+Status: Goal achieved — required check "Example Playwright smoke (full lifecycle)" GREEN on CI (PR #63 run 28451828047). The ~15 never-CI-validated admin Playwright failures fixed; 6 hidden ExUnit regressions also surfaced+fixed.
+Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
+Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
+Last activity: 2026-06-30 -- Phase 208.1 complete
 
 ## Accumulated Context
 
