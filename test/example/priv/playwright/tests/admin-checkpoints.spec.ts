@@ -99,7 +99,13 @@ async function captureAndVerify(
   testInfo: TestInfo,
   name: string,
 ): Promise<void> {
-  const filePath = await captureAdminCheckpoint(page, testInfo, { name });
+  // Use viewport-only capture (fullPage: false) to avoid the 32767px hard limit
+  // imposed by Playwright/Chrome on full-page screenshots. The global-user-index
+  // checkpoint navigates to the unfiltered /admin/users list (100+ users), which
+  // can exceed this limit on mobile. Viewport-only is sufficient for human review
+  // artifacts — assertCheckpointScreenshot handles the baseline comparison
+  // separately and also uses fullPage: false.
+  const filePath = await captureAdminCheckpoint(page, testInfo, { name, fullPage: false });
   const stats = statSync(filePath);
   expect(
     stats.isFile(),
