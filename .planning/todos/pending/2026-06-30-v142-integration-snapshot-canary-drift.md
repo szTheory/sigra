@@ -64,3 +64,20 @@ This is a strong candidate for the **Phase 209 "single binding gate"** reference
 - Red run with full breakdown: gh run 28447218183 (first PR run)
 - `Example Playwright smoke (full lifecycle)`: GREEN (24m51s) — phase 208.1 exit criterion met
 - Phase 208.1's own regression (sudo copy → Library/Install red) fixed in `cbe0b928`
+
+---
+
+## Addendum — Library shard-2 flake (NoopTest, also backlog cleanup)
+
+The integration PR's `Library tests shard 2` also went red on:
+`Sigra.Audit.Forwarders.Noop.attach/1 does NOT emit any Logger output — D-23
+(Sigra.Audit.Forwarders.NoopTest)`.
+
+Characterized as a **parallel-shard log-capture flake**, NOT a 208.1 regression:
+- Passes 3/3 deterministically locally in isolation (`mix test test/sigra/audit/forwarders/noop_test.exs`).
+- Not modified in the backlog (`git log origin/main..HEAD -- test/sigra/audit/forwarders/noop_test.exs` empty).
+- "assert absence of Logger output" pattern races with other async tests in the same shard.
+
+Suggested fix (milestone cleanup): isolate the test (`async: false` or `@tag :capture_log`
+scoping / `ExUnit.CaptureLog` around the asserted region) so a sibling async test's log
+output can't leak into the assertion window. Re-running the job alone is expected to pass.
