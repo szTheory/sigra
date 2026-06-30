@@ -86,6 +86,15 @@ test.describe('ConfirmDialog modal interaction (PAGE-03 APG gates)', () => {
     // --- Navigate to target user's admin detail page -------------------------
     await openUserDetail(page, targetEmail);
 
+    // Phase 200 (D-04): "Revoke session" moved off the user detail page onto
+    // UserSessionsLive at /admin/users/:id/sessions. Navigate there via the
+    // "Manage sessions" link before looking for the revoke trigger.
+    const manageSessions = page.getByRole('link', { name: 'Manage sessions' });
+    await expect(manageSessions).toBeVisible();
+    await manageSessions.click();
+    await waitForLiveViewReady(page);
+    await expect(page).toHaveURL(/\/admin\/users\/[^/]+\/sessions/);
+
     // Wait for the "Revoke session" button to be visible (confirms session row loaded).
     const triggerLocator = page.getByRole('button', { name: 'Revoke session' }).first();
     await expect(triggerLocator).toBeVisible();

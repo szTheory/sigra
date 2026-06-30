@@ -149,7 +149,10 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     }
 
     // Empty-state title (lib user_sessions_live.ex: `title="No active sessions"`).
-    await expect(page.getByText('No active sessions')).toBeVisible();
+    // Use exact: true to avoid substring match on the inner slot text
+    // ("This user has no active sessions in the current scope.") which would
+    // trip Playwright strict mode (2 elements matched).
+    await expect(page.getByText('No active sessions', { exact: true })).toBeVisible();
     await expectScopeChrome(page, 'Global');
   });
 
