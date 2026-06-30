@@ -44,8 +44,10 @@ async function waitForLiveViewReady(page: Page) {
 
 async function confirmSudo(page: Page, password: string) {
   await expect(page).toHaveURL(/\/users\/sudo\?/);
+  // Ratified copy per installer template sudo_html.ex and example sudo_html.ex.
+  // The old heading was stale; reconciled to "Re-enter your password" (Phase 208.1-02).
   await expect(
-    page.getByRole("heading", { name: "Confirm your password" }),
+    page.getByRole("heading", { name: "Re-enter your password" }),
   ).toBeVisible();
   await page.fill('input[name="sudo[password]"]', password);
   await page.getByRole("button", { name: "Confirm password" }).click();
