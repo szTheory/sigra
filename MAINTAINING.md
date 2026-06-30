@@ -151,7 +151,7 @@ These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clo
 
 #### Before/after acceptance evidence (v1.40 CI-PERF milestone — Phase 198)
 
-The committed before/after acceptance artifact is at [`.planning/phases/198-contributor-dx-acceptance-gate/198-ACCEPTANCE.md`](.planning/phases/198-contributor-dx-acceptance-gate/198-ACCEPTANCE.md). It diffs real post-197 CI run timings against the 193 baseline (wall-clock, p95, flake-rate) captured via `gh run view --json jobs`, with falsifiable run IDs and the verbatim ruleset 14941512 required-check name attestation (5 names byte-stable; `Library tests`, `Example unit smoke (ExUnit + ConnTest)`, `Install smoke (fresh phx.new + sigra.install)`, `Example HTTP smoke (boot + curl critical routes)`, `Example Playwright smoke (full lifecycle)`). Refer to that document for the measured numbers before changing the CI cadence structure.
+The before/after acceptance evidence from Phase 198 diffs real post-197 CI run timings against the 193 baseline (wall-clock, p95, flake-rate) captured via `gh run view --json jobs`, with falsifiable run IDs and the verbatim ruleset 14941512 required-check name attestation (5 names byte-stable; `Library tests`, `Example unit smoke (ExUnit + ConnTest)`, `Install smoke (fresh phx.new + sigra.install)`, `Example HTTP smoke (boot + curl critical routes)`, `Example Playwright smoke (full lifecycle)`). The acceptance artifact was archived when the v1.41 milestone directory was restructured; refer to the Phase 198 commit history for the measured numbers before changing the CI cadence structure.
 
 #### Squash-merge `[skip ci]` footgun (merge hygiene)
 

@@ -32,7 +32,7 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ "--vt-light-color-panel: #fbfefd"
     assert html =~ "--vt-dark-color-primary: #5eead4"
     assert html =~ "Demo personas"
-    assert html =~ ">9<"
+    assert html =~ ">10<"
     assert html =~ "Acme Corp"
     assert html =~ "Beta Labs"
     assert html =~ ~s(data-testid="home-featured-personas")

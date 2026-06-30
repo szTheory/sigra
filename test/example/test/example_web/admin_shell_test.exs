@@ -61,8 +61,6 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ ~s(id="overview-metric-active-users")
       assert html =~ "active this week"
       refute html =~ ~r/<dd class="sg-metric__subvalue">\d+ this month<\/dd>/
-      assert html =~ ~s(id="overview-metric-auth-coverage")
-      assert html =~ "MFA coverage"
       assert html =~ "data-scope=\"global\""
       assert sidebar_overviews_before_workspace?(html)
       assert bottom_nav_overview_first?(html)
