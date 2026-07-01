@@ -301,3 +301,24 @@ Plans:
 | 190. Flows & Fixture Data (L4) | v1.39 | 5/5 | Complete | 2026-06-17 |
 | 191. Microcopy & IA Sweep | v1.39 | 4/4 | Complete | 2026-06-18 |
 | 192. Ratification & Baseline Lock | v1.39 | 4/4 | Complete | 2026-06-18 |
+
+### Phase 212: v1.42 integration merge — canary reconciliation + gate the persona flows + un-skip generated-host smoke; drive PR #63 green and merge
+
+**Goal:** The v1.42 backlog merges cleanly to `origin/main` with all required gates green — the three integration gaps found by the v1.42 milestone audit are closed, PR #63 goes from OPEN/DRAFT/failing to merged, and only then is the milestone honestly flipped to shipped.
+**Depends on:** Phase 211
+**Requirements**: Closes audit gaps GATE-01, FLOW-01, GATE-02 (see `.planning/v1.42-MILESTONE-AUDIT.md`)
+**Source:** `/gsd-audit-milestone` v1.42 aggregate audit (2026-07-01) — status `gaps_found`
+**Success Criteria** (what must be TRUE):
+
+  1. **GATE-01 (canary reconciliation):** a documented canary-discipline decision is made for the `impersonation-banner` mobile canary changed by 204-03 (revert to origin bytes / re-baseline + re-designate with rationale / one-time integration exception) and the 4 legitimately-drifted checkpoint slugs (`audit-explorer`, `user-audit`, `global-user-index`, `org-scoped-admin`) are handled per policy, such that `scripts/ci/snapshot-canary-guard.sh --base origin/main` exits 0. **The canary decision is a human call — not to be guess-fixed.**
+  2. **FLOW-01 (gate the persona flows):** the 3 `admin-flow-{platform-admin,support-investigator,org-admin}.spec.ts` specs are wired into a CI job that actually executes them (or an explicit, written waiver with rationale is recorded if manual-run is the intended contract) — the ledger's flow-* Tier-2 citations become execution-backed, not existence-backed.
+  3. **GATE-02 (generated-host runtime smoke):** the "Generated admin Playwright smoke" job runs (not `skipping`) and passes on PR #63, so runtime generated-host parity is proven in CI, not only locally. Installer↔example byte-parity golden test stays green.
+  4. **Merge + honest status:** local `main` (currently 385 commits ahead, unpushed) is pushed, PR #63's `fast_checks` + `ci-gate` go green, PR #63 merges to `origin/main`, and only then is ROADMAP v1.42 flipped to shipped and STATE reconciled. Stale bookkeeping swept: close `2026-06-28-phase205-debt-ci-native-board-baselines.md` (PNGs now exist); optionally backfill a Phase 208 VERIFICATION.md traceability pointer.
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 212-01-PLAN.md — GATE-01: reconcile the impersonation-banner mobile canary (re-designate as `added`, WCAG fix preserved) + allowlist the 4 legit v1.41-backlog checkpoint drifts, so snapshot-canary-guard --base origin/main exits 0
+- [ ] 212-02-PLAN.md — FLOW-01: wire the 3 persona-flow specs into the example_playwright_smoke admin_behavior chromium step (fail-closed via existing aggregator)
+- [ ] 212-03-PLAN.md — GATE-02: branch-scope the generated_admin_playwright_smoke PR-skip so runtime parity RUNS + PASSES on PR #63 (not all PRs)
+- [ ] 212-04-PLAN.md — SC-4: push local main, un-draft + drive PR #63 green, merge to origin/main, and ONLY THEN flip ROADMAP v1.42 → shipped + reset allowlist (D-03) + delete stale phase-205 todo (D-11)
