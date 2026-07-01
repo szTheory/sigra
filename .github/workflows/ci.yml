@@ -1782,21 +1782,6 @@ jobs:
               && echo "warmed ${path}" \
               || echo "warmup miss ${path} (non-fatal)"
           done
-      - name: Re-establish impersonation-banner canary (D-10 part 2 deliberate re-baseline)
-        # D-10 part 2: The impersonation-banner canary was modified (not added) by a
-        # prior phase's WCAG contrast fix. snapshot-canary-guard.sh forbids a canary
-        # *modify* (line 104) but tolerates a canary *added* (line 100). To re-establish
-        # the canary with the corrected contrast values, delete the existing
-        # impersonation-banner PNGs BEFORE --update-snapshots so Playwright re-creates
-        # them as newly-added files rather than modifications.
-        # This is a one-time deliberate re-baseline preserving the shipped WCAG fix,
-        # NOT allowlisting the canary.
-        run: |
-          echo "Removing existing impersonation-banner PNGs so recapture creates them as 'added' (not 'modified')"
-          find test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots \
-            -name 'impersonation-banner-admin-checkpoints-*.png' -delete || true
-          echo "Removed impersonation-banner PNGs:"
-          ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
         # committed baselines match what CI renders. The checkpoint lane covers
@@ -1812,12 +1797,18 @@ jobs:
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark \
             --update-snapshots
-      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
-        # impersonation-banner canary re-established as 'added' (D-10 part 2 / deleted
-        # before recapture). The guard's legitimate birth path (line 100) tolerates
-        # 'added'; 'modify' remains forbidden. Tripwire stays armed for future PRs.
+      - name: Commit recaptured baselines to a review PR (human visual review is the gate)
+        # This job's PURPOSE is to legitimately re-baseline admin-checkpoint PNGs in the
+        # ubuntu CI environment — including the impersonation-banner canary, whose Phase
+        # 204-03 WCAG contrast fix left it `modified` vs origin/main. Running
+        # snapshot-canary-guard.sh HERE would be circular: the guard exists to forbid
+        # UNINTENDED canary drift on consuming PR lanes (fast_checks), and it classifies a
+        # tracked-at-HEAD file's recapture as `modified` (git diff --name-status compares
+        # HEAD to the final worktree and ignores any intermediate delete — WR-01), so it
+        # would fail this job on the very recapture it is meant to perform. The correct
+        # gate for an intentional re-baseline is HUMAN VISUAL REVIEW of the opened PR;
+        # the canary tripwire stays armed on fast_checks for future PRs, unchanged.
         # Recaptured PNGs land on a ci/recapture-admin-checkpoints-<run_id> branch;
-        # a PR is opened for human review — not a silent push to main.
         # [skip ci] prevents recursive triggering.
         env:
           GH_TOKEN: ${{ github.token }}
@@ -1825,7 +1816,7 @@ jobs:
           set -euo pipefail
           SNAP_DIR="test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots"
 
-          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
+          # Report changed slugs for the PR body / log (informational — no gate here).
           # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
           while IFS=$'\t' read -r status path; do
@@ -1842,23 +1833,8 @@ jobs:
             seen_slugs["$sl"]=1
           done < <(git status --porcelain -- "$SNAP_DIR" 2>/dev/null || true)
 
-          echo "Changed slugs: ${!seen_slugs[*]}"
-
-          # Build --allow args for all non-canary changed slugs.
-          allow_args=()
-          for sl in "${!seen_slugs[@]}"; do
-            if [[ "$sl" != "impersonation-banner" ]]; then
-              allow_args+=(--allow "$sl")
-            fi
-          done
-
-          # Run canary guard. impersonation-banner should appear as 'added' (deleted
-          # before recapture) which the guard tolerates (line 100 of snapshot-canary-guard.sh).
-          bash scripts/ci/snapshot-canary-guard.sh \
-            --base HEAD \
-            --allowlist test/example/priv/playwright/snapshot-allowlist \
-            --canary impersonation-banner \
-            "${allow_args[@]}"
+          if [[ ${#seen_slugs[@]} -eq 0 ]]; then CHANGED="(none)"; else CHANGED="${!seen_slugs[*]}"; fi
+          echo "Recaptured/changed slugs: ${CHANGED}"
 
           # Commit to a reviewable branch, not main.
           BRANCH="ci/recapture-admin-checkpoints-${{ github.run_id }}"
@@ -1873,7 +1849,7 @@ jobs:
             git push origin "$BRANCH"
             gh pr create \
               --title "ci: recapture admin-checkpoint baselines in ubuntu CI (${{ github.run_id }})" \
-              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). impersonation-banner canary re-established as 'added' (D-10 part 2 — WCAG contrast fix rationale: Phase 204-03 corrected vt-status-pill color-mix ratio for WCAG AA; canary previously captured pre-fix appearance). Merge after visual review." \
+              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). Changed slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA; the prior baseline captured the pre-fix appearance). This is an intentional re-baseline — the gate is human visual review of these PNG diffs, not snapshot-canary-guard (which stays armed on fast_checks). Merge after visual review." \
               --base main \
               --head "$BRANCH"
           fi
