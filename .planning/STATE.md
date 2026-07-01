@@ -5,15 +5,15 @@ milestone_name: CI-Gate Remediation
 current_phase: 211
 current_phase_name: terminal-ratification
 status: executing
-stopped_at: "Completed 211-01-PLAN.md (GATE-01 verification: ledger lock + canary idempotency + compare-mode zero drift)"
-last_updated: "2026-07-01T20:21:45.751Z"
+stopped_at: "Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)"
+last_updated: "2026-07-01T20:44:08.796Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 211 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 32
-  completed_plans: 28
+  completed_plans: 29
   percent: 75
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 211 (terminal-ratification) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
@@ -226,6 +226,9 @@ Last activity: 2026-07-01 — Phase 211 execution started
 - [Phase ?]: phx_new 1.8.7 pin (SEED-004) corrected before GATE-02 lane; do NOT regenerate golden fixture to absorb 1.8.8 diff
 - [Phase ?]: GATE-02 smoke requires explicit PGPORT=5432 when tmp/db.env exports PGPORT=58915; generated host uses system Homebrew Postgres (5432), not Docker test Postgres (58915)
 - [Phase ?]: No installer-template drift found in Phase 211-02 GATE-02 smoke; priv/templates/sigra.install/ byte-stable vs test/example/
+- [Phase ?]: NoopTest flake is a parallel-shard log-capture race (not a regression): lean documented-known per Claude's Discretion (D-05); no determinism fix applied
+- [Phase ?]: Full-suite terminal gate: 2403 tests, 2 Sigra.UpgradeIntegrationTest env-DB failures in D-05 accepted set; no new regression
+- [Phase ?]: phase_192_known_failure_contract_test.exs correctly absent (deleted in 204-02); phase_148 4 tests re-confirmed green (D-08 re-confirm only)
 
 ### Pending Todos
 
@@ -346,8 +349,8 @@ Last activity: 2026-07-01 — Phase 211 execution started
 
 ## Session Continuity
 
-Last session: 2026-07-01T20:21:45.743Z
-Stopped at: Completed 211-01-PLAN.md (GATE-01 verification: ledger lock + canary idempotency + compare-mode zero drift)
+Last session: 2026-07-01T20:44:08.790Z
+Stopped at: Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)
 Resume file: 
 
 None
@@ -464,3 +467,4 @@ None
 | Phase 210 P02 | 236 | 2 tasks | 1 files |
 | Phase 211 P01 | 8min | 3 tasks | 0 files |
 | Phase 211 P02 | 9min | 2 tasks | 0 files |
+| Phase 211 P03 | 19min | 3 tasks | 0 files |
