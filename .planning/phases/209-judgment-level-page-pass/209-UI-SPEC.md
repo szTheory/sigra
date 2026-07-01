@@ -1,10 +1,11 @@
 ---
 phase: 209
 slug: judgment-level-page-pass
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-30
+reviewed_at: 2026-06-30
 ---
 
 # Phase 209 — UI Design Contract
