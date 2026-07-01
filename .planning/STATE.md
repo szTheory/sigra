@@ -2,16 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
+current_phase: 208.1
+current_phase_name: v1-42-ci-gate-remediation
 status: "Goal achieved — required check "Example Playwright smoke (full lifecycle)" GREEN on CI (PR #63 run 28451828047). The ~15 never-CI-validated admin Playwright failures fixed; 6 hidden ExUnit regressions also surfaced+fixed."
-stopped_at: Phase 209 context gathered (assumptions mode)
-last_updated: "2026-06-30T15:20:34.023Z"
-last_activity: 2026-06-30 -- Phase 208.1 complete
+stopped_at: Phase 209 planned — 6 plans across 3 waves, plan-checker PASSED (0 blockers)
+last_updated: "2026-07-01T01:16:54.807Z"
+last_activity: 2026-06-30
+last_activity_desc: Phase 209 planning complete (research + validation + 6 plans, verified)
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 25
+  total_phases: 8
+  completed_phases: 4
+  total_plans: 19
+  completed_plans: 18
+  percent: 50
 ---
 
 # Project State
@@ -322,11 +325,11 @@ Last activity: 2026-06-30 -- Phase 208.1 complete
 
 ## Session Continuity
 
-Last session: 2026-06-30T15:20:34.016Z
-Stopped at: Phase 209 context gathered (assumptions mode)
+Last session: 2026-07-01T01:16:54.801Z
+Stopped at: Phase 209 UI-SPEC approved
 Resume file: 
 
-.planning/phases/209-judgment-level-page-pass/209-CONTEXT.md
+.planning/phases/209-judgment-level-page-pass/209-UI-SPEC.md
 | --- | --- | --- | --- |
 | Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
 | Phase 162 | 1 plan | same session | Brand DNA + voice |
