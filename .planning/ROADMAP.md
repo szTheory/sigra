@@ -22,7 +22,7 @@
 - [ ] **Phase 206: L1 Component Elevation Wave A** - Elevate 8 highest-reuse L1 components to Tier-2
 - [ ] **Phase 207: L1 Component Elevation Wave B + L0 Token Layer** - Elevate 5 remaining L1 components and token layer to Tier-2
 - [ ] **Phase 208: L2 Meta-Component Group Elevation** - Elevate all 11 meta-component groups (MG-1…MG-11) to Tier-2
-- [ ] **Phase 209: Judgment-Level Page Pass** - Adversarial persona panel over all 8 pages; apply remediations under monotonic guard
+- [x] **Phase 209: Judgment-Level Page Pass** - Adversarial persona panel over all 8 pages; apply remediations under monotonic guard (completed 2026-07-01)
 - [ ] **Phase 210: Remaining Cell Elevation** - Elevate user-sessions page and 3 persona flows to Tier-2
 - [ ] **Phase 211: Terminal Ratification** - Every ledger cell reads 2, baselines recaptured, generated-host parity proven
 
@@ -224,7 +224,7 @@ Plans:
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
-| 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete   | 2026-07-01 |
+| 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
