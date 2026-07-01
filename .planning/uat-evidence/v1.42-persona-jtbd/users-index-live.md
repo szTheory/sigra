@@ -22,6 +22,9 @@ findings:
     question: redundant_coherent_surprising
     refutation: "The User health strip on users-index-live shows 'Total users' (users_index_live.ex:185-191) — the same metric with the same label already shown on index-live.ex:85-91 'User snapshot' strip. A platform admin arriving at /admin/users from the global overview has just seen this count. Repeating it on the list page is not surprising per se, but the duplication is redundant given the investigator/triage workflow."
     disposition_action: tighten
+    resolution: "PLAN 03 SINGLE-OWNER (Phase 209-05 Task 2, confirmation-only) — Plan 03 single-owns the Total-users dedup by dropping the Global Overview side (index_live.ex:85-91). This plan (209-05) makes NO mutation to users_index_live.ex:188 label='Total users' — it is the RETAINED metric owner. Confirmed present at users_index_live.ex:188 via grep. No DOM change on this side."
+chips_inside_form_confirmation: "KEEP (Phase 209-05 Task 2) — Applied chips render INSIDE the GET form at users_index_live.ex:107-114, consistent with the List Archetype D-01 (chips contiguous with filter panel, participating in GET contract). This is the canonical List Archetype pattern — no change needed."
+phx_click_disclosure_confirmation: "ACCEPTABLE DIVERGENCE (Phase 209-05 Task 2) — The 'More filters' disclosure uses phx-click='toggle_filters' (users_index_live.ex:121-128), not a CSS-only <details> element. This is documented as acceptable divergence (D-05/D-06 in the context): the Audit Explorer Archetype uses CSS-only <details>; the List Archetype toggle_filters is a LiveView event that avoids URL pollution for secondary filter state. No change needed."
 ---
 
 # users-index-live: Persona-JTBD Panel Review
