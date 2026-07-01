@@ -4,8 +4,8 @@ milestone: v1.42
 milestone_name: CI-Gate Remediation
 current_phase: 210
 status: completed
-stopped_at: Completed 210-01-PLAN.md
-last_updated: "2026-07-01T17:52:02.561Z"
+stopped_at: Phase 211 context gathered (assumptions mode)
+last_updated: "2026-07-01T18:17:23.614Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 210 marked complete
 progress:
@@ -342,11 +342,11 @@ Last activity: 2026-07-01 — Phase 210 marked complete
 
 ## Session Continuity
 
-Last session: 2026-07-01T17:46:28.562Z
-Stopped at: Completed 210-01-PLAN.md
+Last session: 2026-07-01T18:17:23.606Z
+Stopped at: Phase 211 context gathered (assumptions mode)
 Resume file: 
 
-None
+.planning/phases/211-terminal-ratification/211-CONTEXT.md
 | --- | --- | --- | --- |
 | Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
 | Phase 162 | 1 plan | same session | Brand DNA + voice |
