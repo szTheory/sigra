@@ -105,3 +105,15 @@ NONE — searched for: IA hierarchy failures visible to an org-admin who might l
 ### Redundant / coherent / least-surprising?
 
 NONE — searched for: vocabulary or layout divergence that would surprise an org-admin if they compared this surface to the org-scoped `/admin/organizations/:slug` overview. The org-admin does not reach this surface; redundancy between the two overview pages is addressed under the platform-admin lens. No finding for org-admin lens.
+
+---
+
+## Resolution Notes (Plan 209-03 Wave 2)
+
+**Finding 1 — `<.notice>` bare "All clear" copy (`index_live.ex:52`):**
+
+Resolved: replaced "All clear" with "No flagged accounts" — a posture-descriptive phrase that states real system state (no users flagged for review). Diff: Plan 209-03, Task 1 commit. The `<.notice>` component retains `tone={:ok}` on zero-risk state; only the copy was changed.
+
+**Finding 2 — `<.summary_chip id="overview-metric-total-users">` duplicates Users Index stat strip (`index_live.ex:85-91`):**
+
+Resolved: removed the `overview-metric-total-users` summary chip from the Global Overview stat strip. The `total_users =` template binding was also removed (it was only used by that chip). The Users-List strip (`users_index_live.ex:185-191`) retains the authoritative "Total users" count — Plan 03 single-owns this dedup per the panel verdict. Diff: Plan 209-03, Task 1 commit.

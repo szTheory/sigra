@@ -49,7 +49,7 @@ defmodule Sigra.Admin.Live.IndexLive do
           {@needs_review} users need review —
           <.notice_link href="/admin/users?needs_review=true">Review users</.notice_link>
         <% else %>
-          All clear
+          No flagged accounts
         <% end %>
       </.notice>
 
@@ -74,7 +74,6 @@ defmodule Sigra.Admin.Live.IndexLive do
         />
       </div>
 
-      <% total_users = summary_count(@summary_posture, :total) %>
       <% new_this_week = summary_count(@summary_growth, :new_this_week) %>
       <% new_this_month = summary_count(@summary_growth, :new_this_month) %>
       <% active_this_week = summary_count(@summary_activity, :active_this_week) %>
@@ -82,13 +81,6 @@ defmodule Sigra.Admin.Live.IndexLive do
       <section class="sg-stack sg-stack--3" aria-labelledby="admin-user-snapshot-heading">
         <h2 id="admin-user-snapshot-heading" class="sg-section-heading">User snapshot</h2>
         <dl class="sg-metric-grid" aria-label="User snapshot">
-          <.summary_chip
-            id="overview-metric-total-users"
-            icon="users"
-            label="Total users"
-            value={total_users}
-            value_suffix="total users"
-          />
           <.summary_chip
             id="overview-metric-new-users"
             icon="sparkles"
