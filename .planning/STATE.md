@@ -4,16 +4,16 @@ milestone: v1.42
 milestone_name: CI-Gate Remediation
 current_phase: 211
 status: verifying
-stopped_at: "Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)"
-last_updated: "2026-07-01T21:09:41.707Z"
+stopped_at: Phase 212 context gathered (assumptions mode)
+last_updated: "2026-07-01T23:29:14.250Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 211 complete
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 7
   total_plans: 32
   completed_plans: 31
-  percent: 88
+  percent: 78
 ---
 
 # Project State
@@ -240,6 +240,7 @@ Last activity: 2026-07-01 — Phase 211 complete
 ### Roadmap Evolution
 
 - Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
+- Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 
 ## Quick Tasks Completed
 
@@ -348,11 +349,11 @@ Last activity: 2026-07-01 — Phase 211 complete
 
 ## Session Continuity
 
-Last session: 2026-07-01T20:58:36.567Z
-Stopped at: Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)
+Last session: 2026-07-01T23:29:14.244Z
+Stopped at: Phase 212 context gathered (assumptions mode)
 Resume file: 
 
-None
+.planning/phases/212-v1-42-integration-merge-canary-reconciliation-gate-the-perso/212-CONTEXT.md
 | --- | --- | --- | --- |
 | Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
 | Phase 162 | 1 plan | same session | Brand DNA + voice |
