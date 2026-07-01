@@ -218,12 +218,12 @@ Plans:
   3. Installer↔example byte-parity and golden fixture stay green; a fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin with no regressions
   4. An adversarial milestone audit doc is committed, recording the persona-JTBD verdicts as Tier-2 evidence and confirming no critical blockers remain
 
-**Plans**: 5 plans
+**Plans**: 1/5 plans executed
 
 Plans:
 **Wave 1** *(parallel — independent gates)*
 
-- [ ] 211-01-PLAN.md — GATE-01: verify terminal all-`2` ledger + monotonic lock; prove snapshot/canary idempotency vs HEAD (both lanes) + checkpoint compare-mode zero drift; allowlists empty; origin/main reconciliation deferred to integration merge (GATE-01)
+- [x] 211-01-PLAN.md — GATE-01: verify terminal all-`2` ledger + monotonic lock; prove snapshot/canary idempotency vs HEAD (both lanes) + checkpoint compare-mode zero drift; allowlists empty; origin/main reconciliation deferred to integration merge (GATE-01)
 - [ ] 211-02-PLAN.md — GATE-02: pre-flight phx_new 1.8.7 pin; install-golden byte-diff green; admin-acceptance-smoke renders elevated styled admin on a fresh generated host (GATE-02)
 - [ ] 211-03-PLAN.md — Clean terminal `mix test` gate: NoopTest shard-race confirmed in isolation; 204 stale-contract tests re-confirmed green; failures map only to accepted known/env set (GATE-01/GATE-02 supporting)
 
@@ -245,7 +245,7 @@ Plans:
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 2/2 | Complete   | 2026-07-01 |
-| 211. Terminal Ratification | v1.42 | 0/5 | Planned | - |
+| 211. Terminal Ratification | v1.42 | 1/5 | In Progress|  |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |

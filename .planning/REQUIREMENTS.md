@@ -41,7 +41,7 @@
 
 ### Terminal Ratification (GATE)
 
-- [ ] **GATE-01**: Terminal ratification — every ledger cell reads Tier-2, `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0, all baselines recaptured with both allowlists empty and both canaries byte-stable, and compare-mode re-render shows zero PNG drift (idempotency proven).
+- [x] **GATE-01**: Terminal ratification — every ledger cell reads Tier-2, `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0, all baselines recaptured with both allowlists empty and both canaries byte-stable, and compare-mode re-render shows zero PNG drift (idempotency proven).
 - [ ] **GATE-02**: Installer↔example byte-parity + golden fixture stay green and generated-host parity is proven (fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin); an adversarial milestone audit records the persona-JTBD verdicts as Tier-2 evidence.
 
 ## Future Requirements
@@ -83,7 +83,7 @@ Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from
 | PAGE-02 | Phase 209 | Complete |
 | PAGE-03 | Phase 210 | Complete |
 | FLOW-01 | Phase 210 | Complete |
-| GATE-01 | Phase 211 | Pending |
+| GATE-01 | Phase 211 | Complete |
 | GATE-02 | Phase 211 | Pending |
 
 **Coverage:**
