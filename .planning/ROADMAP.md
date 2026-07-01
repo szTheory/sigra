@@ -245,7 +245,7 @@ Plans:
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 2/2 | Complete   | 2026-07-01 |
-| 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
+| 211. Terminal Ratification | v1.42 | 0/5 | Planned | - |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
