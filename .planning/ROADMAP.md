@@ -176,7 +176,13 @@ Plans:
   3. No Tier-2 page regresses — `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0 after all remediations land
   4. Page Playwright baselines are recaptured under allowlist-then-clear discipline; both allowlists are empty at phase close and the canary is byte-stable
 
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 209-01-PLAN.md — CI-native ubuntu admin-checkpoint recapture job (OQ-3 enabler)
+- [ ] 209-02-PLAN.md — Author 8 fresh persona/JTBD panel docs + roll-up index (SC-1)
+- [ ] 209-03-PLAN.md — Remediate Overviews (index_live + organization_live: All-clear, empty-states, total-users)
+- [ ] 209-04-PLAN.md — Remediate user detail/sessions/branding (dedup, H1, revoke copy, scope_copy)
+- [ ] 209-05-PLAN.md — Cross-page composition (audit scope_ribbon/chips) + ledger evidence refresh
+- [ ] 209-06-PLAN.md — CI-native baseline recapture + D-10 canary re-designation + allowlist-clear close (SC-4)
 **UI hint**: yes
 
 ### Phase 210: Remaining Cell Elevation
