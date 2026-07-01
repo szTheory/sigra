@@ -44,7 +44,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
-        <p class="sg-page-kicker">User</p>
+        <p class="sg-page-kicker">User detail</p>
         <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
         <div class="sg-cluster sg-cluster--2">
           <span class="sg-muted sg-text-sm">{@detail.user.email}</span>
@@ -52,10 +52,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
 
         <dl class="sg-summary-facts">
-          <div>
-            <dt class="sg-kv__term">Sessions</dt>
-            <dd class="sg-kv__value sg-summary-facts__num">{length(@detail.sessions)}</dd>
-          </div>
           <div>
             <dt class="sg-kv__term">MFA</dt>
             <dd class="sg-kv__value">{mfa_value(@detail.security.mfa_status)}</dd>
@@ -83,7 +79,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
             <h2 class="sg-section-heading">Sessions</h2>
             <p class="sg-section-copy">{pluralize(length(@detail.sessions), "active session")}</p>
           </div>
-          <a class="sg-btn sg-btn--secondary sg-btn--sm" href={sessions_path(@admin_scope, @detail.user.id, @return_to)}>
+          <a class="sg-btn sg-btn--primary" href={sessions_path(@admin_scope, @detail.user.id, @return_to)}>
             Manage sessions
           </a>
         </div>
@@ -112,7 +108,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </table>
         </div>
 
-        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">This user has no active sessions in the current scope.</p></.empty_state>
+        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">No sessions are associated with this user in the current scope.</p></.empty_state>
       </section>
 
       <div class="sg-detail-grid">
@@ -143,7 +139,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </dd>
             </div>
           </dl>
-          <.empty_state :if={@detail.identities_available? and @detail.identities == []} title="No linked identities"><p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p></.empty_state>
+          <.empty_state :if={@detail.identities_available? and @detail.identities == []} title="No linked identities"><p class="sg-muted sg-text-sm">No external identities are associated with this user.</p></.empty_state>
         </section>
       </div>
 
@@ -179,7 +175,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </a>
             </div>
           </article>
-          <.empty_state :if={@detail.organizations == []} title="No organizations"><p class="sg-muted sg-text-sm">This user has not joined any organizations.</p></.empty_state>
+          <.empty_state :if={@detail.organizations == []} title="No organizations"><p class="sg-muted sg-text-sm">No organizations are associated with this user.</p></.empty_state>
         </div>
       </section>
 
@@ -199,7 +195,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
         <div class="sg-list">
           <.audit_row :for={row <- @detail.recent_audit} row={row} />
-          <.empty_state :if={@detail.recent_audit == []} title="No recent audit activity"><p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p></.empty_state>
+          <.empty_state :if={@detail.recent_audit == []} title="No recent audit activity"><p class="sg-muted sg-text-sm">No audit events are associated with this user in the current scope.</p></.empty_state>
         </div>
       </section>
 

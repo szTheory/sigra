@@ -144,3 +144,28 @@ NONE — searched for: scope confusion for an org-admin who should only see org-
 ### Redundant / coherent / least-surprising?
 
 NONE — searched for: vocabulary or layout divergence between the org-scoped user detail and the global user detail that would surprise the org-admin. Both variants share identical markup with only the scope_copy and paths differing. The pivot links to org-scoped views (user_show_live.ex:173-179) correctly appear only for platform-admin scope (`show_pivot_link?/2` at :285-288). No redundancy or coherence failure found for org-admin lens.
+
+---
+
+## Resolution Notes (Plan 209-04)
+
+**Resolved:** 2026-07-01 — All actionable verdicts remediated in `lib/sigra/admin/live/user_show_live.ex`.
+
+### Platform Admin Q1 (earning_its_place): Sessions count de-duplication — RESOLVED
+**Diff ref:** `Sessions` `<dt>/<dd>` block removed from `<dl class="sg-summary-facts">` header. The count now appears only in the Sessions card sub-heading (`sg-section-copy` at `:84`). The header `dl` retains MFA and Last seen — both earn their place as quick-scan identity facts not replicated below.
+
+### Platform Admin Q2 / Support Investigator Q2 (ia_muddy): Kicker sharpened — RESOLVED
+**Diff ref:** `<p class="sg-page-kicker">User</p>` → `<p class="sg-page-kicker">User detail</p>`. Matches the pattern of "User audit evidence" / "User operations" on sibling pages; anchors the page scope without adding noise.
+
+### Platform Admin Q2 / Support Investigator Q2 (ia_muddy): "Manage sessions" prominence raised — RESOLVED
+**Diff ref:** `sg-btn--secondary sg-btn--sm` demotion pair removed. The "Manage sessions" affordance is now `sg-btn sg-btn--primary` — a standard primary button in the Sessions card header cluster. This is the measurable floor (variant (a): non-secondary, non-small). No confirm overlay added (per UI-SPEC: that lives on UserSessionsLive).
+
+### Support Investigator Q1 (earning_its_place): Empty-state copy harmonized — RESOLVED
+**Diff ref:** All 4 `<.empty_state>` bodies rewritten to the uniform `"No {noun} are associated with this user in the current scope."` / `"No {noun} are associated with this user."` register:
+- Sessions: "No sessions are associated with this user in the current scope."
+- Identities: "No external identities are associated with this user."
+- Organizations: "No organizations are associated with this user."
+- Recent audit: "No audit events are associated with this user in the current scope."
+
+### Support Investigator Q3 (redundant_coherent_surprising): Sessions count de-duplication — RESOLVED
+**Same diff as Platform Admin Q1 above.** The header `dl` Sessions row is gone; the count renders once in the Sessions card sub-heading.
