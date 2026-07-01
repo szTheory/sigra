@@ -113,3 +113,15 @@ NONE — searched for: scope confusion for an org-admin on a tenant-scoped sessi
 ### Redundant / coherent / least-surprising?
 
 NONE — searched for: vocabulary or layout divergence between the org-scoped sessions page and the global sessions page that would surprise the org-admin; copy that references platform-admin concepts not available to the org-admin. Both variants share identical markup with only scope_copy and paths differing. The "Revoke session" / "Revoke all sessions" copy is scope-neutral. No redundancy or coherence failure found for org-admin lens.
+
+---
+
+## Resolution Notes (Plan 209-04)
+
+**Resolved:** 2026-07-01 — All actionable verdicts remediated in `lib/sigra/admin/live/user_sessions_live.ex`. Copy/IA ONLY — no Tier-2 ratchet (D-08).
+
+### Platform Admin Q3 (redundant_coherent_surprising): H1 entity-name pattern — RESOLVED
+**Diff ref:** `<h1 class="sg-page-title">Sessions</h1>` removed. The literal page-type label is gone; the H1 now renders `{@detail.display_name || @detail.user.email}` — the entity-name pattern matching `user_show_live.ex:48` and `audit_user_live.ex:71`. The kicker `<p class="sg-page-kicker">` changed from `"User"` to `"Sessions"`, so the page type is still named in the kicker. The page_title assign (`"#{...} sessions"`) is unchanged so browser tab/breadcrumb context is preserved.
+
+### Support Investigator Q3 (redundant_coherent_surprising): Revoke-confirm copy — RESOLVED
+**Diff ref:** Both `revoke_session_copy/1` and `revoke_all_sessions_copy/1` rewritten. The reassurance clause "They can sign in again." was removed. The replacement conveys: (1) factual consequence (signed out immediately) and (2) reversibility framed as a security-remediation action ("must sign in again with verified credentials to re-establish access") rather than a trivial re-entry. This preserves the security-remediation posture per T-209-04-01 threat model: consequence + reversibility without minimizing the action. ConfirmDialog hook, `data-sg-confirm-cancel` focus, and the 7 APG gates are unchanged — copy string only.

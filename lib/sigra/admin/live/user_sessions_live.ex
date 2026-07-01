@@ -104,8 +104,8 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
-        <p class="sg-page-kicker">User</p>
-        <h1 class="sg-page-title">Sessions</h1>
+        <p class="sg-page-kicker">Sessions</p>
+        <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
         <p class="sg-page-copy">{pluralize(length(@detail.sessions), "active session")}</p>
       </header>
 
@@ -202,11 +202,11 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
   end
 
   defp revoke_session_copy(_detail) do
-    "The user will be signed out of this session immediately. They can sign in again."
+    "The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access."
   end
 
   defp revoke_all_sessions_copy(_detail) do
-    "The user will be signed out of all active sessions immediately. They can sign in again."
+    "The user will be signed out of all active sessions immediately. If any sessions were compromised, they must sign in again with verified credentials to re-establish access."
   end
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
