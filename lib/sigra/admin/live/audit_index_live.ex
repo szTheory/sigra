@@ -49,11 +49,12 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
   def render(assigns) do
     ~H"""
     <section class="sg-stack sg-stack--6">
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
+
       <header class="sg-page-header">
         <p class="sg-page-kicker">Audit evidence</p>
         <h1 class="sg-page-title">Audit</h1>
       </header>
-      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
         <div class="sg-cluster">

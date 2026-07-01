@@ -22,11 +22,13 @@ findings:
     question: redundant_coherent_surprising
     refutation: "Applied filter chips on audit-user-live render OUTSIDE the filter form (audit_user_live.ex:163-172, after form closes at :161). On users-index-live.ex:107-114, chips render INSIDE the GET form. This cross-page asymmetry in chip placement violates the 'same job → same component' principle and would surprise an operator who has used both the users-index and per-user-audit pages."
     disposition_action: tighten
+    resolution: "WAIVER (Phase 209-05 Task 1) — Post-form chip position is the DEFINED Audit Explorer Archetype pattern per admin-design-contract.md (Audit Explorer Archetype, position [3]: 'Navigation-only <a> tags, post-form'). The applied_chip component contract itself cites 'audit_user_live.ex applied-chip cluster (post-form, contiguous with filter panel — see Audit Explorer Archetype for elevated composition)'. The List Archetype uses chips-inside-form; the Audit Explorer Archetype uses chips post-form. These are different archetypes with different intentional composition rules. No DOM change — this is the defined per-archetype pattern."
   - element: "Absent 'Effective user' filter field (not present in audit_user_live.ex filter form)"
     lens: support_investigator
     question: redundant_coherent_surprising
     refutation: "The global audit explorer (audit_index_live.ex:91-93) includes an 'Effective user' filter field in its More-filters disclosure. The per-user audit page (audit_user_live.ex) does NOT include this field. For a support investigator who uses both pages, the absence of 'Effective user' on the per-user audit is asymmetric. HOWEVER: this asymmetry is DEFENSIBLE — the per-user audit is already subject-scoped to a specific user, so filtering by 'effective_user' within that scope is redundant (you are already on that user's page). This is a documented intentional asymmetry → waiver-track, NOT a kill or unresolved tighten."
     disposition_action: tighten
+    resolution: "WAIVER (Phase 209-05 Task 1) — Defensible intentional asymmetry per admin-design-contract.md D-09: 'Index @chip_keys is 6-key (incl. actor/effective_user); per-user is 5-key (excl. effective_user). Per-user has breadcrumbs, display_name identity header, return_to plumbing ... Index has scope ribbon and Effective-user filter field. These differences stay per-page.' The per-user audit page is subject-scoped at the route level (/admin/users/:id/audit); the effective_user field is redundant because the page subject IS the effective user. No code change needed — this asymmetry is documented as legitimate per-page divergence (D-09)."
 ---
 
 # audit-user-live: Persona-JTBD Panel Review
