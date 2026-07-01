@@ -277,20 +277,20 @@ Additional non-page slugs present in checkpoint snapshots but NOT page rows: `or
 
 **Panel-before-or-after remediation:** Author the 8 panel docs FIRST (they must capture the pre-fix live DOM as the adversarial evidence — a doc that scores an already-fixed page produces no findings and fails the forced-finding floor's intent). Then remediate. Then append a resolution note per finding (diff commit ref or waiver). This also lets the panel's Question-3 coherence lens catch NEW-1 (org "All clear") and NEW-2 (scope_copy divergence) before they're fixed.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **OQ-1 — Org members empty-state invite CTA target.** UI-SPEC L157 requires the members empty-state action link "must be present (not a dead-end)." But the admin OrganizationLive (`/admin/organizations/:slug`) is a **read-only overview** — there is NO admin invite-creation route. The only member-management surface is the host-owned `OrganizationMembersLive` at org-scoped `/members` (under `RequireMembership`, not the admin pipeline) `[VERIFIED: router.ex:257]`; invitation acceptance is public `/invitations/:token/accept`. "No net-new surfaces" (D-06) forbids adding an admin invite page.
    - What we know: no admin-pipeline invite route exists; a member-facing `/members` route does.
    - What's unclear: whether the empty-state CTA should link to `/members` (crossing pipeline boundaries), point at the existing "Support members" task-card target, or become a **documented waiver** ("admin overview is read-only; invitation creation lives on the member self-service surface").
-   - Recommendation: Resolve as a **waiver** unless a clean in-pipeline target exists — the swap to `<.empty_state>` (component-correctness) still lands; the "action link" clause is waived with the read-only-overview rationale. Flag for the planner to confirm.
+   - **RESOLVED: documented `Waiver:`** — there is no admin-pipeline invite route (`router.ex:257` exposes only the host-owned `/members` under `RequireMembership`); the admin org overview is read-only, so a cross-pipeline invite link would violate D-06 (no net-new surfaces / read-only overview). Disposition = **waiver, NOT a `/members` cross-link**. The `<.empty_state>` component swap still lands (real fix); the "action link" clause is resolved as a documented `Waiver:` with the read-only-overview rationale. The executor MUST NOT invent a boundary-crossing link. (Reflected in Plan 03, org-members empty-state task.)
 
 2. **OQ-2 — Branding scope_copy remediation is not a helper-reuse.** `branding_live.ex` has NO `defp scope_copy/1`; the 5 pages that do return divergent strings (NEW-2). The fix must supply a branding-appropriate computed copy (e.g. `"Global auth/email profile"` for global vs an org-scoped variant), not blindly import an existing helper.
-   - Recommendation: add a `defp scope_copy/1` to `branding_live.ex` mirroring the sibling pattern, returning branding-context copy per scope. Confirm the desired org-scoped branding string with the panel/UI-SPEC copy contract.
+   - **RESOLVED:** add a branding-context `defp scope_copy/1` to `branding_live.ex` mirroring the sibling pattern, returning branding-context copy per scope (do NOT blindly reuse a sibling's string — NEW-2). (Already reflected in Plan 04 Task 3.)
 
 3. **OQ-3 — CI-native checkpoint recapture mechanism (HIGH priority).** D-09 mandates ubuntu-native checkpoint recapture, but there is NO checkpoint-lane CI recapture job (only `admin_design_recapture` for the design lane). Historical checkpoint recapture used the manual `snapshot-recapture-gate.sh` on :4011 (darwin on a dev box).
    - What we know: pathTemplate is platform-pinned; `admin_design_recapture` is a working ubuntu-native recapture-and-PR pattern to mirror.
    - What's unclear: whether the plan (a) adds a `admin_checkpoint_recapture` job cloned from `admin_design_recapture` (canary-delete-then-add trick, commit to `ci/recapture-admin-checkpoints-<run_id>` PR), (b) reuses an existing dispatch, or (c) whether darwin-vs-ubuntu pixel diff is actually within tolerance for these specific slugs (unlikely — font rendering differs).
-   - Recommendation: mirror the `admin_design_recapture` job for the checkpoint lane (SNAP_DIR = checkpoints dir, `--canary impersonation-banner`, allowlist = `snapshot-allowlist`). This is the lowest-risk path and reuses a proven pattern. The planner should scope a plan/task for this. **This is the most likely place the phase stalls if unaddressed.**
+   - **RESOLVED:** mirror the `admin_design_recapture` job for the checkpoint lane (SNAP_DIR = checkpoints dir, `--canary impersonation-banner`, allowlist = `snapshot-allowlist`). This is the lowest-risk path and reuses a proven pattern. (Already reflected in Plan 01.)
 
 ## Environment Availability
 
@@ -362,7 +362,7 @@ Not applicable to this phase's changes. Phase 209 remediates admin-UI copy/IA/co
 |---|-------|---------|---------------|
 | A1 | Copy-only text changes to a page also alter its checkpoint PNG (visible text renders into the screenshot) → require slug recapture | Slug-Impact Map | If a copy change happens to not shift pixels, recapture is a harmless no-op; low risk. |
 | A2 | Mirroring `admin_design_recapture` for the checkpoint lane is the intended OQ-3 resolution | OQ-3 | Planner may choose a different mechanism; flagged as recommendation, not locked. |
-| A3 | The org invite-CTA resolves as a waiver (no admin invite route) | OQ-1 | If the user wants an actual link to `/members`, the waiver is replaced by a cross-pipeline link decision. |
+| A3 | The org invite-CTA resolves as a **locked waiver** (no admin invite route; read-only overview; cross-pipeline link forbidden by D-06) | OQ-1 (RESOLVED) | No longer an assumption — locked. The executor must NOT add a `/members` cross-link; the action-link clause is a documented `Waiver:`. |
 
 *All other claims are `[VERIFIED]` against read files this session.*
 
