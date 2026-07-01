@@ -26,7 +26,6 @@ defmodule Sigra.Admin.Live.IndexLive do
   def render(assigns) do
     assigns =
       assigns
-      |> assign(:summary_posture, summary_group(assigns.summary_stats, :posture))
       |> assign(:summary_growth, summary_group(assigns.summary_stats, :growth))
       |> assign(:summary_activity, summary_group(assigns.summary_stats, :activity))
       |> assign(
