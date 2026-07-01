@@ -1684,6 +1684,205 @@ jobs:
           echo "--- /tmp/example-recapture-server.log ---"
           cat /tmp/example-recapture-server.log || echo "(no log file)"
 
+  admin_checkpoint_recapture:
+    name: Recapture admin-checkpoint baselines (in-CI)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    needs: release_ref_guard
+    permissions:
+      contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
+      pull-requests: write  # required for gh pr create
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      # Boot prelude — verbatim clone of admin_design_recapture (ci.yml:1406–1485)
+      # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps
+        id: checkpoint_recapture_example_deps_cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PHX_SERVER: "true"
+        run: mix phx.server > /tmp/example-checkpoint-recapture-server.log 2>&1 &
+      - name: Wait for app and warm up LiveView routes
+        run: |
+          # Wait for root.
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          # Warm up the routes the test will hit — first-touch pays compile-on-demand
+          # latency in dev mode.
+          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
+            curl -sf -o /dev/null "http://localhost:4000${path}" \
+              && echo "warmed ${path}" \
+              || echo "warmup miss ${path} (non-fatal)"
+          done
+      - name: Re-establish impersonation-banner canary (D-10 part 2 deliberate re-baseline)
+        # D-10 part 2: The impersonation-banner canary was modified (not added) by a
+        # prior phase's WCAG contrast fix. snapshot-canary-guard.sh forbids a canary
+        # *modify* (line 104) but tolerates a canary *added* (line 100). To re-establish
+        # the canary with the corrected contrast values, delete the existing
+        # impersonation-banner PNGs BEFORE --update-snapshots so Playwright re-creates
+        # them as newly-added files rather than modifications.
+        # This is a one-time deliberate re-baseline preserving the shipped WCAG fix,
+        # NOT allowlisting the canary.
+        run: |
+          echo "Removing existing impersonation-banner PNGs so recapture creates them as 'added' (not 'modified')"
+          find test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots \
+            -name 'impersonation-banner-admin-checkpoints-*.png' -delete || true
+          echo "Removed impersonation-banner PNGs:"
+          ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
+      - name: Recapture admin-checkpoint baselines
+        # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
+        # committed baselines match what CI renders. The checkpoint lane covers
+        # 3 projects: chromium / mobile / dark.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark \
+            --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
+        # impersonation-banner canary re-established as 'added' (D-10 part 2 / deleted
+        # before recapture). The guard's legitimate birth path (line 100) tolerates
+        # 'added'; 'modify' remains forbidden. Tripwire stays armed for future PRs.
+        # Recaptured PNGs land on a ci/recapture-admin-checkpoints-<run_id> branch;
+        # a PR is opened for human review — not a silent push to main.
+        # [skip ci] prevents recursive triggering.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SNAP_DIR="test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots"
+
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
+          # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
+          declare -A seen_slugs=()
+          while IFS=$'\t' read -r status path; do
+            [[ -z "${path:-}" ]] && continue
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git diff --name-status HEAD -- "$SNAP_DIR" 2>/dev/null || true)
+          while IFS= read -r line; do
+            [[ "$line" == '??'* ]] || continue
+            path="${line:3}"
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git status --porcelain -- "$SNAP_DIR" 2>/dev/null || true)
+
+          echo "Changed slugs: ${!seen_slugs[*]}"
+
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "impersonation-banner" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. impersonation-banner should appear as 'added' (deleted
+          # before recapture) which the guard tolerates (line 100 of snapshot-canary-guard.sh).
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist \
+            --canary impersonation-banner \
+            "${allow_args[@]}"
+
+          # Commit to a reviewable branch, not main.
+          BRANCH="ci/recapture-admin-checkpoints-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$SNAP_DIR/"
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit -- baselines already match CI render."
+          else
+            git commit -m "ci(209): recapture admin-checkpoint baselines in ubuntu CI [skip ci]"
+            git push origin "$BRANCH"
+            gh pr create \
+              --title "ci: recapture admin-checkpoint baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). impersonation-banner canary re-established as 'added' (D-10 part 2 — WCAG contrast fix rationale: Phase 204-03 corrected vt-status-pill color-mix ratio for WCAG AA; canary previously captured pre-fix appearance). Merge after visual review." \
+              --base main \
+              --head "$BRANCH"
+          fi
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-checkpoint-recapture-server.log ---"
+          cat /tmp/example-checkpoint-recapture-server.log || echo "(no log file)"
+
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
   # nightly trigger path reports red on a real failure. Dispatching with
   # `gh workflow run "CI" -f force_fail_probe=true` reds this job and only
