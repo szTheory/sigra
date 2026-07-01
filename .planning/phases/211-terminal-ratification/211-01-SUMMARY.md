@@ -158,3 +158,8 @@ None — no external service configuration required.
 ---
 *Phase: 211-terminal-ratification*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+- SUMMARY.md: FOUND at `.planning/phases/211-terminal-ratification/211-01-SUMMARY.md`
+- Commit: FOUND `4b6dbf25` (docs(211-01): complete GATE-01 terminal-ratification verification plan)

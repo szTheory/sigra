@@ -6,14 +6,14 @@ current_phase: 211
 current_phase_name: terminal-ratification
 status: executing
 stopped_at: "Completed 211-01-PLAN.md (GATE-01 verification: ledger lock + canary idempotency + compare-mode zero drift)"
-last_updated: "2026-07-01T20:08:22.161Z"
+last_updated: "2026-07-01T20:21:45.751Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 211 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 32
-  completed_plans: 27
+  completed_plans: 28
   percent: 75
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 211 (terminal-ratification) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
@@ -223,6 +223,9 @@ Last activity: 2026-07-01 — Phase 211 execution started
 - [Phase ?]: flow-* L4 citation resolves to v1.42-PERSONA-JTBD-PANEL.md roll-up plus per-surface docs for each lens entry-point; no net-new per-flow doc needed (D-04)
 - [Phase ?]: Folded 208-03 mg-* L2 group flip: all 11 rows at bare Tier 2 with rich evidence; SC-4 achieved — whole L0-L4 fractal at Tier 2
 - [Phase ?]: D-02a mechanism (ii) confirmed: prove snapshot/canary idempotency vs HEAD in-phase; origin/main canary reconciliation (5 stale checkpoint slugs + WCAG-fixed impersonation-banner) is integration-merge (PR #63) hand-off
+- [Phase ?]: phx_new 1.8.7 pin (SEED-004) corrected before GATE-02 lane; do NOT regenerate golden fixture to absorb 1.8.8 diff
+- [Phase ?]: GATE-02 smoke requires explicit PGPORT=5432 when tmp/db.env exports PGPORT=58915; generated host uses system Homebrew Postgres (5432), not Docker test Postgres (58915)
+- [Phase ?]: No installer-template drift found in Phase 211-02 GATE-02 smoke; priv/templates/sigra.install/ byte-stable vs test/example/
 
 ### Pending Todos
 
@@ -343,7 +346,7 @@ Last activity: 2026-07-01 — Phase 211 execution started
 
 ## Session Continuity
 
-Last session: 2026-07-01T20:08:22.153Z
+Last session: 2026-07-01T20:21:45.743Z
 Stopped at: Completed 211-01-PLAN.md (GATE-01 verification: ledger lock + canary idempotency + compare-mode zero drift)
 Resume file: 
 
@@ -460,3 +463,4 @@ None
 | Phase 210 P02 | 236 | - tasks | - files |
 | Phase 210 P02 | 236 | 2 tasks | 1 files |
 | Phase 211 P01 | 8min | 3 tasks | 0 files |
+| Phase 211 P02 | 9min | 2 tasks | 0 files |
