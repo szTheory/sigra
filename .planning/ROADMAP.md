@@ -180,7 +180,7 @@ Plans:
 
 - [x] 209-01-PLAN.md — CI-native ubuntu admin-checkpoint recapture job (OQ-3 enabler)
 - [x] 209-02-PLAN.md — Author 8 fresh persona/JTBD panel docs + roll-up index (SC-1)
-- [ ] 209-03-PLAN.md — Remediate Overviews (index_live + organization_live: All-clear, empty-states, total-users)
+- [x] 209-03-PLAN.md — Remediate Overviews (index_live + organization_live: All-clear, empty-states, total-users)
 - [ ] 209-04-PLAN.md — Remediate user detail/sessions/branding (dedup, H1, revoke copy, scope_copy)
 - [ ] 209-05-PLAN.md — Cross-page composition (audit scope_ribbon/chips) + ledger evidence refresh
 - [ ] 209-06-PLAN.md — CI-native baseline recapture + D-10 canary re-designation + allowlist-clear close (SC-4)
@@ -224,7 +224,7 @@ Plans:
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
-| 209. Judgment-Level Page Pass | v1.42 | 2/6 | In Progress|  |
+| 209. Judgment-Level Page Pass | v1.42 | 3/6 | In Progress|  |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |

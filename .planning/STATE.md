@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-current_phase: 209
-current_phase_name: judgment-level-page-pass
 status: executing
-stopped_at: Completed 209-02-PLAN.md
-last_updated: "2026-07-01T14:47:12.879Z"
+stopped_at: Completed 209-03-PLAN.md
+last_updated: "2026-07-01T14:54:10.419Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 209 execution started
 progress:
-  total_phases: 8
-  completed_phases: 4
-  total_plans: 25
-  completed_plans: 20
-  percent: 50
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 10
+  completed_plans: 7
+  percent: 25
 ---
 
 # Project State
@@ -30,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 209 (judgment-level-page-pass) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
-Last activity: 2026-07-01 — Phase 209 execution started
+Last activity: 2026-07-01
 
 ## Accumulated Context
 
@@ -210,6 +207,9 @@ Last activity: 2026-07-01 — Phase 209 execution started
 - [Phase ?]: [Phase 209-02]: All 8 admin surfaces scored actionable in persona-JTBD panel (no kill/blocked); all findings tighten remediable in-place
 - [Phase ?]: [Phase 209-02]: audit-user-live Effective-user absence is documented defensible asymmetry — waiver-track, not kill; per-user audit is already subject-scoped
 - [Phase ?]: [Phase 209-02]: Panel roll-up kill/tighten counts as none/xN notation — prevents false-matching quality-ledger monotonic guard column-4 awk pattern
+- [Phase ?]: Replace 'All clear' with 'No flagged accounts' on both Overview pages for cross-page coherence
+- [Phase ?]: Remove Total-users summary chip from Global Overview; Users-List strip is the single owner (Plan 03 dedup)
+- [Phase ?]: Waiver for org members action-link: admin overview is read-only, no admin invite route per D-06/OQ-1
 
 ### Pending Todos
 
@@ -330,8 +330,8 @@ Last activity: 2026-07-01 — Phase 209 execution started
 
 ## Session Continuity
 
-Last session: 2026-07-01T14:47:12.871Z
-Stopped at: Completed 209-02-PLAN.md
+Last session: 2026-07-01T14:54:10.413Z
+Stopped at: Completed 209-03-PLAN.md
 Resume file: 
 
 None
@@ -440,3 +440,4 @@ None
 | Phase 208.1 P03 | 38m | 3 tasks | 5 files |
 | Phase 209 P01 | 4 | 1 tasks | 1 files |
 | Phase 209 P02 | 522 | 3 tasks | 10 files |
+| Phase 209 P03 | 2 | 2 tasks | 4 files |
