@@ -125,3 +125,31 @@ The "No members yet — invite members to populate this organization." message (
 Verdict: `tighten`
 
 The Pending invitations section uses `<p class="sg-section-copy">No pending invitations.</p>` (organization_live.ex:117) — a second bare paragraph diverging from the `<.empty_state>` component contract. An org-admin who observes inconsistent empty-state treatment between the two peer sections on the same page (Members at :95, Invitations at :117) would be surprised. Both sections should use the canonical component for coherent cross-surface treatment.
+
+---
+
+## Resolution Notes (Plan 209-03 Wave 2)
+
+**Finding 1 — bare `<p class="sg-section-copy">` Members empty-state (`organization_live.ex:95`):**
+
+Resolved: replaced bare `<p :if={@members == []} class="sg-section-copy">` with `<.empty_state :if={@members == []} title="No members yet">` (title = noun phrase of absent thing) plus a one-sentence body "Members appear here as people join this organization." per the UI-SPEC Standard Admin Copy Patterns. Diff: Plan 209-03, Task 2 commit.
+
+**Members "action link" clause:**
+
+Waiver: admin overview is read-only; no admin invite route; member-facing /members is out of the admin pipeline per D-06. OQ-1 disposition is LOCKED — no action link is added. The `<.empty_state>` swap itself is the real structural fix. The waiver body "Members appear here as people join this organization." explains what populates the surface without a misleading CTA the operator cannot act on (per the empty-state rubric: "No misleading CTA the operator cannot act on").
+
+**Finding 2 — bare "All clear" copy (`organization_live.ex:69`, NEW-1):**
+
+Resolved: replaced "All clear" with "No flagged accounts" — matching the index_live treatment for cross-page coherence per the panel's coherence lens. Diff: Plan 209-03, Task 2 commit.
+
+**Finding 3 — `<.empty_state>` IA dead-end (`organization_live.ex:95-96`):**
+
+Resolved via Waiver above — the members empty-state invite-CTA dead-end is resolved by (a) the `<.empty_state>` component swap and (b) the documented waiver for the action-link clause. No action link is added.
+
+**Finding 4 — Pending invitations bare `<p>` empty-state (`organization_live.ex:117`):**
+
+Resolved: replaced bare `<p :if={@pending_invitations == []} class="sg-section-copy">` with `<.empty_state :if={@pending_invitations == []} title="No pending invitations">` plus a one-sentence body "Invitations appear here when members are invited to this organization." Both empty-states now use the canonical `<.empty_state>` component. Count-based grep asserts ≥ 2 occurrences. Diff: Plan 209-03, Task 2 commit.
+
+**scope_ribbon intentional omission (:60):**
+
+Waiver: `scope_ribbon` is intentionally omitted on Overview pages per `organization_live.ex:60` comment ("topbar sg-scope-pill is sufficient, UI-SPEC L152"). Preserved as-is; not added per D-05.
