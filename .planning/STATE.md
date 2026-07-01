@@ -5,15 +5,15 @@ milestone_name: CI-Gate Remediation
 current_phase: 209
 current_phase_name: judgment-level-page-pass
 status: executing
-stopped_at: Completed 209-01-PLAN.md
-last_updated: "2026-07-01T14:33:54.127Z"
+stopped_at: Completed 209-02-PLAN.md
+last_updated: "2026-07-01T14:47:12.879Z"
 last_activity: 2026-07-01
 last_activity_desc: Phase 209 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 25
-  completed_plans: 19
+  completed_plans: 20
   percent: 50
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 209 (judgment-level-page-pass) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
@@ -207,6 +207,9 @@ Last activity: 2026-07-01 — Phase 209 execution started
 - [Phase 208.1-02]: admin-audit: open 'More filters' disclosure + scope to desktop results pane + assert 'Session Create' pill not hidden event code inside closed details disclosure
 - [Phase ?]: Boot prelude cloned verbatim from admin_design_recapture for checkpoint recapture job — no divergence between design and checkpoint lane boot sequences (Phase 209-01)
 - [Phase ?]: D-10 part 2: delete impersonation-banner-admin-checkpoints-*.png before recapture so canary re-establishes as 'added' not 'modified' — preserves WCAG contrast fix (Phase 204-03) without allowlisting the canary (Phase 209-01)
+- [Phase ?]: [Phase 209-02]: All 8 admin surfaces scored actionable in persona-JTBD panel (no kill/blocked); all findings tighten remediable in-place
+- [Phase ?]: [Phase 209-02]: audit-user-live Effective-user absence is documented defensible asymmetry — waiver-track, not kill; per-user audit is already subject-scoped
+- [Phase ?]: [Phase 209-02]: Panel roll-up kill/tighten counts as none/xN notation — prevents false-matching quality-ledger monotonic guard column-4 awk pattern
 
 ### Pending Todos
 
@@ -327,8 +330,8 @@ Last activity: 2026-07-01 — Phase 209 execution started
 
 ## Session Continuity
 
-Last session: 2026-07-01T14:33:54.120Z
-Stopped at: Completed 209-01-PLAN.md
+Last session: 2026-07-01T14:47:12.871Z
+Stopped at: Completed 209-02-PLAN.md
 Resume file: 
 
 None
@@ -436,3 +439,4 @@ None
 | Phase 208.1-v1-42-ci-gate-remediation P01 | 13min | 3 tasks | 2 files |
 | Phase 208.1 P03 | 38m | 3 tasks | 5 files |
 | Phase 209 P01 | 4 | 1 tasks | 1 files |
+| Phase 209 P02 | 522 | 3 tasks | 10 files |
