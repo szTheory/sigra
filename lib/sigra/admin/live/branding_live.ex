@@ -103,7 +103,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         </p>
       </header>
 
-      <.scope_ribbon copy="Global auth/email profile" />
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <.notice :if={@error} tone={:risk} role="alert">
         {@error}
@@ -572,6 +572,11 @@ defmodule Sigra.Admin.Live.BrandingLive do
   defp current_panel_attr(active_panel, panel) do
     if active_panel == panel, do: "page"
   end
+
+  # Branding is platform-admin-only (no org-scoped variant). The copy reflects the
+  # global auth/email configuration surface — distinct from "Global user operations"
+  # (users pages) or "Global audit explorer" (audit pages).
+  defp scope_copy(_admin_scope), do: "Global auth/email profile"
 
   defp source_label(profile_source), do: Map.fetch!(@source_labels, profile_source)
   defp admin_profile?(:admin_profile), do: true

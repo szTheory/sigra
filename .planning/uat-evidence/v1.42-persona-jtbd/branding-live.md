@@ -105,3 +105,14 @@ NONE — searched for: IA hierarchy failures visible to an org-admin who might r
 ### Redundant / coherent / least-surprising?
 
 NONE — searched for: vocabulary or layout on the branding page that would confuse an org-admin if they could somehow see it. The org-admin does not reach this surface through correct auth boundaries. No redundancy or coherence failure for org-admin lens.
+
+---
+
+## Resolution Notes (Plan 209-04)
+
+**Resolved:** 2026-07-01 — Actionable verdict remediated in `lib/sigra/admin/live/branding_live.ex`. No checkpoint slug for branding (D-09); evidence is modal-interaction spec, not a screenshot.
+
+### Platform Admin Q3 (redundant_coherent_surprising): scope_ribbon computed helper — RESOLVED
+**Diff ref:** `<.scope_ribbon copy="Global auth/email profile" />` (hardcoded literal) replaced with `<.scope_ribbon copy={scope_copy(@admin_scope)} />`. A new `defp scope_copy/1` private helper added to `branding_live.ex` returning `"Global auth/email profile"` — architecturally consistent with all sibling pages while remaining branding-context-appropriate (not blindly reusing "Global user operations" or "Global audit explorer" from siblings).
+
+**NEW-2 rationale:** Branding is platform-admin-only with no org-scoped variant, so `scope_copy/1` is a single-clause always-global helper. The function form is used (not a bare literal at call site) so the pattern matches siblings and a future org-scoped branding variant could add a second clause without touching the template. No shared `components.ex` helper added per RESEARCH decision.
