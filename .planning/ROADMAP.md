@@ -199,9 +199,11 @@ Plans:
   3. Each flow cites its persona review doc (from Phase 209) as evidence and has a ledger row flipped to bare `2`
   4. The monotonic guard exits 0; every ledger cell is now Tier-2 — the whole fractal is complete
 
-**Plans**: 2 plans
-- [ ] 210-01-PLAN.md — Flip user-sessions L3 (PAGE-03) + 3 flow-* L4 (FLOW-01) to bare Tier-2, citing the user-show-live sibling template + the Phase-209 persona roll-up
+**Plans**: 1/2 plans executed
+
+- [x] 210-01-PLAN.md — Flip user-sessions L3 (PAGE-03) + 3 flow-* L4 (FLOW-01) to bare Tier-2, citing the user-show-live sibling template + the Phase-209 persona roll-up
 - [ ] 210-02-PLAN.md — Folded 208-03 (GROUP-02): flip the 11 mg-* L2 rows to bare Tier-2 with rich per-group evidence; monotonic guard exits 0, whole fractal reads 2
+
 **UI hint**: yes
 
 ### Phase 211: Terminal Ratification
@@ -227,7 +229,7 @@ Plans:
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
-| 210. Remaining Cell Elevation | v1.42 | 0/2 | Not started | - |
+| 210. Remaining Cell Elevation | v1.42 | 1/2 | In Progress|  |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |

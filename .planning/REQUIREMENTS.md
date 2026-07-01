@@ -33,11 +33,11 @@
 
 - [x] **PAGE-01**: The adversarial persona panel renders one committed scored review doc per surface (`.planning/uat-evidence/v1.42-persona-jtbd/<surface>.md`) for all 8 pages, each with 3-persona verdicts and a per-surface disposition (`clean`/`actionable`/`blocked`), indexed by a roll-up (`.planning/v1.42-PERSONA-JTBD-PANEL.md`).
 - [x] **PAGE-02**: Judgment-level remediations (kill info-dump, redundant UI, verbosity; tighten IA) are applied across the pages — every actionable verdict is remediated with a diff or explicitly waived with rationale — with the monotonic guard green (no Tier-2 page regresses) and page baselines recaptured under allowlist→clear discipline.
-- [ ] **PAGE-03**: The `user-sessions` page is elevated to Tier-2 — overlay axe-clean + the 7 APG focus-trap/restore gates (it owns the confirm dialog) + glossary-clean microcopy + motion/density/target-size satisfied and cited.
+- [x] **PAGE-03**: The `user-sessions` page is elevated to Tier-2 — overlay axe-clean + the 7 APG focus-trap/restore gates (it owns the confirm dialog) + glossary-clean microcopy + motion/density/target-size satisfied and cited.
 
 ### Persona Flow Elevation (FLOW)
 
-- [ ] **FLOW-01**: The 3 persona flows (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`) are elevated to Tier-2 — each proves happy/error/boundary/edge paths, scope/return-context continuity, full keyboard operability, calm reduced-motion, and theme persistence, and cites its persona review doc as evidence.
+- [x] **FLOW-01**: The 3 persona flows (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`) are elevated to Tier-2 — each proves happy/error/boundary/edge paths, scope/return-context continuity, full keyboard operability, calm reduced-motion, and theme persistence, and cites its persona review doc as evidence.
 
 ### Terminal Ratification (GATE)
 
@@ -81,8 +81,8 @@ Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from
 | GROUP-02 | Phase 208 | Complete |
 | PAGE-01 | Phase 209 | Complete |
 | PAGE-02 | Phase 209 | Complete |
-| PAGE-03 | Phase 210 | Pending |
-| FLOW-01 | Phase 210 | Pending |
+| PAGE-03 | Phase 210 | Complete |
+| FLOW-01 | Phase 210 | Complete |
 | GATE-01 | Phase 211 | Pending |
 | GATE-02 | Phase 211 | Pending |
 
