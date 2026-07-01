@@ -15,21 +15,20 @@ Advisory code-review findings from Phase 209 that were deferred rather than
 guess-fixed. None block the phase (copy/IA remediations + REVIEW verified all 6
 LiveView diffs clean). Captured so they aren't lost:
 
-1. **WR-01 — `admin_checkpoint_recapture` delete-before-recapture premise may be
-   wrong for `--base HEAD` (ci.yml:1785-1861).** The reviewer argues the
-   impersonation-banner canary PNGs are tracked at HEAD (`git ls-files`), so
-   deleting + recreating them in the working tree yields `modified` (guard-forbidden,
-   ci.yml:104), NOT `added`. The "added" trick only holds against a base where the
-   file is absent. **Cross-check with 209-06:** the SUMMARY itself acknowledges the
-   canary remains `modified` vs `origin/main` and claims the post-merge CI run makes
-   `origin/main` carry the post-WCAG baseline (so PR #63's diff vs the *new*
-   origin/main then shows unchanged). Whether that resolution actually holds is only
-   verifiable when `admin_checkpoint_recapture` runs post-merge on ubuntu. **Action:
-   validate the mechanism end-to-end on the first real CI run; if the guard trips on
-   `modified`, the delete-before-recapture logic needs rework (e.g. allowlist the
-   canary for that one run, or base the "added" claim on the correct absent-at-base
-   comparison).** This is the highest-value deferred item — it gates the D-10 / SC-4
-   baseline obligation.
+1. **WR-01 — RESOLVED in commit eb066b49.** The reviewer + verifier + orchestrator
+   independently confirmed the `admin_checkpoint_recapture` delete-before-recapture
+   premise was wrong: the canary PNGs are tracked at HEAD, and
+   `git diff --name-status HEAD` compares HEAD to the final worktree (ignoring the
+   intermediate delete), so a recapture classifies as `modified` (guard-forbidden),
+   never `added` — the job would have failed its own gate. Fix: removed the
+   delete-before-recapture step AND the circular in-job `snapshot-canary-guard`
+   invocation (a recapture job legitimately changes baselines — gating it against a
+   forbid-modify rule is self-defeating). The job now recaptures → commits → opens a
+   PR for HUMAN VISUAL REVIEW; the canary tripwire stays armed on `fast_checks` for
+   future PRs. **Residual (post-merge validation only):** on the first post-merge
+   ubuntu CI run, confirm the recapture PR opens with the expected changed slugs and
+   that after merging it, PR #63's `fast_checks` snapshot-canary lane reads green.
+   This can only be exercised post-merge (D-09 forbids darwin recapture).
 
 2. **WR-02 — `panel-schema-check.sh` is never invoked by CI.** The validator ships
    under 209-02 `provides` but `grep` finds no reference in ci.yml. A schema guard
