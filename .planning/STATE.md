@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-status: executing
-stopped_at: Completed 209-04-PLAN.md
-last_updated: "2026-07-01T15:24:34.632Z"
+current_phase: 209
+current_phase_name: judgment-level-page-pass
+status: verifying
+stopped_at: Completed 209-06-PLAN.md
+last_updated: "2026-07-01T15:40:14.197Z"
 last_activity: 2026-07-01
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 10
-  completed_plans: 9
-  percent: 25
+  total_phases: 8
+  completed_phases: 5
+  total_plans: 25
+  completed_plans: 24
+  percent: 63
 ---
 
 # Project State
@@ -28,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 209 (judgment-level-page-pass) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
 Last activity: 2026-07-01
@@ -215,6 +217,7 @@ Last activity: 2026-07-01
 - [Phase ?]: User Sessions kicker changed to Sessions; H1 now interpolates entity name matching user_show_live/audit_user_live siblings (209-04)
 - [Phase ?]: Revoke copy: reassurance clause removed; security-remediation framing conveys consequence + reversibility per T-209-04-01 (209-04)
 - [Phase ?]: scope_copy/1 added to branding_live as single-clause always-global helper; resolves NEW-2 architectural inconsistency (209-04)
+- [Phase ?]: canary re-designation: impersonation-banner 'modified' vs origin/main due to Phase 204-03 WCAG fix; Plan-01 CI job resolves post-merge; WCAG fix preserved, canary not allowlisted (209-06)
 
 ### Pending Todos
 
@@ -335,8 +338,8 @@ Last activity: 2026-07-01
 
 ## Session Continuity
 
-Last session: 2026-07-01T15:24:34.626Z
-Stopped at: Completed 209-04-PLAN.md
+Last session: 2026-07-01T15:40:14.190Z
+Stopped at: Completed 209-06-PLAN.md
 Resume file: 
 
 None
@@ -447,3 +450,4 @@ None
 | Phase 209 P02 | 522 | 3 tasks | 10 files |
 | Phase 209 P03 | 2 | 2 tasks | 4 files |
 | Phase 209 P04 | 5 minutes | 3 tasks | 6 files |
+| Phase 209 P06 | 3min | 3 tasks | 1 files |

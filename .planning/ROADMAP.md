@@ -176,14 +176,14 @@ Plans:
   3. No Tier-2 page regresses — `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0 after all remediations land
   4. Page Playwright baselines are recaptured under allowlist-then-clear discipline; both allowlists are empty at phase close and the canary is byte-stable
 
-**Plans**: 4/6 plans executed
+**Plans**: 6/6 plans complete
 
 - [x] 209-01-PLAN.md — CI-native ubuntu admin-checkpoint recapture job (OQ-3 enabler)
 - [x] 209-02-PLAN.md — Author 8 fresh persona/JTBD panel docs + roll-up index (SC-1)
 - [x] 209-03-PLAN.md — Remediate Overviews (index_live + organization_live: All-clear, empty-states, total-users)
 - [x] 209-04-PLAN.md — Remediate user detail/sessions/branding (dedup, H1, revoke copy, scope_copy)
 - [x] 209-05-PLAN.md — Cross-page composition (audit scope_ribbon/chips) + ledger evidence refresh
-- [ ] 209-06-PLAN.md — CI-native baseline recapture + D-10 canary re-designation + allowlist-clear close (SC-4)
+- [x] 209-06-PLAN.md — CI-native baseline recapture + D-10 canary re-designation + allowlist-clear close (SC-4)
 
 **UI hint**: yes
 
@@ -224,7 +224,7 @@ Plans:
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
-| 209. Judgment-Level Page Pass | v1.42 | 5/6 | In Progress|  |
+| 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete   | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 0/? | Not started | - |
 | 211. Terminal Ratification | v1.42 | 0/? | Not started | - |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
