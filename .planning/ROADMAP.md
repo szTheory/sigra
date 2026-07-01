@@ -23,7 +23,7 @@
 - [ ] **Phase 207: L1 Component Elevation Wave B + L0 Token Layer** - Elevate 5 remaining L1 components and token layer to Tier-2
 - [ ] **Phase 208: L2 Meta-Component Group Elevation** - Elevate all 11 meta-component groups (MG-1…MG-11) to Tier-2
 - [x] **Phase 209: Judgment-Level Page Pass** - Adversarial persona panel over all 8 pages; apply remediations under monotonic guard (completed 2026-07-01)
-- [ ] **Phase 210: Remaining Cell Elevation** - Elevate user-sessions page and 3 persona flows to Tier-2
+- [x] **Phase 210: Remaining Cell Elevation** - Elevate user-sessions page and 3 persona flows to Tier-2
 - [ ] **Phase 211: Terminal Ratification** - Every ledger cell reads 2, baselines recaptured, generated-host parity proven
 
 <details>
