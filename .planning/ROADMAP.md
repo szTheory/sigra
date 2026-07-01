@@ -229,7 +229,7 @@ Plans:
 
 **Wave 2** *(depends on Wave 1 — audit asserts no blockers)*
 
-- [ ] 211-04-PLAN.md — Adversarial milestone audit `v1.42-MILESTONE-AUDIT.md` (4 RATIFY checks, cites persona panel + 8 per-surface docs); fix stale PRE-FIX panel header → POST-FIX (GATE-02 SC-4 / D-06/D-07)
+- [x] 211-04-PLAN.md — Adversarial milestone audit `v1.42-MILESTONE-AUDIT.md` (4 RATIFY checks, cites persona panel + 8 per-surface docs); fix stale PRE-FIX panel header → POST-FIX (GATE-02 SC-4 / D-06/D-07)
 
 **Wave 3** *(depends on all prior — flips GATE checkboxes only after gates pass)*
 
@@ -245,7 +245,7 @@ Plans:
 | 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
 | 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 2/2 | Complete   | 2026-07-01 |
-| 211. Terminal Ratification | v1.42 | 3/5 | In Progress|  |
+| 211. Terminal Ratification | v1.42 | 4/5 | In Progress|  |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
