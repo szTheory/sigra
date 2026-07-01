@@ -1,7 +1,7 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.42
-milestone_name: CI-Gate Remediation
+milestone_name: ADMIN-DS-ELEVATION
 status: executing
 stopped_at: "Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)"
 last_updated: "2026-07-01T20:53:17.316Z"
