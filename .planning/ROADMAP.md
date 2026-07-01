@@ -1,11 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.42 ADMIN-DS-ELEVATION in progress (phases 205-211). Hex: `v1.1.0`.
+**Status:** v1.42 ADMIN-DS-ELEVATION complete (phases 205-211, shipped 2026-07-01). Hex: `v1.1.0`.
 
 ## Milestones
 
-- 🚧 **v1.42 ADMIN-DS-ELEVATION** — Phases 205-211 (in progress)
+- ✅ **v1.42 ADMIN-DS-ELEVATION** — Phases 205-211 (shipped 2026-07-01)
 - ✅ **v1.41 ADMIN-UX-ELEVATION** — Phases 199-204 (shipped 2026-06-27)
 - ✅ **v1.40 CI-PERF** — Phases 193-198 (shipped 2026-06-21)
 - ✅ **v1.39 DS-COHERENCE** — Phases 184-192 (shipped 2026-06-19)
@@ -21,10 +21,10 @@
 - [ ] **Phase 205: Foundation** - Adversarial judge instrument, real-configuration gallery, and stress fixtures
 - [ ] **Phase 206: L1 Component Elevation Wave A** - Elevate 8 highest-reuse L1 components to Tier-2
 - [ ] **Phase 207: L1 Component Elevation Wave B + L0 Token Layer** - Elevate 5 remaining L1 components and token layer to Tier-2
-- [ ] **Phase 208: L2 Meta-Component Group Elevation** - Elevate all 11 meta-component groups (MG-1…MG-11) to Tier-2
+- [x] **Phase 208: L2 Meta-Component Group Elevation** - Elevate all 11 meta-component groups (MG-1…MG-11) to Tier-2 (208-03/GROUP-02 folded into 210-02; completed 2026-07-01)
 - [x] **Phase 209: Judgment-Level Page Pass** - Adversarial persona panel over all 8 pages; apply remediations under monotonic guard (completed 2026-07-01)
 - [x] **Phase 210: Remaining Cell Elevation** - Elevate user-sessions page and 3 persona flows to Tier-2
-- [ ] **Phase 211: Terminal Ratification** - Every ledger cell reads 2, baselines recaptured, generated-host parity proven
+- [x] **Phase 211: Terminal Ratification** - Every ledger cell reads 2, baselines recaptured, generated-host parity proven (completed 2026-07-01)
 
 <details>
 <summary>✅ v1.41 ADMIN-UX-ELEVATION (Phases 199-204) — SHIPPED 2026-06-27 · full detail in milestones/v1.41-ROADMAP.md</summary>
@@ -218,7 +218,7 @@ Plans:
   3. Installer↔example byte-parity and golden fixture stay green; a fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin with no regressions
   4. An adversarial milestone audit doc is committed, recording the persona-JTBD verdicts as Tier-2 evidence and confirming no critical blockers remain
 
-**Plans**: 3/5 plans executed
+**Plans**: 5/5 plans complete
 
 Plans:
 **Wave 1** *(parallel — independent gates)*
@@ -233,7 +233,7 @@ Plans:
 
 **Wave 3** *(depends on all prior — flips GATE checkboxes only after gates pass)*
 
-- [ ] 211-05-PLAN.md — Milestone-close housekeeping: mark Phase 208 complete (folded into 210-02); flip GATE-01/GATE-02 satisfied; correct STATE.md milestone_name → ADMIN-DS-ELEVATION; flip ROADMAP v1.42 → shipped; no git tag (D-08/D-09)
+- [x] 211-05-PLAN.md — Milestone-close housekeeping: mark Phase 208 complete (folded into 210-02); flip GATE-01/GATE-02 satisfied; correct STATE.md milestone_name → ADMIN-DS-ELEVATION; flip ROADMAP v1.42 → shipped; no git tag (D-08/D-09)
 
 ## Progress
 
@@ -242,10 +242,10 @@ Plans:
 | 205. Foundation | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete    | 2026-06-28 |
 | 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete    | 2026-06-28 |
-| 208. L2 Meta-Component Group Elevation | v1.42 | 2/3 | In Progress|  |
+| 208. L2 Meta-Component Group Elevation | v1.42 | 3/3 (208-03 folded into 210-02) | Complete    | 2026-07-01 |
 | 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete    | 2026-07-01 |
 | 210. Remaining Cell Elevation | v1.42 | 2/2 | Complete   | 2026-07-01 |
-| 211. Terminal Ratification | v1.42 | 4/5 | In Progress|  |
+| 211. Terminal Ratification | v1.42 | 5/5 | Complete    | 2026-07-01 |
 | 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete    | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 3/3 | Complete    | 2026-06-26 |
 | 201. Users Index Elevation | v1.41 | 4/4 | Complete    | 2026-06-26 |
