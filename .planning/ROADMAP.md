@@ -218,7 +218,22 @@ Plans:
   3. Installer↔example byte-parity and golden fixture stay green; a fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin with no regressions
   4. An adversarial milestone audit doc is committed, recording the persona-JTBD verdicts as Tier-2 evidence and confirming no critical blockers remain
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1** *(parallel — independent gates)*
+
+- [ ] 211-01-PLAN.md — GATE-01: verify terminal all-`2` ledger + monotonic lock; prove snapshot/canary idempotency vs HEAD (both lanes) + checkpoint compare-mode zero drift; allowlists empty; origin/main reconciliation deferred to integration merge (GATE-01)
+- [ ] 211-02-PLAN.md — GATE-02: pre-flight phx_new 1.8.7 pin; install-golden byte-diff green; admin-acceptance-smoke renders elevated styled admin on a fresh generated host (GATE-02)
+- [ ] 211-03-PLAN.md — Clean terminal `mix test` gate: NoopTest shard-race confirmed in isolation; 204 stale-contract tests re-confirmed green; failures map only to accepted known/env set (GATE-01/GATE-02 supporting)
+
+**Wave 2** *(depends on Wave 1 — audit asserts no blockers)*
+
+- [ ] 211-04-PLAN.md — Adversarial milestone audit `v1.42-MILESTONE-AUDIT.md` (4 RATIFY checks, cites persona panel + 8 per-surface docs); fix stale PRE-FIX panel header → POST-FIX (GATE-02 SC-4 / D-06/D-07)
+
+**Wave 3** *(depends on all prior — flips GATE checkboxes only after gates pass)*
+
+- [ ] 211-05-PLAN.md — Milestone-close housekeeping: mark Phase 208 complete (folded into 210-02); flip GATE-01/GATE-02 satisfied; correct STATE.md milestone_name → ADMIN-DS-ELEVATION; flip ROADMAP v1.42 → shipped; no git tag (D-08/D-09)
 
 ## Progress
 
