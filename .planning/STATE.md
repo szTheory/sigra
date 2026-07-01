@@ -1,17 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.42
-milestone_name: ADMIN-DS-ELEVATION
+milestone_name: CI-Gate Remediation
+current_phase: 211
 status: verifying
 stopped_at: "Completed 211-03-PLAN.md (terminal mix test gate: 2 UpgradeIntegrationTest env-DB failures in accepted set; NoopTest isolation 3/3; no new regression)"
-last_updated: "2026-07-01T20:58:36.573Z"
+last_updated: "2026-07-01T21:09:41.707Z"
 last_activity: 2026-07-01
+last_activity_desc: Phase 211 complete
 progress:
-  total_phases: 4
-  completed_phases: 3
-  total_plans: 17
-  completed_plans: 16
-  percent: 75
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 32
+  completed_plans: 31
+  percent: 88
 ---
 
 # Project State
@@ -26,12 +28,12 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 211 (terminal-ratification) — EXECUTING
-Plan: 5 of 5
+Phase: 211
+Plan: Not started
 Status: Phase complete — ready for verification
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
-Last activity: 2026-07-01
+Last activity: 2026-07-01 — Phase 211 complete
 
 ## Accumulated Context
 
