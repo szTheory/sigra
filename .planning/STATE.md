@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-current_phase: 208.1
-current_phase_name: v1-42-ci-gate-remediation
-status: "Goal achieved — required check "Example Playwright smoke (full lifecycle)" GREEN on CI (PR #63 run 28451828047). The ~15 never-CI-validated admin Playwright failures fixed; 6 hidden ExUnit regressions also surfaced+fixed."
-stopped_at: Phase 209 planned — 6 plans across 3 waves, plan-checker PASSED (0 blockers)
-last_updated: "2026-07-01T01:16:54.807Z"
-last_activity: 2026-06-30
-last_activity_desc: Phase 209 planning complete (research + validation + 6 plans, verified)
+current_phase: 209
+current_phase_name: judgment-level-page-pass
+status: executing
+stopped_at: Completed 209-01-PLAN.md
+last_updated: "2026-07-01T14:33:54.127Z"
+last_activity: 2026-07-01
+last_activity_desc: Phase 209 execution started
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 19
-  completed_plans: 18
+  total_plans: 25
+  completed_plans: 19
   percent: 50
 ---
 
@@ -25,16 +25,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 208.1 — v1-42-ci-gate-remediation
+**Current focus:** Phase 209 — judgment-level-page-pass
 
 ## Current Position
 
-Phase: 208.1 (v1-42-ci-gate-remediation) — COMPLETE (verified 5/5 scope items)
-Plan: 4 of 4 complete
-Status: Goal achieved — required check "Example Playwright smoke (full lifecycle)" GREEN on CI (PR #63 run 28451828047). The ~15 never-CI-validated admin Playwright failures fixed; 6 hidden ExUnit regressions also surfaced+fixed.
+Phase: 209 (judgment-level-page-pass) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
-Last activity: 2026-06-30 -- Phase 208.1 complete
+Last activity: 2026-07-01 — Phase 209 execution started
 
 ## Accumulated Context
 
@@ -205,6 +205,8 @@ Last activity: 2026-06-30 -- Phase 208.1 complete
 - [Phase 208.1-02]: admin-modal-interaction Phase 200 D-04 routing: navigate to sessions page via 'Manage sessions' before asserting 'Revoke session' button
 - [Phase 208.1-02]: Sudo heading reconciled to 'Re-enter your password' across installer template + impersonation.spec.ts + admin-generated.spec.ts
 - [Phase 208.1-02]: admin-audit: open 'More filters' disclosure + scope to desktop results pane + assert 'Session Create' pill not hidden event code inside closed details disclosure
+- [Phase ?]: Boot prelude cloned verbatim from admin_design_recapture for checkpoint recapture job — no divergence between design and checkpoint lane boot sequences (Phase 209-01)
+- [Phase ?]: D-10 part 2: delete impersonation-banner-admin-checkpoints-*.png before recapture so canary re-establishes as 'added' not 'modified' — preserves WCAG contrast fix (Phase 204-03) without allowlisting the canary (Phase 209-01)
 
 ### Pending Todos
 
@@ -325,11 +327,11 @@ Last activity: 2026-06-30 -- Phase 208.1 complete
 
 ## Session Continuity
 
-Last session: 2026-07-01T01:16:54.801Z
-Stopped at: Phase 209 UI-SPEC approved
+Last session: 2026-07-01T14:33:54.120Z
+Stopped at: Completed 209-01-PLAN.md
 Resume file: 
 
-.planning/phases/209-judgment-level-page-pass/209-UI-SPEC.md
+None
 | --- | --- | --- | --- |
 | Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
 | Phase 162 | 1 plan | same session | Brand DNA + voice |
@@ -433,3 +435,4 @@ Resume file:
 | Phase 208 P01 | 1m | 2 tasks | 0 files |
 | Phase 208.1-v1-42-ci-gate-remediation P01 | 13min | 3 tasks | 2 files |
 | Phase 208.1 P03 | 38m | 3 tasks | 5 files |
+| Phase 209 P01 | 4 | 1 tasks | 1 files |
