@@ -22,6 +22,11 @@ config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
   pubsub_server: SigraInstallGoldenTmp.PubSub,
   live_view: [signing_salt: "<LIVE_VIEW_SALT>"]
 
+# Configure LiveView
+config :phoenix_live_view,
+  # the attribute set on all root tags. Used for Phoenix.LiveView.ColocatedCSS.
+  root_tag_attribute: "phx-r"
+
 # Configure the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

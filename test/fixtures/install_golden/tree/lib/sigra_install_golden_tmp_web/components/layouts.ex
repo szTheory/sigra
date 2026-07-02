@@ -31,7 +31,7 @@ defmodule SigraInstallGoldenTmpWeb.Layouts do
 
   attr :current_scope, :map,
     default: nil,
-    doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+    doc: "the current [scope](https://phoenix.hexdocs.pm/scopes.html)"
 
   slot :inner_block, required: true
 
@@ -53,7 +53,7 @@ defmodule SigraInstallGoldenTmpWeb.Layouts do
             <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
           </li>
           <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
+            <a href="https://phoenix.hexdocs.pm/overview.html" class="btn btn-primary">
               Get Started <span aria-hidden="true">&rarr;</span>
             </a>
           </li>
