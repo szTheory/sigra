@@ -106,7 +106,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 213. Latest-Phoenix Compatibility | 2/2 | Complete   | 2026-07-02 |
+| 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
 | 214. Debt & Robustness Clear | 0/? | Not started | - |
 | 215. Terminal Ratification | 0/? | Not started | - |
 

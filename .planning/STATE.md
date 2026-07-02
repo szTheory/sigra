@@ -4,9 +4,9 @@ milestone: v1.43
 milestone_name: STABILIZE
 current_phase: 213
 current_phase_name: latest-phoenix-compatibility
-status: verifying
-stopped_at: "Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke"
-last_updated: "2026-07-02T23:47:12.628Z"
+status: ready_to_plan
+stopped_at: Phase 213 complete (2/2) — ready to discuss Phase 214
+last_updated: 2026-07-02T23:54:49.659Z
 last_activity: 2026-07-02
 progress:
   total_phases: 3
@@ -24,13 +24,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 213 — latest-phoenix-compatibility
+**Current focus:** Phase 214 — debt & robustness clear
 
 ## Current Position
 
-Phase: 213 (latest-phoenix-compatibility) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 214
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-07-02
 
 ## Accumulated Context
