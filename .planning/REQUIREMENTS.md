@@ -17,8 +17,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Latest-Phoenix Compatibility (COMPAT) — SEED-004
 
-- [ ] **COMPAT-01**: A host generated with the current `phx.new` (≥ 1.8.8) plus `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type" for …CoreComponents.button/1`, and no other 1.8.8 output drift breaks the generated compile.
-- [ ] **COMPAT-02**: The install golden fixture and `golden_diff_test` are reconciled with `phx.new` ≥ 1.8.8 output (the `config/config.exs` `root_tag_attribute` byte-diff absorbed correctly), so the golden lane passes without the 1.8.7 archive.
+- [x] **COMPAT-01**: A host generated with the current `phx.new` (≥ 1.8.8) plus `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type" for …CoreComponents.button/1`, and no other 1.8.8 output drift breaks the generated compile.
+- [x] **COMPAT-02**: The install golden fixture and `golden_diff_test` are reconciled with `phx.new` ≥ 1.8.8 output (the `config/config.exs` `root_tag_attribute` byte-diff absorbed correctly), so the golden lane passes without the 1.8.7 archive.
 - [ ] **COMPAT-03**: The `phx_new 1.8.7` pin is removed from CI workflows and the CLAUDE.md dev-prereq note, with the generated-host acceptance smoke green against current `phx.new`.
 
 ### Debt & Robustness Clear (DEBT)
@@ -71,8 +71,8 @@ Explicitly excluded from v1.43 to keep it a true stabilization lane.
 | HEALTH-02 | Phase 215 | Pending |
 | HEALTH-03 | Phase 214 | Pending |
 | HEALTH-04 | Phase 215 | Pending |
-| COMPAT-01 | Phase 213 | Pending |
-| COMPAT-02 | Phase 213 | Pending |
+| COMPAT-01 | Phase 213 | Complete |
+| COMPAT-02 | Phase 213 | Complete |
 | COMPAT-03 | Phase 213 | Pending |
 | DEBT-01 | Phase 214 | Pending |
 | DEBT-02 | Phase 214 | Pending |

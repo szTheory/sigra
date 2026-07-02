@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.43
 milestone_name: STABILIZE
-status: planning
-stopped_at: Phase 213 context gathered (assumptions mode)
-last_updated: "2026-07-02T22:49:32.156Z"
-last_activity: 2026-07-02 — v1.43 STABILIZE roadmap created (3 phases, 13 requirements)
+status: executing
+stopped_at: "Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke"
+last_updated: "2026-07-02T23:31:07.736Z"
+last_activity: 2026-07-02
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -22,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.43 STABILIZE — roadmap created. Start Phase 213 with `/gsd-plan-phase 213`.
+**Current focus:** Phase 213 — latest-phoenix-compatibility
 
 ## Current Position
 
-Phase: Phase 213 (not started)
-Plan: —
-Status: Roadmap created — ready to plan Phase 213
-Last activity: 2026-07-02 — v1.43 STABILIZE roadmap created (3 phases, 13 requirements)
+Phase: 213 (latest-phoenix-compatibility) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-07-02
 
 ## Accumulated Context
 
@@ -224,6 +224,9 @@ Last activity: 2026-07-02 — v1.43 STABILIZE roadmap created (3 phases, 13 requ
 - [Phase ?]: NoopTest flake is a parallel-shard log-capture race (not a regression): lean documented-known per Claude's Discretion (D-05); no determinism fix applied
 - [Phase ?]: Full-suite terminal gate: 2403 tests, 2 Sigra.UpgradeIntegrationTest env-DB failures in D-05 accepted set; no new regression
 - [Phase ?]: phase_192_known_failure_contract_test.exs correctly absent (deleted in 204-02); phase_148 4 tests re-confirmed green (D-08 re-confirm only)
+- [Phase ?]: phx.new 1.8.8 is the pin target for Phase 213 (confirmed current latest via mix hex.info phx_new at execution)
+- [Phase ?]: COMPAT-01 satisfied with zero code changes: fresh phx.new 1.8.8 host compiles clean under --warnings-as-errors (D-02 verified)
+- [Phase ?]: Golden fixture delta under phx_new 1.8.8: 3 files changed (config.exs root_tag_attribute block + HexDocs URL format in application.ex and layouts.ex); D-05 guard NOT triggered
 
 ### Pending Todos
 
@@ -302,9 +305,9 @@ Items deferred beyond v1.43 (next milestone or later):
 
 ## Session Continuity
 
-Last session: 2026-07-02T22:49:32.153Z
-Stopped at: Phase 213 context gathered (assumptions mode)
-Resume file: .planning/phases/213-latest-phoenix-compatibility/213-CONTEXT.md
+Last session: 2026-07-02T23:31:07.732Z
+Stopped at: Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke
+Resume file: .planning/phases/213-latest-phoenix-compatibility/213-01-SUMMARY.md
 
 ## Operator Next Steps
 
@@ -366,3 +369,4 @@ Resume file: .planning/phases/213-latest-phoenix-compatibility/213-CONTEXT.md
 | Phase 211 P01 | 8min | 3 tasks | 0 files |
 | Phase 211 P02 | 9min | 2 tasks | 0 files |
 | Phase 211 P03 | 19min | 3 tasks | 0 files |
+| Phase 213 P01 | 4min | 2 tasks | 3 files |
