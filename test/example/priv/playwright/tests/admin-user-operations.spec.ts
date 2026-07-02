@@ -129,9 +129,11 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     // the list is empty afterward.
     const revokeSession = page.getByRole('button', { name: 'Revoke session' });
     // New UserSessionsLive confirm copy (no per-target email interpolation) — see
-    // lib/sigra/admin/live/user_sessions_live.ex revoke_session_copy/1.
+    // lib/sigra/admin/live/user_sessions_live.ex revoke_session_copy/1. Phase 209-04
+    // (commit 869f1997) rewrote the copy to a security-remediation framing, dropping
+    // the "They can sign in again." reassurance clause.
     const confirmPrompt = page.getByText(
-      'The user will be signed out of this session immediately. They can sign in again.',
+      'The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access.',
     );
     // The ConfirmDialog's danger button carries the action label "Revoke"; scope the
     // confirm click to the dialog overlay so it can't collide with per-row triggers.
