@@ -64,7 +64,9 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
   1. A fresh `mix phx.new` (≥1.8.8) + `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type"` warning and no other 1.8.8 output-drift compile breakage.
   2. The install golden fixture and `golden_diff_test` pass without the `phx_new 1.8.7` archive — the `config/config.exs root_tag_attribute` byte-diff is correctly absorbed into the committed fixture.
   3. The `phx_new 1.8.7` pin is absent from all CI workflow files and from the CLAUDE.md dev-prereq note; the generated-host acceptance smoke runs against current `phx.new` and exits green.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 213-01-PLAN.md — Rebless the install golden fixture under phx.new ≥1.8.8; prove COMPAT-01/02 (golden_diff + install-smoke) [wave 1]
+- [ ] 213-02-PLAN.md — Flip all 11 archive pins to concrete 1.8.8 + rewrite docs/phase-198 test + add `--check` drift-detector + D-11 smoke version-asserts + acceptance smoke (COMPAT-03) [wave 2, depends on 213-01]
 
 ### Phase 214: Debt & Robustness Clear
 **Goal**: Every tracked real-bug, robustness gap, and deferred code-review item from previous phases is resolved (or explicitly re-triaged with rationale), and local `mix test` output is a trustworthy release signal with no spurious failures.
@@ -94,7 +96,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 213. Latest-Phoenix Compatibility | 0/? | Not started | - |
+| 213. Latest-Phoenix Compatibility | 0/2 | Not started | - |
 | 214. Debt & Robustness Clear | 0/? | Not started | - |
 | 215. Terminal Ratification | 0/? | Not started | - |
 
