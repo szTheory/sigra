@@ -27,7 +27,7 @@ If you just want to *install Sigra into your own app*, you want [Installation](.
 - **Elixir 1.19+** / OTP 27+ (host-run mode and `mix test` run on the host).
 - A modern browser. Chrome/Edge resolve `*.localhost` automatically; for Firefox/Safari/`curl` use the printed raw `127.0.0.1:<port>` URL.
 - Optional but recommended: **[direnv](https://direnv.net)** for zero-step test-DB discovery (a `source` fallback is always printed).
-- For the install golden tests only: the pinned `phx_new` archive — `mix archive.install --force hex phx_new 1.8.7`.
+- For the install golden tests only: the pinned `phx_new` archive — `mix archive.install --force hex phx_new 1.8.8`.
 
 ## Postgres for `mix test`
 

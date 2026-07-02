@@ -168,7 +168,7 @@ jobs:
           mix local.rebar --force
       - name: Install phx_new archive
         if: steps.detect.outputs.run == 'true'
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         if: steps.detect.outputs.run == 'true'
         run: mix deps.get
@@ -230,7 +230,7 @@ jobs:
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         run: mix deps.get
       - name: Run library tests (shard ${{ matrix.partition }})
@@ -343,7 +343,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         env:
           MIX_ENV: test
@@ -494,7 +494,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Run install smoke harness
@@ -555,7 +555,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Run upgrade smoke harness
@@ -607,7 +607,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Run passkeys manual fallback smoke harness
@@ -663,7 +663,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Scaffold fresh Phoenix app
@@ -788,7 +788,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Run passkeys opt-out smoke harness
@@ -1244,7 +1244,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.7
+        run: mix archive.install --force hex phx_new 1.8.8
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci

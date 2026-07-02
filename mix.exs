@@ -138,8 +138,8 @@ defmodule Sigra.MixProject do
   defp aliases do
     [
       # DX-01: local mirror of the PR-fast required gate (compile + test + install-golden + dep-off).
-      # Prerequisites: live Postgres (see scripts/db/up.sh + source tmp/db.env) and phx_new 1.8.7
-      # archive installed locally (mix archive.install --force hex phx_new 1.8.7).
+      # Prerequisites: live Postgres (see scripts/db/up.sh + source tmp/db.env) and phx_new 1.8.8
+      # archive installed locally (mix archive.install --force hex phx_new 1.8.8).
       ci: [
         "compile --warnings-as-errors",
         "test",

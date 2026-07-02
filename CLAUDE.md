@@ -208,18 +208,16 @@ Dockerized demo behind shared Traefik with live reload, health-gates the URL, an
 auto-opens `/demo/credentials` (no second terminal; `--dev` for the host-run path).
 
 The install golden tests (`test/sigra/install/golden_diff_test.exs` and the
-other `mix sigra.install` fixtures) require the **phx_new 1.8.7** archive
-installed locally to match the CI pin (SEED-004):
+other `mix sigra.install` fixtures) require the **phx_new 1.8.8** archive
+installed locally to match the CI pin:
 
 ```bash
-mix archive.install --force hex phx_new 1.8.7
+mix archive.install --force hex phx_new 1.8.8
 ```
 
-A newer archive (e.g. 1.8.8, which adds the `config :phoenix_live_view,
-root_tag_attribute: ...` block to generated `config/config.exs`) produces a
-spurious byte-diff against the committed fixture and fails `golden_diff_test`
-locally even though CI is green. Do **not** regenerate the fixture to "fix"
-this — install 1.8.7 instead.
+A different local archive version produces spurious byte-diffs against the
+committed fixture and fails `golden_diff_test` locally. Install the pinned
+version above to keep your local gate in sync with CI.
 
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills
