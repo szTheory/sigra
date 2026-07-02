@@ -318,7 +318,15 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 212-01-PLAN.md — GATE-01: reconcile the impersonation-banner mobile canary (re-designate as `added`, WCAG fix preserved) + allowlist the 4 legit v1.41-backlog checkpoint drifts, so snapshot-canary-guard --base origin/main exits 0
 - [ ] 212-02-PLAN.md — FLOW-01: wire the 3 persona-flow specs into the example_playwright_smoke admin_behavior chromium step (fail-closed via existing aggregator)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 212-03-PLAN.md — GATE-02: branch-scope the generated_admin_playwright_smoke PR-skip so runtime parity RUNS + PASSES on PR #63 (not all PRs)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 212-04-PLAN.md — SC-4: push local main, un-draft + drive PR #63 green, merge to origin/main, and ONLY THEN flip ROADMAP v1.42 → shipped + reset allowlist (D-03) + delete stale phase-205 todo (D-11)
