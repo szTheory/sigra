@@ -1,17 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.42
-milestone_name: CI-Gate Remediation
-status: shipped
-stopped_at: Phase 212 complete — v1.42 merged + shipped (PR #63)
-last_updated: "2026-07-02T21:05:00.000Z"
-last_activity: 2026-07-02 -- v1.42 merged to origin/main + shipped (PR #63)
+milestone_name: ADMIN-DS-ELEVATION
+current_phase: 212
+status: Awaiting next milestone
+stopped_at: v1.42 ADMIN-DS-ELEVATION milestone complete and archived (PR #63 merged to origin/main)
+last_updated: "2026-07-02T21:49:08.286Z"
+last_activity: 2026-07-02
+last_activity_desc: Milestone v1.42 completed and archived
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 21
-  completed_plans: 21
+  total_phases: 9
+  completed_phases: 9
+  total_plans: 36
+  completed_plans: 36
   percent: 100
+current_phase_name: v1-42-integration-merge-canary-reconciliation-gate-the-perso
 ---
 
 # Project State
@@ -22,15 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.42 shipped — integration merge complete (PR #63 merged to origin/main)
+**Current focus:** Between milestones — v1.42 ADMIN-DS-ELEVATION shipped + archived (PR #63 merged to origin/main). Start the next milestone with `/gsd-new-milestone`.
 
 ## Current Position
 
-Phase: 212 (v1-42-integration-merge-canary-reconciliation-gate-the-perso) — COMPLETE
-Plan: 4 of 4 (all complete)
-Status: v1.42 merged + shipped. PR #63 merged to origin/main 2026-07-02; the v1.42→shipped flag (4a5dd5f7) landed atomically with the merge (honest, per D-16). GATE-01 (both snapshot lanes green + canary reconciled via prerequisite PR #64), FLOW-01 (3 persona-flow specs gated + passing), and GATE-02 (generated-host smoke RUNS+PASSES on the integration PR) all closed. Post-merge: both allowlists reset to comment-only (D-03/D-14), stale phase-205 board-baseline todo deleted (D-11).
-Next: v1.42 done. Next milestone per ROADMAP (v1.40 CI-PERF / SEED-005 remains queued). Known-accepted: NoopTest shard-2 log-capture flake (Phase 211 D-05); deferred code-review nits in `.planning/todos/pending/2026-07-01-phase209-code-review-deferred.md`.
-Last activity: 2026-07-02 -- v1.42 merged to origin/main + shipped (PR #63)
+Phase: Milestone v1.42 ADMIN-DS-ELEVATION complete + archived
+Plan: —
+Status: Awaiting next milestone (post-1.0 maintenance-first posture)
+Last activity: 2026-07-02 — Milestone v1.42 completed and archived (ROADMAP collapsed, REQUIREMENTS archived, 9 open items acknowledged/deferred)
 
 ## Accumulated Context
 
@@ -343,6 +345,28 @@ Last activity: 2026-07-02 -- v1.42 merged to origin/main + shipped (PR #63)
 | seed | SEED-004-phx-new-button-forward-compat | dormant | v1.41 |
 | seed | SEED-005-ci-cd-pipeline-performance-audit | dormant | v1.41 |
 | seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | v1.41 |
+
+### Acknowledged at v1.42 close (2026-07-02)
+
+`override_closeout` — 13 open-artifact items acknowledged and deferred at milestone close (audit verdict `tech_debt`: 15/15 requirements satisfied, 0 critical blockers, 4 Low-severity debt items). The two Phase-212-adjacent items were genuinely resolved before close rather than buried: the `reconcile-stale-example-tests-pr63` debug session (all 6 example tests reconciled; PR #63 merged green) was moved to `debug/resolved/`, and the `2026-06-30-v142-integration-snapshot-canary-drift` todo (closed by Phase 212 GATE-01) was moved to `todos/resolved/`. The residual below is irreducible forward backlog (features, DX, CI perf, deferred code-review nits) plus dormant future-bet seeds.
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked — non-blocking demo-DX polish | v1.42 |
+| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (schema migrate path) | v1.42 |
+| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (Playwright sharding); overlaps SEED-005 | v1.42 |
+| todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature | v1.42 |
+| todo | 2026-06-21-app-css-comment-corruption-cleanup | tracked — demo app.css orphaned-comment cleanup | v1.42 |
+| todo | 2026-06-22-vaultr-authed-rebrand-residuals | tracked — demo (Tasklane) rebrand residuals | v1.42 |
+| todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label feature | v1.42 |
+| todo | 2026-06-24-oban-enqueue-unguarded-when-compiled-but-unsupervised | tracked — Oban-optional robustness | v1.42 |
+| todo | 2026-06-25-phase200-code-review-deferred | tracked — deferred code-review items | v1.42 |
+| todo | 2026-07-01-phase209-code-review-deferred | tracked — WR-02 (unwired panel-schema-check.sh) + info nits | v1.42 |
+| seed | SEED-004-phx-new-button-forward-compat | dormant — forward-compat with phx.new ≥1.8.8 `<.button>`; drop the 1.8.7 pin | v1.42 |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) | v1.42 |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture | v1.42 |
+
+**Known-accepted (not blocking):** the `Sigra.Audit.Forwarders.NoopTest` shard-2 log-capture flake (parallel-shard race, passes in isolation — Phase 211 D-05).
 
 ## Session Continuity
 

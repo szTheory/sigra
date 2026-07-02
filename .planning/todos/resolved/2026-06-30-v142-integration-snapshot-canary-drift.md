@@ -81,3 +81,15 @@ Characterized as a **parallel-shard log-capture flake**, NOT a 208.1 regression:
 Suggested fix (milestone cleanup): isolate the test (`async: false` or `@tag :capture_log`
 scoping / `ExUnit.CaptureLog` around the asserted region) so a sibling async test's log
 output can't leak into the assertion window. Re-running the job alone is expected to pass.
+
+---
+
+## RESOLVED — Phase 212 (v1.42 integration merge), 2026-07-02
+
+Closed by Phase 212 GATE-01 (plan 212-01): the `impersonation-banner` mobile canary was
+re-designated `added` (WCAG fix from 204-03 preserved, not allowlisted), and the 4 legit
+checkpoint slugs (`audit-explorer`, `user-audit`, `global-user-index`, `org-scoped-admin`)
+were allowlisted for the integration PR, so `snapshot-canary-guard.sh --base origin/main`
+exits 0. PR #63 merged to origin/main with all required gates green; post-merge both
+allowlists reset to comment-only (D-03/D-14). The NoopTest shard-2 flake (addendum) is a
+known-accepted parallel-shard log-capture race (Phase 211 D-05), tracked separately.

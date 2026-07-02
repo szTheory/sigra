@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.42 ADMIN-DS-ELEVATION (Shipped: 2026-07-02)
+
+**Phases completed:** 9 phases (205, 206, 207, 208, 208.1, 209, 210, 211, 212), 36 plans, 52 tasks
+**Git range:** `f4480caa`..`49a89a18` · shipped via PR #63 (fast-forward merge to `origin/main`) · no git tag (D-09)
+**Milestone audit:** `tech_debt` — 15/15 requirements satisfied, 0 critical blockers, 4 Low-severity debt items
+
+**Key accomplishments:**
+
+- **Whole admin design-system fractal elevated to award-grade Tier-2** — all 13 L1 components + all 11 L2 meta-component groups (MG-1…MG-11) + the L0 token layer + the `user-sessions` L3 page + the 3 persona L4 flows ratcheted to bare `2`; every one of the 36 ledger cells locked forward-only by `quality-ledger-monotonic.sh` (exits 0 vs origin/main).
+- **Reusable adversarial persona/JTBD judge instrument** shipped — `admin-persona-jtbd-rubric.md` (3 lenses: platform-admin / support-investigator / org-admin; fixed keep/tighten/kill verdicts) + 8 per-surface scored review docs + the `v1.42-PERSONA-JTBD-PANEL.md` roll-up + `v1.42-IA-DIAGNOSTIC.md`, cross-referenced from the scorecard and ledger.
+- **Deepened `/admin/_design` gallery + durable CI conformance guards** — real-page `board-cfg-*` composites snapshot-clean across chromium/mobile/dark; new `admin-css-conformance.sh` (no `transition:all`, no raw hex outside `:root`) and `admin-token-completeness.sh` (100/100), both with hermetic self-tests.
+- **Judgment-level remediation across all 8 admin pages** — killed info-dump/redundancy (de-duped counts, unified empty-states, security-preserving revoke copy, `scope_copy/1` helper) with zero Tier-2 page regressions under the monotonic guard and baselines recaptured under allowlist→clear discipline.
+- **Terminal ratification proved both gates** — GATE-01 (all-`2` ledger + both canary lanes zero-drift + checkpoint compare-mode zero PNG drift, allowlists empty) and GATE-02 (generated-host parity two ways: install-golden byte-diff on the phx_new 1.8.7 pin + acceptance-smoke runtime render); clean terminal `mix test` (2403 tests, only the accepted `UpgradeIntegrationTest` env-DB failures).
+- **CI-gate remediation (208.1) + integration merge (212)** — fixed ~15 never-CI-validated admin Playwright behavioral failures, wired the 3 persona-flow specs into an executing CI job (FLOW-01), un-skipped the generated-host runtime smoke (GATE-02), reconciled the origin/main `impersonation-banner` canary (WCAG-fix preserved, re-designated not allowlisted), and merged PR #63 — flipping the milestone to shipped only after all required gates went green.
+
+**Known deferred items:** override_closeout — 9 open-artifact items acknowledged and deferred at close (see STATE.md `## Deferred Items` → "Acknowledged at v1.42 close"); none blocking.
+
+---
+
 ## v1.41 ADMIN-UX-ELEVATION (Shipped: 2026-06-27)
 
 **Phases completed:** 6 phases, 26 plans, 56 tasks
