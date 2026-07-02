@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.43
 milestone_name: STABILIZE
-status: executing
+current_phase: 213
+current_phase_name: latest-phoenix-compatibility
+status: verifying
 stopped_at: "Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke"
-last_updated: "2026-07-02T23:31:07.736Z"
+last_updated: "2026-07-02T23:47:12.628Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 33
 ---
 
 # Project State
@@ -28,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 213 (latest-phoenix-compatibility) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02
 
 ## Accumulated Context
@@ -227,6 +229,9 @@ Last activity: 2026-07-02
 - [Phase ?]: phx.new 1.8.8 is the pin target for Phase 213 (confirmed current latest via mix hex.info phx_new at execution)
 - [Phase ?]: COMPAT-01 satisfied with zero code changes: fresh phx.new 1.8.8 host compiles clean under --warnings-as-errors (D-02 verified)
 - [Phase ?]: Golden fixture delta under phx_new 1.8.8: 3 files changed (config.exs root_tag_attribute block + HexDocs URL format in application.ex and layouts.ex); D-05 guard NOT triggered
+- [Phase ?]: Pin target for phx_new archive is concrete 1.8.8 (D-07)
+- [Phase ?]: D-06 rebless_golden --check drift-detector wired in install_golden_contract as a hard gate
+- [Phase ?]: COMPAT-03 satisfied: generated host admin Playwright chrome slice passes (1/1) against phx_new 1.8.8
 
 ### Pending Todos
 
@@ -305,7 +310,7 @@ Items deferred beyond v1.43 (next milestone or later):
 
 ## Session Continuity
 
-Last session: 2026-07-02T23:31:07.732Z
+Last session: 2026-07-02T23:47:12.623Z
 Stopped at: Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke
 Resume file: .planning/phases/213-latest-phoenix-compatibility/213-01-SUMMARY.md
 
@@ -370,3 +375,4 @@ Resume file: .planning/phases/213-latest-phoenix-compatibility/213-01-SUMMARY.md
 | Phase 211 P02 | 9min | 2 tasks | 0 files |
 | Phase 211 P03 | 19min | 3 tasks | 0 files |
 | Phase 213 P01 | 4min | 2 tasks | 3 files |
+| Phase 213 P02 | 723 | 3 tasks | 10 files |
