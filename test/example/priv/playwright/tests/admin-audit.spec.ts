@@ -130,13 +130,22 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await page.getByRole('link', { name: 'View full audit' }).click();
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(new RegExp(`/admin/organizations/${orgSlug}/users/[^/]+/audit`));
-    await expect(page.getByText(targetEmail).first()).toBeVisible();
+    // Scope to the visible desktop results pane (dual-DOM: desktop+mobile both in DOM;
+    // unscoped .first() can resolve to the hidden mobile variant on chromium).
+    const desktopResults = page.locator('[data-testid="admin-audit-user-desktop-results"]');
+    await expect(desktopResults.getByText(targetEmail).first()).toBeVisible();
 
+    // Phase 202: advanced filters moved into a <details> disclosure collapsed by
+    // default. Open it before targeting the textbox so it is visible/interactable.
+    await page.getByText('More filters').click();
     await page.getByRole('textbox', { name: 'Action prefix' }).fill('session');
     await page.getByRole('button', { name: 'Apply filters' }).click();
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(/action_prefix=session/);
-    await expect(page.getByText('session.create').first()).toBeVisible();
+    // The raw action code 'session.create' lives inside a closed <details> disclosure
+    // ('Event codes') and is therefore hidden. Assert the visible action_label pill
+    // instead: 'session.create' → action_label = 'Session Create' (presenter.ex:43-47).
+    await expect(desktopResults.locator('.sg-status-pill', { hasText: 'Session Create' }).first()).toBeVisible();
 
     const scopedDownload = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Export CSV' }).click();

@@ -33,7 +33,7 @@ defmodule ExampleWeb.AdminBrandingLiveTest do
       assert html =~ ~s(data-theme="light")
       assert html =~ "--sigra-auth-light-bg:"
       assert html =~ "--sigra-auth-dark-bg:"
-      assert html =~ "Vaultr"
+      assert html =~ "Tasklane"
       assert html =~ ~s(<fieldset class="sg-fieldset">)
 
       assert html =~
@@ -291,7 +291,7 @@ defmodule ExampleWeb.AdminBrandingLiveTest do
         |> render_click()
 
       assert html =~ "Auth branding restored to config defaults."
-      assert html =~ "Vaultr"
+      assert html =~ "Tasklane"
       assert html =~ "Source: Config defaults"
       refute html =~ "Restore defaults?"
       refute html =~ "Restore config defaults"

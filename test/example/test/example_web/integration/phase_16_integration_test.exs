@@ -56,7 +56,7 @@ defmodule ExampleWeb.Phase16IntegrationTest do
       conn = get(conn, ~p"/organizations")
       html = html_response(conn, 200)
       assert html =~ "Create your first organization"
-      assert html =~ "belong to any organizations yet"
+      assert html =~ "belong to any teams yet"
     end
   end
 

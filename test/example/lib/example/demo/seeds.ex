@@ -2,14 +2,15 @@ defmodule Example.Demo.Seeds do
   @moduledoc """
   Idempotent demo-database seed orchestrator.
 
-  Calling `run/0` populates the development database with nine `@demo.vaultr.test`
+  Calling `run/0` populates the development database with nine `@demo.tasklane.test`
   personas covering every notable auth state (admin with TOTP + passkey + multi-org,
   standard user, TOTP-enrolled org owner, GitHub OAuth identity, locked-out,
   scheduled-deletion, non-platform org admin, passkey-only, and deletion-scheduled
   org member). It also seeds the Acme Corp and
   Beta Labs organizations, memberships, a pending invitation, the Acme Corp SSO
-  enterprise connection, multiple active admin sessions, and a rich audit trail
-  (>=15 rows, >=6 distinct action values).
+  enterprise connection, multiple active admin sessions, a list-scale bulk user
+  cohort (~36 loadtest-* users for pagination stress), and a rich audit trail
+  (>=25 admin self-tied rows, >=6 distinct action values — FIXT-01 pagination threshold).
 
   Calling `run/0` twice is safe: all inserts use `on_conflict: :nothing` keyed on
   existing unique indexes (D-02), except audit events which use a count-threshold
@@ -39,6 +40,19 @@ defmodule Example.Demo.Seeds do
   # Using a pinned constant so `occurred_at` spread is reproducible across re-runs.
   @seed_reference_ts ~U[2026-05-15 12:00:00Z]
 
+  # FIXT-02 bulk cohort target size. 36 users + 9 personas = 45 total on /admin/users,
+  # spanning 2 full pages at the @default_limit 25 page size (Finding 1 / D-09).
+  # Kept outside Personas.all/0 and excluded from both demo_user count queries via
+  # the `loadtest-` local-part prefix (Pitfall-3 resolution — seeds_test.exs).
+  @bulk_cohort_size 36
+
+  # Seconds per day — used for deterministic DateTime.add/3 offsets (IN-03).
+  @seconds_per_day 86_400
+
+  @doc "Returns the target size of the loadtest- bulk user cohort."
+  @spec bulk_cohort_size() :: non_neg_integer()
+  def bulk_cohort_size, do: @bulk_cohort_size
+
   @doc """
   Seeds the demo database idempotently.
 
@@ -47,8 +61,13 @@ defmodule Example.Demo.Seeds do
   """
   @spec run() :: :ok
   def run do
+    # FIXT-02 / Finding 1: seed the bulk cohort BEFORE the persona users so that
+    # the persona users (including admin) are the NEWEST rows (inserted_at DESC sort
+    # on /admin/users keeps admin first-listed — required by the content-equivalence
+    # test in admin-design.spec.ts which opens the first user's audit feed).
+    seed_bulk_users()
     users = seed_users()
-    {acme, beta} = seed_organizations()
+    {acme, beta, _ghost} = seed_organizations()
     seed_memberships(users, acme, beta)
     seed_invitation(acme)
     seed_mfa_credentials(users)
@@ -75,6 +94,104 @@ defmodule Example.Demo.Seeds do
   defp demo_email(local), do: Personas.email(local)
   defp demo_user(users, local), do: Map.fetch!(users, demo_email(local))
 
+  ## ── List-scale "ugly" bulk user cohort (FIXT-02, D-09, D-10) ────────────────
+  #
+  # Seeds @bulk_cohort_size users with deliberately stress-test-worthy data:
+  # near-max-length email local parts, long multi-word display names, and a
+  # UUID-shaped identifier embedded in the name.
+  #
+  # Marker: `loadtest-` local-part prefix on `@demo.tasklane.test` domain so BOTH
+  # persona-count queries in seeds_test.exs can exclude them via
+  # `not like(u.email, "loadtest-%")` (Pitfall-3 resolution).
+  #
+  # Idempotency: count-threshold guard mirrors seeds.ex:634-651. The on_conflict
+  # path in register_user/1 (upsert_user/1) handles re-runs for existing rows.
+  # All inserts wrapped in a transaction so a partial run does not leave a count
+  # below threshold and re-fire on the next call.
+  #
+  # These users stay OUT of Personas.all/0 (D-09): no print_credentials output,
+  # no feature_map entry, no /demo/credentials exposure.
+
+  defp seed_bulk_users do
+    existing =
+      Repo.aggregate(
+        from(u in User, where: like(u.email, "loadtest-%")),
+        :count
+      )
+
+    if existing < @bulk_cohort_size do
+      result =
+        Repo.transaction(fn ->
+          Enum.each(1..@bulk_cohort_size, fn n ->
+            # Near-max-length email local part: `loadtest-NN-` prefix + 32-char hex token.
+            # The `@demo.tasklane.test` domain keeps seed data in the test domain while
+            # the `loadtest-` prefix allows BOTH persona-count queries to exclude it.
+            hex_token = Base.encode16(:crypto.hash(:md5, "bulk-user-#{n}-v1"), case: :lower)
+            email = "loadtest-#{String.pad_leading("#{n}", 2, "0")}-#{hex_token}@demo.tasklane.test"
+
+            # UUID-shaped identifier embedded in the display name for rendering pressure.
+            uuid_shaped =
+              "bulk-#{n}-#{Base.encode16(:crypto.hash(:sha256, "name-#{n}"), case: :lower) |> binary_part(0, 8)}"
+
+            # Long multi-word display name to pressure text overflow in the admin UI.
+            display_name =
+              "Load Test User #{String.pad_leading("#{n}", 2, "0")} Very Long Display Name #{uuid_shaped}"
+
+            upsert_user(%{
+              email: email,
+              display_name: display_name,
+              # Deterministic password derived from n — never shown on credentials page.
+              password: "BulkUser#{n}!LoadTest2026"
+            })
+            |> then(fn user ->
+              # Confirm each bulk user so they appear in the list like real users.
+              if user.confirmed_at do
+                # Already confirmed — only reachable on partial-cohort re-runs (idempotency recovery path)
+                user
+              else
+                user
+                |> User.confirm_changeset()
+                |> Repo.update!()
+              end
+            end)
+          end)
+        end)
+
+      case result do
+        {:ok, _} -> :ok
+        {:error, reason} -> raise "seed_bulk_users/0 failed: #{inspect(reason)}"
+      end
+    end
+
+    # D-18: i18n/RTL overflow user — exercises multi-byte CJK, RTL Arabic, combining
+    # diacritics, and emoji rendering in the admin UI display-name column.
+    # Uses the `loadtest-` prefix so it is EXCLUDED from Personas.all() count queries.
+    # Seeded OUTSIDE the @bulk_cohort_size count guard so the 36-user threshold
+    # remains stable (this is an extra user, not part of the 36).
+    # D-19 determinism: all values are static string literals — no randomness.
+    i18n_email = "loadtest-i18n-rtl@demo.tasklane.test"
+
+    i18n_exists =
+      Repo.aggregate(from(u in User, where: u.email == ^i18n_email), :count)
+
+    if i18n_exists < 1 do
+      user =
+        upsert_user(%{
+          email: i18n_email,
+          display_name: "张三李四 مستخدم café résumé 🌏 Test",
+          password: "I18nRtl1!LoadTest2026"
+        })
+
+      if is_nil(user.confirmed_at) do
+        user
+        |> User.confirm_changeset()
+        |> Repo.update!()
+      end
+    end
+
+    :ok
+  end
+
   ## ── User creation + state patches ───────────────────────────────────────────
 
   defp seed_users do
@@ -93,6 +210,19 @@ defmodule Example.Demo.Seeds do
   #   {:error, :email_taken}  — DB-level unique constraint (Sigra.Auth.register/3 path)
   #   {:error, changeset}     — unsafe_validate_unique fires before DB insert
   # Both indicate the user already exists; fetch the existing row.
+  #
+  # CONTRACT: upsert_user/1 requires ONLY %{email, display_name, password} and must
+  # never dereference any other key of its argument. This is load-bearing — the bulk
+  # cohort (seed_bulk_users/0) passes a bare 3-key map, NOT a full persona. Reading any
+  # richer persona key here (e.g. persona.confirmed, persona.locked) would crash the bulk
+  # path with a KeyError on the :email_taken re-fetch branch (i.e. only on re-runs, not
+  # first seed). Keep persona-state handling in patch_user_state/2, which only the
+  # persona call site invokes.
+  @spec upsert_user(%{
+          required(:email) => String.t(),
+          required(:display_name) => String.t(),
+          required(:password) => String.t()
+        }) :: Ecto.Schema.t()
   defp upsert_user(persona) do
     case Accounts.register_user(%{
            email: persona.email,
@@ -197,7 +327,11 @@ defmodule Example.Demo.Seeds do
   defp seed_organizations do
     acme = upsert_organization("Acme Corp", "acme-corp")
     beta = upsert_organization("Beta Labs", "beta-labs")
-    {acme, beta}
+    # D-16: ghost-org is a zero-member organization (no memberships, no invitations,
+    # no enterprise connection) so the org-detail page has a navigable empty state.
+    # Seeded idempotently via upsert_organization/2; not passed to seed_memberships.
+    ghost = upsert_organization("Ghost Org", "ghost-org")
+    {acme, beta, ghost}
   end
 
   defp upsert_organization(name, slug) do
@@ -239,7 +373,13 @@ defmodule Example.Demo.Seeds do
     upsert_membership(dave.id, acme.id, :member)
     upsert_membership(grace.id, acme.id, :member)
 
-    # Beta Labs: admin=member, bob=owner
+    # Beta Labs: admin=member, bob=owner.
+    # FIXT-02 / D-11 deliberate multi-org breadth: admin owns Acme AND is member of Beta
+    # (>= 2 OrganizationMembership rows) so the /admin per-user Organizations panel
+    # renders multiple rows. Do NOT remove either admin membership — that would break
+    # the multi-org breadth assertion in seeds_test.exs (FIXT-02 contract).
+    # Idempotency: upsert_membership uses on_conflict: :nothing, conflict_target:
+    # [:user_id, :organization_id], so re-running run/0 is a no-op.
     upsert_membership(admin.id, beta.id, :member)
     upsert_membership(bob.id, beta.id, :owner)
   end
@@ -343,7 +483,7 @@ defmodule Example.Demo.Seeds do
     # Fabricated binary credential_id and public_key — zero Wax validation,
     # so the inserts succeed. Rows exist only to populate the admin UI panel.
     upsert_passkey(admin, "sigra-demo-admin-passkey-credential-id-v1")
-    # pat@demo.vaultr.test: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
+    # pat@demo.tasklane.test: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
     upsert_passkey(pat, "sigra-demo-pat-passkey-credential-id-v1")
   end
 
@@ -369,6 +509,12 @@ defmodule Example.Demo.Seeds do
   # staggered last_active_at. UserSession timestamps use updated_at:false — only
   # inserted_at is set. The unique index user_sessions_hashed_token_index makes
   # on_conflict/conflict_target idempotency safe.
+  #
+  # FIXT-02 / D-11 deliberate multi-session breadth: admin intentionally carries
+  # 3 sessions (>= 2) so the /admin per-user Sessions panel renders multiple rows.
+  # Do NOT reduce @admin_sessions below 2 entries — that would break the
+  # multi-session breadth assertion in seeds_test.exs (FIXT-02 contract).
+  # Idempotency: on_conflict: :nothing, conflict_target: [:hashed_token].
 
   @admin_sessions [
     %{
@@ -402,7 +548,7 @@ defmodule Example.Demo.Seeds do
       # leaves precision at {0, 0} (which Ecto rejects), so set {0, 6} explicitly.
       active_at =
         @seed_reference_ts
-        |> DateTime.add(-session.offset_days * 86_400, :second)
+        |> DateTime.add(-session.offset_days * @seconds_per_day, :second)
         |> Map.put(:microsecond, {0, 6})
 
       %UserSession{}
@@ -469,12 +615,20 @@ defmodule Example.Demo.Seeds do
 
   ## ── Audit events (D-11) ──────────────────────────────────────────────────────
   #
-  # Insert >=15 rows across >=6 distinct action values.
+  # Insert >=25 rows (FIXT-01) across >=6 distinct action values.
   # CORRECTION 1: auth.*/session.*/mfa.* are reserved prefixes — pass
   #   `allow_reserved: true` on every insert (AuditEvent.changeset/3 arg 3).
   # CORRECTION 2: Admin detail filters by effective_user_id OR target_id, NOT
   #   actor_id alone. Set effective_user_id: admin.id on admin-tied rows.
   # IDEMPOTENCY: No unique index on audit_events — use count-threshold guard.
+  #
+  # @audit_actions provides admin self-tied (effective_user_id: admin.id) rows.
+  # Combined with the 2 admin rows in persona_audit_events (offsets 28-29), the
+  # total admin self-tied count must be >=25 (FIXT-01 threshold for pagination).
+  # These 27 rows + 2 persona-admin rows = 29 total admin-tied events (>=25 ✓).
+  # New rows use offset_days > 33 to avoid colliding with persona_audit_events
+  # (offsets 18-33). Vary action prefixes and outcomes across the full
+  # ~w(success failure error) vocabulary — at least one `error` outcome included.
 
   @audit_actions [
     {"auth.login.success", "success", 0},
@@ -494,7 +648,19 @@ defmodule Example.Demo.Seeds do
     {"session.create", "success", 14},
     {"mfa.enroll.success", "success", 15},
     {"auth.login.success", "success", 16},
-    {"session.revoke_all", "success", 17}
+    {"session.revoke_all", "success", 17},
+    # FIXT-01: Additional admin-tied rows to cross the >=25 self-tied threshold.
+    # Continues the deterministic offset spread beyond persona_audit_events (max offset 33).
+    # Includes error outcome to exercise full ~w(success failure error) vocab (D-11).
+    {"auth.login.success", "success", 34},
+    {"session.create", "success", 35},
+    {"mfa.regenerate_backup_codes", "success", 36},
+    {"admin.impersonation.start", "success", 37},
+    {"auth.login.failure", "failure", 38},
+    {"session.revoke_all", "success", 39},
+    {"auth.login.failure", "error", 40},
+    {"mfa.disable", "success", 41},
+    {"admin.impersonation.stop", "success", 42}
   ]
 
   defp persona_audit_events do
@@ -658,10 +824,18 @@ defmodule Example.Demo.Seeds do
     result =
       Repo.transaction(fn ->
         Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
-          # Spread occurred_at deterministically over a past-30-days window.
-          # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
+          # Pin occurred_at off @seed_reference_ts (NOT DateTime.utc_now()) so the
+          # displayed timestamps are stable across runs.
+          #
+          # NOTE: this does NOT control admin audit-feed ordering. The feed orders
+          # by inserted_at desc (lib/sigra/admin/audit/explorer.ex — @default_order_by
+          # "inserted_at"), not by this pinned occurred_at. Because all rows are
+          # inserted in one transaction within microseconds, the first-listed feed row
+          # (and thus its data-tone) is a function of *insertion order* here, not of the
+          # occurred_at values below. Reordering @audit_actions / persona_audit_events/0
+          # changes which row sorts first.
           occurred_at =
-            DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
+            DateTime.add(@seed_reference_ts, -offset_days * @seconds_per_day, :second)
 
           %AuditEvent{}
           |> AuditEvent.changeset(
@@ -684,7 +858,7 @@ defmodule Example.Demo.Seeds do
           subject = Map.fetch!(users, event.email)
           actor = Map.fetch!(users, event.actor)
           organization_id = event.org && Map.fetch!(organizations, event.org).id
-          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * 86_400, :second)
+          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * @seconds_per_day, :second)
 
           %AuditEvent{}
           |> AuditEvent.changeset(

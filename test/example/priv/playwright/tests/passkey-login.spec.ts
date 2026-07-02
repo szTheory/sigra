@@ -91,7 +91,7 @@ async function enrollPasskeyFromSettings(
     await waitForLiveViewReady(page);
   }
 
-  await expect(page.getByRole("heading", { name: "Passkeys" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Passkeys", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Add passkey" })).toBeVisible();
   const [optionsResponse, completionResponse] = await Promise.all([
     page.waitForResponse(

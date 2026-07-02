@@ -3,7 +3,7 @@
  *
  * Exercises the find→audit→impersonate→return investigation journey for the
  * platform admin operator acting in a support investigator posture
- * (admin@demo.vaultr.test, same authz role — D-01/D-03).
+ * (admin@demo.tasklane.test, same authz role — D-01/D-03).
  *
  * Coverage:
  *   - FLOW-01: happy/main-error/boundary, scope/return-context across the
@@ -37,9 +37,9 @@ import {
 } from '../helpers/adminFlows';
 import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 
-const DEMO_ALICE_EMAIL = 'alice@demo.vaultr.test';
-const DEMO_DAVE_EMAIL = 'dave@demo.vaultr.test';
-const DEMO_FRANK_EMAIL = 'frank@demo.vaultr.test';
+const DEMO_ALICE_EMAIL = 'alice@demo.tasklane.test';
+const DEMO_DAVE_EMAIL = 'dave@demo.tasklane.test';
+const DEMO_FRANK_EMAIL = 'frank@demo.tasklane.test';
 
 /**
  * Searches for a user by email on the /admin/users list and opens their

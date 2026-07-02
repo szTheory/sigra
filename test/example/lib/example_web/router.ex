@@ -51,6 +51,7 @@ defmodule ExampleWeb.Router do
 
   pipeline :require_authenticated do
     plug :require_authenticated_user
+    plug :check_account_active
     plug :require_mfa
   end
 
@@ -125,6 +126,14 @@ defmodule ExampleWeb.Router do
     pipe_through [:browser, :require_authenticated]
 
     delete "/impersonation", Admin.ImpersonationController, :delete
+
+    # Tasklane authenticated account home — the post-login landing for every
+    # persona (see `signed_in_path/1`). A thin host-app hub that routes into
+    # Sigra's real account/security/org/admin surfaces, conditionally per scope.
+    live_session :app_authenticated,
+      on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
+      live "/app", AppLive, :home
+    end
   end
 
   scope "/users", ExampleWeb do
@@ -139,6 +148,7 @@ defmodule ExampleWeb.Router do
       on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
       live "/sessions", Auth.SessionLive, :index
       live "/settings", SettingsLive, :edit
+      live "/settings/confirm-email/:token", SettingsLive, :confirm_email
       live "/reactivation", ReactivationLive
     end
   end
@@ -273,6 +283,7 @@ defmodule ExampleWeb.Router do
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+      live "/admin/users/:id/sessions", Elixir.Sigra.Admin.Live.UserSessionsLive, :show
     end
   end
 
@@ -306,6 +317,7 @@ defmodule ExampleWeb.Router do
       # Mounted at /admin/organizations/:org/users/:id
       live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+      live "/users/:id/sessions", Elixir.Sigra.Admin.Live.UserSessionsLive, :show
     end
   end
 end

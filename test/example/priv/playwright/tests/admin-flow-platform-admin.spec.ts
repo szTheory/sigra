@@ -5,10 +5,10 @@
  *   overview → users search → user detail → per-user audit → return with scope
  *   and breadcrumb reconstructed.
  *
- * Happy case:     alice@demo.vaultr.test — confirmed Acme member, audit events visible.
- * Main-error:     dave@demo.vaultr.test — locked + unconfirmed, auth.login.failure +
+ * Happy case:     alice@demo.tasklane.test — confirmed Acme member, audit events visible.
+ * Main-error:     dave@demo.tasklane.test — locked + unconfirmed, auth.login.failure +
  *                 auth.lockout.start audit events visible.
- * Boundary:       frank@demo.vaultr.test — scheduled-deletion indicator visible;
+ * Boundary:       frank@demo.tasklane.test — scheduled-deletion indicator visible;
  *                 empty search filter renders empty state without error styling.
  * Keyboard:       Tab/Enter to "Revoke all sessions" trigger → ConfirmDialog opens →
  *                 focus containment invariant → Escape closes → focus returns to trigger.
@@ -31,6 +31,7 @@ import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import {
   waitForLiveViewReady,
   loginDemoAdmin,
+  loginDemoUser,
   assertScopeChrome,
   seedThemeAndAssertNoFlash,
   assertThemeAttributes,
@@ -40,9 +41,10 @@ import {
 } from '../helpers/adminFlows';
 
 // Demo persona credentials (public-by-design, dev server only; from personas.ex)
-const DEMO_ALICE_EMAIL = 'alice@demo.vaultr.test';
-const DEMO_DAVE_EMAIL = 'dave@demo.vaultr.test';
-const DEMO_FRANK_EMAIL = 'frank@demo.vaultr.test';
+const DEMO_ALICE_EMAIL = 'alice@demo.tasklane.test';
+const DEMO_ALICE_PASSWORD = 'AliceDemoPass1!';
+const DEMO_DAVE_EMAIL = 'dave@demo.tasklane.test';
+const DEMO_FRANK_EMAIL = 'frank@demo.tasklane.test';
 
 test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
   // D-10: must be at describe-block level before any test runs.
@@ -182,9 +184,28 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       await expect(page).toHaveURL(/\/admin\/users\/[^?/]+\/audit/);
 
       // 5. Dave has 2 seeded audit events: auth.login.failure + auth.lockout.start.
-      // The action column renders as <code class="sg-code">{row.action}</code>.
-      await expect(page.locator('code.sg-code').filter({ hasText: 'auth.login.failure' }).first()).toBeVisible();
-      await expect(page.locator('code.sg-code').filter({ hasText: 'auth.lockout.start' }).first()).toBeVisible();
+      // Phase 202-01 (commit 3fe5e584) moved the raw action codes off the visible
+      // desktop row into a collapsed native <details>"Event codes" disclosure inside
+      // the Event <td> (audit_table_row/1, components.ex). The mobile copy lives in a
+      // sg-show-mobile container (display:none on this chromium viewport). So the raw
+      // code.sg-code nodes are non-visible until the disclosure is expanded — expand
+      // each "Event codes" disclosure in the desktop results, then assert the codes.
+      const desktopResults = page.locator('#admin-audit-user-desktop-results');
+      // Each row's "Event codes" <summary> toggles its own <details>. Click every
+      // summary to reveal the raw code.sg-code text nodes it wraps.
+      const eventCodeSummaries = desktopResults.locator('details > summary', {
+        hasText: 'Event codes',
+      });
+      const disclosureCount = await eventCodeSummaries.count();
+      for (let i = 0; i < disclosureCount; i++) {
+        await eventCodeSummaries.nth(i).click();
+      }
+      await expect(
+        desktopResults.locator('code.sg-code').filter({ hasText: 'auth.login.failure' }).first(),
+      ).toBeVisible();
+      await expect(
+        desktopResults.locator('code.sg-code').filter({ hasText: 'auth.lockout.start' }).first(),
+      ).toBeVisible();
     });
   });
 
@@ -247,8 +268,19 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
   test.describe('keyboard operability (FLOW-02)', () => {
     test('Tab to revoke trigger → Enter opens confirm dialog → focus containment → Escape closes → trigger refocused', async ({
       page,
+      browser,
     }) => {
-      // Navigate to alice's user detail (alice has sessions to revoke).
+      // The revoke trigger renders only when the target has an active session
+      // (user_sessions_live: :if={@detail.sessions != []}). Seeded personas have no
+      // session, so mint one for alice via a throwaway context — this leaves a real
+      // active-session row for the admin to drive the keyboard journey against.
+      // (The journey only opens + Escapes the dialog; it never confirms a revoke.)
+      const aliceCtx = await browser.newContext();
+      const alicePage = await aliceCtx.newPage();
+      await loginDemoUser(alicePage, DEMO_ALICE_EMAIL, DEMO_ALICE_PASSWORD);
+      await aliceCtx.close();
+
+      // Navigate to alice's user detail (alice now has a session to revoke).
       await page.goto('/admin/users');
       await waitForLiveViewReady(page);
 
@@ -265,6 +297,17 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       await page.goto(aliceDetailHrefKb!);
       await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
+
+      // Phase 200 (D-04) moved the revoke flow off the detail page onto
+      // UserSessionsLive at /admin/users/:id/sessions; the detail page is now a
+      // calm read-only identity surface that links out via "Manage sessions".
+      // Follow the link-out so the revoke trigger + ConfirmDialog overlay
+      // (#user-session-confirm-overlay, defined only in user_sessions_live.ex) exist.
+      const manageSessionsKb = page.getByRole('link', { name: 'Manage sessions' });
+      await expect(manageSessionsKb).toBeVisible();
+      await manageSessionsKb.click();
+      await waitForLiveViewReady(page);
+      await expect(page).toHaveURL(/\/admin\/users\/[^/]+\/sessions/);
 
       // Locate the "Revoke all sessions" or "Revoke session" trigger button.
       // Prefer "Revoke all sessions" from the Danger Zone section (always present if sessions exist).

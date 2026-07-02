@@ -210,7 +210,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   ).toBeVisible();
   await expect(
     page.getByText(
-      "You don't belong to any organizations yet. Create one to get started.",
+      "You don't belong to any teams yet. Create one to start sharing secrets.",
     ),
   ).toBeVisible();
   await expect(
@@ -242,10 +242,10 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   const switcherTrigger = switcherDetails.locator('summary');
   await expect(switcherTrigger).toBeVisible();
   await expect(switcherTrigger).toContainText(firstOrgName);
-  // Role badge is a <span class="badge badge-xs badge-primary">Owner</span>
-  // inside the trigger. The Elixir helper renders literal "Owner".
+  // Role pill is a <span class="vt-status-pill vt-status-pill--ok">Owner</span>
+  // inside the trigger summary. The Elixir helper renders literal "Owner".
   await expect(
-    switcherTrigger.locator('.badge.badge-primary').first(),
+    switcherTrigger.locator('.vt-status-pill').first(),
   ).toContainText('Owner');
 
   // --- Step 8: Open switcher dropdown, verify menu anatomy ---
@@ -253,7 +253,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // alert overlay intercepts pointer events on the switcher otherwise.
   await dismissFlash(page);
   await switcherTrigger.click();
-  const switcherMenu = page.locator('#org-switcher ul.menu');
+  const switcherMenu = page.locator('#org-switcher .vt-menu__panel');
   await expect(switcherMenu).toBeVisible();
   await expect(switcherMenu).toContainText('Active');
   // "Switch to" section only exists when there's another org; at this
@@ -275,17 +275,17 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // --- Step 9: Navigate to settings, verify three-section layout ---
   await page.goto(`/organizations/${firstOrgSlug}/settings`);
   await waitForLiveViewReady(page);
-  const generalHeading = page.getByRole('heading', { name: 'General' });
-  const slugHeading = page.getByRole('heading', { name: 'Slug' });
-  const dangerHeading = page.getByRole('heading', { name: 'Danger zone' });
-  await expect(generalHeading).toBeVisible();
-  await expect(slugHeading).toBeVisible();
-  await expect(dangerHeading).toBeVisible();
-  // Danger zone is the third <section>; check it carries the
-  // border-l-error class from the UI-SPEC.
+  // Sections use vt-kicker labels (p.vt-kicker), not heading elements.
+  const generalLabel = page.getByText('General', { exact: true });
+  const slugLabel = page.getByText('Slug', { exact: true });
+  const dangerLabel = page.getByText('Danger zone', { exact: true });
+  await expect(generalLabel).toBeVisible();
+  await expect(slugLabel).toBeVisible();
+  await expect(dangerLabel).toBeVisible();
+  // Danger zone section carries data-testid="org-danger-zone".
   await expect(
-    page.locator('section', { has: dangerHeading }),
-  ).toHaveClass(/border-l-error/);
+    page.locator('[data-testid="org-danger-zone"]'),
+  ).toBeVisible();
 
   // --- Step 10: Rename the organization ---
   await page.getByLabel('Organization name').fill(renamedOrgName);
@@ -366,9 +366,9 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await waitForLiveViewReady(page);
   const membersSection = page.locator('#members-section');
   await expect(membersSection).toContainText(email);
-  // Owner badge on the only row is badge-primary.
+  // Owner role pill on the only row is vt-status-pill.
   await expect(
-    membersSection.locator('.badge.badge-primary').first(),
+    membersSection.locator('.vt-status-pill').first(),
   ).toContainText('Owner');
   // Phase 17 invite flow is now implemented. The button is enabled for
   // owners/admins (this test user is the owner of the org) and fires
@@ -415,7 +415,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await waitForLiveViewReady(page);
   await expect(switcherTrigger).toContainText(renamedOrgName);
   await expect(
-    switcherTrigger.locator('.badge.badge-primary').first(),
+    switcherTrigger.locator('.vt-status-pill').first(),
   ).toContainText('Owner');
 
   // --- Step 18: Copywriting contract spot-checks ---

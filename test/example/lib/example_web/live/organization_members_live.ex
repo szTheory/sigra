@@ -337,64 +337,69 @@ defmodule ExampleWeb.OrganizationMembersLive do
       current_scope={@current_scope}
       user_organizations={@user_organizations}
     >
-      <.header>
-        Members ({@total_count})
-        <:actions>
-          <button
-            :if={owner_or_admin?(@current_scope)}
-            type="button"
-            phx-click="open_invite_modal"
-            id="invite-member-button"
-          >
-            Invite member
-          </button>
-          <.button
-            :if={not owner_or_admin?(@current_scope)}
-            disabled
-            aria-disabled="true"
-            title="Only owners and admins can invite members"
-          >
-            Invite member
-          </.button>
-        </:actions>
-      </.header>
+      <header class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Organization</p>
+          <h1 class="vt-panel__title">Members ({@total_count})</h1>
+        </div>
+        <button
+          :if={owner_or_admin?(@current_scope)}
+          type="button"
+          phx-click="open_invite_modal"
+          id="invite-member-button"
+          class="vt-btn vt-btn--primary"
+        >
+          Invite member
+        </button>
+        <.button
+          :if={not owner_or_admin?(@current_scope)}
+          disabled
+          aria-disabled="true"
+          title="Only owners and admins can invite members"
+          class="vt-btn"
+        >
+          Invite member
+        </.button>
+      </header>
 
       <section id="members-section" class="overflow-x-auto">
         <.table id="members-table" rows={@streams.members}>
           <:col :let={{_dom_id, m}} label="Email">{m.user.email}</:col>
           <:col :let={{_dom_id, m}} label="Role">
-            <span class={["badge", role_badge_class(m.role)]}>{humanize_role(m.role)}</span>
+            <span class="vt-status-pill">{humanize_role(m.role)}</span>
           </:col>
           <:col :let={{_dom_id, _m}} label="Status">
-            <span class="badge badge-ghost">Active</span>
+            <span class="vt-status-pill">Active</span>
           </:col>
           <:col :let={{_dom_id, m}} label="Joined">{relative_time(m.inserted_at)}</:col>
           <:col :let={{_dom_id, m}} label="Last active">
             {if m.__last_active__, do: relative_time(m.__last_active__), else: "Never"}
           </:col>
           <:action :let={{_dom_id, m}}>
-            <details class="dropdown dropdown-end">
-              <summary class="btn btn-ghost btn-xs">
+            <details class="vt-menu">
+              <summary class="vt-btn vt-btn--ghost">
                 <.icon name="hero-ellipsis-horizontal" class="size-4" />
                 <span class="sr-only">Member actions</span>
               </summary>
-              <ul class="menu dropdown-content bg-base-100 rounded-box z-10 w-40 p-1 shadow">
-                <li>
-                  <button type="button" phx-click="open_role_modal" phx-value-id={m.id}>
-                    Change role
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    class="text-error"
-                    phx-click="open_remove_modal"
-                    phx-value-id={m.id}
-                  >
-                    Remove
-                  </button>
-                </li>
-              </ul>
+              <div class="vt-menu__panel">
+                <button
+                  type="button"
+                  class="vt-menu__item"
+                  phx-click="open_role_modal"
+                  phx-value-id={m.id}
+                >
+                  Change role
+                </button>
+                <button
+                  type="button"
+                  class="vt-menu__item"
+                  style="color:var(--vt-color-danger)"
+                  phx-click="open_remove_modal"
+                  phx-value-id={m.id}
+                >
+                  Remove
+                </button>
+              </div>
             </details>
           </:action>
         </.table>
@@ -405,12 +410,12 @@ defmodule ExampleWeb.OrganizationMembersLive do
       </section>
 
       <section id="pending-invitations-section" class="mt-8">
-        <.header>
-          Pending invitations ({@pending_count})
-        </.header>
+        <header class="vt-panel__header">
+          <p class="vt-kicker">Pending invitations ({@pending_count})</p>
+        </header>
 
         <%= if @pending_count == 0 do %>
-          <div class="card bg-base-200 p-6 text-center text-sm text-base-content/70">
+          <div class="vt-alert">
             No pending invitations. Click <strong>Invite member</strong> above to invite someone.
           </div>
         <% else %>
@@ -418,7 +423,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
             <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
               <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
               <:col :let={{_dom_id, inv}} label="Role">
-                <span class={["badge badge-sm", role_badge_class(inv.role)]}>
+                <span class="vt-status-pill">
                   {humanize_role(inv.role)}
                 </span>
               </:col>
@@ -434,7 +439,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
                 <button
                   :if={owner_or_admin?(@current_scope)}
                   type="button"
-                  class="btn btn-ghost btn-xs text-error"
+                  class="vt-btn vt-btn--danger"
                   phx-click="open_revoke_modal"
                   phx-value-id={inv.id}
                   aria-label={"Revoke invitation for #{inv.email}"}
@@ -483,12 +488,12 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </label>
 
             <div class="modal-action">
-              <button type="button" class="btn btn-ghost" phx-click="cancel_invite">
+              <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_invite">
                 Cancel
               </button>
               <button
                 type="submit"
-                class="btn btn-primary"
+                class="vt-btn vt-btn--primary"
                 phx-disable-with="Sending..."
               >
                 Send invitation
@@ -512,12 +517,12 @@ defmodule ExampleWeb.OrganizationMembersLive do
           <% end %>
 
           <div class="modal-action">
-            <button type="button" class="btn btn-ghost" phx-click="cancel_revoke">
+            <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_revoke">
               Cancel
             </button>
             <button
               type="button"
-              class="btn btn-error"
+              class="vt-btn vt-btn--danger-solid"
               phx-click="confirm_revoke"
               phx-value-id={@revoking_invitation && @revoking_invitation.id}
               phx-disable-with="Revoking..."
@@ -536,7 +541,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
             <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
 
             <%= if @role_modal_error do %>
-              <p class="text-error mt-2 text-sm" role="alert">{@role_modal_error}</p>
+              <p class="vt-alert vt-alert--danger" role="alert">{@role_modal_error}</p>
             <% end %>
 
             <form phx-submit="change_role" class="mt-4 space-y-4">
@@ -550,8 +555,8 @@ defmodule ExampleWeb.OrganizationMembersLive do
               </label>
 
               <div class="modal-action">
-                <button type="submit" class="btn btn-primary">Change role</button>
-                <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+                <button type="submit" class="vt-btn vt-btn--primary">Change role</button>
+                <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_action">
                   Cancel
                 </button>
               </div>
@@ -573,13 +578,13 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </p>
 
             <%= if @remove_modal_error do %>
-              <p class="text-error mt-2 text-sm" role="alert">{@remove_modal_error}</p>
+              <p class="vt-alert vt-alert--danger" role="alert">{@remove_modal_error}</p>
             <% end %>
 
             <form phx-submit="remove_member">
               <div class="modal-action">
-                <button type="submit" class="btn btn-error">Remove member</button>
-                <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+                <button type="submit" class="vt-btn vt-btn--danger-solid">Remove member</button>
+                <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_action">
                   Cancel
                 </button>
               </div>
@@ -670,12 +675,6 @@ defmodule ExampleWeb.OrganizationMembersLive do
   defp safe_role_atom("admin"), do: {:ok, :admin}
   defp safe_role_atom("member"), do: {:ok, :member}
   defp safe_role_atom(_other), do: {:error, :invalid_role}
-
-  # UI-SPEC §Color — role badge variants.
-  defp role_badge_class(:owner), do: "badge-primary"
-  defp role_badge_class(:admin), do: "badge-neutral"
-  defp role_badge_class(:member), do: "badge-ghost"
-  defp role_badge_class(_), do: "badge-ghost"
 
   defp humanize_role(:owner), do: "Owner"
   defp humanize_role(:admin), do: "Admin"

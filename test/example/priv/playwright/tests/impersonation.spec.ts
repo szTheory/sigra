@@ -59,7 +59,9 @@ async function openUserDetail(page: Page, targetEmail: string) {
 
 async function confirmSudo(page: Page, password: string) {
   await expect(page).toHaveURL(/\/users\/sudo\?/);
-  await expect(page.getByRole('heading', { name: 'Confirm your password' })).toBeVisible();
+  // Ratified copy per example sudo_html.ex:29 and installer template sudo_html.ex.
+  // The old heading was stale; reconciled to "Re-enter your password" (Phase 208.1-02).
+  await expect(page.getByRole('heading', { name: 'Re-enter your password' })).toBeVisible();
   await page.fill('input[name="sudo[password]"]', password);
   await page.getByRole('button', { name: 'Confirm password' }).click();
 }

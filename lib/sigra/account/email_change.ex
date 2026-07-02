@@ -198,10 +198,21 @@ defmodule Sigra.Account.EmailChange do
 
   defp maybe_invalidate_sessions(user, opts) do
     session_store = Keyword.get(opts, :session_store)
-    except_token = Keyword.get(opts, :except_token)
 
     if session_store do
-      session_store.delete_all_for_user(user.id, except_token: except_token)
+      # The Ecto session store needs `:repo` + `:session_schema` to run the
+      # delete; the caller threads them through `:session_store_opts`. Carry the
+      # current-session token through so it survives (D-07: invalidate all but
+      # the session confirming the change).
+      store_opts = Keyword.get(opts, :session_store_opts, [])
+      except_token = Keyword.get(opts, :except_token)
+
+      delete_opts =
+        if except_token,
+          do: Keyword.put(store_opts, :except_token, except_token),
+          else: store_opts
+
+      session_store.delete_all_for_user(user.id, delete_opts)
     end
   end
 end

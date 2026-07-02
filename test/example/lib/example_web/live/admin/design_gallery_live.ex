@@ -453,24 +453,24 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
         <h2 class="sg-section-heading">Component Groups</h2>
         <div class="sg-stack sg-stack--6">
           <%!-- board-mg-1: Metric / Summary Strip --%>
+          <%!-- Mirrors the slim 3-chip User health metric strip (Plan 201: Total + Locked + Deletion scheduled). --%>
           <div id="board-mg-1" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-1 Metric / Summary Strip</p>
             <div class="sg-stack sg-stack--3">
               <div data-testid="mg-1-populated" class="sg-stack sg-stack--2">
                 <p class="sg-muted sg-text-xs">populated</p>
                 <dl class="sg-metric-grid">
-                  <.summary_chip label="Total Users" value={3_842} />
-                  <.summary_chip label="Active Sessions" value={127} tone="info" />
-                  <.summary_chip label="Failed Logins" value={7} tone="risk" />
-                  <.summary_chip label="MFA Enabled" value={94} value_unit="%" tone="ok" />
+                  <.summary_chip label="Total users" value={3_842} />
+                  <.summary_chip label="Locked users" value={7} tone="risk" />
+                  <.summary_chip label="Deletion scheduled" value={3} tone="warn" />
                 </dl>
               </div>
               <div data-testid="mg-1-zero" class="sg-stack sg-stack--2">
                 <p class="sg-muted sg-text-xs">zero</p>
                 <dl class="sg-metric-grid">
-                  <.summary_chip label="Total Users" value={0} />
-                  <.summary_chip label="Active Sessions" value={0} tone="info" />
-                  <.summary_chip label="Failed Logins" value={0} tone="ok" />
+                  <.summary_chip label="Total users" value={0} />
+                  <.summary_chip label="Locked users" value={0} />
+                  <.summary_chip label="Deletion scheduled" value={0} />
                 </dl>
               </div>
               <div data-testid="mg-1-loading" class="sg-metric-grid" aria-busy="true">
@@ -487,6 +487,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           </div>
 
           <%!-- board-mg-2: Filter Panel + Applied-chip Row --%>
+          <%!-- Applied chips sit contiguous with the filter panel (inside the form), per Plan 201 D-01. --%>
           <div id="board-mg-2" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-2 Filter Panel + Applied-chip Row</p>
             <div class="sg-stack sg-stack--3">
@@ -497,8 +498,13 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       <span class="sg-field-label">Search</span>
                       <input id="mg2-search" class="sg-input" value="alice" />
                     </label>
-                    <button type="button" class="sg-btn sg-btn--primary">Apply filters</button>
+                    <button type="button" class="sg-btn sg-btn--primary">Search</button>
                     <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                  </div>
+                  <div class="sg-cluster sg-cluster--start">
+                    <.applied_chip label="Status: Active" remove_href="?status=" />
+                    <.applied_chip label="Search: alice" remove_href="?q=" />
+                    <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
                   </div>
                   <div class="sg-cluster sg-cluster--start">
                     <label class="sg-filter-chip">
@@ -509,11 +515,6 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     </label>
                   </div>
                 </form>
-                <div class="sg-cluster sg-cluster--start">
-                  <.applied_chip label="Status: Active" remove_href="?status=" />
-                  <.applied_chip label="Search: alice" remove_href="?q=" />
-                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all filters</a>
-                </div>
               </div>
               <div data-testid="mg-2-zero" class="sg-stack sg-stack--3">
                 <form class="sg-filter-panel sg-stack sg-stack--3">
@@ -636,7 +637,8 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                           </div>
                         </td>
                         <td>
-                          <span class="sg-status-pill" data-tone="ok">Active</span>
+                          <%!-- Secured row: no pills (absence of Unconfirmed/No MFA/Locked/Deletion means healthy). --%>
+                          <div class="sg-cluster sg-cluster--2"></div>
                         </td>
                         <td>
                           <div class="sg-stack sg-stack--1 sg-text-sm">
@@ -659,6 +661,42 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                           </a>
                         </td>
                       </tr>
+                      <tr>
+                        <td>
+                          <div class="sg-stack sg-stack--1">
+                            <span class="sg-strong">Bob User</span>
+                            <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
+                              bob@example.test
+                            </span>
+                            <code class="sg-code">user_188_bob</code>
+                          </div>
+                        </td>
+                        <td>
+                          <%!-- Unsecured row: No MFA (warn). --%>
+                          <div class="sg-cluster sg-cluster--2">
+                            <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span class="sg-muted">1 organization</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span>Seen this week</span>
+                            <span class="sg-muted">Registered 2026-02-14</span>
+                          </div>
+                        </td>
+                        <td class="sg-cell-right">
+                          <a
+                            class="sg-btn sg-btn--secondary sg-btn--sm"
+                            href="/admin/users/user_188_bob"
+                          >
+                            Open user
+                          </a>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -671,7 +709,8 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       </span>
                       <code class="sg-code">user_188_alice</code>
                     </div>
-                    <span class="sg-status-pill" data-tone="ok">Active</span>
+                    <%!-- Secured row: no pills. --%>
+                    <div class="sg-cluster sg-cluster--2"></div>
                     <dl class="sg-kv">
                       <div>
                         <dt class="sg-meta-label">Organizations</dt>
@@ -690,6 +729,39 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     <a
                       class="sg-btn sg-btn--secondary sg-btn--block"
                       href="/admin/users/user_188_alice"
+                    >
+                      Open user
+                    </a>
+                  </article>
+                  <article class="sg-card sg-stack sg-stack--3">
+                    <div class="sg-stack sg-stack--1">
+                      <span class="sg-strong">Bob User</span>
+                      <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
+                        bob@example.test
+                      </span>
+                      <code class="sg-code">user_188_bob</code>
+                    </div>
+                    <%!-- Unsecured row: No MFA (warn). --%>
+                    <div class="sg-cluster sg-cluster--2">
+                      <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                    </div>
+                    <dl class="sg-kv">
+                      <div>
+                        <dt class="sg-meta-label">Organizations</dt>
+                        <dd class="sg-meta-value sg-muted sg-text-sm">1 organization</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Activity</dt>
+                        <dd class="sg-meta-value">Seen this week</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Registered</dt>
+                        <dd class="sg-meta-value">2026-02-14</dd>
+                      </div>
+                    </dl>
+                    <a
+                      class="sg-btn sg-btn--secondary sg-btn--block"
+                      href="/admin/users/user_188_bob"
                     >
                       Open user
                     </a>
@@ -1103,6 +1175,230 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <%!-- ================================================================
+           Page Composites — board-cfg-* (D-08, D-09)
+           Each composite mirrors a full admin page archetype in its loaded
+           (populated) state. All assigns are static literals — no DB, no
+           Repo, no Ecto.Query imports.
+           ================================================================ --%>
+      <section class="sg-stack sg-stack--4">
+        <h2 class="sg-section-heading">Page Composites</h2>
+        <div class="sg-stack sg-stack--6">
+
+          <%!-- board-cfg-overview — Overview archetype; see index_live.ex + admin-design-contract.md Overview Archetype --%>
+          <section id="board-cfg-overview" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">Platform admin</p>
+              <h1 class="sg-page-title">Overview</h1>
+              <p class="sg-page-copy">
+                Monitor platform health and respond to alerts before they escalate.
+              </p>
+            </header>
+            <.notice tone={:risk}>
+              2 accounts locked —
+              <.notice_link href="/admin/users?locked=true">Review accounts</.notice_link>
+            </.notice>
+            <div class="sg-grid sg-grid--3">
+              <.task_card
+                title="Manage users"
+                body="Review accounts, unlock users, and manage access."
+                href="/admin/users"
+                action="Open users"
+              />
+              <.task_card
+                title="Review audit trail"
+                body="Inspect recent activity and investigate anomalies."
+                href="/admin/audit"
+                action="Open audit"
+              />
+              <.task_card
+                title="Manage organizations"
+                body="Add, remove, or reconfigure organization memberships."
+                href="/admin/organizations"
+                action="Open organizations"
+              />
+            </div>
+          </section>
+
+          <%!-- board-cfg-users-list — List archetype; see users_index_live.ex + admin-design-contract.md List Archetype --%>
+          <section id="board-cfg-users-list" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">User operations</p>
+              <h1 class="sg-page-title">Users</h1>
+            </header>
+            <.scope_ribbon copy="Viewing all organizations" />
+            <section class="sg-stack sg-stack--4">
+              <h2 class="sg-section-heading">Find users</h2>
+              <form class="sg-filter-panel sg-stack sg-stack--3">
+                <div class="sg-search-row">
+                  <label class="sg-field" for="cfg-users-search">
+                    <span class="sg-field-label">Search</span>
+                    <input id="cfg-users-search" class="sg-input" value="" placeholder="Email, user id, or name" />
+                  </label>
+                  <button type="button" class="sg-btn sg-btn--primary">Search</button>
+                  <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                </div>
+                <div class="sg-cluster sg-cluster--start">
+                  <.applied_chip label="Status: Locked" remove_href="?status=" />
+                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+                </div>
+              </form>
+            </section>
+            <section class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">User health</h2>
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Total users" value={46} />
+                <.summary_chip label="Locked" value={2} tone="risk" />
+                <.summary_chip label="Deletion scheduled" value={1} tone="warn" />
+              </dl>
+            </section>
+          </section>
+
+          <%!-- board-cfg-user-detail — Detail archetype; see user_show_live.ex + admin-design-contract.md Detail Archetype --%>
+          <section id="board-cfg-user-detail" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">User detail</p>
+              <h1 class="sg-page-title">alice@demo.tasklane.test</h1>
+            </header>
+            <.scope_ribbon copy="Platform admin" />
+            <.page_back return_to="/admin/users" label="Back to users" />
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">Identity</h2>
+              <div class="sg-stack sg-stack--2">
+                <span class="sg-strong">Alice Admin</span>
+                <code class="sg-code">alice@demo.tasklane.test</code>
+                <div class="sg-cluster sg-cluster--2">
+                  <span class="sg-status-pill" data-tone="info">MFA enabled</span>
+                </div>
+              </div>
+            </article>
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">Sessions</h2>
+              <div class="sg-list">
+                <article class="sg-list-row sg-stack sg-stack--2">
+                  <div class="sg-cluster sg-cluster--between">
+                    <span class="sg-strong">Chrome on macOS</span>
+                    <span class="sg-status-pill" data-tone="ok">Current</span>
+                  </div>
+                  <span class="sg-muted sg-text-sm">Last seen today</span>
+                </article>
+              </div>
+            </article>
+            <article class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">MFA credentials</h2>
+              <.empty_state title="No MFA credentials">
+                <p class="sg-muted sg-text-sm">This user has not enrolled any MFA methods.</p>
+              </.empty_state>
+            </article>
+          </section>
+
+          <%!-- board-cfg-audit — Audit archetype; see audit_index_live.ex + admin-design-contract.md --%>
+          <section id="board-cfg-audit" class="sg-stack sg-stack--4">
+            <header class="sg-page-header">
+              <p class="sg-page-kicker">Audit</p>
+              <h1 class="sg-page-title">Audit events</h1>
+            </header>
+            <section class="sg-stack sg-stack--4">
+              <form class="sg-filter-panel sg-stack sg-stack--3">
+                <div class="sg-cluster sg-cluster--start">
+                  <label class="sg-field" for="cfg-audit-from">
+                    <span class="sg-field-label">From</span>
+                    <input id="cfg-audit-from" class="sg-input" type="date" value="2026-01-01" />
+                  </label>
+                  <label class="sg-field" for="cfg-audit-to">
+                    <span class="sg-field-label">To</span>
+                    <input id="cfg-audit-to" class="sg-input" type="date" value="2026-01-31" />
+                  </label>
+                  <button type="button" class="sg-btn sg-btn--primary">Apply</button>
+                  <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                </div>
+                <div class="sg-cluster sg-cluster--start">
+                  <.applied_chip label="Action: login" remove_href="?action=" />
+                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+                </div>
+              </form>
+            </section>
+            <div data-testid="cfg-audit-desktop-results" class="sg-table-panel sg-show-desktop">
+              <table class="sg-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Actor</th>
+                    <th>Target</th>
+                    <th>Occurred at</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <.audit_table_row row={
+                    %{
+                      id: "evt-cfg-01",
+                      inserted_at: ~N[2026-01-15 10:30:00],
+                      action: "auth.login.success",
+                      action_label: "Login succeeded",
+                      action_badge: nil,
+                      actor_label: "alice@demo.tasklane.test",
+                      effective_user_label: "alice@demo.tasklane.test",
+                      actor_summary: "alice@demo.tasklane.test",
+                      outcome: "success"
+                    }
+                  } />
+                  <.audit_table_row row={
+                    %{
+                      id: "evt-cfg-02",
+                      inserted_at: ~N[2026-01-15 09:00:00],
+                      action: "auth.login.failure",
+                      action_label: "Login failed",
+                      action_badge: nil,
+                      actor_label: "unknown@example.com",
+                      effective_user_label: "unknown@example.com",
+                      actor_summary: "unknown@example.com",
+                      outcome: "failure"
+                    }
+                  } />
+                </tbody>
+              </table>
+            </div>
+            <div data-testid="cfg-audit-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+              <.audit_row
+                row={
+                  %{
+                    id: "evt-cfg-01",
+                    inserted_at: ~N[2026-01-15 10:30:00],
+                    action: "auth.login.success",
+                    action_label: "Login succeeded",
+                    action_badge: nil,
+                    actor_label: "alice@demo.tasklane.test",
+                    effective_user_label: "alice@demo.tasklane.test",
+                    actor_summary: "alice@demo.tasklane.test",
+                    outcome: "success"
+                  }
+                }
+                show_detail
+                show_codes
+              />
+              <.audit_row
+                row={
+                  %{
+                    id: "evt-cfg-02",
+                    inserted_at: ~N[2026-01-15 09:00:00],
+                    action: "auth.login.failure",
+                    action_label: "Login failed",
+                    action_badge: nil,
+                    actor_label: "unknown@example.com",
+                    effective_user_label: "unknown@example.com",
+                    actor_summary: "unknown@example.com",
+                    outcome: "failure"
+                  }
+                }
+                show_detail
+                show_codes
+              />
+            </div>
+          </section>
+
         </div>
       </section>
     </section>

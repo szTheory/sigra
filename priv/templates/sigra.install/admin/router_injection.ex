@@ -38,6 +38,7 @@
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+      live "/admin/users/:id/sessions", Elixir.Sigra.Admin.Live.UserSessionsLive, :show
     end
   end
 
@@ -69,6 +70,7 @@
       live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+      live "/users/:id/sessions", Elixir.Sigra.Admin.Live.UserSessionsLive, :show
     end
   end
 

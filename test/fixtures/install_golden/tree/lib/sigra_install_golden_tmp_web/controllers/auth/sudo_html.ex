@@ -18,7 +18,7 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SudoHTML do
     <.sigra_auth_page>
       <div class="mx-auto max-w-sm">
       <.header>
-        Confirm your password
+        Re-enter your password
         <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
       </.header>
 

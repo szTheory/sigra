@@ -45,13 +45,20 @@ defmodule ExampleWeb.MFAChallengeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header>
-        Two-factor authentication
-        <:subtitle>
-          Enter the code for {@masked_email}
-        </:subtitle>
-      </.header>
+    <section class="vt-auth" data-theme="system" data-testid="mfa-challenge">
+      <div class="vt-auth__panel">
+        <a href={~p"/"} class="vt-brand">
+          <img src={~p"/images/tasklane-mark.svg"} alt="Tasklane logo" class="vt-brand__mark" />
+          <span>
+            <span class="vt-brand__name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
+          </span>
+        </a>
+        <div class="vt-auth__intro">
+          <p class="vt-kicker">Two-factor authentication</p>
+          <h1 class="vt-auth__title">Verify it's you</h1>
+          <p class="vt-auth__copy">Enter the code for {@masked_email}</p>
+        </div>
 
       <%!-- role="tablist" retired; passkey-first MFA uses explicit actions. --%>
       <%!-- phx-click="switch_tab" retired; passkey-first MFA uses show_totp/show_backup. --%>
@@ -71,7 +78,7 @@ defmodule ExampleWeb.MFAChallengeLive do
           type="button"
           phx-click="begin_passkey_authentication"
           disabled={@passkey_status == :authenticating}
-          class="btn btn-primary w-full min-h-14"
+          class="vt-btn vt-btn--primary vt-btn--block"
         >
           <%= if @passkey_status == :authenticating do %>
             Waiting for passkey...
@@ -97,7 +104,7 @@ defmodule ExampleWeb.MFAChallengeLive do
             <button
               type="button"
               phx-click="begin_passkey_authentication"
-              class="btn btn-sm btn-primary"
+              class="vt-btn vt-btn--primary"
             >
               Try again
             </button>
@@ -105,7 +112,7 @@ defmodule ExampleWeb.MFAChallengeLive do
             <button
               type="button"
               phx-click="show_totp"
-              class="btn btn-sm btn-ghost"
+              class="vt-btn vt-btn--ghost"
             >
               Use another way
             </button>
@@ -148,7 +155,7 @@ defmodule ExampleWeb.MFAChallengeLive do
           <button
             type="button"
             phx-click="show_totp"
-            class="btn btn-ghost w-full"
+            class="vt-btn vt-btn--ghost vt-btn--block"
           >
             Use authenticator code instead
           </button>
@@ -156,7 +163,7 @@ defmodule ExampleWeb.MFAChallengeLive do
           <button
             type="button"
             phx-click="show_backup"
-            class="btn btn-link w-full text-gray-600"
+            class="vt-btn vt-btn--ghost vt-btn--block"
           >
             Use a backup code
           </button>
@@ -176,7 +183,7 @@ defmodule ExampleWeb.MFAChallengeLive do
         <button
           type="button"
           phx-click="begin_passkey_authentication"
-          class="btn btn-sm btn-outline"
+          class="vt-btn vt-btn--secondary"
         >
           Continue with passkey
         </button>
@@ -185,7 +192,7 @@ defmodule ExampleWeb.MFAChallengeLive do
           :if={@active_method != "totp"}
           type="button"
           phx-click="show_totp"
-          class="btn btn-sm btn-ghost"
+          class="vt-btn vt-btn--ghost"
         >
           Use authenticator code instead
         </button>
@@ -194,7 +201,7 @@ defmodule ExampleWeb.MFAChallengeLive do
           :if={@active_method != "backup"}
           type="button"
           phx-click="show_backup"
-          class="btn btn-sm btn-ghost"
+          class="vt-btn vt-btn--ghost"
         >
           Use a backup code
         </button>
@@ -245,7 +252,7 @@ defmodule ExampleWeb.MFAChallengeLive do
               /> Trust this browser for 30 days
             </label>
 
-            <.button phx-disable-with="Verifying..." class="w-full">
+            <.button phx-disable-with="Verifying..." class="vt-btn vt-btn--primary vt-btn--block">
               Verify
             </.button>
           </div>
@@ -283,7 +290,7 @@ defmodule ExampleWeb.MFAChallengeLive do
               />
             </div>
 
-            <.button phx-disable-with="Verifying..." class="w-full">
+            <.button phx-disable-with="Verifying..." class="vt-btn vt-btn--primary vt-btn--block">
               Verify
             </.button>
           </div>
@@ -298,12 +305,13 @@ defmodule ExampleWeb.MFAChallengeLive do
       </div>
 
       <% # Cancel link (D-34) %>
-      <p class="mt-6 text-center text-sm">
-        <.link href={~p"/users/log_out"} method="delete" class="text-gray-500 hover:underline">
-          Cancel and sign out
-        </.link>
-      </p>
-    </div>
+        <p>
+          <.link href={~p"/users/log_out"} method="delete" class="vt-link">
+            Cancel and sign out
+          </.link>
+        </p>
+      </div>
+    </section>
     """
   end
 
@@ -375,7 +383,7 @@ defmodule ExampleWeb.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
-         |> redirect(to: ~p"/")}
+         |> redirect(to: ~p"/app")}
 
       {:error, :invalid_code, remaining} ->
         form = to_form(%{"code" => "", "trust" => to_string(trust)}, as: "mfa")
@@ -409,7 +417,7 @@ defmodule ExampleWeb.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
-         |> redirect(to: ~p"/")}
+         |> redirect(to: ~p"/app")}
 
       {:error, :invalid_backup_code, remaining} ->
         form = to_form(%{"code" => ""}, as: "mfa")

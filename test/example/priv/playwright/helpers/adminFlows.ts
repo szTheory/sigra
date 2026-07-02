@@ -19,13 +19,13 @@ import { expect, type Page } from '@playwright/test';
 // ---------------------------------------------------------------------------
 
 /** Platform admin persona email. */
-export const DEMO_ADMIN_EMAIL = 'admin@demo.vaultr.test';
+export const DEMO_ADMIN_EMAIL = 'admin@demo.tasklane.test';
 
 /** Platform admin persona password. */
 export const DEMO_ADMIN_PASSWORD = 'DemoAdmin1!SecurePass';
 
 /** Org admin persona email (morgan — scoped to Acme Corp). */
-export const DEMO_MORGAN_EMAIL = 'morgan@demo.vaultr.test';
+export const DEMO_MORGAN_EMAIL = 'morgan@demo.tasklane.test';
 
 /** Org admin persona password. */
 export const DEMO_MORGAN_PASSWORD = 'MorganDemo1!OrgAdmin';
@@ -59,7 +59,7 @@ export async function waitForLiveViewReady(page: Page): Promise<void> {
  *
  * No MFA challenge fires: the example app has no `mfa.check_fn` configured,
  * so Sigra creates a `:standard` session for all personas, including those
- * with TOTP enrolled (e.g. admin@demo.vaultr.test). This is safe to rely on
+ * with TOTP enrolled (e.g. admin@demo.tasklane.test). This is safe to rely on
  * in all nine demo personas.
  */
 export async function loginDemoUser(
@@ -80,7 +80,7 @@ export async function loginDemoUser(
 }
 
 /**
- * Logs in as the platform admin persona (admin@demo.vaultr.test).
+ * Logs in as the platform admin persona (admin@demo.tasklane.test).
  *
  * Convenience wrapper around loginDemoUser using DEMO_ADMIN_EMAIL and
  * DEMO_ADMIN_PASSWORD. The admin persona has TOTP enrolled but no
@@ -91,7 +91,7 @@ export async function loginDemoAdmin(page: Page): Promise<void> {
 }
 
 /**
- * Logs in as the org admin persona (morgan@demo.vaultr.test, Acme Corp).
+ * Logs in as the org admin persona (morgan@demo.tasklane.test, Acme Corp).
  *
  * Convenience wrapper around loginDemoUser using DEMO_MORGAN_EMAIL and
  * DEMO_MORGAN_PASSWORD. Morgan has org-scoped admin access only — attempting

@@ -8,8 +8,9 @@
 //     nav + find-a-user free text. No server round-trips (window.location.assign
 //     only).
 //   - CopyToClipboard: a delegated click handler on `.sg-admin-shell code.sg-code`
-//     id chips — copies the text and shows a transient Stage-0 sg-toast. No
-//     per-LiveView markup edits required.
+//     admin id chips AND public demo `code.vt-code` credential chips (Vaultr
+//     homepage + /demo/credentials) — copies the text and shows a transient
+//     Stage-0 sg-toast. No per-LiveView markup edits required.
 //   - ThemeSwitch: a Light/Dark/System segmented control. Persists an explicit
 //     choice in localStorage; System removes the override and follows
 //     prefers-color-scheme through CSS.
@@ -498,7 +499,7 @@
     document.addEventListener("click", function (event) {
       var target = event.target;
       if (!target || typeof target.closest !== "function") return;
-      var code = target.closest(".sg-admin-shell code.sg-code");
+      var code = target.closest(".sg-admin-shell code.sg-code, code.vt-code");
       if (!code) return;
 
       var text = (code.textContent || "").trim();
@@ -519,9 +520,11 @@
       }
     });
 
-    // Hint affordance: label admin id chips on first pass.
+    // Hint affordance: label admin id chips + public demo credential chips.
     var label = function () {
-      var chips = document.querySelectorAll(".sg-admin-shell code.sg-code");
+      var chips = document.querySelectorAll(
+        ".sg-admin-shell code.sg-code, code.vt-code",
+      );
       chips.forEach(function (chip) {
         if (!chip.getAttribute("title")) {
           chip.setAttribute("title", "Click to copy");

@@ -10,3 +10,8 @@
 # the intent reviewable. Reset to empty once the re-recording PR merges.
 #
 # The `impersonation-banner` canary must NEVER appear here.
+audit-explorer
+user-audit
+global-user-index
+org-scoped-admin
+user-sessions

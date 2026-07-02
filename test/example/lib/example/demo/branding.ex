@@ -3,14 +3,14 @@ defmodule Example.Demo.Branding do
   Demo-only brand presets for evaluator-facing white-label previews.
 
   These presets intentionally do not write Sigra's admin-managed global brand
-  profile. They are presentation fixtures used by the Vaultr example app.
+  profile. They are presentation fixtures used by the Tasklane example app.
   """
 
   alias Sigra.Branding.Profile
 
   @cookie_name "sigra_demo_brand"
   @theme_cookie_name "sigra_demo_theme"
-  @default_id "night-ops"
+  @default_id "tasklane"
   @theme_modes [:system, :light, :dark]
 
   @sigra_style_tokens [
@@ -23,7 +23,7 @@ defmodule Example.Demo.Branding do
     {"--sigra-auth-border", :border_color}
   ]
 
-  @vaultr_style_tokens [
+  @tasklane_style_tokens [
     {"--vt-color-primary", :accent_color},
     {"--vt-color-primary-strong", :accent_color},
     {"--vt-color-accent", :accent_color},
@@ -37,10 +37,10 @@ defmodule Example.Demo.Branding do
     {"--vt-color-line-strong", :border_color}
   ]
 
-  @vaultr_light Profile.new!(
-                  product_name: "Vaultr",
-                  logo_url: "/images/vaultr-mark.svg",
-                  logo_alt: "Vaultr logo",
+  @tasklane_light Profile.new!(
+                  product_name: "Tasklane",
+                  logo_url: "/images/tasklane-mark.svg",
+                  logo_alt: "Tasklane logo",
                   accent_color: "#045f73",
                   accent_foreground: "#ffffff",
                   background_color: "#edf7f6",
@@ -48,14 +48,14 @@ defmodule Example.Demo.Branding do
                   text_color: "#10242c",
                   muted_color: "#526971",
                   border_color: "#bfd8d6",
-                  email_from_name: "Vaultr",
-                  email_from_address: "noreply@demo.vaultr.test",
+                  email_from_name: "Tasklane",
+                  email_from_address: "noreply@demo.tasklane.test",
                   theme: :light
                 )
-  @vaultr_dark Profile.new!(
-                 product_name: "Vaultr",
-                 logo_url: "/images/vaultr-mark.svg",
-                 logo_alt: "Vaultr logo",
+  @tasklane_dark Profile.new!(
+                 product_name: "Tasklane",
+                 logo_url: "/images/tasklane-mark.svg",
+                 logo_alt: "Tasklane logo",
                  accent_color: "#5eead4",
                  accent_foreground: "#062029",
                  background_color: "#061b22",
@@ -63,8 +63,8 @@ defmodule Example.Demo.Branding do
                  text_color: "#e9fffb",
                  muted_color: "#a7c5c5",
                  border_color: "#1f4b52",
-                 email_from_name: "Vaultr",
-                 email_from_address: "noreply@demo.vaultr.test",
+                 email_from_name: "Tasklane",
+                 email_from_address: "noreply@demo.tasklane.test",
                  theme: :dark
                )
 
@@ -128,16 +128,18 @@ defmodule Example.Demo.Branding do
                    theme: :dark
                  )
 
+  # Indigo/violet "security ops" palette — deliberately distinct from Tasklane teal,
+  # Meridian green, and Rail Accent orange so the white-label preview spans 4 hues.
   @night_ops_light Profile.new!(
                      product_name: "Night Ops",
                      logo_alt: "Night Ops logo",
-                     accent_color: "#087d87",
+                     accent_color: "#6d28d9",
                      accent_foreground: "#ffffff",
-                     background_color: "#eef8fa",
-                     surface_color: "#fbfeff",
-                     text_color: "#08232b",
-                     muted_color: "#587178",
-                     border_color: "#c7dde1",
+                     background_color: "#f5f3ff",
+                     surface_color: "#ffffff",
+                     text_color: "#1e1b2e",
+                     muted_color: "#6b6488",
+                     border_color: "#ddd6f5",
                      email_from_name: "Night Ops",
                      email_from_address: "security@night-ops.test",
                      theme: :light
@@ -145,13 +147,13 @@ defmodule Example.Demo.Branding do
   @night_ops_dark Profile.new!(
                     product_name: "Night Ops",
                     logo_alt: "Night Ops logo",
-                    accent_color: "#48d6ca",
-                    accent_foreground: "#062029",
-                    background_color: "#07171d",
-                    surface_color: "#0d242b",
-                    text_color: "#e8fbf7",
-                    muted_color: "#a6c3c5",
-                    border_color: "#244650",
+                    accent_color: "#a78bfa",
+                    accent_foreground: "#140f29",
+                    background_color: "#0c0a1a",
+                    surface_color: "#15122a",
+                    text_color: "#ece9fb",
+                    muted_color: "#a7a0c8",
+                    border_color: "#2e2750",
                     email_from_name: "Night Ops",
                     email_from_address: "security@night-ops.test",
                     theme: :dark
@@ -159,13 +161,13 @@ defmodule Example.Demo.Branding do
 
   @presets [
     %{
-      id: "vaultr",
-      label: "Vaultr",
-      description: "Teal security SaaS default for the fictional cohort app.",
-      email_subject: "Confirm your Vaultr account",
+      id: "tasklane",
+      label: "Tasklane",
+      description: "Teal default for Tasklane — the fictional project tracker.",
+      email_subject: "Confirm your Tasklane account",
       default_theme: :light,
-      profile: @vaultr_light,
-      profiles: %{light: @vaultr_light, dark: @vaultr_dark}
+      profile: @tasklane_light,
+      profiles: %{light: @tasklane_light, dark: @tasklane_dark}
     },
     %{
       id: "rail-accent",
@@ -273,13 +275,13 @@ defmodule Example.Demo.Branding do
   end
 
   def demo_surface_style(%Profile{} = profile) do
-    [Sigra.Branding.css_variables(profile), vaultr_css_variables(profile)]
+    [Sigra.Branding.css_variables(profile), tasklane_css_variables(profile)]
     |> Enum.reject(&(&1 == ""))
     |> Enum.join(" ")
   end
 
   def demo_surface_style(%{profiles: _profiles} = preset) do
-    [sigra_variant_css_variables(preset), vaultr_variant_css_variables(preset)]
+    [sigra_variant_css_variables(preset), tasklane_variant_css_variables(preset)]
     |> Enum.reject(&(&1 == ""))
     |> Enum.join(" ")
   end
@@ -325,9 +327,9 @@ defmodule Example.Demo.Branding do
     variant_css_variables(@sigra_style_tokens, profiles)
   end
 
-  defp vaultr_variant_css_variables(%{profiles: profiles}) do
+  defp tasklane_variant_css_variables(%{profiles: profiles}) do
     [
-      variant_css_variables(@vaultr_style_tokens, profiles),
+      variant_css_variables(@tasklane_style_tokens, profiles),
       "--vt-light-color-accent-soft: color-mix(in oklab, var(--vt-light-color-accent) 18%, var(--vt-light-color-panel));",
       "--vt-dark-color-accent-soft: color-mix(in oklab, var(--vt-dark-color-accent) 26%, transparent);"
     ]
@@ -350,8 +352,8 @@ defmodule Example.Demo.Branding do
   defp variant_property("--vt-color-" <> suffix, variant),
     do: "--vt-#{variant}-color-#{suffix}"
 
-  defp vaultr_css_variables(%Profile{} = profile) do
-    Enum.map_join(@vaultr_style_tokens, " ", fn {property, key} ->
+  defp tasklane_css_variables(%Profile{} = profile) do
+    Enum.map_join(@tasklane_style_tokens, " ", fn {property, key} ->
       "#{property}: #{Map.fetch!(profile, key)};"
     end)
   end

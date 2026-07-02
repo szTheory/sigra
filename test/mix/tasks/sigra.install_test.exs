@@ -332,7 +332,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyAppWeb.Auth.SudoHTML do")
-      assert String.contains?(content, "Confirm your password")
+      assert String.contains?(content, "Re-enter your password")
       assert String.contains?(content, ~s|action={~p"/users/sudo"}|)
     end
 

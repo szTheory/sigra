@@ -52,8 +52,10 @@ defmodule ExampleWeb.AdminShellTest do
       assert_live_nav_link(html, "/admin/auth-branding")
       assert html =~ "What do you need to do?"
       assert html =~ "User snapshot"
-      assert html =~ ~s(id="overview-metric-total-users")
-      assert html =~ ~s(<dd class="sg-metric__caption">total users</dd>)
+      # Phase 209 (commit f5d8fb84) removed the duplicated total-users chip from
+      # the Global Overview strip; the Users-List strip is the single owner now.
+      refute html =~ ~s(id="overview-metric-total-users")
+      refute html =~ ~s(<dd class="sg-metric__caption">total users</dd>)
       assert html =~ ~s(id="overview-metric-new-users")
       assert html =~ ~s(data-icon="sparkles")
       refute html =~ ~s(data-icon="calendar-plus")
@@ -61,8 +63,6 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ ~s(id="overview-metric-active-users")
       assert html =~ "active this week"
       refute html =~ ~r/<dd class="sg-metric__subvalue">\d+ this month<\/dd>/
-      assert html =~ ~s(id="overview-metric-auth-coverage")
-      assert html =~ "MFA coverage"
       assert html =~ "data-scope=\"global\""
       assert sidebar_overviews_before_workspace?(html)
       assert bottom_nav_overview_first?(html)

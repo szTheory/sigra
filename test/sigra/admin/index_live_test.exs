@@ -17,7 +17,10 @@ defmodule Sigra.Admin.IndexLiveTest do
     assert html =~ "active this week"
     refute html =~ ~s(<dd class="sg-metric__subvalue">4 this month</dd>)
     refute html =~ ~s(<dd class="sg-metric__subvalue">3 this month</dd>)
-    assert html =~ ~s(<dd class="sg-metric__subvalue">20% passkey coverage</dd>)
+    # D-03 (Phase 203): the global Authentication coverage chip is demoted —
+    # neither MFA nor passkey coverage renders on the overview anymore.
+    refute html =~ "overview-metric-auth-coverage"
+    refute html =~ "passkey coverage"
   end
 
   test "renders month detail lines when they add different information" do
@@ -30,7 +33,6 @@ defmodule Sigra.Admin.IndexLiveTest do
 
     assert html =~ ~s(<dd class="sg-metric__subvalue">5 this month</dd>)
     assert html =~ ~s(<dd class="sg-metric__subvalue">4 this month</dd>)
-    assert html =~ ~s(<dd class="sg-metric__subvalue">10% passkey coverage</dd>)
   end
 
   defp render_index(summary_stats) do

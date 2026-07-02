@@ -27,7 +27,7 @@
   - [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.md)
   - [Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.md)
   - [Suite Integration](suite-integration.md)
-  - [Demo Showcase — Vaultr Example App](demo-showcase.md)
+  - [Demo Showcase — Tasklane Example App](demo-showcase.md)
 
 - Reference
   - [Generator and install options](generator-options.md)
@@ -108,7 +108,10 @@
 
 - [Sigra.Admin.Live.OrganizationLive](Sigra.Admin.Live.OrganizationLive.md): Organization-scoped admin orientation surface.
 
-- [Sigra.Admin.Live.UserShowLive](Sigra.Admin.Live.UserShowLive.md): Admin user detail surface with scope-safe session controls.
+- [Sigra.Admin.Live.UserSessionsLive](Sigra.Admin.Live.UserSessionsLive.md): Per-user admin session management with scope-safe revoke controls.
+- [Sigra.Admin.Live.UserShowLive](Sigra.Admin.Live.UserShowLive.md): Admin user detail surface: identity bar, bounded session/org previews with link-outs,
+security/identities grid, recent audit, host-injected extra sections, and danger zone.
+Session revocation lives on Sigra.Admin.Live.UserSessionsLive (/admin/users/:id/sessions).
 
 - [Sigra.Admin.Live.UsersIndexLive](Sigra.Admin.Live.UsersIndexLive.md): Admin user index for global and organization-scoped user operations.
 

@@ -447,6 +447,11 @@ discover_pg_port() {
 setup_host_example() {
   cd "${EXAMPLE_DIR}"
 
+  # Wipe a stale example build whose frozen endpoint port differs from the target
+  # host-run port BEFORE any mix task runs — otherwise validate_compile_env aborts
+  # `mix ecto.migrate`/`mix phx.server` and the build can never self-heal.
+  sync_host_compile_env_port
+
   cyan "==> Fetching deps for test/example"
   mix deps.get >/dev/null
 
@@ -567,8 +572,34 @@ start_host_server() {
   printf '%s' "$!" >"${SIGRA_UAT_HOST_PID_FILE}"
 }
 
+# The host-run example freezes ExampleWeb.Endpoint — the http port included — into
+# a compile-time invariant: it reads `Application.compile_env!(:example,
+# ExampleWeb.Endpoint)` (for secret_key_base). Elixir validates that invariant at
+# the START of every mix task (ecto.migrate, compile, phx.server) and ABORTS on a
+# mismatch *before* it would recompile — so a _build/dev that was last compiled at a
+# different port (e.g. a plain `mix compile` defaulting to 4000, or a prior bumped
+# run) cannot self-heal; it hard-fails with a validate_compile_env error. Detect the
+# port frozen into the compiled example.app and, on mismatch with the target
+# host-run port, wipe the stale example build so the next mix invocation recompiles
+# cleanly at the target port (no prior value left to validate against). Only the
+# example app is wiped (deps stay compiled), and only when it actually diverges, so
+# the common case stays fast.
+sync_host_compile_env_port() {
+  local app_file="${EXAMPLE_DIR}/_build/dev/lib/example/ebin/example.app"
+  [ -f "${app_file}" ] || return 0
+  local frozen
+  frozen="$(grep -oE '\{port,[0-9]+\}' "${app_file}" 2>/dev/null | grep -oE '[0-9]+' | head -1)"
+  if [ -n "${frozen}" ] && [ "${frozen}" != "${SIGRA_EXAMPLE_PORT}" ]; then
+    yellow "    Example _build was compiled for port ${frozen}; wiping for a clean recompile at ${SIGRA_EXAMPLE_PORT} (compile-env invariant)."
+    rm -rf "${EXAMPLE_DIR}/_build/dev/lib/example"
+  fi
+}
+
 # Cheap TOCTOU guard: if the chosen host-run port got taken during setup, grab a
-# fresh free port and re-derive the dependent URLs. Only meaningful in none mode.
+# fresh free port and re-derive the dependent URLs. The bumped port no longer
+# matches the port the example was just compiled at, so re-sync the compile-env
+# build (wipe + clean recompile happens on the subsequent `mix phx.server`). Only
+# meaningful in none mode.
 ensure_port_free() {
   if lsof -iTCP:"${SIGRA_EXAMPLE_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
     yellow "    Port ${SIGRA_EXAMPLE_PORT} got taken during setup; selecting another."
@@ -577,6 +608,7 @@ ensure_port_free() {
     SIGRA_EXAMPLE_URL="${SIGRA_UAT_RAW_URL}"
     export PORT="${SIGRA_EXAMPLE_PORT}"
     export SIGRA_EXAMPLE_URL
+    sync_host_compile_env_port
   fi
 }
 
@@ -759,7 +791,7 @@ case "${SIGRA_UAT_PROXY_MODE}" in
     SIGRA_EXAMPLE_BIND="0.0.0.0"
     ;;
   none)
-    SIGRA_EXAMPLE_PORT="${SIGRA_EXAMPLE_PORT:-${PORT:-$(find_free_port)}}"
+    SIGRA_EXAMPLE_PORT="${SIGRA_EXAMPLE_PORT:-${PORT:-4011}}"
     SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_EXAMPLE_PORT}"
     SIGRA_UAT_PROXY_PORT=""
     SIGRA_UAT_PROXY_URL=""

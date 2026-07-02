@@ -2,7 +2,7 @@ defmodule Sigra.Admin.Components do
   @moduledoc """
   Lib-owned canonical admin component set for Sigra's admin LiveViews.
 
-  Provides 13 flat, stateless `Phoenix.Component` function components that consolidate
+  Provides 16 flat, stateless `Phoenix.Component` function components that consolidate
   the duplicated admin chrome across LiveViews. Security-critical design and a11y fixes
   propagate to host apps via `mix deps.update` (D-05).
 
@@ -26,6 +26,9 @@ defmodule Sigra.Admin.Components do
     - `field_help/1` — Label-adjacent explanatory tooltip trigger
     - `skeleton/1` — Loading-shape placeholder
     - `audit_row/1` — Audit event card (sg-list-row) with unified tone and date formatting
+    - `detail_input/1` — Text input field for the auth branding Details panel (D-05)
+    - `color_field/1` — Colour picker control for auth branding Light/Dark palettes (D-05)
+    - `preview_pair/1` — Login + email preview rail for auth branding panels (D-05)
 
   """
   use Phoenix.Component
@@ -714,8 +717,382 @@ defmodule Sigra.Admin.Components do
   end
 
   # ---------------------------------------------------------------------------
-  # Private helpers for audit_row/1
+  # audit_table_row/1
   # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the desktop audit table row (`<tr>`) for the shared 4-column audit table.
+
+  This is the single shared component for byte-coherent desktop-table markup across
+  both audit pages:
+  - `AuditIndexLive` desktop table body
+  - `AuditUserLive` desktop table body
+
+  Column order is FROZEN (td:nth-child positional selectors depend on this):
+  1. Occurred — timestamp only
+  2. Event — `action_label` pill + optional `action_badge` pill + `<details>` disclosure
+     holding both raw codes (`event_id` and action code) as `code.sg-code` text nodes
+  3. Actor — `actor_summary` span (first) + conditional detail lines
+  4. Outcome — risk pill or muted span
+
+  Both raw `code.sg-code` nodes live inside the Event `<td>` disclosure so the
+  `firstTexts(desktop, 'code.sg-code', 2)` content-equivalence assertion still returns
+  exactly 2 (D-06 contract preserved).
+
+  Tone is derived via the shared private `audit_tone/1` (single source of truth, D-08).
+  Timestamp uses `format_timestamp/1` (with-seconds) for forensic precision, consistent
+  across both pages.
+
+  ## Examples
+
+      <.audit_table_row row={row} />
+
+      <.audit_table_row :for={row <- @rows} row={row} />
+
+  """
+  attr :row, :map, required: true, doc: "the presenter row map for the audit event"
+
+  def audit_table_row(assigns) do
+    ~H"""
+    <tr data-tone={audit_tone(@row)}>
+      <td class="sg-nowrap">
+        <div class="sg-stack sg-stack--1">
+          <span class="sg-text-sm">{format_timestamp(@row.inserted_at)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="sg-stack sg-stack--1">
+          <div class="sg-cluster sg-cluster--2">
+            <span class="sg-status-pill" data-tone={audit_tone(@row)}>{@row.action_label}</span>
+            <span :if={@row.action_badge} class="sg-status-pill" data-tone="info">{@row.action_badge}</span>
+          </div>
+          <details>
+            <summary class="sg-text-sm sg-muted">Event codes</summary>
+            <div class="sg-stack sg-stack--1">
+              <code class="sg-code">{@row.id}</code>
+              <code class="sg-code">{@row.action}</code>
+            </div>
+          </details>
+        </div>
+      </td>
+      <td>
+        <div class="sg-stack sg-stack--1 sg-text-sm">
+          <span>{@row.actor_summary}</span>
+          <span :if={@row.action_badge} class="sg-muted">Actor: {@row.actor_label}</span>
+          <span :if={@row.action_badge} class="sg-muted">Effective user: {@row.effective_user_label}</span>
+        </div>
+      </td>
+      <td class="sg-show-desktop sg-text-sm">
+        <span :if={audit_tone(@row) == "risk"} class="sg-status-pill" data-tone="risk">{@row.outcome}</span>
+        <span :if={audit_tone(@row) != "risk"} class="sg-muted">{@row.outcome}</span>
+      </td>
+    </tr>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # audit_pagination_nav/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the honest-cursor pagination `<nav>` for both audit pages.
+
+  The nav is rendered only when `multi_page?/1` is true (i.e., at least one of
+  `meta.previous_page` or `meta.next_page` is non-nil). When results fit a single
+  page the nav is absent entirely — honest cursor pagination (D-10).
+
+  The per-page href divergence (index `page_path/3` vs per-user `page_path/4` with
+  `user_id`/`return_to`) is kept in each LiveView; the caller pre-builds the hrefs
+  and passes them in (D-09 legitimate divergence stays per-page).
+
+  ## Examples
+
+      <.audit_pagination_nav
+        meta={@meta}
+        prev_href={page_path(@admin_scope, @current_params, @meta && @meta.previous_page)}
+        next_href={page_path(@admin_scope, @current_params, @meta && @meta.next_page)}
+      />
+
+  """
+  attr :meta, :map, required: true, doc: "cursor pagination meta map from the audit explorer"
+
+  attr :prev_href, :string,
+    required: true,
+    doc: "href for the Previous page link, pre-built by the caller"
+
+  attr :next_href, :string,
+    required: true,
+    doc: "href for the Next page link, pre-built by the caller"
+
+  def audit_pagination_nav(assigns) do
+    ~H"""
+    <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
+      <a
+        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
+        href={@prev_href}
+        aria-disabled={to_string(is_nil(@meta.previous_page))}
+        aria-label="Previous page"
+      >
+        <span aria-hidden="true">&larr;</span>
+        <span class="sr-only">Previous page</span>
+      </a>
+      <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
+      <a
+        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
+        href={@next_href}
+        aria-disabled={to_string(is_nil(@meta.next_page))}
+        aria-label="Next page"
+      >
+        <span aria-hidden="true">&rarr;</span>
+        <span class="sr-only">Next page</span>
+      </a>
+    </nav>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # audit_empty_state/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the audit zero-state, parametrized for per-page copy.
+
+  Wraps the generic `empty_state/1` with audit-specific attributes. The `title` attr
+  supplies the heading; the inner block renders the per-page body copy (e.g., the
+  filter-aware copy with "Clear all filters" link on the index page, vs the simple
+  "no scoped events" copy on the per-user page).
+
+  ## Examples
+
+      <.audit_empty_state title="No audit events match this view">
+        <p class="sg-muted sg-text-sm">No audit events match the active filters.</p>
+        <div class="sg-cluster sg-cluster--center">
+          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
+        </div>
+      </.audit_empty_state>
+
+      <.audit_empty_state title="No audit events for this user">
+        <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
+      </.audit_empty_state>
+
+  """
+  attr :title, :string, required: true, doc: "the heading for the audit empty state"
+
+  slot :inner_block, doc: "per-page body copy rendered below the title"
+
+  def audit_empty_state(assigns) do
+    ~H"""
+    <.empty_state title={@title}>
+      {render_slot(@inner_block)}
+    </.empty_state>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # detail_input/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a single text input field for the auth branding Details panel.
+
+  The `id` and `help_id` are derived deterministically from `name` using the
+  `branding-<name>` convention (underscores replaced with hyphens) so the label
+  `for` and `<.field_help>` `id` always stay in sync.
+
+  ## Examples
+
+      <.detail_input name="product_name" label="Product name" value={@value} required />
+
+      <.detail_input
+        name="logo_url"
+        label="Logo URL"
+        value={@value}
+        help="Shown on generated auth screens and email headers when set."
+      />
+  """
+  attr :name, :string, required: true, doc: "the form field name (used in both the HTML name and id)"
+  attr :label, :string, required: true, doc: "the visible label for the field"
+  attr :value, :string, required: true, doc: "the current field value"
+  attr :required, :boolean, default: false, doc: "marks the input as required"
+  attr :help, :string, default: nil, doc: "optional help tooltip copy"
+
+  def detail_input(assigns) do
+    assigns =
+      assigns
+      |> assign(:id, branding_field_id(assigns.name))
+      |> assign(:help_id, branding_help_id(assigns.name))
+
+    ~H"""
+    <div class="sg-field">
+      <span class="sg-field-label-row">
+        <label class="sg-field-label" for={@id}>{@label}</label>
+        <.field_help :if={@help} id={@help_id} label={@label}>{@help}</.field_help>
+      </span>
+      <input
+        id={@id}
+        class="sg-input"
+        name={"branding[#{@name}]"}
+        value={@value}
+        required={@required}
+      />
+    </div>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # color_field/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a colour picker control for the auth branding Light/Dark palette panels.
+
+  The control pairs a native `<input type="color">` (hidden circle) with a
+  sibling span that mirrors the current hex value as readable text. Client-side
+  hooks update the span in real-time as the picker changes.
+
+  Uses the `data-sg-auth-branding-color` and `data-sg-auth-branding-color-value`
+  attribute hooks so `AuthBrandingPreview` can push live CSS variable updates.
+
+  ## Examples
+
+      <.color_field :for={{name, label} <- @light_color_fields}
+        name={name}
+        label={label}
+        value={field_value(@draft_params, name)}
+      />
+  """
+  attr :name, :string, required: true, doc: "the form field name; also used as the hook data attribute value"
+  attr :label, :string, required: true, doc: "the accessible label for the colour picker"
+  attr :value, :string, required: true, doc: "the current hex colour value (e.g., \"#c2410c\")"
+
+  def color_field(assigns) do
+    ~H"""
+    <label class="sg-field sg-color-field">
+      <span class="sg-field-label">{@label}</span>
+      <span class="sg-color-field__control">
+        <input
+          class="sg-color-field__input"
+          type="color"
+          name={"branding[#{@name}]"}
+          value={@value}
+          aria-label={@label}
+          phx-throttle="120"
+          data-sg-auth-branding-color={@name}
+        />
+        <span
+          class="sg-color-field__value sg-muted sg-text-sm sg-tabular"
+          data-sg-auth-branding-color-value={@name}
+        >
+          {@value}
+        </span>
+      </span>
+    </label>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # preview_pair/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders the side-by-side login + email preview rail for a single branding panel
+  (Light, Dark, or Details).
+
+  The two preview surfaces are wrapped in `sg-branding-preview-rail` and accept
+  `data-sg-auth-branding-preview` attribute hooks that the `AuthBrandingPreview`
+  client hook reads to push live CSS variable updates as the palette changes.
+
+  The `active` flag controls which `data-testid` values are emitted so Playwright
+  assertions can target the live panel's previews regardless of tab position.
+
+  ## Examples
+
+      <.preview_pair
+        profile={@preview_profile}
+        theme="light"
+        active={@active_panel == :light}
+        login_testid="admin-auth-branding-light-login-preview"
+        email_testid="admin-auth-branding-light-email-preview"
+        email_surface_testid="admin-auth-branding-light-email-preview-surface"
+      />
+  """
+  attr :profile, :any, required: true, doc: "the %Sigra.Branding.Profile{} used to derive CSS variables and preview content"
+  attr :theme, :string, required: true, doc: "the data-theme attribute value (\"light\" or \"dark\")"
+  attr :active, :boolean, required: true, doc: "true when this panel is the currently visible tab"
+  attr :login_testid, :string, required: true, doc: "data-testid for the login preview card (used when not active)"
+  attr :email_testid, :string, required: true, doc: "data-testid for the email preview card (used when not active)"
+  attr :email_surface_testid, :string, required: true, doc: "data-testid for the email preview surface (used when not active)"
+
+  def preview_pair(assigns) do
+    ~H"""
+    <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
+      <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
+        <h2 class="sg-section-heading">Sign-in preview</h2>
+        <div
+          class="sigra-auth sigra-auth--preview"
+          data-theme={@theme}
+          data-sg-auth-branding-preview="login"
+          data-sg-auth-branding-preview-theme={@theme}
+          style={Sigra.Branding.css_variables(@profile)}
+        >
+          <section class="sigra-auth__viewport">
+            <div class="sigra-auth__panel">
+              <div class="sigra-auth__brand">
+                <img :if={@profile.logo_url} src={@profile.logo_url} alt={@profile.logo_alt} class="sigra-auth__logo" />
+                <div :if={!@profile.logo_url} class="sigra-auth__mark" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <p class="sigra-auth__product">{@profile.product_name}</p>
+              </div>
+              <div class="mx-auto max-w-sm">
+                <h1>Log in</h1>
+                <p>Use a magic link, passkey, password, or enterprise SSO.</p>
+                <div class="sigra-auth-preview-form">
+                  <label>Email<input type="email" value="alex@example.com" /></label>
+                  <button type="button" class="btn btn-primary w-full">Send magic link</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="sg-card sg-stack sg-stack--3" data-testid={if @active, do: "admin-email-preview", else: @email_testid}>
+        <h2 class="sg-section-heading">Email preview</h2>
+        <div
+          class="sigra-auth-email-preview"
+          data-theme={@theme}
+          data-sg-auth-branding-preview="email"
+          data-sg-auth-branding-preview-theme={@theme}
+          data-testid={if @active, do: "admin-email-preview-surface", else: @email_surface_testid}
+          style={Sigra.Branding.css_variables(@profile)}
+        >
+          <div class="sigra-auth-email-preview__message">
+            <strong>{@profile.product_name}</strong>
+            <p>
+              Confirm your email address by clicking the button below.
+            </p>
+            <span class="sigra-auth-email-preview__button">
+              Confirm email
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # Private helpers for audit_row/1, audit_table_row/1, audit_pagination_nav/1
+  # ---------------------------------------------------------------------------
+
+  # Deterministic id for a branding form field ("branding-<name>" with "_" → "-").
+  # Used by detail_input/1 to keep the <label for> and input id in sync.
+  defp branding_field_id(name), do: "branding-" <> String.replace(name, "_", "-")
+
+  # Help-tooltip id derived from the field id ("branding-<name>-help").
+  # Used by detail_input/1 to wire <.field_help id> consistently.
+  defp branding_help_id(name), do: branding_field_id(name) <> "-help"
 
   # Single source of truth for audit tone derivation (D-10).
   # Retires the divergent row_tone/1 (×2) in AuditIndexLive/AuditUserLive and
@@ -723,6 +1100,21 @@ defmodule Sigra.Admin.Components do
   defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
   defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
   defp audit_tone(_row), do: nil
+
+  # Honest-cursor pagination guard: returns true iff at least one of
+  # previous_page/next_page is non-nil. Cursor pagination has no total_pages key.
+  # Matches the byte-identical private guards in AuditIndexLive/AuditUserLive (D-10).
+  defp multi_page?(nil), do: false
+
+  defp multi_page?(meta) do
+    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+  end
+
+  # Timestamp formatter (with seconds) for the desktop audit table Occurred column.
+  # Used by audit_table_row/1 to display forensic-precision timestamps.
+  # Matches the private format_timestamp/1 in AuditIndexLive (same format string).
+  defp format_timestamp(%DateTime{} = dt), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S")
+  defp format_timestamp(_timestamp), do: ""
 
   # Date formatting helper for audit timestamps (D-09 fix).
   # Handles %DateTime{} and %NaiveDateTime{} (formats as "%Y-%m-%d %H:%M", no seconds).

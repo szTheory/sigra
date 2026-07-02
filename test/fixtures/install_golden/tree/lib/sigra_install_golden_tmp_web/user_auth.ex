@@ -516,7 +516,10 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   def require_password_unchanged(conn, _opts) do
     user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
 
-    if user && Map.get(user, :must_change_password, false) do
+    # The settings page (redirect target) and log out must stay reachable, or a
+    # must-change-password user would be redirected to /users/settings forever.
+    if user && Map.get(user, :must_change_password, false) &&
+         not exempt_path?(conn, ["/users/settings", "/users/log_out"]) do
       conn
       |> put_flash(:error, "You must change your password before you can continue using your account.")
       |> maybe_store_return_to()
@@ -533,6 +536,9 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   If the user has a non-nil `deleted_at`, redirects to the reactivation
   page where they can cancel the deletion or sign out (D-15, T-8-15).
 
+  The reactivation page itself and log out are exempt so the redirect can't
+  loop (the reactivation route lives in the same authenticated pipeline).
+
   ## Usage
 
   In your router, add after `require_authenticated_user`:
@@ -543,7 +549,8 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   def check_account_active(conn, _opts) do
     user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
 
-    if user && user.deleted_at do
+    if user && user.deleted_at &&
+         not exempt_path?(conn, ["/users/reactivation", "/users/log_out"]) do
       conn
       |> redirect(to: ~p"/users/reactivation")
       |> halt()
@@ -551,6 +558,10 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
       conn
     end
   end
+
+  # Exact request-path match so a redirect target inside the same pipeline
+  # (settings, reactivation) and log out can't trap the user in a redirect loop.
+  defp exempt_path?(conn, paths), do: conn.request_path in paths
 
   defp signed_in_path(_conn), do: ~p"/"
 end

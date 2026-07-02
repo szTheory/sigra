@@ -10,8 +10,10 @@ defmodule Example.Demo.SeedsTest do
   - SEED-01 idempotency (run twice -> identical counts)
   - SEED-02 nine personas + org/membership/invitation shape
   - SEED-03 rough-edge persona states (locked, scheduled-deletion, oauth identity, mfa, passkey)
-  - SEED-04 audit liveness (>=15 rows, >=6 distinct actions, admin-tied)
+  - SEED-04 audit liveness (>=25 rows, >=6 distinct actions, admin-tied) [FIXT-01]
   - SEED-06 security posture (argon2id hashes, deterministic totp secret)
+  - Bulk-cohort idempotency + exclusion (FIXT-02)
+  - Multi-session/multi-org breadth on admin persona (FIXT-02, D-11)
   """
   use Example.DataCase, async: false
 
@@ -24,26 +26,43 @@ defmodule Example.Demo.SeedsTest do
   alias Example.Accounts.OrganizationInvitation
   alias Example.Accounts.UserMFACredential
   alias Example.Accounts.UserPasskey
+  alias Example.Accounts.UserSession
   alias Example.Accounts.EnterpriseConnection
   alias Example.Accounts.UserIdentity
   alias Example.Accounts.AuditEvent
 
-  @demo_domain "@demo.vaultr.test"
+  @demo_domain "@demo.tasklane.test"
+
+  # Pitfall-3 resolution (FIXT-02): The bulk cohort uses emails with the
+  # `loadtest-` local-part prefix on the same @demo.tasklane.test domain.
+  # BOTH persona-count queries that glob `%@demo.tasklane.test` must exclude
+  # `loadtest-%` emails so `demo_users == length(Personas.all())` stays green.
+  # We apply `not like(u.email, "loadtest-%")` to the query in snapshot_counts/0
+  # (line ~40) AND to the SEED-02/03 catalog count (line ~122), which are two
+  # independent queries. The bulk cohort is counted separately in its own test.
+  # IN-02: bulk_cohort_size is now exposed as Seeds.bulk_cohort_size/0 (SSoT);
+  # no local @bulk_cohort_size attribute here to prevent drift.
 
   defp demo_user!(email), do: Accounts.get_user_by_email(email)
 
   # Counts scoped to demo data so the assertions are unaffected by any
   # incidental rows another part of the suite might have left in a shared
   # (non-async) sandbox checkout.
+  # NOTE: `demo_users` counts only persona-domain users, EXCLUDING the loadtest-*
+  # bulk cohort (Pitfall-3 fix: both glob queries apply `not like(u.email, "loadtest-%")`).
   defp snapshot_counts do
     demo_user_ids =
-      Repo.all(from u in User, where: like(u.email, ^"%#{@demo_domain}"), select: u.id)
+      Repo.all(
+        from u in User,
+          where: like(u.email, ^"%#{@demo_domain}") and not like(u.email, "loadtest-%"),
+          select: u.id
+      )
 
     %{
       demo_users: length(demo_user_ids),
       organizations:
         Repo.aggregate(
-          from(o in Organization, where: o.slug in ^["acme-corp", "beta-labs"]),
+          from(o in Organization, where: o.slug in ^["acme-corp", "beta-labs", "ghost-org"]),
           :count
         ),
       memberships:
@@ -53,13 +72,13 @@ defmodule Example.Demo.SeedsTest do
         ),
       invitations:
         Repo.aggregate(
-          from(i in OrganizationInvitation, where: i.email == ^"invited@demo.vaultr.test"),
+          from(i in OrganizationInvitation, where: i.email == ^"invited@demo.tasklane.test"),
           :count
         ),
       expired_invitations:
         Repo.aggregate(
           from(i in OrganizationInvitation,
-            where: i.email == ^"expired-invite@demo.vaultr.test"
+            where: i.email == ^"expired-invite@demo.tasklane.test"
           ),
           :count
         ),
@@ -105,7 +124,7 @@ defmodule Example.Demo.SeedsTest do
 
       # And the first run actually produced data (guards against a vacuous pass).
       assert first.demo_users == length(Personas.all())
-      assert first.organizations == 2
+      assert first.organizations == 3
     end
   end
 
@@ -116,10 +135,15 @@ defmodule Example.Demo.SeedsTest do
       :ok
     end
 
-    test "seeds exactly the @demo.vaultr.test persona catalog of users" do
+    test "seeds exactly the @demo.tasklane.test persona catalog of users" do
+      # Pitfall-3 fix: exclude loadtest-* bulk cohort from this count so it
+      # equals length(Personas.all()) — both domain-glob queries must apply
+      # the same exclusion (see snapshot_counts/0 and this query).
       count =
         Repo.aggregate(
-          from(u in User, where: like(u.email, ^"%#{@demo_domain}")),
+          from(u in User,
+            where: like(u.email, ^"%#{@demo_domain}") and not like(u.email, "loadtest-%")
+          ),
           :count
         )
 
@@ -131,7 +155,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "dave is the locked-out persona" do
-      dave = demo_user!("dave@demo.vaultr.test")
+      dave = demo_user!("dave@demo.tasklane.test")
 
       assert dave.failed_login_attempts == 5
       refute is_nil(dave.locked_at)
@@ -139,7 +163,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "frank is the scheduled-deletion persona" do
-      frank = demo_user!("frank@demo.vaultr.test")
+      frank = demo_user!("frank@demo.tasklane.test")
 
       refute is_nil(frank.deleted_at)
       refute is_nil(frank.scheduled_deletion_at)
@@ -147,7 +171,7 @@ defmodule Example.Demo.SeedsTest do
 
     test "grace is a deletion-scheduled Acme member" do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
-      grace = demo_user!("grace@demo.vaultr.test")
+      grace = demo_user!("grace@demo.tasklane.test")
 
       refute is_nil(grace.deleted_at)
       refute is_nil(grace.scheduled_deletion_at)
@@ -157,7 +181,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "pat has no MFA credential but has a passkey row" do
-      pat = demo_user!("pat@demo.vaultr.test")
+      pat = demo_user!("pat@demo.tasklane.test")
 
       mfa_count =
         Repo.aggregate(from(c in UserMFACredential, where: c.user_id == ^pat.id), :count)
@@ -170,12 +194,12 @@ defmodule Example.Demo.SeedsTest do
       assert passkey_count >= 1
     end
 
-    test "exactly one expired invitation for expired-invite@demo.vaultr.test" do
+    test "exactly one expired invitation for expired-invite@demo.tasklane.test" do
       expired =
         Repo.all(
           from i in OrganizationInvitation,
             where:
-              i.email == ^"expired-invite@demo.vaultr.test" and
+              i.email == ^"expired-invite@demo.tasklane.test" and
                 is_nil(i.accepted_at) and is_nil(i.revoked_at)
         )
 
@@ -187,7 +211,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "carol has a GitHub OAuth identity" do
-      carol = demo_user!("carol@demo.vaultr.test")
+      carol = demo_user!("carol@demo.tasklane.test")
 
       identity =
         Repo.one(
@@ -199,7 +223,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "admin and bob have a totp MFA credential with the deterministic secret" do
-      for email <- ["admin@demo.vaultr.test", "bob@demo.vaultr.test"] do
+      for email <- ["admin@demo.tasklane.test", "bob@demo.tasklane.test"] do
         user = demo_user!(email)
 
         credential =
@@ -216,7 +240,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "admin has at least one passkey row" do
-      admin = demo_user!("admin@demo.vaultr.test")
+      admin = demo_user!("admin@demo.tasklane.test")
 
       passkey_count =
         Repo.aggregate(
@@ -227,17 +251,58 @@ defmodule Example.Demo.SeedsTest do
       assert passkey_count >= 1
     end
 
-    test "Acme Corp and Beta Labs organizations exist" do
+    test "Acme Corp, Beta Labs, and Ghost Org organizations exist" do
       assert Repo.get_by(Organization, slug: "acme-corp")
       assert Repo.get_by(Organization, slug: "beta-labs")
+      assert Repo.get_by(Organization, slug: "ghost-org")
     end
 
-    test "exactly one pending invitation to invited@demo.vaultr.test" do
+    test "zoe is the zero-state persona with zero sessions, identities, orgs, and audit events" do
+      zoe = demo_user!("zoe@demo.tasklane.test")
+      assert zoe != nil, "zoe persona must be seeded"
+      assert zoe.confirmed_at != nil, "zoe must be confirmed"
+
+      assert Repo.aggregate(from(s in UserSession, where: s.user_id == ^zoe.id), :count) == 0,
+             "zoe should have 0 UserSession rows (zero-state)"
+
+      assert Repo.aggregate(from(ui in UserIdentity, where: ui.user_id == ^zoe.id), :count) ==
+               0,
+             "zoe should have 0 UserIdentity rows (zero-state)"
+
+      assert Repo.aggregate(
+               from(m in OrganizationMembership, where: m.user_id == ^zoe.id),
+               :count
+             ) == 0,
+             "zoe should have 0 OrganizationMembership rows (zero-state)"
+
+      assert Repo.aggregate(from(a in AuditEvent, where: a.effective_user_id == ^zoe.id), :count) ==
+               0,
+             "zoe should have 0 AuditEvent rows (zero-state)"
+    end
+
+    test "ghost-org has zero memberships and zero invitations" do
+      ghost = Repo.get_by(Organization, slug: "ghost-org")
+      assert ghost != nil, "ghost-org must be seeded"
+
+      assert Repo.aggregate(
+               from(m in OrganizationMembership, where: m.organization_id == ^ghost.id),
+               :count
+             ) == 0,
+             "ghost-org should have 0 OrganizationMembership rows"
+
+      assert Repo.aggregate(
+               from(i in OrganizationInvitation, where: i.organization_id == ^ghost.id),
+               :count
+             ) == 0,
+             "ghost-org should have 0 OrganizationInvitation rows"
+    end
+
+    test "exactly one pending invitation to invited@demo.tasklane.test" do
       pending =
         Repo.all(
           from i in OrganizationInvitation,
             where:
-              i.email == ^"invited@demo.vaultr.test" and
+              i.email == ^"invited@demo.tasklane.test" and
                 is_nil(i.accepted_at) and is_nil(i.revoked_at)
         )
 
@@ -248,11 +313,11 @@ defmodule Example.Demo.SeedsTest do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
       beta = Repo.get_by!(Organization, slug: "beta-labs")
 
-      admin = demo_user!("admin@demo.vaultr.test")
-      alice = demo_user!("alice@demo.vaultr.test")
-      carol = demo_user!("carol@demo.vaultr.test")
-      dave = demo_user!("dave@demo.vaultr.test")
-      bob = demo_user!("bob@demo.vaultr.test")
+      admin = demo_user!("admin@demo.tasklane.test")
+      alice = demo_user!("alice@demo.tasklane.test")
+      carol = demo_user!("carol@demo.tasklane.test")
+      dave = demo_user!("dave@demo.tasklane.test")
+      bob = demo_user!("bob@demo.tasklane.test")
 
       admin_orgs =
         Repo.aggregate(
@@ -262,7 +327,7 @@ defmodule Example.Demo.SeedsTest do
 
       assert admin_orgs == 2
 
-      grace = demo_user!("grace@demo.vaultr.test")
+      grace = demo_user!("grace@demo.tasklane.test")
 
       assert membership_role(alice.id, acme.id) == :member
       assert membership_role(carol.id, acme.id) == :member
@@ -282,8 +347,10 @@ defmodule Example.Demo.SeedsTest do
       :ok
     end
 
-    test "at least 15 audit events across at least 6 distinct actions, admin-tied" do
-      admin = demo_user!("admin@demo.vaultr.test")
+    # FIXT-01: raised from >=15 to >=25 to cross the @default_limit 25 page size,
+    # making /admin/audit and the user-detail audit feed paginate for admin.
+    test "at least 25 audit events across at least 6 distinct actions, admin-tied (FIXT-01)" do
+      admin = demo_user!("admin@demo.tasklane.test")
 
       admin_tied =
         Repo.aggregate(
@@ -291,7 +358,10 @@ defmodule Example.Demo.SeedsTest do
           :count
         )
 
-      assert admin_tied >= 15
+      # FIXT-01: >25 (not >=25) — pagination renders only when multi_page? is true,
+      # which needs strictly more than one page at @default_limit 25.
+      assert admin_tied > 25,
+             "expected >25 self-tied admin audit events so the per-user audit feed paginates (FIXT-01); got #{admin_tied}"
 
       distinct_actions =
         Repo.aggregate(
@@ -303,7 +373,8 @@ defmodule Example.Demo.SeedsTest do
           :count
         )
 
-      assert distinct_actions >= 6
+      assert distinct_actions >= 6,
+             "expected >=6 distinct audit action values for admin; got #{distinct_actions}"
 
       assert admin_tied >= 1,
              "expected at least one audit row tied to admin via effective_user_id"
@@ -311,8 +382,8 @@ defmodule Example.Demo.SeedsTest do
 
     test "persona and organization audit rows make non-admin detail screens useful" do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
-      alice = demo_user!("alice@demo.vaultr.test")
-      dave = demo_user!("dave@demo.vaultr.test")
+      alice = demo_user!("alice@demo.tasklane.test")
+      dave = demo_user!("dave@demo.tasklane.test")
 
       alice_tied =
         Repo.aggregate(
@@ -345,12 +416,103 @@ defmodule Example.Demo.SeedsTest do
 
     test "a confirmed persona's hashed_password is an argon2id hash" do
       # Alice is confirmed and (unlike dave) retains her hashed password.
-      alice = demo_user!("alice@demo.vaultr.test")
+      alice = demo_user!("alice@demo.tasklane.test")
 
       assert is_binary(alice.hashed_password)
 
       assert String.starts_with?(alice.hashed_password, "$argon2id$"),
              "expected argon2id hash, got prefix #{inspect(String.slice(alice.hashed_password || "", 0, 12))}"
+    end
+  end
+
+  # FIXT-02: list-scale "ugly" bulk cohort (D-09, D-10)
+  # Bulk users use the `loadtest-` local-part prefix on @demo.tasklane.test so
+  # BOTH persona-count queries can exclude them via `not like(u.email, "loadtest-%")`.
+  describe "bulk user cohort (FIXT-02)" do
+    setup do
+      assert :ok = Seeds.run()
+      :ok
+    end
+
+    test "bulk cohort contains exactly Seeds.bulk_cohort_size() users after run/0" do
+      # Exclude the D-18 i18n/RTL overflow user (loadtest-i18n-rtl@...) which is
+      # an extra user outside the @bulk_cohort_size count (D-18 design intent).
+      count =
+        Repo.aggregate(
+          from(u in User,
+            where:
+              like(u.email, "loadtest-%") and
+                u.email != ^"loadtest-i18n-rtl@demo.tasklane.test"
+          ),
+          :count
+        )
+
+      assert count == Seeds.bulk_cohort_size(),
+             "expected #{Seeds.bulk_cohort_size()} bulk cohort users; got #{count}"
+    end
+
+    test "bulk cohort emails are absent from Personas.all()" do
+      persona_emails = Personas.all() |> Enum.map(& &1.email) |> MapSet.new()
+
+      bulk_emails =
+        Repo.all(from u in User, where: like(u.email, "loadtest-%"), select: u.email)
+
+      for email <- bulk_emails do
+        refute MapSet.member?(persona_emails, email),
+               "loadtest user #{email} should not appear in Personas.all()"
+      end
+    end
+
+    test "bulk count is stable across two run/0 calls (idempotency — SEED-01, FIXT-02)" do
+      # First run already done in setup; run a second time and check count is unchanged.
+      assert :ok = Seeds.run()
+
+      # Exclude the D-18 i18n/RTL overflow user which is extra to the @bulk_cohort_size count.
+      count =
+        Repo.aggregate(
+          from(u in User,
+            where:
+              like(u.email, "loadtest-%") and
+                u.email != ^"loadtest-i18n-rtl@demo.tasklane.test"
+          ),
+          :count
+        )
+
+      assert count == Seeds.bulk_cohort_size(),
+             "second run/0 changed bulk count; expected #{Seeds.bulk_cohort_size()}, got #{count} (no-op idempotency violated)"
+    end
+  end
+
+  # FIXT-02, D-11: multi-session + multi-org breadth on admin persona.
+  # Admin must carry >=2 active UserSession rows AND >=2 OrganizationMembership rows
+  # so /admin per-user Sessions and Organizations panels render multiple rows.
+  # Breadth uses EXISTING schema fields only (no new columns — D-11).
+  describe "multi-session/multi-org breadth (FIXT-02, D-11)" do
+    setup do
+      assert :ok = Seeds.run()
+      :ok
+    end
+
+    test "admin persona has >=2 active UserSession rows and >=2 OrganizationMembership rows" do
+      admin = demo_user!("admin@demo.tasklane.test")
+
+      session_count =
+        Repo.aggregate(
+          from(s in UserSession, where: s.user_id == ^admin.id),
+          :count
+        )
+
+      assert session_count >= 2,
+             "admin should have >=2 UserSession rows for FIXT-02 multi-session breadth; got #{session_count}"
+
+      membership_count =
+        Repo.aggregate(
+          from(m in OrganizationMembership, where: m.user_id == ^admin.id),
+          :count
+        )
+
+      assert membership_count >= 2,
+             "admin should have >=2 OrganizationMembership rows for FIXT-02 multi-org breadth; got #{membership_count}"
     end
   end
 

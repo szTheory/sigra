@@ -79,10 +79,17 @@ async function assertBoardScreenshot(page: Page, testInfo: TestInfo, boardId: st
   const dark = testInfo.project.name.includes('dark');
   const mobile = testInfo.project.name.includes('mobile');
   const ci = process.env.CI === 'true';
+  // CONFIG_BOARDS are full-page composites with more surface area than isolated MG boards.
+  // Apply a higher maxDiffPixels/maxDiffPixelRatio budget to absorb rendering variance (D-10).
+  const isCfgBoard = boardId.startsWith('board-cfg-');
   const locator = page.locator(`#${boardId}`);
   await expect(locator).toHaveScreenshot(`${boardId}.png`, {
-    maxDiffPixels: ci ? 200_000 : dark ? 75_000 : mobile ? 45_000 : 30_000,
-    maxDiffPixelRatio: ci ? 0.22 : dark ? 0.1 : mobile ? 0.08 : 0.06,
+    maxDiffPixels: isCfgBoard
+      ? (ci ? 300_000 : dark ? 120_000 : mobile ? 80_000 : 50_000)
+      : (ci ? 200_000 : dark ? 75_000 : mobile ? 45_000 : 30_000),
+    maxDiffPixelRatio: isCfgBoard
+      ? (ci ? 0.30 : dark ? 0.15 : mobile ? 0.12 : 0.09)
+      : (ci ? 0.22 : dark ? 0.1 : mobile ? 0.08 : 0.06),
   });
 }
 
@@ -107,6 +114,8 @@ const GROUP_BOARDS = [
   'board-mg-10',
   'board-mg-11',
 ] as const;
+
+const CONFIG_BOARDS = ['board-cfg-overview', 'board-cfg-users-list', 'board-cfg-user-detail', 'board-cfg-audit'] as const;
 
 const GROUP_STATE_MARKERS: Record<(typeof GROUP_BOARDS)[number], string[]> = {
   'board-mg-1': ['mg-1-populated', 'mg-1-zero', 'mg-1-loading', 'mg-1-error'],
@@ -164,6 +173,26 @@ async function assertUserResultEquivalence(desktop: Locator, mobile: Locator, la
 }
 
 async function assertAuditResultEquivalence(desktop: Locator, mobile: Locator, label: string) {
+  // Strict guard on the un-sliced desktop locator: the FIRST row inside the desktop
+  // container must expose exactly 2 code.sg-code nodes (one event-id code + one action
+  // code, both inside the Event-cell <details>).
+  //
+  // Fails LOUDLY on under-extraction (<2: codes left the Event <td>, became data-attrs,
+  // or are hidden from the DOM rather than just visually collapsed by <details>) AND on
+  // over-extraction (>2: a stray code node leaked into the first row's cell).
+  //
+  // Scoped to tbody tr:first-child so the same guard works for both:
+  //   • gallery MG-6 (1 static row in [data-testid="mg-6-desktop-results"])
+  //   • live /admin/audit and per-user audit (N rows; we assert the per-row count)
+  //
+  // Do NOT assert on firstTexts(…).length — that helper already .slice(0,2) and filters
+  // falsy, so its return is capped at 2 and can never reveal a 3rd stray node (over-
+  // extraction silently passes). The raw first-row locator count closes that gap.
+  expect(
+    await desktop.locator('tbody tr').first().locator('code.sg-code').count(),
+    `${label}: desktop must expose exactly 2 audit codes`,
+  ).toBe(2);
+
   const tokens = [
     ...(await firstTexts(desktop, 'code.sg-code', 2)),
     ...(await firstTexts(desktop, '.sg-status-pill', 2)),
@@ -225,7 +254,7 @@ test.describe('Design gallery board snapshots', () => {
     await waitForLiveViewReady(page);
   });
 
-  for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS]) {
+  for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
     test(`board: ${boardId}`, async ({ page }, testInfo) => {
       await assertBoardScreenshot(page, testInfo, boardId);
     });
@@ -243,7 +272,7 @@ test.describe('Design gallery board snapshots', () => {
     for (const width of RESPONSIVE_WIDTHS) {
       await page.setViewportSize({ width, height: 900 });
 
-      for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS]) {
+      for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
         const board = page.locator(`#${boardId}`);
         await expect(board, `${boardId} should exist at ${width}px`).toBeVisible();
 
@@ -276,6 +305,16 @@ test.describe('Design gallery board snapshots', () => {
     }
   });
 
+  test('config boards expose expected archetype sections', async ({ page }) => {
+    for (const boardId of CONFIG_BOARDS) {
+      const board = page.locator(`#${boardId}`);
+      await expect(board, `${boardId} should be visible`).toBeVisible();
+      // Each composite must have an h1 or h2 (archetype header)
+      const headings = board.locator('h1, h2');
+      await expect(headings.first(), `${boardId} should have at least one heading`).toBeVisible();
+    }
+  });
+
   test('group boards expose catalog states and right components', async ({ page }) => {
     for (const boardId of GROUP_BOARDS) {
       const board = page.locator(`#${boardId}`);
@@ -289,7 +328,7 @@ test.describe('Design gallery board snapshots', () => {
       }
     }
 
-    await expect(page.locator('#board-mg-1 .sg-metric')).toHaveCount(7);
+    await expect(page.locator('#board-mg-1 .sg-metric')).toHaveCount(6);
     await expect(page.locator('#board-mg-2 .sg-applied-chip')).toHaveCount(6);
     await expect(page.locator('#board-mg-3 article.sg-card')).toHaveCount(2);
     await expect(page.locator('#board-mg-3')).not.toHaveClass(/(^|\s)sg-card(\s|$)/);
@@ -325,7 +364,6 @@ test.describe('Design gallery board snapshots', () => {
   test('MG-5 and MG-6 desktop and mobile representations are content-equivalent', async ({
     page,
   }) => {
-    test.skip('data-dependent pagination across /admin/audit + first-listed-user audit page; no seeded user reaches the >=25-event @default_limit threshold — tracked in .planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md');
     await assertUserResultEquivalence(
       page.locator('[data-testid="mg-5-desktop-results"]'),
       page.locator('[data-testid="mg-5-mobile-results"]'),
@@ -366,7 +404,10 @@ test.describe('Design gallery board snapshots', () => {
       await expect(page.getByRole('link', { name: 'Export CSV' })).toBeAttached();
     }
 
-    await page.goto('/admin/users');
+    // Filter to the seeded admin (admin@demo.tasklane.test) deterministically — the users index
+    // orders by inserted_at DESC so the harness-created login user would otherwise be first-listed
+    // with only ~3 audit events (insufficient to trigger pagination at page_size 25).
+    await page.goto('/admin/users?q=admin%40demo.tasklane.test');
     await waitForLiveViewReady(page);
     const userDetailHref = await page
       .locator('[data-testid="admin-users-desktop-results"] a', { hasText: 'Open user' })
@@ -388,6 +429,54 @@ test.describe('Design gallery board snapshots', () => {
       await expect(page.getByRole('link', { name: 'Previous page' })).toBeAttached();
       await expect(page.getByRole('link', { name: 'Next page' })).toBeAttached();
     }
+  });
+
+  test('filter form submits via real GET submission and returns filtered results', async ({ page }) => {
+    // D-02 guard: the filter input must be inside a <form method="get"> so that
+    // typing + clicking Search actually submits the form. This test navigates to
+    // the Users index WITHOUT a pre-built ?q= query string and performs a real
+    // form submission — a filter input accidentally placed outside the form would
+    // cause this test to time-out waiting for filtered results, catching the D-01
+    // reflow risk that the existing equivalence spec (which navigates via
+    // page.goto('/admin/users?q=...')) would silently miss.
+    await page.goto('/admin/users');
+    await waitForLiveViewReady(page);
+
+    // Verify we start on the unfiltered index (full user list present).
+    const desktopResults = page.locator('[data-testid="admin-users-desktop-results"]');
+    const mobileResults = page.locator('[data-testid="admin-users-mobile-results"]');
+    await expect(desktopResults).toBeAttached();
+    await expect(mobileResults).toBeAttached();
+
+    // Type a deterministic query into the search input (placeholder: "Email, user id, or name").
+    // Target the stable seeded platform admin — present in all test runs.
+    const searchInput = page.getByPlaceholder('Email, user id, or name');
+    await expect(searchInput, 'search input should be present').toBeAttached();
+    await searchInput.fill('admin@demo.tasklane.test');
+
+    // Click the "Search" submit button — this is the real form submission (not goto).
+    // If the input is outside the <form>, clicking Search navigates with an empty ?q=
+    // and no filtered results appear, failing the assertion below.
+    await Promise.all([
+      page.waitForURL((url) => url.searchParams.get('q') === 'admin@demo.tasklane.test', {
+        timeout: 30_000,
+      }),
+      page.getByRole('button', { name: 'Search' }).click(),
+    ]);
+    await waitForLiveViewReady(page);
+
+    // Assert the filtered result appears in both desktop and mobile containers.
+    await assertUserResultEquivalence(
+      desktopResults,
+      mobileResults,
+      'filter form submit — filtered users',
+    );
+
+    // Confirm the result row contains the queried email address in at least one container.
+    const desktopText = await desktopResults.textContent();
+    expect(desktopText, 'desktop results should contain the searched email').toContain(
+      'admin@demo.tasklane.test',
+    );
   });
 
   test('reused group examples render byte-coherently for equivalent data', async ({ page }) => {

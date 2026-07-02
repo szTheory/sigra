@@ -66,7 +66,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         <%= if @needs_review > 0 do %>
           {@needs_review} {if @needs_review == 1, do: "member needs", else: "members need"} review — <.notice_link href={users_path(@admin_scope) <> "?needs_review=true"}>Review members</.notice_link>
         <% else %>
-          All clear
+          No flagged accounts
         <% end %>
       </.notice>
 
@@ -92,9 +92,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         <%= if @loading do %>
           <.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" />
         <% else %>
-          <p :if={@members == []} class="sg-section-copy">
-            No members yet — invite members to populate this organization.
-          </p>
+          <.empty_state :if={@members == []} title="No members yet">
+            <p class="sg-muted sg-text-sm">Members appear here as people join this organization.</p>
+          </.empty_state>
           <div :if={@members != []} class="sg-list">
             <div :for={member <- @members} class="sg-list-row">
               <p class="sg-meta-value">{member.display_name}</p>
@@ -102,7 +102,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
                 <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
                 <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
                 <span :if={member.deletion_scheduled?} class="sg-status-pill" data-tone="warn">Deletion scheduled</span>
-                <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
                 <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
               </div>
             </div>
@@ -115,9 +114,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         <%= if @loading do %>
           <.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" />
         <% else %>
-          <p :if={@pending_invitations == []} class="sg-section-copy">
-            No pending invitations.
-          </p>
+          <.empty_state :if={@pending_invitations == []} title="No pending invitations">
+            <p class="sg-muted sg-text-sm">Invitations appear here when members are invited to this organization.</p>
+          </.empty_state>
           <div :if={@pending_invitations != []} class="sg-list">
             <div
               :for={invite <- @pending_invitations}

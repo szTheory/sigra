@@ -103,7 +103,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         </p>
       </header>
 
-      <.scope_ribbon copy="Global auth/email profile" />
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <.notice :if={@error} tone={:risk} role="alert">
         {@error}
@@ -487,35 +487,6 @@ defmodule Sigra.Admin.Live.BrandingLive do
   attr :name, :string, required: true
   attr :label, :string, required: true
   attr :value, :string, required: true
-  attr :required, :boolean, default: false
-  attr :help, :string, default: nil
-
-  defp detail_input(assigns) do
-    assigns =
-      assigns
-      |> assign(:id, detail_field_id(assigns.name))
-      |> assign(:help_id, detail_help_id(assigns.name))
-
-    ~H"""
-    <div class="sg-field">
-      <span class="sg-field-label-row">
-        <label class="sg-field-label" for={@id}>{@label}</label>
-        <.field_help :if={@help} id={@help_id} label={@label}>{@help}</.field_help>
-      </span>
-      <input
-        id={@id}
-        class="sg-input"
-        name={"branding[#{@name}]"}
-        value={@value}
-        required={@required}
-      />
-    </div>
-    """
-  end
-
-  attr :name, :string, required: true
-  attr :label, :string, required: true
-  attr :value, :string, required: true
   attr :options, :list, required: true
   attr :help, :string, default: nil
 
@@ -537,101 +508,6 @@ defmodule Sigra.Admin.Live.BrandingLive do
         </option>
       </select>
     </div>
-    """
-  end
-
-  attr :name, :string, required: true
-  attr :label, :string, required: true
-  attr :value, :string, required: true
-
-  defp color_field(assigns) do
-    ~H"""
-    <label class="sg-field sg-color-field">
-      <span class="sg-field-label">{@label}</span>
-      <span class="sg-color-field__control">
-        <input
-          class="sg-color-field__input"
-          type="color"
-          name={"branding[#{@name}]"}
-          value={@value}
-          aria-label={@label}
-          phx-throttle="120"
-          data-sg-auth-branding-color={@name}
-        />
-        <span
-          class="sg-color-field__value sg-muted sg-text-sm sg-tabular"
-          data-sg-auth-branding-color-value={@name}
-        >
-          {@value}
-        </span>
-      </span>
-    </label>
-    """
-  end
-
-  attr :profile, :any, required: true
-  attr :theme, :string, required: true
-  attr :active, :boolean, required: true
-  attr :login_testid, :string, required: true
-  attr :email_testid, :string, required: true
-  attr :email_surface_testid, :string, required: true
-
-  defp preview_pair(assigns) do
-    ~H"""
-    <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
-      <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
-        <h2 class="sg-section-heading">Sign-in preview</h2>
-        <div
-          class="sigra-auth sigra-auth--preview"
-          data-theme={@theme}
-          data-sg-auth-branding-preview="login"
-          data-sg-auth-branding-preview-theme={@theme}
-          style={Branding.css_variables(@profile)}
-        >
-          <section class="sigra-auth__viewport">
-            <div class="sigra-auth__panel">
-              <div class="sigra-auth__brand">
-                <img :if={@profile.logo_url} src={@profile.logo_url} alt={@profile.logo_alt} class="sigra-auth__logo" />
-                <div :if={!@profile.logo_url} class="sigra-auth__mark" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                </div>
-                <p class="sigra-auth__product">{@profile.product_name}</p>
-              </div>
-              <div class="mx-auto max-w-sm">
-                <h1>Log in</h1>
-                <p>Use a magic link, passkey, password, or enterprise SSO.</p>
-                <div class="sigra-auth-preview-form">
-                  <label>Email<input type="email" value="alex@example.com" /></label>
-                  <button type="button" class="btn btn-primary w-full">Send magic link</button>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <div class="sg-card sg-stack sg-stack--3" data-testid={if @active, do: "admin-email-preview", else: @email_testid}>
-        <h2 class="sg-section-heading">Email preview</h2>
-        <div
-          class="sigra-auth-email-preview"
-          data-theme={@theme}
-          data-sg-auth-branding-preview="email"
-          data-sg-auth-branding-preview-theme={@theme}
-          data-testid={if @active, do: "admin-email-preview-surface", else: @email_surface_testid}
-          style={Branding.css_variables(@profile)}
-        >
-          <div class="sigra-auth-email-preview__message">
-            <strong>{@profile.product_name}</strong>
-            <p>
-              Confirm your email address by clicking the button below.
-            </p>
-            <span class="sigra-auth-email-preview__button">
-              Confirm email
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
     """
   end
 
@@ -696,6 +572,11 @@ defmodule Sigra.Admin.Live.BrandingLive do
   defp current_panel_attr(active_panel, panel) do
     if active_panel == panel, do: "page"
   end
+
+  # Branding is platform-admin-only (no org-scoped variant). The copy reflects the
+  # global auth/email configuration surface — distinct from "Global user operations"
+  # (users pages) or "Global audit explorer" (audit pages).
+  defp scope_copy(_admin_scope), do: "Global auth/email profile"
 
   defp source_label(profile_source), do: Map.fetch!(@source_labels, profile_source)
   defp admin_profile?(:admin_profile), do: true

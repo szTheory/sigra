@@ -99,7 +99,13 @@ async function captureAndVerify(
   testInfo: TestInfo,
   name: string,
 ): Promise<void> {
-  const filePath = await captureAdminCheckpoint(page, testInfo, { name });
+  // Use viewport-only capture (fullPage: false) to avoid the 32767px hard limit
+  // imposed by Playwright/Chrome on full-page screenshots. The global-user-index
+  // checkpoint navigates to the unfiltered /admin/users list (100+ users), which
+  // can exceed this limit on mobile. Viewport-only is sufficient for human review
+  // artifacts — assertCheckpointScreenshot handles the baseline comparison
+  // separately and also uses fullPage: false.
+  const filePath = await captureAdminCheckpoint(page, testInfo, { name, fullPage: false });
   const stats = statSync(filePath);
   expect(
     stats.isFile(),
@@ -207,28 +213,55 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     // D-28: "global user index" — proves admin shell chrome, Global scope
     // label, dense list layout, and action visibility on the primary admin
     // entry page.
-    await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
+    //
+    // INDEX-03 / D-08: Navigate to the unfiltered list so the multi-page
+    // pagination <nav> is the captured state. A ?q= filter that resolves to a
+    // single user would produce the single-page all_results_label instead of
+    // the <nav> and fail to prove list-scale pagination (D-08).
+    // The targetEmail row appears on page 1 (just registered, sorted DESC).
+    await page.goto('/admin/users');
     await waitForLiveViewReady(page);
     await expect(page.locator('header').first()).toContainText('Admin');
     await expect(page.locator('header').first()).toContainText('Global');
     await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
+    // D-08: multi-page pagination <nav> must render (list-scale proof).
+    // The nav uses class sg-cluster--between (no aria-label attribute); the prev/next
+    // links inside it carry their own aria-labels.
+    await expect(page.getByRole('link', { name: 'Next page' })).toBeVisible();
     await captureAndVerify(page, testInfo, 'global-user-index');
     await assertCheckpointScreenshot(page, testInfo, 'global-user-index');
 
     // --- Checkpoint 2: User detail (/admin/users/:id) ----------------------
-    // D-28: "user detail" — proves action context (revoke / start
-    // impersonation) and the pivot link for org-scoped views are visible
-    // on the same page reviewers inspect for support actions.
+    // D-28: "user detail" — proves identity bar, bounded session preview with
+    // Manage sessions link-out, and Start impersonation visible. Revoke
+    // session controls moved to UserSessionsLive (Plan 02 D-04); the detail
+    // page is now a calm read-only identity surface with link-outs.
     await openUserDetail(page, targetEmail);
     await expect(page.getByText('Global user operations')).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'Revoke session' }).first(),
+      page.getByRole('link', { name: 'Manage sessions' }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Start impersonation' }),
     ).toBeVisible();
     await captureAndVerify(page, testInfo, 'user-detail');
     await assertCheckpointScreenshot(page, testInfo, 'user-detail');
+
+    // --- Checkpoint: User sessions (/admin/users/:id/sessions) -------------
+    // Phase 200 Plan 01: per-user session management surface with APG confirm
+    // dialog (Revoke all sessions). Revoke flow moved here from user detail
+    // (D-04). This checkpoint proves the sessions page renders with the
+    // destructive Revoke all sessions control visible and correctly scoped.
+    const userDetailUrl = new URL(page.url());
+    const userIdMatch = userDetailUrl.pathname.match(/\/admin\/users\/([^/]+)/);
+    const userId = userIdMatch ? userIdMatch[1] : '';
+    await page.goto(`/admin/users/${userId}/sessions`);
+    await waitForLiveViewReady(page);
+    await expect(
+      page.getByRole('button', { name: 'Revoke all sessions' }),
+    ).toBeVisible();
+    await captureAndVerify(page, testInfo, 'user-sessions');
+    await assertCheckpointScreenshot(page, testInfo, 'user-sessions');
 
     // --- Checkpoint 3: Organization-scoped admin page ----------------------
     // D-28: "organization-scoped admin page" — proves the scope chrome

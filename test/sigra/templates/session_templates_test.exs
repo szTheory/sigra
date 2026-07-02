@@ -187,7 +187,7 @@ defmodule Sigra.Templates.SessionTemplatesTest do
     end
 
     test "contains heading per UI-SPEC", %{content: content} do
-      assert content =~ "Confirm your password"
+      assert content =~ "Re-enter your password"
     end
 
     test "contains subtitle per UI-SPEC", %{content: content} do

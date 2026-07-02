@@ -26,10 +26,11 @@ Use GOV.UK-style service thinking: start from user needs, make the next action o
 
 - Keep the hand-authored `sg-*` CSS architecture: cascade layers, design tokens, and BEM-style component classes.
 - Do not introduce Tailwind as the admin source of truth and do not add one-off override classes when an `sg-*` primitive or component exists.
-- Same job means same component. Route reusable markup through `Sigra.Admin.Components` or the admin shell seam.
+- Same job means same component. Route reusable markup through `Sigra.Admin.Components` or the admin shell seam. **Evolved exemplar (Phase 203 D-05):** The branding workbench's preview components (`color_field`, `preview_pair`, `detail_input`) were private to `branding_live.ex` and were promoted to `Sigra.Admin.Components` precisely because they do the same job as any other reusable admin form/preview primitive. If a component is implemented in a LiveView's private helpers and could plausibly be needed elsewhere, it belongs in the shared module.
 - Use brand tokens from `brandbook/tokens.*` as the value reference. Preserve existing `--sg-*` names unless a migration is deliberately planned.
 - Buttons, chips, pills, inputs, date fields, pagination, notices, empty states, toasts, and command palette controls must share sizing, radius, padding, focus, and motion conventions.
 - Status colors must never be the only signal. Pair tone with text, icon/glyph, border, or label.
+- **Status-signal consistency (Phase 203 D-02/D-03):** Emit only decision-bearing status pills across all admin surfaces — Unconfirmed (warn), No MFA (warn), Locked (risk), Deletion scheduled (warn/risk). Always-present positive-confirmation pills (e.g., "Confirmed" for email-confirmed users, or MFA/passkey coverage KPIs) are omitted because their absence implies the confirmed state and their presence adds noise without scan value. This reduced-pill vocabulary is now uniform across the Users Index, Org Overview, and Global Overview — the same signal renders the same way everywhere.
 
 ## Brand Application
 

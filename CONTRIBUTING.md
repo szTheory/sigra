@@ -8,6 +8,60 @@
 
 **Releases:** Hex + GitHub releases are automated via **Release Please** on `main` (see [`MAINTAINING.md`](MAINTAINING.md)). Use **conventional commits** (`feat:`, `fix:`, …) so the Release PR gets the right semver bump; routine `mix test` and CI do not require Node.js or external planning audit tooling.
 
+## Reproducing the PR gate locally (mix ci)
+
+Run `mix ci` to reproduce the locally-faithful portion of the PR-fast required gate without leaving your terminal. It chains exactly four legs in the same order as CI:
+
+1. `compile --warnings-as-errors` — library compiles with zero warnings.
+2. `test` — full library test suite.
+3. `ci.install_golden` — install golden diff + idempotency contract (`test/sigra/install/`).
+4. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
+
+If `mix ci` is red, your PR will be red. If `mix ci` is green, the locally-faithful portion of the gate is green (CI-only lanes may still fail; see below).
+
+### Prerequisites
+
+**Live Postgres** — every test leg except the planning contract-lock tests requires a live PostgreSQL instance. See `CLAUDE.md` ("Local development prerequisites") for full instructions. Quick path:
+
+```
+scripts/db/up.sh        # boots ephemeral Dockerized test PG, writes tmp/db.env
+source tmp/db.env       # exports SIGRA_TEST_PG_* into the current shell
+```
+
+Without `direnv`, you must `source tmp/db.env` in every new shell before running `mix test` or `mix ci`. If you run a local Postgres on port 5432, the fallback defaults apply automatically.
+
+**phx_new 1.8.7 archive** — the `ci.install_golden` leg generates a Phoenix app via `phx_new` and diffs it against a committed fixture. A newer archive (e.g. 1.8.8) produces spurious byte-diffs and a red gate even when CI is green. Install the pinned version:
+
+```
+mix archive.install --force hex phx_new 1.8.7
+```
+
+This is SEED-004 forward-compat: do **not** upgrade the archive locally to "fix" a golden-diff red — install 1.8.7 instead.
+
+### CI-only lanes (intentionally excluded from mix ci)
+
+The following gates run in CI but are excluded from `mix ci` because they either require Ubuntu font metrics or heavy infrastructure that cannot be reproduced faithfully on a local macOS machine:
+
+- **Ubuntu-baselined Playwright visual snapshots** (`admin-checkpoints-*`, `admin-design-*`): pixel baselines are captured on Ubuntu with specific system fonts. Local macOS runs produce sub-pixel font-metric diffs that diverge from the stored PNGs even when the UI is correct. Do **not** re-record baselines locally. Instead, download the `admin-example-report` artifact from the GitHub Actions run and open `playwright-report/index.html` in your browser.
+- **Heavy scaffold smokes** — the install smoke and HTTP smoke run the full `phx.new + sigra.install` scaffolding against a live dev server. They are excluded from the default `mix ci` run because they take several minutes and require Docker. You can run them manually:
+  - `scripts/ci/install-smoke.sh` — scaffolds a new host app and boots it.
+  - boot the example app + `scripts/ci/http-smoke.sh` — hits live HTTP endpoints.
+
+### Optional local hygiene (not in the PR gate)
+
+These are useful for code quality but are deliberately **not** part of `mix ci` because they are not required checks in the PR gate. Running them locally may produce reds that CI does not enforce:
+
+- `mix format --check-formatted`
+- `mix credo --strict`
+- `mix dialyzer`
+
+### Known non-regression mix test failures (v1.40)
+
+The following failures appear on a stock v1.40 checkout and are **not regressions** — do not investigate them as new failures:
+
+- **golden_diff_test.exs** — red if your local phx_new archive is newer than 1.8.7 (install 1.8.7 to fix).
+- **UpgradeIntegrationTest** (3 tests) — require a specific database and environment configuration not present in a default dev setup.
+
 ## CI overview
 
 - **Library tests** — full `mix test` for the Hex package.

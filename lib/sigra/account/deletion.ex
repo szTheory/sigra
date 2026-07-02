@@ -178,7 +178,8 @@ defmodule Sigra.Account.Deletion do
       config = Keyword.get(opts, :config, [])
 
       grace_period_days =
-        get_in(config, [:deletion, :grace_period_days]) || @default_grace_period_days
+        get_in(access_config(config), [:deletion, :grace_period_days]) ||
+          @default_grace_period_days
 
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -381,20 +382,29 @@ defmodule Sigra.Account.Deletion do
   defp stringify_module(module) when is_atom(module), do: Atom.to_string(module)
 
   defp get_strategy(config) do
-    # Config may be a Sigra.Config struct (keyword list values),
-    # a plain map (from Oban worker), or a keyword list.
-    # get_in/2 handles all these shapes via Access behaviour.
-    case get_in(config, [:deletion, :strategy]) do
+    # Config may be a Sigra.Config struct (the public Sigra.Auth path), a plain
+    # map (from the Oban worker), or a keyword list (unit tests). A struct does
+    # NOT implement Access, so normalize it to a map before get_in/2.
+    case get_in(access_config(config), [:deletion, :strategy]) do
       strategy when strategy in [:soft_delete, :hard_delete, :anonymize] -> strategy
       _ -> :soft_delete
     end
   end
 
+  # A `Sigra.Config` struct is not Access-compatible; turn it into a map (its
+  # nested values are keyword lists, which ARE Access-compatible). Plain maps and
+  # keyword lists pass through unchanged.
+  defp access_config(%_{} = config), do: Map.from_struct(config)
+  defp access_config(config), do: config
+
   defp revoke_sessions(user, opts) do
     session_store = Keyword.get(opts, :session_store)
 
     if session_store do
-      session_store.delete_all_for_user(user.id, [])
+      # Thread `:repo` + `:session_schema` (via `:session_store_opts`) so the
+      # Ecto store can run the delete. Deletion revokes ALL sessions, so there
+      # is no `except_token` to preserve.
+      session_store.delete_all_for_user(user.id, Keyword.get(opts, :session_store_opts, []))
     end
   end
 end

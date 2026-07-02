@@ -9,7 +9,7 @@ defmodule Example.Demo.SeedsScriptTest do
 
   alias Example.Accounts.User
 
-  @demo_domain "@demo.vaultr.test"
+  @demo_domain "@demo.tasklane.test"
 
   test "priv/repo/seeds.exs refuses to run in MIX_ENV=test before seeding demo users" do
     assert demo_user_count() == 0

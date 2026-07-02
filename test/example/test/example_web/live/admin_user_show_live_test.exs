@@ -8,7 +8,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
   alias Example.Repo
 
   describe "Phase 28 admin user show contracts" do
-    test "detail sections render in the locked Identity Status Sessions Security Identities Organizations Recent Audit Danger Zone order",
+    test "detail sections render in the locked User Sessions Security Identities Organizations Recent Audit Danger zone order",
          %{
            conn: conn
          } do
@@ -28,15 +28,18 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
           "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-order")}"
         )
 
+      # Phase 200: kicker is "User" (was "Identity & Status"), and the Danger
+      # zone heading is now lowercase "Danger zone". The detail page no longer
+      # owns the revoke flow — it links out to UserSessionsLive instead.
       positions =
         [
-          "Identity &amp; Status",
+          "User",
           "Sessions",
           "Security",
           "Identities",
           "Organizations",
           "Recent audit",
-          "Danger Zone"
+          "Danger zone"
         ]
         |> Enum.map(&{&1, html_offset(html, &1)})
 
@@ -44,6 +47,15 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert ordered?(positions)
       assert html =~ "/admin/users?q=detail-order"
       refute html =~ "Back to users"
+
+      # Phase 200: revoke controls moved to /admin/users/:id/sessions; the detail
+      # page surfaces a "Manage sessions" link-out (with preserved return_to) and
+      # no per-row revoke buttons.
+      assert html =~ "Manage sessions"
+      assert html =~ "/admin/users/#{target.id}/sessions"
+      refute html =~ "Revoke session"
+      refute html =~ ~s(phx-click="open_revoke_session")
+      refute html =~ ~s(phx-click="open_revoke_all_sessions")
 
       breadcrumb = breadcrumb_fragment(html)
 
@@ -57,45 +69,33 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html_offset(breadcrumb, "Users") < html_offset(breadcrumb, target.email)
     end
 
-    test "Revoke session and revoke all sessions keep the current scope and target identity visible in confirmations",
+    test "detail page links out to the scoped sessions surface with the preserved return_to",
          %{
            conn: conn
          } do
       platform_admin = platform_admin_fixture()
 
       target =
-        user_fixture(%{email: "detail-confirm@example.com", display_name: "Detail Confirm"})
+        user_fixture(%{email: "detail-sessions-link@example.com", display_name: "Detail Link"})
 
-      session = session_fixture(target, %{ip: "10.2.2.2"})
-      session_fixture(target, %{ip: "10.2.2.3"})
+      session_fixture(target, %{ip: "10.2.2.2"})
 
-      {:ok, view, _html} =
+      {:ok, _view, html} =
         conn
         |> log_in_user(platform_admin)
-        |> live("/admin/users/#{target.id}")
+        |> live(
+          "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-sessions-link")}"
+        )
 
-      html =
-        render_click(view, :open_revoke_session, %{
-          "token" => Base.url_encode64(session.hashed_token, padding: false)
-        })
+      # The "Manage sessions" link points at the per-user sessions page and
+      # carries the sanitized users-index return_to forward.
+      assert html =~ "Manage sessions"
+      assert html =~ "/admin/users/#{target.id}/sessions"
+      assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Ddetail-sessions-link"
 
-      assert html =~ "Revoke this session?"
-
-      assert html =~
-               "Revoke this session for #{target.email}? This signs them out of that browser or device."
-
-      assert html =~ "Keep sessions"
-      assert html =~ "Revoke session"
-
-      html = render_click(view, :open_revoke_all_sessions, %{})
-
-      assert html =~ "Revoke all sessions?"
-
-      assert html =~
-               "Revoke every active session for #{target.email}? This signs them out everywhere."
-
-      assert html =~ "Keep sessions"
-      assert html =~ "Revoke all sessions"
+      # The revoke flow lives on UserSessionsLive now — confirm it is absent here.
+      refute html =~ "Revoke session"
+      refute html =~ "Revoke all sessions"
     end
 
     test "platform admins can pivot from a global user detail page into an organization-scoped view",
@@ -150,14 +150,14 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
           "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=impersonate-target")}"
         )
 
-      assert html =~ "Danger Zone"
+      assert html =~ "Danger zone"
       assert html =~ "Start impersonation"
       assert html =~ "Support actions affect Impersonate Target"
       assert html =~ "action=\"/admin/users/#{target.id}/impersonation\""
       assert html =~ "name=\"return_to\""
       assert html =~ "value=\"/admin/users?q=impersonate-target\""
 
-      assert html_offset(html, "Start impersonation") > html_offset(html, "Danger Zone")
+      assert html_offset(html, "Start impersonation") > html_offset(html, "Danger zone")
     end
 
     test "detail page hides the impersonation start action while already impersonating", %{

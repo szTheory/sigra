@@ -17,10 +17,10 @@ defmodule Example.SigraAdminUsers do
   def extra_search_fields, do: []
 
   @impl true
-  def extra_list_badges(_user), do: []
+  def extra_list_badges(_user), do: ["Example badge"]
 
   @impl true
-  def extra_list_columns, do: []
+  def extra_list_columns, do: [%{label: "Region", value: "us-east"}]
 
   @impl true
   def extra_detail_sections(_user), do: []

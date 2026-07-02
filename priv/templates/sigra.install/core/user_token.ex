@@ -49,9 +49,14 @@ defmodule <%= context_module %>.UserToken do
   end
 
   defp build_hashed_token(user, context, sent_to) do
-    {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+    # `generate_hashed_token/0` already returns a URL-safe base64 STRING as its
+    # first element (the value to send to the user) plus the SHA-256 hash of the
+    # underlying random bytes to store. Use that encoded string as-is — re-encoding
+    # it produced a double-encoded token that the `verify_*` queries (which decode
+    # exactly once) could never hash back to the stored value.
+    {encoded_token, hashed_token} = Sigra.Token.generate_hashed_token()
 
-    {Base.url_encode64(raw_token, padding: false),
+    {encoded_token,
      %__MODULE__{
        token: hashed_token,
        context: context,
@@ -71,6 +76,34 @@ defmodule <%= context_module %>.UserToken do
   context. The default contexts supported by this function are either
   "confirm" or "reset_password".
   """
+  # Email-change tokens are a special case. They are SENT to the NEW address (stored
+  # on the user as `pending_email`) and tagged with a context embedding the OLD email
+  # ("change:<old>"), so the generic head below — which matches the context exactly and
+  # requires `sent_to == user.email` — can never match them. The caller passes the
+  # "change:" prefix; we match the unique token hash + the change-context prefix + TTL,
+  # and verify the token was sent to the address now pending. `sent_to == user.email`
+  # is intentionally NOT applied here (the email switch happens during confirmation).
+  def verify_email_token_query(token, "change:" <> _) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = Sigra.Token.hash_token(decoded_token)
+
+        query =
+          from token in __MODULE__,
+            join: user in assoc(token, :user),
+            where: token.token == ^hashed_token,
+            where: like(token.context, "change:%"),
+            where: token.inserted_at > ago(@change_email_validity_in_days, "day"),
+            where: token.sent_to == user.pending_email,
+            select: user
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
   def verify_email_token_query(token, context) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->

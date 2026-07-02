@@ -1,6 +1,9 @@
-# Vaultr — Sigra Demo App
+# Tasklane — Sigra Demo App
 
-Vaultr is the runnable local companion for Sigra's canonical evaluator walkthrough:
+Tasklane is a fictional **project/work tracker** (the Linear/Asana/Jira space) whose
+sign-in, organizations, MFA, sessions, and audit are all powered by Sigra — the
+product itself (boards/tasks) is intentionally out of scope so the demo stays a focused
+auth showcase. It is the runnable local companion for Sigra's canonical evaluator walkthrough:
 [Demo Showcase](https://hexdocs.pm/sigra/demo-showcase.html).
 
 ## Try it locally
@@ -38,7 +41,7 @@ scripts/dev-proxy/up.sh
 scripts/uat/up.sh --proxy
 ```
 
-That route starts Vaultr as a Docker `web` service on the external Docker
+That route starts Tasklane as a Docker `web` service on the external Docker
 network named `proxy` and lets the shared `dev_proxy-traefik-1` route
 `http://sigra.localhost`. Sigra does not start its own port-80 Traefik in this
 path. The proxy helper is a generic local-dev convenience shipped by Sigra;
@@ -90,16 +93,16 @@ mix setup && mix phx.server
 
 ## Demo Personas
 
-All personas use the `@demo.vaultr.test` email domain. Passwords are public-by-design demo credentials — never use them in production.
+All personas use the `@demo.tasklane.test` email domain. Passwords are public-by-design demo credentials — never use them in production.
 
 | Email                  | Password               | Feature demonstrated                                                                               |
 | ---------------------- | ---------------------- | -------------------------------------------------------------------------------------------------- |
-| admin@demo.vaultr.test | DemoAdmin1!SecurePass  | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
-| alice@demo.vaultr.test | AliceDemoPass1!        | Happy path confirmed user baseline                                                                 |
-| bob@demo.vaultr.test   | BobDemoPass1!Beta      | TOTP MFA enrolled plus org-owner coverage                                                          |
-| carol@demo.vaultr.test | CarolDemoPass1!Github  | Seeded GitHub OAuth-linked identity row for inspection                                             |
-| dave@demo.vaultr.test  | DaveDemoPass1!Locked   | Locked and unconfirmed rough edge                                                                  |
-| frank@demo.vaultr.test | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active)                                                        |
+| admin@demo.tasklane.test | DemoAdmin1!SecurePass  | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
+| alice@demo.tasklane.test | AliceDemoPass1!        | Happy path confirmed user baseline                                                                 |
+| bob@demo.tasklane.test   | BobDemoPass1!Beta      | TOTP MFA enrolled plus org-owner coverage                                                          |
+| carol@demo.tasklane.test | CarolDemoPass1!Github  | Seeded GitHub OAuth-linked identity row for inspection                                             |
+| dave@demo.tasklane.test  | DaveDemoPass1!Locked   | Locked and unconfirmed rough edge                                                                  |
+| frank@demo.tasklane.test | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active)                                                        |
 
 ## Rough Edges
 

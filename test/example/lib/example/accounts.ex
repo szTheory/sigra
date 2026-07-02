@@ -594,8 +594,8 @@ defmodule Example.Accounts do
       scope_module: Example.Accounts.Scope,
       organizations_module: Example.Organizations,
       branding: [
-        product_name: "Vaultr",
-        email_from_name: "Vaultr",
+        product_name: "Tasklane",
+        email_from_name: "Tasklane",
         email_from_address: "noreply@example.com",
         accent_color: "#9a3412",
         accent_foreground: "#ffffff",
@@ -1207,6 +1207,47 @@ defmodule Example.Accounts do
     Sigra.Auth.request_email_change(sigra_config(), user, new_email,
       changeset_fn: &User.pending_email_changeset/2,
       user_token_schema: UserToken
+    )
+  end
+
+  @doc """
+  Changeset for the account settings "Profile" form (display name).
+  """
+  def change_display_name(user, attrs \\ %{}) do
+    User.profile_changeset(user, attrs)
+  end
+
+  @doc """
+  Persists profile edits (display name). Returns `{:ok, user}` or `{:error, changeset}`.
+  """
+  def update_display_name(user, attrs) do
+    user
+    |> User.profile_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Delivers the email-change confirmation link to the pending new address.
+
+  Mirrors the reset-password delivery path: builds the branded email via
+  `Emails.email_change_confirmation_email/3` and hands it to `Sigra.Delivery`.
+  The caller (settings LiveView) supplies the confirm URL since route/URL
+  building is a web-layer concern.
+  """
+  def deliver_email_change_confirmation(%User{} = user, new_email, url)
+      when is_binary(new_email) and is_binary(url) do
+    email_struct = Example.Accounts.Emails.email_change_confirmation_email(user, new_email, url)
+
+    Sigra.Delivery.deliver(
+      :email_change,
+      %{
+        user_id: user.id,
+        to: new_email,
+        subject: email_struct.subject,
+        body: %{html: email_struct.html_body, text: email_struct.text_body},
+        url: url
+      },
+      delivery_opts()
     )
   end
 

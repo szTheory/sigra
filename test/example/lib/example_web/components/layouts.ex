@@ -47,10 +47,10 @@ defmodule ExampleWeb.Layouts do
     <header class="vt-app-header">
       <div class="vt-app-header__inner vt-app-container">
         <a href="/" class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
+          <img src={~p"/images/tasklane-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
           <span>
-            <span class="vt-brand__name" data-testid="app-name">Vaultr</span>
-            <span class="vt-brand__tag">Fictional cohort app</span>
+            <span class="vt-brand__name" data-testid="app-name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
           </span>
         </a>
         <div class="vt-app-actions">
@@ -63,6 +63,16 @@ defmodule ExampleWeb.Layouts do
           <a :if={is_nil(@current_scope)} href={~p"/users/log_in"} class="vt-btn vt-btn--primary">
             Sign In <span aria-hidden="true">&rarr;</span>
           </a>
+          <a :if={@current_scope} href={~p"/app"} class="vt-btn vt-btn--ghost">Dashboard</a>
+          <.link
+            :if={@current_scope}
+            href={~p"/users/log_out"}
+            method="delete"
+            class="vt-btn vt-btn--ghost"
+            data-testid="header-log-out"
+          >
+            Log out
+          </.link>
         </div>
       </div>
     </header>

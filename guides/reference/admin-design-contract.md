@@ -74,7 +74,7 @@ See also: [Admin UI Principles](admin-ui-principles.md).
 | Property                 | Value                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Job**                  | Active filter indicator with a clear affordance. Shows which filters are currently active above the results table. Clicking the remove link deactivates the filter.                                                                                                                                                                                                                         |
-| **Winning markup / CSS** | `<span class="sg-applied-chip"><span>{chip.label}</span><a class="sg-applied-chip__remove" href={remove_chip_path(...)} aria-label={"Remove filter " <> chip.label}><span aria-hidden="true">&times;</span><span class="sr-only">remove</span></a></span>`. CSS classes: `sg-applied-chip`, `sg-applied-chip__remove`. Source: `users_index_live.ex:167–180`, `audit_user_live.ex:137–152`. |
+| **Winning markup / CSS** | `<span class="sg-applied-chip"><span>{chip.label}</span><a class="sg-applied-chip__remove" href={remove_chip_path(...)} aria-label={"Remove filter " <> chip.label}><span aria-hidden="true">&times;</span><span class="sr-only">remove</span></a></span>`. CSS classes: `sg-applied-chip`, `sg-applied-chip__remove`. Source: `users_index_live.ex:167–180`, `audit_user_live.ex` applied-chip cluster (post-form, contiguous with filter panel — see Audit Explorer Archetype for elevated composition). |
 | **ARIA role(s)**         | Remove link has explicit `aria-label={"Remove filter " <> chip.label}`. The `&times;` glyph is `aria-hidden="true"`. `<span class="sr-only">remove</span>` provides screen-reader text fallback.                                                                                                                                                                                            |
 | **Motion spec**          | `sg-applied-chip__remove` has `transition: var(--sg-transition-tone)` for hover color change (140ms). Not animated on filter-apply (keyboard-frequent interaction — per GATE-03). Not animated on page load or keyboard navigation.                                                                                                                                                         |
 | **When NOT to use**      | Do NOT use `applied_chip` for non-removable state badges — use `summary_chip`. Do NOT use for navigation links.                                                                                                                                                                                                                                                                             |
@@ -212,39 +212,72 @@ The three archetypes define how components compose into full pages. All composit
 
 **Source:** `users_index_live.ex`
 
-**Current component composition:**
+**Search-first composition (Phase 201 — v1.41 ADMIN-UX-ELEVATION):**
 
 ```
 <section class="sg-stack sg-stack--6">
-  <header class="sg-page-header">           [open header — locked winner per COHR-02]
-    <p class="sg-page-kicker">
-    <h1 class="sg-page-title">
-    <p class="sg-page-copy">
-    <dl class="sg-metric-grid">             [summary_chip strip]
-      summary_chip x N
+  <header class="sg-page-header">               [1] identity / orientation bar
+    <p class="sg-page-kicker">User operations</p>
+    <h1 class="sg-page-title">                  [Users or org-scoped heading]
 
-  scope_ribbon                              [body scope indicator]
+  <.scope_ribbon>                               [2] scope indicator
 
-  <form class="sg-filter-panel sg-stack">  [filter panel]
-    <div class="sg-search-row">
-    <div class="sg-cluster">               [quick_filter chips — checkbox-based]
-      quick_filter x N
-    <div class="sg-stack sg-stack--3">     [expandable more-filters section]
+  <section class="sg-stack sg-stack--4"         [3] FIND USERS — dominant first affordance
+    aria-labelledby="find-users-heading">
+    <h2 class="sg-section-heading">Find users</h2>
+    <form method="get" class="sg-filter-panel sg-stack">
+      <div class="sg-search-row">               Search input + Submit + Clear
+      <div class="sg-cluster sg-cluster--start"> [applied_chip row — contiguous with panel]
+        <.applied_chip> x N + "Clear all" link  [present only when filters active]
+      <div class="sg-cluster">                  Quick filter checkboxes (quick_filter x N)
+      <div class="sg-stack sg-stack--3">        "More filters" disclosure + advanced grid
 
-  <div class="sg-cluster sg-cluster--start"> [applied_chip row — present when filters active]
-    applied_chip x N
-    <a "Clear all">
+  <section class="sg-stack sg-stack--3">        [4] USER HEALTH — demoted slim metric strip
+    <h2 class="sg-section-heading">User health</h2>
+    <dl class="sg-metric-grid">
+      <.summary_chip> Total users (neutral)     [3 chips only: Total + Locked + Deletion]
+      <.summary_chip> Locked (risk when > 0)
+      <.summary_chip> Deletion scheduled (warn when > 0)
 
-  <div class="sg-table-panel sg-show-desktop">  [desktop table]
+  <div data-testid="admin-users-desktop-results" [5] desktop table
+       class="sg-table-panel sg-show-desktop">
     <table class="sg-table">
+      <thead><tr>
+        <th>User</th>                           [column order FROZEN per D-06]
+        <th>Status</th>
+        <th>Organizations</th>
+        <th>Activity</th>
+        <th class="sg-cell-right">Action</th>
+      </thead>
+      <tbody><tr :for={row <- @rows}>
+        <td> <.user_name_stack> — name/email/id identity stack
+        <td> <.user_status_cluster> — reduced status pills + extra_badges seam
+        <td>                      — org summary
+        <td>                      — activity/registered + extra_columns seam
+        <td>                      — "Open user" action link
 
-  <div class="sg-stack sg-show-mobile">    [mobile card stack]
-    <article class="sg-card sg-stack"> x N
+  <div data-testid="admin-users-mobile-results"  [6] mobile card stack
+       class="sg-stack sg-stack--3 sg-show-mobile">
+    <article :for={row <- @rows} class="sg-card sg-stack sg-stack--3">
+      <.user_name_stack>                        — same field slice as desktop td 1
+      <.user_status_cluster>                    — same field slice as desktop td 2
+      <dl class="sg-kv">                        — org / activity / registered / extra_columns
 
-  <div class="sg-empty-state sg-stack">   [zero-rows state]
+  <.empty_state>                                [7] zero-row state
 
-  <nav class="sg-cluster sg-cluster--between">  [pagination]
+  <nav>                                         [8] pagination (only when multi_page?)
 ```
+
+**Notes:**
+
+- **Search-first (Phase 201):** The Find Users filter panel is the dominant first affordance below the page header. The metric strip (User health) is demoted below the panel as a secondary summary — operators scan for exceptions, not aggregates, as the primary action.
+- **Applied chips contiguous with filter panel (D-01):** The applied-chip row sits directly inside `<form>` below the search row — it is NOT a detached sibling `<div>` after `</form>`. Chips are navigation-only `<a>` tags (no named inputs) so the GET form submission is unaffected (D-02).
+- **Slim metric strip (D-03):** The User health section emits exactly 3 summary chips: Total (neutral), Locked (risk), Deletion scheduled (warn). Coverage KPIs (Confirmed, MFA, Passkeys) are omitted from the list view — they would add noise without decision value in a scan context.
+- **Reduced pill vocabulary (D-04):** `status_pills/1` emits only decision-bearing signals: Unconfirmed (warn), No MFA (warn), Locked (risk), Deletion scheduled (warn). The always-present "Confirmed" branch is dropped — absence of Unconfirmed implies confirmed.
+- **`<.user_row_fields>` DRY note (D-05):** Two private field-slice function components — `user_name_stack/1` (name/email/id identity stack) and `user_status_cluster/1` (status pills + extra_badges) — are each authored once and called from both the desktop `<td>` and the mobile `<article>`. The desktop `<td>` boundaries and mobile card shell are layout-specific; all inner field content is shared.
+- **Five-column order FROZEN (D-06):** Desktop table columns are: User / Status / Organizations / Activity / Action. This order is frozen and must not change without updating the `td:nth-child(3)/(4)` positional selectors in `admin-design.spec.ts:assertUserResultEquivalence` in the same change.
+- **Host seams preserved (D-07):** `extra_badges` is rendered inside `user_status_cluster/1` (called from both layouts). `extra_columns` is rendered in the layout-specific shells (desktop activity `<td>` and mobile `dl`). Both seams are preserved in both layouts.
+- **Page header emits only kicker + title:** The `<header class="sg-page-header">` emits a kicker `<p>` and title `<h1>`. No `<p class="sg-page-copy">` or `<dl class="sg-metric-grid">` lives inside the page header — those were in the pre-Phase-201 structure and are now stale. The metric grid is a separate demoted `<section>` at position [4].
 
 ---
 
@@ -252,37 +285,211 @@ The three archetypes define how components compose into full pages. All composit
 
 **Source:** `user_show_live.ex`
 
-**Current component composition:**
+**JTBD-first component composition (Phase 200 — v1.41 ADMIN-UX-ELEVATION):**
 
 ```
 <section class="sg-stack sg-stack--6">
   scope_ribbon
 
-  <header class="sg-page-header">               [open identity header]
-    <p class="sg-page-kicker">
-    <h1 class="sg-page-title">
-    <dl class="sg-summary-facts">
-    notice
+  <header class="sg-page-header">               [1] calm identity bar — JTBD scan target
+    <p class="sg-page-kicker">User</p>
+    <h1 class="sg-page-title">                  [display_name || email]
+    <p class="sg-page-copy">                    [secondary: muted email + sg-code UUID]
+    <dl class="sg-summary-facts">               [compact metrics: Sessions + MFA + Last seen]
+    notice                                      [single priority alert: locked>unconfirmed>no-MFA]
+    [status pills cluster]                      [status_pills/1 at bottom of header]
 
-  <section class="sg-card sg-stack sg-stack--3"> [Sessions card]
-    <div class="sg-table-panel">               [session table]
+  <section class="sg-card sg-stack sg-stack--3"> [2] Sessions bounded preview (display-only)
+    <div class="sg-cluster sg-cluster--between"> [header cluster: heading + count + Manage sessions link]
+    <div class="sg-table-panel">               [max 3 rows, no revoke buttons]
     empty_state                                [zero sessions]
 
-  <div class="sg-detail-grid">                 [2-column detail grid]
+  <div class="sg-detail-grid">                 [3] 2-column detail grid
     <section class="sg-detail-panel">          [Security panel]
     <section class="sg-detail-panel">          [Identities panel]
 
-  <section class="sg-card sg-stack sg-stack--3"> [Organizations card]
-  <section class="sg-card sg-stack sg-stack--3"> [Recent Audit card]
-  <section class="sg-danger-panel sg-stack">   [Danger Zone]
-  <div class="sg-confirm-overlay">            [confirm dialog]
+  <section class="sg-card sg-stack sg-stack--3"> [4] Organizations bounded preview (max 3 rows)
+  <section class="sg-card sg-stack sg-stack--3"> [5] Recent Audit card + "View full audit" link-out
+
+  [extra_detail_sections/1 host seam]           [6] Host-injected sections — rendered here, BEFORE Danger Zone
+
+  <section class="sg-danger-panel sg-stack">   [7] Danger Zone — impersonation start form
 ```
 
 **Notes:**
 
 - Detail headers use the open `sg-page-header` pattern. The former boxed identity-card outlier was reconciled in v1.34.
+- **JTBD-first order (Phase 200):** the Sessions card is positioned first after the identity bar — it is the primary admin JTBD for this page (understand session state → manage sessions). Security/Identities grid and Organizations follow as secondary context.
+- **Bounded previews (Phase 200):** Sessions and Organizations show max 3 rows, display-only. Session revoke controls were moved to `UserSessionsLive` (the dedicated `/admin/users/:id/sessions` surface). The "Manage sessions" link-out and "View all organizations" link-out connect the preview to the full surface.
+- **APG confirm dialog location:** the `sg-confirm-overlay` / `sg-confirm-dialog` confirm dialog now lives on `UserSessionsLive`, not on the detail page. Do not re-add a confirm overlay to `user_show_live.ex`; the detail page is intentionally calm (no destructive actions).
+- **`extra_detail_sections/1` host seam (preserved — semver contract):** host apps inject custom sections via the `extra_detail_sections/1` callback. These sections render at position [6] — AFTER all lib-owned sections (identity bar, previews, grid, audit) and BEFORE the Danger Zone. The render uses dual atom/string `:title`/`:body` key reads (`Map.get(section, :title) || Map.get(section, "title")`) to maintain backward compatibility with both map formats. This seam position and key contract are frozen from this point forward.
 - Summary alerts use the shared `<.notice>` component.
 - Admin confirmation dialogs use the Sigra-owned `sg-confirm-overlay` / `sg-confirm-dialog` pattern. Do not use generic `.modal[open]` in the admin shell; the bundled default modal rules globally lock root scroll and can leak unstyled modal chrome into admin surfaces.
+
+---
+
+### Audit Explorer Archetype
+
+**Source:** `audit_index_live.ex` (global audit, `/admin/audit`) + `audit_user_live.ex` (per-user audit, `/admin/users/:id/audit`)
+
+**Elevated composition (Phase 202 — v1.41 ADMIN-UX-ELEVATION):**
+
+```
+<section class="sg-stack sg-stack--6">
+  [per-user only] breadcrumbs + scope_ribbon + identity header
+
+  [index only] <header class="sg-page-header">      [1] orientation bar
+    <p class="sg-page-kicker">
+    <h1 class="sg-page-title">
+
+  <section class="sg-stack sg-stack--4"             [2] FIND EVENTS — single filter panel
+    aria-labelledby="...">
+    <form method="get" class="sg-filter-panel sg-stack">
+      <div class="sg-cluster">                      Quick toggles (Failures / Impersonation)
+        checkboxes — GET, always visible, folded into the panel (D-01)
+
+      <details>                                     <details> advanced-disclosure — CSS-only (D-02)
+        <summary>More filters</summary>
+        <div class="sg-form-grid">                  Text / date / actor fields
+
+      <div class="sg-cluster">                      Action row
+        <button type="submit">Apply filters</button>
+        <a ...>Clear</a>
+        <a ...>Export CSV</a>                       Export surfaced in the action row (D-04)
+
+      [per-user only] <input type="hidden" name="return_to">
+      <input type="hidden" name="page_size" value="25">
+      <input type="hidden" name="order_by">
+      <input type="hidden" name="order_direction">
+
+  <div :if={any_filter_active?} class="sg-cluster sg-cluster--start">  [3] applied chips
+    <.applied_chip> x N + "Clear all" link         Navigation-only <a> tags, post-form
+
+  <div data-testid="admin-audit-desktop-results"    [4] desktop table (sg-show-desktop)
+       class="sg-table-panel sg-show-desktop">
+    <table class="sg-table">
+      <thead>                                       [column order FROZEN per D-06]
+        <th>Occurred</th>
+        <th>Event</th>                              action_label + action_badge (human-readable)
+        <th>Actor</th>
+        <th>Outcome</th>
+      <tbody><tr :for={row <- @rows}>               shared <.audit_table_row row={row} />
+        <td> timestamp
+        <td> action_label + action_badge
+             <details>                              in-row code disclosure (D-05)
+               <summary>…</summary>
+               <code class="sg-code">row.id</code>       both code.sg-code nodes stay in
+               <code class="sg-code">row.action</code>   desktop results container (D-06)
+        <td> actor identity
+        <td> outcome badge + <.audit_empty_state>
+
+  <div class="sg-stack sg-stack--3 sg-show-mobile"> [5] mobile card stack
+    <.audit_row show_detail show_codes>             EXISTING shared component (D-07)
+
+  <.audit_empty_state>                              [6] zero-row state — shared component (D-08)
+
+  <.audit_pagination_nav meta={@meta} ...>          [7] pagination (only when multi_page?/1 true)
+```
+
+**Notes:**
+
+- **Single filter panel (D-01):** Both pages are ONE `<form method="get" class="sg-filter-panel sg-stack">`. The per-user page previously had three separate forms (two standalone quick-toggle forms + main filter form). Wave 2 (Phase 202) collapsed them into a single panel, making the per-user page coherent with the index.
+- **Native `<details>` advanced-disclosure (D-02):** Text and date filter fields live inside a CSS-only `<details><summary>More filters</summary>…</details>`. No `phx-hook`, no LiveView round-trip — browser owns the open/close state. Quick toggles (Failures / Impersonation) stay outside the disclosure as always-visible summary controls.
+- **GET-form contract preserved (D-03):** `handle_params/3` is the only state path. Every toggle, chip remove, and page/sort link is a URL built via `append_query/2`. The `?action_prefix=admin.impersonation` checkpoint entry path, applied-chip `:checked` state, and per-user `return_to` round-trip are all preserved. No `phx-click` on filters.
+- **Export in action row (D-04):** The Export CSV link is in the consolidated filter action row on both pages, not buried near pagination.
+- **Inline code disclosure, codes stay DOM-accessible (D-05/D-06):** Raw event `id` and `action` codes moved out of the primary desktop column flow into an in-row native `<details>` inside the Event cell. Both `<code class="sg-code">` nodes remain inside the `[data-testid="admin-audit-desktop-results"]` container — `assertAuditResultEquivalence` still extracts exactly 2 codes. The CSV `event_id` column is independent of LiveView render (`csv_export.ex` reads the presenter map directly).
+- **Four-column order FROZEN (D-06):** Desktop table columns are: Occurred / Event / Actor / Outcome. This order is frozen and must not change without updating the `td:nth-child(3)` positional selector in `admin-design.spec.ts:assertAuditResultEquivalence` in the same change.
+- **Byte-coherent shared components (D-08):** Desktop table row (`<.audit_table_row>`), pagination nav (`<.audit_pagination_nav>`), and empty state (`<.audit_empty_state>`) are public function components in `lib/sigra/admin/components.ex`, emitting byte-identical markup from both LiveViews. Private helper duplication (`audit_tone/1`, `multi_page?/1`, `format_timestamp/1`) eliminated — both now call the shared helpers.
+- **Legitimate per-page divergence (D-09):** Index `@chip_keys` is 6-key (incl. `actor`/`effective_user`); per-user is 5-key (excl. `effective_user`). Per-user has breadcrumbs, `display_name` identity header, `return_to` plumbing, and `clear_path`/`export_params` with `user_id`. Index has scope ribbon and Effective-user filter field. These differences stay per-page.
+- **Honest cursor pagination (D-10):** `multi_page?/1` gates the `<nav>` on non-nil `next_page` or `prev_page` cursor (no `total_pages` math). Default `page_size=25`. Proven by deterministic ExUnit test: ≥26 events → `<nav aria-label="Next page">` present; ≤25 → absent.
+- **Microcopy glossary-clean:** New copy is auto-guarded by `glossary_test.exs:28` (audit_index_live) and `:29` (audit_user_live).
+- **No modal dialogs:** Neither page owns a modal overlay. Overlay-axe and APG focus-trap/restore proxies are N/A for both surfaces.
+
+---
+
+### Branding/Workbench Archetype
+
+**Source:** `branding_live.ex` (`/admin/auth-branding`)
+
+**Elevated composition (Phase 203 — v1.41 ADMIN-UX-ELEVATION):**
+
+```
+<section class="sg-stack sg-stack--6">
+  <link phx-track-static rel="stylesheet" href="/assets/sigra_auth.css" />
+
+  <header class="sg-page-header">               [1] identity / orientation bar
+    <p class="sg-page-kicker">Branding</p>
+    <h1 class="sg-page-title">Auth forms and emails</h1>
+    <p class="sg-page-copy">                    [brief scope copy]
+
+  <.scope_ribbon copy="Global auth/email profile" />  [2] global-only scope ribbon
+
+  <.notice :if={@error} tone={:risk} role="alert">  [3] validation error notice (conditional)
+
+  <section class="sg-branding-editor sg-stack sg-stack--4"  [4] workbench editor
+    data-testid="admin-auth-branding-workbench">
+    <div class="sg-toolbar">                    [toolbar: heading + source label + draft badge]
+
+    <nav class="sg-tabs" aria-label="Branding sections">  [5] tab navigation
+      <.link patch={panel_path(:light)}> Light     — three tabs, state managed via LiveView
+      <.link patch={panel_path(:dark)}> Dark        assigns (:active_panel); patch navigation,
+      <.link patch={panel_path(:details)}> Details  NOT JS toggle
+
+    <section class="sg-stack sg-stack--4">     [6] active panel body
+      <form id="auth-branding-form" phx-hook="AuthBrandingPreview" ...>
+
+        [Panel: Light]                          [7a] disclosed panel — hidden when not active
+        <section id="branding-panel-light" class="sg-branding-panel"
+          aria-labelledby="branding-tab-light" hidden={@active_panel != :light}>
+          <div class="sg-branding-workbench">
+            <section class="sg-card ... sg-branding-workbench__controls">
+              <fieldset>                        — color input grid
+                <.color_field :for={...}> x 7  — promoted from private; now in components.ex
+            <.preview_pair ...>                 — promoted from private; now in components.ex
+                                               — per-panel preview rail (login + email previews)
+
+        [Panel: Dark]                           [7b] disclosed panel (same structure as Light)
+
+        [Panel: Details]                        [7c] disclosed panel — identity / links / email
+        <section id="branding-panel-details" ... >
+          <div class="sg-branding-workbench">
+            <section class="sg-card ... sg-branding-workbench__controls">
+              <.detail_input :for={...}>        — promoted from private; now in components.ex
+            <.preview_pair ...>                 — per-panel preview rail
+
+      [form footer — outside panel sections, inside <form>]
+        <div class="sg-cluster">               [8] form action row
+          <button type="submit">Save</button>
+          <button type="button" phx-click="discard_changes">Discard changes</button>
+          <button :if={admin_profile?} type="button"
+            phx-click="open_restore_defaults"
+            class="sg-btn sg-btn--danger">     — destructive action: triggers ConfirmDialog
+            Restore config defaults
+
+  <div :if={@restore_defaults_open?} id="restore-defaults-overlay"
+    phx-hook="ConfirmDialog"                   [9] ConfirmDialog APG modal
+    class="sg-confirm-overlay" role="presentation">
+    <section class="sg-confirm-dialog"
+      role="dialog" aria-modal="true"
+      aria-labelledby="restore-defaults-title">
+      <p id="restore-defaults-title">Restore defaults?</p>
+      <p class="sg-text-sm">                   — consequence + reversibility body
+      <div class="sg-confirm-dialog__actions">
+        <button data-sg-confirm-cancel>Cancel</button>  — initial focus target (APG)
+        <button class="... is-armed">Restore defaults</button>  — armed destructive confirm
+```
+
+**Notes:**
+
+- **Single-instance workbench (not a list-driven surface):** The branding workbench is one per admin install — a configuration workbench, not a repeatable list or detail screen. Do NOT apply the List or Detail archetype to it; do NOT add a results table, pagination, or per-row action controls.
+- **Tab navigation via LiveView assigns (D-07):** The `sg-tabs` nav uses LiveView `patch` navigation (URL `?panel=light|dark|details`), not JS toggle. Tab state lives in `@active_panel` assign; each disclosed panel section is `hidden={@active_panel != :panel_atom}`. This is the correct pattern for workbench-style tab state — it survives page refresh and supports deep-linking.
+- **Three disclosed panels — Identity, Colors (Light/Dark), Details:** The Light and Dark panels each contain a color-input grid (using the promoted `color_field` component) plus a per-panel preview rail (using the promoted `preview_pair` component). The Details panel contains a form-input grid (using the promoted `detail_input` component) plus a preview rail. Panel activation is exclusive — only one panel is visible at a time.
+- **Promoted components — `color_field` / `preview_pair` / `detail_input` (Phase 203 D-05):** These three components were private to `branding_live.ex` and are now public in `Sigra.Admin.Components`. This satisfies the same-job → same-component invariant (UI-Principles :29) by routing the preview-workbench markup through the shared component module, not hiding it inside the LiveView private helpers.
+- **ConfirmDialog restore-defaults (D-06 / D-07):** The `#restore-defaults-overlay` dialog at line 349 uses the same `phx-hook="ConfirmDialog"` + `data-sg-confirm-cancel` contract as the user-sessions dialog. The 7 APG gates apply: overlay visible on trigger click, initial focus on `[data-sg-confirm-cancel]`, Tab containment, Shift+Tab containment, Escape closes (focus returns to trigger), click-outside scrim dismisses, and `role="dialog"` + `aria-modal="true"` + `aria-labelledby="restore-defaults-title"` all present. axe-while-open is clean at `wcag2a/wcag2aa/wcag21a/wcag21aa/wcag22aa`.
+- **Content-equivalence proxy N/A:** There is no desktop/mobile results table to compare for content-equivalence. This proxy is explicitly N/A for the branding workbench (no result rows, no pagination).
+- **No pagination:** The workbench renders a single configuration form across three tab panels. No paginated data.
+- **No `page_back` control:** The branding workbench is reachable from the admin Overview as a top-level workspace page (breadcrumbs: `Overview / Auth branding`). `page_back` is not used because the path can be expressed as a breadcrumb hierarchy.
+- **Microcopy glossary-clean:** All copy on this surface is auto-guarded by `glossary_test.exs`.
 
 ---
 

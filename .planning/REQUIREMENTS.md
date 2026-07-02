@@ -1,89 +1,97 @@
-# Requirements: Sigra — v1.40 CI-PERF
+# Requirements: Sigra — v1.42 ADMIN-DS-ELEVATION
 
-**Defined:** 2026-06-19
-**Core Value:** Authentication that works out of the box with great DX — extended here to the *maintainer/contributor* inner loop: CI must be fast, deterministic, trustworthy, and cheap to run, without trading away signal.
-**Source of truth:** `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` (grounded baseline + verbatim audit playbook) and `SEED-006` (design-gallery CI fragility). Fresh evidence: PR #56 run `27846034918` — 20/23 jobs ≤3.1m; wall-clock gated by `example_playwright_smoke` 22.2m, `library_tests` 15.9m, `library_tests_dep_off` 13.9m.
+**Defined:** 2026-06-28
+**Core Value:** Authentication that works out of the box with great DX on the happy path AND on the rough edges.
+**Milestone goal:** Elevate the generated admin/operator design system building-blocks-up to award-grade (Tier-2) across the whole fractal, governed by the existing forward-only monotonic guard, and add a reusable adversarial persona/JTBD judge instrument.
 
-## v1.40 Requirements
+> **REQ-ID convention:** each milestone uses fresh category prefixes (per v1.39/v1.40/v1.41 precedent); numbering restarts at `01` per category. Tier vocabulary and proxy contract are defined in `guides/reference/admin-fractal-scorecard.md`; the ratchet target is `guides/reference/admin-quality-ledger.md`.
 
-Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-or-greater** quality signal on the required gate.
+## v1 Requirements
 
-### Baseline & observability (measure before optimize)
+### Instrument & Foundation (INSTR)
 
-- [x] **BASE-01**: Capture a before-state baseline table from `.github/workflows/ci.yml` + recent runs — per-job duration, p95, critical path, cache hit/miss, required-vs-not, quality signal, likely bottleneck. Committed as a planning artifact.
-- [x] **BASE-02**: Collect Elixir-side diagnostics to target the suite — `mix test --slowest`, `System.schedulers_online()` on the runner, top slow compile modules — and record them as the optimization target.
-- [x] **BASE-03**: CI job summaries surface resolved versions, cache hit/miss, and a test-timing summary so future regressions are visible (observability, not just speed).
+- [x] **INSTR-01**: A committed adversarial persona/JTBD rubric (`guides/reference/admin-persona-jtbd-rubric.md`) defines the 3 lenses (platform admin / support investigator / org admin, sourced from the demo personas), the fixed verdict questions (earning its place? / IA muddy? / redundant-coherent-least-surprising?), an ordinal `keep`/`tighten`/`kill` scale, and a fixed output schema — cross-referenced from the fractal scorecard and quality ledger.
+- [x] **INSTR-02**: The dev-only `/admin/_design` gallery renders meta-component groups in real page configurations (`board-cfg-*` composites, not just isolated boards), registered in `admin-design.spec.ts` across chromium/mobile/dark and snapshot-clean.
+- [x] **INSTR-03**: An up-front IA diagnostic runs the persona panel across all 8 admin pages and is committed (`.planning/v1.42-IA-DIAGNOSTIC.md`) to prioritize the component/group/page work.
 
-### Critical-path & trigger model
+### Fixtures (FIXT)
 
-- [x] **CRIT-01**: Remove gratuitous job serialization — `example_playwright_smoke needs: [library_tests]` makes the two longest jobs run sequentially though the Playwright lane consumes nothing from `library_tests`. Drop the edge (keep `release_ref_guard`). *Likely the single biggest, lowest-risk win.*
-- [x] **CRIT-02**: Establish a PR-fast vs nightly/main-broad split — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to `schedule:`/main, keeping a fast representative PR gate. **Never** strand a correctness-critical test on nightly only.
-- [x] **CRIT-03**: Preserve a single stable required check (`ci-gate` aggregator) and stable child-check names across the redesign — no branch-protection churn, no path/skip pending-check traps.
+- [x] **FIXT-01**: Demo seed/persona data exercises the error/boundary/edge states the gallery and pages need (e.g. empty, long-string/UUID overflow, high-count, failed/warning status, permission-denied), segregated to the `@demo.tasklane.test` cohort with the `loadtest-` marker — without altering the golden-path `mix test` CI fixture.
 
-### Test-suite performance
+### Component & Token Elevation (COMP)
 
-- [x] **TEST-01**: Partition `library_tests` (`mix test --partitions N`) across parallel shards, each with an isolated Postgres database; merge coverage if applicable; partition count chosen from evidence (don't oversubscribe a 2-core runner).
-- [x] **TEST-02**: Slim `library_tests_dep_off` — run a targeted subset that actually exercises the Threadline-absent compile/guard paths instead of re-running the full ~14m suite.
-- [x] **TEST-03**: Audit `async: true` coverage — convert safe modules, split oversized serial modules, without marking any global-state-mutating test async. Sandbox/pool config stays correct under partitioning.
+- [x] **COMP-01**: The 8 highest-reuse L1 components (`notice`, `notice_link`, `stat`, `stat_link`, `summary_chip`, `task_card`, `applied_chip`, `audit_row`) meet Tier-2 on their own merit — full interaction states, motion-token conformance (no `transition: all`, `prefers-reduced-motion` strips movement), light/dark/system, documented target-size, on-brand microcopy, per-component axe clean across chromium/mobile/dark.
+- [x] **COMP-02**: The 5 remaining L1 components (`empty_state`, `page_back`, `scope_ribbon`, `field_help`, `skeleton`) meet the same Tier-2 bar across the 3 projects.
+- [x] **COMP-03**: The L0 token layer is elevated to Tier-2 with documented brand-token conformance (no raw hex/px outside `--sg-*` tokens; light/dark/system parity) and a refreshed `admin-token-reference.md` citation.
 
-### Playwright lanes
+### Meta-Component Group Elevation (GROUP)
 
-- [x] **PW-01**: Reduce the `example_playwright_smoke` critical path — share app boot, and/or shard the serial `npx playwright test` steps so an early-step failure no longer masks later steps (this session cost multiple ~25m round-trips to surface independent failures).
-- [x] **PW-02**: Deterministic readiness everywhere in the browser lanes — no `Process.sleep`-based waits; explicit readiness checks.
-- [x] **PW-03** *(folds in SEED-006)*: Re-gate the `continue-on-error` admin-design gallery — make CI visual capture deterministic (brand webfont loads in the CI dev-mode boot) and/or recapture baselines in-CI, then restore it to a hard gate. Resolve the systemic ~20–53px height delta (font fallback reflow), not by widening pixel tolerance.
+- [x] **GROUP-01**: All 11 L2 meta-component groups (MG-1…MG-11) meet Tier-2 on their isolated boards — intra-group single-tier rhythm, no accidental card-in-card, right-component-for-job, defined zero/loading/error states, byte-coherent reuse — across chromium/mobile/dark.
+- [x] **GROUP-02**: Every group also passes in its real page configuration (`board-cfg-*`), with desktop↔mobile content-equivalence proven where the group has a table+mobile-card swap (MG-5/MG-6 equivalence assertions green).
 
-### Caching, runners, job topology
+### Page Judgment Pass (PAGE)
 
-- [x] **CACHE-01**: Audit and correct caching — precise keys (OS/arch/OTP/Elixir/MIX_ENV/lockfile/buster), no `_build` reuse across incompatible combos, never skip `deps.get` after a partial restore; separate deps cache from any PLT cache; document how to bust.
-- [x] **CACHE-02**: Consolidate trivial micro-guard jobs (release-ref, milestone-verification, snapshot-drift, quality-ledger, getting-started/phase-34 contracts) into one cheap "fast checks" job to cut per-job runner-startup overhead — preserving stable required-check names.
-- [x] **CACHE-03**: Apply larger runners *selectively* to the long poles only if the cost/speed tradeoff is justified by measurement — not by default.
+- [x] **PAGE-01**: The adversarial persona panel renders one committed scored review doc per surface (`.planning/uat-evidence/v1.42-persona-jtbd/<surface>.md`) for all 8 pages, each with 3-persona verdicts and a per-surface disposition (`clean`/`actionable`/`blocked`), indexed by a roll-up (`.planning/v1.42-PERSONA-JTBD-PANEL.md`).
+- [x] **PAGE-02**: Judgment-level remediations (kill info-dump, redundant UI, verbosity; tighten IA) are applied across the pages — every actionable verdict is remediated with a diff or explicitly waived with rationale — with the monotonic guard green (no Tier-2 page regresses) and page baselines recaptured under allowlist→clear discipline.
+- [x] **PAGE-03**: The `user-sessions` page is elevated to Tier-2 — overlay axe-clean + the 7 APG focus-trap/restore gates (it owns the confirm dialog) + glossary-clean microcopy + motion/density/target-size satisfied and cited.
 
-### Contributor DX
+### Persona Flow Elevation (FLOW)
 
-- [ ] **DX-01**: Provide a single documented local CI equivalent (`mix ci` alias or `make`/`just` target) that mirrors the PR gate; document it in CONTRIBUTING so a contributor can reproduce a red check locally without guessing.
+- [x] **FLOW-01**: The 3 persona flows (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`) are elevated to Tier-2 — each proves happy/error/boundary/edge paths, scope/return-context continuity, full keyboard operability, calm reduced-motion, and theme persistence, and cites its persona review doc as evidence.
 
-### Hygiene
+### Terminal Ratification (GATE)
 
-- [x] **FLAKE-01**: Fix the known-flaky demo-showcase remember-checkbox accent-color assertion (off-by-one rgb) — de-flake or delete; do **not** paper over with blanket retries. (Todo: `.planning/todos/pending/2026-06-19-demo-showcase-remember-checkbox-color-flaky.md`.)
+- [x] **GATE-01**: Terminal ratification — every ledger cell reads Tier-2, `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0, all baselines recaptured with both allowlists empty and both canaries byte-stable, and compare-mode re-render shows zero PNG drift (idempotency proven).
+- [x] **GATE-02**: Installer↔example byte-parity + golden fixture stay green and generated-host parity is proven (fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin); an adversarial milestone audit records the persona-JTBD verdicts as Tier-2 evidence.
 
-### Acceptance gate (milestone-level)
+## Future Requirements
 
-- [ ] **GATE-01**: Measured before/after — PR wall-clock + p95 meaningfully faster (target: well under the current ~22m, ideally <~12m on the fast PR path) with **equal-or-greater** quality signal on the required gate. Any change that is faster-but-less-trustworthy is labeled a tradeoff and moved to an optional/nightly tier.
-- [ ] **GATE-02**: No flake introduced; no correctness-critical coverage dropped from the merge gate; required-check names stable; `mix ci` documented. Respect SEED-004 (phx_new 1.8.7 pin) and preserve snapshot/baseline determinism.
+Deferred unless a concrete adopter/security/product signal promotes them.
+
+### Tooling
+
+- **STORYBOOK-01**: Adopt PhoenixStorybook as the component-lab surface — deferred (dependency weight + host-app-friendliness; the in-repo `/admin/_design` gallery covers the need without a new dep).
+- **JUDGE-CI-01**: Wire the persona panel as an automated CI gate — deferred (LLM non-determinism would make merges flaky; CI keeps the deterministic axe/APG/equivalence/glossary proxies).
 
 ## Out of Scope
 
-| Item | Reason |
-|------|--------|
-| Multi-OS / Windows / macOS / ARM CI matrix | Library targets Linux CI; no evidence of OS-specific bugs. Not worth the matrix cost. |
-| Broad Elixir/OTP version matrix on every PR | Single supported pair on PR; any compat matrix belongs on nightly/main, not the PR gate. |
-| Adding Dialyzer/Sobelow as new mandatory PR gates | Out of scope unless a realistic remediation plan exists; CI-PERF is about speed/trust of existing gates, not new gates. |
-| Rewriting the whole pipeline | Prefer stepwise, reversible PRs; keep the sound `ci-gate` aggregator model. |
-| "Fix" flake via blanket retries | Retry is quarantine, not a root fix (guardrail). |
+| Feature | Reason |
+|---------|--------|
+| Net-new admin surfaces/pages | This milestone elevates the existing surface; "same job → same component", no new pages |
+| New runtime/dev dependencies (incl. PhoenixStorybook) | Keep the library lean and host-app-friendly; deepen the existing gallery instead |
+| Host-owned admin shell redesign | The shell (`admin_shell.ex`) is host-owned generated code; do not take it over |
+| Changes to generated auth/email branding surface | Out of this milestone's admin/operator design-system scope |
+| Persona judge as a merge-blocking CI gate | Non-deterministic; kept as a planning/review-time instrument feeding the manual Tier-2 assertion |
+| Touching the golden-path `mix test` CI fixture data | All stress/edge data stays in the `@demo.tasklane.test` demo cohort |
 
 ## Traceability
 
-Phases assigned during roadmap creation (continue numbering from 193).
+Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from 204.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BASE-01, BASE-02, BASE-03 | 193 | Pending |
-| CRIT-01 | 193 | Complete |
-| FLAKE-01 | 193 | Complete |
-| CACHE-01, CACHE-02 | 194 | Pending |
-| TEST-01, TEST-02, TEST-03 | 195 | Complete |
-| CACHE-03 | 195 | Complete |
-| CRIT-02, CRIT-03 | 196 | Pending |
-| PW-01, PW-02, PW-03 | 197 | Pending |
-| DX-01 | 198 | Pending |
-| GATE-01, GATE-02 | 198 | Pending |
+| INSTR-01 | Phase 205 | Complete |
+| INSTR-02 | Phase 205 | Complete |
+| INSTR-03 | Phase 205 | Complete |
+| FIXT-01 | Phase 205 | Complete |
+| COMP-01 | Phase 206 | Complete |
+| COMP-02 | Phase 207 | Complete |
+| COMP-03 | Phase 207 | Complete |
+| GROUP-01 | Phase 208 | Complete |
+| GROUP-02 | Phase 208 | Complete |
+| PAGE-01 | Phase 209 | Complete |
+| PAGE-02 | Phase 209 | Complete |
+| PAGE-03 | Phase 210 | Complete |
+| FLOW-01 | Phase 210 | Complete |
+| GATE-01 | Phase 211 | Complete |
+| GATE-02 | Phase 211 | Complete |
 
 **Coverage:**
 
-- v1.40 requirements: 18 total
-- Mapped to phases: 18 (phases 193–198)
+- v1 requirements: 15 total
+- Mapped to phases: 15
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-06-19*
-*Last updated: 2026-06-19 — milestone v1.40 CI-PERF start*
+*Requirements defined: 2026-06-28*
+*Last updated: 2026-06-28 — traceability finalized by roadmapper; 15/15 mapped, 0 unmapped*

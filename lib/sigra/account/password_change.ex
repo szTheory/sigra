@@ -162,15 +162,32 @@ defmodule Sigra.Account.PasswordChange do
     config = Keyword.get(opts, :config, [])
 
     invalidate? =
-      get_in(config, [:password, :invalidate_sessions_on_change]) != false
+      get_in(access_config(config), [:password, :invalidate_sessions_on_change]) != false
 
     if invalidate? do
       session_store = Keyword.get(opts, :session_store)
-      except_token = Keyword.get(opts, :except_token)
 
       if session_store do
-        session_store.delete_all_for_user(user.id, except_token: except_token)
+        # The Ecto session store needs `:repo` + `:session_schema` to run the
+        # delete; the caller threads them through `:session_store_opts`. Carry
+        # the current-session token through so it survives (sign out OTHER
+        # sessions, preserve the one confirming the change).
+        store_opts = Keyword.get(opts, :session_store_opts, [])
+        except_token = Keyword.get(opts, :except_token)
+
+        delete_opts =
+          if except_token,
+            do: Keyword.put(store_opts, :except_token, except_token),
+            else: store_opts
+
+        session_store.delete_all_for_user(user.id, delete_opts)
       end
     end
   end
+
+  # `config` may arrive as a `Sigra.Config` struct (the public `Sigra.Auth`
+  # path), a plain map, or a keyword list (unit tests). Only the latter two are
+  # Access-compatible; a struct must be turned into a map before `get_in/2`.
+  defp access_config(%_{} = config), do: Map.from_struct(config)
+  defp access_config(config), do: config
 end

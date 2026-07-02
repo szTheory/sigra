@@ -5,10 +5,10 @@ defmodule Sigra.Admin.GlossaryTest do
   # ---------------------------------------------------------------------------
   # Admin Glossary Drift Guard (D-07)
   #
-  # Parses the 8 in-scope admin source files for banned synonym terms.
+  # Parses the 9 in-scope admin source files for banned synonym terms.
   # Violations fail with: file:line — found '#{term}' — use '#{canonical}' instead (#{description})
   #
-  # Scope (D-08): exactly the 7 admin LiveViews + components.ex.
+  # Scope (D-08): exactly the 8 admin LiveViews + components.ex.
   # Generated auth forms/emails under priv/templates/sigra.install/ are host-owned, never scanned.
   #
   # Carve-out (D-09): branding_live.ex auth-replica block (class="sigra-auth sigra-auth--preview")
@@ -23,6 +23,7 @@ defmodule Sigra.Admin.GlossaryTest do
     "lib/sigra/admin/live/organization_live.ex",
     "lib/sigra/admin/live/users_index_live.ex",
     "lib/sigra/admin/live/user_show_live.ex",
+    "lib/sigra/admin/live/user_sessions_live.ex",
     "lib/sigra/admin/live/branding_live.ex",
     "lib/sigra/admin/live/audit_index_live.ex",
     "lib/sigra/admin/live/audit_user_live.ex",
@@ -104,10 +105,15 @@ defmodule Sigra.Admin.GlossaryTest do
   end
 
   # ---------------------------------------------------------------------------
-  # Carve-out: branding_live.ex auth-replica block
+  # Carve-out: auth-replica preview block (branding_live.ex AND components.ex)
   #
   # Uses DOM-marker anchoring — NOT hardcoded line numbers — so the carve-out
   # remains correct even if lines above or below the block shift due to future edits.
+  #
+  # Two hosts carry the auth-replica markup: the branding workbench LiveView
+  # (`branding_live.ex`) and the `preview_pair/1` component it was promoted into
+  # (`components.ex`, Phase 203). Both render the same opening marker, so the same
+  # marker-driven state machine strips the "Log in" replica copy in either file.
   #
   # State machine:
   #   - INACTIVE until a line containing "sigra-auth sigra-auth--preview" is seen
@@ -116,11 +122,15 @@ defmodule Sigra.Admin.GlossaryTest do
   #   - While ACTIVE: track <div> nesting depth (increment on lines containing "<div",
   #     decrement on lines containing "</div>"). When depth returns to 0 after the opening
   #     marker was consumed, the closing </div> has been reached — skip it and mark INACTIVE.
-  #   - Lines before the opening marker (e.g. line 583 "<h2>Login preview</h2>") and lines
-  #     after the closing </div> are kept and remain subject to scanning.
+  #   - Lines before the opening marker (e.g. branding_live's "<h2>Login preview</h2>"
+  #     chrome heading) and lines after the closing </div> are kept and remain scanned.
   # ---------------------------------------------------------------------------
 
-  defp strip_carve_outs(indexed_lines, "lib/sigra/admin/live/branding_live.ex") do
+  defp strip_carve_outs(indexed_lines, file)
+       when file in [
+              "lib/sigra/admin/live/branding_live.ex",
+              "lib/sigra/admin/components.ex"
+            ] do
     {result, _state} =
       Enum.reduce(indexed_lines, {[], :inactive}, fn {line, line_num}, {acc, state} ->
         case state do

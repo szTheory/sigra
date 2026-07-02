@@ -78,9 +78,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         </div>
       </header>
 
-      <div class="sg-cluster sg-cluster--2">
-        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
-          <input type="hidden" name="return_to" value={@return_to} />
+      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
+        <div class="sg-cluster">
           <label class="sg-filter-chip">
             <input
               type="checkbox"
@@ -91,9 +90,6 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             />
             <span>Failures</span>
           </label>
-        </form>
-        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
-          <input type="hidden" name="return_to" value={@return_to} />
           <label class="sg-filter-chip">
             <input
               type="checkbox"
@@ -104,50 +100,51 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             />
             <span>Impersonation</span>
           </label>
-        </form>
-      </div>
-
-      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
-        <div class="sg-form-grid sg-form-grid--cols">
-          <label class="sg-field">
-            <span class="sg-field-label">Action prefix</span>
-            <input
-              type="text"
-              name="action_prefix"
-              value={param_value(@current_params, "action_prefix")}
-              class="sg-input"
-              placeholder="e.g. session or admin.impersonation"
-            />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Outcome</span>
-            <select name="outcome" class="sg-select">
-              <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
-              <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
-                Success
-              </option>
-              <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
-                Failure
-              </option>
-            </select>
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Actor</span>
-            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Occurred from</span>
-            <input type="text" name="from" value={param_value(@current_params, "from")} class="sg-input" placeholder="2026-05-01" />
-          </label>
-
-          <label class="sg-field">
-            <span class="sg-field-label">Occurred to</span>
-            <input type="text" name="to" value={param_value(@current_params, "to")} class="sg-input" placeholder="2026-05-31" />
-          </label>
         </div>
+
+        <details>
+          <summary>More filters</summary>
+          <div class="sg-form-grid sg-form-grid--cols">
+            <label class="sg-field">
+              <span class="sg-field-label">Action prefix</span>
+              <input
+                type="text"
+                name="action_prefix"
+                value={param_value(@current_params, "action_prefix")}
+                class="sg-input"
+                placeholder="e.g. session or admin.impersonation"
+              />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Outcome</span>
+              <select name="outcome" class="sg-select">
+                <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
+                <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
+                  Success
+                </option>
+                <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
+                  Failure
+                </option>
+              </select>
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Actor</span>
+              <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Occurred from</span>
+              <input type="date" name="from" value={param_value(@current_params, "from")} class="sg-input" />
+            </label>
+
+            <label class="sg-field">
+              <span class="sg-field-label">Occurred to</span>
+              <input type="date" name="to" value={param_value(@current_params, "to")} class="sg-input" />
+            </label>
+          </div>
+        </details>
 
         <div class="sg-cluster">
           <button type="submit" class="sg-btn sg-btn--primary">Apply filters</button>
@@ -190,34 +187,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows} data-tone={audit_tone(row)}>
-              <td class="sg-nowrap">
-                <div class="sg-stack sg-stack--1">
-                  <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
-                  <code class="sg-code">{row.id}</code>
-                </div>
-              </td>
-              <td>
-                <div class="sg-stack sg-stack--1">
-                  <div class="sg-cluster sg-cluster--2">
-                    <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
-                    <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
-                  </div>
-                  <code class="sg-code">{row.action}</code>
-                </div>
-              </td>
-              <td>
-                <div class="sg-stack sg-stack--1 sg-text-sm">
-                  <span>{row.actor_summary}</span>
-                  <span :if={row.action_badge} class="sg-muted">Actor: {row.actor_label}</span>
-                  <span :if={row.action_badge} class="sg-muted">Effective user: {row.effective_user_label}</span>
-                </div>
-              </td>
-              <td class="sg-show-desktop sg-text-sm">
-                <span :if={audit_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
-                <span :if={audit_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
-              </td>
-            </tr>
+            <.audit_table_row :for={row <- @rows} row={row} />
           </tbody>
         </table>
       </div>
@@ -231,7 +201,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
-      <.empty_state :if={@rows == []} title="No audit events for this user">
+      <.audit_empty_state :if={@rows == []} title="No audit events for this user">
         <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
         <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--center">
           <a
@@ -241,38 +211,16 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             Clear all filters
           </a>
         </div>
-      </.empty_state>
+      </.audit_empty_state>
 
-      <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
-        <a
-          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
-          href={page_path(@admin_scope, @detail.user.id, @current_params, @meta.previous_page)}
-          aria-disabled={to_string(is_nil(@meta.previous_page))}
-          aria-label="Previous page"
-        >
-          <span aria-hidden="true">&larr;</span>
-          <span class="sr-only">Previous page</span>
-        </a>
-        <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
-        <a
-          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
-          href={page_path(@admin_scope, @detail.user.id, @current_params, @meta.next_page)}
-          aria-disabled={to_string(is_nil(@meta.next_page))}
-          aria-label="Next page"
-        >
-          <span aria-hidden="true">&rarr;</span>
-          <span class="sr-only">Next page</span>
-        </a>
-      </nav>
+      <.audit_pagination_nav
+        meta={@meta}
+        prev_href={page_path(@admin_scope, @detail.user.id, @current_params, @meta && @meta.previous_page)}
+        next_href={page_path(@admin_scope, @detail.user.id, @current_params, @meta && @meta.next_page)}
+      />
     </section>
     """
   end
-
-  # Severity tone: unified body matching audit_tone/1 in Sigra.Admin.Components (D-10).
-  # Failures surface as risk, impersonation as info, routine success stays neutral.
-  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
-  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
-  defp audit_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =
@@ -465,21 +413,4 @@ defmodule Sigra.Admin.Live.AuditUserLive do
   end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
-
-  # Honest pagination guard: hide nav entirely when results fit one page.
-  # Unlike users_index_live's %Flop.Meta{} struct, the audit explorer returns a
-  # cursor-based meta map (current_page/previous_page/next_page) with no
-  # :total_pages key, so referencing meta.total_pages here would raise KeyError.
-  # Cursor pagination never knows a total page count — a previous or next cursor
-  # is the honest (D-09) signal that more than one page exists.
-  defp multi_page?(nil), do: false
-
-  defp multi_page?(meta) do
-    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
-  end
-
-  defp format_timestamp(%DateTime{} = timestamp),
-    do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M:%S")
-
-  defp format_timestamp(_timestamp), do: ""
 end

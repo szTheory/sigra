@@ -25,6 +25,77 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.41 — ADMIN-UX-ELEVATION
+
+**Shipped:** 2026-06-27
+**Phases:** 6 (199–204) | **Plans:** 26 | **Tasks:** 56
+
+### What Was Built
+Turned the v1.39-built grading machinery (quality ledger, fractal scorecard, monotonic guard, Playwright baselines) into actual page elevation. Defined objective, machine-checkable Tier-2 proxies + stress-fixture seed data (Phase 199); elevated User Detail into a JTBD-first identity bar with a net-new `UserSessionsLive` (Phase 200); recomposed Users Index search-first with a consolidated filter panel and DRY desktop/mobile presentation (Phase 201); collapsed both Audit surfaces to a single unified filter form with `<details>` disclosure and shared extracted components (Phase 202); propagated the bar to Overviews + Branding workbench with reduced-pill consistency (Phase 203); and ratified terminally — recaptured baselines with empty allowlists, generated-host parity, and an adversarial milestone audit (Phase 204). 7 ledger cells locked at Tier 2 behind the forward-only guard.
+
+### What Worked
+- **Forward-only ratchet as the spine.** Every phase ended by ratcheting ledger cells and proving the monotonic guard green vs `origin/main` — quality could only increase, and the terminal phase just *verified the lock* rather than re-litigating it.
+- **Wave-based execution with shared-component extraction first.** Pulling `audit_table_row/1` etc. into `components.ex` in an early wave let later waves rewire against them — desktop↔mobile content-equivalence fell out of the shared seam.
+- **Honest proxies over subjective verdicts.** Tier-2 was earnable on cited evidence (axe-while-open, APG focus-trap, content-equivalence, glossary-clean), so the close was defensible.
+
+### What Was Inefficient
+- **Worktree auto-degrade (#683) forced sequential execution** every phase (origin/HEAD unresolved), so parallelizable waves ran one-at-a-time on `main`. Setting `worktree.baseRef:"head"` would reclaim parallelism.
+- **Environment fragility mid-execution.** The Docker daemon died during Phase 204, taking the test Postgres with it; recovery (restart Docker, reboot PG on a new dynamic port, refresh `tmp/db.env`, kill a leaked example server) cost a detour. The dynamic-port DX absorbed it, but the daemon dependency is a single point of failure for the env-heavy snapshot/parity lanes.
+- **Citation drift surfaced late.** The `audit-user-live` ledger cell cited the *index* test for pagination; the per-user test gap rode forward through 202→203 as a re-tagged todo until 204-01 finally added the deterministic boundary test.
+
+### Patterns Established
+- **Same-commit recapture + canary honesty:** a contrast fix and its recaptured (non-allowlistable) canary PNG must land in one commit so the `--base HEAD` guard sees the new pixels as the established baseline (Phase 204 D-05).
+- **Generated-host parity as a first-class close gate:** install-golden byte-diff (pinned phx_new 1.8.7) + admin-acceptance-smoke on a freshly scaffolded host, not just example-app proof.
+- **Terminal ratification verifies, never ratchets:** the closing phase confirms the lock and runs the adversarial audit; new Tier-2 flips are prohibited there.
+
+### Key Lessons
+- A "ratification" phase whose `mix test` still trips stale self-healing contracts isn't terminal — fold contract-debt cleanup (Phase192/148) into the gate, not after it.
+- Run env-heavy lanes (Playwright recapture, fresh-host scaffold) only after confirming Docker + the dynamic-port DB are live; a mid-run daemon death is recoverable but expensive.
+- Resolve-the-resolvable before a milestone close beats blanket-acknowledge: the pre-close audit shrank from 19 → 9 once superseded quick-tasks were marked terminal and the done todo was closed, leaving only genuine forward/dormant deferrals.
+
+### Cost Observations
+- Model mix: orchestrator Opus; executors + verifier + reviewer Sonnet (`claude-sonnet-4-6`).
+- Notable: the two env-heavy plans (204-03 snapshot recapture ~93 min; 204-04 fresh-host scaffold) dominated wall-clock; the test/doc/CSS plans were minutes each.
+
+## Milestone: v1.40 — CI-PERF
+
+**Shipped:** 2026-06-21
+**Phases:** 6 (193–198) | **Plans:** 20 | **Tasks:** 40
+
+### What was built
+
+A maintenance/trust (CI/DX) lane that cut PR CI wall-clock from **38.6m → 22.1m avg (−43%, n=3)** by attacking the three long poles — without weakening coverage, determinism, or trust. A committed before-state baseline (`193-BASELINE.md`) anchored a measure-before-optimize discipline; the gratuitous `example_playwright_smoke needs: [library_tests]` serialization was dropped (the #1 win); caching was made precise and the trivial micro-guard jobs folded into one `fast_checks` job; `library_tests` was split into a 2-shard matrix behind a name-preserving aggregator (required-check name byte-identical) and `library_tests_dep_off` slimmed to a targeted `--only threadline_guard` subset; a PR-fast vs nightly-broad trigger split moved 5 exhaustive jobs off the every-PR path under one stable `ci-gate`; the Playwright lanes got deterministic `expect.poll()` readiness and a hard-re-gated design-gallery (self-hosted Space Grotesk webfont + in-CI `admin_design_recapture` job, `continue-on-error` removed); and a documented `mix ci` PR-gate mirror plus a real before/after acceptance artifact (`198-ACCEPTANCE.md`) closed it out.
+
+### What worked
+
+- **Measure-before-optimize as Phase 1.** Committing the baseline table + Elixir diagnostics first (193) meant every later phase proved its win against a fixed reference rather than asserting it — and surfaced that the single biggest win was a one-line `needs:` edge removal, not a heroic refactor.
+- **Sequence smallest-safest-first.** Banking the near-one-line wins (the `needs` edge, the rgb de-flake) in Phase 193 delivered most of the wall-clock improvement early and de-risked the rest.
+- **Name-preserving aggregators kept branch protection untouched.** Splitting `library_tests` into shards behind a thin aggregator that reuses the job id + `Library tests` name made a structural change invisible to the required-check ruleset — zero branch-protection churn across a 6-phase redesign (verified against live ruleset 14941512).
+- **Zero-human-UAT held: CI measures itself.** Verification was the pipeline's own before/after timings, cache hit-rate, and flake/rerun rate — no manual UAT round-trips, consistent with the milestone's design.
+- **Honest disclosure of the missed stretch.** The aspirational `<12m` fast path was not reached; rather than quietly dropping it, `198-ACCEPTANCE.md` discloses the ~22m binding floor and routes the remedy (Playwright sharding) to a tracked todo.
+
+### What was inefficient
+
+- **Validation-strategy docs never advanced past draft.** 5 of 6 `VALIDATION.md` stayed `draft`/`nyquist_compliant:false` — expected for a "CI measures itself" infra milestone (deliverables are workflow-YAML/doc edits, not ExUnit sensors), but it leaves the Nyquist lane formally PARTIAL at close.
+- **Traceability table drifted from the checklist.** 13 REQ rows showed `Pending` in the table while their checklist boxes were all `[x]` — pure doc hygiene flagged by every phase verification, reconciled only at close.
+- **One CI-deferred runtime proof remained at close.** The re-gated design-gallery + recapture flow was verified statically/mechanically but not yet observed green in a live non-PR run — acknowledged as the milestone's single open verification item, closing on the next scheduled/main run.
+- **CRIT-03 prose went stale vs reality.** REQUIREMENTS/ROADMAP kept describing a single `ci-gate` required check while the live ruleset enforces 5 lane-name strings; only MAINTAINING.md was authoritative. The framing fix was deferred to a requirements-cleanup pass.
+
+### Patterns established
+
+- **Name-preserving thin aggregator** in front of a sharded matrix job — lets you parallelize a required check without renaming it or touching branch protection. Reusable for any future test-suite split.
+- **PR-fast vs nightly-broad trigger split with a never-strand table.** Move exhaustive/low-probability coverage to `schedule:`/main, but document a per-moved-job proxy proving no correctness-critical test is stranded on nightly-only (plus a scripts/ci backstop for accepted residuals).
+- **Deterministic visual gates via self-hosted webfonts + in-CI recapture**, not widened pixel tolerance — fix the font-metric root cause, then hard-gate.
+- **`mix ci` as a contract-locked PR-gate mirror** so a contributor can reproduce a red check locally; pin the leg set with a test so the alias can't silently drift from CI.
+
+### Key lessons
+
+- For infra/CI milestones, goal achievement is proven by each phase's VERIFICATION.md (and CI measuring itself), not by ExUnit-style Nyquist sensors — so a `tech_debt`-but-no-blockers audit is the *expected* honest close state, not a failure. Don't force ExUnit validation onto workflow-YAML deliverables.
+- A `<target` stretch goal and a `≥bar` hard gate are different commitments — meet and verify the hard bar, and disclose the stretch miss with the binding constraint (here: the ~22m Playwright floor) rather than burying it.
+- When a requirement's prose describes the *mechanism* (e.g. "ci-gate aggregator") but the *enforced contract* is something else (5 lane names in the ruleset), keep one authoritative doc (MAINTAINING.md) correct and reconcile the rest — stale prose in REQUIREMENTS/ROADMAP is low-severity but accumulates.
+
+---
+
 ## Milestone: v1.39 — DS-COHERENCE
 
 **Shipped:** 2026-06-19

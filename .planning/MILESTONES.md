@@ -1,5 +1,61 @@
 # Milestones
 
+## v1.41 ADMIN-UX-ELEVATION (Shipped: 2026-06-27)
+
+**Phases completed:** 6 phases, 26 plans, 56 tasks
+
+**Key accomplishments:**
+
+- Tier-2 award-grade proxies encoded in fractal scorecard with 4 automated gates (axe, APG, content-equivalence, glossary) and 3 manual proxies, plus ledger assertion convention and reconciled terminal-ratification prose.
+- `scripts/ci/quality-ledger-monotonic.test.sh`
+- 29 admin self-tied audit events (>=25 FIXT-01 threshold), a 36-user ugly bulk loadtest cohort inserted before personas, and explicit FIXT-02 multi-session/multi-org breadth on admin — all idempotent with Pitfall-3 persona-count invariants intact.
+- MG-5/MG-6 content-equivalence test un-skipped and passing via deterministic ?q= seed-admin URL filter, proving >=25-event audit pagination renders (FIXT-01, D-13/D-15)
+- Net-new `UserSessionsLive` with full session table and APG confirm dialog, wired to `/admin/users/:id/sessions` across example + installer + golden fixture in lockstep, and scoped into the glossary drift guard.
+- `user_show_live.ex` restructured into a calm JTBD-first identity bar + bounded Sessions/Organizations previews with link-outs, session revoke flow fully removed, host extra-section seam preserved in correct position before Danger Zone.
+- New `user-sessions` Playwright checkpoint with 3 baseline PNGs captured live, `user-show-live` ratcheted to Tier 2 with full proxy evidence, `user-sessions` L3 ledger cell added clean, and admin design contract Detail Archetype updated to document the JTBD-first composition and preserved `extra_detail_sections/1` host seam.
+- Recomposed users_index_live.ex search-first with consolidated filter panel, demoted 3-chip metric strip, DRY shared field-slice components, and reduced decision-bearing pill vocabulary.
+- Emit non-empty badge + column from example `SigraAdminUsers` hooks so the live `assertUserResultEquivalence` spec exercises the `extra_badges`/`extra_columns` seam in both desktop and mobile layouts (INDEX-03 / D-07).
+- GET-form contract proven by real form-submit Playwright test, users-index-live ratcheted to bare Tier 2 with proxy evidence, and List Archetype block rewritten to the elevated search-first composition.
+- Recaptured global-user-index at list-scale against 2500-user dev DB (100 pages), proving honest pagination via unfiltered navigation + Next page assertion; synced mg-1/mg-2/mg-5 gallery boards to elevated Plans 01-03 markup; canaries byte-stable; zero-drift idempotency proven; allowlists empty.
+- Extracted three new public function components (`audit_table_row/1`, `audit_pagination_nav/1`, `audit_empty_state/1`) into `components.ex` with inline `<details>` code disclosure and honest-cursor nav guard.
+- Collapsed audit_user_live.ex from three GET forms into one unified sg-filter-panel with folded-in checkbox toggles, native `<details>` advanced-disclosure, and Wave-1 shared component calls replacing all hand-written desktop table/pagination/empty-state markup.
+- Added native `<details>` advanced-disclosure to the global audit filter form and rewired desktop table / pagination / empty-state to Wave-1 shared components, deleting three private duplicate helpers.
+- Added strict per-row 2-code count guard to `assertAuditResultEquivalence` (closing D-06 Pitfall 1) and a deterministic ExUnit pagination boundary test at the ≥26/≤25 threshold using the existing direct-insert seam.
+- Ratcheted `audit-index-live` and `audit-user-live` ledger cells from Tier 1 to bare Tier 2 with honest applicable proxy evidence (N/A overlay-axe + APG), added the Audit Explorer Archetype block to the design contract, and recaptured audit-explorer/user-audit chromium+dark checkpoint baselines through the recapture gate with zero-drift idempotency proven.
+- Org roster drops always-on Confirmed pill and global overview drops Authentication coverage chip — same status signals now render identically across org overview, global overview, and Users Index (D-02/D-03, zero new CSS)
+- Added branding #restore-defaults-overlay 7-APG + axe-while-open ConfirmDialog test to admin-modal-interaction.spec.ts — the hard prerequisite for D-08 branding-live Tier-2 overlay-axe/APG evidence.
+- Fifth archetype block (Branding/Workbench) added to design contract, and UI principles updated with branding component routing and reduced-pill convention as evolved patterns (PROP-02).
+- Three ledger cells ratcheted from bare `1` to bare `2` with honest Tier-2 proxy evidence; PAGE-04 todo resolved; global-overview + org-overview baselines proved idempotent via zero-drift compare-mode; both allowlists empty for Phase 204's terminal reset.
+- Two deterministic ExUnit tests lock the per-user audit pagination boundary at 25/26 events and the desktop Event-cell inline-code disclosure archetype, closing WR-01 and WR-02.
+- 1. [Rule 1 - Bug] Phase148 example README assertion used stale Vaultr phrasing
+- .vt-status-pill contrast raised from ~3.33:1 to ≥4.5:1 via color-mix ratio change (62%→45% caution/primary), unblocking the admin-checkpoints-mobile axe gate and enabling same-commit canary rebase + stale org-scoped-admin baseline update
+- Byte-diff green (phx_new 1.8.7) + admin-acceptance-smoke exit 0 — freshly generated host renders the elevated styled admin, closing RATIFY-01 generated-host parity
+- Tier-2 lock verified (36 cells, exit 0, no new ratchet in Phase 204); v1.41 adversarial milestone audit written with four RATIFY-02 checks all passing; Phase 201 ticked and RATIFY-01/02 confirmed satisfied — milestone closes honestly.
+
+---
+
+## v1.40 CI-PERF (Shipped: 2026-06-21)
+
+**Phases completed:** 6 phases (193–198), 20 plans, 40 tasks
+**Requirements:** 18/18 satisfied (BASE-01..03, CRIT-01..03, TEST-01..03, PW-01..03, CACHE-01..03, DX-01, FLAKE-01, GATE-01..02)
+**Milestone audit:** `tech_debt` — 0 unsatisfied requirements, 7/7 cross-phase integration WIRED, both E2E flows wired, no critical blockers. See [`milestones/v1.40-MILESTONE-AUDIT.md`](milestones/v1.40-MILESTONE-AUDIT.md).
+**Headline result:** PR CI wall-clock **38.6m → 22.1m avg (−43%, n=3)**, 0 flakes introduced, 5 required-check name strings byte-stable. The aspirational `<12m` fast-path stretch was **not** reached (binding floor `example_playwright_smoke` ~22m; Playwright job sharding deferred) — disclosed honestly in `198-ACCEPTANCE.md`.
+
+**Delivered:** A maintenance/trust (CI/DX) lane — cut PR CI wall-clock by attacking the three long poles (`example_playwright_smoke`, `library_tests`, `library_tests_dep_off`) without weakening coverage, determinism, or trust, under a measure-before-optimize discipline where the CI pipeline measures itself.
+
+**Key accomplishments:**
+
+- **Baseline + one-line wins (193):** Committed `193-BASELINE.md` before-state reference (per-job table + critical path + Elixir diagnostics) every later phase diffs against; added `$GITHUB_STEP_SUMMARY` observability (resolved versions, cache hit/miss, slowest tests); dropped the gratuitous `example_playwright_smoke needs: [library_tests]` edge so the two long poles run concurrently (CRIT-01, likely #1 win); de-flaked the demo-showcase rgb assertion with a ±10 per-channel tolerance, deterministic 3× at `--retries=0`.
+- **Caching correctness + micro-job fold (194):** 11 precision cache keys (no stale `_build` reuse across incompatible combos, separated deps/PLT caches, documented busting); folded the trivial guard jobs into one cheap `fast_checks` job and rewired `ci-gate`; actionlint clean.
+- **Test-suite performance (195):** 2-shard `library_tests` matrix worker with a name-preserving thin aggregator so the `Library tests` required check stays byte-identical; slimmed `library_tests_dep_off` to a targeted `--only threadline_guard` subset (65 tests vs full ~14m suite); audited `async: true`; a CACHE-03 measurement-gate runbook documenting the reject-by-default larger-runner posture.
+- **PR-fast vs nightly-broad trigger model (196):** Event-gated 5 exhaustive jobs off the every-PR path to a `schedule:`/main cron, made `ci-gate` skip-tolerant for the two moved-and-needed jobs, added a `nightly_probe`, all under one stable `ci-gate` required check — never stranding a correctness-critical test on nightly-only (D-08 never-strand table + DIST-06 backstop for the two accepted nightly residuals).
+- **Playwright lanes + design-gallery hard re-gate (197):** Replaced `waitForTimeout`-based mailbox polls with deterministic `expect.poll()`; self-hosted Space Grotesk woff2 wired into the CI dev-mode boot with a `fonts.check` hard assertion (fixing the systemic font-reflow height delta — corrected the SEED-006 false-premise root cause); added a non-PR `admin_design_recapture` job (canary re-baseline + reviewable-PR commit path + cross-lane drift check) and **removed `continue-on-error` from the design-gallery step**, restoring it to a hard gate.
+- **Contributor DX + acceptance gate (198):** Added a `mix ci` four-leg PR-gate mirror (compile + test + install-golden + dep-off) documented in CONTRIBUTING and pinned by a contract-lock test; committed `198-ACCEPTANCE.md` with real before/after PR-path timings (−16.5m, −43%, n=3), byte-stable required-check names, 0 flakes.
+
+**Known deferred items at close:** 20 open artifacts acknowledged (see STATE.md *Acknowledged at v1.40 close*). The only v1.40-relevant pair is the Phase 197 CI-observed runtime proof (re-gated design-gallery + recapture job — verified statically/mechanically, closes on the next non-PR CI run; the milestone's zero-human-UAT model). The rest are carried backlog (admin-UI pass-2 quick tasks, tracked todos incl. Playwright sharding for the sub-12m stretch) and dormant seeds SEED-004/005/006.
+
+---
+
 ## v1.39 DS-COHERENCE (Shipped: 2026-06-19)
 
 **Phases completed:** 9 phases (184–192), 39 plans, 63 tasks

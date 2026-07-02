@@ -6,7 +6,8 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 //
 // Per D-01, D-02, D-04 (1) and (2), D-19, D-20, and D-26 this spec owns:
 //   * /admin/users search + filter
-//   * /admin/users/:id detail + revoke session (scope remains visible)
+//   * /admin/users/:id detail -> "Manage sessions" link-out -> revoke on
+//     /admin/users/:id/sessions (Phase 200 D-04; scope remains visible)
 //   * global -> organization-scoped pivot (org scope remains explicit)
 //
 // Per D-06 this spec does NOT absorb the denied-mutation / malformed-param /
@@ -111,19 +112,34 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
       /return_to|\/admin\/users\?/,
     );
 
+    // Phase 200 (D-04): the revoke flow moved off the detail page onto
+    // UserSessionsLive at /admin/users/:id/sessions. The detail page is now a
+    // calm read-only identity surface that links out via "Manage sessions";
+    // assert the link, then drive the revoke journey on the sessions page.
+    const manageSessions = page.getByRole('link', { name: 'Manage sessions' });
+    await expect(manageSessions).toBeVisible();
+    await manageSessions.click();
+    await waitForLiveViewReady(page);
+    await expect(page).toHaveURL(/\/admin\/users\/[^/]+\/sessions/);
+    // Scope stays visible across the link-out.
+    await expect(page.getByText('Global user operations')).toBeVisible();
+
     // Target user can show >1 active session (e.g. registration + reconnect). Revoke each:
     // strict mode forbids ambiguous `getByRole` clicks, and a single revoke must not assume
     // the list is empty afterward.
     const revokeSession = page.getByRole('button', { name: 'Revoke session' });
+    // New UserSessionsLive confirm copy (no per-target email interpolation) — see
+    // lib/sigra/admin/live/user_sessions_live.ex revoke_session_copy/1. Phase 209-04
+    // (commit 869f1997) rewrote the copy to a security-remediation framing, dropping
+    // the "They can sign in again." reassurance clause.
     const confirmPrompt = page.getByText(
-      `Revoke this session for ${targetEmail}? This signs them out of that browser or device.`,
+      'The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access.',
     );
-    // The ConfirmDialog's danger button now carries the action-specific label
-    // ("Revoke session", not "Confirm" — Phase 188-04), which collides by name with
-    // the per-row revoke triggers, so scope the confirm click to the dialog overlay.
+    // The ConfirmDialog's danger button carries the action label "Revoke"; scope the
+    // confirm click to the dialog overlay so it can't collide with per-row triggers.
     const confirmButton = page
       .locator('#user-session-confirm-overlay')
-      .getByRole('button', { name: 'Revoke session' });
+      .getByRole('button', { name: 'Revoke', exact: true });
 
     while ((await revokeSession.count()) > 0) {
       const before = await revokeSession.count();
@@ -134,9 +150,11 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
       await expect(revokeSession).toHaveCount(before - 1);
     }
 
-    // Empty-state title dropped its trailing period in the v1.39 admin redesign
-    // (lib user_show_live.ex: `title="No active sessions"`).
-    await expect(page.getByText('No active sessions')).toBeVisible();
+    // Empty-state title (lib user_sessions_live.ex: `title="No active sessions"`).
+    // Use exact: true to avoid substring match on the inner slot text
+    // ("This user has no active sessions in the current scope.") which would
+    // trip Playwright strict mode (2 elements matched).
+    await expect(page.getByText('No active sessions', { exact: true })).toBeVisible();
     await expectScopeChrome(page, 'Global');
   });
 

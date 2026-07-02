@@ -20,6 +20,7 @@ defmodule ExampleWeb.OrganizationsLive.Index do
   use ExampleWeb, :live_view
 
   alias Example.Organizations
+  alias ExampleWeb.Layouts
 
   @impl true
   def mount(_params, _session, socket) do
@@ -33,6 +34,7 @@ defmodule ExampleWeb.OrganizationsLive.Index do
       |> assign(:pending_invitations, pending)
       |> assign(:form, to_form(%{"name" => ""}, as: :organization))
       |> assign(:slug_preview, "")
+      |> assign(:page_title, "Organizations")
 
     {:ok, socket}
   end
@@ -68,162 +70,138 @@ defmodule ExampleWeb.OrganizationsLive.Index do
       assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
 
     ~H"""
-    <div :if={@branch == :a}>{render_branch_a(assigns)}</div>
-    <div :if={@branch == :b}>{render_branch_b(assigns)}</div>
-    <div :if={@branch == :c}>{render_branch_c(assigns)}</div>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@memberships}
+    >
+      <section class="vt-page-intro" data-testid="app-organizations-index">
+        <div :if={@branch == :a}>{render_branch_a(assigns)}</div>
+        <div :if={@branch == :b}>{render_branch_b(assigns)}</div>
+        <div :if={@branch == :c}>{render_branch_c(assigns)}</div>
+      </section>
+    </Layouts.app>
     """
   end
 
-  # Branch selection — three render arms keyed on (memberships, pending_invites).
   defp pick_branch([], []), do: :a
   defp pick_branch([], [_ | _]), do: :b
   defp pick_branch([_ | _], _), do: :c
 
-  # ──────────────────────────────────────────────────────────────────────
   # Branch A — zero memberships, zero pending invitations
-  # ──────────────────────────────────────────────────────────────────────
   defp render_branch_a(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md py-16">
-      <.header>
-        Create your first organization
-        <:subtitle>
-          You don't belong to any organizations yet. Create one to get started.
-        </:subtitle>
-      </.header>
+    <section class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Organizations</p>
+          <h1 class="vt-panel__title">Create your first organization</h1>
+          <p class="vt-copy">
+            You don't belong to any teams yet. Create one to start sharing secrets.
+          </p>
+        </div>
+      </div>
 
       <.form
         for={@form}
         id="organization-create-form"
         phx-change="validate"
         phx-submit="create"
-        class="mt-8"
+        class="vt-form"
       >
         <.input field={@form[:name]} type="text" label="Organization name" required />
-
-        <p
-          id="slug-preview"
-          class="text-sm text-base-content/70 mt-1"
-          aria-live="polite"
-        >
-          {@slug_preview}
-        </p>
-
-        <.button
-          phx-disable-with="Creating..."
-          class="btn btn-primary w-full mt-4"
-        >
+        <p id="slug-preview" class="vt-copy" aria-live="polite">{@slug_preview}</p>
+        <.button phx-disable-with="Creating..." class="vt-btn vt-btn--primary">
           Create organization
         </.button>
       </.form>
 
-      <div class="mt-6 text-center">
-        <.link navigate={~p"/"} class="link link-hover text-sm">
-          Skip for now
-        </.link>
-      </div>
-    </div>
+      <p><.link navigate={~p"/app"} class="vt-link">Skip for now</.link></p>
+    </section>
     """
   end
 
-  # ──────────────────────────────────────────────────────────────────────
-  # Branch B — zero memberships, 1+ pending invitations (Phase 17 wires)
-  # ──────────────────────────────────────────────────────────────────────
+  # Branch B — zero memberships, 1+ pending invitations
   defp render_branch_b(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md py-16">
-      <.header>
-        You have {length(@pending_invitations)} pending invitation(s)
-      </.header>
+    <section class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Invitations</p>
+          <h1 class="vt-panel__title">
+            You have {length(@pending_invitations)} pending invitation(s)
+          </h1>
+        </div>
+      </div>
 
-      <ul id="pending-invitations-list" class="mt-6 divide-y divide-base-200">
-        <li :for={invitation <- @pending_invitations} class="py-3 flex items-center justify-between">
+      <div id="pending-invitations-list" class="vt-seed-list">
+        <div
+          :for={invitation <- @pending_invitations}
+          style="display:flex;align-items:center;justify-content:space-between;gap:var(--sg-space-2)"
+        >
           <span>{invitation.organization.name}</span>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            disabled
-            title="Available in the next release"
-          >
+          <button type="button" class="vt-btn" disabled title="Available in the next release">
             Accept
           </button>
-        </li>
-      </ul>
-
-      <details class="collapse collapse-arrow bg-base-200 mt-8">
-        <summary class="collapse-title text-sm">
-          Or create your own organization →
-        </summary>
-        <div class="collapse-content">
-          {render_branch_a(assigns)}
         </div>
+      </div>
+
+      <details class="vt-auth__disclosure">
+        <summary>Or create your own organization →</summary>
+        {render_branch_a(assigns)}
       </details>
-    </div>
+    </section>
     """
   end
 
-  # ──────────────────────────────────────────────────────────────────────
   # Branch C — 1+ memberships (picker)
-  # ──────────────────────────────────────────────────────────────────────
   defp render_branch_c(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl py-12">
-      <.header>
-        Your organizations
-        <:actions>
-          <.link navigate={~p"/organizations/new"} class="btn btn-primary">
-            + New organization
-          </.link>
-        </:actions>
-      </.header>
+    <section class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Organizations</p>
+          <h1 class="vt-panel__title">Your organizations</h1>
+        </div>
+        <.link navigate={~p"/organizations/new"} class="vt-btn vt-btn--primary">
+          New organization
+        </.link>
+      </div>
 
-      <ul id="organizations-picker-list" class="mt-6 divide-y divide-base-200">
-        <li :for={{org, role} <- @memberships} class="py-3 flex items-center justify-between">
+      <div id="organizations-picker-list" class="vt-seed-list">
+        <div
+          :for={{org, role} <- @memberships}
+          style="display:flex;align-items:center;justify-content:space-between;gap:var(--sg-space-2)"
+        >
           <div>
-            <div class="font-medium">{org.name}</div>
-            <span class={["badge badge-sm", role_badge_class(role)]}>{humanize_role(role)}</span>
+            <strong>{org.name}</strong>
+            <span class="vt-status-pill vt-status-pill--ok">{humanize_role(role)}</span>
           </div>
 
-          <form action={~p"/organizations/switch"} method="post" class="inline">
-            <input
-              type="hidden"
-              name="_csrf_token"
-              value={Phoenix.Controller.get_csrf_token()}
-            />
+          <form action={~p"/organizations/switch"} method="post">
+            <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
             <input type="hidden" name="organization_id" value={org.id} />
             <input type="hidden" name="return_to" value="/" />
-            <button type="submit" class="btn btn-sm" aria-label={"Open " <> org.name}>
+            <button type="submit" class="vt-btn vt-btn--secondary" aria-label={"Open " <> org.name}>
               Open
             </button>
           </form>
-        </li>
-      </ul>
+        </div>
+      </div>
 
-      <section class="mt-10">
-        <h2 class="text-sm font-semibold text-base-content/70">Pending invitations</h2>
-        <p
-          :if={@pending_invitations == []}
-          class="text-sm text-base-content/60 mt-2"
-        >
-          No pending invitations.
-        </p>
+      <section>
+        <p class="vt-kicker">Pending invitations</p>
+        <p :if={@pending_invitations == []} class="vt-copy">No pending invitations.</p>
       </section>
-    </div>
+    </section>
     """
   end
-
-  # Per-role daisyUI badge class.
-  defp role_badge_class(:owner), do: "badge-primary"
-  defp role_badge_class(:admin), do: "badge-secondary"
-  defp role_badge_class(_), do: "badge-ghost"
 
   defp humanize_role(role) when is_atom(role),
     do: role |> Atom.to_string() |> String.capitalize()
 
   defp humanize_role(role), do: to_string(role)
 
-  # Surface the first slug error verbatim so the inline field error text
-  # matches the UI-SPEC §Error States copy exactly.
   defp create_error_flash(%Ecto.Changeset{} = changeset) do
     case Keyword.get(changeset.errors, :slug) do
       {"is reserved and cannot be used", _} -> "That slug is reserved. Try another."
