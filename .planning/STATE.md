@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-status: executing
-stopped_at: Phase 212 context gathered (assumptions mode)
-last_updated: "2026-07-02T00:17:04.354Z"
-last_activity: 2026-07-02 -- Phase 212 execution started
+status: shipped
+stopped_at: Phase 212 complete — v1.42 merged + shipped (PR #63)
+last_updated: "2026-07-02T21:05:00.000Z"
+last_activity: 2026-07-02 -- v1.42 merged to origin/main + shipped (PR #63)
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 21
-  completed_plans: 17
-  percent: 80
+  completed_plans: 21
+  percent: 100
 ---
 
 # Project State
@@ -22,16 +22,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 212 — v1-42-integration-merge-canary-reconciliation-gate-the-perso
+**Current focus:** v1.42 shipped — integration merge complete (PR #63 merged to origin/main)
 
 ## Current Position
 
-Phase: 212 (v1-42-integration-merge-canary-reconciliation-gate-the-perso) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 212
-Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
-Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
-Last activity: 2026-07-02 -- Phase 212 execution started
+Phase: 212 (v1-42-integration-merge-canary-reconciliation-gate-the-perso) — COMPLETE
+Plan: 4 of 4 (all complete)
+Status: v1.42 merged + shipped. PR #63 merged to origin/main 2026-07-02; the v1.42→shipped flag (4a5dd5f7) landed atomically with the merge (honest, per D-16). GATE-01 (both snapshot lanes green + canary reconciled via prerequisite PR #64), FLOW-01 (3 persona-flow specs gated + passing), and GATE-02 (generated-host smoke RUNS+PASSES on the integration PR) all closed. Post-merge: both allowlists reset to comment-only (D-03/D-14), stale phase-205 board-baseline todo deleted (D-11).
+Next: v1.42 done. Next milestone per ROADMAP (v1.40 CI-PERF / SEED-005 remains queued). Known-accepted: NoopTest shard-2 log-capture flake (Phase 211 D-05); deferred code-review nits in `.planning/todos/pending/2026-07-01-phase209-code-review-deferred.md`.
+Last activity: 2026-07-02 -- v1.42 merged to origin/main + shipped (PR #63)
 
 ## Accumulated Context
 

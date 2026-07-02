@@ -16,18 +16,3 @@
 # Reset to empty once the re-recording PR merges.
 #
 # The `board-notice` canary must NEVER appear here.
-board-cfg-audit
-board-cfg-overview
-board-cfg-user-detail
-board-cfg-users-list
-board-mg-1
-board-mg-2
-board-mg-3
-board-mg-4
-board-mg-5
-board-mg-6
-board-mg-7
-board-mg-8
-board-mg-9
-board-mg-10
-board-mg-11
