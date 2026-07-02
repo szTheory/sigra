@@ -180,6 +180,18 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs
+      # D-06 (Phase 213): hard-gate drift-detector — rebless_golden --check verifies that
+      # the committed fixture exactly matches what the pinned phx_new archive generates.
+      # Exits 2 on drift (non-zero fails the job). No continue-on-error. Runs only when
+      # installer-related changes are detected (gated by the same detect step above).
+      - name: Fixture drift-detector (rebless_golden --check)
+        if: steps.detect.outputs.run == 'true'
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: MIX_ENV=test mix sigra.fixture.rebless_golden --check
 
   # TEST-01 (D-01/D-04): 2-leg matrix shard worker. Each leg gets its own
   # postgres service container (free DB isolation per D-05). The partition is NOT
