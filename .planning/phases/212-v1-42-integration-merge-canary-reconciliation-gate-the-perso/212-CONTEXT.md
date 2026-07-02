@@ -206,5 +206,58 @@ wires, reconciles, and merges existing work; it does NOT add features. Scope anc
   design pass).
 - `2026-07-01-phase209-code-review-deferred.md` — out of scope for the merge gate.
 </deferred>
+
+<planning_corrections>
+## Planning-Phase Corrections (2026-07-01, human-ratified during /gsd-plan-phase 212)
+
+The plan-checker + a topology audit during planning found that two premises baked into
+the decisions above are false against the live git state. The following corrections were
+ratified by the developer (HUMAN CALLS) and SUPERSEDE the conflicting parts of D-01/D-10.
+The verified git facts: the branch chain is linear — `origin/main` (old canary bytes
+`9743e2d4`, lacks the WCAG fix `c96749fa`) → **+314 commits** → `ship/v1.42-ci-gate-remediation`
+(PR #63 head, WCAG bytes `1f7aba5b`) → **+74 commits** → local `main` (same WCAG bytes).
+So `ship` ⊊ local `main`: PR #63 stops at Phase 208.1 and does NOT contain the Phase
+209/210/211 work that actually closes the gates (the `admin_checkpoint_recapture` CI job
+`272e187c`, the canary re-designation rationale `3d129bb2`, the FLOW-01 ledger flips
+`4fc936f8`, the `board-mg-*` design recapture `f5833b0b`, and — note — the already-committed
+premature `v1.42 → shipped` flip `4a5dd5f7`).
+
+- **D-12 (merge vehicle — HUMAN CALL, ratified):** PR #63's `ship/v1.42-ci-gate-remediation`
+  branch is force-updated to local `main`'s tip so PR #63 carries the FULL v1.42 backlog
+  (all 388 commits incl. 209/210/211), base still `origin/main`. PR #63 stays the single
+  reviewed merge vehicle; its scope grows 314 → 388. This supersedes D-10's implicit
+  assumption that PR #63 as-it-stands is the vehicle.
+- **D-13 (canary reconciliation — corrects/replaces D-01's in-PR mechanism, HUMAN CALL):**
+  The `impersonation-banner` mobile canary is reconciled via a **prerequisite recapture PR
+  to `origin/main`**, NOT by any in-PR re-designation (the planner's "re-designate as
+  `added`" via `git rm --cached`+`add` is a proven no-op — `git diff --name-status origin/main`
+  is a working-tree-vs-base diff that ignores the index, so the canary stays `modified` and
+  the guard hard-fails; a canary is not allowlistable). Mechanism: run the sanctioned
+  `admin_checkpoint_recapture` CI job (added in 209-01) → it opens `ci/recapture-admin-checkpoints-*`
+  → human visual review of the PNG diffs → merge to `origin/main` FIRST. Only then does PR
+  #63's canary diff (updated-`ship` bytes vs the now-recaptured `origin/main` bytes) read
+  byte-green so `snapshot-canary-guard.sh --base origin/main` exits 0. This honors D-01's
+  intent (preserve the WCAG fix, canary stays armed, no waiver) — only the plumbing changes.
+  Push-first was considered and REJECTED: the guard evaluates against the un-updated
+  `origin/main`, and pushing local `main` directly would void PR #63 (`ship` ⊂ `main`) and
+  bypass review of 74 commits.
+- **D-14 (design-lane allowlist — extends D-02/D-03 to the second lane):** The design lane
+  (`ci.yml` "Snapshot drift guard — design lane", canary `board-notice`) also fails vs
+  `origin/main` with legit v1.41-backlog drift: 4 added slugs (`board-cfg-audit`,
+  `board-cfg-overview`, `board-cfg-user-detail`, `board-cfg-users-list`) and ~11 modified
+  `board-mg-1..11` slugs (none is the `board-notice` canary → all allowlistable). Add these
+  slugs to `test/example/priv/playwright/snapshot-allowlist-design` in the same PR diff and
+  reset it to empty post-merge (mirrors D-02/D-03). GATE-01's D-04 exit condition requires
+  BOTH the fast_checks step AND the design-lane step green.
+- **D-15 (undeclared checkpoint drift `user-sessions`):** `user-sessions` presents as a
+  net-new (`added`, absent from `origin/main`) checkpoint slug (3 PNGs). Verify its
+  classification on a clean checkout and allowlist it alongside the 4 D-02 slugs if it
+  surfaces as drift on the CI runner (was flagged as a warning by the plan-checker).
+- **D-16 (already-flipped shipped flag):** `v1.42 → shipped` was already committed locally
+  at `4a5dd5f7` (Phase 211-05). Since the full backlog merges atomically via PR #63, the
+  flag lands exactly when the merge lands (honest). The plan must NOT re-flip; it must verify
+  at merge time that `origin/main` reflects shipped only-as-of-the-merge, and reconcile STATE
+  accordingly. This satisfies D-10's "don't claim shipped before merge lands" intent.
+</planning_corrections>
 </content>
 </invoke>
