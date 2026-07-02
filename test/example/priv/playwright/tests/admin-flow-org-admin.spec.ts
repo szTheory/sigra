@@ -2,24 +2,27 @@
  * Phase 190 Plan 04 — Org admin JTBD flow spec (FLOW-01..03, DATA-01).
  *
  * Persona: morgan@demo.tasklane.test — org-scoped admin for Acme Corp.
- * Morgan is NOT a platform admin, so /admin returns 403 (anti-enumeration).
+ * Morgan is NOT a platform admin, so global /admin is blocked. The example app's
+ * graceful-denial UX redirects the authenticated non-admin home to /app with a
+ * generic flash (the library default is a raw 403; the demo customizes it).
  *
  * Coverage:
  *   FLOW-01: tenant-bounded access — /admin/organizations/acme-corp (200 + scope chrome)
- *   FLOW-01: permission denied — /admin (403, generic body, anti-enumeration body)
+ *   FLOW-01: permission denied — /admin (redirect to /app, generic denial flash, anti-enumeration)
  *   FLOW-01: empty audit boundary — morgan has 0 audit events; sg-empty-state renders
  *   FLOW-02: keyboard operability — Tab navigation in org-scoped admin view
  *   FLOW-02: reduced-motion — assertReducedMotionEffect() confirms CSS collapsed effect
  *   FLOW-03: theme persistence — dark theme survives org-scoped journey and page.reload()
  *
  * D-03: org admin flow driven by morgan@demo.tasklane.test (tenant-bounded).
- * D-04: main-error = permission-denied (morgan hitting /admin returns 403);
- *        boundary = morgan empty audit (zero events seeded for morgan).
+ * D-04: main-error = permission-denied (morgan hitting /admin is redirected home to
+ *        /app with a generic denial flash); boundary = morgan empty audit (zero events).
  * D-09: flow spec asserts JOURNEY-LEVEL properties only — does not re-test
  *        permission internals or admin_plug guard mechanics.
  * D-10: reducedMotion set at test.use() context level; theme via data-sg-admin-theme
  *        + localStorage; no-flash via addInitScript before goto.
- * D-13: 403 body must be GENERIC — must NOT disclose org name or morgan's email.
+ * D-13: the DENIAL must be GENERIC — the flash must NOT disclose org name or a
+ *        probed target's email (anti-enumeration); scoped to the denial flash.
  *
  * Runs on the `chromium` behavior-truth lane only.
  * Excluded from `mobile` via ADMIN_BEHAVIOR_SPECS regex in playwright.config.ts.
@@ -144,15 +147,21 @@ test.describe('Phase 190 org admin flow (FLOW-01..03, DATA-01)', () => {
   test.describe('main-error — permission denied (global /admin blocked)', () => {
     /**
      * This test manages its own fresh browser context to guarantee no session
-     * cookie bleeds from the shared beforeEach login. The test MUST assert a 403
-     * HTTP response status — the page.goto() return value is the only way to
-     * capture HTTP status in Playwright.
+     * cookie bleeds from the shared beforeEach login.
      *
-     * D-13 threat T-190-10: the 403 body must be GENERIC — must NOT disclose the
-     * org name 'Acme Corp' or morgan's email (anti-enumeration).
+     * Denial contract: the example app's `auth_error_handler` :insufficient_scope
+     * branch gives an AUTHENTICATED non-admin a graceful redirect home to /app with
+     * a generic flash ("principle of least surprise") rather than the library's raw
+     * 403 default — morgan is still blocked from every global admin surface. The hard
+     * 403 is retained for unauthenticated / non-HTML callers (a separate contract).
+     *
+     * D-13 threat T-190-10: the DENIAL must be GENERIC — the flash must NOT disclose
+     * the org name 'Acme Corp' or a probed target's email (anti-enumeration). Morgan's
+     * own /app hub legitimately shows morgan's own account, so the non-disclosure
+     * guard is scoped to the denial flash, not the landing hub.
      */
     test(
-      'morgan hitting /admin returns 403 with generic copy — body does not disclose org or email',
+      'morgan hitting /admin is redirected home (blocked) — generic denial, no org/target disclosure',
       async ({ browser }) => {
         const context = await browser.newContext();
         const page = await context.newPage();
@@ -162,24 +171,25 @@ test.describe('Phase 190 org admin flow (FLOW-01..03, DATA-01)', () => {
           await loginDemoMorgan(page);
 
           // Attempt to access global /admin — morgan is org-scoped only.
-          const response = await page.goto('/admin');
+          await page.goto('/admin');
 
-          // Assert HTTP 403 status (D-13: :admin_global plug blocks morgan).
-          expect(response?.status()).toBe(403);
+          // Blocked from global admin: morgan lands on their own account hub (/app),
+          // NOT any admin surface (D-04: permission denied — no global /admin access).
+          await expect(page).toHaveURL(/\/app\/?$/);
 
-          // Assert generic denial copy (from admin-generated.spec.ts:183-185 analog).
-          await expect(page.locator('body')).toContainText(
-            'Access denied. You do not have access to this admin scope.',
-          );
+          // Generic denial flash — states the block without revealing which admin area.
+          // Scope to the specific denial alert so co-rendered flashes can't cause a
+          // strict-mode multi-match.
+          const denial = page
+            .getByRole('alert')
+            .filter({ hasText: "You don't have access to that admin area." });
+          await expect(denial).toBeVisible();
 
-          // Anti-enumeration assertions (T-190-10): the body must NOT leak org identity
-          // or morgan's email — a generic 403 body never reveals which org or user was
-          // blocked. This is a security regression gate.
-          await expect(page.locator('body')).not.toContainText(ACME_ORG_NAME);
-          await expect(page.locator('body')).not.toContainText(DEMO_MORGAN_EMAIL);
-
-          // Assert non-empty body (no blank 403 page — the error copy must render).
-          await expect(page.locator('body')).not.toHaveText(/^\s*$/);
+          // Anti-enumeration (T-190-10): the DENIAL must not echo the org identity
+          // morgan was blocked from, nor a probed target's address. Scoped to the flash
+          // (morgan's own hub legitimately shows morgan's own account — not enumeration).
+          await expect(denial).not.toContainText(ACME_ORG_NAME);
+          await expect(denial).not.toContainText(DEMO_MORGAN_EMAIL);
         } finally {
           await context.close();
         }
