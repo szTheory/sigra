@@ -3,6 +3,7 @@ created: 2026-07-01T00:00:00.000Z
 status: pending
 title: Phase 209 code-review deferred findings — canary recapture premise, unwired panel-schema-check, validator nits
 area: ci
+resolves_phase: 214
 files:
   - .github/workflows/ci.yml
   - scripts/ci/panel-schema-check.sh

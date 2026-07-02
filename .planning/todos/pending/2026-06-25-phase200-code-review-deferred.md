@@ -3,6 +3,7 @@ created: 2026-06-25T00:00:00.000Z
 status: pending
 title: harden token-scoped session revocation + de-dupe admin session helpers (Phase 200 deferred review findings)
 area: admin-ui
+resolves_phase: 214
 files:
   - lib/sigra/auth.ex
   - lib/sigra/session_stores/ecto.ex
