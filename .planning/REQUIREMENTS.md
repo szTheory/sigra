@@ -65,29 +65,27 @@ Explicitly excluded from v1.43 to keep it a true stabilization lane.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HEALTH-01 | TBD | Pending |
-| HEALTH-02 | TBD | Pending |
-| HEALTH-03 | TBD | Pending |
-| HEALTH-04 | TBD | Pending |
-| COMPAT-01 | TBD | Pending |
-| COMPAT-02 | TBD | Pending |
-| COMPAT-03 | TBD | Pending |
-| DEBT-01 | TBD | Pending |
-| DEBT-02 | TBD | Pending |
-| DEBT-03 | TBD | Pending |
-| DEBT-04 | TBD | Pending |
-| DEBT-05 | TBD | Pending |
-| RATIFY-01 | TBD | Pending |
+| HEALTH-01 | Phase 215 | Pending |
+| HEALTH-02 | Phase 215 | Pending |
+| HEALTH-03 | Phase 214 | Pending |
+| HEALTH-04 | Phase 215 | Pending |
+| COMPAT-01 | Phase 213 | Pending |
+| COMPAT-02 | Phase 213 | Pending |
+| COMPAT-03 | Phase 213 | Pending |
+| DEBT-01 | Phase 214 | Pending |
+| DEBT-02 | Phase 214 | Pending |
+| DEBT-03 | Phase 214 | Pending |
+| DEBT-04 | Phase 214 | Pending |
+| DEBT-05 | Phase 214 | Pending |
+| RATIFY-01 | Phase 215 | Pending |
 
 **Coverage:**
 - v1 requirements: 13 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 13 ⚠️
+- Mapped to phases: 13 (fully mapped)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial definition (milestone v1.43 STABILIZE)*
+*Last updated: 2026-07-02 — traceability table populated after roadmap creation (v1.43 STABILIZE, Phases 213-215)*

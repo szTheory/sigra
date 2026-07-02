@@ -1,10 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Between milestones. Latest: **v1.42 ADMIN-DS-ELEVATION** shipped 2026-07-02 (Phases 205-212). Hex: `v1.1.0`. Start the next milestone with `/gsd-new-milestone`.
+**Status:** Active milestone — **v1.43 STABILIZE** (Phases 213-215). Start planning with `/gsd-plan-phase 213`.
 
 ## Milestones
 
+- 🔄 **v1.43 STABILIZE** — Phases 213-215 (in progress)
 - ✅ **v1.42 ADMIN-DS-ELEVATION** — Phases 205-212 (shipped 2026-07-02) · full detail in milestones/v1.42-ROADMAP.md
 - ✅ **v1.41 ADMIN-UX-ELEVATION** — Phases 199-204 (shipped 2026-06-27)
 - ✅ **v1.40 CI-PERF** — Phases 193-198 (shipped 2026-06-21)
@@ -17,6 +18,12 @@
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
+
+### v1.43 STABILIZE
+
+- [ ] **Phase 213: Latest-Phoenix Compatibility** — Fix generated-host compile failure against phx.new ≥1.8.8, reconcile golden fixture, drop the 1.8.7 CI pin
+- [ ] **Phase 214: Debt & Robustness Clear** — Oban enqueue guard, deferred code-review items (phase-209, phase-200), Hex version-ranking wart, demo CSS corruption, and local test noise sources
+- [ ] **Phase 215: Terminal Ratification** — Full library + example suites green, every required CI check passes, milestone closed with no blocking debt
 
 <details>
 <summary>✅ v1.42 ADMIN-DS-ELEVATION (Phases 205-212) — SHIPPED 2026-07-02 · full detail in milestones/v1.42-ROADMAP.md</summary>
@@ -47,18 +54,48 @@
 
 Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
-## Progress (latest milestone)
+## Phase Details
 
-| Phase | Milestone | Plans Complete | Status | Completed |
-| --- | --- | --- | --- | --- |
-| 205. Foundation | v1.42 | 4/4 | Complete | 2026-06-28 |
-| 206. L1 Component Elevation Wave A | v1.42 | 4/4 | Complete | 2026-06-28 |
-| 207. L1 Component Elevation Wave B + L0 Token Layer | v1.42 | 4/4 | Complete | 2026-06-28 |
-| 208. L2 Meta-Component Group Elevation | v1.42 | 3/3 | Complete | 2026-07-01 |
-| 208.1. v1.42 CI-Gate Remediation | v1.42 | 4/4 | Complete | 2026-07-01 |
-| 209. Judgment-Level Page Pass | v1.42 | 6/6 | Complete | 2026-07-01 |
-| 210. Remaining Cell Elevation | v1.42 | 2/2 | Complete | 2026-07-01 |
-| 211. Terminal Ratification | v1.42 | 5/5 | Complete | 2026-07-01 |
-| 212. v1.42 Integration Merge | v1.42 | 4/4 | Complete | 2026-07-02 |
+### Phase 213: Latest-Phoenix Compatibility
+**Goal**: Adopters using the latest `phx.new` (≥1.8.8) can install Sigra and compile their generated host without errors or warnings under `--warnings-as-errors`; CI tracks current Phoenix rather than a pinned archive.
+**Depends on**: Nothing (first phase of this milestone)
+**Requirements**: COMPAT-01, COMPAT-02, COMPAT-03
+**Success Criteria** (what must be TRUE):
+  1. A fresh `mix phx.new` (≥1.8.8) + `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type"` warning and no other 1.8.8 output-drift compile breakage.
+  2. The install golden fixture and `golden_diff_test` pass without the `phx_new 1.8.7` archive — the `config/config.exs root_tag_attribute` byte-diff is correctly absorbed into the committed fixture.
+  3. The `phx_new 1.8.7` pin is absent from all CI workflow files and from the CLAUDE.md dev-prereq note; the generated-host acceptance smoke runs against current `phx.new` and exits green.
+**Plans**: TBD
 
-_Prior-milestone phase rows (v1.33–v1.41) live in each milestone's archived ROADMAP under `milestones/`._
+### Phase 214: Debt & Robustness Clear
+**Goal**: Every tracked real-bug, robustness gap, and deferred code-review item from previous phases is resolved (or explicitly re-triaged with rationale), and local `mix test` output is a trustworthy release signal with no spurious failures.
+**Depends on**: Phase 213
+**Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05, HEALTH-03
+**Success Criteria** (what must be TRUE):
+  1. Oban enqueue paths degrade safely when Oban is compiled but unsupervised or its table is absent — no `42P01` crash — with a regression test that proves the guard.
+  2. The deferred phase-209 code-review items are closed: `panel-schema-check.sh` is either wired into CI or explicitly retired with rationale committed; remaining info nits are resolved.
+  3. The deferred phase-200 code-review items are resolved or re-triaged with recorded rationale.
+  4. The stray Hex `1.20.0` version-ranking wart is corrected so Sigra's version ordering is accurate.
+  5. The demo `app.css` orphaned-comment corruption is removed and guarded against regression, so no CSS rule is silently dropped.
+  6. A clean local `mix test` run has zero spurious non-product failures: the `Chimeway.Repo` missing-database startup noise and `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated.
+**Plans**: TBD
+
+### Phase 215: Terminal Ratification
+**Goal**: The full library and example suites are demonstrably green end-to-end, every required CI check passes on the milestone branch, and the milestone closes with all in-scope deferred-items reconciled and no new blocking debt.
+**Depends on**: Phase 214
+**Requirements**: HEALTH-01, HEALTH-02, HEALTH-04, RATIFY-01
+**Success Criteria** (what must be TRUE):
+  1. The full library test suite runs green against live Postgres, with the command and result recorded as the trustworthy release signal for this milestone.
+  2. The example app test suite runs green against live Postgres with no failures.
+  3. Every required CI check passes green end-to-end on the milestone branch (all lanes: library tests, dep-off, example Playwright smoke, design gallery, install/golden, fast checks, ci-gate).
+  4. Every deferred-items-ledger entry pulled into this milestone is marked resolved; no new blocking debt is introduced; the milestone is closed cleanly.
+**Plans**: TBD
+
+## Progress (v1.43 STABILIZE)
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 213. Latest-Phoenix Compatibility | 0/? | Not started | - |
+| 214. Debt & Robustness Clear | 0/? | Not started | - |
+| 215. Terminal Ratification | 0/? | Not started | - |
+
+_Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._
