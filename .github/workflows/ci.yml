@@ -988,12 +988,18 @@ jobs:
         # APG gates) is wired in here so the ConfirmDialog hook's
         # focus-trap/Escape/focus-return behavior is actually guarded — it was
         # authored in phase 189 but previously never run in CI.
+        # D-05/D-06 (212-02): the 3 persona-flow specs (FLOW-01) are appended
+        # here — they match ADMIN_BEHAVIOR_SPECS and run on chromium only;
+        # mobile testIgnore excludes them, so no silent-skip risk.
         run: |
           npx playwright test \
             tests/admin-user-operations.spec.ts \
             tests/impersonation.spec.ts \
             tests/admin-audit.spec.ts \
             tests/admin-modal-interaction.spec.ts \
+            tests/admin-flow-platform-admin.spec.ts \
+            tests/admin-flow-support-investigator.spec.ts \
+            tests/admin-flow-org-admin.spec.ts \
             --project=chromium
       - name: Run admin checkpoints (chromium, mobile, dark-chromium)
         id: admin_checkpoints
