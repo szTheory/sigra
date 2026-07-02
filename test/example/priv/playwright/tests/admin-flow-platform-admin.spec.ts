@@ -31,6 +31,7 @@ import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import {
   waitForLiveViewReady,
   loginDemoAdmin,
+  loginDemoUser,
   assertScopeChrome,
   seedThemeAndAssertNoFlash,
   assertThemeAttributes,
@@ -41,6 +42,7 @@ import {
 
 // Demo persona credentials (public-by-design, dev server only; from personas.ex)
 const DEMO_ALICE_EMAIL = 'alice@demo.tasklane.test';
+const DEMO_ALICE_PASSWORD = 'AliceDemoPass1!';
 const DEMO_DAVE_EMAIL = 'dave@demo.tasklane.test';
 const DEMO_FRANK_EMAIL = 'frank@demo.tasklane.test';
 
@@ -266,8 +268,19 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
   test.describe('keyboard operability (FLOW-02)', () => {
     test('Tab to revoke trigger → Enter opens confirm dialog → focus containment → Escape closes → trigger refocused', async ({
       page,
+      browser,
     }) => {
-      // Navigate to alice's user detail (alice has sessions to revoke).
+      // The revoke trigger renders only when the target has an active session
+      // (user_sessions_live: :if={@detail.sessions != []}). Seeded personas have no
+      // session, so mint one for alice via a throwaway context — this leaves a real
+      // active-session row for the admin to drive the keyboard journey against.
+      // (The journey only opens + Escapes the dialog; it never confirms a revoke.)
+      const aliceCtx = await browser.newContext();
+      const alicePage = await aliceCtx.newPage();
+      await loginDemoUser(alicePage, DEMO_ALICE_EMAIL, DEMO_ALICE_PASSWORD);
+      await aliceCtx.close();
+
+      // Navigate to alice's user detail (alice now has a session to revoke).
       await page.goto('/admin/users');
       await waitForLiveViewReady(page);
 
