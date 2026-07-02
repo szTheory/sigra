@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.42
 milestone_name: CI-Gate Remediation
-current_phase: 211
 status: executing
 stopped_at: Phase 212 context gathered (assumptions mode)
-last_updated: "2026-07-02T00:09:47.579Z"
-last_activity: 2026-07-01
-last_activity_desc: Phase 211 complete
+last_updated: "2026-07-02T00:17:04.354Z"
+last_activity: 2026-07-02 -- Phase 212 execution started
 progress:
-  total_phases: 9
-  completed_phases: 7
-  total_plans: 32
-  completed_plans: 31
-  percent: 78
+  total_phases: 5
+  completed_phases: 4
+  total_plans: 21
+  completed_plans: 17
+  percent: 80
 ---
 
 # Project State
@@ -24,16 +22,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 211 — terminal-ratification
+**Current focus:** Phase 212 — v1-42-integration-merge-canary-reconciliation-gate-the-perso
 
 ## Current Position
 
-Phase: 211
-Plan: Not started
-Status: Ready to execute
+Phase: 212 (v1-42-integration-merge-canary-reconciliation-gate-the-perso) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 212
 Open (deferred as v1.42 milestone-integration debt, NOT 208.1): Fast checks snapshot-canary drift (Phases 200–204 cumulative + impersonation-banner canary policy) and Library shard-2 NoopTest log-capture flake — see `.planning/todos/pending/2026-06-30-v142-integration-snapshot-canary-drift.md`. Strong candidate for the Phase 209 binding gate.
 Next: resume Phase 208 completion / Phase 209 page pass; integration PR #63 (draft) is open for the v1.42 backlog merge once milestone debt is cleared.
-Last activity: 2026-07-01 — Phase 211 complete
+Last activity: 2026-07-02 -- Phase 212 execution started
 
 ## Accumulated Context
 
