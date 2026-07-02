@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.42
-milestone_name: ADMIN-DS-ELEVATION
-current_phase: 212
-status: Awaiting next milestone
-stopped_at: v1.42 ADMIN-DS-ELEVATION milestone complete and archived (PR #63 merged to origin/main)
-last_updated: "2026-07-02T21:49:08.286Z"
+milestone: v1.43
+milestone_name: STABILIZE
+status: planning
+last_updated: "2026-07-02T22:09:57.874Z"
 last_activity: 2026-07-02
-last_activity_desc: Milestone v1.42 completed and archived
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 36
-  completed_plans: 36
-  percent: 100
-current_phase_name: v1-42-integration-merge-canary-reconciliation-gate-the-perso
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.42 ADMIN-DS-ELEVATION complete + archived
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone (post-1.0 maintenance-first posture)
-Last activity: 2026-07-02 — Milestone v1.42 completed and archived (ROADMAP collapsed, REQUIREMENTS archived, 9 open items acknowledged/deferred)
+Status: Defining requirements
+Last activity: 2026-07-02 — Milestone v1.43 started
 
 ## Accumulated Context
 
