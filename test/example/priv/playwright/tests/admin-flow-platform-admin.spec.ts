@@ -182,9 +182,28 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       await expect(page).toHaveURL(/\/admin\/users\/[^?/]+\/audit/);
 
       // 5. Dave has 2 seeded audit events: auth.login.failure + auth.lockout.start.
-      // The action column renders as <code class="sg-code">{row.action}</code>.
-      await expect(page.locator('code.sg-code').filter({ hasText: 'auth.login.failure' }).first()).toBeVisible();
-      await expect(page.locator('code.sg-code').filter({ hasText: 'auth.lockout.start' }).first()).toBeVisible();
+      // Phase 202-01 (commit 3fe5e584) moved the raw action codes off the visible
+      // desktop row into a collapsed native <details>"Event codes" disclosure inside
+      // the Event <td> (audit_table_row/1, components.ex). The mobile copy lives in a
+      // sg-show-mobile container (display:none on this chromium viewport). So the raw
+      // code.sg-code nodes are non-visible until the disclosure is expanded — expand
+      // each "Event codes" disclosure in the desktop results, then assert the codes.
+      const desktopResults = page.locator('#admin-audit-user-desktop-results');
+      // Each row's "Event codes" <summary> toggles its own <details>. Click every
+      // summary to reveal the raw code.sg-code text nodes it wraps.
+      const eventCodeSummaries = desktopResults.locator('details > summary', {
+        hasText: 'Event codes',
+      });
+      const disclosureCount = await eventCodeSummaries.count();
+      for (let i = 0; i < disclosureCount; i++) {
+        await eventCodeSummaries.nth(i).click();
+      }
+      await expect(
+        desktopResults.locator('code.sg-code').filter({ hasText: 'auth.login.failure' }).first(),
+      ).toBeVisible();
+      await expect(
+        desktopResults.locator('code.sg-code').filter({ hasText: 'auth.lockout.start' }).first(),
+      ).toBeVisible();
     });
   });
 
@@ -265,6 +284,17 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       await page.goto(aliceDetailHrefKb!);
       await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
+
+      // Phase 200 (D-04) moved the revoke flow off the detail page onto
+      // UserSessionsLive at /admin/users/:id/sessions; the detail page is now a
+      // calm read-only identity surface that links out via "Manage sessions".
+      // Follow the link-out so the revoke trigger + ConfirmDialog overlay
+      // (#user-session-confirm-overlay, defined only in user_sessions_live.ex) exist.
+      const manageSessionsKb = page.getByRole('link', { name: 'Manage sessions' });
+      await expect(manageSessionsKb).toBeVisible();
+      await manageSessionsKb.click();
+      await waitForLiveViewReady(page);
+      await expect(page).toHaveURL(/\/admin\/users\/[^/]+\/sessions/);
 
       // Locate the "Revoke all sessions" or "Revoke session" trigger button.
       // Prefer "Revoke all sessions" from the Danger Zone section (always present if sessions exist).
