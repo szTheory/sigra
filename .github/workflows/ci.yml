@@ -1212,7 +1212,9 @@ jobs:
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
+    # GATE-02 / D-08: temporary integration-scoped relaxation — runs on PR #63's head branch
+    # (ship/v1.42-ci-gate-remediation) to prove generated-host parity in CI; remove after merge.
+    if: github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'
     needs: release_ref_guard
     # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
     # 45–60m is the tuned band for this job.
