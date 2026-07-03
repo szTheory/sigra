@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.43
 milestone_name: STABILIZE
-status: milestone_complete
-stopped_at: Milestone complete (Phase 215 was final phase)
-last_updated: 2026-07-03T09:26:47.870Z
-last_activity: 2026-07-03 -- Phase 215 execution started
+status: Awaiting next milestone
+stopped_at: Completed 214-05-PLAN.md
+last_updated: "2026-07-03T09:48:21.700Z"
+last_activity: 2026-07-03 — Milestone v1.43 completed and archived
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 46
-  percent: 67
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 215
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-03
+Phase: Milestone v1.43 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-03 — Milestone v1.43 completed and archived
 
 ## Accumulated Context
 
@@ -315,6 +315,26 @@ Items deferred beyond v1.43 (next milestone or later):
 
 **Known-accepted (not blocking):** the `Sigra.Audit.Forwarders.NoopTest` shard-2 log-capture flake (parallel-shard race, passes in isolation — Phase 211 D-05).
 
+### Acknowledged at v1.43 close (2026-07-03)
+
+v1.43-pulled ledger entries all RESOLVED (reconciled by Phase 215 RATIFY-01, cross-checked in 215-03-SUMMARY): oban-enqueue (DEBT-01), phase209/phase200 code-review (DEBT-02/03), app-css-comment-corruption (DEBT-05), v142-integration-snapshot-canary-drift + stale-known-failure-contract-tests (HEALTH-03), all under `.planning/todos/resolved/`. SEED-004 phx-new-button-forward-compat RESOLVED via COMPAT-01/02/03 (Phase 213).
+
+Items deferred beyond v1.43 (carry to the next admin/operator-UI + feature milestone) — NOT unreconciled debt:
+
+| Category | Item | Status |
+| --- | --- | --- |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked — demo-DX polish (UI-01, v2) |
+| todo | 2026-06-22-vaultr-authed-rebrand-residuals | tracked — demo rebrand residuals (UI-02, v2) |
+| todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature (FEAT-01, v2) |
+| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (FEAT-02, v2) |
+| todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label (FEAT-03, v2) |
+| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (SEED-005, v2) |
+| todo | 2026-07-02-app-css-corruption-guard-blind-spot | accepted low-severity DEBT-05 follow-up (live app.css clean + browser-verified; regression-guard hardening gap only — Phase 215 D-05) |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture |
+
+**Closeout type:** override_closeout — the 19 `audit-open` items are all non-blocking: 10 completed quick-tasks mis-scanned as `missing` (known `audit-open` false-flag), the todos/seeds above (reconciled/deferred by 215-03), and 1 already-`resolved` uat gap. Phase 215 terminal-ratification served as the milestone audit (9/9 must-haves verified; ledger reconciled; all 5 required CI checks green on merged PR #67). No v1.43-MILESTONE-AUDIT.md file (Jon-confirmed: 215 is the audit-equivalent).
+
 ## Session Continuity
 
 Last session: 2026-07-03T02:06:29.751Z
@@ -323,7 +343,7 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Plan Phase 213 with `/gsd-plan-phase 213`
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 
