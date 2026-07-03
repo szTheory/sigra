@@ -68,8 +68,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin "${{ github.base_ref }}" --depth=1
-            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+            git fetch origin "${{ github.base_ref }}"
+            MB=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+            echo "ref=${MB}" >> "$GITHUB_OUTPUT"
           else
             echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
           fi
