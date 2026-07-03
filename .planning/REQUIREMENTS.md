@@ -18,7 +18,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Forward Ratchet & Award Gradient (RATCHET) — Phase 216
 
-- [ ] **RATCHET-01**: The quality ledger gains a finer-grained award sub-score above the current Tier-2 ceiling, and the harness re-verifies each existing Tier-2 claim against rendered output (verify-then-climb), flagging any cell that was optimistically flipped in the manual era.
+- [x] **RATCHET-01**: The quality ledger gains a finer-grained award sub-score above the current Tier-2 ceiling, and the harness re-verifies each existing Tier-2 claim against rendered output (verify-then-climb), flagging any cell that was optimistically flipped in the manual era.
 - [x] **RATCHET-02**: A deterministic findings-count-monotonic guard fails CI if any cell's open-finding count increases versus merge-base, and a committed settled-findings set suppresses re-litigation of already-resolved/waived findings — a forward-only signal that counts, never judges.
 
 ### Adversarial LLM Panel (PANEL) — Phase 217
@@ -78,7 +78,7 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | HARNESS-01 | 216 | Complete |
 | HARNESS-02 | 216 | Complete |
 | HARNESS-03 | 216 | Pending |
-| RATCHET-01 | 216 | Pending |
+| RATCHET-01 | 216 | Complete |
 | RATCHET-02 | 216 | Complete |
 | PANEL-01 | 217 | Pending |
 | PANEL-02 | 217 | Pending |

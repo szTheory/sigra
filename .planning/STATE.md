@@ -6,14 +6,13 @@ current_phase: 216
 current_phase_name: harness-foundation-award-gradient
 status: executing
 stopped_at: Completed 216-01-PLAN.md (harness foundation)
-last_updated: "2026-07-03T17:23:08.506Z"
+last_updated: "2026-07-03T17:32:12.052Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 216 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -30,11 +29,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 216 (harness-foundation-award-gradient) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
-Last activity: 2026-07-03 -- Phase 216 execution started
+Last activity: 2026-07-03
 
-Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/5 phases)
+Progress: [███░░░░░░░] 29%
 
 ## Accumulated Context
 
@@ -248,6 +247,11 @@ Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/5
 - [Phase ?]: 216-01 dep legitimacy gate
 - [Phase ?]: 216-01 dep legitimacy gate
 - [Phase ?]: 216-01 D-10 base-ref fix
+- [Phase ?]: test decision
+- [Phase ?]: Award band floor A0 on all axes at phase 216-02 start; climbing happens only against fresh render in Plan 07
+- [Phase ?]: render_sha256 and open_findings consolidated in admin-render-sha.json as single authoritative source per D-21 (216-02)
+- [Phase ?]: finding_id = sha256(surface NUL class NUL anchor) locked as 216 substrate key; Phase 217 AUTOFIX-01 must match — seam flagged UNRESOLVED per D-22 (216-02)
+- [Phase ?]: Tier column-4 grammar frozen; award data in JSON sibling admin-award-ledger.json only; no 5th column, no decorator per D-19 (216-02)
 
 ### Pending Todos
 
@@ -323,7 +327,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-03T17:23:08.501Z
+Last session: 2026-07-03T17:32:12.047Z
 Stopped at: Completed 216-01-PLAN.md (harness foundation)
 Resume file: None
 
