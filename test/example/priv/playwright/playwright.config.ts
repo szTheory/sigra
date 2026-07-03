@@ -37,6 +37,11 @@ const WEBAUTHN_CDP_SPECS =
 // Evaluator-facing demo showcase spec — runs in its own partition so it does
 // not interfere with the behavior-truth lanes (chromium, mobile).
 const DEMO_SHOWCASE_SPEC = /demo-showcase\.spec\.ts/;
+// Phase 216 Plan 06: admin eval harness (render matrix + probes + bundles).
+// Three projects: admin-eval (Desktop Chrome DPR1, hard-gate), admin-eval-mobile
+// (iPhone 13, warn-only), admin-eval-dark (colorScheme:'dark', warn-only).
+// D-15: geometry probes hard-gate only in admin-eval (chromium DPR1).
+const ADMIN_EVAL_SPEC = /admin-eval\.spec\.ts/;
 
 // GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
 // videos are retained on green runs (default CI keeps video on failure only).
@@ -86,7 +91,7 @@ export default defineConfig({
     // specs so those stay scoped to their partitioned projects.
     {
       name: 'chromium',
-      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_DESIGN_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC],
+      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_DESIGN_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC, ADMIN_EVAL_SPEC],
       use: { ...devices['Desktop Chrome'] },
     },
     // Mobile coverage for non-admin flows (golden-path, organizations,
@@ -103,6 +108,7 @@ export default defineConfig({
         WEBAUTHN_CDP_SPECS,
         DEMO_SHOWCASE_SPEC,
         ADMIN_MODAL_SPEC,
+        ADMIN_EVAL_SPEC,
       ],
       use: { ...devices['iPhone 13'] },
     },
@@ -193,6 +199,31 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         colorScheme: 'dark',
         video: checkpointVideo,
+      },
+    },
+    // Admin eval lane (Desktop Chrome DPR1): render matrix + probes + bundle writes.
+    // This is the HARD-GATE geometry project (D-15): gate-severity probe findings
+    // fail the test. Geometry probes run at capture via page.evaluate (D-11).
+    {
+      name: 'admin-eval',
+      testMatch: ADMIN_EVAL_SPEC,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Admin eval lane (mobile): iPhone 13 render + probe capture, warn-only (D-15).
+    // Geometry probes collect findings but do not fail (mobile metrics vary by OS).
+    {
+      name: 'admin-eval-mobile',
+      testMatch: ADMIN_EVAL_SPEC,
+      use: { ...devices['iPhone 13'] },
+    },
+    // Admin eval lane (dark theme): dark-mode render + probe capture, warn-only (D-15).
+    // Geometry/color probes collect findings but do not fail in dark-mode runs.
+    {
+      name: 'admin-eval-dark',
+      testMatch: ADMIN_EVAL_SPEC,
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
       },
     },
   ],
