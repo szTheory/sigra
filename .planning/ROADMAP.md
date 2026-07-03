@@ -22,7 +22,7 @@
 ### v1.43 STABILIZE
 
 - [ ] **Phase 213: Latest-Phoenix Compatibility** — Fix generated-host compile failure against phx.new ≥1.8.8, reconcile golden fixture, drop the 1.8.7 CI pin
-- [ ] **Phase 214: Debt & Robustness Clear** — Oban enqueue guard, deferred code-review items (phase-209, phase-200), Hex version-ranking wart, demo CSS corruption, and local test noise sources
+- [x] **Phase 214: Debt & Robustness Clear** — Oban enqueue guard, deferred code-review items (phase-209, phase-200), Hex version-ranking wart, demo CSS corruption, and local test noise sources
 - [ ] **Phase 215: Terminal Ratification** — Full library + example suites green, every required CI check passes, milestone closed with no blocking debt
 
 <details>
