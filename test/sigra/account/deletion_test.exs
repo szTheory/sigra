@@ -83,6 +83,13 @@ defmodule Sigra.Account.DeletionTest do
     end
 
     test "enqueues account deletion worker when generated-host job context is present" do
+      # Simulate Oban supervision: oban_running?/0 checks both oban_available?/0
+      # (true — Oban is compiled) AND Process.whereis(Oban) != nil. Register a
+      # dummy process under the Oban name so the guard passes (D-01/D-02).
+      dummy = spawn(fn -> Process.sleep(:infinity) end)
+      Process.register(dummy, Oban)
+      on_exit(fn -> Process.exit(dummy, :kill) end)
+
       user = build_user()
 
       Sigra.MockRepo
@@ -188,6 +195,70 @@ defmodule Sigra.Account.DeletionTest do
 
       assert updated_user.scheduled_deletion_at == scheduled_at
       assert %DateTime{} = scheduled_at
+    end
+
+    test "does not attempt to enqueue when Oban is compiled but not supervised" do
+      # Arrange: Oban module is compiled (oban_available?/0 true) but Process.whereis(Oban)
+      # returns nil in the ExUnit environment — Oban is not supervised here. This is the
+      # exact condition the oban_running?/0 guard was added to catch (DEBT-01 D-04).
+      assert Sigra.OptionalDeps.oban_available?() == true,
+             "Oban must be compiled as a dep for this regression test to be meaningful"
+
+      assert Process.whereis(Oban) == nil,
+             "Oban must not be supervised in the test environment — this test verifies the guard fires"
+
+      user = build_user()
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Multi{} = multi
+
+        [{:user, {:update, changeset, []}}, {:tokens, {:delete_all, _query, []}}] =
+          Multi.to_list(multi)
+
+        now = Ecto.Changeset.get_change(changeset, :deleted_at)
+        scheduled = Ecto.Changeset.get_change(changeset, :scheduled_deletion_at)
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      # Act: no repo.insert expectation set — if the guard failed, Mox would
+      # raise an unexpected-call error here (proving the guard fired when absent)
+      import ExUnit.CaptureLog
+
+      log =
+        capture_log(fn ->
+          result =
+            Deletion.schedule(
+              Sigra.MockRepo,
+              user,
+              base_opts(
+                user_schema: Sigra.TestUser,
+                user_token_schema: Sigra.TestUserToken
+              )
+            )
+
+          # Assert: deletion succeeds (user soft-deleted, sessions revoked)
+          assert {:ok, updated_user, scheduled_at} = result
+          assert updated_user.scheduled_deletion_at != nil
+          assert %DateTime{} = scheduled_at
+        end)
+
+      # Assert: no Oban-crash warning emitted — guard fired before insert attempt
+      refute log =~ "Sigra account deletion job enqueue crashed",
+             "Expected oban_running?/0 guard to prevent the insert attempt; got crash log: #{log}"
     end
 
     test "returns {:error, :already_scheduled} when deletion is already scheduled" do
