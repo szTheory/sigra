@@ -119,7 +119,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 215-04-PLAN.md — v1.43 ship PR surface; gate on 5 required CI checks green; merge/archival deferred (HEALTH-04, D-01) [wave 2, depends on 215-01/02/03]
+- [x] 215-04-PLAN.md — v1.43 ship PR surface; gate on 5 required CI checks green; merge/archival deferred (HEALTH-04, D-01) [wave 2, depends on 215-01/02/03]
 
 ## Progress (v1.43 STABILIZE)
 
@@ -127,6 +127,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
 | 214. Debt & Robustness Clear | 5/5 | Complete   | 2026-07-03 |
-| 215. Terminal Ratification | 3/4 | In Progress|  |
+| 215. Terminal Ratification | 4/4 | Complete    | 2026-07-03 |
 
 _Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._
