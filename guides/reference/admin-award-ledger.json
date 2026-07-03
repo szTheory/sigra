@@ -4,27 +4,50 @@
   "cells": {
     "users-index-live": {
       "axes": {
-        "token_fidelity": "A0",
-        "rhythm": "A0",
-        "a11y_polish": "A0",
-        "states": "A0"
+        "token_fidelity": "A2",
+        "rhythm": "A2",
+        "a11y_polish": "A2",
+        "states": "A2"
       },
-      "band": "A0",
-      "verified_at_sha": null,
-      "rendered": false,
-      "evidence_ref": []
+      "band": "A2",
+      "verified_at_sha": "eeb6bf14f6ad1e6d4802ac56adbf852db50b533f",
+      "rendered": true,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:assertUserResultEquivalence",
+        "test:admin-eval-spec-gallery-boards-mg2-mg5"
+      ]
     },
     "user-show-live": {
       "axes": {
-        "token_fidelity": "A0",
-        "rhythm": "A0",
-        "a11y_polish": "A0",
-        "states": "A0"
+        "token_fidelity": "A1",
+        "rhythm": "A1",
+        "a11y_polish": "A1",
+        "states": "A1"
       },
-      "band": "A0",
-      "verified_at_sha": null,
-      "rendered": false,
-      "evidence_ref": []
+      "band": "A1",
+      "verified_at_sha": "eeb6bf14f6ad1e6d4802ac56adbf852db50b533f",
+      "rendered": true,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-boards-mg9-mg10-mg11"
+      ]
     }
   }
 }
