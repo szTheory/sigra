@@ -1496,9 +1496,27 @@ defmodule Sigra.Auth do
   def delete_session(config, hashed_token, opts \\ []) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
+    # D-08: If user_id is provided in opts, verify session ownership before delete.
+    # Callers that omit user_id (e.g. self-logout by cookie token) are unaffected.
+    # Silent no-op on mismatch — defense in depth; caller learns nothing (identical
+    # :ok return to "already gone").
+    user_id_constraint = Keyword.get(opts, :user_id)
+
     result =
       Telemetry.span([:sigra, :session, :delete], %{}, fn ->
-        session_store.delete(hashed_token, store_opts)
+        case user_id_constraint do
+          nil ->
+            session_store.delete(hashed_token, store_opts)
+
+          uid ->
+            case session_store.fetch(hashed_token, store_opts) do
+              {:ok, %{user_id: ^uid}} -> session_store.delete(hashed_token, store_opts)
+              # user_id mismatch — no-op (foreign token protection)
+              {:ok, _foreign} -> :ok
+              # already gone
+              {:error, :not_found} -> :ok
+            end
+        end
       end)
 
     # D-26: session.delete audit row (standalone, D-28).
