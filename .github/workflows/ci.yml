@@ -111,6 +111,33 @@ jobs:
         run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
       - name: Quality ledger monotonic guard self-test
         run: bash scripts/ci/quality-ledger-monotonic.test.sh
+      # Phase 216 (HARNESS-FOUNDATION): admin eval guards — read committed ledgers + merge-base.
+      # These are the merge-blocking forward-only ratchets for the admin eval harness.
+      # The expensive render+probe Playwright run is in the separate admin_eval_render job (JUDGE-CI-01).
+      - name: Quality findings monotonic guard
+        # Phase 216 Plan 07: open finding counts in admin-render-sha.json may not increase vs merge-base.
+        run: bash scripts/ci/quality-findings-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Quality findings monotonic guard self-test
+        run: bash scripts/ci/quality-findings-monotonic.test.sh
+      - name: Award ledger verify-then-climb guard
+        # Phase 216 Plan 07 (D-20): axis up only with fresh verified_at_sha + resolving evidence; band==min(axes).
+        run: node scripts/ci/award-guard.mjs --base "${{ steps.base.outputs.ref }}"
+      - name: Award ledger verify-then-climb guard self-test
+        run: node scripts/ci/award-guard.test.mjs
+      - name: Settled findings lint
+        # Phase 216 Plan 07: settled-findings.tsv must be sorted + no duplicate finding_id.
+        run: bash scripts/ci/settled-findings-lint.sh
+      - name: Settled findings lint self-test
+        run: bash scripts/ci/settled-findings-lint.test.sh
+      - name: Evidence anchor integrity check
+        # Phase 216 Plan 07 (D-09): every finding anchor must resolve in captured DOM.
+        # Soft-skips (exit 0) when no bundles present in a clean checkout — the full
+        # check runs in admin_eval_render where bundles are produced.
+        run: node scripts/ci/evidence-anchor-check.mjs
+      - name: Stale-render guard self-test
+        # Phase 216 Plan 07: unit self-test only — stale-render-guard.sh itself runs in
+        # admin_eval_render (it hard-fails on absent bundles, so it cannot run here).
+        run: bash scripts/ci/stale-render-guard.test.sh
       - name: Check app.css for orphaned corruption
         # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
         # fragments re-entering the :root block of test/example's app.css.
@@ -1883,6 +1910,139 @@ jobs:
         run: |
           echo "--- /tmp/example-checkpoint-recapture-server.log ---"
           cat /tmp/example-checkpoint-recapture-server.log || echo "(no log file)"
+
+  # Phase 216 Plan 07 (JUDGE-CI-01): admin eval render + probe job.
+  # Boots the example app, runs the full admin-eval harness (render matrix + derivative guards),
+  # and uploads the gitignored eval bundles as CI artifacts.
+  #
+  # NOT in ci-gate.needs — this is the expensive render evidence job, not the merge gate.
+  # The merge-blocking forward-only signals are the committed-ledger guards in fast_checks.
+  # This job may run as pull_request or push; it is NOT gated to non-PR events so developers
+  # can inspect render evidence on their PR branches.
+  admin_eval_render:
+    name: Admin eval render + probe (evidence only, not a merge gate)
+    runs-on: ubuntu-latest
+    needs: [release_ref_guard]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps (admin-eval-render lane)
+        id: admin_eval_render_deps_cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers (chromium only — admin-eval uses chromium)
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PORT: "4011"
+          PHX_SERVER: "true"
+        run: mix phx.server > /tmp/example-admin-eval-render-server.log 2>&1 &
+      - name: Wait for app to respond on PORT 4011
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4011/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          # Warm up the admin design gallery route so the first Playwright hit is compiled
+          curl -sf -o /dev/null "http://localhost:4011/admin/_design" \
+            && echo "warmed /admin/_design" \
+            || echo "warmup miss /admin/_design (non-fatal)"
+      - name: Run admin-eval harness (render matrix + derivative guards)
+        # JUDGE-CI-01: render+probe is here (off the merge path), never in fast_checks.
+        # The harness runs the spec across all 3 projects and chains the 5 derivative guards.
+        # continue-on-error: true so we can upload any partial bundles as artifacts even on failure.
+        id: admin_eval_harness
+        continue-on-error: true
+        env:
+          SIGRA_EXAMPLE_URL: "http://localhost:4011"
+        run: bash scripts/ci/admin-eval-harness.sh
+      - name: Upload eval bundles as CI artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: admin-eval-bundles-${{ github.run_id }}
+          path: test/example/priv/playwright/eval/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Fail the job if harness did not PASS
+        # Re-fail after artifact upload so investigators can download partial bundles.
+        if: steps.admin_eval_harness.outcome == 'failure'
+        run: |
+          echo "admin-eval harness reported failure (see Run admin-eval harness step above)"
+          exit 1
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-admin-eval-render-server.log ---"
+          cat /tmp/example-admin-eval-render-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## admin_eval_render cache"
+            echo "- deps cache (exact hit): ${{ steps.admin_eval_render_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
   # nightly trigger path reports red on a real failure. Dispatching with
