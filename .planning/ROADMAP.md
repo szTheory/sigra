@@ -69,70 +69,87 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 ## Phase Details
 
 ### Phase 216: Harness Foundation + Award Gradient
+
 **Goal**: A single near-command renders every admin surface into tamper-proof evidence bundles, deterministic visual probes run and flag defects automatically, and the quality ledger gains a finer-grained award sub-score — all proven end-to-end on two pilot surfaces.
 **Depends on**: Nothing (first phase of milestone; builds on v1.43 clean foundation)
 **Requirements**: HARNESS-01, HARNESS-02, HARNESS-03, RATCHET-01, RATCHET-02
 **Success Criteria** (what must be TRUE):
+
   1. A single command (`scripts/uat/up.sh` + one harness invocation) emits render bundles — screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256` — for every admin surface across the light/dark/mobile × populated/zero/loading/error matrix.
   2. The stale-render guard hard-fails (non-zero exit) when a bundle's `app_git_sha` does not match working HEAD or admin source is newer than the bundle; an evidence-integrity check rejects findings whose DOM anchor is absent from the captured DOM, making cite-and-flip impossible by construction.
   3. Deterministic visual probes run over the rendered DOM/computed-style and produce machine-readable findings for off-token spacing, misalignment, size/weight-budget overflow, ember-reserved violations, off-scale radius/shadow/control-height, sub-minimum target size, missing focus ring, card-in-card nesting, and non-obvious/below-fold primary actions.
   4. The award sub-score ledger extension is committed and the harness runs a verify-then-climb pass over existing Tier-2 claims against rendered output, flagging any cell that fails re-verification.
   5. The findings-count-monotonic guard exits non-zero when any cell's open-finding count increases versus merge-base, and two pilot surfaces complete the full render-probe-ratchet loop end-to-end with zero guard regressions.
-**Plans**: 7 plans
+
+**Plans**: 1/7 plans executed
 Plans:
-- [ ] 216-01-PLAN.md — Foundation: ci.yml merge-base fix (D-10) + .gitignore bundle ignores + parse5/cheerio install (legitimacy checkpoint)
+
+- [x] 216-01-PLAN.md — Foundation: ci.yml merge-base fix (D-10) + .gitignore bundle ignores + parse5/cheerio install (legitimacy checkpoint)
 - [ ] 216-02-PLAN.md — Ledger schemas: admin-award-ledger.json + settled-findings.tsv + render-sha ledger + finding_id key contract (217 seam)
 - [ ] 216-03-PLAN.md — canonicalize.ts (parse5 → render_sha256) + bundle.ts + determinism self-test
 - [ ] 216-04-PLAN.md — Guards: quality-findings-monotonic.sh + settled-findings-lint.sh + evidence-anchor-check.mjs (+ self-tests)
 - [ ] 216-05-PLAN.md — award-guard.mjs verify-then-climb + shared probe-id module + self-test
 - [ ] 216-06-PLAN.md — probes.ts (9 probes) + admin-eval.spec.ts + playwright projects + stale-render-guard.sh
 - [ ] 216-07-PLAN.md — Orchestrator + two-pilot verify-then-climb (≤A2) + runbook + ci.yml fast_checks wiring
+
 **UI hint**: yes
 
 ### Phase 217: Adversarial Panel + Auto-Fix Safety Rails
+
 **Goal**: The 4-lens LLM panel (3 persona/JTBD + 1 graphic-design) evaluates deterministically-clean surfaces under a forced-finding floor with k=3 consensus, deduplicates findings into a stable fix queue, and auto-applies only provably-safe fix classes with per-fix auto-revert on regression — all proven by an injected-regression test.
 **Depends on**: Phase 216
 **Requirements**: PANEL-01, PANEL-02, AUTOFIX-01, AUTOFIX-02
 **Success Criteria** (what must be TRUE):
+
   1. The 4-lens LLM panel emits machine-parseable findings that round-trip the existing rubric schema, with every lens-question holding a cited DOM anchor or the literal `NONE — searched for: <what>` — the forced-finding floor holds on deterministically-clean surfaces.
   2. k=3 consensus admits a finding only at ≥2/3 quorum; unchanged surfaces are skipped via content-hash (prior verdict carried forward) so re-runs on unmodified code produce zero new LLM calls and zero finding churn.
   3. All findings dedup into a single fix queue keyed by stable `finding_id` (hash of surface+lens+question+anchor); cross-surface recurring anchors collapse into high-priority systemic findings visible at the top of the queue.
   4. An injected-regression test proves that a deliberately-clunky change (off-token spacing, ember misuse, misalignment) causes the auto-revert to fire and the findings-count-monotonic guard to exit non-zero — the safety rails actually catch a regression.
   5. The panel is not in the `fast_checks` job and does not appear in any merge-blocking CI gate; only its deterministic derivatives (monotonic guard, probe findings) gate merges, preserving the JUDGE-CI-01 invariant throughout.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 218: Elevation Wave + Nit Cleanup
+
 **Goal**: Every admin surface and the L1/L2 component fractal runs through the full harness loop, existing Tier-2 claims are re-verified and award sub-scores raised where earned, UI-01 and UI-02 nits are folded in, and the result lands as a single reviewable PR where the operator signs off only on residual judgment calls and gradient raises — not an open-ended issue hunt.
 **Depends on**: Phase 217
 **Requirements**: ELEVATE-01, ELEVATE-02, ELEVATE-03
 **Success Criteria** (what must be TRUE):
+
   1. All 8 admin/operator surfaces and the L1/L2 component fractal have been run through the full harness loop (render → deterministic probes → panel → dedup queue → safe auto-fix) and verify-then-climbed, with each earned award sub-score raise protected by the monotonic guard.
   2. UI-01 (demo-DX polish nits) and UI-02 (Tasklane rebrand residuals) are resolved as part of the elevation wave — no outstanding items in either carry-forward todo.
   3. The batched elevation result exists as a reviewable PR with a before/after render strip and narrowed options for each judgment call, so the operator's review is bounded to approval decisions rather than a fresh issue hunt.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 219: Baseline Recapture + Canary Reconciliation
+
 **Goal**: After the elevation wave, all ~115 committed PNG baselines are recaptured in-CI (ubuntu), allowlists are reset to empty steady-state, and the snapshot-canary drift guard plus generated-host parity are green.
 **Depends on**: Phase 218
 **Requirements**: RECAP-01
 **Success Criteria** (what must be TRUE):
+
   1. All ~115 committed PNG baselines are recaptured via the in-CI ubuntu recapture job (not darwin-local), producing a reviewable PR that lands with zero spurious drift.
   2. Both snapshot allowlists are reset to empty steady-state — no slugs are suppressed by allowlist entries — and the snapshot-canary drift guard exits zero on a clean re-run.
   3. Generated-host parity is green: install-golden byte-diff and the acceptance-smoke runtime render both pass against the post-wave codebase.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 220: Terminal Ratification
+
 **Goal**: The award sub-score cells are locked forward under the monotonic guard, a harness runbook is committed, and the milestone ships via a PR gated on the five required CI checks — with the LLM panel advisory and off-CI throughout.
 **Depends on**: Phase 219
 **Requirements**: RATIFY-01
 **Success Criteria** (what must be TRUE):
+
   1. Every award sub-score cell in the quality ledger is locked forward under `quality-ledger-monotonic.sh` — the guard exits zero against merge-base and would exit non-zero if any sub-score were lowered.
   2. A committed harness runbook documents the one-iteration loop (how to run, where the human sign-off sits, how to read the dossier) so a future agent can re-run without prior context.
   3. The milestone ships via a PR gated on all five required CI checks under ruleset 14941512 (`Library tests`, `Example unit smoke`, `Install smoke`, `Example HTTP smoke`, `Example Playwright smoke`) — all green before the ROADMAP status flips to shipped.
   4. The LLM panel is advisory and off-CI in the final shipped state — no panel invocation appears in any required-check job, preserving the forward-only deterministic signal invariant.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -140,7 +157,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 216. Harness Foundation + Award Gradient | 0/? | Not started | - |
+| 216. Harness Foundation + Award Gradient | 1/7 | In Progress|  |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 0/? | Not started | - |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |

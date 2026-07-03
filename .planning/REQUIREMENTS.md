@@ -12,14 +12,14 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Evaluation Harness (HARNESS) — Phase 216
 
-- [ ] **HARNESS-01**: A single command renders every admin surface (the 8 L3/L4 pages + flows and the L1/L2 component boards) across the light/dark/mobile × populated/zero/loading/error matrix into per-surface evidence bundles (screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256`), reusing the existing `/admin/_design` gallery and font-ready capture discipline.
-- [ ] **HARNESS-02**: The harness refuses to evaluate untrustworthy renders — a stale-render guard hard-fails when a bundle's `app_git_sha` ≠ working HEAD (or admin source is newer than the bundle), and an evidence-integrity check rejects any finding whose DOM anchor is absent from the captured DOM, so "cite-and-flip" is impossible by construction.
+- [x] **HARNESS-01**: A single command renders every admin surface (the 8 L3/L4 pages + flows and the L1/L2 component boards) across the light/dark/mobile × populated/zero/loading/error matrix into per-surface evidence bundles (screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256`), reusing the existing `/admin/_design` gallery and font-ready capture discipline.
+- [x] **HARNESS-02**: The harness refuses to evaluate untrustworthy renders — a stale-render guard hard-fails when a bundle's `app_git_sha` ≠ working HEAD (or admin source is newer than the bundle), and an evidence-integrity check rejects any finding whose DOM anchor is absent from the captured DOM, so "cite-and-flip" is impossible by construction.
 - [ ] **HARNESS-03**: Deterministic visual probes run over the rendered DOM/computed-style and flag off-token spacing, 1–6px misalignment, size/weight-budget overflow, ember-reserved-for violations, off-scale radius/shadow/control-height, sub-minimum target size, missing focus ring, card-in-card nesting, and a non-obvious or below-fold primary action — promoting the three documented-as-manual scorecard proxies (motion, whitespace rhythm, target-size) to automated, merge-blocking checks.
 
 ### Forward Ratchet & Award Gradient (RATCHET) — Phase 216
 
 - [ ] **RATCHET-01**: The quality ledger gains a finer-grained award sub-score above the current Tier-2 ceiling, and the harness re-verifies each existing Tier-2 claim against rendered output (verify-then-climb), flagging any cell that was optimistically flipped in the manual era.
-- [ ] **RATCHET-02**: A deterministic findings-count-monotonic guard fails CI if any cell's open-finding count increases versus merge-base, and a committed settled-findings set suppresses re-litigation of already-resolved/waived findings — a forward-only signal that counts, never judges.
+- [x] **RATCHET-02**: A deterministic findings-count-monotonic guard fails CI if any cell's open-finding count increases versus merge-base, and a committed settled-findings set suppresses re-litigation of already-resolved/waived findings — a forward-only signal that counts, never judges.
 
 ### Adversarial LLM Panel (PANEL) — Phase 217
 
@@ -75,11 +75,11 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| HARNESS-01 | 216 | Pending |
-| HARNESS-02 | 216 | Pending |
+| HARNESS-01 | 216 | Complete |
+| HARNESS-02 | 216 | Complete |
 | HARNESS-03 | 216 | Pending |
 | RATCHET-01 | 216 | Pending |
-| RATCHET-02 | 216 | Pending |
+| RATCHET-02 | 216 | Complete |
 | PANEL-01 | 217 | Pending |
 | PANEL-02 | 217 | Pending |
 | AUTOFIX-01 | 217 | Pending |
