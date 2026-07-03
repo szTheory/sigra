@@ -113,9 +113,9 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 215-01-PLAN.md — Library suite green + release signal recorded (HEALTH-01, D-02/D-03) [wave 1]
-- [ ] 215-02-PLAN.md — Example app suite green in CI-parity env (HEALTH-02, D-02) [wave 1]
-- [ ] 215-03-PLAN.md — Ledger reconciliation + app.css-guard classification + close-readiness record (RATIFY-01, D-04/D-05) [wave 1]
+- [x] 215-01-PLAN.md — Library suite green + release signal recorded (HEALTH-01, D-02/D-03) [wave 1]
+- [x] 215-02-PLAN.md — Example app suite green in CI-parity env (HEALTH-02, D-02) [wave 1]
+- [x] 215-03-PLAN.md — Ledger reconciliation + app.css-guard classification + close-readiness record (RATIFY-01, D-04/D-05) [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -127,6 +127,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
 | 214. Debt & Robustness Clear | 5/5 | Complete   | 2026-07-03 |
-| 215. Terminal Ratification | 0/4 | Not started | - |
+| 215. Terminal Ratification | 3/4 | In Progress|  |
 
 _Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._

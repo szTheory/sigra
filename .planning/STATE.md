@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.43
 milestone_name: STABILIZE
-current_phase: 214
-current_phase_name: debt-robustness-clear
-status: phase-complete
-stopped_at: Phase 214 verified — 6/6 requirements PASS
-last_updated: "2026-07-03T02:06:29.755Z"
-last_activity: 2026-07-03
-last_activity_desc: Phase 214 executed (5/5 plans) and verified 6/6
+status: executing
+stopped_at: Completed 214-05-PLAN.md
+last_updated: "2026-07-03T08:32:52.065Z"
+last_activity: 2026-07-03 -- Phase 215 execution started
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 7
+  total_plans: 11
   completed_plans: 7
-  percent: 67
+  percent: 64
 ---
 
 # Project State
@@ -25,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 214 — debt-robustness-clear
+**Current focus:** Phase 215 — terminal-ratification
 
 ## Current Position
 
-Phase: 214 (debt-robustness-clear) — COMPLETE & VERIFIED
-Plan: 5 of 5 complete
-Status: Verified 6/6 (DEBT-01..05, HEALTH-03) — next: Phase 215 Terminal Ratification
-Last activity: 2026-07-03 — Phase 214 executed and verified; full suite 2404 tests green
+Phase: 215 (terminal-ratification) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 215
+Last activity: 2026-07-03 -- Phase 215 execution started
 
 ## Accumulated Context
 
