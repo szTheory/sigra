@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+# RETIRED: Phase 214 DEBT-02 (D-05) — 2026-07-02
+#
+# This script validates the Phase-209 persona-JTBD panel schema files at
+# .planning/uat-evidence/v1.42-persona-jtbd/*.md.
+#
+# It is NOT wired into CI and will NOT be wired into CI because:
+# - The inputs are frozen v1.42 milestone deliverables (closed, archived)
+# - Frozen historical planning docs cannot be corrupted by future development
+# - A guard over immutable files enforces nothing forward-looking
+#
+# WR-01/IN nits from the phase-209 code review (D-06/D-07) are won't-fix
+# on this retired script.
+#
+# The script is kept as documentation of the retire decision. Do not wire.
+#
 # Phase 209-02: Persona-JTBD panel schema validator.
 # Usage: bash scripts/ci/panel-schema-check.sh .planning/uat-evidence/v1.42-persona-jtbd/<surface>.md
 # Validates:
