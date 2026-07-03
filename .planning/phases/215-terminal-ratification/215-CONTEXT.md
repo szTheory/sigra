@@ -36,7 +36,7 @@ a DS elevation).
 ## Implementation Decisions
 
 ### CI verification & milestone-close surface
-- **D-01**: HEALTH-04 is satisfied by cutting a **final v1.43 ship/integration PR from `main`**,
+- **D-01:** HEALTH-04 is satisfied by cutting a **final v1.43 ship/integration PR from `main`**,
   pushing it, and letting **GitHub Actions run every required lane** — HEALTH-04 gates on that
   PR's checks being green. This mirrors the v1.42 ship pattern (PR #63). The **actual merge to
   origin/main and the milestone archival are deferred** to `/gsd-ship` + `/gsd-complete-milestone`
@@ -44,7 +44,7 @@ a DS elevation).
   merge or archive.
 
 ### What "green" means (the milestone's whole point)
-- **D-02**: "Green means green" — the library and example suites must pass with **zero failures**.
+- **D-02:** "Green means green" — the library and example suites must pass with **zero failures**.
   The Phase 211-era *accepted known/env failures* (the 3 `Sigra.UpgradeIntegrationTest` env-DB
   failures and the `Chimeway.Repo` missing-database startup noise) were **resolved / correctly
   gated by HEALTH-03 in Phase 214** (Chimeway.Repo test config stanza; `:upgrade` tests
@@ -53,27 +53,27 @@ a DS elevation).
   accept. Do NOT reintroduce a "green modulo known set" posture.
 
 ### Recording the trustworthy release signal
-- **D-03**: HEALTH-01 must **record the exact command + result** used as the trustworthy release
+- **D-03:** HEALTH-01 must **record the exact command + result** used as the trustworthy release
   signal (the canonical full-suite `mix test` invocation against live Postgres, with the DB
   discovery convention from CLAUDE.md) in a durable location (the plan SUMMARY, and reflected in
   STATE/close artifacts). "It passed" is not enough — the reproducible command and the observed
   pass/fail counts are the artifact.
 
 ### Ledger reconciliation scope (RATIFY-01)
-- **D-04**: RATIFY-01 reconciliation covers **only the deferred-items-ledger entries pulled into
+- **D-04:** RATIFY-01 reconciliation covers **only the deferred-items-ledger entries pulled into
   v1.43** — the COMPAT-*, DEBT-*, and HEALTH-03 items resolved in Phases 213/214. Every such
   entry must read *resolved*. The pending v2 / UI / SEED todos
   (`runtime-auth-prefix-override`, `mix-sigra-migrate-schema-helper`, `white-label-auth-email-theming`,
   `uat-demo-dx-polish-nits`, `vaultr-authed-rebrand-residuals`, `playwright-parallelization-per-shard-db`)
   are **explicitly out of scope** and stay deferred — they are NOT unreconciled milestone debt.
-- **D-05**: The one 2026-07-02 pending todo — `app-css-corruption-guard-blind-spot` (harden the
+- **D-05:** The one 2026-07-02 pending todo — `app-css-corruption-guard-blind-spot` (harden the
   DEBT-05 app.css guard against a mid-block orphan false-negative) — is an **accepted low-severity
   DEBT-05 follow-up**, not new *blocking* debt: the live app.css is clean and browser-verified;
   this is a regression-guard hardening gap. RATIFY-01's "no new blocking debt" holds with this
   item classified and left tracked. The phase must **confirm** this classification, not fix it.
 
 ### Posture
-- **D-06**: This phase is **verification/ratification only** — no feature changes, no product
+- **D-06:** This phase is **verification/ratification only** — no feature changes, no product
   behavior edits, no UI redesign. Code fixes are permitted **only** to repair genuine regressions
   surfaced by the gates (e.g. real installer-template drift caught by the golden/acceptance lane),
   never to mask an environmental issue (e.g. a wrong local phx_new archive → install the pin, do

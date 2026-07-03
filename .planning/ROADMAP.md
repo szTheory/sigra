@@ -111,10 +111,14 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 215-01-PLAN.md — Library suite green + release signal recorded (HEALTH-01, D-02/D-03) [wave 1]
 - [ ] 215-02-PLAN.md — Example app suite green in CI-parity env (HEALTH-02, D-02) [wave 1]
 - [ ] 215-03-PLAN.md — Ledger reconciliation + app.css-guard classification + close-readiness record (RATIFY-01, D-04/D-05) [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 215-04-PLAN.md — v1.43 ship PR surface; gate on 5 required CI checks green; merge/archival deferred (HEALTH-04, D-01) [wave 2, depends on 215-01/02/03]
 
 ## Progress (v1.43 STABILIZE)
