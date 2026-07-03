@@ -361,12 +361,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp mfa_value(%{enabled_at: %DateTime{}}), do: "Enabled"
   defp mfa_value(_status), do: "Not configured"
 
-  defp session_type(%{type: type}), do: to_string(type)
-
-  defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
-
-  defp activity_value(_), do: "Not available"
-
   # Most-recent session activity across all sessions, reusing the absolute
   # formatter. Guards the empty case so Enum.max is never called on [].
   defp last_activity(sessions) when is_list(sessions) do
@@ -400,23 +394,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
         nil
     end
   end
-
-  # Coarse human-readable recency cue beside the absolute timestamp.
-  defp relative_activity(%DateTime{} = at) do
-    diff = DateTime.diff(DateTime.utc_now(), at, :second)
-
-    cond do
-      diff < 60 -> "just now"
-      diff < 3600 -> "#{div(diff, 60)}m ago"
-      diff < 86_400 -> "#{div(diff, 3600)}h ago"
-      true -> "#{div(diff, 86_400)}d ago"
-    end
-  end
-
-  defp relative_activity(_), do: nil
-
-  defp pluralize(1, label), do: "1 #{label}"
-  defp pluralize(count, label), do: "#{count} #{label}s"
 
   defp runtime_config! do
     otp_app =

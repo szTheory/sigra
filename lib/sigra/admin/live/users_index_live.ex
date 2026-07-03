@@ -642,7 +642,4 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     do: "#{label}: #{Map.get(user, field)}"
 
   defp column_text(_column, _user), do: ""
-
-  defp pluralize(1, singular), do: "1 #{singular}"
-  defp pluralize(count, singular), do: "#{count} #{singular}s"
 end

@@ -1129,4 +1129,44 @@ defmodule Sigra.Admin.Components do
     raise ArgumentError,
           "format_date/1 expected %DateTime{}, %NaiveDateTime{}, or nil, got: #{inspect(value)}"
   end
+
+  # ---------------------------------------------------------------------------
+  # Session render helpers — promoted from UserSessionsLive and UserShowLive (D-11)
+  # Both LiveViews already import Sigra.Admin.Components, so these are
+  # available without any import change.
+  # Note: scope_copy/1 is intentionally not promoted here — its return text
+  # is context-specific across admin LiveViews (each has distinct copy) and
+  # promoting a generic version would conflict with the local defp copies in
+  # audit_index_live.ex, audit_user_live.ex, branding_live.ex, and
+  # users_index_live.ex which all import this module.
+  # ---------------------------------------------------------------------------
+
+  @doc false
+  def session_type(%{type: type}), do: to_string(type)
+
+  @doc false
+  def activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
+
+  @doc false
+  def activity_value(_), do: "Not available"
+
+  @doc false
+  # Coarse human-readable recency cue beside the absolute timestamp.
+  def relative_activity(%DateTime{} = at) do
+    diff = DateTime.diff(DateTime.utc_now(), at, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      true -> "#{div(diff, 86_400)}d ago"
+    end
+  end
+
+  @doc false
+  def relative_activity(_), do: nil
+
+  @doc false
+  def pluralize(1, label), do: "1 #{label}"
+  def pluralize(count, label), do: "#{count} #{label}s"
 end
