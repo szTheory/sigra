@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
 status: planning
-last_updated: "2026-07-03T15:51:35.980Z"
+last_updated: "2026-07-03T16:00:00.000Z"
 last_activity: 2026-07-03
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone complete
+**Current focus:** v1.44 ADMIN-UX-RATCHET — Phase 216 (Harness Foundation + Award Gradient)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 216 — Harness Foundation + Award Gradient
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-03 — Milestone v1.44 started
+Status: Ready to plan (roadmap defined, no plans yet)
+Last activity: 2026-07-03 — ROADMAP.md written for v1.44 (Phases 216–220)
+
+Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/5 phases)
 
 ## Accumulated Context
 
@@ -118,10 +120,7 @@ Last activity: 2026-07-03 — Milestone v1.44 started
 - [Phase ?]: Staging step guard corrected from success() to steps.admin_checkpoints.outcome == 'success' (Pitfall 4 fix)
 - [Phase ?]: webkit cannot be dropped (D-04): iPhone 13 mobile projects need webkit; criterion 1b is reliability win not time reduction
 - [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
-- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
-- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
-- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
-- [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots (tripwire stays armed)
+- [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots=all + restore canary/unchanged slugs; notice/1 wraps slot in <p>
 - [Phase ?]: OQ2: recaptured PNGs committed to ci/recapture-admin-design branch + gh pr create for human review (not silent push to main)
 - [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
 - [Phase ?]: D-10 re-gate: continue-on-error removed from design gallery step; gallery now hard-gates via the Plan 02 aggregator; inline in example_playwright_smoke (not nightly)
@@ -238,6 +237,10 @@ Last activity: 2026-07-03 — Milestone v1.44 started
 - [Phase ?]: DEBT-02 D-05: panel-schema-check.sh retired in-place with RETIRED banner; inputs are frozen v1.42 milestone deliverables that cannot be corrupted by future development
 - [Phase ?]: DEBT-04 D-13: git tag v1.20.0 deleted local and remote; contract.md line 9 corrected to 1.1.0
 - [Phase ?]: DEBT-04 D-14: mix hex.retire sigra 1.20.0 is a manual runbook step for Jon - documented in 214-05-SUMMARY.md
+- [v1.44 INVARIANT]: The merge-blocking forward-only signal stays 100% deterministic (monotonic ledger guard, snapshot-canary, axe, token/contrast gates). The LLM panel is an issue-finder + judge-of-taste only — never a CI gate, never flips a ledger cell.
+- [v1.44 INVARIANT]: Cite-and-flip is impossible by construction — evaluator receives only render bundles; finding anchor must exist in captured DOM.
+- [v1.44 DECISION]: Forward gradient = verify-then-climb: harness first re-verifies existing Tier-2 claims against rendered output, then climbs via a new finer-grained award sub-score above the Tier-2 ceiling.
+- [v1.44 DECISION]: Auto-fix scope = provably-safe mechanical classes only (copy / token-swap / component-swap); per-fix auto-revert on regression; judgment fixes route to human queue.
 
 ### Pending Todos
 
@@ -252,6 +255,7 @@ Last activity: 2026-07-03 — Milestone v1.44 started
 - Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
 - Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
+- v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 
 ## Quick Tasks Completed
 
@@ -287,62 +291,38 @@ Last activity: 2026-07-03 — Milestone v1.44 started
 | Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
 | Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
 
-### Acknowledged at v1.42 close (2026-07-02)
-
-Items pulled INTO v1.43 (will be resolved in Phases 213-214):
-
-| Category | Item | Resolution |
-| --- | --- | --- |
-| todo | 2026-06-24-oban-enqueue-unguarded-when-compiled-but-unsupervised | DEBT-01 → Phase 214 |
-| todo | 2026-07-01-phase209-code-review-deferred | DEBT-02 → Phase 214 |
-| todo | 2026-06-25-phase200-code-review-deferred | DEBT-03 → Phase 214 |
-| seed | SEED-004-phx-new-button-forward-compat | COMPAT-01/02/03 → Phase 213 |
-
-Items deferred beyond v1.43 (next milestone or later):
-
-| Category | Item | Status | Deferred At |
-| --- | --- | --- | --- |
-| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked — non-blocking demo-DX polish (UI-01, v2) | v1.42 |
-| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (FEAT-02, v2) | v1.42 |
-| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (SEED-005, v2) | v1.42 |
-| todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature (FEAT-01, v2) | v1.42 |
-| todo | 2026-06-21-app-css-comment-corruption-cleanup | DEBT-05 → Phase 214 (IN v1.43) | v1.42 |
-| todo | 2026-06-22-vaultr-authed-rebrand-residuals | tracked — demo rebrand residuals (UI-02, v2) | v1.42 |
-| todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label feature (FEAT-03, v2) | v1.42 |
-| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) | v1.42 |
-| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture | v1.42 |
-
-**Known-accepted (not blocking):** the `Sigra.Audit.Forwarders.NoopTest` shard-2 log-capture flake (parallel-shard race, passes in isolation — Phase 211 D-05).
-
 ### Acknowledged at v1.43 close (2026-07-03)
 
 v1.43-pulled ledger entries all RESOLVED (reconciled by Phase 215 RATIFY-01, cross-checked in 215-03-SUMMARY): oban-enqueue (DEBT-01), phase209/phase200 code-review (DEBT-02/03), app-css-comment-corruption (DEBT-05), v142-integration-snapshot-canary-drift + stale-known-failure-contract-tests (HEALTH-03), all under `.planning/todos/resolved/`. SEED-004 phx-new-button-forward-compat RESOLVED via COMPAT-01/02/03 (Phase 213).
 
-Items deferred beyond v1.43 (carry to the next admin/operator-UI + feature milestone) — NOT unreconciled debt:
+Items folded INTO v1.44 (will be resolved in Phase 218):
+
+| Category | Item | Resolution |
+| --- | --- | --- |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | UI-01 → Phase 218 (elevation wave nit cleanup) |
+| todo | 2026-06-22-vaultr-authed-rebrand-residuals | UI-02 → Phase 218 (elevation wave nit cleanup) |
+
+Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled debt:
 
 | Category | Item | Status |
 | --- | --- | --- |
-| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked — demo-DX polish (UI-01, v2) |
-| todo | 2026-06-22-vaultr-authed-rebrand-residuals | tracked — demo rebrand residuals (UI-02, v2) |
 | todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature (FEAT-01, v2) |
 | todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (FEAT-02, v2) |
 | todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label (FEAT-03, v2) |
 | todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (SEED-005, v2) |
-| todo | 2026-07-02-app-css-corruption-guard-blind-spot | accepted low-severity DEBT-05 follow-up (live app.css clean + browser-verified; regression-guard hardening gap only — Phase 215 D-05) |
+| todo | 2026-07-02-app-css-corruption-guard-blind-spot | accepted low-severity DEBT-05 follow-up (live app.css clean + browser-verified; regression-guard hardening gap only) |
 | seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) |
 | seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture |
 
-**Closeout type:** override_closeout — the 19 `audit-open` items are all non-blocking: 10 completed quick-tasks mis-scanned as `missing` (known `audit-open` false-flag), the todos/seeds above (reconciled/deferred by 215-03), and 1 already-`resolved` uat gap. Phase 215 terminal-ratification served as the milestone audit (9/9 must-haves verified; ledger reconciled; all 5 required CI checks green on merged PR #67). No v1.43-MILESTONE-AUDIT.md file (Jon-confirmed: 215 is the audit-equivalent).
-
 ## Session Continuity
 
-Last session: 2026-07-03T02:06:29.751Z
-Stopped at: Completed 214-05-PLAN.md
+Last session: 2026-07-03
+Stopped at: ROADMAP.md + STATE.md written for v1.44 ADMIN-UX-RATCHET (Phases 216-220)
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `/gsd-plan-phase 216` to plan Phase 216: Harness Foundation + Award Gradient
 
 ## Performance Metrics
 
