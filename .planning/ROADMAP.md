@@ -1,11 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.43 STABILIZE** (Phases 213-215). Start planning with `/gsd-plan-phase 213`.
+**Status:** Milestone **v1.43 STABILIZE** shipped 2026-07-03 (PR #67). No active milestone — start the next one with `/gsd-new-milestone`.
 
 ## Milestones
 
-- 🔄 **v1.43 STABILIZE** — Phases 213-215 (in progress)
+- ✅ **v1.43 STABILIZE** — Phases 213-215 (shipped 2026-07-03) · full detail in milestones/v1.43-ROADMAP.md
 - ✅ **v1.42 ADMIN-DS-ELEVATION** — Phases 205-212 (shipped 2026-07-02) · full detail in milestones/v1.42-ROADMAP.md
 - ✅ **v1.41 ADMIN-UX-ELEVATION** — Phases 199-204 (shipped 2026-06-27)
 - ✅ **v1.40 CI-PERF** — Phases 193-198 (shipped 2026-06-21)
@@ -19,11 +19,14 @@
 
 ## Phases
 
-### v1.43 STABILIZE
+<details>
+<summary>✅ v1.43 STABILIZE (Phases 213-215) — SHIPPED 2026-07-03 · full detail in milestones/v1.43-ROADMAP.md</summary>
 
-- [ ] **Phase 213: Latest-Phoenix Compatibility** — Fix generated-host compile failure against phx.new ≥1.8.8, reconcile golden fixture, drop the 1.8.7 CI pin
-- [x] **Phase 214: Debt & Robustness Clear** — Oban enqueue guard, deferred code-review items (phase-209, phase-200), Hex version-ranking wart, demo CSS corruption, and local test noise sources
-- [ ] **Phase 215: Terminal Ratification** — Full library + example suites green, every required CI check passes, milestone closed with no blocking debt
+- [x] **Phase 213: Latest-Phoenix Compatibility** — generated-host compile fix vs phx.new ≥1.8.8, golden fixture reblessed, all 11 archive pins → 1.8.8 + `--check` drift-detector (2/2) — completed 2026-07-02
+- [x] **Phase 214: Debt & Robustness Clear** — Oban enqueue guard, `delete_session/3` IDOR guard, app.css corruption cleanup + CI guard, Chimeway.Repo + conditional `:upgrade` skip, retired panel-schema-check.sh + deleted stray v1.20.0 tag (5/5) — completed 2026-07-03
+- [x] **Phase 215: Terminal Ratification** — library green (2404/0) + example green (323/0) recorded signals, ledger reconciled, 5 required CI checks green on merged PR #67 (4/4) — completed 2026-07-03
+
+</details>
 
 <details>
 <summary>✅ v1.42 ADMIN-DS-ELEVATION (Phases 205-212) — SHIPPED 2026-07-02 · full detail in milestones/v1.42-ROADMAP.md</summary>
@@ -54,79 +57,6 @@
 
 Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
-## Phase Details
+## Next
 
-### Phase 213: Latest-Phoenix Compatibility
-
-**Goal**: Adopters using the latest `phx.new` (≥1.8.8) can install Sigra and compile their generated host without errors or warnings under `--warnings-as-errors`; CI tracks current Phoenix rather than a pinned archive.
-**Depends on**: Nothing (first phase of this milestone)
-**Requirements**: COMPAT-01, COMPAT-02, COMPAT-03
-**Success Criteria** (what must be TRUE):
-
-  1. A fresh `mix phx.new` (≥1.8.8) + `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type"` warning and no other 1.8.8 output-drift compile breakage.
-  2. The install golden fixture and `golden_diff_test` pass without the `phx_new 1.8.7` archive — the `config/config.exs root_tag_attribute` byte-diff is correctly absorbed into the committed fixture.
-  3. The `phx_new 1.8.7` pin is absent from all CI workflow files and from the CLAUDE.md dev-prereq note; the generated-host acceptance smoke runs against current `phx.new` and exits green.
-
-**Plans**: 2/2 plans complete
-
-- [x] 213-01-PLAN.md — Rebless the install golden fixture under phx.new ≥1.8.8; prove COMPAT-01/02 (golden_diff + install-smoke) [wave 1]
-- [x] 213-02-PLAN.md — Flip all 11 archive pins to concrete 1.8.8 + rewrite docs/phase-198 test + add `--check` drift-detector + D-11 smoke version-asserts + acceptance smoke (COMPAT-03) [wave 2, depends on 213-01]
-
-### Phase 214: Debt & Robustness Clear
-
-**Goal**: Every tracked real-bug, robustness gap, and deferred code-review item from previous phases is resolved (or explicitly re-triaged with rationale), and local `mix test` output is a trustworthy release signal with no spurious failures.
-**Depends on**: Phase 213
-**Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05, HEALTH-03
-**Success Criteria** (what must be TRUE):
-
-  1. Oban enqueue paths degrade safely when Oban is compiled but unsupervised or its table is absent — no `42P01` crash — with a regression test that proves the guard.
-  2. The deferred phase-209 code-review items are closed: `panel-schema-check.sh` is either wired into CI or explicitly retired with rationale committed; remaining info nits are resolved.
-  3. The deferred phase-200 code-review items are resolved or re-triaged with recorded rationale.
-  4. The stray Hex `1.20.0` version-ranking wart is corrected so Sigra's version ordering is accurate.
-  5. The demo `app.css` orphaned-comment corruption is removed and guarded against regression, so no CSS rule is silently dropped.
-  6. A clean local `mix test` run has zero spurious non-product failures: the `Chimeway.Repo` missing-database startup noise and `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated.
-
-**Plans**: 5/5 plans complete
-
-Plans:
-
-- [x] 214-01-PLAN.md — Add Sigra.OptionalDeps.oban_running?/0 SOT; fix deletion.ex bare guard; de-dupe delivery.ex and forwarders.ex; regression test [wave 1]
-- [x] 214-02-PLAN.md — delete_session/3 user_id ownership guard (IDOR hardening); deny-path test; promote session render helpers to Sigra.Admin.Components; drop @return_to assign [wave 1]
-- [x] 214-03-PLAN.md — Clean orphaned :root value fragments from app.css; add CI corruption guard script; browser-parse verification [wave 1]
-- [x] 214-04-PLAN.md — Chimeway.Repo config-DB fix in config/test.exs; conditional upgrade test preflight skip in test_helper.exs [wave 1]
-- [x] 214-05-PLAN.md — Retire panel-schema-check.sh with rationale; delete git tag v1.20.0; correct contract.md:9 to 1.1.0; hex retire runbook [wave 1]
-
-### Phase 215: Terminal Ratification
-
-**Goal**: The full library and example suites are demonstrably green end-to-end, every required CI check passes on the milestone branch, and the milestone closes with all in-scope deferred-items reconciled and no new blocking debt.
-**Depends on**: Phase 214
-**Requirements**: HEALTH-01, HEALTH-02, HEALTH-04, RATIFY-01
-**Success Criteria** (what must be TRUE):
-
-  1. The full library test suite runs green against live Postgres, with the command and result recorded as the trustworthy release signal for this milestone.
-  2. The example app test suite runs green against live Postgres with no failures.
-  3. Every required CI check passes green end-to-end on the milestone branch (all lanes: library tests, dep-off, example Playwright smoke, design gallery, install/golden, fast checks, ci-gate).
-  4. Every deferred-items-ledger entry pulled into this milestone is marked resolved; no new blocking debt is introduced; the milestone is closed cleanly.
-
-**Plans**: 4 plans
-
-Plans:
-**Wave 1**
-
-- [x] 215-01-PLAN.md — Library suite green + release signal recorded (HEALTH-01, D-02/D-03) [wave 1]
-- [x] 215-02-PLAN.md — Example app suite green in CI-parity env (HEALTH-02, D-02) [wave 1]
-- [x] 215-03-PLAN.md — Ledger reconciliation + app.css-guard classification + close-readiness record (RATIFY-01, D-04/D-05) [wave 1]
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [ ] 215-04-PLAN.md — v1.43 ship PR surface; gate on 5 required CI checks green; merge/archival deferred (HEALTH-04, D-01) [wave 2, depends on 215-01/02/03]
-
-## Progress (v1.43 STABILIZE)
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
-| 214. Debt & Robustness Clear | 5/5 | Complete   | 2026-07-03 |
-| 215. Terminal Ratification | 3/4 | In Progress|  |
-
-_Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._
+No active milestone. Run `/gsd-new-milestone` to start the next cycle. Jon's stated direction: refocus on **admin/operator-UI cleanup + feedback** (the deferred UI-01/UI-02 + FEAT-01/02/03 items live in STATE.md "Acknowledged at v1.43 close").

@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.43 STABILIZE (Shipped: 2026-07-03)
+
+**Phases completed:** 3 phases (213, 214, 215), 11 plans, 18 tasks
+**Git range:** phase-213 start → `85d85ca1` · shipped via PR #67 (merge commit to `origin/main`, 51-commit body) · no git tag (internal milestone; avoids Hex-version collision)
+**Milestone audit:** Phase 215 terminal-ratification served as the audit — 9/9 must-haves verified; deferred-items ledger reconciled (RATIFY-01); all 5 required CI checks green on the merged PR
+
+**Delivered:** A deliberate short maintenance/hardening lane after nine straight admin-UI/brand/DS milestones (v1.34–v1.42) — prove the foundation is demonstrably green and pay down real debt before refocusing on admin/operator-UI cleanup next.
+
+**Key accomplishments:**
+
+- **Latest-Phoenix compatibility restored (Phase 213, COMPAT-01/02/03):** fixed generated-host compile against phx.new ≥1.8.8, reblessed the install golden fixture, flipped all 11 archive pins from 1.8.7 → concrete 1.8.8, and added a `--check` drift-detector + version-assert smoke so the pin can't silently rot again.
+- **Debt & robustness cleared (Phase 214):** `Sigra.OptionalDeps.oban_running?/0` single-source-of-truth guarding Oban enqueue across 3 call sites (DEBT-01); `Auth.delete_session/3` `user_id` ownership guard + deny-path test (IDOR hardening, DEBT-02); app.css orphaned-comment corruption cleaned + a CI corruption-guard script (DEBT-05); `Chimeway.Repo` test-config fix + conditional `:upgrade` preflight skip (HEALTH-03); retired `panel-schema-check.sh`, deleted stray git tag `v1.20.0`, corrected contract.md to 1.1.0 (DEBT-04).
+- **Foundation proven green (Phase 215, HEALTH-01/02):** full library suite recorded green as the release signal — **2404 tests, 0 failures** (12 skipped / 3 excluded, all classified as legitimate gates, zero accepted-failure residue); generated-host example suite **323 tests, 0 failures** in CI-parity env.
+- **Deferred-items ledger reconciled (Phase 215, RATIFY-01):** every v1.43-pulled entry confirmed resolved, out-of-scope v2/UI/SEED items correctly deferred, and the app.css-guard follow-up classified as accepted low-severity — "no new blocking debt" holds.
+- **Never-CI'd body surfaced + gated (Phase 215, HEALTH-04):** the 51-commit v1.43 body was surfaced as ship PR #67 and gated on all five required checks under ruleset 14941512 (`Library tests`, `Example unit smoke`, `Install smoke`, `Example HTTP smoke`, `Example Playwright smoke`) — all green, then merged.
+
+**Known deferred (see STATE.md "Acknowledged at v1.43 close"):** 6 out-of-scope v2/UI/FEAT todos + the accepted-low-sev app.css-guard follow-up + SEED-005/006 (dormant) carry to the next admin/operator-UI + feature milestone. Hex `1.20.0` still outranks `1.1.0` — retire remains a Jon-manual `mix hex.retire` step (runbook in 214-05-SUMMARY).
+
+**Housekeeping:** also completed the overdue v1.42 phase-directory archive-move (dirs 205–212 → `milestones/v1.42-phases/`) that the v1.42 close had missed.
+
+---
+
 ## v1.42 ADMIN-DS-ELEVATION (Shipped: 2026-07-02)
 
 **Phases completed:** 9 phases (205, 206, 207, 208, 208.1, 209, 210, 211, 212), 36 plans, 52 tasks

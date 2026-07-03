@@ -25,6 +25,36 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.43 — STABILIZE
+
+**Shipped:** 2026-07-03
+**Phases:** 3 (213-215) | **Plans:** 11 | **Tasks:** 18
+
+### What Was Built
+A deliberate short maintenance/hardening lane after nine straight admin-UI/brand/DS milestones (v1.34–v1.42): latest-Phoenix compatibility restored (phx.new ≥1.8.8, 1.8.7 pin dropped, `--check` drift-detector), real-bug/robustness/review debt cleared (Oban enqueue guard, `delete_session/3` IDOR guard, app.css corruption + CI guard, Chimeway.Repo + conditional `:upgrade` skip, panel-schema-check retired, stray `v1.20.0` tag deleted), and the foundation proven green (library 2404/0, example 323/0) with the deferred-items ledger reconciled and all 5 required CI checks green on merged PR #67.
+
+### What Worked
+- **Ratification-as-audit.** Phase 215 was explicitly designed as the terminal gate (re-prove-and-record suites + reconcile ledger + gate CI), so no separate `/gsd-audit-milestone` was needed — the phase verifier's 9/9 + green PR *were* the audit. Efficient for a stabilize lane.
+- **Green-means-green discipline.** Recording the exact reproducible command + observed counts (not "it passed") as the release signal, and treating every skip/exclude as a classified legitimate gate, kept the "0 accepted-failure residue" claim auditable.
+- **Surfacing the never-CI'd body via a real PR.** HEALTH-04 made the PR's Actions run the signal of record (local `mix test`/`act` are confidence-only) — the 51-commit body actually ran the full required matrix before merge.
+
+### What Was Inefficient
+- **gsd-tools verb gaps forced manual paths.** This build's SDK registry lacks `worktree.base-check`, `worktree.reap-orphans`, `verification.status`, and `git.base-branch` (they fall back to a `.cjs` with different subcommand names and error). Net effects: the #683 worktree auto-degrade couldn't self-fire (had to force `USE_WORKTREES=false`), and `/gsd-ship`'s preflight couldn't run as-written (executed ship mechanics by hand). Correct outcome, extra vigilance.
+- **`milestone.complete` still globs noisy accomplishments.** Same quirk as v1.42 — it pulled garbled `one_liner` fragments (`` `1.8.8` ``, `One-liner:`) into MILESTONES.md; hand-curated the entry.
+- **Latent v1.42 archival debt surfaced here.** The v1.42 close committed the milestone ROADMAP/REQUIREMENTS *files* but never moved phase dirs 205-212 to `milestones/v1.42-phases/` — they'd been `rm`'d from the worktree (110 uncommitted deletions) and left dangling. Caught during 215-04 deletion-disposition; restored, then archive-moved during this close.
+
+### Patterns Established
+- **Restore, don't commit, an un-archived deletion.** When working-tree deletions turn out to be un-archived milestone artifacts (premise "already archived" is false), restore them and let milestone-close do the canonical archive-move — never commit the raw deletion (permanent loss).
+- **Sequential-on-main is correct when the PR must carry the real main body.** A worktree forked off stale `origin/main` would lack the never-pushed commits the ship PR exists to surface.
+
+### Key Lessons
+- On a divergent local `main` (here 47→53 ahead, never pushed), verify the worktree auto-degrade actually fires; if the `base-check` verb is absent, force sequential explicitly rather than trusting the guard.
+- The strict ruleset's `pull_request` rule blocks direct pushes to `main`, so milestone-close doc commits must ride a follow-up close-out PR (like v1.42's #65) — they can't be pushed straight.
+
+### Cost Observations
+- Model mix: orchestration on Opus (1M); executors + verifier on Sonnet.
+- Notable: a verification/ratification milestone is cheap on tokens (no code generation) but pays a real wall-clock cost in CI (the Example Playwright lane alone was ~26m).
+
 ## Milestone: v1.42 — ADMIN-DS-ELEVATION
 
 **Shipped:** 2026-07-02
