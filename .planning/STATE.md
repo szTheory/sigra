@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-status: planning
-stopped_at: Phase 216 context gathered (assumptions mode)
-last_updated: "2026-07-03T16:33:17.575Z"
-last_activity: 2026-07-03 — ROADMAP.md written for v1.44 (Phases 216–220)
+current_phase: 216
+current_phase_name: harness-foundation-award-gradient
+status: executing
+stopped_at: Completed 216-01-PLAN.md (harness foundation)
+last_updated: "2026-07-03T17:23:08.506Z"
+last_activity: 2026-07-03
+last_activity_desc: Phase 216 execution started
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 7
+  completed_plans: 1
   percent: 0
 ---
 
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.44 ADMIN-UX-RATCHET — Phase 216 (Harness Foundation + Award Gradient)
+**Current focus:** Phase 216 — harness-foundation-award-gradient
 
 ## Current Position
 
-Phase: 216 — Harness Foundation + Award Gradient
-Plan: —
-Status: Ready to plan (roadmap defined, no plans yet)
-Last activity: 2026-07-03 — ROADMAP.md written for v1.44 (Phases 216–220)
+Phase: 216 (harness-foundation-award-gradient) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-07-03 -- Phase 216 execution started
 
 Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/5 phases)
 
@@ -242,6 +245,9 @@ Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/5
 - [v1.44 INVARIANT]: Cite-and-flip is impossible by construction — evaluator receives only render bundles; finding anchor must exist in captured DOM.
 - [v1.44 DECISION]: Forward gradient = verify-then-climb: harness first re-verifies existing Tier-2 claims against rendered output, then climbs via a new finer-grained award sub-score above the Tier-2 ceiling.
 - [v1.44 DECISION]: Auto-fix scope = provably-safe mechanical classes only (copy / token-swap / component-swap); per-fix auto-revert on regression; judgment fixes route to human queue.
+- [Phase ?]: 216-01 dep legitimacy gate
+- [Phase ?]: 216-01 dep legitimacy gate
+- [Phase ?]: 216-01 D-10 base-ref fix
 
 ### Pending Todos
 
@@ -317,9 +323,9 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-03T16:33:17.567Z
-Stopped at: Phase 216 context gathered (assumptions mode)
-Resume file: .planning/phases/216-harness-foundation-award-gradient/216-CONTEXT.md
+Last session: 2026-07-03T17:23:08.501Z
+Stopped at: Completed 216-01-PLAN.md (harness foundation)
+Resume file: None
 
 ## Operator Next Steps
 
@@ -388,3 +394,4 @@ Resume file: .planning/phases/216-harness-foundation-award-gradient/216-CONTEXT.
 | Phase 214 P03 | 6 | 3 tasks | 3 files |
 | Phase 214 P04 | 89s | 2 tasks | 2 files |
 | Phase 214 P05 | 170s | 2 tasks | 3 files |
+| Phase 216 P01 | 144s | 3 tasks | 4 files |
