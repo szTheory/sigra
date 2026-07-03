@@ -5,14 +5,14 @@ milestone_name: ADMIN-UX-RATCHET
 current_phase: 216
 current_phase_name: harness-foundation-award-gradient
 status: executing
-stopped_at: Completed 216-01-PLAN.md (harness foundation)
-last_updated: "2026-07-03T17:41:41.528Z"
+stopped_at: Completed 216-04-PLAN.md (forward-only integrity guards)
+last_updated: "2026-07-03T17:54:40.425Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 216 (harness-foundation-award-gradient) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-07-03
 
@@ -254,6 +254,10 @@ Progress: [███░░░░░░░] 29%
 - [Phase ?]: Tier column-4 grammar frozen; award data in JSON sibling admin-award-ledger.json only; no 5th column, no decorator per D-19 (216-02)
 - [Phase ?]: Allowlist canonicalization: KEEP_ATTRS plus class-sorted plus href-fingerprint-stripped; id always dropped
 - [Phase ?]: Geometry excluded from renderSha256 entirely (not bucketed) - stored in bundle.facts only per D-06/D-11
+- [Phase ?]: quality-findings-monotonic.sh uses node -e to parse admin-render-sha.json — avoids jq dep, keeps bash-guard idiom (216-04)
+- [Phase ?]: skip-on-empty-base divergence (D-08/D-21): skip ONLY when ledger file absent; increase from 0 IS a regression (216-04)
+- [Phase ?]: evidence-anchor-check.mjs resolves cheerio via createRequire from playwright subproject — no duplicate install (216-04)
+- [Phase ?]: isStructuralAnchor rejects prose before cheerio: starts with ./#/[/: or single lowercase tag not followed by uppercase prose (216-04)
 
 ### Pending Todos
 
@@ -329,8 +333,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-03T17:41:00.196Z
-Stopped at: Completed 216-01-PLAN.md (harness foundation)
+Last session: 2026-07-03T17:54:40.420Z
+Stopped at: Completed 216-04-PLAN.md (forward-only integrity guards)
 Resume file: None
 
 ## Operator Next Steps
@@ -401,3 +405,4 @@ Resume file: None
 | Phase 214 P04 | 89s | 2 tasks | 2 files |
 | Phase 214 P05 | 170s | 2 tasks | 3 files |
 | Phase 216 P01 | 144s | 3 tasks | 4 files |
+| Phase 216 P04 | ~15min | 3 tasks | 6 files |
