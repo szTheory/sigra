@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "notes": "Render SHA256 and open finding counts per surface and cell (theme-viewport-state). Populated by the admin-eval harness (Plan 07). Each guard reads this as the single authoritative source for render_sha256 and open_findings — render-sha and open-finding counts are consolidated here so quality-findings-monotonic.sh has one stable file to diff. Schema documented in guides/reference/admin-eval-schema.md.",
+  "cells": {
+    "users-index-live": {
+      "light-desktop-populated": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-zero": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-loading": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-error": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-populated": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-zero": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-loading": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-error": { "render_sha256": null, "open_findings": 0 }
+    },
+    "user-show-live": {
+      "light-desktop-populated": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-zero": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-loading": { "render_sha256": null, "open_findings": 0 },
+      "light-desktop-error": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-populated": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-zero": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-loading": { "render_sha256": null, "open_findings": 0 },
+      "dark-desktop-error": { "render_sha256": null, "open_findings": 0 }
+    }
+  }
+}
