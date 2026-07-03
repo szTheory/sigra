@@ -23,7 +23,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Debt & Robustness Clear (DEBT)
 
-- [ ] **DEBT-01**: Oban enqueue paths degrade safely when Oban is compiled but unsupervised or its table is absent (no `42P01` / crash; enqueue is guarded), proven by a regression test.
+- [x] **DEBT-01**: Oban enqueue paths degrade safely when Oban is compiled but unsupervised or its table is absent (no `42P01` / crash; enqueue is guarded), proven by a regression test.
 - [ ] **DEBT-02**: The deferred phase-209 code-review items are resolved — `panel-schema-check.sh` is wired into CI or explicitly retired, and the remaining info nits are closed.
 - [ ] **DEBT-03**: The deferred phase-200 code-review items are resolved, or explicitly re-triaged with recorded rationale if genuinely not worth fixing.
 - [ ] **DEBT-04**: The stray Hex `1.20.0` version-ranking wart is resolved so Sigra's version ordering/resolution is correct.
@@ -74,7 +74,7 @@ Explicitly excluded from v1.43 to keep it a true stabilization lane.
 | COMPAT-01 | Phase 213 | Complete |
 | COMPAT-02 | Phase 213 | Complete |
 | COMPAT-03 | Phase 213 | Complete |
-| DEBT-01 | Phase 214 | Pending |
+| DEBT-01 | Phase 214 | Complete |
 | DEBT-02 | Phase 214 | Pending |
 | DEBT-03 | Phase 214 | Pending |
 | DEBT-04 | Phase 214 | Pending |
