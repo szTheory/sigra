@@ -1,26 +1,26 @@
 {
   "schema_version": 1,
-  "notes": "Render SHA256 and open finding counts per surface and cell (theme-viewport-state). Populated by the admin-eval harness (Plan 07). Each guard reads this as the single authoritative source for render_sha256 and open_findings — render-sha and open-finding counts are consolidated here so quality-findings-monotonic.sh has one stable file to diff. Schema documented in guides/reference/admin-eval-schema.md.",
+  "notes": "Render SHA256 and open finding counts per surface and cell (theme-viewport-state). Populated by the admin-eval harness (Plan 07). Each guard reads this as the single authoritative source for render_sha256 and open_findings — render-sha and open-finding counts are consolidated here so quality-findings-monotonic.sh has one stable file to diff. Schema documented in guides/reference/admin-eval-schema.md. Cell render_sha256 values are computed from board outerHTML via renderSha256() in canonicalize.ts. For users-index-live, primary evidence board is board-mg-5 (user-results-pagination). For user-show-live, primary evidence board is board-mg-9 (identity-header-summary-facts). open_findings = total probe findings minus settled entries in settled-findings.tsv.",
   "cells": {
     "users-index-live": {
-      "light-desktop-populated": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-zero": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-loading": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-error": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-populated": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-zero": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-loading": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-error": { "render_sha256": null, "open_findings": 0 }
+      "light-desktop-populated": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 869 },
+      "light-desktop-zero": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 869 },
+      "light-desktop-loading": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 869 },
+      "light-desktop-error": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 869 },
+      "dark-desktop-populated": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 784 },
+      "dark-desktop-zero": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 784 },
+      "dark-desktop-loading": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 784 },
+      "dark-desktop-error": { "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8", "open_findings": 784 }
     },
     "user-show-live": {
-      "light-desktop-populated": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-zero": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-loading": { "render_sha256": null, "open_findings": 0 },
-      "light-desktop-error": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-populated": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-zero": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-loading": { "render_sha256": null, "open_findings": 0 },
-      "dark-desktop-error": { "render_sha256": null, "open_findings": 0 }
+      "light-desktop-populated": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 869 },
+      "light-desktop-zero": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 869 },
+      "light-desktop-loading": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 869 },
+      "light-desktop-error": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 869 },
+      "dark-desktop-populated": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 784 },
+      "dark-desktop-zero": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 784 },
+      "dark-desktop-loading": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 784 },
+      "dark-desktop-error": { "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d", "open_findings": 784 }
     }
   }
 }
