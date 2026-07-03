@@ -27,7 +27,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **DEBT-02**: The deferred phase-209 code-review items are resolved — `panel-schema-check.sh` is wired into CI or explicitly retired, and the remaining info nits are closed.
 - [x] **DEBT-03**: The deferred phase-200 code-review items are resolved, or explicitly re-triaged with recorded rationale if genuinely not worth fixing.
 - [ ] **DEBT-04**: The stray Hex `1.20.0` version-ranking wart is resolved so Sigra's version ordering/resolution is correct.
-- [ ] **DEBT-05**: The demo `app.css` orphaned-comment corruption is cleaned up so no CSS rule is silently dropped, guarded against regression.
+- [x] **DEBT-05**: The demo `app.css` orphaned-comment corruption is cleaned up so no CSS rule is silently dropped, guarded against regression.
 
 ### Terminal Ratification (RATIFY)
 
@@ -78,7 +78,7 @@ Explicitly excluded from v1.43 to keep it a true stabilization lane.
 | DEBT-02 | Phase 214 | Pending |
 | DEBT-03 | Phase 214 | Complete |
 | DEBT-04 | Phase 214 | Pending |
-| DEBT-05 | Phase 214 | Pending |
+| DEBT-05 | Phase 214 | Complete |
 | RATIFY-01 | Phase 215 | Pending |
 
 **Coverage:**

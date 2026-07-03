@@ -86,13 +86,13 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
   5. The demo `app.css` orphaned-comment corruption is removed and guarded against regression, so no CSS rule is silently dropped.
   6. A clean local `mix test` run has zero spurious non-product failures: the `Chimeway.Repo` missing-database startup noise and `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated.
 
-**Plans**: 2/5 plans executed
+**Plans**: 3/5 plans executed
 
 Plans:
 
 - [x] 214-01-PLAN.md — Add Sigra.OptionalDeps.oban_running?/0 SOT; fix deletion.ex bare guard; de-dupe delivery.ex and forwarders.ex; regression test [wave 1]
 - [x] 214-02-PLAN.md — delete_session/3 user_id ownership guard (IDOR hardening); deny-path test; promote session render helpers to Sigra.Admin.Components; drop @return_to assign [wave 1]
-- [ ] 214-03-PLAN.md — Clean orphaned :root value fragments from app.css; add CI corruption guard script; browser-parse verification [wave 1]
+- [x] 214-03-PLAN.md — Clean orphaned :root value fragments from app.css; add CI corruption guard script; browser-parse verification [wave 1]
 - [ ] 214-04-PLAN.md — Chimeway.Repo config-DB fix in config/test.exs; conditional upgrade test preflight skip in test_helper.exs [wave 1]
 - [ ] 214-05-PLAN.md — Retire panel-schema-check.sh with rationale; delete git tag v1.20.0; correct contract.md:9 to 1.1.0; hex retire runbook [wave 1]
 
@@ -115,7 +115,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
-| 214. Debt & Robustness Clear | 2/5 | In Progress|  |
+| 214. Debt & Robustness Clear | 3/5 | In Progress|  |
 | 215. Terminal Ratification | 0/? | Not started | - |
 
 _Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._
