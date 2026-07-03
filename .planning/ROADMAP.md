@@ -108,7 +108,14 @@ Plans:
   3. Every required CI check passes green end-to-end on the milestone branch (all lanes: library tests, dep-off, example Playwright smoke, design gallery, install/golden, fast checks, ci-gate).
   4. Every deferred-items-ledger entry pulled into this milestone is marked resolved; no new blocking debt is introduced; the milestone is closed cleanly.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+
+- [ ] 215-01-PLAN.md — Library suite green + release signal recorded (HEALTH-01, D-02/D-03) [wave 1]
+- [ ] 215-02-PLAN.md — Example app suite green in CI-parity env (HEALTH-02, D-02) [wave 1]
+- [ ] 215-03-PLAN.md — Ledger reconciliation + app.css-guard classification + close-readiness record (RATIFY-01, D-04/D-05) [wave 1]
+- [ ] 215-04-PLAN.md — v1.43 ship PR surface; gate on 5 required CI checks green; merge/archival deferred (HEALTH-04, D-01) [wave 2, depends on 215-01/02/03]
 
 ## Progress (v1.43 STABILIZE)
 
@@ -116,6 +123,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 213. Latest-Phoenix Compatibility | 2/2 | Complete    | 2026-07-02 |
 | 214. Debt & Robustness Clear | 5/5 | Complete   | 2026-07-03 |
-| 215. Terminal Ratification | 0/? | Not started | - |
+| 215. Terminal Ratification | 0/4 | Not started | - |
 
 _Prior-milestone phase rows (v1.33–v1.42) live in each milestone's archived ROADMAP under `milestones/`._
