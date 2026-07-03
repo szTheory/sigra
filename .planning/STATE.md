@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.43
-milestone_name: STABILIZE
-status: Awaiting next milestone
-stopped_at: Completed 214-05-PLAN.md
-last_updated: "2026-07-03T09:48:21.700Z"
-last_activity: 2026-07-03 — Milestone v1.43 completed and archived
+milestone: v1.44
+milestone_name: ADMIN-UX-RATCHET
+status: planning
+last_updated: "2026-07-03T15:51:35.980Z"
+last_activity: 2026-07-03
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -26,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.43 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-03 — Milestone v1.43 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-03 — Milestone v1.44 started
 
 ## Accumulated Context
 
