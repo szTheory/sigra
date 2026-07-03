@@ -5,14 +5,14 @@ milestone_name: ADMIN-UX-RATCHET
 current_phase: 216
 current_phase_name: harness-foundation-award-gradient
 status: executing
-stopped_at: Completed 216-04-PLAN.md (forward-only integrity guards)
-last_updated: "2026-07-03T17:54:40.425Z"
+stopped_at: Completed 216-05-PLAN.md (award guard + probe ids)
+last_updated: "2026-07-03T18:01:39.199Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 216 (harness-foundation-award-gradient) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-07-03
 
@@ -258,6 +258,9 @@ Progress: [███░░░░░░░] 29%
 - [Phase ?]: skip-on-empty-base divergence (D-08/D-21): skip ONLY when ledger file absent; increase from 0 IS a regression (216-04)
 - [Phase ?]: evidence-anchor-check.mjs resolves cheerio via createRequire from playwright subproject — no duplicate install (216-04)
 - [Phase ?]: isStructuralAnchor rejects prose before cheerio: starts with ./#/[/: or single lowercase tag not followed by uppercase prose (216-04)
+- [Phase ?]: eval-probe-ids.mjs is the single source of the nine canonical probe ids shared by award-guard and Plan 06 probes.ts (D-12 anti-drift)
+- [Phase ?]: award-guard recomputes band=min(axes) — never trusts the typed band; FAILs on climb-without-render, band!=min, unresolved-evidence, and axis-decrease (D-20)
+- [Phase ?]: resolveEvidenceRef defers test: and conformance: to prefix-only validation until Plans 06/07 populate those registries (intentional seam)
 
 ### Pending Todos
 
@@ -333,8 +336,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-03T17:54:40.420Z
-Stopped at: Completed 216-04-PLAN.md (forward-only integrity guards)
+Last session: 2026-07-03T18:01:39.193Z
+Stopped at: Completed 216-05-PLAN.md (award guard + probe ids)
 Resume file: None
 
 ## Operator Next Steps
@@ -406,3 +409,4 @@ Resume file: None
 | Phase 214 P05 | 170s | 2 tasks | 3 files |
 | Phase 216 P01 | 144s | 3 tasks | 4 files |
 | Phase 216 P04 | ~15min | 3 tasks | 6 files |
+| Phase 216 P05 | 4min | 3 tasks | 3 files |
