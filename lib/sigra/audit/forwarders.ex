@@ -94,9 +94,8 @@ defmodule Sigra.Audit.Forwarders do
         Process.whereis(oban_override) != nil
 
       :error ->
-        # Production path: mirrors lib/sigra/delivery.ex oban_running?/0:
-        # Sigra.OptionalDeps.oban_available?() and Process.whereis(Oban) != nil
-        Sigra.OptionalDeps.oban_available?() and Process.whereis(Oban) != nil
+        # Production path: delegate to SOT (Sigra.OptionalDeps.oban_running?/0)
+        Sigra.OptionalDeps.oban_running?()
     end
   end
 

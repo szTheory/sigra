@@ -43,6 +43,7 @@ defmodule Sigra.OptionalDeps do
   | Predicate              | Module      | Optional dep      |
   |------------------------|-------------|-------------------|
   | `oban_available?/0`    | `Oban`      | `{:oban, ...}`    |
+  | `oban_running?/0`      | `Oban`      | `{:oban, ...}` + supervised |
   | `bcrypt_available?/0`  | `Bcrypt`    | `{:bcrypt_elixir, ...}` |
   | `eqrcode_available?/0` | `EQRCode`   | `{:eqrcode, ...}` |
   | `threadline_available?/0` | `Threadline` | `{:threadline, ...}` |
@@ -77,6 +78,19 @@ defmodule Sigra.OptionalDeps do
   @doc since: "0.1.0"
   @spec oban_available?() :: boolean()
   def oban_available?, do: Code.ensure_loaded?(Oban)
+
+  @doc """
+  Returns `true` when Oban is both available as a loaded module AND actively
+  supervised in the host application.
+
+  Use this guard — not `oban_available?/0` — before attempting to insert Oban
+  jobs. A host that compiles `{:oban, ...}` without wiring the supervisor will
+  have `oban_available?/0 == true` but `Process.whereis(Oban) == nil`; inserting
+  a job in that state causes a table-not-found crash at the store level.
+  """
+  @doc since: "1.1.0"
+  @spec oban_running?() :: boolean()
+  def oban_running?, do: oban_available?() and Process.whereis(Oban) != nil
 
   @doc """
   Returns `true` when Bcrypt is available as a loaded module.
