@@ -571,17 +571,15 @@ Note: the render+probe (Playwright) itself is expensive and NOT in `fast_checks`
 | A4 | The award-guard is a node `.mjs` (vs `.sh`+jq) | Wiring | None — CONTEXT explicitly leaves this to planner discretion |
 | A5 | Consolidation of render-sha + finding-counts into one JSON vs separate files | Structure | None — CONTEXT leaves to planner discretion (each guard reads one authoritative source + merge-base) |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`finding_id` composition across 216/217**
+1. **`finding_id` composition across 216/217** — **RESOLVED (intentionally deferred per D-22):** the 216 substrate key is locked to `sha256(surface\0class\0anchor)`; 217 must match this key when it plans its fix-queue, mapping its `lens+question` into the `class` slot (or a namespaced superset). This is a deliberate cross-phase seam, NOT a 216 blocker — it is carried as an explicit unresolved contract in Plan 02 Task 2 / `admin-eval-schema.md`. Resolving it unilaterally in 216 would violate D-22 ("plan both together").
    - What we know: D-22 says `surface\0class\0anchor`; Phase 217 AUTOFIX-01 text says `surface+lens+question+anchor`. Probes have a `class`; LLM lenses have `lens+question`.
-   - What's unclear: whether the shared key uses `class` (deterministic probe) as the analog of `lens+question`, or whether 217 supersets it.
-   - Recommendation: Lock the 216 substrate key as `sha256(surface\0class\0anchor)` and have 217 map its `lens+question` into the same `class` slot (or define a namespaced key). Plan both phases' key together per D-22 — do not finalize 216's TSV columns without 217's queue schema in view.
+   - Disposition: Lock the 216 substrate key as `sha256(surface\0class\0anchor)`; 217 maps `lens+question` into the same `class` slot (or a namespaced key). Do not finalize 216's TSV columns as the shared contract without 217's queue schema in view.
 
-2. **Where exactly does the render+probe Playwright job live in `ci.yml`?**
+2. **Where exactly does the render+probe Playwright job live in `ci.yml`?** — **RESOLVED:** separate `admin_eval_render` job (Plan 07 Task 4), NOT folded into `fast_checks`; the committed ledgers are the seam so `fast_checks` stays cheap and never depends on the render job's runtime (preserves JUDGE-CI-01).
    - What we know: guards go in `fast_checks`; the render itself is expensive (not fast_checks).
-   - What's unclear: whether to add an `admin-eval` job beside the existing design-lane Playwright job, or fold into it.
-   - Recommendation: separate job (mirrors design-lane partitioning); the committed ledgers are the seam so `fast_checks` never depends on the render job's runtime.
+   - Disposition: separate job (mirrors design-lane partitioning); committed ledgers are the merge-gating seam.
 
 ## Environment Availability
 
