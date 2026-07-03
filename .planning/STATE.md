@@ -5,15 +5,15 @@ milestone_name: STABILIZE
 current_phase: 214
 current_phase_name: debt-robustness-clear
 status: executing
-stopped_at: Completed 214-02-PLAN.md
-last_updated: "2026-07-03T01:55:40.227Z"
+stopped_at: Completed 214-04-PLAN.md
+last_updated: "2026-07-03T02:00:20.467Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 214 execution started
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 33
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 214 (debt-robustness-clear) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 214 execution started
 
@@ -237,6 +237,8 @@ Last activity: 2026-07-03 — Phase 214 execution started
 - [Phase ?]: D-08: user_id guard in delete_session/3 protects all callers at library layer without changing @callback delete/2 signature
 - [Phase ?]: D-11: session_type/activity_value/relative_activity/pluralize promoted to Sigra.Admin.Components; scope_copy/1 kept as defp (context-specific copy text)
 - [Phase ?]: DEBT-05: app.css orphaned sg-* value fragments deleted from :root; CI guard (app-css-corruption-check.sh) wired into fast_checks; browser-parse verified with Playwright (334 rules, --vt-color-ink resolved)
+- [Phase ?]: Config-DB approach (D-18): Chimeway.Repo configured in config/test.exs using SIGRA_TEST_PG_* env vars
+- [Phase ?]: Conditional :upgrade exclusion (D-19/D-20): phx_new_ok? check before ExUnit.start() in test_helper.exs
 
 ### Pending Todos
 
@@ -315,8 +317,8 @@ Items deferred beyond v1.43 (next milestone or later):
 
 ## Session Continuity
 
-Last session: 2026-07-03T01:55:35.669Z
-Stopped at: Completed 214-02-PLAN.md
+Last session: 2026-07-03T02:00:20.462Z
+Stopped at: Completed 214-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -384,3 +386,4 @@ Resume file: None
 | Phase 214 P01 | 149 | 2 tasks | 5 files |
 | Phase 214 P02 | 20 minutes | 2 tasks | 7 files |
 | Phase 214 P03 | 6 | 3 tasks | 3 files |
+| Phase 214 P04 | 89s | 2 tasks | 2 files |

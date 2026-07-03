@@ -12,7 +12,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 - [ ] **HEALTH-01**: The full library test suite runs green against live Postgres, with the exact command and result recorded as a trustworthy release signal.
 - [ ] **HEALTH-02**: The example app test suite runs green against live Postgres.
-- [ ] **HEALTH-03**: A clean local `mix test` run has zero spurious non-product failures — the `Chimeway.Repo` missing-database startup noise and the `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated so that "green" actually means green.
+- [x] **HEALTH-03**: A clean local `mix test` run has zero spurious non-product failures — the `Chimeway.Repo` missing-database startup noise and the `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated so that "green" actually means green.
 - [ ] **HEALTH-04**: Every required CI check passes green end-to-end on the milestone branch.
 
 ### Latest-Phoenix Compatibility (COMPAT) — SEED-004
@@ -69,7 +69,7 @@ Explicitly excluded from v1.43 to keep it a true stabilization lane.
 |-------------|-------|--------|
 | HEALTH-01 | Phase 215 | Pending |
 | HEALTH-02 | Phase 215 | Pending |
-| HEALTH-03 | Phase 214 | Pending |
+| HEALTH-03 | Phase 214 | Complete |
 | HEALTH-04 | Phase 215 | Pending |
 | COMPAT-01 | Phase 213 | Complete |
 | COMPAT-02 | Phase 213 | Complete |
