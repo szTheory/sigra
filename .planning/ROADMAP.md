@@ -81,12 +81,12 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
   4. The award sub-score ledger extension is committed and the harness runs a verify-then-climb pass over existing Tier-2 claims against rendered output, flagging any cell that fails re-verification.
   5. The findings-count-monotonic guard exits non-zero when any cell's open-finding count increases versus merge-base, and two pilot surfaces complete the full render-probe-ratchet loop end-to-end with zero guard regressions.
 
-**Plans**: 2/7 plans executed
+**Plans**: 3/7 plans executed
 Plans:
 
 - [x] 216-01-PLAN.md — Foundation: ci.yml merge-base fix (D-10) + .gitignore bundle ignores + parse5/cheerio install (legitimacy checkpoint)
 - [x] 216-02-PLAN.md — Ledger schemas: admin-award-ledger.json + settled-findings.tsv + render-sha ledger + finding_id key contract (217 seam)
-- [ ] 216-03-PLAN.md — canonicalize.ts (parse5 → render_sha256) + bundle.ts + determinism self-test
+- [x] 216-03-PLAN.md — canonicalize.ts (parse5 → render_sha256) + bundle.ts + determinism self-test
 - [ ] 216-04-PLAN.md — Guards: quality-findings-monotonic.sh + settled-findings-lint.sh + evidence-anchor-check.mjs (+ self-tests)
 - [ ] 216-05-PLAN.md — award-guard.mjs verify-then-climb + shared probe-id module + self-test
 - [ ] 216-06-PLAN.md — probes.ts (9 probes) + admin-eval.spec.ts + playwright projects + stale-render-guard.sh
@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 216. Harness Foundation + Award Gradient | 2/7 | In Progress|  |
+| 216. Harness Foundation + Award Gradient | 3/7 | In Progress|  |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 0/? | Not started | - |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
