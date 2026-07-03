@@ -110,6 +110,10 @@ jobs:
         run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
       - name: Quality ledger monotonic guard self-test
         run: bash scripts/ci/quality-ledger-monotonic.test.sh
+      - name: Check app.css for orphaned corruption
+        # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
+        # fragments re-entering the :root block of test/example's app.css.
+        run: bash scripts/ci/app-css-corruption-check.sh
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
