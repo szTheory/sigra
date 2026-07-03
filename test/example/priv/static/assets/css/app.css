@@ -21,29 +21,6 @@
 
   /* Control heights */
 
-  /* Elevation ladder.
-   * Tinting convention: token-level neutral shadows use raw rgba() (below and in
-   * the dark-mode overrides); component-level brand/tone tints use
-   * color-mix(in oklab, <token> ... ). Do not churn one into the other. */
-    0 0 0 1px rgba(21, 21, 21, 0.06), 0 1px 2px -1px rgba(21, 21, 21, 0.08),
-    0 10px 30px -24px rgba(21, 21, 21, 0.35);
-    0 0 0 1px rgba(21, 21, 21, 0.1), 0 3px 10px -8px rgba(21, 21, 21, 0.35),
-    0 18px 44px -30px rgba(21, 21, 21, 0.45);
-    0 0 0 1px rgba(21, 21, 21, 0.12), 0 12px 28px -12px rgba(21, 21, 21, 0.4),
-    0 30px 64px -32px rgba(21, 21, 21, 0.5);
-
-  /* Motion.
-   * Budget mapping: press=120ms · pop=180ms · panel=medium(220ms) ·
-   * overlay=slow(300ms). ease-out for enters; never ease-in for enters;
-   * flat ease-out (not spring) on destructive. */
-    color var(--sg-motion-fast) var(--sg-ease),
-    background-color var(--sg-motion-fast) var(--sg-ease),
-    box-shadow var(--sg-motion-fast) var(--sg-ease);
-    opacity var(--sg-motion-medium) var(--sg-ease-out),
-    transform var(--sg-motion-medium) var(--sg-ease-out);
-
-  /* Focus */
-    color-mix(in oklab, var(--sg-color-brand) 35%, transparent);
 
   /* Z-index ladder */
 
@@ -85,10 +62,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-     * (~1.88:1 → >=4.5:1). Supersedes the scoped chip fix at the .sg-filter-chip
-     * block below. */
-     * contrast (dark-mode tinted backgrounds need light tone text). */
-      0 0 0 1px rgba(255, 255, 255, 0.18), 0 24px 60px -28px rgba(0, 0, 0, 0.8);
     --vt-color-ink: #e8fbf7;
     --vt-color-muted: #a6c3c5;
     --vt-color-page: #07171d;

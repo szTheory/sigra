@@ -16,7 +16,6 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
      |> assign(:sigra_config, runtime_config!())
      |> assign(:detail, nil)
      |> assign(:confirm_action, nil)
-     |> assign(:return_to, nil)
      |> assign(:admin_breadcrumbs, nil)
      |> assign(:page_title, "Sessions")}
   end
@@ -31,7 +30,6 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
     {:noreply,
      socket
      |> assign(:detail, detail)
-     |> assign(:return_to, return_to)
      |> assign(:admin_breadcrumbs, sessions_breadcrumbs(admin_scope, detail, return_to))
      |> assign(:page_title, "#{detail.display_name || detail.user.email} sessions")}
   end
@@ -213,29 +211,6 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
     do: "Organization-scoped user operations for #{name}"
 
   defp scope_copy(_admin_scope), do: "Global user operations"
-
-  defp session_type(%{type: type}), do: to_string(type)
-
-  defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
-
-  defp activity_value(_), do: "Not available"
-
-  # Coarse human-readable recency cue beside the absolute timestamp.
-  defp relative_activity(%DateTime{} = at) do
-    diff = DateTime.diff(DateTime.utc_now(), at, :second)
-
-    cond do
-      diff < 60 -> "just now"
-      diff < 3600 -> "#{div(diff, 60)}m ago"
-      diff < 86_400 -> "#{div(diff, 3600)}h ago"
-      true -> "#{div(diff, 86_400)}d ago"
-    end
-  end
-
-  defp relative_activity(_), do: nil
-
-  defp pluralize(1, label), do: "1 #{label}"
-  defp pluralize(count, label), do: "#{count} #{label}s"
 
   defp sanitize_return_to(path, admin_scope, user_id) when is_binary(path) do
     if users_index_path?(path, admin_scope) do

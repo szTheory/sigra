@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "reconcile 6 failing example-app tests blocking PR #63 v1.42 integration merge - stale 209 admin UI copy/IA drift vs real bugs"
 created: 2026-07-02T00:00:00Z
 updated: 2026-07-02T00:00:00Z
@@ -80,3 +80,8 @@ files_changed:
   - test/example/priv/playwright/tests/admin-user-operations.spec.ts
   - test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts
   - test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts
+
+
+## RESOLVED — 2026-07-02 (v1.42 milestone close)
+
+All 6 example-app test failures reconciled during Phase 212. Tests #1-#4 and #6 were stale copy/IA drift, fixed in commits e263e514 / d0ea0c8e / ac3c8d69 / 44e049fa. Test #5 (morgan org-admin /admin) was resolved by decision (b) — the spec was reconciled to accept the example app's intentional authenticated-user redirect-to-/app UX while KEEPING the org/email non-disclosure assertions (commit 91a97eae, FLOW-01). PR #63 merged to origin/main with all required gates green, confirming all 6 pass in CI. No runtime bug; no security property dropped.

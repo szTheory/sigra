@@ -1,8 +1,11 @@
 ---
 created: 2026-06-21T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-07-03T00:00:00.000Z
+resolved_by: Phase 214, Plan 03 (DEBT-05)
 title: app.css has stripped comment openers that silently drop the next CSS rule
 area: example-css
+resolves_phase: 214
 files:
   - test/example/priv/static/assets/css/app.css
 source: 260621-vbr (Vaultr mini-brand typography) — found while debugging why a new vt-* font rule didn't apply

@@ -75,6 +75,21 @@ cleanup() {
 trap cleanup EXIT
 
 echo "==> admin-acceptance: using Sigra repo at ${SIGRA_REPO}"
+
+# D-11: assert the resolved phx.new version matches the pin target before
+# scaffolding. A stale cached 1.8.7 archive on a reused CI runner would
+# otherwise produce a false-green against the wrong generator version.
+PHX_NEW_PIN="1.8.8"
+PHX_NEW_RESOLVED=$(mix phx.new --version 2>&1 || true)
+if ! echo "${PHX_NEW_RESOLVED}" | grep -q "${PHX_NEW_PIN}"; then
+  echo "FAIL: resolved phx.new version does not match pin target ${PHX_NEW_PIN}"
+  echo "  resolved: ${PHX_NEW_RESOLVED}"
+  echo "  expected: Phoenix installer v${PHX_NEW_PIN}"
+  echo "  Fix: mix archive.install --force hex phx_new ${PHX_NEW_PIN}"
+  exit 1
+fi
+echo "==> admin-acceptance: phx.new version OK (${PHX_NEW_RESOLVED})"
+
 echo "==> admin-acceptance: generating fresh Phoenix app at ${TMP_APP_DIR}"
 
 rm -rf "${TMP_APP_DIR}"

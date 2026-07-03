@@ -1,97 +1,92 @@
-# Requirements: Sigra — v1.42 ADMIN-DS-ELEVATION
+# Requirements: Sigra — v1.43 STABILIZE
 
-**Defined:** 2026-06-28
-**Core Value:** Authentication that works out of the box with great DX on the happy path AND on the rough edges.
-**Milestone goal:** Elevate the generated admin/operator design system building-blocks-up to award-grade (Tier-2) across the whole fractal, governed by the existing forward-only monotonic guard, and add a reusable adversarial persona/JTBD judge instrument.
-
-> **REQ-ID convention:** each milestone uses fresh category prefixes (per v1.39/v1.40/v1.41 precedent); numbering restarts at `01` per category. Tier vocabulary and proxy contract are defined in `guides/reference/admin-fractal-scorecard.md`; the ratchet target is `guides/reference/admin-quality-ledger.md`.
+**Defined:** 2026-07-02
+**Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
+**Milestone goal:** Prove the foundation is green and trustworthy, unblock adopters on the latest Phoenix, and clear accumulated real-bug / robustness / review debt — no new features, no UI redesign — so the next milestone can be a clean-base admin/operator UI cleanup & feedback pass.
 
 ## v1 Requirements
 
-### Instrument & Foundation (INSTR)
+Requirements for this milestone. Each maps to exactly one roadmap phase.
 
-- [x] **INSTR-01**: A committed adversarial persona/JTBD rubric (`guides/reference/admin-persona-jtbd-rubric.md`) defines the 3 lenses (platform admin / support investigator / org admin, sourced from the demo personas), the fixed verdict questions (earning its place? / IA muddy? / redundant-coherent-least-surprising?), an ordinal `keep`/`tighten`/`kill` scale, and a fixed output schema — cross-referenced from the fractal scorecard and quality ledger.
-- [x] **INSTR-02**: The dev-only `/admin/_design` gallery renders meta-component groups in real page configurations (`board-cfg-*` composites, not just isolated boards), registered in `admin-design.spec.ts` across chromium/mobile/dark and snapshot-clean.
-- [x] **INSTR-03**: An up-front IA diagnostic runs the persona panel across all 8 admin pages and is committed (`.planning/v1.42-IA-DIAGNOSTIC.md`) to prioritize the component/group/page work.
+### Health & Signal (HEALTH)
 
-### Fixtures (FIXT)
+- [ ] **HEALTH-01**: The full library test suite runs green against live Postgres, with the exact command and result recorded as a trustworthy release signal.
+- [ ] **HEALTH-02**: The example app test suite runs green against live Postgres.
+- [x] **HEALTH-03**: A clean local `mix test` run has zero spurious non-product failures — the `Chimeway.Repo` missing-database startup noise and the `Sigra.UpgradeIntegrationTest` env-DB failures are fixed or correctly gated so that "green" actually means green.
+- [ ] **HEALTH-04**: Every required CI check passes green end-to-end on the milestone branch.
 
-- [x] **FIXT-01**: Demo seed/persona data exercises the error/boundary/edge states the gallery and pages need (e.g. empty, long-string/UUID overflow, high-count, failed/warning status, permission-denied), segregated to the `@demo.tasklane.test` cohort with the `loadtest-` marker — without altering the golden-path `mix test` CI fixture.
+### Latest-Phoenix Compatibility (COMPAT) — SEED-004
 
-### Component & Token Elevation (COMP)
+- [x] **COMPAT-01**: A host generated with the current `phx.new` (≥ 1.8.8) plus `mix sigra.install` compiles clean under `--warnings-as-errors` — no `undefined attribute "type" for …CoreComponents.button/1`, and no other 1.8.8 output drift breaks the generated compile.
+- [x] **COMPAT-02**: The install golden fixture and `golden_diff_test` are reconciled with `phx.new` ≥ 1.8.8 output (the `config/config.exs` `root_tag_attribute` byte-diff absorbed correctly), so the golden lane passes without the 1.8.7 archive.
+- [x] **COMPAT-03**: The `phx_new 1.8.7` pin is removed from CI workflows and the CLAUDE.md dev-prereq note, with the generated-host acceptance smoke green against current `phx.new`.
 
-- [x] **COMP-01**: The 8 highest-reuse L1 components (`notice`, `notice_link`, `stat`, `stat_link`, `summary_chip`, `task_card`, `applied_chip`, `audit_row`) meet Tier-2 on their own merit — full interaction states, motion-token conformance (no `transition: all`, `prefers-reduced-motion` strips movement), light/dark/system, documented target-size, on-brand microcopy, per-component axe clean across chromium/mobile/dark.
-- [x] **COMP-02**: The 5 remaining L1 components (`empty_state`, `page_back`, `scope_ribbon`, `field_help`, `skeleton`) meet the same Tier-2 bar across the 3 projects.
-- [x] **COMP-03**: The L0 token layer is elevated to Tier-2 with documented brand-token conformance (no raw hex/px outside `--sg-*` tokens; light/dark/system parity) and a refreshed `admin-token-reference.md` citation.
+### Debt & Robustness Clear (DEBT)
 
-### Meta-Component Group Elevation (GROUP)
+- [x] **DEBT-01**: Oban enqueue paths degrade safely when Oban is compiled but unsupervised or its table is absent (no `42P01` / crash; enqueue is guarded), proven by a regression test.
+- [x] **DEBT-02**: The deferred phase-209 code-review items are resolved — `panel-schema-check.sh` is wired into CI or explicitly retired, and the remaining info nits are closed.
+- [x] **DEBT-03**: The deferred phase-200 code-review items are resolved, or explicitly re-triaged with recorded rationale if genuinely not worth fixing.
+- [x] **DEBT-04**: The stray Hex `1.20.0` version-ranking wart is resolved so Sigra's version ordering/resolution is correct.
+- [x] **DEBT-05**: The demo `app.css` orphaned-comment corruption is cleaned up so no CSS rule is silently dropped, guarded against regression.
 
-- [x] **GROUP-01**: All 11 L2 meta-component groups (MG-1…MG-11) meet Tier-2 on their isolated boards — intra-group single-tier rhythm, no accidental card-in-card, right-component-for-job, defined zero/loading/error states, byte-coherent reuse — across chromium/mobile/dark.
-- [x] **GROUP-02**: Every group also passes in its real page configuration (`board-cfg-*`), with desktop↔mobile content-equivalence proven where the group has a table+mobile-card swap (MG-5/MG-6 equivalence assertions green).
+### Terminal Ratification (RATIFY)
 
-### Page Judgment Pass (PAGE)
+- [ ] **RATIFY-01**: The milestone closes with the full suite + CI green, every deferred-items-ledger entry pulled into this milestone reconciled (marked resolved), and no new blocking debt introduced.
 
-- [x] **PAGE-01**: The adversarial persona panel renders one committed scored review doc per surface (`.planning/uat-evidence/v1.42-persona-jtbd/<surface>.md`) for all 8 pages, each with 3-persona verdicts and a per-surface disposition (`clean`/`actionable`/`blocked`), indexed by a roll-up (`.planning/v1.42-PERSONA-JTBD-PANEL.md`).
-- [x] **PAGE-02**: Judgment-level remediations (kill info-dump, redundant UI, verbosity; tighten IA) are applied across the pages — every actionable verdict is remediated with a diff or explicitly waived with rationale — with the monotonic guard green (no Tier-2 page regresses) and page baselines recaptured under allowlist→clear discipline.
-- [x] **PAGE-03**: The `user-sessions` page is elevated to Tier-2 — overlay axe-clean + the 7 APG focus-trap/restore gates (it owns the confirm dialog) + glossary-clean microcopy + motion/density/target-size satisfied and cited.
+## v2 Requirements
 
-### Persona Flow Elevation (FLOW)
+Acknowledged but deferred — not in this roadmap.
 
-- [x] **FLOW-01**: The 3 persona flows (`flow-platform-admin`, `flow-support-investigator`, `flow-org-admin`) are elevated to Tier-2 — each proves happy/error/boundary/edge paths, scope/return-context continuity, full keyboard operability, calm reduced-motion, and theme persistence, and cites its persona review doc as evidence.
+### Config / Installer Features (feature milestone)
 
-### Terminal Ratification (GATE)
+- **FEAT-01**: Runtime auth-prefix override (`2026-06-20-runtime-auth-prefix-override`).
+- **FEAT-02**: `mix sigra.migrate` schema helper (`2026-06-20-mix-sigra-migrate-schema-helper`).
+- **FEAT-03**: White-label auth/email theming (`2026-06-22-white-label-auth-email-theming`).
 
-- [x] **GATE-01**: Terminal ratification — every ledger cell reads Tier-2, `scripts/ci/quality-ledger-monotonic.sh --base origin/main` exits 0, all baselines recaptured with both allowlists empty and both canaries byte-stable, and compare-mode re-render shows zero PNG drift (idempotency proven).
-- [x] **GATE-02**: Installer↔example byte-parity + golden fixture stay green and generated-host parity is proven (fresh `phx.new` + `mix sigra.install` + admin-acceptance smoke renders the elevated styled admin); an adversarial milestone audit records the persona-JTBD verdicts as Tier-2 evidence.
+### UI Cleanup (next / UI milestone)
 
-## Future Requirements
-
-Deferred unless a concrete adopter/security/product signal promotes them.
-
-### Tooling
-
-- **STORYBOOK-01**: Adopt PhoenixStorybook as the component-lab surface — deferred (dependency weight + host-app-friendliness; the in-repo `/admin/_design` gallery covers the need without a new dep).
-- **JUDGE-CI-01**: Wire the persona panel as an automated CI gate — deferred (LLM non-determinism would make merges flaky; CI keeps the deterministic axe/APG/equivalence/glossary proxies).
+- **UI-01**: Demo-DX polish nits (`2026-06-19-uat-demo-dx-polish-nits`).
+- **UI-02**: Tasklane rebrand residuals (`2026-06-22-vaultr-authed-rebrand-residuals`).
+- **UI-03**: Admin/operator UI cleanup & feedback pass (the milestone this one clears the runway for).
 
 ## Out of Scope
 
+Explicitly excluded from v1.43 to keep it a true stabilization lane.
+
 | Feature | Reason |
 |---------|--------|
-| Net-new admin surfaces/pages | This milestone elevates the existing surface; "same job → same component", no new pages |
-| New runtime/dev dependencies (incl. PhoenixStorybook) | Keep the library lean and host-app-friendly; deepen the existing gallery instead |
-| Host-owned admin shell redesign | The shell (`admin_shell.ex`) is host-owned generated code; do not take it over |
-| Changes to generated auth/email branding surface | Out of this milestone's admin/operator design-system scope |
-| Persona judge as a merge-blocking CI gate | Non-deterministic; kept as a planning/review-time instrument feeding the manual Tier-2 assertion |
-| Touching the golden-path `mix test` CI fixture data | All stress/edge data stays in the `@demo.tasklane.test` demo cohort |
+| Admin/operator UI redesign | Reserved for the *next* milestone; this lane exists to make that one start from a clean base. |
+| CI-perf / Playwright per-shard DB (SEED-005) | CI is already fast after v1.40 (−43%); no correctness value. |
+| SEED-001 GA human-UAT matrix | Large; gated on an actual v1.0 GA public-announcement trigger. |
+| SEED-002 audit-log atomicity (`log_safe` → `Ecto.Multi`) | Larger change; needs its own thesis + audit-aware test pattern. |
+| SEED-003 auth copy / locale i18n | Feature; only surfaces with an admin-copy or multi-language milestone. |
+| SEED-007 secret_key_base compile-env decoupling | Only surfaces if host-run `--dev` port fragility resurfaces; not blocking. |
+| New auth capabilities / strategic bets | Post-1.0 posture: need explicit adopter/security/product thesis. |
 
 ## Traceability
 
-Validated mapping — finalized in ROADMAP.md (2026-06-28). Phases continue from 204.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INSTR-01 | Phase 205 | Complete |
-| INSTR-02 | Phase 205 | Complete |
-| INSTR-03 | Phase 205 | Complete |
-| FIXT-01 | Phase 205 | Complete |
-| COMP-01 | Phase 206 | Complete |
-| COMP-02 | Phase 207 | Complete |
-| COMP-03 | Phase 207 | Complete |
-| GROUP-01 | Phase 208 | Complete |
-| GROUP-02 | Phase 208 | Complete |
-| PAGE-01 | Phase 209 | Complete |
-| PAGE-02 | Phase 209 | Complete |
-| PAGE-03 | Phase 210 | Complete |
-| FLOW-01 | Phase 210 | Complete |
-| GATE-01 | Phase 211 | Complete |
-| GATE-02 | Phase 211 | Complete |
+| HEALTH-01 | Phase 215 | Pending |
+| HEALTH-02 | Phase 215 | Pending |
+| HEALTH-03 | Phase 214 | Complete |
+| HEALTH-04 | Phase 215 | Pending |
+| COMPAT-01 | Phase 213 | Complete |
+| COMPAT-02 | Phase 213 | Complete |
+| COMPAT-03 | Phase 213 | Complete |
+| DEBT-01 | Phase 214 | Complete |
+| DEBT-02 | Phase 214 | Complete |
+| DEBT-03 | Phase 214 | Complete |
+| DEBT-04 | Phase 214 | Complete |
+| DEBT-05 | Phase 214 | Complete |
+| RATIFY-01 | Phase 215 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 15 total
-- Mapped to phases: 15
+- v1 requirements: 13 total
+- Mapped to phases: 13 (fully mapped)
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-06-28*
-*Last updated: 2026-06-28 — traceability finalized by roadmapper; 15/15 mapped, 0 unmapped*
+*Requirements defined: 2026-07-02*
+*Last updated: 2026-07-02 — traceability table populated after roadmap creation (v1.43 STABILIZE, Phases 213-215)*

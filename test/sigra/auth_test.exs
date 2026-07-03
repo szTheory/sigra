@@ -1164,6 +1164,53 @@ defmodule Sigra.AuthTest do
       assert :ok = result
       assert_received {[:sigra, :session, :delete, :stop], ^ref, _measurements, _metadata}
     end
+
+    test "does not revoke a session belonging to a different user (D-08 foreign-token guard)" do
+      # Arrange: user_a owns the session; call is made with user_b's id
+      user_a_id = 1
+      user_b_id = 2
+      user_a_token = "hashed-token-user-a"
+      user_a_session = build_session(%{hashed_token: user_a_token, user_id: user_a_id})
+
+      # fetch returns user_a's session; delete must NOT be called (no-op)
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn ^user_a_token, _opts -> {:ok, user_a_session} end)
+      |> expect(:list_by_user, fn ^user_a_id, _opts -> [user_a_session] end)
+
+      # Act: attempt to delete user_a's session with user_b's id
+      result = Auth.delete_session(@session_config, user_a_token, user_id: user_b_id)
+
+      # Assert: returns :ok (silent no-op) and session still exists
+      assert :ok = result
+
+      remaining = Auth.list_sessions(@session_config, user_a_id)
+      assert [^user_a_session] = remaining
+    end
+
+    test "deletes session when user_id matches session owner (D-08 allow path)" do
+      user_id = 1
+      token = "hashed-token-owner"
+      session = build_session(%{hashed_token: token, user_id: user_id})
+
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn ^token, _opts -> {:ok, session} end)
+      |> expect(:delete, fn ^token, _opts -> :ok end)
+
+      result = Auth.delete_session(@session_config, token, user_id: user_id)
+
+      assert :ok = result
+    end
+
+    test "no-ops gracefully when user_id is provided but session is already gone (D-08 not_found)" do
+      token = "expired-token"
+
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn ^token, _opts -> {:error, :not_found} end)
+
+      result = Auth.delete_session(@session_config, token, user_id: 1)
+
+      assert :ok = result
+    end
   end
 
   describe "delete_all_sessions/3" do

@@ -1,15 +1,34 @@
 ---
 created: 2026-07-01T00:00:00.000Z
-status: pending
+resolved: 2026-07-03T00:00:00.000Z
+status: resolved
+closed_by: Phase 214 DEBT-02 (D-05, D-06, D-07)
 title: Phase 209 code-review deferred findings — canary recapture premise, unwired panel-schema-check, validator nits
 area: ci
+resolves_phase: 214
 files:
   - .github/workflows/ci.yml
   - scripts/ci/panel-schema-check.sh
 source: Phase 209 execute-phase code_review_gate (209-REVIEW.md). IN-01 (dead @summary_posture assign) was FIXED in commit 8f56f64e. These are the Warning/Info findings intentionally deferred as design-/scope-level (not guess-fixable at phase close).
 ---
 
-## What
+## Resolution
+
+**Phase 214 DEBT-02 (2026-07-03):**
+
+- **WR-01** — Already resolved in commit eb066b49; post-merge validation confirmed
+  (admin_checkpoint_recapture runs clean; PR #63 merged). Closed.
+- **WR-02** — Decided: `panel-schema-check.sh` is RETIRED (not wired into CI). The
+  inputs are frozen v1.42 milestone deliverables that never change; a guard over
+  immutable historical docs enforces nothing forward-looking. Retire rationale added
+  as a prominent RETIRED comment at the top of the script (D-05).
+- **IN-02, IN-03, IN-04** — Won't-fix nits on the retired script (D-06, D-07).
+
+All five findings resolved/closed. DEBT-02 complete.
+
+---
+
+## What (original)
 
 Advisory code-review findings from Phase 209 that were deferred rather than
 guess-fixed. None block the phase (copy/IA remediations + REVIEW verified all 6
@@ -47,7 +66,7 @@ LiveView diffs clean). Captured so they aren't lost:
    (pre-existing, cloned from the design-recapture lane).** Not introduced by 209 —
    inherited pattern; fix in the shared prelude if addressed.
 
-## Why deferred
+## Why deferred (original)
 
 WR-01 requires a live CI run to validate (can't be confirmed locally — the
 `--base origin/main` canary diff can't pass on darwin by design). WR-02 is a

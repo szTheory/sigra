@@ -30,13 +30,13 @@ source tmp/db.env       # exports SIGRA_TEST_PG_* into the current shell
 
 Without `direnv`, you must `source tmp/db.env` in every new shell before running `mix test` or `mix ci`. If you run a local Postgres on port 5432, the fallback defaults apply automatically.
 
-**phx_new 1.8.7 archive** — the `ci.install_golden` leg generates a Phoenix app via `phx_new` and diffs it against a committed fixture. A newer archive (e.g. 1.8.8) produces spurious byte-diffs and a red gate even when CI is green. Install the pinned version:
+**phx_new 1.8.8 archive** — the `ci.install_golden` leg generates a Phoenix app via `phx_new` and diffs it against a committed fixture. A different local archive version produces spurious byte-diffs and a red gate. Install the pinned version:
 
 ```
-mix archive.install --force hex phx_new 1.8.7
+mix archive.install --force hex phx_new 1.8.8
 ```
 
-This is SEED-004 forward-compat: do **not** upgrade the archive locally to "fix" a golden-diff red — install 1.8.7 instead.
+The fixture is reblessed against 1.8.8 — use this version locally to keep your gate in sync with CI.
 
 ### CI-only lanes (intentionally excluded from mix ci)
 
@@ -59,7 +59,7 @@ These are useful for code quality but are deliberately **not** part of `mix ci` 
 
 The following failures appear on a stock v1.40 checkout and are **not regressions** — do not investigate them as new failures:
 
-- **golden_diff_test.exs** — red if your local phx_new archive is newer than 1.8.7 (install 1.8.7 to fix).
+- **golden_diff_test.exs** — red if your local phx_new archive differs from 1.8.8 (install 1.8.8 to fix).
 - **UpgradeIntegrationTest** (3 tests) — require a specific database and environment configuration not present in a default dev setup.
 
 ## CI overview

@@ -4,6 +4,7 @@ created: 2026-06-24
 source: 260623-j59 (session-invalidation fix — surfaced while making the example's deletion path run end-to-end)
 severity: bug
 area: lib/sigra (account-deletion Oban enqueue) + Sigra.OptionalDeps
+resolves_phase: 214
 ---
 
 # Account-deletion Oban enqueue fires whenever Oban is COMPILED, even if the host doesn't run it

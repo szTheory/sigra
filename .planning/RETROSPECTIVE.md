@@ -25,6 +25,38 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.42 — ADMIN-DS-ELEVATION
+
+**Shipped:** 2026-07-02
+**Phases:** 9 (205–212, incl. inserted 208.1 + 212) | **Plans:** 36 | **Tasks:** 52
+
+### What Was Built
+The building-blocks-up complement to v1.41's page-down pass: elevated the L0 token layer, all 13 L1 components, and all 11 L2 meta-component groups to Tier-2, then ran an adversarial persona/JTBD judgment pass over all 8 pages and ratcheted the last cells (user-sessions page + 3 persona flows) — every one of the 36 quality-ledger cells now reads bare `2`, locked forward-only by the monotonic guard. Shipped a durable, re-runnable adversarial persona/JTBD **judge instrument** (rubric + 8 per-surface scored docs + roll-up panel + IA diagnostic), a deepened `/admin/_design` gallery with real-page `board-cfg-*` composites, and two new CI conformance guards (`admin-css-conformance.sh`, `admin-token-completeness.sh`). Two inserted phases carried the ship: **208.1** fixed ~15 never-CI-validated admin Playwright behavioral failures, and **212** reconciled the origin/main canary, gated the persona-flow specs in CI (FLOW-01), and un-skipped the generated-host runtime smoke (GATE-02) before merging PR #63.
+
+### What Worked
+- **Building-blocks-up fractal ratchet.** L0→L1→L2 elevation before the page judgment pass meant every composite was assembled from already-Tier-2 parts; the whole fractal reached all-`2` coherently.
+- **The persona/JTBD rubric as a durable instrument, not a CI gate.** Formalized judgment-level review (3 lenses, fixed keep/tighten/kill verdicts) feeding manual Tier-2 assertions, deliberately kept out of merge-blocking CI (JUDGE-CI-01 deferred) to avoid LLM-nondeterminism flakiness.
+- **Canary re-designation over allowlisting.** A legitimately-changed canary (the 204-03 WCAG mobile contrast fix) was re-established as `added` in-commit, preserving the tripwire rather than punching an allowlist hole.
+
+### What Was Inefficient
+- **"Cite-and-flip" masked real failures.** Phases 205–208 flipped ledger cells by *reading* code against the Tier-2 proxies rather than *running* the specs — which hid ~15 real, redesign-broken admin Playwright behavioral failures (stale selectors/copy) until the integration PR's first real CI run, forcing an unplanned Phase 208.1.
+- **Premature "shipped" flip.** PROJECT/ROADMAP were flipped to "shipped 2026-07-01" on local-green presumption *before* the integration merge; `/gsd-audit-milestone` then caught 3 integration gaps (canary red vs origin/main, persona-flow specs gated by no CI job, generated-host smoke CI-skipped), forcing Phase 212 and an honest re-flip after gates went green.
+- **A 300+-commit backlog never pushed to origin/main.** `snapshot-canary-guard --base origin/main` showed cumulative backlog drift as "unallowlisted", conflating per-phase idempotency with integration reconciliation — the merge topology (a clean fast-forward) only became clear at Phase 212.
+
+### Patterns Established
+- **Run-don't-read verification:** a ledger flip must cite an *executed* spec, not a code reading. Cite-and-flip is only sound once the spec actually runs green in CI.
+- **Honest status flip (D-16):** milestone → `shipped` only *after* the required checks go green on the integration PR — never on local-green presumption.
+- **Integration merge as its own phase:** when a backlog is hundreds of commits ahead of origin/main, the origin/main canary + required-gate reconciliation is a dedicated phase, not a per-phase concern.
+
+### Key Lessons
+- "Green locally" ≠ "green in CI." The required checks (Playwright behavioral, generated-host smoke) must actually RUN on the integration PR before a gate is claimed — existence-backed evidence is not execution-backed.
+- A milestone spanning many phases before its first real CI run accumulates hidden integration debt; push/PR earlier or run the real required checks per phase to surface breakage while it's cheap.
+- Resolve-the-resolvable before close held again: the two Phase-212-adjacent items (debug session + canary-drift todo) were genuinely closed and moved to `resolved/`, leaving only irreducible forward/dormant deferrals.
+
+### Cost Observations
+- Model mix: orchestrator Opus; executors + code-fixer Sonnet (`claude-sonnet-4-6`).
+- Notable: two of the nine phases (208.1 + 212) were pure integration/CI-debt phases, not feature work — the direct cost of deferring real CI validation to milestone end.
+
 ## Milestone: v1.41 — ADMIN-UX-ELEVATION
 
 **Shipped:** 2026-06-27
@@ -911,6 +943,7 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.42 | n/a | 9 | Building-blocks-up fractal elevation (L0/L1/L2 → page judgment → remaining cells) reaching all-`2`; durable adversarial persona/JTBD judge instrument (non-CI); **run-don't-read** verification + **honest-flip-after-CI-green** (D-16) patterns established after cite-and-flip masked ~15 real Playwright failures, forcing inserted integration phases 208.1 + 212 |
 | v1.39 | n/a | 9 | Fractal design-system audit (L0–L4) governed by a re-runnable quality-tier ledger + merge-blocking monotonic guard; admin `sg-*` CSS shipped to hosts as `sigra_admin.css`; terminal ratification gate (Phase 192) replaced a separate milestone audit |
 | v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
 | v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |

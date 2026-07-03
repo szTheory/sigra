@@ -6,7 +6,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
   Assertions:
   - mix.exs defines a `ci:` alias chaining the four required PR-gate legs.
   - The `ci:` alias does NOT include legs stricter than CI (invariant D-03).
-  - CONTRIBUTING.md documents `mix ci` and the phx_new 1.8.7 prerequisite.
+  - CONTRIBUTING.md documents `mix ci` and the phx_new 1.8.8 prerequisite.
 
   These tests need no Postgres and no app boot — they run in the fast
   `mix test test/sigra/planning/` lane.
@@ -69,13 +69,13 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
            "ci alias must not include format --check-formatted (would be stricter than CI)"
   end
 
-  test "198-03: CONTRIBUTING.md documents mix ci and the phx_new 1.8.7 prerequisite" do
+  test "198-03: CONTRIBUTING.md documents mix ci and the phx_new 1.8.8 prerequisite" do
     contributing = read!("CONTRIBUTING.md")
 
     assert contributing =~ "mix ci",
            "CONTRIBUTING.md must mention `mix ci`"
 
-    assert contributing =~ "1.8.7",
-           "CONTRIBUTING.md must mention the phx_new 1.8.7 prerequisite"
+    assert contributing =~ "1.8.8",
+           "CONTRIBUTING.md must mention the phx_new 1.8.8 prerequisite"
   end
 end

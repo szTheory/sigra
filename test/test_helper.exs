@@ -3,6 +3,22 @@
 # service. No default tag exclusions: every test that runs in CI also runs
 # locally, so there's no "silently skipped" blind spot. See CLAUDE.md for
 # the dev prereq docker one-liner.
+
+# Graceful preflight skip for UpgradeIntegrationTest (D-19).
+# The upgrade test shells out to `mix phx.new` — requires the phx_new 1.8.8 archive.
+# CI installs the archive (see .github/workflows/ci.yml); local dev without the archive
+# gets a clean skip, not a crash. NOT a blanket :postgres exclusion — CLAUDE.md forbids
+# that pattern. The :upgrade exclusion is conditional on archive absence only.
+phx_new_ok? =
+  case System.cmd("mix", ["archive.list"], stderr_to_stdout: true) do
+    {output, 0} -> String.contains?(output, "phx_new-1.8.8")
+    _ -> false
+  end
+
+unless phx_new_ok? do
+  ExUnit.configure(exclude: [:upgrade])
+end
+
 ExUnit.start()
 
 if Code.ensure_loaded?(Postgrex) and Code.ensure_loaded?(Sigra.Test.PostgresRepo) do

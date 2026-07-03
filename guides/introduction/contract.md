@@ -6,7 +6,7 @@ This page is the public contract for the selected Sigra `1.0.0` release line. It
 
 Sigra has two version axes:
 
-- **Hex package SemVer** is the installable package line. The current published package truth before the release PR is `1.20.0`; the selected release path moves to real Hex `1.0.0`.
+- **Hex package SemVer** is the installable package line. The current published package truth before the release PR is `1.1.0`; the selected release path moves to real Hex `1.0.0`.
 - **GSD planning milestones** such as `v1.32` are planning tranche labels. For this release, the package target intentionally aligns to `1.0.0`; future planning labels still should not be treated as a second installable package version unless the release docs say so.
 
 When public docs, HexDocs, tags, and release notes refer to the package, treat Hex SemVer as the source of truth.
