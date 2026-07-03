@@ -2,11 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.43
 milestone_name: STABILIZE
-current_phase: 213
-current_phase_name: latest-phoenix-compatibility
-status: ready_to_plan
-stopped_at: Phase 213 complete (2/2) — ready to discuss Phase 214
-last_updated: 2026-07-02T23:54:49.659Z
+status: planning
+stopped_at: Phase 214 context gathered (assumptions mode)
+last_updated: "2026-07-03T00:48:35.850Z"
 last_activity: 2026-07-02
 progress:
   total_phases: 3
@@ -310,9 +308,9 @@ Items deferred beyond v1.43 (next milestone or later):
 
 ## Session Continuity
 
-Last session: 2026-07-02T23:47:12.623Z
-Stopped at: Completed 213-01: reblessed golden fixture + proved COMPAT-01 via install-smoke
-Resume file: .planning/phases/213-latest-phoenix-compatibility/213-01-SUMMARY.md
+Last session: 2026-07-03T00:48:35.845Z
+Stopped at: Phase 214 context gathered (assumptions mode)
+Resume file: .planning/phases/214-debt-robustness-clear/214-CONTEXT.md
 
 ## Operator Next Steps
 
