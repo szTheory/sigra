@@ -4,6 +4,7 @@ created: 2026-06-22
 source: 260622-i0e (Vaultr authed-screen rebrand)
 severity: info
 area: test/example/lib/example_web/live + controllers
+resolves_phase: 218
 ---
 
 # Vaultr authed-screen rebrand — residual daisyUI polish
