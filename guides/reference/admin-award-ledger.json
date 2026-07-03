@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md.",
+  "cells": {
+    "users-index-live": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": null,
+      "rendered": false,
+      "evidence_ref": []
+    },
+    "user-show-live": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": null,
+      "rendered": false,
+      "evidence_ref": []
+    }
+  }
+}
