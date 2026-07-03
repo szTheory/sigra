@@ -1,6 +1,8 @@
 ---
 created: 2026-06-25T00:00:00.000Z
-status: pending
+status: done
+resolved: 2026-07-02T00:00:00.000Z
+resolved_in: 214-02
 title: harden token-scoped session revocation + de-dupe admin session helpers (Phase 200 deferred review findings)
 area: admin-ui
 resolves_phase: 214
