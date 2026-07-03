@@ -6,13 +6,13 @@ current_phase: 216
 current_phase_name: harness-foundation-award-gradient
 status: executing
 stopped_at: Completed 216-05-PLAN.md (award guard + probe ids)
-last_updated: "2026-07-03T18:01:39.199Z"
+last_updated: "2026-07-03T18:21:42.876Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 216 (harness-foundation-award-gradient) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-03
 
@@ -261,6 +261,9 @@ Progress: [███░░░░░░░] 29%
 - [Phase ?]: eval-probe-ids.mjs is the single source of the nine canonical probe ids shared by award-guard and Plan 06 probes.ts (D-12 anti-drift)
 - [Phase ?]: award-guard recomputes band=min(axes) — never trusts the typed band; FAILs on climb-without-render, band!=min, unresolved-evidence, and axis-decrease (D-20)
 - [Phase ?]: resolveEvidenceRef defers test: and conformance: to prefix-only validation until Plans 06/07 populate those registries (intentional seam)
+- [Phase ?]: probes.ts reads live --sg-* via getPropertyValue, never duplicated constant table
+- [Phase ?]: admin-eval.spec.ts uses __dirname not bundle.ts import.meta.url for CJS/ESM Playwright compat
+- [Phase ?]: stale-render-guard absence=FAIL (not skip), git plumbing only never mtime D-07/D-08
 
 ### Pending Todos
 
@@ -336,7 +339,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-03T18:01:39.193Z
+Last session: 2026-07-03T18:21:25.844Z
 Stopped at: Completed 216-05-PLAN.md (award guard + probe ids)
 Resume file: None
 
@@ -410,3 +413,4 @@ Resume file: None
 | Phase 216 P01 | 144s | 3 tasks | 4 files |
 | Phase 216 P04 | ~15min | 3 tasks | 6 files |
 | Phase 216 P05 | 4min | 3 tasks | 3 files |
+| Phase 216 P06 | 17min | 3 tasks | 5 files |

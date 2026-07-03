@@ -14,7 +14,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 - [x] **HARNESS-01**: A single command renders every admin surface (the 8 L3/L4 pages + flows and the L1/L2 component boards) across the light/dark/mobile × populated/zero/loading/error matrix into per-surface evidence bundles (screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256`), reusing the existing `/admin/_design` gallery and font-ready capture discipline.
 - [x] **HARNESS-02**: The harness refuses to evaluate untrustworthy renders — a stale-render guard hard-fails when a bundle's `app_git_sha` ≠ working HEAD (or admin source is newer than the bundle), and an evidence-integrity check rejects any finding whose DOM anchor is absent from the captured DOM, so "cite-and-flip" is impossible by construction.
-- [ ] **HARNESS-03**: Deterministic visual probes run over the rendered DOM/computed-style and flag off-token spacing, 1–6px misalignment, size/weight-budget overflow, ember-reserved-for violations, off-scale radius/shadow/control-height, sub-minimum target size, missing focus ring, card-in-card nesting, and a non-obvious or below-fold primary action — promoting the three documented-as-manual scorecard proxies (motion, whitespace rhythm, target-size) to automated, merge-blocking checks.
+- [x] **HARNESS-03**: Deterministic visual probes run over the rendered DOM/computed-style and flag off-token spacing, 1–6px misalignment, size/weight-budget overflow, ember-reserved-for violations, off-scale radius/shadow/control-height, sub-minimum target size, missing focus ring, card-in-card nesting, and a non-obvious or below-fold primary action — promoting the three documented-as-manual scorecard proxies (motion, whitespace rhythm, target-size) to automated, merge-blocking checks.
 
 ### Forward Ratchet & Award Gradient (RATCHET) — Phase 216
 
@@ -77,7 +77,7 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 |--------|-------|--------|
 | HARNESS-01 | 216 | Complete |
 | HARNESS-02 | 216 | Complete |
-| HARNESS-03 | 216 | Pending |
+| HARNESS-03 | 216 | Complete |
 | RATCHET-01 | 216 | Complete |
 | RATCHET-02 | 216 | Complete |
 | PANEL-01 | 217 | Pending |
