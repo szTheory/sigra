@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-status: verifying
-stopped_at: Completed 216-05-PLAN.md (award guard + probe ids)
+status: executing
+stopped_at: Completed 216-07-PLAN.md (convergence — harness, pilots, CI wiring)
 last_updated: "2026-07-04T01:04:50.332Z"
 last_activity: 2026-07-03
 progress:
@@ -338,7 +338,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 ## Session Continuity
 
 Last session: 2026-07-04T01:04:50.327Z
-Stopped at: Completed 216-05-PLAN.md (award guard + probe ids)
+Stopped at: Completed 216-07-PLAN.md (convergence — harness, pilots, CI wiring)
 Resume file: None
 
 ## Operator Next Steps
@@ -412,4 +412,4 @@ Resume file: None
 | Phase 216 P04 | ~15min | 3 tasks | 6 files |
 | Phase 216 P05 | 4min | 3 tasks | 3 files |
 | Phase 216 P06 | 17min | 3 tasks | 5 files |
-| Phase 216-harness-foundation-award-gradient P07 | 45m | 4 tasks | 6 files |
+| Phase 216-harness-foundation-award-gradient P07 | 45m | 5 tasks | 6 files |
