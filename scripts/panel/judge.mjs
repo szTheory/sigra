@@ -583,10 +583,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     process.exit(0);
   }
 
-  // Late-import the SDK (avoids loading it in test-double mode)
-  const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
-
   // Load admin-render-sha.json for render_sha256
   const renderShaPath = path.join(ROOT, 'guides', 'reference', 'admin-render-sha.json');
   let renderSha256 = renderSha256Arg;
@@ -614,6 +610,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
   // we must NOT fire k paid API calls with an empty DOM (every anchor would fail
   // to resolve and every cell would degrade to keep — burning tokens for zero
   // signal). Hard-refuse instead so the operator populates the bundle first.
+  // NOTE: The SDK import is intentionally AFTER this refuse guard so the empty-DOM
+  // refuse decision is SDK-free and provable in a key-free deterministic test (IN-01).
   const bundleDir = outputDirArg
     ? path.resolve(ROOT, outputDirArg)
     : path.join(ROOT, 'eval', renderSha256, surface, cell);
@@ -636,6 +634,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     );
     process.exit(1);
   }
+
+  // Late-import the SDK (avoids loading it in test-double mode; placed AFTER the
+  // empty-DOM refuse guard so the IN-01 refuse path is SDK-free and key-free).
+  const { default: Anthropic } = await import('@anthropic-ai/sdk');
+  const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
   const result = await runJudge({
     surface,
