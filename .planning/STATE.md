@@ -4,11 +4,11 @@ milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
 current_phase: 216
 current_phase_name: harness-foundation-award-gradient
-status: executing
-stopped_at: Completed 216-07-PLAN.md (convergence — harness, pilots, CI wiring)
-last_updated: "2026-07-04T03:03:10.270Z"
+status: phase-complete
+stopped_at: Phase 216 COMPLETE — 216-08 (board-scope probes + W1) & 216-09 (live SC-5 proof at committed HEAD) closed both BLOCKER gaps; gsd-verifier re-verified PASS 5/5
+last_updated: "2026-07-04T03:30:00.000Z"
 last_activity: 2026-07-04
-last_activity_desc: Phase 216 execution started
+last_activity_desc: Phase 216 gap plans executed + re-verified PASS; next Phase 217
 progress:
   total_phases: 5
   completed_phases: 1
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 216 (harness-foundation-award-gradient) — EXECUTING
-Plan: 3 of 9
-Status: Ready to execute
-Last activity: 2026-07-04 — Phase 216 execution started
+Phase: 216 (harness-foundation-award-gradient) — COMPLETE (verified PASS 5/5)
+Plan: 9 of 9
+Status: Phase complete — next Phase 217 (Adversarial Panel + Auto-Fix Safety Rails)
+Last activity: 2026-07-04 — 216-08/09 gap plans executed; SC-5 proven green at committed HEAD; re-verification PASS
 
 Progress: [███░░░░░░░] 29%
 
