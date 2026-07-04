@@ -151,6 +151,15 @@ jobs:
         # Phase 217 Plan 03 (SC-5/JUDGE-CI-01): negative-assertion proof that no workflow
         # run: step invokes the panel or auto-fix loop orchestrators.
         run: bash scripts/ci/panel-ci-isolation.test.sh
+      - name: Fix-apply self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that fix-apply.mjs enforces +/-1.0px band,
+        # refuses ties/>1.0px/CSS/component/judgment; copy-swap is text-node-only; !important preserved.
+        run: node scripts/panel/fix-apply.test.mjs
+      - name: Auto-fix loop self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that admin-autofix-loop.sh fires git revert on
+        # rail 1 (count-monotonic), the finding lands in settled-findings.tsv (waived), and the
+        # poison-set prevents re-apply. The loop binary itself is NOT wired into CI (JUDGE-CI-01).
+        run: bash scripts/ci/admin-autofix-loop.test.sh
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)

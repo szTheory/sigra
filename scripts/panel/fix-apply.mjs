@@ -480,7 +480,16 @@ export function applyFinding(finding, filePath, opts = {}) {
 // CLI entry point
 // --------------------------------------------------------------------------
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Robust CLI detection: compare realpaths to handle macOS /var→/private/var symlinks
+import { realpathSync } from 'node:fs';
+function isMainModule() {
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return process.argv[1] === fileURLToPath(import.meta.url);
+  }
+}
+if (isMainModule()) {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
@@ -493,6 +502,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   let queuePath = null;
   let maxFixes = null;
   let findingPath = null;
+  let targetFilePath = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--queue' && args[i + 1]) {
@@ -503,6 +513,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       dryRun = true;
     } else if (!findingPath) {
       findingPath = args[i];
+    } else if (!targetFilePath) {
+      targetFilePath = args[i];
     } else {
       console.error(`fix-apply: unknown arg: ${args[i]}`);
       process.exit(2);
@@ -525,16 +537,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     console.log(`fix-apply: ${applied} applied, ${toApply.length - applied} skipped`);
   } else if (findingPath) {
-    // Single finding mode: <finding.json> or <finding.json> <file>
+    // Single finding mode: <finding.json> <target-file>
     const finding = JSON.parse(readFileSync(findingPath, 'utf8'));
-    const targetFile = args[args.length - 1] !== findingPath ? args[args.length - 1] : null;
 
-    if (!targetFile) {
+    if (!targetFilePath) {
       console.error('fix-apply: single-finding mode requires a target file path as second argument');
       process.exit(2);
     }
 
-    const result = applyFinding(finding, targetFile, { dryRun });
+    const result = applyFinding(finding, targetFilePath, { dryRun });
     if (result.applied) {
       console.log(`fix-apply: APPLIED${dryRun ? ' (dry-run)' : ''}: ${result.filePath}`);
       process.exit(0);
