@@ -1,90 +1,189 @@
 ---
 phase: 217-adversarial-panel-auto-fix-safety-rails
-fixed_at: 2026-07-04T21:14:44Z
+fixed_at: 2026-07-04T22:00:00Z
 review_path: .planning/phases/217-adversarial-panel-auto-fix-safety-rails/217-REVIEW.md
-iteration: 1
-findings_in_scope: 8
-fixed: 5
-skipped: 3
-status: partial
+iteration: 2
+findings_in_scope: 14
+fixed: 14
+skipped: 0
+status: all_fixed
 ---
 
 # Phase 217: Code Review Fix Report
 
-**Fixed at:** 2026-07-04T21:14:44Z
+**Fixed at:** 2026-07-04
 **Source review:** .planning/phases/217-adversarial-panel-auto-fix-safety-rails/217-REVIEW.md
-**Iteration:** 1
+**Iteration:** 2
+
+> Note: this report supersedes the iteration-1 fix report from the earlier review
+> round (which addressed a different, now-historical set of same-numbered findings).
+> The IDs below refer to the current `217-REVIEW.md` (14 findings).
 
 **Summary:**
-- Findings in scope (critical_warning): 8 (CR-01, CR-02, WR-01..WR-06)
-- Fixed: 5 (CR-01, CR-02, WR-03, WR-05, WR-06)
-- Skipped: 3 (WR-01, WR-02, WR-04)
-- Out of scope (Info, not attempted): 5 (IN-01..IN-05)
+- Findings in scope: 14 (fix_scope=all — Critical + Warning + Info)
+- Fixed: 14
+- Skipped: 0
+
+All fixes were verified with the relevant hermetic self-tests (13 Phase-217
+self-tests + both live anti-rot lints all green) and per-file syntax checks
+(`node --check`, `bash -n`, YAML parse). Several fixes are logic-affecting and
+are flagged below as **requires human verification**.
 
 ## Fixed Issues
 
-### CR-01: `resolveTokenRef` emits invalid CSS and mislabels non-radius scales
+### CR-01: finding_id keyspace split — fix-queue-build.mjs did not canonicalize the anchor
+
+**Files modified:** `scripts/ci/fix-queue-build.mjs`, `scripts/panel/panel-schema.mjs`
+**Commit:** 18703fa4
+**Applied fix:** Exported `canonicalizeAnchor` from `panel-schema.mjs`; `fix-queue-build.mjs`
+now imports the single canonical `findingId` helper (deleting its local non-canonicalizing
+copy) and canonicalizes the anchor inside `systemicGroup` before hashing. Verified that
+`[data-testid='mg-5-populated']` (single-quoted) and its double-quoted form now produce the
+same 64-char ID, so settled-findings suppression, the poison-set, and panel↔probe dedup share
+one key space. **Requires human verification** — cross-module ID identity is a correctness
+invariant; a dedicated cross-module equality assertion (suggested by the review) is a
+recommended follow-on but was not added as a new test.
+
+### CR-02: PANEL_SCHEMA schema_version enum ('217-01') contradicted judge.mjs ('217-05')
+
+**Files modified:** `scripts/panel/panel-schema.mjs`
+**Commit:** 83fd27f2
+**Applied fix:** Updated both `CELL_SCHEMA` branches (finding + keep) so
+`schema_version` enum is `['217-05']`, matching `judge.mjs SCHEMA_VERSION`,
+`admin-panel-verdicts.json`, and `judge.test.mjs`. No `217-01` references remain.
+`panel-schema.test.mjs` passes (12/12).
+
+### WR-01: Anti-rot lints not on the merge-blocking path
+
+**Files modified:** `.github/workflows/ci.yml`
+**Commit:** c2fa9adf
+**Applied fix:** Added merge-blocking `fast_checks` steps invoking `fix-queue-lint.sh`
+and `panel-verdicts-lint.sh` (both read committed state only). This makes the "every
+CI run" claim in their headers true. Both lints verified passing on committed state.
+
+### WR-02: Seven Phase-217 self-tests never executed in CI
+
+**Files modified:** `.github/workflows/ci.yml`
+**Commit:** eeac655c
+**Applied fix:** Wired all seven into `fast_checks`. Adapted the review's suggestion:
+five (`anchor`, `panel-schema`, `fix-queue-build`, `fix-queue-lint`, `panel-verdicts-lint`)
+are fully hermetic and run on the default node with zero setup cost. **The review's claim
+that all seven are hermetic was inaccurate** — `excerpt.test.mjs` and `judge.test.mjs`
+transitively require `cheerio` (loaded from the Playwright subproject `node_modules`), so
+for those two I added a pinned `setup-node` + scoped `npm ci --ignore-scripts` in the
+playwright dir before running them, keeping them on the merge path. All seven verified
+passing (with cheerio installed for the latter two).
+
+### WR-03: resolveTokenRef mislabeled control-scale tokens as radius tokens
+
+**Files modified:** `scripts/panel/fix-apply.mjs`, `scripts/panel/fix-apply.test.mjs`
+**Commit:** c5ce9c55
+**Applied fix:** `resolveTokenRef` now receives the `finding` and only resolves a 4-entry
+scale to a radius token when `finding.token_family === 'radius'`; otherwise it returns
+`null` (refuse → judgment) rather than guessing radius for an off-scale control value.
+Updated the Test 1 radius fixture to declare `token_family: 'radius'` and added Test 1e/1f
+proving a 4-entry scale without the hint is refused (content unchanged). fix-apply.test.mjs
+passes 41/41. **Requires human verification** — this changes apply behavior: upstream
+producers (`fix-queue-build.mjs` / probes) do not yet emit `token_family`, so real radius
+findings will be refused (safe fallback → judgment) until that hint is threaded through.
+Emitting `token_family` on fix-queue entries is a recommended follow-on.
+
+### WR-04: fix-apply --queue mode was dead code that always reported "0 applied"
 
 **Files modified:** `scripts/panel/fix-apply.mjs`
-**Commit:** 56ca7585
-**Applied fix:** `resolveTokenRef` no longer fabricates a `var(--sg-token-<px>/* comment */)` fallback — a comment inside `var()` is invalid CSS that silently corrupts the declaration. It now returns `null` when the token family/name cannot be resolved deterministically, and `applyTokenSwap` treats a `null` ref as "not applied" (downgrade to judgment, `continue`) rather than writing invalid/mislabeled CSS. The space-scale (10-entry) and radius (4-entry) branches that existing fixtures exercise are preserved, so the tightened band and !important-preservation tests still pass (39/39). **Requires human verification:** the second half of CR-01 (a 4-entry *control* scale being mislabeled as radius because array length can't distinguish them) is only fully closable by carrying the token *name* on the fix-queue entry from the emitting probe — a cross-component change to `fix-queue-build.mjs`/the probe/schema that is out of scope here. This commit closes the guaranteed-invalid-CSS half and makes the ambiguous half fail safe (refuse rather than write a fabricated var()); confirm the control-vs-radius provenance carry in a follow-up before relying on auto-apply for control tokens.
+**Commit:** 63987008
+**Applied fix:** `--queue` mode now refuses loudly (exit 2) and redirects the operator to
+`admin-autofix-loop.sh` (which owns the surface→file mapping) instead of silently printing
+"0 applied" and exiting 0. Updated the usage banner and header docs accordingly. Verified
+`node fix-apply.mjs --queue ...` exits 2 with the redirect message.
 
-### CR-02: `judge.mjs` never sends `output_config.format` — LLM unconstrained
-
-**Files modified:** `scripts/panel/judge.mjs`
-**Commit:** 278fc154
-**Applied fix:** Imported `PANEL_SCHEMA` alongside `computeFindingId` and added `output_config: { format: { type: 'json_schema', schema: PANEL_SCHEMA } }` to the `messages.create` call, per the Anthropic SDK structured-output contract (verified against the claude-api skill: `output_config.format` is the canonical structured-output parameter; the old `output_format` is deprecated). This constrains the model to the panel schema so a malformed response no longer parses to `null` → empty sample → silently weakened quorum admission. Syntax check (`node --check`) passes and the `PANEL_SCHEMA` import resolves to a valid object schema. **Requires human verification:** the judge test suite could not run to completion in this worktree because `test/example/priv/playwright/node_modules` (cheerio, a pre-existing module-load dependency of judge.mjs) is not installed — this failure predates the fix and is unrelated to it (the committed judge.mjs already imports cheerio at line 40). Confirm structured output behaves as intended against a live `claude-opus-4-8` run and that responses conform to `PANEL_SCHEMA`.
-
-### WR-03: `fix-queue-lint.sh` line 48 dead/broken `readFileSync` const
-
-**Files modified:** `scripts/ci/fix-queue-lint.sh`
-**Commit:** f240426e
-**Applied fix:** Deleted the dead line `const { readFileSync } = require("node:crypto") ? require : {...}`. `require("node:crypto")` is always truthy, so the ternary yielded `require` (the function) and destructuring `readFileSync` off it produced `undefined`; the const was never referenced (all reads use `fs.readFileSync`). The following `const fs = require("node:fs")` is the real import. Bash syntax check passes and the lint self-test (`fix-queue-lint.test.sh`) is 4/4 green, confirming the embedded node script still parses and runs.
-
-### WR-05: `admin-autofix-loop.sh` does not handle `git revert` conflicts under `set -e`
+### WR-05: --dry-run restore swallowed failures and could leave a dirty tree
 
 **Files modified:** `scripts/ci/admin-autofix-loop.sh`
-**Commit:** 1a4bf941
-**Applied fix:** Wrapped the auto-revert (`git revert --no-edit HEAD`) in the file's existing `set +e`/capture-exit/`set -e` idiom. On a non-zero exit (conflicting revert) it now runs `git revert --abort` and `exit 1` with a clear operator message, so the loop never leaves a partially-applied revert + dirty index — restoring the SAFETY RULESET's clean auto-revert guarantee. Bash syntax check passes and `admin-autofix-loop.test.sh` is 9/9 green (the suite exercises the revert/poison/waive path).
+**Commit:** c5ddc0fd
+**Applied fix:** Removed the `2>/dev/null || true` swallow on the dry-run restore; the
+script now runs `git checkout -- "$TARGET_FILE"` and hard-fails (`exit 1`) if
+`git diff --quiet` still shows the file dirty, honoring the "never leave a dirty tree"
+guarantee.
 
-### WR-06: `admin-eval-harness.sh` runs monotonic/award guards with `--base HEAD`
+### WR-06: `git add -A` staged unrelated changes into the "one fix per commit" commit
 
-**Files modified:** `scripts/ci/admin-eval-harness.sh`
-**Commit:** 1447890a
-**Applied fix:** Applied the review's option (b) — corrected the misleading labeling rather than introducing a fragile local merge-base computation. `--base HEAD` compares the working tree against committed HEAD (a consistency check), not monotonicity vs the PR merge-base; the header comment falsely claimed "vs merge-base." Updated the header comment and the b4/b5 step echoes to state honestly that they check working-tree-vs-committed consistency, and noted that the authoritative merge-base regression gate is the `fast_checks` copy in `ci.yml` (which passes `steps.base.outputs.ref`). This orchestrator is the local/full-run driver, not the merge gate, so computing a real merge-base in an arbitrary local checkout would be fragile and was deliberately not added. Behavior unchanged; bash syntax check passes.
+**Files modified:** `scripts/ci/admin-autofix-loop.sh`
+**Commit:** c5ddc0fd
+**Applied fix:** Changed `git add -A` to `git add -- "$TARGET_FILE"` so each fix commit
+contains only the file the fix touched. Re-render side effects and ledger deltas (which run
+after the commit) are no longer folded in, restoring true per-fix atomicity for `git revert`.
+Verified by the loop self-test, which now produces a real single-file autofix commit followed
+by a clean revert.
 
-## Skipped Issues
+### WR-07: Rail 3 skipped under --skip-render but loop still printed "all 4 rails green"
 
-### WR-01: `applyCopyRule` ignores the `applies_to` scoping declared in `copy-rules.json`
+**Files modified:** `scripts/ci/admin-autofix-loop.sh`
+**Commit:** c5ddc0fd
+**Applied fix:** Removed the `SKIP_RENDER` guard around rail 3 (`fix-queue-lint.sh` +
+`evidence-anchor-check.mjs`) since both read committed state and need no live render. All
+four rails now run unconditionally, so the "all 4 rails green" message is accurate; only the
+re-render itself remains gated on `SKIP_RENDER`. Loop self-test passes (9/9).
 
-**File:** `scripts/panel/fix-apply.mjs:294-376`
-**Reason:** skipped — requires a design decision (cheerio DOM rewrite) that exceeds the review's guidance and carries template-corruption risk. The review's fix ("pass the enclosing element and gate each rule on `rule.applies_to`, resolving via cheerio while walking the DOM") requires replacing the copy-swap path's deliberately regex-based approach with cheerio DOM parsing. `fix-apply.mjs` operates on raw `.heex`/`.ex` source containing HEEx template syntax (`~H`, `{...}` interpolations, `<%= %>`) that cheerio (an HTML parser, used elsewhere only on already-canonicalized excerpt DOM in `excerpt.mjs`) does not reliably parse — a cheerio rewrite could itself mangle templates, i.e. cause the exact class of source corruption the fix is meant to prevent. This is a high-risk architectural change I cannot verify correct without a broader design pass, so it is deferred rather than guessed at.
-**Original issue:** `applyCopyRule` never reads `applies_to`, applying each rule to every text node matching its pattern regardless of tag (e.g. `title_case` rewrites `<button>save changes</button>` even though buttons are scoped to `sentence_case`), silently mis-transforming copy.
+> WR-05, WR-06, and WR-07 all touch `scripts/ci/admin-autofix-loop.sh`; because the
+> commit tool stages by file path (not hunk), they landed together in commit c5ddc0fd.
 
-### WR-02: Copy-swap text-node regex can match inside `<script>`/`<style>`/`<pre>`/`<code>`
+### IN-01: judge.mjs CLI passed empty excerptDom/factsJson to a real (paid) API call
 
-**File:** `scripts/panel/fix-apply.mjs:301`
-**Reason:** skipped — same cheerio-rewrite design dependency and template-corruption risk as WR-01. The review's fix ("parse with cheerio and skip `script`/`style`/`pre`/`code`/`kbd` and HEEx interpolation") is the same architectural change to the regex-based copy-swap path, applied to the same raw HEEx/`.ex` source that cheerio cannot reliably parse. A narrower regex-only guard was considered, but reliably identifying "inside `<pre>`/`<code>`/HEEx `~H` interpolation" with flat regex over raw templates is itself error-prone and could skip or corrupt legitimate matches; a correct fix needs the same DOM-walking design as WR-01. Deferred to be resolved together with WR-01.
-**Original issue:** The flat `>([^<]+)<` regex has no element-type exclusion, so `em-dash`/`ellipsis` `replace` rules could rewrite `...` or ` — ` inside a `<code>`/`<pre>` sample or a HEEx `~H` interpolation, violating the stated `_judgment_boundary` ("never modify code/pre/kbd content").
+**Files modified:** `scripts/panel/judge.mjs`
+**Commit:** af7ddd5b
+**Applied fix:** The CLI path now reads `dom.html` / `facts.json` from the bundle output dir
+(`outputDir` override or `eval/<sha>/<surface>/<cell>`) and hard-refuses (exit 1) when the DOM
+excerpt is empty, instead of firing k paid API calls against an empty DOM that would degrade
+every cell to keep. judge.test.mjs passes (11/11). **Requires human verification** — the
+bundle dir path convention should be confirmed against the actual harness output layout.
 
-### WR-04: `admin-panel.sh` cost estimate diverges from `judge.mjs` cache logic
+### IN-02: excerpt.mjs class-attr comment contradicted the code
 
-**File:** `scripts/ci/admin-panel.sh:163-170`
-**Reason:** skipped — a faithful fix requires infrastructure that is out of scope and partly inert. The review's fix ("reuse `judge.mjs`'s `checkProvenanceMatch` with the current `rubric_version`/`prompt_sha`") requires `admin-panel.sh` to compute the current `prompt_sha`, which is `sha256(system)` where `system` is assembled per-cell by `assemblePrompt()` from `surface`/`cell`/`excerptDom`/`factsJson`/image — reproducing the entire prompt-assembly pipeline in the bash cost-probe. That per-cell DOM/facts is itself not wired on the CLI path (see IN-03: `excerptDom: ''`, a TODO in shipped code), so `prompt_sha` is presently `''` even inside `judge.mjs`'s CLI provenance. Adding only the `rubric_version` half (a hardcoded `'1.0'` constant) would still diverge from `checkProvenanceMatch` on `prompt_sha` and give false confidence that the gap is closed. A correct fix is coupled to wiring the CLI DOM (IN-03) and reproducing prompt assembly — a design-level change beyond the review's guidance and not verifiable without a live pipeline. Deferred.
-**Original issue:** The pre-run cache-hit probe checks only `model`/`k`/`quorum`, but `judge.mjs::checkProvenanceMatch` also requires `rubric_version` and `prompt_sha`, so `admin-panel.sh` reports a cache hit (0 calls) where `judge.mjs` treats it as a miss (3 calls) after any rubric/prompt drift, undercounting estimated API calls.
+**Files modified:** `scripts/panel/excerpt.mjs`
+**Commit:** 4c9592d6
+**Applied fix:** Updated the header and inline comments to state that ALL class tokens are
+retained (sorted) for anchor fidelity, removing the misleading "keep only sg-*/semantic
+tokens" language that described a filter the code does not perform.
 
-## Out-of-Scope Findings (fix_scope = critical_warning)
+### IN-03: stripVsn regex ordering could leave a stray `?`/`&`
 
-The following Info findings were not attempted (Info tier excluded by scope). They remain open in 217-REVIEW.md:
+**Files modified:** `scripts/panel/excerpt.mjs`
+**Commit:** 4c9592d6
+**Applied fix:** Reworked the cleanup chain to collapse runs of `&`, normalize `?&`→`?`, and
+added a final `.replace(/[?&]$/, '')` guaranteeing no trailing dangling separator. Behavior on
+normal single-vsn URLs is unchanged; canonical form is now minimal at the boundary.
+excerpt.test.mjs passes (15/15).
 
-- IN-01: Dead `TMP_LEDGER` mktemp+write+rm in `check_rails` (`admin-autofix-loop.sh:220-222,257`)
-- IN-02: `reconcileFindings` severity relies on two independent defaults lining up (`judge.mjs:130-158,505-523`)
-- IN-03: CLI path of `judge.mjs` passes empty `excerptDom`/`factsJson` — anchor pre-validation inert on the operator path (`judge.mjs:609`). Note: this is the root of WR-04's skip reason.
-- IN-04: `serializeEl` JSDoc parameter order does not match implementation (`excerpt.mjs:172-180`)
-- IN-05: `stripVsn` query-cleanup replaces only the first occurrence (`excerpt.mjs:84-92`)
+> IN-02 and IN-03 both touch `scripts/panel/excerpt.mjs` and landed together in commit 4c9592d6.
+
+### IN-04: admin-autofix-loop interpolated values into inline `node -e` programs
+
+**Files modified:** `scripts/ci/admin-autofix-loop.sh`
+**Commit:** a9f2c0ff
+**Applied fix:** The poison-set update and `load_eligible` inline node programs now receive the
+state-file path, finding_id, poison-set JSON, and max via `process.argv` (single-quoted program
+bodies) rather than shell interpolation — including the previously raw-JS-spliced
+`new Set(${POISON_IDS})`. The `settled-findings-lint.sh --add` call already passed values as
+separate quoted args. Loop self-test passes (9/9).
+
+### IN-05: loop self-test accepted REFUSED/SKIP as pass, so the revert path could go unexercised
+
+**Files modified:** `scripts/ci/admin-autofix-loop.test.sh`
+**Commit:** 0196b322
+**Applied fix:** Replaced the ambiguous band-edge fixture (`measured_px=[13]` vs
+`scale_px=[8,12,16,24]`) with an unambiguously in-band space-scale fixture
+(`padding: 12.5px`, `measured_px=[12.5]`, `scale_px=[1..8,10,12]` → `var(--sg-space-12)`),
+chosen because space tokens resolve without a `token_family` hint (unlike the now-refused
+4-entry radius/control scale from WR-03). The assertion now REQUIRES a Revert commit — a
+REFUSED/SKIP outcome is a genuine failure. Verified the full apply→commit→rail-1-trip→revert
+chain fires (COMMITTED then REVERTED). Also corrected the wrong-arithmetic comment. This
+strengthens the SC-4 integrated-loop proof and doubles as end-to-end validation of the WR-06
+single-file staging change. **Requires human verification** — confirm this in-band fixture is
+the intended long-term SC-4 proof shape.
 
 ---
 
-_Fixed: 2026-07-04T21:14:44Z_
+_Fixed: 2026-07-04_
 _Fixer: Claude (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 2_
