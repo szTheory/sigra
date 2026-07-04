@@ -163,8 +163,15 @@ for (const surface of Object.keys(renderSha.cells || {})) {
         " — render-sha may be stale (run fix-queue-build.mjs to regenerate)"
       );
     } else {
-      // All admin surfaces must agree on the same open_findings for a given cell key
-      if (!cellKeyToOpenFindings.has(cellKey)) {
+      // All admin surfaces must agree on the same open_findings for a given cell key,
+      // EXCEPT cells introduced at open_findings=0 (newly added surfaces that have not
+      // yet had a probe run against them are introduced with 0 as the sentinel
+      // "introduced but not yet measured" value — Plan 217-08 gate-safety invariant).
+      // A 0-valued cell is exempt from cross-surface consistency: it will be populated
+      // by the next fix-queue-build.mjs run once bundles are captured at the new surface.
+      if (openFindings === 0) {
+        // Newly introduced cell — skip cross-surface consistency check
+      } else if (!cellKeyToOpenFindings.has(cellKey)) {
         cellKeyToOpenFindings.set(cellKey, { value: openFindings, firstSurface: surface });
       } else {
         const prior = cellKeyToOpenFindings.get(cellKey);

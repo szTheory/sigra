@@ -1433,6 +1433,12 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             </div>
             <p class="sg-copy">SAVE CHANGES</p>
           </div>
+          <%!-- SC-4 in-band SPACE seed: 12.5px is 0.5px from --sg-space-12 (within +/-1.0px band).
+               fix-apply.mjs will rewrite this to var(--sg-space-12) via the 10-entry SPACE scale.
+               This element is the target for the board-autofix-seed fix-queue entry. --%>
+          <div class="sg-stack" style="padding: 12.5px">
+            <p class="sg-muted sg-text-xs">SC-4 in-band space seed (12.5px → var(--sg-space-12))</p>
+          </div>
         </div>
       </section>
 
