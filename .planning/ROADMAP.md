@@ -109,7 +109,7 @@ Plans:
   4. An injected-regression test proves that a deliberately-clunky change (off-token spacing, ember misuse, misalignment) causes the auto-revert to fire and the findings-count-monotonic guard to exit non-zero — the safety rails actually catch a regression.
   5. The panel is not in the `fast_checks` job and does not appear in any merge-blocking CI gate; only its deterministic derivatives (monotonic guard, probe findings) gate merges, preserving the JUDGE-CI-01 invariant throughout.
 
-**Plans**: 6/7 plans executed
+**Plans**: 7/7 plans complete
 Plans:
 
 - [x] 217-01-PLAN.md — Foundation: extract shared `scripts/ci/lib/anchor.mjs` (Pitfall 1) + `panel-schema.mjs` finding_id byte-identity helper (D-07/Pitfall 2) + legitimacy-gated devDep install (wave 1)
@@ -118,7 +118,7 @@ Plans:
 - [x] 217-04-PLAN.md — New graphic-design lens doc `admin-graphic-design-lens.md` (3 perceptual questions, brand-v2 pillars) (D-16/17/18; wave 1)
 - [x] 217-05-PLAN.md — LLM panel: `excerpt.mjs` + `lenses.mjs` + `judge.mjs` (k=3 quorum, content-hash skip, diff-scoped) + verdicts cache + lint (D-03/04/05/08/09/10/11; wave 2)
 - [x] 217-06-PLAN.md — Auto-fix rails: `fix-apply.mjs` (copy/token only) + `admin-autofix-loop.sh` (3 rails, git revert) + hermetic SC-4 test + `board-autofix-seed` (D-13/14/15; wave 3)
-- [ ] 217-07-PLAN.md — Operator entrypoint `admin-panel.sh` (Hammer no-op) + runbook + off-CI live SC-2/SC-4 verifications (D-02; wave 4)
+- [x] 217-07-PLAN.md — Operator entrypoint `admin-panel.sh` (Hammer no-op) + runbook + off-CI live SC-2/SC-4 verifications (D-02; wave 4)
 
 **UI hint**: yes
 
@@ -170,7 +170,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
-| 217. Adversarial Panel + Auto-Fix Safety Rails | 6/7 | In Progress|  |
+| 217. Adversarial Panel + Auto-Fix Safety Rails | 7/7 | Complete   | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |
