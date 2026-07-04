@@ -160,6 +160,15 @@ jobs:
         # rail 1 (count-monotonic), the finding lands in settled-findings.tsv (waived), and the
         # poison-set prevents re-apply. The loop binary itself is NOT wired into CI (JUDGE-CI-01).
         run: bash scripts/ci/admin-autofix-loop.test.sh
+      - name: Fix-queue lint
+        # Phase 217 (WR-01): validates guides/reference/fix-queue.json on the merge path
+        # (auto_eligible derivation, finding_id keyspace, sort/dedup). Reads committed
+        # state only — no DB, browser, or API key.
+        run: bash scripts/ci/fix-queue-lint.sh
+      - name: Panel verdicts lint
+        # Phase 217 (WR-01): validates guides/reference/admin-panel-verdicts.json on the
+        # merge path (T-217-05-EOP: never stores open_findings; finding_id integrity).
+        run: bash scripts/ci/panel-verdicts-lint.sh
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
