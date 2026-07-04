@@ -8,6 +8,7 @@ files:
   - scripts/ci/admin-panel.sh
   - guides/reference/admin-render-sha.json
   - test/example/priv/playwright/tests/admin-eval.spec.ts
+  - scripts/panel/judge.mjs
 source: Phase 217-07 Task 3 live off-CI verification (SC-2) — orchestrator-discovered integration gap, deferred as gap-closure per operator decision 2026-07-04
 ---
 
@@ -44,6 +45,16 @@ SC-4's live "board-autofix-seed companion" IS runnable (board-mg bundles + 12
 `auto_eligible` token findings exist; `admin-autofix-loop.sh` is deterministic/API-free),
 but was deferred alongside SC-2 to avoid landing fix/revert commits on `main` outside a
 gap-closure plan.
+
+## Related: judge.mjs CLI path is stubbed (same gap-closure)
+
+Phase-217 verification also flagged that `scripts/panel/judge.mjs` (~line 609) CLI entry
+point passes `excerptDom: ''` and `factsJson: '{}'` to `runJudge` — a `// TODO: read from
+bundle dir` stub. The exported `runJudge` function is fully implemented and tested
+(`judge.test.mjs` 11/11), but the `admin-panel.sh` → `judge.mjs` CLI wiring to the bundle
+filesystem is incomplete. So even after the surface sets are aligned, the CLI must be
+wired to read `dom.html` + `facts.json` from the bundle dir before a live SC-2 run is
+meaningful. Fold this into the same gap-closure pass.
 
 ## Suggested fix (pick one; a scoping decision)
 
