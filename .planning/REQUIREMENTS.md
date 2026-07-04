@@ -24,7 +24,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Adversarial LLM Panel (PANEL) — Phase 217
 
 - [x] **PANEL-01**: An adversarial 4-lens LLM panel (3 persona/JTBD lenses verbatim from `admin-persona-jtbd-rubric.md` + 1 new graphic-design/visual-quality lens) evaluates only deterministically-clean surfaces from rendered evidence, under a forced-finding floor (every lens×question holds a cited DOM anchor OR the literal `NONE — searched for: <what>`), emitting machine-parseable findings that round-trip the existing rubric schema.
-- [ ] **PANEL-02**: Panel nondeterminism is controlled so verdicts are stable and low-churn — k=3 consensus admits a finding only at ≥2/3 quorum, unchanged surfaces are skipped via content-hash (prior verdict carried forward), and changed surfaces receive a diff-scoped critique (new regressions + unresolved gaps only); the panel is never in the merge-blocking path.
+- [x] **PANEL-02**: Panel nondeterminism is controlled so verdicts are stable and low-churn — k=3 consensus admits a finding only at ≥2/3 quorum, unchanged surfaces are skipped via content-hash (prior verdict carried forward), and changed surfaces receive a diff-scoped critique (new regressions + unresolved gaps only); the panel is never in the merge-blocking path.
 
 ### Auto-Fix with Safety Rails (AUTOFIX) — Phase 217
 
@@ -81,7 +81,7 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | RATCHET-01 | 216 | Complete |
 | RATCHET-02 | 216 | Complete |
 | PANEL-01 | 217 | Complete |
-| PANEL-02 | 217 | Pending |
+| PANEL-02 | 217 | Complete |
 | AUTOFIX-01 | 217 | Complete |
 | AUTOFIX-02 | 217 | Pending |
 | ELEVATE-01 | 218 | Pending |
