@@ -214,3 +214,51 @@ None — no external service configuration required.
 - [FOUND] commit `452ce05f` — confirmed in git log
 - [FOUND] harness evidence: 153/153 tests passed, all 5 guards green (captured at pre-commit SHA `b37396487...`)
 - [FOUND] evidence-anchor-check: PASS (132 bundles, 3808 findings) — confirmed via independent run
+
+---
+
+## Re-Verification Addendum (orchestrator, committed HEAD `ae78b94f`)
+
+**Why this addendum exists.** The Evidence Log above captured the green run at the
+**pre-commit** SHA `b3739648` (the render happened with the fix in the working tree, before
+`452ce05f`/`ae78b94f` advanced HEAD). After committing, `stale-render-guard` correctly
+rejected those pre-commit bundles, and the `eval/` dir was cleaned — so at the actual
+**committed** HEAD there was no reproducible green-harness proof, and the on-disk
+`/tmp/216-09-harness.log` showed only stale-render FAILs against an ancient SHA. Per the
+plan's SC-5 gate ("a real harness run producing real bundles and exiting 0, evidenced by
+captured output" — NOT a self-test), the orchestrator re-ran the full harness at the
+committed HEAD to supply the missing proof.
+
+**Authoritative run — `scripts/ci/admin-eval-harness.sh` at HEAD `ae78b94f` (committed, clean tree):**
+- Server provenance: orchestrator-owned `mix phx.server` on port 4011 (verified free before
+  boot; ephemeral test PG from `tmp/db.env` on :65373; `Example.Repo` migrated with the
+  `PORT=4011`-baked compile-env to avoid the `validate_compile_env` abort).
+- Phase (a): 153/153 Playwright tests passed across all 3 projects (admin-eval, -mobile, -dark).
+- `stale-render-guard`: **PASS (132 bundles verified at HEAD `ae78b94f`)** ← the decisive
+  committed-HEAD confirmation the pre-commit run could not give.
+- `evidence-anchor-check`: **PASS (132 bundles, 3808 findings checked)** on real HEAD bundles.
+- `quality-findings-monotonic`: PASS (16 cells vs HEAD).
+- `award-guard`: PASS (2 cells vs HEAD).
+- `settled-findings-lint`: PASS.
+- `admin-eval-harness: PASS — all phases green` / **`HARNESS EXIT: 0`**.
+- W1 tripwire: CLEAN — no `undefined` finding id anywhere in the evidence-anchor output.
+- Ledgers UNCHANGED — `admin-render-sha.json` / `admin-award-ledger.json` SHAs stable under
+  board-scoping (confirmed via `git status`), consistent with the plan's expectation.
+- Behavioral proof of 216-08/09 fixes: the seeded-defect Nyquist tests fired in-scope —
+  including **probe #4 ember-reserved-for (seeded misuse flagged, reserved-context passes)**,
+  validating the `probeEmberReservedFor` fix at runtime (not just typecheck).
+
+**Durable evidence:** full 690-line captured log committed at
+`216-09-harness-evidence.log` (this phase dir). This is the authoritative SC-5 artifact,
+superseding the pre-commit `/tmp/216-09-harness.log` reference in the original Evidence Log.
+
+**Flake observation (determinism follow-up, non-blocking).** 16 tests were marked *flaky*:
+each was a first-navigation `page.goto('/users/register' | '/admin/_design')` that exceeded
+the 15s `waiting until "load"` timeout, then **passed on the warm retry in ~3s**. It hit
+`loading`/`error` AND `populated` boards indiscriminately, so it is a first-load timing
+issue (LiveView first-paint / local resource contention), not a board-state or code defect.
+Playwright's retries absorbed it and the harness still exited 0, but on the local machine it
+inflated wall-clock to hours (several single hangs of 16–18 min). The `admin_eval_render`
+CI job is separate and non-merge-blocking (JUDGE-CI-01), so this does not gate merges — but
+it is worth a hardening follow-up (e.g. `waitUntil: 'domcontentloaded'` + explicit
+LiveView-ready wait instead of `'load'`) so the CI render job doesn't burn time on retries.
