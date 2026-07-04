@@ -199,6 +199,8 @@ jobs:
         run: node scripts/panel/excerpt.test.mjs
       - name: Judge self-test
         run: node scripts/panel/judge.test.mjs
+      - name: Judge CLI bundle-wiring self-test
+        run: node scripts/panel/judge-cli.test.mjs
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
