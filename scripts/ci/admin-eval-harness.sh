@@ -27,9 +27,17 @@
 #                               the captured DOM (D-09; cite-and-flip impossible)
 #   fix-queue-lint.sh          — recomputes auto_eligible/priority/systemic_group,
 #                               fails on drift; validates open_findings range (D-12)
-#   quality-findings-monotonic.sh — open findings may not increase vs merge-base
+#   quality-findings-monotonic.sh — open findings may not increase. NOTE: this
+#                               orchestrator invokes it with --base HEAD, so here
+#                               it checks working-tree-vs-committed-HEAD
+#                               consistency, NOT monotonicity vs the PR merge-base.
+#                               The authoritative merge-base regression check is the
+#                               fast_checks copy in ci.yml, which passes
+#                               steps.base.outputs.ref (WR-06).
 #   award-guard.mjs            — verify-then-climb: axis can only rise with fresh
-#                               verified_at_sha + resolving evidence (D-20)
+#                               verified_at_sha + resolving evidence (D-20). Same
+#                               --base HEAD caveat as above: working-tree-vs-HEAD
+#                               here; the merge-base gate lives in fast_checks.
 #   settled-findings-lint.sh   — settled-findings.tsv sorted + no duplicates (D-22)
 #
 # Boot expectation: consume an already-booted SIGRA_EXAMPLE_URL (default
@@ -91,10 +99,15 @@ node "${ROOT}/scripts/ci/evidence-anchor-check.mjs"
 echo "admin-eval-harness: (b3) fix-queue derived-field lint (auto_eligible, priority, open_findings)"
 bash "${ROOT}/scripts/ci/fix-queue-lint.sh"
 
-echo "admin-eval-harness: (b4) quality findings monotonic guard"
+# --base HEAD compares the working tree against committed HEAD — a
+# working-tree-vs-committed consistency check, NOT monotonicity vs the PR
+# merge-base. The authoritative merge-base regression gate is the fast_checks
+# copy in ci.yml (which passes steps.base.outputs.ref). Do not read a green
+# result here as proof of no regression vs the merge-base (WR-06).
+echo "admin-eval-harness: (b4) quality findings consistency guard (working-tree vs committed HEAD)"
 bash "${ROOT}/scripts/ci/quality-findings-monotonic.sh" --base HEAD
 
-echo "admin-eval-harness: (b5) award ledger verify-then-climb guard"
+echo "admin-eval-harness: (b5) award ledger verify-then-climb guard (working-tree vs committed HEAD)"
 node "${ROOT}/scripts/ci/award-guard.mjs" --base HEAD
 
 echo "admin-eval-harness: (b6) settled findings lint"
