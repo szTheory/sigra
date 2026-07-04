@@ -32,7 +32,7 @@ import { createHash } from 'node:crypto';
  * @param {string} anchor
  * @returns {string}
  */
-function canonicalizeAnchor(anchor) {
+export function canonicalizeAnchor(anchor) {
   if (typeof anchor !== 'string') return anchor;
   // Trim whitespace
   let a = anchor.trim();
