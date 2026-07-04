@@ -161,8 +161,121 @@ This phase's loop is **fully deterministic** — no human reviewer is needed in 
   to main.
 
 The LLM panel (Phase 217's advisory AUTOFIX-01 panel) is off-CI and advisory only. It does
-NOT gate merges. Phase 217 will add the LLM-panel step; until then, the harness is purely
-deterministic.
+NOT gate merges. See the **Off-CI LLM Panel + Auto-Fix Loop** section below for details.
+
+---
+
+---
+
+## Off-CI LLM Panel + Auto-Fix Loop
+
+**JUDGE-CI-01 invariant (absolute):** Neither `admin-panel.sh` nor `admin-autofix-loop.sh`
+is ever in `fast_checks` or any merge-blocking gate. Only their deterministic derivatives
+gate merges — the committed ledgers (`admin-panel-verdicts.json`, `fix-queue.json`,
+`admin-render-sha.json`) are what the guards read. The panel and loop run off the merge path.
+
+### Running the Panel (`admin-panel.sh`)
+
+```bash
+# Prerequisite: fresh bundles captured at HEAD
+bash scripts/ci/admin-eval-harness.sh
+
+# Run the LLM panel (pilot surfaces — users-index-live, user-show-live)
+ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh
+
+# Fan out to ALL surfaces (Phase-218 scope — use --all)
+ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh --all
+
+# Dry-run: print cells + estimated call count without making API calls
+ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh --dry-run
+```
+
+**`ANTHROPIC_API_KEY` no-op degrade (Hammer guarantee):**
+When `ANTHROPIC_API_KEY` is not set, `admin-panel.sh` exits 0 with a warning that names
+the env var by name only — it never echoes the key value. This is the structural
+JUDGE-CI-01 guarantee: a run without a key can only ever pass, never block.
+
+```
+admin-panel: ANTHROPIC_API_KEY not set — skipping LLM panel (JUDGE-CI-01 no-op pass)
+admin-panel: To run the panel, export ANTHROPIC_API_KEY=<your-key> and re-run.
+```
+
+**Pilot surfaces vs. `--all`:**
+The default run judges only the two pilot surfaces to minimize cost. Pass `--all` to fan
+out to every surface in `admin-render-sha.json` (reserved for Phase-218 scope). The script
+always prints the estimated API call count (K=3 per cache-miss cell) BEFORE making any
+calls so you can abort if the estimate is unexpectedly large.
+
+**Content-hash skip (SC-2):**
+If `admin-panel-verdicts.json` already contains a cache entry for the current
+`render_sha256` with matching provenance (model, k, quorum, rubric_version), the panel
+makes ZERO API calls for that cell. Running the panel twice on an unchanged tree costs
+nothing on the second run.
+
+**Bundle-freshness precondition (T-217-07-STALE / 216-09 SC-5):**
+If no bundles exist under `eval/<HEAD-sha>/`, the panel warns and exits 0. This prevents
+judging stale renders. Always ensure bundles are fresh at the committed HEAD before
+running the panel (the 216-09 SC-5 discipline: a render captured before the final commit
+has the wrong `app_git_sha` and must not be judged).
+
+**What `admin-panel.sh` writes (and doesn't):**
+- Writes: `guides/reference/admin-panel-verdicts.json` (committed; keyed on `render_sha256`)
+- Writes: `eval/<sha>/<surface>/<cell>/panel-findings.json` (gitignored; parallel output)
+- NEVER writes: `findings.json`, `admin-render-sha.json`, or any deterministic-guard ledger
+
+### Running the Auto-Fix Loop (`admin-autofix-loop.sh`)
+
+```bash
+# Run the auto-fix loop (pilot run — max 5 fixes)
+bash scripts/ci/admin-autofix-loop.sh --max-fixes 5
+
+# Dry-run: print eligible findings without applying
+bash scripts/ci/admin-autofix-loop.sh --dry-run
+```
+
+**Safety ruleset:** The loop commits one fix per commit, re-renders after each, and
+auto-reverts via `git revert --no-edit HEAD` (a NEW commit — never `reset --hard` or
+`push --force`) if any of FOUR safety rails trips:
+
+| Rail | Trigger |
+|------|---------|
+| Rail 1 | `quality-findings-monotonic.sh` count increased vs pre-loop sha |
+| Rail 2 | `award-guard.mjs` min(axes) decreased vs pre-loop ledger snapshot |
+| Rail 3 | Any deterministic gate flip / anchor resolution failure (non-zero harness exit) |
+| Rail 4 | Committed baseline PNG drift vs pre-loop sha (`snapshot-canary-guard.sh`) |
+
+When any rail trips: the offending commit is reverted, the finding is written to
+`settled-findings.tsv` with `disposition=waived`, and added to the gitignored
+`eval/autofix-state.json` poison-set so it is never retried.
+
+**Apply surface:** `fix-apply.mjs` applies only copy-swap and token-swap changes to admin
+LiveView `.heex`/`.ex` files and `test/example`. CSS files, components requiring semantic
+judgment, and non-admin files are all refused — no LLM text reaches source files.
+
+### Reading the Dossier
+
+| File | Location | What it is |
+|------|----------|------------|
+| `admin-panel-verdicts.json` | `guides/reference/` | Committed verdicts cache — content-hash keyed, human-readable |
+| `fix-queue.json` | `guides/reference/` | Committed auto-eligible open findings — the loop's input |
+| `panel-findings.json` | `eval/<sha>/<surface>/<cell>/` | Gitignored per-cell raw panel output |
+| `admin-panel-report.md` | `eval/<sha>/` | Gitignored human-readable panel summary (if generated) |
+| `settled-findings.tsv` | `guides/reference/` | Committed waived/resolved findings (never retry) |
+| `eval/autofix-state.json` | `eval/` | Gitignored poison-set + loop resume state |
+
+### Where Human Sign-off Sits
+
+The panel is **advisory and off-CI throughout**. Human sign-off sits at two points:
+
+1. **Before applying fixes:** The operator reviews the fix-queue (`fix-queue.json`) and
+   panel verdicts (`admin-panel-verdicts.json`). The auto-fix loop proposes changes; the
+   operator can abort or edit the queue before running.
+
+2. **After the loop:** The operator reviews the before/after diff (committed changes after
+   successful fixes, `Revert "autofix(...)"` commits for reverted fixes) and the updated
+   `settled-findings.tsv`. The milestone-terminal PR is the final human gate.
+
+Neither `admin-panel.sh` nor `admin-autofix-loop.sh` is ever in a merge-blocking position.
 
 ---
 
