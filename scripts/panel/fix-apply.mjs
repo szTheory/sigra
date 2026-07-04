@@ -27,8 +27,9 @@
  *   - Refuses fix_class=component or fix_class=judgment findings
  *
  * Usage:
- *   node scripts/panel/fix-apply.mjs <finding-json>
- *   node scripts/panel/fix-apply.mjs --queue <fix-queue.json> [--max N]
+ *   node scripts/panel/fix-apply.mjs <finding-json> <target-file> [--dry-run]
+ *   (whole-queue processing is driven by scripts/ci/admin-autofix-loop.sh, which
+ *    maps each surface to its target file — this script does not do that mapping.)
  *
  * Finding JSON format (single entry from fix-queue.json):
  *   {
@@ -505,8 +506,8 @@ if (isMainModule()) {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error('fix-apply: usage: node scripts/panel/fix-apply.mjs <finding-json-file>');
-    console.error('                   node scripts/panel/fix-apply.mjs --queue <fix-queue.json> [--max N] [--dry-run]');
+    console.error('fix-apply: usage: node scripts/panel/fix-apply.mjs <finding-json-file> <target-file> [--dry-run]');
+    console.error('fix-apply: to process the whole queue, use the loop: bash scripts/ci/admin-autofix-loop.sh');
     process.exit(2);
   }
 
@@ -534,20 +535,21 @@ if (isMainModule()) {
   }
 
   if (queuePath) {
-    // Queue mode: apply all auto_eligible findings up to --max
-    const queue = JSON.parse(readFileSync(resolve(ROOT, queuePath), 'utf8'));
-    const eligible = queue.filter((f) => f.auto_eligible);
-    const toApply = maxFixes != null ? eligible.slice(0, maxFixes) : eligible;
-
-    let applied = 0;
-    for (const finding of toApply) {
-      // In queue mode we don't know the target file — operator must supply or
-      // the loop script maps surface→file. Print a warning and skip.
-      console.log(
-        `fix-apply: [queue] finding_id=${finding.finding_id} fix_class=${finding.fix_class} — no target file in queue mode (use admin-autofix-loop.sh)`,
-      );
-    }
-    console.log(`fix-apply: ${applied} applied, ${toApply.length - applied} skipped`);
+    // WR-04: queue mode has no surface→file mapping — that logic lives in
+    // admin-autofix-loop.sh, which drives this script one finding at a time.
+    // Historically this branch silently printed "0 applied" and exited 0,
+    // masking that it does nothing. Refuse loudly and redirect the operator
+    // to the supported entrypoint instead of exiting success with no effect.
+    console.error(
+      'fix-apply: --queue mode is not supported directly — it has no surface→file mapping.',
+    );
+    console.error(
+      'fix-apply: run the loop instead: bash scripts/ci/admin-autofix-loop.sh [--max-fixes N] [--dry-run]',
+    );
+    console.error(
+      'fix-apply: (the loop maps each queue surface to its target file and invokes single-finding mode).',
+    );
+    process.exit(2);
   } else if (findingPath) {
     // Single finding mode: <finding.json> <target-file>
     const finding = JSON.parse(readFileSync(findingPath, 'utf8'));
