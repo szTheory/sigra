@@ -418,17 +418,20 @@ bash scripts/ci/settled-findings-lint.sh --add \
 
 **If this table looks short:** it is — nearly every claim in this research was VERIFIED against the live codebase or the claude-api skill. The only genuine assumptions are the two devDep package names (both must pass the legitimacy gate) and the SDK version (pin at install).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`fix-apply.mjs` heex-attribute edit surface — which `.heex` files, and how narrowly scoped?**
+   - **RESOLVED: the baseline-PNG-drift risk is now a hard loop rail — Plan 06 (`217-06`) adds rail 4 (`scripts/ci/snapshot-canary-guard.sh --base <pre-loop-sha>`) that reverts any auto-fix that drifts a committed baseline PNG under the snapshot allowlist, on the same `git revert` footing as the other three rails; it closes the hole where the harness (which the loop re-runs) does NOT invoke `snapshot-canary-guard.sh` (a `fast_checks` step), so a `.heex`/inline-style fix could otherwise pass the loop yet fail `fast_checks` on its PR.**
    - What we know: D-13 confines auto-apply to admin LiveView `.heex` attributes/inline-`style=` + the example only; CSS is out.
    - What's unclear: the exact set of admin LiveView `.heex` files and whether a token swap in a `.heex` inline style can ever perturb a committed baseline PNG (triggering `snapshot-canary-guard`).
-   - Recommendation: the planner should enumerate the auto-apply-eligible `.heex` targets and add a rail-3 check that no committed baseline PNG drifts unexpectedly (the loop already re-runs the harness; confirm the snapshot lane is either included or explicitly out-of-loop).
+   - Recommendation: the planner should enumerate the auto-apply-eligible `.heex` targets and add a rail check that no committed baseline PNG drifts unexpectedly (the loop already re-runs the harness; confirm the snapshot lane is either included or explicitly out-of-loop). — Done: rail 4 in `217-06`.
 
 2. **Consolidated vs two-file for `fix-queue.json` + `admin-panel-verdicts.json`** (Claude's Discretion, D-254/255).
+   - **RESOLVED: keep them as two separate files (default recorded in the plans) — different keys (`finding_id` vs `render_sha256`), different lifecycles, different lints; no consolidation.**
    - Recommendation: keep them separate — different keys (`finding_id` vs `render_sha256`), different lifecycles (queue is open-set derived; verdicts is content-hash cache), different lints. Consolidation buys legibility but couples two anti-rot triads.
 
 3. **`--max-fixes` default and staleness-horizon N** (Claude's Discretion, D-256).
+   - **RESOLVED: defaults recorded in the plans — `--max-fixes` small (default e.g. 5) for a bounded, reviewable first run; staleness-horizon N = 3 renders before a pure-taste carried-forward finding is re-verified. Both are knobs, not load-bearing.**
    - Recommendation: `--max-fixes` small (e.g. 5–10) for a bounded, reviewable first run; staleness-horizon N = re-verify a pure-taste finding after ~3 renders. Both are knobs, not load-bearing; defer to the planner.
 
 ## Environment Availability
