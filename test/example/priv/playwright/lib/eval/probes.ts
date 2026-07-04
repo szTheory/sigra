@@ -277,14 +277,19 @@ export async function probeEmberReservedFor(page: Page, boardRoot?: string): Pro
     const findings: ReturnType<typeof probeEmberReservedFor extends (...a: infer _) => infer R ? () => R : never>[] = [];
 
     // Reserved ember contexts: selection, ownership, active-indicator.
-    // Query stays document-wide — reserved membership is a containment test.
+    // These are the CONTAINER selectors that legitimately hold ember-accented
+    // elements. Query stays document-wide — reserved membership is a containment test.
+    // NOTE: '.sg-ember' is intentionally NOT in this list — it is the CLASS we look
+    // for as a potential misuse, not a reserved-context container. Adding it here
+    // would prevent the probe from ever flagging any .sg-ember element (W1 fix, 216-09).
+    // '[data-tone="ember"]' is also excluded for the same reason: it is the attribute
+    // that marks intentional ember use, so elements carrying it are candidates for
+    // the isEmberClass check, not containers that grant exemption.
     const EMBER_RESERVED_SELECTORS = [
       '[data-selected="true"]',
       '[data-owned="true"]',
       '[aria-selected="true"]',
       '[aria-current="true"]',
-      '.sg-ember',
-      '[data-tone="ember"]',
     ];
 
     const reservedSet = new Set<Element>();
@@ -293,11 +298,14 @@ export async function probeEmberReservedFor(page: Page, boardRoot?: string): Pro
     }
 
     // Design-token reads remain GLOBAL — never moved under board root.
+    // Note: '--sg-color-ember' and '--sg-color-ember-accent' are OPTIONAL custom
+    // properties. The probe detects misuse by class name ('.sg-ember') regardless
+    // of whether the token is defined (W2 fix, 216-09 — early-return guard was
+    // preventing any finding when the token was absent from the computed styles).
+    // The color values are retained for context in the finding record only.
     const root = document.documentElement;
     const emberColor = getComputedStyle(root).getPropertyValue('--sg-color-ember').trim();
     const emberAccent = getComputedStyle(root).getPropertyValue('--sg-color-ember-accent').trim();
-
-    if (!emberColor && !emberAccent) return findings;
 
     // Candidate element-scan is board-root scoped (Gap 1 fix).
     const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
