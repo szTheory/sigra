@@ -106,17 +106,21 @@ add_to_poison() {
   local anchor="$4"
   local reason="$5"
 
-  # Update poison-set in state file
-  node -e "
-    const fs = require('fs');
-    const p = '${STATE_FILE}';
-    const s = JSON.parse(fs.readFileSync(p, 'utf8'));
-    if (!s.poison_set.includes('${finding_id}')) {
-      s.poison_set.push('${finding_id}');
+  # Update poison-set in state file.
+  # IN-04: pass the state-file path and finding_id via process.argv rather than
+  # interpolating them into the inline program. finding_ids are 64-hex today, but
+  # this keeps the loop robust if the queue source ever carries less-trusted data
+  # and avoids breakage on any value containing a quote/backtick.
+  node -e '
+    const fs = require("fs");
+    const [p, fid] = process.argv.slice(1);
+    const s = JSON.parse(fs.readFileSync(p, "utf8"));
+    if (!s.poison_set.includes(fid)) {
+      s.poison_set.push(fid);
     }
     s.last_run = new Date().toISOString();
-    fs.writeFileSync(p, JSON.stringify(s, null, 2) + '\n');
-  "
+    fs.writeFileSync(p, JSON.stringify(s, null, 2) + "\n");
+  ' "$STATE_FILE" "$finding_id"
 
   # Add to settled-findings.tsv (disposition=waived, waived_by=autofix-217)
   # Guard against duplicate (settled-findings-lint.sh --add will fail on dup; catch it)
@@ -139,10 +143,15 @@ add_to_poison() {
 # Helper: load fix-queue and filter eligible entries (not in poison-set)
 # --------------------------------------------------------------------------
 load_eligible() {
-  node -e "
-    const fs = require('fs');
-    const queue = JSON.parse(fs.readFileSync('${QUEUE_PATH}', 'utf8'));
-    const poisonIds = new Set(${POISON_IDS});
+  # IN-04: pass the queue path, poison-set JSON, and max via process.argv rather
+  # than splicing them into the inline program (POISON_IDS was previously
+  # interpolated as raw JS — `new Set(${POISON_IDS})`).
+  node -e '
+    const fs = require("fs");
+    const [queuePath, poisonJson, maxRaw] = process.argv.slice(1);
+    const queue = JSON.parse(fs.readFileSync(queuePath, "utf8"));
+    const poisonIds = new Set(JSON.parse(poisonJson));
+    const max = parseInt(maxRaw, 10);
     const eligible = queue
       .filter(f => f.auto_eligible && !poisonIds.has(f.finding_id))
       .sort((a, b) => {
@@ -153,9 +162,9 @@ load_eligible() {
         if (pa !== pb) return pa - pb;
         return a.finding_id.localeCompare(b.finding_id);
       })
-      .slice(0, ${MAX_FIXES});
+      .slice(0, max);
     console.log(JSON.stringify(eligible));
-  "
+  ' "$QUEUE_PATH" "$POISON_IDS" "$MAX_FIXES"
 }
 
 # --------------------------------------------------------------------------
