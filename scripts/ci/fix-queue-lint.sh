@@ -45,7 +45,6 @@ fi
 # Outputs one violation line per error; empty output = PASS.
 VIOLATIONS=$(QUEUE_JSON_PATH="$QUEUE_JSON" RENDER_SHA_PATH="$RENDER_SHA_JSON" \
   node -e '
-const { readFileSync } = require("node:crypto") ? require : { readFileSync: require("node:fs").readFileSync };
 const fs = require("node:fs");
 const crypto = require("node:crypto");
 
