@@ -398,8 +398,21 @@ anchor: ${ANCHOR}
     APPLIED_COUNT=$((APPLIED_COUNT + 1))
   else
     echo "admin-autofix-loop: REVERT: ${TRIPPED_RAIL}"
-    # Auto-revert via `git revert --no-edit HEAD` (a NEW commit — NEVER reset/force-push)
+    # Auto-revert via `git revert --no-edit HEAD` (a NEW commit — NEVER reset/force-push).
+    # A conflicting revert exits non-zero; under `set -euo pipefail` that would abort
+    # the loop mid-way and leave a partially-applied revert + dirty index (WR-05).
+    # Capture the exit code, and on failure abort the revert and hard-fail cleanly so
+    # the operator never inherits a dirty tree.
+    set +e
     git -C "$ROOT" revert --no-edit HEAD
+    REVERT_EXIT=$?
+    set -e
+    if [[ $REVERT_EXIT -ne 0 ]]; then
+      echo "admin-autofix-loop: FATAL: git revert of ${FIX_COMMIT} failed (exit ${REVERT_EXIT}) — likely a conflict." >&2
+      git -C "$ROOT" revert --abort 2>/dev/null || true
+      echo "admin-autofix-loop: aborted the in-progress revert; working tree restored. Resolve manually and re-run." >&2
+      exit 1
+    fi
     REVERT_COMMIT=$(git -C "$ROOT" rev-parse --short HEAD)
     echo "admin-autofix-loop: REVERTED: new commit ${REVERT_COMMIT} reverts ${FIX_COMMIT}"
 
