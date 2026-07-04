@@ -88,7 +88,7 @@ fi
 # ── Surface enumeration ──────────────────────────────────────────────────────
 # Pilot surfaces (two highest-priority, per Phase-217 design — avoids full fan-out cost).
 # --all fans out to every surface in admin-render-sha.json.
-PILOT_SURFACES=("users-index-live" "user-show-live")
+PILOT_SURFACES=("board-mg-5-populated" "board-mg-5-zero" "board-mg-5-loading" "board-mg-5-error" "board-mg-9-populated" "board-mg-9-zero" "board-mg-9-loading" "board-mg-9-error")
 
 if [ "$FAN_OUT_ALL" = "true" ]; then
   # Read all surfaces from admin-render-sha.json
