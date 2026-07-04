@@ -39,6 +39,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { findingId, canonicalizeAnchor } from '../panel/panel-schema.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dir, '..', '..');
@@ -58,21 +59,15 @@ function sha256hex(str) {
 }
 
 /**
- * findingId — byte-identical to Phase 216 / panel-schema.mjs formula:
- *   sha256(surface + NUL + class + NUL + anchor)
- */
-function findingId(surface, klass, anchor) {
-  return createHash('sha256')
-    .update(surface + '\0' + klass + '\0' + anchor)
-    .digest('hex');
-}
-
-/**
  * systemic_group — collapse key that treats same (class, anchor) across surfaces as one group:
- *   sha256(class + NUL + anchor)
+ *   sha256(class + NUL + canonicalizeAnchor(anchor))
+ *
+ * CR-01: the anchor is canonicalized (via the shared panel-schema helper) before
+ * hashing so single- and double-quoted / whitespace-padded variants of the same
+ * anchor collapse into one systemic group — matching the finding_id key space.
  */
 function systemicGroup(klass, anchor) {
-  return sha256hex(klass + '\0' + anchor);
+  return sha256hex(klass + '\0' + canonicalizeAnchor(anchor));
 }
 
 /**
