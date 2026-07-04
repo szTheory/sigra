@@ -1406,6 +1406,36 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
 
         </div>
       </section>
+
+      <%!--
+        board-autofix-seed: Deliberately-clunky TEST FIXTURE (Phase 217-06, SC-4).
+        This board intentionally violates multiple design-token rules so the auto-fix loop
+        and its hermetic test can seed a count-delta, trigger a rail trip, and verify revert.
+
+        THIS IS A TEST FIXTURE, NOT A PRODUCT SURFACE.
+        - Off-token spacing: uses inline style with 13px padding (not on the --sg-space-* scale)
+        - Ember misuse: .sg-ember in a non-reserved context (not data-selected/data-owned)
+        - Board-scoped DOM: wrapped in #board-autofix-seed for probe scoping
+
+        The seeded defects are intentional clunky violations — they are audit findings by design,
+        not product regressions. The real admin surfaces (MG-1..MG-11, CFG-1..CFG-4) are not affected.
+      --%>
+      <section class="sg-stack sg-stack--4" data-sg-off-token-spacing-audit-only>
+        <h2 class="sg-section-heading">Auto-Fix Test Fixture</h2>
+        <div id="board-autofix-seed" class="sg-card sg-stack sg-stack--3">
+          <p class="sg-muted sg-text-sm">board-autofix-seed (deliberately clunky — SC-4 test fixture)</p>
+          <%!-- Off-token spacing: 13px is not on --sg-space-* scale (steps: 1-8, 10, 12) --%>
+          <div class="sg-stack sg-stack--3" style="border-radius: 13px">
+            <p class="sg-muted sg-text-xs">Test card: off-scale border-radius (13px, not on --sg-radius-* scale)</p>
+            <div class="sg-cluster sg-cluster--2">
+              <%!-- Ember misuse: .sg-ember outside reserved selected/ownership context --%>
+              <span class="sg-status-pill sg-ember" data-sg-ember-reserved-for-audit-only>Intentional misuse fixture</span>
+            </div>
+            <p class="sg-copy">SAVE CHANGES</p>
+          </div>
+        </div>
+      </section>
+
     </section>
     """
   end
