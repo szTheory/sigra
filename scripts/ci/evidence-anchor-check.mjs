@@ -122,10 +122,15 @@ function isStructuralAnchor(anchor) {
 // focus-ring rendering) that require a live layout engine at capture time.
 // The anchor-presence check still runs for these — we assert the anchor
 // resolves in the DOM — but we do NOT re-check the geometry value here.
+//
+// Source of truth: the probe_class literals emitted by probes.ts (216-08).
+// Real emitter strings: 'misalignment', 'focus-ring', 'below-fold-primary'.
+// (The old entry 'below-fold' did not match any emitted class — replaced with
+// 'below-fold-primary' so the geometry-note branch is reachable on real bundles.)
 // ---------------------------------------------------------------------------
 const GEOMETRY_ONLY_CLASSES = new Set([
   'misalignment',
-  'below-fold',
+  'below-fold-primary',
   'focus-ring',
 ]);
 
@@ -194,12 +199,20 @@ for (const dir of bundleDirs) {
 
   for (const finding of findings) {
     checkedFindings++;
-    const { finding_id, anchor, class: probeClass } = finding;
+    const { finding_id, anchor, class: probeClass, surface, probe_class: rawProbeClass } = finding;
+    // Resolve the effective class string: D-22-enriched bundles carry 'class';
+    // raw emitter shape (pre-enrichment) carries 'probe_class' only (W1, 216-08).
+    const effectiveClass = probeClass || rawProbeClass;
+
+    // Compute a stable finding reference for FAIL messages (W1, 216-08).
+    // Use finding_id when present (D-22-enriched bundles); otherwise fall back to a
+    // stable surface::class::anchor identifier so FAIL messages never print `undefined`.
+    const findingRef = finding_id || [surface, effectiveClass, anchor].filter(Boolean).join('::');
 
     // Validate anchor format — must be a structural selector, never prose (D-09).
     if (!isStructuralAnchor(anchor)) {
       console.error(
-        `evidence-anchor-check: FAIL: anchor is not a structural selector for ${finding_id}: ${JSON.stringify(anchor)}`
+        `evidence-anchor-check: FAIL: anchor is not a structural selector for ${findingRef}: ${JSON.stringify(anchor)}`
       );
       process.exitCode = 1;
       continue;
@@ -211,18 +224,18 @@ for (const dir of bundleDirs) {
       matchCount = $(anchor).length;
     } catch (err) {
       console.error(
-        `evidence-anchor-check: FAIL: cheerio selector error for ${finding_id}: ${anchor} — ${err.message}`
+        `evidence-anchor-check: FAIL: cheerio selector error for ${findingRef}: ${anchor} — ${err.message}`
       );
       process.exitCode = 1;
       continue;
     }
 
     if (matchCount === 0) {
-      const geometryNote = GEOMETRY_ONLY_CLASSES.has(probeClass)
+      const geometryNote = GEOMETRY_ONLY_CLASSES.has(effectiveClass)
         ? ' (geometry-class finding: anchor must still resolve in DOM even though geometry value is not re-checked here)'
         : '';
       console.error(
-        `evidence-anchor-check: FAIL: anchor absent for ${finding_id}: ${anchor}${geometryNote}`
+        `evidence-anchor-check: FAIL: anchor absent for ${findingRef}: ${anchor}${geometryNote}`
       );
       process.exitCode = 1;
     }
