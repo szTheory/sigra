@@ -151,11 +151,14 @@ export function findingId(surface, klass, anchor) {
    */
   function runBuilder(extraEnv = {}) {
     const builderPath = join(ROOT, 'scripts', 'ci', 'fix-queue-build.mjs');
+    // FQ_EVAL_DIR must point to the top-level eval dir (containing <sha>/<surface>/<cell>)
+    // evalDir is workDir/eval/sha, so go up one level to get workDir/eval
+    const evalTopDir = join(workDir, 'eval');
     const result = spawnSync(process.execPath, [builderPath], {
       cwd: workDir,
       env: {
         ...process.env,
-        FQ_EVAL_DIR: evalDir,
+        FQ_EVAL_DIR: evalTopDir,
         FQ_SETTLED_TSV: join(guidesDir, 'settled-findings.tsv'),
         FQ_RENDER_SHA_JSON: renderShaJsonPath,
         FQ_QUEUE_JSON: join(guidesDir, 'fix-queue.json'),
