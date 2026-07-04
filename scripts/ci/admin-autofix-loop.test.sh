@@ -111,13 +111,18 @@ chmod +x "${REPO}/scripts/ci/${_LOOP_BASE}"
 cp "${REPO_ROOT}/scripts/panel/fix-apply.mjs" "${REPO}/scripts/panel/fix-apply.mjs"
 cp "${REPO_ROOT}/scripts/panel/copy-rules.json" "${REPO}/scripts/panel/copy-rules.json"
 
-# Test target file: a simple admin LiveView .ex with an off-token border-radius (13px)
+# Test target file: a simple admin LiveView .ex with an off-token padding value.
+# IN-05: use an UNAMBIGUOUSLY in-band value (12.5px, 0.5px from the 12 token) on
+# the 10-entry SPACE scale so fix-apply ALWAYS applies (space tokens resolve
+# without a token_family hint, unlike the 4-entry radius/control scale). This
+# guarantees the loop exercises the real apply→commit→rail-trip→revert chain
+# (the SC-4 proof) instead of silently passing on a refusal.
 cat > "${REPO}/test/example/lib/example_web/live/admin/design_gallery_live.ex" <<'EXSRC'
 defmodule ExampleWeb.Admin.DesignGalleryLive do
   use ExampleWeb, :live_view
   def render(assigns) do
     ~H"""
-    <div class="sg-metric" style="border-radius: 13px">test fixture</div>
+    <div class="sg-metric" style="padding: 12.5px">test fixture</div>
     """
   end
 end
@@ -164,7 +169,7 @@ printf '# finding_id\tsurface\tclass\tanchor\tdisposition\twaived_by\tnote\n' \
 
 # fix-queue.json: one auto_eligible token finding (fake sha256 — 64 hex chars)
 TEST_FINDING_ID="a0b1c2d3e4f5a0b1c2d3e4f5a0b1c2d3e4f5a0b1c2d3e4f5a0b1c2d3e4f5a0b1"
-printf '[{"finding_id":"%s","surface":"board-mg-1-error","class":"off-scale-radius-shadow-control","anchor":".sg-metric","fix_class":"token","auto_eligible":true,"priority":"normal","severity":"gate","measured_px":[13],"scale_px":[8,12,16,24]}]\n' \
+printf '[{"finding_id":"%s","surface":"board-mg-1-error","class":"off-scale-radius-shadow-control","anchor":".sg-metric","fix_class":"token","auto_eligible":true,"priority":"normal","severity":"gate","measured_px":[12.5],"scale_px":[1,2,3,4,5,6,7,8,10,12]}]\n' \
   "${TEST_FINDING_ID}" > "${REPO}/guides/reference/fix-queue.json"
 
 # snapshot-allowlist: empty (steady state, no intentional PNG changes)
@@ -180,7 +185,7 @@ BASE_SHA=$(git -C "${REPO}" rev-parse HEAD)
 
 # --------------------------------------------------------------------------
 # Strategy: we need the loop to:
-#   (1) Apply fix-apply.mjs to design_gallery_live.ex (border-radius: 13px → var())
+#   (1) Apply fix-apply.mjs to design_gallery_live.ex (padding: 12.5px → var(--sg-space-12))
 #   (2) Commit the fix
 #   (3) Have rail 1 detect an open_findings increase
 #   (4) Revert via git revert --no-edit HEAD
@@ -251,14 +256,13 @@ echo "---"
 echo ""
 
 # --------------------------------------------------------------------------
-# Assert (i): does a Revert commit exist OR was the fix skipped/refused?
+# Assert (i): a Revert commit MUST exist.
 #
-# Two valid outcomes:
-#   (A) Loop applied fix, hook bumped count, rail 1 fired → Revert commit
-#   (B) fix-apply refused (e.g. measured_px=[13] not within 1.0px of scale_px=[8,12,16,24])
-#       → loop skipped the finding, no Revert needed (still a valid proof of rail safety)
-#
-# The key SC-4 proof is rail 1 detection. We test this directly below.
+# IN-05: the fixture value (12.5px, 0.5px from the space-12 token) is
+# unambiguously in the +/-1.0px band, so fix-apply ALWAYS applies. That means the
+# loop MUST exercise the full apply→commit→rail-1-trip→git-revert chain (the SC-4
+# proof). A REFUSED/SKIP outcome is now a genuine FAILURE — previously accepting
+# refusal as "pass" let the integrated revert path go silently unexercised.
 # --------------------------------------------------------------------------
 
 REVERT_LINE=$(git -C "${REPO}" log --oneline | grep -i "^[a-f0-9]* Revert " || true)
@@ -269,14 +273,7 @@ if [[ -n "$REVERT_LINE" ]]; then
   pass "A-i-a: git log shows a Revert commit: ${REVERT_LINE}"
   LOOP_APPLIED_AND_REVERTED=1
 else
-  # Check if the fix was skipped (REFUSED by fix-apply) — acceptable if no revert needed
-  if echo "$LOOP_OUT" | grep -qE "REFUSED|SKIP|no in-band"; then
-    pass "A-i-a: fix-apply refused (measured_px not in +/-1.0px band) — loop correctly skipped"
-    echo "  INFO: fix-apply refused because 13px is >1.0px from nearest scale token (12px)"
-    echo "  INFO: this is correct behavior — the loop does not commit what cannot be safely swapped"
-  else
-    fail "A-i-a: no Revert commit and no REFUSED/SKIP — loop outcome unclear; log: ${GIT_LOG}"
-  fi
+  fail "A-i-a: expected a Revert commit (fixture is in-band → fix must apply → rail 1 must fire); loop output: ${LOOP_OUT}; log: ${GIT_LOG}"
 fi
 
 # --------------------------------------------------------------------------
