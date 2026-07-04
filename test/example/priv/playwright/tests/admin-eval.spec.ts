@@ -10,6 +10,7 @@
  *   admin-eval-dark   — colorScheme:'dark' (warn-only geometry)
  *
  * Phase 216 Plan 06 (HARNESS-01 + HARNESS-03 + capture-side HARNESS-02).
+ * Phase 216 Plan 08 (Gap 1 fix: board-root scoped probes; W1: D-22 finding enrichment).
  *
  * [Rule 3 deviation] bundle.ts uses import.meta.url (ESM) which is incompatible
  * with Playwright's CJS transform. We use __dirname for PW_ROOT resolution here
@@ -34,6 +35,7 @@ import {
   probeCardInCard,
   probeTargetSize,
   probeOffScaleRadiusShadowControl,
+  probeEmberReservedFor,
 } from '../lib/eval/probes.ts';
 import type { ProbeFinding, BundleFacts } from '../lib/eval/bundle.ts';
 
@@ -65,6 +67,41 @@ interface WriteBundleOpts {
   findings: ProbeFinding[];
 }
 
+/**
+ * Enrich raw probe findings to the D-22 shape (216-08 W1).
+ *
+ * Each raw probe finding carries probe_class + anchor (plus probe-specific extras).
+ * D-22 requires findings.json entries to also carry:
+ *   - class:       probe_class alias (for guard destructuring compatibility)
+ *   - surface:     the bundle surface string
+ *   - finding_id:  sha256(surface NUL class NUL anchor) as 64 lowercase hex
+ *
+ * The finding_id key MUST use the NUL-delimited layout specified by D-22 so it
+ * matches Phase-217 AUTOFIX-01 settled-findings.tsv keys.
+ *
+ * probe_class is kept on the record (gate/warn split at L258-266 + downstream
+ * readers still reference probe_class; class is an additive alias).
+ */
+function enrichFindingsForBundle(surface: string, findings: ProbeFinding[]): ProbeFinding[] {
+  return findings.map((f) => {
+    const probeClass = f.probe_class;
+    const anchor = f.anchor ?? '';
+    const finding_id = createHash('sha256')
+      .update(surface)
+      .update('\0')
+      .update(probeClass)
+      .update('\0')
+      .update(anchor)
+      .digest('hex');
+    return {
+      ...f,
+      class: probeClass,
+      surface,
+      finding_id,
+    };
+  });
+}
+
 function writeBundleLocal(opts: WriteBundleOpts): string {
   const appGitSha = (opts.appGitSha ?? resolveHeadSha()).trim();
   const cell = `${opts.theme}-${opts.viewport}-${opts.state}`;
@@ -74,11 +111,14 @@ function writeBundleLocal(opts: WriteBundleOpts): string {
 
   const renderSha = renderSha256(opts.outerHTML);
 
+  // Enrich findings to D-22 shape before writing (W1, 216-08).
+  const enrichedFindings = enrichFindingsForBundle(opts.surface, opts.findings);
+
   writeFileSync(join(bundleDir, 'dom.html'), opts.outerHTML, 'utf8');
   writeFileSync(join(bundleDir, 'screenshot.png'), opts.pngBuffer);
   writeFileSync(join(bundleDir, 'axe.json'), JSON.stringify(opts.axeJson, null, 2), 'utf8');
   writeFileSync(join(bundleDir, 'facts.json'), JSON.stringify(opts.facts, null, 2), 'utf8');
-  writeFileSync(join(bundleDir, 'findings.json'), JSON.stringify(opts.findings, null, 2), 'utf8');
+  writeFileSync(join(bundleDir, 'findings.json'), JSON.stringify(enrichedFindings, null, 2), 'utf8');
 
   const manifest = {
     app_git_sha: appGitSha,
@@ -181,6 +221,7 @@ async function captureSurface(
   page: Page,
   testInfo: TestInfo,
   surface: string,
+  boardId: string,
   outerHTML: string,
   theme: 'light' | 'dark',
   viewport: 'desktop' | 'mobile',
@@ -235,13 +276,16 @@ async function captureSurface(
     };
   });
 
-  // Run all nine probes
+  // Run all nine probes board-scoped (Gap 1 fix, 216-08).
+  // Pass root: '#'+boardId so every element-scan probe queries only within the
+  // board subtree, matching the board-scoped dom.html outerHTML capture.
   const findings = await runAllProbes(page, {
     isGateProject: gateProject,
-    boardSelector: '.sg-card',
+    root: '#' + boardId,
   });
 
   // Write bundle (using CJS-compatible path resolution — Rule 3 deviation)
+  // enrichFindingsForBundle is called inside writeBundleLocal (W1, 216-08).
   writeBundleLocal({
     surface,
     theme,
@@ -314,7 +358,7 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
         await expect(board, `${boardId} should be visible`).toBeVisible();
         const outerHTML = await board.evaluate((el) => el.outerHTML);
 
-        await captureSurface(page, testInfo, surface, outerHTML, theme, viewport, state);
+        await captureSurface(page, testInfo, surface, boardId, outerHTML, theme, viewport, state);
       });
     }
   }
@@ -324,16 +368,24 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
   test('probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes', async ({
     page,
   }) => {
-    // Inject a deliberately off-token element into the page
+    // Create a board root scope wrapper (Gap 1 fix, 216-08):
+    // inject into #probe-scope-root and pass that root to the probe.
+    await page.evaluate(() => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'probe-scope-root';
+      document.body.appendChild(wrapper);
+    });
+
+    // Inject a deliberately off-token element inside the board scope
     await page.evaluate(() => {
       const el = document.createElement('div');
       el.className = 'sg-probe-defect-spacing';
       el.setAttribute('data-testid', 'probe1-defect');
       el.style.cssText = 'padding: 7px !important;'; // 7px is NOT on the --sg-space-* scale
-      document.body.appendChild(el);
+      document.getElementById('probe-scope-root')!.appendChild(el);
     });
 
-    const findings = await probeOffTokenSpacing(page);
+    const findings = await probeOffTokenSpacing(page, '#probe-scope-root');
     const defectFindings = findings.filter((f) => f.anchor.includes('probe1-defect'));
     expect(defectFindings.length, 'probe #1 must flag the off-token defect').toBeGreaterThan(0);
 
@@ -343,34 +395,88 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
       el.className = 'sg-probe-clean-spacing';
       el.setAttribute('data-testid', 'probe1-clean');
       el.style.cssText = 'padding: 16px !important;'; // 16px = 1rem = --sg-space-4
-      document.body.appendChild(el);
+      document.getElementById('probe-scope-root')!.appendChild(el);
     });
 
-    const findings2 = await probeOffTokenSpacing(page);
+    const findings2 = await probeOffTokenSpacing(page, '#probe-scope-root');
     const cleanFindings = findings2.filter((f) => f.anchor.includes('probe1-clean'));
     expect(cleanFindings.length, 'probe #1 must not flag an on-scale padding').toBe(0);
 
     // Cleanup
     await page.evaluate(() => {
-      document.querySelector('[data-testid="probe1-defect"]')?.remove();
-      document.querySelector('[data-testid="probe1-clean"]')?.remove();
+      document.getElementById('probe-scope-root')?.remove();
+    });
+  });
+
+  test('probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes', async ({
+    page,
+  }) => {
+    // Create board scope wrapper
+    await page.evaluate(() => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'probe-scope-root';
+      document.body.appendChild(wrapper);
+    });
+
+    // Inject an ember-misuse element (sg-ember class, NOT inside any reserved context)
+    // inside the board scope. probeEmberReservedFor should flag this (gate severity).
+    await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.className = 'sg-ember';
+      el.setAttribute('data-testid', 'probe4-defect');
+      el.textContent = 'ember misuse';
+      document.getElementById('probe-scope-root')!.appendChild(el);
+    });
+
+    const findings = await probeEmberReservedFor(page, '#probe-scope-root');
+    const defectFindings = findings.filter((f) => f.anchor.includes('probe4-defect'));
+    expect(defectFindings.length, 'probe #4 must flag ember misuse outside reserved context').toBeGreaterThan(0);
+    const gateFindings = defectFindings.filter((f) => f.severity === 'gate');
+    expect(gateFindings.length, 'probe #4 finding must be gate severity').toBeGreaterThan(0);
+
+    // Reserved-context ember element: wrapped in [data-selected="true"] — should NOT be flagged
+    await page.evaluate(() => {
+      const reserved = document.createElement('div');
+      reserved.setAttribute('data-selected', 'true');
+      const emberEl = document.createElement('div');
+      emberEl.className = 'sg-ember';
+      emberEl.setAttribute('data-testid', 'probe4-clean');
+      emberEl.textContent = 'ember in selected context';
+      reserved.appendChild(emberEl);
+      document.getElementById('probe-scope-root')!.appendChild(reserved);
+    });
+
+    const findings2 = await probeEmberReservedFor(page, '#probe-scope-root');
+    const cleanFindings = findings2.filter((f) => f.anchor.includes('probe4-clean'));
+    expect(cleanFindings.length, 'probe #4 must not flag ember inside a reserved selected context').toBe(0);
+
+    // Cleanup
+    await page.evaluate(() => {
+      document.getElementById('probe-scope-root')?.remove();
     });
   });
 
   test('probe #5 off-scale-radius: seeded defect is flagged, on-scale passes', async ({
     page,
   }) => {
-    // Inject off-scale radius element (7px is not on --sg-radius-*)
+    // Create board scope wrapper
+    await page.evaluate(() => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'probe-scope-root';
+      document.body.appendChild(wrapper);
+    });
+
+    // Inject off-scale radius element (7px is not on --sg-radius-*) inside the scope
     await page.evaluate(() => {
       const el = document.createElement('div');
       el.className = 'sg-probe-defect-radius';
       el.setAttribute('data-testid', 'probe5-defect');
       el.style.cssText =
         'border-top-left-radius: 7px !important; border-top-right-radius: 7px !important; border-bottom-right-radius: 7px !important; border-bottom-left-radius: 7px !important;';
-      document.body.appendChild(el);
+      document.getElementById('probe-scope-root')!.appendChild(el);
     });
 
-    const findings = await probeOffScaleRadiusShadowControl(page);
+    const findings = await probeOffScaleRadiusShadowControl(page, '#probe-scope-root');
     const defectFindings = findings.filter((f) => f.anchor.includes('probe5-defect'));
     expect(defectFindings.length, 'probe #5 must flag off-scale radius').toBeGreaterThan(0);
 
@@ -381,18 +487,17 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
       el.setAttribute('data-testid', 'probe5-clean');
       el.style.cssText =
         'border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; border-bottom-right-radius: 8px !important; border-bottom-left-radius: 8px !important;';
-      document.body.appendChild(el);
+      document.getElementById('probe-scope-root')!.appendChild(el);
     });
 
-    const findings2 = await probeOffScaleRadiusShadowControl(page);
+    const findings2 = await probeOffScaleRadiusShadowControl(page, '#probe-scope-root');
     const cleanFindings = findings2.filter((f) => f.anchor.includes('probe5-clean'));
     const gateClean = cleanFindings.filter((f) => f.severity === 'gate');
     expect(gateClean.length, 'probe #5 must not gate-flag an on-scale radius').toBe(0);
 
     // Cleanup
     await page.evaluate(() => {
-      document.querySelector('[data-testid="probe5-defect"]')?.remove();
-      document.querySelector('[data-testid="probe5-clean"]')?.remove();
+      document.getElementById('probe-scope-root')?.remove();
     });
   });
 
@@ -434,7 +539,14 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
   test('probe #7 focus-ring: control with no focus style is flagged, sg-btn passes', async ({
     page,
   }) => {
-    // Inject an interactive element with outline:none and no box-shadow on focus
+    // Create board scope wrapper
+    await page.evaluate(() => {
+      const wrapper = document.createElement('div');
+      wrapper.id = 'probe-scope-root';
+      document.body.appendChild(wrapper);
+    });
+
+    // Inject an interactive element with outline:none and no box-shadow on focus inside scope
     await page.evaluate(() => {
       const el = document.createElement('button');
       el.className = 'sg-probe-defect-focus';
@@ -448,10 +560,10 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
         .sg-probe-defect-focus:focus { outline: none !important; box-shadow: none !important; }
       `;
       document.head.appendChild(style);
-      document.body.appendChild(el);
+      document.getElementById('probe-scope-root')!.appendChild(el);
     });
 
-    const findings = await probeFocusRing(page);
+    const findings = await probeFocusRing(page, '#probe-scope-root');
     const defectFindings = findings.filter((f) => f.anchor.includes('probe7-defect'));
     expect(defectFindings.length, 'probe #7 must flag element with no focus indicator').toBeGreaterThan(0);
 
@@ -470,7 +582,7 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
 
     // Cleanup
     await page.evaluate(() => {
-      document.querySelector('[data-testid="probe7-defect"]')?.remove();
+      document.getElementById('probe-scope-root')?.remove();
       document.querySelector('[data-probe7-style]')?.remove();
     });
   });
@@ -525,12 +637,19 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
       return;
     }
 
-    // Run a representative subset of gate probes over the gallery
-    const [spacingFindings, focusFindings, cardFindings] = await Promise.all([
-      probeOffTokenSpacing(page),
-      probeFocusRing(page),
-      probeCardInCard(page, GROUP_BOARDS.map((id) => `#${id}`).join(',')),
-    ]);
+    // Run a representative subset of gate probes over the gallery, scoped per board (Gap 1 fix).
+    // probeOffTokenSpacing and probeFocusRing are run once per board root to avoid cross-board
+    // anchors; probeCardInCard uses boardSelector joining all board ids.
+    const spacingFindingsPerBoard = await Promise.all(
+      GROUP_BOARDS.map((id) => probeOffTokenSpacing(page, '#' + id)),
+    );
+    const focusFindingsPerBoard = await Promise.all(
+      GROUP_BOARDS.map((id) => probeFocusRing(page, '#' + id)),
+    );
+    const cardFindings = await probeCardInCard(page, GROUP_BOARDS.map((id) => `#${id}`).join(','));
+
+    const spacingFindings = spacingFindingsPerBoard.flat();
+    const focusFindings = focusFindingsPerBoard.flat();
 
     const gateFindings = [
       ...spacingFindings.filter((f) => f.severity === 'gate'),
