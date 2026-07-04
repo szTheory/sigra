@@ -2,7 +2,7 @@
 phase: 217-adversarial-panel-auto-fix-safety-rails
 reviewed: 2026-07-04T00:00:00Z
 depth: standard
-files_reviewed: 36
+files_reviewed: 34
 files_reviewed_list:
   - .github/workflows/ci.yml
   - guides/reference/admin-eval-runbook.md
@@ -37,12 +37,11 @@ files_reviewed_list:
   - scripts/panel/panel-schema.mjs
   - scripts/panel/panel-schema.test.mjs
   - test/example/lib/example_web/live/admin/design_gallery_live.ex
-  - test/example/priv/playwright/package-lock.json
   - test/example/priv/playwright/package.json
 findings:
   critical: 2
-  warning: 7
-  info: 4
+  warning: 6
+  info: 5
   total: 13
 status: issues_found
 ---
@@ -51,295 +50,146 @@ status: issues_found
 
 **Reviewed:** 2026-07-04
 **Depth:** standard
-**Files Reviewed:** 36
+**Files Reviewed:** 34
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the adversarial LLM panel (`judge.mjs`, `lenses.mjs`, `excerpt.mjs`,
-`panel-schema.mjs`) plus the deterministic auto-fix pipeline (`fix-apply.mjs`,
-`admin-autofix-loop.sh`, `fix-queue-build.mjs`) and the CI wiring.
+Phase 217 adds an adversarial LLM panel (`judge.mjs` + `lenses.mjs` + `panel-schema.mjs`), a deterministic fix-queue builder/linter, and a rail-guarded auto-fix loop, all wired so the LLM path stays off the CI merge gate (JUDGE-CI-01). The security architecture is sound: anchors are pre-validated against the real DOM before hashing, the API key is never echoed, panel findings go to a parallel file (`panel-findings.json`, never `findings.json`), and the auto-fix path uses `git revert` (never reset/force-push). The model is correctly pinned to `claude-opus-4-8` with no `temperature`/`thinking`/prefill (all correct for that model per the Anthropic SDK).
 
-**Security posture is largely sound.** The most dangerous surfaces are guarded
-by construction: LLM anchors run through `cheerio $()` only (never eval/shell),
-the API-key never leaves env, the loop reverts (never resets/force-pushes), and
-CSS files are refused. I confirmed via `.github/workflows/ci.yml` that neither
-`admin-autofix-loop.sh` nor `admin-panel.sh` is wired into any CI lane (only
-their self-tests run) — the JUDGE-CI-01 guarantee holds.
+However, the deterministic auto-fix code (`fix-apply.mjs`) has **two correctness bugs that can commit wrong or syntactically-invalid CSS into source files** via the auto-fix loop, and `judge.mjs` does **not** actually apply the structured-output schema its own docstring claims it uses — so the LLM is unconstrained and malformed responses silently degrade to empty samples. These are the load-bearing defects. The remaining findings are quality/robustness issues.
 
-**However, the auto-fix apply layer has two blocker-class defects that make it
-unsafe or non-functional in practice:**
-
-1. The copy-swap path is **not anchor-scoped** — it rewrites *every* text node in
-   the whole target file, and its transforms corrupt technical terminology
-   (`MFA`→`Mfa`, `API`→`Api`, `DEV ONLY`→`Dev Only`), directly violating the
-   module's own "text-node-only, never technical terminology" contract.
-2. The autofix loop's `git add -A` + post-commit re-render churns the git-tracked
-   `fix-queue.json` / `admin-render-sha.json` ledgers into fix commits and leaks
-   uncommitted ledger drift across iterations, defeating the "one fix per commit"
-   invariant and corrupting the revert boundary.
-
-There is also a material correctness gap: the token-swap path requires
-`measured_px`/`scale_px` fields that `fix-queue-build.mjs` never emits, so every
-real `token` finding is refused at apply time (the token auto-apply path is dead
-on live data).
-
-## Structural Findings (fallow)
-
-No `<structural_findings>` block was provided with this review. This section is
-intentionally empty; all findings below are narrative (direct code review).
+The auto-fix loop is not wired into CI (verified via `panel-ci-isolation.test.sh` and by inspecting `ci.yml`), so the Critical CSS-corruption bugs are gated behind an operator running `admin-autofix-loop.sh` manually — but rails 1–4 would **not** catch a syntactically-broken inline style (`fix-queue-lint`/anchor-check validate the queue/anchors, and the snapshot canary guards committed PNGs, not `.heex`/`.ex` byte validity), so a bad swap can pass all four rails and land in a commit.
 
 ## Critical Issues
 
-### CR-01: Copy-swap mutates the entire file (not the finding's anchor) and corrupts acronyms/technical terms
+### CR-01: `resolveTokenRef` emits invalid CSS and mislabels non-radius scales — auto-fix corrupts source files
 
-**File:** `scripts/panel/fix-apply.mjs:254-376` (`applyCopySwap` / `applyCopyRule`)
-**Issue:**
-`applyCopySwap` never reads `finding.anchor`. It loads `copy-rules.json` and runs
-every rule against **every text node in the whole file** via the global
-`/>([^<]+)</g` pattern. Combined with `surface_to_file()` in
-`admin-autofix-loop.sh:166-185` — which maps *all* `board-*` surfaces to the
-single `design_gallery_live.ex` — a single copy finding rewrites unrelated copy
-across the entire design gallery.
+**File:** `scripts/panel/fix-apply.mjs:209-236`
+**Issue:** `resolveTokenRef(tokenPx, scalePx)` maps a resolved pixel value to a `--sg-*` custom-property name using only the scale array **length** as a discriminator. Two concrete failures, both confirmed by execution:
 
-Worse, the `title_case` and `terminal_period` transforms match any node passing
-`/^[A-Za-z ]+$/` and destroy technical terminology. Verified live:
+1. **Any 4-entry scale is assumed to be radius.** The control scale is also 4 entries (`xs/sm/md/lg`) but the code has no way to distinguish it from the radius scale, so a control-token finding is rewritten with a radius token:
+   ```
+   min-height: 32px   →   min-height: var(--sg-radius-sm)
+   ```
+   A radius variable applied to a size property is semantically wrong. The auto-fix loop commits this.
 
-```
-title_case("MFA")      -> "Mfa"
-title_case("API")      -> "Api"
-title_case("DEV ONLY") -> "Dev Only"
-```
+2. **The "ambiguous" fallback produces syntactically-invalid CSS.** When the scale length is neither `SPACE_STEPS.length` (10) nor 4, the fallback returns:
+   ```js
+   return `var(--sg-token-${tokenPx}px/* nearest token at ${tokenPx}px */)`;
+   ```
+   which renders as `var(--sg-token-12px/* nearest token at 12px */)` — a comment inside `var()` is not a valid custom-property name and breaks the entire declaration. Confirmed:
+   ```
+   gap: 12px   →   gap: var(--sg-token-12px/* nearest token at 12px */)
+   ```
+   No rail catches this: `fix-queue-lint`/`evidence-anchor-check` validate the queue/anchors, not the resulting inline style; the snapshot canary only guards committed PNGs.
 
-`design_gallery_live.ex` contains `<dt class="sg-kv__term">MFA</dt>` (lines 1016,
-1055) and `<span ...>DEV ONLY</span>` (line 30) — both would be silently
-corrupted. This directly contradicts the file's own contract (line 8: "NEVER
-touches component/judgment findings", line 291: "text-node-only") and
-`copy-rules.json:60` (`_judgment_boundary`: "never affect technical
-terminology"). An untrusted-verdict-driven copy fix therefore produces
-incorrect, semantically damaging edits well outside its cited scope.
-
-**Fix:** Scope copy edits to the finding's anchor subtree only, and add an
-acronym/technical-term guard. Minimum viable fix:
-
+**Fix:** Do not infer the token family from array length. Carry the token *name* (or family + step) explicitly in the fix-queue entry from the emitting probe, and refuse (downgrade to judgment) when the name cannot be resolved deterministically. Never emit a comment inside `var()`:
 ```js
-export function applyCopySwap(content, finding) {
-  // ...existing eligibility checks...
-  // 1. Only operate on the element(s) matched by finding.anchor, not the whole file.
-  //    Parse with cheerio (already a dep), select finding.anchor, and transform
-  //    only text nodes inside those elements.
-  // 2. In title_case/sentence_case, skip tokens that are all-uppercase acronyms:
-  //      if (/^[A-Z]{2,}$/.test(word)) return word;  // preserve MFA, API, SSO...
+function resolveTokenRef(tokenPx, scalePx, tokenName /* from finding */) {
+  if (tokenName) return `var(${tokenName})`;
+  return null; // caller must treat null as "not applied"
 }
 ```
+and have `applyTokenSwap` treat a `null` ref as `applied: false` rather than writing a fabricated/invalid `var(...)`.
 
-Until anchor-scoping lands, the loop must not route copy findings through a
-shared multi-surface file. (Note: the *current* live `fix-queue.json` emits zero
-`fix_class:"copy"` entries, so this is not yet firing — but the code is a live
-foot-gun the moment a copy finding appears, and the self-test in
-`fix-apply.test.mjs` Test 5 accepts the whole-file rewrite as passing.)
+### CR-02: `judge.mjs` never sends `output_config.format` — the LLM is unconstrained despite docstring/comments claiming otherwise
 
-### CR-02: Autofix loop breaks the "one fix per commit" invariant — `git add -A` + re-render churns tracked ledgers
+**File:** `scripts/panel/judge.mjs:33, 457-476` (false claims at `:4-7` and `:451`)
+**Issue:** The module header states it calls `messages.create` with "`output_config.format` (structured JSON schema via `PANEL_SCHEMA`)", and the inline comment at line 451 repeats "`output_config.format`: JSON schema via `PANEL_SCHEMA`". But:
+- `judge.mjs` imports only `{ findingId as computeFindingId }` from `panel-schema.mjs` (line 33) — it never imports `PANEL_SCHEMA`.
+- The actual `messages.create({...})` call (lines 457-476) passes `model`, `max_tokens`, `system`, `messages` and **no `output_config` at all**.
 
-**File:** `scripts/ci/admin-autofix-loop.sh:371-393` (commit → re-render ordering)
-**Issue:**
-The loop commits the fix with `git add -A` (line 371) — staging the *entire*
-working tree, not just `$TARGET_FILE`. Then, **after** committing, it re-renders
-via `admin-eval-harness.sh` (line 387), which runs `fix-queue-build.mjs` — the
-sole writer of the git-tracked files `guides/reference/fix-queue.json` and
-`guides/reference/admin-render-sha.json` (both confirmed tracked via
-`git ls-files`). This produces two concrete defects:
+Consequences: (1) the model output is not schema-constrained, so it can return prose or a differently-shaped object; (2) the parse path (`JSON.parse(textBlock.text)`, lines 480-488) catches the failure and silently sets `responseObj = null`, which yields an **empty sample** — a malformed response is counted as "no findings," quietly weakening quorum admission rather than erroring. `PANEL_SCHEMA` (built and tested in `panel-schema.mjs`/`panel-schema.test.mjs`) is dead code with respect to the live API call. Per the Anthropic SDK, structured output is opt-in via `output_config: { format: { type: 'json_schema', schema } }` — the model is not constrained unless it is passed.
 
-1. **Uncommitted ledger drift leaks across iterations.** The re-render rewrites
-   `fix-queue.json` / `admin-render-sha.json` in the working tree *after* the fix
-   commit. Those changes are never committed for this iteration, so the next
-   iteration's `git add -A` sweeps the *previous* finding's re-render churn into
-   the *next* finding's commit. Commits no longer correspond one-to-one to fixes.
-
-2. **Revert boundary is corrupted.** On a rail trip, `git revert --no-edit HEAD`
-   (line 402) reverts only the fix commit. The re-rendered ledger deltas sitting
-   in the working tree are *not* reverted, so `open_findings` / queue state can be
-   left inconsistent with the reverted source — precisely the "restore to
-   baseline" property Rail 1/4 exist to guarantee. The self-test
-   (`admin-autofix-loop.test.sh`) masks this by running with `--skip-render` and a
-   post-commit `--amend` hook, so the real re-render ordering is never exercised.
-
-**Fix:** Stage only the target file, and commit (or explicitly discard) the
-re-render ledger churn as its own step:
-
-```bash
-# Instead of `git add -A`:
-git -C "$ROOT" add -- "$TARGET_FILE"
-git -C "$ROOT" commit -m "$COMMIT_MSG"
-FIX_COMMIT=$(git -C "$ROOT" rev-parse --short HEAD)
-
-# After re-render, commit the derived-ledger update as a SEPARATE, clearly-labeled
-# commit (or `git checkout -- guides/reference/{fix-queue,admin-render-sha}.json`
-# if the loop should not persist re-render output). Then on revert, also reset the
-# working tree for those ledgers so the rail's "restore to baseline" holds:
-git -C "$ROOT" revert --no-edit HEAD
-git -C "$ROOT" checkout -- guides/reference/fix-queue.json guides/reference/admin-render-sha.json
+**Fix:** Import and pass the schema:
+```js
+import { findingId as computeFindingId, PANEL_SCHEMA } from './panel-schema.mjs';
+// ...
+const response = await sdkClient.messages.create({
+  model: MODEL,
+  max_tokens: 8192,
+  system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+  messages: [{ role: 'user', content: userContentBlocks }],
+  output_config: { format: { type: 'json_schema', schema: PANEL_SCHEMA } },
+});
 ```
+If leaving the schema off is intentional, delete the false docstring/comment claims.
 
 ## Warnings
 
-### WR-01: Token-swap path is dead on real data — required `measured_px`/`scale_px` fields are never produced
+### WR-01: `applyCopyRule` ignores the `applies_to` scoping declared in `copy-rules.json`
 
-**File:** `scripts/panel/fix-apply.mjs:142-202` and `scripts/ci/fix-queue-build.mjs:222-300`
+**File:** `scripts/panel/fix-apply.mjs:294-376`
+**Issue:** Every rule in `copy-rules.json` declares an `applies_to` element list (e.g. `title_case` → `["h1".."h4",".sg-section-heading",".sg-page-title"]`; `sentence_case` → `["button","a","[role=\"button\"]"]`). `applyCopyRule` never reads `applies_to` — it applies each rule to **every** text node matching the rule's text pattern, regardless of tag. Confirmed: `title_case` rewrites `<button>save changes</button>` → `<button>Save Changes</button>` even though buttons are scoped to `sentence_case`, not `title_case`. Copy is silently mis-transformed (heading-only title-casing leaks onto buttons/labels/cells).
+
+**Fix:** Pass the enclosing element/tag to `applyCopyRule` (resolve via cheerio while walking the DOM instead of the flat `>([^<]+)<` regex) and gate each rule on `rule.applies_to`.
+
+### WR-02: Copy-swap text-node regex can match inside `<script>`/`<style>`/`<pre>`/`<code>`
+
+**File:** `scripts/panel/fix-apply.mjs:301` (`const textNodePattern = />([^<]+)</g;`)
+**Issue:** Copy transforms run over raw `.heex`/`.ex` source via a flat `>text<` regex with no element-type exclusion. The `_judgment_boundary` note in `copy-rules.json` says "never modify code/pre/kbd content," but nothing enforces it. The `em-dash`/`ellipsis` `replace` rules match anywhere and would rewrite `...` or ` — ` inside a `<code>`/`<pre>` sample or a HEEx `~H` interpolation.
+
+**Fix:** Parse with cheerio and skip `script`, `style`, `pre`, `code`, `kbd`, and nodes inside HEEx interpolation before applying copy rules — consistent with the stated judgment boundary.
+
+### WR-03: `fix-queue-lint.sh` line 48 is dead/broken code (`readFileSync` const is always `undefined`)
+
+**File:** `scripts/ci/fix-queue-lint.sh:48`
 **Issue:**
-`applyTokenSwap` refuses unless the finding carries `measured_px` (line 152-155)
-and reads `scale_px` for nearest-token matching. But `fix-queue-build.mjs` — the
-sole producer of `fix-queue.json` — never emits either field (verified:
-`grep -c "measured_px\|scale_px" fix-queue.json` → 0, across all 12 `token`
-entries). Every real token finding therefore hits `no measured_px values` and is
-refused. The entire token auto-apply class is non-functional on live queue data;
-it only "works" in `fix-apply.test.mjs`, which hand-constructs findings with those
-fields inline. This is a producer/consumer contract mismatch.
-**Fix:** Have `fix-queue-build.mjs` populate `measured_px` and `scale_px` from the
-probe `facts.json` when classifying an `off-scale-radius-shadow-control` finding
-as `token`, or explicitly document token as human-queue-only and remove the dead
-apply branch.
+```js
+const { readFileSync } = require("node:crypto") ? require : { readFileSync: require("node:fs").readFileSync };
+```
+`require("node:crypto")` is always truthy, so the ternary evaluates to `require` (the function), and destructuring `readFileSync` off it yields `undefined` (confirmed). It's harmless only because the const is never used — line 49 re-imports `fs` and all reads use `fs.readFileSync`. This reads like a defensive fallback but is neither.
 
-### WR-02: Token-swap regex replaces only the FIRST occurrence per style attribute and can emit invalid CSS
+**Fix:** Delete line 48; the following `const fs = require("node:fs")` is the real import.
 
-**File:** `scripts/panel/fix-apply.mjs:172-185, 209-236`
-**Issue:**
-Two problems in the token replacement:
-(a) The pattern `(style=["'][^"']*?)\bNpx(\s*!important)?([^"']*)` captures the
-rest of the attribute in the greedy `([^"']*)` "post" group and re-emits it
-verbatim. So in `style="padding: 4px 12px"`, only the first `4px` is swapped;
-a second matching value in the same attribute is silently skipped (verified via
-reproduction). (b) `resolveTokenRef` (line 235) fallback returns
-`var(--sg-token-12px/* nearest token at 12px */)` — this is **invalid
-CSS/HEEx**: an unterminated `var()` with an embedded comment inside a bare inline
-style, which would break the rendered attribute if the fallback branch is ever
-reached (any radius-vs-control ambiguity, or a non-space/non-4-entry scale).
-**Fix:** Iterate all occurrences (drop the trailing `[^"']*` capture; use a
-value-boundary-anchored replace), and make `resolveTokenRef`'s fallback refuse
-(return the value unchanged + downgrade to judgment) rather than emit malformed
-CSS.
+### WR-04: `admin-panel.sh` cost estimate diverges from `judge.mjs` cache logic (undercounts API calls)
 
-### WR-03: Copy `replace` rule uses a stateful global regex with `.test()` — fragile lastIndex dependence
+**File:** `scripts/ci/admin-panel.sh:163-170`
+**Issue:** The pre-run cache-hit probe only checks `prov.model === 'claude-opus-4-8' && prov.k === 3 && prov.quorum === 2`, but `judge.mjs::checkProvenanceMatch` (judge.mjs:78-87) also requires `rubric_version` **and** `prompt_sha` to match. So `admin-panel.sh` reports a cell as a cache **hit** (0 calls) when `judge.mjs` treats it as a **miss** (3 calls) after any rubric/prompt drift. The operator sees a low estimate, proceeds, and burns more API budget than shown — defeating the estimate's purpose (letting the operator abort before spend).
 
-**File:** `scripts/panel/fix-apply.mjs:360-366`
-**Issue:**
-`const matchRe = new RegExp(escapeRegex(rule.match_pattern), 'g')` is reused
-across every text node, and `matchRe.test(text)` advances `matchRe.lastIndex`.
-The subsequent `text.replace(matchRe, ...)` happens to reset `lastIndex`, so it
-currently works by accident of control flow — but any refactor that adds a
-non-matching branch (a `.test()` without a following `.replace()`) will start
-skipping valid matches intermittently. This is a latent correctness landmine.
-**Fix:** Don't use `.test()` on a `/g` regex for a boolean check; either construct
-a non-global copy for the test, or reset `matchRe.lastIndex = 0` before each
-`.test()`, or drop the `.test()` guard entirely and set `applied` based on whether
-`.replace()` changed the string.
+**Fix:** Reuse `judge.mjs`'s `checkProvenanceMatch` with the current `rubric_version`/`prompt_sha` instead of a hardcoded partial-key comparison.
 
-### WR-04: `checkApplySurface` allows non-admin example LiveViews, widening the auto-edit blast radius
+### WR-05: `admin-autofix-loop.sh` does not handle `git revert` conflicts under `set -e`
 
-**File:** `scripts/panel/fix-apply.mjs:62-71`
-**Issue:**
-`APPLY_SURFACE_PATTERNS` includes `/test\/example\/lib\/[^/]+_web\/live\/.*\.(heex|ex)$/`
-— i.e. *any* example LiveView, not just `.../live/admin/...`. The module docstring
-(lines 24-27) claims the surface is "admin LiveView .heex ... and test/example
-only", implying admin-scoped. A finding whose `surface` mis-maps (or a future
-`surface_to_file` entry) could drive a deterministic edit into a non-admin example
-LiveView (auth flows, account hub, etc.) outside the intended admin scope.
-**Fix:** Tighten the example patterns to `.../live/admin/...` only, matching the
-library-side pattern, unless non-admin example surfaces are an intentional target
-(then document it).
+**File:** `scripts/ci/admin-autofix-loop.sh:402`
+**Issue:** On a tripped rail the loop runs `git revert --no-edit HEAD` with no failure handling under `set -euo pipefail`. A conflicting revert (e.g. after the re-render step's `git add -A` interactions leave the tree/index in an awkward state) exits non-zero, `set -e` aborts the whole loop mid-way, and the repo is left with a partially-applied revert and a dirty index — the opposite of the "auto-revert cleanly, poison, continue" guarantee in the SAFETY RULESET.
 
-### WR-05: `stripVsn` "double-&" cleanup runs once and can leave a malformed URL
+**Fix:** Wrap the revert in `set +e`/check-exit; on non-zero run `git revert --abort` and hard-fail with a clear operator message rather than aborting with a dirty tree. Assert a clean working tree before the revert.
 
-**File:** `scripts/panel/excerpt.mjs:84-92`
-**Issue:**
-After removing `[?&]vsn=...` segments, the cleanup
-`.replace(/&&/g, '&').replace(/\?&/, '?').replace(/&$/, '')` uses non-global
-replaces for `\?&` and does a single `&&`→`&` pass. A URL with three consecutive
-stripped params (`?vsn=a&vsn=b&vsn=c&x=1`) can collapse to `&&&x=1`; the single
-`/&&/g` pass turns `&&&` into `&&` (overlapping matches aren't handled), and only
-the first `?&` is fixed. The excerpt feeds the LLM and the `prompt_sha`, so a
-malformed-but-deterministic href only risks prompt quality, not security — hence
-WARNING not BLOCKER. **Fix:** Loop the collapse (`while (/&&|\?&/.test(...))`) or
-parse with `URL`/`URLSearchParams` and re-serialize.
+### WR-06: `admin-eval-harness.sh` runs monotonic/award guards with `--base HEAD` (compares HEAD to itself)
 
-### WR-06: `fix-queue-build.mjs` trusts `finding.finding_id` from bundle JSON instead of always recomputing
+**File:** `scripts/ci/admin-eval-harness.sh:95, 98`
+**Issue:** `quality-findings-monotonic.sh --base HEAD` and `award-guard.mjs --base HEAD` diff the working tree against `HEAD`. The comment on line 30 says the guard checks "vs merge-base," but `--base HEAD` cannot detect a regression relative to the merge-base — so the harness's b4/b5 steps provide false assurance. (The merge-gate copies in `fast_checks` correctly use `steps.base.outputs.ref`, so the actual gate still holds.)
 
-**File:** `scripts/ci/fix-queue-build.mjs:189-190`
-**Issue:**
-`const fid = finding.finding_id || findingId(surface, klass, anchor)` trusts a
-pre-existing `finding_id` in the bundle when present. Bundles under
-`eval/<sha>/...` are gitignored and regenerated, but the whole point of the D-12
-"never trust a typed bit" principle (applied correctly for `auto_eligible` at line
-225) is undermined here: a stale or malformed bundle `finding_id` that doesn't
-match `(surface, class, anchor)` would flow into `fix-queue.json`, mis-key the
-settled-set subtraction, and could smuggle a poisoned/settled finding back into
-the open queue. `evidence-anchor-check.mjs` validates anchor presence but not
-`finding_id` consistency at this stage.
-**Fix:** Always recompute: `const fid = findingId(surface, klass, anchor);` and, if
-you want to detect drift, assert it matches any provided `finding.finding_id`.
-
-### WR-07: `admin-panel.sh` interpolates surface/sha strings into inline `node -e` scripts
-
-**File:** `scripts/ci/admin-panel.sh:99-104, 122-130, 154-171`
-**Issue:**
-Surface names and render-shas read from `admin-render-sha.json` are string-
-interpolated directly into `node -e "... '$surface' ..."` bodies. These values are
-currently controlled (committed JSON, and shas are hex-validated elsewhere), so
-this is not an exploitable injection today — but a surface key containing a single
-quote would break out of the JS string literal and execute arbitrary JS in the
-node process. Since this script is operator-run with a live API key, defense in
-depth matters. **Fix:** Pass values via `process.argv`/env instead of
-interpolation, e.g. `node -e '...' "$surface"` and read `process.argv[1]`, so the
-shell value can never terminate a JS literal. The same idiom appears in
-`admin-autofix-loop.sh` (`load_eligible`, per-finding `node -e "... $i ..."`) but
-there the interpolated values are numeric indices / JSON blobs passed as argv, so
-it is lower risk.
+**Fix:** Pass the merge-base ref as `fast_checks` does, or re-comment the harness invocation to state it only checks working-tree-vs-committed consistency, not monotonicity.
 
 ## Info
 
-### IN-01: Dead/immediately-overwritten import bindings in `fix-queue-lint.sh`
+### IN-01: Dead `TMP_LEDGER` mktemp+write+rm in `check_rails`
 
-**File:** `scripts/ci/fix-queue-lint.sh:48`
-**Issue:** `const { readFileSync } = require("node:crypto") ? require : { readFileSync: require("node:fs").readFileSync };`
-is a confusing no-op: `require("node:crypto")` is always truthy, so this always
-binds `readFileSync = require` (a function, not `readFileSync`), and the binding is
-never used — the code uses `fs.readFileSync` throughout. Dead, misleading code.
-**Fix:** Delete the line.
+**File:** `scripts/ci/admin-autofix-loop.sh:220-222, 257`
+**Issue:** `check_rails` creates `TMP_LEDGER` via `mktemp` and writes the pre-loop ledger to it, then never reads it — the rail-2 comparison inlines `${PRE_LOOP_LEDGER_JSON}` into the node script instead. `rm -f` cleans it up (no leak) but the whole block is dead code. **Fix:** delete the `TMP_LEDGER` lines.
 
-### IN-02: `judge.mjs` queue/CLI mode is a non-functional stub
+### IN-02: `reconcileFindings` severity relies on two independent defaults lining up
 
-**File:** `scripts/panel/fix-apply.mjs:524-538` and `scripts/panel/judge.mjs:609`
-**Issue:** `fix-apply.mjs` `--queue` mode loops over eligible findings but only
-prints a "no target file in queue mode" warning and reports `0 applied` (the
-`applied` counter is never incremented). Separately, `judge.mjs` CLI passes
-`excerptDom: ''` with a literal `// TODO: read from bundle dir` (line 609), so the
-direct CLI path judges against an empty DOM (no anchor validation possible). Both
-are acknowledged stubs but ship as if wired.
-**Fix:** Either implement or clearly mark these entrypoints as non-operational to
-avoid a false sense of coverage.
+**File:** `scripts/panel/judge.mjs:130-158, 505-523`
+**Issue:** Keep-cell samples are pushed with `findingId: null` (parseSampleFindings:217-225), so an admitted (non-null) id always has non-keep winning samples and the `severity: 'keep'` empty-winners branch (line 133) is unreachable for admitted ids; the push site then defaults `severity || 'tighten'` (line 517). It works, but a future refactor of the filter could emit a nonsensical `keep` severity on an admitted finding. **Fix:** assert admitted findings never carry `keep`, or make the default explicit at the reconcile site.
 
-### IN-03: `reconcileFindings` "worst verdict" ignores `keep` samples silently
+### IN-03: CLI path of `judge.mjs` passes empty `excerptDom`/`factsJson` (TODO in shipped code) — anchor pre-validation inert on the operator path
 
-**File:** `scripts/panel/judge.mjs:130-158`
-**Issue:** `winningSamples` filters by `findingId`, but `keep` cells always carry
-`findingId: null` (parseSampleFindings line 217), so they can never be winning
-samples — fine — but the default fallback `{ severity: 'keep', ... }` (line 133)
-returns `keep` with empty anchor/description for a `findingId` that had no winning
-samples, which then flows into `admittedFindings` with `severity: severity ||
-'tighten'` (line 517) → silently becomes `tighten`. Only reachable if `admitted`
-contains an id absent from `allSamples` (shouldn't happen), but the defaulting is
-brittle. **Fix:** Assert `winningSamples.length > 0` for any admitted id.
+**File:** `scripts/panel/judge.mjs:609` (`excerptDom: '', // TODO: read from bundle dir`)
+**Issue:** When invoked as a CLI by `admin-panel.sh`, `judge.mjs` passes `excerptDom: ''` and `factsJson: '{}'`, so the real per-cell DOM/facts are never loaded — anchor pre-validation is skipped (`$` stays null) and the prompt gets `(no DOM excerpt provided)`. The T-217-05-INJECT anchor-validation guarantee is inert on the actual operator path; it only works when `runJudge` is called with a real `excerptDom` (as the tests do). **Fix:** wire the CLI to read `dom.html`/`facts.json` from `OUTPUT_DIR` and run `excerptHtml()` before calling `runJudge`.
 
-### IN-04: Magic numbers and duplicated finding-id formula across three files
+### IN-04: `serializeEl` JSDoc parameter order does not match implementation
 
-**File:** `scripts/panel/panel-schema.mjs:68-77`, `scripts/ci/fix-queue-build.mjs:64-68`, `scripts/ci/panel-verdicts-lint.sh:189-198`
-**Issue:** The `sha256(surface \0 class \0 anchor)` finding-id formula and the
-anchor quote-canonicalization regex are re-implemented independently in three
-places (a shared JS lib, an inline builder copy, and an inline bash-embedded node
-copy). They agree today, but any change must be made in lockstep or finding-ids
-silently diverge and the settled-set/poison-set stops matching. **Fix:** Import
-`findingId` from `panel-schema.mjs` in `fix-queue-build.mjs`; for the bash lint,
-shell out to a tiny shared node helper instead of re-embedding the formula.
+**File:** `scripts/panel/excerpt.mjs:172-180`
+**Issue:** The JSDoc documents `serializeEl($el, $)` but the function is `serializeEl($, el)` and all call sites pass `($, child)`. Cosmetic — behavior is correct — but misleading. **Fix:** update the JSDoc to `@param {Function} $` then `@param {Object} el`.
+
+### IN-05: `stripVsn` query-cleanup replaces only the first occurrence
+
+**File:** `scripts/panel/excerpt.mjs:84-92`
+**Issue:** `.replace(/\?&/, '?')` (no `g` flag) fixes only the first orphaned `?&`; a multi-param href could canonicalize inconsistently. Low risk for excerpt determinism. **Fix:** add the `g` flag or assemble the query string via `URL`.
 
 ---
 
