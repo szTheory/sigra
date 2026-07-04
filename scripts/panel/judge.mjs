@@ -609,13 +609,41 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename
     } catch (_) {}
   }
 
+  // IN-01: the excerpted DOM and facts drive anchor pre-validation and the whole
+  // prompt. Try to read them from the bundle output dir; if they are not present
+  // we must NOT fire k paid API calls with an empty DOM (every anchor would fail
+  // to resolve and every cell would degrade to keep — burning tokens for zero
+  // signal). Hard-refuse instead so the operator populates the bundle first.
+  const bundleDir = outputDirArg
+    ? path.resolve(ROOT, outputDirArg)
+    : path.join(ROOT, 'eval', renderSha256, surface, cell);
+  const excerptDomPath = path.join(bundleDir, 'dom.html');
+  const factsJsonPath = path.join(bundleDir, 'facts.json');
+  let excerptDom = '';
+  let factsJson = '{}';
+  if (existsSync(excerptDomPath)) {
+    excerptDom = readFileSync(excerptDomPath, 'utf8');
+  }
+  if (existsSync(factsJsonPath)) {
+    factsJson = readFileSync(factsJsonPath, 'utf8');
+  }
+  if (!excerptDom.trim()) {
+    console.error(
+      `judge.mjs: FATAL: no DOM excerpt for ${surface}/${cell} (looked in ${bundleDir}).`,
+    );
+    console.error(
+      'judge.mjs: refusing to make paid API calls against an empty DOM — render the bundle first.',
+    );
+    process.exit(1);
+  }
+
   const result = await runJudge({
     surface,
     cell,
     renderSha256,
     verdictEntry,
-    excerptDom: '', // TODO: read from bundle dir
-    factsJson: '{}',
+    excerptDom,
+    factsJson,
     sdkClient: client,
     outputDir: outputDirArg,
     currentProvenance: {
