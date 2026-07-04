@@ -190,21 +190,65 @@ console.log('\nTest 2: Empty/vague none_searched_for fails');
 // --------------------------------------------------------------------------
 console.log('\nTest 3: Prose anchor on non-keep finding fails');
 {
-  const proseAnchor = validPanel({
+  // Use anchors that are definitively rejected by isStructuralAnchor:
+  //   - A file:line reference (e.g. "user_live.ex:42") — explicitly rejected
+  //   - A phrase starting with an uppercase word (e.g. "The Save button")
+  //   - An empty anchor string
+  // Note: all-lowercase prose phrases (e.g. "the header looks off") pass the
+  // structural check by design (the documented edge case in Plan 01 anchor.mjs).
+
+  // Test 3a: file:line reference
+  const fileLineAnchor = validPanel({
     graphic_design: graphicDesignLens({
       salience: {
         verdict: 'tighten',
-        anchor: 'the save button label looks off',  // prose — NOT a CSS selector
+        anchor: 'user_live.ex:42',  // file:line reference — rejected by isStructuralAnchor
         refutation: 'The visual weight is inconsistent.',
       },
     }),
   });
 
-  const r = runChecker(proseAnchor);
-  if (r.status !== 0) {
-    pass('prose anchor → exit 1');
+  const r3a = runChecker(fileLineAnchor);
+  if (r3a.status !== 0) {
+    pass('file:line anchor → exit 1');
   } else {
-    fail(`prose anchor → expected exit 1, got 0. stdout: ${r.stdout}`);
+    fail(`file:line anchor → expected exit 1, got 0. stdout: ${r3a.stdout}`);
+  }
+
+  // Test 3b: prose starting with uppercase (e.g. "The Save button label")
+  const upperCaseProseAnchor = validPanel({
+    platform_admin: personaLens({
+      earning_its_place: {
+        verdict: 'kill',
+        anchor: 'The Save button label',  // starts with uppercase — rejected
+        refutation: 'The element is redundant.',
+      },
+    }),
+  });
+
+  const r3b = runChecker(upperCaseProseAnchor);
+  if (r3b.status !== 0) {
+    pass('uppercase prose anchor → exit 1');
+  } else {
+    fail(`uppercase prose anchor → expected exit 1, got 0. stdout: ${r3b.stdout}`);
+  }
+
+  // Test 3c: empty anchor string
+  const emptyAnchor = validPanel({
+    support_investigator: personaLens({
+      ia_muddy: {
+        verdict: 'tighten',
+        anchor: '',  // empty — rejected by isStructuralAnchor
+        refutation: 'Navigation hierarchy unclear.',
+      },
+    }),
+  });
+
+  const r3c = runChecker(emptyAnchor);
+  if (r3c.status !== 0) {
+    pass('empty anchor → exit 1');
+  } else {
+    fail(`empty anchor → expected exit 1, got 0. stdout: ${r3c.stdout}`);
   }
 }
 
