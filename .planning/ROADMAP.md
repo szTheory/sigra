@@ -90,7 +90,7 @@ Plans:
 - [x] 216-04-PLAN.md — Guards: quality-findings-monotonic.sh + settled-findings-lint.sh + evidence-anchor-check.mjs (+ self-tests)
 - [x] 216-05-PLAN.md — award-guard.mjs verify-then-climb + shared probe-id module + self-test
 - [x] 216-06-PLAN.md — probes.ts (9 probes) + admin-eval.spec.ts + playwright projects + stale-render-guard.sh
-- [ ] 216-07-PLAN.md — Orchestrator + two-pilot verify-then-climb (≤A2) + runbook + ci.yml fast_checks wiring
+- [x] 216-07-PLAN.md — Orchestrator + two-pilot verify-then-climb (≤A2) + runbook + ci.yml fast_checks wiring
 
 **UI hint**: yes
 
@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 216. Harness Foundation + Award Gradient | 6/7 | In Progress|  |
+| 216. Harness Foundation + Award Gradient | 7/7 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 0/? | Not started | - |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
