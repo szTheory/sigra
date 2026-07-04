@@ -261,25 +261,28 @@ check_rails() {
     return 1
   fi
 
-  # Rail 3: deterministic gate / anchor resolution
-  # Re-run fix-queue-lint.sh and evidence-anchor-check.mjs (no render needed — committed state)
-  if [[ "$SKIP_RENDER" -eq 0 ]]; then
-    set +e
-    RAIL3_OUT=$(bash "${ROOT}/scripts/ci/fix-queue-lint.sh" 2>&1)
-    RAIL3_EXIT=$?
-    set -e
-    if [[ $RAIL3_EXIT -ne 0 ]]; then
-      TRIPPED_RAIL="rail-3-queue-lint: ${RAIL3_OUT}"
-      return 1
-    fi
-    set +e
-    RAIL3B_OUT=$(node "${ROOT}/scripts/ci/evidence-anchor-check.mjs" 2>&1)
-    RAIL3B_EXIT=$?
-    set -e
-    if [[ $RAIL3B_EXIT -ne 0 ]]; then
-      TRIPPED_RAIL="rail-3-anchor-check: ${RAIL3B_OUT}"
-      return 1
-    fi
+  # Rail 3: deterministic gate / anchor resolution.
+  # WR-07: fix-queue-lint.sh and evidence-anchor-check.mjs read COMMITTED state and
+  # do not need a live render, so they must run unconditionally — even under
+  # --skip-render. Previously the whole rail was gated on SKIP_RENDER, so a fix
+  # that broke an anchor or corrupted the fix-queue passed the loop while it still
+  # claimed "all 4 rails green". Only the re-render itself is gated on SKIP_RENDER
+  # (below, after the commit).
+  set +e
+  RAIL3_OUT=$(bash "${ROOT}/scripts/ci/fix-queue-lint.sh" 2>&1)
+  RAIL3_EXIT=$?
+  set -e
+  if [[ $RAIL3_EXIT -ne 0 ]]; then
+    TRIPPED_RAIL="rail-3-queue-lint: ${RAIL3_OUT}"
+    return 1
+  fi
+  set +e
+  RAIL3B_OUT=$(node "${ROOT}/scripts/ci/evidence-anchor-check.mjs" 2>&1)
+  RAIL3B_EXIT=$?
+  set -e
+  if [[ $RAIL3B_EXIT -ne 0 ]]; then
+    TRIPPED_RAIL="rail-3-anchor-check: ${RAIL3B_OUT}"
+    return 1
   fi
 
   # Rail 4: snapshot-canary-guard.sh baseline-PNG drift vs pre-loop sha
@@ -362,13 +365,25 @@ for i in $(seq 0 $((ELIGIBLE_COUNT - 1))); do
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "admin-autofix-loop: DRY-RUN: would commit ${FINDING_ID} to ${TARGET_FILE}"
-    # Restore file
-    git -C "$ROOT" checkout -- "$TARGET_FILE" 2>/dev/null || true
+    # Restore the file the dry-run just mutated. WR-05: do NOT swallow restore
+    # failures — this tool's whole value is "never leave a dirty tree", so if the
+    # working copy is not clean after restore, hard-fail instead of silently
+    # letting the next real run commit an unintended change.
+    git -C "$ROOT" checkout -- "$TARGET_FILE"
+    if ! git -C "$ROOT" diff --quiet -- "$TARGET_FILE"; then
+      echo "admin-autofix-loop: FATAL: dry-run could not restore ${TARGET_FILE} — refusing to leave a dirty tree." >&2
+      exit 1
+    fi
     continue
   fi
 
-  # Commit the fix (one fix per commit)
-  git -C "$ROOT" add -A
+  # Commit the fix (one fix per commit). WR-06: stage ONLY the file this fix
+  # touched — `git add -A` would sweep re-render side effects, ledger deltas, and
+  # any incidental dirty working-tree state into the fix commit, so a later rail
+  # trip's `git revert` would roll all of them back together and the "one fix per
+  # commit" atomicity guarantee would be a fiction. Re-render / ledger updates run
+  # AFTER this commit and are handled separately.
+  git -C "$ROOT" add -- "$TARGET_FILE"
   COMMIT_MSG="autofix(217-06): ${FIX_CLASS} swap on ${SURFACE} — ${ANCHOR}
 
 finding_id: ${FINDING_ID}
