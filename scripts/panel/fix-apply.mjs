@@ -177,7 +177,7 @@ export function applyTokenSwap(content, finding) {
     // Resolve the token name up front. If it cannot be resolved deterministically,
     // we refuse to edit this value (downgrade to judgment) rather than fabricate
     // an invalid `var(...)`. Never write a comment inside var() — that is invalid CSS.
-    const tokenRef = resolveTokenRef(token_px, scaleArr);
+    const tokenRef = resolveTokenRef(token_px, scaleArr, finding);
     if (tokenRef === null) continue; // unresolvable token name → skip this value
 
     let replaced = false;
@@ -213,8 +213,12 @@ export function applyTokenSwap(content, finding) {
  * return as "not applied" (downgrade to judgment) — this function NEVER fabricates
  * a token name or emits a comment inside var() (which would be invalid CSS and
  * silently corrupt the declaration; see CR-01).
+ *
+ * @param {number} tokenPx - the nearest on-scale pixel value
+ * @param {number[]} scalePx - the token scale the value belongs to
+ * @param {object} [finding] - the fix-queue finding (carries a `token_family` hint)
  */
-function resolveTokenRef(tokenPx, scalePx) {
+function resolveTokenRef(tokenPx, scalePx, finding) {
   const idx = scalePx.indexOf(tokenPx);
   // Space scale: [1,2,3,4,5,6,7,8,10,12] (typical --sg-space-N steps from probes.ts)
   const SPACE_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
@@ -226,13 +230,13 @@ function resolveTokenRef(tokenPx, scalePx) {
 
   // Radius scale (4 entries): xs, sm, md, lg.
   //
-  // NOTE (CR-01): the control scale is also 4 entries (xs/sm/md/lg), so array
-  // length alone cannot distinguish radius from control. Without a token-name
-  // hint carried on the finding we cannot resolve this deterministically, so we
-  // refuse rather than mislabel a control token as radius. The 4-entry branch is
-  // retained for the radius-only fixtures that exercise it, but any value that is
-  // not a known space step now returns null instead of guessing.
-  if (idx !== -1 && scalePx.length === 4) {
+  // WR-03: the control scale is ALSO 4 entries (xs/sm/md/lg), so array length
+  // alone cannot distinguish radius from control. Guessing "radius" for any
+  // 4-entry scale silently rewrites an off-scale CONTROL value to a radius token —
+  // a semantically wrong, visually-plausible edit that can pass all four rails.
+  // Resolve to a radius token ONLY when the finding explicitly declares
+  // token_family === 'radius'; otherwise refuse (→ judgment) rather than mislabel.
+  if (idx !== -1 && scalePx.length === 4 && finding?.token_family === 'radius') {
     const RADIUS_KEYS = ['xs', 'sm', 'md', 'lg'];
     return `var(--sg-radius-${RADIUS_KEYS[idx]})`;
   }
