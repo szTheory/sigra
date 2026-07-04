@@ -23,7 +23,8 @@
  *
  *   NORMALIZES:
  *     - Text nodes: collapse whitespace runs, cap length to TEXT_CAP chars
- *     - class attr: keep only semantic (sg-*) + layout tokens; sort for determinism
+ *     - class attr: retain ALL class tokens (sorted) for anchor fidelity — the LLM
+ *       needs the full class list to resolve [class*=...] / .sg-* anchors
  *     - href: strip vsn fingerprints
  *
  * Pure function: given the same HTML input, always returns the same output string.
@@ -84,8 +85,14 @@ const RETAIN_ATTRS = new Set(['data-testid', 'role', 'aria-label', 'type', 'name
 function stripVsn(value) {
   // Remove ?vsn=... or &vsn=... segments
   let stripped = value.replace(/[?&]vsn=[^&"'\s]*/g, '');
-  // Clean up orphaned ? or & at end, or double &&
-  stripped = stripped.replace(/\?$/, '').replace(/&&/g, '&').replace(/\?&/, '?').replace(/&$/, '');
+  // Clean up orphaned separators left behind. IN-03: the single-pass chain below
+  // is order-dependent and can leave a dangling separator for multi-vsn or
+  // interleaved query strings, so collapse runs and then force-strip any trailing
+  // separator as a final guarantee that the canonical form is minimal.
+  stripped = stripped
+    .replace(/&&+/g, '&') // collapse runs of &
+    .replace(/\?&/, '?')  // ? immediately followed by & → ?
+    .replace(/[?&]$/, ''); // strip any trailing ? or &
   // Remove 32-hex path digest fingerprints (e.g. app-abcdef1234567890abcdef1234567890.css → app-.css)
   stripped = stripped.replace(/-[0-9a-f]{32}(\.\w+)/gi, '$1');
   return stripped;
@@ -133,12 +140,12 @@ function filterAttrs(attribs) {
     // We handle this by stripping the content attr entirely for csrf meta tags
     // — handled at element level below in excerptHtml
 
-    // class attr: retain only sg-* tokens (plus other semantic tokens), sort
+    // class attr: retain ALL class tokens (sorted for determinism).
+    // IN-02: we intentionally do NOT filter to sg-*/semantic tokens — the DOM
+    // consumer (LLM) needs the complete class list to resolve anchors like
+    // [class*=...] and .sg-*. Sorting keeps the excerpt byte-stable.
     if (name === 'class') {
       const tokens = value.split(/\s+/).filter(Boolean);
-      // Keep tokens that start with 'sg-' or are in a known semantic set
-      // Keep ALL class tokens — the DOM consumer (LLM) needs the full class for anchoring,
-      // but we sort them for determinism
       const sorted = tokens.sort().join(' ');
       if (sorted) {
         out.push({ name, value: sorted });
