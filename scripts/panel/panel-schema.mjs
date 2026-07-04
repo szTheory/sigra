@@ -111,7 +111,7 @@ const CELL_SCHEMA = {
         refutation: { type: 'string' },
         observation: { type: 'string' },
         evidence_cell: { type: 'string', enum: ['light', 'dark', 'both'] },
-        schema_version: { type: 'string', enum: ['217-01'] },
+        schema_version: { type: 'string', enum: ['217-05'] },
       },
       required: ['verdict', 'anchor', 'refutation'],
       additionalProperties: false,
@@ -122,7 +122,7 @@ const CELL_SCHEMA = {
       properties: {
         verdict: { type: 'string', enum: ['keep'] },
         none_searched_for: { type: 'string' },
-        schema_version: { type: 'string', enum: ['217-01'] },
+        schema_version: { type: 'string', enum: ['217-05'] },
       },
       required: ['verdict', 'none_searched_for'],
       additionalProperties: false,
