@@ -29,7 +29,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Auto-Fix with Safety Rails (AUTOFIX) — Phase 217
 
 - [x] **AUTOFIX-01**: Findings dedup into a single prioritized fix queue keyed by a stable `finding_id` (a hash of surface+lens+question+anchor, not prose), with cross-surface recurring anchors collapsed into high-priority systemic findings so the operator always works highest-value-first.
-- [ ] **AUTOFIX-02**: The harness auto-applies only provably-safe fix classes (copy / token-swap / component-swap) as atomic commits, re-renders after each, and auto-reverts any fix that regresses a deterministic gate or an already-elevated surface; judgment fixes route to the human queue. An injected-regression test proves the auto-revert + monotonic guards actually catch a deliberately-clunky change.
+- [x] **AUTOFIX-02**: The harness auto-applies only provably-safe fix classes (copy / token-swap / component-swap) as atomic commits, re-renders after each, and auto-reverts any fix that regresses a deterministic gate or an already-elevated surface; judgment fixes route to the human queue. An injected-regression test proves the auto-revert + monotonic guards actually catch a deliberately-clunky change.
 
 ### Broad Elevation Wave (ELEVATE) — Phase 218
 
@@ -83,7 +83,7 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | PANEL-01 | 217 | Complete |
 | PANEL-02 | 217 | Complete |
 | AUTOFIX-01 | 217 | Complete |
-| AUTOFIX-02 | 217 | Pending |
+| AUTOFIX-02 | 217 | Complete |
 | ELEVATE-01 | 218 | Pending |
 | ELEVATE-02 | 218 | Pending |
 | ELEVATE-03 | 218 | Pending |

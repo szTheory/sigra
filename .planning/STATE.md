@@ -2,15 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
+current_phase: 217
+current_phase_name: adversarial-panel-auto-fix-safety-rails
 status: executing
-stopped_at: Completed 217-03-PLAN.md
-last_updated: "2026-07-04T18:51:45.096Z"
+stopped_at: Completed 217-06-PLAN.md
+last_updated: "2026-07-04T19:13:00.961Z"
 last_activity: 2026-07-04
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 15
   percent: 20
 ---
 
@@ -27,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 217 (adversarial-panel-auto-fix-safety-rails) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-04
 
@@ -271,6 +273,10 @@ Progress: [█████████░] 88%
 - [Phase ?]: Use grep -c not grep -q in bash CI scripts to avoid SIGPIPE under pipefail
 - [Phase ?]: panel-forced-floor-check.mjs reads JSON only; self-tests attach to fast_checks, checker not wired over live panel output
 - [Phase ?]: excerpt.mjs retains ALL class tokens for full anchor validation coverage
+- [Phase ?]: Token-swap +/-1.0px band: tighter than probe detection, ties/far downgrade to judgment
+- [Phase ?]: Copy-swap is text-node-only from fixed copy-rules.json; semantic judgment refused
+- [Phase ?]: git revert --no-edit HEAD creates new commit on any rail trip; SC-4 proves reflog clean
+- [Phase ?]: eval/autofix-state.json gitignored; admin-autofix-loop.sh never wired into CI (panel-ci-isolation proves it)
 
 ### Pending Todos
 
@@ -346,8 +352,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-04T18:51:38.285Z
-Stopped at: Completed 217-03-PLAN.md
+Last session: 2026-07-04T19:13:00.956Z
+Stopped at: Completed 217-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -429,3 +435,4 @@ Resume file: None
 | Phase 217 P02 | 13m30s | 3 tasks | 7 files |
 | Phase 217 P03 | 14m 38s | 3 tasks | 4 files |
 | Phase 217 P05 | 621 | 4 tasks | 8 files |
+| Phase 217 P06 | 914 | 3 tasks | 6 files |
