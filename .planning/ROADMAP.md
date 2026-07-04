@@ -116,7 +116,7 @@ Plans:
 - [x] 217-02-PLAN.md — Fix queue: `fix-queue-build.mjs` (systemic collapse, sole `open_findings` writer) + `fix-queue-lint.sh` + harness chaining (D-12; wave 2)
 - [x] 217-03-PLAN.md — Deterministic panel guards: `panel-forced-floor-check.mjs` (12-cell grid) + `panel-ci-isolation.test.sh` (SC-5) + fast_checks wiring (D-06; wave 2)
 - [x] 217-04-PLAN.md — New graphic-design lens doc `admin-graphic-design-lens.md` (3 perceptual questions, brand-v2 pillars) (D-16/17/18; wave 1)
-- [ ] 217-05-PLAN.md — LLM panel: `excerpt.mjs` + `lenses.mjs` + `judge.mjs` (k=3 quorum, content-hash skip, diff-scoped) + verdicts cache + lint (D-03/04/05/08/09/10/11; wave 2)
+- [x] 217-05-PLAN.md — LLM panel: `excerpt.mjs` + `lenses.mjs` + `judge.mjs` (k=3 quorum, content-hash skip, diff-scoped) + verdicts cache + lint (D-03/04/05/08/09/10/11; wave 2)
 - [ ] 217-06-PLAN.md — Auto-fix rails: `fix-apply.mjs` (copy/token only) + `admin-autofix-loop.sh` (3 rails, git revert) + hermetic SC-4 test + `board-autofix-seed` (D-13/14/15; wave 3)
 - [ ] 217-07-PLAN.md — Operator entrypoint `admin-panel.sh` (Hammer no-op) + runbook + off-CI live SC-2/SC-4 verifications (D-02; wave 4)
 
@@ -170,7 +170,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
-| 217. Adversarial Panel + Auto-Fix Safety Rails | 4/7 | In Progress|  |
+| 217. Adversarial Panel + Auto-Fix Safety Rails | 5/7 | In Progress|  |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |

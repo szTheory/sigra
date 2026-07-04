@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 217
-current_phase_name: adversarial-panel-auto-fix-safety-rails
 status: executing
 stopped_at: Completed 217-03-PLAN.md
-last_updated: "2026-07-04T18:38:36.724Z"
+last_updated: "2026-07-04T18:51:45.096Z"
 last_activity: 2026-07-04
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
   percent: 20
 ---
 
@@ -29,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 217 (adversarial-panel-auto-fix-safety-rails) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-07-04
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 88%
 
 ## Accumulated Context
 
@@ -272,6 +270,7 @@ Progress: [████████░░] 75%
 - [Phase 217]: Systemic collapse: same (class,anchor) on >=2 board surfaces collapses to ONE high-priority parent in fix-queue.json
 - [Phase ?]: Use grep -c not grep -q in bash CI scripts to avoid SIGPIPE under pipefail
 - [Phase ?]: panel-forced-floor-check.mjs reads JSON only; self-tests attach to fast_checks, checker not wired over live panel output
+- [Phase ?]: excerpt.mjs retains ALL class tokens for full anchor validation coverage
 
 ### Pending Todos
 
@@ -347,7 +346,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-04T18:38:36.719Z
+Last session: 2026-07-04T18:51:38.285Z
 Stopped at: Completed 217-03-PLAN.md
 Resume file: None
 
@@ -429,3 +428,4 @@ Resume file: None
 | Phase 217 P04 | 176 | 1 tasks | 1 files |
 | Phase 217 P02 | 13m30s | 3 tasks | 7 files |
 | Phase 217 P03 | 14m 38s | 3 tasks | 4 files |
+| Phase 217 P05 | 621 | 4 tasks | 8 files |
