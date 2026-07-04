@@ -33,7 +33,7 @@ decisions:
   - "admin-panel.sh degrades to exit 0 on missing key — NEVER hard-fails; this is the structural JUDGE-CI-01 belt"
   - "Bundle-freshness is warn/skip not hard-fail — do not burn API tokens on stale renders, but don't block an operator who just wants to check the degrade path"
   - "Pilot surfaces hardcoded (users-index-live, user-show-live) matching the current admin-render-sha.json cells; --all reads all cells from render-sha.json dynamically"
-  - "SC-2 live verification and SC-4 board-autofix-seed companion deferred to human checkpoint — require real ANTHROPIC_API_KEY unavailable in this environment"
+  - "SC-2/SC-4 live verifications deferred to gap-closure (operator decision 2026-07-04): live run surfaced a panel/render-matrix surface mismatch that blocks SC-2 independent of the API key; both mechanisms already hermetically proven (judge.test.mjs 11/11, admin-autofix-loop.test.sh 9/9)"
 metrics:
   duration: "3m 37s"
   completed: "2026-07-04T19:18:22Z"
@@ -59,7 +59,33 @@ Operator entrypoint `admin-panel.sh` delivered with Hammer no-op structural guar
 
 | Task | Name | Type | Blocker |
 |------|------|------|---------|
-| 3 | Off-CI live verification — SC-2 zero-calls + SC-4 board-autofix-seed companion | checkpoint:human-verify | Real ANTHROPIC_API_KEY required; environment does not have API access |
+| 3 | Off-CI live verification — SC-2 zero-calls + SC-4 board-autofix-seed companion | checkpoint:human-verify | Deferred to gap-closure (operator decision 2026-07-04) — see below |
+
+### Checkpoint resolution (2026-07-04): defer live SC-2/SC-4 to gap-closure
+
+A real `ANTHROPIC_API_KEY` **was** provided and the full live infra was validated
+(ephemeral Postgres, `example_dev` migrated + seeded, example app booted on :4000 with
+compile-env-matched port, `admin-eval-harness.sh` render matrix captured fresh bundles at
+HEAD). The live run **surfaced a real integration gap that blocks SC-2 regardless of the
+key**: `admin-panel.sh` targets the phase-216 pilot surfaces (`users-index-live`,
+`user-show-live` — the only surfaces with `render_sha256` `cells` in `admin-render-sha.json`),
+but phase 217's `admin-eval.spec.ts` render matrix renders `board-mg-1..11` instead. The
+two surface sets are disjoint, so the pilot surfaces have no captured bundles at HEAD and a
+live `admin-panel.sh` run makes **0 API calls** (`judge.mjs` errors on the missing bundle
+before any SDK call) — proving nothing.
+
+- **SC-2** mechanism is already hermetically proven by `judge.test.mjs` (11/11, zero real
+  API, content-hash-skip path with an SDK double). The live reality-check is blocked by the
+  surface mismatch, now tracked as gap-closure:
+  `.planning/todos/pending/2026-07-04-panel-pilot-surface-render-mismatch.md` (resolves_phase: 217).
+- **SC-4** live "board-autofix-seed companion" is runnable + API-free (board-mg bundles + 12
+  `auto_eligible` token findings exist), but was deferred alongside SC-2 to avoid landing
+  fix/revert commits on `main` outside a gap-closure plan. Its mechanism is already
+  hermetically proven by `admin-autofix-loop.test.sh` (9/9, both rails fire).
+
+Operator chose "defer SC-2 as gap-closure" — deterministic scope of this plan is complete
+and both live-run mechanisms are hermetically proven; the live reality-checks are tracked
+for a follow-up gap-closure pass once the panel/render-matrix surfaces are aligned.
 
 ## Verification Results
 
@@ -100,8 +126,8 @@ SC-2 (zero-calls reality) and SC-4 (board-autofix-seed companion) require:
 | Runbook documents API-key no-op degrade | PASS — committed |
 | Runbook documents where human sign-off sits | PASS — committed |
 | Runbook states JUDGE-CI-01 explicitly | PASS — committed |
-| SC-2 zero-calls reality proven by live off-CI run | PENDING — human checkpoint |
-| SC-4 board-autofix-seed companion proven by live run | PENDING — human checkpoint |
+| SC-2 zero-calls reality proven by live off-CI run | DEFERRED — gap-closure (panel/render-matrix surface mismatch; mechanism proven by judge.test.mjs 11/11) |
+| SC-4 board-autofix-seed companion proven by live run | DEFERRED — gap-closure (mechanism proven by admin-autofix-loop.test.sh 9/9) |
 
 ## Deviations from Plan
 
