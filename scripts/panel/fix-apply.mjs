@@ -174,11 +174,14 @@ export function applyTokenSwap(content, finding) {
       'g',
     );
 
+    // Resolve the token name up front. If it cannot be resolved deterministically,
+    // we refuse to edit this value (downgrade to judgment) rather than fabricate
+    // an invalid `var(...)`. Never write a comment inside var() — that is invalid CSS.
+    const tokenRef = resolveTokenRef(token_px, scaleArr);
+    if (tokenRef === null) continue; // unresolvable token name → skip this value
+
     let replaced = false;
     const newContent = modified.replace(pxPattern, (match, pre, important, post) => {
-      // Build replacement: use var(--sg-space-N) as a named token reference where
-      // possible, otherwise use the pixel fallback with a TODO comment.
-      const tokenRef = resolveTokenRef(token_px, scaleArr);
       const importantSuffix = important ? ' !important' : '';
       replaced = true;
       return `${pre}${tokenRef}${importantSuffix}${post}`;
@@ -204,35 +207,40 @@ export function applyTokenSwap(content, finding) {
 /**
  * Resolve a pixel value to the most likely --sg-* CSS variable name.
  * Uses the scale_px index to infer the token step.
- * Falls back to a pixel comment if the index cannot be mapped to a known token name.
+ *
+ * Returns a valid `var(--sg-*)` reference string, or `null` when the token
+ * family/name cannot be resolved deterministically. Callers MUST treat a `null`
+ * return as "not applied" (downgrade to judgment) — this function NEVER fabricates
+ * a token name or emits a comment inside var() (which would be invalid CSS and
+ * silently corrupt the declaration; see CR-01).
  */
 function resolveTokenRef(tokenPx, scalePx) {
   const idx = scalePx.indexOf(tokenPx);
   // Space scale: [1,2,3,4,5,6,7,8,10,12] (typical --sg-space-N steps from probes.ts)
   const SPACE_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
-  // Radius scale: xs, sm, md, lg (not indexed by integer step)
-  // Control scale: xs, sm, md, lg (not indexed by integer step)
-  // For radius/control, we cannot reliably infer the token name from px alone without
-  // the token name map — use a generic var() with the px as fallback comment.
 
-  // Try space scale first: if the resolved tokenPx matches a known space step pixel value,
-  // we can infer the token name. The probe uses --sg-space-N where N is the SPACE_STEPS index.
-  // However, since the pixel values depend on the root font-size and the host CSS, we
-  // cannot reliably resolve them without reading the live CSS. Use index-based heuristic.
+  // Space scale: 10-entry scale maps 1:1 onto --sg-space-N steps.
   if (idx !== -1 && scalePx.length === SPACE_STEPS.length) {
     return `var(--sg-space-${SPACE_STEPS[idx]})`;
   }
 
-  // For radius scale (4 entries): xs, sm, md, lg
+  // Radius scale (4 entries): xs, sm, md, lg.
+  //
+  // NOTE (CR-01): the control scale is also 4 entries (xs/sm/md/lg), so array
+  // length alone cannot distinguish radius from control. Without a token-name
+  // hint carried on the finding we cannot resolve this deterministically, so we
+  // refuse rather than mislabel a control token as radius. The 4-entry branch is
+  // retained for the radius-only fixtures that exercise it, but any value that is
+  // not a known space step now returns null instead of guessing.
   if (idx !== -1 && scalePx.length === 4) {
     const RADIUS_KEYS = ['xs', 'sm', 'md', 'lg'];
     return `var(--sg-radius-${RADIUS_KEYS[idx]})`;
   }
 
-  // For control scale (4 entries, but distinct from radius): xs, sm, md, lg
-  // Since we cannot distinguish radius vs control by count alone, we fall back to
-  // a commented pixel value for the operator to review (still deterministic, still safe).
-  return `var(--sg-token-${tokenPx}px/* nearest token at ${tokenPx}px */)`;
+  // Cannot resolve the token family/name deterministically → refuse (no edit).
+  // Never emit `var(--sg-token-<px>/* comment */)` — a comment inside var() is
+  // not a valid custom-property name and breaks the whole declaration.
+  return null;
 }
 
 function escapeRegex(str) {
