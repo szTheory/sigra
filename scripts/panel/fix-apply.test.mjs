@@ -126,6 +126,10 @@ console.log('\nTest 1: token swap applies within +/-1.0px band');
     anchor: '.sg-foo',
     measured_px: [4],
     scale_px: [2, 4, 6, 8],
+    // WR-03: a 4-entry scale is ambiguous (radius vs control); the finding must
+    // declare token_family so resolveTokenRef can pick the radius family instead
+    // of guessing.
+    token_family: 'radius',
   };
 
   const result = applyTokenSwap(heexContent, finding);
@@ -133,6 +137,29 @@ console.log('\nTest 1: token swap applies within +/-1.0px band');
   // scale_px=[2,4,6,8] is a 4-entry radius scale; idx=1 for value 4 → var(--sg-radius-sm)
   assert(result.content.includes('var(--sg-radius-sm)'), '1b: replaced with var(--sg-radius-sm) (index 1 in 4-entry radius scale)');
   assert(!result.content.includes('4px'), '1c: original px value removed');
+}
+
+// --------------------------------------------------------------------------
+// Test 1e (WR-03): a 4-entry scale WITHOUT token_family='radius' is refused
+// (control tokens are also 4-entry — refuse rather than mislabel as radius).
+// --------------------------------------------------------------------------
+
+{
+  const heexContent = `<div style="border-radius: 4px">content</div>`;
+  const finding = {
+    finding_id: 'abc123b',
+    surface: 'board-mg-5-error',
+    class: 'off-scale-radius-shadow-control',
+    fix_class: 'token',
+    auto_eligible: true,
+    anchor: '.sg-foo',
+    measured_px: [4],
+    scale_px: [2, 4, 6, 8], // 4-entry, ambiguous, no token_family hint
+  };
+
+  const result = applyTokenSwap(heexContent, finding);
+  assert(!result.applied, '1e: 4-entry scale without token_family → refused (not mislabeled radius)');
+  assert(result.content === heexContent, '1f: file content unchanged when family unresolvable');
 }
 
 // --------------------------------------------------------------------------
