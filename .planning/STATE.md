@@ -2,13 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 216
-current_phase_name: harness-foundation-award-gradient
-status: phase-complete
-stopped_at: Phase 216 COMPLETE — 216-08 (board-scope probes + W1) & 216-09 (live SC-5 proof at committed HEAD) closed both BLOCKER gaps; gsd-verifier re-verified PASS 5/5
-last_updated: "2026-07-04T03:30:00.000Z"
-last_activity: 2026-07-04
-last_activity_desc: Phase 216 gap plans executed + re-verified PASS; next Phase 217
+status: completed
+stopped_at: Phase 217 context gathered (assumptions mode + deep research; temperature/opus-4-8 correction folded)
+last_updated: "2026-07-04T16:43:25.520Z"
+last_activity: 2026-07-04 — 216-08/09 gap plans executed; SC-5 proven green at committed HEAD; re-verification PASS
 progress:
   total_phases: 5
   completed_phases: 1
@@ -343,9 +340,9 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-04T03:02:04.176Z
-Stopped at: Completed 216-07-PLAN.md (convergence — harness, pilots, CI wiring)
-Resume file: None
+Last session: 2026-07-04T16:43:25.516Z
+Stopped at: Phase 217 context gathered (assumptions mode + deep research; temperature/opus-4-8 correction folded)
+Resume file: .planning/phases/217-adversarial-panel-auto-fix-safety-rails/217-CONTEXT.md
 
 ## Operator Next Steps
 
