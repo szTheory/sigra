@@ -30,7 +30,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { findingId as computeFindingId } from './panel-schema.mjs';
+import { findingId as computeFindingId, PANEL_SCHEMA } from './panel-schema.mjs';
 import { assemblePrompt } from './lenses.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -448,7 +448,7 @@ export async function runJudge(opts) {
   //   - NO temperature, top_p, top_k (400s on claude-opus-4-8 per D-08)
   //   - NO assistant prefill (400s on claude-opus-4-8 per D-03)
   //   - adaptive thinking: default (omit 'thinking' key entirely)
-  //   - output_config.format: JSON schema via PANEL_SCHEMA
+  //   - output_config.format: JSON schema via PANEL_SCHEMA (structured output)
   //   - system: cached rubric (cache_control: ephemeral)
   const k = provenance.k;
   const sampleResults = [];
@@ -470,6 +470,14 @@ export async function runJudge(opts) {
           content: userContentBlocks,
         },
       ],
+      // Structured output: constrain the model to PANEL_SCHEMA so responses are
+      // schema-shaped rather than free-form prose (CR-02). Per the Anthropic SDK,
+      // structured output is opt-in via output_config.format — without it the
+      // model is unconstrained and a malformed response silently degrades to an
+      // empty sample, quietly weakening quorum admission.
+      output_config: {
+        format: { type: 'json_schema', schema: PANEL_SCHEMA },
+      },
       // NO temperature, top_p, top_k (would 400 on claude-opus-4-8)
       // NO thinking key (use adaptive thinking default)
       // NO assistant prefill (would 400 on claude-opus-4-8)
