@@ -180,7 +180,7 @@ gate merges — the committed ledgers (`admin-panel-verdicts.json`, `fix-queue.j
 # Prerequisite: fresh bundles captured at HEAD
 bash scripts/ci/admin-eval-harness.sh
 
-# Run the LLM panel (pilot surfaces — users-index-live, user-show-live)
+# Run the LLM panel (pilot surfaces — board-mg-5-*/board-mg-9-*)
 ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh
 
 # Fan out to ALL surfaces (Phase-218 scope — use --all)
@@ -200,11 +200,19 @@ admin-panel: ANTHROPIC_API_KEY not set — skipping LLM panel (JUDGE-CI-01 no-op
 admin-panel: To run the panel, export ANTHROPIC_API_KEY=<your-key> and re-run.
 ```
 
-**Pilot surfaces vs. `--all`:**
-The default run judges only the two pilot surfaces to minimize cost. Pass `--all` to fan
-out to every surface in `admin-render-sha.json` (reserved for Phase-218 scope). The script
+**Pilot surfaces (Plan 217-08 — Option 2 alignment):**
+The default run judges the board-mg-5-* and board-mg-9-* surfaces (the concrete boards the
+217 render matrix actually renders). These are the surfaces whose `render_sha256` cells are
+populated in `admin-render-sha.json`. Pass `--all` to fan out to every surface. The script
 always prints the estimated API call count (K=3 per cache-miss cell) BEFORE making any
 calls so you can abort if the estimate is unexpectedly large.
+
+Prior to Plan 217-08, the default run targeted `users-index-live` and `user-show-live` (pilot
+surface names derived from board-mg-5 and board-mg-9 respectively). Those names were never
+rendered by the 217 harness, so a live run found no bundles and made 0 API calls for the
+wrong reason. The current pilot names (`board-mg-5-*`, `board-mg-9-*`) are the concrete
+boards the harness actually captures — so a live run now finds real bundles and makes
+meaningful API calls.
 
 **Content-hash skip (SC-2):**
 If `admin-panel-verdicts.json` already contains a cache entry for the current
@@ -251,6 +259,56 @@ When any rail trips: the offending commit is reverted, the finding is written to
 **Apply surface:** `fix-apply.mjs` applies only copy-swap and token-swap changes to admin
 LiveView `.heex`/`.ex` files and `test/example`. CSS files, components requiring semantic
 judgment, and non-admin files are all refused — no LLM text reaches source files.
+
+**SC-4 chain — AUTONOMOUSLY PROVEN (Plan 217-08, clone-isolated, API-free):**
+The SC-4 apply→rail-trip→revert→waive chain is proven in a throwaway git clone of the final
+committed HEAD (the real repo history is never touched). The clone-isolated proof:
+
+1. Seeds the `board-autofix-seed` in-band SPACE finding (12.5px `padding` in
+   `design_gallery_live.ex`, resolved by `fix-apply.mjs` to `var(--sg-space-12)` via the
+   10-entry SPACE scale — NOT the 4-entry radius scale, which would refuse).
+2. Runs `admin-autofix-loop.sh --max-fixes 20 --skip-render` (API-free, no Playwright).
+3. The loop applies the fix and a post-commit hook bumps `open_findings` on one cell,
+   causing Rail 1 (`quality-findings-monotonic.sh`) to trip on the next check-rails pass.
+4. The loop reverts via `git revert --no-edit HEAD` (a new `Revert "autofix..."` commit).
+5. The finding is written to `settled-findings.tsv` with `disposition=waived`.
+6. `admin-award-ledger.json` is restored to its pre-loop snapshot.
+7. The reflog shows no `force-push` or `reset --hard`.
+
+This proof is mechanized by Task 3's automated verify block (see `scripts/ci/admin-autofix-loop.test.sh`
+for the hermetic equivalent). The real repo working tree and git history are unchanged.
+
+**JUDGE-CI-01 invariant (restated):** Neither `admin-panel.sh` nor `admin-autofix-loop.sh`
+is ever in `fast_checks` or any merge-blocking gate. Only `judge-cli.test.mjs` (the
+deterministic, key-free CLI bundle-wiring self-test, wired into `fast_checks` in Plan 217-08)
+joins the merge path. The panel and loop are strictly off the merge path.
+
+**TRUE-live SC-2 paid run (OPTIONAL — post-merge, operator-only):**
+The one step that cannot be automated is the TRUE-live SC-2 confirmation: running the panel
+twice with a real key and verifying the 2nd run makes 0 API calls (proving the content-hash
+skip is real, not a side-effect of missing bundles or a missing key). This is the only
+un-automatable check; it is NOT a gate. The mechanism is already hermetically proven by
+`judge.test.mjs` (callCount===0 on cache hit) and additionally proven against a real on-disk
+board-mg bundle by `judge-cli.test.mjs` (Plan 217-08 Test 2).
+
+To perform the optional operator confirmation:
+
+```bash
+# 1. Ensure fresh bundles captured at the COMMITTED HEAD (see SC-5 discipline)
+bash scripts/ci/admin-eval-harness.sh
+
+# 2. First run — populates admin-panel-verdicts.json cache
+ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh
+
+# 3. Second run — must report 0 API calls AND produce empty verdicts diff
+ANTHROPIC_API_KEY=<your-key> bash scripts/ci/admin-panel.sh
+
+# 4. Verify: no diff means SC-2 is confirmed
+git diff guides/reference/admin-panel-verdicts.json
+# expected: no output (empty diff)
+```
+
+This is an OPTIONAL post-merge operator confirmation. The plan completes autonomously without it.
 
 ### Reading the Dossier
 
