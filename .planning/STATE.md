@@ -4,16 +4,16 @@ milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
 current_phase: 217
 current_phase_name: adversarial-panel-auto-fix-safety-rails
-status: executing
+status: verifying
 stopped_at: Completed 217-06-PLAN.md
-last_updated: "2026-07-04T19:13:00.961Z"
+last_updated: "2026-07-04T19:20:04.422Z"
 last_activity: 2026-07-04
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
-  completed_plans: 15
-  percent: 20
+  completed_plans: 16
+  percent: 40
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 217 (adversarial-panel-auto-fix-safety-rails) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-04
 
 Progress: [█████████░] 88%
@@ -277,6 +277,8 @@ Progress: [█████████░] 88%
 - [Phase ?]: Copy-swap is text-node-only from fixed copy-rules.json; semantic judgment refused
 - [Phase ?]: git revert --no-edit HEAD creates new commit on any rail trip; SC-4 proves reflog clean
 - [Phase ?]: eval/autofix-state.json gitignored; admin-autofix-loop.sh never wired into CI (panel-ci-isolation proves it)
+- [Phase ?]: admin-panel.sh degrades to exit 0 on missing ANTHROPIC_API_KEY — structural JUDGE-CI-01 guarantee
+- [Phase ?]: SC-2/SC-4 live verifications deferred to human checkpoint — require real ANTHROPIC_API_KEY
 
 ### Pending Todos
 
@@ -352,7 +354,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-04T19:13:00.956Z
+Last session: 2026-07-04T19:19:20.101Z
 Stopped at: Completed 217-06-PLAN.md
 Resume file: None
 
@@ -436,3 +438,4 @@ Resume file: None
 | Phase 217 P03 | 14m 38s | 3 tasks | 4 files |
 | Phase 217 P05 | 621 | 4 tasks | 8 files |
 | Phase 217 P06 | 914 | 3 tasks | 6 files |
+| Phase 217 P07 | 3m37s | 2 tasks | 2 files |
