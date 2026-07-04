@@ -20,7 +20,11 @@
  *              target-size, focus-ring, card-in-card
  *   WARN-ONLY: misalignment, size-weight-budget, below-fold-primary
  *
- * Phase 216 Plan 06.
+ * Phase 216 Plan 08: board-root scoping (Gap 1 fix).
+ *   - Element-scan candidate loops scope to the board root (boardRoot arg).
+ *   - Design-token reads (--sg-space-*, --sg-radius-*, --sg-control-*, --sg-color-ember*)
+ *     remain global (document.documentElement / :root) — NEVER moved under board root.
+ * // FOLLOW-UP(216): import PROBE_IDS from scripts/ci/lib/eval-probe-ids.mjs (D-12 single-source)
  */
 
 import type { Page } from '@playwright/test';
@@ -28,6 +32,9 @@ import AxeBuilder from '@axe-core/playwright';
 import type { ProbeFinding } from './bundle.ts';
 
 // ── Probe IDs (must match scripts/ci/lib/eval-probe-ids.mjs exactly) ─────────
+// FOLLOW-UP(216): import PROBE_IDS from scripts/ci/lib/eval-probe-ids.mjs (D-12 single-source)
+// CJS/ESM interop with Playwright's transform makes this non-trivial; deferring to avoid
+// entangling the D-12 fold with the board-scoping fix.
 
 export const PROBE_IDS = Object.freeze([
   'off-token-spacing',
@@ -60,9 +67,12 @@ function onScale(valuePx: number, scalePx: number[]): boolean {
  * Probe #1 (gate): flags elements whose padding is NOT on the live --sg-space-*
  * scale (±0.5px tolerance). Reads longhands (paddingTop/Right/Bottom/Left).
  * Respects data-sg-off-token-spacing-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): element-scan queries boardRoot subtree.
+ * Design-token reads (--sg-space-*) remain global (document.documentElement).
  */
-export async function probeOffTokenSpacing(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -70,10 +80,11 @@ export async function probeOffTokenSpacing(page: Page): Promise<ProbeFinding[]> 
     measured_px: number[];
     scale_px: number[];
   }> => {
+    // Design-token reads remain GLOBAL — never moved under board root.
     const root = document.documentElement;
     const rootFs = parseFloat(getComputedStyle(root).fontSize) || 16;
 
-    // Read live --sg-space-* scale
+    // Read live --sg-space-* scale from :root (global)
     const SPACE_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
     const scalePx: number[] = SPACE_STEPS.map((n) => {
       const raw = getComputedStyle(root).getPropertyValue(`--sg-space-${n}`).trim();
@@ -88,7 +99,10 @@ export async function probeOffTokenSpacing(page: Page): Promise<ProbeFinding[]> 
     const findings: ReturnType<typeof probeOffTokenSpacing extends (...a: infer _) => infer R ? () => R : never>[] = [];
     const SUPPRESS = 'data-sg-off-token-spacing-audit-only';
 
-    const candidates = document.querySelectorAll('[class*="sg-"]');
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = boardRoot.querySelectorAll('[class*="sg-"]');
     for (const el of Array.from(candidates)) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
 
@@ -122,7 +136,7 @@ export async function probeOffTokenSpacing(page: Page): Promise<ProbeFinding[]> 
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #2: misalignment ────────────────────────────────────────────────────
@@ -131,9 +145,11 @@ export async function probeOffTokenSpacing(page: Page): Promise<ProbeFinding[]> 
  * Probe #2 (warn): flags elements with 1-6px sub-pixel misalignment from their
  * nearest positioned ancestor. Warn-only per D-15 (signal moves with font metrics).
  * Respects data-sg-misalignment-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): element-scan queries boardRoot subtree.
  */
-export async function probeMisalignment(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeMisalignment(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -143,7 +159,10 @@ export async function probeMisalignment(page: Page): Promise<ProbeFinding[]> {
     const SUPPRESS = 'data-sg-misalignment-audit-only';
     const findings: ReturnType<typeof probeMisalignment extends (...a: infer _) => infer R ? () => R : never>[] = [];
 
-    const candidates = document.querySelectorAll('[class*="sg-"]');
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = boardRoot.querySelectorAll('[class*="sg-"]');
     for (const el of Array.from(candidates)) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
 
@@ -174,7 +193,7 @@ export async function probeMisalignment(page: Page): Promise<ProbeFinding[]> {
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #3: size-weight-budget ──────────────────────────────────────────────
@@ -183,9 +202,11 @@ export async function probeMisalignment(page: Page): Promise<ProbeFinding[]> {
  * Probe #3 (warn): flags surfaces with >5 distinct font-sizes or >3 distinct
  * font-weights among sg-* elements. Warn-only per D-15 (judgment-laden).
  * Respects data-sg-size-weight-budget-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): element-scan queries boardRoot subtree.
  */
-export async function probeSizeWeightBudget(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeSizeWeightBudget(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -197,7 +218,10 @@ export async function probeSizeWeightBudget(page: Page): Promise<ProbeFinding[]>
     const MAX_SIZES = 5;
     const MAX_WEIGHTS = 3;
 
-    const candidates = Array.from(document.querySelectorAll('[class*="sg-"]')).filter(
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = Array.from(boardRoot.querySelectorAll('[class*="sg-"]')).filter(
       (el) => !el.hasAttribute(SUPPRESS) && !el.closest(`[${SUPPRESS}]`),
     );
 
@@ -226,7 +250,7 @@ export async function probeSizeWeightBudget(page: Page): Promise<ProbeFinding[]>
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #4: ember-reserved-for ─────────────────────────────────────────────
@@ -235,9 +259,14 @@ export async function probeSizeWeightBudget(page: Page): Promise<ProbeFinding[]>
  * Probe #4 (gate): flags use of ember accent colors outside the reserved
  * selected/ownership context. Ember is reserved for selection/ownership; any
  * other use is off-brand. Respects data-sg-ember-reserved-for-audit-only.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): candidate element-scan queries boardRoot subtree.
+ * Reserved-context set query (EMBER_RESERVED_SELECTORS) stays document-wide — it is a
+ * containment membership test, not a finding source. Design-token reads (--sg-color-ember*)
+ * remain global (document.documentElement / :root).
  */
-export async function probeEmberReservedFor(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeEmberReservedFor(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -247,7 +276,8 @@ export async function probeEmberReservedFor(page: Page): Promise<ProbeFinding[]>
     const SUPPRESS = 'data-sg-ember-reserved-for-audit-only';
     const findings: ReturnType<typeof probeEmberReservedFor extends (...a: infer _) => infer R ? () => R : never>[] = [];
 
-    // Reserved ember contexts: selection, ownership, active-indicator
+    // Reserved ember contexts: selection, ownership, active-indicator.
+    // Query stays document-wide — reserved membership is a containment test.
     const EMBER_RESERVED_SELECTORS = [
       '[data-selected="true"]',
       '[data-owned="true"]',
@@ -262,14 +292,17 @@ export async function probeEmberReservedFor(page: Page): Promise<ProbeFinding[]>
       document.querySelectorAll(sel).forEach((el) => reservedSet.add(el));
     }
 
-    // Get the live ember color value from :root
+    // Design-token reads remain GLOBAL — never moved under board root.
     const root = document.documentElement;
     const emberColor = getComputedStyle(root).getPropertyValue('--sg-color-ember').trim();
     const emberAccent = getComputedStyle(root).getPropertyValue('--sg-color-ember-accent').trim();
 
     if (!emberColor && !emberAccent) return findings;
 
-    const candidates = document.querySelectorAll('[class*="sg-"]');
+    // Candidate element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = boardRoot.querySelectorAll('[class*="sg-"]');
     for (const el of Array.from(candidates)) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
       // Check if this element is in a reserved context
@@ -299,7 +332,7 @@ export async function probeEmberReservedFor(page: Page): Promise<ProbeFinding[]>
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #5: off-scale-radius-shadow-control ─────────────────────────────────
@@ -310,9 +343,12 @@ export async function probeEmberReservedFor(page: Page): Promise<ProbeFinding[]>
  * --sg-control-N scale. Shadow-composite is warn-only per D-15.
  * Reads four corner longhands, never shorthand.
  * Respects data-sg-off-scale-radius-shadow-control-audit-only.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): element-scan queries boardRoot subtree.
+ * Design-token reads (--sg-radius-*, --sg-control-*) remain global (document.documentElement).
  */
-export async function probeOffScaleRadiusShadowControl(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeOffScaleRadiusShadowControl(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -320,6 +356,7 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
     measured_px: number[];
     scale_px: number[];
   }> => {
+    // Design-token reads remain GLOBAL — never moved under board root.
     const root = document.documentElement;
     const rootFs = parseFloat(getComputedStyle(root).fontSize) || 16;
     const SUPPRESS = 'data-sg-off-scale-radius-shadow-control-audit-only';
@@ -330,7 +367,7 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
       return parseFloat(raw);
     };
 
-    // Read live --sg-radius-* scale (longhands by name, not shorthand)
+    // Read live --sg-radius-* scale (longhands by name, not shorthand) — GLOBAL
     const RADIUS_KEYS = ['xs', 'sm', 'md', 'lg'];
     const radiusScale: number[] = RADIUS_KEYS.map((k) => {
       const raw = getComputedStyle(root).getPropertyValue(`--sg-radius-${k}`).trim();
@@ -339,7 +376,7 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
     // Add full (999px) to scale
     radiusScale.push(999);
 
-    // Read live --sg-control-* scale
+    // Read live --sg-control-* scale — GLOBAL
     const CONTROL_KEYS = ['xs', 'sm', 'md', 'lg'];
     const controlScale: number[] = CONTROL_KEYS.map((k) => {
       const raw = getComputedStyle(root).getPropertyValue(`--sg-control-${k}`).trim();
@@ -351,7 +388,10 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
 
     const findings: ReturnType<typeof probeOffScaleRadiusShadowControl extends (...a: infer _) => infer R ? () => R : never>[] = [];
 
-    const candidates = document.querySelectorAll('[class*="sg-"]');
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = boardRoot.querySelectorAll('[class*="sg-"]');
     for (const el of Array.from(candidates)) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
 
@@ -432,7 +472,7 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #6: target-size ─────────────────────────────────────────────────────
@@ -441,14 +481,24 @@ export async function probeOffScaleRadiusShadowControl(page: Page): Promise<Prob
  * Probe #6 (gate for <24×24, warn for <44×44 advisory): uses @axe-core/playwright
  * with target-size explicitly enabled (off by default — Pitfall 1 from D-14).
  * Respects data-sg-target-size-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): AxeBuilder uses .include(boardRoot) when
+ * a board root is provided, so axe evaluates only the board subtree.
  */
 export async function probeTargetSize(
   page: Page,
+  boardRoot?: string,
 ): Promise<ProbeFinding[]> {
   // axe target-size is disabled by default and MUST be explicitly enabled
-  const results = await new AxeBuilder({ page })
-    .options({ rules: { 'target-size': { enabled: true } } })
-    .analyze();
+  const axeBuilder = new AxeBuilder({ page })
+    .options({ rules: { 'target-size': { enabled: true } } });
+
+  // Board-scope: constrain axe analysis to the board subtree (Gap 1 fix).
+  if (boardRoot) {
+    axeBuilder.include(boardRoot);
+  }
+
+  const results = await axeBuilder.analyze();
 
   const targetSizeViolations = results.violations.filter(
     (v) => v.id === 'target-size',
@@ -490,9 +540,11 @@ export async function probeTargetSize(
  * sigra_admin.css authors focus as box-shadow: var(--sg-focus-ring) — an
  * outline-only check would false-positive on every .sg-btn/chip/metric-link.
  * Respects data-sg-focus-ring-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): interactive-element scan queries boardRoot subtree.
  */
-export async function probeFocusRing(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate(async (): Promise<Array<{
+export async function probeFocusRing(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate(async (boardRootSel: string | undefined): Promise<Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -522,7 +574,10 @@ export async function probeFocusRing(page: Page): Promise<ProbeFinding[]> {
       '[role="link"]',
     ].join(',');
 
-    const candidates = Array.from(document.querySelectorAll(interactiveSelectors));
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = Array.from(boardRoot.querySelectorAll(interactiveSelectors));
 
     for (const el of candidates) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
@@ -566,7 +621,7 @@ export async function probeFocusRing(page: Page): Promise<ProbeFinding[]> {
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Probe #8: card-in-card ────────────────────────────────────────────────────
@@ -623,9 +678,15 @@ export async function probeCardInCard(
  * (documentElement.clientHeight). Warn-only per D-15 — salience judgment
  * routes to the Phase-217 panel. Uses fold line via documentElement.clientHeight.
  * Respects data-sg-below-fold-primary-audit-only suppression.
+ *
+ * Board-root scoped (Gap 1 fix, 216-08): primary-selector candidate scan queries boardRoot.
+ * Note: the fold is a viewport/page-level property (documentElement.clientHeight) — it stays
+ * global. Gallery boards are isolated gallery components, so below-fold is semantically N/A
+ * for isolated gallery-board surfaces (warn-only, D-15). This probe typically emits no
+ * findings for gallery boards; that is correct and no cross-board anchor is emitted.
  */
-export async function probeBelowFoldPrimary(page: Page): Promise<ProbeFinding[]> {
-  return page.evaluate((): Array<{
+export async function probeBelowFoldPrimary(page: Page, boardRoot?: string): Promise<ProbeFinding[]> {
+  return page.evaluate((boardRootSel: string | undefined): Array<{
     probe_class: string;
     anchor: string;
     description: string;
@@ -634,6 +695,7 @@ export async function probeBelowFoldPrimary(page: Page): Promise<ProbeFinding[]>
     fold_px: number;
   }> => {
     const SUPPRESS = 'data-sg-below-fold-primary-audit-only';
+    // Fold read stays GLOBAL — viewport property, not board property.
     const foldPx = document.documentElement.clientHeight;
     const findings: ReturnType<typeof probeBelowFoldPrimary extends (...a: infer _) => infer R ? () => R : never>[] = [];
 
@@ -644,7 +706,10 @@ export async function probeBelowFoldPrimary(page: Page): Promise<ProbeFinding[]>
       '[role="button"][data-primary]',
     ].join(',');
 
-    const candidates = document.querySelectorAll(primarySelectors);
+    // Element-scan is board-root scoped (Gap 1 fix).
+    const boardRoot = boardRootSel ? document.querySelector(boardRootSel) : document;
+    if (!boardRoot) return [];
+    const candidates = boardRoot.querySelectorAll(primarySelectors);
     for (const el of Array.from(candidates)) {
       if (el.hasAttribute(SUPPRESS) || el.closest(`[${SUPPRESS}]`)) continue;
 
@@ -670,14 +735,17 @@ export async function probeBelowFoldPrimary(page: Page): Promise<ProbeFinding[]>
     }
 
     return findings;
-  });
+  }, boardRoot);
 }
 
 // ── Run all probes ────────────────────────────────────────────────────────────
 
 export interface ProbeRunOptions {
-  /** Selector for the board/scope to restrict card-in-card probe */
+  /** Selector for the board/scope to restrict card-in-card probe and all element-scan probes */
   boardSelector?: string;
+  /** CSS selector for the board container element — all element-scan probes scope to this subtree.
+   *  e.g. '#board-mg-5'. When provided, boardSelector defaults to root for probe #8. */
+  root?: string;
 }
 
 /**
@@ -685,12 +753,18 @@ export interface ProbeRunOptions {
  * The `isGateProject` flag controls whether gate-tier findings from the
  * mobile/dark projects are promoted to gate severity (D-15: gate in chromium
  * DPR1 only; warn in mobile/dark runs).
+ *
+ * Pass `root: '#board-mg-5'` to scope all element-scan probes to the board subtree
+ * (Gap 1 fix, 216-08). Design-token reads remain global regardless of `root`.
  */
 export async function runAllProbes(
   page: Page,
-  options: { isGateProject?: boolean; boardSelector?: string } = {},
+  options: { isGateProject?: boolean; boardSelector?: string; root?: string } = {},
 ): Promise<ProbeFinding[]> {
-  const { isGateProject = true, boardSelector = '.sg-card' } = options;
+  const { isGateProject = true, root } = options;
+  // boardSelector for probe #8: default to root when provided, else fall back to '.sg-card'
+  const boardRoot = root ?? undefined;
+  const boardSelector = options.boardSelector ?? root ?? '.sg-card';
 
   const [
     spacingFindings,
@@ -703,15 +777,15 @@ export async function runAllProbes(
     cardFindings,
     belowFoldFindings,
   ] = await Promise.all([
-    probeOffTokenSpacing(page),
-    probeMisalignment(page),
-    probeSizeWeightBudget(page),
-    probeEmberReservedFor(page),
-    probeOffScaleRadiusShadowControl(page),
-    probeTargetSize(page),
-    probeFocusRing(page),
+    probeOffTokenSpacing(page, boardRoot),
+    probeMisalignment(page, boardRoot),
+    probeSizeWeightBudget(page, boardRoot),
+    probeEmberReservedFor(page, boardRoot),
+    probeOffScaleRadiusShadowControl(page, boardRoot),
+    probeTargetSize(page, boardRoot),
+    probeFocusRing(page, boardRoot),
     probeCardInCard(page, boardSelector),
-    probeBelowFoldPrimary(page),
+    probeBelowFoldPrimary(page, boardRoot),
   ]);
 
   const allFindings = [
