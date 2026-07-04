@@ -1,0 +1,61 @@
+{
+  "_comment": "Deterministic copy normalization ruleset for fix-apply.mjs (Plan 217-06, D-13).",
+  "_note": "Each rule is a text-node-only substitution. Rules that require semantic judgment are excluded — those route to the human queue (fix_class=judgment). Only mechanically-certain normalizations are listed here.",
+  "rules": [
+    {
+      "id": "sentence-case-actions",
+      "description": "Capitalize first word, lowercase rest for button/action labels (single-sentence, no proper noun).",
+      "match_pattern": "^[A-Z][A-Z ]+$",
+      "transform": "sentence_case",
+      "applies_to": ["button", "a", "[role=\"button\"]"],
+      "examples": [
+        { "before": "SAVE CHANGES", "after": "Save changes" },
+        { "before": "DELETE ACCOUNT", "after": "Delete account" }
+      ]
+    },
+    {
+      "id": "terminal-period-copy",
+      "description": "Remove terminal period from short UI labels (<=5 words, not a full sentence). Adds period to descriptive copy that is a full sentence (>5 words, ends without punctuation).",
+      "transform": "terminal_period",
+      "applies_to": ["p", "span", "label", "caption"],
+      "examples": [
+        { "before": "No results found.", "after": "No results found", "action": "remove", "word_count": 3 },
+        { "before": "Enter your email address to reset your password", "after": "Enter your email address to reset your password.", "action": "add", "word_count": 9 }
+      ]
+    },
+    {
+      "id": "title-case-headings",
+      "description": "Normalize section headings to title case (capitalize every major word, lowercase articles/prepositions of <=3 chars unless first word).",
+      "match_pattern": "^[A-Za-z ]+$",
+      "transform": "title_case",
+      "applies_to": ["h1", "h2", "h3", "h4", ".sg-section-heading", ".sg-page-title"],
+      "examples": [
+        { "before": "user sessions", "after": "User Sessions" },
+        { "before": "sign in to your account", "after": "Sign In to Your Account" }
+      ]
+    },
+    {
+      "id": "em-dash-spacing",
+      "description": "Normalize em-dash spacing to no surrounding spaces (house style: word—word, not word — word).",
+      "match_pattern": " — ",
+      "transform": "replace",
+      "replacement": "—",
+      "applies_to": ["p", "span", "li", "td"],
+      "examples": [
+        { "before": "Admin — Users", "after": "Admin—Users" }
+      ]
+    },
+    {
+      "id": "ellipsis-character",
+      "description": "Replace triple-dot with Unicode ellipsis character (house style).",
+      "match_pattern": "\\.\\.\\.",
+      "transform": "replace",
+      "replacement": "…",
+      "applies_to": ["p", "span", "button", "a"],
+      "examples": [
+        { "before": "Loading...", "after": "Loading…" }
+      ]
+    }
+  ],
+  "_judgment_boundary": "Rules above are purely mechanical. Any substitution that could alter the intended meaning, change a proper noun, or affect technical terminology routes to fix_class=judgment and is excluded from auto-apply. The apply surface is text-node-only: never modify attribute values, never modify code/pre/kbd content."
+}
