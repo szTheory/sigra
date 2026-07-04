@@ -59,3 +59,7 @@ test/example/deps/
 test/example/priv/playwright/eval/
 test/example/priv/playwright/playwright-report/
 test/example/priv/playwright/test-results/
+
+# Phase 217-06 (AUTOFIX-02): admin-autofix-loop persisted poison-set.
+# Never-retry finding_ids for the auto-fix loop; operator/nightly tool state.
+eval/autofix-state.json
