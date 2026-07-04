@@ -142,6 +142,15 @@ jobs:
         # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
         # fragments re-entering the :root block of test/example's app.css.
         run: bash scripts/ci/app-css-corruption-check.sh
+      - name: Panel forced-floor check self-test
+        # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
+        # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
+        # (no committed panel-findings.json at this phase's scope).
+        run: node scripts/ci/panel-forced-floor-check.test.mjs
+      - name: Panel CI-isolation self-test
+        # Phase 217 Plan 03 (SC-5/JUDGE-CI-01): negative-assertion proof that no workflow
+        # run: step invokes the panel or auto-fix loop orchestrators.
+        run: bash scripts/ci/panel-ci-isolation.test.sh
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
