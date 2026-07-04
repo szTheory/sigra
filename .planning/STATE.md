@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-status: completed
+current_phase: 217
+current_phase_name: adversarial-panel-auto-fix-safety-rails
+status: executing
 stopped_at: Phase 217 context gathered (assumptions mode + deep research; temperature/opus-4-8 correction folded)
-last_updated: "2026-07-04T16:43:25.520Z"
-last_activity: 2026-07-04 — 216-08/09 gap plans executed; SC-5 proven green at committed HEAD; re-verification PASS
+last_updated: "2026-07-04T17:57:32.308Z"
+last_activity: 2026-07-04
+last_activity_desc: Phase 217 execution started
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 16
+  completed_plans: 10
   percent: 20
 ---
 
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 216 — harness-foundation-award-gradient
+**Current focus:** Phase 217 — adversarial-panel-auto-fix-safety-rails
 
 ## Current Position
 
-Phase: 216 (harness-foundation-award-gradient) — COMPLETE (verified PASS 5/5)
-Plan: 9 of 9
-Status: Phase complete — next Phase 217 (Adversarial Panel + Auto-Fix Safety Rails)
-Last activity: 2026-07-04 — 216-08/09 gap plans executed; SC-5 proven green at committed HEAD; re-verification PASS
+Phase: 217 (adversarial-panel-auto-fix-safety-rails) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-07-04 — Phase 217 execution started
 
 Progress: [███░░░░░░░] 29%
 
@@ -340,7 +343,7 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-04T16:43:25.516Z
+Last session: 2026-07-04T17:57:32.303Z
 Stopped at: Phase 217 context gathered (assumptions mode + deep research; temperature/opus-4-8 correction folded)
 Resume file: .planning/phases/217-adversarial-panel-auto-fix-safety-rails/217-CONTEXT.md
 
@@ -418,3 +421,4 @@ Resume file: .planning/phases/217-adversarial-panel-auto-fix-safety-rails/217-CO
 | Phase 216-harness-foundation-award-gradient P07 | 45m | 5 tasks | 6 files |
 | Phase 216 P08 | 611 | 3 tasks | 4 files |
 | Phase 216 P09 | 95 | - tasks | - files |
+| Phase 217 P01 | 374 | 4 tasks | 7 files |
