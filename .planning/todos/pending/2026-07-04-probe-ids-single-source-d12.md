@@ -3,7 +3,7 @@ created: 2026-07-04T00:00:00.000Z
 status: pending
 title: probes.ts still duplicates PROBE_IDS instead of importing eval-probe-ids.mjs (D-12 single-source fold, deferred)
 area: testing
-resolves_phase: 217
+resolves_phase: 218
 files:
   - test/example/priv/playwright/lib/eval/probes.ts
   - scripts/ci/lib/eval-probe-ids.mjs

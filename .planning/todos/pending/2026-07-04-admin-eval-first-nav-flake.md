@@ -3,7 +3,7 @@ created: 2026-07-04T00:00:00.000Z
 status: pending
 title: admin-eval render matrix — 16 first-navigation goto flakes inflate admin_eval_render wall-clock
 area: testing
-resolves_phase: 217
+resolves_phase: 218
 files:
   - test/example/priv/playwright/tests/admin-eval.spec.ts
 source: Phase 216-09 committed-HEAD SC-5 re-verification run (orchestrator). Evidence: .planning/phases/216-harness-foundation-award-gradient/216-09-harness-evidence.log

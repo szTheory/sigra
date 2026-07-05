@@ -1,6 +1,8 @@
 ---
 created: 2026-07-04T00:00:00.000Z
-status: pending
+status: completed
+resolved_by: 217-08
+resolved: 2026-07-04
 title: LLM panel targets 216 pilot surfaces but 217 render matrix renders board-mg-* — live SC-2 blocked (gap-closure)
 area: testing
 resolves_phase: 217
