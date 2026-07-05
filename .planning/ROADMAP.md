@@ -23,7 +23,7 @@
 ### v1.44 ADMIN-UX-RATCHET (Phases 216–220) — ACTIVE
 
 - [x] **Phase 216: Harness Foundation + Award Gradient** — render substrate, evidence-integrity + stale-render guards, deterministic visual probes, award sub-score ledger extension + verify-then-climb, end-to-end on 2 pilot surfaces
-- [ ] **Phase 217: Adversarial Panel + Auto-Fix Safety Rails** — 4-lens LLM panel (3 persona/JTBD + 1 graphic-design), k=3 consensus, settled-findings suppression, findings-count-monotonic guard, fix queue, safe-class auto-apply with per-fix auto-revert
+- [x] **Phase 217: Adversarial Panel + Auto-Fix Safety Rails** — 4-lens LLM panel (3 persona/JTBD + 1 graphic-design), k=3 consensus, settled-findings suppression, findings-count-monotonic guard, fix queue, safe-class auto-apply with per-fix auto-revert (completed 2026-07-05)
 - [ ] **Phase 218: Elevation Wave + Nit Cleanup** — full loop across all 8 admin surfaces + L1/L2 component fractal; verify-then-climb each; fold in UI-01 (demo-DX nits) + UI-02 (Tasklane rebrand residuals); batched reviewable PR
 - [ ] **Phase 219: Baseline Recapture + Canary Reconciliation** — ~115 PNG baselines recaptured in-CI (ubuntu), allowlists reset to empty steady-state, snapshot-canary + generated-host parity green
 - [ ] **Phase 220: Terminal Ratification** — award sub-score cells locked forward under monotonic guard, harness runbook committed, milestone ships via PR gated on 5 required CI checks
@@ -119,7 +119,7 @@ Plans:
 - [x] 217-05-PLAN.md — LLM panel: `excerpt.mjs` + `lenses.mjs` + `judge.mjs` (k=3 quorum, content-hash skip, diff-scoped) + verdicts cache + lint (D-03/04/05/08/09/10/11; wave 2)
 - [x] 217-06-PLAN.md — Auto-fix rails: `fix-apply.mjs` (copy/token only) + `admin-autofix-loop.sh` (3 rails, git revert) + hermetic SC-4 test + `board-autofix-seed` (D-13/14/15; wave 3)
 - [x] 217-07-PLAN.md — Operator entrypoint `admin-panel.sh` (Hammer no-op) + runbook + off-CI live SC-2/SC-4 verifications (D-02; wave 4)
-- [ ] 217-08-PLAN.md — Gap-closure: align panel + render matrix on board-mg-5/9 surfaces (LOCKED Option 2) + harden/prove judge.mjs CLI bundle-wiring (new key-free `judge-cli.test.mjs`) + live SC-4 loop + operator-only TRUE-live SC-2 runbook (wave 5)
+- [x] 217-08-PLAN.md — Gap-closure: align panel + render matrix on board-mg-5/9 surfaces (LOCKED Option 2) + harden/prove judge.mjs CLI bundle-wiring (new key-free `judge-cli.test.mjs`) + live SC-4 loop + operator-only TRUE-live SC-2 runbook (wave 5)
 
 **UI hint**: yes
 
@@ -171,7 +171,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
-| 217. Adversarial Panel + Auto-Fix Safety Rails | 7/7 | Complete   | 2026-07-04 |
+| 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 0/? | Not started | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |
