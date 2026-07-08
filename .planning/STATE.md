@@ -5,15 +5,15 @@ milestone_name: ADMIN-UX-RATCHET
 current_phase: 218
 current_phase_name: elevation-wave-nit-cleanup
 status: executing
-stopped_at: Completed 218-01-PLAN.md
-last_updated: "2026-07-08T14:05:02.653Z"
+stopped_at: Completed 218-05-PLAN.md
+last_updated: "2026-07-08T14:14:31.248Z"
 last_activity: 2026-07-08
 last_activity_desc: Phase 218 execution started
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 19
+  completed_plans: 20
   percent: 40
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-07-08 — Phase 218 execution started
 
@@ -283,6 +283,8 @@ Progress: [█████████░] 88%
 - [Phase ?]: [218-01]: D-08 path: deep-equal drift check via readFileSync parse of eval-probe-ids.mjs
 - [Phase ?]: [218-01]: L3 proxy mapping: index-live=mg-1, organization=mg-7, user-sessions=mg-11, audit-index/user=mg-6, branding=mg-4
 - [Phase ?]: [218-01]: proxy:true structural skip in fix-queue-build.mjs step (j) — Plan 02 can safely run the builder
+- [Phase ?]: vt-modal authored as dialog.vt-modal with sg-*/vt-* tokens; native dialog::backdrop uses color-mix overlay; phx-hook=DialogModal preserved
+- [Phase ?]: mfa_challenge_controller.ex + mfa_challenge_html.ex confirmed dead code (router wires /users/mfa to MFAChallengeLive only); both removed
 
 ### Pending Todos
 
@@ -358,8 +360,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-08T14:04:53.070Z
-Stopped at: Completed 218-01-PLAN.md
+Last session: 2026-07-08T14:14:31.243Z
+Stopped at: Completed 218-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -445,3 +447,4 @@ Resume file: None
 | Phase 217 P07 | 3m37s | 2 tasks | 2 files |
 | Phase 218 P01 | 707s | - tasks | - files |
 | Phase 218 P04 | 235 | 2 tasks | 1 files |
+| Phase 218 P05 | 311s | 2 tasks | 5 files |
