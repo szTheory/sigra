@@ -163,6 +163,16 @@ print_status() {
   local compose_file="${SIGRA_UAT_COMPOSE_FILE:-${COMPOSE_FILE}}"
   local base="${SIGRA_EXAMPLE_URL}"
 
+  # When invoked via --status, re-probe liveness with a quick curl so a frozen
+  # SIGRA_UAT_READY flag (written at boot time) doesn't lie about a server that
+  # came up after the initial probe timed out, or that has since gone away.
+  local probe_url="${SIGRA_UAT_RAW_URL:-${base}}"
+  if curl -fsS --max-time 2 "${probe_url}" >/dev/null 2>&1; then
+    SIGRA_UAT_READY=1
+  else
+    SIGRA_UAT_READY=0
+  fi
+
   # Branch the primary-URL line on readiness so a STARTING server is never
   # advertised as live.
   local primary_line=" PRIMARY URL   ${base}"
@@ -612,6 +622,59 @@ ensure_port_free() {
   fi
 }
 
+# Reap stale UAT compose stacks that were leaked by a prior run (e.g. a tab
+# close, a Ctrl-C before down.sh, or an old invocation whose compose project
+# name changed). Mirrors the stale-build wipe precedent at sync_host_compile_env_port.
+#
+# Safety invariant: NEVER reap the project the current invocation is about to use
+# (guarded by the "!= current project" check). Opt out with SIGRA_UAT_REAP=0.
+reap_stale_uat_stacks() {
+  [[ "${SIGRA_UAT_REAP:-1}" = "1" ]] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  docker ps >/dev/null 2>&1 || return 0
+
+  # List all compose projects that carry a sigra UAT label (either the
+  # vendor-neutral dev.local.proxy-host or the legacy dev.sigra.proxy-host).
+  local stale_projects
+  stale_projects="$(docker ps -a \
+    --filter 'label=com.docker.compose.project' \
+    --filter 'label=dev.sigra.proxy-host' \
+    --format '{{.Label "com.docker.compose.project"}}' 2>/dev/null \
+    | sort -u || true)"
+
+  if [[ -z "${stale_projects}" ]]; then
+    return 0
+  fi
+
+  local reaped=0
+  while IFS= read -r project; do
+    [[ -n "${project}" ]] || continue
+    # Never touch the project we are about to start.
+    [[ "${project}" = "${SIGRA_UAT_PROJECT}" ]] && continue
+
+    # Only reap if the project has no running (Up) containers — we don't want
+    # to tear down a peer's actively-used stack.
+    local running
+    running="$(docker ps \
+      --filter "label=com.docker.compose.project=${project}" \
+      --filter 'status=running' \
+      --format '{{.Names}}' 2>/dev/null | head -1 || true)"
+    if [[ -n "${running}" ]]; then
+      continue  # project has live containers — leave it alone
+    fi
+
+    yellow "    Reaping stale UAT stack: ${project} (no running containers)"
+    docker compose -p "${project}" -f "${COMPOSE_FILE}" --profile proxy --profile private-traefik \
+      down -v --remove-orphans >/dev/null 2>&1 || \
+      docker compose -p "${project}" -f "${COMPOSE_FILE}" down -v --remove-orphans >/dev/null 2>&1 || true
+    reaped=$((reaped + 1))
+  done <<< "${stale_projects}"
+
+  if [[ "${reaped}" -gt 0 ]]; then
+    green "    Reaped ${reaped} stale UAT stack(s)."
+  fi
+}
+
 # Open the demo URL once the readiness probe has passed. Tolerant of a missing
 # opener (headless / CI) and of --no-open.
 maybe_open_browser() {
@@ -732,6 +795,22 @@ else
 fi
 SIGRA_UAT_PROXY_ENABLED=0
 
+# Post-parse validity pass: emit a warning for flags that are no-ops in the
+# resolved mode, mirroring the --proxy/--private-traefik mutual-exclusion check
+# above. These warnings are informational only — the script continues.
+#
+# --no-watch only affects shared (proxy) mode; passing it in dev/host-run mode
+# or private-traefik mode has no effect.
+if [[ "${ENABLE_WATCH}" = "0" && "${SIGRA_UAT_PROXY_MODE}" != "shared" ]]; then
+  yellow "    Note: --no-watch is ignored in ${SIGRA_UAT_PROXY_MODE} mode (only applies to the shared proxy path)."
+fi
+# --attach/--iex in private-traefik mode: the flag was parsed but ENABLE_DEV_HOST
+# was NOT implied (the `if` above guards on != "1" for private-traefik), so it
+# would be a silent no-op.
+if [[ "${ENABLE_ATTACH}" = "1" && "${SIGRA_UAT_PROXY_MODE}" = "private-traefik" ]]; then
+  yellow "    Note: --attach/--iex is ignored in private-traefik mode (use --dev for a host-run IEx shell)."
+fi
+
 cyan "==> sigra UAT environment bring-up"
 cyan "==> Compose project: ${SIGRA_UAT_PROJECT}"
 
@@ -814,7 +893,12 @@ export SIGRA_UAT_TRAEFIK_DYNAMIC_DIR
 export SIGRA_UAT_WEB_BIND="${SIGRA_UAT_WEB_BIND:-127.0.0.1}"
 export SIGRA_UAT_WEB_PORT="${SIGRA_UAT_WEB_PORT:-}"
 
-# 2. Bring up Docker services.
+# 2. Reap stale leaked UAT stacks from prior runs (before we boot our own stack).
+# This mirrors the stale-build wipe precedent and is guarded: the current project
+# is excluded so we never tear down what we're about to start.
+reap_stale_uat_stacks
+
+# 3. Bring up Docker services.
 cyan "==> Starting Postgres in Docker"
 case "${SIGRA_UAT_PROXY_MODE}" in
   private-traefik)
@@ -862,7 +946,12 @@ else
       SIGRA_UAT_MAILBOX_URL="${SIGRA_EXAMPLE_URL}/dev/mailbox"
       SIGRA_UAT_DEMO_URL="${SIGRA_EXAMPLE_URL}/demo/credentials"
       start_host_server
-      wait_for_http "${SIGRA_UAT_RAW_URL}"
+      # Use 120s for the host-run boot: a cold first-run compiles example + sigra
+      # from scratch (~70-90s) and would falsely print STARTING with the default
+      # 60s timeout. The extended budget is only for this call site; the default
+      # 60s in wait_for_http stays for the Docker probe path (which already has
+      # the container-side healthcheck as a prior gate).
+      wait_for_http "${SIGRA_UAT_RAW_URL}" 120
     fi
   fi
 fi
