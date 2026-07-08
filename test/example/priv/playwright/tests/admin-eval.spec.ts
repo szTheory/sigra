@@ -188,6 +188,18 @@ function isGateProject(testInfo: TestInfo): boolean {
 
 // ── Gallery surface×cell matrix ───────────────────────────────────────────────
 
+// L1 Component boards — single-state (no mg-N-{populated,zero,loading,error} markers).
+// Copied verbatim from admin-design.spec.ts:98-103 (D-02: MUST NOT fabricate 4 states;
+// L1 boards expose only one fixture — capture ONE cell per board with a synthetic -default state).
+const COMPONENT_BOARDS = [
+  'board-stat', 'board-stat_link', 'board-task_card', 'board-summary_chip',
+  'board-applied_chip', 'board-empty_state', 'board-page_back', 'board-scope_ribbon',
+  'board-notice',       // designated canary (D-10)
+  'board-notice_link', 'board-field_help', 'board-skeleton', 'board-audit_row',
+] as const;
+
+type ComponentBoard = (typeof COMPONENT_BOARDS)[number];
+
 // Group boards from the design gallery
 const GROUP_BOARDS = [
   'board-mg-1',
@@ -368,6 +380,28 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
         await captureSurface(page, testInfo, surface, boardId, outerHTML, theme, viewport, state);
       });
     }
+  }
+
+  // ── L1 Component boards — single-state capture (D-02) ────────────────────────
+  // L1 boards are single-fixture: capture ONE cell per board with a synthetic -default state.
+  // DO NOT fabricate populated/zero/loading/error states for L1 boards (MUST NOT from D-02).
+  // Board-scoped probes: root is '#' + boardId, matching the board-scoped dom.html capture.
+
+  for (const boardId of COMPONENT_BOARDS) {
+    test(`render bundle: ${boardId}/default`, async ({ page }, testInfo) => {
+      const theme = getTheme(testInfo);
+      const viewport = getViewport(testInfo);
+      const surface = `${boardId}-default`;
+
+      // Capture outerHTML of the board
+      const board = page.locator(`#${boardId}`);
+      await expect(board, `${boardId} should be visible`).toBeVisible();
+      const outerHTML = await board.evaluate((el) => el.outerHTML);
+
+      // L1 boards are single-state — use 'populated' as the state key for bundle schema compat
+      // (D-02: capture ONE cell, not a fabricated 4-state matrix)
+      await captureSurface(page, testInfo, surface, boardId, outerHTML, theme, viewport, 'populated');
+    });
   }
 
   // ── Seeded-defect + clean-cell assertions (Nyquist: each probe must fire) ────
