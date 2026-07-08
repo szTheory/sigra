@@ -137,10 +137,10 @@ Plans:
 **Plans**: 6 plans
 - [ ] 218-01-PLAN.md — Harness-hardening: probe-ids single-source fold (D-08) + first-nav flake fix (D-09) + full-matrix render/award ledger expansion (D-02) [wave 1, barrier]
 - [ ] 218-02-PLAN.md — L1/L2 fractal verify-then-climb (13 L1 boards + mg-1..11) + fix-queue regen (D-05) [wave 2]
-- [ ] 218-03-PLAN.md — L3 surface verify-then-climb (8 surfaces via board proxies) (D-01/D-05) [wave 2]
+- [ ] 218-03-PLAN.md — L3 surface verify-then-climb (8 surfaces via board proxies) (D-01/D-05) [wave 3]
 - [ ] 218-04-PLAN.md — UI-01: scripts/uat/up.sh demo-DX nits (D-10) [wave 1]
 - [ ] 218-05-PLAN.md — UI-02: Tasklane authed-screen vt-* residuals + new vt-modal (D-11) [wave 1]
-- [ ] 218-06-PLAN.md — Operator panel run (D-04) + earned raises + single reviewable ELEVATE-03 PR (D-12) [wave 3, autonomous:false]
+- [ ] 218-06-PLAN.md — Operator panel run (D-04) + earned raises + single reviewable ELEVATE-03 PR (D-12) [wave 4, autonomous:false]
 **UI hint**: yes
 
 ### Phase 219: Baseline Recapture + Canary Reconciliation
