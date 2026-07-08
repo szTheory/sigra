@@ -150,12 +150,17 @@ async function waitForLiveViewReady(page: Page) {
 // ── Admin registration (platform-admin+…@example.test prefix) ─────────────────
 
 async function registerUser(page: Page, email: string, password: string) {
-  await page.goto('/users/register');
+  // D-09: waitUntil:'domcontentloaded' on first-nav goto prevents the ~16min hung-on-load
+  // flake (16 first-nav failures observed in 216-09). waitForLiveViewReady gates on
+  // phx-connected + Space Grotesk ready after each goto.
+  await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   await Promise.all([
-    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+    // Lowered from 30_000 → 10_000 so a stuck first-nav fails fast into its
+    // Playwright retry instead of hanging ~16 min on a fixed per-test timeout (D-09).
+    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 10_000 }),
     page.getByRole('button', { name: /Create an account/ }).click(),
   ]);
   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
@@ -318,7 +323,9 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     const adminEmail = adminEvalEmail(testInfo);
     await registerUser(page, adminEmail, TEST_PASSWORD);
-    await page.goto('/admin/_design');
+    // D-09: waitUntil:'domcontentloaded' + explicit waitForLiveViewReady gate.
+    // Primary flake site — 16 first-nav hangs observed in 216-09 on this goto.
+    await page.goto('/admin/_design', { waitUntil: 'domcontentloaded' });
     await waitForLiveViewReady(page);
   });
 
