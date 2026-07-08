@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
 current_phase: 218
-current_phase_name: Elevation Wave + Nit Cleanup
+current_phase_name: elevation-wave-nit-cleanup
 status: executing
-stopped_at: Phase 218 context gathered (assumptions mode)
-last_updated: "2026-07-05T00:39:40.238Z"
-last_activity: 2026-07-05
-last_activity_desc: Phase 217 complete, transitioned to Phase 218
+stopped_at: Completed 218-01-PLAN.md
+last_updated: "2026-07-08T13:58:01.847Z"
+last_activity: 2026-07-08
+last_activity_desc: Phase 218 execution started
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 23
+  completed_plans: 18
   percent: 40
 ---
 
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 217 — adversarial-panel-auto-fix-safety-rails
+**Current focus:** Phase 218 — elevation-wave-nit-cleanup
 
 ## Current Position
 
-Phase: 218 — Elevation Wave + Nit Cleanup
-Plan: Not started
-Status: Executing Phase 217
-Last activity: 2026-07-05 — Phase 217 complete, transitioned to Phase 218
+Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-07-08 — Phase 218 execution started
 
 Progress: [█████████░] 88%
 
@@ -280,6 +280,9 @@ Progress: [█████████░] 88%
 - [Phase ?]: eval/autofix-state.json gitignored; admin-autofix-loop.sh never wired into CI (panel-ci-isolation proves it)
 - [Phase ?]: admin-panel.sh degrades to exit 0 on missing ANTHROPIC_API_KEY — structural JUDGE-CI-01 guarantee
 - [Phase ?]: SC-2/SC-4 live verifications deferred to human checkpoint — require real ANTHROPIC_API_KEY
+- [Phase ?]: [218-01]: D-08 path: deep-equal drift check via readFileSync parse of eval-probe-ids.mjs
+- [Phase ?]: [218-01]: L3 proxy mapping: index-live=mg-1, organization=mg-7, user-sessions=mg-11, audit-index/user=mg-6, branding=mg-4
+- [Phase ?]: [218-01]: proxy:true structural skip in fix-queue-build.mjs step (j) — Plan 02 can safely run the builder
 
 ### Pending Todos
 
@@ -355,9 +358,9 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-05T00:39:40.233Z
-Stopped at: Phase 218 context gathered (assumptions mode)
-Resume file: .planning/phases/218-elevation-wave-nit-cleanup/218-CONTEXT.md
+Last session: 2026-07-08T13:58:01.843Z
+Stopped at: Completed 218-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -440,3 +443,4 @@ Resume file: .planning/phases/218-elevation-wave-nit-cleanup/218-CONTEXT.md
 | Phase 217 P05 | 621 | 4 tasks | 8 files |
 | Phase 217 P06 | 914 | 3 tasks | 6 files |
 | Phase 217 P07 | 3m37s | 2 tasks | 2 files |
+| Phase 218 P01 | 707s | - tasks | - files |
