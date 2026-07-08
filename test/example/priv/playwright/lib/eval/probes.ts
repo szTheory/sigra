@@ -24,17 +24,25 @@
  *   - Element-scan candidate loops scope to the board root (boardRoot arg).
  *   - Design-token reads (--sg-space-*, --sg-radius-*, --sg-control-*, --sg-color-ember*)
  *     remain global (document.documentElement / :root) — NEVER moved under board root.
- * // FOLLOW-UP(216): import PROBE_IDS from scripts/ci/lib/eval-probe-ids.mjs (D-12 single-source)
+ *
+ * D-08 (Phase 218): PROBE_IDS is defined locally as a typed const array and a deep-equal
+ * self-test (probeIdsDriftCheck) verifies it matches scripts/ci/lib/eval-probe-ids.mjs at
+ * runtime. Direct import is not used because Playwright's CJS transform cannot resolve
+ * cross-tree .mjs imports (same interop class as the import.meta.url workaround in
+ * admin-eval.spec.ts). The drift check catches any divergence between the two definitions.
  */
 
 import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { ProbeFinding } from './bundle.ts';
 
-// ── Probe IDs (must match scripts/ci/lib/eval-probe-ids.mjs exactly) ─────────
-// FOLLOW-UP(216): import PROBE_IDS from scripts/ci/lib/eval-probe-ids.mjs (D-12 single-source)
-// CJS/ESM interop with Playwright's transform makes this non-trivial; deferring to avoid
-// entangling the D-12 fold with the board-scoping fix.
+// ── Probe IDs — local typed const (D-08 single-source: deep-equal drift check below) ─────────
+// The canonical source is scripts/ci/lib/eval-probe-ids.mjs. Playwright's CJS transform
+// cannot resolve cross-tree .mjs imports (same interop class as the import.meta.url workaround
+// documented in admin-eval.spec.ts), so the import is not used directly here. Instead, a
+// deep-equal self-test (probeIdsDriftCheck) fails at test-time if the two arrays diverge.
 
 export const PROBE_IDS = Object.freeze([
   'off-token-spacing',
@@ -47,6 +55,50 @@ export const PROBE_IDS = Object.freeze([
   'card-in-card',
   'below-fold-primary',
 ] as const);
+
+/**
+ * D-08 drift check: reads the canonical PROBE_IDS from scripts/ci/lib/eval-probe-ids.mjs
+ * at runtime and asserts deep equality with the local PROBE_IDS above.
+ * Call this once at module load or in a test setup; a mismatch fails loudly.
+ *
+ * Direct import of eval-probe-ids.mjs is not used because Playwright's CJS transform
+ * cannot resolve cross-tree .mjs imports (same interop class as the import.meta.url
+ * workaround documented in admin-eval.spec.ts). Instead, this function reads the source
+ * text and parses the canonical array, then deep-equals it against PROBE_IDS above.
+ */
+export function probeIdsDriftCheck(): void {
+  // Path: probes.ts is at test/example/priv/playwright/lib/eval/probes.ts
+  // eval-probe-ids.mjs is at scripts/ci/lib/eval-probe-ids.mjs
+  // From probes.ts: ../../../../../../scripts/ci/lib/eval-probe-ids.mjs
+  const probeIdsPath = join(__dirname, '..', '..', '..', '..', '..', '..', 'scripts', 'ci', 'lib', 'eval-probe-ids.mjs');
+  let canonicalIds: string[];
+  try {
+    const src = readFileSync(probeIdsPath, 'utf8');
+    // Extract the ordered array from the PROBE_IDS Object.freeze([...]) export
+    const match = src.match(/export const PROBE_IDS\s*=\s*Object\.freeze\(\[([\s\S]*?)\]\)/);
+    if (!match) throw new Error('Could not parse PROBE_IDS from eval-probe-ids.mjs');
+    canonicalIds = match[1]
+      .split(',')
+      .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+      .filter((s) => s.length > 0);
+  } catch (err) {
+    throw new Error(`probeIdsDriftCheck: could not read canonical PROBE_IDS from eval-probe-ids.mjs: ${err}`);
+  }
+
+  const localIds = [...PROBE_IDS];
+  const same =
+    canonicalIds.length === localIds.length &&
+    canonicalIds.every((id, i) => id === localIds[i]);
+
+  if (!same) {
+    throw new Error(
+      `D-08 DRIFT DETECTED: probes.ts PROBE_IDS does not match eval-probe-ids.mjs!\n` +
+      `  canonical: ${JSON.stringify(canonicalIds)}\n` +
+      `  local:     ${JSON.stringify(localIds)}\n` +
+      `Update probes.ts PROBE_IDS to match the canonical source.`,
+    );
+  }
+}
 
 export type ProbeId = (typeof PROBE_IDS)[number];
 
