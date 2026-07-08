@@ -15,7 +15,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
       Phase 17 seam `pending-invitations-section` (currently an empty-state
       card with a HEEx comment marker).
     * Row mutations (role change, remove) funnel through native `<dialog
-      class="modal">` confirmation modals. The modal stays open when the
+      class="vt-modal">` confirmation modals. The modal stays open when the
       server returns `{:error, :last_owner}` and renders an inline error above
       the form (D-20).
     * Removal relies on the Plan 01 `remove_member/2` library Multi, which
@@ -452,42 +452,44 @@ defmodule ExampleWeb.OrganizationMembersLive do
         <% end %>
       </section>
 
-      <dialog id="invite-member-modal" class="modal" phx-hook="DialogModal">
-        <div class="modal-box">
-          <h3 class="text-lg font-semibold">Invite a member</h3>
-          <p class="text-sm text-base-content/70 mt-2">
+      <dialog id="invite-member-modal" class="vt-modal" phx-hook="DialogModal">
+        <div class="vt-modal__box">
+          <h3 class="vt-modal__title">Invite a member</h3>
+          <p class="vt-modal__copy">
             Send an invitation to join {@current_scope.active_organization.name}.
             They will receive an email with a secure accept link.
           </p>
 
-          <.form for={@invite_form} phx-submit="invite_member" class="mt-4 space-y-4">
-            <label class="form-control w-full">
-              <span class="label-text">Email address</span>
+          <.form for={@invite_form} phx-submit="invite_member" class="vt-form">
+            <div>
+              <label class="label" for="invitation_email">Email address</label>
               <input
                 type="email"
+                id="invitation_email"
                 name="invitation[email]"
                 value={@invite_form[:email].value}
                 placeholder="teammate@example.com"
                 required
                 autocomplete="off"
                 phx-debounce="300"
-                class="input input-bordered w-full"
+                class="input"
               />
-            </label>
+            </div>
 
-            <label class="form-control w-full">
-              <span class="label-text">Role</span>
+            <div>
+              <label class="label" for="invitation_role">Role</label>
               <select
+                id="invitation_role"
                 name="invitation[role]"
-                class="select select-bordered w-full"
+                class="select"
               >
                 <option value="member">Member — can access the organization</option>
                 <option value="admin">Admin — can invite and manage members</option>
                 <option value="owner">Owner — full control, including deletion</option>
               </select>
-            </label>
+            </div>
 
-            <div class="modal-action">
+            <div class="vt-modal__actions">
               <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_invite">
                 Cancel
               </button>
@@ -501,22 +503,22 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </div>
           </.form>
         </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
       </dialog>
 
-      <dialog id="revoke-invitation-modal" class="modal" phx-hook="DialogModal">
-        <div class="modal-box">
-          <h3 class="text-lg font-semibold">Revoke invitation?</h3>
+      <dialog id="revoke-invitation-modal" class="vt-modal" phx-hook="DialogModal">
+        <div class="vt-modal__box">
+          <h3 class="vt-modal__title">Revoke invitation?</h3>
 
           <%= if @revoking_invitation do %>
-            <p class="text-sm mt-2">
+            <p class="vt-modal__copy">
               Revoke the invitation for <strong>{@revoking_invitation.email}</strong>? They will no longer be able to join
               <strong>{@current_scope.active_organization.name}</strong>
               with this link. You can re-invite them later.
             </p>
           <% end %>
 
-          <div class="modal-action">
+          <div class="vt-modal__actions">
             <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_revoke">
               Cancel
             </button>
@@ -531,49 +533,49 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </button>
           </div>
         </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
       </dialog>
 
-      <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
+      <dialog id="confirm-role-modal" class="vt-modal" phx-hook="DialogModal">
         <%= if match?({:role, _}, @pending_action) do %>
           <% {:role, m} = @pending_action %>
-          <div class="modal-box">
-            <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
+          <div class="vt-modal__box">
+            <h3 class="vt-modal__title">Change {m.user.email}'s role?</h3>
 
             <%= if @role_modal_error do %>
               <p class="vt-alert vt-alert--danger" role="alert">{@role_modal_error}</p>
             <% end %>
 
-            <form phx-submit="change_role" class="mt-4 space-y-4">
-              <label class="form-control w-full">
-                <span class="label-text">New role</span>
-                <select name="role" class="select select-bordered w-full">
+            <form phx-submit="change_role" class="vt-form">
+              <div>
+                <label class="label" for="change_role_select">New role</label>
+                <select id="change_role_select" name="role" class="select">
                   <option value="owner" selected={m.role == :owner}>Owner</option>
                   <option value="admin" selected={m.role == :admin}>Admin</option>
                   <option value="member" selected={m.role == :member}>Member</option>
                 </select>
-              </label>
+              </div>
 
-              <div class="modal-action">
-                <button type="submit" class="vt-btn vt-btn--primary">Change role</button>
+              <div class="vt-modal__actions">
                 <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_action">
                   Cancel
                 </button>
+                <button type="submit" class="vt-btn vt-btn--primary">Change role</button>
               </div>
             </form>
           </div>
-          <form method="dialog" class="modal-backdrop"><button>close</button></form>
+          <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
         <% end %>
       </dialog>
 
-      <dialog id="confirm-remove-modal" class="modal" phx-hook="DialogModal">
+      <dialog id="confirm-remove-modal" class="vt-modal" phx-hook="DialogModal">
         <%= if match?({:remove, _}, @pending_action) do %>
           <% {:remove, m} = @pending_action %>
-          <div class="modal-box">
-            <h3 class="text-lg font-semibold">
+          <div class="vt-modal__box">
+            <h3 class="vt-modal__title">
               Remove {m.user.email} from {@current_scope.active_organization.name}?
             </h3>
-            <p class="py-2 text-sm">
+            <p class="vt-modal__copy">
               {m.user.email} will be signed out of this organization immediately. You can re-invite them later.
             </p>
 
@@ -582,15 +584,15 @@ defmodule ExampleWeb.OrganizationMembersLive do
             <% end %>
 
             <form phx-submit="remove_member">
-              <div class="modal-action">
-                <button type="submit" class="vt-btn vt-btn--danger-solid">Remove member</button>
+              <div class="vt-modal__actions">
                 <button type="button" class="vt-btn vt-btn--ghost" phx-click="cancel_action">
                   Cancel
                 </button>
+                <button type="submit" class="vt-btn vt-btn--danger-solid">Remove member</button>
               </div>
             </form>
           </div>
-          <form method="dialog" class="modal-backdrop"><button>close</button></form>
+          <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
         <% end %>
       </dialog>
     </Layouts.app>
