@@ -72,103 +72,153 @@ defmodule ExampleWeb.MFASettingsLive do
           </div>
           <a href={~p"/app"} class="vt-btn vt-btn--ghost">Back to dashboard</a>
         </header>
-      <%= if @mfa_enabled do %>
-        <% # Surface 3: MFA Settings Card %>
-        <div class="vt-panel">
-          <div class="vt-panel__header">
-            <div>
-              <p class="vt-kicker">Two-factor authentication</p>
-              <span class="vt-status-pill vt-status-pill--ok">Enabled</span>
-            </div>
-            <button
-              phx-click="show_disable"
-              class="vt-btn vt-btn--danger"
-            >
-              Disable
-            </button>
-          </div>
-
-          <% # Backup code status (D-15) %>
-          <div>
-            <%= cond do %>
-              <% @backup_remaining == 0 -> %>
-                <div class="vt-alert vt-alert--danger">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
-                  All backup codes used. Generate new ones now.
-                </div>
-              <% @backup_remaining <= 2 -> %>
-                <div class="vt-alert vt-alert--warning">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
-                  {@backup_remaining} of 8 backup codes remaining
-                </div>
-              <% true -> %>
-                <p class="vt-copy">
-                  {@backup_remaining} of 8 backup codes remaining
-                </p>
-            <% end %>
-
-            <p>
+        <%= if @mfa_enabled do %>
+          <% # Surface 3: MFA Settings Card %>
+          <div class="vt-panel">
+            <div class="vt-panel__header">
+              <div>
+                <p class="vt-kicker">Two-factor authentication</p>
+                <span class="vt-status-pill vt-status-pill--ok">Enabled</span>
+              </div>
               <button
-                phx-click="show_regenerate"
+                phx-click="show_disable"
+                class="vt-btn vt-btn--danger"
+              >
+                Disable
+              </button>
+            </div>
+
+            <% # Backup code status (D-15) %>
+            <div>
+              <%= cond do %>
+                <% @backup_remaining == 0 -> %>
+                  <div class="vt-alert vt-alert--danger">
+                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
+                    All backup codes used. Generate new ones now.
+                  </div>
+                <% @backup_remaining <= 2 -> %>
+                  <div class="vt-alert vt-alert--warning">
+                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
+                    {@backup_remaining} of 8 backup codes remaining
+                  </div>
+                <% true -> %>
+                  <p class="vt-copy">
+                    {@backup_remaining} of 8 backup codes remaining
+                  </p>
+              <% end %>
+
+              <p>
+                <button
+                  phx-click="show_regenerate"
+                  class="vt-link"
+                >
+                  Regenerate codes
+                </button>
+              </p>
+            </div>
+
+            <% # Trust section %>
+            <div>
+              <button
+                phx-click="revoke_trust"
+                data-confirm="This will require two-factor authentication on all your browsers. Continue?"
                 class="vt-link"
               >
-                Regenerate codes
+                Revoke all trusted browsers
               </button>
-            </p>
+            </div>
           </div>
 
-          <% # Trust section %>
-          <div>
-            <button
-              phx-click="revoke_trust"
-              data-confirm="This will require two-factor authentication on all your browsers. Continue?"
-              class="vt-link"
-            >
-              Revoke all trusted browsers
-            </button>
-          </div>
-        </div>
+          <% # Surface 4: Disable Confirmation %>
+          <div :if={@show_disable} class="vt-alert vt-alert--danger">
+            <div>
+              <h3 class="vt-panel__title">Disable two-factor authentication</h3>
+              <p class="vt-copy">
+                This will remove the extra security on your account.
+                You'll need to set it up again to re-enable.
+              </p>
 
-        <% # Surface 4: Disable Confirmation %>
-        <div :if={@show_disable} class="vt-alert vt-alert--danger">
-          <div>
-            <h3 class="vt-panel__title">Disable two-factor authentication</h3>
+              <.form
+                for={@disable_form}
+                id="mfa_disable_form"
+                phx-submit="disable_mfa"
+                class="vt-form"
+              >
+                <div>
+                  <label for="disable_code" class="label">
+                    Enter your current 6-digit code or a backup code to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    id="disable_code"
+                    name="disable[code]"
+                    value={@disable_form[:code].value}
+                    inputmode="numeric"
+                    class="input"
+                    required
+                  />
+                </div>
+
+                <div class="vt-action-row">
+                  <button
+                    type="submit"
+                    class="vt-btn vt-btn--danger"
+                  >
+                    Disable two-factor authentication
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="cancel_disable"
+                    class="vt-btn vt-btn--ghost"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </.form>
+            </div>
+          </div>
+
+          <% # Regenerate codes confirmation %>
+          <div :if={@show_regenerate} class="vt-panel">
+            <div class="vt-panel__header">
+              <div>
+                <p class="vt-kicker">Backup codes</p>
+                <h3 class="vt-panel__title">Regenerate backup codes</h3>
+              </div>
+            </div>
             <p class="vt-copy">
-              This will remove the extra security on your account.
-              You'll need to set it up again to re-enable.
+              This will replace all existing backup codes. Enter your current TOTP code to confirm.
             </p>
 
             <.form
-              for={@disable_form}
-              id="mfa_disable_form"
-              phx-submit="disable_mfa"
+              for={@regenerate_form}
+              id="mfa_regenerate_form"
+              phx-submit="regenerate_codes"
               class="vt-form"
             >
               <div>
-                <label for="disable_code" class="label">
-                  Enter your current 6-digit code or a backup code to confirm:
+                <label for="regenerate_code" class="label">
+                  Current authenticator code:
                 </label>
                 <input
                   type="text"
-                  id="disable_code"
-                  name="disable[code]"
-                  value={@disable_form[:code].value}
+                  id="regenerate_code"
+                  name="regenerate[code]"
+                  value={@regenerate_form[:code].value}
                   inputmode="numeric"
+                  pattern="[0-9]*"
+                  maxlength="6"
+                  autocomplete="one-time-code"
                   class="input"
                   required
                 />
               </div>
 
               <div class="vt-action-row">
-                <button
-                  type="submit"
-                  class="vt-btn vt-btn--danger"
-                >
-                  Disable two-factor authentication
-                </button>
+                <.button class="vt-btn vt-btn--primary">Regenerate codes</.button>
                 <button
                   type="button"
-                  phx-click="cancel_disable"
+                  phx-click="cancel_regenerate"
                   class="vt-btn vt-btn--ghost"
                 >
                   Cancel
@@ -176,87 +226,37 @@ defmodule ExampleWeb.MFASettingsLive do
               </div>
             </.form>
           </div>
-        </div>
 
-        <% # Regenerate codes confirmation %>
-        <div :if={@show_regenerate} class="vt-panel">
-          <div class="vt-panel__header">
-            <div>
-              <p class="vt-kicker">Backup codes</p>
-              <h3 class="vt-panel__title">Regenerate backup codes</h3>
-            </div>
+          <% # Backup codes display (after regeneration) %>
+          <div :if={@enrollment_step == :backup_codes} class="mt-6">
+            {render_backup_codes(assigns)}
           </div>
-          <p class="vt-copy">
-            This will replace all existing backup codes. Enter your current TOTP code to confirm.
-          </p>
-
-          <.form
-            for={@regenerate_form}
-            id="mfa_regenerate_form"
-            phx-submit="regenerate_codes"
-            class="vt-form"
-          >
-            <div>
-              <label for="regenerate_code" class="label">
-                Current authenticator code:
-              </label>
-              <input
-                type="text"
-                id="regenerate_code"
-                name="regenerate[code]"
-                value={@regenerate_form[:code].value}
-                inputmode="numeric"
-                pattern="[0-9]*"
-                maxlength="6"
-                autocomplete="one-time-code"
-                class="input"
-                required
-              />
-            </div>
-
-            <div class="vt-action-row">
-              <.button class="vt-btn vt-btn--primary">Regenerate codes</.button>
-              <button
-                type="button"
-                phx-click="cancel_regenerate"
-                class="vt-btn vt-btn--ghost"
-              >
-                Cancel
-              </button>
-            </div>
-          </.form>
-        </div>
-
-        <% # Backup codes display (after regeneration) %>
-        <div :if={@enrollment_step == :backup_codes} class="mt-6">
-          {render_backup_codes(assigns)}
-        </div>
-      <% else %>
-        <% # Surface 2: TOTP Enrollment %>
-        <%= case @enrollment_step do %>
-          <% nil -> %>
-            {render_enrollment_start(assigns)}
-          <% :qr -> %>
-            {render_enrollment_qr(assigns)}
-          <% :backup_codes -> %>
-            {render_enrollment_backup_codes(assigns)}
-          <% :done -> %>
-            <div class="vt-panel">
-              <div class="vt-panel__header">
-                <div>
-                  <p class="vt-kicker">Complete</p>
-                  <h3 class="vt-panel__title">Two-factor authentication enabled</h3>
+        <% else %>
+          <% # Surface 2: TOTP Enrollment %>
+          <%= case @enrollment_step do %>
+            <% nil -> %>
+              {render_enrollment_start(assigns)}
+            <% :qr -> %>
+              {render_enrollment_qr(assigns)}
+            <% :backup_codes -> %>
+              {render_enrollment_backup_codes(assigns)}
+            <% :done -> %>
+              <div class="vt-panel">
+                <div class="vt-panel__header">
+                  <div>
+                    <p class="vt-kicker">Complete</p>
+                    <h3 class="vt-panel__title">Two-factor authentication enabled</h3>
+                  </div>
+                  <.icon name="hero-check-circle" class="h-8 w-8" style="color:var(--vt-color-ok)" />
                 </div>
-                <.icon name="hero-check-circle" class="h-8 w-8" style="color:var(--vt-color-ok)" />
+                <p class="vt-copy">
+                  Your account is now protected with an extra layer of security.
+                </p>
               </div>
-              <p class="vt-copy">
-                Your account is now protected with an extra layer of security.
-              </p>
-            </div>
+          <% end %>
         <% end %>
-      <% end %>
 
-      {render_passkeys_section(assigns)}
+        {render_passkeys_section(assigns)}
       </section>
     </Layouts.app>
     """
