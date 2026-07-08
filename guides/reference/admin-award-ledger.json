@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md. Phase 218-01 (D-02): added award cells for 6 new L3 proxy surfaces at honest A0 floor. Phase 218-02 (Task 1): re-verified L3 cells HOLD (admin source unchanged vs verified_at_sha; eval bundles at ed71e95 confirm); updated verified_at_sha to clean-tree HEAD 1f54de17. Added L1 (13 component boards) and L2 (11 mg-* boards) award cells at honest A0 floor — server not available for fresh render; rendered:false until Plan 219 (RECAP-01) re-runs eval harness at new HEAD. No award sub-score raised in Task 1 (verify-hold only). CSS-anchored token findings (13) stay operator-queue per 217 D-13.",
+  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md. Phase 218-01 (D-02): added award cells for 6 new L3 proxy surfaces at honest A0 floor. Phase 218-02 (Task 1): re-verified L3 cells HOLD (admin source unchanged vs verified_at_sha; eval bundles at ed71e95 confirm); updated verified_at_sha to clean-tree HEAD 1f54de17. Added L1 (13 component boards) and L2 (11 mg-* boards) award cells at honest A0 floor — server not available for fresh render; rendered:false until Plan 219 (RECAP-01) re-runs eval harness at new HEAD. No award sub-score raised in Task 1 (verify-hold only). CSS-anchored token findings (13) stay operator-queue per 217 D-13. Phase 218-03 (Task 1): re-verified all 8 L3 cells HOLD against their proxy board rendered output; admin source (lib/sigra/admin/**, sigra_admin.css) unchanged between 1f54de17 and clean-tree HEAD 221f5615; updated verified_at_sha to 221f5615 for all 8 L3 cells; no band correction required; no cite-and-flip found; no award sub-score raised (Task 2: raises deferred to Plan 06 — no fresh render available at current HEAD).",
   "cells": {
     "users-index-live": {
       "axes": {
@@ -10,7 +10,7 @@
         "states": "A2"
       },
       "band": "A2",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": true,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -34,7 +34,7 @@
         "states": "A1"
       },
       "band": "A1",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": true,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -57,7 +57,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -80,7 +80,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -103,7 +103,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -126,7 +126,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -149,7 +149,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -172,7 +172,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "verified_at_sha": "221f5615a828822a25b1af8865370e86909fc6c4",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
