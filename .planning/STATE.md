@@ -2,18 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 218
-current_phase_name: elevation-wave-nit-cleanup
 status: executing
-stopped_at: Completed 218-05-PLAN.md
-last_updated: "2026-07-08T14:14:31.248Z"
+stopped_at: Completed 218-02-PLAN.md
+last_updated: "2026-07-08T14:30:37.411Z"
 last_activity: 2026-07-08
-last_activity_desc: Phase 218 execution started
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 40
 ---
 
@@ -30,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
-Last activity: 2026-07-08 — Phase 218 execution started
+Last activity: 2026-07-08
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 91%
 
 ## Accumulated Context
 
@@ -285,6 +282,8 @@ Progress: [█████████░] 88%
 - [Phase ?]: [218-01]: proxy:true structural skip in fix-queue-build.mjs step (j) — Plan 02 can safely run the builder
 - [Phase ?]: vt-modal authored as dialog.vt-modal with sg-*/vt-* tokens; native dialog::backdrop uses color-mix overlay; phx-hook=DialogModal preserved
 - [Phase ?]: mfa_challenge_controller.ex + mfa_challenge_html.ex confirmed dead code (router wires /users/mfa to MFAChallengeLive only); both removed
+- [Phase ?]: [218-02]: verified_at_sha updated to 1f54de17 for all 32 cells; users-index-live A2 and user-show-live A1 HOLD (admin source unchanged since eeb6bf14)
+- [Phase ?]: [218-02]: All new L1/L2 board award cells set at A0 rendered:false — honest floor; server not available for fresh render; raises deferred to Plan 06 after Plan 219 harness re-run
 
 ### Pending Todos
 
@@ -360,8 +359,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-08T14:14:31.243Z
-Stopped at: Completed 218-05-PLAN.md
+Last session: 2026-07-08T14:30:37.407Z
+Stopped at: Completed 218-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -448,3 +447,4 @@ Resume file: None
 | Phase 218 P01 | 707s | - tasks | - files |
 | Phase 218 P04 | 235 | 2 tasks | 1 files |
 | Phase 218 P05 | 311s | 2 tasks | 5 files |
+| Phase 218 P02 | 1845s | 2 tasks | 1 files |
