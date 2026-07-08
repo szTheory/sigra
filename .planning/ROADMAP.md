@@ -137,7 +137,7 @@ Plans:
 **Plans**: 3/6 plans executed
 
 - [x] 218-01-PLAN.md — Harness-hardening: probe-ids single-source fold (D-08) + first-nav flake fix (D-09) + full-matrix render/award ledger expansion (D-02) [wave 1, barrier]
-- [ ] 218-02-PLAN.md — L1/L2 fractal verify-then-climb (13 L1 boards + mg-1..11) + fix-queue regen (D-05) [wave 2]
+- [x] 218-02-PLAN.md — L1/L2 fractal verify-then-climb (13 L1 boards + mg-1..11) + fix-queue regen (D-05) [wave 2]
 - [ ] 218-03-PLAN.md — L3 surface verify-then-climb (8 surfaces via board proxies) (D-01/D-05) [wave 3]
 - [x] 218-04-PLAN.md — UI-01: scripts/uat/up.sh demo-DX nits (D-10) [wave 1]
 - [x] 218-05-PLAN.md — UI-02: Tasklane authed-screen vt-* residuals + new vt-modal (D-11) [wave 1]
@@ -180,6 +180,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
-| 218. Elevation Wave + Nit Cleanup | 3/6 | In Progress|  |
+| 218. Elevation Wave + Nit Cleanup | 4/6 | In Progress|  |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |
