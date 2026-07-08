@@ -34,7 +34,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Broad Elevation Wave (ELEVATE) — Phase 218
 
 - [x] **ELEVATE-01**: Every one of the 8 admin/operator surfaces plus the L1/L2 component fractal is run through the full loop and verify-then-climbed — existing Tier-2 re-verified against rendered output and the award sub-score raised where earned, with each raise protected by the monotonic guard.
-- [ ] **ELEVATE-02**: The elevation wave folds in and resolves UI-01 (demo-DX polish nits) and UI-02 (Tasklane rebrand residuals) as part of the admin-adjacent cleanup.
+- [x] **ELEVATE-02**: The elevation wave folds in and resolves UI-01 (demo-DX polish nits) and UI-02 (Tasklane rebrand residuals) as part of the admin-adjacent cleanup.
 - [ ] **ELEVATE-03**: The batched elevation lands as a reviewable PR where the operator signs off only on the residual judgment calls and the proposed gradient raises (a before/after render strip + narrowed options) — not an open-ended issue hunt.
 
 ### Baseline Recapture & Reconciliation (RECAP) — Phase 219
@@ -85,7 +85,7 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | AUTOFIX-01 | 217 | Complete |
 | AUTOFIX-02 | 217 | Complete |
 | ELEVATE-01 | 218 | Complete |
-| ELEVATE-02 | 218 | Pending |
+| ELEVATE-02 | 218 | Complete |
 | ELEVATE-03 | 218 | Pending |
 | RECAP-01 | 219 | Pending |
 | RATIFY-01 | 220 | Pending |
