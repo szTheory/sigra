@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md.",
+  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md. Phase 218-01 (D-02): added award cells for 6 new L3 proxy surfaces at honest A0 floor — climbs happen in Plans 02/03/06 against fresh render evidence.",
   "cells": {
     "users-index-live": {
       "axes": {
@@ -47,6 +47,144 @@
         "probe:card-in-card",
         "probe:below-fold-primary",
         "test:admin-eval-spec-gallery-boards-mg9-mg10-mg11"
+      ]
+    },
+    "index-live": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-1"
+      ]
+    },
+    "organization": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-7"
+      ]
+    },
+    "user-sessions": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-11"
+      ]
+    },
+    "audit-index": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-6"
+      ]
+    },
+    "audit-user": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-6"
+      ]
+    },
+    "branding": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-4"
       ]
     }
   }
