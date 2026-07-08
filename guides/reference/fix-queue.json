@@ -2458,18 +2458,5 @@
       "board-mg-9-populated",
       "board-mg-9-zero"
     ]
-  },
-  {
-    "finding_id": "36fc2caca71ac73776e0b4535fd7e91c3e1a716d2268e43e8f12ba284e9a5756",
-    "surface": "board-autofix-seed",
-    "class": "off-scale-radius-shadow-control",
-    "anchor": ".sg-stack",
-    "lens": null,
-    "severity": "warn",
-    "fix_class": "token",
-    "auto_eligible": true,
-    "priority": "normal",
-    "measured_px": [12.5],
-    "scale_px": [1, 2, 3, 4, 5, 6, 7, 8, 10, 12]
   }
 ]
