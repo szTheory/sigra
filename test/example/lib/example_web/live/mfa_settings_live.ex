@@ -75,12 +75,10 @@ defmodule ExampleWeb.MFASettingsLive do
       <%= if @mfa_enabled do %>
         <% # Surface 3: MFA Settings Card %>
         <div class="vt-panel">
-          <div class="flex justify-between items-center">
+          <div class="vt-panel__header">
             <div>
-              <span class="text-sm font-semibold">Two-factor authentication</span>
-              <span class="vt-status-pill vt-status-pill--ok">
-                Enabled
-              </span>
+              <p class="vt-kicker">Two-factor authentication</p>
+              <span class="vt-status-pill vt-status-pill--ok">Enabled</span>
             </div>
             <button
               phx-click="show_disable"
@@ -91,25 +89,25 @@ defmodule ExampleWeb.MFASettingsLive do
           </div>
 
           <% # Backup code status (D-15) %>
-          <div class="mt-3">
+          <div>
             <%= cond do %>
               <% @backup_remaining == 0 -> %>
-                <div class="text-red-600 bg-red-50 p-2 rounded text-sm">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4 inline mr-1" />
+                <div class="vt-alert vt-alert--danger">
+                  <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                   All backup codes used. Generate new ones now.
                 </div>
               <% @backup_remaining <= 2 -> %>
-                <div class="text-yellow-700 bg-yellow-50 p-2 rounded text-sm">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4 inline mr-1" />
+                <div class="vt-alert vt-alert--warning">
+                  <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                   {@backup_remaining} of 8 backup codes remaining
                 </div>
               <% true -> %>
-                <p class="text-sm text-gray-500">
+                <p class="vt-copy">
                   {@backup_remaining} of 8 backup codes remaining
                 </p>
             <% end %>
 
-            <p class="mt-1">
+            <p>
               <button
                 phx-click="show_regenerate"
                 class="vt-link"
@@ -120,11 +118,11 @@ defmodule ExampleWeb.MFASettingsLive do
           </div>
 
           <% # Trust section %>
-          <div class="mt-3">
+          <div>
             <button
               phx-click="revoke_trust"
               data-confirm="This will require two-factor authentication on all your browsers. Continue?"
-              class="text-sm text-gray-500 hover:underline"
+              class="vt-link"
             >
               Revoke all trusted browsers
             </button>
@@ -133,21 +131,21 @@ defmodule ExampleWeb.MFASettingsLive do
 
         <% # Surface 4: Disable Confirmation %>
         <div :if={@show_disable} class="vt-alert vt-alert--danger">
-          <h3 class="text-sm font-semibold text-red-800">Disable two-factor authentication</h3>
-          <p class="mt-1 text-sm text-red-700">
-            This will remove the extra security on your account.
-            You'll need to set it up again to re-enable.
-          </p>
+          <div>
+            <h3 class="vt-panel__title">Disable two-factor authentication</h3>
+            <p class="vt-copy">
+              This will remove the extra security on your account.
+              You'll need to set it up again to re-enable.
+            </p>
 
-          <.form
-            for={@disable_form}
-            id="mfa_disable_form"
-            phx-submit="disable_mfa"
-            class="mt-3"
-          >
-            <div class="space-y-3">
+            <.form
+              for={@disable_form}
+              id="mfa_disable_form"
+              phx-submit="disable_mfa"
+              class="vt-form"
+            >
               <div>
-                <label for="disable_code" class="block text-sm font-semibold text-red-800">
+                <label for="disable_code" class="label">
                   Enter your current 6-digit code or a backup code to confirm:
                 </label>
                 <input
@@ -156,12 +154,12 @@ defmodule ExampleWeb.MFASettingsLive do
                   name="disable[code]"
                   value={@disable_form[:code].value}
                   inputmode="numeric"
-                  class="mt-1 block w-full rounded-lg text-base font-mono text-zinc-900 border-red-300 focus:border-red-400 focus:ring-0"
+                  class="input"
                   required
                 />
               </div>
 
-              <div class="flex items-center gap-3">
+              <div class="vt-action-row">
                 <button
                   type="submit"
                   class="vt-btn vt-btn--danger"
@@ -171,19 +169,24 @@ defmodule ExampleWeb.MFASettingsLive do
                 <button
                   type="button"
                   phx-click="cancel_disable"
-                  class="text-sm text-gray-500 hover:underline"
+                  class="vt-btn vt-btn--ghost"
                 >
                   Cancel
                 </button>
               </div>
-            </div>
-          </.form>
+            </.form>
+          </div>
         </div>
 
         <% # Regenerate codes confirmation %>
-        <div :if={@show_regenerate} class="mt-4 vt-panel">
-          <h3 class="text-sm font-semibold">Regenerate backup codes</h3>
-          <p class="mt-1 text-sm text-gray-600">
+        <div :if={@show_regenerate} class="vt-panel">
+          <div class="vt-panel__header">
+            <div>
+              <p class="vt-kicker">Backup codes</p>
+              <h3 class="vt-panel__title">Regenerate backup codes</h3>
+            </div>
+          </div>
+          <p class="vt-copy">
             This will replace all existing backup codes. Enter your current TOTP code to confirm.
           </p>
 
@@ -191,37 +194,35 @@ defmodule ExampleWeb.MFASettingsLive do
             for={@regenerate_form}
             id="mfa_regenerate_form"
             phx-submit="regenerate_codes"
-            class="mt-3"
+            class="vt-form"
           >
-            <div class="space-y-3">
-              <div>
-                <label for="regenerate_code" class="block text-sm font-semibold">
-                  Current authenticator code:
-                </label>
-                <input
-                  type="text"
-                  id="regenerate_code"
-                  name="regenerate[code]"
-                  value={@regenerate_form[:code].value}
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  maxlength="6"
-                  autocomplete="one-time-code"
-                  class="mt-1 block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
-                  required
-                />
-              </div>
+            <div>
+              <label for="regenerate_code" class="label">
+                Current authenticator code:
+              </label>
+              <input
+                type="text"
+                id="regenerate_code"
+                name="regenerate[code]"
+                value={@regenerate_form[:code].value}
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="6"
+                autocomplete="one-time-code"
+                class="input"
+                required
+              />
+            </div>
 
-              <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
-                <button
-                  type="button"
-                  phx-click="cancel_regenerate"
-                  class="text-sm text-gray-500 hover:underline"
-                >
-                  Cancel
-                </button>
-              </div>
+            <div class="vt-action-row">
+              <.button class="vt-btn vt-btn--primary">Regenerate codes</.button>
+              <button
+                type="button"
+                phx-click="cancel_regenerate"
+                class="vt-btn vt-btn--ghost"
+              >
+                Cancel
+              </button>
             </div>
           </.form>
         </div>
@@ -240,10 +241,15 @@ defmodule ExampleWeb.MFASettingsLive do
           <% :backup_codes -> %>
             {render_enrollment_backup_codes(assigns)}
           <% :done -> %>
-            <div class="text-center py-8">
-              <.icon name="hero-check-circle" class="h-12 w-12 text-green-500 mx-auto" />
-              <h3 class="mt-4 text-lg font-semibold">Two-factor authentication enabled</h3>
-              <p class="mt-2 text-sm text-gray-500">
+            <div class="vt-panel">
+              <div class="vt-panel__header">
+                <div>
+                  <p class="vt-kicker">Complete</p>
+                  <h3 class="vt-panel__title">Two-factor authentication enabled</h3>
+                </div>
+                <.icon name="hero-check-circle" class="h-8 w-8" style="color:var(--vt-color-ok)" />
+              </div>
+              <p class="vt-copy">
                 Your account is now protected with an extra layer of security.
               </p>
             </div>
@@ -258,11 +264,12 @@ defmodule ExampleWeb.MFASettingsLive do
 
   defp render_passkeys_section(assigns) do
     ~H"""
-    <section id="passkeys" class="mt-8 vt-panel">
-      <div class="flex items-start justify-between gap-4">
+    <section id="passkeys" class="vt-panel">
+      <div class="vt-panel__header">
         <div>
-          <h2 class="text-xl font-semibold">Passkeys</h2>
-          <p class="mt-1 text-sm text-gray-600">
+          <p class="vt-kicker">Sign-in security</p>
+          <h2 class="vt-panel__title">Passkeys</h2>
+          <p class="vt-copy">
             Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
           </p>
         </div>
@@ -272,7 +279,7 @@ defmodule ExampleWeb.MFASettingsLive do
           id="add-passkey-button"
           phx-click="begin_passkey_enrollment"
           disabled={@passkey_status == :enrolling}
-          class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md disabled:opacity-50"
+          class="vt-btn vt-btn--primary"
         >
           Add passkey
         </button>
@@ -294,32 +301,35 @@ defmodule ExampleWeb.MFASettingsLive do
         <input type="hidden" name="passkey[response]" id="passkey-registration-response" />
       </form>
 
-      <div :if={@passkey_notice} class="mt-4 rounded-lg border border-gray-200 bg-white p-3">
-        <p class="text-sm font-semibold text-gray-900">{@passkey_notice.title}</p>
-        <p class="mt-1 text-sm text-gray-600">{@passkey_notice.body}</p>
+      <div :if={@passkey_notice} class="vt-alert">
+        <div>
+          <p class="vt-panel__title">{@passkey_notice.title}</p>
+          <p class="vt-copy">{@passkey_notice.body}</p>
+        </div>
       </div>
 
-      <div class="mt-4">
+      <div>
         <%= if @passkeys == [] do %>
-          <div class="text-center py-8">
-            <p class="text-sm font-semibold text-gray-900">No passkeys added yet</p>
-            <p class="mt-1 text-sm text-gray-500">
+          <div class="vt-alert">
+            <p class="vt-panel__title">No passkeys added yet</p>
+            <p class="vt-copy">
               Add a passkey to sign in faster on this device and keep a backup sign-in method available.
             </p>
           </div>
         <% else %>
-          <div class="space-y-3">
+          <div>
             <div
               :for={passkey <- @passkeys}
-              class="flex items-start justify-between p-4 bg-white rounded-lg border border-gray-200"
+              class="vt-panel"
+              style="display:flex;align-items:flex-start;justify-content:space-between"
             >
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <.icon name="hero-key" class="h-4 w-4 text-gray-400" />
-                  <p class="text-sm font-semibold text-gray-900">{Auth.passkey_label(passkey)}</p>
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--sg-space-2)">
+                  <.icon name="hero-key" class="h-4 w-4" style="color:var(--vt-color-muted)" />
+                  <p class="vt-panel__title">{Auth.passkey_label(passkey)}</p>
                 </div>
 
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="vt-copy">
                   Added {relative_time(passkey.inserted_at)} &middot;
                   <%= if passkey.last_used_at do %>
                     Last used {relative_time(passkey.last_used_at)}
@@ -328,17 +338,17 @@ defmodule ExampleWeb.MFASettingsLive do
                   <% end %>
                 </p>
 
-                <div :if={@renaming_passkey_id == passkey_param_id(passkey)} class="mt-3">
+                <div :if={@renaming_passkey_id == passkey_param_id(passkey)}>
                   <.form
                     for={@rename_form}
                     phx-submit="save_passkey_name"
-                    class="flex flex-col gap-2 sm:flex-row sm:items-end"
+                    class="vt-form"
                   >
                     <input type="hidden" name="passkey[id]" value={passkey_param_id(passkey)} />
-                    <div class="flex-1">
+                    <div>
                       <label
                         for={"passkey-name-#{passkey_param_id(passkey)}"}
-                        class="block text-sm font-semibold"
+                        class="label"
                       >
                         Passkey name
                       </label>
@@ -347,20 +357,17 @@ defmodule ExampleWeb.MFASettingsLive do
                         type="text"
                         name="passkey[nickname]"
                         value={@rename_form[:nickname].value}
-                        class="mt-1 block w-full rounded-lg text-base text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
+                        class="input"
                       />
                     </div>
-                    <div class="flex gap-2">
-                      <button
-                        type="submit"
-                        class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md"
-                      >
+                    <div class="vt-action-row">
+                      <button type="submit" class="vt-btn vt-btn--primary">
                         Save name
                       </button>
                       <button
                         type="button"
                         phx-click="cancel_passkey_rename"
-                        class="text-sm text-gray-500 hover:underline"
+                        class="vt-btn vt-btn--ghost"
                       >
                         Cancel
                       </button>
@@ -370,45 +377,47 @@ defmodule ExampleWeb.MFASettingsLive do
 
                 <div
                   :if={@deleting_passkey_id == passkey_param_id(passkey)}
-                  class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3"
+                  class="vt-alert vt-alert--danger"
                 >
-                  <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
-                  <p class="mt-1 text-sm text-red-700">
-                    Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
-                  </p>
-                  <p :if={@passkey_count == 1} class="mt-2 text-sm text-red-700">
-                    You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
-                  </p>
+                  <div>
+                    <p class="vt-panel__title">Delete this passkey?</p>
+                    <p class="vt-copy">
+                      You'll still need another sign-in method before removing your last recovery option.
+                    </p>
+                    <p :if={@passkey_count == 1} class="vt-copy">
+                      You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+                    </p>
 
-                  <div class="mt-3 flex items-center gap-2">
-                    <form
-                      action={"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"}
-                      method="post"
-                    >
-                      <input
-                        type="hidden"
-                        name="_csrf_token"
-                        value={Phoenix.Controller.get_csrf_token()}
-                      />
-                      <button
-                        type="submit"
-                        class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md"
+                    <div class="vt-action-row">
+                      <form
+                        action={"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"}
+                        method="post"
                       >
-                        Delete
+                        <input
+                          type="hidden"
+                          name="_csrf_token"
+                          value={Phoenix.Controller.get_csrf_token()}
+                        />
+                        <button
+                          type="submit"
+                          class="vt-btn vt-btn--danger"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                      <button
+                        type="button"
+                        phx-click="cancel_passkey_delete"
+                        class="vt-btn vt-btn--ghost"
+                      >
+                        Cancel
                       </button>
-                    </form>
-                    <button
-                      type="button"
-                      phx-click="cancel_passkey_delete"
-                      class="text-sm text-gray-500 hover:underline"
-                    >
-                      Cancel
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="ml-4 flex shrink-0 items-center gap-2">
+              <div style="display:flex;flex-shrink:0;align-items:center;gap:var(--sg-space-2)">
                 <button
                   type="button"
                   phx-click="open_passkey_rename"
@@ -421,7 +430,7 @@ defmodule ExampleWeb.MFASettingsLive do
                   type="button"
                   phx-click="confirm_passkey_delete"
                   phx-value-id={passkey_param_id(passkey)}
-                  class="text-sm text-red-600 hover:underline"
+                  class="vt-btn vt-btn--danger"
                 >
                   Delete
                 </button>
@@ -453,20 +462,20 @@ defmodule ExampleWeb.MFASettingsLive do
 
   defp render_enrollment_qr(assigns) do
     ~H"""
-    <div>
-      <.header>
-        Two-Factor Authentication
-        <:subtitle>Add an extra layer of security to your account.</:subtitle>
-      </.header>
+    <div class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Setup</p>
+          <h2 class="vt-panel__title">Two-Factor Authentication</h2>
+          <p class="vt-copy">Add an extra layer of security to your account.</p>
+        </div>
+      </div>
 
-      <div class="mt-6 space-y-6">
+      <div>
         <% # QR Code %>
-        <div class="text-center">
-          <p class="text-sm text-gray-600 mb-4">
-            Scan this QR code with your authenticator app
-          </p>
+        <div style="text-align:center">
+          <p class="vt-copy">Scan this QR code with your authenticator app</p>
           <div
-            class="inline-block"
             role="img"
             aria-label="QR code for TOTP setup"
           >
@@ -476,14 +485,12 @@ defmodule ExampleWeb.MFASettingsLive do
 
         <% # Manual key %>
         <div>
-          <p class="text-sm text-gray-600">
-            Can't scan? Enter this key manually:
-          </p>
+          <p class="vt-copy">Can't scan? Enter this key manually:</p>
           <div
-            class="mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-center"
-            style="user-select: all"
+            class="vt-alert"
+            style="justify-content:center;user-select:all"
           >
-            <code data-testid="mfa-totp-secret" class="text-sm font-mono break-all select-all">
+            <code data-testid="mfa-totp-secret" class="vt-code">
               {@base32_secret}
             </code>
           </div>
@@ -491,18 +498,16 @@ defmodule ExampleWeb.MFASettingsLive do
 
         <% # Confirmation form %>
         <div>
-          <p class="text-sm font-semibold">
-            Enter the 6-digit code from your app to verify setup:
-          </p>
+          <p class="vt-copy">Enter the 6-digit code from your app to verify setup:</p>
 
           <.form
             for={@enroll_form}
             id="mfa_enroll_form"
             phx-change="validate_enroll"
             phx-submit="confirm_enrollment"
-            class="mt-3"
+            class="vt-form"
           >
-            <div class="space-y-4">
+            <div>
               <input
                 type="text"
                 name="enroll[code]"
@@ -513,14 +518,15 @@ defmodule ExampleWeb.MFASettingsLive do
                 autocomplete="one-time-code"
                 autofocus
                 required
-                class="block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 focus:ring-0 border-zinc-300 focus:border-zinc-400"
+                class="input"
+                style="font-variant-numeric:tabular-nums;letter-spacing:0.25em;text-align:center"
                 aria-label="6-digit verification code"
               />
-
-              <.button class="w-full">
-                Enable two-factor authentication
-              </.button>
             </div>
+
+            <.button class="vt-btn vt-btn--primary">
+              Enable two-factor authentication
+            </.button>
           </.form>
         </div>
       </div>
@@ -538,31 +544,32 @@ defmodule ExampleWeb.MFASettingsLive do
 
   defp render_backup_codes(assigns) do
     ~H"""
-    <div>
-      <.header>
-        Save your backup codes
-        <:subtitle>
-          Store these codes in a safe place. Each code can only be used once.
-        </:subtitle>
-      </.header>
+    <div class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Backup codes</p>
+          <h2 class="vt-panel__title">Save your backup codes</h2>
+          <p class="vt-copy">Store these codes in a safe place. Each code can only be used once.</p>
+        </div>
+      </div>
 
       <% # Backup code grid (D-08) %>
-      <div class="mt-4 bg-gray-50 p-4 rounded-lg">
-        <ol class="grid grid-cols-2 gap-3">
-          <li :for={code <- @backup_codes} class="text-center">
-            <code class="text-base font-mono">{code}</code>
+      <div class="vt-alert" style="display:block">
+        <ol style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sg-space-3)">
+          <li :for={code <- @backup_codes} style="text-align:center">
+            <code class="vt-code">{code}</code>
           </li>
         </ol>
       </div>
 
       <% # Action buttons %>
-      <div class="mt-4 flex gap-2">
+      <div class="vt-action-row">
         <button
           type="button"
           phx-hook="CopyBackupCodes"
           id="copy-backup-codes"
           data-codes={Enum.join(@backup_codes, "\n")}
-          class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
+          class="vt-btn vt-btn--ghost"
         >
           <.icon name="hero-clipboard-document" class="h-4 w-4" />
           <span id="copy-btn-text">Copy all</span>
@@ -572,30 +579,29 @@ defmodule ExampleWeb.MFASettingsLive do
           phx-hook="DownloadBackupCodes"
           id="download-backup-codes"
           data-codes={Enum.join(@backup_codes, "\n")}
-          class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
+          class="vt-btn vt-btn--ghost"
         >
           <.icon name="hero-arrow-down-tray" class="h-4 w-4" /> Download .txt
         </button>
       </div>
 
       <% # Acknowledgment checkbox (D-11) %>
-      <div class="mt-4">
-        <label class="flex items-center gap-2 text-sm">
+      <div>
+        <label style="display:flex;align-items:center;gap:var(--sg-space-2);font-size:var(--sg-text-sm)">
           <input
             type="checkbox"
             phx-click="toggle_acknowledge"
             checked={@codes_acknowledged}
-            class="rounded border-gray-300"
           /> I have saved these backup codes in a safe place
         </label>
       </div>
 
       <% # Done button %>
-      <div class="mt-4">
+      <div>
         <.button
           phx-click="complete_enrollment"
           disabled={!@codes_acknowledged}
-          class={"w-full #{unless @codes_acknowledged, do: "opacity-50 cursor-not-allowed"}"}
+          class="vt-btn vt-btn--primary"
         >
           Done
         </.button>
