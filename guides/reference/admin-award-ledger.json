@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md. Phase 218-01 (D-02): added award cells for 6 new L3 proxy surfaces at honest A0 floor — climbs happen in Plans 02/03/06 against fresh render evidence.",
+  "notes": "Award sub-score ledger for Sigra admin surfaces. Schema and band semantics documented in guides/reference/admin-eval-schema.md. Phase 218-01 (D-02): added award cells for 6 new L3 proxy surfaces at honest A0 floor. Phase 218-02 (Task 1): re-verified L3 cells HOLD (admin source unchanged vs verified_at_sha; eval bundles at ed71e95 confirm); updated verified_at_sha to clean-tree HEAD 1f54de17. Added L1 (13 component boards) and L2 (11 mg-* boards) award cells at honest A0 floor — server not available for fresh render; rendered:false until Plan 219 (RECAP-01) re-runs eval harness at new HEAD. No award sub-score raised in Task 1 (verify-hold only). CSS-anchored token findings (13) stay operator-queue per 217 D-13.",
   "cells": {
     "users-index-live": {
       "axes": {
@@ -10,7 +10,7 @@
         "states": "A2"
       },
       "band": "A2",
-      "verified_at_sha": "eeb6bf14f6ad1e6d4802ac56adbf852db50b533f",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": true,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -34,7 +34,7 @@
         "states": "A1"
       },
       "band": "A1",
-      "verified_at_sha": "eeb6bf14f6ad1e6d4802ac56adbf852db50b533f",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": true,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -57,7 +57,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -80,7 +80,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -103,7 +103,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -126,7 +126,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -149,7 +149,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -172,7 +172,7 @@
         "states": "A0"
       },
       "band": "A0",
-      "verified_at_sha": "0000000000000000000000000000000000000000",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
       "rendered": false,
       "evidence_ref": [
         "probe:off-token-spacing",
@@ -185,6 +185,558 @@
         "probe:card-in-card",
         "probe:below-fold-primary",
         "test:admin-eval-spec-gallery-board-mg-4"
+      ]
+    },
+    "board-mg-1": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-1"
+      ]
+    },
+    "board-mg-2": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-2"
+      ]
+    },
+    "board-mg-3": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-3"
+      ]
+    },
+    "board-mg-4": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-4"
+      ]
+    },
+    "board-mg-5": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-boards-mg2-mg5"
+      ]
+    },
+    "board-mg-6": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-6"
+      ]
+    },
+    "board-mg-7": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-7"
+      ]
+    },
+    "board-mg-8": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-mg-8"
+      ]
+    },
+    "board-mg-9": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-boards-mg9-mg10-mg11"
+      ]
+    },
+    "board-mg-10": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-boards-mg9-mg10-mg11"
+      ]
+    },
+    "board-mg-11": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-boards-mg9-mg10-mg11"
+      ]
+    },
+    "board-stat": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-stat"
+      ]
+    },
+    "board-stat_link": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-stat_link"
+      ]
+    },
+    "board-task_card": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-task_card"
+      ]
+    },
+    "board-summary_chip": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-summary_chip"
+      ]
+    },
+    "board-applied_chip": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-applied_chip"
+      ]
+    },
+    "board-empty_state": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-empty_state"
+      ]
+    },
+    "board-page_back": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-page_back"
+      ]
+    },
+    "board-scope_ribbon": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-scope_ribbon"
+      ]
+    },
+    "board-notice": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-notice"
+      ]
+    },
+    "board-notice_link": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-notice_link"
+      ]
+    },
+    "board-field_help": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-field_help"
+      ]
+    },
+    "board-skeleton": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-skeleton"
+      ]
+    },
+    "board-audit_row": {
+      "axes": {
+        "token_fidelity": "A0",
+        "rhythm": "A0",
+        "a11y_polish": "A0",
+        "states": "A0"
+      },
+      "band": "A0",
+      "verified_at_sha": "1f54de17d340947199ce0d4c81eb0885bd2037b7",
+      "rendered": false,
+      "evidence_ref": [
+        "probe:off-token-spacing",
+        "probe:misalignment",
+        "probe:size-weight-budget",
+        "probe:ember-reserved-for",
+        "probe:off-scale-radius-shadow-control",
+        "probe:target-size",
+        "probe:focus-ring",
+        "probe:card-in-card",
+        "probe:below-fold-primary",
+        "test:admin-eval-spec-gallery-board-audit_row"
       ]
     }
   }
