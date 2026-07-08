@@ -311,8 +311,23 @@ console.log(`fix-queue-build: wrote ${collapsed.length} entries to fix-queue.jso
 // Strategy:
 //   - For each cell key in admin-render-sha.json (e.g. "light-desktop-populated"),
 //     count unique open finding_ids from ALL board bundles whose cell matches that key.
-//   - Write the same count to ALL admin surfaces in admin-render-sha.json for that cell key.
+//   - Write the same count to ALL non-proxy admin surfaces for that cell key.
+//   - Surfaces marked "proxy": true are STRUCTURALLY SKIPPED — their open_findings are pinned
+//     invariants (197 light / 181 dark) that must never be overwritten by this builder.
+//     (Phase 218-01, Blocker-1 fix: the proxy pin is enforced in code, not by operator discipline)
 //   This aggregates all board findings into the admin-surface view.
+//
+// PROXY SKIP INVARIANT (D-02 / T-218-01-02):
+//   L3 proxy surfaces reuse a representative board's render_sha256 byte-identically.
+//   The panel reads only render_sha256; it never re-renders the live surface.
+//   open_findings for proxies is pinned to 197 (light-desktop cells) / 181 (dark-desktop cells)
+//   — these are the honest floor counts that will be climbed via Plans 02/03/06.
+//   Running fix-queue-build.mjs on proxy cells would clobber the pin; the structural skip
+//   prevents that without relying on the operator remembering NOT to run the builder.
+//
+// "proxy" KEY POSITION: renderSha.cells[surface].proxy is a surface-level boolean (a sibling of
+// the theme-viewport-state cell keys, NOT itself a cell object). The loop below guards against
+// treating the proxy flag as a cell when iterating cell keys.
 
 // Build: cellKey → Set<finding_id> (open, deduplicated across all board surfaces)
 const cellOpenCounts = new Map(); // cellKey → Set<finding_id>
@@ -328,14 +343,29 @@ for (const [fid, entry] of builtMap) {
 // Read and update admin-render-sha.json
 const renderSha = JSON.parse(readFileSync(RENDER_SHA_JSON, 'utf8'));
 
+let skippedProxySurfaces = 0;
+let updatedSurfaces = 0;
+
 for (const surface of Object.keys(renderSha.cells || {})) {
+  // PROXY SKIP: surfaces flagged proxy:true have pinned open_findings — never recompute them.
+  if (renderSha.cells[surface].proxy === true) {
+    skippedProxySurfaces++;
+    continue;
+  }
+
   for (const cellKey of Object.keys(renderSha.cells[surface] || {})) {
+    const cellVal = renderSha.cells[surface][cellKey];
+    // Guard: the proxy flag lives at the surface level as a non-cell key; skip non-cell values.
+    if (typeof cellVal !== 'object' || cellVal === null || !('open_findings' in cellVal)) {
+      continue;
+    }
     const openSet = cellOpenCounts.get(cellKey);
     const openCount = openSet ? openSet.size : 0;
     // Preserve render_sha256; only update open_findings
-    renderSha.cells[surface][cellKey].open_findings = openCount;
+    cellVal.open_findings = openCount;
   }
+  updatedSurfaces++;
 }
 
 writeFileSync(RENDER_SHA_JSON, JSON.stringify(renderSha, null, 2) + '\n');
-console.log(`fix-queue-build: updated open_findings in admin-render-sha.json (${Object.keys(renderSha.cells).length} surfaces)`);
+console.log(`fix-queue-build: updated open_findings in admin-render-sha.json (${updatedSurfaces} surfaces updated, ${skippedProxySurfaces} proxy surfaces structurally skipped)`);
