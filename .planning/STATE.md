@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 219
-current_phase_name: baseline-recapture-canary-reconciliation
 status: executing
-stopped_at: Completed 219-02-PLAN.md
-last_updated: "2026-07-09T21:58:43.536Z"
+stopped_at: Completed 219-05-PLAN.md
+last_updated: "2026-07-09T22:02:05.059Z"
 last_activity: 2026-07-09
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 32
-  completed_plans: 31
-  percent: 60
+  completed_plans: 32
+  percent: 80
 ---
 
 # Project State
@@ -29,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 219 (baseline-recapture-canary-reconciliation) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-07-09
 
-Progress: [██████████] 97%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -303,6 +301,8 @@ Progress: [██████████] 97%
 - [Phase 219-02]: D-03.2/D-05 checkpoint job converted from human-visual-review-only to self-gated snapshot-canary-guard.sh commit step, mirroring the design job, after impersonation-banner delete-rebirth
 - [Phase 219-02]: D-06 canary-never-allowlistable assertion checked unconditionally right after ALLOWED map population in snapshot-canary-guard.sh, independent of whether the canary changed this run
 - [Phase ?]: No file changes required for 219-04 — allowlists already at D-07 empty steady-state from 219-02/03; runtime --allow flags used for recapture, not committed entries
+- [Phase ?]: Used the existing workflow_dispatch recapture run (29051223765) as the sole authoritative source for both SC-3 halves rather than dispatching a new CI run
+- [Phase ?]: Did not rebless the install-golden fixture — job concluded success with no drift
 
 ### Pending Todos
 
@@ -378,8 +378,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T21:57:53.186Z
-Stopped at: Completed 219-02-PLAN.md
+Last session: 2026-07-09T22:02:05.055Z
+Stopped at: Completed 219-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -476,3 +476,4 @@ Resume file: None
 | Phase 219 P01 | 5min | 1 tasks | 1 files |
 | Phase 219 P02 | 4min | 3 tasks | 2 files |
 | Phase 219 P04 | 5min | 2 tasks | 0 files |
+| Phase 219 P05 | 4min | 2 tasks | 0 files |

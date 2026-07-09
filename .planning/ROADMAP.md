@@ -176,7 +176,7 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [x] 219-04-PLAN.md — Reset both allowlists to empty steady-state + canary guard clean re-run green — SC-2/D-07
-- [ ] 219-05-PLAN.md — Confirm generated-host parity (install-golden + acceptance-smoke) green — SC-3/D-08
+- [x] 219-05-PLAN.md — Confirm generated-host parity (install-golden + acceptance-smoke) green — SC-3/D-08
 
 **UI hint**: yes
 
@@ -202,5 +202,5 @@ Plans:
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
-| 219. Baseline Recapture + Canary Reconciliation | 4/5 | In Progress|  |
+| 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete   | 2026-07-09 |
 | 220. Terminal Ratification | 0/? | Not started | - |
