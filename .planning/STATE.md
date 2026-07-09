@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 219
-current_phase_name: baseline-recapture-canary-reconciliation
 status: executing
-stopped_at: Phase 219 context gathered (assumptions mode)
-last_updated: "2026-07-09T20:23:42.463Z"
+stopped_at: Completed 219-02-PLAN.md
+last_updated: "2026-07-09T20:32:13.807Z"
 last_activity: 2026-07-09
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 32
-  completed_plans: 28
+  completed_plans: 29
   percent: 60
 ---
 
@@ -29,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 219 (baseline-recapture-canary-reconciliation) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-07-09
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 91%
 
 ## Accumulated Context
 
@@ -298,6 +296,10 @@ Progress: [█████████░] 88%
 - [Phase ?]: 218-09: WR-03 uses a flash-on-miss fallback instead of a new Organizations.get_member-by-id context function, to avoid widening library surface; the by-id scoped fetch is recorded as a follow-up
 - [Phase ?]: 218-10: Ran two separate docker ps -a invocations (one per proxy-host label) combined with sort -u, mirroring the proxy_host_claimants precedent, since Docker CLI --filter ANDs multiple label filters within one query
 - [Phase 219]: Fixed the durable/recurrence-proof way (:global attr + {@rest} spread on icon/1) per D-02, instead of stripping the inline style= from the two mfa_settings_live.ex call sites.
+- [Phase 219-02]: D-04 recapture_branch relaxation checked BEFORE the refs/tags/v* case in release_ref_guard — recapture-only, tag path unchanged for every other dispatch
+- [Phase 219-02]: D-03.1 demo-showcase recapture folded into admin_checkpoint_recapture (cheapest — already boots :4000), no canary/allowlist choreography needed
+- [Phase 219-02]: D-03.2/D-05 checkpoint job converted from human-visual-review-only to self-gated snapshot-canary-guard.sh commit step, mirroring the design job, after impersonation-banner delete-rebirth
+- [Phase 219-02]: D-06 canary-never-allowlistable assertion checked unconditionally right after ALLOWED map population in snapshot-canary-guard.sh, independent of whether the canary changed this run
 
 ### Pending Todos
 
@@ -373,8 +375,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T20:22:06.304Z
-Stopped at: Phase 219 context gathered (assumptions mode)
+Last session: 2026-07-09T20:32:13.803Z
+Stopped at: Completed 219-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -469,3 +471,4 @@ Resume file: None
 | Phase 218 P09 | 12min | 3 tasks | 8 files |
 | Phase 218 P10 | 3min | 1 tasks | 1 files |
 | Phase 219 P01 | 5min | 1 tasks | 1 files |
+| Phase 219 P02 | 4min | 3 tasks | 2 files |
