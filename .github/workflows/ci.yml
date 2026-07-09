@@ -1496,8 +1496,9 @@ jobs:
           fi
           echo "ci-gate passed: all required release lanes succeeded."
 
-  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 72 admin-design
-  # baselines in-CI so the committed PNGs match what ubuntu CI renders. This job
+  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 84 admin-design
+  # baselines (28 boards × chromium/mobile/dark) in-CI so the committed PNGs match
+  # what ubuntu CI renders. This job
   # carries job-level `permissions: contents: write` (the workflow default is
   # `contents: read`, ci.yml:26) so it can commit the recaptured PNGs. It is
   # NOT in ci-gate.needs — it is a one-time recapture utility, not a PR gate.
@@ -1617,7 +1618,7 @@ jobs:
           echo "Removed board-notice PNGs:"
           ls test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/ | grep board-notice || echo "(none — deletion successful)"
       - name: Recapture admin-design baselines
-        # D-09: recapture all 72 admin-design PNGs (24 boards × chromium/mobile/dark)
+        # D-09: recapture all 84 admin-design PNGs (28 boards × chromium/mobile/dark)
         # in the ubuntu CI environment so the committed baselines match what CI renders.
         # The fonts.check hard guard in waitForLiveViewReady (197-03) ensures the font
         # is loaded before any snapshot is taken.
@@ -1905,6 +1906,18 @@ jobs:
               && echo "warmed ${path}" \
               || echo "warmup miss ${path} (non-fatal)"
           done
+      - name: Re-establish impersonation-banner canary (D-03.2 delete-rebirth)
+        # Mirrors the admin-design job's board-notice pattern (ci.yml:1614-1619).
+        # snapshot-canary-guard.sh forbids a canary *modify* but tolerates a canary
+        # *added* — delete the existing impersonation-banner PNGs BEFORE
+        # --update-snapshots so recapture creates them as newly-added files rather
+        # than modifications, letting the checkpoint job self-gate below.
+        run: |
+          echo "Removing existing impersonation-banner PNGs so recapture creates them as 'added' (not 'modified')"
+          find test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots \
+            -name 'impersonation-banner-admin-checkpoints-*.png' -delete || true
+          echo "Removed impersonation-banner PNGs:"
+          ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
         # committed baselines match what CI renders. The checkpoint lane covers
@@ -1920,26 +1933,36 @@ jobs:
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark \
             --update-snapshots
-      - name: Commit recaptured baselines to a review PR (human visual review is the gate)
-        # This job's PURPOSE is to legitimately re-baseline admin-checkpoint PNGs in the
-        # ubuntu CI environment — including the impersonation-banner canary, whose Phase
-        # 204-03 WCAG contrast fix left it `modified` vs origin/main. Running
-        # snapshot-canary-guard.sh HERE would be circular: the guard exists to forbid
-        # UNINTENDED canary drift on consuming PR lanes (fast_checks), and it classifies a
-        # tracked-at-HEAD file's recapture as `modified` (git diff --name-status compares
-        # HEAD to the final worktree and ignores any intermediate delete — WR-01), so it
-        # would fail this job on the very recapture it is meant to perform. The correct
-        # gate for an intentional re-baseline is HUMAN VISUAL REVIEW of the opened PR;
-        # the canary tripwire stays armed on fast_checks for future PRs, unchanged.
+      - name: Recapture demo-showcase baselines (D-03.1)
+        # demo-showcase (4 PNGs, chromium-only) has no dedicated recapture job; fold it
+        # into this job since it already boots the example on :4000. No canary/allowlist
+        # choreography — the lane has neither.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test tests/demo-showcase.spec.ts --project=demo-showcase-chromium --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
+        # D-05/D-06: the checkpoint job now self-gates like the design job instead of
+        # relying on human visual review — impersonation-banner PNGs were deleted before
+        # recapture so they appear as 'added' to the guard (the guard's legitimate birth
+        # path), and every other changed slug is passed via --allow so the guard's own
+        # never-allowlistable-canary assertion (D-06, snapshot-canary-guard.sh) stays the
+        # single source of truth. demo-showcase has no canary/allowlist, so its PNGs are
+        # git-added directly without going through the guard.
         # Recaptured PNGs land on a ci/recapture-admin-checkpoints-<run_id> branch;
-        # [skip ci] prevents recursive triggering.
+        # [skip ci] prevents recursive triggering. D-04: the PR targets the dispatched
+        # recapture_branch when set, else main.
         env:
           GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
         run: |
           set -euo pipefail
           SNAP_DIR="test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots"
+          DEMO_SNAP_DIR="test/example/priv/playwright/tests/demo-showcase.spec.ts-snapshots"
 
-          # Report changed slugs for the PR body / log (informational — no gate here).
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
           while IFS=$'\t' read -r status path; do
@@ -1959,20 +1982,36 @@ jobs:
           if [[ ${#seen_slugs[@]} -eq 0 ]]; then CHANGED="(none)"; else CHANGED="${!seen_slugs[*]}"; fi
           echo "Recaptured/changed slugs: ${CHANGED}"
 
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "impersonation-banner" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. impersonation-banner should appear as 'added' (deleted
+          # before recapture) which the guard tolerates.
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist \
+            --canary impersonation-banner \
+            "${allow_args[@]}"
+
           # Commit to a reviewable branch, not main.
           BRANCH="ci/recapture-admin-checkpoints-${{ github.run_id }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add "$SNAP_DIR/"
+          git add "$SNAP_DIR/" "$DEMO_SNAP_DIR/"
           if git diff --cached --quiet; then
             echo "No snapshot changes to commit -- baselines already match CI render."
           else
-            git commit -m "ci(209): recapture admin-checkpoint baselines in ubuntu CI [skip ci]"
+            git commit -m "ci(219): recapture admin-checkpoint + demo-showcase baselines in ubuntu CI [skip ci]"
             git push origin "$BRANCH"
             gh pr create \
-              --title "ci: recapture admin-checkpoint baselines in ubuntu CI (${{ github.run_id }})" \
-              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). Changed slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA; the prior baseline captured the pre-fix appearance). Merge after the automated snapshot-canary-guard scope check above." \
+              --title "ci: recapture admin-checkpoint + demo-showcase baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-checkpoint + demo-showcase baseline recapture (automated, Phase 219 D-03). Changed admin-checkpoint slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA), re-established as 'added' via delete-rebirth and guard-verified (not allowlisted). demo-showcase (4 PNGs) has no canary. Merge after reviewing the named slugs above." \
               --base "${RECAPTURE_BASE:-main}" \
               --head "$BRANCH"
           fi
