@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
+current_phase: 218
+current_phase_name: elevation-wave-nit-cleanup
 status: executing
-stopped_at: Completed 218-09-PLAN.md
-last_updated: "2026-07-09T18:14:02.421Z"
+stopped_at: Completed 218-10-PLAN.md
+last_updated: "2026-07-09T18:18:59.987Z"
 last_activity: 2026-07-09
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 27
-  completed_plans: 26
-  percent: 40
+  completed_plans: 27
+  percent: 60
 ---
 
 # Project State
@@ -27,11 +29,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-07-09
 
-Progress: [██████████] 96%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -294,6 +296,7 @@ Progress: [██████████] 96%
 - [Phase ?]: Substituted the plan's tsc --noEmit verify command with npx playwright test --list plus a path-resolution check because test/example/priv/playwright has no tsconfig.json or typescript install and no CI job runs tsc against it.
 - [Phase ?]: 218-09: WR-01/WR-02/WR-03 mirrored byte-identically into installer templates (verified via diff/grep) so generated hosts do not ship the same crash/silent-no-op bugs; WR-04/WR-07 stay example-only (templates use Tailwind/daisyUI, not vt-* tokens)
 - [Phase ?]: 218-09: WR-03 uses a flash-on-miss fallback instead of a new Organizations.get_member-by-id context function, to avoid widening library surface; the by-id scoped fetch is recorded as a follow-up
+- [Phase ?]: 218-10: Ran two separate docker ps -a invocations (one per proxy-host label) combined with sort -u, mirroring the proxy_host_claimants precedent, since Docker CLI --filter ANDs multiple label filters within one query
 
 ### Pending Todos
 
@@ -369,8 +372,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T18:14:02.418Z
-Stopped at: Completed 218-09-PLAN.md
+Last session: 2026-07-09T18:18:49.867Z
+Stopped at: Completed 218-10-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -463,3 +466,4 @@ Resume file: None
 | Phase 218 P07 | 12min | 2 tasks | 2 files |
 | Phase 218 P08 | 12min | 2 tasks | 2 files |
 | Phase 218 P09 | 12min | 3 tasks | 8 files |
+| Phase 218 P10 | 3min | 1 tasks | 1 files |
