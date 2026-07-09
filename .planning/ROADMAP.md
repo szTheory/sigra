@@ -161,11 +161,23 @@ Plans:
   3. Generated-host parity is green: install-golden byte-diff and the acceptance-smoke runtime render both pass against the post-wave codebase.
 
 **Plans**: 5 plans
+**Wave 1**
+
 - [ ] 219-01-PLAN.md — Fix the example `<.icon style=>` compile blocker (attr :rest, :global) — D-02 prerequisite
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 219-02-PLAN.md — CI recapture-trigger surgery (branch-scoped dispatch) + close 3 recapture gaps + never-allowlistable canary — D-03/D-04/D-06
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 219-03-PLAN.md — Run branch-scoped recapture, operator scope-check, land 115-PNG PR, close PR #70 — SC-1/D-01/D-05
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 219-04-PLAN.md — Reset both allowlists to empty steady-state + canary guard clean re-run green — SC-2/D-07
 - [ ] 219-05-PLAN.md — Confirm generated-host parity (install-golden + acceptance-smoke) green — SC-3/D-08
+
 **UI hint**: yes
 
 ### Phase 220: Terminal Ratification

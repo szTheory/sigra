@@ -35,8 +35,8 @@ slugs), not per-pixel eyeballing.
 
 ### A. Branch base & topology
 
-- **D-01: Phase 219 branches off `main`; PR #70 (`elevate-03-wave-v144-pr`) is stale and gets
-  closed.** `main` (HEAD `8918d897`) strictly subsumes the wave branch: both carry the same
+- **D-01:** Phase 219 branches off `main`; PR #70 (`elevate-03-wave-v144-pr`) is stale and gets
+  closed. `main` (HEAD `8918d897`) strictly subsumes the wave branch: both carry the same
   217+218 wave as parallel cherry-picks, but `main` *additionally* has the gap-closure
   (218-07…10) and the install-golden rebless `ec4dfd12` — neither is on PR #70. The icon
   blocker and all 115 baselines already live on `main`. Do NOT rebase or reconcile PR #70;
@@ -44,8 +44,8 @@ slugs), not per-pixel eyeballing.
 
 ### B. Compile-blocker prerequisite (do first)
 
-- **D-02: Fix the `<.icon style=>` compile blocker before any recapture — add `attr :rest,
-  :global` + spread `{@rest}` to the example's `icon/1`.** Empirically verified: `mix compile
+- **D-02:** Fix the `<.icon style=>` compile blocker before any recapture — add `attr :rest,
+  :global` + spread `{@rest}` to the example's `icon/1`. Empirically verified: `mix compile
   --warnings-as-errors` fails with `undefined attribute "style" for component icon/1` at
   `test/example/lib/example_web/live/mfa_settings_live.ex:250,328`; the example `icon/1`
   (`test/example/lib/example_web/components/core_components.ex:444-451`) declares only
@@ -57,8 +57,8 @@ slugs), not per-pixel eyeballing.
 
 ### C. Recapture mechanism & trigger
 
-- **D-03: Reuse the two existing ubuntu recapture jobs; add demo-showcase recapture; unify the
-  canary delete-rebirth.** `admin_design_recapture` (ci.yml:1497) and `admin_checkpoint_recapture`
+- **D-03:** Reuse the two existing ubuntu recapture jobs; add demo-showcase recapture; unify the
+  canary delete-rebirth. `admin_design_recapture` (ci.yml:1497) and `admin_checkpoint_recapture`
   (ci.yml:1798) already encode the correct amd64-native `--update-snapshots` → guard → open-PR
   flow. Three gaps to close:
   1. **demo-showcase (4 PNGs) has no recapture path** — add a single
@@ -72,9 +72,9 @@ slugs), not per-pixel eyeballing.
   3. **Correct the stale `ci.yml:1490,1611` comments** ("72 admin-design / 24 boards") → now
      84 PNGs / 28 boards × 3.
 
-- **D-04: Trigger recapture via a branch-scoped CI dispatch so amd64-native pixels land on the
+- **D-04:** Trigger recapture via a branch-scoped CI dispatch so amd64-native pixels land on the
   219 branch with all gates green BEFORE merge (OPERATOR DECISION — chosen over post-merge and
-  local-act).** Today the recapture jobs skip PRs (`push` watches only `main`) and
+  local-act). Today the recapture jobs skip PRs (`push` watches only `main`) and
   `workflow_dispatch` is blocked by `release_ref_guard` (requires a `refs/tags/v*` ref). Add a
   **small, surgical ci.yml path**: a `workflow_dispatch` input (e.g. `recapture_branch`) that
   lets the existing amd64 recapture jobs run against the 219 branch — bypassing the `v*`-tag
@@ -104,8 +104,8 @@ slugs), not per-pixel eyeballing.
 
 ### E. Allowlist reconciliation (SC-2) = two-PR choreography
 
-- **D-07: Recapture PR names changed non-canary slugs; a follow-up PR resets both allowlists to
-  empty.** Both allowlists are already comment-only (empty). The guard only *diffs* PNGs vs base
+- **D-07:** Recapture PR names changed non-canary slugs; a follow-up PR resets both allowlists to
+  empty. Both allowlists are already comment-only (empty). The guard only *diffs* PNGs vs base
   (it does not re-render), so on the recapture PR every shifted non-canary slug must be
   temporarily present (via committed allowlist entries and/or the jobs' runtime `--allow` flags)
   and both canaries delete-reborn — else `fast_checks` reds. SC-2's empty steady state is then a
