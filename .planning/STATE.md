@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 218
-current_phase_name: elevation-wave-nit-cleanup
-status: verifying
-stopped_at: "Phase 218 verified: gaps_found (8/9) + code review (1 critical, 7 warnings) folded into 218-VERIFICATION.md gaps; PR #70 open; gap-closure pending"
-last_updated: "2026-07-09T16:50:43.239Z"
+status: executing
+stopped_at: Completed 218-07-PLAN.md
+last_updated: "2026-07-09T17:54:07.246Z"
 last_activity: 2026-07-09
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 23
-  completed_plans: 23
-  percent: 60
+  completed_phases: 2
+  total_plans: 27
+  completed_plans: 24
+  percent: 40
 ---
 
 # Project State
@@ -29,11 +27,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
-Plan: 6 of 6
-Status: Phase 218 verified — gaps_found; gap-closure pending (run /gsd-plan-phase 218 --gaps)
+Plan: 2 of 10
+Status: Ready to execute
 Last activity: 2026-07-09
 
-Progress: [█████████░] 91%
+Progress: [█████████░] 89%
 
 ## Accumulated Context
 
@@ -289,6 +287,9 @@ Progress: [█████████░] 91%
 - [Phase ?]: verified_at_sha updated to 221f5615 for all 8 L3 cells; admin source unchanged between 1f54de17 and HEAD; all cells HOLD without correction
 - [Phase ?]: No L3 award sub-score raised in 218-03; all raises deferred to Plan 06 after Plan 219 delivers clean-tree HEAD eval bundles (D-05 honesty-first)
 - [Phase ?]: 218-06: Operator decision (verify-hold, 0 raises, panel deferred to Phase 219) resolved Task 1; PR #70 (elevate-03-wave-v144-pr -> main) assembled via gsd-pr-branch covering the full unshipped v1.44 elevation wave (216-218), 120 commits, 0 transient .planning leakage
+- [Phase ?]: 218-07: Systemic-parent rep selection is lowest finding_id (localeCompare-minimum), not entries[0] — removes readdirSync order dependence (CR-01)
+- [Phase ?]: 218-07: Also sorted walkFindings readdirSync walks (sha/surface/cell) as belt-and-suspenders alongside the rep fix
+- [Phase ?]: 218-07: Did NOT regenerate guides/reference/fix-queue.json — eval bundle source dir is gitignored; determinism proof is hermetic-only, forward-only fix applied at next full-harness regen (Phase 219)
 
 ### Pending Todos
 
@@ -364,8 +365,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T16:50:43.234Z
-Stopped at: Completed 218-06-PLAN.md — Phase 218 complete, PR #70 opened
+Last session: 2026-07-09T17:54:07.242Z
+Stopped at: Completed 218-07-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -455,3 +456,4 @@ Resume file: None
 | Phase 218 P02 | 1845s | 2 tasks | 1 files |
 | Phase 218 P03 | 268s | 2 tasks | 1 files |
 | Phase 218 P06 | 90min | 1 tasks | 2 files |
+| Phase 218 P07 | 12min | 2 tasks | 2 files |

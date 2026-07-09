@@ -142,7 +142,7 @@ Plans:
 - [x] 218-04-PLAN.md — UI-01: scripts/uat/up.sh demo-DX nits (D-10) [wave 1]
 - [x] 218-05-PLAN.md — UI-02: Tasklane authed-screen vt-* residuals + new vt-modal (D-11) [wave 1]
 - [x] 218-06-PLAN.md — Operator panel run (D-04) + earned raises + single reviewable ELEVATE-03 PR (D-12) [wave 4, autonomous:false]
-- [ ] 218-07-PLAN.md — Gap: CR-01 fix-queue-build.mjs deterministic systemic-rep selection + hermetic regression (ELEVATE-01) [wave 1]
+- [x] 218-07-PLAN.md — Gap: CR-01 fix-queue-build.mjs deterministic systemic-rep selection + hermetic regression (ELEVATE-01) [wave 1]
 - [ ] 218-08-PLAN.md — Gap: wire probeIdsDriftCheck + WR-06 worker-unique email + IN-01/IN-02 probe nits (ELEVATE-01) [wave 1]
 - [ ] 218-09-PLAN.md — Gap: demo LiveView crashes WR-01/02/03 (+ template mirror + golden rebless) + WR-04/WR-07 cosmetics (ELEVATE-02) [wave 1]
 - [ ] 218-10-PLAN.md — Gap: WR-05 up.sh reaper dual proxy-host label union (ELEVATE-02) [wave 1]
@@ -184,6 +184,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
-| 218. Elevation Wave + Nit Cleanup | 6/6 | Gaps found | - |
+| 218. Elevation Wave + Nit Cleanup | 7/10 | In Progress|  |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |
