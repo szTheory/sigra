@@ -2,13 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 220
-current_phase_name: Terminal Ratification
 status: executing
-stopped_at: Completed 219-05-PLAN.md
-last_updated: "2026-07-09T22:07:28.259Z"
-last_activity: 2026-07-09
-last_activity_desc: Phase 219 complete, transitioned to Phase 220
+stopped_at: Phase 220 context gathered (assumptions mode)
+last_updated: "2026-07-09T22:32:26.684Z"
+last_activity: 2026-07-09 — Phase 219 complete, transitioned to Phase 220
 progress:
   total_phases: 5
   completed_phases: 4
@@ -381,9 +378,9 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T22:02:05.055Z
-Stopped at: Completed 219-05-PLAN.md
-Resume file: None
+Last session: 2026-07-09T22:32:26.679Z
+Stopped at: Phase 220 context gathered (assumptions mode)
+Resume file: .planning/phases/220-terminal-ratification/220-CONTEXT.md
 
 ## Operator Next Steps
 
