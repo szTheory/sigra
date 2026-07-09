@@ -1,106 +1,46 @@
 ---
 phase: 218-elevation-wave-nit-cleanup
-verified: 2026-07-09T17:00:02Z
-status: gaps_found
-score: 8/9 must-haves verified
+verified: 2026-07-09T19:05:00Z
+status: passed
+score: 9/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "probes.ts drift between local PROBE_IDS and canonical eval-probe-ids.mjs is caught at test time (218-01 truth #1)"
-    status: partial
-    reason: "The probeIdsDriftCheck() self-test function is defined and correctly implemented in probes.ts, but it is never invoked anywhere in the repo (0 callers). Drift would NOT actually be caught at test time — the guard is orphaned dead code. The two arrays currently match, so there is no live inconsistency, but the promised protection is non-functional."
-    artifacts:
-      - path: "test/example/priv/playwright/lib/eval/probes.ts"
-        issue: "probeIdsDriftCheck() exported (line 69) but has zero callers; admin-eval.spec.ts imports probe fns from this module but never calls the drift check, and no beforeAll/module-load site invokes it"
-    missing:
-      - "Wire probeIdsDriftCheck() into a test — e.g. a top-level test.beforeAll or a dedicated test('probe-ids drift') in admin-eval.spec.ts — so drift actually fails the suite"
-  - truth: "fix-queue-build.mjs is a deterministic builder whose committed fix-queue.json must diff cleanly vs merge-base (218-REVIEW.md CR-01, critical)"
-    status: failed
-    reason: "The systemic-parent representative is `entries[0]` (fix-queue-build.mjs:263) drawn from unsorted readdirSync walks (lines 125/128/131). readdirSync order is filesystem-dependent, so a systemic group's rep finding_id — and thus fix-queue.json content/ordering — can differ APFS(dev) vs ext4(CI), producing spurious gate diffs."
-    artifacts:
-      - path: "scripts/ci/fix-queue-build.mjs"
-        issue: "const rep = entries[0] at :263 depends on unsorted readdir walk order (:125,:128,:131) for any systemic group with >=2 surfaces"
-    missing:
-      - "Make rep selection order-independent: const rep = entries.slice().sort((a,b)=>a.finding_id.localeCompare(b.finding_id))[0]; (and/or .sort() each readdirSync in walkFindings). Re-run scripts/ci/fix-queue-build.test.mjs (must stay 28/28)."
-  - truth: "MFA enrollment confirm handler survives DB/transaction errors without crashing (218-REVIEW.md WR-01)"
-    status: failed
-    reason: "do_confirm_enrollment/2 (mfa_settings_live.ex:955-979) case handles only {:ok,...} and {:error,:invalid_code}, but Sigra.MFA.confirm_enrollment (lib/sigra/mfa.ex:277-300) also returns {:error, changeset}/{:error, _reason} on write failure → CaseClauseError crashes the LiveView on a 6-digit keystroke."
-    artifacts:
-      - path: "test/example/lib/example_web/live/mfa_settings_live.ex"
-        issue: "non-exhaustive case at :955-979 crashes on unhandled error tuples"
-    missing:
-      - "Add a {:error, _reason} fallthrough clause that flashes a retry message and resets the enroll form (snippet in 218-REVIEW.md WR-01)."
-  - truth: "change_role/remove_member LiveView events cannot be crashed by a client sending them when pending_action is nil (218-REVIEW.md WR-02)"
-    status: failed
-    reason: "Both handlers hard-destructure {:role,member}=/{:remove,member}=socket.assigns.pending_action (organization_members_live.ex:134,:301); pending_action defaults nil, so a direct/raced websocket event raises MatchError and crashes the LiveView (not a security breach — mutations stay scope-checked)."
-    artifacts:
-      - path: "test/example/lib/example_web/live/organization_members_live.ex"
-        issue: "hard pattern-match on pending_action at :134 and :301"
-    missing:
-      - "Guard both handlers via a matching function head (%{assigns: %{pending_action: {:role,member}}}) + a catch-all no-op head (snippet in 218-REVIEW.md WR-02)."
-  - truth: "Role/remove actions resolve the clicked member reliably regardless of org size (218-REVIEW.md WR-03)"
-    status: failed
-    reason: "find_streamed_member/2 (organization_members_live.ex:625-636) refetches list_members_with_activity(limit: 1_000) and Enum.finds; orgs with >1000 members can stream rows past index 1000 that this never finds → open_*_modal returns socket unchanged and Change-role/Remove silently no-op."
-    artifacts:
-      - path: "test/example/lib/example_web/live/organization_members_live.ex"
-        issue: "capped list scan at :625-636 silently misses members beyond 1000"
-    missing:
-      - "Fetch the single member by id (scoped by organization_id + membership id) instead of scanning a capped list, or at minimum flash/raise on a lookup miss so it is not silent."
-  - truth: "MFA enabled success icon renders in the intended positive tone (218-REVIEW.md WR-04)"
-    status: failed
-    reason: "mfa_settings_live.ex:250 uses style=color:var(--vt-color-ok), an undefined custom property (app.css defines --vt-color-caution/danger/primary but no --vt-color-ok) → drops to currentColor, wrong color. The positive status pill uses --vt-color-primary."
-    artifacts:
-      - path: "test/example/lib/example_web/live/mfa_settings_live.ex"
-        issue: "undefined --vt-color-ok at :250"
-    missing:
-      - "Use var(--vt-color-primary) (or add a --vt-color-ok token to :root + dark block in app.css)."
-  - truth: "up.sh stale-stack reaper covers both proxy-host labels its comment claims (218-REVIEW.md WR-05)"
-    status: failed
-    reason: "up.sh:638-643 filters only label=dev.sigra.proxy-host though the comment claims it also covers the vendor-neutral dev.local.proxy-host; a stack labeled only dev.local.proxy-host leaks until manual down.sh."
-    artifacts:
-      - path: "scripts/uat/up.sh"
-        issue: "single-label docker ps filter at :638-643 contradicts its comment"
-    missing:
-      - "Query both labels and sort -u (mirroring proxy_host_claimants), or drop the vendor-neutral claim from the comment (snippet in 218-REVIEW.md WR-05)."
-  - truth: "adminEvalEmail is unique across parallel Playwright workers (218-REVIEW.md WR-06)"
-    status: failed
-    reason: "admin-eval.spec.ts:169-180 builds email from ms+project+registrationSequence(+retry); registrationSequence resets to 1 per worker and project is identical per project, so two workers can emit the same email (same ms, seq 1, retry 0) → duplicate-registration assertion flake."
-    artifacts:
-      - path: "test/example/priv/playwright/tests/admin-eval.spec.ts"
-        issue: "worker-colliding email at :169-180"
-    missing:
-      - "Add worker-unique entropy (process.env.TEST_WORKER_INDEX / testInfo.workerIndex and/or a random suffix) to the local part."
-  - truth: "vt-modal backdrop-close affordance matches its implementation (218-REVIEW.md WR-07)"
-    status: failed
-    reason: "app.css:2841-2843 sets .vt-modal__backdrop{display:none} while each dialog renders a <form class=vt-modal__backdrop> whose comment says it covers the backdrop — it covers nothing and can never be clicked; click-outside-close does not exist. Comment or implementation is wrong."
-    artifacts:
-      - path: "test/example/priv/static/assets/css/app.css"
-        issue: "dead display:none backdrop form at :2841-2843 (used in organization_members_live.ex:506,536,567,595)"
-    missing:
-      - "Either implement click-outside-close (DialogModal hook or a real overlay) and drop the dead form, or remove the vestigial form and correct the comment."
-  - truth: "Probe helpers are free of misleading dead fallbacks / doc-behavior drift (218-REVIEW.md IN-01, IN-02 — info-level, optional)"
-    status: partial
-    reason: "IN-01: probes.ts:493 `parseFloat(cs.minHeight || cs.height)` — minHeight resolves to '0px' (truthy) so the height fallback is dead. IN-02: probes.ts:196-198 docstring says '1-6px misalignment' but :222-227 flags any fractional offset in (0.05,0.95). Neither affects a ROADMAP success criterion."
-    artifacts:
-      - path: "test/example/priv/playwright/lib/eval/probes.ts"
-        issue: "IN-01 dead height fallback (:493); IN-02 doc/behavior mismatch (:196-198 vs :222-227)"
-    missing:
-      - "Optional: numeric-guard the control-height fallback (mh>0?mh:height) and align probe #2 docstring with the actual fractional heuristic."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 8/9
+  gaps_closed:
+    - "218-01 #1 / drift guard: probeIdsDriftCheck() now invoked from a top-level test.beforeAll in admin-eval.spec.ts (was orphaned dead code) — throws on PROBE_IDS drift"
+    - "CR-01: fix-queue-build.mjs systemic-parent rep is now the lowest finding_id (localeCompare over a copied array), and all three readdirSync walks are .sort()-ed — filesystem-order independent"
+    - "WR-01: do_confirm_enrollment/2 has a {:error, _reason} fallthrough after {:error, :invalid_code} (example + installer template + golden fixture)"
+    - "WR-02: change_role/remove_member guarded via %{pending_action: {:role|:remove, member}} function heads + catch-all no-op heads (example + template + golden)"
+    - "WR-03: open_role_modal/open_remove_modal flash 'That member could not be found' on lookup miss (example + template + golden)"
+    - "WR-04: MFA enabled icon uses var(--vt-color-primary) (defined) instead of undefined --vt-color-ok (example only; template keeps text-green-500)"
+    - "WR-05: reap_stale_uat_stacks unions dev.sigra.proxy-host AND dev.local.proxy-host via two docker ps -a legs + sort -u; safety guards preserved"
+    - "WR-06: adminEvalEmail() adds worker-unique entropy (testInfo.workerIndex + random suffix) to the local-part"
+    - "WR-07: four dead <form class=vt-modal__backdrop> sites removed; app.css comment corrected (no longer claims click-outside-close)"
+    - "IN-01: probes.ts control-height fallback numeric-guarded (mh > 0 ? mh : parseFloat(cs.height))"
+    - "IN-02: probe #2 docstring/comment reworded to the actual fractional-offset (0.05,0.95) heuristic"
+  gaps_remaining: []
+  regressions: []
 deferred:
   - truth: "Fresh clean-tree HEAD render bundles + LLM panel run over the full 32-cell matrix (218-06 truth #1)"
     addressed_in: "Phase 219"
-    evidence: "Operator decision (verify-hold, 0 raises, defer panel to Phase 219/RECAP-01 when clean-tree HEAD bundles land); Phase 219 goal: '~115 PNG baselines recaptured in-CI'. Documented in 218-06-SUMMARY.md Task 1 + decisions."
+    evidence: "Operator verify-hold decision (0 raises, defer panel to Phase 219/RECAP-01 when clean-tree HEAD bundles land); Phase 219 goal recaptures ~115 baselines in-CI. Documented in 218-06-SUMMARY.md."
   - truth: "13 L1 component boards captured to eval bundles (award cells sit at A0/rendered:false honest floor)"
     addressed_in: "Phase 219"
     evidence: "218-06-SUMMARY flags the new-board baseline gap for Phase 219; ledger cells honestly floored at A0 rendered:false per D-05 honesty-first, raises deferred."
 ---
 
-# Phase 218: Elevation Wave + Nit Cleanup Verification Report
+# Phase 218: Elevation Wave + Nit Cleanup Verification Report (Re-verification)
 
 **Phase Goal:** Every admin surface and the L1/L2 component fractal runs through the full harness loop, existing Tier-2 claims are re-verified and award sub-scores raised where earned, UI-01 and UI-02 nits are folded in, and the result lands as a single reviewable PR where the operator signs off only on residual judgment calls and gradient raises — not an open-ended issue hunt.
-**Verified:** 2026-07-09T17:00:02Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-09T19:05:00Z
+**Status:** passed
+**Re-verification:** Yes — after gap closure (218-07 CR-01, 218-08 drift-guard/WR-06/IN-01/02, 218-09 WR-01/02/03/04/07, 218-10 WR-05)
+
+## Re-verification Summary
+
+The prior verification was `gaps_found` (8/9) with one genuine gap — the orphaned `probeIdsDriftCheck()` — plus the folded-in code-review findings (1 critical CR-01, 7 warnings WR-01..07, 2 info IN-01/02). All were routed to gap-closure plans 218-07..10, which have now completed. **Every gap is closed in the codebase (verified by direct source inspection, not SUMMARY claims), all deterministic gates pass when run independently here, and no new gaps or regressions were introduced.** The two deferred items remain operator-approved deferrals to Phase 219 and are not gaps.
 
 ## Goal Achievement
 
@@ -108,93 +48,99 @@ deferred:
 
 | #   | Truth (source) | Status | Evidence |
 | --- | -------------- | ------ | -------- |
-| 1 | SC1: All 8 L3 surfaces + L1/L2 fractal in the harness matrix, verify-then-climbed, each raise guarded by monotonic guard | ✓ VERIFIED | `admin-render-sha.json` holds 65 render cells (44 L2 = 11×4 states, 13 L1 boards, 8 L3 proxies); `admin-award-ledger.json` holds all 32 award cells (11 L2 + 13 L1 + 8 L3); `award-guard.mjs` PASS (32 cells), `quality-findings-monotonic.sh` PASS (186 cells). Verify-hold applied (30 cells honest-floored A0/rendered:false, 2 pilots A2/rendered:true, band=min(axes)). |
-| 2 | SC2: UI-01 (demo-DX nits) + UI-02 (Tasklane rebrand residuals) resolved, no outstanding carry-forward items | ✓ VERIFIED | Both todos in `.planning/todos/resolved/`; neither in `pending/`. up.sh fixes present (re-probe, 120s host-run, reap, flag-inert warn); mfa_settings_live.ex has 29 vt-panel/vt-form uses, 0 daisy residuals; organization_members_live.ex uses vt-modal with DialogModal hook preserved; dead mfa_challenge_controller/html removed. |
-| 3 | SC3: Batched reviewable PR with before/after strip + narrowed options per judgment call | ✓ VERIFIED | PR #70 OPEN (elevate-03-wave-v144-pr → main, 100+ commits); title "ELEVATE-03..."; SUMMARY documents narrowed option sets A/B/C and read-only before/after strip refs (no PNG recapture). |
-| 4 | 218-01 #1: probes.ts drift caught at test time via self-test | ✗ FAILED | `probeIdsDriftCheck()` defined+correct in probes.ts:69 but ZERO callers repo-wide; never wired into any spec/beforeAll. Guard is orphaned — drift would not actually be caught. (Arrays currently match, so no live harm.) |
-| 5 | 218-01 #2: admin-eval.spec.ts renders 13 L1 COMPONENT_BOARDS single-state | ✓ VERIFIED | spec has `for (const boardId of COMPONENT_BOARDS)` loop (line 390) creating one `render bundle: ${boardId}/default` test per board; no fabricated 4-state matrix. (Bundle execution deferred to 219 — see deferred.) |
-| 6 | 218-01 #3: first-nav flake fix (domcontentloaded + waitForLiveViewReady) | ✓ VERIFIED | spec line 156/340: `page.goto(..., { waitUntil: 'domcontentloaded' })` + `waitForLiveViewReady(page)` on first-nav gotos (D-09). |
-| 7 | 218-01 #4 / 218-02 / 218-03: full 32-cell matrix; fix-queue proxy-skip pins L3 at 197 | ✓ VERIFIED | 32 award cells + 65 render cells confirmed; `fix-queue-build.mjs` line 351 structurally skips `proxy === true` surfaces; all 8 L3 proxies pinned open_findings=197. |
-| 8 | 218-04 / 218-05 nit truths (up.sh DX + vt-modal restyle) | ✓ VERIFIED | up.sh: print_status re-probe curl -fsS --max-time 2 (170), host-run wait_for_http 120s (954), reap_stale_uat_stacks (631), flag-inert warn (805). vt-modal defined in app.css (2791); LiveView restyles present. |
-| 9 | 218-06 #1: LLM panel run over full matrix | ✓ VERIFIED (deferred by operator) | Intentionally deferred to Phase 219 by explicit operator verify-hold decision (0 raises); documented in 218-06-SUMMARY decisions + Task 1. No fresh HEAD bundles exist; lib/sigra/admin/** + sigra_admin.css byte-identical since ed71e95, so a panel run would surface nothing new. Per established facts, NOT a gap. |
+| 1 | SC1: 8 L3 surfaces + L1/L2 fractal in harness matrix, verify-then-climbed under monotonic guard | ✓ VERIFIED | award-guard PASS (32 cells) + quality-findings-monotonic PASS (186 cells), both run here; ledger/render-sha unchanged since original verification |
+| 2 | SC2: UI-01 + UI-02 resolved, no carry-forward | ✓ VERIFIED | Both todos resolved; up.sh + two LiveViews carry fixes; all WR nits now additionally closed |
+| 3 | SC3: Batched reviewable PR with before/after strip + narrowed options | ✓ VERIFIED | PR #70; gap-closure commits 218-07..10 appended (7513c647..b5658a45) |
+| 4 | 218-01 #1: probes.ts drift caught at test time via wired self-test | ✓ VERIFIED (gap closed) | `probeIdsDriftCheck` imported (spec:39) + invoked in `test.beforeAll` (spec:344-345); fn throws `D-08 DRIFT DETECTED` on mismatch (probes.ts:69-96); local vs canonical PROBE_IDS both 9 entries, match |
+| 5 | 218-01 #2: 13 L1 COMPONENT_BOARDS single-state render | ✓ VERIFIED | unchanged from prior pass; bundle execution deferred to 219 |
+| 6 | 218-01 #3: first-nav flake fix (domcontentloaded + waitForLiveViewReady) | ✓ VERIFIED | unchanged from prior pass |
+| 7 | 218-01 #4 / 02 / 03: 32-cell matrix; fix-queue proxy-skip; **CR-01 determinism** | ✓ VERIFIED (gap closed) | `rep = [...entries].sort(localeCompare)[0]` (mjs:270); 3 readdirSync walks `.sort()`-ed (mjs:128/131/134); test 36/36 incl. forward/reverse-seeding determinism regression; committed fix-queue.json byte-unchanged |
+| 8 | 218-04 / 05 nit truths (up.sh DX + vt-modal restyle) + **WR-05/WR-07** | ✓ VERIFIED (gap closed) | reaper unions both proxy-host labels + sort -u (up.sh:644-652), safety guards intact; 0 dead backdrop forms remain, app.css comment corrected (:2841-2843) |
+| 9 | 218-06 #1: LLM panel over full matrix | ✓ VERIFIED (deferred by operator) | Deferred to Phase 219 per operator verify-hold (0 raises); lib/sigra/admin/** byte-identical — panel would surface nothing new |
 
-**Score:** 8/9 truths verified (0 present-behavior-unverified)
+**Score:** 9/9 truths verified (0 present-behavior-unverified)
+
+### Code-Review Gap Closure (CR-01 + WR-01..07 + IN-01/02)
+
+| ID | Fix | Status | Evidence |
+| -- | --- | ------ | -------- |
+| CR-01 | Deterministic systemic-parent rep | ✓ CLOSED | mjs:270 sort-by-finding_id; walks sorted; test 36/36; queue byte-unchanged |
+| WR-01 | MFA confirm error fallthrough | ✓ CLOSED | `{:error, _reason}` at example:979 + template:920 + golden:917, after `{:error, :invalid_code}` |
+| WR-02 | Guarded change_role/remove_member | ✓ CLOSED | guarded heads + catch-all no-ops in example, template, and golden (all 3 files) |
+| WR-03 | Flash-on-miss lookup | ✓ CLOSED | "That member could not be found" flash in example, template, golden |
+| WR-04 | Defined success-icon token | ✓ CLOSED | example uses `var(--vt-color-primary)`; template correctly untouched (text-green-500) |
+| WR-05 | Dual-label reaper | ✓ CLOSED | up.sh:644-652 two legs + sort -u; SIGRA_UAT_REAP/current-project/running-container guards intact |
+| WR-06 | Worker-unique eval email | ✓ CLOSED | `-w${worker}${rand}` from testInfo.workerIndex + Math.random (spec:185-187) |
+| WR-07 | Dead backdrop form removal | ✓ CLOSED | 0 `vt-modal__backdrop` form sites in LiveView; app.css comment rewritten |
+| IN-01 | Numeric-guarded control-height | ✓ CLOSED | `const mh = parseFloat(cs.minHeight); const h = mh > 0 ? mh : parseFloat(cs.height)` (probes.ts:499-500) |
+| IN-02 | Probe #2 docstring accuracy | ✓ CLOSED | docstring/comment now describe fractional (0.05,0.95) band; no "1-6px" phrasing remains |
 
 ### Deferred Items
 
 | # | Item | Addressed In | Evidence |
 |---|------|-------------|----------|
-| 1 | Fresh clean-tree HEAD render bundles + LLM panel over full matrix | Phase 219 | Operator verify-hold decision; Phase 219 goal recaptures ~115 baselines in-CI; documented in 218-06-SUMMARY |
-| 2 | 13 L1 component board eval-bundle captures (cells honestly floored A0/rendered:false) | Phase 219 | 218-06-SUMMARY flags new-board baseline gap for Phase 219; D-05 honesty-first floors |
+| 1 | Fresh clean-tree HEAD render bundles + LLM panel over full matrix | Phase 219 | Operator verify-hold; Phase 219 recaptures ~115 baselines in-CI |
+| 2 | 13 L1 component board eval-bundle captures (A0/rendered:false floor) | Phase 219 | 218-06-SUMMARY flags new-board baseline gap; D-05 honesty-first floors |
 
 ### Required Artifacts
 
 | Artifact | Status | Details |
 | -------- | ------ | ------- |
-| `guides/reference/admin-render-sha.json` | ✓ VERIFIED | 65 cells: 44 L2 + 13 L1 + 8 L3 proxies (proxy:true flag) |
-| `guides/reference/admin-award-ledger.json` | ✓ VERIFIED | 32 award cells, band=min(axes), award-guard PASS |
-| `guides/reference/fix-queue.json` | ✓ VERIFIED | proxy L3 pinned; 12 token findings; fix-queue-build.test 28/28 |
-| `scripts/ci/fix-queue-build.mjs` | ✓ VERIFIED | structural proxy-skip (line 351) |
-| `test/example/priv/playwright/lib/eval/probes.ts` | ⚠️ ORPHANED | single-source drift guard exists but never invoked (see gap) |
-| `test/example/priv/playwright/tests/admin-eval.spec.ts` | ✓ VERIFIED | L1 COMPONENT_BOARDS + GROUP_BOARDS loops, domcontentloaded flake fix |
-| `scripts/uat/up.sh` | ✓ VERIFIED | UI-01 nits (re-probe, 120s, reap, flag-inert) |
-| `test/example/lib/example_web/live/mfa_settings_live.ex` | ✓ VERIFIED | vt-panel/vt-form; 0 daisy residuals |
-| `test/example/lib/example_web/live/organization_members_live.ex` | ✓ VERIFIED | vt-modal restyle; DialogModal hook preserved; 0 daisy residuals |
+| `scripts/ci/fix-queue-build.mjs` | ✓ VERIFIED | order-independent rep + sorted walks (CR-01) |
+| `scripts/ci/fix-queue-build.test.mjs` | ✓ VERIFIED | 36/36 incl. dual-seeding determinism regression |
+| `test/example/priv/playwright/tests/admin-eval.spec.ts` | ✓ VERIFIED | drift guard wired in beforeAll; worker-unique email |
+| `test/example/priv/playwright/lib/eval/probes.ts` | ✓ VERIFIED | drift guard now has a caller; IN-01/IN-02 fixed |
+| `test/example/lib/example_web/live/mfa_settings_live.ex` | ✓ VERIFIED | WR-01 fallthrough + WR-04 token |
+| `priv/templates/sigra.install/core/mfa_settings_live.ex` | ✓ VERIFIED | WR-01 mirrored; WR-04 correctly not mirrored |
+| `test/example/lib/example_web/live/organization_members_live.ex` | ✓ VERIFIED | WR-02 guards + WR-03 flash + WR-07 form removal |
+| `priv/templates/sigra.install/organizations/live/organization_members_live.ex` | ✓ VERIFIED | WR-02/WR-03 mirrored |
+| `test/fixtures/install_golden/tree/.../mfa_settings_live.ex` | ✓ VERIFIED | re-blessed; reflects WR-01 |
+| `test/fixtures/install_golden/tree/.../organization_members_live.ex` | ✓ VERIFIED | re-blessed; reflects WR-02/WR-03 (guarded + catch-all + flash) |
+| `test/example/priv/static/assets/css/app.css` | ✓ VERIFIED | WR-07 comment corrected |
+| `scripts/uat/up.sh` | ✓ VERIFIED | WR-05 dual-label reaper |
+| `test/example/test/example_web/live/organization_members_live_test.exs` | ✓ VERIFIED | T17/T18/T19 regressions present (orchestrator: 19/19) |
 
 ### Key Link Verification
 
 | From | To | Via | Status |
 | ---- | --- | --- | ------ |
-| L3 proxy cell | representative board render | byte-identical render_sha256 + pinned open_findings=197 | ✓ WIRED |
-| fix-queue-build.mjs | proxy L3 cells | structural `proxy === true` skip | ✓ WIRED |
-| organization_members_live.ex | DialogModal hook | phx-hook preserved through vt-modal restyle | ✓ WIRED |
-| probes.ts local PROBE_IDS | canonical eval-probe-ids.mjs | probeIdsDriftCheck() deep-equal self-test | ✗ NOT_WIRED (defined, never called) |
+| probes.ts probeIdsDriftCheck() | admin-eval.spec.ts suite | test.beforeAll caller (throws on drift) | ✓ WIRED (was NOT_WIRED) |
+| walkFindings readdir order | systemic rep.finding_id | now order-independent (sort-by-finding_id) | ✓ WIRED |
+| installer template LiveViews | golden fixture tree | re-blessed; byte-reflects WR-01/02/03 | ✓ WIRED |
+| example LiveView | installer template | WR-01/02/03 mirrored in lockstep | ✓ WIRED |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | -------- | ------- | ------ | ------ |
+| fix-queue determinism (forward vs reverse seeding) | `node scripts/ci/fix-queue-build.test.mjs` | 36/36 passed | ✓ PASS |
 | Award ledger internally consistent vs HEAD | `node scripts/ci/award-guard.mjs` | PASS (32 cells) | ✓ PASS |
 | No findings-count regression vs merge-base | `bash scripts/ci/quality-findings-monotonic.sh` | PASS (186 cells) | ✓ PASS |
-| fix-queue builder (incl. proxy skip + settled exclusion) | `node scripts/ci/fix-queue-build.test.mjs` | 28/28 passed | ✓ PASS |
+| Committed fix-queue.json untouched | `git diff --exit-code guides/reference/fix-queue.json` | clean | ✓ PASS |
+| PROBE_IDS drift (local vs canonical) | node array compare | 9 == 9, identical | ✓ PASS |
+| Org-members nil-pending_action + lookup-miss (T17/T18/T19) | `mix test organization_members_live_test.exs` | 19/19 (orchestrator-confirmed, Postgres) | ✓ PASS |
+| Install golden byte-parity | `mix test golden_diff_test.exs` | 2/2 (orchestrator-confirmed) | ✓ PASS |
+| Example↔template drift parity | `mix test installer_drift_test.exs` | 24/24 (orchestrator-confirmed) | ✓ PASS |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Status | Evidence |
 | ----------- | ----------- | ------ | -------- |
-| ELEVATE-01 | 218-01/02/03 | ✓ SATISFIED | 32-cell matrix through harness, verify-then-climb (verify-hold), monotonic guard green |
-| ELEVATE-02 | 218-04/05 | ✓ SATISFIED | UI-01 + UI-02 both resolved; code fixes present in up.sh + two LiveViews |
-| ELEVATE-03 | 218-06 | ✓ SATISFIED | PR #70 open, narrowed operator options (sets A/B/C), before/after strip |
+| ELEVATE-01 | 218-01/02/03/07/08 | ✓ SATISFIED | 32-cell matrix, monotonic guard green; CR-01 determinism + drift guard closed |
+| ELEVATE-02 | 218-04/05/09/10 | ✓ SATISFIED | UI-01 + UI-02 resolved; WR-01..07 demo/template correctness closed |
+| ELEVATE-03 | 218-06 | ✓ SATISFIED | PR #70 with narrowed operator options + before/after strip |
 
-All three declared requirement IDs accounted for; no orphaned requirements (REQUIREMENTS.md maps only ELEVATE-01/02/03 to Phase 218, all marked Complete).
+All three declared IDs accounted for; REQUIREMENTS.md maps only ELEVATE-01/02/03 to Phase 218 (all `[x]` / Complete). No orphaned requirements.
 
 ### Anti-Patterns Found
 
-| File | Pattern | Severity | Impact |
-| ---- | ------- | -------- | ------ |
-| probes.ts | orphaned exported function (`probeIdsDriftCheck`) | ⚠️ Warning | Promised drift guard is dead code; see gap #4 |
-
-No unreferenced TBD/FIXME/XXX debt markers in phase-modified files.
+None. The prior orphaned-function warning (`probeIdsDriftCheck`) is resolved — it now has a live caller. No unreferenced TBD/FIXME/XXX debt markers in phase-modified files.
 
 ### Gaps Summary
 
-The phase goal is substantively achieved: all three ROADMAP success criteria hold. The full L1/L2/L3 quality fractal (32 award cells / 65 render cells) is structurally in place, verify-then-climbed under the operator-approved verify-hold (0 raises, honest A0 floors, deferred to Phase 219), all three deterministic gates are green (award-guard 32, monotonic 186, fix-queue 28/28), UI-01 and UI-02 are resolved with their code fixes present, and the batched result lands as reviewable PR #70 with narrowed options. The panel-deferral and deferred fresh renders are operator-approved and correctly documented — not gaps.
-
-One real gap: **the probe-ids drift guard is orphaned.** `probeIdsDriftCheck()` (218-01 truth #1) is defined and correct but never invoked anywhere in the repo, so drift between `probes.ts` PROBE_IDS and the canonical `eval-probe-ids.mjs` would NOT actually be caught at test time. The two arrays currently match (no live inconsistency), so there is no immediate harm — but the protection the plan claims does not exist. This is a surgical one-line fix (call the function in a `beforeAll` or a dedicated test).
-
-**This may be acceptable to defer/accept.** Because the two arrays currently match and this is a harness self-consistency nicety (not a ROADMAP success criterion), the operator may choose to accept it. To accept this deviation, add to VERIFICATION.md frontmatter:
-
-```yaml
-overrides:
-  - must_have: "probes.ts drift between local PROBE_IDS and canonical eval-probe-ids.mjs is caught at test time"
-    reason: "probeIdsDriftCheck() is implemented and both arrays currently match; wiring it into the suite is a non-blocking hardening follow-up (candidate for Phase 219/220)."
-    accepted_by: "<name>"
-    accepted_at: "<ISO timestamp>"
-```
-
-Otherwise, close the gap by invoking `probeIdsDriftCheck()` from a test setup in `admin-eval.spec.ts`.
+No remaining gaps. The single real gap from the prior pass (orphaned drift guard) is closed, and every folded-in code-review finding (CR-01, WR-01..07, IN-01/02) is fixed and verified by direct source inspection plus independently-run deterministic gates. The security-relevant crash/silent-failure fixes (WR-01/02/03) are mirrored into the installer templates and re-blessed into the golden fixture, so generated host apps do not ship the bugs. The two deferred items are operator-approved deferrals to Phase 219 (fresh HEAD render bundles / LLM panel and 13 L1 board captures) and do not block this phase.
 
 ---
 
-_Verified: 2026-07-09T17:00:02Z_
+_Verified: 2026-07-09T19:05:00Z_
 _Verifier: Claude (gsd-verifier)_
