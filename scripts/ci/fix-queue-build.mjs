@@ -122,13 +122,16 @@ function* walkFindings(evalDir) {
   if (!existsSync(evalDir)) return;
 
   // Structure: eval/<sha>/<surface>/<cell>/findings.json
-  for (const sha of readdirSync(evalDir)) {
+  // CR-01: each directory listing is sorted so the walk is deterministic across
+  // filesystems (readdirSync order is not guaranteed and differs between APFS
+  // dev machines and ext4 CI runners).
+  for (const sha of readdirSync(evalDir).sort()) {
     const shaDir = join(evalDir, sha);
     if (!statSync(shaDir).isDirectory()) continue;
-    for (const surface of readdirSync(shaDir)) {
+    for (const surface of readdirSync(shaDir).sort()) {
       const surfDir = join(shaDir, surface);
       if (!statSync(surfDir).isDirectory()) continue;
-      for (const cell of readdirSync(surfDir)) {
+      for (const cell of readdirSync(surfDir).sort()) {
         const cellDir = join(surfDir, cell);
         if (!statSync(cellDir).isDirectory()) continue;
         const findingsPath = join(cellDir, 'findings.json');
@@ -260,8 +263,11 @@ for (const [sg, entries] of sgMap) {
   }
 
   if (allSurfaces.size >= 2) {
-    // Systemic: collapse to one parent entry (use the first entry as representative)
-    const rep = entries[0];
+    // Systemic: collapse to one parent entry. CR-01: the representative is chosen by
+    // lowest finding_id (localeCompare-minimum) — NOT entries[0] — so the pick is
+    // independent of filesystem/readdir order (entries order is seeded from
+    // readdirSync walks, which differ between APFS dev and ext4 CI).
+    const rep = [...entries].sort((a, b) => a.finding_id.localeCompare(b.finding_id))[0];
     collapsed.push({
       finding_id: rep.finding_id,
       surface: rep.surface,
