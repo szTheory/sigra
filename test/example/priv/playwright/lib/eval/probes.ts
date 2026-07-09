@@ -194,8 +194,10 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
 // ── Probe #2: misalignment ────────────────────────────────────────────────────
 
 /**
- * Probe #2 (warn): flags elements with 1-6px sub-pixel misalignment from their
- * nearest positioned ancestor. Warn-only per D-15 (signal moves with font metrics).
+ * Probe #2 (warn): flags elements whose bounding-rect left/top falls at a
+ * fractional (sub-pixel) offset from the pixel grid — any offset with a
+ * fractional component in the (0.05, 0.95) band, regardless of magnitude.
+ * Warn-only per D-15 (signal moves with font metrics).
  * Respects data-sg-misalignment-audit-only suppression.
  *
  * Board-root scoped (Gap 1 fix, 216-08): element-scan queries boardRoot subtree.
@@ -222,7 +224,8 @@ export async function probeMisalignment(page: Page, boardRoot?: string): Promise
       const offsetX = rect.left % 1;
       const offsetY = rect.top % 1;
 
-      // Flag sub-pixel offsets in the 1-6px range (fractional component > 0.05)
+      // Flag any fractional (sub-pixel) offset in the (0.05, 0.95) band — not a bounded
+      // pixel range, just the fractional component of the rect's left/top coordinate.
       const subPixelX = Math.abs(offsetX) > 0.05 && Math.abs(offsetX) < 0.95;
       const subPixelY = Math.abs(offsetY) > 0.05 && Math.abs(offsetY) < 0.95;
 
@@ -490,7 +493,11 @@ export async function probeOffScaleRadiusShadowControl(page: Page, boardRoot?: s
         el.classList.contains('sg-applied-chip__remove');
 
       if (isControl) {
-        const h = parseFloat(cs.minHeight || cs.height);
+        // IN-01: minHeight resolves to "0px" (truthy string) for controls sized purely via
+        // `height`, so `cs.minHeight || cs.height` never falls through to height — numeric-guard
+        // the fallback instead so those controls are not silently skipped by this gate.
+        const mh = parseFloat(cs.minHeight);
+        const h = mh > 0 ? mh : parseFloat(cs.height);
         if (h > 0 && !onScale(h, controlScale)) {
           const testId = el.getAttribute('data-testid');
           const anchor = testId
