@@ -1907,16 +1907,24 @@ jobs:
               || echo "warmup miss ${path} (non-fatal)"
           done
       - name: Re-establish impersonation-banner canary (D-03.2 delete-rebirth)
-        # Mirrors the admin-design job's board-notice pattern (ci.yml:1614-1619).
         # snapshot-canary-guard.sh forbids a canary *modify* but tolerates a canary
-        # *added* — delete the existing impersonation-banner PNGs BEFORE
-        # --update-snapshots so recapture creates them as newly-added files rather
-        # than modifications, letting the checkpoint job self-gate below.
+        # *added*. A working-tree-only delete + recreate still reads as `modified`
+        # vs HEAD (HEAD retains the old bytes), so the deletion must be COMMITTED
+        # first: then the reborn PNG is a brand-new untracked file (pure `added`)
+        # relative to the delete commit, which the guard tolerates. (219 fix — the
+        # earlier `find -delete` yielded `modified` for a canary whose bytes actually
+        # change, e.g. the first amd64 re-baseline of a previously hand-reconciled
+        # baseline. The admin-design board-notice step shares this latent gap but
+        # only stays green while board-notice is byte-identical.)
         run: |
-          echo "Removing existing impersonation-banner PNGs so recapture creates them as 'added' (not 'modified')"
-          find test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots \
-            -name 'impersonation-banner-admin-checkpoints-*.png' -delete || true
-          echo "Removed impersonation-banner PNGs:"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Deleting + committing impersonation-banner PNGs so recapture creates them as a pure 'added' (not 'modified')"
+          git rm -q --ignore-unmatch \
+            test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/impersonation-banner-admin-checkpoints-*.png
+          git commit -q -m "ci(219): delete impersonation-banner canary for amd64 rebirth [skip ci]" \
+            || echo "(no impersonation-banner PNGs to delete — nothing committed)"
+          echo "Committed canary deletion; recreate follows via --update-snapshots. Remaining files:"
           ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
