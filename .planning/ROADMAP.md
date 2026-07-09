@@ -160,7 +160,12 @@ Plans:
   2. Both snapshot allowlists are reset to empty steady-state — no slugs are suppressed by allowlist entries — and the snapshot-canary drift guard exits zero on a clean re-run.
   3. Generated-host parity is green: install-golden byte-diff and the acceptance-smoke runtime render both pass against the post-wave codebase.
 
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 219-01-PLAN.md — Fix the example `<.icon style=>` compile blocker (attr :rest, :global) — D-02 prerequisite
+- [ ] 219-02-PLAN.md — CI recapture-trigger surgery (branch-scoped dispatch) + close 3 recapture gaps + never-allowlistable canary — D-03/D-04/D-06
+- [ ] 219-03-PLAN.md — Run branch-scoped recapture, operator scope-check, land 115-PNG PR, close PR #70 — SC-1/D-01/D-05
+- [ ] 219-04-PLAN.md — Reset both allowlists to empty steady-state + canary guard clean re-run green — SC-2/D-07
+- [ ] 219-05-PLAN.md — Confirm generated-host parity (install-golden + acceptance-smoke) green — SC-3/D-08
 **UI hint**: yes
 
 ### Phase 220: Terminal Ratification
