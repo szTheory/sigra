@@ -247,7 +247,7 @@ defmodule ExampleWeb.MFASettingsLive do
                     <p class="vt-kicker">Complete</p>
                     <h3 class="vt-panel__title">Two-factor authentication enabled</h3>
                   </div>
-                  <.icon name="hero-check-circle" class="h-8 w-8" style="color:var(--vt-color-ok)" />
+                  <.icon name="hero-check-circle" class="h-8 w-8" style="color:var(--vt-color-primary)" />
                 </div>
                 <p class="vt-copy">
                   Your account is now protected with an extra layer of security.
@@ -974,6 +974,14 @@ defmodule ExampleWeb.MFASettingsLive do
         {:noreply,
          socket
          |> put_flash(:error, "Invalid verification code. Please try again.")
+         |> assign(enroll_form: form)}
+
+      {:error, _reason} ->
+        form = to_form(%{"code" => ""}, as: "enroll")
+
+        {:noreply,
+         socket
+         |> put_flash(:error, "Could not verify your code. Please try again.")
          |> assign(enroll_form: form)}
     end
   end
