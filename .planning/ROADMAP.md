@@ -160,7 +160,7 @@ Plans:
   2. Both snapshot allowlists are reset to empty steady-state — no slugs are suppressed by allowlist entries — and the snapshot-canary drift guard exits zero on a clean re-run.
   3. Generated-host parity is green: install-golden byte-diff and the acceptance-smoke runtime render both pass against the post-wave codebase.
 
-**Plans**: 1/5 plans executed
+**Plans**: 3/5 plans executed
 **Wave 1**
 
 - [x] 219-01-PLAN.md — Fix the example `<.icon style=>` compile blocker (attr :rest, :global) — D-02 prerequisite
@@ -171,7 +171,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 219-03-PLAN.md — Run branch-scoped recapture, operator scope-check, land 115-PNG PR, close PR #70 — SC-1/D-01/D-05
+- [x] 219-03-PLAN.md — Run branch-scoped recapture, operator scope-check, land 115-PNG PR, close PR #70 — SC-1/D-01/D-05
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -202,5 +202,5 @@ Plans:
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
-| 219. Baseline Recapture + Canary Reconciliation | 2/5 | In Progress|  |
+| 219. Baseline Recapture + Canary Reconciliation | 3/5 | In Progress|  |
 | 220. Terminal Ratification | 0/? | Not started | - |
