@@ -167,7 +167,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 219-02-PLAN.md — CI recapture-trigger surgery (branch-scoped dispatch) + close 3 recapture gaps + never-allowlistable canary — D-03/D-04/D-06
+- [x] 219-02-PLAN.md — CI recapture-trigger surgery (branch-scoped dispatch) + close 3 recapture gaps + never-allowlistable canary — D-03/D-04/D-06
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -202,5 +202,5 @@ Plans:
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
-| 219. Baseline Recapture + Canary Reconciliation | 1/5 | In Progress|  |
+| 219. Baseline Recapture + Canary Reconciliation | 2/5 | In Progress|  |
 | 220. Terminal Ratification | 0/? | Not started | - |
