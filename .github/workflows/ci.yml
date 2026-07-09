@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: false
+      recapture_branch:
+        description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'
+        required: false
+        type: string
+        default: ''
   schedule:
     # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
@@ -40,6 +45,10 @@ jobs:
           set -euo pipefail
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "Non-manual CI run; release-ref guard not applicable."
+            exit 0
+          fi
+          if [ -n "${{ github.event.inputs.recapture_branch }}" ]; then
+            echo "Recapture dispatch (recapture_branch=${{ github.event.inputs.recapture_branch }}); release-ref guard not applicable."
             exit 0
           fi
           case "${GITHUB_REF}" in
@@ -1632,9 +1641,12 @@ jobs:
         # OQ2 (reviewable commit): recaptured PNGs land on a ci/recapture-admin-design-<run_id>
         # branch and a PR is opened via gh pr create — baseline changes get human review
         # under branch protection rather than a silent push to main. The commit carries
-        # [skip ci] to avoid re-triggering this job.
+        # [skip ci] to avoid re-triggering this job. D-04: when dispatched with a
+        # non-empty recapture_branch, the PR targets that branch instead of main so
+        # recaptured PNGs land green-before-merge on the Phase 219 branch.
         env:
           GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
         run: |
           set -euo pipefail
           SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots"
@@ -1688,7 +1700,7 @@ jobs:
             gh pr create \
               --title "ci: recapture admin-design baselines in ubuntu CI (${{ github.run_id }})" \
               --body "Admin-design baseline recapture (automated). Triggered by the global --font-sans Space Grotesk override (Phase 197-03). OQ1: board-notice canary re-established as added (not modified). OQ2: reviewable PR instead of push to main. Merge after visual review." \
-              --base main \
+              --base "${RECAPTURE_BASE:-main}" \
               --head "$BRANCH"
           fi
       - name: Check cross-lane baseline drift from global --font-sans (OQ3, COMPARE mode only)
@@ -1960,8 +1972,8 @@ jobs:
             git push origin "$BRANCH"
             gh pr create \
               --title "ci: recapture admin-checkpoint baselines in ubuntu CI (${{ github.run_id }})" \
-              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). Changed slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA; the prior baseline captured the pre-fix appearance). This is an intentional re-baseline — the gate is human visual review of these PNG diffs, not snapshot-canary-guard (which stays armed on fast_checks). Merge after visual review." \
-              --base main \
+              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). Changed slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA; the prior baseline captured the pre-fix appearance). Merge after the automated snapshot-canary-guard scope check above." \
+              --base "${RECAPTURE_BASE:-main}" \
               --head "$BRANCH"
           fi
       - name: Dump example app log (on failure)
