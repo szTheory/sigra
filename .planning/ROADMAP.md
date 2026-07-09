@@ -180,6 +180,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
-| 218. Elevation Wave + Nit Cleanup | 6/6 | Complete   | 2026-07-09 |
+| 218. Elevation Wave + Nit Cleanup | 6/6 | Gaps found | - |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |

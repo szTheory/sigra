@@ -5,7 +5,7 @@ milestone_name: ADMIN-UX-RATCHET
 current_phase: 218
 current_phase_name: elevation-wave-nit-cleanup
 status: verifying
-stopped_at: "Completed 218-06-PLAN.md — Phase 218 complete, PR #70 opened"
+stopped_at: "Phase 218 verified: gaps_found (8/9) + code review (1 critical, 7 warnings) folded into 218-VERIFICATION.md gaps; PR #70 open; gap-closure pending"
 last_updated: "2026-07-09T16:50:43.239Z"
 last_activity: 2026-07-09
 progress:
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 218 (elevation-wave-nit-cleanup) — EXECUTING
 Plan: 6 of 6
-Status: Phase complete — ready for verification
+Status: Phase 218 verified — gaps_found; gap-closure pending (run /gsd-plan-phase 218 --gaps)
 Last activity: 2026-07-09
 
 Progress: [█████████░] 91%
