@@ -177,7 +177,14 @@ function adminEvalEmail(testInfo: TestInfo) {
     .slice(0, 8);
   const sequence = (++registrationSequence).toString(36);
   const timestamp = Date.now().toString(36);
-  return `platform-admin+ev-${timestamp}-${project}-${sequence}-${testInfo.retry}@example.test`;
+  // WR-06: registrationSequence resets per worker, so two parallel workers can
+  // reach the same (timestamp, sequence, retry) tuple and collide on the
+  // unique-email constraint. Add worker-unique entropy — testInfo.workerIndex
+  // plus a short random suffix — so same-millisecond collisions across
+  // workers are no longer possible.
+  const worker = testInfo.workerIndex.toString(36);
+  const rand = Math.random().toString(36).slice(2, 6);
+  return `platform-admin+ev-${timestamp}-${project}-${sequence}-${testInfo.retry}-w${worker}${rand}@example.test`;
 }
 
 // ── Gate/warn project detection (D-15) ────────────────────────────────────────
