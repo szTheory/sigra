@@ -134,7 +134,7 @@ Plans:
   2. UI-01 (demo-DX polish nits) and UI-02 (Tasklane rebrand residuals) are resolved as part of the elevation wave — no outstanding items in either carry-forward todo.
   3. The batched elevation result exists as a reviewable PR with a before/after render strip and narrowed options for each judgment call, so the operator's review is bounded to approval decisions rather than a fresh issue hunt.
 
-**Plans**: 6/6 complete + 4 gap-closure (218-07..10) pending
+**Plans**: 10/10 plans complete
 
 - [x] 218-01-PLAN.md — Harness-hardening: probe-ids single-source fold (D-08) + first-nav flake fix (D-09) + full-matrix render/award ledger expansion (D-02) [wave 1, barrier]
 - [x] 218-02-PLAN.md — L1/L2 fractal verify-then-climb (13 L1 boards + mg-1..11) + fix-queue regen (D-05) [wave 2]
@@ -145,7 +145,7 @@ Plans:
 - [x] 218-07-PLAN.md — Gap: CR-01 fix-queue-build.mjs deterministic systemic-rep selection + hermetic regression (ELEVATE-01) [wave 1]
 - [x] 218-08-PLAN.md — Gap: wire probeIdsDriftCheck + WR-06 worker-unique email + IN-01/IN-02 probe nits (ELEVATE-01) [wave 1]
 - [x] 218-09-PLAN.md — Gap: demo LiveView crashes WR-01/02/03 (+ template mirror + golden rebless) + WR-04/WR-07 cosmetics (ELEVATE-02) [wave 1]
-- [ ] 218-10-PLAN.md — Gap: WR-05 up.sh reaper dual proxy-host label union (ELEVATE-02) [wave 1]
+- [x] 218-10-PLAN.md — Gap: WR-05 up.sh reaper dual proxy-host label union (ELEVATE-02) [wave 1]
 
 **UI hint**: yes
 
@@ -184,6 +184,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
-| 218. Elevation Wave + Nit Cleanup | 9/10 | In Progress|  |
+| 218. Elevation Wave + Nit Cleanup | 10/10 | Complete   | 2026-07-09 |
 | 219. Baseline Recapture + Canary Reconciliation | 0/? | Not started | - |
 | 220. Terminal Ratification | 0/? | Not started | - |
