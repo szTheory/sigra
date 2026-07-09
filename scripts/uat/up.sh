@@ -635,12 +635,21 @@ reap_stale_uat_stacks() {
 
   # List all compose projects that carry a sigra UAT label (either the
   # vendor-neutral dev.local.proxy-host or the legacy dev.sigra.proxy-host).
+  # --filter is AND within a single `docker ps` query, so — mirroring the
+  # proxy_host_claimants dual-label union — run one query per label and
+  # dedupe with sort -u. Each leg tolerates its own failure via `|| true` so
+  # one bad leg never aborts the reaper.
   local stale_projects
-  stale_projects="$(docker ps -a \
-    --filter 'label=com.docker.compose.project' \
-    --filter 'label=dev.sigra.proxy-host' \
-    --format '{{.Label "com.docker.compose.project"}}' 2>/dev/null \
-    | sort -u || true)"
+  stale_projects="$({
+    docker ps -a \
+      --filter 'label=com.docker.compose.project' \
+      --filter 'label=dev.sigra.proxy-host' \
+      --format '{{.Label "com.docker.compose.project"}}' 2>/dev/null || true
+    docker ps -a \
+      --filter 'label=com.docker.compose.project' \
+      --filter 'label=dev.local.proxy-host' \
+      --format '{{.Label "com.docker.compose.project"}}' 2>/dev/null || true
+  } | sort -u)"
 
   if [[ -z "${stale_projects}" ]]; then
     return 0
