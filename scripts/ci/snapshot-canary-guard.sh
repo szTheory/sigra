@@ -50,6 +50,15 @@ for s in "${EXTRA_ALLOW[@]:-}"; do
   [[ -n "$s" ]] && ALLOWED["$s"]=1
 done
 
+# --- D-06: the canary must never be allowlistable -----------------------------
+# The canary is the zero-human safety tripwire. If an operator could silence it
+# by adding it to the committed allowlist (or passing a stray --allow), the
+# entire zero-human recapture posture is unsafe. Fail hard, regardless of
+# whether the canary actually changed in this run.
+if [[ -n "${ALLOWED[$CANARY]:-}" ]]; then
+  fail "canary '${CANARY}' must never be allowlisted (found in ${ALLOWLIST} or passed via --allow) — this would silence the zero-human safety tripwire"
+fi
+
 slug_of() {
   basename "$1" | sed -E \
     's/-admin-checkpoints-(chromium|mobile|dark)\.png$//;
