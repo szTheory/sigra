@@ -25,7 +25,7 @@
 - [x] **Phase 216: Harness Foundation + Award Gradient** — render substrate, evidence-integrity + stale-render guards, deterministic visual probes, award sub-score ledger extension + verify-then-climb, end-to-end on 2 pilot surfaces
 - [x] **Phase 217: Adversarial Panel + Auto-Fix Safety Rails** — 4-lens LLM panel (3 persona/JTBD + 1 graphic-design), k=3 consensus, settled-findings suppression, findings-count-monotonic guard, fix queue, safe-class auto-apply with per-fix auto-revert (completed 2026-07-05)
 - [x] **Phase 218: Elevation Wave + Nit Cleanup** — full loop across all 8 admin surfaces + L1/L2 component fractal; verify-then-climb each; fold in UI-01 (demo-DX nits) + UI-02 (Tasklane rebrand residuals); batched reviewable PR (completed 2026-07-09)
-- [ ] **Phase 219: Baseline Recapture + Canary Reconciliation** — ~115 PNG baselines recaptured in-CI (ubuntu), allowlists reset to empty steady-state, snapshot-canary + generated-host parity green
+- [x] **Phase 219: Baseline Recapture + Canary Reconciliation** — ~115 PNG baselines recaptured in-CI (ubuntu), allowlists reset to empty steady-state, snapshot-canary + generated-host parity green (completed 2026-07-09)
 - [ ] **Phase 220: Terminal Ratification** — award sub-score cells locked forward under monotonic guard, harness runbook committed, milestone ships via PR gated on 5 required CI checks
 
 <details>
@@ -202,5 +202,5 @@ Plans:
 | 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
-| 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete   | 2026-07-09 |
+| 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
 | 220. Terminal Ratification | 0/? | Not started | - |
