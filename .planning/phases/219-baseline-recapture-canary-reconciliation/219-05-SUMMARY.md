@@ -111,3 +111,8 @@ None - no external service configuration required.
 ---
 *Phase: 219-baseline-recapture-canary-reconciliation*
 *Completed: 2026-07-09*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/219-baseline-recapture-canary-reconciliation/219-05-SUMMARY.md`
+- FOUND: commit `8fe1b3ca`
