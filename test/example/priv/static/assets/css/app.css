@@ -2838,7 +2838,8 @@ dialog.vt-modal::backdrop {
   justify-content: flex-end;
 }
 
-/* Backdrop-click close form — visually invisible; covers the backdrop area */
+/* Legacy backdrop-close form styling — hidden and non-interactive; the modal
+   closes via its Cancel button or Escape, not a click-outside affordance. */
 .vt-modal__backdrop {
   display: none;
 }

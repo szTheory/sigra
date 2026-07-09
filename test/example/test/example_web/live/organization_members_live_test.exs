@@ -15,6 +15,8 @@ defmodule ExampleWeb.OrganizationMembersLiveTest do
   """
   use ExampleWeb.ConnCase, async: false
 
+  import Phoenix.LiveViewTest
+
   alias Example.Accounts.Organization
   alias Example.Accounts.OrganizationInvitation
   alias Example.Accounts.OrganizationMembership
@@ -269,6 +271,61 @@ defmodule ExampleWeb.OrganizationMembersLiveTest do
       # but the per-row Revoke button is gated off for non-admins.
       assert html =~ "hidden@t13.example"
       refute html =~ ~s|aria-label="Revoke invitation for hidden@t13.example"|
+    end
+  end
+
+  # ──────────────────────────────────────────────────────────────────────
+  # 218-09 WR-02/WR-03 — nil pending_action guard + lookup-miss flash
+  # ──────────────────────────────────────────────────────────────────────
+
+  describe "218-09 WR-02 — guarded change_role/remove_member" do
+    setup :register_and_log_in_user
+
+    test "T17: change_role event with pending_action nil does not crash the LiveView",
+         %{conn: conn, user: user} do
+      {org, _m} = create_org_with_role!(user, :owner, %{slug: "t17-nil-change-role"})
+
+      {:ok, view, _html} =
+        conn
+        |> live(~p"/organizations/#{org.slug}/members")
+
+      # No open_role_modal was sent, so pending_action is still nil.
+      html = render_click(view, "change_role", %{"role" => "admin"})
+
+      # The view process survived (render_click would raise/exit on crash)
+      # and no unrelated mutation happened.
+      assert html =~ "Members"
+    end
+
+    test "T18: remove_member event with pending_action nil does not crash the LiveView",
+         %{conn: conn, user: user} do
+      {org, _m} = create_org_with_role!(user, :owner, %{slug: "t18-nil-remove-member"})
+
+      {:ok, view, _html} =
+        conn
+        |> live(~p"/organizations/#{org.slug}/members")
+
+      # No open_remove_modal was sent, so pending_action is still nil.
+      html = render_click(view, "remove_member", %{})
+
+      assert html =~ "Members"
+    end
+  end
+
+  describe "218-09 WR-03 — lookup-miss flashes instead of silently no-op'ing" do
+    setup :register_and_log_in_user
+
+    test "T19: open_role_modal with an id absent from the scoped set flashes an error",
+         %{conn: conn, user: user} do
+      {org, _m} = create_org_with_role!(user, :owner, %{slug: "t19-lookup-miss"})
+
+      {:ok, view, _html} =
+        conn
+        |> live(~p"/organizations/#{org.slug}/members")
+
+      html = render_click(view, "open_role_modal", %{"id" => Ecto.UUID.generate()})
+
+      assert html =~ "That member could not be found. Refresh and try again."
     end
   end
 

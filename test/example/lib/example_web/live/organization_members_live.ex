@@ -95,7 +95,8 @@ defmodule ExampleWeb.OrganizationMembersLive do
   def handle_event("open_role_modal", %{"id" => id}, socket) do
     case find_streamed_member(socket, id) do
       nil ->
-        {:noreply, socket}
+        {:noreply,
+         put_flash(socket, :error, "That member could not be found. Refresh and try again.")}
 
       member ->
         {:noreply,
@@ -109,7 +110,8 @@ defmodule ExampleWeb.OrganizationMembersLive do
   def handle_event("open_remove_modal", %{"id" => id}, socket) do
     case find_streamed_member(socket, id) do
       nil ->
-        {:noreply, socket}
+        {:noreply,
+         put_flash(socket, :error, "That member could not be found. Refresh and try again.")}
 
       member ->
         {:noreply,
@@ -130,8 +132,11 @@ defmodule ExampleWeb.OrganizationMembersLive do
      |> push_event("close-modal", %{id: "confirm-remove-modal"})}
   end
 
-  def handle_event("change_role", %{"role" => role_str}, socket) do
-    {:role, member} = socket.assigns.pending_action
+  def handle_event(
+        "change_role",
+        %{"role" => role_str},
+        %{assigns: %{pending_action: {:role, member}}} = socket
+      ) do
     scope = socket.assigns.current_scope
 
     with {:ok, new_role} <- safe_role_atom(role_str),
@@ -169,6 +174,11 @@ defmodule ExampleWeb.OrganizationMembersLive do
          )}
     end
   end
+
+  # Guards against a raced/crafted `change_role` event arriving while
+  # `pending_action` is nil (e.g. `cancel_action` already ran) — returns
+  # noreply instead of raising a MatchError on the destructure above.
+  def handle_event("change_role", _params, socket), do: {:noreply, socket}
 
   # ── Phase 17: Invite member flow ────────────────────────────────────────
 
@@ -297,8 +307,11 @@ defmodule ExampleWeb.OrganizationMembersLive do
     end
   end
 
-  def handle_event("remove_member", _params, socket) do
-    {:remove, member} = socket.assigns.pending_action
+  def handle_event(
+        "remove_member",
+        _params,
+        %{assigns: %{pending_action: {:remove, member}}} = socket
+      ) do
     scope = socket.assigns.current_scope
     org_name = scope.active_organization.name
     email = member.user.email
@@ -324,6 +337,11 @@ defmodule ExampleWeb.OrganizationMembersLive do
          )}
     end
   end
+
+  # Guards against a raced/crafted `remove_member` event arriving while
+  # `pending_action` is nil (e.g. `cancel_action` already ran) — returns
+  # noreply instead of raising a MatchError on the destructure above.
+  def handle_event("remove_member", _params, socket), do: {:noreply, socket}
 
   # ──────────────────────────────────────────────────────────────────────────
   # Render
@@ -503,7 +521,6 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </div>
           </.form>
         </div>
-        <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
       </dialog>
 
       <dialog id="revoke-invitation-modal" class="vt-modal" phx-hook="DialogModal">
@@ -533,7 +550,6 @@ defmodule ExampleWeb.OrganizationMembersLive do
             </button>
           </div>
         </div>
-        <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
       </dialog>
 
       <dialog id="confirm-role-modal" class="vt-modal" phx-hook="DialogModal">
@@ -564,7 +580,6 @@ defmodule ExampleWeb.OrganizationMembersLive do
               </div>
             </form>
           </div>
-          <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
         <% end %>
       </dialog>
 
@@ -592,7 +607,6 @@ defmodule ExampleWeb.OrganizationMembersLive do
               </div>
             </form>
           </div>
-          <form method="dialog" class="vt-modal__backdrop"><button>close</button></form>
         <% end %>
       </dialog>
     </Layouts.app>
