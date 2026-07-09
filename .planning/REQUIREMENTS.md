@@ -39,7 +39,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Baseline Recapture & Reconciliation (RECAP) — Phase 219
 
-- [ ] **RECAP-01**: After the wave, the ~115 committed PNG baselines are recaptured in-CI (ubuntu), the snapshot allowlists are reset to empty steady-state, and the snapshot-canary drift guard plus generated-host parity are green.
+- [x] **RECAP-01**: After the wave, the ~115 committed PNG baselines are recaptured in-CI (ubuntu), the snapshot allowlists are reset to empty steady-state, and the snapshot-canary drift guard plus generated-host parity are green.
 
 ### Terminal Ratification (RATIFY) — Phase 220
 
@@ -87,5 +87,5 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | ELEVATE-01 | 218 | Complete |
 | ELEVATE-02 | 218 | Complete |
 | ELEVATE-03 | 218 | Complete |
-| RECAP-01 | 219 | Pending |
+| RECAP-01 | 219 | Complete |
 | RATIFY-01 | 220 | Pending |

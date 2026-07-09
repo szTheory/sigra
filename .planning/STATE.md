@@ -3,17 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
 current_phase: 219
-current_phase_name: Baseline Recapture + Canary Reconciliation
+current_phase_name: baseline-recapture-canary-reconciliation
 status: executing
 stopped_at: Phase 219 context gathered (assumptions mode)
-last_updated: "2026-07-09T19:28:33.134Z"
+last_updated: "2026-07-09T20:23:42.463Z"
 last_activity: 2026-07-09
-last_activity_desc: Phase 218 complete, transitioned to Phase 219
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 27
-  completed_plans: 27
+  total_plans: 32
+  completed_plans: 28
   percent: 60
 ---
 
@@ -25,16 +24,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 218 — elevation-wave-nit-cleanup
+**Current focus:** Phase 219 — baseline-recapture-canary-reconciliation
 
 ## Current Position
 
-Phase: 219 — Baseline Recapture + Canary Reconciliation
-Plan: Not started
+Phase: 219 (baseline-recapture-canary-reconciliation) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-07-09 — Phase 218 complete, transitioned to Phase 219
+Last activity: 2026-07-09
 
-Progress: [██████████] 100%
+Progress: [█████████░] 88%
 
 ## Accumulated Context
 
@@ -298,6 +297,7 @@ Progress: [██████████] 100%
 - [Phase ?]: 218-09: WR-01/WR-02/WR-03 mirrored byte-identically into installer templates (verified via diff/grep) so generated hosts do not ship the same crash/silent-no-op bugs; WR-04/WR-07 stay example-only (templates use Tailwind/daisyUI, not vt-* tokens)
 - [Phase ?]: 218-09: WR-03 uses a flash-on-miss fallback instead of a new Organizations.get_member-by-id context function, to avoid widening library surface; the by-id scoped fetch is recorded as a follow-up
 - [Phase ?]: 218-10: Ran two separate docker ps -a invocations (one per proxy-host label) combined with sort -u, mirroring the proxy_host_claimants precedent, since Docker CLI --filter ANDs multiple label filters within one query
+- [Phase 219]: Fixed the durable/recurrence-proof way (:global attr + {@rest} spread on icon/1) per D-02, instead of stripping the inline style= from the two mfa_settings_live.ex call sites.
 
 ### Pending Todos
 
@@ -373,9 +373,9 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-09T19:28:33.129Z
+Last session: 2026-07-09T20:22:06.304Z
 Stopped at: Phase 219 context gathered (assumptions mode)
-Resume file: .planning/phases/219-baseline-recapture-canary-reconciliation/219-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -468,3 +468,4 @@ Resume file: .planning/phases/219-baseline-recapture-canary-reconciliation/219-C
 | Phase 218 P08 | 12min | 2 tasks | 2 files |
 | Phase 218 P09 | 12min | 3 tasks | 8 files |
 | Phase 218 P10 | 3min | 1 tasks | 1 files |
+| Phase 219 P01 | 5min | 1 tasks | 1 files |
