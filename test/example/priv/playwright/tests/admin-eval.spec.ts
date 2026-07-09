@@ -36,6 +36,7 @@ import {
   probeTargetSize,
   probeOffScaleRadiusShadowControl,
   probeEmberReservedFor,
+  probeIdsDriftCheck,
 } from '../lib/eval/probes.ts';
 import type { ProbeFinding, BundleFacts } from '../lib/eval/bundle.ts';
 
@@ -328,6 +329,14 @@ async function captureSurface(
     }
   }
 }
+
+// ── D-08 gap #1 fix: wire probeIdsDriftCheck() so PROBE_IDS drift actually fails the suite ────
+// probeIdsDriftCheck() only reads files and deep-compares arrays (no `page`), so this
+// top-level beforeAll needs no server and runs before the describe/beforeEach below that
+// registers a user and navigates.
+test.beforeAll(() => {
+  probeIdsDriftCheck();
+});
 
 // ── Main eval spec ─────────────────────────────────────────────────────────────
 
