@@ -7,6 +7,11 @@
  *   3. auto_eligible is DERIVED from fix_class (component/judgment → never auto_eligible)
  *   4. open_findings in admin-render-sha.json = per-cell built - settled count
  *
+ * Test 5 per Plan 218-07 (CR-01 determinism regression):
+ *   5. systemic-parent representative finding_id is independent of readdirSync/
+ *      seeding order (lowest finding_id of the group, proven via forward + reverse
+ *      seeding order producing an identical result)
+ *
  * Uses mktemp-hermetic pattern (temp dir, no real eval/ or guide/ files touched).
  */
 
@@ -440,6 +445,72 @@ console.log('\nTest 4: open_findings written to admin-render-sha.json = per-cell
     assert(!settledInQueue, 'settled finding is excluded from fix-queue.json');
   }
   cleanup();
+}
+
+// ---------------------------------------------------------------------------
+// Test 5: CR-01 determinism regression — systemic rep is independent of
+// filesystem/readdir order (directory-name order diverges from finding_id order)
+// ---------------------------------------------------------------------------
+console.log('\nTest 5: CR-01 determinism — systemic parent finding_id is order-independent');
+{
+  const cell = 'light-desktop-populated';
+  const anchor = '.sg-systemic-det';
+  const klass = 'focus-ring';
+
+  // 3 surfaces sharing the same (class, anchor) → one systemic group.
+  // Surface names are chosen so that readdirSync order (alphabetical surface
+  // dir names 'surf-alpha' < 'surf-bravo' < 'surf-charlie') is DIFFERENT from
+  // finding_id order (finding_id = sha256(surface, class, anchor) — effectively
+  // random relative to surface name). This proves the rep pick does not depend
+  // on which surface directory happens to sort/list first.
+  const surfaces = ['surf-alpha', 'surf-bravo', 'surf-charlie'];
+  const ids = surfaces.map(s => findingId(s, klass, anchor));
+  // Sanity: confirm the finding_id order does NOT match the surface-name order
+  // (otherwise this test would not actually exercise the order-independence fix).
+  const sortedBySurfaceName = [...surfaces];
+  const sortedByFindingId = [...surfaces].sort((a, b) =>
+    findingId(a, klass, anchor).localeCompare(findingId(b, klass, anchor)));
+  assert(JSON.stringify(sortedBySurfaceName) !== JSON.stringify(sortedByFindingId),
+    'fixture sanity: surface-name order differs from finding_id order');
+
+  const expectedRepId = [...ids].sort((a, b) => a.localeCompare(b))[0];
+
+  const renderShaTemplate = {
+    schema_version: 1, notes: 'test', cells: {
+      'test-surface-a': { 'light-desktop-populated': { render_sha256: null, open_findings: 999 } },
+    },
+  };
+
+  // Run A: surfaces created/seeded in forward alphabetical order
+  const wsA = makeWorkspace({
+    findings: surfaces.map(s => [s, cell, [{ probe_class: klass, class: klass, anchor, severity: 'warn' }]]),
+    renderShaTemplate,
+  });
+  const { exitCode: exitA, fixQueue: fixQueueA } = wsA.runBuilder();
+  assert(exitA === 0, 'run A builder exits 0');
+  const systemicA = fixQueueA ? fixQueueA.find(e => e.anchor === anchor && e.priority === 'systemic') : null;
+  assert(!!systemicA, 'run A produced a systemic parent for the shared anchor');
+  assert(systemicA && systemicA.finding_id === expectedRepId,
+    `run A systemic parent finding_id is the lowest of the group (expected ${expectedRepId}, got ${systemicA && systemicA.finding_id})`);
+  wsA.cleanup();
+
+  // Run B: same surfaces, seeded in REVERSE order (so readdirSync would encounter
+  // them in the opposite sequence if directory creation order leaked through)
+  const wsB = makeWorkspace({
+    findings: [...surfaces].reverse().map(s => [s, cell, [{ probe_class: klass, class: klass, anchor, severity: 'warn' }]]),
+    renderShaTemplate,
+  });
+  const { exitCode: exitB, fixQueue: fixQueueB } = wsB.runBuilder();
+  assert(exitB === 0, 'run B builder exits 0');
+  const systemicB = fixQueueB ? fixQueueB.find(e => e.anchor === anchor && e.priority === 'systemic') : null;
+  assert(!!systemicB, 'run B produced a systemic parent for the shared anchor');
+  assert(systemicB && systemicB.finding_id === expectedRepId,
+    `run B systemic parent finding_id is the lowest of the group (expected ${expectedRepId}, got ${systemicB && systemicB.finding_id})`);
+  wsB.cleanup();
+
+  // The two runs (opposite seeding orders) MUST agree on the same rep finding_id.
+  assert(systemicA && systemicB && systemicA.finding_id === systemicB.finding_id,
+    'systemic parent finding_id is IDENTICAL across forward and reverse seeding order');
 }
 
 // ---------------------------------------------------------------------------
