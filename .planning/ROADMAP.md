@@ -198,7 +198,7 @@ Plans:
 **Wave 1**
 
 - [x] 220-01-PLAN.md — cheerio lazy-require fix (D-09/D-10, SC-4) + close folded TODO [wave 1]
-- [ ] 220-02-PLAN.md — runbook D-04 freshness notes (D-03/D-04, SC-2) [wave 1]
+- [x] 220-02-PLAN.md — runbook D-04 freshness notes (D-03/D-04, SC-2) [wave 1]
 - [ ] 220-03-PLAN.md — live-guard confirmation record (D-01/D-02, SC-1) [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -215,4 +215,4 @@ Plans:
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
 | 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
-| 220. Terminal Ratification | 1/4 | In Progress|  |
+| 220. Terminal Ratification | 2/4 | In Progress|  |
