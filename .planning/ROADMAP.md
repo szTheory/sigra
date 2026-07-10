@@ -32,7 +32,8 @@
 ### Phase 221: Unblock the Gate + Ship-Honest Generated-Host Debt
 **Goal**: The code bound for Hex is honest and the release gate is green — resolve the upgrade-smoke `<.button type>` blocker so `ci-gate` goes green on push-to-`main`, and pay down the generated-host debt that ships to every adopter, before anything is published.
 **Depends on**: Nothing (first phase of milestone)
-**Requirements**: PUB-01, SHIP-01, SHIP-02, SHIP-03
+**Requirements**: PUB-01, PUB-02, PUB-03, PUB-04, SHIP-01, SHIP-02, SHIP-03
+> **Reordered 2026-07-10 (planning):** PUB-02/03/04 pulled forward from Phase 223 as gate dependencies of PUB-01 — research proved publishing/retiring alone can't green the smoke (the stray `1.20.0` out-sorts `v1.2.0`/`v1.3.0` and retire doesn't drop it from the list); greening requires publishing v1.2.0+v1.3.0 AND pinning `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0`. See 221-CONTEXT.md D-12..D-16.
 **Success Criteria** (what must be TRUE):
   1. The `Upgrade smoke (published source → local candidate)` job compiles the upgrade harness clean under `--warnings-as-errors` and `ci-gate` is green on push-to-`main` — the `<.button type>` warning-as-error is resolved in lib + installer template + example in parity, with the install golden fixture re-blessed. (PUB-01)
   2. A freshly generated host's `mfa_settings_live.ex` passes `scope:` into `save_passkey_name` and handles the `{:error, :impersonation_forbidden}` clause — restoring the library-level impersonation defense-in-depth, mirrored from the example twin, with the golden fixture re-blessed. (SHIP-01)
@@ -52,8 +53,9 @@
 
 ### Phase 223: Get Current on Hex + Terminal Currency Proof
 **Goal**: Sigra is current and trustworthy on Hex — v1.2.0 then v1.3.0 published contiguously after v1.1.0, the stray 1.20.0 retired, a clean adopter resolution proven, and the end state recorded as the milestone's trust artifact. Runs last, once the gate is green and the lane is hardened.
-**Depends on**: Phase 221 (green gate), Phase 222 (hardened auto-publish lane)
-**Requirements**: PUB-02, PUB-03, PUB-04, PUB-05, PROOF-01
+**Depends on**: Phase 221 (green gate + v1.2.0/v1.3.0 published, 1.20.0 retired), Phase 222 (hardened auto-publish lane)
+**Requirements**: PUB-05, PROOF-01
+> **Reordered 2026-07-10 (planning):** PUB-02/03/04 (publish v1.2.0, publish v1.3.0, retire 1.20.0) moved to Phase 221 as gate dependencies — the smoke can't green without them. This phase now verifies the terminal end-state only: clean adopter `~> 1.0` resolution (PUB-05) + the release-currency trust bundle (PROOF-01). SC 1–3 below were executed in Phase 221; retained here for record.
 **Success Criteria** (what must be TRUE):
   1. Sigra `v1.2.0` is published to Hex.pm — the agent verifies a clean dry-run and `ci-gate` green first; the operator dispatches the publish (interactive Hex write-auth) — keeping the series contiguous after `v1.1.0`. (PUB-02)
   2. Sigra `v1.3.0` is published to Hex.pm after `v1.2.0` (same dry-run-then-operator-dispatch pattern), making the current shipped code (through v1.44) available to adopters. (PUB-03)

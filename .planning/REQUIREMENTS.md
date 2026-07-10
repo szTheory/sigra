@@ -64,9 +64,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | PUB-01 | Phase 221 | Pending |
-| PUB-02 | Phase 223 | Pending |
-| PUB-03 | Phase 223 | Pending |
-| PUB-04 | Phase 223 | Pending |
+| PUB-02 | Phase 221 | Pending |
+| PUB-03 | Phase 221 | Pending |
+| PUB-04 | Phase 221 | Pending |
 | PUB-05 | Phase 223 | Pending |
 | HARD-01 | Phase 222 | Pending |
 | HARD-02 | Phase 222 | Pending |
@@ -81,9 +81,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 - Unmapped: 0 ✓
 
 **Phase distribution:**
-- Phase 221 (Unblock the Gate + Ship-Honest Generated-Host Debt): PUB-01, SHIP-01, SHIP-02, SHIP-03 (4)
+- Phase 221 (Unblock the Gate + Ship-Honest Generated-Host Debt): PUB-01, PUB-02, PUB-03, PUB-04, SHIP-01, SHIP-02, SHIP-03 (7)
 - Phase 222 (Release-Lane Hardening): HARD-01, HARD-02 (2)
-- Phase 223 (Get Current on Hex + Terminal Currency Proof): PUB-02, PUB-03, PUB-04, PUB-05, PROOF-01 (5)
+- Phase 223 (Get Current on Hex + Terminal Currency Proof): PUB-05, PROOF-01 (2)
+
+> **Reordered 2026-07-10 (Phase 221 planning):** PUB-02/03/04 moved 223 → 221 as gate dependencies of PUB-01. Research (`221-RESEARCH.md`) proved the upgrade-smoke gate resolves to the stray `1.20.0` today; publishing v1.2.0/v1.3.0 and retiring 1.20.0 alone cannot green it (`sort -V` out-sort + retire-still-visible), so the publishes + a `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin are prerequisites of PUB-01 and must land in 221. D-05 authorizes the pull-forward. See ROADMAP.md Phase 221/223 notes + 221-CONTEXT.md D-12..D-16.
 
 ---
 *Requirements defined: 2026-07-10 after `/gsd-new-milestone` (v1.45 RELEASE-CURRENCY)*

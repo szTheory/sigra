@@ -50,6 +50,43 @@ resolution proof, PROOF-01) remains **Phase 223**; release-lane hardening remain
   Phase 223 unless greening the gate strictly requires `v1.3.0` too (then it's pulled in as a gate
   dependency, and REQUIREMENTS/ROADMAP traceability is updated to reflect the reordering).
 
+### PUB-01 — DECISION UPDATE (planning, 2026-07-10 — SUPERSEDES D-02/D-03/D-04 assumptions)
+Research (`221-RESEARCH.md`, HIGH confidence, live-Hex + local repro) overturned the assumptions
+behind D-02/D-03/D-04, and Jon chose **Option 4a** in the plan-phase escalation. The authoritative
+reconciled resolution for PUB-01 is:
+- **D-12 (supersedes D-02):** The smoke floor is **`1.20.0` today**, NOT `v1.1.0`. Under `sort -V`,
+  `1.20.0 > 1.3.0 > 1.2.0 > 1.1.0`, so publishing `v1.2.0`/`v1.3.0` **cannot** raise the floor above
+  the stray. `mix hex.retire` does **not** remove `1.20.0` from the smoke's `mix hex.info` list (it
+  stays visible, `sed`/`grep`/`sort` still select it), and `1.20.0` is un-revertable (grace window
+  closed). So **publish/retire alone cannot green the gate.**
+- **D-13 (supersedes D-03's "no gate-semantics touch"):** Green the gate by **making the smoke stop
+  resolving to `1.20.0`** via the **existing sanctioned override** — set
+  `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` in the `upgrade_smoke` job `env:` in
+  `.github/workflows/ci.yml` (one line; the override at `upgrade-smoke.sh:56-77` validates the version
+  is published + in-series). This is **Option 4a**, chosen by Jon over the algorithm-level
+  retired-filter (Option 4b → deferred to Phase 222/HARD-01 as the durable fix) and over deferring
+  PUB-01. This is a minimal env pin, NOT a gate-algorithm change.
+- **D-14 (Option 4a sequence, pulls PUB-02/03/04 forward per D-05):** In Phase 221 —
+  (1) publish **v1.2.0** (dry-run then real via `hex-publish.yml` `workflow_dispatch`);
+  (2) publish **v1.3.0** (real); (3) add the `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin to
+  `ci.yml`; (4) retire the stray **`1.20.0`** (adopter honesty — does NOT affect the smoke sort, but
+  fixes `latest_stable_version`/`~> 1.0`); (5) push to `main` and observe `upgrade_smoke`→success +
+  `ci-gate` green. The pin target must be a **published** version, so v1.3.0 must be live before the
+  pin greens anything.
+- **D-15 (traceability):** PUB-02, PUB-03, PUB-04 move from Phase 223 → **Phase 221** (gate
+  dependencies of PUB-01; D-05 authorizes). Phase 223 retains **PUB-05** (adopter `~> 1.0` resolution
+  proof) + **PROOF-01** (trust bundle). ROADMAP.md + REQUIREMENTS.md traceability updated during this
+  plan-phase. Phase 222's "lands before the publish" rationale is now stale (publishes happen in 221
+  via the ungated escape hatch); its HARD-01/02 charter is unchanged and HARD-01 is the durable
+  replacement for the D-13 pin.
+- **D-16 (operator-gated — CANNOT be automated):** All three Hex writes require operator action —
+  the two `hex-publish.yml` dispatches (`gh workflow run …`) AND the interactive `mix hex.retire`
+  (needs an operator-minted Hex **write** key; the CI `HEX_API_KEY` is read-only). The publish/retire
+  tasks in the plan MUST be `autonomous: false` operator checkpoints. The final greening proof
+  (`ci-gate` green on push-to-`main`) is inherently CI/registry-side — not provable from a PR or
+  purely locally. Re-query live Hex (`curl -s https://hex.pm/api/packages/sigra`) immediately before
+  executing — state can change.
+
 ### SHIP-01 — Restore installer passkey-rename defense-in-depth (mechanical mirror)
 - **D-06:** In `priv/templates/sigra.install/core/mfa_settings_live.ex` (`~:736`, `save_passkey_name`)
   add `scope: socket.assigns.current_scope` to the `Auth.rename_passkey/4` call and add the
