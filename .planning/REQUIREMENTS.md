@@ -14,7 +14,7 @@ Requirements for the v1.45 RELEASE-CURRENCY milestone. Each maps to exactly one 
 - [x] **PUB-01**: The generated-host `<.button type>` upgrade-smoke warning-as-error is resolved so the `Upgrade smoke (published source → local candidate)` job compiles the upgrade harness clean under `--warnings-as-errors`, taking `ci-gate` green on push-to-`main` (lib + installer template + example in parity; install golden fixture re-blessed).
 - [x] **PUB-02**: Sigra `v1.2.0` is published to Hex.pm (dry-run verified first), keeping the release series contiguous after `v1.1.0`.
 - [x] **PUB-03**: Sigra `v1.3.0` is published to Hex.pm after `v1.2.0`, making the current shipped code (through v1.44) available to adopters.
-- [ ] **PUB-04**: The stray Hex `1.20.0` is retired so `latest_stable_version` resolves to the real GA (`1.3.0`). *(Operator-gated: requires interactive Hex write-auth.)*
+- [ ] **PUB-04** *(DEFERRED — Jon, 2026-07-10)*: The stray Hex `1.20.0` is retired so `latest_stable_version` resolves to the real GA (`1.3.0`). Deferred at phase close: near-zero adoption + Hex 2.5.0 blocks programmatic retire (OAuth device-flow token → `key not authorized`; CLI key-gen removed). Orthogonal to the gate (the `1.3.0` pin greens the smoke, not the retire). Tracked in `.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`.
 - [ ] **PUB-05**: A clean adopter resolution is proven — `{:sigra, "~> 1.0"}` / `mix deps.update` resolves to the current published version (`1.3.0`), not the stray `1.20.0` nor the stale `1.1.0`.
 
 ### Release-Lane Hardening — no silent rot (HARD)
@@ -66,7 +66,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PUB-01 | Phase 221 | Complete |
 | PUB-02 | Phase 221 | Complete |
 | PUB-03 | Phase 221 | Complete |
-| PUB-04 | Phase 221 | Pending |
+| PUB-04 | Phase 221 | Deferred (tracked) |
 | PUB-05 | Phase 223 | Pending |
 | HARD-01 | Phase 222 | Pending |
 | HARD-02 | Phase 222 | Pending |
