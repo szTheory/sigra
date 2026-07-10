@@ -373,7 +373,10 @@ the guard's proof next to the guard.
 | A3 | v1.2.0 and v1.3.0 tags compile WAE + pass `mix test` + `mix docs` WAE at their refs (hex-publish preflight) | Standard Stack | Medium — they were release-please-cut from green `main`, but the dispatch workflow will hard-fail loudly if not; dry-run v1.2.0 first de-risks this. |
 | A4 | `1.20.0` is un-revertable (grace window closed) | Runtime State Inventory | Low — Hex ~1h policy + the retire todo both state deletion is disallowed post-window; published 2026-04-28. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Q1 → **RESOLVED** as Option 4a (pin), CONTEXT D-13. Q2 → **RESOLVED**: publish both v1.2.0 + v1.3.0, pin floor to 1.3.0, D-14/D-15. Q3 → **RESOLVED** as `2,26p`, implemented in Plan 221-02.
+
 
 1. **Which lever removes `1.20.0` from the smoke's resolution — pin (4a) or retired-filter (4b)?**
    - What we know: publish/retire alone cannot; both levers work; 4a is one env line (sanctioned
