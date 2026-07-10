@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-status: verifying
-stopped_at: Completed 220-04-PLAN.md
-last_updated: "2026-07-10T02:31:25.419Z"
+status: milestone_complete
+stopped_at: Milestone complete (Phase 220 was final phase)
+last_updated: 2026-07-10T02:37:35.391Z
 last_activity: 2026-07-10
 progress:
   total_phases: 5
@@ -22,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 220 — terminal-ratification
+**Current focus:** Milestone complete
 
 ## Current Position
 
-Phase: 220 (terminal-ratification) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
+Phase: 220
+Plan: Not started
+Status: Milestone complete
 Last activity: 2026-07-10
 
 Progress: [██████████] 100%

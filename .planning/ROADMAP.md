@@ -215,4 +215,4 @@ Plans:
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
 | 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
-| 220. Terminal Ratification | 4/4 | Complete   | 2026-07-10 |
+| 220. Terminal Ratification | 4/4 | Complete    | 2026-07-10 |
