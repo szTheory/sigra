@@ -63,23 +63,29 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PUB-01 | TBD | Pending |
-| PUB-02 | TBD | Pending |
-| PUB-03 | TBD | Pending |
-| PUB-04 | TBD | Pending |
-| PUB-05 | TBD | Pending |
-| HARD-01 | TBD | Pending |
-| HARD-02 | TBD | Pending |
-| SHIP-01 | TBD | Pending |
-| SHIP-02 | TBD | Pending |
-| SHIP-03 | TBD | Pending |
-| PROOF-01 | TBD | Pending |
+| PUB-01 | Phase 221 | Pending |
+| PUB-02 | Phase 223 | Pending |
+| PUB-03 | Phase 223 | Pending |
+| PUB-04 | Phase 223 | Pending |
+| PUB-05 | Phase 223 | Pending |
+| HARD-01 | Phase 222 | Pending |
+| HARD-02 | Phase 222 | Pending |
+| SHIP-01 | Phase 221 | Pending |
+| SHIP-02 | Phase 221 | Pending |
+| SHIP-03 | Phase 221 | Pending |
+| PROOF-01 | Phase 223 | Pending |
 
 **Coverage:**
 - v1.45 requirements: 11 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11 ✓
+- Unmapped: 0 ✓
+
+**Phase distribution:**
+- Phase 221 (Unblock the Gate + Ship-Honest Generated-Host Debt): PUB-01, SHIP-01, SHIP-02, SHIP-03 (4)
+- Phase 222 (Release-Lane Hardening): HARD-01, HARD-02 (2)
+- Phase 223 (Get Current on Hex + Terminal Currency Proof): PUB-02, PUB-03, PUB-04, PUB-05, PROOF-01 (5)
 
 ---
 *Requirements defined: 2026-07-10 after `/gsd-new-milestone` (v1.45 RELEASE-CURRENCY)*
-*Last updated: 2026-07-10 after initial definition*
+*Last updated: 2026-07-10 after roadmap creation (traceability mapped, 11/11 covered)*
+</content>

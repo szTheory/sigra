@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
 status: planning
-last_updated: "2026-07-10T14:38:46.211Z"
+last_updated: "2026-07-10T15:10:00.000Z"
 last_activity: 2026-07-10
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.44 shipped + archived — between milestones (start next with `/gsd-new-milestone`)
+**Current focus:** v1.45 RELEASE-CURRENCY — roadmap created (Phases 221-223). Get Sigra current + trustworthy on Hex: unblock gate → harden lane → publish + prove. Next: `/gsd-plan-phase 221`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 221 — Unblock the Gate + Ship-Honest Generated-Host Debt (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-10 — Milestone v1.45 started
+Status: Roadmap created — ready to plan Phase 221
+Last activity: 2026-07-10 — v1.45 RELEASE-CURRENCY roadmap created (3 phases, 11/11 requirements mapped)
 
 ## Accumulated Context
 
@@ -322,6 +322,7 @@ Last activity: 2026-07-10 — Milestone v1.45 started
 - Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
+- v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 
 ## Quick Tasks Completed
 
