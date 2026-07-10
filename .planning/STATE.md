@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: ready_to_plan
-stopped_at: Phase 221 complete (5/5) — ready to discuss Phase 222
-last_updated: 2026-07-10T22:33:09.476Z
+status: planning
+stopped_at: Phase 222 context gathered (assumptions mode)
+last_updated: "2026-07-10T23:14:12.706Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
   completed_plans: 5
-  percent: 0
+  percent: 33
 ---
 
 # Project State
@@ -397,9 +397,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T16:45:35.349Z
-Stopped at: Completed 221-02-PLAN.md
-Resume file: None
+Last session: 2026-07-10T23:14:12.702Z
+Stopped at: Phase 222 context gathered (assumptions mode)
+Resume file: .planning/phases/222-release-lane-hardening-no-silent-rot/222-CONTEXT.md
 
 ## Operator Next Steps
 
