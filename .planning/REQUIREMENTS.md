@@ -11,7 +11,7 @@ Requirements for the v1.45 RELEASE-CURRENCY milestone. Each maps to exactly one 
 
 ### Publish Unblock & Hex Currency (PUB)
 
-- [ ] **PUB-01**: The generated-host `<.button type>` upgrade-smoke warning-as-error is resolved so the `Upgrade smoke (published source → local candidate)` job compiles the upgrade harness clean under `--warnings-as-errors`, taking `ci-gate` green on push-to-`main` (lib + installer template + example in parity; install golden fixture re-blessed).
+- [x] **PUB-01**: The generated-host `<.button type>` upgrade-smoke warning-as-error is resolved so the `Upgrade smoke (published source → local candidate)` job compiles the upgrade harness clean under `--warnings-as-errors`, taking `ci-gate` green on push-to-`main` (lib + installer template + example in parity; install golden fixture re-blessed).
 - [ ] **PUB-02**: Sigra `v1.2.0` is published to Hex.pm (dry-run verified first), keeping the release series contiguous after `v1.1.0`.
 - [ ] **PUB-03**: Sigra `v1.3.0` is published to Hex.pm after `v1.2.0`, making the current shipped code (through v1.44) available to adopters.
 - [ ] **PUB-04**: The stray Hex `1.20.0` is retired so `latest_stable_version` resolves to the real GA (`1.3.0`). *(Operator-gated: requires interactive Hex write-auth.)*
@@ -63,7 +63,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PUB-01 | Phase 221 | Pending |
+| PUB-01 | Phase 221 | Complete |
 | PUB-02 | Phase 221 | Pending |
 | PUB-03 | Phase 221 | Pending |
 | PUB-04 | Phase 221 | Pending |

@@ -4,13 +4,13 @@ milestone: v1.45
 milestone_name: RELEASE-CURRENCY
 status: executing
 stopped_at: Completed 221-02-PLAN.md
-last_updated: "2026-07-10T16:42:31.575Z"
+last_updated: "2026-07-10T16:46:54.414Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 221 (unblock-the-gate-ship-honest-generated-host-debt) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-07-10
 
@@ -311,6 +311,7 @@ Last activity: 2026-07-10
 - [Phase ?]: 221-01: Mirrored only the Elixir semantics (scope: kwarg, impersonation_forbidden clause, dedupe copy) from the example twin into the installer template, not its vt-* markup; re-blessed the install golden fixture via the generator task
 - [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
 - [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
+- [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
 
 ### Pending Todos
 
@@ -396,7 +397,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T16:42:31.571Z
+Last session: 2026-07-10T16:45:35.349Z
 Stopped at: Completed 221-02-PLAN.md
 Resume file: None
 
@@ -503,3 +504,4 @@ Resume file: None
 | Phase 220 P04 | 8min | 2 tasks | 2 files |
 | Phase 221 P01 | 20min | 3 tasks | 2 files |
 | Phase 221 P02 | 6min | 3 tasks | 5 files |
+| Phase 221 P03 | 8min | 2 tasks | 1 files |
