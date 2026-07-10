@@ -195,9 +195,14 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 220-01-PLAN.md — cheerio lazy-require fix (D-09/D-10, SC-4) + close folded TODO [wave 1]
 - [ ] 220-02-PLAN.md — runbook D-04 freshness notes (D-03/D-04, SC-2) [wave 1]
 - [ ] 220-03-PLAN.md — live-guard confirmation record (D-01/D-02, SC-1) [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 220-04-PLAN.md — quarantine-PR body draft + close-readiness record (D-05…D-13, SC-3) [wave 2]
 
 **UI hint**: yes
