@@ -38,7 +38,9 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
         on_exit(fn -> File.rm_rf(Path.dirname(app_dir)) end)
 
         assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, flags)
-        assert {:ok, _stdout} = InstallFixture.run_mix(app_dir, ["compile"])
+        # --warnings-as-errors guards against dead code in opt-out builds, e.g. an
+        # impersonation guard helper whose only caller is passkey-gated (Phase 221).
+        assert {:ok, _stdout} = InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
 
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_hooks.js"))
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_browser.js"))

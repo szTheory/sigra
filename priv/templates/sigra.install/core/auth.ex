@@ -1113,6 +1113,7 @@ defmodule <%= context_module %> do
     ]
   end
 
+<%= if passkeys? do %>
   # Defense-in-depth: refuse sensitive account operations while an admin is
   # impersonating the target user, and audit the denied attempt. Sigra enforces
   # this at the library layer too; this app-level guard keeps the denial close to
@@ -1139,4 +1140,5 @@ defmodule <%= context_module %> do
   defp extract_scope(opts) when is_list(opts), do: Keyword.get(opts, :scope)
   defp extract_scope(%{} = opts), do: Map.get(opts, :scope)
   defp extract_scope(_other), do: nil
+<% end %>
 end

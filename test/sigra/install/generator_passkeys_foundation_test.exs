@@ -49,7 +49,7 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
       assert content =~ "def register_passkey(user, attestation_params, details \\\\ %{})"
       assert content =~ "def authenticate_passkey(user, assertion_params)"
       assert content =~ "def authenticate_discoverable_passkey("
-      assert content =~ "def rename_passkey(user, credential_id, nickname)"
+      assert content =~ "def rename_passkey(user, credential_id, nickname, opts \\\\ [])"
       assert content =~ "def delete_passkey(user, credential_id)"
       assert content =~ "Sigra.Passkeys.delete_with_posture"
       assert content =~ "def passkey_primary_enabled?()"
