@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.44
-milestone_name: ADMIN-UX-RATCHET
-status: milestone_shipped
-stopped_at: v1.44 ADMIN-UX-RATCHET shipped 2026-07-10 (terminal PR #73 → c0595e09) + archived. Between milestones — ready for /gsd-new-milestone.
-last_updated: 2026-07-10T13:30:00.000Z
+milestone: v1.45
+milestone_name: RELEASE-CURRENCY
+status: planning
+last_updated: "2026-07-10T14:38:46.211Z"
 last_activity: 2026-07-10
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 36
-  completed_plans: 36
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -26,12 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 220
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-10
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-10 — Milestone v1.45 started
 
 ## Accumulated Context
 
