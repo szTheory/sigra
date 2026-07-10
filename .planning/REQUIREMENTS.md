@@ -43,7 +43,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Terminal Ratification (RATIFY) — Phase 220
 
-- [ ] **RATIFY-01**: The award sub-score cells are locked forward under the monotonic guard, a harness runbook is committed (how to run one iteration + where the human sign-off sits), and the milestone ships via a PR gated on the five required CI checks — with the LLM panel advisory/off-CI throughout.
+- [x] **RATIFY-01**: The award sub-score cells are locked forward under the monotonic guard, a harness runbook is committed (how to run one iteration + where the human sign-off sits), and the milestone ships via a PR gated on the five required CI checks — with the LLM panel advisory/off-CI throughout.
 
 ## v2 Requirements
 
@@ -88,4 +88,4 @@ Filled by the roadmap — every REQ-ID maps to exactly one phase.
 | ELEVATE-02 | 218 | Complete |
 | ELEVATE-03 | 218 | Complete |
 | RECAP-01 | 219 | Complete |
-| RATIFY-01 | 220 | Pending |
+| RATIFY-01 | 220 | Complete |
