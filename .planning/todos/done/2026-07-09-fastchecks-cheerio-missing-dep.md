@@ -1,6 +1,6 @@
 ---
 created: 2026-07-09T00:00:00.000Z
-status: pending
+status: done
 title: fast_checks red on branch — evidence-anchor-check / panel scripts need cheerio (not installed)
 area: ci
 files:
@@ -46,3 +46,17 @@ no eval infra), which is why it was deferred here.
 
 Decide 1 vs 2 based on whether evidence-anchor-check is intended as a hard merge gate or
 advisory. Resolve before the 219→main ship.
+
+## Resolution (Phase 220, D-10)
+
+Fixed via option (4), not previously listed: relocate the existing runtime
+`_require('cheerio')` call in `scripts/ci/evidence-anchor-check.mjs` to *after* the
+no-bundles early-exit guard, instead of resolving it at module top. On a bundle-free
+`fast_checks` checkout the script now exits 0 before ever touching cheerio; wherever
+bundles exist, cheerio still resolves from the existing
+`test/example/priv/playwright/node_modules` install and the deterministic
+evidence-anchor gate stays fully armed and merge-blocking (D-09 preserved).
+
+The npm-ci-reorder (option 1) and vendoring/root-package.json (option 3) alternatives
+were rejected as fragile/positional and unnecessary supply-chain surface respectively
+(D-10). No new dependency was added — see `220-01-SUMMARY.md`.
