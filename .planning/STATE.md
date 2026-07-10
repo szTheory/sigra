@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: "Phase 221 shipped — PR #82 (PUB-01 proof pending post-merge push-to-main)"
-stopped_at: Completed 221-02-PLAN.md
-last_updated: "2026-07-10T18:42:31.772Z"
+status: ready_to_plan
+stopped_at: Phase 221 complete (5/5) — ready to discuss Phase 222
+last_updated: 2026-07-10T22:33:09.476Z
 last_activity: 2026-07-10
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 5
   percent: 0
 ---
 
@@ -22,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 221 — unblock-the-gate-ship-honest-generated-host-debt
+**Current focus:** Phase 222 — release lane hardening (no silent rot)
 
 ## Current Position
 
-Phase: 221 (unblock-the-gate-ship-honest-generated-host-debt) — EXECUTING
-Plan: 4 of 5
-Status: Phase 221 shipped — PR #82 (PUB-01 proof pending post-merge push-to-main)
+Phase: 222
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-07-10
 
 ## Accumulated Context

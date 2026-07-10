@@ -23,7 +23,7 @@
 
 ### v1.45 RELEASE-CURRENCY (Phases 221-223) — ACTIVE
 
-- [ ] **Phase 221: Unblock the Gate + Ship-Honest Generated-Host Debt** — resolve the `<.button type>` upgrade-smoke warning-as-error (lib + installer template + example parity, golden re-blessed) so `ci-gate` goes green on push-to-`main`, and pay down the generated-host debt that ships to every adopter (passkey `scope:` defense-in-depth, copy/DX nits, app.css corruption-guard blind spot)
+- [x] **Phase 221: Unblock the Gate + Ship-Honest Generated-Host Debt** — resolve the `<.button type>` upgrade-smoke warning-as-error (lib + installer template + example parity, golden re-blessed) so `ci-gate` goes green on push-to-`main`, and pay down the generated-host debt that ships to every adopter (passkey `scope:` defense-in-depth, copy/DX nits, app.css corruption-guard blind spot)
 - [ ] **Phase 222: Release-Lane Hardening (No Silent Rot)** — make the `Upgrade smoke` gate un-rot-able (PR-visible or loud red-`main` signal) and verify release-please auto-publish fires end-to-end on a green gate — or fails loudly — with a documented recovery/manual-dispatch runbook
 - [ ] **Phase 223: Get Current on Hex + Terminal Currency Proof** — publish v1.2.0 then v1.3.0 (contiguous after v1.1.0), retire the stray 1.20.0, prove a clean adopter `~> 1.0` resolution, and record the release-currency proof bundle as the milestone's trust artifact
 
@@ -48,7 +48,7 @@
 - [x] 221-02-PLAN.md — SHIP-02b `up.sh --help` window + SHIP-03 corruption-guard `last_was_prop` reset with net-new fixture/driver wired into CI (SHIP-02, SHIP-03)
 - [x] 221-03-PLAN.md — PUB-01 smoke-floor pin: `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` on the `upgrade_smoke` job (PUB-01)
 - [x] 221-04-PLAN.md — PUB-02/03 operator publishes of v1.2.0 (dry-run then real) and v1.3.0 via `hex-publish.yml` (autonomous: false)
-- [ ] 221-05-PLAN.md — PUB-04 retire stray 1.20.0 + PUB-01 terminal gate-green observation on push-to-`main` (autonomous: false)
+- [x] 221-05-PLAN.md — PUB-04 retire stray 1.20.0 + PUB-01 terminal gate-green observation on push-to-`main` (autonomous: false)
 
 ### Phase 222: Release-Lane Hardening (No Silent Rot)
 
@@ -83,7 +83,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 4/5 | In Progress|  |
+| 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 5/5 | Complete    | 2026-07-10 |
 | 222. Release-Lane Hardening (No Silent Rot) | 0/? | Not started | - |
 | 223. Get Current on Hex + Terminal Currency Proof | 0/? | Not started | - |
 
