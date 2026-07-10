@@ -85,7 +85,7 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
             ~s(def handle_event("open_passkey_rename", %),
             ~s(def handle_event("cancel_passkey_rename", _params),
             ~s(def handle_event("save_passkey_name", %),
-            "Auth.rename_passkey(user, credential_id, nickname || \"\")",
+            "Auth.rename_passkey(user, credential_id, nickname || \"\", scope: socket.assigns.current_scope)",
             "Passkey name saved."
           ] do
         assert content =~ expected
@@ -98,7 +98,7 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
       for expected <- [
             "Delete",
             "Delete this passkey?",
-            "Delete this passkey? You'll still need another sign-in method before removing your last recovery option.",
+            "You'll still need another sign-in method before removing your last recovery option.",
             "You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.",
             ~S|~p"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"|,
             ~s(method="post"),
