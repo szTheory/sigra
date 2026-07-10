@@ -1,6 +1,7 @@
 ---
 created: 2026-07-10T00:00:00.000Z
 status: pending
+resolves_phase: 223
 title: Publish v1.2.0/v1.3.0 to Hex — one-time break of the upgrade-smoke chicken-and-egg (self-heals)
 area: release
 files:
@@ -67,5 +68,8 @@ Also revisit the stray Hex `1.20.0` retire ([[2026-07-03-hex-retire-stray-1-20-0
 ## Status
 
 - GitHub side: **DONE** (v1.44 on `main`; v1.2.0 + v1.3.0 tagged + released).
-- Hex side: **DEFERRED** (Jon, Option A) — this TODO. One `gh workflow run` unblocks it and
-  self-heals the recurring main-CI red.
+- Hex side: **DONE** (Phase 221, 2026-07-10) — v1.2.0 (runs 29108801612 dry-run + 29109600146 real)
+  and v1.3.0 (29113000684) published; both confirmed live via the Hex API. Phase 221 also pinned
+  `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` (the deterministic lever, orthogonal to the self-heal).
+- Remaining for Phase 223: the optional `upgrade-smoke.sh` hardening above, and the stray `1.20.0`
+  retire ([[2026-07-03-hex-retire-stray-1-20-0]], still deferred — Hex 2.5 blocks programmatic retire).

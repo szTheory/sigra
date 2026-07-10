@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.44
-milestone_name: ADMIN-UX-RATCHET
-status: milestone_shipped
-stopped_at: v1.44 ADMIN-UX-RATCHET shipped 2026-07-10 (terminal PR #73 → c0595e09) + archived. Between milestones — ready for /gsd-new-milestone.
-last_updated: 2026-07-10T13:30:00.000Z
+milestone: v1.45
+milestone_name: RELEASE-CURRENCY
+status: "Phase 221 shipped — PR #82 (PUB-01 proof pending post-merge push-to-main)"
+stopped_at: Completed 221-02-PLAN.md
+last_updated: "2026-07-10T18:42:31.772Z"
 last_activity: 2026-07-10
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 36
-  completed_plans: 36
-  percent: 100
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 5
+  completed_plans: 3
+  percent: 0
 ---
 
 # Project State
@@ -22,16 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.44 shipped + archived — between milestones (start next with `/gsd-new-milestone`)
+**Current focus:** Phase 221 — unblock-the-gate-ship-honest-generated-host-debt
 
 ## Current Position
 
-Phase: 220
-Plan: Not started
-Status: Milestone complete
+Phase: 221 (unblock-the-gate-ship-honest-generated-host-debt) — EXECUTING
+Plan: 4 of 5
+Status: Phase 221 shipped — PR #82 (PUB-01 proof pending post-merge push-to-main)
 Last activity: 2026-07-10
-
-Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -310,6 +308,10 @@ Progress: [██████████] 100%
 - [Phase 220]: 220-04: Quarantine-PR draft scopes exactly the 3 impersonation-banner PNGs (D-05/D-08); required Example Playwright smoke green + PAT-push footgun note captured
 - [Phase 220]: 220-04: Close-readiness record (D-13) maps SC-1..SC-4 to observable signals and captures affirmative panel-absence evidence (panel-ci-isolation.test.sh PASS 3/3 + zero-match ci.yml run: grep) for SC-4's panel half
 - [Phase 220]: 220-04: Phase 220 complete (4/4 plans); does NOT self-merge any PR or archive the milestone — deferred ship sequence handed to operator/gsd-ship/gsd-complete-milestone
+- [Phase ?]: 221-01: Mirrored only the Elixir semantics (scope: kwarg, impersonation_forbidden clause, dedupe copy) from the example twin into the installer template, not its vt-* markup; re-blessed the install golden fixture via the generator task
+- [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
+- [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
+- [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
 
 ### Pending Todos
 
@@ -325,6 +327,7 @@ Progress: [██████████] 100%
 - Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
+- v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 
 ## Quick Tasks Completed
 
@@ -394,8 +397,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T02:31:25.415Z
-Stopped at: v1.44 shipped + archived
+Last session: 2026-07-10T16:45:35.349Z
+Stopped at: Completed 221-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -499,3 +502,6 @@ Resume file: None
 | Phase 220 P02 | 8min | 1 tasks | 1 files |
 | Phase 220 P03 | 6min | 1 tasks | 1 files |
 | Phase 220 P04 | 8min | 2 tasks | 2 files |
+| Phase 221 P01 | 20min | 3 tasks | 2 files |
+| Phase 221 P02 | 6min | 3 tasks | 5 files |
+| Phase 221 P03 | 8min | 2 tasks | 1 files |

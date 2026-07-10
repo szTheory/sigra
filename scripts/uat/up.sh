@@ -742,7 +742,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --help|-h)
-      sed -n '2,25p' "${BASH_SOURCE[0]}"
+      sed -n '2,26p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)

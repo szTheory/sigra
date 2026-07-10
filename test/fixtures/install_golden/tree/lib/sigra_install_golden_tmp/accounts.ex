@@ -796,8 +796,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   @doc "Rename a passkey."
-  def rename_passkey(user, credential_id, nickname) do
-    with {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
+  def rename_passkey(user, credential_id, nickname, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.rename"),
+         {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
       Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "", user_passkey_schema: UserPasskey)
     end
   end
@@ -1110,4 +1111,33 @@ defmodule SigraInstallGoldenTmp.Accounts do
       oban_queue: "sigra_mailer"
     ]
   end
+
+
+  # Defense-in-depth: refuse sensitive account operations while an admin is
+  # impersonating the target user, and audit the denied attempt. Sigra enforces
+  # this at the library layer too; this app-level guard keeps the denial close to
+  # the context call and records it against your AuditEvent schema.
+  defp forbid_sensitive_operation(opts, user, operation) do
+    case extract_scope(opts) do
+      %{impersonating_from: impersonator} = scope when not is_nil(impersonator) ->
+        Sigra.Audit.log_safe("admin.impersonation.denied", scope,
+          audit_schema: SigraInstallGoldenTmp.Accounts.AuditEvent,
+          repo: Repo,
+          actor_id: impersonator.id,
+          target_id: user.id,
+          outcome: "failure",
+          metadata: %{operation: operation}
+        )
+
+        {:error, :impersonation_forbidden}
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp extract_scope(opts) when is_list(opts), do: Keyword.get(opts, :scope)
+  defp extract_scope(%{} = opts), do: Map.get(opts, :scope)
+  defp extract_scope(_other), do: nil
+
 end

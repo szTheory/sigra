@@ -1,7 +1,7 @@
 ---
 created: 2026-07-09
 source: 218-REVIEW.md (gap-closure re-review)
-resolves_phase:
+resolves_phase: 221
 severity: warning
 tags: [installer-template-drift, admin-demo, harness-doc]
 ---

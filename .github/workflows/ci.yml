@@ -151,6 +151,10 @@ jobs:
         # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
         # fragments re-entering the :root block of test/example's app.css.
         run: bash scripts/ci/app-css-corruption-check.sh
+      - name: app.css corruption guard self-test
+        # Phase 221 Plan 02 (SHIP-03 / D-10): regression proof that the guard
+        # catches an orphan bare value immediately after a ;-terminated decl.
+        run: bash scripts/ci/app-css-corruption-check.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
@@ -631,6 +635,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
+    # Phase 221 / D-13 (Option 4a): pin the smoke's published floor above the
+    # stray 1.20.0 Hex release via the sanctioned override in
+    # scripts/ci/upgrade-smoke.sh (validates published + in-series). The
+    # durable retired-version filter is deferred to HARD-01 / Phase 222.
+    env:
+      SIGRA_UPGRADE_SMOKE_START_VERSION: "1.3.0"
     services:
       postgres:
         image: postgres:15
