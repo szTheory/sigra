@@ -44,7 +44,6 @@ const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..', '..');
 const PW = path.join(ROOT, 'test', 'example', 'priv', 'playwright');
 const _require = createRequire(path.join(PW, 'package.json'));
-const { load: cheerioLoad } = _require('cheerio');
 
 // ---------------------------------------------------------------------------
 // Argument parsing
@@ -101,6 +100,11 @@ if (bundleDirs.length === 0) {
   console.log(`evidence-anchor-check: INFO: no bundles found under ${bundlesDir} — nothing to check`);
   process.exit(0);
 }
+
+// Resolve cheerio from the playwright subproject node_modules (D-09/Plan 01) —
+// relocated to AFTER the no-bundles guard (Phase 220 D-10): a bundle-free
+// fast_checks checkout must exit 0 above without cheerio being installed.
+const { load: cheerioLoad } = _require('cheerio');
 
 let checkedFindings = 0;
 let checkedBundles = 0;
