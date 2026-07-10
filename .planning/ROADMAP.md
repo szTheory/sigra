@@ -192,14 +192,14 @@ Plans:
   3. The milestone ships via a PR gated on all five required CI checks under ruleset 14941512 (`Library tests`, `Example unit smoke`, `Install smoke`, `Example HTTP smoke`, `Example Playwright smoke`) — all green before the ROADMAP status flips to shipped.
   4. The LLM panel is advisory and off-CI in the final shipped state — no panel invocation appears in any required-check job, preserving the forward-only deterministic signal invariant.
 
-**Plans**: 1/4 plans executed
+**Plans**: 3/4 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 220-01-PLAN.md — cheerio lazy-require fix (D-09/D-10, SC-4) + close folded TODO [wave 1]
 - [x] 220-02-PLAN.md — runbook D-04 freshness notes (D-03/D-04, SC-2) [wave 1]
-- [ ] 220-03-PLAN.md — live-guard confirmation record (D-01/D-02, SC-1) [wave 1]
+- [x] 220-03-PLAN.md — live-guard confirmation record (D-01/D-02, SC-1) [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -215,4 +215,4 @@ Plans:
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
 | 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
-| 220. Terminal Ratification | 2/4 | In Progress|  |
+| 220. Terminal Ratification | 3/4 | In Progress|  |
