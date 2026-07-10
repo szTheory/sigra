@@ -25,26 +25,38 @@ interactive Hex auth, so it can't be done by an agent.
 
 ## Why deferred
 
-Purely a manual/interactive step (Hex write-key auth prompts for the hex.pm
-password). No real adopters are blocked today. Jon deferred it at the v1.43 close
-("don't have time right now").
+Purely a manual/interactive step, and now additionally blocked by a Hex 2.5
+tooling limitation (see runbook). No real adopters are blocked today. Jon
+deferred it at the v1.43 close ("don't have time right now"), and again at the
+Phase 221 close (2026-07-10): "nobody is really using this yet." Orthogonal to
+the gate — retire does NOT change the upgrade-smoke `sort -V` (the
+`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin greens the gate), so PUB-01 is
+unaffected by leaving this open. Target GA is now **1.3.0** (v1.2.0 + v1.3.0 were
+published in Phase 221).
 
-## How (runbook — from 214-05-SUMMARY.md)
+## How (runbook — updated Phase 221, Hex 2.5.0)
 
-The locally stored Hex key is read-only ("key not authorized for retire"). So:
+**Hex 2.5.0 wrinkle (found 2026-07-10):** the old `mix hex.user key generate
+--key-name … --permission api` no longer exists (2.5 dropped the CLI `key
+generate` subcommand — `mix help hex.user` shows only `auth`/`whoami`/`deauth`).
+`mix hex.user auth` now uses an OAuth **device flow**; the token it provisions can
+read (owner-list works) but is **NOT authorized to retire** — `mix hex.retire`
+returns `key not authorized for this action` even though `sztheory` is a `full`
+owner of the package. Programmatic retire via the device-flow token appears
+blocked (likely the known Hex OAuth-scope issue).
 
-1. Mint a write key (prompts for hex.pm password — Jon, interactive):
-   `mix hex.user key generate --key-name sigra-retire --permission api`
-   (or refresh auth first if expired: `mix hex.user auth`)
-2. Retire the stray version:
-   `mix hex.retire sigra 1.20.0 invalid --message "Published in error during dev cycle; not a real release — use 1.1.0+"`
-3. Verify: `https://hex.pm/api/packages/sigra` → `latest_stable_version` should
-   drop back to `1.1.0`; `{:sigra, "~> 1.0"}` then resolves to 1.1.0.
+Remaining path (untried by operator choice at 221 close):
+1. Mint an API **write** key on the web dashboard: https://hex.pm/dashboard/keys
+   (Hex 2.5 has no CLI key-gen). Grant it API / write permission.
+2. Retire using that key via env override:
+   `HEX_API_KEY=<key> mix hex.retire sigra 1.20.0 invalid --message "Published in error during dev cycle; not a real release — use 1.3.0+"`
+3. Verify: `curl -s https://hex.pm/api/packages/sigra | jq '.latest_stable_version, .retirements'`
+   → `latest_stable_version` should drop to `1.3.0`; `1.20.0` in `retirements`.
 
 Reversible with `mix hex.retire sigra 1.20.0 --unretire` if ever needed.
 
 ## Done when
 
-Hex reports `1.1.0` (not `1.20.0`) as `latest_stable_version` and `~> 1.0`
+Hex reports `1.3.0` (not `1.20.0`) as `latest_stable_version` and `~> 1.0`
 resolves to the real GA. See also the full runbook in
 `milestones/v1.43-phases/214-debt-robustness-clear/214-05-SUMMARY.md`.
