@@ -120,3 +120,12 @@ None - no external service configuration required.
 ---
 *Phase: 220-terminal-ratification*
 *Completed: 2026-07-09*
+
+## Self-Check: PASSED
+
+- FOUND: scripts/ci/evidence-anchor-check.mjs
+- FOUND: .planning/todos/done/2026-07-09-fastchecks-cheerio-missing-dep.md
+- CONFIRMED: .planning/todos/pending/2026-07-09-fastchecks-cheerio-missing-dep.md removed
+- FOUND commit: 46e7b005 (Task 1)
+- FOUND commit: ba9760a2 (Task 2)
+- FOUND commit: 1db46f6e (SUMMARY)
