@@ -1,0 +1,856 @@
+{
+  "schema_version": 1,
+  "notes": "Render SHA256 and open finding counts per surface and cell (theme-viewport-state). Populated by the admin-eval harness (Plan 07). Each guard reads this as the single authoritative source for render_sha256 and open_findings — render-sha and open-finding counts are consolidated here so quality-findings-monotonic.sh has one stable file to diff. Schema documented in guides/reference/admin-eval-schema.md. Cell render_sha256 values are computed from board outerHTML via renderSha256() in canonicalize.ts. For users-index-live, primary evidence board is board-mg-5 (user-results-pagination). For user-show-live, primary evidence board is board-mg-9 (identity-header-summary-facts). open_findings = total probe findings minus settled entries in settled-findings.tsv. Plan 217-08 (Option 2): board-mg-5-* and board-mg-9-* surfaces added so the LLM panel targets the same concrete boards the render matrix actually renders. open_findings set to 0 (gate-safe: panel reads only render_sha256). Phase 218-01 (D-02): full matrix expansion — all 11 L2 boards (4 states each), 13 L1 boards (single -default state), and 8 L3 surfaces (2 pilots + 6 net-new proxies with proxy:true flag). L3 proxy surfaces reuse their representative board's render_sha256 byte-identically. fix-queue-build.mjs structurally skips proxy:true surfaces in step (j) so builder runs cannot clobber pinned open_findings. L2/L1 boards with render_sha256 = '0000...000' have not yet been captured by the eval harness (Plan 218-02 will capture them and update via fix-queue-build.mjs). L3 proxy mapping: index-live=board-mg-1, organization-live=board-mg-7, users-index-live=board-mg-5(pilot), user-show-live=board-mg-9(pilot), user-sessions=board-mg-11, audit-index-live=board-mg-6, audit-user-live=board-mg-6, branding-live=board-mg-4.",
+  "cells": {
+    "board-mg-1-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-1-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-1-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-1-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-2-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-2-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-2-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-2-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-3-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-3-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-3-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-3-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-4-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-4-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-4-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-4-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-5-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      }
+    },
+    "board-mg-5-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      }
+    },
+    "board-mg-5-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      }
+    },
+    "board-mg-5-error": {
+      "light-desktop-error": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      }
+    },
+    "board-mg-6-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-6-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-6-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-6-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-7-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-7-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-7-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-7-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-8-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-8-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-8-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-8-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-9-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      }
+    },
+    "board-mg-9-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      }
+    },
+    "board-mg-9-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      }
+    },
+    "board-mg-9-error": {
+      "light-desktop-error": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      }
+    },
+    "board-mg-10-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-10-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-10-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-10-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-11-populated": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-11-zero": {
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-11-loading": {
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-mg-11-error": {
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-stat-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-stat_link-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-task_card-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-summary_chip-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-applied_chip-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-empty_state-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-page_back-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-scope_ribbon-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-notice-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-notice_link-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-field_help-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-skeleton-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "board-audit_row-default": {
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "index-live": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "organization": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "users-index-live": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "8b92c4714fa18812f2c022944ff64dcf9b6c316e2744398f4b71a2f947c4afb8",
+        "open_findings": 181
+      }
+    },
+    "user-show-live": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "088e9ab595a9bb3f5abae675ccf68a6c82907a025184bbad838c7985bb0eae8d",
+        "open_findings": 181
+      }
+    },
+    "user-sessions": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "audit-index": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "audit-user": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    },
+    "branding": {
+      "proxy": true,
+      "light-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "light-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 197
+      },
+      "dark-desktop-populated": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-zero": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-loading": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      },
+      "dark-desktop-error": {
+        "render_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "open_findings": 181
+      }
+    }
+  }
+}

@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: false
+      recapture_branch:
+        description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'
+        required: false
+        type: string
+        default: ''
   schedule:
     # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
@@ -42,6 +47,10 @@ jobs:
             echo "Non-manual CI run; release-ref guard not applicable."
             exit 0
           fi
+          if [ -n "${{ github.event.inputs.recapture_branch }}" ]; then
+            echo "Recapture dispatch (recapture_branch=${{ github.event.inputs.recapture_branch }}); release-ref guard not applicable."
+            exit 0
+          fi
           case "${GITHUB_REF}" in
             refs/tags/v*) ;;
             *)
@@ -68,8 +77,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin "${{ github.base_ref }}" --depth=1
-            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+            git fetch origin "${{ github.base_ref }}"
+            MB=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+            echo "ref=${MB}" >> "$GITHUB_OUTPUT"
           else
             echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
           fi
@@ -110,10 +120,96 @@ jobs:
         run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
       - name: Quality ledger monotonic guard self-test
         run: bash scripts/ci/quality-ledger-monotonic.test.sh
+      # Phase 216 (HARNESS-FOUNDATION): admin eval guards — read committed ledgers + merge-base.
+      # These are the merge-blocking forward-only ratchets for the admin eval harness.
+      # The expensive render+probe Playwright run is in the separate admin_eval_render job (JUDGE-CI-01).
+      - name: Quality findings monotonic guard
+        # Phase 216 Plan 07: open finding counts in admin-render-sha.json may not increase vs merge-base.
+        run: bash scripts/ci/quality-findings-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Quality findings monotonic guard self-test
+        run: bash scripts/ci/quality-findings-monotonic.test.sh
+      - name: Award ledger verify-then-climb guard
+        # Phase 216 Plan 07 (D-20): axis up only with fresh verified_at_sha + resolving evidence; band==min(axes).
+        run: node scripts/ci/award-guard.mjs --base "${{ steps.base.outputs.ref }}"
+      - name: Award ledger verify-then-climb guard self-test
+        run: node scripts/ci/award-guard.test.mjs
+      - name: Settled findings lint
+        # Phase 216 Plan 07: settled-findings.tsv must be sorted + no duplicate finding_id.
+        run: bash scripts/ci/settled-findings-lint.sh
+      - name: Settled findings lint self-test
+        run: bash scripts/ci/settled-findings-lint.test.sh
+      - name: Evidence anchor integrity check
+        # Phase 216 Plan 07 (D-09): every finding anchor must resolve in captured DOM.
+        # Soft-skips (exit 0) when no bundles present in a clean checkout — the full
+        # check runs in admin_eval_render where bundles are produced.
+        run: node scripts/ci/evidence-anchor-check.mjs
+      - name: Stale-render guard self-test
+        # Phase 216 Plan 07: unit self-test only — stale-render-guard.sh itself runs in
+        # admin_eval_render (it hard-fails on absent bundles, so it cannot run here).
+        run: bash scripts/ci/stale-render-guard.test.sh
       - name: Check app.css for orphaned corruption
         # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
         # fragments re-entering the :root block of test/example's app.css.
         run: bash scripts/ci/app-css-corruption-check.sh
+      - name: Panel forced-floor check self-test
+        # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
+        # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
+        # (no committed panel-findings.json at this phase's scope).
+        run: node scripts/ci/panel-forced-floor-check.test.mjs
+      - name: Panel CI-isolation self-test
+        # Phase 217 Plan 03 (SC-5/JUDGE-CI-01): negative-assertion proof that no workflow
+        # run: step invokes the panel or auto-fix loop orchestrators.
+        run: bash scripts/ci/panel-ci-isolation.test.sh
+      - name: Fix-apply self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that fix-apply.mjs enforces +/-1.0px band,
+        # refuses ties/>1.0px/CSS/component/judgment; copy-swap is text-node-only; !important preserved.
+        run: node scripts/panel/fix-apply.test.mjs
+      - name: Auto-fix loop self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that admin-autofix-loop.sh fires git revert on
+        # rail 1 (count-monotonic), the finding lands in settled-findings.tsv (waived), and the
+        # poison-set prevents re-apply. The loop binary itself is NOT wired into CI (JUDGE-CI-01).
+        run: bash scripts/ci/admin-autofix-loop.test.sh
+      - name: Fix-queue lint
+        # Phase 217 (WR-01): validates guides/reference/fix-queue.json on the merge path
+        # (auto_eligible derivation, finding_id keyspace, sort/dedup). Reads committed
+        # state only — no DB, browser, or API key.
+        run: bash scripts/ci/fix-queue-lint.sh
+      - name: Panel verdicts lint
+        # Phase 217 (WR-01): validates guides/reference/admin-panel-verdicts.json on the
+        # merge path (T-217-05-EOP: never stores open_findings; finding_id integrity).
+        run: bash scripts/ci/panel-verdicts-lint.sh
+      # Phase 217 (WR-02): Phase-217 self-tests that were written but never executed
+      # on any merge lane. The five below are fully hermetic (built-in node modules /
+      # bash only — no cheerio, DB, browser, or API key) and run on the ubuntu-latest
+      # default node with zero added setup cost.
+      - name: Anchor lib self-test
+        run: node scripts/ci/lib/anchor.test.mjs
+      - name: Panel schema self-test
+        run: node scripts/panel/panel-schema.test.mjs
+      - name: Fix-queue build self-test
+        run: node scripts/ci/fix-queue-build.test.mjs
+      - name: Fix-queue lint self-test
+        run: bash scripts/ci/fix-queue-lint.test.sh
+      - name: Panel verdicts lint self-test
+        run: bash scripts/ci/panel-verdicts-lint.test.sh
+      # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
+      # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
+      # node_modules), so they need the playwright deps installed first. Pin node and
+      # do a scoped `npm ci` so these two self-tests still run on the merge path.
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Playwright subproject deps (for cheerio-backed self-tests)
+        working-directory: test/example/priv/playwright
+        run: npm ci --ignore-scripts
+      - name: Excerpt self-test
+        run: node scripts/panel/excerpt.test.mjs
+      - name: Judge self-test
+        run: node scripts/panel/judge.test.mjs
+      - name: Judge CLI bundle-wiring self-test
+        run: node scripts/panel/judge-cli.test.mjs
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
@@ -1400,8 +1496,9 @@ jobs:
           fi
           echo "ci-gate passed: all required release lanes succeeded."
 
-  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 72 admin-design
-  # baselines in-CI so the committed PNGs match what ubuntu CI renders. This job
+  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 84 admin-design
+  # baselines (28 boards × chromium/mobile/dark) in-CI so the committed PNGs match
+  # what ubuntu CI renders. This job
   # carries job-level `permissions: contents: write` (the workflow default is
   # `contents: read`, ci.yml:26) so it can commit the recaptured PNGs. It is
   # NOT in ci-gate.needs — it is a one-time recapture utility, not a PR gate.
@@ -1521,7 +1618,7 @@ jobs:
           echo "Removed board-notice PNGs:"
           ls test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/ | grep board-notice || echo "(none — deletion successful)"
       - name: Recapture admin-design baselines
-        # D-09: recapture all 72 admin-design PNGs (24 boards × chromium/mobile/dark)
+        # D-09: recapture all 84 admin-design PNGs (28 boards × chromium/mobile/dark)
         # in the ubuntu CI environment so the committed baselines match what CI renders.
         # The fonts.check hard guard in waitForLiveViewReady (197-03) ensures the font
         # is loaded before any snapshot is taken.
@@ -1545,9 +1642,12 @@ jobs:
         # OQ2 (reviewable commit): recaptured PNGs land on a ci/recapture-admin-design-<run_id>
         # branch and a PR is opened via gh pr create — baseline changes get human review
         # under branch protection rather than a silent push to main. The commit carries
-        # [skip ci] to avoid re-triggering this job.
+        # [skip ci] to avoid re-triggering this job. D-04: when dispatched with a
+        # non-empty recapture_branch, the PR targets that branch instead of main so
+        # recaptured PNGs land green-before-merge on the Phase 219 branch.
         env:
           GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
         run: |
           set -euo pipefail
           SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots"
@@ -1601,7 +1701,7 @@ jobs:
             gh pr create \
               --title "ci: recapture admin-design baselines in ubuntu CI (${{ github.run_id }})" \
               --body "Admin-design baseline recapture (automated). Triggered by the global --font-sans Space Grotesk override (Phase 197-03). OQ1: board-notice canary re-established as added (not modified). OQ2: reviewable PR instead of push to main. Merge after visual review." \
-              --base main \
+              --base "${RECAPTURE_BASE:-main}" \
               --head "$BRANCH"
           fi
       - name: Check cross-lane baseline drift from global --font-sans (OQ3, COMPARE mode only)
@@ -1806,6 +1906,26 @@ jobs:
               && echo "warmed ${path}" \
               || echo "warmup miss ${path} (non-fatal)"
           done
+      - name: Re-establish impersonation-banner canary (D-03.2 delete-rebirth)
+        # snapshot-canary-guard.sh forbids a canary *modify* but tolerates a canary
+        # *added*. A working-tree-only delete + recreate still reads as `modified`
+        # vs HEAD (HEAD retains the old bytes), so the deletion must be COMMITTED
+        # first: then the reborn PNG is a brand-new untracked file (pure `added`)
+        # relative to the delete commit, which the guard tolerates. (219 fix — the
+        # earlier `find -delete` yielded `modified` for a canary whose bytes actually
+        # change, e.g. the first amd64 re-baseline of a previously hand-reconciled
+        # baseline. The admin-design board-notice step shares this latent gap but
+        # only stays green while board-notice is byte-identical.)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Deleting + committing impersonation-banner PNGs so recapture creates them as a pure 'added' (not 'modified')"
+          git rm -q --ignore-unmatch \
+            test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/impersonation-banner-admin-checkpoints-*.png
+          git commit -q -m "ci(219): delete impersonation-banner canary for amd64 rebirth [skip ci]" \
+            || echo "(no impersonation-banner PNGs to delete — nothing committed)"
+          echo "Committed canary deletion; recreate follows via --update-snapshots. Remaining files:"
+          ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
         # committed baselines match what CI renders. The checkpoint lane covers
@@ -1821,26 +1941,36 @@ jobs:
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark \
             --update-snapshots
-      - name: Commit recaptured baselines to a review PR (human visual review is the gate)
-        # This job's PURPOSE is to legitimately re-baseline admin-checkpoint PNGs in the
-        # ubuntu CI environment — including the impersonation-banner canary, whose Phase
-        # 204-03 WCAG contrast fix left it `modified` vs origin/main. Running
-        # snapshot-canary-guard.sh HERE would be circular: the guard exists to forbid
-        # UNINTENDED canary drift on consuming PR lanes (fast_checks), and it classifies a
-        # tracked-at-HEAD file's recapture as `modified` (git diff --name-status compares
-        # HEAD to the final worktree and ignores any intermediate delete — WR-01), so it
-        # would fail this job on the very recapture it is meant to perform. The correct
-        # gate for an intentional re-baseline is HUMAN VISUAL REVIEW of the opened PR;
-        # the canary tripwire stays armed on fast_checks for future PRs, unchanged.
+      - name: Recapture demo-showcase baselines (D-03.1)
+        # demo-showcase (4 PNGs, chromium-only) has no dedicated recapture job; fold it
+        # into this job since it already boots the example on :4000. No canary/allowlist
+        # choreography — the lane has neither.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test tests/demo-showcase.spec.ts --project=demo-showcase-chromium --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
+        # D-05/D-06: the checkpoint job now self-gates like the design job instead of
+        # relying on human visual review — impersonation-banner PNGs were deleted before
+        # recapture so they appear as 'added' to the guard (the guard's legitimate birth
+        # path), and every other changed slug is passed via --allow so the guard's own
+        # never-allowlistable-canary assertion (D-06, snapshot-canary-guard.sh) stays the
+        # single source of truth. demo-showcase has no canary/allowlist, so its PNGs are
+        # git-added directly without going through the guard.
         # Recaptured PNGs land on a ci/recapture-admin-checkpoints-<run_id> branch;
-        # [skip ci] prevents recursive triggering.
+        # [skip ci] prevents recursive triggering. D-04: the PR targets the dispatched
+        # recapture_branch when set, else main.
         env:
           GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
         run: |
           set -euo pipefail
           SNAP_DIR="test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots"
+          DEMO_SNAP_DIR="test/example/priv/playwright/tests/demo-showcase.spec.ts-snapshots"
 
-          # Report changed slugs for the PR body / log (informational — no gate here).
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
           while IFS=$'\t' read -r status path; do
@@ -1860,21 +1990,37 @@ jobs:
           if [[ ${#seen_slugs[@]} -eq 0 ]]; then CHANGED="(none)"; else CHANGED="${!seen_slugs[*]}"; fi
           echo "Recaptured/changed slugs: ${CHANGED}"
 
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "impersonation-banner" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. impersonation-banner should appear as 'added' (deleted
+          # before recapture) which the guard tolerates.
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist \
+            --canary impersonation-banner \
+            "${allow_args[@]}"
+
           # Commit to a reviewable branch, not main.
           BRANCH="ci/recapture-admin-checkpoints-${{ github.run_id }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add "$SNAP_DIR/"
+          git add "$SNAP_DIR/" "$DEMO_SNAP_DIR/"
           if git diff --cached --quiet; then
             echo "No snapshot changes to commit -- baselines already match CI render."
           else
-            git commit -m "ci(209): recapture admin-checkpoint baselines in ubuntu CI [skip ci]"
+            git commit -m "ci(219): recapture admin-checkpoint + demo-showcase baselines in ubuntu CI [skip ci]"
             git push origin "$BRANCH"
             gh pr create \
-              --title "ci: recapture admin-checkpoint baselines in ubuntu CI (${{ github.run_id }})" \
-              --body "Admin-checkpoint baseline recapture (automated). Triggered by Phase 209 (judgment-level page pass). Changed slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA; the prior baseline captured the pre-fix appearance). This is an intentional re-baseline — the gate is human visual review of these PNG diffs, not snapshot-canary-guard (which stays armed on fast_checks). Merge after visual review." \
-              --base main \
+              --title "ci: recapture admin-checkpoint + demo-showcase baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-checkpoint + demo-showcase baseline recapture (automated, Phase 219 D-03). Changed admin-checkpoint slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA), re-established as 'added' via delete-rebirth and guard-verified (not allowlisted). demo-showcase (4 PNGs) has no canary. Merge after reviewing the named slugs above." \
+              --base "${RECAPTURE_BASE:-main}" \
               --head "$BRANCH"
           fi
       - name: Dump example app log (on failure)
@@ -1882,6 +2028,139 @@ jobs:
         run: |
           echo "--- /tmp/example-checkpoint-recapture-server.log ---"
           cat /tmp/example-checkpoint-recapture-server.log || echo "(no log file)"
+
+  # Phase 216 Plan 07 (JUDGE-CI-01): admin eval render + probe job.
+  # Boots the example app, runs the full admin-eval harness (render matrix + derivative guards),
+  # and uploads the gitignored eval bundles as CI artifacts.
+  #
+  # NOT in ci-gate.needs — this is the expensive render evidence job, not the merge gate.
+  # The merge-blocking forward-only signals are the committed-ledger guards in fast_checks.
+  # This job may run as pull_request or push; it is NOT gated to non-PR events so developers
+  # can inspect render evidence on their PR branches.
+  admin_eval_render:
+    name: Admin eval render + probe (evidence only, not a merge gate)
+    runs-on: ubuntu-latest
+    needs: [release_ref_guard]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps (admin-eval-render lane)
+        id: admin_eval_render_deps_cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers (chromium only — admin-eval uses chromium)
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PORT: "4011"
+          PHX_SERVER: "true"
+        run: mix phx.server > /tmp/example-admin-eval-render-server.log 2>&1 &
+      - name: Wait for app to respond on PORT 4011
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4011/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          # Warm up the admin design gallery route so the first Playwright hit is compiled
+          curl -sf -o /dev/null "http://localhost:4011/admin/_design" \
+            && echo "warmed /admin/_design" \
+            || echo "warmup miss /admin/_design (non-fatal)"
+      - name: Run admin-eval harness (render matrix + derivative guards)
+        # JUDGE-CI-01: render+probe is here (off the merge path), never in fast_checks.
+        # The harness runs the spec across all 3 projects and chains the 5 derivative guards.
+        # continue-on-error: true so we can upload any partial bundles as artifacts even on failure.
+        id: admin_eval_harness
+        continue-on-error: true
+        env:
+          SIGRA_EXAMPLE_URL: "http://localhost:4011"
+        run: bash scripts/ci/admin-eval-harness.sh
+      - name: Upload eval bundles as CI artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: admin-eval-bundles-${{ github.run_id }}
+          path: test/example/priv/playwright/eval/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Fail the job if harness did not PASS
+        # Re-fail after artifact upload so investigators can download partial bundles.
+        if: steps.admin_eval_harness.outcome == 'failure'
+        run: |
+          echo "admin-eval harness reported failure (see Run admin-eval harness step above)"
+          exit 1
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-admin-eval-render-server.log ---"
+          cat /tmp/example-admin-eval-render-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## admin_eval_render cache"
+            echo "- deps cache (exact hit): ${{ steps.admin_eval_render_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
   # nightly trigger path reports red on a real failure. Dispatching with

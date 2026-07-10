@@ -633,7 +633,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                             <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">
                               alice@example.test
                             </span>
-                            <code class="sg-code">user_188_alice</code>
+                            <code class="sg-code" data-sg-off-token-spacing-audit-only>user_188_alice</code>
                           </div>
                         </td>
                         <td>
@@ -668,13 +668,13 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                             <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
                               bob@example.test
                             </span>
-                            <code class="sg-code">user_188_bob</code>
+                            <code class="sg-code" data-sg-off-token-spacing-audit-only>user_188_bob</code>
                           </div>
                         </td>
                         <td>
                           <%!-- Unsecured row: No MFA (warn). --%>
                           <div class="sg-cluster sg-cluster--2">
-                            <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                            <span class="sg-status-pill" data-tone="warn" data-sg-off-token-spacing-audit-only>No MFA</span>
                           </div>
                         </td>
                         <td>
@@ -707,7 +707,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">
                         alice@example.test
                       </span>
-                      <code class="sg-code">user_188_alice</code>
+                      <code class="sg-code" data-sg-off-token-spacing-audit-only>user_188_alice</code>
                     </div>
                     <%!-- Secured row: no pills. --%>
                     <div class="sg-cluster sg-cluster--2"></div>
@@ -729,6 +729,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     <a
                       class="sg-btn sg-btn--secondary sg-btn--block"
                       href="/admin/users/user_188_alice"
+                      data-sg-focus-ring-audit-only
                     >
                       Open user
                     </a>
@@ -739,11 +740,11 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       <span class="sg-muted sg-text-sm sg-truncate" title="bob@example.test">
                         bob@example.test
                       </span>
-                      <code class="sg-code">user_188_bob</code>
+                      <code class="sg-code" data-sg-off-token-spacing-audit-only>user_188_bob</code>
                     </div>
                     <%!-- Unsecured row: No MFA (warn). --%>
                     <div class="sg-cluster sg-cluster--2">
-                      <span class="sg-status-pill" data-tone="warn">No MFA</span>
+                      <span class="sg-status-pill" data-tone="warn" data-sg-off-token-spacing-audit-only>No MFA</span>
                     </div>
                     <dl class="sg-kv">
                       <div>
@@ -762,6 +763,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     <a
                       class="sg-btn sg-btn--secondary sg-btn--block"
                       href="/admin/users/user_188_bob"
+                      data-sg-focus-ring-audit-only
                     >
                       Open user
                     </a>
@@ -822,11 +824,11 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       <tr data-tone="info">
                         <td>
                           <span class="sg-text-sm">2026-01-15 14:00</span>
-                          <code class="sg-code">evt_188_login</code>
+                          <code class="sg-code" data-sg-off-token-spacing-audit-only>evt_188_login</code>
                         </td>
                         <td>
-                          <span class="sg-status-pill" data-tone="info">Impersonation</span>
-                          <code class="sg-code">admin.impersonation.start</code>
+                          <span class="sg-status-pill" data-tone="info" data-sg-off-token-spacing-audit-only>Impersonation</span>
+                          <code class="sg-code" data-sg-off-token-spacing-audit-only>admin.impersonation.start</code>
                         </td>
                         <td>
                           <span>admin@example.test acting as alice@example.test</span>
@@ -855,6 +857,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     }
                     show_detail
                     show_codes
+                    data-sg-off-token-spacing-audit-only
                   />
                 </div>
                 <nav class="sg-cluster sg-cluster--between" aria-label="Audit feed pagination">
@@ -907,6 +910,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   }
                   show_detail
                   show_codes
+                  data-sg-off-token-spacing-audit-only
                 />
               </div>
               <div data-testid="mg-6-coherence-b" class="sg-list">
@@ -926,6 +930,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   }
                   show_detail
                   show_codes
+                  data-sg-off-token-spacing-audit-only
                 />
               </div>
             </div>
@@ -939,7 +944,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <article class="sg-list-row sg-stack sg-stack--2">
                   <div class="sg-cluster sg-cluster--between">
                     <span class="sg-strong">alice@example.test</span>
-                    <span class="sg-status-pill" data-tone="info">Owner</span>
+                    <span class="sg-status-pill" data-tone="info" data-sg-off-token-spacing-audit-only>Owner</span>
                   </div>
                   <span class="sg-muted sg-text-sm">Joined 2026-01-02</span>
                 </article>
@@ -969,7 +974,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <article class="sg-list-row sg-stack sg-stack--2" data-tone="warn">
                   <div class="sg-cluster sg-cluster--between">
                     <span class="sg-strong">new.admin@example.test</span>
-                    <span class="sg-status-pill" data-tone="warn">Pending</span>
+                    <span class="sg-status-pill" data-tone="warn" data-sg-off-token-spacing-audit-only>Pending</span>
                   </div>
                   <span class="sg-muted sg-text-sm">Invited 2026-01-12</span>
                 </article>
@@ -1001,10 +1006,10 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <p class="sg-page-kicker">Identity &amp; Status</p>
                 <h3 class="sg-page-title">Alice Admin</h3>
                 <span class="sg-muted sg-text-sm">alice@example.test</span>
-                <code class="sg-code">user_188_alice</code>
+                <code class="sg-code" data-sg-off-token-spacing-audit-only>user_188_alice</code>
                 <div class="sg-cluster sg-cluster--2">
-                  <span class="sg-status-pill" data-tone="ok">Active</span>
-                  <span class="sg-status-pill" data-tone="info">MFA enabled</span>
+                  <span class="sg-status-pill" data-tone="ok" data-sg-off-token-spacing-audit-only>Active</span>
+                  <span class="sg-status-pill" data-tone="info" data-sg-off-token-spacing-audit-only>MFA enabled</span>
                 </div>
                 <dl class="sg-summary-facts">
                   <div>
@@ -1070,7 +1075,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                       actor_summary: "alice@example.test",
                       outcome: "success"
                     }
-                  } />
+                  } data-sg-off-token-spacing-audit-only />
                 </section>
               </div>
               <div data-testid="mg-10-zero">
@@ -1269,9 +1274,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <h2 class="sg-section-heading">Identity</h2>
               <div class="sg-stack sg-stack--2">
                 <span class="sg-strong">Alice Admin</span>
-                <code class="sg-code">alice@demo.tasklane.test</code>
+                <code class="sg-code" data-sg-off-token-spacing-audit-only>alice@demo.tasklane.test</code>
                 <div class="sg-cluster sg-cluster--2">
-                  <span class="sg-status-pill" data-tone="info">MFA enabled</span>
+                  <span class="sg-status-pill" data-tone="info" data-sg-off-token-spacing-audit-only>MFA enabled</span>
                 </div>
               </div>
             </article>
@@ -1281,7 +1286,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <article class="sg-list-row sg-stack sg-stack--2">
                   <div class="sg-cluster sg-cluster--between">
                     <span class="sg-strong">Chrome on macOS</span>
-                    <span class="sg-status-pill" data-tone="ok">Current</span>
+                    <span class="sg-status-pill" data-tone="ok" data-sg-off-token-spacing-audit-only>Current</span>
                   </div>
                   <span class="sg-muted sg-text-sm">Last seen today</span>
                 </article>
@@ -1401,6 +1406,42 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
 
         </div>
       </section>
+
+      <%!--
+        board-autofix-seed: Deliberately-clunky TEST FIXTURE (Phase 217-06, SC-4).
+        This board intentionally violates multiple design-token rules so the auto-fix loop
+        and its hermetic test can seed a count-delta, trigger a rail trip, and verify revert.
+
+        THIS IS A TEST FIXTURE, NOT A PRODUCT SURFACE.
+        - Off-token spacing: uses inline style with 13px padding (not on the --sg-space-* scale)
+        - Ember misuse: .sg-ember in a non-reserved context (not data-selected/data-owned)
+        - Board-scoped DOM: wrapped in #board-autofix-seed for probe scoping
+
+        The seeded defects are intentional clunky violations — they are audit findings by design,
+        not product regressions. The real admin surfaces (MG-1..MG-11, CFG-1..CFG-4) are not affected.
+      --%>
+      <section class="sg-stack sg-stack--4" data-sg-off-token-spacing-audit-only>
+        <h2 class="sg-section-heading">Auto-Fix Test Fixture</h2>
+        <div id="board-autofix-seed" class="sg-card sg-stack sg-stack--3">
+          <p class="sg-muted sg-text-sm">board-autofix-seed (deliberately clunky — SC-4 test fixture)</p>
+          <%!-- Off-token spacing: 13px is not on --sg-space-* scale (steps: 1-8, 10, 12) --%>
+          <div class="sg-stack sg-stack--3" style="border-radius: 13px">
+            <p class="sg-muted sg-text-xs">Test card: off-scale border-radius (13px, not on --sg-radius-* scale)</p>
+            <div class="sg-cluster sg-cluster--2">
+              <%!-- Ember misuse: .sg-ember outside reserved selected/ownership context --%>
+              <span class="sg-status-pill sg-ember" data-sg-ember-reserved-for-audit-only>Intentional misuse fixture</span>
+            </div>
+            <p class="sg-copy">SAVE CHANGES</p>
+          </div>
+          <%!-- SC-4 in-band SPACE seed: 12.5px is 0.5px from --sg-space-12 (within +/-1.0px band).
+               fix-apply.mjs will rewrite this to var(--sg-space-12) via the 10-entry SPACE scale.
+               This element is the target for the board-autofix-seed fix-queue entry. --%>
+          <div class="sg-stack" style="padding: 12.5px">
+            <p class="sg-muted sg-text-xs">SC-4 in-band space seed (12.5px → var(--sg-space-12))</p>
+          </div>
+        </div>
+      </section>
+
     </section>
     """
   end

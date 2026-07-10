@@ -3,6 +3,7 @@ created: 2026-06-19T00:00:00.000Z
 status: pending
 title: UAT demo-DX polish nits (deferred from PR #56 code review) — flag inert flags, re-probe --status, longer host-run timeout
 area: dx
+resolves_phase: 218
 files:
   - scripts/uat/up.sh
 source: PR #56 code review (quick task 260619-l1b). Real bugs (#1 orphaned BEAM, #2 leaking watch volumes, #3 PID reuse, #4 attach ignored) were FIXED in commit b93f8e2f. These are the low-severity nits intentionally deferred.

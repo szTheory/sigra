@@ -2781,3 +2781,65 @@ button.vt-menu__item {
   justify-content: space-between;
   gap: var(--sg-space-2);
 }
+
+/* -------------------------------------------------------------------------
+ * vt-modal — native <dialog> restyle using vt-*/sg-* design tokens.
+ * Preserves the DialogModal phx-hook contract (open-modal / close-modal
+ * events drive showModal()/close() on the <dialog> element directly).
+ * No daisyUI modal/modal-box/modal-action/modal-backdrop; no Tailwind.
+ * ------------------------------------------------------------------------- */
+dialog.vt-modal {
+  /* Reset browser dialog defaults */
+  padding: 0;
+  border: none;
+  border-radius: var(--vt-radius);
+  background: var(--vt-color-panel);
+  color: var(--vt-color-ink);
+  box-shadow: var(--vt-shadow-lift);
+  max-width: min(36rem, 90vw);
+  width: 100%;
+  /* Prevent overflow scroll */
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Backdrop overlay */
+dialog.vt-modal::backdrop {
+  background: color-mix(in oklab, var(--vt-color-ink) 48%, transparent);
+}
+
+/* Content wrapper — provides internal padding and layout */
+.vt-modal__box {
+  padding: var(--sg-space-6);
+  display: grid;
+  gap: var(--sg-space-4);
+}
+
+/* Modal title */
+.vt-modal__title {
+  font-size: var(--sg-text-lg);
+  font-weight: var(--sg-weight-bold);
+  color: var(--vt-color-ink);
+  margin: 0;
+}
+
+/* Descriptive copy inside the modal */
+.vt-modal__copy {
+  font-size: var(--sg-text-sm);
+  color: var(--vt-color-muted);
+  margin: 0;
+}
+
+/* Action button row (cancel + confirm) */
+.vt-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sg-space-3);
+  justify-content: flex-end;
+}
+
+/* Legacy backdrop-close form styling — hidden and non-interactive; the modal
+   closes via its Cancel button or Escape, not a click-outside affordance. */
+.vt-modal__backdrop {
+  display: none;
+}

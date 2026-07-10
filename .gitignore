@@ -53,3 +53,16 @@ test/example/deps/
 # Brand toolchain — font binaries and render artifacts (never commit font TTFs).
 /scripts/brand/node_modules/
 /scripts/brand/fonts/
+
+# Phase 216 (D-04): ephemeral evaluation bundles under the playwright subproject.
+# eval/ = per-app-git-sha evidence bundle; playwright-report/ + test-results/ = run artifacts.
+test/example/priv/playwright/eval/
+test/example/priv/playwright/playwright-report/
+test/example/priv/playwright/test-results/
+
+# Phase 217-06 (AUTOFIX-02): admin-autofix-loop persisted poison-set.
+# Never-retry finding_ids for the auto-fix loop; operator/nightly tool state.
+eval/autofix-state.json
+
+# secrets/local vars
+.env

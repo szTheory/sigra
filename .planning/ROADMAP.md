@@ -1,10 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Milestone **v1.43 STABILIZE** shipped 2026-07-03 (PR #67). No active milestone — start the next one with `/gsd-new-milestone`.
+**Status:** Milestone **v1.44 ADMIN-UX-RATCHET** active — Phases 216–220.
 
 ## Milestones
 
+- 🚧 **v1.44 ADMIN-UX-RATCHET** — Phases 216-220 (active)
 - ✅ **v1.43 STABILIZE** — Phases 213-215 (shipped 2026-07-03) · full detail in milestones/v1.43-ROADMAP.md
 - ✅ **v1.42 ADMIN-DS-ELEVATION** — Phases 205-212 (shipped 2026-07-02) · full detail in milestones/v1.42-ROADMAP.md
 - ✅ **v1.41 ADMIN-UX-ELEVATION** — Phases 199-204 (shipped 2026-06-27)
@@ -18,6 +19,14 @@
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
+
+### v1.44 ADMIN-UX-RATCHET (Phases 216–220) — ACTIVE
+
+- [x] **Phase 216: Harness Foundation + Award Gradient** — render substrate, evidence-integrity + stale-render guards, deterministic visual probes, award sub-score ledger extension + verify-then-climb, end-to-end on 2 pilot surfaces
+- [x] **Phase 217: Adversarial Panel + Auto-Fix Safety Rails** — 4-lens LLM panel (3 persona/JTBD + 1 graphic-design), k=3 consensus, settled-findings suppression, findings-count-monotonic guard, fix queue, safe-class auto-apply with per-fix auto-revert (completed 2026-07-05)
+- [x] **Phase 218: Elevation Wave + Nit Cleanup** — full loop across all 8 admin surfaces + L1/L2 component fractal; verify-then-climb each; fold in UI-01 (demo-DX nits) + UI-02 (Tasklane rebrand residuals); batched reviewable PR (completed 2026-07-09)
+- [x] **Phase 219: Baseline Recapture + Canary Reconciliation** — ~115 PNG baselines recaptured in-CI (ubuntu), allowlists reset to empty steady-state, snapshot-canary + generated-host parity green (completed 2026-07-09)
+- [ ] **Phase 220: Terminal Ratification** — award sub-score cells locked forward under monotonic guard, harness runbook committed, milestone ships via PR gated on 5 required CI checks
 
 <details>
 <summary>✅ v1.43 STABILIZE (Phases 213-215) — SHIPPED 2026-07-03 · full detail in milestones/v1.43-ROADMAP.md</summary>
@@ -57,6 +66,153 @@
 
 Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
-## Next
+## Phase Details
 
-No active milestone. Run `/gsd-new-milestone` to start the next cycle. Jon's stated direction: refocus on **admin/operator-UI cleanup + feedback** (the deferred UI-01/UI-02 + FEAT-01/02/03 items live in STATE.md "Acknowledged at v1.43 close").
+### Phase 216: Harness Foundation + Award Gradient
+
+**Goal**: A single near-command renders every admin surface into tamper-proof evidence bundles, deterministic visual probes run and flag defects automatically, and the quality ledger gains a finer-grained award sub-score — all proven end-to-end on two pilot surfaces.
+**Depends on**: Nothing (first phase of milestone; builds on v1.43 clean foundation)
+**Requirements**: HARNESS-01, HARNESS-02, HARNESS-03, RATCHET-01, RATCHET-02
+**Success Criteria** (what must be TRUE):
+
+  1. A single command (`scripts/uat/up.sh` + one harness invocation) emits render bundles — screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256` — for every admin surface across the light/dark/mobile × populated/zero/loading/error matrix.
+  2. The stale-render guard hard-fails (non-zero exit) when a bundle's `app_git_sha` does not match working HEAD or admin source is newer than the bundle; an evidence-integrity check rejects findings whose DOM anchor is absent from the captured DOM, making cite-and-flip impossible by construction.
+  3. Deterministic visual probes run over the rendered DOM/computed-style and produce machine-readable findings for off-token spacing, misalignment, size/weight-budget overflow, ember-reserved violations, off-scale radius/shadow/control-height, sub-minimum target size, missing focus ring, card-in-card nesting, and non-obvious/below-fold primary actions.
+  4. The award sub-score ledger extension is committed and the harness runs a verify-then-climb pass over existing Tier-2 claims against rendered output, flagging any cell that fails re-verification.
+  5. The findings-count-monotonic guard exits non-zero when any cell's open-finding count increases versus merge-base, and two pilot surfaces complete the full render-probe-ratchet loop end-to-end with zero guard regressions.
+
+**Plans**: 9/9 plans complete
+Plans:
+
+- [x] 216-01-PLAN.md — Foundation: ci.yml merge-base fix (D-10) + .gitignore bundle ignores + parse5/cheerio install (legitimacy checkpoint)
+- [x] 216-02-PLAN.md — Ledger schemas: admin-award-ledger.json + settled-findings.tsv + render-sha ledger + finding_id key contract (217 seam)
+- [x] 216-03-PLAN.md — canonicalize.ts (parse5 → render_sha256) + bundle.ts + determinism self-test
+- [x] 216-04-PLAN.md — Guards: quality-findings-monotonic.sh + settled-findings-lint.sh + evidence-anchor-check.mjs (+ self-tests)
+- [x] 216-05-PLAN.md — award-guard.mjs verify-then-climb + shared probe-id module + self-test
+- [x] 216-06-PLAN.md — probes.ts (9 probes) + admin-eval.spec.ts + playwright projects + stale-render-guard.sh
+- [x] 216-07-PLAN.md — Orchestrator + two-pilot verify-then-climb (≤A2) + runbook + ci.yml fast_checks wiring
+- [x] 216-08-PLAN.md — GAP: board-scope the 9 probes (probe-scope == board dom.html scope) so evidence-anchor-check can pass; in-scope seeded defects + new probe #4 test + D-12 fold
+- [x] 216-09-PLAN.md — GAP: live end-to-end proof — boot trusted example server, run admin-eval-harness.sh green (5 guards), confirm evidence-anchor-check exits 0 on real bundles (SC-5)
+
+**UI hint**: yes
+
+### Phase 217: Adversarial Panel + Auto-Fix Safety Rails
+
+**Goal**: The 4-lens LLM panel (3 persona/JTBD + 1 graphic-design) evaluates deterministically-clean surfaces under a forced-finding floor with k=3 consensus, deduplicates findings into a stable fix queue, and auto-applies only provably-safe fix classes with per-fix auto-revert on regression — all proven by an injected-regression test.
+**Depends on**: Phase 216
+**Requirements**: PANEL-01, PANEL-02, AUTOFIX-01, AUTOFIX-02
+**Success Criteria** (what must be TRUE):
+
+  1. The 4-lens LLM panel emits machine-parseable findings that round-trip the existing rubric schema, with every lens-question holding a cited DOM anchor or the literal `NONE — searched for: <what>` — the forced-finding floor holds on deterministically-clean surfaces.
+  2. k=3 consensus admits a finding only at ≥2/3 quorum; unchanged surfaces are skipped via content-hash (prior verdict carried forward) so re-runs on unmodified code produce zero new LLM calls and zero finding churn.
+  3. All findings dedup into a single fix queue keyed by stable `finding_id` (hash of surface+lens+question+anchor); cross-surface recurring anchors collapse into high-priority systemic findings visible at the top of the queue.
+  4. An injected-regression test proves that a deliberately-clunky change (off-token spacing, ember misuse, misalignment) causes the auto-revert to fire and the findings-count-monotonic guard to exit non-zero — the safety rails actually catch a regression.
+  5. The panel is not in the `fast_checks` job and does not appear in any merge-blocking CI gate; only its deterministic derivatives (monotonic guard, probe findings) gate merges, preserving the JUDGE-CI-01 invariant throughout.
+
+**Plans**: 8 plans (7 complete + 1 gap-closure)
+Plans:
+
+- [x] 217-01-PLAN.md — Foundation: extract shared `scripts/ci/lib/anchor.mjs` (Pitfall 1) + `panel-schema.mjs` finding_id byte-identity helper (D-07/Pitfall 2) + legitimacy-gated devDep install (wave 1)
+- [x] 217-02-PLAN.md — Fix queue: `fix-queue-build.mjs` (systemic collapse, sole `open_findings` writer) + `fix-queue-lint.sh` + harness chaining (D-12; wave 2)
+- [x] 217-03-PLAN.md — Deterministic panel guards: `panel-forced-floor-check.mjs` (12-cell grid) + `panel-ci-isolation.test.sh` (SC-5) + fast_checks wiring (D-06; wave 2)
+- [x] 217-04-PLAN.md — New graphic-design lens doc `admin-graphic-design-lens.md` (3 perceptual questions, brand-v2 pillars) (D-16/17/18; wave 1)
+- [x] 217-05-PLAN.md — LLM panel: `excerpt.mjs` + `lenses.mjs` + `judge.mjs` (k=3 quorum, content-hash skip, diff-scoped) + verdicts cache + lint (D-03/04/05/08/09/10/11; wave 2)
+- [x] 217-06-PLAN.md — Auto-fix rails: `fix-apply.mjs` (copy/token only) + `admin-autofix-loop.sh` (3 rails, git revert) + hermetic SC-4 test + `board-autofix-seed` (D-13/14/15; wave 3)
+- [x] 217-07-PLAN.md — Operator entrypoint `admin-panel.sh` (Hammer no-op) + runbook + off-CI live SC-2/SC-4 verifications (D-02; wave 4)
+- [x] 217-08-PLAN.md — Gap-closure: align panel + render matrix on board-mg-5/9 surfaces (LOCKED Option 2) + harden/prove judge.mjs CLI bundle-wiring (new key-free `judge-cli.test.mjs`) + live SC-4 loop + operator-only TRUE-live SC-2 runbook (wave 5)
+
+**UI hint**: yes
+
+### Phase 218: Elevation Wave + Nit Cleanup
+
+**Goal**: Every admin surface and the L1/L2 component fractal runs through the full harness loop, existing Tier-2 claims are re-verified and award sub-scores raised where earned, UI-01 and UI-02 nits are folded in, and the result lands as a single reviewable PR where the operator signs off only on residual judgment calls and gradient raises — not an open-ended issue hunt.
+**Depends on**: Phase 217
+**Requirements**: ELEVATE-01, ELEVATE-02, ELEVATE-03
+**Success Criteria** (what must be TRUE):
+
+  1. All 8 admin/operator surfaces and the L1/L2 component fractal have been run through the full harness loop (render → deterministic probes → panel → dedup queue → safe auto-fix) and verify-then-climbed, with each earned award sub-score raise protected by the monotonic guard.
+  2. UI-01 (demo-DX polish nits) and UI-02 (Tasklane rebrand residuals) are resolved as part of the elevation wave — no outstanding items in either carry-forward todo.
+  3. The batched elevation result exists as a reviewable PR with a before/after render strip and narrowed options for each judgment call, so the operator's review is bounded to approval decisions rather than a fresh issue hunt.
+
+**Plans**: 10/10 plans complete
+
+- [x] 218-01-PLAN.md — Harness-hardening: probe-ids single-source fold (D-08) + first-nav flake fix (D-09) + full-matrix render/award ledger expansion (D-02) [wave 1, barrier]
+- [x] 218-02-PLAN.md — L1/L2 fractal verify-then-climb (13 L1 boards + mg-1..11) + fix-queue regen (D-05) [wave 2]
+- [x] 218-03-PLAN.md — L3 surface verify-then-climb (8 surfaces via board proxies) (D-01/D-05) [wave 3]
+- [x] 218-04-PLAN.md — UI-01: scripts/uat/up.sh demo-DX nits (D-10) [wave 1]
+- [x] 218-05-PLAN.md — UI-02: Tasklane authed-screen vt-* residuals + new vt-modal (D-11) [wave 1]
+- [x] 218-06-PLAN.md — Operator panel run (D-04) + earned raises + single reviewable ELEVATE-03 PR (D-12) [wave 4, autonomous:false]
+- [x] 218-07-PLAN.md — Gap: CR-01 fix-queue-build.mjs deterministic systemic-rep selection + hermetic regression (ELEVATE-01) [wave 1]
+- [x] 218-08-PLAN.md — Gap: wire probeIdsDriftCheck + WR-06 worker-unique email + IN-01/IN-02 probe nits (ELEVATE-01) [wave 1]
+- [x] 218-09-PLAN.md — Gap: demo LiveView crashes WR-01/02/03 (+ template mirror + golden rebless) + WR-04/WR-07 cosmetics (ELEVATE-02) [wave 1]
+- [x] 218-10-PLAN.md — Gap: WR-05 up.sh reaper dual proxy-host label union (ELEVATE-02) [wave 1]
+
+**UI hint**: yes
+
+### Phase 219: Baseline Recapture + Canary Reconciliation
+
+**Goal**: After the elevation wave, all ~115 committed PNG baselines are recaptured in-CI (ubuntu), allowlists are reset to empty steady-state, and the snapshot-canary drift guard plus generated-host parity are green.
+**Depends on**: Phase 218
+**Requirements**: RECAP-01
+**Success Criteria** (what must be TRUE):
+
+  1. All ~115 committed PNG baselines are recaptured via the in-CI ubuntu recapture job (not darwin-local), producing a reviewable PR that lands with zero spurious drift.
+  2. Both snapshot allowlists are reset to empty steady-state — no slugs are suppressed by allowlist entries — and the snapshot-canary drift guard exits zero on a clean re-run.
+  3. Generated-host parity is green: install-golden byte-diff and the acceptance-smoke runtime render both pass against the post-wave codebase.
+
+**Plans**: 3/5 plans executed
+**Wave 1**
+
+- [x] 219-01-PLAN.md — Fix the example `<.icon style=>` compile blocker (attr :rest, :global) — D-02 prerequisite
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 219-02-PLAN.md — CI recapture-trigger surgery (branch-scoped dispatch) + close 3 recapture gaps + never-allowlistable canary — D-03/D-04/D-06
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 219-03-PLAN.md — Run branch-scoped recapture, operator scope-check, land 115-PNG PR, close PR #70 — SC-1/D-01/D-05
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 219-04-PLAN.md — Reset both allowlists to empty steady-state + canary guard clean re-run green — SC-2/D-07
+- [x] 219-05-PLAN.md — Confirm generated-host parity (install-golden + acceptance-smoke) green — SC-3/D-08
+
+**UI hint**: yes
+
+### Phase 220: Terminal Ratification
+
+**Goal**: The award sub-score cells are locked forward under the monotonic guard, a harness runbook is committed, and the milestone ships via a PR gated on the five required CI checks — with the LLM panel advisory and off-CI throughout.
+**Depends on**: Phase 219
+**Requirements**: RATIFY-01
+**Success Criteria** (what must be TRUE):
+
+  1. Every award sub-score cell in the quality ledger is locked forward under `quality-ledger-monotonic.sh` — the guard exits zero against merge-base and would exit non-zero if any sub-score were lowered.
+  2. A committed harness runbook documents the one-iteration loop (how to run, where the human sign-off sits, how to read the dossier) so a future agent can re-run without prior context.
+  3. The milestone ships via a PR gated on all five required CI checks under ruleset 14941512 (`Library tests`, `Example unit smoke`, `Install smoke`, `Example HTTP smoke`, `Example Playwright smoke`) — all green before the ROADMAP status flips to shipped.
+  4. The LLM panel is advisory and off-CI in the final shipped state — no panel invocation appears in any required-check job, preserving the forward-only deterministic signal invariant.
+
+**Plans**: 3/4 plans executed
+
+Plans:
+**Wave 1**
+
+- [x] 220-01-PLAN.md — cheerio lazy-require fix (D-09/D-10, SC-4) + close folded TODO [wave 1]
+- [x] 220-02-PLAN.md — runbook D-04 freshness notes (D-03/D-04, SC-2) [wave 1]
+- [x] 220-03-PLAN.md — live-guard confirmation record (D-01/D-02, SC-1) [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 220-04-PLAN.md — quarantine-PR body draft + close-readiness record (D-05…D-13, SC-3) [wave 2]
+
+**UI hint**: yes
+
+## Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 216. Harness Foundation + Award Gradient | 9/9 | Complete   | 2026-07-04 |
+| 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
+| 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
+| 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
+| 220. Terminal Ratification | 4/4 | Complete    | 2026-07-10 |

@@ -1,0 +1,5 @@
+{
+  "schema_version": "217-05",
+  "notes": "Content-hash cache for LLM panel verdicts. Keyed on render_sha256 (64-char hex). Populated off-CI by scripts/ci/admin-panel.sh. Never stores open_findings — that field belongs ONLY in admin-render-sha.json. Finding_id is sha256(surface NUL class NUL anchor). Anti-rot triad: panel-verdicts-lint.sh validates this file on every CI run.",
+  "cells": {}
+}

@@ -913,6 +913,14 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
          socket
          |> put_flash(:error, "Invalid verification code. Please try again.")
          |> assign(enroll_form: form)}
+
+      {:error, _reason} ->
+        form = to_form(%{"code" => ""}, as: "enroll")
+
+        {:noreply,
+         socket
+         |> put_flash(:error, "Could not verify your code. Please try again.")
+         |> assign(enroll_form: form)}
     end
   end
 

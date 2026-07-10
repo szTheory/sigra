@@ -8,9 +8,13 @@
     "install-browsers": "playwright install --with-deps chromium"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
     "@simplewebauthn/browser": "^13.3.0",
-    "otplib": "^12.0.1"
+    "cheerio": "^1.2.0",
+    "otplib": "^12.0.1",
+    "parse5": "^8.0.1",
+    "zod": "^4.4.3"
   }
 }

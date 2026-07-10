@@ -1,0 +1,690 @@
+admin-eval-harness: (a) render matrix + probes + bundles (3 projects)
+
+Running 153 tests using 1 worker
+
+  ✓    1 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/populated (2.8s)
+  ✓    2 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/zero (3.1s)
+  ✓    3 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/loading (3.0s)
+  ✓    4 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error (3.1s)
+  ✓    5 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/populated (3.0s)
+  ✓    6 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/zero (3.1s)
+  ✓    7 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/loading (3.0s)
+  ✓    8 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/error (3.0s)
+  ✓    9 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated (3.0s)
+  ✓   10 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero (3.4s)
+  ✓   11 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading (3.0s)
+  ✓   12 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error (3.0s)
+  ✓   13 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/populated (2.9s)
+  ✓   14 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/zero (3.5s)
+  ✓   15 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/loading (3.0s)
+  ✓   16 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/error (2.9s)
+  ✓   17 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/populated (3.0s)
+  ✓   18 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/zero (3.5s)
+  ✓   19 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/loading (3.0s)
+  ✓   20 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/error (3.0s)
+  ✓   21 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated (4.5s)
+  ✓   22 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero (3.0s)
+  ✓   23 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading (3.0s)
+  ✓   24 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error (3.0s)
+  ✓   25 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/populated (32.2s)
+  ✓   26 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero (3.5s)
+  ✓   27 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading (3.5s)
+  ✓   28 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error (3.4s)
+  ✓   29 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/populated (2.9s)
+  ✓   30 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/zero (3.5s)
+  ✓   31 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/loading (3.5s)
+  ✓   32 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/error (3.5s)
+  ✓   33 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/populated (3.0s)
+  ✓   34 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/zero (3.1s)
+  ✓   35 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/loading (3.6s)
+  ✓   36 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/error (3.0s)
+  ✓   37 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/populated (3.1s)
+  ✓   38 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/zero (3.5s)
+  ✘   39 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading (9.8m)
+  ✓   40 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading (retry #1) (3.4s)
+  ✓   41 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/error (3.0s)
+  ✓   42 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/populated (3.5s)
+  ✓   43 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/zero (3.0s)
+  ✓   44 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading (3.0s)
+  ✓   45 [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error (3.0s)
+  ✓   46 [admin-eval] › tests/admin-eval.spec.ts:368:7 › Admin eval — render matrix, probes, bundles › probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes (2.4s)
+  ✓   47 [admin-eval] › tests/admin-eval.spec.ts:411:7 › Admin eval — render matrix, probes, bundles › probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes (2.8s)
+  ✓   48 [admin-eval] › tests/admin-eval.spec.ts:459:7 › Admin eval — render matrix, probes, bundles › probe #5 off-scale-radius: seeded defect is flagged, on-scale passes (2.3s)
+  ✓   49 [admin-eval] › tests/admin-eval.spec.ts:504:7 › Admin eval — render matrix, probes, bundles › probe #6 target-size: axe target-size rule is explicitly enabled (3.5s)
+  ✓   50 [admin-eval] › tests/admin-eval.spec.ts:539:7 › Admin eval — render matrix, probes, bundles › probe #7 focus-ring: control with no focus style is flagged, sg-btn passes (2.3s)
+  ✓   51 [admin-eval] › tests/admin-eval.spec.ts:590:7 › Admin eval — render matrix, probes, bundles › probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes (2.3s)
+  ✓   52 [admin-eval] › tests/admin-eval.spec.ts:633:7 › Admin eval — render matrix, probes, bundles › gallery boards produce no gate findings on the clean baseline (2.8s)
+  ✓   53 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/populated (2.8s)
+  ✓   54 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/zero (2.5s)
+  ✓   55 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/loading (2.5s)
+  ✘   56 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error (4.5m)
+  ✓   57 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error (retry #1) (2.9s)
+  ✓   58 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/populated (2.5s)
+  ✓   59 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/zero (2.6s)
+  ✓   60 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/loading (2.6s)
+  ✓   61 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/error (2.6s)
+  ✓   62 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated (2.5s)
+  ✓   63 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero (2.5s)
+  ✓   64 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading (2.6s)
+  ✓   65 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error (2.5s)
+  ✓   66 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/populated (2.5s)
+  ✓   67 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/zero (2.5s)
+  ✓   68 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/loading (2.6s)
+  ✓   69 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/error (2.5s)
+  ✓   70 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/populated (2.5s)
+  ✓   71 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/zero (2.6s)
+  ✓   72 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/loading (2.6s)
+  ✓   73 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/error (2.5s)
+  ✘   74 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated (17.8m)
+  ✓   75 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated (retry #1) (3.0s)
+  ✘   76 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero (15.1m)
+  ✓   77 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero (retry #1) (3.2s)
+  ✘   78 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading (16.7m)
+  ✓   79 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading (retry #1) (3.1s)
+  ✘   80 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error (16.0m)
+  ✓   81 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error (retry #1) (3.0s)
+  ✓   82 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/populated (11.5s)
+  ✓   83 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero (3.2s)
+  ✓   84 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading (2.5s)
+  ✓   85 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error (2.5s)
+  ✓   86 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/populated (2.6s)
+  ✓   87 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/zero (2.5s)
+  ✓   88 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/loading (2.5s)
+  ✓   89 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/error (2.5s)
+  ✓   90 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/populated (2.5s)
+  ✓   91 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/zero (2.6s)
+  ✓   92 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/loading (2.5s)
+  ✓   93 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/error (2.5s)
+  ✓   94 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/populated (2.5s)
+  ✓   95 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/zero (2.5s)
+  ✓   96 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading (2.5s)
+  ✓   97 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/error (2.5s)
+  ✓   98 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/populated (2.5s)
+  ✓   99 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/zero (2.5s)
+  ✘  100 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading (16.0m)
+  ✓  101 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading (retry #1) (3.0s)
+  ✘  102 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error (7.7m)
+  ✓  103 [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error (retry #1) (3.0s)
+  ✓  104 [admin-eval-mobile] › tests/admin-eval.spec.ts:368:7 › Admin eval — render matrix, probes, bundles › probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes (1.8s)
+  ✓  105 [admin-eval-mobile] › tests/admin-eval.spec.ts:411:7 › Admin eval — render matrix, probes, bundles › probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes (1.8s)
+  ✓  106 [admin-eval-mobile] › tests/admin-eval.spec.ts:459:7 › Admin eval — render matrix, probes, bundles › probe #5 off-scale-radius: seeded defect is flagged, on-scale passes (1.7s)
+  ✓  107 [admin-eval-mobile] › tests/admin-eval.spec.ts:504:7 › Admin eval — render matrix, probes, bundles › probe #6 target-size: axe target-size rule is explicitly enabled (2.4s)
+  ✓  108 [admin-eval-mobile] › tests/admin-eval.spec.ts:539:7 › Admin eval — render matrix, probes, bundles › probe #7 focus-ring: control with no focus style is flagged, sg-btn passes (1.8s)
+  ✓  109 [admin-eval-mobile] › tests/admin-eval.spec.ts:590:7 › Admin eval — render matrix, probes, bundles › probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes (1.7s)
+  ✓  110 [admin-eval-mobile] › tests/admin-eval.spec.ts:633:7 › Admin eval — render matrix, probes, bundles › gallery boards produce no gate findings on the clean baseline (1.8s)
+  ✓  111 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/populated (3.0s)
+  ✓  112 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/zero (3.5s)
+  ✓  113 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/loading (3.6s)
+  ✓  114 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error (3.5s)
+  ✓  115 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/populated (3.5s)
+  ✓  116 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/zero (3.5s)
+  ✓  117 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/loading (3.0s)
+  ✓  118 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-2/error (3.5s)
+  ✘  119 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated (18.0m)
+  ✓  120 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated (retry #1) (3.3s)
+  ✘  121 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero (15.2m)
+  ✓  122 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero (retry #1) (3.8s)
+  ✘  123 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading (15.2m)
+  ✓  124 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading (retry #1) (3.3s)
+  ✘  125 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error (11.7m)
+  ✓  126 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error (retry #1) (3.3s)
+  ✓  127 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/populated (2.9s)
+  ✓  128 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/zero (3.0s)
+  ✓  129 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/loading (3.0s)
+  ✓  130 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-4/error (3.0s)
+  ✓  131 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/populated (3.5s)
+  ✓  132 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/zero (3.0s)
+  ✓  133 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/loading (3.0s)
+  ✓  134 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-5/error (3.5s)
+  ✓  135 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated (3.5s)
+  ✓  136 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero (3.0s)
+  ✓  137 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading (3.0s)
+  ✓  138 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error (3.5s)
+  ✓  139 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/populated (2.9s)
+  ✘  140 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero (16.1m)
+  ✓  141 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero (retry #1) (3.3s)
+  ✘  142 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading (17.9m)
+  ✓  143 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading (retry #1) (3.3s)
+  ✘  144 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error (13.9m)
+  ✓  145 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error (retry #1) (3.3s)
+  ✓  146 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/populated (3.0s)
+  ✓  147 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/zero (3.5s)
+  ✓  148 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/loading (3.5s)
+  ✓  149 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-8/error (2.9s)
+  ✓  150 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/populated (3.0s)
+  ✓  151 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/zero (3.0s)
+  ✓  152 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/loading (3.0s)
+  ✓  153 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/error (3.5s)
+  ✓  154 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/populated (3.0s)
+  ✓  155 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/zero (2.9s)
+  ✓  156 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading (2.3s)
+  ✓  157 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/error (3.0s)
+  ✓  158 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/populated (3.0s)
+  ✓  159 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/zero (3.0s)
+  ✘  160 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading (11.5m)
+  ✓  161 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading (retry #1) (3.3s)
+  ✓  162 [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error (3.0s)
+  ✓  163 [admin-eval-dark] › tests/admin-eval.spec.ts:368:7 › Admin eval — render matrix, probes, bundles › probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes (2.3s)
+  ✓  164 [admin-eval-dark] › tests/admin-eval.spec.ts:411:7 › Admin eval — render matrix, probes, bundles › probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes (2.8s)
+  ✓  165 [admin-eval-dark] › tests/admin-eval.spec.ts:459:7 › Admin eval — render matrix, probes, bundles › probe #5 off-scale-radius: seeded defect is flagged, on-scale passes (2.3s)
+  ✓  166 [admin-eval-dark] › tests/admin-eval.spec.ts:504:7 › Admin eval — render matrix, probes, bundles › probe #6 target-size: axe target-size rule is explicitly enabled (3.0s)
+  ✓  167 [admin-eval-dark] › tests/admin-eval.spec.ts:539:7 › Admin eval — render matrix, probes, bundles › probe #7 focus-ring: control with no focus style is flagged, sg-btn passes (2.3s)
+  ✓  168 [admin-eval-dark] › tests/admin-eval.spec.ts:590:7 › Admin eval — render matrix, probes, bundles › probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes (2.8s)
+  ✓  169 [admin-eval-dark] › tests/admin-eval.spec.ts:633:7 › Admin eval — render matrix, probes, bundles › gallery boards produce no gate findings on the clean baseline (2.3s)
+
+
+  1) [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://localhost:4011/admin/_design", waiting until "load"[22m
+
+
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+    > 321 |     await page.goto('/admin/_design');
+          |                ^
+      322 |     await waitForLiveViewReady(page);
+      323 |   });
+      324 |
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-bee1c--bundle-board-mg-10-loading-admin-eval/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-bee1c--bundle-board-mg-10-loading-admin-eval/error-context.md
+
+  2) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://localhost:4011/users/register", waiting until "load"[22m
+
+
+      151 |
+      152 | async function registerUser(page: Page, email: string, password: string) {
+    > 153 |   await page.goto('/users/register');
+          |              ^
+      154 |   await waitForLiveViewReady(page);
+      155 |   await page.fill('input[name="user[email]"]', email);
+      156 |   await page.fill('input[name="user[password]"]', password);
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-d29d2-der-bundle-board-mg-1-error-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-d29d2-der-bundle-board-mg-1-error-admin-eval-mobile/error-context.md
+
+  3) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: frame.evaluate: Test timeout of 60000ms exceeded.
+
+       at ../lib/eval/probes.ts:509
+
+      507 |   }
+      508 |
+    > 509 |   const results = await axeBuilder.analyze();
+          |                   ^
+      510 |
+      511 |   const targetSizeViolations = results.violations.filter(
+      512 |     (v) => v.id === 'target-size',
+        at AxeBuilder.runPartialRecursive (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:315:39)
+        at AxeBuilder.analyze (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:245:39)
+        at probeTargetSize (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/probes.ts:509:19)
+        at runAllProbes (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/probes.ts:787:7)
+        at captureSurface (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:282:20)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-cfd58-bundle-board-mg-6-populated-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-cfd58-bundle-board-mg-6-populated-admin-eval-mobile/error-context.md
+
+  4) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://localhost:4011/admin/_design", waiting until "load"[22m
+
+
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+    > 321 |     await page.goto('/admin/_design');
+          |                ^
+      322 |     await waitForLiveViewReady(page);
+      323 |   });
+      324 |
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-50fb9-nder-bundle-board-mg-6-zero-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-50fb9-nder-bundle-board-mg-6-zero-admin-eval-mobile/error-context.md
+
+  5) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      156 |   await page.fill('input[name="user[password]"]', password);
+      157 |   await Promise.all([
+    > 158 |     page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+          |          ^
+      159 |     page.getByRole('button', { name: /Create an account/ }).click(),
+      160 |   ]);
+      161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-d5dec-r-bundle-board-mg-6-loading-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-d5dec-r-bundle-board-mg-6-loading-admin-eval-mobile/error-context.md
+
+  6) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      156 |   await page.fill('input[name="user[password]"]', password);
+      157 |   await Promise.all([
+    > 158 |     page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+          |          ^
+      159 |     page.getByRole('button', { name: /Create an account/ }).click(),
+      160 |   ]);
+      161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-3b4e9-der-bundle-board-mg-6-error-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-3b4e9-der-bundle-board-mg-6-error-admin-eval-mobile/error-context.md
+
+  7) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      140 |
+      141 | async function waitForLiveViewReady(page: Page) {
+    > 142 |   await page.waitForSelector('[data-phx-session].phx-connected', {
+          |              ^
+      143 |     state: 'attached',
+      144 |   });
+      145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-mobile/error-context.md
+
+  8) [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://localhost:4011/admin/_design", waiting until "load"[22m
+
+
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+    > 321 |     await page.goto('/admin/_design');
+          |                ^
+      322 |     await waitForLiveViewReady(page);
+      323 |   });
+      324 |
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-9f83f-er-bundle-board-mg-11-error-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-9f83f-er-bundle-board-mg-11-error-admin-eval-mobile/error-context.md
+
+  9) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.evaluate: Test timeout of 60000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+      234 |
+      235 |   // Run axe for this cell (full WCAG 2.1/2.2 AA)
+    > 236 |   const axeResult = await new AxeBuilder({ page })
+          |                     ^
+      237 |     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      238 |     .analyze();
+      239 |
+        at AxeBuilder.analyze (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:253:13)
+        at captureSurface (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:236:21)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-71e28-bundle-board-mg-3-populated-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-71e28-bundle-board-mg-3-populated-admin-eval-dark/error-context.md
+
+  10) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      140 |
+      141 | async function waitForLiveViewReady(page: Page) {
+    > 142 |   await page.waitForSelector('[data-phx-session].phx-connected', {
+          |              ^
+      143 |     state: 'attached',
+      144 |   });
+      145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-58320-nder-bundle-board-mg-3-zero-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-58320-nder-bundle-board-mg-3-zero-admin-eval-dark/error-context.md
+
+  11) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      140 |
+      141 | async function waitForLiveViewReady(page: Page) {
+    > 142 |   await page.waitForSelector('[data-phx-session].phx-connected', {
+          |              ^
+      143 |     state: 'attached',
+      144 |   });
+      145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-78586-r-bundle-board-mg-3-loading-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-78586-r-bundle-board-mg-3-loading-admin-eval-dark/error-context.md
+
+  12) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      156 |   await page.fill('input[name="user[password]"]', password);
+      157 |   await Promise.all([
+    > 158 |     page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+          |          ^
+      159 |     page.getByRole('button', { name: /Create an account/ }).click(),
+      160 |   ]);
+      161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-24fb0-der-bundle-board-mg-3-error-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-24fb0-der-bundle-board-mg-3-error-admin-eval-dark/error-context.md
+
+  13) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      140 |
+      141 | async function waitForLiveViewReady(page: Page) {
+    > 142 |   await page.waitForSelector('[data-phx-session].phx-connected', {
+          |              ^
+      143 |     state: 'attached',
+      144 |   });
+      145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-44cf9-nder-bundle-board-mg-7-zero-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-44cf9-nder-bundle-board-mg-7-zero-admin-eval-dark/error-context.md
+
+  14) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      156 |   await page.fill('input[name="user[password]"]', password);
+      157 |   await Promise.all([
+    > 158 |     page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+          |          ^
+      159 |     page.getByRole('button', { name: /Create an account/ }).click(),
+      160 |   ]);
+      161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-8e879-r-bundle-board-mg-7-loading-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-8e879-r-bundle-board-mg-7-loading-admin-eval-dark/error-context.md
+
+  15) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      140 |
+      141 | async function waitForLiveViewReady(page: Page) {
+    > 142 |   await page.waitForSelector('[data-phx-session].phx-connected', {
+          |              ^
+      143 |     state: 'attached',
+      144 |   });
+      145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-621d8-der-bundle-board-mg-7-error-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-621d8-der-bundle-board-mg-7-error-admin-eval-dark/error-context.md
+
+  16) [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading 
+
+    [31mTest timeout of 60000ms exceeded while running "beforeEach" hook.[39m
+
+      316 |
+      317 | test.describe('Admin eval — render matrix, probes, bundles', () => {
+    > 318 |   test.beforeEach(async ({ page }, testInfo) => {
+          |        ^
+      319 |     const adminEmail = adminEvalEmail(testInfo);
+      320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
+      321 |     await page.goto('/admin/_design');
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+
+    TimeoutError: page.goto: Timeout 15000ms exceeded.
+    Call log:
+    [2m  - navigating to "http://localhost:4011/users/register", waiting until "load"[22m
+
+
+      151 |
+      152 | async function registerUser(page: Page, email: string, password: string) {
+    > 153 |   await page.goto('/users/register');
+          |              ^
+      154 |   await waitForLiveViewReady(page);
+      155 |   await page.fill('input[name="user[email]"]', email);
+      156 |   await page.fill('input[name="user[password]"]', password);
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-dark/error-context.md
+
+  16 flaky
+    [admin-eval] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-10/loading 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-1/error 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/populated 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/zero 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/loading 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-6/error 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/error 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/populated 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/zero 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/loading 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-3/error 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/zero 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/loading 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-7/error 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:347:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-11/loading 
+  137 passed (3.9h)
+admin-eval-harness: (b1) stale-render guard
+stale-render-guard: checking 132 bundle(s) against HEAD ae78b94f63ce5fe44ea2f9a83add68472dbee63c
+stale-render-guard: PASS (132 bundle(s) verified at HEAD ae78b94f63ce5fe44ea2f9a83add68472dbee63c)
+admin-eval-harness: (b2) evidence anchor integrity check
+evidence-anchor-check: PASS (132 bundle(s), 3808 finding(s) checked)
+admin-eval-harness: (b3) quality findings monotonic guard
+quality-findings-monotonic: PASS (16 cells checked vs HEAD)
+admin-eval-harness: (b4) award ledger verify-then-climb guard
+award-guard: PASS (2 cells checked vs HEAD)
+admin-eval-harness: (b5) settled findings lint
+settled-findings-lint: PASS (no data rows — trivially valid)
+admin-eval-harness: PASS — all phases green
+HARNESS EXIT: 0
