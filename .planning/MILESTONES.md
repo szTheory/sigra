@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.44 ADMIN-UX-RATCHET (Shipped: 2026-07-10)
+
+**Phases completed:** 5 phases (216–220), 36 plans
+**Git range:** phase-216 start → `c0595e09` · shipped via terminal PR #73 (full-branch merge-commit to `origin/main`, `.planning/` included) · no git tag (internal milestone; avoids Hex-version collision)
+**Milestone audit:** Phase 220 terminal-ratification served as the audit — verification PASSED 4/4 must-haves; all 5 required CI checks + `fast_checks` + `ci-gate` green on the merged terminal PR.
+**Closeout:** override_closeout — ~20 audit-open items acknowledged-deferred (10 completed quick-tasks are the known false-flag; the rest are TODOs/seeds/1 stale debug session/1 UAT gap reconciled or carried forward; see STATE.md "Deferred Items").
+
+**Delivered:** Automated the evaluation + forward-only ratcheting of admin/operator UI/UX quality (adversarial LLM persona/JTBD + graphic-design panels, deterministic-first with LLM-residual), then applied the harness in one broad wave to elevate every admin surface — so award-grade iteration is fast and only-moves-forward, needing a human only for a minimal final sign-off.
+
+**Key accomplishments:**
+
+- **Evaluation harness built (Phase 216, HARNESS-01/02/03 + RATCHET-01/02):** a single command renders every admin surface (light/dark/mobile × populated/zero/loading/error) into tamper-proof evidence bundles (screenshot + post-hydration DOM + axe JSON + computed-style facts + `app_git_sha` + `render_sha256`); a stale-render guard + evidence-anchor integrity check make cite-and-flip impossible by construction; 9 deterministic visual probes flag off-token/misalignment/budget/target-size/focus defects; the quality ledger gained a finer award sub-score with a verify-then-climb pass; a findings-count-monotonic guard locks counts forward vs merge-base.
+- **Adversarial LLM panel + auto-fix rails (Phase 217, PANEL-01/02 + AUTOFIX-01/02):** a 4-lens panel (3 persona/JTBD + 1 graphic-design) evaluates only deterministically-clean surfaces under a forced-finding floor with k=3 consensus and content-hash skip; findings dedup into a stable `finding_id`-keyed fix queue with systemic collapse; only provably-safe fix classes auto-apply with per-fix `git revert` on regression — proven by a hermetic injected-regression test. **JUDGE-CI-01 invariant held: the panel is in NO required-check job and never flips a ledger cell.**
+- **Broad elevation wave (Phase 218, ELEVATE-01/02/03):** all 8 admin surfaces + the L1/L2 component fractal run through the full loop and verify-then-climbed; UI-01 (demo-DX nits) + UI-02 (Tasklane rebrand residuals) folded in (incl. demo LiveView crash fixes); landed as a batched reviewable PR.
+- **Baselines recaptured in-CI (Phase 219, RECAP-01):** ~115 committed PNG baselines recaptured amd64-native in the ubuntu CI job (never darwin-local); both allowlists reset to empty steady-state; a never-allowlistable snapshot-canary drift guard + generated-host parity green. Only the `impersonation-banner` canary drifted (reconciled at ship time).
+- **Terminal ratification + ship (Phase 220, RATIFY-01):** award sub-score cells locked forward under `quality-ledger-monotonic.sh`, harness runbook committed, and the milestone shipped via a caveat-free terminal PR gated on all 5 required checks. The ship ran the documented deferred sequence — quarantine 3-PNG canary PR #72 (byte-proof green) merged first → v1.2.0 (#66) → rebase (zero PNG diff) → terminal PR #73 (6/6 green) → v1.3.0 (#74). A latent `fix-queue-lint` proxy-marker bug surfaced on the terminal PR's first-ever full `fast_checks` and was fixed + regression-tested.
+
+**Known deferred:** **Hex publish** — v1.2.0 + v1.3.0 are git-tagged + GitHub-released but NOT on Hex (stays v1.1.0), blocked by a pre-existing `Upgrade smoke` `<.button type>` warning-as-error (push/schedule-only, red on every `main` push since the v1.43 ship); tracked in `2026-07-10-upgrade-smoke-button-type-hex-publish.md`. Plus the carried v2 items (FEAT-01/02/03, SEED-005/006) and the Jon-manual Hex `1.20.0` retire.
+
+**Housekeeping:** working-tree contamination from a stray stash pop cleaned; phase dirs 216–220 archived to `milestones/v1.44-phases/`.
+
+---
+
 ## v1.43 STABILIZE (Shipped: 2026-07-03)
 
 **Phases completed:** 3 phases (213, 214, 215), 11 plans, 18 tasks

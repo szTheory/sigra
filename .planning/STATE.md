@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-status: milestone_complete
-stopped_at: Milestone complete (Phase 220 was final phase)
-last_updated: 2026-07-10T02:37:35.391Z
+status: milestone_shipped
+stopped_at: v1.44 ADMIN-UX-RATCHET shipped 2026-07-10 (terminal PR #73 → c0595e09) + archived. Between milestones — ready for /gsd-new-milestone.
+last_updated: 2026-07-10T13:30:00.000Z
 last_activity: 2026-07-10
 progress:
   total_phases: 5
@@ -22,7 +22,7 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone complete
+**Current focus:** v1.44 shipped + archived — between milestones (start next with `/gsd-new-milestone`)
 
 ## Current Position
 
@@ -383,15 +383,26 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 | seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) |
 | seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture |
 
+### Acknowledged at v1.44 close (2026-07-10)
+
+override_closeout — `audit-open` reported ~20 open items, all acknowledged-deferred at milestone close:
+
+- **10 quick-tasks** (`260618-fch…`, `260618-gly…`, `260618-grh…`, `260619-l1b…`, etc.) — the **known false-flag**: completed quick-tasks that glob as "open" (same pattern acknowledged at v1.42/v1.43 close). No action.
+- **1 debug session** `pr37-phantom-sigra-web` (investigating, 2026-05-02) — stale, from the phase-88 era; not v1.44 scope. (Its stray untracked copy — left by a bad stash pop during the v1.44 ship — was cleaned; the session record is preserved in stash `chore/phase-88-uat-evidence`.)
+- **1 UAT gap** — carried; not blocking (v1.44 verification was gate-driven via Phase 220 + live CI).
+- **5 todos / 3 seeds** — carried forward as tracked debt, notably the **new deferred-Hex TODO** `2026-07-10-upgrade-smoke-button-type-hex-publish` (fix upgrade-smoke `<.button type>` → publish v1.2.0/v1.3.0 to Hex), the Jon-manual Hex `1.20.0` retire, the v2 FEAT-01/02/03 config/installer features, and SEED-005/006 (dormant CI-perf / gallery-recapture). None are unreconciled blocking debt.
+
 ## Session Continuity
 
 Last session: 2026-07-10T02:31:25.415Z
-Stopped at: Completed 220-04-PLAN.md
+Stopped at: v1.44 shipped + archived
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 216` to plan Phase 216: Harness Foundation + Award Gradient
+- **v1.44 shipped + archived.** Start the next milestone: `/gsd-new-milestone` (Jon's direction: admin/operator-UI cleanup continues, or a feature milestone for FEAT-01/02/03).
+- **Merge close-out PR #78** (docs-only: VALIDATION flip + deferred-Hex TODO) once its required checks settle.
+- **Deferred Hex publish** (v1.2.0 + v1.3.0): fix the pre-existing upgrade-smoke `<.button type>` warning-as-error, then `gh workflow run hex-publish.yml` — see `.planning/todos/pending/2026-07-10-upgrade-smoke-button-type-hex-publish.md`.
 
 ## Performance Metrics
 
