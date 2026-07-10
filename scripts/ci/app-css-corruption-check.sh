@@ -115,14 +115,25 @@ in_root {
   }
 
   # A proper CSS custom property declaration: starts with --  followed by name:
+  # Phase 221 Plan 02 (SHIP-03 / D-09): a complete single-line declaration
+  # (ends in ";") is NOT an opener — reset last_was_prop so the next line is
+  # evaluated fresh instead of being absorbed as a continuation.
   if (/^[[:space:]]*--[a-zA-Z]/) {
-    last_was_prop = 1
+    if (/;[[:space:]]*$/) {
+      last_was_prop = 0
+    } else {
+      last_was_prop = 1
+    }
     next
   }
 
   # A proper standard declaration: starts with a word then colon (like color-scheme: light)
   if (/^[[:space:]]*[a-zA-Z][a-zA-Z-]*[[:space:]]*:/) {
-    last_was_prop = 1
+    if (/;[[:space:]]*$/) {
+      last_was_prop = 0
+    } else {
+      last_was_prop = 1
+    }
     next
   }
 
