@@ -24,8 +24,8 @@ Requirements for the v1.45 RELEASE-CURRENCY milestone. Each maps to exactly one 
 
 ### Ship-Honest Generated-Host Debt (SHIP)
 
-- [ ] **SHIP-01**: The security-adjacent installer `scope:` omission on `save_passkey_name` (WR-01) is fixed — the generated `mfa_settings_live.ex` passes `scope:` (restoring the library-level impersonation defense-in-depth) and handles the `{:error, :impersonation_forbidden}` clause, mirrored from the example twin, with the install golden fixture re-blessed.
-- [ ] **SHIP-02**: The generated-host copy/DX nits are fixed — WR-02 delete-passkey confirmation copy drift (template mirrored to example + golden re-bless) and the `up.sh --help` `--print-env` usage truncation (IN-02).
+- [x] **SHIP-01**: The security-adjacent installer `scope:` omission on `save_passkey_name` (WR-01) is fixed — the generated `mfa_settings_live.ex` passes `scope:` (restoring the library-level impersonation defense-in-depth) and handles the `{:error, :impersonation_forbidden}` clause, mirrored from the example twin, with the install golden fixture re-blessed.
+- [x] **SHIP-02**: The generated-host copy/DX nits are fixed — WR-02 delete-passkey confirmation copy drift (template mirrored to example + golden re-bless) and the `up.sh --help` `--print-env` usage truncation (IN-02).
 - [ ] **SHIP-03**: The `app.css` corruption-guard false-negative is fixed — `scripts/ci/app-css-corruption-check.sh` catches an orphaned bare value placed immediately after a `;`-terminated declaration (resets the `last_was_prop` flag), proven by a regression case.
 
 ### Release-Currency Proof (PROOF)
@@ -70,17 +70,19 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PUB-05 | Phase 223 | Pending |
 | HARD-01 | Phase 222 | Pending |
 | HARD-02 | Phase 222 | Pending |
-| SHIP-01 | Phase 221 | Pending |
-| SHIP-02 | Phase 221 | Pending |
+| SHIP-01 | Phase 221 | Complete |
+| SHIP-02 | Phase 221 | Complete |
 | SHIP-03 | Phase 221 | Pending |
 | PROOF-01 | Phase 223 | Pending |
 
 **Coverage:**
+
 - v1.45 requirements: 11 total
 - Mapped to phases: 11 ✓
 - Unmapped: 0 ✓
 
 **Phase distribution:**
+
 - Phase 221 (Unblock the Gate + Ship-Honest Generated-Host Debt): PUB-01, PUB-02, PUB-03, PUB-04, SHIP-01, SHIP-02, SHIP-03 (7)
 - Phase 222 (Release-Lane Hardening): HARD-01, HARD-02 (2)
 - Phase 223 (Get Current on Hex + Terminal Currency Proof): PUB-05, PROOF-01 (2)

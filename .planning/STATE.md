@@ -3,16 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
 current_phase: 221
-status: planning
-stopped_at: Phase 221 context gathered (assumptions mode)
-last_updated: "2026-07-10T15:39:27.021Z"
+current_phase_name: unblock-the-gate-ship-honest-generated-host-debt
+status: executing
+stopped_at: Completed 221-01-PLAN.md
+last_updated: "2026-07-10T16:36:30.387Z"
 last_activity: 2026-07-10
-last_activity_desc: v1.45 RELEASE-CURRENCY roadmap created (3 phases, 11/11 requirements mapped)
+last_activity_desc: Phase 221 execution started
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 5
+  completed_plans: 1
   percent: 0
 ---
 
@@ -24,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.45 RELEASE-CURRENCY — roadmap created (Phases 221-223). Get Sigra current + trustworthy on Hex: unblock gate → harden lane → publish + prove. Next: `/gsd-plan-phase 221`
+**Current focus:** Phase 221 — unblock-the-gate-ship-honest-generated-host-debt
 
 ## Current Position
 
-Phase: 221 — Unblock the Gate + Ship-Honest Generated-Host Debt (not started)
-Plan: —
-Status: Roadmap created — ready to plan Phase 221
-Last activity: 2026-07-10 — v1.45 RELEASE-CURRENCY roadmap created (3 phases, 11/11 requirements mapped)
+Phase: 221 (unblock-the-gate-ship-honest-generated-host-debt) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-07-10 -- Phase 221 execution started
 
 ## Accumulated Context
 
@@ -310,6 +311,7 @@ Last activity: 2026-07-10 — v1.45 RELEASE-CURRENCY roadmap created (3 phases, 
 - [Phase 220]: 220-04: Quarantine-PR draft scopes exactly the 3 impersonation-banner PNGs (D-05/D-08); required Example Playwright smoke green + PAT-push footgun note captured
 - [Phase 220]: 220-04: Close-readiness record (D-13) maps SC-1..SC-4 to observable signals and captures affirmative panel-absence evidence (panel-ci-isolation.test.sh PASS 3/3 + zero-match ci.yml run: grep) for SC-4's panel half
 - [Phase 220]: 220-04: Phase 220 complete (4/4 plans); does NOT self-merge any PR or archive the milestone — deferred ship sequence handed to operator/gsd-ship/gsd-complete-milestone
+- [Phase ?]: 221-01: Mirrored only the Elixir semantics (scope: kwarg, impersonation_forbidden clause, dedupe copy) from the example twin into the installer template, not its vt-* markup; re-blessed the install golden fixture via the generator task
 
 ### Pending Todos
 
@@ -395,9 +397,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T15:39:27.016Z
-Stopped at: Phase 221 context gathered (assumptions mode)
-Resume file: .planning/phases/221-unblock-the-gate-ship-honest-generated-host-debt/221-CONTEXT.md
+Last session: 2026-07-10T16:36:30.382Z
+Stopped at: Completed 221-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -500,3 +502,4 @@ Resume file: .planning/phases/221-unblock-the-gate-ship-honest-generated-host-de
 | Phase 220 P02 | 8min | 1 tasks | 1 files |
 | Phase 220 P03 | 6min | 1 tasks | 1 files |
 | Phase 220 P04 | 8min | 2 tasks | 2 files |
+| Phase 221 P01 | 20min | 3 tasks | 2 files |
