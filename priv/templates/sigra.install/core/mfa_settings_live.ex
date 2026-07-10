@@ -360,7 +360,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                 <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
                   <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
                   <p class="mt-1 text-sm text-red-700">
-                    Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
+                    You'll still need another sign-in method before removing your last recovery option.
                   </p>
                   <p :if={@passkey_count == 1} class="mt-2 text-sm text-red-700">
                     You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
