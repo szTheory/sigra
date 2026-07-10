@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.44
 milestone_name: ADMIN-UX-RATCHET
-current_phase: 220
-current_phase_name: terminal-ratification
-status: executing
-stopped_at: Completed 220-03-PLAN.md
-last_updated: "2026-07-10T02:23:38.257Z"
+status: verifying
+stopped_at: Completed 220-04-PLAN.md
+last_updated: "2026-07-10T02:31:25.419Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 36
-  completed_plans: 35
-  percent: 80
+  completed_plans: 36
+  percent: 100
 ---
 
 # Project State
@@ -30,10 +28,10 @@ See: `.planning/PROJECT.md`
 
 Phase: 220 (terminal-ratification) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-10
 
-Progress: [█████████░] 94%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -309,6 +307,9 @@ Progress: [█████████░] 94%
 - [Phase 220]: D-04: exactly three additive notes landed in one commit — no existing runbook section rewritten (D-03)
 - [Phase 220]: Cited quality-ledger-monotonic.sh's 36-cell compare (not award-guard's skip-path exit-0) as the substantive SC-1 proof, per PI-1 — award-guard.mjs exits 0 against origin/main via a skip path because main predates the net-new award ledger; the guard did not compare anything at the merge-base boundary
 - [Phase 220]: Recorded the local guard run explicitly as a PREVIEW, deferring the authoritative committed-HEAD proof to the terminal PR's fast_checks job per the 216 SC-5 trap — A green self-test/local run at a pre-PR sha is not valid evidence of a committed-HEAD guarantee; the binding proof is the same guards running in fast_checks against the real merge-base, confirmed via gh pr checks
+- [Phase 220]: 220-04: Quarantine-PR draft scopes exactly the 3 impersonation-banner PNGs (D-05/D-08); required Example Playwright smoke green + PAT-push footgun note captured
+- [Phase 220]: 220-04: Close-readiness record (D-13) maps SC-1..SC-4 to observable signals and captures affirmative panel-absence evidence (panel-ci-isolation.test.sh PASS 3/3 + zero-match ci.yml run: grep) for SC-4's panel half
+- [Phase 220]: 220-04: Phase 220 complete (4/4 plans); does NOT self-merge any PR or archive the milestone — deferred ship sequence handed to operator/gsd-ship/gsd-complete-milestone
 
 ### Pending Todos
 
@@ -384,8 +385,8 @@ Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled de
 
 ## Session Continuity
 
-Last session: 2026-07-10T02:23:38.252Z
-Stopped at: Completed 220-03-PLAN.md
+Last session: 2026-07-10T02:31:25.415Z
+Stopped at: Completed 220-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -486,3 +487,4 @@ Resume file: None
 | Phase 220 P01 | 6min | 2 tasks | 2 files |
 | Phase 220 P02 | 8min | 1 tasks | 1 files |
 | Phase 220 P03 | 6min | 1 tasks | 1 files |
+| Phase 220 P04 | 8min | 2 tasks | 2 files |

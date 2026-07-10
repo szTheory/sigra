@@ -203,7 +203,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 220-04-PLAN.md — quarantine-PR body draft + close-readiness record (D-05…D-13, SC-3) [wave 2]
+- [x] 220-04-PLAN.md — quarantine-PR body draft + close-readiness record (D-05…D-13, SC-3) [wave 2]
 
 **UI hint**: yes
 
@@ -215,4 +215,4 @@ Plans:
 | 217. Adversarial Panel + Auto-Fix Safety Rails | 8/8 | Complete    | 2026-07-04 |
 | 218. Elevation Wave + Nit Cleanup | 10/10 | Complete    | 2026-07-09 |
 | 219. Baseline Recapture + Canary Reconciliation | 5/5 | Complete    | 2026-07-09 |
-| 220. Terminal Ratification | 3/4 | In Progress|  |
+| 220. Terminal Ratification | 4/4 | Complete   | 2026-07-10 |
