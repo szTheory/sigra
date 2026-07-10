@@ -26,7 +26,7 @@ Requirements for the v1.45 RELEASE-CURRENCY milestone. Each maps to exactly one 
 
 - [x] **SHIP-01**: The security-adjacent installer `scope:` omission on `save_passkey_name` (WR-01) is fixed — the generated `mfa_settings_live.ex` passes `scope:` (restoring the library-level impersonation defense-in-depth) and handles the `{:error, :impersonation_forbidden}` clause, mirrored from the example twin, with the install golden fixture re-blessed.
 - [x] **SHIP-02**: The generated-host copy/DX nits are fixed — WR-02 delete-passkey confirmation copy drift (template mirrored to example + golden re-bless) and the `up.sh --help` `--print-env` usage truncation (IN-02).
-- [ ] **SHIP-03**: The `app.css` corruption-guard false-negative is fixed — `scripts/ci/app-css-corruption-check.sh` catches an orphaned bare value placed immediately after a `;`-terminated declaration (resets the `last_was_prop` flag), proven by a regression case.
+- [x] **SHIP-03**: The `app.css` corruption-guard false-negative is fixed — `scripts/ci/app-css-corruption-check.sh` catches an orphaned bare value placed immediately after a `;`-terminated declaration (resets the `last_was_prop` flag), proven by a regression case.
 
 ### Release-Currency Proof (PROOF)
 
@@ -72,7 +72,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HARD-02 | Phase 222 | Pending |
 | SHIP-01 | Phase 221 | Complete |
 | SHIP-02 | Phase 221 | Complete |
-| SHIP-03 | Phase 221 | Pending |
+| SHIP-03 | Phase 221 | Complete |
 | PROOF-01 | Phase 223 | Pending |
 
 **Coverage:**

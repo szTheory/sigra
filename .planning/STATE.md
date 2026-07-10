@@ -2,18 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-current_phase: 221
-current_phase_name: unblock-the-gate-ship-honest-generated-host-debt
 status: executing
-stopped_at: Completed 221-01-PLAN.md
-last_updated: "2026-07-10T16:36:30.387Z"
+stopped_at: Completed 221-02-PLAN.md
+last_updated: "2026-07-10T16:42:31.575Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 221 execution started
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -30,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 221 (unblock-the-gate-ship-honest-generated-host-debt) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
-Last activity: 2026-07-10 -- Phase 221 execution started
+Last activity: 2026-07-10
 
 ## Accumulated Context
 
@@ -312,6 +309,8 @@ Last activity: 2026-07-10 -- Phase 221 execution started
 - [Phase 220]: 220-04: Close-readiness record (D-13) maps SC-1..SC-4 to observable signals and captures affirmative panel-absence evidence (panel-ci-isolation.test.sh PASS 3/3 + zero-match ci.yml run: grep) for SC-4's panel half
 - [Phase 220]: 220-04: Phase 220 complete (4/4 plans); does NOT self-merge any PR or archive the milestone — deferred ship sequence handed to operator/gsd-ship/gsd-complete-milestone
 - [Phase ?]: 221-01: Mirrored only the Elixir semantics (scope: kwarg, impersonation_forbidden clause, dedupe copy) from the example twin into the installer template, not its vt-* markup; re-blessed the install golden fixture via the generator task
+- [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
+- [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
 
 ### Pending Todos
 
@@ -397,8 +396,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T16:36:30.382Z
-Stopped at: Completed 221-01-PLAN.md
+Last session: 2026-07-10T16:42:31.571Z
+Stopped at: Completed 221-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -503,3 +502,4 @@ Resume file: None
 | Phase 220 P03 | 6min | 1 tasks | 1 files |
 | Phase 220 P04 | 8min | 2 tasks | 2 files |
 | Phase 221 P01 | 20min | 3 tasks | 2 files |
+| Phase 221 P02 | 6min | 3 tasks | 5 files |

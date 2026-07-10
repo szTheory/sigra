@@ -45,7 +45,7 @@
 **Plans**: 5 plans
 
 - [x] 221-01-PLAN.md — SHIP-01 passkey-rename `scope:` + impersonation clause and SHIP-02a delete-copy dedupe in the installer template, golden re-blessed (SHIP-01, SHIP-02)
-- [ ] 221-02-PLAN.md — SHIP-02b `up.sh --help` window + SHIP-03 corruption-guard `last_was_prop` reset with net-new fixture/driver wired into CI (SHIP-02, SHIP-03)
+- [x] 221-02-PLAN.md — SHIP-02b `up.sh --help` window + SHIP-03 corruption-guard `last_was_prop` reset with net-new fixture/driver wired into CI (SHIP-02, SHIP-03)
 - [ ] 221-03-PLAN.md — PUB-01 smoke-floor pin: `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` on the `upgrade_smoke` job (PUB-01)
 - [ ] 221-04-PLAN.md — PUB-02/03 operator publishes of v1.2.0 (dry-run then real) and v1.3.0 via `hex-publish.yml` (autonomous: false)
 - [ ] 221-05-PLAN.md — PUB-04 retire stray 1.20.0 + PUB-01 terminal gate-green observation on push-to-`main` (autonomous: false)
@@ -83,7 +83,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 1/5 | In Progress|  |
+| 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 2/5 | In Progress|  |
 | 222. Release-Lane Hardening (No Silent Rot) | 0/? | Not started | - |
 | 223. Get Current on Hex + Terminal Currency Proof | 0/? | Not started | - |
 
