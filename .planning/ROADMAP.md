@@ -62,8 +62,16 @@
   3. The recovery / manual-dispatch runbook (`hex-publish.yml` `workflow_dispatch` with `tag` + `release_version` + `dry_run`) is documented so an operator can publish or diagnose a stranded release. (HARD-02)
 
 **Plans**: 3 plans
+**Wave 1**
+
 - [ ] 222-01-PLAN.md — HARD-01 durable resolver stray-exclusion (drop stray `1.20.0`) + retire the D-13 ci.yml start-version pin (D-03/D-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 222-02-PLAN.md — shared loud-signal notify-failure-issue.sh + two consumer jobs: `notify_release_lane_rot` (ci.yml red-main) and `notify-release-failure` (release-please publish/gate failure) (D-02/D-06.3/D-07)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 222-03-PLAN.md — HARD-02 `dry_run=true` publish-path proof against v1.3.0 + MAINTAINING.md recovery/manual-dispatch runbook (D-06.1/D-08)
 
 ### Phase 223: Get Current on Hex + Terminal Currency Proof

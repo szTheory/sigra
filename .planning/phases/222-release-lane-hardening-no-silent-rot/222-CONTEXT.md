@@ -56,7 +56,7 @@ Requirements in scope: **HARD-01, HARD-02**.
 
 ### HARD-02 — Prove auto-publish readiness + concrete "fails loudly"
 
-- **D-05: Operator-truth (confirmed, decisive):** v1.2.0 and v1.3.0 were published via the **manual
+- **D-05 [informational]:** Operator-truth (confirmed, decisive) — v1.2.0 and v1.3.0 were published via the **manual
   `hex-publish.yml` `workflow_dispatch`** path (three successful runs 2026-07-10: 16:49 v1.2.0
   dry-run, 17:03 v1.2.0 real, 18:00 v1.3.0 real) — **NOT** via release-please auto-publish.
   release-please auto-publish is therefore **unproven end-to-end**; worse, it is **proven to stall
