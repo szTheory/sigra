@@ -1,0 +1,13 @@
+/* Phase 221 Plan 02 (SHIP-03 / D-10): regression fixture for the
+ * app-css-corruption-check.sh false-negative.
+ *
+ * A valid, ;-terminated custom-property declaration immediately followed
+ * by an orphan bare value line (no "property:" prefix) — the exact
+ * corruption class the sg-* split left behind. The guard must flag the
+ * orphan line, not treat it as a legitimate multi-line continuation of
+ * the preceding declaration.
+ */
+:root {
+  --vt-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  0 0 0 1px rgba(0, 0, 0, 0.2);
+}
