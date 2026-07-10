@@ -1,6 +1,7 @@
 ---
 created: 2026-07-10T00:00:00.000Z
 status: pending
+resolves_phase: 223
 title: Fix upgrade-smoke `<.button type>` warning-as-error, then publish v1.2.0 + v1.3.0 to Hex
 area: release
 files:

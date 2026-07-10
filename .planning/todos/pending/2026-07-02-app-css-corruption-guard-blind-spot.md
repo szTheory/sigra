@@ -1,6 +1,7 @@
 ---
 title: Harden app.css corruption guard against mid-block orphan values
 status: pending
+resolves_phase: 221
 created: 2026-07-02
 source: phase-214 verification (W1)
 requirement: DEBT-05 (follow-up)

@@ -1,6 +1,7 @@
 ---
 created: 2026-07-03T00:00:00.000Z
 status: pending
+resolves_phase: 223
 title: Retire stray Hex 1.20.0 so 1.1.0 is the resolved latest_stable
 area: release
 files:
