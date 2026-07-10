@@ -1,10 +1,11 @@
 ---
 phase: 220
 slug: terminal-ratification
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-09
+validated: 2026-07-10
 ---
 
 # Phase 220 — Validation Strategy
@@ -64,10 +65,10 @@ created: 2026-07-09
 
 ## Validation Sign-Off
 
-- [ ] SC-1…SC-4 each mapped to an observable CI/self-test signal (above)
-- [ ] Live-guard proof runs against the real merge-base (not a doc assertion — closes 216 SC-5 trap)
-- [ ] cheerio fix proven in CI (not locally — PI-2 step-ordering artifact)
-- [ ] LLM panel absent from every required-check job (SC-4 invariant)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] SC-1…SC-4 each mapped to an observable CI/self-test signal (above)
+- [x] Live-guard proof runs against the real merge-base (not a doc assertion — closes 216 SC-5 trap) — `fast_checks` green on terminal PR #73 at committed HEAD `993f7db4`
+- [x] cheerio fix proven in CI (not locally — PI-2 step-ordering artifact) — `fast_checks` green on PR #73
+- [x] LLM panel absent from every required-check job (SC-4 invariant) — `panel-ci-isolation.test.sh` PASS + zero-match `ci.yml` grep
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** signed off 2026-07-10 — terminal PR #73 merged to `main` (`c0595e09`) with all 5 required checks + `fast_checks` + `ci-gate` green at committed HEAD; quarantine PR #72 scope-checked (exactly 3 `impersonation-banner` PNGs, required Example Playwright smoke green). Milestone GitHub side shipped; Hex publish for v1.2.0/v1.3.0 deferred as tracked debt (pre-existing upgrade-smoke `<.button type>` failure — see `.planning/todos/pending/2026-07-10-upgrade-smoke-button-type-hex-publish.md`).
