@@ -2,67 +2,74 @@
 created: 2026-07-10T00:00:00.000Z
 status: pending
 resolves_phase: 223
-title: Fix upgrade-smoke `<.button type>` warning-as-error, then publish v1.2.0 + v1.3.0 to Hex
+title: Publish v1.2.0/v1.3.0 to Hex — one-time break of the upgrade-smoke chicken-and-egg (self-heals)
 area: release
 files:
-  - lib/sigra_web/live/organization_settings_live.ex
-  - priv/templates/sigra.install/organizations/live/organization_settings_live.ex
+  - scripts/ci/upgrade-smoke.sh
   - .github/workflows/hex-publish.yml
-source: 2026-07-10 v1.44 ship — pre-existing push-CI debt blocks release-please auto Hex-publish; Jon chose defer-Hex (Option A). Manual/interactive publish step.
+source: 2026-07-10 v1.44 ship — Jon chose defer-Hex (Option A). Irreversible publish; deliberate manual step.
 ---
 
 ## What
 
-v1.44 ADMIN-UX-RATCHET shipped to `main` (terminal PR #73 → `c0595e09`, 6/6 green on all
-required gates). release-please cut **v1.2.0** (from #66) and **v1.3.0** (from #74) — both are
-git-tagged + GitHub-released. **Neither is published to Hex.** Hex is still at v1.1.0.
+v1.44 shipped to `main` (terminal PR #73 → `c0595e09`). release-please cut **v1.2.0** (#66) and
+**v1.3.0** (#74) — both git-tagged + GitHub-released. **Neither is on Hex.** Hex is still v1.1.0.
 
-## Why Hex publish was skipped
+## Root cause (corrected 2026-07-10 — it is NOT a code fix)
 
-release-please's `hex-publish` job is gated on `ci-gate` being **green on the release SHA**.
-`ci-gate` is red because of the **`Upgrade smoke (published source → local candidate)`** job,
-which is **push/schedule-only** (it `skip`s on every `pull_request`, so it never appears on a PR's
-checks — it only runs on push-to-`main`). It fails compiling the upgrade harness's generated app:
+release-please's `hex-publish` is gated on `ci-gate` green on the release SHA. `ci-gate` is red
+because the **push/schedule-only** `Upgrade smoke (published source → local candidate)` job fails:
 
 ```
 warning: undefined attribute "type" for component TmpAppUpgradeWeb.CoreComponents.button/1
   <.button type="submit" class="btn btn-error" phx-disable-with="Updating...">
-Compilation failed due to warnings while using the --warnings-as-errors option
+Compilation failed due to warnings while using --warnings-as-errors
 ```
 
-sigra's generated `organization_settings_live.ex` passes `type="submit"` to a host `<.button>`
-whose `CoreComponents.button/1` (from the published phx.new series) does **not** declare an
-`attr :type`. This has been **red on every push to `main` since the v1.43 ship (2026-07-03)** —
-the last green main push was `49a89a18` (2026-07-02, pre-v1.43). It is **pre-existing debt, not a
-v1.44 regression**. v1.42/v1.43 tolerated it because those were internal milestones not published
-to Hex.
+**The current templates are already fixed** — `priv/templates/sigra.install/organizations/live/organization_settings_live.ex`
+uses `<.button class="btn btn-error" …>` (no `type=`; a `<button>` inside a form defaults to
+submit, and phx.new 1.8's `button/1` declares `attr :rest, :global` **without** `type` in its
+include list, so passing `type=` warns). There is **no `<.button type=>` left in `priv/templates/`**.
+(The `lib/sigra_web/…organization_settings_live.ex` reference in the first draft of this TODO was a
+red herring — that path was stray stash contamination during the ship, now removed; sigra keeps web
+code in `priv/templates/`, not `lib/sigra_web/`.)
 
-## Fix (two parts)
+`upgrade-smoke.sh` sets `SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-1}"` and resolves the
+**latest published `1.x`** from Hex (`resolve_latest_sigra_source`). Today that's **v1.1.0**, whose
+OLD template still has `<.button type="submit">` → the generated-then-upgraded app fails
+`--warnings-as-errors`. Pure **chicken-and-egg**: publish is blocked by upgrade-smoke; upgrade-smoke
+is red only because the fixed template isn't published yet.
 
-1. **Resolve the `<.button type>` incompatibility** so `Upgrade smoke` (and thus `ci-gate`) goes
-   green on push-to-`main`. Occurrences: `lib/sigra_web/live/organization_settings_live.ex:173`
-   and the installer template `priv/templates/sigra.install/organizations/live/organization_settings_live.ex:104`
-   (and any siblings — grep `phx-disable-with="Updating..."` / `"Deleting..."`). Decide the correct
-   Phoenix-1.8 pattern: either drop `type="submit"` (submit is the default for a `<.button>` inside
-   a form) / use a native `<button type="submit">`, or ensure the emitted component declares
-   `attr :type`. Verify by running the upgrade-smoke harness (or `gh workflow run "CI" --ref main`
-   and confirm the `Upgrade smoke` job passes).
+## Fix — one-time manual publish (self-heals)
 
-2. **Publish the two already-cut versions to Hex.** Once `ci-gate` is green (or via the manual
-   escape hatch), dispatch the publish workflow for each:
-   ```
-   gh workflow run hex-publish.yml -f tag=v1.2.0 -f release_version=1.2.0 -f dry_run=true   # verify
-   gh workflow run hex-publish.yml -f tag=v1.2.0 -f release_version=1.2.0 -f dry_run=false  # publish
-   gh workflow run hex-publish.yml -f tag=v1.3.0 -f release_version=1.3.0 -f dry_run=false
-   ```
-   (`hex-publish.yml` is `workflow_dispatch` with `tag` + `release_version` + `dry_run` inputs;
-   `HEX_API_KEY` is configured — it has published before.) NOTE: publishing v1.2.0 then v1.3.0
-   keeps the Hex series contiguous (v1.1.0 → v1.2.0 → v1.3.0). Also revisit the stray Hex
-   `1.20.0` retire ([[2026-07-03-hex-retire-stray-1-20-0]]) so `latest_stable` resolves correctly.
+Publishing v1.2.0 (or v1.3.0) to Hex ONCE makes `resolve_latest_sigra_source` pick up the fixed,
+`type=`-free template on the next push, so `Upgrade smoke` / `ci-gate` go green and future
+release-please auto-publishes work normally. The v1.2.0/v1.3.0 **content is already verified** (all
+5 required checks + `fast_checks` were green on PRs #66/#73/#74), so this is a safe one-time break of
+the gate, not shipping unverified code:
+
+```
+gh workflow run hex-publish.yml -f tag=v1.2.0 -f release_version=1.2.0 -f dry_run=true   # verify
+gh workflow run hex-publish.yml -f tag=v1.2.0 -f release_version=1.2.0 -f dry_run=false  # publish
+gh workflow run hex-publish.yml -f tag=v1.3.0 -f release_version=1.3.0 -f dry_run=false  # publish (contiguous 1.1→1.2→1.3)
+```
+
+(`hex-publish.yml` is `workflow_dispatch` with `tag` + `release_version` + `dry_run`; `HEX_API_KEY`
+is configured — it has published before. Hex publish is IRREVERSIBLE — versions can only be retired.)
+
+Optional hardening (avoids relying on the one-time break): make `upgrade-smoke.sh` tolerant of an
+old published template — e.g. don't compile the generated-from-published app with
+`--warnings-as-errors`, or pin `SIGRA_UPGRADE_SOURCE_SERIES` to a known-good minor. Lower priority
+once v1.2/v1.3 are published.
+
+Also revisit the stray Hex `1.20.0` retire ([[2026-07-03-hex-retire-stray-1-20-0]]) so
+`latest_stable` resolves correctly.
 
 ## Status
 
 - GitHub side: **DONE** (v1.44 on `main`; v1.2.0 + v1.3.0 tagged + released).
-- Hex side: **DEFERRED** — this TODO.
-- Jon chose defer-Hex (Option A) at ship time to avoid pulling pre-existing out-of-scope upgrade-smoke
-  debugging into the milestone close and to avoid force-bypassing a genuinely-red gate.
+- Hex side: **DONE** (Phase 221, 2026-07-10) — v1.2.0 (runs 29108801612 dry-run + 29109600146 real)
+  and v1.3.0 (29113000684) published; both confirmed live via the Hex API. Phase 221 also pinned
+  `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` (the deterministic lever, orthogonal to the self-heal).
+- Remaining for Phase 223: the optional `upgrade-smoke.sh` hardening above, and the stray `1.20.0`
+  retire ([[2026-07-03-hex-retire-stray-1-20-0]], still deferred — Hex 2.5 blocks programmatic retire).
