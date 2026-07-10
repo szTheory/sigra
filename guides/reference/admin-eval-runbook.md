@@ -9,6 +9,25 @@ semantics; `scripts/ci/admin-eval-harness.sh` for the executable orchestrator.
 
 ---
 
+## You Are Here
+
+This runbook covers **one loop only**: the local eval-harness iteration loop described
+below, which renders admin design-gallery boards and writes gitignored evidence bundles
+under `test/example/priv/playwright/eval/<app_git_sha>/<surface>/<cell>/` (see [Bundle
+Directory Layout](#bundle-directory-layout)) — nothing under `eval/` is ever committed.
+
+It is a **different system** from committed **baseline PNG recapture** — the
+`test/example/priv/playwright/admin-checkpoints/*.png` snapshots (including the
+`impersonation-banner` canary) compared byte-for-byte by Playwright's snapshot matcher and
+guarded by `scripts/ci/snapshot-canary-guard.sh`. Baseline PNG recapture is **CI-native
+ubuntu/amd64 ONLY** — run via the `admin_checkpoint_recapture` / `admin_design_recapture`
+CI jobs — and must **NEVER** be attempted on darwin/local; a darwin-rendered PNG will not
+byte-match the ubuntu/amd64 CI render and reintroduces drift. If you are here to recapture
+baseline PNGs rather than iterate on eval-harness findings, stop reading this runbook and
+use those CI jobs instead (see the two notes below for how they intersect this harness).
+
+---
+
 ## Quick-Start: One Iteration Locally
 
 ```bash
@@ -75,6 +94,15 @@ The fast_checks guards read the COMMITTED ledgers (`admin-render-sha.json`,
 `admin-award-ledger.json`, `settled-findings.tsv`) against the merge-base. They do NOT
 depend on the render-job's runtime output — the signal is forward-only in git.
 
+**Expected `impersonation-banner` canary-red at the merge boundary:** `snapshot-canary-guard.sh`
+is never-allowlistable by design — the `impersonation-banner` checkpoint canary is the one
+baseline the guard will never let a PR modify quietly. At the boundary where a fresh
+amd64 recapture rebirths that canary's bytes, `fast_checks` going red on
+`impersonation-banner` is **EXPECTED**, not a regression to chase. It is reconciled
+**post-merge** via a quarantine baselines-only PR (recapture the 3 `impersonation-banner`
+PNGs in isolation, merge that first) — it is **never allowlisted**, and the canary guard
+itself must never be weakened to make it pass.
+
 ### Render + probe job (separate `admin_eval_render` CI job — NOT merge-blocking)
 
 The expensive Playwright render + probe pass runs as a separate `admin_eval_render` CI job
@@ -84,6 +112,11 @@ that updates the committed ledgers, but it is NOT the merge gate.
 
 **JUDGE-CI-01 invariant:** Only committed-ledger guards gate merges. The render job and any
 future LLM panel run off the merge path.
+
+Baseline PNG recapture (including the `impersonation-banner` canary rebirth above) can be
+scoped to a working branch instead of `main` via the `recapture_branch` `workflow_dispatch`
+input, which relaxes the `release_ref_guard` tag-only restriction for that dispatch — see
+`.github/workflows/ci.yml`.
 
 ---
 
