@@ -39,7 +39,12 @@
   2. A freshly generated host's `mfa_settings_live.ex` passes `scope:` into `save_passkey_name` and handles the `{:error, :impersonation_forbidden}` clause — restoring the library-level impersonation defense-in-depth, mirrored from the example twin, with the golden fixture re-blessed. (SHIP-01)
   3. The generated delete-passkey confirmation copy matches the example twin (golden re-blessed) and `up.sh --help` prints the full `--print-env` usage line with no truncation. (SHIP-02)
   4. `scripts/ci/app-css-corruption-check.sh` catches an orphaned bare value placed immediately after a `;`-terminated declaration (the `last_was_prop` reset), proven by a committed regression case. (SHIP-03)
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 221-01-PLAN.md — SHIP-01 passkey-rename `scope:` + impersonation clause and SHIP-02a delete-copy dedupe in the installer template, golden re-blessed (SHIP-01, SHIP-02)
+- [ ] 221-02-PLAN.md — SHIP-02b `up.sh --help` window + SHIP-03 corruption-guard `last_was_prop` reset with net-new fixture/driver wired into CI (SHIP-02, SHIP-03)
+- [ ] 221-03-PLAN.md — PUB-01 smoke-floor pin: `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` on the `upgrade_smoke` job (PUB-01)
+- [ ] 221-04-PLAN.md — PUB-02/03 operator publishes of v1.2.0 (dry-run then real) and v1.3.0 via `hex-publish.yml` (autonomous: false)
+- [ ] 221-05-PLAN.md — PUB-04 retire stray 1.20.0 + PUB-01 terminal gate-green observation on push-to-`main` (autonomous: false)
 
 ### Phase 222: Release-Lane Hardening (No Silent Rot)
 **Goal**: The release lane can no longer silently strand a release — the `Upgrade smoke` gate is made un-rot-able and release-please auto-publish is proven to fire on a green gate (or fail loudly), with the recovery path documented. Lands before the publish so the publish itself exercises the hardened path.
