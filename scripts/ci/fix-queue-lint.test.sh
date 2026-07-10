@@ -268,6 +268,36 @@ else
   cat "$TMPDIR_ROOT/stdout_4.txt" || true
 fi
 
+# ── Test 5: surface-level `proxy: true` marker is skipped, not treated as a cell ──
+echo "Test 5: proxy:true marker (non-cell sibling) → lint still exits 0"
+
+# Reuse Test 4's clean queue ($QUEUE_JSON already written above). Rewrite the render-sha
+# with a surface-level `proxy: true` marker sitting as a sibling of the real cell — this is
+# the documented L3-proxy-surface shape (Phase 218-01). The linter must skip the boolean
+# marker (mirroring fix-queue-build.mjs) rather than flag it as a cell missing open_findings.
+node -e "
+const r = {
+  schema_version: 1,
+  notes: 'test',
+  cells: { '$SURF': { proxy: true, '$CELL': { render_sha256: null, open_findings: 2 } } }
+};
+process.stdout.write(JSON.stringify(r, null, 2) + '\n');
+" > "$RENDER_SHA"
+
+STDERR_5="$TMPDIR_ROOT/stderr_5.txt"
+set +e
+bash "$LINT" >"$TMPDIR_ROOT/stdout_5.txt" 2>"$STDERR_5"
+EXIT_5=$?
+set -e
+
+if [[ "$EXIT_5" -eq 0 ]]; then
+  pass "Test 5: proxy:true marker skipped, clean queue exits 0"
+else
+  fail "Test 5: proxy:true marker must be skipped, not flagged (got exit $EXIT_5)"
+  cat "$STDERR_5" >&2 || true
+  cat "$TMPDIR_ROOT/stdout_5.txt" || true
+fi
+
 # ── Results ──────────────────────────────────────────────────────────────────
 echo ""
 TOTAL=$((PASS + FAIL))

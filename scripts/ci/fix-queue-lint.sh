@@ -149,6 +149,14 @@ const cellKeyToOpenFindings = new Map();
 for (const surface of Object.keys(renderSha.cells || {})) {
   for (const cellKey of Object.keys(renderSha.cells[surface] || {})) {
     const cellData = renderSha.cells[surface][cellKey];
+    // The `proxy` flag (renderSha.cells[surface].proxy === true) is a surface-level boolean
+    // marker — a sibling of the real cells, not a cell itself. Skip non-object values so the
+    // marker is not mistaken for a cell missing open_findings. Real cell objects still flow
+    // through the null-check below, so a genuine object missing open_findings is still caught.
+    // Mirrors the non-cell skip already enforced in scripts/ci/fix-queue-build.mjs.
+    if (typeof cellData !== "object" || cellData === null) {
+      continue;
+    }
     const openFindings = cellData && typeof cellData.open_findings === "number"
       ? cellData.open_findings : null;
     if (openFindings === null) {
