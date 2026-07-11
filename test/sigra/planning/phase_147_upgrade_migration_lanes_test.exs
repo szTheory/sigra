@@ -19,6 +19,7 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
   test "147-01: upgrade smoke lane remains distinct and proves published-source to local-candidate posture" do
     ci = read!(".github/workflows/ci.yml")
     script = read!("scripts/ci/upgrade-smoke.sh")
+    resolver = read!("scripts/ci/lib/resolve-sigra-source.sh")
 
     assert ci =~ ~r/^  install_smoke:$/m
     assert ci =~ ~r/^  upgrade_smoke:$/m
@@ -35,6 +36,12 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
     assert script =~ "mix ecto.migrate"
     assert script =~ "find_free_port"
     assert script =~ "http://127.0.0.1:${PORT}/users/log_in"
+
+    # Phase 222 (HARD-01): the D-13 stopgap pin is retired from ci.yml — the
+    # resolver durably excludes the immutable Hex stray on its own.
+    refute ci =~ "SIGRA_UPGRADE_SMOKE_START_VERSION"
+
+    assert resolver =~ "SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS"
   end
 
   test "147-02 and 147-03: upgrade and migration guides publish through README, changelog, and ExDoc" do
