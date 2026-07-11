@@ -72,7 +72,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 222-03-PLAN.md — HARD-02 `dry_run=true` publish-path proof against v1.3.0 + MAINTAINING.md recovery/manual-dispatch runbook (D-06.1/D-08)
+- [x] 222-03-PLAN.md — HARD-02 `dry_run=true` publish-path proof against v1.3.0 + MAINTAINING.md recovery/manual-dispatch runbook (D-06.1/D-08)
 
 ### Phase 223: Get Current on Hex + Terminal Currency Proof
 
@@ -95,7 +95,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 5/5 | Complete    | 2026-07-10 |
-| 222. Release-Lane Hardening (No Silent Rot) | 2/3 | In Progress|  |
+| 222. Release-Lane Hardening (No Silent Rot) | 3/3 | Complete   | 2026-07-11 |
 | 223. Get Current on Hex + Terminal Currency Proof | 0/? | Not started | - |
 
 ---

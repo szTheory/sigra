@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: executing
-stopped_at: Completed 222-01-PLAN.md
-last_updated: "2026-07-11T00:17:55.310Z"
+current_phase: 222
+current_phase_name: release-lane-hardening-no-silent-rot
+status: verifying
+stopped_at: Completed 222-03-PLAN.md
+last_updated: "2026-07-11T00:34:26.176Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
-  percent: 33
+  completed_plans: 8
+  percent: 67
 ---
 
 # Project State
@@ -28,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 222 (release-lane-hardening-no-silent-rot) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-11
 
 ## Accumulated Context
@@ -317,6 +319,8 @@ Last activity: 2026-07-11
 - [Phase ?]: [Phase 222-02]: One shared scripts/ci/notify-failure-issue.sh (D-07) is invoked from both ci.yml and release-please.yml instead of a composite action -- no new SHA-pinned third-party dependency.
 - [Phase ?]: [Phase 222-02]: notify_release_lane_rot is deliberately absent from ci-gate.needs and is not a required check, mirroring nightly_probe's standalone posture, to avoid stranding PR merges under ruleset 14941512.
 - [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
+- [Phase 222]: 222-03: Treated the orchestrator's already-dispatched hex-publish.yml dry_run=true run (29132375168) against v1.3.0 as the authoritative HARD-02 readiness evidence rather than re-dispatching.
+- [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
 
 ### Pending Todos
 
@@ -402,8 +406,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-11T00:16:18.940Z
-Stopped at: Completed 222-01-PLAN.md
+Last session: 2026-07-11T00:34:26.170Z
+Stopped at: Completed 222-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -512,3 +516,4 @@ Resume file: None
 | Phase 221 P03 | 8min | 2 tasks | 1 files |
 | Phase 222 P01 | 9min | 2 tasks | 6 files |
 | Phase 222 P02 | 20min | 3 tasks | 5 files |
+| Phase 222 P03 | 15min | 2 tasks | 2 files |
