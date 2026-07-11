@@ -74,4 +74,35 @@ defmodule Sigra.Planning.Phase222ReleaseLaneHardeningTest do
     assert release_please =~ ~r/^permissions:$/m
     assert release_please =~ ~r/^  issues: write$/m
   end
+
+  test "222-04: MAINTAINING.md documents the release-lane rot signals & recovery runbook (HARD-01/HARD-02)" do
+    maintaining = read!("MAINTAINING.md")
+
+    assert maintaining =~ "### Release-lane rot signals & recovery (HARD-01/HARD-02)"
+
+    # hex-publish.yml manual dispatch command with all three inputs.
+    assert maintaining =~ ~s|gh workflow run "Hex publish (manual recovery)"|
+    assert maintaining =~ "-f tag=<tag>"
+    assert maintaining =~ "-f release_version=<version>"
+    assert maintaining =~ "-f dry_run=true"
+
+    # The release-lane-rot tracking-issue signal.
+    assert maintaining =~ "release-lane-rot"
+
+    # Cross-reference to the canonical runbook -- no matrix duplication.
+    assert maintaining =~ "docs/release-runbook-v1-0.md"
+
+    # The new subsection appears after the existing Recovery / one-off publish line
+    # and before the First public launch section (correct insertion point per
+    # 222-RESEARCH.md Finding 5).
+    [_, after_recovery] =
+      String.split(maintaining, "**Recovery / one-off publish:**", parts: 2)
+
+    assert after_recovery =~ "### Release-lane rot signals & recovery (HARD-01/HARD-02)"
+
+    [before_launch, _] =
+      String.split(after_recovery, "## First public launch (announcement checklist)", parts: 2)
+
+    assert before_launch =~ "### Release-lane rot signals & recovery (HARD-01/HARD-02)"
+  end
 end
