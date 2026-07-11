@@ -25,7 +25,7 @@
 
 - [x] **Phase 221: Unblock the Gate + Ship-Honest Generated-Host Debt** — resolve the `<.button type>` upgrade-smoke warning-as-error (lib + installer template + example parity, golden re-blessed) so `ci-gate` goes green on push-to-`main`, and pay down the generated-host debt that ships to every adopter (passkey `scope:` defense-in-depth, copy/DX nits, app.css corruption-guard blind spot)
 - [x] **Phase 222: Release-Lane Hardening (No Silent Rot)** — make the `Upgrade smoke` gate un-rot-able (PR-visible or loud red-`main` signal) and verify release-please auto-publish fires end-to-end on a green gate — or fails loudly — with a documented recovery/manual-dispatch runbook (completed 2026-07-11)
-- [ ] **Phase 223: Get Current on Hex + Terminal Currency Proof** — publish v1.2.0 then v1.3.0 (contiguous after v1.1.0), retire the stray 1.20.0, prove a clean adopter `~> 1.0` resolution, and record the release-currency proof bundle as the milestone's trust artifact
+- [~] **Phase 223: Get Current on Hex + Terminal Currency Proof** — ⏸️ **DEFERRED 2026-07-11.** Pre-retire snapshot captured (223-01 Task 1); the stray `1.20.0` retire (operator/interactive Hex write step) was deferred indefinitely by Jon (no adopters, low stakes). PUB-05 (adopter resolution) + PROOF-01 (currency trust bundle) remain **carried/unproven** because they're unsatisfiable while `latest_stable_version=1.20.0` outranks the real `1.3.0` GA. Non-blocking: CI gate is green regardless (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0`). Root cause of the phantom release captured in ADR 003. Resume `/gsd-execute-phase 223` after the retire lands.
 
 ## Phase Details
 
@@ -99,7 +99,7 @@
 |-------|----------------|--------|-----------|
 | 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 5/5 | Complete    | 2026-07-10 |
 | 222. Release-Lane Hardening (No Silent Rot) | 3/3 | Complete    | 2026-07-11 |
-| 223. Get Current on Hex + Terminal Currency Proof | 0/3 | Not started | - |
+| 223. Get Current on Hex + Terminal Currency Proof | 1/3 (Task-level) | ⏸️ Deferred — blocked on operator retire | 2026-07-11 (partial) |
 
 ---
 
