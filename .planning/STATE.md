@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-current_phase: 222
 status: executing
-stopped_at: Phase 222 context gathered (assumptions mode)
-last_updated: "2026-07-10T23:53:14.332Z"
-last_activity: 2026-07-10
-last_activity_desc: Phase 222 planning complete
+stopped_at: Completed 222-01-PLAN.md
+last_updated: "2026-07-11T00:08:30.883Z"
+last_activity: 2026-07-11
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 8
+  completed_plans: 6
   percent: 33
 ---
 
@@ -24,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 222 — release lane hardening (no silent rot)
+**Current focus:** Phase 222 — release-lane-hardening-no-silent-rot
 
 ## Current Position
 
-Phase: 222
-Plan: Not started
+Phase: 222 (release-lane-hardening-no-silent-rot) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-10 — Phase 222 planning complete
+Last activity: 2026-07-11
 
 ## Accumulated Context
 
@@ -314,6 +312,8 @@ Last activity: 2026-07-10 — Phase 222 planning complete
 - [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
 - [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
 - [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
+- [Phase 222]: Used a bash array (IFS=',' read -ra) instead of unquoted word-splitting for SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS to keep grep -vxF -f <(...) shellcheck-clean
+- [Phase 222]: Exact-line fixed-string exclusion (grep -vxF, SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS default 1.20.0) replaces the D-03 retired-filter mechanism which RESEARCH proved matches zero live Hex rows
 
 ### Pending Todos
 
@@ -399,9 +399,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T23:14:12.702Z
-Stopped at: Phase 222 context gathered (assumptions mode)
-Resume file: .planning/phases/222-release-lane-hardening-no-silent-rot/222-CONTEXT.md
+Last session: 2026-07-11T00:08:30.879Z
+Stopped at: Completed 222-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -507,3 +507,4 @@ Resume file: .planning/phases/222-release-lane-hardening-no-silent-rot/222-CONTE
 | Phase 221 P01 | 20min | 3 tasks | 2 files |
 | Phase 221 P02 | 6min | 3 tasks | 5 files |
 | Phase 221 P03 | 8min | 2 tasks | 1 files |
+| Phase 222 P01 | 9min | 2 tasks | 6 files |

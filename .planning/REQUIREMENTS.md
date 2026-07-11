@@ -19,7 +19,7 @@ Requirements for the v1.45 RELEASE-CURRENCY milestone. Each maps to exactly one 
 
 ### Release-Lane Hardening — no silent rot (HARD)
 
-- [ ] **HARD-01**: The `Upgrade smoke` gate can no longer rot unnoticed — it is made PR-visible (runs/reports on `pull_request`) **or** a red result on `main` raises a loud, discoverable signal (alert/annotation/failing required aggregate) instead of failing silently.
+- [x] **HARD-01**: The `Upgrade smoke` gate can no longer rot unnoticed — it is made PR-visible (runs/reports on `pull_request`) **or** a red result on `main` raises a loud, discoverable signal (alert/annotation/failing required aggregate) instead of failing silently.
 - [ ] **HARD-02**: release-please auto-publish is verified to fire end-to-end when a release is cut on a green `ci-gate` — **or** to fail loudly (not silently) when blocked — with the recovery/manual-dispatch runbook documented.
 
 ### Ship-Honest Generated-Host Debt (SHIP)
@@ -68,7 +68,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PUB-03 | Phase 221 | Complete |
 | PUB-04 | Phase 221 | Deferred (tracked) |
 | PUB-05 | Phase 223 | Pending |
-| HARD-01 | Phase 222 | Pending |
+| HARD-01 | Phase 222 | Complete |
 | HARD-02 | Phase 222 | Pending |
 | SHIP-01 | Phase 221 | Complete |
 | SHIP-02 | Phase 221 | Complete |
