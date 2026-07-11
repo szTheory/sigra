@@ -2,13 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-current_phase: 223
-current_phase_name: Get Current on Hex + Terminal Currency Proof
 status: verifying
-stopped_at: Completed 222-03-PLAN.md
-last_updated: "2026-07-11T00:43:28.852Z"
-last_activity: 2026-07-11
-last_activity_desc: Phase 222 complete, transitioned to Phase 223
+stopped_at: Phase 223 context gathered (assumptions mode)
+last_updated: "2026-07-11T00:59:38.130Z"
+last_activity: 2026-07-11 — Phase 222 complete, transitioned to Phase 223
 progress:
   total_phases: 3
   completed_phases: 2
@@ -407,9 +404,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-11T00:34:26.170Z
-Stopped at: Completed 222-03-PLAN.md
-Resume file: None
+Last session: 2026-07-11T00:59:38.125Z
+Stopped at: Phase 223 context gathered (assumptions mode)
+Resume file: .planning/phases/223-get-current-on-hex-terminal-currency-proof/223-CONTEXT.md
 
 ## Operator Next Steps
 
