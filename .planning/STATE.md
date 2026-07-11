@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: blocked
-stopped_at: Phase 223 paused at 223-01 Task 2 operator checkpoint — retire deferred indefinitely by Jon (2026-07-11)
-last_updated: "2026-07-11T01:18:34.606Z"
-last_activity: 2026-07-11 -- Phase 223 paused: stray Hex 1.20.0 retire deferred (no adopters), root cause captured in ADR 003
+status: Awaiting next milestone
+stopped_at: Phase 223 context gathered (assumptions mode)
+last_updated: "2026-07-11T01:32:45.037Z"
+last_activity: 2026-07-11 — Milestone v1.45 completed and archived
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 9
   percent: 67
 ---
 
@@ -22,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 223 — get-current-on-hex-terminal-currency-proof
+**Current focus:** Between milestones — v1.45 closed 2026-07-11 (override_closeout; Phase 223 deferred pending operator Hex retire). Start next via `/gsd-new-milestone` (phases continue from 224).
 
 ## Current Position
 
-Phase: 223 (get-current-on-hex-terminal-currency-proof) — PAUSED (blocked on deferred operator retire)
-Plan: 1 of 3 (223-01 stopped at Task 2 operator checkpoint; Task 3 + plans 223-02/223-03 blocked)
-Status: Blocked — stray Hex `1.20.0` retire deferred indefinitely by Jon (2026-07-11: no time, no adopters). PROOF-01 currency bundle is unachievable while `latest_stable_version=1.20.0`. Resume `/gsd-execute-phase 223` only after the operator retire lands. Root cause: ADR 003 (tag-derived publish + milestone `vX.Y` namespace collision — already structurally closed).
-Last activity: 2026-07-11 -- Phase 223 paused: stray Hex 1.20.0 retire deferred, footgun captured in ADR 003
+Phase: Milestone v1.45 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-11 — Milestone v1.45 completed and archived
 
 ## Accumulated Context
 
@@ -365,6 +365,8 @@ Last activity: 2026-07-11 -- Phase 223 paused: stray Hex 1.20.0 retire deferred,
 
 | Category | Item | Status | Deferred At |
 | --- | --- | --- | --- |
+| Release-ops | Retire stray Hex `1.20.0` (PUB-04) + PUB-05 adopter-resolution proof + PROOF-01 currency bundle (all Phase 223) | Deferred indefinitely — operator/interactive Hex retire, no adopters. Resume `/gsd-execute-phase 223` after retire. Root cause: ADR 003. Tracked `todos/pending/2026-07-03-hex-retire-stray-1-20-0.md` | v1.45 (override_closeout) |
+| Release-ops | Push local `main` (v1.45 work + close-out commits) via close-out PR | Deferred — ruleset blocks direct push to `main`; needs a close-out PR | v1.45 |
 | Brand exports | PNG/PDF exports for social/platform use | Deferred until a concrete platform target requires raster | v1.35 |
 | Public docs | README/HexDocs visual adoption | Deferred to a separate focused change to avoid brand churn | v1.35 |
 | Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
@@ -410,9 +412,7 @@ Resume file: .planning/phases/223-get-current-on-hex-terminal-currency-proof/223
 
 ## Operator Next Steps
 
-- **v1.44 shipped + archived.** Start the next milestone: `/gsd-new-milestone` (Jon's direction: admin/operator-UI cleanup continues, or a feature milestone for FEAT-01/02/03).
-- **Merge close-out PR #78** (docs-only: VALIDATION flip + deferred-Hex TODO) once its required checks settle.
-- **Deferred Hex publish** (v1.2.0 + v1.3.0): fix the pre-existing upgrade-smoke `<.button type>` warning-as-error, then `gh workflow run hex-publish.yml` — see `.planning/todos/pending/2026-07-10-upgrade-smoke-button-type-hex-publish.md`.
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 
