@@ -1,10 +1,14 @@
 ---
 phase: 222-release-lane-hardening-no-silent-rot
 verified: 2026-07-11T00:00:00Z
-status: human_needed
+status: passed
 score: 3/3 must-haves verified
 behavior_unverified: 0
-overrides_applied: 0
+overrides_applied: 1
+operator_waiver:
+  - item: "Live red-probe of the release-lane loud signal"
+    decision: "Waived by operator (Jon) on 2026-07-11 — offline proof accepted as sufficient to close the phase."
+    rationale: "All 3 must-haves VERIFIED (3/3). The notify script logic is unit-proven (notify-failure-issue.test.sh 3/3) and the workflow wiring is structurally proven (phase_222 tests); the hex-publish dry-run is live-green. The only unexercised path is a live GitHub Issues API round-trip that requires deliberately reddening main — inherently destructive, intentionally classified Manual-Only by the phase, and non-blocking for goal achievement. Documented as the operator red-probe in MAINTAINING.md §3 for on-demand exercise."
 human_verification:
   - test: "Red-probe the loud signal: force a failing ci-gate on main (throwaway commit that fails a required check) and confirm notify_release_lane_rot opens/updates the release-lane-rot GitHub Issue against the live Issues API."
     expected: "A single GitHub Issue labeled release-lane-rot is created (or commented on if one is already open) with the run URL, commit SHA, and failing surface."
@@ -15,7 +19,7 @@ human_verification:
 
 **Phase Goal:** The release lane can no longer silently strand a release — the `Upgrade smoke` gate is made un-rot-able and release-please auto-publish is proven to fire on a green gate (or fail loudly), with the recovery path documented.
 **Verified:** 2026-07-11
-**Status:** human_needed
+**Status:** passed (operator-waived the one Manual-Only live red-probe; offline proof accepted — see `operator_waiver` frontmatter)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
