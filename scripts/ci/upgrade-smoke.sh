@@ -11,6 +11,8 @@ _ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_ci_here}/lib/mix-deps-get-retry.sh"
 # shellcheck source=scripts/ci/lib/free-port.sh
 source "${_ci_here}/lib/free-port.sh"
+# shellcheck source=scripts/ci/lib/resolve-sigra-source.sh
+source "${_ci_here}/lib/resolve-sigra-source.sh"
 
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app_upgrade}"
@@ -21,54 +23,6 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
-
-validate_source_series() {
-  if [[ ! "${SOURCE_SERIES}" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-    echo "FAIL: SIGRA_UPGRADE_SOURCE_SERIES must be a major or major.minor series; got '${SOURCE_SERIES}'" >&2
-    exit 1
-  fi
-}
-
-series_regex() {
-  if [[ "${SOURCE_SERIES}" == *.* ]]; then
-    printf '^%s\\.[0-9]+$' "${SOURCE_SERIES//./\\.}"
-  else
-    printf '^%s\\.[0-9]+\\.[0-9]+$' "${SOURCE_SERIES}"
-  fi
-}
-
-resolve_latest_sigra_source() {
-  local info versions selected
-
-  validate_source_series
-  info="$(mix hex.info sigra)"
-  versions="$(printf '%s\n' "${info}" | sed -n 's/^  \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' | grep -E "$(series_regex)" || true)"
-
-  if [[ -z "${versions}" ]]; then
-    echo "FAIL: no published sigra release found on Hex for series ${SOURCE_SERIES}" >&2
-    exit 1
-  fi
-
-  selected="$(printf '%s\n' "${versions}" | sort -V | tail -n1)"
-  printf '%s' "${selected}"
-}
-
-validate_override_version() {
-  local override="${1}"
-  local info
-
-  validate_source_series
-  if ! printf '%s\n' "${override}" | grep -Eq "$(series_regex)"; then
-    echo "FAIL: SIGRA_UPGRADE_SMOKE_START_VERSION must match configured series ${SOURCE_SERIES}; got '${override}'" >&2
-    exit 1
-  fi
-
-  info="$(mix hex.info sigra)"
-  if ! printf '%s\n' "${info}" | grep -Eq "^  ${override}( |\()"; then
-    echo "FAIL: override '${override}' is not a published sigra release on Hex" >&2
-    exit 1
-  fi
-}
 
 SIGRA_START_VERSION="$(resolve_latest_sigra_source)"
 if [[ -n "${START_VERSION_OVERRIDE}" ]]; then

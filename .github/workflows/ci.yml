@@ -155,6 +155,11 @@ jobs:
         # Phase 221 Plan 02 (SHIP-03 / D-10): regression proof that the guard
         # catches an orphan bare value immediately after a ;-terminated decl.
         run: bash scripts/ci/app-css-corruption-check.test.sh
+      - name: Upgrade-smoke resolver self-test
+        # Phase 222 Plan 01 (HARD-01): offline proof that resolve-sigra-source.sh
+        # durably excludes the immutable Hex stray 1.20.0 without a hand-maintained
+        # per-release floor. No network call — stubs `mix hex.info sigra`.
+        run: bash scripts/ci/upgrade-smoke.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
