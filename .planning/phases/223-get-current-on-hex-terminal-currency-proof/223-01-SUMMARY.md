@@ -115,6 +115,26 @@ must run to close this plan. Until Task 3 verifies `latest_stable_version == "1.
 `retirements` contains `1.20.0`, this plan is **not complete** and 223-02 (PUB-05) / 223-03
 (PROOF-01) remain blocked.
 
+## Operator decision (2026-07-11): retire DEFERRED indefinitely
+
+At the Task 2 checkpoint the operator (Jon) declined to perform the retire: no time now, and
+there are no real Sigra adopters yet, so the stray `1.20.0` is low-stakes to leave in place.
+The retire is deferred indefinitely as a low-priority future follow-up
+(`.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`, third deferral) — NOT force-
+completed and NOT fabricated as done.
+
+**Consequence for Phase 223:** the phase is **paused/blocked**, not complete. Plan 223-01
+stops at Task 2 (Task 3 cannot run without the retire); plans 223-02 (PUB-05 adopter
+resolution) and 223-03 (PROOF-01 trust bundle) cannot be truthfully executed while
+`latest_stable_version` is still `1.20.0`. Resuming Phase 223 requires the operator retire to
+land first, after which `/gsd-execute-phase 223` picks up from Task 3.
+
+**Root cause captured** (per the operator's request) in ADR 003
+(`.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`): an early publish
+pipeline derived the Hex package version from arbitrary `v*` git tags and caught the milestone
+tag `v1.20`, publishing a phantom `1.20.0`. Already structurally closed (Release-Please-driven
+publish; no tag-triggered publish; milestone `vX.Y` tags stopped after v1.35).
+
 ---
 *Phase: 223-get-current-on-hex-terminal-currency-proof*
 *Plan 01 — Task 1 of 3 complete; Task 2 pending operator action*

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: verifying
-stopped_at: Phase 223 context gathered (assumptions mode)
-last_updated: "2026-07-11T00:59:38.130Z"
-last_activity: 2026-07-11 — Phase 222 complete, transitioned to Phase 223
+status: blocked
+stopped_at: Phase 223 paused at 223-01 Task 2 operator checkpoint — retire deferred indefinitely by Jon (2026-07-11)
+last_updated: "2026-07-11T01:18:34.606Z"
+last_activity: 2026-07-11 -- Phase 223 paused: stray Hex 1.20.0 retire deferred (no adopters), root cause captured in ADR 003
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 8
+  total_plans: 11
   completed_plans: 8
   percent: 67
 ---
@@ -22,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 222 — release-lane-hardening-no-silent-rot
+**Current focus:** Phase 223 — get-current-on-hex-terminal-currency-proof
 
 ## Current Position
 
-Phase: 223 — Get Current on Hex + Terminal Currency Proof
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-11 — Phase 222 complete, transitioned to Phase 223
+Phase: 223 (get-current-on-hex-terminal-currency-proof) — PAUSED (blocked on deferred operator retire)
+Plan: 1 of 3 (223-01 stopped at Task 2 operator checkpoint; Task 3 + plans 223-02/223-03 blocked)
+Status: Blocked — stray Hex `1.20.0` retire deferred indefinitely by Jon (2026-07-11: no time, no adopters). PROOF-01 currency bundle is unachievable while `latest_stable_version=1.20.0`. Resume `/gsd-execute-phase 223` only after the operator retire lands. Root cause: ADR 003 (tag-derived publish + milestone `vX.Y` namespace collision — already structurally closed).
+Last activity: 2026-07-11 -- Phase 223 paused: stray Hex 1.20.0 retire deferred, footgun captured in ADR 003
 
 ## Accumulated Context
 
@@ -322,11 +322,11 @@ Last activity: 2026-07-11 — Phase 222 complete, transitioned to Phase 223
 
 ### Pending Todos
 
-- None.
+- `2026-07-03-hex-retire-stray-1-20-0` — retire stray Hex `1.20.0` (operator/interactive step). Deferred indefinitely 2026-07-11 (Jon: no time, no adopters). Blocks Phase 223 completion. Low priority.
 
 ### Blockers/Concerns
 
-- None.
+- **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
 
 ### Roadmap Evolution
 
