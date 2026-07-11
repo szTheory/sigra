@@ -88,7 +88,10 @@
   4. A clean adopter resolution is proven — `{:sigra, "~> 1.0"}` / `mix deps.update` resolves to `1.3.0`, not the stray `1.20.0` nor the stale `1.1.0` (agent-verified resolution check). (PUB-05)
   5. A release-currency proof bundle records the end state — `ci-gate` green on `main`, Hex `latest_stable_version` = `1.3.0`, adopter `~> 1.0` resolution verified, and full library + example suites green — as the milestone's trust artifact. (PROOF-01)
 
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 223-01-PLAN.md — Retire stray Hex 1.20.0 (operator checkpoint) + verify currency (latest_stable = 1.3.0) [PROOF-01 prerequisite]
+- [ ] 223-02-PLAN.md — PUB-05 raw adopter resolution proof: scratch `{:sigra, "~> 1.0"}` `mix deps.get` locks 1.3.0 (no stray-exclusion filter)
+- [ ] 223-03-PLAN.md — PROOF-01 trust bundle: suites green + ci-gate/Hex evidence → emit 223-PROOF.md
 
 ## Progress
 
@@ -96,7 +99,7 @@
 |-------|----------------|--------|-----------|
 | 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 5/5 | Complete    | 2026-07-10 |
 | 222. Release-Lane Hardening (No Silent Rot) | 3/3 | Complete    | 2026-07-11 |
-| 223. Get Current on Hex + Terminal Currency Proof | 0/? | Not started | - |
+| 223. Get Current on Hex + Terminal Currency Proof | 0/3 | Not started | - |
 
 ---
 
