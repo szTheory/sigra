@@ -68,7 +68,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 222-02-PLAN.md — shared loud-signal notify-failure-issue.sh + two consumer jobs: `notify_release_lane_rot` (ci.yml red-main) and `notify-release-failure` (release-please publish/gate failure) (D-02/D-06.3/D-07)
+- [x] 222-02-PLAN.md — shared loud-signal notify-failure-issue.sh + two consumer jobs: `notify_release_lane_rot` (ci.yml red-main) and `notify-release-failure` (release-please publish/gate failure) (D-02/D-06.3/D-07)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -95,7 +95,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 221. Unblock the Gate + Ship-Honest Generated-Host Debt | 5/5 | Complete    | 2026-07-10 |
-| 222. Release-Lane Hardening (No Silent Rot) | 1/3 | In Progress|  |
+| 222. Release-Lane Hardening (No Silent Rot) | 2/3 | In Progress|  |
 | 223. Get Current on Hex + Terminal Currency Proof | 0/? | Not started | - |
 
 ---

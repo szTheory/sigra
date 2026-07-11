@@ -4,13 +4,13 @@ milestone: v1.45
 milestone_name: RELEASE-CURRENCY
 status: executing
 stopped_at: Completed 222-01-PLAN.md
-last_updated: "2026-07-11T00:08:30.883Z"
+last_updated: "2026-07-11T00:17:55.310Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 33
 ---
 
@@ -27,7 +27,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 222 (release-lane-hardening-no-silent-rot) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-11
 
@@ -314,6 +314,9 @@ Last activity: 2026-07-11
 - [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
 - [Phase 222]: Used a bash array (IFS=',' read -ra) instead of unquoted word-splitting for SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS to keep grep -vxF -f <(...) shellcheck-clean
 - [Phase 222]: Exact-line fixed-string exclusion (grep -vxF, SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS default 1.20.0) replaces the D-03 retired-filter mechanism which RESEARCH proved matches zero live Hex rows
+- [Phase ?]: [Phase 222-02]: One shared scripts/ci/notify-failure-issue.sh (D-07) is invoked from both ci.yml and release-please.yml instead of a composite action -- no new SHA-pinned third-party dependency.
+- [Phase ?]: [Phase 222-02]: notify_release_lane_rot is deliberately absent from ci-gate.needs and is not a required check, mirroring nightly_probe's standalone posture, to avoid stranding PR merges under ruleset 14941512.
+- [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
 
 ### Pending Todos
 
@@ -399,7 +402,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-11T00:08:30.879Z
+Last session: 2026-07-11T00:16:18.940Z
 Stopped at: Completed 222-01-PLAN.md
 Resume file: None
 
@@ -508,3 +511,4 @@ Resume file: None
 | Phase 221 P02 | 6min | 3 tasks | 5 files |
 | Phase 221 P03 | 8min | 2 tasks | 1 files |
 | Phase 222 P01 | 9min | 2 tasks | 6 files |
+| Phase 222 P02 | 20min | 3 tasks | 5 files |
