@@ -160,6 +160,11 @@ jobs:
         # durably excludes the immutable Hex stray 1.20.0 without a hand-maintained
         # per-release floor. No network call — stubs `mix hex.info sigra`.
         run: bash scripts/ci/upgrade-smoke.test.sh
+      - name: Notify-failure-issue self-test
+        # Phase 222 Plan 02 (HARD-01/HARD-02/D-07): hermetic proof that the shared
+        # tracking-issue notifier is idempotent (create-once / comment-once) and
+        # fail-closed on missing LABEL/TITLE/BODY. No real `gh` CLI or network call.
+        run: bash scripts/ci/notify-failure-issue.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
