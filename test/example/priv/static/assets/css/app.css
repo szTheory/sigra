@@ -523,7 +523,7 @@
   width: min(28vw, 12rem);
   aspect-ratio: 1.35;
   border: 1px solid
-    color-mix(in oklab, var(--vt-color-primary) 35%, transparent);
+    color-mix(in oklab, var(--vt-color-primary) 20%, transparent);
   border-radius: var(--vt-radius);
   background:
     linear-gradient(
@@ -538,7 +538,7 @@
       color-mix(in oklab, var(--vt-color-primary) 28%, transparent) 50%,
       transparent 51%
     );
-  opacity: 0.38;
+  opacity: 0.12;
   pointer-events: none;
 }
 
