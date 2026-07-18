@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 Phase: Milestone v1.45 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-07-18 — Completed quick task 260718-i1m: demo front-door get-started affordance + copy-scope fix
+Last activity: 2026-07-18 — Completed quick task 260718-n3h: lift demo Fill-password affordance into a distinct top demo bar
 
 ## Accumulated Context
 
@@ -362,6 +362,7 @@ Last activity: 2026-07-18 — Completed quick task 260718-i1m: demo front-door g
 | 260621-vbr | Vaultr demo mini-brand typography + fixed pre-existing app.css comment corruption (opening `/*` lost). | complete ✓ | 2026-06-21 |
 | 260718-eml | Fix settings email-change pending banner rendering blank (missing new email) + banner margin — request/cancel handlers now refresh `current_scope.user` with the updated user (example + installer template + byte-synced golden); scoped `.vt-panel .vt-alert` top margin; regression test. Shipped bug in every generated host. Live-verified (request + cancel) as alice. | complete ✓ | 2026-07-18 |
 | 260718-i1m | Demo front-door get-started affordance + copy-scope fix — vt-code copy decoupled to opt-in (routes→links); home re-sequenced to orient→get-started(5-persona picker, `?demo={key}`)→showcase→reference; real login prefill + dev-gated password Fill + `/demo/use/:persona` fast-switch (distinct from impersonation); planted SEED-008 (generated-host first-admin bootstrap gap). Live-verified on running demo; caught+fixed Fill-button `user_password`→`name="user[password]"` selector no-op. | complete ✓ | 2026-07-18 |
+| 260718-n3h | Lift the dev-only demo "Fill password" affordance out of the login card into a distinct full-width demo bar — relocated the `vt-demo-hint` block from inside `.vt-auth__panel` to a `.vt-demo-switch vt-demo-switch--login` band above the auth `<section>` (mirrors the authed demo-switch chrome: DEMO pill + accent tint); deleted dead `.vt-demo-hint` CSS. Example-only, dev-gated; zero JS/test/installer/golden change (tokens preserved verbatim). Verified: compile clean, session_controller_test 13/0, and live on running demo (band full-width at top, card clean, Fill password fills `AliceDemoPass1!`, bare login shows no band). Worktree forked stale origin/main → re-dispatched sequential on main. | complete ✓ | 2026-07-18 |
 
 ## Deferred Items
 
