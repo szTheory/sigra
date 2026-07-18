@@ -140,7 +140,7 @@ defmodule ExampleWeb.Layouts do
       <span class="vt-demo-switch__label">Demo personas — switch account:</span>
       <a
         :for={{key, display_name} <- @featured}
-        href={~p"/demo/use/#{key}"}
+        href={"/demo/use/#{key}"}
         class="vt-btn vt-btn--ghost"
       >
         {display_name}
