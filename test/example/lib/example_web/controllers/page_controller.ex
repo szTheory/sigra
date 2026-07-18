@@ -21,7 +21,7 @@ defmodule ExampleWeb.PageController do
         local = persona.email |> String.split("@") |> hd()
         Map.merge(persona, %{local: local, feature: Map.fetch!(features, local)})
       end)
-      |> Enum.filter(&(&1.local in ~w(admin alice morgan pat)))
+      |> Enum.filter(&(&1.local in Personas.featured_keys()))
 
     render(conn, :home,
       persona_count: length(personas),

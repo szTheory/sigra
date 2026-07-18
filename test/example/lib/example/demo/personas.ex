@@ -199,6 +199,24 @@ defmodule Example.Demo.Personas do
   end
 
   @doc """
+  Returns the curated set of "get started" differentiator personas, as email
+  local-part strings, in the order they should be presented.
+
+  Single source of truth for BOTH the home-page get-started picker
+  (`PageController.home/2`) and the logged-in "Demo personas" fast-switch bar
+  (`Layouts.demo_persona_switch/1`) — do not hardcode this list twice.
+
+  Curated for differentiation, not exhaustiveness:
+  - `admin` — Platform Admin, TOTP MFA
+  - `morgan` — Org Admin, non-platform
+  - `alice` — standard confirmed happy-path user
+  - `pat` — passkey-only user
+  - `dave` — locked / rough-edge account
+  """
+  @spec featured_keys() :: [String.t()]
+  def featured_keys, do: ~w(admin morgan alice pat dave)
+
+  @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
   '@') for all ten @demo.tasklane.test personas.

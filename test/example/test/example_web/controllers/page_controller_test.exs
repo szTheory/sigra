@@ -39,6 +39,10 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ "morgan@demo.tasklane.test"
     assert html =~ "/admin/organizations/acme-corp"
     assert html =~ "pat@demo.tasklane.test"
+    assert html =~ ~s(id="get-started")
+    assert html =~ "dave@demo.tasklane.test"
+    assert html =~ "demo=dave"
+    assert html =~ "Sign in as"
   end
 
   test "GET / renders cookie-selected brand on first paint", %{conn: conn} do
