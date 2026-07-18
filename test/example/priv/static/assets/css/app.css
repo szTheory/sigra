@@ -221,6 +221,10 @@
   font-weight: var(--sg-weight-bold);
 }
 
+.vt-demo-switch--login {
+  justify-content: center;
+}
+
 .vt-brand {
   display: inline-flex;
   align-items: center;
@@ -1354,25 +1358,6 @@ a.vt-panel {
 
 .vt-auth__disclosure .vt-auth__form {
   padding-inline: var(--sg-space-3);
-}
-
-/* Dev-only "Fill password" hint block under the real login form. Uses the
-   same accent family as .vt-code — NOT a red/danger tone, this is a
-   convenience affordance, not a warning. */
-.vt-demo-hint {
-  display: grid;
-  gap: var(--sg-space-2);
-  padding: var(--sg-space-3) var(--sg-space-4);
-  border-radius: var(--vt-radius);
-  background: color-mix(in oklab, var(--vt-color-accent-soft) 45%, transparent);
-}
-
-.vt-demo-hint .vt-kicker {
-  margin: 0;
-}
-
-.vt-demo-hint .vt-copy {
-  margin: 0;
 }
 
 .vt-auth__secondary {
