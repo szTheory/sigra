@@ -30,6 +30,23 @@ defmodule ExampleWeb.SessionHTML do
       brand mapping (that needs [data-demo-brand-surface]) and no JS hook (that
       needs data-demo-brand-presets), so it stays plain Tasklane.
     --%>
+    <div
+      :if={@demo_persona_hint}
+      class="vt-demo-switch vt-demo-switch--login"
+      data-testid="demo-login-hint"
+    >
+      <span class="vt-status-pill">DEMO</span>
+      <span class="vt-demo-switch__label">Disposable demo account — never use in production</span>
+      <code class="vt-code vt-code--copy">{@demo_persona_hint.email}</code>
+      <button
+        type="button"
+        class="vt-btn vt-btn--ghost"
+        data-demo-fill-password
+        data-demo-password={@demo_persona_hint.password}
+      >
+        Fill password
+      </button>
+    </div>
     <section
       class="vt-auth vt-auth--login"
       data-testid="tasklane-login"
@@ -89,21 +106,6 @@ defmodule ExampleWeb.SessionHTML do
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>
-
-        <div :if={@demo_persona_hint} class="vt-demo-hint" data-testid="demo-login-hint">
-          <p class="vt-kicker">Disposable demo account — never use in production</p>
-          <p class="vt-copy">
-            <code class="vt-code vt-code--copy">{@demo_persona_hint.email}</code>
-          </p>
-          <button
-            type="button"
-            class="vt-btn vt-btn--ghost"
-            data-demo-fill-password
-            data-demo-password={@demo_persona_hint.password}
-          >
-            Fill password
-          </button>
-        </div>
 
         <%= if @passkey_primary_enabled do %>
           <.form
