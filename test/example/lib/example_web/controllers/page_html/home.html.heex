@@ -78,10 +78,15 @@
         </p>
       </div>
 
-      <aside class="vt-panel vt-panel--operator" data-testid="home-shared-login-copy">
+      <aside
+        id="get-started"
+        class="vt-panel vt-panel--operator"
+        data-testid="home-shared-login-copy"
+      >
         <p class="vt-kicker">One login, two jobs.</p>
         <h2 class="vt-panel__title">Sign in as an operator.</h2>
         <p class="vt-copy">Same Tasklane login as customers — operator personas continue into Sigra admin.</p>
+        <a href="/demo/credentials" class="vt-btn vt-btn--ghost vt-btn--block">View all 10 personas &rarr;</a>
         <ul class="vt-operator-list">
           <li>
             <div>
@@ -99,43 +104,6 @@
           </li>
         </ul>
       </aside>
-    </section>
-
-    <section id="get-started" aria-label="Get started — choose an evaluator persona">
-      <div class="vt-panel">
-        <div class="vt-panel__header">
-          <div>
-            <p class="vt-kicker">Get started</p>
-            <h2 class="vt-panel__title">Choose an evaluator persona</h2>
-          </div>
-          <a href="/demo/credentials" class="vt-btn vt-btn--ghost">View all 10 personas &rarr;</a>
-        </div>
-
-        <div class="vt-persona-list" data-testid="home-featured-personas">
-          <article :for={c <- @featured_credentials} class="vt-persona-row">
-            <div>
-              <h3>{c.display_name}</h3>
-              <p class="vt-copy">{c.feature}</p>
-              <a
-                href={~p"/users/log_in?#{%{demo: c.local}}"}
-                class="vt-btn vt-btn--primary"
-              >
-                Sign in as {c.display_name}
-              </a>
-            </div>
-            <dl class="vt-identity-grid">
-              <div class="vt-identity-item">
-                <dt class="vt-domain-strip__label">Email</dt>
-                <dd><code class="vt-code vt-code--copy">{c.email}</code></dd>
-              </div>
-              <div class="vt-identity-item">
-                <dt class="vt-domain-strip__label">Password</dt>
-                <dd><code class="vt-code vt-code--copy">{c.password}</code></dd>
-              </div>
-            </dl>
-          </article>
-        </div>
-      </div>
     </section>
 
     <section

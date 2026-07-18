@@ -760,10 +760,6 @@ a.vt-panel {
   }
 }
 
-#get-started {
-  margin-top: var(--sg-space-5);
-}
-
 .vt-brand-lab {
   display: grid;
   gap: var(--sg-space-5);

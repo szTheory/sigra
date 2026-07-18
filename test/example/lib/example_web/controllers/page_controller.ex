@@ -7,7 +7,6 @@ defmodule ExampleWeb.PageController do
   def home(conn, _params) do
     conn = Plug.Conn.fetch_cookies(conn)
     personas = Personas.all()
-    features = Personas.feature_map()
     default_selection = Branding.selection_from_cookies(conn.req_cookies)
     default_id = default_selection.id
     default_theme = default_selection.theme
@@ -15,21 +14,12 @@ defmodule ExampleWeb.PageController do
     default_brand = default_selection.profile
     brand_presets = Branding.presets_for_ui()
 
-    featured_credentials =
-      personas
-      |> Enum.map(fn persona ->
-        local = persona.email |> String.split("@") |> hd()
-        Map.merge(persona, %{local: local, feature: Map.fetch!(features, local)})
-      end)
-      |> Enum.filter(&(&1.local in Personas.featured_keys()))
-
     render(conn, :home,
       persona_count: length(personas),
       tenant_count: 2,
       audit_row_count: "15+",
       demo_domain: Personas.demo_domain(),
       local_origin: local_origin(conn),
-      featured_credentials: featured_credentials,
       demo_brand_default_id: default_id,
       demo_brand_default_theme: default_theme,
       demo_brand_presets: brand_presets,
