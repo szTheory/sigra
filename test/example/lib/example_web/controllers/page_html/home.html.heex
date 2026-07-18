@@ -80,24 +80,22 @@
 
       <aside class="vt-panel vt-panel--operator" data-testid="home-shared-login-copy">
         <p class="vt-kicker">One login, two jobs.</p>
-        <h2 class="vt-panel__title">Use Tasklane login for both customer and operator personas.</h2>
-        <p class="vt-copy">
-          <a href="/users/log_in" class="vt-link">/users/log_in</a>
-          is Tasklane's shared login. Customer personas land in Tasklane auth flows; Sigra
-          operator personas can continue into admin routes.
-        </p>
+        <h2 class="vt-panel__title">Sign in as an operator.</h2>
+        <p class="vt-copy">Same Tasklane login as customers — operator personas continue into Sigra admin.</p>
         <ul class="vt-operator-list">
           <li>
-            <strong>Global Sigra Admin</strong>
-            <br />
-            <code class="vt-code vt-code--copy">admin@demo.tasklane.test</code>
-            opens <a href="/admin" class="vt-link">/admin</a>.
+            <div>
+              <strong>Global Sigra Admin</strong>
+              <p class="vt-copy">Platform-wide operator → <code class="vt-code">/admin</code></p>
+            </div>
+            <a href={~p"/users/log_in?#{%{demo: "admin"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Admin</a>
           </li>
           <li>
-            <strong>Acme org admin</strong>
-            <br />
-            <code class="vt-code vt-code--copy">morgan@demo.tasklane.test</code>
-            opens <a href="/admin/organizations/acme-corp" class="vt-link">/admin/organizations/acme-corp</a>.
+            <div>
+              <strong>Acme org admin</strong>
+              <p class="vt-copy">Org-scoped operator → <code class="vt-code">/admin/organizations/acme-corp</code></p>
+            </div>
+            <a href={~p"/users/log_in?#{%{demo: "morgan"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Morgan</a>
           </li>
         </ul>
       </aside>
