@@ -651,6 +651,8 @@ a.vt-panel {
 
 .vt-panel--operator .vt-operator-list li {
   background: color-mix(in oklab, var(--vt-color-panel-alt) 72%, transparent);
+  display: grid;
+  gap: var(--sg-space-2);
 }
 
 .vt-card-grid {
@@ -756,6 +758,10 @@ a.vt-panel {
     --vt-color-line: var(--vt-dark-color-line, #244650);
     --vt-color-line-strong: var(--vt-dark-color-line-strong, #244650);
   }
+}
+
+#get-started {
+  margin-top: var(--sg-space-5);
 }
 
 .vt-brand-lab {
