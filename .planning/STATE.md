@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 Phase: Milestone v1.45 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-07-11 — Milestone v1.45 completed and archived
+Last activity: 2026-07-18 — Completed quick task 260718-i1m: demo front-door get-started affordance + copy-scope fix
 
 ## Accumulated Context
 
@@ -360,6 +360,7 @@ Last activity: 2026-07-11 — Milestone v1.45 completed and archived
 | 260624-vqv | Fixed `scripts/ci/snapshot-recapture-gate.sh` single-lane recapture (185-REVIEW WR-02). | complete ✓ | 2026-06-24 |
 | 260621-o1q | Vaultr demo polish — kicker spacing + click-to-copy credentials. | complete ✓ | 2026-06-21 |
 | 260621-vbr | Vaultr demo mini-brand typography + fixed pre-existing app.css comment corruption (opening `/*` lost). | complete ✓ | 2026-06-21 |
+| 260718-i1m | Demo front-door get-started affordance + copy-scope fix — vt-code copy decoupled to opt-in (routes→links); home re-sequenced to orient→get-started(5-persona picker, `?demo={key}`)→showcase→reference; real login prefill + dev-gated password Fill + `/demo/use/:persona` fast-switch (distinct from impersonation); planted SEED-008 (generated-host first-admin bootstrap gap). Live-verified on running demo; caught+fixed Fill-button `user_password`→`name="user[password]"` selector no-op. | complete ✓ | 2026-07-18 |
 
 ## Deferred Items
 
