@@ -8324,7 +8324,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
       var password = trigger.getAttribute("data-demo-password");
       if (!password) return;
 
-      var input = document.getElementById("user_password");
+      var input = document.querySelector('input[name="user[password]"]');
       if (!input) return;
 
       input.value = password;
