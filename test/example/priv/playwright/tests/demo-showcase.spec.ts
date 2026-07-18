@@ -847,7 +847,7 @@ test.describe("demo-showcase", () => {
       .context()
       .grantPermissions(["clipboard-read", "clipboard-write"]);
     const credentialChip = page
-      .locator('[data-testid="home-featured-personas"] code.vt-code')
+      .locator('[data-testid="home-featured-personas"] code.vt-code--copy')
       .first();
     const credentialText = ((await credentialChip.textContent()) ?? "").trim();
     expect(credentialText.length).toBeGreaterThan(0);

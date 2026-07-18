@@ -8277,7 +8277,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     document.addEventListener("click", function (event) {
       var target = event.target;
       if (!target || typeof target.closest !== "function") return;
-      var code = target.closest(".sg-admin-shell code.sg-code, code.vt-code");
+      var code = target.closest(".sg-admin-shell code.sg-code, code.vt-code--copy");
       if (!code) return;
 
       var text = (code.textContent || "").trim();
@@ -8296,7 +8296,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     var label = function () {
       var chips = document.querySelectorAll(
-        ".sg-admin-shell code.sg-code, code.vt-code",
+        ".sg-admin-shell code.sg-code, code.vt-code--copy",
       );
       chips.forEach(function (chip) {
         if (!chip.getAttribute("title")) {
