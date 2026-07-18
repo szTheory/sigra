@@ -2678,6 +2678,12 @@ html[data-sg-admin-js="true"] .sg-cmdk__trigger {
   background: color-mix(in oklab, var(--vt-color-accent-soft) 60%, var(--vt-color-panel));
 }
 
+/* Natural separation when an alert follows content inside a panel (e.g. the
+   settings email-change pending banner sitting under the "Current:" line). */
+.vt-panel .vt-alert {
+  margin-top: var(--sg-space-4);
+}
+
 .vt-alert--warning {
   border-color: color-mix(in oklab, var(--vt-color-caution) 44%, var(--vt-color-line));
   background: color-mix(in oklab, var(--vt-color-caution) 16%, var(--vt-color-panel));

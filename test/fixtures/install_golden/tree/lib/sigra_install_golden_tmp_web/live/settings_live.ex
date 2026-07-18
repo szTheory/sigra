@@ -197,11 +197,14 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.request_email_change(user, new_email) do
-      {:ok, _user, _token} ->
+      {:ok, updated_user, _token} ->
         {:noreply,
          socket
          |> put_flash(:info, "We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.")
-         |> assign(pending_email_change?: true)}
+         |> assign(
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
+           pending_email_change?: true
+         )}
 
       {:error, changeset} ->
         {:noreply,
@@ -214,11 +217,14 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.cancel_email_change(user) do
-      {:ok, _user} ->
+      {:ok, updated_user} ->
         {:noreply,
          socket
          |> put_flash(:info, "Email change cancelled. Your email remains #{user.email}.")
-         |> assign(pending_email_change?: false)}
+         |> assign(
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
+           pending_email_change?: false
+         )}
 
       {:error, _changeset} ->
         {:noreply,
