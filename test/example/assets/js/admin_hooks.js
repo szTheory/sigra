@@ -538,6 +538,33 @@
     }
   }
 
+  // ---- Demo password fill (delegated; gesture-fired only) ------------------
+  // Fills the real login password field from the dev-only demo hint's "Fill
+  // password" button. Delegated (no per-page mount, boots globally on every
+  // page including the plain-controller login page) and ONLY acts on a real
+  // click — never on DOMContentLoaded/load, so the field is never pre-filled
+  // without an explicit user gesture.
+  function installDemoPasswordFill() {
+    if (window.__sigraDemoPasswordFillInstalled) return;
+    window.__sigraDemoPasswordFillInstalled = true;
+
+    document.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      var trigger = target.closest("[data-demo-fill-password]");
+      if (!trigger) return;
+
+      var password = trigger.getAttribute("data-demo-password");
+      if (!password) return;
+
+      var input = document.getElementById("user_password");
+      if (!input) return;
+
+      input.value = password;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+
   function adminShell() {
     return document.querySelector(".sg-admin-shell");
   }
@@ -1144,6 +1171,7 @@
   };
 
   installCopyDelegate();
+  installDemoPasswordFill();
   installMetricHelp();
   installFieldHelp();
   installPageLoadingIndicator();

@@ -201,6 +201,26 @@
   gap: var(--sg-space-3);
 }
 
+/* Dev-only "Demo personas" fast-switch bar, positioned as a slim strip below
+   the app header. Deliberately separate from any sg-impersonation* selector
+   (see Layouts.demo_persona_switch/1 doc). */
+.vt-demo-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sg-space-2);
+  padding-block: var(--sg-space-2);
+  padding-inline: var(--sg-space-4);
+  border-bottom: 1px solid var(--vt-color-line);
+  background: color-mix(in oklab, var(--vt-color-accent-soft) 30%, transparent);
+}
+
+.vt-demo-switch__label {
+  color: var(--vt-color-muted);
+  font-size: var(--sg-text-xs);
+  font-weight: var(--sg-weight-bold);
+}
+
 .vt-brand {
   display: inline-flex;
   align-items: center;
@@ -1334,6 +1354,25 @@ a.vt-panel {
 
 .vt-auth__disclosure .vt-auth__form {
   padding-inline: var(--sg-space-3);
+}
+
+/* Dev-only "Fill password" hint block under the real login form. Uses the
+   same accent family as .vt-code — NOT a red/danger tone, this is a
+   convenience affordance, not a warning. */
+.vt-demo-hint {
+  display: grid;
+  gap: var(--sg-space-2);
+  padding: var(--sg-space-3) var(--sg-space-4);
+  border-radius: var(--vt-radius);
+  background: color-mix(in oklab, var(--vt-color-accent-soft) 45%, transparent);
+}
+
+.vt-demo-hint .vt-kicker {
+  margin: 0;
+}
+
+.vt-demo-hint .vt-copy {
+  margin: 0;
 }
 
 .vt-auth__secondary {

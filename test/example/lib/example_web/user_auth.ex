@@ -148,8 +148,15 @@ defmodule ExampleWeb.UserAuth do
   Logs the user out.
 
   It clears all session data for safety. See renew_session.
+
+  Accepts an optional `:to` redirect target (defaults to `~p"/"`) so callers
+  can chain a log-out directly into a fresh destination — e.g. the dev-only
+  persona fast-switch redirects into a prefilled login for the new persona
+  instead of the homepage.
   """
-  def log_out_user(conn) do
+  def log_out_user(conn, opts \\ []) do
+    to = Keyword.get(opts, :to, ~p"/")
+
     user_token = get_session(conn, :user_token)
     user_token && Example.Accounts.delete_user_session_token(user_token)
 
@@ -160,7 +167,7 @@ defmodule ExampleWeb.UserAuth do
     conn
     |> renew_session()
     |> delete_resp_cookie(@remember_me_cookie)
-    |> redirect(to: ~p"/")
+    |> redirect(to: to)
   end
 
   @doc """

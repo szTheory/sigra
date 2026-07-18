@@ -96,6 +96,41 @@ defmodule ExampleWeb.SessionControllerTest do
     end
   end
 
+  describe "GET /users/log_in?demo={key} (front-door persona prefill)" do
+    test "prefills the email field with the matching persona's real email — works in any build",
+         %{conn: conn} do
+      body = conn |> get(~p"/users/log_in?demo=admin") |> html_response(200)
+
+      assert body =~ ~s(value="admin@demo.tasklane.test")
+    end
+
+    test "does not crash and does not prefill for an unknown persona key", %{conn: conn} do
+      body = conn |> get(~p"/users/log_in?demo=not-a-real-persona") |> html_response(200)
+
+      refute body =~ "demo.tasklane.test"
+    end
+
+    test "under mix test (dev_routes=false), the password hint is compiled out even with a valid demo key",
+         %{conn: conn} do
+      body = conn |> get(~p"/users/log_in?demo=admin") |> html_response(200)
+
+      # Email-only prefill still works (asserted above)…
+      assert body =~ ~s(value="admin@demo.tasklane.test")
+      # …but the dev-gated password hint never renders under mix test — mirrors
+      # the /demo/credentials 404 proof pattern (compile_env gate compiles it out).
+      refute body =~ "Disposable demo account"
+      refute body =~ "data-demo-fill-password"
+      refute body =~ ~s(data-testid="demo-login-hint")
+    end
+  end
+
+  describe "env-guard: GET /demo/use/:persona" do
+    test "route returns 404 in test env (compile_env gate compiles route out)" do
+      conn = build_conn() |> get("/demo/use/admin")
+      assert conn.status == 404
+    end
+  end
+
   describe "POST /users/log_in (password path)" do
     test "valid credentials return 302 + set session cookie", %{
       conn: conn,
