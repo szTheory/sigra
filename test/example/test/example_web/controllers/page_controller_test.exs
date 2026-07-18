@@ -36,9 +36,8 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ ">10<"
     assert html =~ "Acme Corp"
     assert html =~ "Beta Labs"
-    # Morgan survives in seeded-evidence (org-admin path hint); the featured-persona
-    # card that dumped raw emails was removed by design.
-    assert html =~ "morgan@demo.tasklane.test"
+    # Morgan is reachable via the demo=morgan sign-in button; the raw email prose was
+    # removed from the home page by design (not a coverage loss).
     assert html =~ "/admin/organizations/acme-corp"
     assert html =~ ~s(id="get-started")
     assert html =~ "Sign in as"

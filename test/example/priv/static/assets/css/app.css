@@ -619,6 +619,10 @@ a.vt-panel {
   color: var(--vt-color-muted);
 }
 
+.vt-panel--operator > .vt-btn {
+  margin-block: var(--sg-space-4);
+}
+
 .vt-panel__header {
   display: flex;
   flex-wrap: wrap;
@@ -665,6 +669,10 @@ a.vt-panel {
   background: color-mix(in oklab, var(--vt-color-panel-alt) 72%, transparent);
   display: grid;
   gap: var(--sg-space-2);
+}
+
+.vt-seed-list li .vt-btn {
+  margin-top: var(--sg-space-2);
 }
 
 .vt-card-grid {

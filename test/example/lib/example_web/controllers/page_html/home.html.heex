@@ -256,7 +256,7 @@
           <dd>{@tenant_count}</dd>
         </dl>
         <dl class="vt-metric" data-testid="home-stat-audit">
-          <dt>Audit rows</dt>
+          <dt>Audit events</dt>
           <dd>{@audit_row_count}</dd>
         </dl>
       </div>
@@ -278,12 +278,18 @@
           <strong>{"@" <> @demo_domain}</strong> is the fixture-only Tasklane cohort domain.
         </li>
         <li>
-          <strong>Sigra Admin</strong>
-          shows support operations: user search, session review, impersonation, audit filters, exports, and scoped org views.
+          <div>
+            <strong>Sigra Admin</strong>
+            <p class="vt-copy">Support operations: user search, session review, impersonation, audit filters, exports, and scoped org views — opens <code class="vt-code">/admin</code>.</p>
+          </div>
+          <a href={~p"/users/log_in?#{%{demo: "admin"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Admin</a>
         </li>
         <li>
-          <strong>Org admin path:</strong>
-          sign in as <code class="vt-code vt-code--copy">morgan@demo.tasklane.test</code>, then open <a href="/admin/organizations/acme-corp" class="vt-link">/admin/organizations/acme-corp</a>.
+          <div>
+            <strong>Org admin</strong>
+            <p class="vt-copy">Org-scoped console → <code class="vt-code">/admin/organizations/acme-corp</code>.</p>
+          </div>
+          <a href={~p"/users/log_in?#{%{demo: "morgan"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Morgan</a>
         </li>
       </ul>
     </section>
