@@ -225,6 +225,18 @@
   justify-content: center;
 }
 
+.vt-demo-switch__select {
+  min-height: var(--sg-control-md);
+  padding-block: var(--sg-space-1);
+  padding-inline: var(--sg-space-2);
+  border: 1px solid var(--vt-color-line);
+  border-radius: var(--sg-radius-sm);
+  background: var(--vt-color-panel);
+  color: var(--vt-color-ink);
+  font-size: var(--sg-text-xs);
+  line-height: 1.2;
+}
+
 .vt-brand {
   display: inline-flex;
   align-items: center;

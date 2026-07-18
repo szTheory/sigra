@@ -8332,6 +8332,27 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     });
   }
 
+  // ---- Demo persona switch (delegated; dev-only login band) ----------------
+  // Navigates to the prefilled real login for the chosen persona when the
+  // dev-only "Switch persona…" dropdown changes. Routes through the REAL login
+  // (?demo=<key>) — never a bypass/auto-submit. Delegated + idempotent so it
+  // boots once globally alongside the other demo helpers.
+  function installDemoPersonaSwitch() {
+    if (window.__sigraDemoPersonaSwitchInstalled) return;
+    window.__sigraDemoPersonaSwitchInstalled = true;
+
+    document.addEventListener("change", function (event) {
+      var sel =
+        event.target && event.target.closest
+          ? event.target.closest("select[data-demo-persona-switch]")
+          : null;
+      if (!sel || !sel.value) return;
+      window.location.assign(
+        "/users/log_in?demo=" + encodeURIComponent(sel.value),
+      );
+    });
+  }
+
   function adminShell() {
     return document.querySelector(".sg-admin-shell");
   }
@@ -8934,6 +8955,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
   installCopyDelegate();
   installDemoPasswordFill();
+  installDemoPersonaSwitch();
   installMetricHelp();
   installFieldHelp();
   installPageLoadingIndicator();

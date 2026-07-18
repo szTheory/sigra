@@ -41,7 +41,8 @@ defmodule ExampleWeb.SessionController do
       form: form,
       magic_link_form: magic_link_form,
       passkey_primary_enabled: Auth.passkey_primary_enabled?(),
-      demo_persona_hint: demo_persona_hint(demo_persona)
+      demo_persona_hint: demo_persona_hint(demo_persona),
+      demo_personas: demo_persona_options()
     )
   end
 
@@ -61,6 +62,20 @@ defmodule ExampleWeb.SessionController do
     defp demo_persona_hint(demo_persona), do: demo_persona
   else
     defp demo_persona_hint(_demo_persona), do: nil
+  end
+
+  # Dev-gated: the low-noise persona-switcher dropdown options only exist in a
+  # dev_routes build. Returns `[]` under mix test / prod so the demo band does
+  # not render at all (session_controller_test refutes stay green). Each option
+  # is email-derived and non-secret — no password ever reaches these assigns.
+  if Application.compile_env(:example, :dev_routes) do
+    defp demo_persona_options do
+      Enum.map(Example.Demo.Personas.all(), fn p ->
+        %{key: p.email |> String.split("@") |> hd(), display_name: p.display_name}
+      end)
+    end
+  else
+    defp demo_persona_options, do: []
   end
 
   def create(conn, %{"_action" => "magic_link", "user" => %{"email" => email}}) do

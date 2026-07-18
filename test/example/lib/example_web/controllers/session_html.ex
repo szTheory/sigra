@@ -31,14 +31,17 @@ defmodule ExampleWeb.SessionHTML do
       needs data-demo-brand-presets), so it stays plain Tasklane.
     --%>
     <div
-      :if={@demo_persona_hint}
+      :if={@demo_personas != []}
       class="vt-demo-switch vt-demo-switch--login"
       data-testid="demo-login-hint"
     >
       <span class="vt-status-pill">DEMO</span>
-      <span class="vt-demo-switch__label">Disposable demo account — never use in production</span>
-      <code class="vt-code vt-code--copy">{@demo_persona_hint.email}</code>
+      <span :if={@demo_persona_hint} class="vt-demo-switch__label">
+        Disposable demo account — never use in production
+      </span>
+      <code :if={@demo_persona_hint} class="vt-code vt-code--copy">{@demo_persona_hint.email}</code>
       <button
+        :if={@demo_persona_hint}
         type="button"
         class="vt-btn vt-btn--ghost"
         data-demo-fill-password
@@ -46,6 +49,23 @@ defmodule ExampleWeb.SessionHTML do
       >
         Fill password
       </button>
+      <span :if={is_nil(@demo_persona_hint)} class="vt-demo-switch__label">
+        Demo personas — never use in production
+      </span>
+      <select
+        class="vt-demo-switch__select"
+        data-demo-persona-switch
+        aria-label="Switch demo persona"
+      >
+        <option value="" disabled selected={is_nil(@demo_persona_hint)}>Switch persona…</option>
+        <option
+          :for={p <- @demo_personas}
+          value={p.key}
+          selected={@demo_persona_hint && String.starts_with?(@demo_persona_hint.email, p.key <> "@")}
+        >
+          {p.display_name}
+        </option>
+      </select>
     </div>
     <section
       class="vt-auth vt-auth--login"
