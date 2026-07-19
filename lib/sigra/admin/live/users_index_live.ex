@@ -82,6 +82,42 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
+      <% total_users = summary_count(@summary_posture, :total) %>
+      <% locked_users = summary_count(@summary_posture, :locked_out) %>
+      <% deletion_scheduled_users = summary_count(@summary_posture, :deletion_scheduled) %>
+      <section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
+        <h2 id="users-health-heading" class="sg-section-heading">User health</h2>
+        <dl class="sg-metric-grid" aria-label="User health summary">
+          <.summary_chip
+            id="users-metric-total"
+            icon="users"
+            label="Total users"
+            value={total_users}
+            value_suffix="total users"
+          />
+          <.summary_chip
+            id="users-metric-locked"
+            icon="lock"
+            label="Locked users"
+            value={locked_users}
+            value_suffix="locked out"
+            subvalue={summary_percent(locked_users, total_users)}
+            help="These users are locked out after failed sign-in attempts. Review the user before unlocking."
+            tone={summary_tone(locked_users, "risk")}
+          />
+          <.summary_chip
+            id="users-metric-deletion"
+            icon="clock"
+            label="Deletion scheduled"
+            value={deletion_scheduled_users}
+            value_suffix="pending deletion"
+            subvalue={summary_percent(deletion_scheduled_users, total_users)}
+            help="These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+            tone={summary_tone(deletion_scheduled_users, "warn")}
+          />
+        </dl>
+      </section>
+
       <section class="sg-stack sg-stack--4" aria-labelledby="find-users-heading">
       <div class="sg-stack sg-stack--1">
         <h2 id="find-users-heading" class="sg-section-heading">Find users</h2>
@@ -174,42 +210,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <input type="hidden" name="order_by" value={param_value(@current_params, "order_by", "inserted_at")} />
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
-      </section>
-
-      <% total_users = summary_count(@summary_posture, :total) %>
-      <% locked_users = summary_count(@summary_posture, :locked_out) %>
-      <% deletion_scheduled_users = summary_count(@summary_posture, :deletion_scheduled) %>
-      <section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
-        <h2 id="users-health-heading" class="sg-section-heading">User health</h2>
-        <dl class="sg-metric-grid" aria-label="User health summary">
-          <.summary_chip
-            id="users-metric-total"
-            icon="users"
-            label="Total users"
-            value={total_users}
-            value_suffix="total users"
-          />
-          <.summary_chip
-            id="users-metric-locked"
-            icon="lock"
-            label="Locked users"
-            value={locked_users}
-            value_suffix="locked out"
-            subvalue={summary_percent(locked_users, total_users)}
-            help="These users are locked out after failed sign-in attempts. Review the user before unlocking."
-            tone={summary_tone(locked_users, "risk")}
-          />
-          <.summary_chip
-            id="users-metric-deletion"
-            icon="clock"
-            label="Deletion scheduled"
-            value={deletion_scheduled_users}
-            value_suffix="pending deletion"
-            subvalue={summary_percent(deletion_scheduled_users, total_users)}
-            help="These users are scheduled for deletion. Access is disabled and active sessions are revoked."
-            tone={summary_tone(deletion_scheduled_users, "warn")}
-          />
-        </dl>
       </section>
 
       <div
