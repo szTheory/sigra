@@ -333,13 +333,12 @@ test.describe("demo-showcase", () => {
     expect(bodyFont).toContain("Inter");
     expect(bodyFont).not.toContain("Space Grotesk");
 
-    await expect(
-      page.locator('[data-testid="home-domain-context"]'),
-    ).toContainText("demo.tasklane.test");
     await expect(page.getByText("One login, two jobs.")).toBeVisible();
-    await expect(
-      page.getByText("admin@demo.tasklane.test").first(),
-    ).toBeVisible();
+    // The operator doorway now surfaces one-click persona pickers (routing through
+    // the real prefilled login) instead of raw credential strings, and the
+    // standalone "Cohort / Local host" domain strip was removed. The cohort domain
+    // is still referenced inline in the operator copy.
+    await expect(page.getByText("Sign in as Admin").first()).toBeVisible();
     await expect(page.getByText("@demo.tasklane.test").first()).toBeVisible();
     const operatorPanel = page.locator(
       '[data-testid="home-shared-login-copy"]',
@@ -875,7 +874,13 @@ test.describe("demo-showcase", () => {
     await expect(
       page.locator('[data-testid="demo-persona-row-alice"]'),
     ).toBeVisible();
-    await expect(page.getByText(DEMO_ALICE_EMAIL)).toBeVisible();
+    // Credentials rows now expose a one-click "Sign in as <name>" action instead
+    // of raw email/password columns; the email is no longer printed on this page.
+    await expect(
+      page
+        .locator('[data-testid="demo-persona-row-alice"]')
+        .getByText("Sign in as Alice"),
+    ).toBeVisible();
 
     await loginDemoUser(page, DEMO_ALICE_EMAIL, DEMO_ALICE_PASSWORD);
 
