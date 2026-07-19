@@ -822,9 +822,6 @@ test.describe("demo-showcase", () => {
       page.locator('[data-testid="home-stat-personas"]'),
     ).toContainText("10");
     await expect(
-      page.locator('[data-testid="home-featured-personas"]'),
-    ).toContainText("morgan@demo.tasklane.test");
-    await expect(
       page.getByRole("link", { name: "Open Sigra Admin" }),
     ).toHaveAttribute("href", "/admin");
 
@@ -840,27 +837,11 @@ test.describe("demo-showcase", () => {
       "panel header after a metric grid needs a top-margin section break",
     ).toBeGreaterThan(0);
 
-    // Click-to-copy: credential chips copy to the clipboard on click and surface
-    // a transient "Copied" toast (position: fixed — no layout reflow).
-    await page
-      .context()
-      .grantPermissions(["clipboard-read", "clipboard-write"]);
-    const credentialChip = page
-      .locator('[data-testid="home-featured-personas"] code.vt-code--copy')
-      .first();
-    const credentialText = ((await credentialChip.textContent()) ?? "").trim();
-    expect(credentialText.length).toBeGreaterThan(0);
-    expect(
-      await credentialChip.evaluate((el) => getComputedStyle(el).cursor),
-      "credential chip should advertise copy affordance",
-    ).toBe("copy");
-    await credentialChip.click();
-    await expect(page.locator(".sg-toast").first()).toContainText("Copied");
-    await expect
-      .poll(() => page.evaluate(() => navigator.clipboard.readText()), {
-        message: "clicking a credential chip copies its text",
-      })
-      .toBe(credentialText);
+    // Home no longer surfaces raw credential copy-chips: the front-door
+    // consolidation (oa1) removed the featured-personas panel and i1m decoupled
+    // the copy affordance from route chips, so the home has zero vt-code--copy
+    // chips — persona sign-in routes through the one-click pickers instead. The
+    // copy affordance is still covered on the demo-bar / credentials surfaces.
   });
 
   test("documented evaluator path reaches authenticated flow within ten minutes", async ({
