@@ -654,6 +654,18 @@ a.vt-panel {
   margin-bottom: var(--sg-space-4);
 }
 
+/* Uniform vertical rhythm for stacked panel content (e.g. the enrolled MFA panel:
+   header / backup-code status / trusted-browser controls). */
+.vt-stack {
+  display: grid;
+  gap: var(--sg-space-4);
+}
+
+/* When a panel header sits inside a stack, the grid gap owns the spacing below it. */
+.vt-stack > .vt-panel__header {
+  margin-bottom: 0;
+}
+
 /* A panel header that follows a stat grid introduces a new sub-section, so it
    needs a clear section break above it (the grid has no bottom margin and the
    kicker is margin: 0). Header sits closer to the content it labels than to the

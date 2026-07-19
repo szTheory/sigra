@@ -74,7 +74,7 @@ defmodule ExampleWeb.MFASettingsLive do
         </header>
         <%= if @mfa_enabled do %>
           <% # Surface 3: MFA Settings Card %>
-          <div class="vt-panel">
+          <div class="vt-panel vt-stack">
             <div class="vt-panel__header">
               <div>
                 <p class="vt-kicker">Two-factor authentication</p>
@@ -89,16 +89,14 @@ defmodule ExampleWeb.MFASettingsLive do
             </div>
 
             <% # Backup code status (D-15) %>
-            <div>
+            <div class="vt-stack">
               <%= cond do %>
                 <% @backup_remaining == 0 -> %>
                   <div class="vt-alert vt-alert--danger">
-                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                     All backup codes used. Generate new ones now.
                   </div>
                 <% @backup_remaining <= 2 -> %>
                   <div class="vt-alert vt-alert--warning">
-                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                     {@backup_remaining} of 8 backup codes remaining
                   </div>
                 <% true -> %>
