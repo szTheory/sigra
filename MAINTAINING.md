@@ -315,7 +315,7 @@ release as the equivalent real-world proof, and confirm the same tracking Issue 
 **4. Canonical runbook:** this subsection covers only the manual-dispatch command, the timeout/tracking-issue
 signal, and the red-probe check. For the full release gate matrix, dry-run/package inspection detail,
 publish recovery branches, post-publish checks, and hotfix policy, see the canonical
-[`docs/release-runbook-v1-0.md`](docs/release-runbook-v1-0.md) — do not duplicate that matrix here.
+`docs/release-runbook-v1-0.md` — do not duplicate that matrix here.
 
 ## First public launch (announcement checklist)
 
