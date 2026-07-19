@@ -18,7 +18,22 @@ defmodule ExampleWeb.Auth.SudoController do
 
   def new(conn, _params) do
     form = Phoenix.Component.to_form(%{"password" => ""}, as: "sudo")
-    render(conn, :new, return_to: conn.params["return_to"] || ~p"/", form: form)
+
+    render(conn, :new,
+      return_to: conn.params["return_to"] || ~p"/",
+      form: form,
+      demo_persona: demo_persona_for(conn.assigns.current_scope.user)
+    )
+  end
+
+  # Dev-gated: the persona's PASSWORD only ever reaches the render assigns in a
+  # dev_routes build. Mirrors session_controller.ex's demo_persona_hint gate so
+  # the sudo demo Fill-password band is compiled out under mix test / prod.
+  if Application.compile_env(:example, :dev_routes) do
+    defp demo_persona_for(user),
+      do: Enum.find(Example.Demo.Personas.all(), &(&1.email == user.email))
+  else
+    defp demo_persona_for(_user), do: nil
   end
 
   def create(conn, %{"sudo" => %{"password" => password, "return_to" => return_to}}) do
@@ -45,7 +60,11 @@ defmodule ExampleWeb.Auth.SudoController do
       false ->
         conn
         |> put_flash(:error, "Incorrect password. Please try again.")
-        |> render(:new, return_to: return_to)
+        |> render(:new,
+          return_to: return_to,
+          form: Phoenix.Component.to_form(%{"password" => ""}, as: "sudo"),
+          demo_persona: demo_persona_for(conn.assigns.current_scope.user)
+        )
     end
   end
 

@@ -557,7 +557,7 @@
       var password = trigger.getAttribute("data-demo-password");
       if (!password) return;
 
-      var input = document.querySelector('input[name="user[password]"]');
+      var input = document.querySelector('input[name="user[password]"], input[name="sudo[password]"]');
       if (!input) return;
 
       input.value = password;
