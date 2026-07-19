@@ -3,6 +3,7 @@ defmodule Sigra.ArchitectureGuidesContractTest do
 
   @architecture "guides/introduction/architecture.md"
   @walkthrough "guides/introduction/code-walkthrough.md"
+  @favicon "brandbook/favicon.svg"
 
   @forbidden_published_paths ~r{
     (?:lib/|priv/templates/|test/example/|test/sigra/)|
@@ -177,19 +178,50 @@ defmodule Sigra.ArchitectureGuidesContractTest do
     assert mix =~ "startOnLoad: false"
     assert mix =~ ~s(securityLevel: "strict")
     assert mix =~ "suppressErrorRendering: true"
-    assert mix =~ ~s|window.addEventListener("exdoc:loaded", renderMermaid)|
+
+    assert mix =~
+             ~s|document.body.classList.contains("dark") ? "dark" : "default"|
+
+    refute mix =~ ~s(theme: "neutral")
+    assert mix =~ "let renderQueue = Promise.resolve()"
+    assert mix =~ "renderQueue = renderQueue.then(renderMermaid).catch(warnOnce)"
+    assert mix =~ "new MutationObserver(scheduleMermaidRender).observe(document.body"
+    assert mix =~ ~s(attributeFilter: ["class"])
+    assert mix =~ ~s|window.addEventListener("exdoc:loaded", scheduleMermaidRender)|
     assert mix =~ "window.__sigraMermaidHookInstalled"
+    assert mix =~ "wrapper.dataset.mermaidSource = code.textContent"
+    assert mix =~ "wrapper.dataset.mermaidTheme = theme"
+    assert mix =~ "wrapper.replaceChildren(...rendered.childNodes)"
+    assert mix =~ ~s|.sigra-mermaid[data-mermaid-source]|
     assert mix =~ "catch (error)"
     assert mix =~ "delete code.dataset.mermaidPending"
+    assert mix =~ "delete wrapper.dataset.mermaidRendering"
     assert mix =~ ~s|defp before_closing_head_tag(:epub), do: ""|
     assert mix =~ ~s|defp before_closing_body_tag(:epub), do: ""|
 
-    html_index = byte_index!(mix, "container.innerHTML = svg")
+    html_index = byte_index!(mix, "wrapper.innerHTML = svg")
+    insert_index = byte_index!(mix, ~s|source.insertAdjacentElement("afterend", wrapper)|)
     rendered_index = byte_index!(mix, ~s(code.dataset.mermaidRendered = "true"))
     hide_index = byte_index!(mix, "source.hidden = true")
 
-    assert html_index < rendered_index and rendered_index < hide_index,
+    assert html_index < insert_index and insert_index < rendered_index and
+             rendered_index < hide_index,
            "Mermaid source must be hidden only after successful SVG rendering"
+  end
+
+  test "ExDoc uses the existing theme-aware Rail Accent favicon" do
+    assert File.regular?(@favicon), "missing #{@favicon}"
+
+    mix = File.read!("mix.exs")
+    svg = File.read!(@favicon)
+
+    assert mix =~ ~s(favicon: "brandbook/favicon.svg")
+    assert svg =~ "Sigra D4 Linked Rail favicon mark"
+    assert svg =~ "prefers-color-scheme: dark"
+    assert svg =~ "#c2410c"
+    assert svg =~ "#fdba74"
+    assert svg =~ ~s(role="img")
+    assert svg =~ ~s(aria-labelledby="title desc")
   end
 
   test "walkthrough source anchors fail actionably when implementation drifts" do

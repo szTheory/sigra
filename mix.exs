@@ -205,6 +205,7 @@ defmodule Sigra.MixProject do
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
+      favicon: "brandbook/favicon.svg",
       formatters: ["html", "markdown"],
       assets: %{"guides/assets" => "assets"},
       before_closing_head_tag: &before_closing_head_tag/1,
@@ -292,24 +293,39 @@ defmodule Sigra.MixProject do
     ~S"""
     <style>
       .sigra-mermaid {
+        --sigra-diagram-ring: rgba(15, 23, 42, 0.08);
         margin: 1.5rem 0;
         overflow-x: auto;
         padding: 1rem;
-        border: 1px solid #d8d8d8;
-        border-radius: 0.5rem;
-        background: #fafafa;
+        border-radius: 0.75rem;
+        background: transparent;
+        box-shadow:
+          0 0 0 1px var(--sigra-diagram-ring),
+          0 1px 2px -1px rgba(15, 23, 42, 0.08),
+          0 2px 6px rgba(15, 23, 42, 0.04);
+        color: inherit;
         text-align: center;
       }
 
-      .sigra-mermaid svg {
-        display: inline-block;
-        max-width: 100%;
-        height: auto;
+      body.dark .sigra-mermaid {
+        --sigra-diagram-ring: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 1px var(--sigra-diagram-ring);
       }
 
-      body.dark .sigra-mermaid {
-        border-color: #555;
-        background: #f5f5f5;
+      .sigra-mermaid svg {
+        display: block;
+        width: 100%;
+        min-width: 42rem;
+        max-width: none;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      @media (min-width: 48rem) {
+        .sigra-mermaid svg {
+          min-width: 0;
+          max-width: 100%;
+        }
       }
     </style>
     <script
@@ -332,54 +348,120 @@ defmodule Sigra.MixProject do
         if (window.__sigraMermaidHookInstalled) return;
 
         window.__sigraMermaidHookInstalled = true;
-        let initialized = false;
         let graphSequence = 0;
+        let renderQueue = Promise.resolve();
+        let warned = false;
+
+        const warnOnce = (error) => {
+          if (warned) return;
+          warned = true;
+          console.warn(
+            "Sigra docs could not render a Mermaid diagram; source or the last successful diagram remains visible.",
+            error
+          );
+        };
+
+        const docsTheme = () =>
+          document.body.classList.contains("dark") ? "dark" : "default";
+
+        const renderExistingDiagram = async (wrapper, theme) => {
+          if (
+            wrapper.dataset.mermaidTheme === theme ||
+            wrapper.dataset.mermaidRendering === "true"
+          ) {
+            return;
+          }
+
+          wrapper.dataset.mermaidRendering = "true";
+
+          try {
+            const graphId = "sigra-mermaid-" + (++graphSequence);
+            const {svg, bindFunctions} =
+              await window.mermaid.render(graphId, wrapper.dataset.mermaidSource);
+            const rendered = document.createElement("div");
+            rendered.innerHTML = svg;
+            wrapper.replaceChildren(...rendered.childNodes);
+            wrapper.dataset.mermaidTheme = theme;
+
+            if (typeof bindFunctions === "function") bindFunctions(wrapper);
+          } catch (error) {
+            warnOnce(error);
+          } finally {
+            delete wrapper.dataset.mermaidRendering;
+          }
+        };
+
+        const renderSourceDiagram = async (code, theme) => {
+          const source = code.parentElement;
+          if (!source || code.dataset.mermaidPending === "true") return;
+
+          code.dataset.mermaidPending = "true";
+
+          try {
+            const graphId = "sigra-mermaid-" + (++graphSequence);
+            const {svg, bindFunctions} = await window.mermaid.render(graphId, code.textContent);
+            const wrapper = document.createElement("div");
+            wrapper.className = "sigra-mermaid";
+            wrapper.dataset.mermaidSource = code.textContent;
+            wrapper.dataset.mermaidTheme = theme;
+            wrapper.innerHTML = svg;
+
+            source.insertAdjacentElement("afterend", wrapper);
+            if (typeof bindFunctions === "function") bindFunctions(wrapper);
+            code.dataset.mermaidRendered = "true";
+            source.hidden = true;
+          } catch (error) {
+            warnOnce(error);
+          } finally {
+            delete code.dataset.mermaidPending;
+          }
+        };
 
         const renderMermaid = async () => {
           const blocks = document.querySelectorAll(
             "pre > code.mermaid:not([data-mermaid-rendered]):not([data-mermaid-pending])"
           );
+          const diagrams = document.querySelectorAll(
+            ".sigra-mermaid[data-mermaid-source]"
+          );
 
-          if (!window.mermaid || blocks.length === 0) return;
+          if (!window.mermaid || (blocks.length === 0 && diagrams.length === 0)) return;
 
-          if (!initialized) {
-            window.mermaid.initialize({
-              startOnLoad: false,
-              securityLevel: "strict",
-              suppressErrorRendering: true,
-              theme: "neutral"
-            });
-            initialized = true;
+          const theme = docsTheme();
+          window.mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "strict",
+            suppressErrorRendering: true,
+            theme
+          });
+
+          for (const wrapper of diagrams) {
+            await renderExistingDiagram(wrapper, theme);
           }
 
           for (const code of blocks) {
-            code.dataset.mermaidPending = "true";
-            const source = code.parentElement;
-            const container = document.createElement("div");
-            const graphId = "sigra-mermaid-" + (++graphSequence);
-            container.className = "sigra-mermaid";
-            container.id = graphId + "-container";
-
-            try {
-              const {svg, bindFunctions} = await window.mermaid.render(graphId, code.textContent);
-              container.innerHTML = svg;
-              source.insertAdjacentElement("afterend", container);
-              if (bindFunctions) bindFunctions(container);
-              code.dataset.mermaidRendered = "true";
-              source.hidden = true;
-            } catch (error) {
-              container.remove();
-              console.warn("Sigra Mermaid diagram left as source after render failure", error);
-            } finally {
-              delete code.dataset.mermaidPending;
-            }
+            await renderSourceDiagram(code, theme);
           }
         };
 
-        window.addEventListener("exdoc:loaded", renderMermaid);
+        const scheduleMermaidRender = () => {
+          renderQueue = renderQueue.then(renderMermaid).catch(warnOnce);
+        };
+
+        new MutationObserver(scheduleMermaidRender).observe(document.body, {
+          attributes: true,
+          attributeFilter: ["class"]
+        });
+
+        window.addEventListener("exdoc:loaded", scheduleMermaidRender);
         document.querySelector("script[data-sigra-mermaid]")
-          ?.addEventListener("load", renderMermaid, {once: true});
-        renderMermaid();
+          ?.addEventListener("load", scheduleMermaidRender, {once: true});
+
+        if (document.readyState === "loading") {
+          window.addEventListener("DOMContentLoaded", scheduleMermaidRender, {once: true});
+        } else {
+          scheduleMermaidRender();
+        }
       })();
     </script>
     """
