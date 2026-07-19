@@ -147,8 +147,12 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
     end
   end
 
-  defp current_hashed_token(%{"user_token" => raw}) when is_binary(raw),
-    do: Sigra.Token.hash_token(raw)
+  defp current_hashed_token(%{"user_token" => raw}) when is_binary(raw) do
+    case Base.url_decode64(raw, padding: false) do
+      {:ok, decoded} -> Sigra.Token.hash_token(decoded)
+      :error -> nil
+    end
+  end
 
   defp current_hashed_token(_), do: nil
 
