@@ -1,17 +1,20 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.45
-milestone_name: RELEASE-CURRENCY
-status: Awaiting next milestone
-stopped_at: Phase 223 context gathered (assumptions mode)
-last_updated: "2026-07-11T01:32:45.037Z"
-last_activity: 2026-07-11 — Milestone v1.45 completed and archived
+milestone: v1.46
+milestone_name: ADOPTER-EXPERIENCE
+current_phase: 224
+status: planning
+stopped_at: Milestone v1.46 roadmap defined; ready to plan Phase 224
+last_updated: "2026-07-19T20:45:45.128Z"
+last_activity: 2026-07-19
+last_activity_desc: Milestone v1.46 started
 progress:
-  total_phases: 3
-  completed_phases: 2
-  total_plans: 11
-  completed_plans: 9
-  percent: 67
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+current_phase_name: defining requirements
 ---
 
 # Project State
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones — v1.45 closed 2026-07-11 (override_closeout; Phase 223 deferred pending operator Hex retire). Start next via `/gsd-new-milestone` (phases continue from 224).
+**Current focus:** v1.46 ADOPTER-EXPERIENCE — Phase 224: Experience Contract + Representative Slice
 
 ## Current Position
 
-Phase: Milestone v1.45 complete
+Phase: 224: Experience Contract + Representative Slice
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-19 — Completed quick task 260719-lhs: branded Sigra ExDoc with the Rail Accent favicon and theme-reactive Mermaid diagrams
+Status: Roadmap defined — ready to plan Phase 224
+Last activity: 2026-07-19 — Milestone v1.46 started
 
 ## Accumulated Context
 
@@ -421,8 +424,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-11T00:59:38.125Z
-Stopped at: Phase 223 context gathered (assumptions mode)
+Last session: 2026-07-19T20:45:45.074Z
+Stopped at: Milestone v1.46 roadmap defined; ready to plan Phase 224
 Resume file: .planning/phases/223-get-current-on-hex-terminal-currency-proof/223-CONTEXT.md
 
 ## Operator Next Steps

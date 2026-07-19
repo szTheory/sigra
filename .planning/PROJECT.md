@@ -8,6 +8,20 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current Milestone: v1.46 ADOPTER-EXPERIENCE
+
+**Goal:** Close the gap between “installed” and “confidently usable” with a secure first-admin path, a coherent neutral generated auth experience, correct and obvious audit filtering, and fresh-host proof backed by bounded human UI review.
+
+**Thesis (post-1.0, adoption-first):** This is not another open-ended admin polish milestone. Repository evidence shows three concrete adopter-facing gaps: fresh hosts cannot complete first-admin setup without inventing a policy mechanism; generated auth markup still exposes DaisyUI-shaped/inferred styling semantics despite the existing `sigra-auth` brand layer; and the admin audit quick filters submit duplicate keys and can silently fail. Fixing those together turns the demo and generated-host harness into a trustworthy first-hour adoption path while preserving Sigra's hybrid ownership model.
+
+**Target features:**
+- **Secure first-admin closure** — a generated, host-owned persisted grant seam and explicit `mix sigra.admin.*` workflow, with no first-user inference, browser bootstrap, password-on-CLI, or customized-policy overwrite.
+- **Neutral generated auth contract** — semantic `sigra-auth-*` markup for auth, recovery, invitation acceptance, and account-security flows; Light/Dark/System; host identity first; Tasklane `vt-*` and admin `sg-*` kept in their existing ownership lanes.
+- **Audit truth and security parity** — one source of URL truth per audit filter, visible applied state, and generated-host impersonation denial parity for all sensitive operations.
+- **Human-guided generated-host proof** — representative direction, coherence, and fresh-adopter review gates over the existing deterministic v1.44 evidence/Playwright substrate rather than a second harness.
+
+Phases continue from **224**. Explicitly deferred: wholesale admin redesign, host product/organization reskin, generic UI component library, automatic adopter-file rewrites, SCIM, runtime auth-prefix/schema helpers, Playwright sharding, email-theme expansion, and the operator-deferred Hex `1.20.0` retirement.
+
 ## Latest Shipped Milestone: v1.45 RELEASE-CURRENCY (shipped 2026-07-11 — override_closeout)
 
 **Shipped 9/11 requirements.** The substantive release IS live: Sigra is current on Hex — `v1.2.0` then `v1.3.0` published (contiguous after `v1.1.0`), so adopters now receive three milestones (v1.42/43/44) of shipped work. The publish gate was unblocked (PUB-01), the release lane hardened against silent rot (HARD-01/02: PR-visible/loud-red signal + shared find-or-create issue notifier + verified auto-publish path + runbook), and the ship-honest generated-host debt paid down (SHIP-01/02/03). Archived: `milestones/v1.45-{ROADMAP,REQUIREMENTS}.md`. No `v1.45` git tag (Hex-collision convention — a `v1.45` tag is the exact ADR-003 footgun).

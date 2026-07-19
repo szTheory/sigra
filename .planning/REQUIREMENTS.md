@@ -1,0 +1,90 @@
+# Requirements: Sigra — v1.46 ADOPTER-EXPERIENCE
+
+**Defined:** 2026-07-19
+**Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
+
+## v1 Requirements
+
+### Experience Contract
+
+- [ ] **EXPR-01**: A committed UI/JTBD contract defines the in-scope generated auth, account-security, invitation, first-admin, and audit-filter surfaces; their representative states; the `sigra-auth`/`sg-*`/`vt-*` ownership boundary; and the current brandbook as visual authority.
+- [ ] **EXPR-02**: The existing generated-host and v1.44 evidence substrate can boot deterministic review states and present bounded baseline, direction, coherence, and fresh-adopter human checkpoints without adding a parallel gallery or evaluator.
+
+### Secure First-Admin Onramp
+
+- [ ] **BOOT-01**: Admin-enabled clean installs generate a host-owned persisted platform-admin grant schema/context and wire the default `SigraAdminPolicy.platform_admin?/1` to it, while `--no-admin` emits no grant artifacts.
+- [ ] **BOOT-02**: Generated `mix sigra.admin.grant`, `revoke`, `list`, and `check` tasks provide an explicit, repeat-safe path for existing confirmed active accounts with actionable failures, no password handling, no first-user/email-domain inference, and atomic audit evidence for mutations.
+- [ ] **BOOT-03**: Existing customized policies are never overwritten; adopters receive an additive opt-in migration/delegation recipe and generated allow/deny policy tests.
+
+### Generated-Host Security Parity
+
+- [ ] **SEC-01**: Generated hosts deny password change, MFA disable, backup-code regeneration, passkey register/rename/delete, deletion schedule/cancel, data export, and API-token management during impersonation with the same scope propagation, audit behavior, and user-safe error handling as the example app.
+
+### Neutral Auth Experience
+
+- [ ] **AUTHUI-01**: Clean generated auth markup uses a bounded semantic `sigra-auth-*` vocabulary and stable `--sigra-auth-*` tokens; DaisyUI-shaped selectors remain only as scoped compatibility bridges and neither Tasklane `vt-*` nor admin `sg-*` crosses ownership lanes.
+- [ ] **AUTHUI-02**: Login, registration, confirmation, reset, reactivation, sudo, and invitation acceptance present one configuration-derived primary action, progressively disclosed alternatives, user-centered microcopy, native form semantics, and complete success/error/pending/expired/mismatch/recovery states.
+- [ ] **AUTHUI-03**: Account settings, MFA, backup codes, passkeys, sessions, and destructive account actions share coherent semantics, truthful consequences/current state, accessible confirmations, and stable behavior under latency/reconnect.
+- [ ] **AUTHUI-04**: Every changed auth surface supports Light, Dark, and System; keyboard and visible focus; WCAG 2.2 AA contrast/target/reflow requirements; password managers, paste, and OTP autofill; reduced motion; forced colors; and long/localized-content stress.
+
+### Admin Audit Precision
+
+- [ ] **AUDIT-01**: Both audit LiveViews submit exactly one effective value per filter; Failures and Impersonation are shareable URL presets; manual Apply, sorting, cursor pagination, export, deep links, and browser history remain correct.
+- [ ] **AUDIT-02**: A labeled Active filters region immediately follows the filter form, reuses existing removable chips/Clear all, humanizes known values, and keeps raw forensic identifiers only where they solve the operator job.
+
+### Adoption Proof
+
+- [ ] **PROOF-01**: A fresh generated host completes install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke/deny with deterministic role-based Playwright/ExUnit evidence and no sleeps.
+- [ ] **PROOF-02**: Template, example, golden, migration, JavaScript, documentation, and feature-flag parity are reviewed as one generated contract; generation is idempotent and customized adopter files are never silently rewritten.
+- [ ] **PROOF-03**: Changed surfaces pass focused pairwise visual evidence, post-interaction axe, keyboard/focus, 320px/200% reflow, performance-budget, CI-native baseline, and human acceptance gates while LLM review remains advisory.
+
+## v2 Requirements
+
+### Deferred Platform and Infrastructure Work
+
+- **FEAT-01**: Runtime auth-prefix override.
+- **FEAT-02**: `mix sigra.migrate` schema helper.
+- **FEAT-03**: Broader white-label auth/email theming.
+- **CI-01**: Playwright per-shard database parallelization.
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Wholesale admin redesign | The mature `sg-*` admin system is already ratcheted; only concrete audit/onramp defects belong here. |
+| Organization product-UI reskin | Settings, members, switcher, billing, and product onboarding are host application concerns; invitation/auth-scope truth remains in scope. |
+| Generic Sigra UI library | Auth-specific generated primitives are sufficient and preserve Phoenix host ownership. |
+| Tasklane styling in generated templates | `vt-*` is demo-product branding, not an adopter contract. |
+| Automatic rewriting of existing generated files | Generated code is host-owned and may be customized; migration is explicit and opt-in. |
+| Browser-accessible or first-user admin bootstrap | Adds an unsafe privilege-escalation surface and violates the explicit policy model. |
+| SCIM, runtime prefix/schema helpers, email-theme expansion, CI sharding | Separate thesis-driven feature/infrastructure work. |
+| Hex `1.20.0` retirement | Operator-deferred Phase 223 work remains resumable and unrelated to adopter UI. |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| EXPR-01 | Phase 224 | Pending |
+| EXPR-02 | Phase 224 | Pending |
+| BOOT-01 | Phase 225 | Pending |
+| BOOT-02 | Phase 225 | Pending |
+| BOOT-03 | Phase 225 | Pending |
+| SEC-01 | Phase 225 | Pending |
+| AUTHUI-01 | Phase 226 | Pending |
+| AUTHUI-02 | Phase 226 | Pending |
+| AUTHUI-03 | Phase 227 | Pending |
+| AUTHUI-04 | Phase 227 | Pending |
+| AUDIT-01 | Phase 228 | Pending |
+| AUDIT-02 | Phase 228 | Pending |
+| PROOF-01 | Phase 229 | Pending |
+| PROOF-02 | Phase 229 | Pending |
+| PROOF-03 | Phase 229 | Pending |
+
+**Coverage:**
+- v1 requirements: 15 total
+- Mapped to phases: 15
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-07-19*
+*Last updated: 2026-07-19 after v1.46 roadmap creation*
