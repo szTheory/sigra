@@ -206,6 +206,40 @@ defmodule Sigra.ArchitectureGuidesContractTest do
     end)
   end
 
+  test "drift-prone walkthrough excerpts preserve exact source segments between cuts" do
+    blocks = fenced_blocks(File.read!(@walkthrough), "elixir")
+
+    excerpts = [
+      {3, ["lib/sigra/config.ex"]},
+      {4, ["test/example/lib/example/accounts.ex"]},
+      {7, ["lib/sigra/auth.ex"]},
+      {13,
+       [
+         "test/example/lib/example/accounts.ex",
+         "test/example/lib/example_web/user_auth.ex"
+       ]},
+      {15, ["lib/sigra/audit/forwarders.ex"]}
+    ]
+
+    Enum.each(excerpts, fn {number, source_paths} ->
+      source =
+        source_paths
+        |> Enum.map(&File.read!/1)
+        |> Enum.map(&dedent_module_source/1)
+        |> Enum.join("\n")
+
+      blocks
+      |> Enum.fetch!(number - 1)
+      |> String.split(~r/^\s*# \.\.\.\s*$/m, trim: true)
+      |> Enum.each(fn segment ->
+        segment = String.trim(segment)
+
+        assert source =~ segment,
+               "walkthrough excerpt #{number} contains reformatted or unmarked source drift near:\n#{segment}"
+      end)
+    end)
+  end
+
   test "lockout remains before password verification in source and walkthrough" do
     source = File.read!("lib/sigra/auth.ex")
     [_before, config_path] = String.split(source, "defp authenticate_with_config", parts: 2)
@@ -252,5 +286,14 @@ defmodule Sigra.ArchitectureGuidesContractTest do
       {index, _length} -> index
       :nomatch -> flunk("missing expected contract text: #{needle}")
     end
+  end
+
+  defp dedent_module_source(source) do
+    source
+    |> String.split("\n")
+    |> Enum.map_join("\n", fn
+      "  " <> line -> line
+      line -> line
+    end)
   end
 end

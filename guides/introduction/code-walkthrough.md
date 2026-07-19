@@ -91,10 +91,15 @@ defstruct [
   :email_module,
   # ...
   session: [],
+  # ...
   lockout: [],
+  # ...
   mfa: [],
+  # ...
   audit: []
 ]
+
+# ...
 
 def new!(opts) when is_list(opts) do
   validated = NimbleOptions.validate!(opts, @schema)
@@ -130,12 +135,12 @@ def sigra_config do
       threshold: 5,
       duration: 900
     ],
+    # ...
     audit: [
       audit_schema: Example.Accounts.AuditEvent,
       # ...
     ],
     passkeys: [
-      # ...
       rp_id: passkey_rp_id(),
       # ...
       user_passkey_schema: Example.Accounts.UserPasskey
@@ -210,12 +215,11 @@ and checks lockout before invoking the password hasher. A missing user still rea
 ```elixir
 defp authenticate_with_config(config, params) do
   # ...
-
   email =
     (params["email"] || params[:email] || "")
     |> Email.normalize()
-  login_ip = params["ip"] || params[:ip]
-  user = repo.get_by(config.user_schema, email: email)
+  # ...
+  user = repo.get_by(user_schema, email: email)
   # ...
 
   case Sigra.Lockout.check(user, lockout_opts) do
@@ -239,6 +243,7 @@ defp authenticate_with_config(config, params) do
             %{},
             %{method: "password"}
           )
+
         # ...
       end
   end
@@ -432,11 +437,7 @@ def get_user_and_session_by_token(raw_token) when is_binary(raw_token) do
     session_config = config.session
     store = Keyword.fetch!(session_config, :store)
 
-    store_opts = [
-      repo: config.repo,
-      session_schema: Keyword.fetch!(session_config, :session_schema)
-    ]
-
+    # ...
     case store.fetch(hashed, store_opts) do
       {:ok, session} ->
         case Repo.get(User, session.user_id) do
@@ -456,8 +457,11 @@ end
 
 defp load_current_scope(conn, user_token) when is_binary(user_token) do
   case Example.Accounts.get_user_and_session_by_token(user_token) do
-    {user, session} -> maybe_handle_impersonation(conn, user, session)
-    _ -> {conn, nil, nil, nil}
+    {user, session} ->
+      maybe_handle_impersonation(conn, user, session)
+
+    _ ->
+      {conn, nil, nil, nil}
   end
 end
 ```
@@ -509,12 +513,16 @@ host actually supervises Oban and otherwise selects sync.
 def oban_running?(opts) do
   case Keyword.fetch(opts, :oban) do
     {:ok, oban_override} ->
+      # ...
       Process.whereis(oban_override) != nil
 
     :error ->
+      # ...
       Sigra.OptionalDeps.oban_running?()
   end
 end
+
+# ...
 
 defp dispatch_mode(opts) do
   case Keyword.get(opts, :dispatch, :auto) do
