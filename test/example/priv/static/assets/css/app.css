@@ -538,7 +538,12 @@
       color-mix(in oklab, var(--vt-color-primary) 28%, transparent) 50%,
       transparent 51%
     );
-  opacity: 0.12;
+  /* Dissolve the motif toward the content so it reads as a faint corner
+     texture, not a hard-edged grid box: fully present only at the extreme
+     bottom-right, fading to nothing before it reaches the card content. */
+  -webkit-mask-image: linear-gradient(to top left, #000, transparent 66%);
+  mask-image: linear-gradient(to top left, #000, transparent 66%);
+  opacity: 0.16;
   pointer-events: none;
 }
 
