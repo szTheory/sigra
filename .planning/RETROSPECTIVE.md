@@ -25,6 +25,25 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.45 — RELEASE-CURRENCY
+
+**Closed:** 2026-07-11 (`override_closeout`)
+**Phases:** 3 (221-223; 2 shipped, 1 deferred) | **Plans:** 11 planned / 9 executed | **Requirements:** 9/11
+
+### What Was Built
+Got Sigra current on Hex: published `v1.2.0` + `v1.3.0` (contiguous after `v1.1.0`), unblocked the publish gate (the push/schedule-only `<.button type>` upgrade-smoke warning-as-error + a `1.3.0` smoke-floor pin), and hardened the release lane against silent rot (durable resolver stray-exclusion, a shared find-or-create GitHub-issue notifier on red-`main`/publish-failure, a verified `dry_run` publish path + MAINTAINING runbook). Paid down ship-honest generated-host debt (passkey `scope:` defense-in-depth, copy/DX nits, app.css corruption-guard blind spot).
+
+### What Worked
+The gate-unblock research (221) correctly diagnosed that publishing + retiring alone couldn't green the smoke and pulled the `1.3.0` pin forward as a PUB-01 dependency — so the gate went green without waiting on the operator retire. Honest deferral discipline held: at the 223-01 operator checkpoint the retire was deferred rather than faked, and the phase was paused (not force-completed) rather than overclaiming a currency proof that isn't true yet.
+
+### What Was Inefficient / Key Lessons
+The milestone's terminal proof (PROOF-01) was structurally gated on a single manual, interactive Hex write step that had already been deferred twice before (v1.43, v1.41 closes) — planning a whole phase whose success depends on a repeatedly-deferred operator action meant the milestone was always likely to close with a hole. **Root-caused the phantom `1.20.0` that necessitated the retire** (ADR 003): an early publish pipeline derived the Hex package version from any `v*` git tag and caught the milestone tag `v1.20`. The durable guardrails (Release-Please-driven publish; no tag-triggered publish; no milestone `vX.Y` tags) are already in place — the lesson is to never regress them, and to keep milestone-close tag-free.
+
+### Patterns Established
+ADR for release-ops footguns; override_closeout with explicit Known-Gaps in MILESTONES.md + Deferred-Items in STATE.md when a terminal verification phase is blocked on an operator action.
+
+---
+
 ## Milestone: v1.43 — STABILIZE
 
 **Shipped:** 2026-07-03

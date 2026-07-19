@@ -275,6 +275,48 @@ Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex 
 
 **Recovery / one-off publish:** **Actions → Hex publish (manual recovery)** — supply the **tag or SHA** and the **expected `@version`** string; it runs the same compile + test + dry-run + publish path without Release Please.
 
+### Release-lane rot signals & recovery (HARD-01/HARD-02)
+
+**1. `hex-publish.yml` manual dispatch — proof or recovery, without a Hex write:**
+
+```bash
+gh workflow run "Hex publish (manual recovery)" \
+  -f tag=<tag> -f release_version=<version> -f dry_run=true
+```
+
+`tag` is the Git tag or commit SHA that resolves to `v<release_version>` (e.g. `v1.3.0`); `release_version`
+is the expected `mix.exs @version` string at that ref (e.g. `1.3.0`); `dry_run` (default `false`) short-circuits
+every Hex-write step — the idempotency check, the real `Publish to Hex` step, and every post-publish
+verify/evidence step are all guarded on `dry_run != true`, so `dry_run=true` proves the full
+compile + Postgres-backed `mix test` + `mix hex.build --unpack` package inspection +
+`mix hex.publish --dry-run` path is green with **no Hex write**. Set `dry_run=false` (or omit it) only
+when you actually intend to publish — e.g. **release-please auto-publish stalled or failed** (see #2
+below) and you need a one-off recovery publish of an already-tagged version. Prefer the default
+**Release automation** path (above) whenever `gate-ci-green` + `publish-hex` can still run normally;
+reach for this manual dispatch only when that automated path is confirmed stuck or broken.
+
+**2. Reading a `gate-ci-green` timeout:** `gate-ci-green` polls `ci.yml` for a green `ci-gate` on the
+release SHA, up to `60 attempts × 30s = ~30 minutes`, then exits `1`. A `release-please.yml` run that
+finishes red after roughly that long — with `release-please`'s `release_created` output `true` — means
+the release was cut but the gate never went green in time; `publish-hex` never fires publish in that
+case. Since Phase 222, a red/cancelled `gate-ci-green` or `publish-hex` on a real release
+(`release_created == 'true'`) no longer stalls silently: the `notify-release-failure` job opens or
+updates a durable GitHub Issue labeled **`release-lane-rot`** with the run URL, tag, version, and which
+job failed — check open Issues with that label first when a release appears to have gone missing.
+
+**3. Red-probing the loud signal** (mirrors the [Forced-failure probe runbook (D-14)](#forced-failure-probe-runbook-d-14)
+pattern above — proves the reporter actually fires, without a real broken release): force a failing
+`ci-gate` on `main` (e.g. a throwaway commit that fails a required check) and confirm the
+`notify_release_lane_rot` job in `ci.yml` opens/updates the `release-lane-rot` Issue. There is currently no
+dedicated force-fail input for the release-please-side `notify-release-failure` aggregator (it fires from
+real `gate-ci-green`/`publish-hex` results on an actual release_created run); treat a genuine stalled/failed
+release as the equivalent real-world proof, and confirm the same tracking Issue picks it up.
+
+**4. Canonical runbook:** this subsection covers only the manual-dispatch command, the timeout/tracking-issue
+signal, and the red-probe check. For the full release gate matrix, dry-run/package inspection detail,
+publish recovery branches, post-publish checks, and hotfix policy, see the canonical
+`docs/release-runbook-v1-0.md` — do not duplicate that matrix here.
+
 ## First public launch (announcement checklist)
 
 Relative links in this file are for **in-repo navigation and HexDocs-packaged paths only**. Evidence that lives **outside** the Hex tarball (anything under **`.planning/`** on GitHub) must use **pinned tag** URLs matching the published **`mix.exs` `@version`** / `docs` `source_ref` — never `main` blob URLs, which break reproducibility when someone copies a link during a launch thread.

@@ -1235,6 +1235,14 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <h1 class="sg-page-title">Users</h1>
             </header>
             <.scope_ribbon copy="Viewing all organizations" />
+            <section class="sg-stack sg-stack--3">
+              <h2 class="sg-section-heading">User health</h2>
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Total users" value={46} />
+                <.summary_chip label="Locked" value={2} tone="risk" />
+                <.summary_chip label="Deletion scheduled" value={1} tone="warn" />
+              </dl>
+            </section>
             <section class="sg-stack sg-stack--4">
               <h2 class="sg-section-heading">Find users</h2>
               <form class="sg-filter-panel sg-stack sg-stack--3">
@@ -1251,14 +1259,6 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
                 </div>
               </form>
-            </section>
-            <section class="sg-stack sg-stack--3">
-              <h2 class="sg-section-heading">User health</h2>
-              <dl class="sg-metric-grid">
-                <.summary_chip label="Total users" value={46} />
-                <.summary_chip label="Locked" value={2} tone="risk" />
-                <.summary_chip label="Deletion scheduled" value={1} tone="warn" />
-              </dl>
             </section>
           </section>
 

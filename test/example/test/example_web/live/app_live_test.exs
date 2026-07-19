@@ -23,6 +23,9 @@ defmodule ExampleWeb.AppLiveTest do
       # A standard user has no admin scope — no operator card, no /admin lure.
       refute html =~ "app-platform-admin"
       refute html =~ "Open Sigra Admin"
+      # Dev-only "Demo personas" switch bar is compiled out under mix test
+      # (dev_routes=false) — mirrors the existing /demo/credentials 404 proof.
+      refute html =~ ~s(data-testid="demo-bar")
     end
 
     test "shows the Sigra Admin card for a platform admin", %{conn: conn} do

@@ -92,6 +92,19 @@ defmodule Example.Demo.PersonasTest do
     end
   end
 
+  describe "featured_keys/0" do
+    test "returns the curated 5-persona differentiator set in order" do
+      assert Personas.featured_keys() == ~w(admin morgan alice pat dave)
+    end
+
+    test "every featured key is a member of the full persona catalog" do
+      for key <- Personas.featured_keys() do
+        assert key in @expected_handles,
+               "featured key #{key} must be one of the ten known personas"
+      end
+    end
+  end
+
   describe "production-safety label (SEED-06)" do
     test "personas.ex source carries the demo-only warning comment" do
       source = File.read!(@personas_source)

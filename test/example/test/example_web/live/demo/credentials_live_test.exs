@@ -42,6 +42,11 @@ defmodule ExampleWeb.Demo.CredentialsLiveTest do
       assert html =~ ~s(data-testid="demo-persona-row-grace")
       assert html =~ ~s(data-testid="demo-dev-only-badge")
 
+      # DEMO-03: one "Sign in as X" button per persona row (→ prefilled real login),
+      # replacing the raw email/password columns.
+      assert html =~ "Sign in as"
+      assert html =~ "demo=admin"
+
       # DEMO-02: branding
       assert html =~ ~s(data-testid="app-name")
       assert html =~ "Tasklane"

@@ -74,7 +74,7 @@ defmodule ExampleWeb.MFASettingsLive do
         </header>
         <%= if @mfa_enabled do %>
           <% # Surface 3: MFA Settings Card %>
-          <div class="vt-panel">
+          <div class="vt-panel vt-stack">
             <div class="vt-panel__header">
               <div>
                 <p class="vt-kicker">Two-factor authentication</p>
@@ -89,16 +89,14 @@ defmodule ExampleWeb.MFASettingsLive do
             </div>
 
             <% # Backup code status (D-15) %>
-            <div>
+            <div class="vt-stack">
               <%= cond do %>
                 <% @backup_remaining == 0 -> %>
                   <div class="vt-alert vt-alert--danger">
-                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                     All backup codes used. Generate new ones now.
                   </div>
                 <% @backup_remaining <= 2 -> %>
                   <div class="vt-alert vt-alert--warning">
-                    <.icon name="hero-exclamation-triangle" class="h-4 w-4" />
                     {@backup_remaining} of 8 backup codes remaining
                   </div>
                 <% true -> %>
@@ -310,8 +308,8 @@ defmodule ExampleWeb.MFASettingsLive do
 
       <div>
         <%= if @passkeys == [] do %>
-          <div class="vt-alert">
-            <p class="vt-panel__title">No passkeys added yet</p>
+          <div class="vt-empty-state">
+            <p class="vt-empty-state__title">No passkeys added yet</p>
             <p class="vt-copy">
               Add a passkey to sign in faster on this device and keep a backup sign-in method available.
             </p>
@@ -445,18 +443,20 @@ defmodule ExampleWeb.MFASettingsLive do
 
   defp render_enrollment_start(assigns) do
     ~H"""
-    <div>
-      <.header>
-        Two-Factor Authentication
-        <:subtitle>Add an extra layer of security to your account.</:subtitle>
-      </.header>
-
-      <div class="mt-6">
-        <.button phx-click="begin_enrollment">
-          Set up two-factor authentication
-        </.button>
+    <section class="vt-panel">
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Two-factor</p>
+          <h2 class="vt-panel__title">Two-factor authentication</h2>
+        </div>
       </div>
-    </div>
+      <p class="vt-copy">
+        Add an extra layer of security — enter a code from your authenticator app when you sign in.
+      </p>
+      <button type="button" phx-click="begin_enrollment" class="vt-btn vt-btn--primary">
+        Set up two-factor authentication
+      </button>
+    </section>
     """
   end
 

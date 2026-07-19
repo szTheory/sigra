@@ -8277,7 +8277,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     document.addEventListener("click", function (event) {
       var target = event.target;
       if (!target || typeof target.closest !== "function") return;
-      var code = target.closest(".sg-admin-shell code.sg-code, code.vt-code");
+      var code = target.closest(".sg-admin-shell code.sg-code, code.vt-code--copy");
       if (!code) return;
 
       var text = (code.textContent || "").trim();
@@ -8296,7 +8296,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     var label = function () {
       var chips = document.querySelectorAll(
-        ".sg-admin-shell code.sg-code, code.vt-code",
+        ".sg-admin-shell code.sg-code, code.vt-code--copy",
       );
       chips.forEach(function (chip) {
         if (!chip.getAttribute("title")) {
@@ -8309,6 +8309,46 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     } else {
       label();
     }
+  }
+
+  function installDemoPasswordFill() {
+    if (window.__sigraDemoPasswordFillInstalled) return;
+    window.__sigraDemoPasswordFillInstalled = true;
+
+    document.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      var trigger = target.closest("[data-demo-fill-password]");
+      if (!trigger) return;
+
+      var password = trigger.getAttribute("data-demo-password");
+      if (!password) return;
+
+      var input = document.querySelector('input[name="user[password]"], input[name="sudo[password]"]');
+      if (!input) return;
+
+      input.value = password;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+
+  // ---- Demo persona switch (delegated; dev-only login band) ----------------
+  // Navigates to the prefilled real login for the chosen persona when the
+  // dev-only "Switch persona…" dropdown changes. Routes through the REAL login
+  // (?demo=<key>) — never a bypass/auto-submit. Delegated + idempotent so it
+  // boots once globally alongside the other demo helpers.
+  function installDemoPersonaSwitch() {
+    if (window.__sigraDemoPersonaSwitchInstalled) return;
+    window.__sigraDemoPersonaSwitchInstalled = true;
+
+    document.addEventListener("change", function (event) {
+      var sel =
+        event.target && event.target.closest
+          ? event.target.closest("select[data-demo-persona-switch]")
+          : null;
+      if (!sel || !sel.value) return;
+      window.location.assign("/demo/use/" + encodeURIComponent(sel.value));
+    });
   }
 
   function adminShell() {
@@ -8912,6 +8952,8 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
   };
 
   installCopyDelegate();
+  installDemoPasswordFill();
+  installDemoPersonaSwitch();
   installMetricHelp();
   installFieldHelp();
   installPageLoadingIndicator();

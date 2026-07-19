@@ -188,6 +188,7 @@ defmodule ExampleWeb.Router do
     scope "/demo", ExampleWeb do
       pipe_through :browser
       live "/credentials", Demo.CredentialsLive
+      get "/use/:persona", SessionController, :demo_switch
     end
 
     scope "/admin", ExampleWeb.Admin do

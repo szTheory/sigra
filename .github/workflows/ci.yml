@@ -155,6 +155,16 @@ jobs:
         # Phase 221 Plan 02 (SHIP-03 / D-10): regression proof that the guard
         # catches an orphan bare value immediately after a ;-terminated decl.
         run: bash scripts/ci/app-css-corruption-check.test.sh
+      - name: Upgrade-smoke resolver self-test
+        # Phase 222 Plan 01 (HARD-01): offline proof that resolve-sigra-source.sh
+        # durably excludes the immutable Hex stray 1.20.0 without a hand-maintained
+        # per-release floor. No network call — stubs `mix hex.info sigra`.
+        run: bash scripts/ci/upgrade-smoke.test.sh
+      - name: Notify-failure-issue self-test
+        # Phase 222 Plan 02 (HARD-01/HARD-02/D-07): hermetic proof that the shared
+        # tracking-issue notifier is idempotent (create-once / comment-once) and
+        # fail-closed on missing LABEL/TITLE/BODY. No real `gh` CLI or network call.
+        run: bash scripts/ci/notify-failure-issue.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
@@ -635,12 +645,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
-    # Phase 221 / D-13 (Option 4a): pin the smoke's published floor above the
-    # stray 1.20.0 Hex release via the sanctioned override in
-    # scripts/ci/upgrade-smoke.sh (validates published + in-series). The
-    # durable retired-version filter is deferred to HARD-01 / Phase 222.
-    env:
-      SIGRA_UPGRADE_SMOKE_START_VERSION: "1.3.0"
     services:
       postgres:
         image: postgres:15
@@ -1505,6 +1509,46 @@ jobs:
             exit 1
           fi
           echo "ci-gate passed: all required release lanes succeeded."
+
+  # HARD-01 (Phase 222 Plan 02, D-02): loud, discoverable consumer for a red
+  # ci-gate on main -- upgrade_smoke (and any other required release lane)
+  # failing on push/schedule/dispatch previously had no failure consumer and
+  # rotted silently for as long as nobody happened to look. This job opens
+  # or updates a single durable tracking Issue via the shared
+  # scripts/ci/notify-failure-issue.sh (D-07). It is intentionally NOT added
+  # to ci-gate.needs and is NOT a required check -- mirrors nightly_probe's
+  # standalone, not-in-ci-gate posture (ci.yml:2180) -- a push-only required
+  # context risks stranding PR merges under ruleset 14941512 (Pitfall 2).
+  notify_release_lane_rot:
+    name: Notify on red ci-gate (release-lane-rot)
+    runs-on: ubuntu-latest
+    needs: [ci-gate]
+    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - name: Open or update release-lane-rot tracking issue
+        env:
+          LABEL: release-lane-rot
+          TITLE: "ci-gate red on main (release-lane-rot)"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          echo "::error::ci-gate failed on main (event: ${EVENT_NAME}) -- opening/updating tracking issue release-lane-rot"
+          BODY="ci-gate failed on main (event: ${EVENT_NAME}).
+
+          - Run: ${RUN_URL}
+          - Commit: ${COMMIT_SHA}
+          - Surface: ci-gate aggregate (covers upgrade_smoke and the other required release lanes -- see MAINTAINING.md)
+
+          This is the HARD-01 loud-red-main signal (Phase 222 Plan 02). Investigate the failing lane(s) on the linked run, then close this issue once the lane is green again."
+          export BODY
+          bash scripts/ci/notify-failure-issue.sh
 
   # D-09 (197-04): dedicated non-PR-gated job that recaptures the 84 admin-design
   # baselines (28 boards × chromium/mobile/dark) in-CI so the committed PNGs match

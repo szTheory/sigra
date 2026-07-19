@@ -7,6 +7,11 @@ area: release
 files:
   - milestones/v1.43-phases/214-debt-robustness-clear/214-05-SUMMARY.md
 source: 2026-07-03 v1.43 close — Jon deferred (no time now); manual/interactive step, cannot be automated
+deferred_again:
+  - "2026-07-10 (Phase 221 close): nobody really using this yet"
+  - "2026-07-11 (Phase 223 exec): Jon deferred indefinitely — no time, no adopters, don't stress it. Phase 223 paused on this step. Root cause captured in ADR 003."
+priority: low
+root_cause: ".planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md (tag-derived publish + milestone vX.Y namespace collision; footgun already structurally closed)"
 ---
 
 ## What

@@ -1,5 +1,36 @@
 # Milestones
 
+## v1.45 RELEASE-CURRENCY (Shipped: 2026-07-11 — override_closeout, PROOF-01/PUB-05 deferred)
+
+**Phases completed:** 2 of 3 shipped (221, 222); Phase 223 partial/deferred. 11 plans planned, 9 executed. 9/11 requirements satisfied.
+**Git range:** phase-221 start → `e54813da` (local `main`; not yet pushed — see Housekeeping). No git tag (Hex-version-collision convention — a `v1.45` tag is the exact ADR-003 footgun).
+**Closeout:** `override_closeout` — Phase 223 (PUB-05 adopter-resolution proof + PROOF-01 currency trust bundle) deferred because both are unsatisfiable until the stray Hex `1.20.0` is retired, and the retire (PUB-04) is an operator/interactive Hex write step Jon deferred indefinitely (near-zero adoption; Hex 2.5.0 blocks programmatic retire). ~19 audit-open items acknowledged (10 completed quick-tasks are the known false-flag; the rest are already-tracked TODOs/seeds/1 UAT gap).
+
+**Delivered (the substantive release IS live):** Sigra is current on Hex — `v1.2.0` then `v1.3.0` published (contiguous after `v1.1.0`), so adopters now receive three milestones (v1.42/43/44) of shipped work. The publish gate was unblocked (PUB-01: `<.button type>` upgrade-smoke fix + `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin), the release lane hardened against silent rot (HARD-01/02: PR-visible/loud-red signal + shared find-or-create issue notifier + verified auto-publish path + runbook), and the ship-honest generated-host debt paid down (SHIP-01/02/03).
+
+### Known Gaps (deferred at close)
+
+- **PUB-04** — retire stray Hex `1.20.0` (operator/interactive step; deferred indefinitely, low priority; tracked `todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`). Non-blocking: CI gate is green regardless via the `1.3.0` pin.
+- **PUB-05** — clean adopter `~> 1.0` → `1.3.0` resolution proof. Blocked by PUB-04 (Hex still reports `latest_stable_version=1.20.0`).
+- **PROOF-01** — release-currency trust bundle. Blocked by PUB-04/PUB-05. Resume `/gsd-execute-phase 223` after the retire lands.
+- **Root cause of the phantom `1.20.0`** captured in **ADR 003** (`.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`): an early publish pipeline derived the Hex version from any `v*` git tag and caught milestone tag `v1.20` — already structurally closed (Release-Please-driven publish; no tag-triggered publish; milestone `vX.Y` tags stopped after v1.35).
+
+**Housekeeping:** Local `main` carries the v1.45 work + close-out commits **unpushed** (ruleset blocks direct push to `main`; a close-out PR is the operator's next step). Phase dirs 221–223 NOT yet archived to `milestones/v1.45-phases/` (kept in place so Phase 223 can resume cleanly).
+
+**Key accomplishments:**
+
+- Mirrored the example twin's `scope:` kwarg + impersonation_forbidden clause into the installer template's `save_passkey_name` handler, deduped the delete-passkey confirmation copy, and re-blessed the install golden fixture with zero drift.
+- Fixed the app-css-corruption-check.sh awk state machine to reset `last_was_prop` on complete single-line declarations (closing the orphan-after-`;` false negative), proven by a net-new committed fixture + bash driver wired into CI; widened up.sh's `--help` window one line for `--print-env` headroom.
+- Added `SIGRA_UPGRADE_SMOKE_START_VERSION: "1.3.0"` as a job-level `env:` on the `upgrade_smoke` job in `.github/workflows/ci.yml`, using the existing published+in-series override in `upgrade-smoke.sh` to pin the smoke's tested floor above the stray `1.20.0` Hex release — no gate-algorithm change, and gate-green is explicitly deferred to Plan 05 (push-to-main, after Plan 04 publishes v1.3.0).
+- Published the already-tagged, provenance-clean releases v1.2.0 then v1.3.0 to Hex.pm via the ungated `hex-publish.yml` `workflow_dispatch` (dry-run first for v1.2.0, then real; real for v1.3.0). Both confirmed live via the Hex API. v1.3.0 — the smoke-pin target from Plan 03 — is now live, unblocking Plan 05's terminal gate-green observation.
+- Both of this plan's tasks are terminally deferred rather than executed in-session: PUB-04 (retire stray Hex `1.20.0`) was DEFERRED by explicit operator decision (near-zero adoption + a Hex 2.5.0 tooling block on programmatic retire), and PUB-01's terminal gate-green proof is inherently CI-side and DEFERRED to ship (`upgrade_smoke` runs only on push-to-`main`). The gate-unblock groundwork — the `1.3.0` pin and both Hex publishes — is complete and verified; the retire is orthogonal to the gate and does not block it.
+- Extracted the upgrade-smoke version resolver into a sourceable lib with an exact-line stray-exclusion (`grep -vxF`, `SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS`, default `1.20.0`), proved it offline with a 4-case hermetic self-test, and removed the hand-maintained `SIGRA_UPGRADE_SMOKE_START_VERSION: "1.3.0"` pin from ci.yml.
+- Built scripts/ci/notify-failure-issue.sh — one shared, idempotent, secret-safe find-or-create GitHub Issue script — and wired it into two independent consumers: notify_release_lane_rot (ci.yml, red ci-gate on main) and notify-release-failure (release-please.yml, gate-ci-green/publish-hex failure), replacing two previously silent failure modes with one durable tracking issue.
+- HARD-02 closed: a real hex-publish.yml dry_run=true run against the already-shipped v1.3.0 tag proved the release-please publish path green with zero Hex writes, and MAINTAINING.md now carries a copy-paste operator runbook for manual dispatch, timeout diagnosis, and red-probing the new loud-failure signal.
+- Live Hex re-queried immediately before the operator retire step, confirming `latest_stable_version=1.20.0` with empty `retirements` — the exact drift condition that makes the retire necessary (PROOF-01 blocker).
+
+---
+
 ## v1.44 ADMIN-UX-RATCHET (Shipped: 2026-07-10)
 
 **Phases completed:** 5 phases (216–220), 36 plans

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.45
 milestone_name: RELEASE-CURRENCY
-status: ready_to_plan
-stopped_at: Phase 221 complete (5/5) — ready to discuss Phase 222
-last_updated: 2026-07-10T22:33:09.476Z
-last_activity: 2026-07-10
+status: Awaiting next milestone
+stopped_at: Phase 223 context gathered (assumptions mode)
+last_updated: "2026-07-11T01:32:45.037Z"
+last_activity: 2026-07-11 — Milestone v1.45 completed and archived
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 5
-  completed_plans: 5
-  percent: 0
+  completed_phases: 2
+  total_plans: 11
+  completed_plans: 9
+  percent: 67
 ---
 
 # Project State
@@ -22,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 222 — release lane hardening (no silent rot)
+**Current focus:** Between milestones — v1.45 closed 2026-07-11 (override_closeout; Phase 223 deferred pending operator Hex retire). Start next via `/gsd-new-milestone` (phases continue from 224).
 
 ## Current Position
 
-Phase: 222
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-10
+Phase: Milestone v1.45 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-18 — Completed quick task 260718-dst: removed the low-value home "Cohort / Local host" vt-domain-strip (block + 2 dead CSS rules; kept still-used demo_domain/local_origin assigns)
 
 ## Accumulated Context
 
@@ -312,14 +312,21 @@ Last activity: 2026-07-10
 - [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
 - [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
 - [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
+- [Phase 222]: Used a bash array (IFS=',' read -ra) instead of unquoted word-splitting for SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS to keep grep -vxF -f <(...) shellcheck-clean
+- [Phase 222]: Exact-line fixed-string exclusion (grep -vxF, SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS default 1.20.0) replaces the D-03 retired-filter mechanism which RESEARCH proved matches zero live Hex rows
+- [Phase ?]: [Phase 222-02]: One shared scripts/ci/notify-failure-issue.sh (D-07) is invoked from both ci.yml and release-please.yml instead of a composite action -- no new SHA-pinned third-party dependency.
+- [Phase ?]: [Phase 222-02]: notify_release_lane_rot is deliberately absent from ci-gate.needs and is not a required check, mirroring nightly_probe's standalone posture, to avoid stranding PR merges under ruleset 14941512.
+- [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
+- [Phase 222]: 222-03: Treated the orchestrator's already-dispatched hex-publish.yml dry_run=true run (29132375168) against v1.3.0 as the authoritative HARD-02 readiness evidence rather than re-dispatching.
+- [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
 
 ### Pending Todos
 
-- None.
+- `2026-07-03-hex-retire-stray-1-20-0` — retire stray Hex `1.20.0` (operator/interactive step). Deferred indefinitely 2026-07-11 (Jon: no time, no adopters). Blocks Phase 223 completion. Low priority.
 
 ### Blockers/Concerns
 
-- None.
+- **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
 
 ### Roadmap Evolution
 
@@ -353,11 +360,26 @@ Last activity: 2026-07-10
 | 260624-vqv | Fixed `scripts/ci/snapshot-recapture-gate.sh` single-lane recapture (185-REVIEW WR-02). | complete ✓ | 2026-06-24 |
 | 260621-o1q | Vaultr demo polish — kicker spacing + click-to-copy credentials. | complete ✓ | 2026-06-21 |
 | 260621-vbr | Vaultr demo mini-brand typography + fixed pre-existing app.css comment corruption (opening `/*` lost). | complete ✓ | 2026-06-21 |
+| 260718-eml | Fix settings email-change pending banner rendering blank (missing new email) + banner margin — request/cancel handlers now refresh `current_scope.user` with the updated user (example + installer template + byte-synced golden); scoped `.vt-panel .vt-alert` top margin; regression test. Shipped bug in every generated host. Live-verified (request + cancel) as alice. | complete ✓ | 2026-07-18 |
+| 260718-i1m | Demo front-door get-started affordance + copy-scope fix — vt-code copy decoupled to opt-in (routes→links); home re-sequenced to orient→get-started(5-persona picker, `?demo={key}`)→showcase→reference; real login prefill + dev-gated password Fill + `/demo/use/:persona` fast-switch (distinct from impersonation); planted SEED-008 (generated-host first-admin bootstrap gap). Live-verified on running demo; caught+fixed Fill-button `user_password`→`name="user[password]"` selector no-op. | complete ✓ | 2026-07-18 |
+| 260718-n3h | Lift the dev-only demo "Fill password" affordance out of the login card into a distinct full-width demo bar — relocated the `vt-demo-hint` block from inside `.vt-auth__panel` to a `.vt-demo-switch vt-demo-switch--login` band above the auth `<section>` (mirrors the authed demo-switch chrome: DEMO pill + accent tint); deleted dead `.vt-demo-hint` CSS. Example-only, dev-gated; zero JS/test/installer/golden change (tokens preserved verbatim). Verified: compile clean, session_controller_test 13/0, and live on running demo (band full-width at top, card clean, Fill password fills `AliceDemoPass1!`, bare login shows no band). Worktree forked stale origin/main → re-dispatched sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-npn | Home front-door polish — (1) added `#get-started { margin-top: var(--sg-space-5) }` so the "Choose an evaluator persona" section no longer butts the hero (matches `.vt-brand-lab` rhythm); (2) converted the obtuse "One login, two jobs" operator aside (prose + `admin@…/morgan@…` code-chip list) into two one-click `vt-btn--block` pickers ("Sign in as Admin"→`?demo=admin`, "Sign in as Morgan"→`?demo=morgan`) routing through the real prefilled login; route hints are non-copyable `.vt-code`. Kept "One login, two jobs." kicker + `home-shared-login-copy` testid verbatim → `page_controller_test` 3/0 green unchanged. Example-only, no installer/golden. Live-verified (20px gap, two picker buttons, non-copyable hints, zero aside credential chips). Ran sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-t7o | Bring MFA settings page to Tasklane brand standard (2 commits) — ROOT fix: demo core `<.button>` default was daisyUI `btn btn-primary btn-soft` (purple, from leftover `default.css`) → now `vt-btn vt-btn--primary` (teal), fixing the "Set up two-factor" purple button + every bare `<.button>` demo-wide; explicit `class=` still overrides. MFA polish: `render_enrollment_start` → `vt-panel` + `vt-panel__header` (symmetric with Passkeys card); passkey empty-state → new reusable `.vt-empty-state` (was oversized serif `vt-panel__title` in an alert). Bounded review of bare-button sites: only org-settings "Validate" demoted to `vt-btn--ghost`. Example-only (installer ships own core_components; no golden re-bless). Planted SEED-010 (systemic auth-page daisyUI un-branding + installer product decision). Verified: compile clean, 13/0, live (teal button in panel, clean empty-state). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-ssq | Unify demo bar into ONE shared component (4 commits) — new `ExampleWeb.Components.DemoBar.demo_bar/1` renders the SAME bar in all 3 contexts (authed app layout, login, sudo): DEMO pill + identity (name + muted `feature_map` description + copyable email) + always-present persona `<select>` + contextual Fill-password (login/sudo only). Centralized `Personas.by_key/1` + `by_email/1` + `options/0` + private `enrich/1` (kills 3 inlined Enum.finds). Unified the switch target — dropdown navigates via `/demo/use/<key>` everywhere (logout→prefilled real login). Dev-gating preserved per context (whole bar compiled out under mix test); 3 test refutes collapsed to unified `data-testid="demo-bar"`. Example-only, no installer/golden. Verified: compile clean, 17/0, live all 3 contexts (authed Alice identity+dropdown no-Fill; login Morgan identity+Fill fills user[password]+dropdown; /demo/use switch navigates). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-sar | Demo-chrome coherence + admin reorder (3 commits) — (A) moved the dev-only demo-persona-switch bar ABOVE the app header in `layouts.ex` (impersonation banner left below, kept distinct); (B) added dev-gated demo Fill-password band to the sudo page (`sudo_controller` `demo_persona_for/1` + `sudo_html` `demo-sudo-hint` band, current user's password, no switcher), broadened `installDemoPasswordFill` selector to also match `input[name="sudo[password]"]` in both admin_hooks.js + app.js, + fixed latent `create/2` failure re-render missing `form:` (wrong-password crash); (C) reordered admin `/admin/users` so User health sits above Find users (`lib/sigra/admin/live/users_index_live.ex` sibling swap under symmetric `sg-stack--6` gap — spacing preserved) + matched the design-gallery twin `board-cfg-users-list`. Verified: compile clean, 14/0 (session+sudo+admin-filters), diff scoped (no priv/templates, no fixtures, no *.png), live (demo bar top:0 above header; sudo band fills `sudo[password]`; User health above Find users). CI FOLLOW-THROUGH: Part C shifts `global-user-index` + `board-cfg-users-list` PNG baselines → CI recapture gate regenerates (not hand-recaptured on darwin). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-qxg | Home polish — (1) `margin-block: var(--sg-space-4)` around the aside's "View all 10 personas" button (was cramped); (2) microcopy `Audit rows`→`Audit events` (value 15+ unchanged); (3) seeded-evidence "Sigra Admin" + "Org admin" items → persona-picker "Sign in as Admin/Morgan" buttons (real prefilled login), routes kept as non-copyable context, raw `morgan@` prose removed. Example-only. Verified compile clean, page_controller_test 3/0 (dropped stale morgan@ assert), live (audit label, 16px view-all margins, seed buttons demo=admin/morgan, no morgan@ prose). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-oa1 | Consolidate demo front-door (3 commits) — (A) deleted the home "Choose an evaluator persona" card, moved `id="get-started"` onto the operator aside, added "View all 10 personas →" above the two pickers, dropped `featured_credentials`; (B) `/demo/credentials` table Email/Password columns → one "Sign in as X" button column (`?demo=<key>`), header/testids/DEV badge kept, footer reworded; (C) added a dev-only low-noise persona-switcher `<select data-demo-persona-switch>` to the login demo band (band now renders on bare `/users/log_in` in dev; credential/Fill stay `:if={@demo_persona_hint}`), delegated `installDemoPersonaSwitch()` in BOTH admin_hooks.js + served app.js, `.vt-demo-switch__select` CSS. Example-only, no installer/golden (demo JS absent from priv/templates). Verified: compile clean, 18/0 across page/credentials/session tests (dev-gated band compiled out under mix test), diff scoped to test/example. Live-verified all 3 surfaces (home main-2, credentials 10 buttons, login switcher bare+preselect+switch-to-morgan navigates). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-pdd | Persona switch `<select>` short descriptions — bare persona names ("Admin (operator)", "Alice"…) are meaningless to demo visitors, so every dropdown option now reads `Name — <descriptor>`. Added a public `Personas.taglines/0` short map (≤4-word account descriptor per persona, distinct from the LONG `feature_map/0` that drives the identity block/credential cards) + enriched `options/0` with `:tagline`; demo_bar `<option>` renders `{[p.display_name, p.tagline && " — #{p.tagline}"]}` (omits gracefully if nil). Confirmed `options/0` consumed only by the 3 demo-bar call sites → adding a key is safe; `feature_map`/`featured_keys`/home get-started picker untouched. Example-only, dev-gated. Verified: compile clean, 17/0 (session+sudo+app-live refutes hold), live on running demo (all 10 options `Name — descriptor`, placeholder intact). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-svg | Sessions self-revoke guard — lit up the ALREADY-CODED-BUT-DEAD "This device" badge + revoke-current confirm ("This is your current session. Revoking it will log you out.") on `/users/sessions`. Root cause: `mount/3` read `get_connect_params(socket)["_sigra_token"]` which nothing ever set → `current_token` always nil → neither branch rendered. Fix: read the Plug `session` map server-side (`session["user_token"]`), decode + hash to compare against each row's `hashed_token` (no JS, works on dead+connected render, drops trust in a spoofable client param). Applied identically to demo + installer template + re-blessed golden (all 3 synced copies; approved scope). SHIP-BUG CAUGHT AT LIVE-VERIFY: first pass hashed the raw `user_token` string directly, but it's Base64URL-encoded (padding: false) — the auth lookup `get_user_and_session_by_token/1` decodes before hashing, so the encoded-string hash matched nothing (0 badges even after a fresh real login). Fixed to `Base.url_decode64(raw, padding: false)` then `Sigra.Token.hash_token/1`, mirroring the lookup (commit 49a5de8f). Verified: golden diff clean (1 file), golden_diff+session_templates 53/0, live as a fresh real alice login (exactly 1 row badged "This device" + revoke_current confirm; 8 seeded fakes stay plain revoke). NOTE: demo seeds 8 synthetic sessions/persona (fake hashes) — the badge only appears on a REAL current session, so verify via an actual login, not a stale/pre-seeded one. No demo test covers the user-facing SessionLive (only the admin one). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-mba | MFA enrolled-state backup-code alert polish — the `vt-alert vt-alert--danger` "All backup codes used…" (and its `--warning` sibling) each led with `<.icon name="hero-exclamation-triangle">`, an icon with NO backing CSS in the build-free example (default.css defines only 10 hero classes, not this one) → rendered as an empty ~1rem box that shoved the text right, reading off-brand; and the enrolled panel had no rhythm below the alert (`.vt-panel__header` self-spaces via margin-bottom, but the panel isn't a stack). Fix: removed the dead icon from BOTH alert branches (matching every other icon-free vt-alert in the demo) + added a reusable `.vt-stack { display:grid; gap:var(--sg-space-4) }` (with `.vt-stack > .vt-panel__header { margin-bottom:0 }` to avoid double-gap) applied to the enrolled panel + the backup-status inner div → even spacing header→backup→trust and alert→"Regenerate codes". Kept all copy verbatim + the "Disable" `vt-btn--danger` button. Example-only (installer MFA template is daisyUI by design, deferred SEED-010). Follow-up to t7o (unenrolled state). Verified: compile clean, 13/0 (mfa_totp+passkey), diff scoped to 2 test/example files, source confirmed (no hero-exclamation-triangle left, `.vt-stack` served). Live enrolled-DANGER-state view not seed-reachable (personas keep full backup codes; page also sits behind TOTP login + sudo) → verified structurally, not the exact red-alert render. Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-dst | Remove low-value home domain strip — the `vt-domain-strip` "Cohort @demo.tasklane.test / Local host http://sigra.localhost" band below the home header conveyed nothing useful (Jon: "just remove it"). Deleted the block from `home.html.heex` + the two dead CSS rules (`.vt-domain-strip` / `__label`). Kept the `@demo_domain`/`@local_origin` controller assigns — still referenced in the get-started + footer copy (home L45/49/278). Example-only; no test asserts the strip (`home-domain-context` had 0 hits); no installer/golden. Verified: compile clean, page_controller_test 3/0, diff scoped (2 files, deletions only), live on running demo (strip gone, header ends at brand link, hero spacing clean, `@demo.tasklane.test` refs elsewhere intact). Sequential on main. | complete ✓ | 2026-07-18 |
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
 | --- | --- | --- | --- |
+| Release-ops | Retire stray Hex `1.20.0` (PUB-04) + PUB-05 adopter-resolution proof + PROOF-01 currency bundle (all Phase 223) | Deferred indefinitely — operator/interactive Hex retire, no adopters. Resume `/gsd-execute-phase 223` after retire. Root cause: ADR 003. Tracked `todos/pending/2026-07-03-hex-retire-stray-1-20-0.md` | v1.45 (override_closeout) |
+| Release-ops | Push local `main` (v1.45 work + close-out commits) via close-out PR | Deferred — ruleset blocks direct push to `main`; needs a close-out PR | v1.45 |
 | Brand exports | PNG/PDF exports for social/platform use | Deferred until a concrete platform target requires raster | v1.35 |
 | Public docs | README/HexDocs visual adoption | Deferred to a separate focused change to avoid brand churn | v1.35 |
 | Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
@@ -397,15 +419,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-10T16:45:35.349Z
-Stopped at: Completed 221-02-PLAN.md
-Resume file: None
+Last session: 2026-07-11T00:59:38.125Z
+Stopped at: Phase 223 context gathered (assumptions mode)
+Resume file: .planning/phases/223-get-current-on-hex-terminal-currency-proof/223-CONTEXT.md
 
 ## Operator Next Steps
 
-- **v1.44 shipped + archived.** Start the next milestone: `/gsd-new-milestone` (Jon's direction: admin/operator-UI cleanup continues, or a feature milestone for FEAT-01/02/03).
-- **Merge close-out PR #78** (docs-only: VALIDATION flip + deferred-Hex TODO) once its required checks settle.
-- **Deferred Hex publish** (v1.2.0 + v1.3.0): fix the pre-existing upgrade-smoke `<.button type>` warning-as-error, then `gh workflow run hex-publish.yml` — see `.planning/todos/pending/2026-07-10-upgrade-smoke-button-type-hex-publish.md`.
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 
@@ -505,3 +525,6 @@ Resume file: None
 | Phase 221 P01 | 20min | 3 tasks | 2 files |
 | Phase 221 P02 | 6min | 3 tasks | 5 files |
 | Phase 221 P03 | 8min | 2 tasks | 1 files |
+| Phase 222 P01 | 9min | 2 tasks | 6 files |
+| Phase 222 P02 | 20min | 3 tasks | 5 files |
+| Phase 222 P03 | 15min | 2 tasks | 2 files |

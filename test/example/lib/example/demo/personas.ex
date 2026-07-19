@@ -199,6 +199,24 @@ defmodule Example.Demo.Personas do
   end
 
   @doc """
+  Returns the curated set of "get started" differentiator personas, as email
+  local-part strings, in the order they should be presented.
+
+  Single source of truth for BOTH the home-page get-started picker
+  (`PageController.home/2`) and the logged-in "Demo personas" fast-switch bar
+  (`Layouts.demo_persona_switch/1`) — do not hardcode this list twice.
+
+  Curated for differentiation, not exhaustiveness:
+  - `admin` — Platform Admin, TOTP MFA
+  - `morgan` — Org Admin, non-platform
+  - `alice` — standard confirmed happy-path user
+  - `pat` — passkey-only user
+  - `dave` — locked / rough-edge account
+  """
+  @spec featured_keys() :: [String.t()]
+  def featured_keys, do: ~w(admin morgan alice pat dave)
+
+  @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
   '@') for all ten @demo.tasklane.test personas.
@@ -219,6 +237,79 @@ defmodule Example.Demo.Personas do
       "zoe" =>
         "Zero-state user — confirmed, no MFA/passkey/identity/org/sessions/audit; drives empty panels on user detail"
     }
+  end
+
+  @doc """
+  Returns the short persona-tagline map keyed by email local part. A companion to
+  `feature_map/0` (the LONG feature text driving the identity block + credentials
+  cards); these taglines are VERY short (≤ ~4 words) unique descriptors of what
+  makes each account distinct, consumed ONLY by the demo-bar persona `<select>`
+  dropdown (`options/0` → `<.demo_bar>`). Keyed by the email local part for all
+  ten `@demo.tasklane.test` personas.
+  """
+  @spec taglines() :: %{String.t() => String.t()}
+  def taglines do
+    %{
+      "admin" => "MFA + passkey, multi-org",
+      "alice" => "standard user, happy path",
+      "bob" => "MFA + Beta Labs owner",
+      "carol" => "GitHub OAuth login",
+      "dave" => "locked, unconfirmed",
+      "frank" => "scheduled for deletion",
+      "morgan" => "Acme org console",
+      "pat" => "passkey sign-in",
+      "grace" => "member, deletion scheduled",
+      "zoe" => "zero-state, empty panels"
+    }
+  end
+
+  @doc """
+  Looks up a persona by email local part (the string before `@`) and returns it
+  enriched with `:key` and `:feature`, or `nil` if no persona matches.
+  """
+  @spec by_key(String.t() | nil) :: map() | nil
+  def by_key(key) when is_binary(key) do
+    all()
+    |> Enum.find(&(&1.email |> String.split("@") |> hd() == key))
+    |> enrich()
+  end
+
+  def by_key(_key), do: nil
+
+  @doc """
+  Looks up a persona by full email address and returns it enriched with `:key`
+  and `:feature`, or `nil` if no persona matches.
+  """
+  @spec by_email(String.t() | nil) :: map() | nil
+  def by_email(email) when is_binary(email) do
+    all()
+    |> Enum.find(&(&1.email == email))
+    |> enrich()
+  end
+
+  def by_email(_email), do: nil
+
+  @doc """
+  Returns the persona switch-dropdown options as `%{key, display_name, tagline}`
+  maps, one per persona, in `all/0` order. The `:tagline` is the short descriptor
+  from `taglines/0` (may be `nil` if a persona has no tagline).
+  """
+  @spec options() :: [%{key: String.t(), display_name: String.t(), tagline: String.t() | nil}]
+  def options do
+    Enum.map(all(), fn p ->
+      local = p.email |> String.split("@") |> hd()
+      %{key: local, display_name: p.display_name, tagline: taglines()[local]}
+    end)
+  end
+
+  # Adds `:key` (email local part) and `:feature` (from feature_map/0) to a
+  # persona map. Passes `nil` through unchanged so callers can pipe a possibly
+  # missing lookup straight in.
+  defp enrich(nil), do: nil
+
+  defp enrich(p) do
+    local = p.email |> String.split("@") |> hd()
+    Map.merge(p, %{key: local, feature: feature_map()[local]})
   end
 
   @doc """

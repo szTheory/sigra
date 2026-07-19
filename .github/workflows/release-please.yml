@@ -331,3 +331,49 @@ jobs:
           path: release-post-publish-evidence.json
           if-no-files-found: ignore
           retention-days: 90
+
+  # HARD-02 (Phase 222 Plan 02, D-06.3): release-please auto-publish previously
+  # stalled silently for ~30 minutes when gate-ci-green timed out, or failed
+  # quietly on a broken publish-hex step, with no failure consumer. This
+  # aggregator job opens/updates a single durable tracking Issue via the
+  # shared scripts/ci/notify-failure-issue.sh (D-07) whenever a real release
+  # (release_created == 'true') hits a failed/cancelled gate-ci-green or
+  # publish-hex. A separate aggregator (vs inline `if: failure()` steps in
+  # each job) is used because gate-ci-green's timeout `exit 1` reliably
+  # yields `result: failure`, which fires this downstream reporter.
+  notify-release-failure:
+    name: Notify on release-please publish/gate failure
+    runs-on: ubuntu-latest
+    needs: [release-please, gate-ci-green, publish-hex]
+    if: >-
+      always() &&
+      needs.release-please.outputs.release_created == 'true' &&
+      (needs.gate-ci-green.result == 'failure' || needs.gate-ci-green.result == 'cancelled' ||
+       needs.publish-hex.result == 'failure' || needs.publish-hex.result == 'cancelled')
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - name: Open or update release-lane-rot tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LABEL: release-lane-rot
+          TITLE: "release-please publish/gate failed (release-lane-rot)"
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+          VERSION: ${{ needs.release-please.outputs.version }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GATE_CI_GREEN_RESULT: ${{ needs.gate-ci-green.result }}
+          PUBLISH_HEX_RESULT: ${{ needs.publish-hex.result }}
+        run: |
+          set -euo pipefail
+          FAILING_JOB="gate-ci-green"
+          if [ "${PUBLISH_HEX_RESULT}" = "failure" ] || [ "${PUBLISH_HEX_RESULT}" = "cancelled" ]; then
+            FAILING_JOB="publish-hex"
+          fi
+          echo "::error::release-please publish/gate failed for ${TAG_NAME:-<unknown tag>} -- opening/updating tracking issue release-lane-rot (failing job: ${FAILING_JOB})"
+          BODY="release-please auto-publish did not complete for ${TAG_NAME:-<unknown tag>} (version ${VERSION:-<unknown>}).
+
+          - Run: ${RUN_URL}
+          - Failing job: ${FAILING_JOB} (gate-ci-green=${GATE_CI_GREEN_RESULT}, publish-hex=${PUBLISH_HEX_RESULT})
+
+          This is the HARD-02 fail-loudly signal (Phase 222 Plan 02) -- release-please created the release but the CI-green gate or the Hex publish step did not finish successfully. See docs/release-runbook-v1-0.md for recovery/manual-dispatch steps. Investigate the linked run, then close this issue once resolved."
+          export BODY
+          bash scripts/ci/notify-failure-issue.sh

@@ -17,13 +17,6 @@
           <span class="vt-brand__tag">Work tracking for teams</span>
         </span>
       </a>
-
-      <div class="vt-domain-strip" data-testid="home-domain-context">
-        <span class="vt-domain-strip__label">Cohort</span>
-        <code class="vt-code">{"@" <> @demo_domain}</code>
-        <span class="vt-domain-strip__label">Local host</span>
-        <code class="vt-code">{@local_origin}</code>
-      </div>
     </header>
 
     <section class="vt-hero">
@@ -55,17 +48,11 @@
         </div>
 
         <div class="vt-action-row">
-          <a :if={is_nil(@current_scope)} href="/users/log_in" class="vt-btn vt-btn--primary">
-            Sign in to Tasklane
+          <a :if={is_nil(@current_scope)} href="#get-started" class="vt-btn vt-btn--primary">
+            Get started — pick a persona
           </a>
           <a :if={@current_scope} href={~p"/app"} class="vt-btn vt-btn--primary">
             Open your dashboard
-          </a>
-          <a href="/admin" class="vt-btn vt-btn--ghost">
-            Open Sigra Admin
-          </a>
-          <a href="/dev/mailbox" class="vt-btn vt-btn--secondary">
-            Inspect mailbox
           </a>
           <.link
             :if={@current_scope}
@@ -77,28 +64,36 @@
             Log out
           </.link>
         </div>
+        <p class="vt-copy">
+          <a href="/admin" class="vt-link">Open Sigra Admin</a>
+          ·
+          <a href="/dev/mailbox" class="vt-link">Inspect mailbox</a>
+        </p>
       </div>
 
-      <aside class="vt-panel vt-panel--operator" data-testid="home-shared-login-copy">
+      <aside
+        id="get-started"
+        class="vt-panel vt-panel--operator"
+        data-testid="home-shared-login-copy"
+      >
         <p class="vt-kicker">One login, two jobs.</p>
-        <h2 class="vt-panel__title">Use Tasklane login for both customer and operator personas.</h2>
-        <p class="vt-copy">
-          <code class="vt-code">/users/log_in</code>
-          is Tasklane's shared login. Customer personas land in Tasklane auth flows; Sigra
-          operator personas can continue into admin routes.
-        </p>
+        <h2 class="vt-panel__title">Sign in as an operator.</h2>
+        <p class="vt-copy">Same Tasklane login as customers — operator personas continue into Sigra admin.</p>
+        <a href="/demo/credentials" class="vt-btn vt-btn--ghost vt-btn--block">View all 10 personas &rarr;</a>
         <ul class="vt-operator-list">
           <li>
-            <strong>Global Sigra Admin</strong>
-            <br />
-            <code class="vt-code">admin@demo.tasklane.test</code>
-            opens <code class="vt-code">/admin</code>.
+            <div>
+              <strong>Global Sigra Admin</strong>
+              <p class="vt-copy">Platform-wide operator → <code class="vt-code">/admin</code></p>
+            </div>
+            <a href={~p"/users/log_in?#{%{demo: "admin"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Admin</a>
           </li>
           <li>
-            <strong>Acme org admin</strong>
-            <br />
-            <code class="vt-code">morgan@demo.tasklane.test</code>
-            opens <code class="vt-code">/admin/organizations/acme-corp</code>.
+            <div>
+              <strong>Acme org admin</strong>
+              <p class="vt-copy">Org-scoped operator → <code class="vt-code">/admin/organizations/acme-corp</code></p>
+            </div>
+            <a href={~p"/users/log_in?#{%{demo: "morgan"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Morgan</a>
           </li>
         </ul>
       </aside>
@@ -243,78 +238,53 @@
       </div>
     </section>
 
-    <section class="vt-card-grid" aria-label="Tasklane seeded demo world">
-      <div class="vt-panel">
-        <div class="vt-panel__header">
-          <div>
-            <p class="vt-kicker">Demo cohort</p>
-            <h2 class="vt-panel__title">Start with these accounts</h2>
-          </div>
-          <a href="/demo/credentials" class="vt-btn vt-btn--ghost">View all personas</a>
-        </div>
+    <section class="vt-panel" aria-label="Seeded evidence">
+      <div class="vt-metric-grid">
+        <dl class="vt-metric" data-testid="home-stat-personas">
+          <dt>Demo personas</dt>
+          <dd>{@persona_count}</dd>
+        </dl>
+        <dl class="vt-metric" data-testid="home-stat-tenants">
+          <dt>Organizations</dt>
+          <dd>{@tenant_count}</dd>
+        </dl>
+        <dl class="vt-metric" data-testid="home-stat-audit">
+          <dt>Audit events</dt>
+          <dd>{@audit_row_count}</dd>
+        </dl>
+      </div>
 
-        <div class="vt-persona-list" data-testid="home-featured-personas">
-          <article :for={c <- @featured_credentials} class="vt-persona-row">
-            <div>
-              <h3>{c.display_name}</h3>
-              <p class="vt-copy">{c.feature}</p>
-            </div>
-            <dl class="vt-identity-grid">
-              <div class="vt-identity-item">
-                <dt class="vt-domain-strip__label">Email</dt>
-                <dd><code class="vt-code">{c.email}</code></dd>
-              </div>
-              <div class="vt-identity-item">
-                <dt class="vt-domain-strip__label">Password</dt>
-                <dd><code class="vt-code">{c.password}</code></dd>
-              </div>
-            </dl>
-          </article>
+      <div class="vt-panel__header">
+        <div>
+          <p class="vt-kicker">Seeded evidence</p>
+          <h2 class="vt-panel__title">What the Tasklane world proves</h2>
         </div>
       </div>
 
-      <div class="vt-panel">
-        <div class="vt-metric-grid">
-          <dl class="vt-metric" data-testid="home-stat-personas">
-            <dt>Demo personas</dt>
-            <dd>{@persona_count}</dd>
-          </dl>
-          <dl class="vt-metric" data-testid="home-stat-tenants">
-            <dt>Organizations</dt>
-            <dd>{@tenant_count}</dd>
-          </dl>
-          <dl class="vt-metric" data-testid="home-stat-audit">
-            <dt>Audit rows</dt>
-            <dd>{@audit_row_count}</dd>
-          </dl>
-        </div>
-
-        <div class="vt-panel__header">
+      <ul class="vt-seed-list">
+        <li>
+          <strong>Acme Corp</strong>
+          and <strong>Beta Labs</strong>
+          exercise organization scope, memberships, invitations, and tenant-aware audit rows.
+        </li>
+        <li>
+          <strong>{"@" <> @demo_domain}</strong> is the fixture-only Tasklane cohort domain.
+        </li>
+        <li>
           <div>
-            <p class="vt-kicker">Seeded evidence</p>
-            <h2 class="vt-panel__title">What the Tasklane world proves</h2>
-          </div>
-        </div>
-
-        <ul class="vt-seed-list">
-          <li>
-            <strong>Acme Corp</strong>
-            and <strong>Beta Labs</strong>
-            exercise organization scope, memberships, invitations, and tenant-aware audit rows.
-          </li>
-          <li>
-            <strong>{"@" <> @demo_domain}</strong> is the fixture-only Tasklane cohort domain.
-          </li>
-          <li>
             <strong>Sigra Admin</strong>
-            shows support operations: user search, session review, impersonation, audit filters, exports, and scoped org views.
-          </li>
-          <li>
-            <strong>Org admin path:</strong>
-            sign in as <code class="vt-code">morgan@demo.tasklane.test</code>, then open <code class="vt-code">/admin/organizations/acme-corp</code>.
-          </li>
-        </ul>
-      </div>
+            <p class="vt-copy">Support operations: user search, session review, impersonation, audit filters, exports, and scoped org views — opens <code class="vt-code">/admin</code>.</p>
+          </div>
+          <a href={~p"/users/log_in?#{%{demo: "admin"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Admin</a>
+        </li>
+        <li>
+          <div>
+            <strong>Org admin</strong>
+            <p class="vt-copy">Org-scoped console → <code class="vt-code">/admin/organizations/acme-corp</code>.</p>
+          </div>
+          <a href={~p"/users/log_in?#{%{demo: "morgan"}}"} class="vt-btn vt-btn--primary vt-btn--block">Sign in as Morgan</a>
+        </li>
+      </ul>
     </section>
   </div>
 </main>

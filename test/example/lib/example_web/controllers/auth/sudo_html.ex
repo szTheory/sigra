@@ -12,8 +12,18 @@ defmodule ExampleWeb.Auth.SudoHTML do
 
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.DemoBar
+
   def new(assigns) do
     ~H"""
+    <.demo_bar
+      :if={@demo_personas != []}
+      persona={@demo_persona}
+      personas={@demo_personas}
+      fill={true}
+      centered={true}
+    />
+
     <section class="vt-auth" data-theme="system" data-testid="sudo">
       <div class="vt-auth__panel">
         <a href={~p"/"} class="vt-brand">

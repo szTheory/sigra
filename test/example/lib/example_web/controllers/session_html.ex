@@ -14,6 +14,8 @@ defmodule ExampleWeb.SessionHTML do
   """
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.DemoBar
+
   def new(assigns) do
     ~H"""
     <%!--
@@ -30,6 +32,13 @@ defmodule ExampleWeb.SessionHTML do
       brand mapping (that needs [data-demo-brand-surface]) and no JS hook (that
       needs data-demo-brand-presets), so it stays plain Tasklane.
     --%>
+    <.demo_bar
+      :if={@demo_personas != []}
+      persona={@demo_persona}
+      personas={@demo_personas}
+      fill={true}
+      centered={true}
+    />
     <section
       class="vt-auth vt-auth--login"
       data-testid="tasklane-login"

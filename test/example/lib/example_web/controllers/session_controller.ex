@@ -23,8 +23,13 @@ defmodule ExampleWeb.SessionController do
     )
   end
 
-  def new(conn, _params) do
-    email = Phoenix.Flash.get(conn.assigns.flash, :email) || ""
+  def new(conn, params) do
+    demo_persona = demo_persona_lookup(params["demo"])
+
+    email =
+      (demo_persona && demo_persona.email) ||
+        Phoenix.Flash.get(conn.assigns.flash, :email) || ""
+
     form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
     magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
 
@@ -35,8 +40,40 @@ defmodule ExampleWeb.SessionController do
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
-      passkey_primary_enabled: Auth.passkey_primary_enabled?()
+      passkey_primary_enabled: Auth.passkey_primary_enabled?(),
+      demo_persona: demo_persona_hint(params["demo"]),
+      demo_personas: demo_persona_options()
     )
+  end
+
+  # ALWAYS active (not dev-gated): only prefills a non-secret email, and the
+  # homepage get-started picker buttons that drive it exist in every build.
+  defp demo_persona_lookup(key) when is_binary(key) and key != "" do
+    Enum.find(Example.Demo.Personas.all(), fn %{email: email} ->
+      String.starts_with?(email, key <> "@")
+    end)
+  end
+
+  defp demo_persona_lookup(_key), do: nil
+
+  # Dev-gated: the persona's PASSWORD only ever reaches the render assigns in
+  # a dev_routes build. Returns the enriched persona (`%{key, feature, …}`) so
+  # the shared demo_bar can render identity + Fill-password. The email-only
+  # prefill above is unaffected by this gate.
+  if Application.compile_env(:example, :dev_routes) do
+    defp demo_persona_hint(key), do: Example.Demo.Personas.by_key(key)
+  else
+    defp demo_persona_hint(_key), do: nil
+  end
+
+  # Dev-gated: the low-noise persona-switcher dropdown options only exist in a
+  # dev_routes build. Returns `[]` under mix test / prod so the demo band does
+  # not render at all (session_controller_test refutes stay green). Each option
+  # is email-derived and non-secret — no password ever reaches these assigns.
+  if Application.compile_env(:example, :dev_routes) do
+    defp demo_persona_options, do: Example.Demo.Personas.options()
+  else
+    defp demo_persona_options, do: []
   end
 
   def create(conn, %{"_action" => "magic_link", "user" => %{"email" => email}}) do
@@ -362,6 +399,15 @@ defmodule ExampleWeb.SessionController do
     conn
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
+  end
+
+  # Dev-only fast-switch: unreachable outside a dev_routes build because the
+  # ROUTE itself (router.ex, inside the dev_routes compile-env gate) is what's
+  # compiled out — mirrors the existing /demo/credentials precedent. Clears
+  # the current session and redirects straight into a prefilled real login for
+  # the new persona; never bypasses auth, never both logs-out-and-in in one hop.
+  def demo_switch(conn, %{"persona" => persona}) do
+    UserAuth.log_out_user(conn, to: ~p"/users/log_in?#{%{demo: persona}}")
   end
 
   defp client_ip(conn) do

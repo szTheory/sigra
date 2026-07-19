@@ -12,7 +12,8 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ "Local evaluation host"
     assert html =~ "One login, two jobs."
     assert html =~ "/users/log_in"
-    assert html =~ "admin@demo.tasklane.test"
+    assert html =~ "demo=admin"
+    assert html =~ ~s(href="/demo/credentials")
     assert html =~ ~s(data-testid="demo-brand-lab")
     assert html =~ ~s(data-demo-brand-select)
     assert html =~ "White-label preview"
@@ -35,10 +36,11 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ ">10<"
     assert html =~ "Acme Corp"
     assert html =~ "Beta Labs"
-    assert html =~ ~s(data-testid="home-featured-personas")
-    assert html =~ "morgan@demo.tasklane.test"
+    # Morgan is reachable via the demo=morgan sign-in button; the raw email prose was
+    # removed from the home page by design (not a coverage loss).
     assert html =~ "/admin/organizations/acme-corp"
-    assert html =~ "pat@demo.tasklane.test"
+    assert html =~ ~s(id="get-started")
+    assert html =~ "Sign in as"
   end
 
   test "GET / renders cookie-selected brand on first paint", %{conn: conn} do

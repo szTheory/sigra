@@ -45,4 +45,23 @@ defmodule ExampleWeb.SettingsLiveTest do
       assert Repo.get!(User, user.id).email == user.email
     end
   end
+
+  describe "requesting an email change" do
+    test "the pending banner renders the new email", %{conn: conn} do
+      # Regression: the request handler discarded the updated user and never
+      # refreshed current_scope, so the banner's @current_scope.user.pending_email
+      # stayed nil and rendered "Changing to " / "confirmation link to ." blank.
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+      target = new_email()
+
+      html =
+        lv
+        |> form(~s(form[phx-submit="request_email_change"]), email: %{email: target})
+        |> render_submit()
+
+      assert html =~ ~s(data-testid="settings-email-pending")
+      assert html =~ "Changing to #{target}"
+      assert html =~ "confirmation link to #{target}"
+    end
+  end
 end

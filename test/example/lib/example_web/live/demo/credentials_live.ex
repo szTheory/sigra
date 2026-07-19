@@ -71,24 +71,27 @@ defmodule ExampleWeb.Demo.CredentialsLive do
           <thead>
             <tr>
               <th>Persona</th>
-              <th>Email</th>
-              <th>Password</th>
               <th>Auth feature demonstrated</th>
+              <th>Sign in</th>
             </tr>
           </thead>
           <tbody>
             <tr :for={c <- @credentials} data-testid={"demo-persona-row-#{c.local}"}>
               <td><strong>{c.display_name}</strong></td>
-              <td><code class="vt-code">{c.email}</code></td>
-              <td><code class="vt-code">{c.password}</code></td>
               <td>{c.feature}</td>
+              <td>
+                <a href={~p"/users/log_in?#{%{demo: c.local}}"} class="vt-btn vt-btn--primary">
+                  Sign in as {c.display_name}
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <p class="vt-copy">
-        Passwords are public-by-design demo credentials. Never use in production.
+        The demo password is filled in for you on the login screen — no need to copy it here.
+        Never use in production.
       </p>
     </Layouts.app>
     """

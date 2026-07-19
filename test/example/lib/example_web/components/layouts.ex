@@ -8,6 +8,18 @@ defmodule ExampleWeb.Layouts do
   import ExampleWeb.Components.AdminShell
   # Phase 16 D-27: organization switcher function component.
   import ExampleWeb.Components.OrgSwitcher
+  import ExampleWeb.Components.DemoBar
+
+  alias Example.Demo.Personas
+
+  # Compile-time gate for the dev-only "Demo personas" switch bar. Captured as
+  # a module attribute (legal: Application.compile_env/2-3 can only be called
+  # in the module body, never inside a function — including inside a ~H
+  # template, which compiles as part of the enclosing function). Assigned
+  # explicitly into `assigns` below so the template's `@dev_routes?` reads
+  # `assigns.dev_routes?`, not a module attribute (HEEx `@name` always reads
+  # assigns).
+  @dev_routes? Application.compile_env(:example, :dev_routes, false)
 
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
@@ -43,7 +55,14 @@ defmodule ExampleWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    assigns = assign(assigns, :dev_routes?, @dev_routes?)
+
     ~H"""
+    <.demo_persona_switch
+      :if={@dev_routes? && @current_scope}
+      current_scope={@current_scope}
+    />
+
     <header class="vt-app-header">
       <div class="vt-app-header__inner vt-app-container">
         <a href="/" class="vt-brand">
@@ -89,6 +108,29 @@ defmodule ExampleWeb.Layouts do
     </main>
 
     <.flash_group flash={@flash} />
+    """
+  end
+
+  @doc """
+  Renders the dev-only "Demo personas" fast-switch bar for the authenticated
+  app layout.
+
+  This is intentionally a SEPARATE component from `AdminShell.impersonation_banner/1`
+  — different module, different CSS namespace (`vt-demo-switch`, never
+  `sg-impersonation*`), different copy (never says "impersonate"). Compiled
+  out under `dev_routes=false` via the `:if` guard at the `app/1` call site
+  (this function itself carries no gate — callers must guard it).
+  """
+  attr :current_scope, :map, required: true
+
+  def demo_persona_switch(assigns) do
+    assigns =
+      assigns
+      |> assign(:persona, Personas.by_email(assigns.current_scope.user.email))
+      |> assign(:personas, Personas.options())
+
+    ~H"""
+    <.demo_bar persona={@persona} personas={@personas} fill={false} centered={false} />
     """
   end
 
