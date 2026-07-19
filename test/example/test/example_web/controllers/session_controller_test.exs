@@ -118,9 +118,9 @@ defmodule ExampleWeb.SessionControllerTest do
       assert body =~ ~s(value="admin@demo.tasklane.test")
       # …but the dev-gated password hint never renders under mix test — mirrors
       # the /demo/credentials 404 proof pattern (compile_env gate compiles it out).
-      refute body =~ "Disposable demo account"
+      refute body =~ ~s(data-testid="demo-bar")
       refute body =~ "data-demo-fill-password"
-      refute body =~ ~s(data-testid="demo-login-hint")
+      refute body =~ "data-demo-persona-switch"
     end
   end
 

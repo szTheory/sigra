@@ -14,9 +14,9 @@ defmodule ExampleWeb.Auth.SudoControllerTest do
 
       # The dev-only demo Fill-password band (SudoHTML + SudoController.demo_persona_for/1)
       # must never render outside a dev_routes build — mirrors the session_controller refutes.
-      refute body =~ "Disposable demo account"
+      refute body =~ ~s(data-testid="demo-bar")
       refute body =~ "data-demo-fill-password"
-      refute body =~ ~s(data-testid="demo-sudo-hint")
+      refute body =~ "data-demo-persona-switch"
     end
   end
 end

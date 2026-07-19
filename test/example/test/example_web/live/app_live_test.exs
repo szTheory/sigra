@@ -25,7 +25,7 @@ defmodule ExampleWeb.AppLiveTest do
       refute html =~ "Open Sigra Admin"
       # Dev-only "Demo personas" switch bar is compiled out under mix test
       # (dev_routes=false) — mirrors the existing /demo/credentials 404 proof.
-      refute html =~ "demo-persona-switch"
+      refute html =~ ~s(data-testid="demo-bar")
     end
 
     test "shows the Sigra Admin card for a platform admin", %{conn: conn} do
