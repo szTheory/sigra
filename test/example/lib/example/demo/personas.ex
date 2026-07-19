@@ -240,6 +240,53 @@ defmodule Example.Demo.Personas do
   end
 
   @doc """
+  Looks up a persona by email local part (the string before `@`) and returns it
+  enriched with `:key` and `:feature`, or `nil` if no persona matches.
+  """
+  @spec by_key(String.t() | nil) :: map() | nil
+  def by_key(key) when is_binary(key) do
+    all()
+    |> Enum.find(&(&1.email |> String.split("@") |> hd() == key))
+    |> enrich()
+  end
+
+  def by_key(_key), do: nil
+
+  @doc """
+  Looks up a persona by full email address and returns it enriched with `:key`
+  and `:feature`, or `nil` if no persona matches.
+  """
+  @spec by_email(String.t() | nil) :: map() | nil
+  def by_email(email) when is_binary(email) do
+    all()
+    |> Enum.find(&(&1.email == email))
+    |> enrich()
+  end
+
+  def by_email(_email), do: nil
+
+  @doc """
+  Returns the persona switch-dropdown options as `%{key, display_name}` maps,
+  one per persona, in `all/0` order.
+  """
+  @spec options() :: [%{key: String.t(), display_name: String.t()}]
+  def options do
+    Enum.map(all(), fn p ->
+      %{key: p.email |> String.split("@") |> hd(), display_name: p.display_name}
+    end)
+  end
+
+  # Adds `:key` (email local part) and `:feature` (from feature_map/0) to a
+  # persona map. Passes `nil` through unchanged so callers can pipe a possibly
+  # missing lookup straight in.
+  defp enrich(nil), do: nil
+
+  defp enrich(p) do
+    local = p.email |> String.split("@") |> hd()
+    Map.merge(p, %{key: local, feature: feature_map()[local]})
+  end
+
+  @doc """
   Returns the deterministic demo-only TOTP secret (20-byte binary).
 
   Derived as `SHA-256("sigra-demo-admin-totp-v1") |> binary_part(0, 20)`.
