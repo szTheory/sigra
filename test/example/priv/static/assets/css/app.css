@@ -225,6 +225,23 @@
   justify-content: center;
 }
 
+.vt-demo-switch__identity {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sg-space-2);
+}
+
+.vt-demo-switch__name {
+  font-weight: var(--sg-weight-bold);
+  color: var(--vt-color-ink);
+}
+
+.vt-demo-switch__desc {
+  color: var(--vt-color-muted);
+  font-size: var(--sg-text-2xs);
+}
+
 .vt-demo-switch__select {
   min-height: var(--sg-control-md);
   padding-block: var(--sg-space-1);

@@ -580,9 +580,7 @@
           ? event.target.closest("select[data-demo-persona-switch]")
           : null;
       if (!sel || !sel.value) return;
-      window.location.assign(
-        "/users/log_in?demo=" + encodeURIComponent(sel.value),
-      );
+      window.location.assign("/demo/use/" + encodeURIComponent(sel.value));
     });
   }
 
