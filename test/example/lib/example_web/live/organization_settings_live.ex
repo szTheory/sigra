@@ -348,6 +348,7 @@ defmodule ExampleWeb.OrganizationSettingsLive do
               <.button
                 name="_action"
                 value="validate"
+                class="vt-btn vt-btn--ghost"
                 phx-disable-with="Validating..."
               >
                 Validate
