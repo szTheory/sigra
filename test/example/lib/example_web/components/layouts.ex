@@ -57,6 +57,11 @@ defmodule ExampleWeb.Layouts do
     assigns = assign(assigns, :dev_routes?, @dev_routes?)
 
     ~H"""
+    <.demo_persona_switch
+      :if={@dev_routes? && @current_scope}
+      current_scope={@current_scope}
+    />
+
     <header class="vt-app-header">
       <div class="vt-app-header__inner vt-app-container">
         <a href="/" class="vt-brand">
@@ -92,11 +97,6 @@ defmodule ExampleWeb.Layouts do
 
     <.impersonation_banner
       :if={@current_scope && @current_scope.impersonating_from}
-      current_scope={@current_scope}
-    />
-
-    <.demo_persona_switch
-      :if={@dev_routes? && @current_scope}
       current_scope={@current_scope}
     />
 

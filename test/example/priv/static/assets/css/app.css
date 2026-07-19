@@ -201,7 +201,7 @@
   gap: var(--sg-space-3);
 }
 
-/* Dev-only "Demo personas" fast-switch bar, positioned as a slim strip below
+/* Dev-only "Demo personas" fast-switch bar, positioned as a slim strip above
    the app header. Deliberately separate from any sg-impersonation* selector
    (see Layouts.demo_persona_switch/1 doc). */
 .vt-demo-switch {
