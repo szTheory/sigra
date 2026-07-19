@@ -207,6 +207,8 @@ defmodule Sigra.MixProject do
       source_url: @source_url,
       formatters: ["html", "markdown"],
       assets: %{"guides/assets" => "assets"},
+      before_closing_head_tag: &before_closing_head_tag/1,
+      before_closing_body_tag: &before_closing_body_tag/1,
       extras: [
         "README.md",
         "CONTRIBUTING.md",
@@ -216,6 +218,8 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/architecture.md",
+        "guides/introduction/code-walkthrough.md",
         "guides/introduction/contract.md",
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
@@ -283,4 +287,104 @@ defmodule Sigra.MixProject do
       ]
     ]
   end
+
+  defp before_closing_head_tag(:html) do
+    ~S"""
+    <style>
+      .sigra-mermaid {
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        padding: 1rem;
+        border: 1px solid #d8d8d8;
+        border-radius: 0.5rem;
+        background: #fafafa;
+        text-align: center;
+      }
+
+      .sigra-mermaid svg {
+        display: inline-block;
+        max-width: 100%;
+        height: auto;
+      }
+
+      body.dark .sigra-mermaid {
+        border-color: #555;
+        background: #f5f5f5;
+      }
+    </style>
+    <script
+      data-sigra-mermaid
+      defer
+      crossorigin="anonymous"
+      integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E"
+      src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"
+    ></script>
+    """
+  end
+
+  defp before_closing_head_tag(:epub), do: ""
+  defp before_closing_head_tag(_format), do: ""
+
+  defp before_closing_body_tag(:html) do
+    ~S"""
+    <script>
+      (() => {
+        if (window.__sigraMermaidHookInstalled) return;
+
+        window.__sigraMermaidHookInstalled = true;
+        let initialized = false;
+        let graphSequence = 0;
+
+        const renderMermaid = async () => {
+          const blocks = document.querySelectorAll(
+            "pre > code.mermaid:not([data-mermaid-rendered]):not([data-mermaid-pending])"
+          );
+
+          if (!window.mermaid || blocks.length === 0) return;
+
+          if (!initialized) {
+            window.mermaid.initialize({
+              startOnLoad: false,
+              securityLevel: "strict",
+              suppressErrorRendering: true,
+              theme: "neutral"
+            });
+            initialized = true;
+          }
+
+          for (const code of blocks) {
+            code.dataset.mermaidPending = "true";
+            const source = code.parentElement;
+            const container = document.createElement("div");
+            const graphId = "sigra-mermaid-" + (++graphSequence);
+            container.className = "sigra-mermaid";
+            container.id = graphId + "-container";
+
+            try {
+              const {svg, bindFunctions} = await window.mermaid.render(graphId, code.textContent);
+              container.innerHTML = svg;
+              source.insertAdjacentElement("afterend", container);
+              if (bindFunctions) bindFunctions(container);
+              code.dataset.mermaidRendered = "true";
+              source.hidden = true;
+            } catch (error) {
+              container.remove();
+              console.warn("Sigra Mermaid diagram left as source after render failure", error);
+            } finally {
+              delete code.dataset.mermaidPending;
+            }
+          }
+        };
+
+        window.addEventListener("exdoc:loaded", renderMermaid);
+        document.querySelector("script[data-sigra-mermaid]")
+          ?.addEventListener("load", renderMermaid, {once: true});
+        renderMermaid();
+      })();
+    </script>
+    """
+  end
+
+  defp before_closing_body_tag(:epub), do: ""
+  defp before_closing_body_tag(_format), do: ""
 end

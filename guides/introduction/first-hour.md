@@ -12,6 +12,12 @@
 6. [After the first hour: toward solo production](intermediate-production-path.html) — ordered reading after the green loop, without duplicating deployment tables.
 7. [Generator and install options](../reference/generator-options.html) — canonical `mix sigra.install` flag matrix and cross-links.
 
+**Understand or extend Sigra (optional):** after the green loop, read
+[Architecture](architecture.html) for the ownership and security model, then follow
+the same system through representative source in the
+[Code walkthrough](code-walkthrough.html). Neither is a prerequisite for installing
+or evaluating the happy path.
+
 ## Checklist
 
 - [ ] PostgreSQL reachable (`localhost:5432` or your URL); credentials match `config/dev.exs`.
