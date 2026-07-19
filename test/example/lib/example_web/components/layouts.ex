@@ -8,6 +8,7 @@ defmodule ExampleWeb.Layouts do
   import ExampleWeb.Components.AdminShell
   # Phase 16 D-27: organization switcher function component.
   import ExampleWeb.Components.OrgSwitcher
+  import ExampleWeb.Components.DemoBar
 
   alias Example.Demo.Personas
 
@@ -123,29 +124,13 @@ defmodule ExampleWeb.Layouts do
   attr :current_scope, :map, required: true
 
   def demo_persona_switch(assigns) do
-    display_names =
-      Personas.all()
-      |> Map.new(fn p -> {p.email |> String.split("@") |> hd(), p.display_name} end)
-
     assigns =
-      assign(
-        assigns,
-        :featured,
-        Enum.map(Personas.featured_keys(), &{&1, Map.fetch!(display_names, &1)})
-      )
+      assigns
+      |> assign(:persona, Personas.by_email(assigns.current_scope.user.email))
+      |> assign(:personas, Personas.options())
 
     ~H"""
-    <div class="vt-demo-switch" data-testid="demo-persona-switch">
-      <span class="vt-status-pill">DEMO</span>
-      <span class="vt-demo-switch__label">Demo personas — switch account:</span>
-      <a
-        :for={{key, display_name} <- @featured}
-        href={"/demo/use/#{key}"}
-        class="vt-btn vt-btn--ghost"
-      >
-        {display_name}
-      </a>
-    </div>
+    <.demo_bar persona={@persona} personas={@personas} fill={false} centered={false} />
     """
   end
 

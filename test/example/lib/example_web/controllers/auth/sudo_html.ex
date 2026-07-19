@@ -12,21 +12,17 @@ defmodule ExampleWeb.Auth.SudoHTML do
 
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.DemoBar
+
   def new(assigns) do
     ~H"""
-    <div :if={@demo_persona} class="vt-demo-switch vt-demo-switch--login" data-testid="demo-sudo-hint">
-      <span class="vt-status-pill">DEMO</span>
-      <span class="vt-demo-switch__label">Disposable demo account — never use in production</span>
-      <code class="vt-code vt-code--copy">{@demo_persona.email}</code>
-      <button
-        type="button"
-        class="vt-btn vt-btn--ghost"
-        data-demo-fill-password
-        data-demo-password={@demo_persona.password}
-      >
-        Fill password
-      </button>
-    </div>
+    <.demo_bar
+      :if={@demo_personas != []}
+      persona={@demo_persona}
+      personas={@demo_personas}
+      fill={true}
+      centered={true}
+    />
 
     <section class="vt-auth" data-theme="system" data-testid="sudo">
       <div class="vt-auth__panel">

@@ -41,7 +41,7 @@ defmodule ExampleWeb.SessionController do
       form: form,
       magic_link_form: magic_link_form,
       passkey_primary_enabled: Auth.passkey_primary_enabled?(),
-      demo_persona_hint: demo_persona_hint(demo_persona),
+      demo_persona: demo_persona_hint(params["demo"]),
       demo_personas: demo_persona_options()
     )
   end
@@ -57,11 +57,13 @@ defmodule ExampleWeb.SessionController do
   defp demo_persona_lookup(_key), do: nil
 
   # Dev-gated: the persona's PASSWORD only ever reaches the render assigns in
-  # a dev_routes build. The email-only prefill above is unaffected by this gate.
+  # a dev_routes build. Returns the enriched persona (`%{key, feature, …}`) so
+  # the shared demo_bar can render identity + Fill-password. The email-only
+  # prefill above is unaffected by this gate.
   if Application.compile_env(:example, :dev_routes) do
-    defp demo_persona_hint(demo_persona), do: demo_persona
+    defp demo_persona_hint(key), do: Example.Demo.Personas.by_key(key)
   else
-    defp demo_persona_hint(_demo_persona), do: nil
+    defp demo_persona_hint(_key), do: nil
   end
 
   # Dev-gated: the low-noise persona-switcher dropdown options only exist in a
@@ -69,11 +71,7 @@ defmodule ExampleWeb.SessionController do
   # not render at all (session_controller_test refutes stay green). Each option
   # is email-derived and non-secret — no password ever reaches these assigns.
   if Application.compile_env(:example, :dev_routes) do
-    defp demo_persona_options do
-      Enum.map(Example.Demo.Personas.all(), fn p ->
-        %{key: p.email |> String.split("@") |> hd(), display_name: p.display_name}
-      end)
-    end
+    defp demo_persona_options, do: Example.Demo.Personas.options()
   else
     defp demo_persona_options, do: []
   end

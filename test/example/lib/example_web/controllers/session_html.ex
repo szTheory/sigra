@@ -14,6 +14,8 @@ defmodule ExampleWeb.SessionHTML do
   """
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.DemoBar
+
   def new(assigns) do
     ~H"""
     <%!--
@@ -30,43 +32,13 @@ defmodule ExampleWeb.SessionHTML do
       brand mapping (that needs [data-demo-brand-surface]) and no JS hook (that
       needs data-demo-brand-presets), so it stays plain Tasklane.
     --%>
-    <div
+    <.demo_bar
       :if={@demo_personas != []}
-      class="vt-demo-switch vt-demo-switch--login"
-      data-testid="demo-login-hint"
-    >
-      <span class="vt-status-pill">DEMO</span>
-      <span :if={@demo_persona_hint} class="vt-demo-switch__label">
-        Disposable demo account — never use in production
-      </span>
-      <code :if={@demo_persona_hint} class="vt-code vt-code--copy">{@demo_persona_hint.email}</code>
-      <button
-        :if={@demo_persona_hint}
-        type="button"
-        class="vt-btn vt-btn--ghost"
-        data-demo-fill-password
-        data-demo-password={@demo_persona_hint.password}
-      >
-        Fill password
-      </button>
-      <span :if={is_nil(@demo_persona_hint)} class="vt-demo-switch__label">
-        Demo personas — never use in production
-      </span>
-      <select
-        class="vt-demo-switch__select"
-        data-demo-persona-switch
-        aria-label="Switch demo persona"
-      >
-        <option value="" disabled selected={is_nil(@demo_persona_hint)}>Switch persona…</option>
-        <option
-          :for={p <- @demo_personas}
-          value={p.key}
-          selected={@demo_persona_hint && String.starts_with?(@demo_persona_hint.email, p.key <> "@")}
-        >
-          {p.display_name}
-        </option>
-      </select>
-    </div>
+      persona={@demo_persona}
+      personas={@demo_personas}
+      fill={true}
+      centered={true}
+    />
     <section
       class="vt-auth vt-auth--login"
       data-testid="tasklane-login"
