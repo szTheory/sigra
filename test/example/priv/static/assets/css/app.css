@@ -2724,6 +2724,22 @@ html[data-sg-admin-js="true"] .sg-cmdk__trigger {
   color: color-mix(in oklab, var(--vt-color-danger) 60%, var(--vt-color-ink));
 }
 
+.vt-empty-state {
+  display: grid;
+  gap: var(--sg-space-1);
+  padding: var(--sg-space-5);
+  border-radius: var(--vt-radius);
+  background: color-mix(in oklab, var(--vt-color-panel-alt) 40%, transparent);
+  text-align: center;
+}
+
+.vt-empty-state__title {
+  margin: 0;
+  color: var(--vt-color-ink);
+  font-weight: var(--sg-weight-bold);
+  font-size: var(--sg-text-sm);
+}
+
 .vt-btn--danger {
   border-color: color-mix(in oklab, var(--vt-color-danger) 30%, transparent);
   background: color-mix(in oklab, var(--vt-color-danger) 12%, var(--vt-color-panel));
