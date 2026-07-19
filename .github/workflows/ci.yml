@@ -268,7 +268,7 @@ jobs:
       - name: Cache library deps
         id: install_golden_deps_cache
         if: steps.detect.outputs.run == 'true'
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -341,7 +341,7 @@ jobs:
       # both legs share one warm -library- entry (no split, no doubled cold-compile).
       - name: Cache library deps
         id: deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -457,7 +457,7 @@ jobs:
           version-type: strict
       - name: Cache library deps (dep-off lane)
         id: dep_off_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -541,7 +541,7 @@ jobs:
           version-type: strict
       - name: Cache example deps
         id: example_unit_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -602,7 +602,7 @@ jobs:
           version-type: strict
       - name: Cache Sigra library deps
         id: install_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -610,7 +610,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -663,7 +663,7 @@ jobs:
           version-type: strict
       - name: Cache Sigra library deps
         id: upgrade_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -671,7 +671,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -715,7 +715,7 @@ jobs:
           version-type: strict
       - name: Cache Sigra library deps
         id: passkeys_fallback_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -723,7 +723,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -777,7 +777,7 @@ jobs:
           version-type: strict
       - name: Cache Sigra library deps
         id: install_matrix_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -896,7 +896,7 @@ jobs:
           version-type: strict
       - name: Cache Sigra library deps
         id: passkeys_opt_out_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -904,7 +904,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -947,7 +947,7 @@ jobs:
           version-type: strict
       - name: Cache example deps
         id: http_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1027,7 +1027,7 @@ jobs:
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1591,7 +1591,7 @@ jobs:
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: recapture_example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1895,7 +1895,7 @@ jobs:
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: checkpoint_recapture_example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -2118,7 +2118,7 @@ jobs:
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps (admin-eval-render lane)
         id: admin_eval_render_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
