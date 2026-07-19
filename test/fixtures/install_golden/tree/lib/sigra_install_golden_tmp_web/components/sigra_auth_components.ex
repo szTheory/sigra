@@ -59,6 +59,21 @@ defmodule SigraInstallGoldenTmpWeb.SigraAuthComponents do
     """
   end
 
+  attr :type, :string, default: "submit", values: ~w(button submit reset)
+  attr :class, :any, default: nil
+  attr :disabled, :boolean, default: false
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  @doc "Renders an auth action without inheriting host CoreComponents button styles."
+  def sigra_auth_button(assigns) do
+    ~H"""
+    <button type={@type} class={@class} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
   @doc "Returns the generated default brand profile, including admin-saved overrides when available."
   def default_branding do
     SigraInstallGoldenTmp.Accounts.sigra_config()

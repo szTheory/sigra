@@ -79,6 +79,7 @@ This generates the **application-owned** scaffolding into your project:
 - `lib/my_app_web/user_auth.ex` — the `UserAuth` plug module: `log_in_user/3`, `log_out_user/1`, `fetch_current_scope/2`, `require_authenticated_user/2`.
 - `lib/my_app_web/live/user_registration_live.ex` and friends — the registration, login, password-reset, and settings LiveViews.
 - `lib/my_app_web/components/sigra_auth_components.ex` and `priv/static/assets/sigra_auth.css` — the generated auth shell and scoped Light/Dark/System styling.
+- `lib/my_app/sigra_admin_access.ex`, `lib/my_app/accounts/platform_admin_grant.ex`, and `mix sigra.admin.*` tasks — the explicit, persisted first-admin seam when admin scaffolding is enabled.
 - `priv/repo/migrations/*_create_users_auth_tables.exs` — the users + tokens migrations, under `auth` by default on Postgres.
 - `priv/repo/migrations/*_create_sigra_brand_profiles.exs` — optional global auth/email brand tokens managed from the generated admin UI.
 - `test/support/auth_fixtures.ex` — scenario fixtures (`user_fixture`, `authenticated_fixture`, etc.).
@@ -95,6 +96,20 @@ The generator also patches your router with the auth pipelines and scopes. Re-ru
 
 On Postgres this creates the `auth` schema and Sigra-owned tables such as `auth.users`, `auth.user_tokens`, and `auth.user_sessions` (plus optional tables such as `auth.audit_events`). On MySQL and SQLite, tables are created in the adapter's default placement.
 
+## Grant the first admin
+
+Admin-enabled installs start closed: registering first, using a particular email domain, or being the first database row never grants admin access. Register and confirm the operator account, then grant it explicitly:
+
+    mix sigra.admin.grant --email operator@example.com
+
+The task asks for confirmation, writes the host-owned grant and its audit event in one transaction, and is safe to repeat. For deployment automation, add `--yes`. Useful companion commands are:
+
+    mix sigra.admin.check --email operator@example.com
+    mix sigra.admin.list
+    mix sigra.admin.revoke --email operator@example.com
+
+Run these tasks in the same release environment and database as the Phoenix app. They never accept or set a password. `--no-admin` installs emit none of these grant artifacts.
+
 ## Smoke test
 
 Start the server:
@@ -110,6 +125,7 @@ If that worked, you're ready. Continue with [Getting Started](getting-started.ht
 - **`** (UndefinedFunctionError) Sigra.Config.new!/1`** — run `mix deps.get && mix deps.compile sigra` to pick up the library.
 - **`** (Ecto.MigrationError) relation "users" already exists`** — you already have a `users` table in the target schema from a prior library. Either drop it, choose `--auth-prefix public` only when that is intentional, or rename the Sigra table via the generated migration.
 - **`mix sigra.install` skips files you want to regenerate** — pass `--force` and re-run. Be warned: this overwrites any local edits.
+- **`mix sigra.admin.grant` says the account is unconfirmed** — finish the normal confirmation flow first; the task deliberately refuses unconfirmed or soft-deleted accounts.
 - **Compilation warnings about `:cookie_domain`** — see [Subdomain Authentication](subdomain-auth.html) if you want subdomain-scoped cookies, or set `cookie_domain: nil` explicitly to silence the prod boot warning.
 
 ## Migrating from bigint to uuid

@@ -233,6 +233,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.10.md",
         "guides/introduction/upgrading-to-v1.11.md",
         "guides/introduction/upgrading-to-v1.12.md",
+        "guides/introduction/upgrading-to-v1.46.md",
         "guides/introduction/upgrading-to-v1.0.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/introduction/migrating-from-phx-gen-auth.md",

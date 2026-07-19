@@ -142,7 +142,16 @@ Add this step to your `"assets.setup"` alias manually:
 
   "cmd --cd assets npm install"
 
+* creating priv/repo/migrations/TIMESTAMP_create_platform_admin_grants.exs
+* creating lib/sigra_install_golden_tmp/accounts/platform_admin_grant.ex
+* creating lib/sigra_install_golden_tmp/sigra_admin_access.ex
 * creating lib/sigra_install_golden_tmp/sigra_admin_policy.ex
+* creating test/sigra_install_golden_tmp/sigra_admin_policy_test.exs
+* creating lib/mix/tasks/sigra.admin.task.ex
+* creating lib/mix/tasks/sigra.admin.grant.ex
+* creating lib/mix/tasks/sigra.admin.revoke.ex
+* creating lib/mix/tasks/sigra.admin.list.ex
+* creating lib/mix/tasks/sigra.admin.check.ex
 * creating lib/sigra_install_golden_tmp_web/components/admin_shell.ex
 * creating priv/static/images/sigra-logo-primary.svg
 * creating priv/static/images/sigra-logo-primary-dark.svg
@@ -158,8 +167,13 @@ Sigra admin installed!
 
 Next steps:
 
-  1. Review `lib/<app>/sigra_admin_policy.ex` and define platform-admin
-     and org-admin access explicitly for your host app.
+  1. Run `mix ecto.migrate`, then grant an existing confirmed account:
+
+         mix sigra.admin.grant --email operator@example.com
+
+     The generated host-owned policy delegates platform-admin checks to
+     the persisted grant table. Keep `admin_org_ids/1` explicit for your
+     application's organization-admin rules.
 
   2. Review the injected admin router scopes at `/admin` and
      `/admin/organizations/:org`, which already enforce the admin

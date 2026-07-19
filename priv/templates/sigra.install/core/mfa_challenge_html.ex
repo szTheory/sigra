@@ -14,7 +14,7 @@ defmodule <%= web_module %>.MFAChallengeHTML do
   def mfa_challenge(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Two-factor authentication
         <:subtitle>
@@ -23,15 +23,15 @@ defmodule <%= web_module %>.MFAChallengeHTML do
       </.header>
 
       <%% # Tab bar (D-21) %>
-      <div class="mt-6" role="tablist" aria-label="Verification method">
-        <div class="flex border-b border-gray-200">
+      <div role="tablist" aria-label="Verification method">
+        <div class="sigra-auth-tabs">
           <button
             type="button"
             role="tab"
             id="tab-totp"
             aria-selected={@tab == "totp"}
             aria-controls="panel-totp"
-            class={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px #{if @tab == "totp", do: "border-brand text-brand", else: "border-transparent text-gray-500 hover:text-gray-700"}"}
+            class="sigra-auth-tab"
             onclick="switchTab('totp')"
           >
             Authenticator code
@@ -42,7 +42,7 @@ defmodule <%= web_module %>.MFAChallengeHTML do
             id="tab-backup"
             aria-selected={@tab == "backup"}
             aria-controls="panel-backup"
-            class={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px #{if @tab == "backup", do: "border-brand text-brand", else: "border-transparent text-gray-500 hover:text-gray-700"}"}
+            class="sigra-auth-tab"
             onclick="switchTab('backup')"
           >
             Backup code
@@ -55,14 +55,14 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         id="panel-totp"
         role="tabpanel"
         aria-labelledby="tab-totp"
-        class={"mt-6 #{if @tab != "totp", do: "hidden"}"}
+        class={if @tab != "totp", do: "sigra-auth-hidden", else: "sigra-auth-stack sigra-auth-stack--4"}
       >
-        <.form for={%{}} id="mfa_totp_form" action={~p"/users/mfa"} method="post">
+        <.form for={%{}} id="mfa_totp_form" action={~p"/users/mfa"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
           <input type="hidden" name="mfa[method]" value="totp" />
 
-          <div class="space-y-4">
+          <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
-              <label for="mfa_totp_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label for="mfa_totp_code">
                 Authenticator code
               </label>
               <input
@@ -75,19 +75,19 @@ defmodule <%= web_module %>.MFAChallengeHTML do
                 autocomplete="one-time-code"
                 autofocus
                 required
-                class="mt-2 block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 focus:ring-0 sm:text-sm/6 phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 border-zinc-300 focus:border-zinc-400"
+                class="sigra-auth-code-input"
                 aria-label="6-digit authenticator code"
               />
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" name="mfa[trust]" value="true" class="rounded border-gray-300" />
+            <label class="sigra-auth-check-row">
+              <input type="checkbox" name="mfa[trust]" value="true" class="sigra-auth-check" />
               Trust this browser for 30 days
             </label>
 
-            <.button class="w-full">
+            <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
               Verify
-            </.button>
+            </.sigra_auth_button>
           </div>
         </.form>
       </div>
@@ -97,14 +97,14 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         id="panel-backup"
         role="tabpanel"
         aria-labelledby="tab-backup"
-        class={"mt-6 #{if @tab != "backup", do: "hidden"}"}
+        class={if @tab != "backup", do: "sigra-auth-hidden", else: "sigra-auth-stack sigra-auth-stack--4"}
       >
-        <.form for={%{}} id="mfa_backup_form" action={~p"/users/mfa"} method="post">
+        <.form for={%{}} id="mfa_backup_form" action={~p"/users/mfa"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
           <input type="hidden" name="mfa[method]" value="backup" />
 
-          <div class="space-y-4">
+          <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
-              <label for="mfa_backup_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label for="mfa_backup_code">
                 Backup code
               </label>
               <input
@@ -113,28 +113,28 @@ defmodule <%= web_module %>.MFAChallengeHTML do
                 name="mfa[code]"
                 placeholder="XXXX-XXXX"
                 required
-                class="mt-2 block w-full rounded-lg text-base font-mono text-zinc-900 focus:ring-0 sm:text-sm/6 phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 border-zinc-300 focus:border-zinc-400"
+                class="sigra-auth-code-input"
                 aria-label="Backup code"
               />
             </div>
 
-            <.button class="w-full">
+            <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
               Verify
-            </.button>
+            </.sigra_auth_button>
           </div>
         </.form>
       </div>
 
       <%% # Remaining attempts hint (D-38) %>
-      <div class="mt-4 text-center" aria-live="polite">
-        <p class="text-sm text-gray-500">
+      <div aria-live="polite">
+        <p class="sigra-auth-copy sigra-auth-copy--muted sigra-auth-copy--center">
           Enter the code from your authenticator app to continue.
         </p>
       </div>
 
       <%% # Cancel link (D-34) %>
-      <p class="mt-6 text-center text-sm">
-        <.link href={~p"/users/log_out"} method="delete" class="text-gray-500 hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link href={~p"/users/log_out"} method="delete">
           Cancel and sign out
         </.link>
       </p>
@@ -147,20 +147,15 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         document.querySelectorAll('[role="tab"]').forEach(function(btn) {
           var isActive = btn.id === 'tab-' + tab;
           btn.setAttribute('aria-selected', isActive);
-          if (isActive) {
-            btn.className = btn.className.replace('border-transparent text-gray-500 hover:text-gray-700', 'border-brand text-brand');
-          } else {
-            btn.className = btn.className.replace('border-brand text-brand', 'border-transparent text-gray-500 hover:text-gray-700');
-          }
         });
         // Update tab panels
         document.querySelectorAll('[role="tabpanel"]').forEach(function(panel) {
           if (panel.id === 'panel-' + tab) {
-            panel.classList.remove('hidden');
+            panel.classList.remove('sigra-auth-hidden');
             var input = panel.querySelector('input[name="mfa[code]"]');
             if (input) input.focus();
           } else {
-            panel.classList.add('hidden');
+            panel.classList.add('sigra-auth-hidden');
           }
         });
       }

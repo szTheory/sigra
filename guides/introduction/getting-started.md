@@ -6,7 +6,7 @@ This guide takes you from a fresh Phoenix app with Sigra installed to a working 
 
 If you have not installed Sigra yet, read [Installation](installation.html) first.
 
-**Faster path:** [First hour with Sigra](first-hour.html) · [Troubleshooting install](troubleshooting-install.html) · [Upgrading notes — v1.7](upgrading-to-v1.7.html) · [Upgrading notes — v1.8](upgrading-to-v1.8.html) · [Upgrading notes — v1.10](upgrading-to-v1.10.html) · [Upgrading notes — v1.11](upgrading-to-v1.11.html) · [Upgrading notes — v1.12](upgrading-to-v1.12.html)
+**Faster path:** [First hour with Sigra](first-hour.html) · [Troubleshooting install](troubleshooting-install.html) · [Upgrading notes — v1.46](upgrading-to-v1.46.html)
 
 ## Prerequisites
 
@@ -79,6 +79,15 @@ You'll see one message: **"Confirmation instructions"** addressed to `alice@exam
 Click the link. `ConfirmationLive` calls `Accounts.confirm_user/1` under the hood, which verifies the HMAC-signed token, sets `confirmed_at: DateTime.utc_now()`, and invalidates the token so it can't be replayed.
 
 If you skip this step, the user can still log in unless you set `require_confirmation: true` in your Sigra config (see [User Registration](registration.html#requiring-confirmation)).
+
+### Optional: make this account the first platform admin
+
+If you installed the default admin feature, stop the server only if your deployment process requires it and run:
+
+    mix sigra.admin.grant --email alice@example.com
+    mix sigra.admin.check --email alice@example.com
+
+This is intentionally separate from registration. Sigra never promotes the first user or trusts an email domain implicitly. Visit `/admin` after signing in; revoke the grant later with `mix sigra.admin.revoke --email alice@example.com`.
 
 ## 4. Log in
 

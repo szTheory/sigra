@@ -24,27 +24,27 @@
 
 ### Phase 224: Experience Contract + Representative Slice
 
-- [ ] Commit the JTBD/surface/state contract and UI-SPEC, extend the existing generated-host review substrate, implement the four representative states, and ratify baseline comprehension + creative direction. Covers EXPR-01/02.
+- [x] Commit the JTBD/surface/state contract and UI-SPEC, extend the existing generated-host review substrate, implement the four representative states, and ratify baseline comprehension + creative direction. Covers EXPR-01/02. — completed 2026-07-19
 
 ### Phase 225: Secure First-Admin + Generated-Host Security Parity
 
-- [ ] Generate the host-owned persisted-grant seam and CLI workflow, preserve customized policy upgrades, and close all impersonation-sensitive operation drift. Covers BOOT-01/02/03 and SEC-01.
+- [x] Generate the host-owned persisted-grant seam and CLI workflow, preserve customized policy upgrades, and close all impersonation-sensitive operation drift. Covers BOOT-01/02/03 and SEC-01. — completed 2026-07-19
 
 ### Phase 226: Auth Entry + Recovery
 
-- [ ] Establish semantic `sigra-auth-*` primitives and propagate them through login, registration, confirmation, reset, reactivation, sudo, and invitation acceptance with configuration-led hierarchy and state-complete microcopy. Covers AUTHUI-01/02.
+- [x] Establish semantic `sigra-auth-*` primitives and propagate them through login, registration, confirmation, reset, reactivation, sudo, and invitation acceptance with configuration-led hierarchy and state-complete microcopy. Covers AUTHUI-01/02. — completed 2026-07-19
 
 ### Phase 227: Account Security Coherence
 
-- [ ] Propagate the approved contract through settings, MFA, backup codes, passkeys, sessions, and destructive flows; ratify responsive/theme/accessibility/latency behavior. Covers AUTHUI-03/04.
+- [x] Propagate the approved contract through settings, MFA, backup codes, passkeys, sessions, and destructive flows; ratify responsive/theme/accessibility/latency behavior. Covers AUTHUI-03/04. — completed 2026-07-19
 
 ### Phase 228: Admin Audit Precision + Boundary Pass
 
-- [ ] Repair duplicate filter state, flatten and clarify the operator form, expose applied state, and review invitation→scope→admin entry without reskinning host product UI. Covers AUDIT-01/02.
+- [x] Repair duplicate filter state, flatten and clarify the operator form, expose applied state, and review invitation→scope→admin entry without reskinning host product UI. Covers AUDIT-01/02. — completed 2026-07-19
 
 ### Phase 229: Adoption Handoff + Terminal Ratification
 
-- [ ] Reconcile templates/golden/docs/upgrades, prove the fresh-host journey and relevant feature variants, obtain final human acceptance, recapture CI-native baselines, and close on deterministic gates. Covers PROOF-01/02/03.
+- [ ] Reconcile templates/golden/docs/upgrades, prove the fresh-host journey and relevant feature variants, obtain final human acceptance, recapture CI-native baselines, and close on deterministic gates. Automated proof complete 2026-07-19; awaiting human visual acceptance for PROOF-03.
 
 ---
 

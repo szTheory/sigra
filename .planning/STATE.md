@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.46
 milestone_name: ADOPTER-EXPERIENCE
-current_phase: 224
-status: planning
-stopped_at: Milestone v1.46 roadmap defined; ready to plan Phase 224
-last_updated: "2026-07-19T20:45:45.128Z"
+current_phase: 229
+current_phase_name: Adoption Handoff + Terminal Ratification
+status: executing
+stopped_at: Phase 229 automated proof complete; awaiting human visual acceptance for PROOF-03
+last_updated: "2026-07-19T22:04:27.389Z"
 last_activity: 2026-07-19
-last_activity_desc: Milestone v1.46 started
+last_activity_desc: Phase 229 execution started
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
-current_phase_name: defining requirements
+  completed_phases: 5
+  total_plans: 6
+  completed_plans: 5
+  percent: 83
 ---
 
 # Project State
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.46 ADOPTER-EXPERIENCE — Phase 224: Experience Contract + Representative Slice
+**Current focus:** Phase 229 — Adoption Handoff + Terminal Ratification
 
 ## Current Position
 
-Phase: 224: Experience Contract + Representative Slice
-Plan: —
-Status: Roadmap defined — ready to plan Phase 224
-Last activity: 2026-07-19 — Milestone v1.46 started
+Phase: 229 (Adoption Handoff + Terminal Ratification) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 229
+Last activity: 2026-07-19 — Phase 229 execution started
 
 ## Accumulated Context
 
@@ -424,9 +424,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-19T20:45:45.074Z
-Stopped at: Milestone v1.46 roadmap defined; ready to plan Phase 224
-Resume file: .planning/phases/223-get-current-on-hex-terminal-currency-proof/223-CONTEXT.md
+Last session: 2026-07-19T22:04:27.383Z
+Stopped at: Phase 229 automated proof complete; awaiting human visual acceptance for PROOF-03
+Resume file: .planning/phases/229-adoption-handoff-terminal-ratification/229-PROGRESS.md
 
 ## Operator Next Steps
 

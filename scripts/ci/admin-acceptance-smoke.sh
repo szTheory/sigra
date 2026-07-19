@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # scripts/ci/admin-acceptance-smoke.sh
 #
-# Scaffolds a fresh Phoenix app, installs Sigra, patches in a deterministic
-# admin policy + seed data, boots the generated host, and runs the focused
-# Phase 27 Playwright acceptance smoke against the generated admin routes.
+# Scaffolds a fresh Phoenix app, installs Sigra, adds deterministic organization
+# policy + seed data, provisions the first platform admin through the generated
+# Mix task, boots the host, and runs the focused Playwright acceptance smoke.
 #
 # Local reproduction:
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test chrome
+#   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test auth
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test errors
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test audit-export
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test impersonation-controller
@@ -123,7 +124,7 @@ mix deps.get
 echo "==> admin-acceptance: running mix sigra.install --yes Accounts User users --no-passkeys"
 mix sigra.install --yes Accounts User users --no-passkeys
 
-echo "==> admin-acceptance: patching generated admin policy"
+echo "==> admin-acceptance: adding deterministic organization policy"
 cat > "lib/${APP_NAME}/sigra_admin_policy.ex" <<'EOF'
 defmodule SigraAdminSmoke.SigraAdminPolicy do
   @moduledoc """
@@ -137,12 +138,10 @@ defmodule SigraAdminSmoke.SigraAdminPolicy do
   alias SigraAdminSmoke.Accounts.OrganizationMembership
   alias SigraAdminSmoke.Repo
 
-  @platform_admin_email System.get_env("SIGRA_PLATFORM_ADMIN_EMAIL", "platform-admin@example.test")
   @org_admin_email System.get_env("SIGRA_ORG_ADMIN_EMAIL", "org-admin@example.test")
 
   @impl true
-  def platform_admin?(%{user: %{email: email}}) when is_binary(email), do: email == @platform_admin_email
-  def platform_admin?(_scope), do: false
+  def platform_admin?(scope), do: SigraAdminSmoke.SigraAdminAccess.platform_admin?(scope)
 
   @impl true
   def admin_org_ids(%{user: %{id: user_id, email: email}})
@@ -165,6 +164,12 @@ EOF
 
 echo "==> admin-acceptance: compiling generated host"
 mix compile --warnings-as-errors
+
+echo "==> admin-acceptance: running generated allow/deny policy test"
+MIX_ENV=test mix ecto.drop || true
+MIX_ENV=test mix ecto.create
+MIX_ENV=test mix ecto.migrate
+MIX_ENV=test mix test "test/${APP_NAME}/sigra_admin_policy_test.exs"
 
 echo "==> admin-acceptance: resetting database"
 mix ecto.drop || true
@@ -236,6 +241,11 @@ IO.puts(
 EOF
 
 mix run "${SEED_FILE}"
+
+echo "==> admin-acceptance: provisioning first admin through generated tasks"
+mix sigra.admin.grant --email "${SIGRA_PLATFORM_ADMIN_EMAIL}" --yes
+mix sigra.admin.check --email "${SIGRA_PLATFORM_ADMIN_EMAIL}"
+mix sigra.admin.list | grep -F "${SIGRA_PLATFORM_ADMIN_EMAIL}"
 
 if [[ ! -d "${PLAYWRIGHT_DIR}/node_modules" ]]; then
   echo "==> admin-acceptance: installing Playwright npm deps"
@@ -355,6 +365,13 @@ case "${TEST_TARGET}" in
   chrome)
     PLAYWRIGHT_ARGS=("${PLAYWRIGHT_SPEC}" "-g" "generated host admin shell renders on desktop and mobile")
     ;;
+  auth)
+    PLAYWRIGHT_ARGS=(
+      "${PLAYWRIGHT_SPEC}"
+      "-g"
+      "generated auth shell communicates hierarchy"
+    )
+    ;;
   errors)
     PLAYWRIGHT_ARGS=("${PLAYWRIGHT_SPEC}" "-g" "generated host admin denial responses show explicit copy")
     ;;
@@ -383,7 +400,28 @@ echo "==> admin-acceptance: running Playwright target ${TEST_TARGET}"
   cd "${PLAYWRIGHT_DIR}"
   CI=true \
   SIGRA_EXAMPLE_URL="http://localhost:${PORT}" \
-  npx playwright test "${PLAYWRIGHT_ARGS[@]}"
+  npx playwright test --output test-results/generated-host "${PLAYWRIGHT_ARGS[@]}"
+)
+
+echo "==> admin-acceptance: revoking platform admin and proving deny-on-next-check"
+mix sigra.admin.revoke --email "${SIGRA_PLATFORM_ADMIN_EMAIL}" --yes
+
+if mix sigra.admin.check --email "${SIGRA_PLATFORM_ADMIN_EMAIL}"; then
+  echo "FAIL: revoked account still passes sigra.admin.check" >&2
+  exit 1
+else
+  echo "OK:   generated check task denies the revoked grant"
+fi
+
+(
+  cd "${PLAYWRIGHT_DIR}"
+  CI=true \
+  SIGRA_EXPECT_PLATFORM_DENIED=1 \
+  SIGRA_EXAMPLE_URL="http://localhost:${PORT}" \
+  npx playwright test \
+    --output test-results/revocation \
+    "${PLAYWRIGHT_SPEC}" \
+    -g "revoked platform admin is denied"
 )
 
 echo "==> admin-acceptance: success"

@@ -194,8 +194,8 @@ defmodule Sigra.Templates.SessionTemplatesTest do
       assert content =~ "For your security, please re-enter your password to continue."
     end
 
-    test "uses max-w-sm layout", %{content: content} do
-      assert content =~ "mx-auto max-w-sm"
+    test "uses the semantic auth flow", %{content: content} do
+      assert content =~ "sigra-auth-flow sigra-auth-stack"
     end
 
     test "has password autocomplete", %{content: content} do

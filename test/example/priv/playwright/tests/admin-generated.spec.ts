@@ -1,9 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
 import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
-// Phase 31 Plan 1: generated-host admin parity smoke.
+// Generated-host admin and adopter-experience parity smoke.
 //
 // Per D-03, D-05, D-17, D-20, D-21, D-24, and D-25 this spec stays narrow and
 // deterministic. It proves installer/template/runtime parity for the shipped
@@ -64,11 +65,120 @@ async function logIn(
   password: string,
 ) {
   await page.goto("/users/log_in");
-  await page.fill('#login_form input[name="user[email]"]', email);
-  await page.fill('#login_form input[name="user[password]"]', password);
-  await page.click('#login_form button:has-text("Log in")');
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await page.locator("details.sigra-auth-disclosure > summary").click();
+  const passwordForm = page.locator("#login_form");
+  await passwordForm.getByLabel("Email", { exact: true }).fill(email);
+  await passwordForm.getByLabel("Password", { exact: true }).fill(password);
+  await passwordForm
+    .getByRole("button", { name: "Sign in with password" })
+    .click();
   await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
 }
+
+test("generated auth shell communicates hierarchy and survives theme and reflow states", async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize(DESKTOP_VIEWPORT);
+  await page.goto("/users/log_in");
+
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Email me a sign-in link" }),
+  ).toBeVisible();
+
+  const alternatives = page.locator("details.sigra-auth-disclosure");
+  await expect(alternatives).not.toHaveAttribute("open", "");
+  const alternativesSummary = alternatives.locator("summary");
+  for (let index = 0; index < 4; index += 1) {
+    await page.keyboard.press("Tab");
+  }
+  await expect(alternativesSummary).toBeFocused();
+  await expect(alternativesSummary).not.toHaveCSS("box-shadow", "none");
+  await page.keyboard.press("Enter");
+  await expect(alternatives).toHaveAttribute("open", "");
+  await expect(
+    page.getByRole("button", { name: "Sign in with password" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Work sign-in" }),
+  ).toBeVisible();
+
+  const authAssetBudget = await page.evaluate(() => {
+    const entries = performance
+      .getEntriesByType("resource")
+      .filter((entry) => new URL(entry.name).pathname.endsWith("/sigra_auth.css")) as PerformanceResourceTiming[];
+
+    return {
+      count: entries.length,
+      decodedBytes: entries.reduce((sum, entry) => sum + entry.decodedBodySize, 0),
+    };
+  });
+  expect(authAssetBudget.count).toBe(1);
+  expect(authAssetBudget.decodedBytes).toBeLessThanOrEqual(35_000);
+
+  const authRoot = page.locator("main.sigra-auth");
+  await expect(authRoot).toHaveAttribute("data-theme", "system");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  const themeSnapshot = async (theme: "light" | "dark" | "system") => {
+    await authRoot.evaluate((element, value) => {
+      element.setAttribute("data-theme", value);
+    }, theme);
+
+    return authRoot.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        background: style.getPropertyValue("--sigra-auth-bg").trim(),
+        colorScheme: style.colorScheme,
+      };
+    });
+  };
+
+  const light = await themeSnapshot("light");
+  await captureAdminCheckpoint(page, testInfo, {
+    name: "auth-login-light-desktop",
+    prefix: "auth",
+  });
+  const dark = await themeSnapshot("dark");
+  expect(light.colorScheme).toBe("light");
+  expect(dark.colorScheme).toBe("dark");
+  expect(dark.background).not.toBe(light.background);
+
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  const systemDark = await themeSnapshot("system");
+  expect(systemDark.colorScheme).toBe("dark");
+  await captureAdminCheckpoint(page, testInfo, {
+    name: "auth-login-system-dark-desktop",
+    prefix: "auth",
+  });
+  const reducedTransitionSeconds = await page
+    .getByRole("button", { name: "Email me a sign-in link" })
+    .evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration));
+  expect(reducedTransitionSeconds).toBeLessThanOrEqual(0.001);
+
+  const { violations } = await new AxeBuilder({ page })
+    .include("main.sigra-auth")
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(
+    violations,
+    `generated auth post-disclosure axe violations: ${JSON.stringify(violations).slice(0, 2000)}`,
+  ).toHaveLength(0);
+
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.locator("html").evaluate((element) => {
+    element.style.fontSize = "32px";
+  });
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await captureAdminCheckpoint(page, testInfo, {
+    name: "auth-login-system-dark-320-reflow",
+    prefix: "auth",
+  });
+});
 
 test("generated host admin shell renders on desktop and mobile", async ({
   page,
@@ -249,6 +359,55 @@ test.describe("VFY-01 generated host audit CSV export", () => {
     expect(firstLine).toContain("occurred_at");
     expect(firstLine).toContain("impersonation_state");
   });
+});
+
+test("generated audit presets expose one effective filter value and visible applied state", async ({
+  page,
+}) => {
+  await logIn(page, platformAdminEmail, adminPassword);
+  await page.goto("/admin/audit");
+  await waitForLiveViewReady(page);
+
+  const presets = page.getByRole("navigation", {
+    name: "Audit filter presets",
+  });
+  await presets.getByRole("link", { name: "Failures" }).click();
+  await expect(page).toHaveURL(/(?:\?|&)outcome=failure(?:&|$)/);
+  await expect(
+    page.getByRole("heading", { name: "Active filters" }),
+  ).toBeVisible();
+  await expect(page.getByText("Outcome: Failure", { exact: true })).toBeVisible();
+  await expect(page.locator('[name="outcome"]')).toHaveCount(1);
+  await expect(page.locator('[name="action_prefix"]')).toHaveCount(1);
+  await expect(page.locator('select[name="outcome"]')).toHaveValue("failure");
+
+  await presets.getByRole("link", { name: "Impersonation" }).click();
+  await expect(page).toHaveURL(/action_prefix=admin(?:\.|%2E)impersonation/);
+  await expect(
+    page.getByText("Action: admin.impersonation", { exact: true }),
+  ).toBeVisible();
+
+  const actorId = "00000000-0000-0000-0000-000000000001";
+  await page.getByLabel("Actor", { exact: true }).fill(actorId);
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(page).toHaveURL(new RegExp(`(?:\\?|&)actor=${actorId}(?:&|$)`));
+  await expect(page.getByText(`Actor: ${actorId}`, { exact: true })).toBeVisible();
+});
+
+test("revoked platform admin is denied on the next authorization check", async ({
+  page,
+}) => {
+  test.skip(
+    process.env.SIGRA_EXPECT_PLATFORM_DENIED !== "1",
+    "Run by the generated-host smoke after the revoke task.",
+  );
+
+  await logIn(page, platformAdminEmail, adminPassword);
+  const response = await page.goto("/admin");
+  expect(response?.status()).toBe(403);
+  await expect(page.locator("body")).toContainText(
+    "Access denied. You do not have access to this admin scope.",
+  );
 });
 
 test.describe("VFY-01 generated host impersonation start", () => {

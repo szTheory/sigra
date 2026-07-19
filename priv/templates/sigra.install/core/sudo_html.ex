@@ -16,13 +16,13 @@ defmodule <%= web_module %>.Auth.SudoHTML do
   def new(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Re-enter your password
         <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
       </.header>
 
-      <.form :let={f} for={@form} action={~p"/users/sudo"} method="post" class="space-y-4">
+      <.form :let={f} for={@form} action={~p"/users/sudo"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <input type="hidden" name="sudo[return_to]" value={@return_to} />
         <.input
           field={f[:password]}
@@ -32,11 +32,11 @@ defmodule <%= web_module %>.Auth.SudoHTML do
           autofocus
           required
         />
-        <.button class="w-full">Confirm password</.button>
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">Confirm password</.sigra_auth_button>
       </.form>
 
-      <p class="mt-4 text-center text-sm">
-        <.link navigate={@return_to || ~p"/"} class="text-brand hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link navigate={@return_to || ~p"/"}>
           Go back
         </.link>
       </p>

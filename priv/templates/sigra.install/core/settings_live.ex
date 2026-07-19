@@ -57,7 +57,7 @@ defmodule <%= web_module %>.SettingsLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-2xl">
+      <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Account Settings
         <:subtitle>Manage your email, password, and account.</:subtitle>
@@ -66,49 +66,49 @@ defmodule <%= web_module %>.SettingsLive do
       <%%= # Force password change banner (D-58) %>
       <div
         :if={@force_password_change?}
-        class="mt-4 rounded-lg bg-yellow-50 p-4 border border-yellow-200"
+        class="sigra-auth-notice sigra-auth-notice--warning"
       >
-        <p class="text-sm font-semibold text-yellow-700">
+        <p>
           You must change your password before you can continue using your account.
         </p>
       </div>
 
-      <div class="mt-8 space-y-6">
+      <div class="sigra-auth-stack sigra-auth-stack--6">
         <%%= # Email Section (D-59) %>
-        <div id="email" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <span class="text-sm font-semibold">Email address</span>
-          <p class="mt-2 text-sm text-gray-500">
+        <section id="email" class="sigra-auth-section">
+          <h2>Email address</h2>
+          <p class="sigra-auth-copy sigra-auth-copy--muted">
             Current email: <%= "{@current_scope.user.email}" %>
           </p>
 
           <%%= if @pending_email_change? do %>
-            <div class="mt-2 text-sm">
-              <span class="text-yellow-700">
+            <div class="sigra-auth-notice sigra-auth-notice--warning sigra-auth-stack sigra-auth-stack--2">
+              <strong>
                 Changing to: <%= "{@current_scope.user.pending_email}" %> (awaiting confirmation)
-              </span>
-              <p class="text-gray-500 mt-1">
+              </strong>
+              <p>
                 We sent a confirmation link to <%= "{@current_scope.user.pending_email}" %>. Check your inbox.
               </p>
               <button
                 phx-click="cancel_email_change"
-                class="mt-2 text-sm text-red-600 hover:underline"
+                class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
                 Cancel email change
               </button>
             </div>
           <%% else %>
-            <.form for={@email_form} phx-submit="request_email_change" class="mt-4">
+            <.form for={@email_form} phx-submit="request_email_change" class="sigra-auth-stack sigra-auth-stack--4">
               <.input field={@email_form[:email]} type="email" label="New email" required />
-              <.button class="mt-2">Update email</.button>
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Update email</.sigra_auth_button>
             </.form>
           <%% end %>
-        </div>
+        </section>
 
         <%%= # Password Section (D-45, D-60) %>
-        <div id="password" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <span class="text-sm font-semibold">Password</span>
+        <section id="password" class="sigra-auth-section">
+          <h2>Password</h2>
           <%%= if @has_password? do %>
-            <.form for={@password_form} phx-submit="change_password" class="mt-4">
+            <.form for={@password_form} phx-submit="change_password" class="sigra-auth-stack sigra-auth-stack--4">
               <.input
                 field={@password_form[:current_password]}
                 type="password"
@@ -130,13 +130,13 @@ defmodule <%= web_module %>.SettingsLive do
                 autocomplete="new-password"
                 required
               />
-              <.button class="mt-2">Change password</.button>
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Change password</.sigra_auth_button>
             </.form>
           <%% else %>
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               You signed in with a social provider. Set a password to enable email login.
             </p>
-            <.form for={@password_form} phx-submit="set_password" class="mt-4">
+            <.form for={@password_form} phx-submit="set_password" class="sigra-auth-stack sigra-auth-stack--4">
               <.input
                 field={@password_form[:password]}
                 type="password"
@@ -151,40 +151,40 @@ defmodule <%= web_module %>.SettingsLive do
                 autocomplete="new-password"
                 required
               />
-              <.button class="mt-2">Set a password</.button>
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Set a password</.sigra_auth_button>
             </.form>
           <%% end %>
-        </div>
+        </section>
 
         <%%= # Deletion Section (D-30, D-57) %>
-        <div id="delete" class="bg-gray-50 p-4 rounded-lg border border-gray-200 border-l-4 border-red-500">
-          <span class="text-sm font-semibold">Delete account</span>
+        <section id="delete" class="sigra-auth-section sigra-auth-notice--danger">
+          <h2>Delete account</h2>
           <%%= case @deletion_status do %>
             <%% {:scheduled, _days} -> %>
-              <p class="mt-2 text-sm text-red-600">
+              <p class="sigra-auth-copy sigra-auth-copy--danger">
                 Your account is scheduled for deletion on <%= "{@scheduled_deletion_date}" %>.
               </p>
               <button
                 phx-click="cancel_deletion"
-                class="mt-2 text-sm bg-white border border-gray-300 rounded px-3 py-1 hover:bg-gray-50"
+                class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--small"
               >
                 Cancel deletion
               </button>
             <%% :not_scheduled -> %>
-              <p class="mt-2 text-sm text-gray-500">
+              <p class="sigra-auth-copy sigra-auth-copy--muted">
                 Schedule account deletion according to your configured deletion strategy.
                 After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
               </p>
               <button
                 phx-click="confirm_delete"
                 data-confirm="Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy."
-                class="mt-4 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded"
+                class="sigra-auth-action sigra-auth-action--danger"
               >
                 Delete my account
               </button>
             <%% _ -> %>
           <%% end %>
-        </div>
+        </section>
       </div>
       </div>
     </.sigra_auth_page>
@@ -238,7 +238,7 @@ defmodule <%= web_module %>.SettingsLive do
     current_password = params["current_password"]
     attrs = Map.take(params, ["password", "password_confirmation"])
 
-    case Auth.change_password(user, current_password, attrs) do
+    case Auth.change_password(user, current_password, attrs, scope: socket.assigns.current_scope) do
       {:ok, _user} ->
         {:noreply,
          socket
@@ -247,6 +247,10 @@ defmodule <%= web_module %>.SettingsLive do
            force_password_change?: false,
            password_form: to_form(%{}, as: "password")
          )}
+
+      {:error, :impersonation_forbidden} ->
+        {:noreply,
+         put_flash(socket, :error, "You can't change account security settings while impersonating.")}
 
       {:error, changeset} ->
         {:noreply,
@@ -279,7 +283,7 @@ defmodule <%= web_module %>.SettingsLive do
   def handle_event("confirm_delete", _params, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.schedule_deletion(user) do
+    case Auth.schedule_deletion(user, scope: socket.assigns.current_scope) do
       {:ok, updated_user, scheduled_date} ->
         {:noreply,
          socket
@@ -295,6 +299,7 @@ defmodule <%= web_module %>.SettingsLive do
           case reason do
             :already_scheduled -> "Your account is already scheduled for deletion."
             :cooldown -> "You recently cancelled a deletion request. Please wait before requesting again."
+            :impersonation_forbidden -> "You can't delete an account while impersonating."
             _ -> "Something went wrong while processing your request. Please try again."
           end
 
@@ -305,7 +310,7 @@ defmodule <%= web_module %>.SettingsLive do
   def handle_event("cancel_deletion", _params, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.cancel_deletion(user) do
+    case Auth.cancel_deletion(user, scope: socket.assigns.current_scope) do
       {:ok, updated_user} ->
         {:noreply,
          socket
@@ -315,6 +320,10 @@ defmodule <%= web_module %>.SettingsLive do
            deletion_status: :not_scheduled,
            scheduled_deletion_date: nil
          )}
+
+      {:error, :impersonation_forbidden} ->
+        {:noreply,
+         put_flash(socket, :error, "You can't change account deletion while impersonating.")}
 
       {:error, _reason} ->
         {:noreply,

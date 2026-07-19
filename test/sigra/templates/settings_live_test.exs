@@ -40,7 +40,7 @@ defmodule Sigra.Templates.SettingsLiveTest do
     end
 
     test "deletion section has danger zone styling", %{content: content} do
-      assert content =~ "border-l-4 border-red-500"
+      assert content =~ ~s(class="sigra-auth-section sigra-auth-notice--danger")
     end
 
     test "contains pending email change display", %{content: content} do
@@ -111,8 +111,8 @@ defmodule Sigra.Templates.SettingsLiveTest do
       assert content =~ ":confirm_email"
     end
 
-    test "uses max-w-2xl layout matching other settings pages", %{content: content} do
-      assert content =~ "mx-auto max-w-2xl"
+    test "uses the wide semantic auth flow", %{content: content} do
+      assert content =~ "sigra-auth-flow--wide"
     end
 
     test "contains flash messages matching UI-SPEC", %{content: content} do
@@ -121,8 +121,8 @@ defmodule Sigra.Templates.SettingsLiveTest do
       assert content =~ "Password set successfully"
     end
 
-    test "deletion section has red CTA button", %{content: content} do
-      assert content =~ "bg-red-600 hover:bg-red-700"
+    test "deletion section has a semantic danger action", %{content: content} do
+      assert content =~ "sigra-auth-action--danger"
     end
   end
 
@@ -173,8 +173,8 @@ defmodule Sigra.Templates.SettingsLiveTest do
       assert content =~ ~s(/users/log_out)
     end
 
-    test "uses max-w-md layout", %{content: content} do
-      assert content =~ "mx-auto max-w-md"
+    test "uses the semantic auth flow", %{content: content} do
+      assert content =~ "sigra-auth-flow sigra-auth-stack"
     end
   end
 

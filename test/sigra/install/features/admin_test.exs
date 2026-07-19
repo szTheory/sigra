@@ -19,7 +19,20 @@ defmodule Sigra.Install.Features.AdminTest do
     test "owns the generated admin policy and shell boundary files" do
       files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
 
+      assert {:eex, "admin/create_platform_admin_grants.exs",
+              "priv/repo/migrations/TIMESTAMP_create_platform_admin_grants.exs"} in files
+
+      assert {:eex, "admin/platform_admin_grant.ex",
+              "lib/my_app/accounts/platform_admin_grant.ex"} in files
+
+      assert {:eex, "admin/admin_access.ex", "lib/my_app/sigra_admin_access.ex"} in files
       assert {:eex, "admin/policy.ex", "lib/my_app/sigra_admin_policy.ex"} in files
+
+      assert {:eex, "admin/policy_test.exs", "test/my_app/sigra_admin_policy_test.exs"} in files
+
+      for task <- ~w(grant revoke list check) do
+        assert {:eex, "admin/mix_tasks/#{task}.ex", "lib/mix/tasks/sigra.admin.#{task}.ex"} in files
+      end
 
       assert {:eex, "admin/components/admin_shell.ex", "lib/my_app_web/components/admin_shell.ex"} in files
 
@@ -51,8 +64,11 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   describe "migrations/1" do
-    test "does not introduce any admin migrations in plan 27-01" do
-      assert [] = Admin.migrations([])
+    test "allocates the host-owned platform-admin grant migration" do
+      assert [
+               {:platform_admin_grants, "admin/create_platform_admin_grants.exs",
+                "create_platform_admin_grants.exs"}
+             ] = Admin.migrations([])
     end
   end
 
@@ -88,6 +104,7 @@ defmodule Sigra.Install.Features.AdminTest do
       assert layouts_admin.content =~ "<.admin_shell"
       assert layouts_admin.content =~ "admin_breadcrumbs={@admin_breadcrumbs}"
       assert layouts_admin.content =~ "<.flash_group"
+
       assert layouts_admin.content =~ ~s|href={~p"/assets/sigra_admin.css"}|,
              "layouts_admin injection must include the sigra_admin.css <link> tag (DIST-03)"
 
@@ -205,13 +222,75 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   describe "template ownership guards" do
+    @admin_render_binding [
+      otp_app: :my_app,
+      app_module: "MyApp",
+      web_module: "MyAppWeb",
+      context_module: "MyApp.Accounts",
+      context_alias: "Accounts",
+      schema_alias: "User",
+      table_name: "users",
+      repo_module: "MyApp.Repo",
+      binary_id: true,
+      adapter: :postgres,
+      auth_prefix: nil
+    ]
+
     test "admin templates exist on disk" do
+      assert File.exists?("priv/templates/sigra.install/admin/create_platform_admin_grants.exs")
+      assert File.exists?("priv/templates/sigra.install/admin/platform_admin_grant.ex")
+      assert File.exists?("priv/templates/sigra.install/admin/admin_access.ex")
       assert File.exists?("priv/templates/sigra.install/admin/policy.ex")
+      assert File.exists?("priv/templates/sigra.install/admin/policy_test.exs")
       assert File.exists?("priv/templates/sigra.install/admin/router_injection.ex")
       assert File.exists?("priv/templates/sigra.install/admin/components/admin_shell.ex")
       assert File.exists?("priv/templates/sigra.install/admin/admin_hooks.js")
       assert File.exists?("priv/templates/sigra.install/admin/impersonation_controller.ex")
       assert File.exists?("priv/templates/sigra.install/admin/audit_export_controller.ex")
+
+      for task <- ~w(admin_task grant revoke list check) do
+        assert File.exists?("priv/templates/sigra.install/admin/mix_tasks/#{task}.ex")
+      end
+    end
+
+    test "default policy delegates only platform-admin access to persisted grants" do
+      source = File.read!("priv/templates/sigra.install/admin/policy.ex")
+
+      assert source =~ "SigraAdminAccess.platform_admin?(scope)"
+      assert source =~ "def admin_org_ids(scope)"
+      refute source =~ "String.ends_with?"
+      refute source =~ "Repo.one(from user"
+    end
+
+    test "grant seam keeps the CLI target distinct from the audit actor" do
+      source = File.read!("priv/templates/sigra.install/admin/admin_access.ex")
+
+      assert source =~ ~s(actor_id: nil)
+      assert source =~ ~s(actor_type: "system")
+      assert source =~ ~s(target_id: target_id)
+      assert source =~ ~s(metadata: %{source: "mix_task"})
+      assert source =~ "Multi.run(:grant"
+      assert source =~ "Sigra.Audit.log_multi_safe"
+      assert source =~ "require_confirmed"
+      assert source =~ "require_active"
+    end
+
+    test "first-admin templates render to valid Elixir syntax" do
+      for path <- [
+            "priv/templates/sigra.install/admin/create_platform_admin_grants.exs",
+            "priv/templates/sigra.install/admin/platform_admin_grant.ex",
+            "priv/templates/sigra.install/admin/admin_access.ex",
+            "priv/templates/sigra.install/admin/policy.ex",
+            "priv/templates/sigra.install/admin/policy_test.exs",
+            "priv/templates/sigra.install/admin/mix_tasks/admin_task.ex",
+            "priv/templates/sigra.install/admin/mix_tasks/grant.ex",
+            "priv/templates/sigra.install/admin/mix_tasks/revoke.ex",
+            "priv/templates/sigra.install/admin/mix_tasks/list.ex",
+            "priv/templates/sigra.install/admin/mix_tasks/check.ex"
+          ] do
+        rendered = path |> File.read!() |> EEx.eval_string(@admin_render_binding)
+        assert {:ok, _quoted} = Code.string_to_quoted(rendered, file: path)
+      end
     end
 
     test "admin shell template exposes the auth branding nav item" do

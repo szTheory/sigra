@@ -485,6 +485,7 @@ defmodule ExampleWeb.SessionController do
 
   defp passkey_registration_details(conn) do
     %{
+      scope: conn.assigns.current_scope,
       device: conn |> get_req_header("user-agent") |> List.first() || "Unknown device",
       ip: conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip)),
       city: "Unknown",

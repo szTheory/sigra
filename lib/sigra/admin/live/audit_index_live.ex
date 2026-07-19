@@ -56,78 +56,65 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <h1 class="sg-page-title">Audit</h1>
       </header>
 
+      <nav class="sg-cluster" aria-label="Audit filter presets">
+        <a
+          href={preset_path(@admin_scope, @current_params, "outcome", "failure")}
+          class="sg-btn sg-btn--secondary sg-btn--sm"
+          aria-current={param_value(@current_params, "outcome") == "failure" && "page"}
+        >
+          Failures
+        </a>
+        <a
+          href={preset_path(@admin_scope, @current_params, "action_prefix", "admin.impersonation")}
+          class="sg-btn sg-btn--secondary sg-btn--sm"
+          aria-current={param_value(@current_params, "action_prefix") == "admin.impersonation" && "page"}
+        >
+          Impersonation
+        </a>
+      </nav>
+
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
-        <div class="sg-cluster">
-          <label class="sg-filter-chip">
-            <input
-              type="checkbox"
-              name="outcome"
-              value="failure"
-              checked={param_value(@current_params, "outcome") == "failure"}
-              class="checkbox checkbox-sm"
-            />
-            <span>Failures</span>
+        <div class="sg-form-grid sg-form-grid--cols">
+          <label class="sg-field">
+            <span class="sg-field-label">Actor</span>
+            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
           </label>
-          <label class="sg-filter-chip">
+
+          <label class="sg-field">
+            <span class="sg-field-label">Effective user</span>
+            <input type="text" name="effective_user" value={param_value(@current_params, "effective_user")} class="sg-input" />
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Action prefix</span>
             <input
-              type="checkbox"
+              type="text"
               name="action_prefix"
-              value="admin.impersonation"
-              checked={param_value(@current_params, "action_prefix") == "admin.impersonation"}
-              class="checkbox checkbox-sm"
+              value={param_value(@current_params, "action_prefix")}
+              class="sg-input"
+              placeholder="e.g. auth or admin.impersonation"
             />
-            <span>Impersonation</span>
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Outcome</span>
+            <select name="outcome" class="sg-select">
+              <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
+              <option value="success" selected={param_value(@current_params, "outcome") == "success"}>Success</option>
+              <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>Failure</option>
+            </select>
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Occurred from</span>
+            <input type="date" name="from" value={param_value(@current_params, "from")} class="sg-input" />
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Occurred to</span>
+            <input type="date" name="to" value={param_value(@current_params, "to")} class="sg-input" />
           </label>
         </div>
-
-        <details>
-          <summary>More filters</summary>
-          <div class="sg-form-grid sg-form-grid--cols">
-            <label class="sg-field">
-              <span class="sg-field-label">Actor</span>
-              <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
-            </label>
-
-            <label class="sg-field">
-              <span class="sg-field-label">Effective user</span>
-              <input type="text" name="effective_user" value={param_value(@current_params, "effective_user")} class="sg-input" />
-            </label>
-
-            <label class="sg-field">
-              <span class="sg-field-label">Action prefix</span>
-              <input
-                type="text"
-                name="action_prefix"
-                value={param_value(@current_params, "action_prefix")}
-                class="sg-input"
-                placeholder="e.g. auth or admin.impersonation"
-              />
-            </label>
-
-            <label class="sg-field">
-              <span class="sg-field-label">Outcome</span>
-              <select name="outcome" class="sg-select">
-                <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
-                <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
-                  Success
-                </option>
-                <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
-                  Failure
-                </option>
-              </select>
-            </label>
-
-            <label class="sg-field">
-              <span class="sg-field-label">Occurred from</span>
-              <input type="date" name="from" value={param_value(@current_params, "from")} class="sg-input" />
-            </label>
-
-            <label class="sg-field">
-              <span class="sg-field-label">Occurred to</span>
-              <input type="date" name="to" value={param_value(@current_params, "to")} class="sg-input" />
-            </label>
-          </div>
-        </details>
 
         <div class="sg-cluster">
           <button type="submit" class="sg-btn sg-btn--primary">Apply filters</button>
@@ -140,14 +127,21 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
 
-      <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <.applied_chip
-          :for={chip <- applied_chips(@current_params)}
-          label={chip.label}
-          remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
-        />
-        <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
-      </div>
+      <section
+        :if={any_filter_active?(@current_params)}
+        class="sg-stack sg-stack--2"
+        aria-labelledby="admin-audit-active-filters"
+      >
+        <h2 id="admin-audit-active-filters" class="sg-field-label">Active filters</h2>
+        <div class="sg-cluster sg-cluster--start">
+          <.applied_chip
+            :for={chip <- applied_chips(@current_params)}
+            label={chip.label}
+            remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+          />
+          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+        </div>
+      </section>
 
       <div
         :if={@rows != []}
@@ -250,6 +244,17 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
     admin_scope
     |> index_path()
     |> append_query(params |> Map.delete(key) |> Map.delete("cursor"))
+  end
+
+  defp preset_path(admin_scope, params, key, value) do
+    next_params =
+      if param_value(params, key) == value,
+        do: Map.delete(params, key),
+        else: Map.put(params, key, value)
+
+    admin_scope
+    |> index_path()
+    |> append_query(Map.delete(next_params, "cursor"))
   end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]

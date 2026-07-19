@@ -15,7 +15,7 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   def render(%{live_action: :new} = assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
         <:subtitle>
@@ -27,16 +27,17 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
         for={@email_form}
         id="reset_password_request_form"
         phx-submit="send_instructions"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
         <.input field={@email_form[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
 
-        <.button phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
+        <.sigra_auth_button phx-disable-with={dgettext("sigra", "Sending...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
 
-      <p class="mt-4 text-center text-sm">
-        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link navigate={~p"/users/log_in"}>
           {dgettext("sigra", "Back to log in")}
         </.link>
       </p>
@@ -48,7 +49,7 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   def render(%{live_action: :edit} = assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset your password")}
         <:subtitle>
@@ -56,7 +57,7 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
         </:subtitle>
       </.header>
 
-      <div :if={@token_invalid?} class="mt-4">
+      <div :if={@token_invalid?} class="sigra-auth-stack sigra-auth-stack--6">
         <.header>
           {dgettext("sigra", "Reset link expired")}
           <:subtitle>
@@ -64,8 +65,8 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
           </:subtitle>
         </.header>
 
-        <div class="mt-6">
-          <.link navigate={~p"/users/reset-password"} class="btn btn-primary w-full text-center block">
+        <div>
+          <.link navigate={~p"/users/reset-password"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             {dgettext("sigra", "Request new reset email")}
           </.link>
         </div>
@@ -81,39 +82,40 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
         phx-trigger-action={@trigger_submit}
         action={~p"/users/log_in?_action=password_reset"}
         method="post"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
-        <p :if={@check_errors} class="alert alert-danger">
-          {dgettext("sigra", "Oops, something went wrong! Please check the errors below.")}
+        <p :if={@check_errors} class="sigra-auth-notice sigra-auth-notice--danger">
+          {dgettext("sigra", "We couldn't reset your password. Check the highlighted fields and try again.")}
         </p>
 
         <.input field={f[:password]} type="password" label={dgettext("sigra", "New password")} autocomplete="new-password" required />
 
         <% # Password strength indicator (reused from registration, D-34) %>
-        <div :if={@password_strength} class="mt-1 mb-4">
-          <div class="flex items-center gap-2">
-            <div class="flex-1 h-2 rounded-full bg-gray-200">
+        <div :if={@password_strength} class="sigra-auth-stack sigra-auth-stack--2">
+          <div class="sigra-auth-cluster">
+            <div class="sigra-auth-meter sigra-auth-grow">
               <div
                 class={[
-                  "h-2 rounded-full transition-all duration-300",
+                  "sigra-auth-meter__value",
                   password_strength_color(@password_strength)
                 ]}
                 style={"width: #{password_strength_width(@password_strength)}%"}
               />
             </div>
-            <span class={"text-xs font-medium #{password_strength_text_color(@password_strength)}"}>
+            <span class={"sigra-auth-status #{password_strength_text_color(@password_strength)}"}>
               {password_strength_label(@password_strength)}
             </span>
           </div>
-          <ul :if={@password_suggestions != []} class="mt-1 text-xs text-gray-500 list-disc list-inside">
+          <ul :if={@password_suggestions != []} class="sigra-auth-list">
             <li :for={suggestion <- @password_suggestions}>{suggestion}</li>
           </ul>
         </div>
 
         <.input field={f[:password_confirmation]} type="password" label={dgettext("sigra", "Confirm new password")} autocomplete="new-password" required />
 
-        <.button phx-disable-with={dgettext("sigra", "Resetting...")} class="btn btn-primary w-full">
+        <.sigra_auth_button phx-disable-with={dgettext("sigra", "Resetting...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
       </div>
     </.sigra_auth_page>
@@ -206,10 +208,10 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
     end
   end
 
-  defp password_strength_color(:weak), do: "bg-red-500"
-  defp password_strength_color(:fair), do: "bg-yellow-500"
-  defp password_strength_color(:strong), do: "bg-green-500"
-  defp password_strength_color(_), do: "bg-gray-300"
+  defp password_strength_color(:weak), do: "sigra-auth-meter__value--weak"
+  defp password_strength_color(:fair), do: "sigra-auth-meter__value--fair"
+  defp password_strength_color(:strong), do: "sigra-auth-meter__value--strong"
+  defp password_strength_color(_), do: ""
 
   defp password_strength_width(:weak), do: 33
   defp password_strength_width(:fair), do: 66
@@ -221,8 +223,8 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   defp password_strength_label(:strong), do: dgettext("sigra", "Strong")
   defp password_strength_label(_), do: ""
 
-  defp password_strength_text_color(:weak), do: "text-red-600"
-  defp password_strength_text_color(:fair), do: "text-yellow-600"
-  defp password_strength_text_color(:strong), do: "text-green-600"
-  defp password_strength_text_color(_), do: "text-gray-400"
+  defp password_strength_text_color(:weak), do: "sigra-auth-status--danger"
+  defp password_strength_text_color(:fair), do: "sigra-auth-status--warning"
+  defp password_strength_text_color(:strong), do: "sigra-auth-status--success"
+  defp password_strength_text_color(_), do: ""
 end

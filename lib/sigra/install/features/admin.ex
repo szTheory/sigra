@@ -6,11 +6,11 @@ defmodule Sigra.Install.Features.Admin do
   The admin feature is enabled by default and omitted with
   `--no-admin`.
 
-  Phase 27 Plan 01 keeps admin additive and host-boundary focused:
-  the feature generates a small host policy module, a host-owned shell
-  component, and a router injection that mounts `/admin` plus
-  `/admin/organizations/:org` using normal Phoenix scopes,
-  `RequireAdminAccess`, and `AdminScope`.
+  The feature stays additive and host-boundary focused: it generates a
+  persisted, host-owned platform-admin grant seam and lifecycle tasks, a
+  policy with allow/deny tests, a host-owned shell component, and router
+  injections that mount `/admin` plus `/admin/organizations/:org` using
+  normal Phoenix scopes, `RequireAdminAccess`, and `AdminScope`.
 
   This module contains zero references to other install features.
   """
@@ -26,9 +26,27 @@ defmodule Sigra.Install.Features.Admin do
   def files(binding) do
     otp_app = Keyword.fetch!(binding, :otp_app) |> to_string()
     web = "#{otp_app}_web"
+    context = binding |> Keyword.get(:context_alias, "Accounts") |> Macro.underscore()
 
     [
+      {:eex, "admin/create_platform_admin_grants.exs",
+       migration_target(binding, :platform_admin_grants, "create_platform_admin_grants.exs")},
+      {:eex, "admin/platform_admin_grant.ex",
+       Path.join(["lib", otp_app, context, "platform_admin_grant.ex"])},
+      {:eex, "admin/admin_access.ex", Path.join(["lib", otp_app, "sigra_admin_access.ex"])},
       {:eex, "admin/policy.ex", Path.join(["lib", otp_app, "sigra_admin_policy.ex"])},
+      {:eex, "admin/policy_test.exs",
+       Path.join(["test", otp_app, "sigra_admin_policy_test.exs"])},
+      {:eex, "admin/mix_tasks/admin_task.ex",
+       Path.join(["lib", "mix", "tasks", "sigra.admin.task.ex"])},
+      {:eex, "admin/mix_tasks/grant.ex",
+       Path.join(["lib", "mix", "tasks", "sigra.admin.grant.ex"])},
+      {:eex, "admin/mix_tasks/revoke.ex",
+       Path.join(["lib", "mix", "tasks", "sigra.admin.revoke.ex"])},
+      {:eex, "admin/mix_tasks/list.ex",
+       Path.join(["lib", "mix", "tasks", "sigra.admin.list.ex"])},
+      {:eex, "admin/mix_tasks/check.ex",
+       Path.join(["lib", "mix", "tasks", "sigra.admin.check.ex"])},
       {:eex, "admin/components/admin_shell.ex",
        Path.join(["lib", web, "components", "admin_shell.ex"])},
       {:eex, "admin/sigra-logo-primary.svg",
@@ -39,8 +57,7 @@ defmodule Sigra.Install.Features.Admin do
        Path.join(["lib", web, "controllers", "admin", "impersonation_controller.ex"])},
       {:eex, "admin/audit_export_controller.ex",
        Path.join(["lib", web, "controllers", "admin", "audit_export_controller.ex"])},
-      {:eex, "admin/sigra_admin.css",
-       Path.join(["priv", "static", "assets", "sigra_admin.css"])}
+      {:eex, "admin/sigra_admin.css", Path.join(["priv", "static", "assets", "sigra_admin.css"])}
     ]
   end
 
@@ -59,7 +76,12 @@ defmodule Sigra.Install.Features.Admin do
   end
 
   @impl true
-  def migrations(_binding), do: []
+  def migrations(_binding) do
+    [
+      {:platform_admin_grants, "admin/create_platform_admin_grants.exs",
+       "create_platform_admin_grants.exs"}
+    ]
+  end
 
   @impl true
   def post_instructions(_binding, _report) do
@@ -70,8 +92,13 @@ defmodule Sigra.Install.Features.Admin do
 
       Next steps:
 
-        1. Review `lib/<app>/sigra_admin_policy.ex` and define platform-admin
-           and org-admin access explicitly for your host app.
+        1. Run `mix ecto.migrate`, then grant an existing confirmed account:
+
+               mix sigra.admin.grant --email operator@example.com
+
+           The generated host-owned policy delegates platform-admin checks to
+           the persisted grant table. Keep `admin_org_ids/1` explicit for your
+           application's organization-admin rules.
 
         2. Review the injected admin router scopes at `/admin` and
            `/admin/organizations/:org`, which already enforce the admin
@@ -152,5 +179,14 @@ defmodule Sigra.Install.Features.Admin do
   defp read_template!(relative_path) do
     Application.app_dir(:sigra, Path.join(["priv", "templates", "sigra.install", relative_path]))
     |> File.read!()
+  end
+
+  defp migration_target(binding, slot_key, basename) do
+    timestamp =
+      binding
+      |> Keyword.get(:migration_timestamps, %{})
+      |> Map.get(slot_key, "TIMESTAMP")
+
+    Path.join(["priv", "repo", "migrations", "#{timestamp}_#{basename}"])
   end
 end

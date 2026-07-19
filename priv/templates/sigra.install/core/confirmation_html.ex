@@ -15,7 +15,7 @@ defmodule <%= web_module %>.ConfirmationHTML do
   def new(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Confirm your email")}
         <:subtitle>
@@ -23,7 +23,7 @@ defmodule <%= web_module %>.ConfirmationHTML do
         </:subtitle>
       </.header>
 
-      <.form for={%{}} id="confirmation_form" action={~p"/users/confirm"} method="post">
+      <.form for={%{}} id="confirmation_form" action={~p"/users/confirm"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <.input
           name="code"
           type="text"
@@ -33,19 +33,20 @@ defmodule <%= web_module %>.ConfirmationHTML do
           maxlength="6"
           pattern="[0-9]{6}"
           aria-label={dgettext("sigra", "Confirmation code")}
+          class="sigra-auth-code-input"
           required
         />
 
-        <.button class="btn btn-primary w-full">
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Confirm email")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
 
-      <p class="mt-4 text-center text-sm">
-        <.link href={~p"/users/confirm/resend"} method="post" class="font-semibold text-brand hover:underline">
+      <.form for={%{}} action={~p"/users/confirm/resend"} method="post">
+        <button type="submit" class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--block">
           {dgettext("sigra", "Didn't receive a code?")}
-        </.link>
-      </p>
+        </button>
+      </.form>
       </div>
     </.sigra_auth_page>
     """
@@ -54,7 +55,7 @@ defmodule <%= web_module %>.ConfirmationHTML do
   def already_confirmed(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Email already confirmed")}
         <:subtitle>
@@ -62,8 +63,8 @@ defmodule <%= web_module %>.ConfirmationHTML do
         </:subtitle>
       </.header>
 
-      <p class="mt-4 text-center">
-        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link navigate={~p"/users/log_in"}>
           {dgettext("sigra", "Log in")}
         </.link>
       </p>
@@ -75,7 +76,7 @@ defmodule <%= web_module %>.ConfirmationHTML do
   def expired(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Confirmation link expired")}
         <:subtitle>
@@ -84,9 +85,9 @@ defmodule <%= web_module %>.ConfirmationHTML do
       </.header>
 
       <.form for={%{}} action={~p"/users/confirm/resend"} method="post">
-        <.button class="btn btn-primary w-full">
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
       </div>
     </.sigra_auth_page>

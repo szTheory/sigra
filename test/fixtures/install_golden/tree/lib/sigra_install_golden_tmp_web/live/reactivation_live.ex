@@ -34,28 +34,28 @@ defmodule SigraInstallGoldenTmpWeb.ReactivationLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-md mt-16">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Your account is scheduled for deletion
       </.header>
 
-      <div class="mt-6 text-sm text-gray-700">
+      <div class="sigra-auth-notice sigra-auth-notice--warning sigra-auth-stack sigra-auth-stack--4">
         <p>
           Your account is scheduled for deletion on {@scheduled_deletion_date}.
           Finalization will follow the configured deletion strategy.
         </p>
-        <p class="mt-4">
+        <p>
           If you'd like to keep your account, you can cancel the deletion now.
         </p>
       </div>
 
-      <div class="mt-8 space-y-3">
-        <.button phx-click="cancel_deletion" class="w-full">
+      <div class="sigra-auth-stack sigra-auth-stack--3">
+        <.sigra_auth_button phx-click="cancel_deletion" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           Cancel deletion and keep my account
-        </.button>
+        </.sigra_auth_button>
         <.link
           navigate={~p"/users/log_out"}
-          class="block text-center text-sm text-gray-500 hover:underline"
+          class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--block"
         >
           I understand, sign me out
         </.link>
