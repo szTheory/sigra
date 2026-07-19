@@ -64,7 +64,7 @@ defmodule ExampleWeb.Components.DemoBar do
       <select class="vt-demo-switch__select" data-demo-persona-switch aria-label="Switch demo persona">
         <option value="" disabled selected={is_nil(@persona)}>Switch persona…</option>
         <option :for={p <- @personas} value={p.key} selected={@persona && @persona.key == p.key}>
-          {p.display_name}
+          {[p.display_name, p.tagline && " — #{p.tagline}"]}
         </option>
       </select>
     </div>

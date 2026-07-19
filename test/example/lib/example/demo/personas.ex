@@ -240,6 +240,30 @@ defmodule Example.Demo.Personas do
   end
 
   @doc """
+  Returns the short persona-tagline map keyed by email local part. A companion to
+  `feature_map/0` (the LONG feature text driving the identity block + credentials
+  cards); these taglines are VERY short (≤ ~4 words) unique descriptors of what
+  makes each account distinct, consumed ONLY by the demo-bar persona `<select>`
+  dropdown (`options/0` → `<.demo_bar>`). Keyed by the email local part for all
+  ten `@demo.tasklane.test` personas.
+  """
+  @spec taglines() :: %{String.t() => String.t()}
+  def taglines do
+    %{
+      "admin" => "MFA + passkey, multi-org",
+      "alice" => "standard user, happy path",
+      "bob" => "MFA + Beta Labs owner",
+      "carol" => "GitHub OAuth login",
+      "dave" => "locked, unconfirmed",
+      "frank" => "scheduled for deletion",
+      "morgan" => "Acme org console",
+      "pat" => "passkey sign-in",
+      "grace" => "member, deletion scheduled",
+      "zoe" => "zero-state, empty panels"
+    }
+  end
+
+  @doc """
   Looks up a persona by email local part (the string before `@`) and returns it
   enriched with `:key` and `:feature`, or `nil` if no persona matches.
   """
@@ -266,13 +290,15 @@ defmodule Example.Demo.Personas do
   def by_email(_email), do: nil
 
   @doc """
-  Returns the persona switch-dropdown options as `%{key, display_name}` maps,
-  one per persona, in `all/0` order.
+  Returns the persona switch-dropdown options as `%{key, display_name, tagline}`
+  maps, one per persona, in `all/0` order. The `:tagline` is the short descriptor
+  from `taglines/0` (may be `nil` if a persona has no tagline).
   """
-  @spec options() :: [%{key: String.t(), display_name: String.t()}]
+  @spec options() :: [%{key: String.t(), display_name: String.t(), tagline: String.t() | nil}]
   def options do
     Enum.map(all(), fn p ->
-      %{key: p.email |> String.split("@") |> hd(), display_name: p.display_name}
+      local = p.email |> String.split("@") |> hd()
+      %{key: local, display_name: p.display_name, tagline: taglines()[local]}
     end)
   end
 
