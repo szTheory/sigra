@@ -1688,6 +1688,9 @@ jobs:
             --project=admin-design-dark \
             --update-snapshots
       - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch (OQ1, OQ2)
+        # Recapture PRs open on-demand only (workflow_dispatch) — see the checkpoint
+        # job for rationale. Prevents scheduled/push runs from opening baseline PRs.
+        if: github.event_name == 'workflow_dispatch'
         # OQ1 (board-notice canary re-baseline): board-notice PNGs were deleted before
         # recapture so they appear as 'added' to the guard — the guard's legitimate birth
         # path (line 100). NOT allowlisted (canary is never allowlistable); NOT a
@@ -2006,6 +2009,11 @@ jobs:
         run: |
           npx playwright test tests/demo-showcase.spec.ts --project=demo-showcase-chromium --update-snapshots
       - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
+        # Recapture PRs open on-demand only (workflow_dispatch). On schedule/push the
+        # impersonation-banner canary's delete-rebirth always shows as drift, which
+        # previously opened a duplicate recapture PR every single day. The merge-gating
+        # snapshot guards live in fast_checks (committed-ledger), not here.
+        if: github.event_name == 'workflow_dispatch'
         # D-05/D-06: the checkpoint job now self-gates like the design job instead of
         # relying on human visual review — impersonation-banner PNGs were deleted before
         # recapture so they appear as 'added' to the guard (the guard's legitimate birth
@@ -2095,6 +2103,18 @@ jobs:
     name: Admin eval render + probe (evidence only, not a merge gate)
     runs-on: ubuntu-latest
     needs: [release_ref_guard]
+    # Advisory evidence lane — deliberately NOT in ci-gate.needs. continue-on-error
+    # so a harness failure (or its own dev-boot flake) can never redden the
+    # default-branch run; evidence bundles still upload as artifacts. The real
+    # merge signal is ci-gate + the committed-ledger guards in fast_checks.
+    continue-on-error: true
+    # PORT must agree at COMPILE and RUNTIME: config.exs bakes
+    # System.get_env("PORT", "4000") into ExampleWeb.Endpoint at compile time (a
+    # compile_env key), so booting on a different PORT trips validate_compile_env
+    # and aborts the app (→ ERR_CONNECTION_REFUSED for every eval test). Pin it
+    # job-wide so compile, ecto, seeds, and boot all use 4011.
+    env:
+      PORT: "4011"
     services:
       postgres:
         image: postgres:15
