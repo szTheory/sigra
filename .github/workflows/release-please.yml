@@ -36,7 +36,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       sha: ${{ steps.release.outputs.sha }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -187,17 +187,17 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93 # v1.24.0
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           version-file: .tool-versions
           version-type: strict
 
       - name: Cache library deps
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             deps
@@ -351,7 +351,7 @@ jobs:
       (needs.gate-ci-green.result == 'failure' || needs.gate-ci-green.result == 'cancelled' ||
        needs.publish-hex.result == 'failure' || needs.publish-hex.result == 'cancelled')
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Open or update release-lane-rot tracking issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

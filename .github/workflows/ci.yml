@@ -68,7 +68,7 @@ jobs:
     name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
       - name: Resolve base ref
@@ -210,7 +210,7 @@ jobs:
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
       # do a scoped `npm ci` so these two self-tests still run on the merge path.
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -240,7 +240,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
       - name: Detect installer-related changes (PRs only)
@@ -259,7 +259,7 @@ jobs:
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: steps.detect.outputs.run == 'true'
         with:
@@ -268,7 +268,7 @@ jobs:
       - name: Cache library deps
         id: install_golden_deps_cache
         if: steps.detect.outputs.run == 'true'
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -331,8 +331,8 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
@@ -341,7 +341,7 @@ jobs:
       # both legs share one warm -library- entry (no split, no doubled cold-compile).
       - name: Cache library deps
         id: deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -449,15 +449,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache library deps (dep-off lane)
         id: dep_off_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -533,15 +533,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: example_unit_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -594,15 +594,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: install_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -610,7 +610,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -655,15 +655,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: upgrade_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -671,7 +671,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -707,15 +707,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: passkeys_fallback_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -723,7 +723,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -769,15 +769,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: install_matrix_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -888,15 +888,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: passkeys_opt_out_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             deps
@@ -904,7 +904,7 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -939,15 +939,15 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: http_smoke_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1014,20 +1014,20 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1355,12 +1355,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -1529,7 +1529,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Open or update release-lane-rot tracking issue
         env:
           LABEL: release-lane-rot
@@ -1578,20 +1578,20 @@ jobs:
     steps:
       # Boot prelude — verbatim clone of example_playwright_smoke (ci.yml:886–968)
       # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: recapture_example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -1885,20 +1885,20 @@ jobs:
     steps:
       # Boot prelude — verbatim clone of admin_design_recapture (ci.yml:1406–1485)
       # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: checkpoint_recapture_example_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
@@ -2125,20 +2125,20 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps (admin-eval-render lane)
         id: admin_eval_render_deps_cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             test/example/deps
