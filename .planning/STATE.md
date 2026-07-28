@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.46
-milestone_name: ADOPTER-EXPERIENCE
-current_phase: 229
-current_phase_name: Adoption Handoff + Terminal Ratification
-status: between_milestones
-stopped_at: v1.46 ADOPTER-EXPERIENCE archived 2026-07-27 (override_closeout). Next: /gsd-new-milestone.
-last_updated: "2026-07-28T00:00:00.000Z"
+milestone: v1.47
+milestone_name: CI-EFFICIENCY
+status: planning
+last_updated: "2026-07-28T19:43:27.853Z"
 last_activity: 2026-07-28
-last_activity_desc: Sigra 1.4.0 published to Hex via manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,11 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Milestone: v1.46 ADOPTER-EXPERIENCE — ARCHIVED 2026-07-27 (`override_closeout`)
-Phases: 6 of 6 complete (224–229)
-Requirements: 15/15 satisfied
-Status: Archived to `.planning/milestones/v1.46-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`
-Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cfc5e6b8 via a manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-28 — Milestone v1.47 started
 
 ## Accumulated Context
 

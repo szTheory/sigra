@@ -10,8 +10,18 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Between milestones.** v1.46 ADOPTER-EXPERIENCE shipped 2026-07-27 (`override_closeout`,
-15/15 requirements, 8 audit findings deferred). Next step: `/gsd-new-milestone`.
+**Milestone v1.47 CI-EFFICIENCY in planning.** v1.46 ADOPTER-EXPERIENCE shipped 2026-07-27
+(`override_closeout`, 15/15 requirements, 8 audit findings deferred).
+
+**Hex is current again.** `sigra 1.4.0` published 2026-07-28 from tag `v1.4.0` at `cfc5e6b8`
+— the first release since `1.3.0`. The v1.46 changelog content was folded into the 1.4.0
+section before merge, so it ships as release notes rather than orphaned under `## Unreleased`.
+Two release-lane defects surfaced during that publish and are filed: `gate-ci-green`'s
+30-minute ceiling is shorter than the push-to-main run it waits for, and the HARD-02
+`release-lane-rot` notifier had never worked because its label did not exist. The stray
+`1.20.0` still outranks everything on Hex — the retire is blocked by Hex 2.5's OAuth token
+scopes (not ownership), so documented install lines are pinned `{:sigra, "~> 1.4.0"}` as a
+zero-auth workaround.
 
 The adopted experience is now coherent end to end and proven from a fresh generated host —
 install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke →
@@ -45,6 +55,20 @@ v1.46 changelog content is still under `## Unreleased`.
 Phases continue from **224**. Explicitly deferred: wholesale admin redesign, host product/organization reskin, generic UI component library, automatic adopter-file rewrites, SCIM, runtime auth-prefix/schema helpers, Playwright sharding, email-theme expansion, and the operator-deferred Hex `1.20.0` retirement.
 
 </details>
+
+## Current Milestone: v1.47 CI-EFFICIENCY
+
+**Goal:** Cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest — by *executing* the already-written SEED-005 audit rather than re-running it.
+
+**Target features:**
+- **Reclaim the critical path** — design-gallery snapshots off the PR gate (a11y assertions stay), `admin_eval_render` demoted to non-PR, a `concurrency:` block, path filters, cached Playwright browsers, and `timeout-minutes` on every job.
+- **Make red mean something again** — revive the nightly (0 pass / 9 fail for weeks) and fix the two checks that report green while verifying nothing: `generated_admin_playwright_smoke` skipped on every PR behind a long-merged branch name, and `ci-gate` counting `skipped` as pass.
+- **Execute the orphaned audit phases** — `storageState` for the design boards (−6 to −7.5 min, zero coverage loss), Playwright per-shard DB parallelization, library shard economics, and the hygiene/DX tail (`mix ci` completeness, action SHA pinning, Dependabot mix+npm, deduplicated boot prelude).
+- **Prove no coverage was lost** — an explicit before/after inventory of which specs run on PR vs main vs nightly, verified by running CI rather than reading YAML.
+
+**Key context:** `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` is a finished audit with a prioritized Phase 198→203 sequence; only 198 partially ran because v1.41 reused phase numbers 199–204. It was re-verified accurate on 2026-07-28 (it named `design_gallery` at ~700s; measured 734s). SEED-005's verbatim scope guardrails bind: keep high-value gates, cut only lowest-signal/flaky with evidence, never trade trust for speed, cache correctly, keep it simple. Target is the `<12m` bar v1.40 set (38.6m → 22.1m, −43%), missed, and disclosed honestly.
+
+Phases continue from **230**. Explicitly deferred: credo, dialyzer and mix_audit as new gates; the `async: false` posture (contract-locked by `phase_153_infra_stability_contract_test.exs`); larger or self-hosted runners; and the Hex `1.20.0` retire.
 
 ## Latest Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
 
