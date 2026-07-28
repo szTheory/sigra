@@ -1057,9 +1057,13 @@ If a plan proposes adding any package, the legitimacy gate must be run before it
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four were resolved during planning; each names the plan that owns its resolution. Recorded here so
+a later reader does not re-litigate a settled question.
 
 1. **Does `example_playwright_smoke`'s docs-only step gate risk stranding its aggregator?**
+   — **RESOLVED, owned by `230-05-PLAN.md` Task 3 (D-23).**
    - What we know: the seam aggregator (`ci.yml:1225-1244`) is `if: always()` and skip-tolerant
      (`:1239`), so all-skipped seams produce "all seams passed".
    - What's unclear: whether that is the *desired* semantic for a docs-only PR (job concludes
@@ -1069,6 +1073,7 @@ If a plan proposes adding any package, the legitimacy gate must be run before it
      "distinguish correct-skip from rotted-skip" signal Phase 231's GATE-03 will need.
 
 2. **Should the D-23 honest-skip artifact be a standalone file or a section of the phase SUMMARY?**
+   — **RESOLVED, owned by `230-08-PLAN.md`.**
    - What we know: D-23 requires it be emitted explicitly; Phase 231 GATE-03 and Phase 235 GATE-05
      both consume it.
    - Recommendation: a standalone, durable path — e.g. `.planning/CI-HONEST-SKIP-SET.md` or a
@@ -1076,6 +1081,7 @@ If a plan proposes adding any package, the legitimacy gate must be run before it
      GATE-03/GATE-05 need it live. Planner's call.
 
 3. **`generated_admin_playwright_smoke`'s `timeout-minutes: 60` correction vs. GATE-02's scope.**
+   — **RESOLVED, owned by `230-07-PLAN.md` Task 1.**
    - What we know: FAST-07 owns "every job has a timeout"; the existing 60 is 16× oversized
      (CONTEXT.md `<specifics>`). GATE-02 (Phase 231) owns the stale `head_ref` condition on the
      same job (`ci.yml:1343`).
@@ -1084,6 +1090,8 @@ If a plan proposes adding any package, the legitimacy gate must be run before it
      read the timeout edit as scope creep into GATE-02.
 
 4. **Is a real `schedule` observation obtainable inside the phase window?**
+   — **RESOLVED: no. Owned by `230-09-PLAN.md` Task 2**, which captures a `workflow_dispatch` proxy and
+   labels it `proxy-observed` in the evidence ledger's per-requirement table.
    - The nightly fires at 04:30 UTC and has been **0-pass/9-fail** for the whole sampled window.
      SC-3's "a scheduled run under the same conditions runs to completion" may need to be satisfied
      by a `workflow_dispatch` proxy plus the structural `run_id` argument, since nightly greenness

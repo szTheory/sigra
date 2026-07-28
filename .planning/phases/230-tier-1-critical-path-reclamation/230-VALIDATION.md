@@ -40,7 +40,7 @@ failure — *"code-level reads that never executed the specs"*. Static reads are
 
 - **After every task commit:** `mix test test/sigra/planning/` + the new guard self-tests (seconds)
 - **After every plan wave:** every `scripts/ci/*.test.sh` / `*.test.mjs` the wave touched
-- **Before `/gsd-verify-work`:** the six observed-run slots below, all captured with run IDs
+- **Before `/gsd-verify-work`:** the eight observed-run slots below, all captured with run IDs
 - **Max feedback latency:** ~30 seconds for the static/unit layer
 
 ---
@@ -53,10 +53,30 @@ The phase is judged on **one before/after pair of real runs**. A claim without a
 |------|-----------|--------------|--------|
 | **BEFORE-PR** | PR run `30390832059` (2026-07-28, pre-change) | `gh run view 30390832059 --json jobs` | ✅ captured |
 | **BEFORE-PUSH** | Push run `30389700235` (2026-07-28, pre-change) | `gh run view 30389700235 --json jobs` | ✅ captured |
-| **AFTER-PR** | The phase's own PR, final commit | `scripts/ci/ci-run-metrics.sh --jobs <id>` | ⬜ pending |
+| **AFTER-PR** | The phase's own PR, final commit — the **miss** half of FAST-06's pair | `scripts/ci/ci-run-metrics.sh --jobs <id>` | ⬜ pending |
+| **AFTER-PR-WARM** | A second run on the **same** PR, pushed only after AFTER-PR completed and its Playwright job concluded success — the **hit** half of FAST-06's pair | `scripts/ci/ci-run-metrics.sh --jobs <id>` | ⬜ pending |
+| **AFTER-NONPR** | `workflow_dispatch` on the phase branch — the demoted `admin_eval_render` and the event-gated snapshot step observed *executing* inside the phase window | `scripts/ci/ci-run-metrics.sh --jobs <id>` | ⬜ pending |
 | **AFTER-PUSH** | The push-to-`main` run of the merge commit | `scripts/ci/ci-run-metrics.sh --jobs <id>` | ⬜ pending |
 | **AFTER-DOCSONLY** | A throwaway docs-only PR (touch one `.md`) | `gh pr checks <n>` + `gh run view <id> --json jobs` | ⬜ pending |
-| **AFTER-CANCEL** | Double-push probe on the phase branch | `gh run list --branch <b> --json conclusion` | ⬜ pending |
+| **AFTER-CANCEL** | Double-push probe on the throwaway PR branch | `gh run list --branch <b> --json conclusion` | ⬜ pending |
+
+**Why eight slots and not six.** Two were added during planning, each because a criterion was
+otherwise unprovable inside the phase window:
+
+- **AFTER-NONPR** — the demotions (FAST-02, FAST-03) must be observed *executing* somewhere, not just
+  absent from the PR. Waiting for AFTER-PUSH would push that observation past the phase.
+- **AFTER-PR-WARM** — a brand-new cache key can only *miss* on the run that introduces it, so no
+  single slot can log FAST-06's hit. A run superseded by `cancel-in-progress` is killed before
+  `actions/cache`'s post-step and saves nothing; AFTER-DOCSONLY gates the Playwright lane off
+  entirely; and AFTER-NONPR / AFTER-PUSH read `refs/heads/…` cache scopes that cannot see what a
+  `pull_request` run saved under `refs/pull/<n>/merge`. Two runs on one pull request share a scope,
+  and that pairing is the only one available. FAST-06 is therefore verified as an observed
+  **miss-then-hit pair**, which is falsifiable in both directions.
+
+**Evidence classes.** The per-requirement summary table plan 09 writes into `230-EVIDENCE.md` tags
+every row `observed`, `proxy-observed` or `structural-argument`, so a `workflow_dispatch` standing in
+for the nightly (SC-3) and the `github.run_id`-group argument (SC-1's push-to-main half, pending
+AFTER-PUSH) are never skimmed as direct observations.
 
 **Anti-pattern to reject at review:** any verification step whose command is `grep`, `cat`, or `Read`
 against `ci.yml` / `admin-design.spec.ts` as the *sole* proof of a success criterion.
@@ -74,7 +94,7 @@ against `ci.yml` / `admin-design.spec.ts` as the *sole* proof of a success crite
 | FAST-04 | Superseded PR run concludes `cancelled`; push/schedule do not | observed run | double-push probe + `gh run list --branch <b> --json conclusion` | ✅ contract | ⬜ pending |
 | FAST-05 | Docs-only PR: five required contexts report a merge-eligible state | observed run | `gh pr checks <n>` on a throwaway docs-only PR | ✅ contract | ⬜ pending |
 | FAST-05 | `fast_checks` and `library_tests` still execute **in full** on a docs-only PR | observed run | same run's job durations (~27s and ~8m, not ~0s) | ✅ contract | ⬜ pending |
-| FAST-06 | PR run logs a Playwright browser **cache hit** | observed run | `$GITHUB_STEP_SUMMARY` + install-step duration | ✅ contract | ⬜ pending |
+| FAST-06 | A **miss-then-hit pair** on one PR: AFTER-PR logs `cache-hit: false`, AFTER-PR-WARM logs `cache-hit: true` with a shorter install step | observed run (×2) | `$GITHUB_STEP_SUMMARY` + install-step and `actions/cache` post-step durations on both runs | ✅ contract | ⬜ pending |
 | FAST-06 | Cache key version tracks the lockfile | unit (guard) | `bash scripts/ci/playwright-cache-key-guard.test.sh` | ❌ W0 | ⬜ pending |
 | FAST-07 | Every job in `ci.yml` declares `timeout-minutes` | unit (static) | new assertion in `test/sigra/planning/` | ❌ W0 | ⬜ pending |
 | SC-5 / D-21 | Measurement script reproduces the baseline table shape; clamps negatives; explicit p50 | unit (hermetic) | `bash scripts/ci/ci-run-metrics.test.sh` | ❌ W0 | ⬜ pending |
@@ -103,7 +123,7 @@ against `ci.yml` / `admin-design.spec.ts` as the *sole* proof of a success crite
 |----------|-------------|------------|-------------------|
 | None | — | — | — |
 
-*All phase behaviors have automated verification.* The six observed-run slots are **automated
+*All phase behaviors have automated verification.* The eight observed-run slots are **automated
 commands** (`gh run view` / `gh pr checks` / `scripts/ci/ci-run-metrics.sh`) whose precondition is a
 real CI run — they require no human judgment, only that the run exists. This preserves the
 zero-human-UAT posture: the operator triggers runs, the evidence is machine-read.
@@ -146,7 +166,7 @@ whose `if:` evaluates false is **still present** in `gh run view --json jobs` wi
 - [ ] Wave 0 covers all MISSING references (5 items above)
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 30s for the static/unit layer
-- [ ] All six observed-run slots captured with verbatim run IDs
+- [ ] All eight observed-run slots captured with verbatim run IDs (AFTER-PUSH may close as an explicit post-merge obligation)
 - [ ] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
