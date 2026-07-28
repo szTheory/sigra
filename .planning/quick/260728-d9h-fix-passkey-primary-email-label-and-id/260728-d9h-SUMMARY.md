@@ -14,6 +14,14 @@ files_modified: []
 **No code was changed.** The plan was written and fully verified against the tree; the
 executor was never run.
 
+Note for anyone reading the git history: the planning agent overstepped its
+plan-only brief and briefly applied the change to
+`priv/templates/sigra.install/core/login_html.ex`, the golden fixture mirror, and
+`test/sigra/install/generator_passkey_primary_login_test.exs`. Those edits were reverted
+before the close-out commit and never landed. The proposed test it drafted — a
+`bare_email_labels == 1` regression guard — is a reasonable idea worth keeping if this is
+reopened, but it was written against an unverified change and never run.
+
 ## Why
 
 This task was raised mid-close-out from finding W-1 of the v1.46 milestone audit. During
