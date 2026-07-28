@@ -69,7 +69,7 @@ against `ci.yml` / `admin-design.spec.ts` as the *sole* proof of a success crite
 |-----|----------|-----------|-------------------|-------------|--------|
 | FAST-02 | Board tests carry `@snapshot`; axe tests do not; `assertBoardScreenshot` no longer calls axe | unit (static) | `mix test test/sigra/planning/` | ❌ W0 | ⬜ pending |
 | FAST-02 | PR gallery step executes **39** tests; non-PR snapshot step executes **84** | observed run | `gh run view <pr_id> --json jobs` + step log tail | ✅ contract | ⬜ pending |
-| FAST-02 | `admin_design_recapture` still executes **120** tests (Pitfall 1 regression guard) | observed run | `gh run view <push_id> --json jobs` → recapture step log | ✅ contract | ⬜ pending |
+| FAST-02 | `admin_design_recapture` still executes **123** tests (Pitfall 1 regression guard — see correction below) | observed run | `gh run view <push_id> --json jobs` → recapture step log | ✅ contract | ⬜ pending |
 | FAST-03 | `admin_eval_render` skipped on PR, executes on push | observed run | `gh run view <id> --json jobs --jq 'select(.name\|startswith("Admin eval render"))'` | ✅ contract | ⬜ pending |
 | FAST-04 | Superseded PR run concludes `cancelled`; push/schedule do not | observed run | double-push probe + `gh run list --branch <b> --json conclusion` | ✅ contract | ⬜ pending |
 | FAST-05 | Docs-only PR: five required contexts report a merge-eligible state | observed run | `gh pr checks <n>` on a throwaway docs-only PR | ✅ contract | ⬜ pending |
@@ -112,6 +112,17 @@ zero-human-UAT posture: the operator triggers runs, the evidence is machine-read
 unobtainable in this phase — the nightly is 0-pass/9-fail and that is GATE-01's problem in Phase 231.
 SC-3's schedule half is therefore proven by a `workflow_dispatch` proxy **plus** the structural
 `run_id`-group argument (D-12), stated explicitly rather than claimed as an observed nightly.
+
+---
+
+## Correction — recapture executed-test count (120 → 123)
+
+`230-RESEARCH.md` records **120** as the expected `admin_design_recapture` executed-test count, and
+this file originally carried that figure. **120 is the *pre*-change inventory.** Plan `230-02` adds
+one full-page WCAG test declaration, which executes once per design project (41 × 3 = **123**).
+
+**Operative value: 123.** Asserting 120 after the change would produce a false red. Plans `230-03`
+and `230-09` carry 123 with the arithmetic inline. RESEARCH.md's 120 is superseded by this note.
 
 ---
 
