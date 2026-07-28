@@ -70,9 +70,21 @@
   4. A documentation-only PR (touching only `*.md` / `.planning/`) reports its required checks in a merge-eligible state without running the full job matrix — read from that PR's checks view, not from the workflow file.
   5. A PR run logs a Playwright browser-binary **cache hit** instead of the ~62s download, every job in `ci.yml` reports an explicit `timeout-minutes`, and the run's wall-clock is recorded against the 29.5m/27.3m baseline using the baseline's measurement method.
 
-**Proof discipline**: This phase is judged on one before/after pair of real PR runs (`gh run view --json jobs`), not on a diff review. Do not split this phase — the six changes are independently revertible YAML and together they constitute the one measurable drop.
-**Non-negotiable**: FAST-02 moves *pixels only*. The axe gate runs on **library** admin components and is covered by no other PR lane; gating all three design projects on `event_name` would silently drop a non-redundant signal (SEED-005 P0-2 mandatory mitigation).
-**Plans**: TBD
+**Proof discipline**: This phase is judged on one before/after pair of real PR runs (`gh run view --json jobs`), not on a diff review. Do not split this phase — the six changes are independently revertible and together they constitute the one measurable drop. *(Corrected per CONTEXT D-22: this is **not** a pure-YAML change set. FAST-02 also edits `test/example/priv/playwright/tests/admin-design.spec.ts`, and the phase adds two `scripts/ci/` guards plus two ExUnit contract tests. Revertibility survives — the gallery split reverts by deleting a tag argument and a CLI flag.)*
+**Non-negotiable**: FAST-02 moves *pixels only*. The axe gate runs on **library** admin components and is covered by no other PR lane; gating all three design projects on `event_name` would silently drop a non-redundant signal (SEED-005 P0-2 mandatory mitigation). *(Owner-ratified reinterpretation 2026-07-28, CONTEXT D-01: the **letter** is superseded — the ~84 per-board axe scans collapse to one full-page scan per design project, because `admin-design.spec.ts:64-66` builds the scanner with no include filter and every board test reaches it in an identical page state, so the repeats carry the coverage of one. The **intent** — never silently drop the WCAG signal no other PR lane covers — is fully preserved and provable: all three viewport/theme projects keep a scan on every PR.)*
+**Success criterion 2 restatement**: SC-2 as worded above ("absent from the job list") is literally unsatisfiable — a job whose `if:` evaluates false is still present in `gh run view --json jobs` with `conclusion: "skipped"` and ~0s duration (verified on PR run `30390832059`, six such jobs). Verify against the operative restatement in `230-VALIDATION.md`: present with `conclusion == "skipped"` and duration < 5s on a PR; non-skipped with a real duration on a non-PR run.
+**Plans**: 9 plans in 8 waves
+
+Plans:
+- [ ] 230-01-PLAN.md — TRACER: committed CI run-metrics measurement instrument + hermetic self-test + BEFORE evidence slots (D-21)
+- [ ] 230-02-PLAN.md — FAST-02 spec half: tag the 28 board tests, add one full-page WCAG test per design project, fix the wrong doc comments
+- [ ] 230-03-PLAN.md — FAST-02 CI half: filter the PR gallery step, add the event-gated snapshot step, wire its id into the seam aggregator (D-05)
+- [ ] 230-04-PLAN.md — FAST-03 + FAST-04: demote `admin_eval_render` to non-PR events; add workflow-level run supersession
+- [ ] 230-05-PLAN.md — FAST-05: a `changes` job with fail-open polarity, step-level gating on four required lanes, `fast_checks`/`library_tests` exempt
+- [ ] 230-06-PLAN.md — FAST-06: browser-set-scoped Playwright cache, branched install, and a lockfile version-drift guard
+- [ ] 230-07-PLAN.md — FAST-07: explicit `timeout-minutes` on all 22 jobs + a per-job completeness contract
+- [ ] 230-08-PLAN.md — D-23 honest-skip set and accepted residuals, durably recorded in `MAINTAINING.md`
+- [ ] 230-09-PLAN.md — Observed-run evidence: AFTER-PR, AFTER-NONPR, AFTER-DOCSONLY, AFTER-CANCEL captured with verbatim run IDs
 
 ### Phase 231: Gate Honesty + Nightly Revival
 
