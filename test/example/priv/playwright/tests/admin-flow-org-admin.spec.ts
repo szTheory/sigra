@@ -232,10 +232,9 @@ test.describe('Phase 190 org admin flow (FLOW-01..03, DATA-01)', () => {
         // Apply a date range that precedes all seeded and test-created events.
         // Seed reference timestamp is 2026-05-15; a 2020 range has zero events.
         // Field names: `from` and `to` (audit_index_live.ex:120-128).
-        // Phase 202-03 (commit e664e7f1) moved the from/to date inputs inside a
-        // collapsed <details><summary>More filters</summary> disclosure; expand it
-        // first so the inputs are actionable (page.fill on a hidden input times out).
-        await page.locator('details > summary', { hasText: 'More filters' }).click();
+        // Phase 228 (v1.46) flattened the advanced filters out of the collapsed
+        // "More filters" <details> disclosure into the always-visible
+        // sg-filter-panel form, so the from/to date inputs are directly actionable.
         await page.fill('input[name="from"]', '2020-01-01');
         await page.fill('input[name="to"]', '2020-01-02');
         await page.getByRole('button', { name: 'Apply filters' }).click();
