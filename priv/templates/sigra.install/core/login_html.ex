@@ -82,7 +82,7 @@ defmodule <%= web_module %>.SessionHTML do
 <% end %>
         <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
           <input type="hidden" name="_action" value="magic_link" />
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
 
           <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             {dgettext("sigra", "Email me a sign-in link")} <span aria-hidden="true">&rarr;</span>
