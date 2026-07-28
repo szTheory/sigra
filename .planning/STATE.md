@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-status: Roadmap approved; awaiting `/gsd-plan-phase 230`
-stopped_at: Phase 230 context gathered (assumptions mode)
-last_updated: "2026-07-28T21:34:07.623Z"
-last_activity: 2026-07-28 — v1.47 roadmap created (6 phases, 230-235; 24/24 requirements mapped)
+status: Phase 230 planned; ready to execute
+stopped_at: Phase 230 planned (9 plans, 8 waves; plan-checker PASSED)
+last_updated: "2026-07-28T23:58:00.000Z"
+last_activity: 2026-07-28 — Phase 230 planned (9 plans / 8 waves; research + patterns + Nyquist validation; checker passed after 2 revisions)
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 9
   completed_plans: 0
   percent: 0
 ---
@@ -26,11 +26,22 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 230 — Tier-1 Critical-Path Reclamation (not started)
-Plan: —
-Status: Roadmap approved; awaiting `/gsd-plan-phase 230`
+Phase: 230 — Tier-1 Critical-Path Reclamation (planned, ready to execute)
+Plan: 9 plans across 8 waves — `/gsd-execute-phase 230`
+Status: Phase 230 planned; plan-checker PASSED (issue trend 5 → 3 → 0 over 2 revisions)
 Progress: [------------------------------] 0/6 phases (0%)
-Last activity: 2026-07-28 — v1.47 roadmap created (6 phases, 230-235; 24/24 requirements mapped)
+Last activity: 2026-07-28 — Phase 230 planned (9 plans / 8 waves; research + patterns + Nyquist validation)
+
+**Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
+21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
+`230-VALIDATION.md` (8-slot observed-run evidence contract, 6 Wave 0 gaps), `230-01..09-PLAN.md`.
+
+**Two evidence slots close post-merge, by construction — not an oversight.** AFTER-PUSH (SC-1's
+push-to-main half) and AFTER-DOCSONLY (FAST-05) cannot be captured pre-merge: `ci.yml` triggers on
+`pull_request: branches: [main]`, so any pre-merge PR's `origin/main...HEAD` diff necessarily
+carries this phase's own non-Markdown changes and can never classify `docs_only=true`. FAST-05
+retains in-phase falsifiable evidence via a hermetic self-test of the extracted
+`scripts/ci/docs-only-classify.sh` plus two observed `docs_only=false` runs.
 
 **Milestone baseline to beat (measured 2026-07-28, last 40 runs):** PR mean 29.5m / p50 27.3m
 (n=21) · push mean 30.5m (n=7) · nightly **0 pass / 9 fail** (n=9). Sole PR critical path is

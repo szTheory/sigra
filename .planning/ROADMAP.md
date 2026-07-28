@@ -64,6 +64,7 @@
 **Depends on**: Nothing (first phase)
 **Requirements**: FAST-02, FAST-03, FAST-04, FAST-05, FAST-06, FAST-07
 **Success Criteria** (what must be TRUE):
+
   1. On a real PR run, the design-gallery **snapshot** boards do not execute, while the per-board axe WCAG assertions still do — proven by that run's own Playwright output (executed-assertion count), and the snapshots are observed executing and hard-failing capable on a push-to-main / nightly run.
   2. `admin_eval_render` is absent from the job list of a PR run and present on a non-PR run, with the ~17m of PR runner time it consumed no longer charged to any PR.
   3. Pushing a second commit to an open PR branch leaves the superseded run in state `cancelled` in `gh run list`, while a push-to-`main` run and a scheduled run under the same conditions both run to completion (release integrity preserved).
@@ -76,14 +77,37 @@
 **Plans**: 9 plans in 8 waves
 
 Plans:
+**Wave 1**
+
 - [ ] 230-01-PLAN.md — TRACER: committed CI run-metrics measurement instrument + hermetic self-test + BEFORE evidence slots (D-21)
 - [ ] 230-02-PLAN.md — FAST-02 spec half: tag the 28 board tests, add one full-page WCAG test per design project, fix the wrong doc comments
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 230-03-PLAN.md — FAST-02 CI half: filter the PR gallery step, add the event-gated snapshot step, wire its id into the seam aggregator (D-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 230-04-PLAN.md — FAST-03 + FAST-04: demote `admin_eval_render` to non-PR events; add workflow-level run supersession
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 230-05-PLAN.md — FAST-05: a `changes` job with fail-open polarity, step-level gating on four required lanes, `fast_checks`/`library_tests` exempt
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 230-06-PLAN.md — FAST-06: browser-set-scoped Playwright cache, branched install, and a lockfile version-drift guard
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 230-07-PLAN.md — FAST-07: explicit `timeout-minutes` on all 22 jobs + a per-job completeness contract
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 230-08-PLAN.md — D-23 honest-skip set and accepted residuals, durably recorded in `MAINTAINING.md`
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 230-09-PLAN.md — Observed-run evidence: AFTER-PR, AFTER-NONPR, AFTER-DOCSONLY, AFTER-CANCEL captured with verbatim run IDs
 
 ### Phase 231: Gate Honesty + Nightly Revival
@@ -92,6 +116,7 @@ Plans:
 **Depends on**: Phase 230 (the demoted `admin_eval_render` lane and the reshaped nightly are what this phase must prove green)
 **Requirements**: GATE-01, GATE-02, GATE-03, GATE-04, DX-05
 **Success Criteria** (what must be TRUE):
+
   1. A scheduled nightly run concludes green — or every remaining red lane in it is a filed defect with a diagnosis and an owner, linked from the run. The "0 pass / 9 fail over 9 runs" baseline has a measured successor.
   2. Generated-host parity is verified by a job that **executes on a real PR**, shown by that job's own logs and test counts. The stale `head_ref == 'ship/v1.42-ci-gate-remediation'` condition no longer decides whether parity is checked.
   3. `ci-gate` fails when a needed lane is skipped by a rotted condition and passes when a lane is skipped by a correct event gate — both demonstrated on real runs, with the honest-skip set enumerated explicitly rather than inferred from `skipped`.
@@ -107,6 +132,7 @@ Plans:
 **Depends on**: Phase 230 (with the gallery snapshot mass off the PR path, sharding actually pays; SEED-005 found sharding in isolation is bottlenecked by that same 700s+ leg)
 **Requirements**: PW-01, PW-02, PW-03
 **Success Criteria** (what must be TRUE):
+
   1. The design projects authenticate **once per project** via a `storageState` setup project; `beforeEach` no longer calls `registerUser()` (currently `admin-design.spec.ts:250-255`, ~120 tests × a full LiveView registration over dev-mode longpoll plus an Argon2id hash). Measured: the design-board step's before/after duration from `gh run view --json jobs`, with an identical passing assertion and snapshot count.
   2. A Playwright run with more than one worker (or matrix-sharded with per-shard database and app) passes at `--retries=0` with no cross-spec interference, so `workers: 1` is no longer required for correctness — proven by running it that way, not by reasoning about it.
   3. The required check name `Example Playwright smoke (full lifecycle)` remains byte-identical after any restructuring, and branch protection still resolves it on a real PR.
@@ -121,6 +147,7 @@ Plans:
 **Depends on**: Phase 232 (the shards are off the critical path until the Playwright pole collapses; SEED-005 explicitly ranks this runner-minutes-then-latency)
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Success Criteria** (what must be TRUE):
+
   1. Slow-test visibility no longer costs serial execution — a run shows both the slowest-test reporting (or an equivalent committed artifact) and restored parallelism in the same job.
   2. The two `library_tests` shards' durations are recorded before and after, and the after-gap is measurably smaller — one shard no longer idles while the other works.
   3. The subprocess-heavy install/scaffold tests no longer dominate a shard's wall-clock, shown by per-shard job durations before and after. If any were moved off the PR lane, the receiving lane is observed executing them green and the routing decision is recorded with its justification.
@@ -135,6 +162,7 @@ Plans:
 **Depends on**: Phase 230 (the local mirror must reflect the post-reshape gate, not the pre-milestone one)
 **Requirements**: DX-01, DX-02, DX-03, DX-04, DX-06
 **Success Criteria** (what must be TRUE):
+
   1. `mix ci` on a clean checkout runs the same checks the PR gate runs — including `format --check-formatted` and the dependency-lock checks the alias lacks today (`mix.exs:143`) — and a CI lane invokes the alias so the two cannot drift apart. The one-time tree format must exclude `test/fixtures/install_golden/tree/**` from `.formatter.exs` inputs or it breaks `golden_diff_test`.
   2. Every third-party action in release-critical workflows resolves to a 40-character commit SHA with a trailing version comment (`release-please.yml:88` is the last unpinned one, on the secrets-bearing path — pin the **dereferenced commit**, not the annotated-tag object), and the release workflow still runs green afterwards.
   3. Dependabot covers `mix` and `npm` in addition to `github-actions`, evidenced by opened update PRs or a validated configuration run.
@@ -150,6 +178,7 @@ Plans:
 **Depends on**: Phases 230, 231, 232, 233, 234
 **Requirements**: FAST-01, GATE-05
 **Success Criteria** (what must be TRUE):
+
   1. PR wall-clock is under 12 minutes at p50 across at least 10 post-change PR runs, tabulated directly against the REQUIREMENTS.md baseline (29.5m mean / 27.3m p50 / 41.7m max, n=21) using that table's measurement method.
   2. A single committed artifact lists every spec and lane with where it ran **before** vs **after** (PR / main / nightly), proving no test was silently dropped and naming the lane that now carries each moved one.
   3. Nightly and push-to-`main` outcomes over the same measurement window are recorded, giving the "0 pass / 9 fail" and "6 pass / 1 fail" baselines a measured counterpart.
