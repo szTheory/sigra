@@ -26,6 +26,24 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - Existing generated files remain host-owned and are never overwritten automatically. See [Upgrading generated hosts for v1.46 adopter experience](guides/introduction/upgrading-to-v1.46.md) for the additive grant migration, one-line customized-policy delegation, UI comparison workflow, and rollback path.
 
+## [1.4.0](https://github.com/szTheory/sigra/compare/v1.3.0...v1.4.0) (2026-07-28)
+
+
+### Features
+
+* **221-01:** pass scope to Auth.rename_passkey in installer template ([0e34dcf](https://github.com/szTheory/sigra/commit/0e34dcf3814ebcf711b5805cb941dc480eda46ba))
+* **221-03:** pin upgrade_smoke start version to 1.3.0 ([f507992](https://github.com/szTheory/sigra/commit/f507992ccd23f80e4ec57474c74f25733b434999))
+
+
+### Bug Fixes
+
+* **221-01:** complete SHIP-01 — add scope-aware rename_passkey/4 to generated context ([f94277c](https://github.com/szTheory/sigra/commit/f94277c0bce7b9c624463619ffb5256e196a2eea))
+* **221-01:** dedupe delete-passkey confirmation body copy ([bae6b90](https://github.com/szTheory/sigra/commit/bae6b906a7d8ff101ce52c71a08f42fdaff126ff))
+* **221-01:** gate impersonation helpers on passkeys? + fix stale foundation assertion ([a88cd66](https://github.com/szTheory/sigra/commit/a88cd66ef3c21e2bb5b71f344a7d6b399cddf8c5))
+* **221-02:** reset last_was_prop on complete single-line declarations ([0cbb62b](https://github.com/szTheory/sigra/commit/0cbb62b7c20f722acd8e6019d33eb3f3349082a9))
+* **221-02:** widen up.sh --help window to 2,26p for --print-env headroom ([c039f89](https://github.com/szTheory/sigra/commit/c039f8908e952954078f00132dc614f1e2b89d42))
+* **auth-ui:** disambiguate duplicate "Email" label on generated login page ([#113](https://github.com/szTheory/sigra/issues/113)) ([743864c](https://github.com/szTheory/sigra/commit/743864c0b92da5d7a239014be08799b9d3af06de))
+
 ## [1.3.0](https://github.com/szTheory/sigra/compare/v1.2.0...v1.3.0) (2026-07-10)
 
 
