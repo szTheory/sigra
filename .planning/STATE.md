@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: planning
-last_updated: "2026-07-28T19:43:27.853Z"
+last_updated: "2026-07-28T20:30:00.000Z"
 last_activity: 2026-07-28
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,26 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones. Next: `/gsd-new-milestone`.
+**Current focus:** v1.47 CI-EFFICIENCY (Phases 230-235) — cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest, by executing the orphaned SEED-005 audit.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 230 — Tier-1 Critical-Path Reclamation (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-28 — Milestone v1.47 started
+Status: Roadmap approved; awaiting `/gsd-plan-phase 230`
+Progress: [------------------------------] 0/6 phases (0%)
+Last activity: 2026-07-28 — v1.47 roadmap created (6 phases, 230-235; 24/24 requirements mapped)
+
+**Milestone baseline to beat (measured 2026-07-28, last 40 runs):** PR mean 29.5m / p50 27.3m
+(n=21) · push mean 30.5m (n=7) · nightly **0 pass / 9 fail** (n=9). Sole PR critical path is
+`example_playwright_smoke` (23m), of which `design_gallery` is 734s (53%).
+
+**Verification philosophy (binds every phase):** success criteria are proven by *running CI and
+reading measured numbers*, never by reading YAML. `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`
+is the precedent — a milestone passed audits that were "code-level reads that never executed the
+specs" while the required Playwright check carried ~15 real failures. A `skipped` job proves
+nothing (`ci-gate` counts skipped as pass), and a demotion is honest only if the receiving lane is
+observed executing the work.
 
 ## Accumulated Context
 
@@ -334,6 +346,7 @@ Last activity: 2026-07-28 — Milestone v1.47 started
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
+- v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
 
 ## Quick Tasks Completed
 
@@ -463,7 +476,7 @@ Resume file: .planning/phases/229-adoption-handoff-terminal-ratification/229-PRO
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan the first phase with `/gsd-plan-phase 230`
 
 ## Performance Metrics
 

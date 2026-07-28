@@ -61,9 +61,39 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ## Traceability
 
+**24 requirements · 24 mapped · 0 orphaned.** Each maps to exactly one phase (see `ROADMAP.md` → Phase Details).
+
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| _(filled by roadmap)_ | | |
+| FAST-01 | Phase 235 | Pending |
+| FAST-02 | Phase 230 | Pending |
+| FAST-03 | Phase 230 | Pending |
+| FAST-04 | Phase 230 | Pending |
+| FAST-05 | Phase 230 | Pending |
+| FAST-06 | Phase 230 | Pending |
+| FAST-07 | Phase 230 | Pending |
+| GATE-01 | Phase 231 | Pending |
+| GATE-02 | Phase 231 | Pending |
+| GATE-03 | Phase 231 | Pending |
+| GATE-04 | Phase 231 | Pending |
+| GATE-05 | Phase 235 | Pending |
+| PW-01 | Phase 232 | Pending |
+| PW-02 | Phase 232 | Pending |
+| PW-03 | Phase 232 | Pending |
+| TEST-01 | Phase 233 | Pending |
+| TEST-02 | Phase 233 | Pending |
+| TEST-03 | Phase 233 | Pending |
+| DX-01 | Phase 234 | Pending |
+| DX-02 | Phase 234 | Pending |
+| DX-03 | Phase 234 | Pending |
+| DX-04 | Phase 234 | Pending |
+| DX-05 | Phase 231 | Pending |
+| DX-06 | Phase 234 | Pending |
+
+**Placement notes:**
+
+- **FAST-01** and **GATE-05** are terminal: FAST-01 needs a ≥10-run measurement window that spans the milestone, and GATE-05's inventory must span every demotion made in Phases 230-234. Phase 234's DX-04 spec inventory is GATE-05's direct input.
+- **DX-05** sits in Phase 231 (gate honesty) rather than the hygiene phase: `gate-ci-green` timing out on a green release and `notify-failure-issue.sh` dying on a missing label are both dishonest-signal defects, not hygiene.
 
 ---
 
