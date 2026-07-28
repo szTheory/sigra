@@ -73,7 +73,7 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 1.0"}
+   {:sigra, "~> 1.4.0"}
    ```
 
    This is the selected 1.0 contract line. If Hex package metadata advertises a newer installable line, treat Hex as the current package truth and use the version constraint appropriate for your target. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).

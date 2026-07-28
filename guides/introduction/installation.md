@@ -24,7 +24,7 @@ Add `:sigra` to `deps/0` in `mix.exs`:
         {:phoenix, "~> 1.8"},
         {:ecto_sql, "~> 3.12"},
         # ...
-        {:sigra, "~> 1.0"}
+        {:sigra, "~> 1.4.0"}
       ]
     end
 

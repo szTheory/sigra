@@ -33,7 +33,7 @@ library calls the other directly.
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.0"},
+    {:sigra, "~> 1.4.0"},
     {:rulestead, "~> 0.1"},
     # ... your other deps
   ]
@@ -99,7 +99,7 @@ To mount the Rulestead admin UI, add the separate `{:rulestead_admin, "~> 0.1"}`
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.0"},
+    {:sigra, "~> 1.4.0"},
     {:rulestead, "~> 0.1"},
     {:rulestead_admin, "~> 0.1"},
     # ... your other deps
