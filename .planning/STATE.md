@@ -2,9 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-status: planning
-last_updated: "2026-07-28T20:30:00.000Z"
-last_activity: 2026-07-28
+status: Roadmap approved; awaiting `/gsd-plan-phase 230`
+stopped_at: Phase 230 context gathered (assumptions mode)
+last_updated: "2026-07-28T21:34:07.623Z"
+last_activity: 2026-07-28 — v1.47 roadmap created (6 phases, 230-235; 24/24 requirements mapped)
 progress:
   total_phases: 6
   completed_phases: 0
@@ -470,9 +471,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-19T22:04:27.383Z
-Stopped at: Phase 229 automated proof complete; awaiting human visual acceptance for PROOF-03
-Resume file: .planning/phases/229-adoption-handoff-terminal-ratification/229-PROGRESS.md
+Last session: 2026-07-28T21:34:07.616Z
+Stopped at: Phase 230 context gathered (assumptions mode)
+Resume file: .planning/phases/230-tier-1-critical-path-reclamation/230-CONTEXT.md
 
 ## Operator Next Steps
 
