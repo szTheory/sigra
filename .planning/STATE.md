@@ -4,11 +4,11 @@ milestone: v1.46
 milestone_name: ADOPTER-EXPERIENCE
 current_phase: 229
 current_phase_name: Adoption Handoff + Terminal Ratification
-status: phase_complete
-stopped_at: Phase 229 complete; PROOF-03 human acceptance recorded 2026-07-27. v1.46 ready for milestone close-out.
+status: between_milestones
+stopped_at: v1.46 ADOPTER-EXPERIENCE archived 2026-07-27 (override_closeout). Next: /gsd-new-milestone.
 last_updated: "2026-07-27T00:00:00.000Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 229 closed — PROOF-03 accepted, all 6 phases complete
+last_activity_desc: v1.46 milestone archived — 15/15 requirements, 8 audit findings deferred
 progress:
   total_phases: 6
   completed_phases: 6
@@ -25,14 +25,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.46 milestone close-out — all 6 phases complete.
+**Current focus:** Between milestones. Next: `/gsd-new-milestone`.
 
 ## Current Position
 
-Phase: 229 (Adoption Handoff + Terminal Ratification) — COMPLETE
-Plan: 1 of 1
-Status: v1.46 ADOPTER-EXPERIENCE complete; awaiting milestone archive
-Last activity: 2026-07-27 — Phase 229 closed, PROOF-03 human acceptance recorded
+Milestone: v1.46 ADOPTER-EXPERIENCE — ARCHIVED 2026-07-27 (`override_closeout`)
+Phases: 6 of 6 complete (224–229)
+Requirements: 15/15 satisfied
+Status: Archived to `.planning/milestones/v1.46-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`
+Last activity: 2026-07-27 — milestone archived; 8 audit findings deferred with full diagnosis
 
 ## Accumulated Context
 
@@ -381,6 +382,39 @@ Last activity: 2026-07-27 — Phase 229 closed, PROOF-03 human acceptance record
 | 260727-v15 | Disambiguate the duplicate "Email" label on the generated login page (Phase 229 PROOF-03 visual-acceptance finding). Once the "Other ways to sign in" disclosure is expanded, the magic-link field and `password_form/1`'s field both rendered the visible label "Email" in the same column. Changed the magic-link field at `login_html.ex:85` to `dgettext("sigra", "Email for sign-in link")` — the string already existed at line 68 (passkey-primary branch), so no new gettext msgid; `password_form/1` (line 111) left alone since it sits under the "or use a password" divider. Mirrored into the golden fixture `session_html.ex:85`. Propagation surface proved to be exactly 2 files: no ExUnit test asserted the label (only button copy), and no Playwright spec needed editing — `admin-generated.spec.ts:71`'s `getByLabel("Email", {exact: true})` is scoped to `#login_form`, which IS `password_form/1` (unchanged). Verified: compile warnings-as-errors clean; `mix sigra.fixture.rebless_golden --check` exit 0 (template→generator→fixture agreement, no full rebless needed); golden_diff + idempotency + auth_ui_contract 10/0. Diff is 2 files, 1 line each, `label=` value only. Observations left out of scope: the passkey-primary branch has the same duplicate shape (template L44/L111), and the example demo twin has its own plain `label="Email"` duplicate. | complete ✓ | 2026-07-27 |
 
 ## Deferred Items
+
+### Acknowledged at v1.46 close (2026-07-27)
+
+13 open artifacts were acknowledged and deferred, making this an `override_closeout`.
+
+**Audit findings (8)** — all from `.planning/milestones/v1.46-MILESTONE-AUDIT.md`, each
+filed with full diagnosis at `todos/pending/2026-07-28-w{1..8}-*`:
+
+| ID | Severity | Item |
+| --- | --- | --- |
+| W-1 | high | Duplicate `Email` label in the passkey-primary login branch; plus a pre-existing four-input `id="user_email"` cluster. A verified fix plan exists at `quick/260728-d9h-*/260728-d9h-PLAN.md`, deliberately not executed |
+| W-2 | medium | Example `sigra_auth.css` stale (12,281 B vs 27,914 B canonical); no parity gate exists, though one does for `sigra_admin.css` |
+| W-3 | medium | Generated auth has browser coverage on exactly one surface (login, no-passkeys) — **the substantive finding** |
+| W-4 | medium | No axe run touches any `sigra-auth-*` surface |
+| W-5 | low | `export_auth_data/2` impersonation guard has no caller |
+| W-6 | low | Generated `sigra_admin_policy_test.exs` outside golden fixture coverage |
+| W-7 | low | `sigra-auth-preview-form` is a dead class |
+| W-8 | low | Per-user audit presets have no E2E assertion |
+
+**Quick tasks (5)** — 4 pre-existing from the 2026-07-18 demo-DX burst
+(`260718-dst`, `260718-mba`, `260718-pdd`, `260718-svg`), plus `260728-d9h` (the W-1 fix,
+planned and deliberately deferred).
+
+**Seeds (3)** — SEED-004 (phx.new `<.button>` forward-compat), SEED-005 (CI/CD performance
+audit), SEED-006 (admin-design gallery CI baseline recapture). All dormant.
+
+**Structural note on the closeout type:** phases 224–228 carry no `*-VERIFICATION.md`
+because Phase 229 is the milestone's Terminal Ratification phase and its verification table
+spans all 15 requirements. The readiness projection therefore reports five phases as
+`verification: missing`, which forces `override_closeout` even though coverage is complete.
+This is a recurring artifact of the terminal-ratification pattern, not a v1.46 defect.
+
+### Carried forward from earlier milestones
 
 | Category | Item | Status | Deferred At |
 | --- | --- | --- | --- |
