@@ -137,3 +137,14 @@ None - no external service configuration required.
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-28*
+
+## Self-Check: PASSED
+
+- FOUND: `scripts/ci/ci-run-metrics.sh`
+- FOUND: `scripts/ci/ci-run-metrics.test.sh`
+- FOUND: `.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md`
+- FOUND: `.planning/phases/230-tier-1-critical-path-reclamation/230-01-SUMMARY.md`
+- FOUND: commit `667025de`
+- FOUND: commit `7d701693`
+- FOUND: commit `24633cbd`
+- FOUND: commit `ba849610`
