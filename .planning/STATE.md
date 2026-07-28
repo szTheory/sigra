@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-status: Phase 230 planned; ready to execute
-stopped_at: Phase 230 planned (9 plans, 8 waves; plan-checker PASSED)
-last_updated: "2026-07-28T23:58:00.000Z"
-last_activity: 2026-07-28 — Phase 230 planned (9 plans / 8 waves; research + patterns + Nyquist validation; checker passed after 2 revisions)
+current_phase: 230
+current_phase_name: tier-1-critical-path-reclamation
+status: executing
+stopped_at: Completed 230-01-PLAN.md
+last_updated: "2026-07-28T23:57:03.474Z"
+last_activity: 2026-07-28
+last_activity_desc: Phase 230 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -22,15 +25,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.47 CI-EFFICIENCY (Phases 230-235) — cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest, by executing the orphaned SEED-005 audit.
+**Current focus:** Phase 230 — tier-1-critical-path-reclamation
 
 ## Current Position
 
-Phase: 230 — Tier-1 Critical-Path Reclamation (planned, ready to execute)
-Plan: 9 plans across 8 waves — `/gsd-execute-phase 230`
-Status: Phase 230 planned; plan-checker PASSED (issue trend 5 → 3 → 0 over 2 revisions)
-Progress: [------------------------------] 0/6 phases (0%)
-Last activity: 2026-07-28 — Phase 230 planned (9 plans / 8 waves; research + patterns + Nyquist validation)
+Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
+Plan: 2 of 9
+Status: Ready to execute
+Progress: [------------------------------] 0/6 phases ([█░░░░░░░░░] 11%)
+Last activity: 2026-07-28 -- Phase 230 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -342,6 +345,8 @@ observed executing the work.
 - [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
 - [Phase 222]: 222-03: Treated the orchestrator's already-dispatched hex-publish.yml dry_run=true run (29132375168) against v1.3.0 as the authoritative HARD-02 readiness evidence rather than re-dispatching.
 - [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
+- [Phase ?]: D-21 satisfied: ci-run-metrics.sh + hermetic self-test committed and wired into fast_checks before any Phase 230 measurement is taken
+- [Phase ?]: Duration math uses jq fromdate (not shell date -d/-j) for macOS-dev/ubuntu-CI portability
 
 ### Pending Todos
 
@@ -482,9 +487,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-28T21:34:07.616Z
-Stopped at: Phase 230 context gathered (assumptions mode)
-Resume file: .planning/phases/230-tier-1-critical-path-reclamation/230-CONTEXT.md
+Last session: 2026-07-28T23:57:03.461Z
+Stopped at: Completed 230-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -591,3 +596,8 @@ Resume file: .planning/phases/230-tier-1-critical-path-reclamation/230-CONTEXT.m
 | Phase 222 P01 | 9min | 2 tasks | 6 files |
 | Phase 222 P02 | 20min | 3 tasks | 5 files |
 | Phase 222 P03 | 15min | 2 tasks | 2 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 230 P01 | 13min | 3 tasks | 4 files |

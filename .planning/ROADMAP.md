@@ -79,7 +79,7 @@
 Plans:
 **Wave 1**
 
-- [ ] 230-01-PLAN.md — TRACER: committed CI run-metrics measurement instrument + hermetic self-test + BEFORE evidence slots (D-21)
+- [x] 230-01-PLAN.md — TRACER: committed CI run-metrics measurement instrument + hermetic self-test + BEFORE evidence slots (D-21)
 - [ ] 230-02-PLAN.md — FAST-02 spec half: tag the 28 board tests, add one full-page WCAG test per design project, fix the wrong doc comments
 
 **Wave 2** *(blocked on Wave 1 completion)*
