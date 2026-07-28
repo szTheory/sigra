@@ -23,6 +23,18 @@
 #      table on stdout.
 #   H: `--format json` emits valid JSON with the same duration/clamp/filter semantics.
 #
+# Task 2 (windowed baseline-reproduction mode) cases:
+#   I: window mode emits the exact header `| trigger | n | mean | p50 | max | outcomes |`
+#      and correct per-trigger n/mean/p50/max/outcomes, pinning the p50 index rule
+#      (sort ascending, 0-based index floor(n/2)) against BOTH a fixed odd-length group
+#      (pull_request, n=5) and a fixed even-length group (push, n=4).
+#   J: a run whose `updatedAt` precedes its `createdAt` (schedule, n=1) reports duration
+#      `0`, never negative -- same clamp rule as the single-run mode.
+#   K: `--mode jobspan` produces a strictly smaller mean than `--mode wall` on the exact
+#      same canned window (job-span excludes queue time).
+#   L: an empty run list (`gh run list` returns `[]`) -> exit non-zero, `ci-run-metrics:
+#      FAIL:` on stderr, no partial table on stdout (fail-closed).
+#
 # No network access and no GH_TOKEN are required or read anywhere in this file.
 set -euo pipefail
 
@@ -64,12 +76,54 @@ CANNED_JOBS='[
   {"name":"Fast checks (milestone/installer/contracts/snapshot/ledger guards)","conclusion":"success","startedAt":"2026-07-28T19:11:11Z","completedAt":"2026-07-28T19:11:31Z"}
 ]'
 
+# Canned `gh run list --json databaseId,event,createdAt,updatedAt,conclusion` window
+# (Task 2). Three trigger groups deliberately sized to pin the p50 index rule:
+#   pull_request (n=5, odd)  -- wall durations sorted [60,120,180,240,300]s
+#   push         (n=4, even) -- wall durations sorted [60,180,300,420]s
+#   schedule     (n=1)       -- updatedAt 1s BEFORE createdAt -> raw -1s, clamp to 0
+WINDOW_FULL_RUNS='[
+  {"databaseId":2001,"event":"pull_request","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:01:00Z"},
+  {"databaseId":2002,"event":"pull_request","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:02:00Z"},
+  {"databaseId":2003,"event":"pull_request","conclusion":"failure","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:03:00Z"},
+  {"databaseId":2004,"event":"pull_request","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:04:00Z"},
+  {"databaseId":2005,"event":"pull_request","conclusion":"cancelled","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:05:00Z"},
+  {"databaseId":3001,"event":"push","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:01:00Z"},
+  {"databaseId":3002,"event":"push","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:03:00Z"},
+  {"databaseId":3003,"event":"push","conclusion":"success","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:05:00Z"},
+  {"databaseId":3004,"event":"push","conclusion":"failure","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:07:00Z"},
+  {"databaseId":4001,"event":"schedule","conclusion":"skipped","createdAt":"2026-01-01T00:00:01Z","updatedAt":"2026-01-01T00:00:00Z"}
+]'
+
+# Per-run job lists for the pull_request group only (2001-2005), used by `--mode
+# jobspan`. Each job starts 20s after its run's createdAt, so jobspan is exactly
+# 20s less than wall for every one of these five runs -- a fixed, reproducible gap.
+JOBS_2001='{"jobs":[{"name":"job","conclusion":"success","startedAt":"2026-01-01T00:00:20Z","completedAt":"2026-01-01T00:01:00Z"}]}'
+JOBS_2002='{"jobs":[{"name":"job","conclusion":"success","startedAt":"2026-01-01T00:00:20Z","completedAt":"2026-01-01T00:02:00Z"}]}'
+JOBS_2003='{"jobs":[{"name":"job","conclusion":"failure","startedAt":"2026-01-01T00:00:20Z","completedAt":"2026-01-01T00:03:00Z"}]}'
+JOBS_2004='{"jobs":[{"name":"job","conclusion":"success","startedAt":"2026-01-01T00:00:20Z","completedAt":"2026-01-01T00:04:00Z"}]}'
+JOBS_2005='{"jobs":[{"name":"job","conclusion":"cancelled","startedAt":"2026-01-01T00:00:20Z","completedAt":"2026-01-01T00:05:00Z"}]}'
+
 cat >"${STUB_BIN_DIR}/gh" <<STUB
 #!/usr/bin/env bash
 # Recording stub for \`gh\` (test-only). Logs argv, returns a scripted response.
 set -euo pipefail
 echo "\$*" >> "${GH_STUB_LOG}"
+if [[ "\${1:-}" == "run" && "\${2:-}" == "list" ]]; then
+  case "\${GH_STUB_MODE:-}" in
+    window_full)
+      echo '${WINDOW_FULL_RUNS}'
+      exit 0
+      ;;
+    window_empty)
+      echo '[]'
+      exit 0
+      ;;
+  esac
+  echo "gh stub: unexpected 'run list' invocation for mode \${GH_STUB_MODE:-}: \$*" >&2
+  exit 1
+fi
 if [[ "\${1:-}" == "run" && "\${2:-}" == "view" ]]; then
+  RUN_ID_ARG="\${3:-}"
   case "\${GH_STUB_MODE:-ok}" in
     ok)
       echo '${CANNED_JOBS}'
@@ -82,6 +136,20 @@ if [[ "\${1:-}" == "run" && "\${2:-}" == "view" ]]; then
     nonzero)
       echo "gh stub: simulated failure" >&2
       exit 1
+      ;;
+    window_full)
+      case "\$RUN_ID_ARG" in
+        2001) echo '${JOBS_2001}';;
+        2002) echo '${JOBS_2002}';;
+        2003) echo '${JOBS_2003}';;
+        2004) echo '${JOBS_2004}';;
+        2005) echo '${JOBS_2005}';;
+        *)
+          echo "gh stub: no jobspan fixture stubbed for run \${RUN_ID_ARG}" >&2
+          exit 1
+          ;;
+      esac
+      exit 0
       ;;
   esac
 fi
@@ -213,6 +281,70 @@ if [[ "$RC_H" -eq 0 && "$JSON_OK" -eq 1 ]]; then
   pass "--format json valid, duration/clamp/no-filter semantics match table mode"
 else
   fail "exit=${RC_H} json_check=<$(cat "${TMPDIR_ROOT}/json-check-err" 2>/dev/null)> output=<${OUT_H}>"
+fi
+
+# ---- Test I/J: window mode header + p50 (odd n=5, even n=4) + clamp ------
+echo "Test I/J: window --mode wall table header, per-trigger n/mean/p50/max/outcomes, negative clamp"
+: > "$GH_STUB_LOG"
+GH_STUB_MODE="window_full"
+export GH_STUB_MODE
+RC_I=$(run_script --limit 40 --format table)
+export GH_STUB_MODE=""
+OUT_I="$(cat "${TMPDIR_ROOT}/stdout")"
+
+if [[ "$RC_I" -eq 0 ]] \
+  && echo "$OUT_I" | grep -qF '| trigger | n | mean | p50 | max | outcomes |' \
+  && echo "$OUT_I" | grep -qF '| pull_request | 5 | 3.0m | 3.0m | 5.0m | 3 pass / 2 fail |' \
+  && echo "$OUT_I" | grep -qF '| push | 4 | 4.0m | 5.0m | 7.0m | 3 pass / 1 fail |' \
+  && echo "$OUT_I" | grep -qF '| schedule | 1 | 0.0m | 0.0m | 0.0m | 0 pass / 1 fail |'; then
+  pass "exact header + odd(n=5)/even(n=4) p50 index rule + negative-duration clamp all correct (exit ${RC_I})"
+else
+  fail "exit=${RC_I} output=<${OUT_I}>"
+fi
+
+# ---- Test K: --mode jobspan strictly smaller than --mode wall (same window) ---
+echo "Test K: --mode jobspan produces a strictly smaller mean than --mode wall on the identical canned window"
+: > "$GH_STUB_LOG"
+GH_STUB_MODE="window_full"
+export GH_STUB_MODE
+RC_WALL=$(run_script --limit 40 --event pull_request --mode wall --format json)
+OUT_WALL="$(cat "${TMPDIR_ROOT}/stdout")"
+RC_JOBSPAN=$(run_script --limit 40 --event pull_request --mode jobspan --format json)
+OUT_JOBSPAN="$(cat "${TMPDIR_ROOT}/stdout")"
+export GH_STUB_MODE=""
+
+JOBSPAN_OK=0
+if [[ "$RC_WALL" -eq 0 && "$RC_JOBSPAN" -eq 0 ]] && python3 -c "
+import json, sys
+wall = json.loads('''${OUT_WALL}''')[0]
+jobspan = json.loads('''${OUT_JOBSPAN}''')[0]
+assert wall['mean_seconds'] == 180, wall
+assert jobspan['mean_seconds'] == 160, jobspan
+assert jobspan['mean_seconds'] < wall['mean_seconds'], (jobspan, wall)
+" 2>"${TMPDIR_ROOT}/jobspan-check-err"; then
+  JOBSPAN_OK=1
+fi
+
+if [[ "$JOBSPAN_OK" -eq 1 ]]; then
+  pass "jobspan mean (160s) strictly less than wall mean (180s) on the same window"
+else
+  fail "wall_rc=${RC_WALL} jobspan_rc=${RC_JOBSPAN} check=<$(cat "${TMPDIR_ROOT}/jobspan-check-err" 2>/dev/null)> wall=<${OUT_WALL}> jobspan=<${OUT_JOBSPAN}>"
+fi
+
+# ---- Test L: empty run list -> fail-closed, no partial table -------------
+echo "Test L: empty run list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table"
+: > "$GH_STUB_LOG"
+GH_STUB_MODE="window_empty"
+export GH_STUB_MODE
+RC_L=$(run_script --limit 40 --format table)
+export GH_STUB_MODE=""
+ERR_L="$(cat "${TMPDIR_ROOT}/stderr")"
+OUT_L="$(cat "${TMPDIR_ROOT}/stdout")"
+
+if [[ "$RC_L" -ne 0 ]] && echo "$ERR_L" | grep -q 'ci-run-metrics: FAIL:' && [[ -z "$OUT_L" ]]; then
+  pass "exit non-zero (${RC_L}) on empty run list, no partial table emitted"
+else
+  fail "exit=${RC_L} stderr=<${ERR_L}> stdout=<${OUT_L}>"
 fi
 
 # ---- Summary -------------------------------------------------------------
