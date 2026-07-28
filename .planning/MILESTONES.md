@@ -1,5 +1,35 @@
 # Milestones
 
+## v1.46 ADOPTER-EXPERIENCE (Shipped: 2026-07-27 — override_closeout, 8 audit findings deferred)
+
+**Phases completed:** 6 of 6 (224–229), 6 plans. 15/15 requirements satisfied.
+**Git range:** `8acf00a4` (v1.45 close-out) → `743864c0`. Body shipped as PR #104 (`40240903`, 114 files, +5,246/−1,475), guides as PR #111, plus PR #113 (PROOF-03 label fix). No git tag (Hex-version-collision convention — ADR 003).
+**Milestone audit:** `milestones/v1.46-MILESTONE-AUDIT.md` — PASS WITH WARNINGS. 9 cross-phase seams connected, 0 broken flows, 0 blockers, 8 non-blocking findings.
+**Closeout:** `override_closeout` — 13 audit-open items acknowledged (8 new audit findings, 4 pre-existing demo-DX quick tasks, 3 dormant seeds). Phases 224–228 carry no per-phase VERIFICATION.md by design (Phase 229 is the terminal-ratification phase and verifies all 15 requirements), which forces the override even though coverage is complete. Known verification overrides: 5 phases (see STATE.md Deferred Items).
+
+**Delivered:** The *adopted* experience is now coherent end to end — what a developer generates into their app, what their end users see on auth surfaces, and what an operator sees in admin audit. Proven from a fresh generated host rather than from the example app: install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke → deny-on-next-request, with deterministic role-based Playwright/ExUnit evidence and no sleeps.
+
+### Known Gaps (deferred at close)
+
+- **W-3 — generated auth has browser coverage on exactly one surface** (login, no-passkeys). Registration, confirmation, reset, reactivation, sudo, invitation acceptance, settings, MFA, backup codes, passkeys and sessions are proven by source-string assertion plus a warnings-as-errors compile. This is the milestone's real gap and the parent of two others.
+- **W-1 — a two-branch conditional was half-fixed.** The duplicate-`Email`-label defect the owner caught during PROOF-03 review still exists in the passkey-primary branch; PR #113 fixed only the no-passkeys branch. Audit also surfaced a broader pre-existing duplicate-`id="user_email"` cluster (four inputs) since `@form` and `@magic_link_form` both use `as: "user"`. A verified fix plan exists and was deliberately not executed.
+- **W-4 — no axe run touches any `sigra-auth-*` surface.** The axe gate is real but pointed at the `sg-*` admin lane.
+- **W-2, W-5, W-6, W-7, W-8** — stale example stylesheet with no parity gate; unreachable data-export guard; generated policy test outside golden coverage; one dead CSS class; per-user audit presets without E2E assertion.
+
+All eight carry full diagnosis, file:line evidence, and a recommended fix in `todos/pending/2026-07-28-w{1..8}-*` — written while context was complete rather than reduced to one-line reminders.
+
+**Key accomplishments:**
+
+- Committed a JTBD/surface/state contract and UI-SPEC fixing the three-lane CSS ownership boundary — `sigra-auth-*` (generated, host-owned), `sg-*` (admin, library-owned), `vt-*` (Tasklane demo) — and verified it holds in both directions: zero `sg-*` or `vt-*` tokens appear anywhere in the generated auth templates or golden output.
+- Replaced first-user/email-domain admin inference with a host-owned *persisted grant* schema and context wired to `SigraAdminPolicy.platform_admin?/1`, plus repeat-safe `mix sigra.admin.{grant,revoke,list,check}` tasks with no password handling and atomic audit evidence. `--no-admin` emits no grant artifacts; customized policies are never overwritten.
+- Closed generated-host impersonation parity: 10 sensitive operations (password change, MFA disable, backup-code regeneration, passkey register/rename/delete, deletion schedule/cancel, data export, API-token management) now deny during impersonation with example-equivalent scope propagation and audit behavior.
+- Established a bounded semantic `sigra-auth-*` vocabulary with stable `--sigra-auth-*` tokens and propagated it through every auth entry, recovery, and account-security surface, with configuration-derived primary actions and progressively disclosed alternatives.
+- Repaired the audit LiveViews' duplicate filter state (each form now submits exactly one effective value per filter), made Failures and Impersonation shareable GET presets, and added a labeled Active-filters region with removable chips and Clear all.
+- Proved the whole thing from a fresh `phx.new` + `mix sigra.install` host in CI, with golden generation independently drift-checked and idempotent, and separated Playwright output directories so later proof runs cannot delete earlier artifacts.
+- Recorded PROOF-03 human visual acceptance on 2026-07-27 after direct owner review of the login composition in light, system-dark, and 320px/200% reflow — four findings surfaced, one fixed (PR #113), two cleared against source evidence, one accepted with rationale.
+
+---
+
 ## v1.45 RELEASE-CURRENCY (Shipped: 2026-07-11 — override_closeout, PROOF-01/PUB-05 deferred)
 
 **Phases completed:** 2 of 3 shipped (221, 222); Phase 223 partial/deferred. 11 plans planned, 9 executed. 9/11 requirements satisfied.

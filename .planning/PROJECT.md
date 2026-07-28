@@ -8,7 +8,29 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.46 ADOPTER-EXPERIENCE
+## Current State
+
+**Between milestones.** v1.46 ADOPTER-EXPERIENCE shipped 2026-07-27 (`override_closeout`,
+15/15 requirements, 8 audit findings deferred). Next step: `/gsd-new-milestone`.
+
+The adopted experience is now coherent end to end and proven from a fresh generated host —
+install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke →
+deny, with deterministic evidence in CI.
+
+**What the next milestone should probably weigh.** The v1.46 audit's clearest signal is
+that the auth-UI lane has thin *runtime* proof: exactly one generated auth surface (login,
+no-passkeys) is ever rendered in a browser, so roughly 1,100 lines of template change rest
+on source-string assertions (finding W-3). Finding W-1 is the receipt — a duplicate-label
+defect the owner caught by eye survives one config flag away, and the fix shipped in PR #113
+covered only one branch of a two-branch conditional. W-3 + W-4 (no axe run touches any
+`sigra-auth-*` surface) are the coherent core of a follow-on auth-UI proof milestone.
+
+Also outstanding and unrelated to UI: Hex currency. Last published release is `1.3.0`; the
+stray `1.20.0` still outranks it and the retire remains operator-deferred (ADR 003). The
+v1.46 changelog content is still under `## Unreleased`.
+
+<details>
+<summary>v1.46 ADOPTER-EXPERIENCE — original milestone brief</summary>
 
 **Goal:** Close the gap between “installed” and “confidently usable” with a secure first-admin path, a coherent neutral generated auth experience, correct and obvious audit filtering, and fresh-host proof backed by bounded human UI review.
 
@@ -22,7 +44,21 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 Phases continue from **224**. Explicitly deferred: wholesale admin redesign, host product/organization reskin, generic UI component library, automatic adopter-file rewrites, SCIM, runtime auth-prefix/schema helpers, Playwright sharding, email-theme expansion, and the operator-deferred Hex `1.20.0` retirement.
 
-## Latest Shipped Milestone: v1.45 RELEASE-CURRENCY (shipped 2026-07-11 — override_closeout)
+</details>
+
+## Latest Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
+
+Delivered across 6 phases (224–229): a host-owned persisted platform-admin grant with an
+explicit `mix sigra.admin.*` workflow replacing all first-user/email-domain inference;
+generated-host impersonation denial parity across 10 sensitive operations; a bounded
+semantic `sigra-auth-*` vocabulary propagated through every auth entry, recovery, and
+account-security surface; audit filters repaired to submit one effective value each with
+shareable presets and a labeled Active-filters region; and a fresh-host acceptance smoke
+that proves the whole journey in CI.
+
+Full detail in `milestones/v1.46-ROADMAP.md`; findings in `milestones/v1.46-MILESTONE-AUDIT.md`.
+
+## Previous Shipped Milestone: v1.45 RELEASE-CURRENCY (shipped 2026-07-11 — override_closeout)
 
 **Shipped 9/11 requirements.** The substantive release IS live: Sigra is current on Hex — `v1.2.0` then `v1.3.0` published (contiguous after `v1.1.0`), so adopters now receive three milestones (v1.42/43/44) of shipped work. The publish gate was unblocked (PUB-01), the release lane hardened against silent rot (HARD-01/02: PR-visible/loud-red signal + shared find-or-create issue notifier + verified auto-publish path + runbook), and the ship-honest generated-host debt paid down (SHIP-01/02/03). Archived: `milestones/v1.45-{ROADMAP,REQUIREMENTS}.md`. No `v1.45` git tag (Hex-collision convention — a `v1.45` tag is the exact ADR-003 footgun).
 
