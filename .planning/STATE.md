@@ -4,17 +4,17 @@ milestone: v1.46
 milestone_name: ADOPTER-EXPERIENCE
 current_phase: 229
 current_phase_name: Adoption Handoff + Terminal Ratification
-status: executing
-stopped_at: Phase 229 automated proof complete; awaiting human visual acceptance for PROOF-03
-last_updated: "2026-07-19T22:04:27.389Z"
-last_activity: 2026-07-19
-last_activity_desc: Phase 229 execution started
+status: phase_complete
+stopped_at: Phase 229 complete; PROOF-03 human acceptance recorded 2026-07-27. v1.46 ready for milestone close-out.
+last_updated: "2026-07-27T00:00:00.000Z"
+last_activity: 2026-07-27
+last_activity_desc: Phase 229 closed — PROOF-03 accepted, all 6 phases complete
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 6
-  completed_plans: 5
-  percent: 83
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 229 — Adoption Handoff + Terminal Ratification
+**Current focus:** v1.46 milestone close-out — all 6 phases complete.
 
 ## Current Position
 
-Phase: 229 (Adoption Handoff + Terminal Ratification) — EXECUTING
+Phase: 229 (Adoption Handoff + Terminal Ratification) — COMPLETE
 Plan: 1 of 1
-Status: Executing Phase 229
-Last activity: 2026-07-19 — Phase 229 execution started
+Status: v1.46 ADOPTER-EXPERIENCE complete; awaiting milestone archive
+Last activity: 2026-07-27 — Phase 229 closed, PROOF-03 human acceptance recorded
 
 ## Accumulated Context
 

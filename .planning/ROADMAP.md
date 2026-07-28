@@ -44,7 +44,7 @@
 
 ### Phase 229: Adoption Handoff + Terminal Ratification
 
-- [ ] Reconcile templates/golden/docs/upgrades, prove the fresh-host journey and relevant feature variants, obtain final human acceptance, recapture CI-native baselines, and close on deterministic gates. Automated proof complete 2026-07-19; awaiting human visual acceptance for PROOF-03.
+- [x] Reconcile templates/golden/docs/upgrades, prove the fresh-host journey and relevant feature variants, obtain final human acceptance, recapture CI-native baselines, and close on deterministic gates. Covers PROOF-01/02/03. — completed 2026-07-27
 
 ---
 
