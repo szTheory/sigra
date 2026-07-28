@@ -6,9 +6,9 @@ current_phase: 229
 current_phase_name: Adoption Handoff + Terminal Ratification
 status: between_milestones
 stopped_at: v1.46 ADOPTER-EXPERIENCE archived 2026-07-27 (override_closeout). Next: /gsd-new-milestone.
-last_updated: "2026-07-27T00:00:00.000Z"
-last_activity: 2026-07-27
-last_activity_desc: v1.46 milestone archived — 15/15 requirements, 8 audit findings deferred
+last_updated: "2026-07-28T00:00:00.000Z"
+last_activity: 2026-07-28
+last_activity_desc: Sigra 1.4.0 published to Hex via manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
 progress:
   total_phases: 6
   completed_phases: 6
@@ -33,7 +33,7 @@ Milestone: v1.46 ADOPTER-EXPERIENCE — ARCHIVED 2026-07-27 (`override_closeout`
 Phases: 6 of 6 complete (224–229)
 Requirements: 15/15 satisfied
 Status: Archived to `.planning/milestones/v1.46-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`
-Last activity: 2026-07-27 — milestone archived; 8 audit findings deferred with full diagnosis
+Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cfc5e6b8 via a manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
 
 ## Accumulated Context
 
@@ -380,6 +380,8 @@ Last activity: 2026-07-27 — milestone archived; 8 audit findings deferred with
 | 260719-iwr | Add the Sigra architecture guide and source walkthrough — boundary-first system model, 15 source-honest excerpts, strict integrity-pinned Mermaid rendering, discovery wiring, and focused drift contracts. Verified: 10 focused tests, docs warnings-as-errors, 2,418-test full suite, package exclusions, and light/dark/navigation/fallback browser review. | complete ✓ | 2026-07-19 |
 | 260719-lhs | Brand Sigra ExDoc and fix dark diagrams — wired the existing theme-aware Rail Accent favicon and changed Mermaid rendering to follow ExDoc's live default/dark theme with serialized in-place rerenders, navigation idempotence, and source/last-good fallbacks. Verified: 11 focused tests, docs warnings-as-errors, byte-identical generated favicon, light/dark/navigation/failure browser review, and visible Chrome tabs. | complete ✓ | 2026-07-19 |
 | 260727-v15 | Disambiguate the duplicate "Email" label on the generated login page (Phase 229 PROOF-03 visual-acceptance finding). Once the "Other ways to sign in" disclosure is expanded, the magic-link field and `password_form/1`'s field both rendered the visible label "Email" in the same column. Changed the magic-link field at `login_html.ex:85` to `dgettext("sigra", "Email for sign-in link")` — the string already existed at line 68 (passkey-primary branch), so no new gettext msgid; `password_form/1` (line 111) left alone since it sits under the "or use a password" divider. Mirrored into the golden fixture `session_html.ex:85`. Propagation surface proved to be exactly 2 files: no ExUnit test asserted the label (only button copy), and no Playwright spec needed editing — `admin-generated.spec.ts:71`'s `getByLabel("Email", {exact: true})` is scoped to `#login_form`, which IS `password_form/1` (unchanged). Verified: compile warnings-as-errors clean; `mix sigra.fixture.rebless_golden --check` exit 0 (template→generator→fixture agreement, no full rebless needed); golden_diff + idempotency + auth_ui_contract 10/0. Diff is 2 files, 1 line each, `label=` value only. Observations left out of scope: the passkey-primary branch has the same duplicate shape (template L44/L111), and the example demo twin has its own plain `label="Email"` duplicate. | complete ✓ | 2026-07-27 |
+| 260728-glj | Fold the hand-written "Unreleased" block in CHANGELOG.md into the release-please-generated 1.4.0 section, so the v1.46 adopter-experience content shipped INSIDE the 1.4.0 Hex release instead of remaining under a heading reading "Unreleased" inside an already-released package; added a maintainer warning comment above the changelog header to prevent recurrence. Row written late deliberately: the work ran on the release-please branch, which forked from 743864c0 — before the v1.46 close-out commit e6f7a413 — so that branch's STATE.md was 47 lines behind main, and editing it there risked reverting close-out content at merge. Main now contains both, so the row is safe to add here. | complete ✓ | 2026-07-28 |
+| 260728-ivl | Post-release bookkeeping for the 1.4.0 Hex publish: filed two high-severity release-lane defect todos exposed by that release, and recorded the 260728-glj row above. (1) `gate-ci-green` in release-please.yml waits for `ci-gate` on the release SHA with a hard 30-minute ceiling (`max_attempts=60` × `wait_seconds=30`), which is BELOW the expected duration of a push-to-`main` ci.yml run — that run is strictly heavier than the `pull_request` run gating the Release PR because jobs like "Recapture admin-design baselines (in-CI)" are skipped on `pull_request`. On v1.4.0 it timed out at 17:16:37Z on a run that concluded **success** ~1 min later, so `publish-hex` was skipped and the tag/GitHub Release existed with nothing on Hex. (2) The HARD-02 "no silent rot" notifier has never worked: `notify-failure-issue.sh:33` calls `gh issue create --label release-lane-rot`, that label did not exist, so the job died with `could not add label: 'release-lane-rot' not found` and created **zero** issues — the loud signal was silent on its first real firing, and the same shared script backs ci.yml's red-ci-gate notifier. Label created as an immediate mitigation; durable self-healing fix left as a recommendation. | complete ✓ | 2026-07-28 |
 
 ## Deferred Items
 
