@@ -12,7 +12,7 @@ If you have not installed Sigra yet, read [Installation](installation.html) firs
 
 - Phoenix 1.8+ app named `MyApp` (substitute your app name throughout)
 - PostgreSQL running
-- `{:sigra, "~> 1.0"}` in `mix.exs` and `mix deps.get` already run. If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+- `{:sigra, "~> 1.4.0"}` in `mix.exs` and `mix deps.get` already run.
 - `mix sigra.install && mix ecto.migrate` already run (Sigra generates `uuid` / binary_id primary keys by default; pass `--no-binary-id` to `mix sigra.install` if you need bigint integer IDs instead)
 
 Verify the install by checking for the generated `Accounts` context and `UserAuth` plug:

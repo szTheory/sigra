@@ -43,7 +43,7 @@ Use Relyra when the IdP requires direct SAML 2.0 SP registration and SAMLRespons
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.0"},
+    {:sigra, "~> 1.4.0"},
     {:relyra, "~> 1.2"},
     # ... your other deps
   ]

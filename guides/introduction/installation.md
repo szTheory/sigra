@@ -24,11 +24,16 @@ Add `:sigra` to `deps/0` in `mix.exs`:
         {:phoenix, "~> 1.8"},
         {:ecto_sql, "~> 3.12"},
         # ...
-        {:sigra, "~> 1.0"}
+        {:sigra, "~> 1.4.0"}
       ]
     end
 
-The selected 1.0 package line is governed by the [Sigra 1.0 contract](contract.html). If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+The selected 1.0 package line is governed by the [Sigra 1.0 contract](contract.html).
+
+The three-segment requirement is deliberate. An erroneous `1.20.0` was published to
+Hex and, by SemVer ordering, sorts above the current `1.4.x` releases, so a
+two-segment `~> 1.4` would still admit it. `~> 1.4.0` means `>= 1.4.0 and < 1.5.0`,
+which keeps resolution on the supported line — raise it when you move to a newer minor.
 
 Fetch it:
 
