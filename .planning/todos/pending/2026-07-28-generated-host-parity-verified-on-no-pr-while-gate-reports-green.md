@@ -8,6 +8,7 @@ files:
   - .github/workflows/release-please.yml
 severity: high
 source: 2026-07-28 CI fan-out investigation that scoped the v1.47 CI-EFFICIENCY milestone
+resolves_phase: 231
 ---
 
 ## What

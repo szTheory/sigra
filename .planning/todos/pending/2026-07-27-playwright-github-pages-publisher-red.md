@@ -8,6 +8,7 @@ files:
   - scripts/ci/assemble-playwright-gh-pages-site.sh
   - test/example/priv/playwright/tests
 source: 2026-07-27 PR triage / green-main pass — found while diagnosing why main shows red
+resolves_phase: 231
 ---
 
 ## What

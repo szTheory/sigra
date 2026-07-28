@@ -8,6 +8,7 @@ files:
   - .github/workflows/ci.yml
 severity: high
 source: 2026-07-28 quick task (post-release 1.4.0 bookkeeping) — diagnosed during the Sigra 1.4.0 Hex publish recovery
+resolves_phase: 231
 ---
 
 ## What
