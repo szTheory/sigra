@@ -36,7 +36,7 @@
 
 - [x] **PROOF-01**: A fresh generated host completes install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke/deny with deterministic role-based Playwright/ExUnit evidence and no sleeps.
 - [x] **PROOF-02**: Template, example, golden, migration, JavaScript, documentation, and feature-flag parity are reviewed as one generated contract; generation is idempotent and customized adopter files are never silently rewritten.
-- [ ] **PROOF-03**: Changed surfaces pass focused pairwise visual evidence, post-interaction axe, keyboard/focus, 320px/200% reflow, performance-budget, CI-native baseline, and human acceptance gates while LLM review remains advisory.
+- [x] **PROOF-03**: Changed surfaces pass focused pairwise visual evidence, post-interaction axe, keyboard/focus, 320px/200% reflow, performance-budget, CI-native baseline, and human acceptance gates while LLM review remains advisory.
 
 ## v2 Requirements
 
@@ -78,7 +78,7 @@
 | AUDIT-02 | Phase 228 | Complete |
 | PROOF-01 | Phase 229 | Complete |
 | PROOF-02 | Phase 229 | Complete |
-| PROOF-03 | Phase 229 | Awaiting human visual acceptance |
+| PROOF-03 | Phase 229 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total
