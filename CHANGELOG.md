@@ -11,6 +11,18 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+<!--
+MAINTAINER WARNING — Release Please inserts each generated version section BELOW this
+block, never into it. Anything written here must be folded by hand into the new version
+section while the Release PR is still open. If it is not, these notes ship inside a
+released package that still carries the "Unreleased" heading — and CHANGELOG.md is
+packaged into the Hex tarball, so the mistake is permanent for that release.
+-->
+
+_Nothing yet._
+
+## [1.4.0](https://github.com/szTheory/sigra/compare/v1.3.0...v1.4.0) (2026-07-28)
+
 ### Added
 
 - Admin-enabled installs now generate a host-owned persisted platform-admin grant, explicit `mix sigra.admin.grant|revoke|list|check` lifecycle tasks, and an allow/deny policy test. Grants require an existing confirmed active account and mutation audit rows share the database transaction.
@@ -25,8 +37,6 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Upgrade notes
 
 - Existing generated files remain host-owned and are never overwritten automatically. See [Upgrading generated hosts for v1.46 adopter experience](guides/introduction/upgrading-to-v1.46.md) for the additive grant migration, one-line customized-policy delegation, UI comparison workflow, and rollback path.
-
-## [1.4.0](https://github.com/szTheory/sigra/compare/v1.3.0...v1.4.0) (2026-07-28)
 
 
 ### Features
