@@ -222,7 +222,13 @@ defmodule <%= context_module %> do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_user_password(%<%= schema_alias %>{} = user, password, attrs) do
+  def update_user_password(%<%= schema_alias %>{} = user, password, attrs, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.password_change") do
+      do_update_user_password(user, password, attrs)
+    end
+  end
+
+  defp do_update_user_password(%<%= schema_alias %>{} = user, password, attrs) do
     changeset =
       user
       |> <%= schema_alias %>.password_changeset(attrs)
@@ -685,11 +691,13 @@ defmodule <%= context_module %> do
 
   @doc "Disable MFA for a user. Requires valid TOTP or backup code."
   def mfa_disable(user, code, opts \\ []) do
-    Sigra.MFA.disable(sigra_config(), user, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    with :ok <- forbid_sensitive_operation(opts, user, "mfa.disable") do
+      Sigra.MFA.disable(sigra_config(), user, code,
+        Keyword.merge([
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ], opts))
+    end
   end
 
   @doc """
@@ -698,11 +706,13 @@ defmodule <%= context_module %> do
   Requires `{:totp, code}` — backup codes **cannot** authorize rotation.
   """
   def mfa_regenerate_backup_codes(user, {:totp, _} = verification, opts \\ []) do
-    Sigra.MFA.regenerate_backup_codes(sigra_config(), user, verification,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    with :ok <- forbid_sensitive_operation(opts, user, "mfa.regenerate_backup_codes") do
+      Sigra.MFA.regenerate_backup_codes(sigra_config(), user, verification,
+        Keyword.merge([
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ], opts))
+    end
   end
 
   @doc "Check if a user has MFA enabled."
@@ -743,7 +753,8 @@ defmodule <%= context_module %> do
 
   @doc "Register a new passkey for a user."
   def register_passkey(user, attestation_params, details \\ %{}) do
-    with :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
+    with :ok <- forbid_sensitive_operation(details, user, "passkey.register"),
+         :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
          {:ok, normalized_params} <- normalize_passkey_registration_params(attestation_params, Map.get(attestation_params, "challenge") || Map.get(attestation_params, :challenge)) do
       case Sigra.Passkeys.register(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey) do
         {:ok, credential} ->
@@ -801,8 +812,9 @@ defmodule <%= context_module %> do
   end
 
   @doc "Delete a passkey."
-  def delete_passkey(user, credential_id) do
-    with {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
+  def delete_passkey(user, credential_id, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.delete"),
+         {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
       Sigra.Passkeys.delete_with_posture(sigra_config(), user, credential_id,
         user_passkey_schema: UserPasskey
       )
@@ -1015,10 +1027,12 @@ defmodule <%= context_module %> do
   All other sessions are invalidated on success.
   Returns `{:ok, user}` or `{:error, changeset}`.
   """
-  def change_password(user, current_password, attrs) do
-    Sigra.Auth.change_password(sigra_config(), user, current_password, attrs,
-      changeset_fn: &<%= schema_alias %>.password_changeset/3
-    )
+  def change_password(user, current_password, attrs, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.password_change") do
+      Sigra.Auth.change_password(sigra_config(), user, current_password, attrs,
+        Keyword.merge([changeset_fn: &<%= schema_alias %>.password_changeset/3], opts)
+      )
+    end
   end
 
   @doc """
@@ -1038,16 +1052,18 @@ defmodule <%= context_module %> do
   Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
   """
   def schedule_deletion(user, opts \\ []) do
-    Sigra.Auth.schedule_deletion(sigra_config(), user,
-      Keyword.merge(
-        [
-          changeset_fn: &User.deletion_changeset/2,
-          user_token_schema: UserToken,
-          session_store: Sigra.SessionStores.Ecto
-        ],
-        opts
+    with :ok <- forbid_sensitive_operation(opts, user, "account.deletion_schedule") do
+      Sigra.Auth.schedule_deletion(sigra_config(), user,
+        Keyword.merge(
+          [
+            changeset_fn: &User.deletion_changeset/2,
+            user_token_schema: UserToken,
+            session_store: Sigra.SessionStores.Ecto
+          ],
+          opts
+        )
       )
-    )
+    end
   end
 
   @doc """
@@ -1056,9 +1072,11 @@ defmodule <%= context_module %> do
   Returns `{:ok, user}` or `{:error, reason}`.
   """
   def cancel_deletion(user, opts \\ []) do
-    Sigra.Auth.cancel_deletion(sigra_config(), user,
-      Keyword.merge([changeset_fn: &<%= schema_alias %>.deletion_changeset/2], opts)
-    )
+    with :ok <- forbid_sensitive_operation(opts, user, "account.deletion_cancel") do
+      Sigra.Auth.cancel_deletion(sigra_config(), user,
+        Keyword.merge([changeset_fn: &<%= schema_alias %>.deletion_changeset/2], opts)
+      )
+    end
   end
 
   @doc """
@@ -1082,9 +1100,11 @@ defmodule <%= context_module %> do
   identities, passkeys, or organization memberships.
   """
   def export_auth_data(user, opts \\ []) do
-    Sigra.DataExport.export_auth_data(Repo, user,
-      Keyword.merge(default_auth_export_opts(), opts)
-    )
+    with :ok <- forbid_sensitive_operation(opts, user, "account.data_export") do
+      Sigra.DataExport.export_auth_data(Repo, user,
+        Keyword.merge(default_auth_export_opts(), opts)
+      )
+    end
   end
 
   @doc """
@@ -1113,7 +1133,6 @@ defmodule <%= context_module %> do
     ]
   end
 
-<%= if passkeys? do %>
   # Defense-in-depth: refuse sensitive account operations while an admin is
   # impersonating the target user, and audit the denied attempt. Sigra enforces
   # this at the library layer too; this app-level guard keeps the denial close to
@@ -1140,5 +1159,4 @@ defmodule <%= context_module %> do
   defp extract_scope(opts) when is_list(opts), do: Keyword.get(opts, :scope)
   defp extract_scope(%{} = opts), do: Map.get(opts, :scope)
   defp extract_scope(_other), do: nil
-<% end %>
 end

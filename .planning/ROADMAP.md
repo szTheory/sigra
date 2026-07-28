@@ -1,10 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Between milestones — **v1.45 RELEASE-CURRENCY** closed 2026-07-11 (`override_closeout`: Phase 223 PROOF-01/PUB-05 deferred pending the operator Hex `1.20.0` retire; the substantive release — v1.2.0 + v1.3.0 live on Hex, gate unblocked, lane hardened — shipped). Start the next milestone via `/gsd-new-milestone`.
+**Status:** Active milestone — **v1.46 ADOPTER-EXPERIENCE** (Phases 224–229). Close the secure first-hour adopter journey and finish the neutral generated-auth contract without reopening the mature admin design system.
 
 ## Milestones
 
+- ◆ **v1.46 ADOPTER-EXPERIENCE** — Phases 224-229 (active)
 - ⚠️ **v1.45 RELEASE-CURRENCY** — Phases 221-223 (shipped 2026-07-11 · `override_closeout`, Phase 223 deferred) · full detail in milestones/v1.45-ROADMAP.md
 - ✅ **v1.44 ADMIN-UX-RATCHET** — Phases 216-220 (shipped 2026-07-10) · full detail in milestones/v1.44-ROADMAP.md
 - ✅ **v1.43 STABILIZE** — Phases 213-215 (shipped 2026-07-03) · full detail in milestones/v1.43-ROADMAP.md
@@ -19,9 +20,31 @@
 - ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (shipped 2026-06-05)
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
-## Phases
+## v1.46 ADOPTER-EXPERIENCE (Active)
 
-_No active milestone. v1.45 closed 2026-07-11 (`override_closeout`). Start the next via `/gsd-new-milestone` — phases continue from **224**._
+### Phase 224: Experience Contract + Representative Slice
+
+- [x] Commit the JTBD/surface/state contract and UI-SPEC, extend the existing generated-host review substrate, implement the four representative states, and ratify baseline comprehension + creative direction. Covers EXPR-01/02. — completed 2026-07-19
+
+### Phase 225: Secure First-Admin + Generated-Host Security Parity
+
+- [x] Generate the host-owned persisted-grant seam and CLI workflow, preserve customized policy upgrades, and close all impersonation-sensitive operation drift. Covers BOOT-01/02/03 and SEC-01. — completed 2026-07-19
+
+### Phase 226: Auth Entry + Recovery
+
+- [x] Establish semantic `sigra-auth-*` primitives and propagate them through login, registration, confirmation, reset, reactivation, sudo, and invitation acceptance with configuration-led hierarchy and state-complete microcopy. Covers AUTHUI-01/02. — completed 2026-07-19
+
+### Phase 227: Account Security Coherence
+
+- [x] Propagate the approved contract through settings, MFA, backup codes, passkeys, sessions, and destructive flows; ratify responsive/theme/accessibility/latency behavior. Covers AUTHUI-03/04. — completed 2026-07-19
+
+### Phase 228: Admin Audit Precision + Boundary Pass
+
+- [x] Repair duplicate filter state, flatten and clarify the operator form, expose applied state, and review invitation→scope→admin entry without reskinning host product UI. Covers AUDIT-01/02. — completed 2026-07-19
+
+### Phase 229: Adoption Handoff + Terminal Ratification
+
+- [ ] Reconcile templates/golden/docs/upgrades, prove the fresh-host journey and relevant feature variants, obtain final human acceptance, recapture CI-native baselines, and close on deterministic gates. Automated proof complete 2026-07-19; awaiting human visual acceptance for PROOF-03.
 
 ---
 

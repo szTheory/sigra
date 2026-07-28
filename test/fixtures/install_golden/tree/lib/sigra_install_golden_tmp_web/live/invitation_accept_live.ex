@@ -247,13 +247,13 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
 
   defp render_signup(assigns) do
     ~H"""
-    <section id="invitation-accept-signup" class="max-w-md mx-auto py-16 px-4">
-      <div class="text-center mb-8">
-        <h1 class="text-2xl font-semibold">Join {@organization.name}</h1>
-        <p class="text-base mt-2">
+    <section id="invitation-accept-signup" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+      <div class="sigra-auth-stack sigra-auth-stack--2">
+        <h1>Join {@organization.name}</h1>
+        <p>
           {@inviter.email} invited you to join
           <strong>{@organization.name}</strong>
-          as <span class="font-semibold">{humanize_role(@invitation.role)}</span>.
+          as <strong>{humanize_role(@invitation.role)}</strong>.
           Create your account to accept.
         </p>
       </div>
@@ -263,7 +263,7 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
         for={@signup_form}
         id="invitation-signup-form"
         phx-submit="accept_with_signup"
-        class="space-y-4"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
         <.input
           field={f[:email]}
@@ -273,16 +273,16 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
           disabled
           readonly
         />
-        <p class="text-sm text-base-content/70">
+        <p>
           This invitation is locked to {@invitation.email}.
         </p>
 
         <.input field={f[:password]} type="password" label="Password" required />
 
         <div>
-          <.button class="btn btn-primary btn-block">
+          <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             Create account & join {@organization.name}
-          </.button>
+          </.sigra_auth_button>
         </div>
       </.form>
     </section>
@@ -291,28 +291,28 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
 
   defp render_accept(assigns) do
     ~H"""
-    <section id="invitation-accept-accept" class="max-w-md mx-auto py-16 px-4">
-      <div class="text-center mb-8">
-        <h1 class="text-2xl font-semibold">Join {@organization.name}</h1>
-        <p class="text-base mt-2">
+    <section id="invitation-accept-accept" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+      <div class="sigra-auth-stack sigra-auth-stack--2">
+        <h1>Join {@organization.name}</h1>
+        <p>
           {@inviter.email} invited <strong>{@accepting_user.email}</strong>
           to join <strong>{@organization.name}</strong>
-          as <span class="font-semibold">{humanize_role(@invitation.role)}</span>.
+          as <strong>{humanize_role(@invitation.role)}</strong>.
         </p>
       </div>
 
-      <.button
+      <.sigra_auth_button
         id="accept-invitation-button"
         phx-click="accept_invitation"
         phx-disable-with="Joining..."
-        class="btn btn-primary btn-block"
+        class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
       >
         Accept & join {@organization.name}
-      </.button>
+      </.sigra_auth_button>
 
-      <p class="text-sm text-center mt-6 text-base-content/70">
+      <p>
         Not you?
-        <.link href={~p"/users/log_out"} method="delete" class="link link-hover">
+        <.link href={~p"/users/log_out"} method="delete">
           Sign out
         </.link>
       </p>
@@ -329,26 +329,30 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
   # rendered DOM for a mismatched visitor.
   defp render_mismatch(assigns) do
     ~H"""
-    <section id="invitation-accept-mismatch" class="max-w-md mx-auto py-16 px-4">
-      <div role="alert" class="alert alert-warning">
-        <div>
-          <h3 class="font-semibold">This invitation is not for you</h3>
-          <p class="text-sm mt-1">
+    <section id="invitation-accept-mismatch" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+      <div class="sigra-auth-notice sigra-auth-notice--warning">
+        <div class="sigra-auth-stack sigra-auth-stack--2">
+          <h1>This invitation belongs to another account</h1>
+          <p>
             This invitation was sent to <strong>{@invitation.email}</strong>.
             You are signed in as <strong>{@mismatched_user.email}</strong>.
           </p>
         </div>
       </div>
 
-      <div class="mt-6 text-center text-sm">
-        <p class="text-base-content/70">
+      <div class="sigra-auth-stack sigra-auth-stack--4">
+        <p>
           To accept this invitation, sign out and sign in as
           <strong>{@invitation.email}</strong>, or ask the person who
           invited you to resend it.
         </p>
-        <p class="mt-4">
-          <.link href={~p"/users/log_out"} method="delete" class="link link-hover">
-            Sign out
+        <p>
+          <.link
+            href={~p"/users/log_out"}
+            method="delete"
+            class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+          >
+            Sign out and switch account
           </.link>
         </p>
       </div>
@@ -358,48 +362,48 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
 
   defp render_invalid(assigns) do
     ~H"""
-    <section id="invitation-accept-invalid" class="max-w-md mx-auto py-16 px-4 text-center">
-      <h1 class="text-2xl font-semibold">Invalid invitation</h1>
-      <p class="text-base mt-4 text-base-content/70">
+    <section id="invitation-accept-invalid" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--4">
+      <h1>Invalid invitation</h1>
+      <p>
         This invitation link is not valid.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary">Return home</.link>
     </section>
     """
   end
 
   defp render_expired(assigns) do
     ~H"""
-    <section id="invitation-accept-expired" class="max-w-md mx-auto py-16 px-4 text-center">
-      <h1 class="text-2xl font-semibold">Invitation expired</h1>
-      <p class="text-base mt-4 text-base-content/70">
+    <section id="invitation-accept-expired" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--4">
+      <h1>Invitation expired</h1>
+      <p>
         This invitation has expired. Ask the person who invited you to send a new one.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary">Return home</.link>
     </section>
     """
   end
 
   defp render_revoked(assigns) do
     ~H"""
-    <section id="invitation-accept-revoked" class="max-w-md mx-auto py-16 px-4 text-center">
-      <h1 class="text-2xl font-semibold">Invitation no longer valid</h1>
-      <p class="text-base mt-4 text-base-content/70">
+    <section id="invitation-accept-revoked" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--4">
+      <h1>Invitation no longer valid</h1>
+      <p>
         This invitation is no longer valid.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary">Return home</.link>
     </section>
     """
   end
 
   defp render_already_accepted(assigns) do
     ~H"""
-    <section id="invitation-accept-already" class="max-w-md mx-auto py-16 px-4 text-center">
-      <h1 class="text-2xl font-semibold">Invitation already accepted</h1>
-      <p class="text-base mt-4 text-base-content/70">
+    <section id="invitation-accept-already" class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--4">
+      <h1>Invitation already accepted</h1>
+      <p>
         This invitation has already been accepted.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary">Return home</.link>
     </section>
     """
   end

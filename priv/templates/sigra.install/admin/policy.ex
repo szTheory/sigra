@@ -2,20 +2,15 @@ defmodule <%= app_module %>.SigraAdminPolicy do
   @moduledoc """
   Host-owned admin policy contract for Sigra's admin surface.
 
-  Keep this module explicit. Sigra does not infer platform-admin or
-  org-admin access from signup order, email domain, or any other
-  hidden fallback.
+  Platform-admin access delegates to the generated host-owned persisted
+  grant seam. Sigra never infers access from signup order, email domain,
+  or any other hidden fallback. Keep organization-admin access explicit.
   """
 
   @behaviour Sigra.Admin.Policy
 
   @impl true
-  def platform_admin?(scope) do
-    # TODO: Return true only when this scope should have global admin access.
-    # Example: match on a host-owned role flag or query a trusted policy source.
-    _ = scope
-    false
-  end
+  def platform_admin?(scope), do: <%= app_module %>.SigraAdminAccess.platform_admin?(scope)
 
   @impl true
   def admin_org_ids(scope) do

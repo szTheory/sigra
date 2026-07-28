@@ -1,4 +1,4 @@
-# Sigra v1.1.0 - Table of Contents
+# Sigra v1.3.0 - Table of Contents
 
 > Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.
 
@@ -13,6 +13,8 @@
 - Introduction
   - [Installation](installation.md)
   - [getting-started](getting-started.md)
+  - [Sigra architecture](architecture.md)
+  - [Sigra code walkthrough](code-walkthrough.md)
   - [Sigra 1.0 Contract](contract.md)
   - [First hour with Sigra](first-hour.md)
   - [After the first hour: toward solo production](intermediate-production-path.md)

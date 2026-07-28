@@ -176,7 +176,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "Sigra.EnterpriseRouting"
     end
 
-    test "core login templates expose the enterprise discovery branch and canonical redirect wiring" do
+    test "core login templates expose enterprise discovery without provider-facing routing copy" do
       session_controller = File.read!("priv/templates/sigra.install/core/session_controller.ex")
       login_html = File.read!("priv/templates/sigra.install/core/login_html.ex")
 
@@ -191,7 +191,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert login_html =~ ~s|id="enterprise_login_form"|
       assert login_html =~ ~s|<input type="hidden" name="_action" value="enterprise" />|
       assert login_html =~ "Enter your work email."
-      assert login_html =~ "canonical enterprise sign-in route"
+      assert login_html =~ "your organization's sign-in page"
+      refute login_html =~ "canonical enterprise sign-in route"
     end
 
     test "organization settings template contains Enterprise SSO status and validate/activate actions" do

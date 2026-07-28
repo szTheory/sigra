@@ -31,69 +31,69 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-2xl">
+      <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Active Sessions
         <:subtitle>These devices are currently signed in to your account.</:subtitle>
       </.header>
 
-      <div class="mt-8 space-y-4">
+      <div class="sigra-auth-stack sigra-auth-stack--4">
         <div
           :for={session <- @sessions}
-          class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+          class="sigra-auth-section sigra-auth-split"
         >
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold">
+          <div class="sigra-auth-grow sigra-auth-stack sigra-auth-stack--2">
+            <div class="sigra-auth-cluster">
+              <strong>
                 <%= device_name(session) %>
-              </span>
+              </strong>
               <span
                 :if={current_session?(session, @current_hashed_token)}
-                class="inline-flex items-center rounded-md bg-brand/10 px-2 py-1 text-xs font-semibold text-brand"
+                class="sigra-auth-status sigra-auth-status--success"
               >
                 This device
               </span>
             </div>
-            <div class="mt-1 text-sm text-gray-500">
+            <div class="sigra-auth-copy sigra-auth-copy--muted">
               <span><%= session.ip || "Unknown IP" %></span>
-              <span class="mx-1">&middot;</span>
+              <span aria-hidden="true">&middot;</span>
               <span><%= location(session) %></span>
             </div>
-            <div class="mt-1 text-sm text-gray-500">
+            <div class="sigra-auth-copy sigra-auth-copy--muted">
               <%= relative_time(session.last_active_at) %>
             </div>
           </div>
           <div>
             <%= if current_session?(session, @current_hashed_token) do %>
-              <.button
+              <.sigra_auth_button
                 phx-click="revoke_current"
                 phx-value-token={Base.url_encode64(session.hashed_token)}
                 data-confirm="This is your current session. Revoking it will log you out. Continue?"
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
+                class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
                 Revoke session
-              </.button>
+              </.sigra_auth_button>
             <% else %>
-              <.button
+              <.sigra_auth_button
                 phx-click="revoke"
                 phx-value-token={Base.url_encode64(session.hashed_token)}
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
+                class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
                 Revoke session
-              </.button>
+              </.sigra_auth_button>
             <% end %>
           </div>
         </div>
       </div>
 
-      <div :if={length(@sessions) > 1} class="mt-8 border-t border-gray-200 pt-6">
-        <.button
+      <div :if={length(@sessions) > 1} class="sigra-auth-disclosure">
+        <.sigra_auth_button
           phx-click="revoke_all"
           data-confirm="This will end all sessions including your current one. You will be logged out."
-          class="text-red-600 bg-red-50 hover:bg-red-100"
+          class="sigra-auth-action sigra-auth-action--danger"
         >
           Log out of all devices
-        </.button>
+        </.sigra_auth_button>
       </div>
       </div>
     </.sigra_auth_page>

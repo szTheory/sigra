@@ -205,8 +205,11 @@ defmodule Sigra.MixProject do
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
+      favicon: "brandbook/favicon.svg",
       formatters: ["html", "markdown"],
       assets: %{"guides/assets" => "assets"},
+      before_closing_head_tag: &before_closing_head_tag/1,
+      before_closing_body_tag: &before_closing_body_tag/1,
       extras: [
         "README.md",
         "CONTRIBUTING.md",
@@ -216,6 +219,8 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/architecture.md",
+        "guides/introduction/code-walkthrough.md",
         "guides/introduction/contract.md",
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
@@ -228,6 +233,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.10.md",
         "guides/introduction/upgrading-to-v1.11.md",
         "guides/introduction/upgrading-to-v1.12.md",
+        "guides/introduction/upgrading-to-v1.46.md",
         "guides/introduction/upgrading-to-v1.0.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/introduction/migrating-from-phx-gen-auth.md",
@@ -283,4 +289,185 @@ defmodule Sigra.MixProject do
       ]
     ]
   end
+
+  defp before_closing_head_tag(:html) do
+    ~S"""
+    <style>
+      .sigra-mermaid {
+        --sigra-diagram-ring: rgba(15, 23, 42, 0.08);
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        background: transparent;
+        box-shadow:
+          0 0 0 1px var(--sigra-diagram-ring),
+          0 1px 2px -1px rgba(15, 23, 42, 0.08),
+          0 2px 6px rgba(15, 23, 42, 0.04);
+        color: inherit;
+        text-align: center;
+      }
+
+      body.dark .sigra-mermaid {
+        --sigra-diagram-ring: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 1px var(--sigra-diagram-ring);
+      }
+
+      .sigra-mermaid svg {
+        display: block;
+        width: 100%;
+        min-width: 42rem;
+        max-width: none;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      @media (min-width: 48rem) {
+        .sigra-mermaid svg {
+          min-width: 0;
+          max-width: 100%;
+        }
+      }
+    </style>
+    <script
+      data-sigra-mermaid
+      defer
+      crossorigin="anonymous"
+      integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E"
+      src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"
+    ></script>
+    """
+  end
+
+  defp before_closing_head_tag(:epub), do: ""
+  defp before_closing_head_tag(_format), do: ""
+
+  defp before_closing_body_tag(:html) do
+    ~S"""
+    <script>
+      (() => {
+        if (window.__sigraMermaidHookInstalled) return;
+
+        window.__sigraMermaidHookInstalled = true;
+        let graphSequence = 0;
+        let renderQueue = Promise.resolve();
+        let warned = false;
+
+        const warnOnce = (error) => {
+          if (warned) return;
+          warned = true;
+          console.warn(
+            "Sigra docs could not render a Mermaid diagram; source or the last successful diagram remains visible.",
+            error
+          );
+        };
+
+        const docsTheme = () =>
+          document.body.classList.contains("dark") ? "dark" : "default";
+
+        const renderExistingDiagram = async (wrapper, theme) => {
+          if (
+            wrapper.dataset.mermaidTheme === theme ||
+            wrapper.dataset.mermaidRendering === "true"
+          ) {
+            return;
+          }
+
+          wrapper.dataset.mermaidRendering = "true";
+
+          try {
+            const graphId = "sigra-mermaid-" + (++graphSequence);
+            const {svg, bindFunctions} =
+              await window.mermaid.render(graphId, wrapper.dataset.mermaidSource);
+            const rendered = document.createElement("div");
+            rendered.innerHTML = svg;
+            wrapper.replaceChildren(...rendered.childNodes);
+            wrapper.dataset.mermaidTheme = theme;
+
+            if (typeof bindFunctions === "function") bindFunctions(wrapper);
+          } catch (error) {
+            warnOnce(error);
+          } finally {
+            delete wrapper.dataset.mermaidRendering;
+          }
+        };
+
+        const renderSourceDiagram = async (code, theme) => {
+          const source = code.parentElement;
+          if (!source || code.dataset.mermaidPending === "true") return;
+
+          code.dataset.mermaidPending = "true";
+
+          try {
+            const graphId = "sigra-mermaid-" + (++graphSequence);
+            const {svg, bindFunctions} = await window.mermaid.render(graphId, code.textContent);
+            const wrapper = document.createElement("div");
+            wrapper.className = "sigra-mermaid";
+            wrapper.dataset.mermaidSource = code.textContent;
+            wrapper.dataset.mermaidTheme = theme;
+            wrapper.innerHTML = svg;
+
+            source.insertAdjacentElement("afterend", wrapper);
+            if (typeof bindFunctions === "function") bindFunctions(wrapper);
+            code.dataset.mermaidRendered = "true";
+            source.hidden = true;
+          } catch (error) {
+            warnOnce(error);
+          } finally {
+            delete code.dataset.mermaidPending;
+          }
+        };
+
+        const renderMermaid = async () => {
+          const blocks = document.querySelectorAll(
+            "pre > code.mermaid:not([data-mermaid-rendered]):not([data-mermaid-pending])"
+          );
+          const diagrams = document.querySelectorAll(
+            ".sigra-mermaid[data-mermaid-source]"
+          );
+
+          if (!window.mermaid || (blocks.length === 0 && diagrams.length === 0)) return;
+
+          const theme = docsTheme();
+          window.mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "strict",
+            suppressErrorRendering: true,
+            theme
+          });
+
+          for (const wrapper of diagrams) {
+            await renderExistingDiagram(wrapper, theme);
+          }
+
+          for (const code of blocks) {
+            await renderSourceDiagram(code, theme);
+          }
+        };
+
+        const scheduleMermaidRender = () => {
+          renderQueue = renderQueue.then(renderMermaid).catch(warnOnce);
+        };
+
+        new MutationObserver(scheduleMermaidRender).observe(document.body, {
+          attributes: true,
+          attributeFilter: ["class"]
+        });
+
+        window.addEventListener("exdoc:loaded", scheduleMermaidRender);
+        document.querySelector("script[data-sigra-mermaid]")
+          ?.addEventListener("load", scheduleMermaidRender, {once: true});
+
+        if (document.readyState === "loading") {
+          window.addEventListener("DOMContentLoaded", scheduleMermaidRender, {once: true});
+        } else {
+          scheduleMermaidRender();
+        }
+      })();
+    </script>
+    """
+  end
+
+  defp before_closing_body_tag(:epub), do: ""
+  defp before_closing_body_tag(_format), do: ""
 end

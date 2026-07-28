@@ -169,7 +169,11 @@ defmodule <%= web_module %>.SessionController do
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, credential} <-
            Sigra.Plug.PasskeyChallenge.verify(conn, :registration, Sigra.Passkeys.config(), [], fn challenge ->
-             Auth.register_passkey(user, Map.put(decoded_response, "challenge", challenge), passkey_registration_details(conn))
+             Auth.register_passkey(
+               user,
+               Map.put(decoded_response, "challenge", challenge),
+               passkey_registration_details(conn)
+             )
            end) do
       _ = credential
 
@@ -271,7 +275,7 @@ defmodule <%= web_module %>.SessionController do
   def delete_passkey(conn, %{"id" => credential_id}) do
     user = conn.assigns.current_scope.user
 
-    case Auth.delete_passkey(user, credential_id) do
+    case Auth.delete_passkey(user, credential_id, scope: conn.assigns.current_scope) do
       {:ok, %{remaining_passkeys: 0}} ->
         conn
         |> put_flash(:info, delete_passkey_success_message(:last_deleted))
@@ -280,6 +284,11 @@ defmodule <%= web_module %>.SessionController do
       {:ok, %{}} ->
         conn
         |> put_flash(:info, delete_passkey_success_message(:deleted))
+        |> redirect(to: ~p"/users/settings/mfa#passkeys")
+
+      {:error, :impersonation_forbidden} ->
+        conn
+        |> put_flash(:error, "You can't change account security settings while impersonating.")
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       {:error, _reason} ->
@@ -383,6 +392,7 @@ defmodule <%= web_module %>.SessionController do
 
   defp passkey_registration_details(conn) do
     %{
+      scope: conn.assigns.current_scope,
       device: conn |> get_req_header("user-agent") |> List.first() || "Unknown device",
       ip: conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip)),
       city: "Unknown",

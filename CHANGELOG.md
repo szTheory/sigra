@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.3.0]`** for **installable Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.x** in **`.planning/`** and archived milestone docs — those labels describe shipped tranches of work, **not** a second installable version axis on Hex. When in doubt, treat this changelog's SemVer headings and live Hex package metadata as the installable version truth; treat planning milestones as project-management traceability.
 
+## Unreleased
+
+### Added
+
+- Admin-enabled installs now generate a host-owned persisted platform-admin grant, explicit `mix sigra.admin.grant|revoke|list|check` lifecycle tasks, and an allow/deny policy test. Grants require an existing confirmed active account and mutation audit rows share the database transaction.
+- Generated-host Playwright coverage now proves auth action hierarchy, Light/Dark/System behavior, reduced motion, 320px/200% text reflow, audit URL presets/applied state, and revoke-to-deny behavior.
+
+### Changed
+
+- Clean generated auth templates use the bounded semantic `sigra-auth-*` vocabulary and explicit action hierarchy across entry, recovery, settings, MFA, passkeys, sessions, and invitation states. Scoped utility/Daisy-shaped selectors remain as an older-template compatibility bridge.
+- Both admin audit explorers use URL presets instead of duplicate checkbox/form keys and show a labeled active-filter region immediately after the form.
+- Generated sensitive account operations propagate the current scope and return a typed denial during impersonation.
+
+### Upgrade notes
+
+- Existing generated files remain host-owned and are never overwritten automatically. See [Upgrading generated hosts for v1.46 adopter experience](guides/introduction/upgrading-to-v1.46.md) for the additive grant migration, one-line customized-policy delegation, UI comparison workflow, and rollback path.
+
 ## [1.3.0](https://github.com/szTheory/sigra/compare/v1.2.0...v1.3.0) (2026-07-10)
 
 
@@ -399,6 +416,7 @@ mix sigra.upgrade --yes
 
 ### Documentation
 
+- **Architecture learning path:** Added complementary outside-in architecture and inside-out code walkthrough guides for adopters and maintainers, including the generated-host ownership boundary, durable session model, and current implementation seams.
 - **Hex 1.0.0 launch pack:** Added `docs/launch/v1.0/announcement.md`, `docs/launch/v1.0/alternatives.md`, and `docs/launch/v1.0/evidence.md` as the canonical launch narrative, alternatives comparison, and compact evidence bundle for the public 1.0 release path.
 - **Hex 1.0.0 release guidance:** GitHub Release, README, HexDocs, and AI-consumption routing should point to `docs/launch/v1.0/announcement.md` as the source for who should upgrade now, who should wait, and where proof lives.
 - **Mailglass integration posture (v1.29 DOC-01):** Sigra ships no library-resident Mailglass adapter and no `--with-mailglass` installer flag. The supported integration posture is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module. See `guides/recipes/companion-libs/mailglass.md` for the current supported configuration.

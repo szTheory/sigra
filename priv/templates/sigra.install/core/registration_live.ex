@@ -7,12 +7,12 @@ defmodule <%= web_module %>.RegistrationLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <.header>
           Register
           <:subtitle>
             Already registered?
-            <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+            <.link navigate={~p"/users/log_in"}>
               Log in
             </.link>
             to your account now.
@@ -28,9 +28,10 @@ defmodule <%= web_module %>.RegistrationLive do
         phx-trigger-action={@trigger_submit}
         action={~p"/users/log_in?_action=registered"}
         method="post"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
-        <p :if={@check_errors} class="alert alert-danger">
-          Oops, something went wrong! Please check the errors below.
+        <p :if={@check_errors} class="sigra-auth-notice sigra-auth-notice--danger">
+          We couldn't create your account. Check the highlighted fields and try again.
         </p>
 
         <%% # Add custom fields here (e.g., :name, :company) %>
@@ -40,18 +41,18 @@ defmodule <%= web_module %>.RegistrationLive do
 <%= if passkeys? do %>
         <label
           :if={@passkey_primary_enabled}
-          class="mb-4 flex items-start gap-3 rounded border border-gray-200 bg-gray-50 p-3 text-sm"
+          class="sigra-auth-section sigra-auth-check-row"
         >
           <input
             type="checkbox"
             name="user[enroll_passkey]"
             value="true"
             checked={@enroll_passkey_after_signup}
-            class="checkbox mt-0.5"
+            class="sigra-auth-check"
           />
           <span>
-            <span class="font-semibold">Add a passkey after creating your account</span>
-            <span class="block text-gray-600">
+            <strong>Add a passkey after creating your account</strong>
+            <span class="sigra-auth-copy sigra-auth-copy--muted">
               After confirming your email, you will continue to passkey setup.
             </span>
           </span>
@@ -59,29 +60,29 @@ defmodule <%= web_module %>.RegistrationLive do
 <% end %>
 
         <%% # Password strength indicator %>
-        <div :if={@password_strength} class="mt-1 mb-4">
-          <div class="flex items-center gap-2">
-            <div class="flex-1 h-2 rounded-full bg-gray-200">
+        <div :if={@password_strength} class="sigra-auth-stack sigra-auth-stack--2">
+          <div class="sigra-auth-cluster">
+            <div class="sigra-auth-meter sigra-auth-grow">
               <div
                 class={[
-                  "h-2 rounded-full transition-all duration-300",
+                  "sigra-auth-meter__value",
                   password_strength_color(@password_strength)
                 ]}
                 style={"width: #{password_strength_width(@password_strength)}%"}
               />
             </div>
-            <span class={"text-xs font-medium #{password_strength_text_color(@password_strength)}"}>
+            <span class={"sigra-auth-status #{password_strength_text_color(@password_strength)}"}>
               {password_strength_label(@password_strength)}
             </span>
           </div>
-          <ul :if={@password_suggestions != []} class="mt-1 text-xs text-gray-500 list-disc list-inside">
+          <ul :if={@password_suggestions != []} class="sigra-auth-list">
             <li :for={suggestion <- @password_suggestions}>{suggestion}</li>
           </ul>
         </div>
 
-        <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
+        <.sigra_auth_button phx-disable-with="Creating account..." class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           Create an account <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
         </.form>
       </div>
     </.sigra_auth_page>
@@ -178,10 +179,10 @@ defmodule <%= web_module %>.RegistrationLive do
     end
   end
 
-  defp password_strength_color(:weak), do: "bg-red-500"
-  defp password_strength_color(:fair), do: "bg-yellow-500"
-  defp password_strength_color(:strong), do: "bg-green-500"
-  defp password_strength_color(_), do: "bg-gray-300"
+  defp password_strength_color(:weak), do: "sigra-auth-meter__value--weak"
+  defp password_strength_color(:fair), do: "sigra-auth-meter__value--fair"
+  defp password_strength_color(:strong), do: "sigra-auth-meter__value--strong"
+  defp password_strength_color(_), do: ""
 
   defp password_strength_width(:weak), do: 33
   defp password_strength_width(:fair), do: 66
@@ -193,8 +194,8 @@ defmodule <%= web_module %>.RegistrationLive do
   defp password_strength_label(:strong), do: "Strong"
   defp password_strength_label(_), do: ""
 
-  defp password_strength_text_color(:weak), do: "text-red-600"
-  defp password_strength_text_color(:fair), do: "text-yellow-600"
-  defp password_strength_text_color(:strong), do: "text-green-600"
-  defp password_strength_text_color(_), do: "text-gray-400"
+  defp password_strength_text_color(:weak), do: "sigra-auth-status--danger"
+  defp password_strength_text_color(:fair), do: "sigra-auth-status--warning"
+  defp password_strength_text_color(:strong), do: "sigra-auth-status--success"
+  defp password_strength_text_color(_), do: ""
 end

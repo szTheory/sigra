@@ -19,20 +19,19 @@ defmodule <%= web_module %>.SessionHTML do
   def new(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <.header>
-          {dgettext("sigra", "Log in")}
+          {dgettext("sigra", "Sign in")}
           <:subtitle>
             {dgettext("sigra", "New here?")}
-            <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-              {dgettext("sigra", "Create an account.")}
+            <.link navigate={~p"/users/register"}>
+              {dgettext("sigra", "Create an account")}
             </.link>
           </:subtitle>
         </.header>
 
 <%= if passkeys? do %>
       <%%= if @passkey_primary_enabled do %>
-        <%% # Passkey-primary section %>
         <.form
           :let={f}
           for={@form}
@@ -40,157 +39,106 @@ defmodule <%= web_module %>.SessionHTML do
           action={~p"/users/log_in/passkey"}
           method="post"
           data-options-path={~p"/users/log_in/passkey/options"}
+          class="sigra-auth-stack sigra-auth-stack--4"
         >
           <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username webauthn" required />
           <input type="hidden" name="passkey[response]" id="passkey_login_response" />
           <p
             data-passkey-login-status
             data-passkey-status=""
-            class="text-sm text-base-content/70"
+            class="sigra-auth-notice"
             aria-live="polite"
           >
           </p>
 
-          <button type="button" id="passkey_login_button" class="btn btn-primary w-full">
-            {dgettext("sigra", "Use a passkey")}
+          <button
+            type="button"
+            id="passkey_login_button"
+            class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+          >
+            {dgettext("sigra", "Continue with a passkey")}
           </button>
         </.form>
 
-        <div class="mt-3">
-          <a href="#login_form" class="btn btn-secondary w-full">
-            {dgettext("sigra", "Use password instead")}
-          </a>
-        </div>
+        <details class="sigra-auth-disclosure">
+          <summary>{dgettext("sigra", "Other ways to sign in")}</summary>
+          <div class="sigra-auth-stack sigra-auth-stack--6">
+            <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
+              <input type="hidden" name="_action" value="magic_link" />
+              <.input field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
+                {dgettext("sigra", "Email me a sign-in link")}
+              </.sigra_auth_button>
+            </.form>
 
-        <p class="mt-3 text-sm text-base-content/70">
-          {dgettext("sigra", "Passkeys are not break-glass sign-in for SSO-only organizations.")}
-        </p>
+            <div class="sigra-auth-divider">{dgettext("sigra", "or use a password")}</div>
+            <%%= password_form(assigns) %>
 
-        <%% # Magic link recovery remains visible in passkey-primary mode. %>
-        <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="mt-3">
-          <input type="hidden" name="_action" value="magic_link" />
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email for recovery link")} autocomplete="username" required />
-
-          <.button class="btn btn-outline w-full">
-            {dgettext("sigra", "Email me a magic link")}
-          </.button>
-        </.form>
-
-        <p class="mt-2 text-sm text-base-content/70">
-          {dgettext("sigra", "Magic links are not break-glass recovery for SSO-only organizations.")}
-        </p>
-
-        <%% # Password fallback stays on the same controller-rendered page. %>
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <hr class="w-full" />
+            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <%%= enterprise_form(assigns) %>
           </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="bg-white px-2 text-gray-500">
-              {dgettext("sigra", "or use your password")}
-            </span>
-          </div>
-        </div>
-
-        <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post">
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
-          <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="current-password" required />
-
-          <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm">
-              <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
-              {dgettext("sigra", "Keep me signed in")}
-            </label>
-          </div>
-
-          <.button class="btn btn-primary w-full">
-            {dgettext("sigra", "Log in")} <span aria-hidden="true">&rarr;</span>
-          </.button>
-        </.form>
+        </details>
       <%% else %>
 <% end %>
-        <%% # Magic link section %>
-        <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post">
+        <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
           <input type="hidden" name="_action" value="magic_link" />
           <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
 
-          <.button class="btn btn-primary w-full">
-            {dgettext("sigra", "Send magic link")} <span aria-hidden="true">&rarr;</span>
-          </.button>
+          <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+            {dgettext("sigra", "Email me a sign-in link")} <span aria-hidden="true">&rarr;</span>
+          </.sigra_auth_button>
         </.form>
 
-        <p class="mt-2 text-sm text-base-content/70">
-          {dgettext("sigra", "Magic links are not break-glass recovery for SSO-only organizations.")}
-        </p>
-
-        <%% # Divider %>
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <hr class="w-full" />
+        <details class="sigra-auth-disclosure">
+          <summary>{dgettext("sigra", "Other ways to sign in")}</summary>
+          <div class="sigra-auth-stack sigra-auth-stack--6">
+            <%%= password_form(assigns) %>
+            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <%%= enterprise_form(assigns) %>
           </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="bg-white px-2 text-gray-500">
-              {dgettext("sigra", "or sign in with password")}
-            </span>
-          </div>
-        </div>
-
-        <%% # Password section %>
-        <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post">
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
-          <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="current-password" required />
-
-          <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm">
-              <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
-              {dgettext("sigra", "Keep me signed in")}
-            </label>
-          </div>
-
-          <.button class="btn btn-primary w-full">
-            {dgettext("sigra", "Log in")} <span aria-hidden="true">&rarr;</span>
-          </.button>
-        </.form>
+        </details>
 <%= if passkeys? do %>
       <%% end %>
 <% end %>
-
-      <div class="relative my-6">
-        <div class="absolute inset-0 flex items-center">
-          <hr class="w-full" />
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="bg-white px-2 text-gray-500">
-            {dgettext("sigra", "or continue with enterprise SSO")}
-          </span>
-        </div>
-      </div>
-
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
-        <div class="space-y-1">
-          <h2 class="text-base font-semibold text-base-content">
-            {dgettext("sigra", "Enterprise sign-in")}
-          </h2>
-          <p class="text-sm text-base-content/70">
-            {dgettext("sigra", "Enter your work email. If Sigra finds one exact active organization match, it will send you to the canonical enterprise sign-in route for that organization.")}
-          </p>
-        </div>
-
-        <.form :let={f} for={@form} id="enterprise_login_form" action={~p"/users/log_in"} method="post" class="mt-4 space-y-4">
-          <input type="hidden" name="_action" value="enterprise" />
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Work email")} autocomplete="username" required />
-
-          <.button class="btn btn-outline w-full">
-            {dgettext("sigra", "Continue with enterprise SSO")}
-          </.button>
-        </.form>
-
-        <p class="mt-3 text-sm text-base-content/70">
-          {dgettext("sigra", "If your organization enforces SSO-only, break-glass stays limited to password sign-in and password reset.")}
-        </p>
-        </section>
       </div>
     </.sigra_auth_page>
+    """
+  end
+
+  defp password_form(assigns) do
+    ~H"""
+    <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
+      <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+      <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="current-password" required />
+
+      <label class="sigra-auth-cluster">
+        <input type="checkbox" name={f[:remember_me].name} value="true" class="sigra-auth-check" />
+        {dgettext("sigra", "Keep me signed in")}
+      </label>
+
+      <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
+        {dgettext("sigra", "Sign in with password")}
+      </.sigra_auth_button>
+    </.form>
+    """
+  end
+
+  defp enterprise_form(assigns) do
+    ~H"""
+    <section class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
+      <div class="sigra-auth-stack sigra-auth-stack--2">
+        <h2 id="enterprise-sign-in-title">{dgettext("sigra", "Work sign-in")}</h2>
+        <p>{dgettext("sigra", "Enter your work email. We'll continue to your organization's sign-in page when there is an exact active match.")}</p>
+      </div>
+
+      <.form :let={f} for={@form} id="enterprise_login_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
+        <input type="hidden" name="_action" value="enterprise" />
+        <.input field={f[:email]} type="email" label={dgettext("sigra", "Work email")} autocomplete="username" required />
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
+          {dgettext("sigra", "Continue with work sign-in")}
+        </.sigra_auth_button>
+      </.form>
+    </section>
     """
   end
 end

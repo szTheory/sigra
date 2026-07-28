@@ -173,9 +173,9 @@ defmodule Sigra.Install.GeneratorMFATest do
       assert content =~ "raw(@svg)"
     end
 
-    test "contains backup code grid with grid-cols-2 gap-3" do
+    test "contains the semantic backup code list" do
       content = render_template("mfa_settings_live.ex")
-      assert content =~ "grid-cols-2 gap-3"
+      assert content =~ "sigra-auth-code-list"
     end
 
     test "contains acknowledgment checkbox" do
@@ -186,7 +186,7 @@ defmodule Sigra.Install.GeneratorMFATest do
     test "contains Enabled badge" do
       content = render_template("mfa_settings_live.ex")
       assert content =~ "Enabled"
-      assert content =~ "text-green-700 bg-green-50"
+      assert content =~ "sigra-auth-status sigra-auth-status--success"
     end
 
     test "contains backup code count display" do
@@ -194,9 +194,9 @@ defmodule Sigra.Install.GeneratorMFATest do
       assert content =~ "of 8 backup codes remaining"
     end
 
-    test "contains disable confirmation with bg-red-50" do
+    test "contains semantic danger treatment for disable confirmation" do
       content = render_template("mfa_settings_live.ex")
-      assert content =~ "bg-red-50"
+      assert content =~ "sigra-auth-notice sigra-auth-notice--danger"
       assert content =~ "Disable two-factor authentication"
     end
 

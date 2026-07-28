@@ -18,7 +18,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <%= case @live_action do %>
         <% :new -> %>
           <.header>
@@ -33,6 +33,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
             id="confirmation_form"
             phx-change="validate"
             phx-submit="confirm"
+            class="sigra-auth-stack sigra-auth-stack--4"
           >
             <.input
               field={@form[:code]}
@@ -43,18 +44,19 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
               maxlength="6"
               pattern="[0-9]{6}"
               aria-label={dgettext("sigra", "Confirmation code")}
+              class="sigra-auth-code-input"
               required
             />
 
-            <.button phx-disable-with={dgettext("sigra", "Confirming...")} class="btn btn-primary w-full">
+            <.sigra_auth_button phx-disable-with={dgettext("sigra", "Confirming...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
               {dgettext("sigra", "Confirm email")} <span aria-hidden="true">&rarr;</span>
-            </.button>
+            </.sigra_auth_button>
           </.form>
 
-          <p class="mt-4 text-center text-sm">
-            <.link phx-click="resend" class="font-semibold text-brand hover:underline cursor-pointer">
+          <p class="sigra-auth-copy sigra-auth-copy--center">
+            <button type="button" phx-click="resend" class="sigra-auth-action sigra-auth-action--ghost">
               {dgettext("sigra", "Didn't receive a code?")}
-            </.link>
+            </button>
           </p>
 
         <% :already_confirmed -> %>
@@ -65,8 +67,8 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
             </:subtitle>
           </.header>
 
-          <p class="mt-4 text-center">
-            <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <p class="sigra-auth-copy sigra-auth-copy--center">
+            <.link navigate={~p"/users/log_in"}>
               {dgettext("sigra", "Log in")}
             </.link>
           </p>
@@ -79,9 +81,9 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
             </:subtitle>
           </.header>
 
-          <.button phx-click="resend" phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
+          <.sigra_auth_button phx-click="resend" phx-disable-with={dgettext("sigra", "Sending...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
-          </.button>
+          </.sigra_auth_button>
         <% end %>
       </div>
     </.sigra_auth_page>

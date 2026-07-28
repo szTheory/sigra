@@ -63,48 +63,48 @@ defmodule <%= web_module %>.MFASettingsLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-2xl">
+      <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <%%= if @mfa_enabled do %>
         <%% # Surface 3: MFA Settings Card %>
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <div class="flex justify-between items-center">
+        <section class="sigra-auth-section">
+          <div class="sigra-auth-split">
             <div>
-              <span class="text-sm font-semibold">Two-factor authentication</span>
-              <span class="ml-2 inline-flex items-center text-green-700 bg-green-50 text-xs px-2 py-0.5 rounded-full font-semibold">
+              <h2>Two-factor authentication</h2>
+              <span class="sigra-auth-status sigra-auth-status--success">
                 Enabled
               </span>
             </div>
             <button
               phx-click="show_disable"
-              class="text-sm text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md"
+              class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
             >
               Disable
             </button>
           </div>
 
           <%% # Backup code status (D-15) %>
-          <div class="mt-3">
+          <div class="sigra-auth-stack sigra-auth-stack--2">
             <%%= cond do %>
               <%% @backup_remaining == 0 -> %>
-                <div class="text-red-600 bg-red-50 p-2 rounded text-sm">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4 inline mr-1" />
+                <div class="sigra-auth-notice sigra-auth-notice--danger">
+                  <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
                   All backup codes used. Generate new ones now.
                 </div>
               <%% @backup_remaining <= 2 -> %>
-                <div class="text-yellow-700 bg-yellow-50 p-2 rounded text-sm">
-                  <.icon name="hero-exclamation-triangle" class="h-4 w-4 inline mr-1" />
+                <div class="sigra-auth-notice sigra-auth-notice--warning">
+                  <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
                   <%= "{@backup_remaining}" %> of 8 backup codes remaining
                 </div>
               <%% true -> %>
-                <p class="text-sm text-gray-500">
+                <p class="sigra-auth-copy sigra-auth-copy--muted">
                   <%= "{@backup_remaining}" %> of 8 backup codes remaining
                 </p>
             <%% end %>
 
-            <p class="mt-1">
+            <p class="sigra-auth-copy">
               <button
                 phx-click="show_regenerate"
-                class="text-sm text-brand hover:underline"
+                class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
               >
                 Regenerate codes
               </button>
@@ -112,21 +112,21 @@ defmodule <%= web_module %>.MFASettingsLive do
           </div>
 
           <%% # Trust section %>
-          <div class="mt-3">
+          <div>
             <button
               phx-click="revoke_trust"
               data-confirm="This will require two-factor authentication on all your browsers. Continue?"
-              class="text-sm text-gray-500 hover:underline"
+              class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
             >
               Revoke all trusted browsers
             </button>
           </div>
-        </div>
+        </section>
 
         <%% # Surface 4: Disable Confirmation %>
-        <div :if={@show_disable} class="mt-4 bg-red-50 p-4 rounded-lg border border-red-200">
-          <h3 class="text-sm font-semibold text-red-800">Disable two-factor authentication</h3>
-          <p class="mt-1 text-sm text-red-700">
+        <section :if={@show_disable} class="sigra-auth-notice sigra-auth-notice--danger sigra-auth-stack sigra-auth-stack--4">
+          <h2>Disable two-factor authentication</h2>
+          <p>
             This will remove the extra security on your account.
             You'll need to set it up again to re-enable.
           </p>
@@ -135,11 +135,11 @@ defmodule <%= web_module %>.MFASettingsLive do
             for={@disable_form}
             id="mfa_disable_form"
             phx-submit="disable_mfa"
-            class="mt-3"
+            class="sigra-auth-stack sigra-auth-stack--3"
           >
-            <div class="space-y-3">
+            <div class="sigra-auth-stack sigra-auth-stack--3">
               <div>
-                <label for="disable_code" class="block text-sm font-semibold text-red-800">
+                <label for="disable_code">
                   Enter your current 6-digit code or a backup code to confirm:
                 </label>
                 <input
@@ -148,34 +148,34 @@ defmodule <%= web_module %>.MFASettingsLive do
                   name="disable[code]"
                   value={@disable_form[:code].value}
                   inputmode="numeric"
-                  class="mt-1 block w-full rounded-lg text-base font-mono text-zinc-900 border-red-300 focus:border-red-400 focus:ring-0"
+                  class="sigra-auth-code-input"
                   required
                 />
               </div>
 
-              <div class="flex items-center gap-3">
+              <div class="sigra-auth-cluster">
                 <button
                   type="submit"
-                  class="text-sm text-red-600 bg-red-50 border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md"
+                  class="sigra-auth-action sigra-auth-action--danger"
                 >
                   Disable two-factor authentication
                 </button>
                 <button
                   type="button"
                   phx-click="cancel_disable"
-                  class="text-sm text-gray-500 hover:underline"
+                  class="sigra-auth-action sigra-auth-action--ghost"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           </.form>
-        </div>
+        </section>
 
         <%% # Regenerate codes confirmation %>
-        <div :if={@show_regenerate} class="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <h3 class="text-sm font-semibold">Regenerate backup codes</h3>
-          <p class="mt-1 text-sm text-gray-600">
+        <section :if={@show_regenerate} class="sigra-auth-section">
+          <h2>Regenerate backup codes</h2>
+          <p>
             This will replace all existing backup codes. Enter your current TOTP code to confirm.
           </p>
 
@@ -183,11 +183,11 @@ defmodule <%= web_module %>.MFASettingsLive do
             for={@regenerate_form}
             id="mfa_regenerate_form"
             phx-submit="regenerate_codes"
-            class="mt-3"
+            class="sigra-auth-stack sigra-auth-stack--3"
           >
-            <div class="space-y-3">
+            <div class="sigra-auth-stack sigra-auth-stack--3">
               <div>
-                <label for="regenerate_code" class="block text-sm font-semibold">
+                <label for="regenerate_code">
                   Current authenticator code:
                 </label>
                 <input
@@ -199,27 +199,27 @@ defmodule <%= web_module %>.MFASettingsLive do
                   pattern="[0-9]*"
                   maxlength="6"
                   autocomplete="one-time-code"
-                  class="mt-1 block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
+                  class="sigra-auth-code-input"
                   required
                 />
               </div>
 
-              <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
+              <div class="sigra-auth-cluster">
+                <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Regenerate codes</.sigra_auth_button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"
-                  class="text-sm text-gray-500 hover:underline"
+                  class="sigra-auth-action sigra-auth-action--ghost"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           </.form>
-        </div>
+        </section>
 
         <%% # Backup codes display (after regeneration) %>
-        <div :if={@enrollment_step == :backup_codes} class="mt-6">
+        <div :if={@enrollment_step == :backup_codes}>
           <%%= render_backup_codes(assigns) %>
         </div>
 
@@ -236,10 +236,10 @@ defmodule <%= web_module %>.MFASettingsLive do
             <%%= render_enrollment_backup_codes(assigns) %>
 
           <%% :done -> %>
-            <div class="text-center py-8">
-              <.icon name="hero-check-circle" class="h-12 w-12 text-green-500 mx-auto" />
-              <h3 class="mt-4 text-lg font-semibold">Two-factor authentication enabled</h3>
-              <p class="mt-2 text-sm text-gray-500">
+            <div class="sigra-auth-empty sigra-auth-stack sigra-auth-stack--4">
+              <.icon name="hero-check-circle" class="sigra-auth-icon sigra-auth-icon--lg" />
+              <h2>Two-factor authentication enabled</h2>
+              <p>
                 Your account is now protected with an extra layer of security.
               </p>
             </div>
@@ -257,11 +257,11 @@ defmodule <%= web_module %>.MFASettingsLive do
 <%= if passkeys? do %>
   defp render_passkeys_section(assigns) do
     ~H"""
-    <section id="passkeys" class="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
-      <div class="flex items-start justify-between gap-4">
+    <section id="passkeys" class="sigra-auth-section">
+      <div class="sigra-auth-split">
         <div>
-          <h2 class="text-xl font-semibold">Passkeys</h2>
-          <p class="mt-1 text-sm text-gray-600">
+          <h2>Passkeys</h2>
+          <p class="sigra-auth-copy sigra-auth-copy--muted">
             Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
           </p>
         </div>
@@ -271,7 +271,7 @@ defmodule <%= web_module %>.MFASettingsLive do
           id="add-passkey-button"
           phx-click="begin_passkey_enrollment"
           disabled={@passkey_status == :enrolling}
-          class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md disabled:opacity-50"
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small"
         >
           Add passkey
         </button>
@@ -280,40 +280,40 @@ defmodule <%= web_module %>.MFASettingsLive do
       <div
         id="passkey-registration-hook"
         phx-hook="PasskeyRegister"
-        class="hidden"
+        class="sigra-auth-hidden"
       />
 
-      <form id="passkey-registration-form" action={~p"/users/settings/mfa/passkeys"} method="post" class="hidden">
+      <form id="passkey-registration-form" action={~p"/users/settings/mfa/passkeys"} method="post" class="sigra-auth-hidden">
         <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
         <input type="hidden" name="passkey[response]" id="passkey-registration-response" />
       </form>
 
-      <div :if={@passkey_notice} class="mt-4 rounded-lg border border-gray-200 bg-white p-3">
-        <p class="text-sm font-semibold text-gray-900">{@passkey_notice.title}</p>
-        <p class="mt-1 text-sm text-gray-600">{@passkey_notice.body}</p>
+      <div :if={@passkey_notice} class="sigra-auth-notice sigra-auth-stack sigra-auth-stack--2">
+        <strong>{@passkey_notice.title}</strong>
+        <p>{@passkey_notice.body}</p>
       </div>
 
-      <div class="mt-4">
+      <div>
         <%%= if @passkeys == [] do %>
-          <div class="text-center py-8">
-            <p class="text-sm font-semibold text-gray-900">No passkeys added yet</p>
-            <p class="mt-1 text-sm text-gray-500">
+          <div class="sigra-auth-empty sigra-auth-stack sigra-auth-stack--2">
+            <strong>No passkeys added yet</strong>
+            <p>
               Add a passkey to sign in faster on this device and keep a backup sign-in method available.
             </p>
           </div>
         <%% else %>
-          <div class="space-y-3">
+          <div class="sigra-auth-stack sigra-auth-stack--3">
             <div
               :for={passkey <- @passkeys}
-              class="flex items-start justify-between p-4 bg-white rounded-lg border border-gray-200"
+              class="sigra-auth-section sigra-auth-split"
             >
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <.icon name="hero-key" class="h-4 w-4 text-gray-400" />
-                  <p class="text-sm font-semibold text-gray-900">{Auth.passkey_label(passkey)}</p>
+              <div class="sigra-auth-grow sigra-auth-stack sigra-auth-stack--2">
+                <div class="sigra-auth-cluster">
+                  <.icon name="hero-key" class="sigra-auth-icon" />
+                  <strong>{Auth.passkey_label(passkey)}</strong>
                 </div>
 
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="sigra-auth-copy sigra-auth-copy--muted">
                   Added {relative_time(passkey.inserted_at)}
                   &middot;
                   <%%= if passkey.last_used_at do %>
@@ -323,15 +323,15 @@ defmodule <%= web_module %>.MFASettingsLive do
                   <%% end %>
                 </p>
 
-                <div :if={@renaming_passkey_id == passkey_param_id(passkey)} class="mt-3">
+                <div :if={@renaming_passkey_id == passkey_param_id(passkey)}>
                   <.form
                     for={@rename_form}
                     phx-submit="save_passkey_name"
-                    class="flex flex-col gap-2 sm:flex-row sm:items-end"
+                    class="sigra-auth-stack sigra-auth-stack--2"
                   >
                     <input type="hidden" name="passkey[id]" value={passkey_param_id(passkey)} />
-                    <div class="flex-1">
-                      <label for={"passkey-name-#{passkey_param_id(passkey)}"} class="block text-sm font-semibold">
+                    <div class="sigra-auth-grow">
+                      <label for={"passkey-name-#{passkey_param_id(passkey)}"}>
                         Passkey name
                       </label>
                       <input
@@ -339,17 +339,16 @@ defmodule <%= web_module %>.MFASettingsLive do
                         type="text"
                         name="passkey[nickname]"
                         value={@rename_form[:nickname].value}
-                        class="mt-1 block w-full rounded-lg text-base text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
                       />
                     </div>
-                    <div class="flex gap-2">
-                      <button type="submit" class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md">
+                    <div class="sigra-auth-cluster">
+                      <button type="submit" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small">
                         Save name
                       </button>
                       <button
                         type="button"
                         phx-click="cancel_passkey_rename"
-                        class="text-sm text-gray-500 hover:underline"
+                        class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                       >
                         Cancel
                       </button>
@@ -357,26 +356,26 @@ defmodule <%= web_module %>.MFASettingsLive do
                   </.form>
                 </div>
 
-                <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
-                  <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
-                  <p class="mt-1 text-sm text-red-700">
+                <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class="sigra-auth-notice sigra-auth-notice--danger sigra-auth-stack sigra-auth-stack--3">
+                  <strong>Delete this passkey?</strong>
+                  <p>
                     You'll still need another sign-in method before removing your last recovery option.
                   </p>
-                  <p :if={@passkey_count == 1} class="mt-2 text-sm text-red-700">
+                  <p :if={@passkey_count == 1}>
                     You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
                   </p>
 
-                  <div class="mt-3 flex items-center gap-2">
+                  <div class="sigra-auth-cluster">
                     <form action={~p"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"} method="post">
                       <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
-                      <button type="submit" class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md">
+                      <button type="submit" class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small">
                         Delete
                       </button>
                     </form>
                     <button
                       type="button"
                       phx-click="cancel_passkey_delete"
-                      class="text-sm text-gray-500 hover:underline"
+                      class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                     >
                       Cancel
                     </button>
@@ -384,12 +383,12 @@ defmodule <%= web_module %>.MFASettingsLive do
                 </div>
               </div>
 
-              <div class="ml-4 flex shrink-0 items-center gap-2">
+              <div class="sigra-auth-cluster">
                 <button
                   type="button"
                   phx-click="open_passkey_rename"
                   phx-value-id={passkey_param_id(passkey)}
-                  class="text-sm text-brand hover:underline"
+                  class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                 >
                   Rename
                 </button>
@@ -397,7 +396,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                   type="button"
                   phx-click="confirm_passkey_delete"
                   phx-value-id={passkey_param_id(passkey)}
-                  class="text-sm text-red-600 hover:underline"
+                  class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
                 >
                   Delete
                 </button>
@@ -413,18 +412,18 @@ defmodule <%= web_module %>.MFASettingsLive do
 
   defp render_enrollment_start(assigns) do
     ~H"""
-    <div>
+    <section class="sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Two-Factor Authentication
         <:subtitle>Add an extra layer of security to your account.</:subtitle>
       </.header>
 
-      <div class="mt-6">
-        <.button phx-click="begin_enrollment">
+      <div>
+        <.sigra_auth_button phx-click="begin_enrollment" class="sigra-auth-action sigra-auth-action--primary">
           Set up two-factor authentication
-        </.button>
+        </.sigra_auth_button>
       </div>
-    </div>
+    </section>
     """
   end
 
@@ -436,14 +435,13 @@ defmodule <%= web_module %>.MFASettingsLive do
         <:subtitle>Add an extra layer of security to your account.</:subtitle>
       </.header>
 
-      <div class="mt-6 space-y-6">
+      <div class="sigra-auth-stack sigra-auth-stack--6">
         <%% # QR Code %>
-        <div class="text-center">
-          <p class="text-sm text-gray-600 mb-4">
+        <div class="sigra-auth-stack sigra-auth-stack--4 sigra-auth-copy--center">
+          <p class="sigra-auth-copy sigra-auth-copy--muted">
             Scan this QR code with your authenticator app
           </p>
           <div
-            class="inline-block"
             role="img"
             aria-label="QR code for TOTP setup"
           >
@@ -453,14 +451,14 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         <%% # Manual key %>
         <div>
-          <p class="text-sm text-gray-600">
+          <p class="sigra-auth-copy sigra-auth-copy--muted">
             Can't scan? Enter this key manually:
           </p>
           <div
-            class="mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-center"
+            class="sigra-auth-section sigra-auth-copy--center"
             style="user-select: all"
           >
-            <code data-testid="mfa-totp-secret" class="text-sm font-mono break-all select-all">
+            <code data-testid="mfa-totp-secret" class="sigra-auth-code">
               <%= "{@base32_secret}" %>
             </code>
           </div>
@@ -468,7 +466,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         <%% # Confirmation form %>
         <div>
-          <p class="text-sm font-semibold">
+          <p>
             Enter the 6-digit code from your app to verify setup:
           </p>
 
@@ -477,9 +475,9 @@ defmodule <%= web_module %>.MFASettingsLive do
             id="mfa_enroll_form"
             phx-change="validate_enroll"
             phx-submit="confirm_enrollment"
-            class="mt-3"
+            class="sigra-auth-stack sigra-auth-stack--4"
           >
-            <div class="space-y-4">
+            <div class="sigra-auth-stack sigra-auth-stack--4">
               <input
                 type="text"
                 name="enroll[code]"
@@ -490,13 +488,13 @@ defmodule <%= web_module %>.MFASettingsLive do
                 autocomplete="one-time-code"
                 autofocus
                 required
-                class="block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 focus:ring-0 border-zinc-300 focus:border-zinc-400"
+                class="sigra-auth-code-input"
                 aria-label="6-digit verification code"
               />
 
-              <.button class="w-full">
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
                 Enable two-factor authentication
-              </.button>
+              </.sigra_auth_button>
             </div>
           </.form>
         </div>
@@ -515,33 +513,33 @@ defmodule <%= web_module %>.MFASettingsLive do
 
   defp render_backup_codes(assigns) do
     ~H"""
-    <div>
+    <section class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6" aria-labelledby="backup-codes-title">
       <.header>
-        Save your backup codes
+        <span id="backup-codes-title">Save your backup codes</span>
         <:subtitle>
-          Store these codes in a safe place. Each code can only be used once.
+          Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
         </:subtitle>
       </.header>
 
       <%% # Backup code grid (D-08) %>
-      <div class="mt-4 bg-gray-50 p-4 rounded-lg">
-        <ol class="grid grid-cols-2 gap-3">
-          <li :for={code <- @backup_codes} class="text-center">
-            <code class="text-base font-mono"><%= "{code}" %></code>
+      <div class="sigra-auth-section">
+        <ol class="sigra-auth-code-list" aria-label="One-time backup codes">
+          <li :for={code <- @backup_codes}>
+            <code><%= "{code}" %></code>
           </li>
         </ol>
       </div>
 
       <%% # Action buttons %>
-      <div class="mt-4 flex gap-2">
+      <div class="sigra-auth-cluster">
         <button
           type="button"
           phx-hook="CopyBackupCodes"
           id="copy-backup-codes"
           data-codes={Enum.join(@backup_codes, "\n")}
-          class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
+          class="sigra-auth-action sigra-auth-action--secondary"
         >
-          <.icon name="hero-clipboard-document" class="h-4 w-4" />
+          <.icon name="hero-clipboard-document" class="sigra-auth-icon" />
           <span id="copy-btn-text">Copy all</span>
         </button>
         <button
@@ -549,37 +547,37 @@ defmodule <%= web_module %>.MFASettingsLive do
           phx-hook="DownloadBackupCodes"
           id="download-backup-codes"
           data-codes={Enum.join(@backup_codes, "\n")}
-          class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
+          class="sigra-auth-action sigra-auth-action--secondary"
         >
-          <.icon name="hero-arrow-down-tray" class="h-4 w-4" />
+          <.icon name="hero-arrow-down-tray" class="sigra-auth-icon" />
           Download .txt
         </button>
       </div>
 
       <%% # Acknowledgment checkbox (D-11) %>
-      <div class="mt-4">
-        <label class="flex items-center gap-2 text-sm">
+      <div>
+        <label class="sigra-auth-check-row">
           <input
             type="checkbox"
             phx-click="toggle_acknowledge"
             checked={@codes_acknowledged}
-            class="rounded border-gray-300"
+            class="sigra-auth-check"
           />
           I have saved these backup codes in a safe place
         </label>
       </div>
 
       <%% # Done button %>
-      <div class="mt-4">
-        <.button
+      <div>
+        <.sigra_auth_button
           phx-click="complete_enrollment"
           disabled={!@codes_acknowledged}
-          class={"w-full #{unless @codes_acknowledged, do: "opacity-50 cursor-not-allowed"}"}
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
         >
-          Done
-        </.button>
+          I saved these codes
+        </.sigra_auth_button>
       </div>
-    </div>
+    </section>
     """
   end
 

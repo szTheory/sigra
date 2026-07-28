@@ -14,7 +14,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   def new(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
         <:subtitle>
@@ -22,16 +22,16 @@ defmodule <%= web_module %>.ResetPasswordHTML do
         </:subtitle>
       </.header>
 
-      <.form for={%{}} as={:user} id="reset_password_request_form" action={~p"/users/reset-password"} method="post">
+      <.form for={%{}} as={:user} id="reset_password_request_form" action={~p"/users/reset-password"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <.input name="user[email]" type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
 
-        <.button class="btn btn-primary w-full">
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
 
-      <p class="mt-4 text-center text-sm">
-        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link navigate={~p"/users/log_in"}>
           {dgettext("sigra", "Back to log in")}
         </.link>
       </p>
@@ -46,7 +46,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   def edit(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset your password")}
         <:subtitle>
@@ -54,13 +54,13 @@ defmodule <%= web_module %>.ResetPasswordHTML do
         </:subtitle>
       </.header>
 
-      <.form :let={f} for={@changeset} id="reset_password_form" action={~p"/users/reset-password/#{@token}"} method="put">
+      <.form :let={f} for={@changeset} id="reset_password_form" action={~p"/users/reset-password/#{@token}"} method="put" class="sigra-auth-stack sigra-auth-stack--4">
         <.input field={f[:password]} type="password" label={dgettext("sigra", "New password")} autocomplete="new-password" required />
         <.input field={f[:password_confirmation]} type="password" label={dgettext("sigra", "Confirm new password")} autocomplete="new-password" required />
 
-        <.button class="btn btn-primary w-full">
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
       </div>
     </.sigra_auth_page>
@@ -74,7 +74,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   def expired(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset link expired")}
         <:subtitle>
@@ -82,8 +82,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
         </:subtitle>
       </.header>
 
-      <div class="mt-6">
-        <.link navigate={~p"/users/reset-password"} class="btn btn-primary w-full text-center block">
+      <div>
+        <.link navigate={~p"/users/reset-password"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Request new reset email")}
         </.link>
       </div>

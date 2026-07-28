@@ -12,19 +12,19 @@ defmodule <%= web_module %>.RegistrationHTML do
   def new(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Register
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/users/log_in"}>
             Log in
           </.link>
           to your account now.
         </:subtitle>
       </.header>
 
-      <.form :let={f} for={@form} id="registration_form" action={~p"/users/register"} method="post">
+      <.form :let={f} for={@form} id="registration_form" action={~p"/users/register"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <%% # Add custom fields here (e.g., :name, :company) %>
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
         <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
@@ -32,11 +32,11 @@ defmodule <%= web_module %>.RegistrationHTML do
 <%= if passkeys? do %>
         <%% # @passkey_primary_enabled gates signup-time passkey enrollment. %>
         <%%= if assigns[:passkey_primary_enabled] do %>
-          <label class="mb-4 flex items-start gap-3 rounded border border-gray-200 bg-gray-50 p-3 text-sm">
-            <input type="checkbox" name="user[enroll_passkey]" value="true" class="checkbox mt-0.5" />
+          <label class="sigra-auth-section sigra-auth-check-row">
+            <input type="checkbox" name="user[enroll_passkey]" value="true" class="sigra-auth-check" />
             <span>
-              <span class="font-semibold">Add a passkey after creating your account</span>
-              <span class="block text-gray-600">
+              <strong>Add a passkey after creating your account</strong>
+              <span class="sigra-auth-copy sigra-auth-copy--muted">
                 After confirming your email, you will continue to passkey setup.
               </span>
             </span>
@@ -44,9 +44,9 @@ defmodule <%= web_module %>.RegistrationHTML do
         <%% end %>
 <% end %>
 
-        <.button class="btn btn-primary w-full">
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           Create an account <span aria-hidden="true">&rarr;</span>
-        </.button>
+        </.sigra_auth_button>
       </.form>
       </div>
     </.sigra_auth_page>

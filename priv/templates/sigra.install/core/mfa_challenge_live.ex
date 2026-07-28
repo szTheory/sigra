@@ -51,7 +51,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
   def render(assigns) do
     ~H"""
     <.sigra_auth_page>
-      <div class="mx-auto max-w-sm">
+      <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Two-factor authentication
         <:subtitle>
@@ -64,9 +64,9 @@ defmodule <%= web_module %>.MFAChallengeLive do
       <div
         :if={@passkey_count > 0}
         id="mfa-passkey-panel"
-        class={["mt-6 space-y-4", @active_method == "passkey" || "hidden"]}
+        class={["sigra-auth-stack sigra-auth-stack--4", @active_method == "passkey" || "sigra-auth-hidden"]}
       >
-        <p class="text-sm text-gray-600">
+        <p class="sigra-auth-copy sigra-auth-copy--muted">
           Use your saved passkey to finish signing in.
         </p>
 
@@ -75,7 +75,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           type="button"
           phx-click="begin_passkey_authentication"
           disabled={@passkey_status == :authenticating}
-          class="btn btn-primary w-full min-h-14"
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
         >
           <%%= if @passkey_status == :authenticating do %>
             Waiting for passkey...
@@ -87,21 +87,16 @@ defmodule <%= web_module %>.MFAChallengeLive do
         <div
           :if={@passkey_notice}
           id="passkey-mfa-recovery-notice"
-          class={[
-            "rounded-lg border p-4 text-sm",
-            @passkey_notice.tone == :warning && "border-yellow-200 bg-yellow-50 text-yellow-900",
-            @passkey_notice.tone == :info && "border-blue-200 bg-blue-50 text-blue-900",
-            @passkey_notice.tone == :neutral && "border-gray-200 bg-gray-50 text-gray-800"
-          ]}
+          class={["sigra-auth-notice sigra-auth-stack sigra-auth-stack--3", passkey_notice_class(@passkey_notice.tone)]}
         >
-          <p class="font-semibold"><%%= @passkey_notice.title %></p>
-          <p class="mt-1"><%%= @passkey_notice.body %></p>
+          <strong><%%= @passkey_notice.title %></strong>
+          <p><%%= @passkey_notice.body %></p>
 
-          <div class="mt-3 flex flex-wrap gap-2">
+          <div class="sigra-auth-cluster">
             <button
               type="button"
               phx-click="begin_passkey_authentication"
-              class="btn btn-sm btn-primary"
+              class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small"
             >
               Try again
             </button>
@@ -109,7 +104,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
             <button
               type="button"
               phx-click="show_totp"
-              class="btn btn-sm btn-ghost"
+              class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
             >
               Use another way
             </button>
@@ -127,7 +122,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           id="passkey-mfa-complete-form"
           action={~p"/users/mfa/passkey"}
           method="post"
-          class="hidden"
+          class="sigra-auth-hidden"
         >
           <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <input id="passkey-mfa-response" type="hidden" name="passkey[response]" />
@@ -148,11 +143,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
           })
         </script>
 
-        <div class="space-y-2">
+        <div class="sigra-auth-stack sigra-auth-stack--2">
           <button
             type="button"
             phx-click="show_totp"
-            class="btn btn-ghost w-full"
+            class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--block"
           >
             Use authenticator code instead
           </button>
@@ -160,27 +155,27 @@ defmodule <%= web_module %>.MFAChallengeLive do
           <button
             type="button"
             phx-click="show_backup"
-            class="btn btn-link w-full text-gray-600"
+            class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--block"
           >
             Use a backup code
           </button>
         </div>
       </div>
 
-      <div :if={@passkey_count == 0} class="mt-6">
-        <p class="text-sm text-gray-600">
+      <div :if={@passkey_count == 0}>
+        <p class="sigra-auth-copy sigra-auth-copy--muted">
           Enter the code from your authenticator app to continue.
         </p>
       </div>
 
       <div
         :if={@passkey_count > 0 and @active_method != "passkey"}
-        class="mt-6 flex flex-wrap gap-2"
+        class="sigra-auth-cluster"
       >
         <button
           type="button"
           phx-click="begin_passkey_authentication"
-          class="btn btn-sm btn-outline"
+          class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--small"
         >
           Continue with passkey
         </button>
@@ -189,7 +184,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           :if={@active_method != "totp"}
           type="button"
           phx-click="show_totp"
-          class="btn btn-sm btn-ghost"
+          class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
         >
           Use authenticator code instead
         </button>
@@ -198,7 +193,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           :if={@active_method != "backup"}
           type="button"
           phx-click="show_backup"
-          class="btn btn-sm btn-ghost"
+          class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
         >
           Use a backup code
         </button>
@@ -209,17 +204,18 @@ defmodule <%= web_module %>.MFAChallengeLive do
       <div
         :if={@active_method == "totp"}
         id="panel-totp"
-        class="mt-6"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
         <.form
           for={@totp_form}
           id="mfa_totp_form"
           phx-change="validate_totp"
           phx-submit="verify_totp"
+          class="sigra-auth-stack sigra-auth-stack--4"
         >
-          <div class="space-y-4">
+          <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
-              <label for="mfa_totp_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label for="mfa_totp_code">
                 Authenticator code
               </label>
               <input
@@ -233,24 +229,24 @@ defmodule <%= web_module %>.MFAChallengeLive do
                 autocomplete="one-time-code"
                 autofocus
                 required
-                class="mt-2 block w-full rounded-lg text-base font-mono text-center tracking-widest text-zinc-900 focus:ring-0 sm:text-sm/6 phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 border-zinc-300 focus:border-zinc-400"
+                class="sigra-auth-code-input"
                 aria-label="6-digit authenticator code"
               />
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-gray-600">
+            <label class="sigra-auth-check-row">
               <input
                 type="checkbox"
                 name="mfa[trust]"
                 value="true"
-                class="rounded border-gray-300"
+                class="sigra-auth-check"
               />
               Trust this browser for 30 days
             </label>
 
-            <.button phx-disable-with="Verifying..." class="w-full">
+            <.sigra_auth_button phx-disable-with="Verifying..." class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
               Verify
-            </.button>
+            </.sigra_auth_button>
           </div>
         </.form>
       </div>
@@ -259,16 +255,17 @@ defmodule <%= web_module %>.MFAChallengeLive do
       <div
         :if={@active_method == "backup"}
         id="panel-backup"
-        class="mt-6"
+        class="sigra-auth-stack sigra-auth-stack--4"
       >
         <.form
           for={@backup_form}
           id="mfa_backup_form"
           phx-submit="verify_backup"
+          class="sigra-auth-stack sigra-auth-stack--4"
         >
-          <div class="space-y-4">
+          <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
-              <label for="mfa_backup_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label for="mfa_backup_code">
                 Backup code
               </label>
               <input
@@ -278,28 +275,28 @@ defmodule <%= web_module %>.MFAChallengeLive do
                 value={@backup_form[:code].value}
                 placeholder="XXXX-XXXX"
                 required
-                class="mt-2 block w-full rounded-lg text-base font-mono text-zinc-900 focus:ring-0 sm:text-sm/6 phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 border-zinc-300 focus:border-zinc-400"
+                class="sigra-auth-code-input"
                 aria-label="Backup code"
               />
             </div>
 
-            <.button phx-disable-with="Verifying..." class="w-full">
+            <.sigra_auth_button phx-disable-with="Verifying..." class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
               Verify
-            </.button>
+            </.sigra_auth_button>
           </div>
         </.form>
       </div>
 
       <%% # Remaining attempts hint (D-38) %>
-      <div :if={@active_method != "passkey"} class="mt-4 text-center" aria-live="polite">
-        <p class="text-sm text-gray-500">
+      <div :if={@active_method != "passkey"} aria-live="polite">
+        <p class="sigra-auth-copy sigra-auth-copy--muted sigra-auth-copy--center">
           Enter the code from your authenticator app to continue.
         </p>
       </div>
 
       <%% # Cancel link (D-34) %>
-      <p class="mt-6 text-center text-sm">
-        <.link href={~p"/users/log_out"} method="delete" class="text-gray-500 hover:underline">
+      <p class="sigra-auth-copy sigra-auth-copy--center">
+        <.link href={~p"/users/log_out"} method="delete">
           Cancel and sign out
         </.link>
       </p>
@@ -506,5 +503,9 @@ defmodule <%= web_module %>.MFAChallengeLive do
       body: nil
     }
   end
+
+  defp passkey_notice_class(:warning), do: "sigra-auth-notice--warning"
+  defp passkey_notice_class(:info), do: ""
+  defp passkey_notice_class(:neutral), do: ""
 <% end %>
 end

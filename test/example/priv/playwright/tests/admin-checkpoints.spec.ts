@@ -357,20 +357,19 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(page.getByRole('heading', { name: 'Audit' })).toBeVisible();
     await expect(page.getByText('Global audit explorer')).toBeVisible(); // scope_ribbon/1
     // Self-justifying capture (Phase 158 AUDX-02 / D-05): encode the intended
-    // delta — the all-viewport quick-filter chip row — as positive assertions on
-    // the chips' real name/value, so the new baseline reflects asserted-correct DOM.
-    const failuresChip = page.locator(
-      'label.sg-filter-chip:has(input[name="outcome"][value="failure"])',
-    );
+    // delta — the audit filter-preset row — as positive assertions on the
+    // presets' real text/state, so the new baseline reflects asserted-correct DOM.
+    // Phase 228 (v1.46) reshaped the presets from checkbox chips into anchor-link
+    // filters (<nav aria-label="Audit filter presets"> with aria-current marking
+    // the active one), so assert against the links, not label.sg-filter-chip inputs.
+    const presets = page.locator('nav[aria-label="Audit filter presets"]');
+    const failuresChip = presets.getByRole('link', { name: 'Failures' });
     await expect(failuresChip).toBeVisible();
-    await expect(failuresChip).toContainText('Failures');
-    const impersonationChip = page.locator(
-      'label.sg-filter-chip:has(input[name="action_prefix"][value="admin.impersonation"])',
-    );
+    const impersonationChip = presets.getByRole('link', { name: 'Impersonation' });
     await expect(impersonationChip).toBeVisible();
-    await expect(impersonationChip).toContainText('Impersonation');
-    // This view was opened with ?action_prefix=admin.impersonation, so it is checked.
-    await expect(impersonationChip.locator('input')).toBeChecked();
+    // This view was opened with ?action_prefix=admin.impersonation, so the
+    // Impersonation preset is the active filter (aria-current="page").
+    await expect(impersonationChip).toHaveAttribute('aria-current', 'page');
     await expect(page.getByRole('link', { name: 'Export CSV' })).toBeVisible();
     // Per-project layout: the dual-layout swap is the other half of the intended delta.
     const isMobileExplorer = testInfo.project.name.includes('mobile');
