@@ -205,6 +205,80 @@ wall-clock half explicitly open.
 > gallery work (Phase 200) — in isolation it's bottlenecked by that same 700s leg.
 > See the audit report for the full prioritized Phase 198→203 plan.
 
+## Addendum 2026-07-28 — re-measured; the audit's plan was orphaned, not executed
+
+**Headline: the audit is finished. Its plan was orphaned, not executed.**
+`.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` is a completed multi-lens audit that
+already contains a prioritized **Phase 198 → 203** sequence. Only **Phase 198 partially ran**
+(the `mix ci` alias, the CONTRIBUTING documentation, and acceptance evidence). **Phases 199-203
+were never built** — v1.41 ADMIN-UX-ELEVATION reused phase numbers 199-204 for unrelated admin
+work, orphaning the audit's sequence. The backlog for this seed is therefore **already fully
+derived and sitting on disk, unexecuted**. Whoever picks this up should **execute the audit**,
+not re-run the playbook below.
+
+### The audit is still accurate — verified 2026-07-28
+
+Re-measurement confirms the 2026-06-20 findings rather than superseding them:
+
+- It named `design_gallery` at ~700s; re-measured it is **734s**.
+- `admin-design.spec.ts:250-255` still calls `registerUser()` in `beforeEach` with no
+  `storageState`, so **P0-1** (−6 to −7.5 min, Low risk, **zero coverage loss**) remains
+  unimplemented.
+- Also still open from the audit: no `concurrency:` block in `ci.yml`; the `ci` alias at
+  `mix.exs:143` lacks format and deps-lock checks; `release-please.yml:88` is unpinned;
+  `.github/dependabot.yml` covers `github-actions` only.
+
+### Re-measured baseline (last 40 runs, 2026-07-28)
+
+| trigger | n | mean | p50 | max | outcomes |
+| --- | --- | --- | --- | --- | --- |
+| pull_request | 21 | 29.5m | 27.3m | 41.7m | 17 pass / 4 fail |
+| push (main) | 7 | 30.5m | 27.6m | 42.3m | 6 pass / 1 fail |
+| schedule (nightly) | 9 | 27.3m | 27.1m | 29.4m | 0 pass / 9 fail |
+
+Plainly: **a PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 runner-minutes for 35m.**
+**The nightly has been 9-for-9 red.**
+
+### Critical path
+
+`example_playwright_smoke` (**23m on PR / 26m on push**), decomposed from run `30387042239`:
+
+- design gallery boards — **734s (53% of the job)**
+- admin behavior browser truth — 224s
+- non-admin example smoke — 187s
+- admin checkpoints — 130s
+- Playwright browser install — 62s (**never cached**)
+- everything else — ~50s
+
+The example app compiles in **1s on a cache hit**, so setup is *not* the cost. This job is
+dominated by test execution, which means **it responds to sharding**.
+
+### Waste not covered by the 2026-06-20 audit
+
+- **No `concurrency:` block**, so superseded PR runs complete anyway. Evidence: runs
+  `30387042239` and `30387550888` — same branch, 7 minutes apart, both ran to completion.
+- **No path filters**, so a docs-only PR runs the full 21-job matrix.
+- **Playwright browsers are never cached** — 62s × 4-5 jobs, every run.
+- **`admin_design_recapture` runs 18m per push and discards its output**, because its commit/PR
+  step is gated on `workflow_dispatch`.
+- **The example boot prelude is duplicated verbatim across 6 jobs.**
+
+### Locked decisions (2026-07-28)
+
+- **Design-gallery boards move off the PR gate**, kept on main + nightly. Move the *snapshots*;
+  preserve the a11y assertions on PR.
+- **`admin_eval_render` is demoted to nightly, then fixed** (see the dedicated todo).
+- **Two-tier shape:** measured quick wins first, then execute the orphaned audit phases.
+- **Tier-2 breadth is perf + hygiene.** Credo, Dialyzer, and mix_audit are **deferred as new
+  gates** — this milestone does not add them.
+- **The 9/9-red nightly is P0**, because a dead gate is worse than no gate.
+
+### Target
+
+v1.40 took PR wall-clock from 38.6m to 22.1m (−43%), but it disclosed its `<12m` aspiration as
+unmet and explicitly deferred Playwright sharding. The 2026-07-28 evidence shows **`<12m` is
+reachable**. Proposed phases **230-235**.
+
 ---
 
 The full inflated companion prompt to use as the audit playbook:
