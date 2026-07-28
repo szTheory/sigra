@@ -206,6 +206,14 @@ jobs:
         run: bash scripts/ci/fix-queue-lint.test.sh
       - name: Panel verdicts lint self-test
         run: bash scripts/ci/panel-verdicts-lint.test.sh
+      - name: CI run metrics self-test
+        # Phase 230 (D-21 / SC-5): hermetic proof that ci-run-metrics.sh clamps negative
+        # durations to 0, never filters per-job durations by conclusion (a
+        # continue-on-error "failure" job still counts), and fails closed on a missing
+        # `gh`, a non-zero `gh` exit, or an empty job list. The measuring script itself
+        # is NOT run here -- it requires a live `gh` against a real run -- only its
+        # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
+        run: bash scripts/ci/ci-run-metrics.test.sh
       # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
