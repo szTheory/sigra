@@ -84,7 +84,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 230-03-PLAN.md — FAST-02 CI half: filter the PR gallery step, add the event-gated snapshot step, wire its id into the seam aggregator (D-05)
+- [x] 230-03-PLAN.md — FAST-02 CI half: filter the PR gallery step, add the event-gated snapshot step, wire its id into the seam aggregator (D-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

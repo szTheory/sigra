@@ -2,15 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
+current_phase: 230
+current_phase_name: tier-1-critical-path-reclamation
 status: executing
-stopped_at: Completed 230-02-PLAN.md
-last_updated: "2026-07-29T00:03:53.040Z"
-last_activity: 2026-07-29
+stopped_at: Completed 230-03-PLAN.md
+last_updated: "2026-07-29T00:11:11.582Z"
+last_activity: 2026-07-28
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,10 +29,10 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
-Progress: [██░░░░░░░░] 22%
-Last activity: 2026-07-29
+Progress: [███░░░░░░░] 33%
+Last activity: 2026-07-28
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -346,6 +348,9 @@ observed executing the work.
 - [Phase ?]: Duration math uses jq fromdate (not shell date -d/-j) for macOS-dev/ubuntu-CI portability
 - [Phase ?]: 230-02: Collapsed ~84 per-board axe scans to one full-page WCAG 2.1/2.2 AA scan per design project (D-01) rather than a literal pixels-only split -- every board test reached axe in an identical page state and the registration cost that must stay on PR lives in beforeEach
 - [Phase ?]: 230-02: Tagged via Playwright's details-object form test(title, { tag: '@snapshot' }, fn) (D-02), never embedding the tag in titles, so all 28 board PNG baseline filenames stay byte-identical
+- [Phase ?]: Filtering is CLI-only on both gallery steps (D-03); playwright.config.ts stays byte-unchanged
+- [Phase ?]: design_gallery_snapshots stays inside example_playwright_smoke (not a new job) because the job name is a ruleset-14941512 required context (D-04)
+- [Phase ?]: design_gallery_snapshots wired into the seam-outcome aggregator's hard-coded outcome list (D-05 hard-fail boundary)
 
 ### Pending Todos
 
@@ -486,8 +491,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:03:53.033Z
-Stopped at: Completed 230-02-PLAN.md
+Last session: 2026-07-29T00:11:11.571Z
+Stopped at: Completed 230-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -601,3 +606,4 @@ Resume file: None
 |------|----------|-------|-------|
 | Phase 230 P01 | 13min | 3 tasks | 4 files |
 | Phase 230 P02 | 10min | 2 tasks | 2 files |
+| Phase 230 P03 | ~20min | 3 tasks | 2 files |
