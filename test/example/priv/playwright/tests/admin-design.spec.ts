@@ -6,11 +6,23 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 //
 // Captures every Sigra.Admin.Components board from the design gallery
 // (/admin/_design) as an element-scoped PNG baseline (board-level, not
-// full-page). Axe WCAG A/AA is asserted green for every board before
-// the snapshot is taken.
+// full-page).
+//
+// Phase 230 (FAST-02 / D-01): the ~84 per-board axe scans were full-document
+// duplicates of each other (the axe builder below carries no `.include()`),
+// so they collapsed to one full-page WCAG 2.1/2.2 AA scan per design
+// project — see the `axe: full-page WCAG 2.1/2.2 AA on the design gallery`
+// test declared after the board loop. The PNG capture stays element-scoped
+// (board locator); only the axe scan is full-document. What is lost:
+// per-board axe failure attribution in the test name — a violation still
+// names the offending DOM selector, so the board is identifiable from axe's
+// own output.
 //
 // Runs in three partitioned projects (admin-design-chromium, -mobile, -dark)
 // so regressions surface per project without replaying the full behavior suite.
+// Only the 28 `@snapshot`-tagged board tests are event-gated off the PR path;
+// the axe test and every other test in this file stay untagged and run on
+// every lane.
 
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
@@ -51,12 +63,21 @@ function adminDesignEmail(testInfo: TestInfo) {
   return `platform-admin+dg-${timestamp}-${project}-${sequence}-${testInfo.retry}@example.test`;
 }
 
-/** Phase 35: axe a11y gate paired with each board snapshot. */
+/**
+ * Phase 35: axe a11y gate.
+ * Phase 230 (FAST-02 / D-01): called once per design project from the
+ * dedicated axe test declared after the board loop, not once per board.
+ * Every board test used to call this helper from `assertBoardScreenshot` and
+ * reached it in the same page state (beforeEach -> `/admin/_design` ->
+ * nothing else), so the ~84 calls carried the rule coverage of one.
+ */
 async function assertNoAxeViolations(page: Page, label: string) {
   // Scope to the full WCAG 2.1/2.2 AA tag set (EN 301 549 legal floor) so the
   // gate is literally defensible against modern accessibility standards (D-07).
-  // This helper is element-scoped (board locator, not full page), so it runs
-  // against the board element rather than the whole admin shell. The axe
+  // This is a full-document scan: `new AxeBuilder({ page })` below carries no
+  // `.include()`, so it scans the whole page rather than a single board
+  // element. (The PNG capture in `assertBoardScreenshot` stays element-scoped
+  // to the board locator — only this axe scan is full-document.) The axe
   // `best_practice` tag-group is intentionally excluded (D-09): rules like
   // `region` (full-page landmark wrapping) would fail on the admin shell's
   // `<header>` layout, which is intentional Phoenix/LiveView structure rather
@@ -73,9 +94,11 @@ async function assertNoAxeViolations(page: Page, label: string) {
  * Element-scoped board screenshot helper.
  * Captures the board element (#boardId) rather than the full page so each
  * board's PNG baseline is independent and stable across admin shell changes.
+ * Phase 230 (FAST-02 / D-01): asserts a screenshot only. The WCAG axe scan
+ * that used to run here on every board now runs once per design project from
+ * the dedicated axe test declared after the board loop.
  */
 async function assertBoardScreenshot(page: Page, testInfo: TestInfo, boardId: string) {
-  await assertNoAxeViolations(page, `axe:${boardId}`);
   const dark = testInfo.project.name.includes('dark');
   const mobile = testInfo.project.name.includes('mobile');
   const ci = process.env.CI === 'true';
@@ -254,11 +277,29 @@ test.describe('Design gallery board snapshots', () => {
     await waitForLiveViewReady(page);
   });
 
+  // Phase 230 (FAST-02 / D-01): tag the 28 pixel-diff board tests `@snapshot`
+  // so they can be event-gated off the PR critical path while the WCAG scan
+  // below stays on every lane. The tag lives on this per-board `test(...)`
+  // declaration, not on `test.describe` above — tagging the describe would
+  // sweep all 41 tests per project, including the 12 behavior tests (plus
+  // this file's new axe test) that must stay on PR.
   for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
-    test(`board: ${boardId}`, async ({ page }, testInfo) => {
+    test(`board: ${boardId}`, { tag: '@snapshot' }, async ({ page }, testInfo) => {
       await assertBoardScreenshot(page, testInfo, boardId);
     });
   }
+
+  // Phase 230 (FAST-02 / D-01): one full-page WCAG 2.1/2.2 AA scan per
+  // design project, replacing the ~84 identical per-board scans this file
+  // used to run. Every board test reached axe in the same page state (this
+  // beforeEach -> `/admin/_design` -> nothing else), so the per-board scans
+  // carried the rule coverage of one. Deliberately untagged (no `@snapshot`)
+  // so it runs on every lane, including PR. What is lost: per-board axe
+  // failure attribution in the test name — a violation still names the
+  // offending DOM selector, so the board is identifiable from axe's output.
+  test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {
+    await assertNoAxeViolations(page, 'design-gallery');
+  });
 
   test('notice_link board is registered as a standalone L1 component', async () => {
     expect(COMPONENT_BOARDS).toHaveLength(13);
