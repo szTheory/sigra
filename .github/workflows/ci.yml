@@ -57,6 +57,18 @@ jobs:
   release_ref_guard:
     name: Release ref guard
     runs-on: ubuntu-latest
+    # Phase 230 (FAST-07 / D-19, D-20): every job below declares an explicit
+    # timeout-minutes so a hung job fails in bounded time instead of consuming
+    # the 360-minute GitHub Actions default. Sizing rule: ~2x the live-measured
+    # duration from PR run 30390832059 / push run 30389700235 (230-EVIDENCE.md),
+    # floor 5 minutes, widened for warm-cache/network-bound/high-historical-max
+    # jobs. The clock starts when the job is scheduled onto a runner, so queue
+    # and setup time count against the ceiling. example_playwright_smoke is
+    # deliberately generous (45) per D-20: it measured 28.5m and has hit 41.7m
+    # historically, so a tighter ceiling would time out the very runs this
+    # phase is judged on -- tightening is Phase 235's job once the new steady
+    # state is measured post-reshape.
+    timeout-minutes: 5
     steps:
       - name: Require release tag ref for manual release evidence
         run: |
@@ -143,6 +155,7 @@ jobs:
   fast_checks:
     name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -341,6 +354,7 @@ jobs:
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: release_ref_guard
     services:
       postgres:
@@ -430,6 +444,7 @@ jobs:
   library_tests_shard:
     name: Library tests shard ${{ matrix.partition }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: release_ref_guard
     strategy:
       fail-fast: false            # D-01: one shard failing must NOT cancel the sibling
@@ -536,6 +551,7 @@ jobs:
   library_tests:
     name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [library_tests_shard]
     if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
     steps:
@@ -555,6 +571,7 @@ jobs:
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-08): job-level gate -- permitted here because
     # this is a non-required job (not one of the 5 ruleset-14941512
@@ -648,6 +665,7 @@ jobs:
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [changes]
     # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
     # a dependency edge -- it had no `needs:` at all before this plan. That
@@ -724,6 +742,7 @@ jobs:
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
     # gate explicitly while removing `changes` from the set of results that
@@ -798,6 +817,7 @@ jobs:
   upgrade_smoke:
     name: Upgrade smoke (published source series -> local candidate)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     services:
@@ -851,6 +871,7 @@ jobs:
   passkeys_manual_fallback_smoke:
     name: Passkeys manual fallback smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name != 'pull_request'
     services:
       postgres:
@@ -902,6 +923,7 @@ jobs:
   install_matrix:
     name: Install matrix (flag combinations)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name != 'pull_request'
     env:
       # tmp_app runs mix test + phx.server with Sigra-generated Cloak.Vault (decode_env!("CLOAK_KEY")).
@@ -1032,6 +1054,7 @@ jobs:
   passkeys_opt_out_smoke:
     name: Passkeys opt-out smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name != 'pull_request'
     services:
       postgres:
@@ -1083,6 +1106,7 @@ jobs:
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
     # gate explicitly while removing `changes` from the set of results that
@@ -1171,6 +1195,7 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
     # gate explicitly while removing `changes` from the set of results that
@@ -1610,13 +1635,17 @@ jobs:
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
+    # Phase 230 (FAST-07): only the timeout value and its position changed
+    # here. The head-ref condition on the next line is stale and left
+    # untouched -- correcting it is GATE-02, Phase 231's scope, not this
+    # plan's. 15 replaces the prior 60 -- about 16x this job's 3.73m
+    # measured duration (230-EVIDENCE.md) -- against the same 2x sizing
+    # rule applied to every other job.
+    timeout-minutes: 15
     # GATE-02 / D-08: temporary integration-scoped relaxation — runs on PR #63's head branch
     # (ship/v1.42-ci-gate-remediation) to prove generated-host parity in CI; remove after merge.
     if: github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'
     needs: release_ref_guard
-    # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
-    # 45–60m is the tuned band for this job.
-    timeout-minutes: 60
     services:
       postgres:
         image: postgres:15
@@ -1733,6 +1762,7 @@ jobs:
   ci-gate:
     name: ci-gate
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs:
       - install_golden_contract
       - library_tests
@@ -1794,6 +1824,7 @@ jobs:
   notify_release_lane_rot:
     name: Notify on red ci-gate (release-lane-rot)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [ci-gate]
     if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
     permissions:
@@ -1833,6 +1864,7 @@ jobs:
   admin_design_recapture:
     name: Recapture admin-design baselines (in-CI)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     permissions:
@@ -2140,6 +2172,7 @@ jobs:
   admin_checkpoint_recapture:
     name: Recapture admin-checkpoint baselines (in-CI)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     permissions:
@@ -2380,6 +2413,7 @@ jobs:
   admin_eval_render:
     name: Admin eval render + probe (evidence only, not a merge gate)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     needs: [release_ref_guard]
     if: github.event_name != 'pull_request'
     # Advisory evidence lane — deliberately NOT in ci-gate.needs. continue-on-error
@@ -2524,6 +2558,7 @@ jobs:
   nightly_probe:
     name: Nightly probe (forced-failure self-test)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: github.event_name != 'pull_request'
     steps:
       - name: Forced-failure probe (nightly self-test)
