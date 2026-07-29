@@ -108,7 +108,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 230-09-PLAN.md — Observed-run evidence: AFTER-PR, AFTER-NONPR, AFTER-DOCSONLY, AFTER-CANCEL captured with verbatim run IDs
+- [x] 230-09-PLAN.md — Observed-run evidence: AFTER-PR, AFTER-NONPR, AFTER-DOCSONLY, AFTER-CANCEL captured with verbatim run IDs
 
 ### Phase 231: Gate Honesty + Nightly Revival
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 8/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |

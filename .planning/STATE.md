@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-status: executing
-stopped_at: Completed 230-08-PLAN.md
-last_updated: "2026-07-29T00:50:48.213Z"
+status: verifying
+stopped_at: Completed 230-09-PLAN.md
+last_updated: "2026-07-29T02:36:14.122Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 9
-  completed_plans: 8
-  percent: 0
+  completed_plans: 9
+  percent: 17
 ---
 
 # Project State
@@ -28,8 +28,8 @@ See: `.planning/PROJECT.md`
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
 Plan: 9 of 9
-Status: Ready to execute
-Progress: [█████████░] 89%
+Status: Phase complete — ready for verification
+Progress: [██████████] 100%
 Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -358,6 +358,9 @@ observed executing the work.
 - [Phase ?]: 230-07: generated_admin_playwright_smoke timeout corrected 60->15 and moved to canonical post-runs-on slot; adjacent stale ship/v1.42-ci-gate-remediation head-ref condition left untouched (GATE-02, Phase 231 scope)
 - [Phase ?]: 230-07: ExUnit completeness contract counts timeout-minutes per job-block (not file-wide) so declarations concentrated in one job cannot vacuously satisfy the assertion
 - [Phase ?]: 230-08: MAINTAINING.md now carries the durable post-Phase-230 honest-skip set (three tiers) and the two accepted residuals this phase creates, verified against shipped ci.yml — the artifact Phase 231's GATE-03/GATE-05 will audit against.
+- [Phase ?]: AFTER-PR-WARM's warm commit is a one-line provenance comment in scripts/ci/playwright-cache-key-guard.sh recording the AFTER-PR run ID as the cache-seeding run
+- [Phase ?]: Task 2's dispatch precondition (recapture_branch empty) cannot succeed on a branch-ref workflow_dispatch; re-dispatched with recapture_branch set to the phase branch (D-04 relaxation)
+- [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
 
 ### Pending Todos
 
@@ -498,8 +501,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:50:48.207Z
-Stopped at: Completed 230-08-PLAN.md
+Last session: 2026-07-29T02:36:14.111Z
+Stopped at: Completed 230-09-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -619,3 +622,4 @@ Resume file: None
 | Phase 230 P06 | 4min | 3 tasks | 3 files |
 | Phase 230 P07 | 25min | 2 tasks | 2 files |
 | Phase 230 P08 | ~15min | 2 tasks | 1 files |
+| Phase 230 P09 | 1h34m | 3 tasks | 3 files |
