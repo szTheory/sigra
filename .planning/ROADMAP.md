@@ -100,7 +100,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 230-07-PLAN.md — FAST-07: explicit `timeout-minutes` on all 22 jobs + a per-job completeness contract
+- [x] 230-07-PLAN.md — FAST-07: explicit `timeout-minutes` on all 22 jobs + a per-job completeness contract
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 6/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 7/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |

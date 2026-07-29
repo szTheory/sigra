@@ -26,7 +26,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 - [x] **FAST-04**: Pushing a new commit to a PR branch cancels the superseded in-flight CI run instead of letting it complete; main and scheduled runs are never cancelled.
 - [x] **FAST-05**: A pull request that changes only documentation or `.planning/` files does not run the full job matrix, and its required checks still report a merge-eligible state rather than hanging pending.
 - [x] **FAST-06**: Playwright browser binaries are restored from cache rather than downloaded on every job.
-- [ ] **FAST-07**: Every CI job carries an explicit `timeout-minutes`, so a hung job fails in bounded time instead of burning the 360-minute default.
+- [x] **FAST-07**: Every CI job carries an explicit `timeout-minutes`, so a hung job fails in bounded time instead of burning the 360-minute default.
 
 ### Gate honesty (GATE)
 
@@ -71,7 +71,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | FAST-04 | Phase 230 | Complete |
 | FAST-05 | Phase 230 | Complete |
 | FAST-06 | Phase 230 | Complete |
-| FAST-07 | Phase 230 | Pending |
+| FAST-07 | Phase 230 | Complete |
 | GATE-01 | Phase 231 | Pending |
 | GATE-02 | Phase 231 | Pending |
 | GATE-03 | Phase 231 | Pending |

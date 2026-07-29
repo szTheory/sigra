@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: executing
-stopped_at: Completed 230-06-PLAN.md
-last_updated: "2026-07-29T00:37:14.953Z"
+stopped_at: Completed 230-07-PLAN.md
+last_updated: "2026-07-29T00:43:51.704Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 7 of 9
+Plan: 8 of 9
 Status: Ready to execute
-Progress: [███████░░░] 67%
+Progress: [████████░░] 78%
 Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -354,6 +354,9 @@ observed executing the work.
 - [Phase ?]: FAST-05: docs-only classification rule extracted into a standalone hermetically self-tested script (not inlined) because the docs_only=true branch is unobservable on any pre-merge PR
 - [Phase ?]: FAST-05: every job-level condition added by plan 230-05 uses !cancelled() never always(), so FAST-04's cancel-in-progress genuinely stops a superseded run
 - [Phase ?]: 230-06: Playwright browser cache key encodes browser set (chromium-webkit) + literal version (1.59.1) per D-15..D-18; guard script cross-checks version against lockfile with grep/sed only, no jq/YAML dep
+- [Phase ?]: 230-07: example_playwright_smoke timeout set to 45 (not tighter) because its 41.7m historical maximum would be truncated by a value closer to its 28.5m measured duration; tightening deferred to Phase 235 (D-20)
+- [Phase ?]: 230-07: generated_admin_playwright_smoke timeout corrected 60->15 and moved to canonical post-runs-on slot; adjacent stale ship/v1.42-ci-gate-remediation head-ref condition left untouched (GATE-02, Phase 231 scope)
+- [Phase ?]: 230-07: ExUnit completeness contract counts timeout-minutes per job-block (not file-wide) so declarations concentrated in one job cannot vacuously satisfy the assertion
 
 ### Pending Todos
 
@@ -494,8 +497,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:37:14.949Z
-Stopped at: Completed 230-06-PLAN.md
+Last session: 2026-07-29T00:43:51.700Z
+Stopped at: Completed 230-07-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -613,3 +616,4 @@ Resume file: None
 | Phase 230 P04 | 12min | 2 tasks | 1 files |
 | Phase 230 P05 | 20min | 3 tasks | 3 files |
 | Phase 230 P06 | 4min | 3 tasks | 3 files |
+| Phase 230 P07 | 25min | 2 tasks | 2 files |
