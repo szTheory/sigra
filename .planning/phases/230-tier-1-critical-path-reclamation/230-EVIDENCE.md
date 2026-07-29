@@ -129,37 +129,211 @@ admin Playwright smoke`) executes here with a real, non-skipped conclusion and a
 
 ## AFTER-PR
 
-Status: pending
+Status: captured (run 30412458437)
 
-The **miss** half of FAST-06's Playwright browser cache pair. This is the phase's own PR, final
-commit, first run — a new cache key can only miss on the run that introduces it. Capture after
-the phase PR opens and its checks complete.
+The **miss** half of FAST-06's Playwright browser cache pair. This is the phase's own PR
+(#117), final wave-8 commit `ed55701a`, first CI run against that commit — a new cache key can
+only miss on the run that introduces it.
+
+Run: `30412458437` · event `pull_request` · head `ed55701ae64ce926f32b87610e0455d513d662a0` ·
+created `2026-07-29T00:53:03Z` · completed `2026-07-29T01:09:55Z` · **wall-clock 16m52s**.
 
 Command:
 
 ```
-bash scripts/ci/ci-run-metrics.sh --jobs <id>
+bash scripts/ci/ci-run-metrics.sh --jobs 30412458437
 ```
+
+Output (verbatim):
+
+```
+job                                                                 conclusion  duration_s  duration
+Release ref guard                                                   success     3s          0m3s
+Detect docs-only change                                             success     8s          0m8s
+Fast checks (milestone/installer/contracts/snapshot/ledger guards)  success     26s         0m26s
+Passkeys opt-out smoke                                              skipped     0s          0m0s
+Nightly probe (forced-failure self-test)                            skipped     0s          0m0s
+Install matrix (flag combinations)                                  skipped     0s          0m0s
+Passkeys manual fallback smoke                                      skipped     0s          0m0s
+Library tests shard 2                                               success     317s        5m17s
+Library tests shard 1                                               success     480s        8m0s
+Install golden + idempotency contract (subprocess harness)          success     32s         0m32s
+Recapture admin-design baselines (in-CI)                            skipped     0s          0m0s
+Recapture admin-checkpoint baselines (in-CI)                        skipped     0s          0m0s
+Upgrade smoke (published source series -> local candidate)          skipped     0s          0m0s
+Admin eval render + probe (evidence only, not a merge gate)         skipped     0s          0m0s
+Generated admin Playwright smoke                                    skipped     0s          0m0s
+Library tests (dep-off — Threadline absent)                         success     79s         1m19s
+Install smoke (fresh phx.new + sigra.install)                       success     106s        1m46s
+Example Playwright smoke (full lifecycle)                           success     989s        16m29s
+Example unit smoke (ExUnit + ConnTest)                              success     51s         0m51s
+Example HTTP smoke (boot + curl critical routes)                    success     67s         1m7s
+Library tests                                                       success     4s          0m4s
+ci-gate                                                              success     3s          0m3s
+Notify on red ci-gate (release-lane-rot)                            skipped     0s          0m0s
+```
+
+`Example Playwright smoke (full lifecycle)` (16m29s) is the critical path, and the run's own
+wall-clock (16m52s, `updatedAt - createdAt`) is only 23s longer than that job — confirming the
+job dominates the DAG exactly as predicted below. `Admin eval render + probe (evidence only, not
+a merge gate)` is `skipped` / `0s` — SC-2's restated criterion (skipped, duration < 5s).
+
+**Step-level facts, pulled from `gh run view 30412458437 --json jobs` and per-job step logs
+(`gh run view --log --job <jobId>`):**
+
+- **`Detect docs-only change` job (`90451499447`), step `Detect docs-only change`:** emits
+  `docs_only=false` (verbatim log line, 2026-07-29T00:53:11Z). This PR's `origin/main...HEAD`
+  diff carries `.github/workflows/ci.yml`, `scripts/ci/*.sh`,
+  `test/example/priv/playwright/tests/admin-design.spec.ts` and `test/sigra/planning/*.exs` —
+  the mixed-diff case, expected `false`.
+- **`Example Playwright smoke (full lifecycle)` job (`90451525539`), step
+  `Run design gallery boards (chromium, mobile, dark)`:** Playwright's own list-reporter tail
+  reports `Running 39 tests using 1 worker` … `39 passed (3.9m)` — the axe-only PR gallery step,
+  39 tests as predicted (3 axe scans × 13 non-board utility tests… — see AFTER-NONPR for the
+  full 84-test non-PR inventory this collapses from).
+- **Same job, step `Run design gallery board snapshots (non-PR)`:** `conclusion: skipped` — the
+  `@snapshot`-tagged boards never execute on this PR event, exactly D-01/D-02's event-gated split.
+- **Same job, step `Cache Playwright browsers`
+  (`actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0`):** log line
+  `Cache not found for input keys: Linux-playwright-chromium-webkit-1.59.1-v1,
+  Linux-playwright-chromium-webkit-` — **`cache-hit: false`**. This is the key-introducing run
+  (D-18's literal-version key, `1.59.1-v1`, has never been saved before), so a miss is the
+  correct and expected result.
+  - `Install Playwright browsers` step duration: **36s** (`00:54:06Z` → `00:54:42Z`, full
+    `--with-deps` install: apt deps + browser download, matching D-15's ~61s-total /
+    ~14s-cacheable model plus deps-install variance).
+  - `Post Cache Playwright browsers` (the `actions/cache` post-step, upload on miss) duration:
+    **~3.7s** (`01:09:44.02Z` → `01:09:47.76Z`), log line `Sent 361117333 of 361117333 (100.0%),
+    344.4 MBs/sec` / `Cache saved with key: Linux-playwright-chromium-webkit-1.59.1-v1` — the
+    ~344MB browser cache actually saved (local-runner-to-blob transfer is fast; the byte count,
+    not the 3.7s, is the "~400-500MB" figure the objective anticipated).
+- **`Admin eval render + probe (evidence only, not a merge gate)`:** `conclusion: skipped`,
+  duration **0s** (< 5s) — SC-2's restated criterion, satisfied.
+
+Aggregate window (same day, for the REQUIREMENTS.md baseline comparison — see "Re-fetched Window
+Baseline" above for the pre-Phase-230 re-fetch; this is the post-AFTER-PR re-fetch, already
+mixing pre- and post-change runs since the window slides):
+
+```
+bash scripts/ci/ci-run-metrics.sh --limit 40 --format table
+```
+
+```
+| trigger | n | mean | p50 | max | outcomes |
+| --- | --- | --- | --- | --- | --- |
+| pull_request | 24 | 28.8m | 27.4m | 41.7m | 21 pass / 3 fail |
+| push | 9 | 29.7m | 27.4m | 42.3m | 8 pass / 1 fail |
+| schedule | 6 | 27.0m | 27.1m | 27.7m | 0 pass / 6 fail |
+| workflow_dispatch | 1 | 7.8m | 7.8m | 7.8m | 0 pass / 1 fail |
+```
+
+This 40-run window now contains 24 `pull_request` runs (up from 21 in REQUIREMENTS.md and 23 in
+the pre-Phase-230 re-fetch above) — the single AFTER-PR run has entered the window and nudged
+`pull_request` mean down from 29.4m to 28.8m, but n=24 with only one post-change run inside it is
+not a post-change measurement; it is still overwhelmingly the pre-change population. Phase 235
+owns the dedicated ≥10-run post-change measurement window (FAST-01).
+
+**Note on AFTER-NONPR / AFTER-PUSH cache scope:** both of those runs are *expected* to report
+`cache-hit: false` on their own first sighting of the `Linux-playwright-chromium-webkit-1.59.1-v1`
+key, because their cache scope (`refs/heads/ci-efficiency-milestone-scope` and `refs/heads/main`
+respectively) is distinct from this pull request's `refs/pull/117/merge` scope — GitHub Actions
+does not share cache entries across scopes on first write. A reader must not read those misses as
+a FAST-06 regression; only the AFTER-PR / AFTER-PR-WARM pair below is evidence for FAST-06.
 
 ---
 
 ## AFTER-PR-WARM
 
-Status: pending
+Status: captured (run 30413542431)
 
-A **second** run on the *same* pull request as AFTER-PR, pushed only after AFTER-PR completes
-and its Playwright job concludes success. This is the only slot in the ledger capable of
-logging a Playwright browser cache **hit**: a brand-new cache key misses by construction on the
-run that introduces it, and a `pull_request` run's cache scope (`refs/pull/<n>/merge`) is not
-readable by the `refs/heads/…`-scoped AFTER-NONPR or AFTER-PUSH runs (GitHub Actions cache
-scoping). Two runs on one pull request sharing a scope is the only pairing available, so
-FAST-06 is verified as an observed miss-then-hit pair rather than a single observation.
+A **second** run on the *same* pull request (#117) as AFTER-PR, pushed only after AFTER-PR
+(`30412458437`) fully completed and its `Example Playwright smoke (full lifecycle)` job
+concluded **success** (`actions/cache` declares `post-if: success()`, so a non-success job would
+save nothing and the warm run would also miss — verified success above, `989s`/`16m29s`). This
+is the only slot in the ledger capable of logging a Playwright browser cache **hit**: a
+brand-new cache key misses by construction on the run that introduces it, and a `pull_request`
+run's cache scope (`refs/pull/117/merge`) is not readable by the `refs/heads/…`-scoped
+AFTER-NONPR or AFTER-PUSH runs (GitHub Actions cache scoping). Two runs on one pull request
+sharing a scope is the only pairing available, so FAST-06 is verified as an observed
+**miss-then-hit pair** rather than a single observation.
+
+The warm commit (`be2ff143761e39d4c8ad2e18ac02f14586560327`) touches exactly one file that is
+neither Markdown nor under `.planning/`: a provenance comment appended to
+`scripts/ci/playwright-cache-key-guard.sh` recording `30412458437` as the cache-seeding run
+(self-test kept green: `bash scripts/ci/playwright-cache-key-guard.test.sh` → `7 passed, 0
+failed`). It does not touch `test/example/priv/playwright/package-lock.json` or the cache key
+itself. Its `Detect docs-only change` job (`90454907468`) emits `docs_only=false` (log
+`2026-07-29T01:15:31Z`), confirming the Playwright lane was not gated off.
+
+Run: `30413542431` · event `pull_request` · head `be2ff143761e39d4c8ad2e18ac02f14586560327` ·
+created `2026-07-29T01:15:18Z` · completed `2026-07-29T01:34:59Z` · wall-clock **19m41s**.
 
 Command:
 
 ```
-bash scripts/ci/ci-run-metrics.sh --jobs <id>
+bash scripts/ci/ci-run-metrics.sh --jobs 30413542431
 ```
+
+Output (verbatim):
+
+```
+job                                                                 conclusion  duration_s  duration
+Release ref guard                                                   success     2s          0m2s
+Detect docs-only change                                             success     6s          0m6s
+Fast checks (milestone/installer/contracts/snapshot/ledger guards)  success     26s         0m26s
+Passkeys opt-out smoke                                              skipped     0s          0m0s
+Install matrix (flag combinations)                                  skipped     0s          0m0s
+Nightly probe (forced-failure self-test)                            skipped     0s          0m0s
+Passkeys manual fallback smoke                                      skipped     0s          0m0s
+Install golden + idempotency contract (subprocess harness)          success     34s         0m34s
+Library tests shard 1                                               success     478s        7m58s
+Library tests shard 2                                               success     311s        5m11s
+Recapture admin-checkpoint baselines (in-CI)                        skipped     0s          0m0s
+Upgrade smoke (published source series -> local candidate)          skipped     0s          0m0s
+Generated admin Playwright smoke                                    skipped     0s          0m0s
+Admin eval render + probe (evidence only, not a merge gate)         skipped     0s          0m0s
+Recapture admin-design baselines (in-CI)                            skipped     0s          0m0s
+Install smoke (fresh phx.new + sigra.install)                       success     109s        1m49s
+Example HTTP smoke (boot + curl critical routes)                    success     59s         0m59s
+Library tests (dep-off — Threadline absent)                         success     76s         1m16s
+Example Playwright smoke (full lifecycle)                           success     1151s       19m11s
+Example unit smoke (ExUnit + ConnTest)                              success     65s         1m5s
+Library tests                                                       success     4s          0m4s
+ci-gate                                                              success     3s          0m3s
+Notify on red ci-gate (release-lane-rot)                            skipped     0s          0m0s
+```
+
+Design gallery axe step re-confirms **39 tests** (`Running 39 tests using 1 worker` … `39 passed
+(3.9m)`, `2026-07-29T01:26:55Z` → `01:30:49Z`) and the snapshot step remains `skipped` —
+unaffected by the cache change, as expected.
+
+**The miss/hit pair, recorded verbatim from `gh run view --json jobs` step timestamps and
+`gh run view --log --job <id>` for job `90451525539` (AFTER-PR) and `90454943707`
+(AFTER-PR-WARM):**
+
+| | AFTER-PR (run `30412458437`) — miss | AFTER-PR-WARM (run `30413542431`) — hit |
+|---|---|---|
+| `Cache Playwright browsers` restore log | `Cache not found for input keys: Linux-playwright-chromium-webkit-1.59.1-v1, Linux-playwright-chromium-webkit-` | `Cache hit for: Linux-playwright-chromium-webkit-1.59.1-v1` / `Cache restored from key: Linux-playwright-chromium-webkit-1.59.1-v1` |
+| **Cache-hit value (literal)** | **`cache-hit: false`** | **`cache-hit: true`** |
+| `Install Playwright browsers` command run | `npx playwright install --with-deps chromium webkit` (full browser download + OS deps) | `npx playwright install-deps chromium webkit` (OS deps only — D-17's `cache-hit != 'true'` gate correctly took the cheaper branch) |
+| `Install Playwright browsers` duration | 36s (`00:54:06Z`→`00:54:42Z`) | 180s (`01:16:37Z`→`01:19:37Z`) |
+| `actions/cache` post-step (`Post Cache Playwright browsers`) | `Sent 361117333 of 361117333 (100.0%), 344.4 MBs/sec` / `Cache saved with key: …` — **3.7s** (`01:09:44.02Z`→`01:09:47.76Z`) | `Cache hit occurred on the primary key …, not saving cache.` — **~0s** (`01:34:41.70Z`→`01:34:41.70Z`, no re-upload on an exact hit) |
+
+**Discrepancy, recorded honestly rather than adjusted:** the `actions/cache` post-step behaves
+exactly as predicted — 0s / no re-upload on a hit vs 3.7s / a real upload on a miss — but the
+`Install Playwright browsers` **step total** duration is *higher* on the hit run (180s) than on
+the miss run (36s), the opposite of D-15's ~15-25s-savings prediction on that step. The step log
+shows the branch taken is correct — `if [ "true" = "true" ]` selects `install-deps` (the
+cache-hit path) rather than `install --with-deps` — and the cache mechanism itself is proven by
+the restore log line above; the extra time on the hit run is entirely inside `apt-get`'s package
+resolution/fetch for the same `install-deps chromium webkit` OS-dependency set that D-15 already
+documented as **not cacheable** (`~33s` baseline estimate; this run's apt phase alone ran ~180s).
+This reads as apt-mirror/network variance between the two runs' Azure-hosted GitHub runners, not
+a defect in the cache wiring — the thing FAST-06 caches (the ~344MB browser binary download) is
+demonstrably skipped on the hit run (`Cache restored from key`, no `Get:` progress for browser
+binaries), while the uncacheable OS-dependency install (D-15's explicit scope exclusion) is what
+varied. Recorded as an open item below rather than silently omitted or used to soften FAST-06's
+criterion — the cache-hit/no-re-upload half of the pair, which *is* FAST-06's contract, holds.
 
 ---
 
