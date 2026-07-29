@@ -19,8 +19,8 @@ that never executed the specs" is the precedent failure this ledger exists to pr
 | [AFTER-PR](#after-pr) | The phase's own PR (#117), final commit — the **miss** half of FAST-06's pair | `ci-run-metrics.sh --jobs 30412458437` | captured (run 30412458437) |
 | [AFTER-PR-WARM](#after-pr-warm) | A second run on the **same** PR, pushed only after AFTER-PR's Playwright job concluded — the **hit** half of FAST-06's pair | `ci-run-metrics.sh --jobs 30413542431` | captured (run 30413542431) |
 | [AFTER-NONPR](#after-nonpr) | `workflow_dispatch` on the phase branch — the demoted `admin_eval_render` and the event-gated snapshot step observed *executing* inside the phase window | `ci-run-metrics.sh --jobs 30414885679` | captured (run 30414885679) |
-| [AFTER-PUSH](#after-push) | The push-to-`main` run of the merge commit | `ci-run-metrics.sh --jobs <id>` | pending (post-merge obligation) |
-| [AFTER-DOCSONLY](#after-docsonly) | A docs-only PR cut from `main` after the merge | `gh pr checks <n>` + `gh run view <id> --json jobs` | pending (post-merge obligation) |
+| [AFTER-PUSH](#after-push) | The push-to-`main` run at `20e4fe3b`, observed by the `ci-observe.yml` listener | `ci-demotion-observer.sh --from-json <payload> --format table` | captured (run 30466318240, listener 30468680093) |
+| [AFTER-DOCSONLY](#after-docsonly) | PR #123 — the closeout PR is itself the docs-only probe | `docs-only-receipt.sh --run 30468884574 --format json` | captured (run 30468884574, listener 30469563472) |
 | [AFTER-CANCEL](#after-cancel) | Double-push probe on throwaway PR #120, branch cut from the phase branch | `gh run list --branch 230-09-cancel-probe --json conclusion` | captured (runs 30416160743 cancelled, 30416184110 completed) |
 
 ---
@@ -459,44 +459,124 @@ This substitution is recorded in the per-requirement table below with evidence c
 
 ## AFTER-PUSH
 
-Status: pending (post-merge obligation)
+Status: captured (run 30466318240, observed by listener run 30468680093)
 
-**Post-merge obligation.** This slot needs the push-to-`main` run of the merge commit, which
-does not exist until the phase merges — there is no way to capture it before that point.
+Observed run: `30466318240` — push to `main` at `20e4fe3b`, conclusion `success`, wall-clock
+**28m29s** against the committed 29.5m mean / 27.3m p50 baseline.
 
-Post-merge capture command:
+Observed **by machine, not by hand**: `.github/workflows/ci-observe.yml` is a
+`workflow_run: [completed]` listener that fired automatically on that run's completion as
+listener run `30468680093` (all steps `success`). No human read a job list to produce this.
 
 ```
-gh run list --repo szTheory/sigra --branch main --limit 1 --json databaseId --jq '.[0].databaseId'
-bash scripts/ci/ci-run-metrics.sh --jobs <id-from-above>
+Demotion receipt -- run 30466318240 (event: push, wall-clock 28m29s)
+
+construct                 location                                           conclusion  duration  verdict
+admin_eval_render         job                                                failure     1124s     PASS
+design_gallery_snapshots  step in Example Playwright smoke (full lifecycle)  success     486s      PASS
+
+  every demoted construct executed on this lane.
 ```
+
+Verdict step output: `Every construct Phase 230 demoted executed on this push run.`
+
+**Why `admin_eval_render` reads `failure` / `PASS`.** The receipt asserts *execution*, not
+*success* — the construct was demoted off the PR lane, so the claim under test is that it still
+runs somewhere. `admin_eval_render` carries a deliberate `continue-on-error` red (it is evidence,
+not a merge gate), and treating that red as a receipt failure would make the receipt un-passable
+by design. `skipped` / `cancelled` / `timed_out` / a zero duration all still FAIL.
+
+Reproduce (one `gh` round-trip, no listener required):
+
+```
+gh run view 30466318240 --repo szTheory/sigra \
+  --json jobs,event,createdAt,updatedAt,databaseId > run-payload.json
+bash scripts/ci/ci-demotion-observer.sh --from-json run-payload.json --format table
+```
+
+**Discrepancy #5 (recorded, not silently corrected).** The listener's *first* firing —
+listener run `30463975230` over push run `30461966943` — concluded `failure`. Its observe and
+verdict steps both passed (`Every construct Phase 230 demoted executed on this push run`, with
+`admin_eval_render` 978s and `design_gallery_snapshots` 438s, wall-clock 23m45s), but the render
+step fed `demotion-observation.json` — the observer's own output — back into `--from-json`,
+which consumes a run payload carrying `.jobs`. It failed closed with `run payload is not an
+object carrying a .jobs array`. The assertion was correct; only its rendering was mis-wired.
+Fixed in PR #121 (`20e4fe3b`) and pinned by two regression cases in
+`scripts/ci/ci-demotion-observer.test.sh` — case **R** (the observer's own output is rejected by
+`--from-json`) and case **S** (a static assertion that `ci-observe.yml` never passes
+`demotion-observation.json` to `--from-json`, flunking if `--from-json` vanishes entirely so a
+rename cannot make it silently green). Case S is proven non-vacuous: it fails against the
+pre-fix file. This slot cites the post-fix run `30466318240`, not the run whose receipt job was
+red.
 
 ---
 
 ## AFTER-DOCSONLY
 
-Status: pending (post-merge obligation)
+Status: captured (run 30468884574, observed by listener run 30469563472)
 
-**Post-merge obligation.** `ci.yml` triggers on `pull_request: branches: [main]`, so every pull
-request that runs the workflow diffs against `origin/main`; and any pre-merge pull request
-carrying this phase's own `ci.yml`, `scripts/ci/*.sh`, and
-`test/example/priv/playwright/tests/admin-design.spec.ts` changes is by definition not
-docs-only, so no pre-merge PR can ever land in the `docs_only=true` branch. This slot cannot be
-captured before the merge.
+**The closeout PR is itself the probe.** `ci.yml` triggers on `pull_request: branches: [main]`,
+so any pre-merge PR carrying this phase's own `ci.yml`, `scripts/ci/*.sh`, and
+`admin-design.spec.ts` changes is by definition *not* docs-only — no pre-merge PR could ever
+reach the `docs_only=true` branch. PR #123 (this document's own PR) touches only
+`.planning/**` Markdown, so it lands in that branch naturally. No synthetic bot PR, no
+`force_docs_only` dispatch input (rejected — see § Rejected in the phase plan: it would let a
+committer green `ci-gate` having asserted nothing, and `release-please.yml` dispatches `ci.yml`
+on a tag straight into `gate-ci-green` → `publish-hex`).
 
-FAST-05's in-phase evidence is not this slot — it is the hermetic
+Observed run: `30468884574` — pull_request, conclusion `success`. The `changes` job emitted
+`docs_only=true` (log line: `docs_only=true`). Observed by machine: `ci-observe.yml`'s
+`docs_only_receipt` job fired as listener run `30469563472`, conclusion `success`.
+
+```
+PASS  Library tests                                                  success    2s
+PASS  Example unit smoke (ExUnit + ConnTest)                         success   34s
+PASS  Install smoke (fresh phx.new + sigra.install)                  success   30s
+PASS  Example HTTP smoke (boot + curl critical routes)               success   32s
+PASS  Example Playwright smoke (full lifecycle)                      success   33s
+PASS  Fast checks (milestone/installer/contracts/snapshot/ledger)    success   29s
+PASS  Library tests shard 1                                          success  470s
+PASS  Library tests shard 2                                          success  278s
+```
+
+**What this proves, and why each half matters.**
+
+1. *Merge-eligible, not stranded.* All five ruleset-14941512 required contexts concluded
+   `success` — **not** `skipped`. This is the D-06 boundary: a job-level `docs_only` gate would
+   make a required context `skipped` and can strand a PR permanently. The gating is step-level,
+   so the contexts still report.
+2. *The fast path is actually fast.* `Example Playwright smoke` concluded in **33s** against its
+   989s full-lifecycle cost — the heavy steps genuinely skipped.
+3. *Not green-because-skipped.* `fast_checks` (29s) and both `library_tests` shards (470s / 278s)
+   ran in **full** with non-zero duration. A docs-only PR still runs the whole library test
+   suite; only the browser/install lanes shorten. This is the check that separates a legitimate
+   fast path from the P13 failure mode ("a lane green because it skipped").
+
+**Non-vacuity.** The receipt distinguishes a real assertion from a no-op: on a
+non-docs-only run it emits `verdict: "n/a"` with a `note` and asserts nothing. Here it emitted
+`verdict: "PASS"` with **8** populated checks, so the green is an assertion, not an abstention.
+
+Reproduce — the raw run data first, then the committed instrument that renders the verdict from it:
+
+```
+gh run view 30468884574 --repo szTheory/sigra --json jobs,event,createdAt,updatedAt,databaseId
+
+bash scripts/ci/docs-only-receipt.sh --run 30468884574 --repo szTheory/sigra --format json \
+  | jq -r '.checks[] | "\(.verdict)  \(.name)  \(.conclusion)  \(.duration_seconds)s"'
+```
+
+The `docs_only=true` classification itself is read from the `changes` job's own log, never inferred
+from the aggregator's `all_skipped` line (that signal belongs to Phase 231 GATE-03):
+
+```
+gh run view 30468884574 --repo szTheory/sigra --log --job <changes-job-id> | grep 'docs_only='
+```
+
+FAST-05's in-phase evidence was never *only* this slot — it is the hermetic
 `scripts/ci/docs-only-classify.test.sh` (both directions of the classification rule, plus the
 empty-input and crafted-path cases) plus AFTER-PR's observed `docs_only=false` on a genuinely
-mixed diff. The pending marker here is therefore a deferred *confirmation* of the `true` branch
-on a real PR, not an evidence hole — FAST-05 is already falsifiable in-phase without it.
-
-Post-merge capture command (cut a branch from `main` after the merge, commit a single `.md`
-edit, open a PR against `main`):
-
-```
-gh pr checks <n>
-gh run view <id> --repo szTheory/sigra --json jobs
-```
+mixed diff. This slot is the deferred *confirmation* of the `true` branch on a real PR, now
+captured.
 
 ---
 
@@ -715,12 +795,12 @@ the claim).
 | FAST-04 | Later run on the same PR completes; no push/schedule/dispatch run cancels | AFTER-CANCEL run `30416184110` completed; 0 `cancelled` jobs across BEFORE-PR/BEFORE-PUSH/AFTER-PR/AFTER-PR-WARM/AFTER-NONPR | `success`; 0 cancellations elsewhere | `observed` |
 | FAST-05 | Classification rule, both directions + empty-input + crafted-path cases | `bash scripts/ci/docs-only-classify.test.sh` | `11 passed, 0 failed` | `hermetic-unit` |
 | FAST-05 | Classifier wired, emits on a real mixed diff | AFTER-PR job `90451499447` **and** AFTER-CANCEL job `90463148921` | `docs_only=false` (both) | `observed` |
-| FAST-05 | Docs-only fast path end-to-end (`docs_only=true`, five contexts merge-eligible) | AFTER-DOCSONLY (post-merge obligation) | not yet capturable pre-merge | `structural-argument` |
+| FAST-05 | Docs-only fast path end-to-end (`docs_only=true`, five contexts merge-eligible) | AFTER-DOCSONLY — run `30468884574` (PR #123), listener `30469563472` | `docs_only=true`; all 5 required contexts `success` (not `skipped`); Playwright smoke 33s vs 989s; `fast_checks` 29s and both `library_tests` shards (470s/278s) still full | `observed` |
 | FAST-06 | Cache key tracks the lockfile version | `bash scripts/ci/playwright-cache-key-guard.test.sh` | `7 passed, 0 failed` | `hermetic-unit` |
 | FAST-06 | Miss-then-hit pair on one PR | AFTER-PR (`cache-hit: false`) → AFTER-PR-WARM (`cache-hit: true`) | see restated net below | `observed` |
 | FAST-07 | Every job declares `timeout-minutes` | `mix test test/sigra/planning/phase_230_ci_timeouts_test.exs` | green | `hermetic-unit` |
 | FAST-07 | No job in any captured run times out | BEFORE-PR, BEFORE-PUSH, AFTER-PR, AFTER-PR-WARM, AFTER-NONPR, AFTER-CANCEL | 0 `conclusion: timed_out` anywhere in six captured `--jobs` tables | `observed` |
-| SC-1 (push-to-main half) | Push-to-`main` run of the merge commit | AFTER-PUSH (post-merge obligation) | not yet capturable pre-merge | `structural-argument` |
+| SC-1 (push-to-main half) | Push-to-`main` run of the merge commit | AFTER-PUSH — run `30466318240` at `20e4fe3b`, listener `30468680093` | `success`, wall-clock 28m29s; both tier-B constructs executed (`admin_eval_render` 1124s, `design_gallery_snapshots` 486s), verdict PASS | `observed` |
 | SC-1 (non-PR never queued/cancelled) | `github.run_id`-group gives every non-PR event a group of one | AFTER-NONPR's 3s queue delay, 0 cancellations; AFTER-CANCEL's push/schedule-unaffected observation | consistent with, not yet the merge-commit proof | `structural-argument` |
 | SC-3 (concurrency half) | Superseded PR run cancels, others don't | AFTER-CANCEL | see FAST-04 rows above | `observed` |
 | SC-3 (schedule half) | Nightly-equivalent run observed executing the full non-PR matrix | AFTER-NONPR (`workflow_dispatch` substituting for `schedule`; nightly itself is 0-pass/9-fail, reviving it is **GATE-01 / Phase 231**) | 84-test snapshot step, 123-test recapture step, `admin_eval_render` real duration, all executing | `proxy-observed` |

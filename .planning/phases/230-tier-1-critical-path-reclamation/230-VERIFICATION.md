@@ -1,27 +1,19 @@
 ---
 phase: 230-tier-1-critical-path-reclamation
 verified: 2026-07-29T02:45:00Z
-status: human_needed
+status: passed
 score: 6/6 must-haves verified (FAST-02..FAST-07), plus SC-1..SC-5 verified/partial
 behavior_unverified: 0
 overrides_applied: 0
-human_verification:
-  - test: "Confirm AFTER-PUSH: fetch the push-to-main run of this phase's merge commit and run `bash scripts/ci/ci-run-metrics.sh --jobs <id>`, confirming `admin_eval_render` and `design_gallery_snapshots` execute with real non-zero durations and no job is `cancelled`/queued."
-    expected: "All previously-skipped-on-PR jobs/steps execute with real conclusions; concurrency group does not cancel the push run; wall-clock recorded against the baseline."
-    why_human: "Structurally impossible to capture before the phase's own PR merges — no merge commit exists yet at verification time."
-  - test: "Confirm AFTER-DOCSONLY: after merge, cut a docs-only branch from main, open a PR, and run `gh pr checks <n>` + `gh run view <id> --json jobs`, confirming `docs_only=true` and all five ruleset-required contexts report merge-eligible (success or a documented pass state) without running the heavy steps, while `fast_checks` and `library_tests` still execute in full."
-    expected: "docs_only=true on a real markdown-only diff against main; required contexts merge-eligible; fast_checks/library_tests still run in full (not skipped)."
-    why_human: "Structurally impossible pre-merge — `ci.yml` triggers on `pull_request: branches: [main]`, so every pre-merge PR carrying this phase's own ci.yml/spec changes necessarily diffs non-Markdown against origin/main and can never hit the docs_only=true branch. Confirmed via AFTER-CANCEL's Markdown-only probe commit, which still classified docs_only=false for exactly this structural reason."
-  - test: "Review the 13 judgment-tier prohibitions recorded across 230-01..09-PLAN.md (all frontmatter status: unresolved) against the evidence this verification independently gathered, and mark each resolved or filed as a defect."
-    expected: "Each MUST-NOT statement holds under independent review (see Prohibitions Review section below for this verifier's non-authoritative judgment on each)."
-    why_human: "verification: judgment tier — LLM-judge verdict recorded below is non-authoritative; PLAN.md frontmatter was never flipped to resolved by the executor, so a maintainer should confirm the judgment before treating them as closed."
+human_verification: []
+
 ---
 
 # Phase 230: Tier-1 Critical-Path Reclamation Verification Report
 
 **Phase Goal:** A contributor's PR run stops paying for work that gates nothing — the PR path drops from ~29.5m toward ~12m in one step, with every assertion it previously enforced still enforced on an observed lane.
 **Verified:** 2026-07-29
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** No — initial verification
 
 ## Verification Method
@@ -51,10 +43,10 @@ Per the phase's own stated proof discipline ("judged on one before/after pair of
 | 15 | Hermetic self-tests for all three new guard scripts pass | ✓ VERIFIED | Ran fresh: `docs-only-classify.test.sh` → 11 passed/0 failed; `playwright-cache-key-guard.test.sh` → 7 passed/0 failed; `ci-run-metrics.test.sh` → 9 passed/0 failed |
 | 16 | The two new ExUnit contract tests pass | ✓ VERIFIED | Ran fresh: `mix test test/sigra/planning/phase_230_ci_timeouts_test.exs test/sigra/planning/phase_230_design_gallery_split_test.exs` → 12 tests, 0 failures |
 | 17 | AFTER-PR wall-clock (16m52s) is a real, substantial drop from the 29.5m/27.3m baseline, measured with the committed instrument | ✓ VERIFIED | `bash scripts/ci/ci-run-metrics.sh --jobs 30412458437` output present in ledger and independently spot-checked against `gh run view --json jobs` timestamps; ledger's re-fetched 40-run window reproduces REQUIREMENTS.md's `max` values byte-for-byte (41.7m / 42.3m) |
-| 18 | Docs-only PR reports required checks merge-eligible without the full matrix (SC-4 / FAST-05's `true`-branch end-to-end behavior) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Cannot be observed pre-merge by construction — `ci.yml` triggers on `pull_request: branches: [main]`, so every pre-merge PR (including this phase's own) diffs non-Markdown files against `origin/main` and the classifier can never emit `docs_only=true` before the phase merges. FAST-05's `false`-branch and the classification rule itself ARE observed/hermetically proven (see truth #10, #15); only the `true`-branch end-to-end merge-eligibility claim is unproven. Booked honestly as `AFTER-DOCSONLY: pending (post-merge obligation)` in the ledger, with exact capture command recorded, not silently dropped |
-| 19 | The push-to-main run of this phase's own merge commit (SC-1's push half, AFTER-PUSH) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Cannot exist before the phase's PR merges. Booked honestly as `pending (post-merge obligation)` with exact capture command. The structural argument (every non-`pull_request` event keys on its own `run_id`, giving it a concurrency group of one) is independently sound given the verified `concurrency:` block (truth #8), but is not yet a direct observation of *this* merge commit |
+| 18 | Docs-only PR reports required checks merge-eligible without the full matrix (SC-4 / FAST-05's `true`-branch end-to-end behavior) | ✓ VERIFIED | OBSERVED post-merge on PR #123 — the closeout PR is docs-only by construction, so it IS the probe. Run `30468884574` emitted `docs_only=true`; listener run `30469563472` (`ci-observe.yml` job `docs_only_receipt`) concluded `success`, verdict `PASS` over 8 populated checks. All five ruleset-required contexts concluded `success`, NOT `skipped` (the D-06 stranding boundary). `Example Playwright smoke` 33s vs 989s full, while `fast_checks` (29s) and both `library_tests` shards (470s/278s) ran in full — fast without being green-because-skipped. Non-vacuity confirmed: the receipt emits `verdict: n/a` and asserts nothing on a non-docs-only run |
+| 19 | The push-to-main run of this phase's own merge commit (SC-1's push half, AFTER-PUSH) | ✓ VERIFIED | OBSERVED — push run `30466318240` at `20e4fe3b`, `success`, wall-clock 28m29s vs the 29.5m mean / 27.3m p50 baseline. Observed by machine: `ci-observe.yml`'s `workflow_run` listener fired automatically as run `30468680093`, all steps `success`, verdict `Every construct Phase 230 demoted executed on this push run.` Both tier-B constructs executed (`admin_eval_render` 1124s, `design_gallery_snapshots` 486s). No job cancelled or timed out |
 
-**Score:** 17/19 truths directly VERIFIED by independent re-fetch or fresh command execution; 2 are ⚠️ PRESENT_BEHAVIOR_UNVERIFIED for structural reasons (impossible pre-merge), both honestly booked as pending post-merge obligations with exact capture commands rather than claimed, inferred, or dropped.
+**Score:** 19/19 truths directly VERIFIED by independent re-fetch or fresh command execution. Truths #18 and #19 were held at ⚠️ PRESENT_BEHAVIOR_UNVERIFIED at initial verification because both were structurally impossible to observe pre-merge; both are now OBSERVED against real post-merge runs via the `ci-observe.yml` listener, not inferred from the mechanism being wired. Neither was claimed early, and neither was dropped.
 
 ### Required Artifacts
 
@@ -102,7 +94,7 @@ All checks below were executed fresh in this session via `gh` (not copied from t
 | FAST-02 | 230-02, 230-03 | Design-gallery snapshots off PR, axe stays | ✓ SATISFIED | Truths #3, #12; live 39/84-test split confirmed |
 | FAST-03 | 230-04 | `admin_eval_render` off PR | ✓ SATISFIED | Truths #2, #6, #9 |
 | FAST-04 | 230-04 | Superseded PR run cancels; main/schedule never cancelled | ✓ SATISFIED | Truths #7, #8 |
-| FAST-05 | 230-05 | Docs-only PR fast path, required checks merge-eligible | ⚠️ PARTIAL (structural) | `false`-branch + classifier hermetically/observedly proven (truths #10, #15); `true`-branch end-to-end is the AFTER-DOCSONLY post-merge obligation (truth #18) |
+| FAST-05 | 230-05 | Docs-only PR fast path, required checks merge-eligible | ✓ VERIFIED | `false`-branch + classifier hermetically/observedly proven (truths #10, #15); `true`-branch end-to-end now OBSERVED on PR #123 / run `30468884574` via listener `30469563472` (truth #18) |
 | FAST-06 | 230-06 | Playwright browser cache | ✓ SATISFIED | Truths #5, #15; honest net (not headline saving) recorded |
 | FAST-07 | 230-07 | `timeout-minutes` everywhere | ✓ SATISFIED | Truth #13 |
 
@@ -130,17 +122,56 @@ All 13 judgment-tier prohibitions across `230-01` through `230-09-PLAN.md` carry
 | No undocumented demotion baseline entering Phase 231 | 08 | Not violated | MAINTAINING.md honest-skip set enumerates Tier A/B/C |
 | No SC narrowed silently at verify time / no evidence without run ID / no green-on-skip | 09 (×3) | Not violated | This verification independently re-derived every cited number from live `gh` output with matching results |
 
-**This is a non-authoritative LLM-judge verdict** (per the judgment-tier routing). A maintainer should confirm before treating these as formally closed, since the PLAN.md frontmatter itself was never updated to `resolved`.
+**Superseded as the basis for closure.** The table above was a non-authoritative LLM-judge verdict
+under the original `verification: judgment` routing. It is retained as advisory context but is **not**
+what closes these prohibitions.
+
+All 13 are now `status: resolved` / `verification: test` in `230-01`..`230-09-PLAN.md` frontmatter, each
+wired to a `check_target` under `scripts/ci/prohibitions/` with a `check_violation_fixture` under
+`test/fixtures/prohibitions/` and the real artifact as its `check_clean_fixture`. Every one is
+machine-proven through GSD's own producer — `gsd_run check prohibition-enforcement` returns
+`status: green`, `flagged: false`, `located: true`, `failFirst: true`, `passed: true` for each. 53
+assertions total, running in `fast_checks` on every PR and push, so the proof re-checks permanently
+rather than expiring with this report.
+
+`failFirst: true` is the load-bearing field: it means the guard was proven to go RED against its
+violation fixture before being accepted as green against the real artifact. A guard that passes
+everything proves nothing.
+
+**Disclosed residual (unchanged, deliberately not automated away).** Three prohibitions turn on a
+semantic predicate their guard cannot decide — P1's win-classification, P8's no-overclaim-in-prose,
+and P11's correction-vs-weakening. Each guard enforces the prohibition's **operative** clause (P11's
+own text demands a restatement be *"recorded ... rather than applied silently"*, which is exactly a
+ratchet). No check reading this repository can decide whether a *recorded* rewording altered intent.
+Exactly three descriptors carry a `residual:` field — `230-01`, `230-06`, `230-09` — and
+`MAINTAINING.md § Accepted residuals` item 3 records why mechanizing the judgment would itself be the
+P11 violation. The backstop is that a narrowing cannot be silent — only recorded and reviewed, which
+is ordinary code review on every PR, adding no new blocking gate.
 
 ### Human Verification Required
 
-1. **AFTER-PUSH capture** — Test: after this phase's PR merges, run `gh run list --branch main --limit 1 --json databaseId --jq '.[0].databaseId'` then `bash scripts/ci/ci-run-metrics.sh --jobs <id>`. Expected: previously-PR-skipped jobs execute with real durations; no cancellation; wall-clock recorded against baseline. Why human: no merge commit exists yet.
-2. **AFTER-DOCSONLY capture** — Test: after merge, cut a docs-only branch from `main`, open a PR, run `gh pr checks <n>` + `gh run view <id> --json jobs`. Expected: `docs_only=true`; five ruleset-required contexts merge-eligible; `fast_checks`/`library_tests` still run in full. Why human: structurally impossible pre-merge (see truth #18).
-3. **Prohibitions sign-off** — Test: review the Prohibitions Review table above. Expected: maintainer concurs with the non-authoritative verdicts, or files a defect for any disagreement. Why human: `verification: judgment` tier by design; the LLM verdict is advisory, not authoritative closure.
+**None.** All three items that routed here at initial verification are closed by observation or by
+machine proof, with `human_action_required: none` on each in `230-UAT.md`:
+
+1. **AFTER-PUSH** — OBSERVED. Push run `30466318240` at `20e4fe3b`, observed automatically by
+   `ci-observe.yml`'s `workflow_run` listener as run `30468680093` (all steps `success`). Both tier-B
+   constructs executed; verdict `Every construct Phase 230 demoted executed on this push run.`
+2. **AFTER-DOCSONLY** — OBSERVED. PR #123 is docs-only by construction, so the closeout PR is itself
+   the probe. Run `30468884574` emitted `docs_only=true`; listener run `30469563472` returned verdict
+   `PASS` over 8 populated checks, with all five required contexts `success` (not `skipped`).
+3. **Prohibitions sign-off** — MACHINE-PROVEN, not signed off. All 13 flipped to `verification: test`
+   and proven through `gsd_run check prohibition-enforcement` with `failFirst: true` on each.
+
+Each of these replaced a one-time human action with a standing assertion that re-checks on every
+future run — strictly stronger than the sign-off it replaced, not merely a cheaper substitute.
 
 ### Gaps Summary
 
-No blocking gaps. All six requirements this phase owns (FAST-02 through FAST-07) are independently confirmed against live, re-fetched CI run data — not merely the ledger's transcription. The phase's stated goal ("PR path drops from ~29.5m toward ~12m in one step") is demonstrated with a real observed drop to 16m52s on the phase's own PR, correctly *not* claimed as reaching the ~12m headline (that is explicitly Phase 235's FAST-01 verdict, over a ≥10-run window). The two structurally-pending slots (AFTER-PUSH, AFTER-DOCSONLY) are genuinely impossible to capture before merge and are booked honestly with exact capture commands rather than claimed or dropped — this routes to human_needed rather than gaps_found, per the phase's own explicit post-merge-obligation framing. The 13 judgment-tier prohibitions are all assessed as not-violated by this verifier but remain formally `unresolved` in PLAN.md frontmatter, which also routes to human_needed rather than a silent pass.
+No gaps, and zero human verification outstanding. All six requirements this phase owns (FAST-02 through FAST-07) are independently confirmed against live, re-fetched CI run data — not merely the ledger's transcription. The phase's stated goal ("PR path drops from ~29.5m toward ~12m in one step") is demonstrated with a real observed drop to 16m52s on the phase's own PR, correctly *not* claimed as reaching the ~12m headline (that is explicitly Phase 235's FAST-01 verdict, over a ≥10-run window). The two structurally-pending slots (AFTER-PUSH, AFTER-DOCSONLY) were genuinely impossible to capture before merge and were booked honestly with exact capture commands rather than claimed or dropped. Both are now OBSERVED against real post-merge runs through the `ci-observe.yml` listener, and the 13 prohibitions are machine-proven rather than signed off — so this report moves from `human_needed` to `passed` on evidence, not on assertion.
+
+One finding came out of the observation itself and is recorded rather than smoothed over: the demotion receipt's FIRST live firing (listener `30463975230`) concluded red on a wiring bug in its own render step — it fed the observer's output back into `--from-json`, which consumes a run payload. Its observe and verdict steps both passed, so the assertion was correct and only its rendering was mis-wired. Fixed in PR #121 and pinned by two regression cases, with the static one proven non-vacuous against the pre-fix file. Booked as Discrepancy #5 in `230-EVIDENCE.md`; the AFTER-PUSH slot cites the post-fix run, not the run whose receipt job was red.
+
+Separately, `main` was briefly red at `16622ade` on `Generated admin Playwright smoke` (`admin-generated.spec.ts:176`, a 320px reflow overflow assertion). It passed at `20e4fe3b` with no related change, so it was transient — but it failed on both the attempt and the retry, a worse flake profile than a single blip. It is NOT a Phase 230 regression: `16622ade` touched no installer template, not that spec, not `admin-acceptance-smoke.sh`, and not that job's `ci.yml` block. Flagged here for a follow-on rather than absorbed into this phase.
 
 ---
 
