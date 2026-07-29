@@ -352,6 +352,43 @@ else
   fail "Q: shipped manifest assert set is: ${SHIPPED_ASSERTS}"
 fi
 
+# ---- R: this script's OWN output is not a valid --from-json payload --------
+# Regression pin for the ci-observe.yml wiring bug observed on run 30463975230:
+# the render step fed `demotion-observation.json` (this script's output, an
+# object carrying .verdict/.constructs) back into --from-json, which consumes a
+# RUN payload (an object carrying .jobs). The shapes are deliberately distinct.
+# This case proves the confusion fails CLOSED rather than rendering an empty or
+# misleading receipt.
+echo "Test R: observer output fed back into --from-json -> exit 1, not a silent empty receipt"
+printf '%s' "$BASE_PAYLOAD" > "$PAYLOAD_FILE"
+OWN_OUTPUT="${TMPDIR_ROOT}/own-output.json"
+set +e
+PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" --run 999 --format json > "$OWN_OUTPUT" 2>/dev/null
+OUT_R="$(bash "$SCRIPT" --from-json "$OWN_OUTPUT" --format table 2>&1)"
+RC_R=$?
+set -e
+if [[ "$RC_R" -ne 0 ]] && grep -q "not an object carrying a .jobs array" <<<"$OUT_R"; then
+  pass "R: observer output rejected by --from-json (fail-closed)"
+else
+  fail "R: rc=${RC_R}, output: ${OUT_R}"
+fi
+
+# ---- S: ci-observe.yml never passes the observation file to --from-json ----
+# The static half of the same regression pin. R proves the shapes are not
+# interchangeable; S proves the shipped workflow does not make that mistake.
+# Non-vacuity: the anchor assertion below flunks if --from-json disappears from
+# the workflow entirely, so a rename can never make this test silently green.
+echo "Test S: ci-observe.yml passes a run payload -- never demotion-observation.json -- to --from-json"
+OBSERVE_WF="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/workflows/ci-observe.yml"
+FROM_JSON_ARGS="$(grep -oE '\-\-from-json[[:space:]]+[^[:space:]]+' "$OBSERVE_WF" | awk '{print $2}')"
+if [[ -z "$FROM_JSON_ARGS" ]]; then
+  fail "S: no --from-json invocation found in ${OBSERVE_WF} -- the parse broke, this is not a pass"
+elif grep -q 'demotion-observation.json' <<<"$FROM_JSON_ARGS"; then
+  fail "S: ci-observe.yml feeds the observer's own output back into --from-json: ${FROM_JSON_ARGS}"
+else
+  pass "S: every --from-json argument is a run payload ($(tr '\n' ' ' <<<"$FROM_JSON_ARGS"))"
+fi
+
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [[ "$FAIL" -gt 0 ]]; then
   echo "ci-demotion-observer.test: FAIL"
