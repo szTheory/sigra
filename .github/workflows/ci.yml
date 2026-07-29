@@ -78,6 +78,58 @@ jobs:
               ;;
           esac
 
+  # Phase 230 (FAST-05 / D-07): fail-open docs-only classifier. Placed
+  # immediately after release_ref_guard so it reads as the top of the DAG.
+  # This job NEVER decides whether a required job runs (that would be a
+  # trigger-level `paths:` filter, D-06's hard-fail boundary -- a
+  # required workflow filtered at the trigger never creates its check
+  # contexts and the PR sits permanently unmergeable). It only computes a
+  # boolean that the four app-behaviour required lanes consume at the STEP
+  # level (D-07) to skip their cost body while still reporting `success`.
+  changes:
+    name: Detect docs-only change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.detect.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Detect docs-only change
+        id: detect
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        # Phase 230 (FAST-05 / D-07): polarity is fail-open -- consumers
+        # test `!= 'true'`, so an empty or missing output runs the heavy
+        # steps and the failure mode is "we ran the full matrix
+        # unnecessarily", never "a required lane silently skipped". The
+        # boolean is computed once here rather than in five jobs because
+        # four of the five consumers use a bare `actions/checkout` without
+        # `fetch-depth: 0`. Measured no-op cost of this shape: ~36s. The
+        # classification rule itself lives in
+        # scripts/ci/docs-only-classify.sh rather than in this run body
+        # because the docs_only=true branch cannot be observed on any
+        # pre-merge pull request (ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge PR's diff
+        # necessarily carries this phase's own non-Markdown changes) -- a
+        # hermetic self-test wired into fast_checks is the only evidence
+        # available inside the phase window, and an inlined rule would
+        # have none. github.base_ref/github.event_name reach this shell
+        # only via the env: mapping above, never inlined into the run
+        # body (ASVS V5, notify-failure-issue.sh:14-18), so a crafted
+        # context string cannot inject shell or workflow commands.
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" != "pull_request" ]; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${BASE_REF}" --depth=1
+          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+
   # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
   # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
   # Each guard is a distinct named run: step so per-guard failure remains legible
@@ -232,6 +284,23 @@ jobs:
         # is NOT run here -- it requires a live `gh` against a real run -- only its
         # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
         run: bash scripts/ci/ci-run-metrics.test.sh
+      - name: Docs-only classifier self-test
+        # Phase 230 (FAST-05 / D-07): hermetic proof that the docs-only
+        # classification rule is correct in both directions, plus the
+        # empty-input and crafted-path cases (docs.md/evil.ex,
+        # .planning-evil/x.ex, a git-quoted embedded-escape path never
+        # forces the true branch). No network, no git repository, no gh.
+        # This is deliberately NOT gated on docs_only -- fast_checks runs
+        # in full on every event -- and it is the only in-phase evidence
+        # for the true branch: ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge pull request's
+        # base-to-HEAD diff necessarily carries this phase's own
+        # non-Markdown commits and can never classify docs_only=true.
+        # AFTER-DOCSONLY (the end-to-end true observation) is a
+        # post-merge obligation recorded in 230-EVIDENCE.md; this
+        # self-test is what stands between the rule and silent rot until
+        # then.
+        run: bash scripts/ci/docs-only-classify.test.sh
       # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
