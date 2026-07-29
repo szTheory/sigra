@@ -171,9 +171,40 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
     element.style.fontSize = "32px";
   });
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+
+  // GATE-02 / D-09: instrumented in place of the bare boolean assertion so
+  // every run -- pass or fail -- reports what it measured. See
+  // 231-02-DIAGNOSIS.md for the verdict this payload shape produced.
+  // offenders is capped at 15 entries so a pathological page cannot flood
+  // the job log; classList is used (not className) because className is an
+  // SVGAnimatedString on SVG elements and string methods throw on it (the
+  // same defect class plan 231-04 fixes in probes.ts).
+  const reflowPayload = await page.evaluate(() => {
+    const offenders: Array<{ tag: string; cls: string; right: number }> = [];
+    for (const element of Array.from(document.querySelectorAll("*"))) {
+      const rect = element.getBoundingClientRect();
+      if (rect.right > window.innerWidth + 1) {
+        offenders.push({
+          tag: element.tagName,
+          cls: Array.from(element.classList).join(" "),
+          right: rect.right,
+        });
+        if (offenders.length >= 15) break;
+      }
+    }
+    return {
+      innerWidth: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      offenders,
+    };
+  });
+  console.log(`gate02-reflow-instrumentation ${JSON.stringify(reflowPayload)}`);
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-  ).toBe(true);
+    reflowPayload.scrollWidth,
+    `320px reflow: ${JSON.stringify(reflowPayload)}`,
+  ).toBeLessThanOrEqual(reflowPayload.innerWidth);
+
   await captureAdminCheckpoint(page, testInfo, {
     name: "auth-login-system-dark-320-reflow",
     prefix: "auth",
