@@ -72,3 +72,10 @@ if [[ "$key_version" != "$lockfile_version" ]]; then
 fi
 
 echo "playwright-cache-key-guard: PASS (key version ${key_version} matches lockfile ${lockfile_version})"
+
+# Provenance (230-09, FAST-06 evidence capture): CI run 30412458437 is the
+# cache-seeding run for AFTER-PR-WARM in 230-EVIDENCE.md. It saved the
+# Playwright browser cache under key Linux-playwright-chromium-webkit-1.59.1-v1
+# on 2026-07-29 (miss half of the FAST-06 pair). This comment is the one
+# non-Markdown, non-.planning/ change carried by the commit that triggers the
+# warm run observing the corresponding cache hit.
