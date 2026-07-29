@@ -543,7 +543,13 @@ jobs:
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-08): job-level gate -- permitted here because
+    # this is a non-required job (not one of the 5 ruleset-14941512
+    # contexts). Same fail-open polarity and !cancelled() predicate as the
+    # required lanes (T-230-05-07): an empty/failed `changes` output still
+    # runs the job, and a run FAST-04 supersedes still stops.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}
     services:
       postgres:
         image: postgres:15
@@ -1430,9 +1436,16 @@ jobs:
         # silently discarded on push/schedule/dispatch runs — this loop, not the
         # step's own `if:`, is what decides whether a failure reaches the
         # required "Example Playwright smoke (full lifecycle)" context.
+        # Phase 230 (FAST-05 / D-23): when every seam outcome is `skipped` (the
+        # docs-only fast path), say so explicitly rather than just printing
+        # "all seams passed" — a green "Example Playwright smoke (full
+        # lifecycle)" carrying this line asserted nothing about browser
+        # behaviour. This is the signal Phase 231's GATE-03 uses to tell a
+        # correctly-gated skip from a rotted one.
         run: |
           set -euo pipefail
           fail=0
+          all_skipped=1
           for o in "${{ steps.admin_behavior.outcome }}" \
                    "${{ steps.admin_checkpoints.outcome }}" \
                    "${{ steps.design_gallery.outcome }}" \
@@ -1440,11 +1453,16 @@ jobs:
                    "${{ steps.non_admin_smoke.outcome }}" \
                    "${{ steps.demo_showcase.outcome }}"; do
             [ "$o" = "failure" ] && fail=1
+            [ "$o" = "skipped" ] || all_skipped=0
           done
           if [ "$fail" -eq 1 ]; then
             echo "::error::one or more Playwright seams failed"; exit 1
           fi
-          echo "all seams passed"
+          if [ "$all_skipped" -eq 1 ]; then
+            echo "docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on this run"
+          else
+            echo "all seams passed"
+          fi
       - name: Dump example app log (on failure)
         if: failure()
         # WR-04: surface the backgrounded server log directly in the
