@@ -307,6 +307,18 @@ jobs:
         # self-test is what stands between the rule and silent rot until
         # then.
         run: bash scripts/ci/docs-only-classify.test.sh
+      - name: Playwright cache key guard
+        # Phase 230 (FAST-06 / D-18): proves the version embedded in
+        # example_playwright_smoke's Playwright browser cache key tracks
+        # the resolved @playwright/test version in
+        # test/example/priv/playwright/package-lock.json (D-16, D-18). Does
+        # NOT cover the browser set ("chromium-webkit") encoded in the same
+        # key -- that is D-16's concern and is asserted structurally by
+        # plan 06 Task 1's ci.yml verify block. No live `gh`, no
+        # artifacts -- both this guard and its self-test run unconditionally.
+        run: bash scripts/ci/playwright-cache-key-guard.sh
+      - name: Playwright cache key guard self-test
+        run: bash scripts/ci/playwright-cache-key-guard.test.sh
       # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
