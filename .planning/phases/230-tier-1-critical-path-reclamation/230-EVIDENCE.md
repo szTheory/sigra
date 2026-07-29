@@ -339,18 +339,121 @@ criterion — the cache-hit/no-re-upload half of the pair, which *is* FAST-06's 
 
 ## AFTER-NONPR
 
-Status: pending
+Status: captured (run 30414885679)
 
 A `workflow_dispatch` run on the phase branch. The demoted `admin_eval_render` (FAST-03) and
 the event-gated snapshot step (FAST-02) must be observed *executing* somewhere inside the phase
 window, not only absent from the PR — waiting for AFTER-PUSH would push that observation past
 the phase.
 
+**Deviation from the plan's literal precondition (Rule 3 — blocking-issue auto-fix):** Task
+2's stated precondition is "the dispatch is run with `force_fail_probe` false and
+`recapture_branch` empty." A first dispatch attempt with both inputs at their literal defaults
+(run `30414636733`) failed at `release_ref_guard`: that job's own logic (`ci.yml:73-91`) requires
+a `workflow_dispatch` run to target `refs/tags/v*` **unless** `recapture_branch` is non-empty
+(D-04's relaxation) — a branch-ref dispatch with `recapture_branch` empty is structurally
+rejected, cascading `skipped` through every downstream job including `admin_eval_render`. This
+is not a Phase 230 regression; it is the pre-existing, intentional release-evidence guard doing
+its job. Re-dispatched with `recapture_branch=ci-efficiency-milestone-scope` (the phase branch
+itself) — the documented way to run a branch-scoped dispatch (`ci.yml:13-17`) — which passed
+`release_ref_guard` and let the full matrix execute. `30414636733` is recorded here as the
+failed precondition-attempt for completeness; `30414885679` is the captured AFTER-NONPR run.
+
+Run: `30414885679` · event `workflow_dispatch` · created `2026-07-29T01:43:32Z` · completed
+`2026-07-29T02:08:13Z` · earliest job (`Release ref guard`) started `2026-07-29T01:43:35Z` — a
+**3-second** queue delay, confirming this non-PR run was not queued (the structural half of
+SC-3: every non-PR event keys on its own unique `github.run_id`, D-12).
+
 Command:
 
 ```
-bash scripts/ci/ci-run-metrics.sh --jobs <id>
+bash scripts/ci/ci-run-metrics.sh --jobs 30414885679
 ```
+
+Output (verbatim):
+
+```
+job                                                                    conclusion  duration_s  duration
+Passkeys opt-out smoke                                                 success     193s        3m13s
+Release ref guard                                                      success     2s          0m2s
+Nightly probe (forced-failure self-test)                               success     3s          0m3s
+Detect docs-only change                                                success     9s          0m9s
+Passkeys manual fallback smoke                                         success     110s        1m50s
+Install matrix (flag combinations)                                     success     107s        1m47s
+Install matrix (flag combinations) (--no-organizations)                success     107s        1m47s
+Fast checks (milestone/installer/contracts/snapshot/ledger guards)     success     28s         0m28s
+Install matrix (flag combinations) (--no-passkeys)                     success     112s        1m52s
+Install matrix (flag combinations) (--no-organizations --no-passkeys)  success     117s        1m57s
+Install golden + idempotency contract (subprocess harness)             success     345s        5m45s
+Library tests shard 2                                                  success     317s        5m17s
+Recapture admin-checkpoint baselines (in-CI)                           success     351s        5m51s
+Library tests shard 1                                                  success     396s        6m36s
+Admin eval render + probe (evidence only, not a merge gate)            failure     1074s       17m54s
+Upgrade smoke (published source series -> local candidate)             success     119s        1m59s
+Generated admin Playwright smoke                                       failure     265s        4m25s
+Recapture admin-design baselines (in-CI)                               success     980s        16m20s
+Install smoke (fresh phx.new + sigra.install)                          success     113s        1m53s
+Example Playwright smoke (full lifecycle)                              success     1443s       24m3s
+Example HTTP smoke (boot + curl critical routes)                       success     56s         0m56s
+Library tests (dep-off — Threadline absent)                            success     78s         1m18s
+Example unit smoke (ExUnit + ConnTest)                                 success     53s         0m53s
+Library tests                                                          success     2s          0m2s
+ci-gate                                                                failure     3s          0m3s
+Notify on red ci-gate (release-lane-rot)                               success     7s          0m7s
+```
+
+No job in this table reports `cancelled`. `ci-gate` is `failure`, caused by
+`generated_admin_playwright_smoke` (`failure`) — that job **is** in `ci-gate.needs`
+(`ci.yml:1766-1776`) — and is the pre-existing, out-of-scope GATE-02 defect (stale `head_ref ==
+'ship/v1.42-ci-gate-remediation'` condition, `ci.yml:1343`; `230-CONTEXT.md` "Explicitly NOT in
+scope" list). `admin_eval_render`'s own `failure` does **not** contribute to `ci-gate` — D-10
+confirmed it is deliberately absent from `ci-gate.needs`, and this run confirms that
+independently: `ci-gate`'s step log lists only `GENERATED_ADMIN_PLAYWRIGHT_SMOKE` as the failing
+required lane, `ADMIN_EVAL_RENDER` is not one of the nine env vars the job checks at all.
+
+**The four facts this slot exists to prove, each pulled from `--json jobs` and per-job step
+logs:**
+
+- **`admin_eval_render` executes** (not skipped): `conclusion: failure`, duration **1074s /
+  17m54s** — exceeds 900s, in the documented ~18min band (D-19: 18.36m historical). The
+  `failure` conclusion is recorded exactly as printed, per the plan's instruction — it is
+  GATE-04's scope (Phase 231, D-11: `continue-on-error: true` is deliberately retained this
+  phase) and does not invalidate the observation that the demoted work *moved*, not
+  *disappeared*.
+- **`design_gallery_snapshots` (the `Run design gallery board snapshots (non-PR)` step inside
+  `Example Playwright smoke (full lifecycle)`, job `90459154527`) executes 84 tests:**
+  `Running 84 tests using 1 worker` … `84 passed (7.2m)` (`2026-07-29T01:56:43Z` →
+  `02:03:57Z`).
+- **`admin_design_recapture`'s recapture step (job `90459122106`) executes the full ungrepped
+  inventory: 123 tests**, not 120: `Running 123 tests using 1 worker` … `123 passed (12.1m)`
+  (`2026-07-29T01:45:15Z` → `01:57:19Z`). This confirms the 120→123 correction recorded in
+  `230-VALIDATION.md` ("Correction — recapture executed-test count") rather than the stale
+  RESEARCH.md figure — no Pitfall 1 regression.
+- **No queueing / no cancellation:** confirmed above (0 `cancelled` jobs, 3s queue delay).
+
+**Recapture pull request cleanup:** the dispatch opened **PR #119**
+(`ci/recapture-admin-checkpoints-30414885679` → `ci-efficiency-milestone-scope`, "ci: recapture
+admin-checkpoint + demo-showcase baselines in ubuntu CI (30414885679)"). It targeted the phase
+branch rather than `main` because `recapture_branch` was set (D-04) — expected given the
+deviation above. No `admin-design` recapture PR opened (the design-gallery lane's baselines did
+not drift on this run). PR #119 was **closed without merging** and its branch **deleted**:
+
+```
+gh pr close 119 --delete-branch
+```
+
+`gh pr view 119 --json state` → `{"state":"CLOSED"}`.
+
+**Schedule-half substitution, stated in words:** this `workflow_dispatch` run is a **proxy** for
+the nightly `schedule` trigger, not an observation of the nightly itself — the nightly has been
+0-pass/9-fail over the whole sampled window (`230-VALIDATION.md`, REQUIREMENTS.md baseline
+table), and reviving it to green is **GATE-01's** problem in **Phase 231**, not this phase's.
+SC-3's schedule half is proven here by this dispatch proxy plus the structural
+`github.run_id`-group argument (D-12: every non-PR event, including `schedule`, keys on its own
+unique `run_id`, giving it a concurrency group of one that is structurally never queued or
+cancelled — independently confirmed by this run's 0 `cancelled` jobs / 3s queue delay above).
+This substitution is recorded in the per-requirement table below with evidence class
+`proxy-observed`, not `observed`.
 
 ---
 
