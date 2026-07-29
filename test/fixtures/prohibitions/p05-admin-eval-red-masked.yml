@@ -1,0 +1,17 @@
+name: CI
+# KNOWN-BAD fixture for P5 (230-04). admin_eval_render keeps its demotion but loses
+# `continue-on-error: true` while the two underlying harness defects are still unfixed --
+# converting a tracked, visible red into a hard failure, which is Phase 231 GATE-04's job
+# to do TOGETHER WITH the fix, not a side effect of demoting the lane.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  admin_eval_render:
+    name: Admin eval render + probe (evidence only, not a merge gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: github.event_name != 'pull_request'
+    steps:
+      - run: bash scripts/ci/admin-eval-harness.sh

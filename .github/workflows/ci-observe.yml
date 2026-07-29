@@ -1,0 +1,169 @@
+name: CI observe
+
+# Phase 230 closeout: the standing replacement for two human UAT items.
+#
+# WHY A SEPARATE WORKFLOW RATHER THAN JOBS INSIDE ci.yml
+# Both receipts must read a TERMINAL run. A job inside ci.yml cannot: the Actions API
+# serializes an unfinished job's `completedAt` as "0001-01-01T00:00:00Z" and its
+# `conclusion` as "", so a duration check clamps to 0s (indistinguishable from a skip) and
+# a `conclusion != 'skipped'` check passes on "". Both directions fail OPEN. A run also
+# cannot read its own queue-inclusive wall clock (`updatedAt - createdAt`) before it ends,
+# so an in-run metrics table would be a jobspan-shaped number printed under a wall-mode
+# baseline. `workflow_run: [completed]` dissolves all of that, adds ZERO nodes to ci.yml's
+# DAG, costs ZERO seconds on the pull_request critical path, and cannot be mistaken for a
+# required context.
+#
+# BOUNDARY WITH PHASE 231 (GATE-03)
+# These jobs only OBSERVE and REPORT. They are deliberately NOT in `ci-gate.needs` and
+# never alter what `ci-gate` counts as a pass. GATE-03 owns the "should a rotted skip fail
+# the run?" question; it should CONSUME .github/ci-skip-manifest.tsv (and may invoke
+# either script with --from-json) rather than re-deriving the set, so there is exactly one
+# oracle. Do NOT add these jobs to ci-gate.needs.
+#
+# NOTE: `workflow_run` only ever runs the copy of this file on the DEFAULT BRANCH. It
+# therefore does nothing until it merges -- which is correct, because both receipts are
+# post-merge observations by construction.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-observe-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # AFTER-PUSH, permanently. Every construct Phase 230 demoted off the PR lane must
+  # actually execute on the lane that received it.
+  # ---------------------------------------------------------------------------
+  demotion_receipt:
+    name: Demotion receipt (non-PR executed-set evidence, not a merge gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ github.event.workflow_run.event != 'pull_request' }}
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      RUN_EVENT: ${{ github.event.workflow_run.event }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Observe the demoted-construct executed set
+        id: observe
+        run: |
+          # `set +e` is REQUIRED: GitHub invokes this body as `bash -e {0}`, so the
+          # observer's deliberate exit 1 would kill the step here -- before the verdict
+          # step can apply the schedule-lane leniency below. A soft-fail on the assertion
+          # is intended; a HARD failure (missing manifest, gh error) still reds the step
+          # via the empty-output check, so this is not a blanket `|| true`.
+          set +e
+          bash scripts/ci/ci-demotion-observer.sh \
+            --run "$RUN_ID" --repo "$GITHUB_REPOSITORY" --format json \
+            > demotion-observation.json
+          OBS_RC=$?
+          set -e
+          if [ ! -s demotion-observation.json ]; then
+            echo "::error::ci-demotion-observer.sh produced no output (exit ${OBS_RC}) -- hard failure, not an assertion result"
+            exit 1
+          fi
+          echo "rc=${OBS_RC}" >> "$GITHUB_OUTPUT"
+
+      - name: Render the receipt and the run's wall clock against the committed baseline
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            echo "## Demotion receipt — run \`${RUN_ID}\` (event: \`${RUN_EVENT}\`)"
+            echo
+            echo '```'
+            bash scripts/ci/ci-demotion-observer.sh \
+              --from-json demotion-observation.json --format table
+            echo '```'
+            echo
+            echo "### Wall clock vs the committed 29.5m mean / 27.3m p50 baseline"
+            echo
+            echo '```'
+            bash scripts/ci/ci-run-metrics.sh --jobs "$RUN_ID" --repo "$GITHUB_REPOSITORY"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verdict
+        if: always()
+        run: |
+          set -euo pipefail
+          VERDICT="$(jq -r '.verdict' demotion-observation.json)"
+          if [ "$VERDICT" = "PASS" ]; then
+            echo "Every construct Phase 230 demoted executed on this ${RUN_EVENT} run."
+            exit 0
+          fi
+          jq -r '.constructs[] | select(.verdict == "FAIL") | "::error::\(.id): \(.reason)"' \
+            demotion-observation.json
+          # Nightly leniency, deliberate and self-retiring. The push lane is read (8 pass /
+          # 1 fail over the measured window), so a red there is signal. The scheduled lane
+          # is 0 pass / 9 fail, so a tenth red is unreadable by construction -- adding one
+          # would be the unread-noise failure this milestone exists to remove. The verdict
+          # computed above is IDENTICAL on both lanes; only the consequence differs, and
+          # the leniency is NOT conditional on any computed "is the nightly green?" state,
+          # because that would itself be a gate that rots.
+          # REMOVAL CONDITION: Phase 231 GATE-01. When a scheduled run concludes green (or
+          # every remaining red is a filed, diagnosed defect), delete this branch so the
+          # schedule lane fails like the push lane does.
+          if [ "$RUN_EVENT" = "schedule" ]; then
+            echo "::warning::Demotion receipt FAILED on the scheduled lane. Not failing this job: the nightly baseline is 0 pass / 9 fail, so an extra red is unreadable. Remove this leniency when Phase 231 GATE-01 lands."
+            exit 0
+          fi
+          exit 1
+
+  # ---------------------------------------------------------------------------
+  # AFTER-DOCSONLY, opportunistically and permanently. Fires the first time a genuine
+  # Markdown/.planning-only PR lands, then on every one after that.
+  # ---------------------------------------------------------------------------
+  docs_only_receipt:
+    name: Docs-only receipt (FAST-05 true-branch evidence, not a merge gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Observe the docs-only fast path (no-op unless docs_only=true)
+        run: |
+          # `set +e` for the same reason as the demotion receipt: the body runs under
+          # `bash -e`, and this script exits non-zero to REPORT a verdict. The empty-output
+          # check below keeps a hard failure (gh error, unreadable log) reporting as red.
+          set +e
+          bash scripts/ci/docs-only-receipt.sh \
+            --run "$RUN_ID" --repo "$GITHUB_REPOSITORY" --format json > docs-only-receipt.json
+          RC=$?
+          set -e
+          if [ ! -s docs-only-receipt.json ]; then
+            echo "::error::docs-only-receipt.sh produced no output (exit ${RC}) -- hard failure, not an assertion result"
+            exit 1
+          fi
+          {
+            echo "## Docs-only receipt — run \`${RUN_ID}\`"
+            echo
+            echo '```'
+            jq -r 'if .verdict == "n/a" then .note
+                   else (.checks[] | "\(.verdict)  \(.name)  \(.conclusion) \(.duration_seconds)s") end' \
+              docs-only-receipt.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$RC" -ne 0 ]; then
+            jq -r '.checks[]? | select(.verdict == "FAIL") | "::error::\(.name): \(.reason)"' docs-only-receipt.json
+          fi
+          exit "$RC"

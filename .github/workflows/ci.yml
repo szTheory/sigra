@@ -31,6 +31,24 @@ on:
 permissions:
   contents: read
 
+# Phase 230 (FAST-04 / D-12, D-13, D-14): PR runs on the same PR number supersede
+# each other (superseded run concludes `cancelled`). Every non-PR event (push,
+# schedule, workflow_dispatch) keys on its own unique github.run_id, giving it a
+# group of one that is structurally never queued and never cancelled — release
+# integrity does not depend on the value of any expression. SEED-005's verbatim
+# proposal (group on github.ref with a conditional cancel-in-progress) was
+# rejected: cancel-in-progress: false still *queues* (GitHub holds one running
+# plus one pending per group), and queueing two rapid main pushes compounds the
+# release lane's 30-minute gate-ci-green polling ceiling. cancel-in-progress is
+# a bare boolean, never an expression producing a quoted string — the string
+# "false" is truthy and would cancel anyway. ci.yml's triggers are
+# push: branches: [main] plus pull_request: branches: [main], so there is no
+# same-SHA double trigger and the "cancelled run strands a required context"
+# hazard does not apply.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 # Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless
 # you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.
 # Library/install failures are unrelated to that secret.
@@ -39,6 +57,18 @@ jobs:
   release_ref_guard:
     name: Release ref guard
     runs-on: ubuntu-latest
+    # Phase 230 (FAST-07 / D-19, D-20): every job below declares an explicit
+    # timeout-minutes so a hung job fails in bounded time instead of consuming
+    # the 360-minute GitHub Actions default. Sizing rule: ~2x the live-measured
+    # duration from PR run 30390832059 / push run 30389700235 (230-EVIDENCE.md),
+    # floor 5 minutes, widened for warm-cache/network-bound/high-historical-max
+    # jobs. The clock starts when the job is scheduled onto a runner, so queue
+    # and setup time count against the ceiling. example_playwright_smoke is
+    # deliberately generous (45) per D-20: it measured 28.5m and has hit 41.7m
+    # historically, so a tighter ceiling would time out the very runs this
+    # phase is judged on -- tightening is Phase 235's job once the new steady
+    # state is measured post-reshape.
+    timeout-minutes: 5
     steps:
       - name: Require release tag ref for manual release evidence
         run: |
@@ -60,13 +90,72 @@ jobs:
               ;;
           esac
 
+  # Phase 230 (FAST-05 / D-07): fail-open docs-only classifier. Placed
+  # immediately after release_ref_guard so it reads as the top of the DAG.
+  # This job NEVER decides whether a required job runs (that would be a
+  # trigger-level `paths:` filter, D-06's hard-fail boundary -- a
+  # required workflow filtered at the trigger never creates its check
+  # contexts and the PR sits permanently unmergeable). It only computes a
+  # boolean that the four app-behaviour required lanes consume at the STEP
+  # level (D-07) to skip their cost body while still reporting `success`.
+  changes:
+    name: Detect docs-only change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.detect.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Detect docs-only change
+        id: detect
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        # Phase 230 (FAST-05 / D-07): polarity is fail-open -- consumers
+        # test `!= 'true'`, so an empty or missing output runs the heavy
+        # steps and the failure mode is "we ran the full matrix
+        # unnecessarily", never "a required lane silently skipped". The
+        # boolean is computed once here rather than in five jobs because
+        # four of the five consumers use a bare `actions/checkout` without
+        # `fetch-depth: 0`. Measured no-op cost of this shape: ~36s. The
+        # classification rule itself lives in
+        # scripts/ci/docs-only-classify.sh rather than in this run body
+        # because the docs_only=true branch cannot be observed on any
+        # pre-merge pull request (ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge PR's diff
+        # necessarily carries this phase's own non-Markdown changes) -- a
+        # hermetic self-test wired into fast_checks is the only evidence
+        # available inside the phase window, and an inlined rule would
+        # have none. github.base_ref/github.event_name reach this shell
+        # only via the env: mapping above, never inlined into the run
+        # body (ASVS V5, notify-failure-issue.sh:14-18), so a crafted
+        # context string cannot inject shell or workflow commands.
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" != "pull_request" ]; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${BASE_REF}" --depth=1
+          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+
   # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
   # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
   # Each guard is a distinct named run: step so per-guard failure remains legible
   # in the Actions UI. release_ref_guard stays standalone (D-12).
+  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating.
+  # milestone-verification-gate.sh walks .planning/**, getting-started-contract.sh
+  # link-checks guides/introduction/getting-started.md, and the ExUnit files under
+  # test/sigra/planning/ and test/sigra/*guides* read those paths directly --
+  # exactly what a docs-only PR changes. Gating this job would remove coverage
+  # in the one dimension the change touches.
   fast_checks:
     name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -206,6 +295,70 @@ jobs:
         run: bash scripts/ci/fix-queue-lint.test.sh
       - name: Panel verdicts lint self-test
         run: bash scripts/ci/panel-verdicts-lint.test.sh
+      - name: CI run metrics self-test
+        # Phase 230 (D-21 / SC-5): hermetic proof that ci-run-metrics.sh clamps negative
+        # durations to 0, never filters per-job durations by conclusion (a
+        # continue-on-error "failure" job still counts), and fails closed on a missing
+        # `gh`, a non-zero `gh` exit, or an empty job list. The measuring script itself
+        # is NOT run here -- it requires a live `gh` against a real run -- only its
+        # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
+        run: bash scripts/ci/ci-run-metrics.test.sh
+      - name: Docs-only classifier self-test
+        # Phase 230 (FAST-05 / D-07): hermetic proof that the docs-only
+        # classification rule is correct in both directions, plus the
+        # empty-input and crafted-path cases (docs.md/evil.ex,
+        # .planning-evil/x.ex, a git-quoted embedded-escape path never
+        # forces the true branch). No network, no git repository, no gh.
+        # This is deliberately NOT gated on docs_only -- fast_checks runs
+        # in full on every event -- and it is the only in-phase evidence
+        # for the true branch: ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge pull request's
+        # base-to-HEAD diff necessarily carries this phase's own
+        # non-Markdown commits and can never classify docs_only=true.
+        # AFTER-DOCSONLY (the end-to-end true observation) is a
+        # post-merge obligation recorded in 230-EVIDENCE.md; this
+        # self-test is what stands between the rule and silent rot until
+        # then.
+        run: bash scripts/ci/docs-only-classify.test.sh
+      - name: Playwright cache key guard
+        # Phase 230 (FAST-06 / D-18): proves the version embedded in
+        # example_playwright_smoke's Playwright browser cache key tracks
+        # the resolved @playwright/test version in
+        # test/example/priv/playwright/package-lock.json (D-16, D-18). Does
+        # NOT cover the browser set ("chromium-webkit") encoded in the same
+        # key -- that is D-16's concern and is asserted structurally by
+        # plan 06 Task 1's ci.yml verify block. No live `gh`, no
+        # artifacts -- both this guard and its self-test run unconditionally.
+        run: bash scripts/ci/playwright-cache-key-guard.sh
+      - name: Playwright cache key guard self-test
+        run: bash scripts/ci/playwright-cache-key-guard.test.sh
+      - name: Demotion observer self-test
+        # Phase 230 closeout: the observer behind .github/workflows/ci-observe.yml's
+        # demotion receipt -- the standing, permanent form of the AFTER-PUSH evidence
+        # item. Its load-bearing case is the fail-OPEN hole: an unfinished construct
+        # serializes `completedAt: "0001-01-01T00:00:00Z"` and `conclusion: ""`, which a
+        # duration check clamps to 0s (indistinguishable from a skip) and a
+        # `conclusion != 'skipped'` check waves through. Hermetic: a PATH-shadowed
+        # recording `gh`, no network, no GH_TOKEN.
+        run: bash scripts/ci/ci-demotion-observer.test.sh
+      - name: Phase 230 prohibition guards
+        # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
+        # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
+        # prohibition's frontmatter, and GSD's `check prohibition-enforcement` proves each
+        # one fail-FIRST against a known-bad fixture in test/fixtures/prohibitions/ before
+        # accepting a pass -- so these cannot rot into vacuous greens without the phase
+        # verification noticing. node:test rather than the repo's usual ExUnit idiom
+        # because that producer accepts only `node-test` / `lint-rule`.
+        # A bare directory arg is NOT valid here (node 22 resolves it as a module); the
+        # shell glob is load-bearing.
+        run: node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs
+      - name: Docs-only receipt self-test
+        # Phase 230 closeout: the observer behind ci-observe.yml's docs-only receipt --
+        # the standing form of AFTER-DOCSONLY. Asserts the five ruleset-required contexts
+        # stay merge-eligible on a docs_only=true run while fast_checks and the library
+        # suite still execute in full, and that an unestablishable classification is
+        # never silently read as `false`.
+        run: bash scripts/ci/docs-only-receipt.test.sh
       # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
@@ -228,6 +381,7 @@ jobs:
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: release_ref_guard
     services:
       postgres:
@@ -311,9 +465,13 @@ jobs:
   # postgres service container (free DB isolation per D-05). The partition is NOT
   # in the cache key (D-06: both legs share one warm -library- entry).
   # fail-fast: false (D-01) so one shard failing does not cancel the sibling.
+  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating --
+  # same rationale as fast_checks above. The library test suite is exactly
+  # what a docs-only PR's .planning/**/guides/** changes need asserted on.
   library_tests_shard:
     name: Library tests shard ${{ matrix.partition }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: release_ref_guard
     strategy:
       fail-fast: false            # D-01: one shard failing must NOT cancel the sibling
@@ -414,9 +572,13 @@ jobs:
   # "Library tests" — which would orphan the required check (stuck pending → merge outage).
   # The aggregator restores the bare context and the job id ci-gate.needs references.
   # ci-gate is UNCHANGED (D-03): still needs: library_tests and reads needs.library_tests.result.
+  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating --
+  # this aggregator only reflects library_tests_shard's own (already exempt)
+  # result; carries no `changes` dependency and no docs_only reference itself.
   library_tests:
     name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [library_tests_shard]
     if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
     steps:
@@ -436,7 +598,14 @@ jobs:
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-08): job-level gate -- permitted here because
+    # this is a non-required job (not one of the 5 ruleset-14941512
+    # contexts). Same fail-open polarity and !cancelled() predicate as the
+    # required lanes (T-230-05-07): an empty/failed `changes` output still
+    # runs the job, and a run FAST-04 supersedes still stops.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}
     services:
       postgres:
         image: postgres:15
@@ -523,6 +692,17 @@ jobs:
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [changes]
+    # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
+    # a dependency edge -- it had no `needs:` at all before this plan. That
+    # is safe specifically because `!cancelled()` is used, never `always()`
+    # (T-230-05-07): the two are identical for the failure case this gate
+    # exists to handle (a `changes` failure still leaves this job running,
+    # preserving fail-open intent), and they diverge only on cancellation --
+    # `always()` would keep this job running on a run FAST-04's
+    # `cancel-in-progress` just superseded.
+    if: ${{ !cancelled() }}
     services:
       postgres:
         image: postgres:15
@@ -536,11 +716,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: example_unit_deps_cache
+        if: needs.changes.outputs.docs_only != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -549,12 +731,15 @@ jobs:
           key: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
           restore-keys: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Fetch example deps
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         run: mix deps.get
       - name: Compile example
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         run: mix compile --warnings-as-errors
       - name: Setup database
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: test
@@ -563,6 +748,7 @@ jobs:
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
       - name: Run smoke tests
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: test
@@ -583,7 +769,15 @@ jobs:
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+    # gate explicitly while removing `changes` from the set of results that
+    # can skip this required lane -- `changes` in `needs:` would otherwise
+    # let a classifier failure skip a ruleset-required job. `!cancelled()`
+    # (never `always()`, T-230-05-07) preserves fail-open intent on a
+    # `changes` failure while still stopping when FAST-04 supersedes the run.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
         image: postgres:15
@@ -597,11 +791,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: install_smoke_deps_cache
+        if: needs.changes.outputs.docs_only != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -610,20 +806,25 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
+        if: needs.changes.outputs.docs_only != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-hex-registry-
       - name: Install Hex + Rebar
+        if: needs.changes.outputs.docs_only != 'true'
         run: |
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
+        if: needs.changes.outputs.docs_only != 'true'
         run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
+        if: needs.changes.outputs.docs_only != 'true'
         run: mix deps.get
       - name: Run install smoke harness
+        if: needs.changes.outputs.docs_only != 'true'
         env:
           PGUSER: postgres
           PGPASSWORD: postgres
@@ -643,6 +844,7 @@ jobs:
   upgrade_smoke:
     name: Upgrade smoke (published source series -> local candidate)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     services:
@@ -696,6 +898,7 @@ jobs:
   passkeys_manual_fallback_smoke:
     name: Passkeys manual fallback smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name != 'pull_request'
     services:
       postgres:
@@ -747,6 +950,7 @@ jobs:
   install_matrix:
     name: Install matrix (flag combinations)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name != 'pull_request'
     env:
       # tmp_app runs mix test + phx.server with Sigra-generated Cloak.Vault (decode_env!("CLOAK_KEY")).
@@ -877,6 +1081,7 @@ jobs:
   passkeys_opt_out_smoke:
     name: Passkeys opt-out smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name != 'pull_request'
     services:
       postgres:
@@ -928,7 +1133,14 @@ jobs:
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+    # gate explicitly while removing `changes` from the set of results that
+    # can skip this required lane. `!cancelled()` (never `always()`,
+    # T-230-05-07) preserves fail-open intent on a `changes` failure while
+    # still stopping when FAST-04 supersedes the run.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
         image: postgres:15
@@ -942,11 +1154,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: http_smoke_deps_cache
+        if: needs.changes.outputs.docs_only != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -955,16 +1169,19 @@ jobs:
           key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
           restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
       - name: Fetch example deps
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix deps.get
       - name: Compile example
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix compile --warnings-as-errors
       - name: Setup example dev DB
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -973,6 +1190,7 @@ jobs:
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
       - name: Boot example app in background
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -986,6 +1204,7 @@ jobs:
         # follow this pattern — this step missed it.
         run: mix phx.server > /tmp/example-http-server.log 2>&1 &
       - name: Run HTTP smoke harness
+        if: needs.changes.outputs.docs_only != 'true'
         run: scripts/ci/http-smoke.sh
       - name: Dump example app log (on failure)
         if: failure()
@@ -1003,7 +1222,15 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
-    needs: [release_ref_guard]
+    timeout-minutes: 45
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+    # gate explicitly while removing `changes` from the set of results that
+    # can skip this required lane. `!cancelled()` (never `always()`,
+    # T-230-05-07) preserves fail-open intent on a `changes` failure while
+    # still stopping when FAST-04 supersedes the run -- without it, this
+    # 28.5m job would keep running on a superseded SHA.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
         image: postgres:15
@@ -1017,16 +1244,19 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           version-file: .tool-versions
           version-type: strict
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
         id: example_deps_cache
+        if: needs.changes.outputs.docs_only != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -1035,16 +1265,19 @@ jobs:
           key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
           restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
       - name: Fetch example deps
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix deps.get
       - name: Compile example
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix compile --warnings-as-errors
       - name: Setup example dev DB
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -1053,6 +1286,7 @@ jobs:
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
       - name: Run demo seeds
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -1061,12 +1295,46 @@ jobs:
           PGHOST: localhost
         run: mix run priv/repo/seeds.exs
       - name: Install Playwright deps
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example/priv/playwright
         run: npm ci
+      - name: Cache Playwright browsers
+        id: playwright_browsers_cache
+        if: needs.changes.outputs.docs_only != 'true'
+        # Phase 230 (FAST-06 / D-15, D-16, D-17, D-18): honest expected win is
+        # ~15-25s, not the measured ~61s install step -- only ~14s of that is
+        # the cacheable browser download; the ~33s `--with-deps` system-
+        # dependency install lives in /usr/lib, not ~/.cache/ms-playwright,
+        # and is not cacheable. The key deliberately encodes the browser set
+        # (chromium-webkit): admin_eval_render installs chromium only while
+        # its admin-eval-mobile project is iPhone 13 (WebKit), so a key
+        # shared with this job would restore WebKit binaries there and make
+        # it appear fixed without the fix, invalidating Phase 231's GATE-04
+        # diagnosis. The dependency install in the next step always runs on
+        # both branches -- skipping it on a hit produces a missing-system-
+        # dependency failure at test time.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v1
+          restore-keys: ${{ runner.os }}-playwright-chromium-webkit-
       - name: Install Playwright browsers
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
+        # Phase 230 (FAST-06 / D-17): cache-hit reports 'true' only on an
+        # exact key match; a restore-keys prefix hit reports 'false' and
+        # correctly re-runs the full install below. The OS dependency
+        # install always runs on both branches -- system libraries live
+        # outside the cached directory and skipping them produces a
+        # missing-system-dependency failure at test time.
+        run: |
+          if [ "${{ steps.playwright_browsers_cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium webkit
+          else
+            npx playwright install --with-deps chromium webkit
+          fi
       - name: Boot example app in background
+        if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -1079,6 +1347,7 @@ jobs:
         # step. See also: install_matrix:291, admin-acceptance-smoke.sh:207.
         run: mix phx.server > /tmp/example-playwright-server.log 2>&1 &
       - name: Wait for app and warm up LiveView routes
+        if: needs.changes.outputs.docs_only != 'true'
         run: |
           # Wait for root.
           for i in $(seq 1 30); do
@@ -1103,7 +1372,7 @@ jobs:
       # keeping one shared booted example app.
       - name: Run admin behavior browser truth (chromium)
         id: admin_behavior
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1129,7 +1398,7 @@ jobs:
             --project=chromium
       - name: Run admin checkpoints (chromium, mobile, dark-chromium)
         id: admin_checkpoints
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1153,7 +1422,7 @@ jobs:
       # between checkpoints and this staging step in v1.39 and was silently wiping
       # the PNGs, so the artifact bundle contract found 0.)
       - name: Stage admin checkpoint PNGs (before later runs clear test-results)
-        if: ${{ steps.admin_checkpoints.outcome == 'success' }}
+        if: ${{ steps.admin_checkpoints.outcome == 'success' && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         run: |
           mkdir -p artifacts/admin-checkpoints/
@@ -1167,7 +1436,7 @@ jobs:
           ls -la artifacts/admin-checkpoints/ || true
       - name: Run design gallery boards (chromium, mobile, dark)
         id: design_gallery
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1190,10 +1459,39 @@ jobs:
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
-            --project=admin-design-dark
+            --project=admin-design-dark \
+            --grep-invert '@snapshot'
+      - name: Run design gallery board snapshots (non-PR)
+        id: design_gallery_snapshots
+        # Phase 230 (FAST-02 / D-01, D-04): the 84 per-board pixel-diff assertions
+        # run here, gated to push/schedule/dispatch only, so they never sit on the
+        # PR critical path (866s of a 28.5m job). The WCAG axe scan and the L1-state
+        # behaviour tests stay on the PR lane in the sibling `design_gallery` step
+        # above (filtered via --grep-invert '@snapshot'). This step lives inside
+        # this job rather than a new job because the job name
+        # "Example Playwright smoke (full lifecycle)" is a ruleset-14941512
+        # required context, so an in-job snapshot regression on a push to main
+        # still reds a hard gate (D-05 wires this step's id into the aggregator
+        # below so that failure is never silently discarded).
+        # Phase 230 (FAST-05 / D-07): the docs-only condition is composed
+        # into the existing expression -- this step already never runs on a
+        # pull_request event, so the addition is a no-op there, but every
+        # heavy step in this job's span carries the condition consistently.
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep '@snapshot'
       - name: Run non-admin example browser smoke
         id: non_admin_smoke
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1213,7 +1511,7 @@ jobs:
             tests/passkey-options.spec.ts
       - name: Run demo-showcase spec (demo-showcase-chromium)
         id: demo_showcase
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1228,20 +1526,38 @@ jobs:
         # Without this step, !cancelled() guards allow later seams to run after
         # an early failure but the job would silently go green. The aggregator
         # is the load-bearing integrity control (T-197-03).
+        # Phase 230 (FAST-02 / D-05): design_gallery_snapshots was added to this
+        # list. Any future seam step MUST be added here too, or its failures are
+        # silently discarded on push/schedule/dispatch runs — this loop, not the
+        # step's own `if:`, is what decides whether a failure reaches the
+        # required "Example Playwright smoke (full lifecycle)" context.
+        # Phase 230 (FAST-05 / D-23): when every seam outcome is `skipped` (the
+        # docs-only fast path), say so explicitly rather than just printing
+        # "all seams passed" — a green "Example Playwright smoke (full
+        # lifecycle)" carrying this line asserted nothing about browser
+        # behaviour. This is the signal Phase 231's GATE-03 uses to tell a
+        # correctly-gated skip from a rotted one.
         run: |
           set -euo pipefail
           fail=0
+          all_skipped=1
           for o in "${{ steps.admin_behavior.outcome }}" \
                    "${{ steps.admin_checkpoints.outcome }}" \
                    "${{ steps.design_gallery.outcome }}" \
+                   "${{ steps.design_gallery_snapshots.outcome }}" \
                    "${{ steps.non_admin_smoke.outcome }}" \
                    "${{ steps.demo_showcase.outcome }}"; do
             [ "$o" = "failure" ] && fail=1
+            [ "$o" = "skipped" ] || all_skipped=0
           done
           if [ "$fail" -eq 1 ]; then
             echo "::error::one or more Playwright seams failed"; exit 1
           fi
-          echo "all seams passed"
+          if [ "$all_skipped" -eq 1 ]; then
+            echo "docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on this run"
+          else
+            echo "all seams passed"
+          fi
       - name: Dump example app log (on failure)
         if: failure()
         # WR-04: surface the backgrounded server log directly in the
@@ -1257,6 +1573,7 @@ jobs:
           {
             echo "## example_playwright_smoke cache"
             echo "- deps cache (exact hit): ${{ steps.example_deps_cache.outputs.cache-hit }}"
+            echo "- Playwright browsers cache (exact hit): ${{ steps.playwright_browsers_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Collect curated admin checkpoint screenshots
         if: always()
@@ -1285,7 +1602,14 @@ jobs:
           echo "curated admin checkpoint screenshots:"
           ls -la artifacts/admin-checkpoints/ || true
       - name: Admin artifact bundle contract (Phase 35)
-        if: success()
+        # Phase 230 (FAST-05 / D-07, Rule 1 auto-fix): without the docs_only
+        # guard, this step's bare `success()` still runs on the docs-only
+        # fast path (a skipped admin_checkpoints step does not count as a
+        # failure), then hard-fails because 0 PNGs were captured against a
+        # MIN_COUNT=15 floor -- turning a correctly-gated skip into a false
+        # red on the "Example Playwright smoke (full lifecycle)" required
+        # context, defeating FAST-05's entire purpose.
+        if: ${{ success() && needs.changes.outputs.docs_only != 'true' }}
         run: bash scripts/ci/admin-artifact-bundle-contract.sh test/example/priv/playwright/artifacts/admin-checkpoints
       # D-19, D-22: green-run reviewer bundle scoped to this dedicated admin
       # job. Published on every run (success or failure) so the Playwright
@@ -1338,13 +1662,17 @@ jobs:
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
+    # Phase 230 (FAST-07): only the timeout value and its position changed
+    # here. The head-ref condition on the next line is stale and left
+    # untouched -- correcting it is GATE-02, Phase 231's scope, not this
+    # plan's. 15 replaces the prior 60 -- about 16x this job's 3.73m
+    # measured duration (230-EVIDENCE.md) -- against the same 2x sizing
+    # rule applied to every other job.
+    timeout-minutes: 15
     # GATE-02 / D-08: temporary integration-scoped relaxation — runs on PR #63's head branch
     # (ship/v1.42-ci-gate-remediation) to prove generated-host parity in CI; remove after merge.
     if: github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'
     needs: release_ref_guard
-    # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
-    # 45–60m is the tuned band for this job.
-    timeout-minutes: 60
     services:
       postgres:
         image: postgres:15
@@ -1461,6 +1789,7 @@ jobs:
   ci-gate:
     name: ci-gate
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs:
       - install_golden_contract
       - library_tests
@@ -1522,6 +1851,7 @@ jobs:
   notify_release_lane_rot:
     name: Notify on red ci-gate (release-lane-rot)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [ci-gate]
     if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
     permissions:
@@ -1561,6 +1891,7 @@ jobs:
   admin_design_recapture:
     name: Recapture admin-design baselines (in-CI)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     permissions:
@@ -1868,6 +2199,7 @@ jobs:
   admin_checkpoint_recapture:
     name: Recapture admin-checkpoint baselines (in-CI)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: github.event_name != 'pull_request'
     needs: release_ref_guard
     permissions:
@@ -2097,12 +2429,20 @@ jobs:
   #
   # NOT in ci-gate.needs — this is the expensive render evidence job, not the merge gate.
   # The merge-blocking forward-only signals are the committed-ledger guards in fast_checks.
-  # This job may run as pull_request or push; it is NOT gated to non-PR events so developers
-  # can inspect render evidence on their PR branches.
+  #
+  # Phase 230 (FAST-03 / D-10, D-11): demoted to push, schedule and workflow_dispatch only.
+  # This job measured 17m33s and gated nothing, so charging it to every PR was pure waste;
+  # it is not in ci-gate.needs and is not a ruleset-required context, so demotion breaks no
+  # gate. To get render evidence for a PR branch, dispatch this workflow on that ref
+  # (workflow_dispatch). continue-on-error: true below is deliberately retained — the two
+  # underlying harness defects are unfixed and stay unfixed here; removing it now would turn
+  # every push to main red and is explicitly GATE-04's scope in Phase 231, not this phase's.
   admin_eval_render:
     name: Admin eval render + probe (evidence only, not a merge gate)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     needs: [release_ref_guard]
+    if: github.event_name != 'pull_request'
     # Advisory evidence lane — deliberately NOT in ci-gate.needs. continue-on-error
     # so a harness failure (or its own dev-boot flake) can never redden the
     # default-branch run; evidence bundles still upload as artifacts. The real
@@ -2245,6 +2585,7 @@ jobs:
   nightly_probe:
     name: Nightly probe (forced-failure self-test)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: github.event_name != 'pull_request'
     steps:
       - name: Forced-failure probe (nightly self-test)

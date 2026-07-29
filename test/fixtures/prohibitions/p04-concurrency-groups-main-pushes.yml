@@ -1,0 +1,25 @@
+name: CI
+# KNOWN-BAD fixture for P4 (230-04). Groups on github.ref instead of falling back to
+# github.run_id, so two rapid pushes to main land in ONE group -- SEED-005's rejected
+# proposal. cancel-in-progress: false still QUEUES, compounding the release lane's
+# 30-minute gate-ci-green polling ceiling.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  fast_checks:
+    name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok

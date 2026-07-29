@@ -1,20 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.46
-milestone_name: ADOPTER-EXPERIENCE
-current_phase: 229
-current_phase_name: Adoption Handoff + Terminal Ratification
-status: between_milestones
-stopped_at: v1.46 ADOPTER-EXPERIENCE archived 2026-07-27 (override_closeout). Next: /gsd-new-milestone.
-last_updated: "2026-07-28T00:00:00.000Z"
-last_activity: 2026-07-28
-last_activity_desc: Sigra 1.4.0 published to Hex via manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
+milestone: v1.47
+milestone_name: CI-EFFICIENCY
+status: verifying
+stopped_at: Completed 230-09-PLAN.md
+last_updated: "2026-07-29T02:36:14.122Z"
+last_activity: 2026-07-29
 progress:
   total_phases: 6
-  completed_phases: 6
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  completed_phases: 1
+  total_plans: 9
+  completed_plans: 9
+  percent: 17
 ---
 
 # Project State
@@ -25,15 +22,37 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones. Next: `/gsd-new-milestone`.
+**Current focus:** Phase 230 — tier-1-critical-path-reclamation
 
 ## Current Position
 
-Milestone: v1.46 ADOPTER-EXPERIENCE — ARCHIVED 2026-07-27 (`override_closeout`)
-Phases: 6 of 6 complete (224–229)
-Requirements: 15/15 satisfied
-Status: Archived to `.planning/milestones/v1.46-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`
-Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cfc5e6b8 via a manual hex-publish dispatch after the release-please auto-publish chain failed; two release-lane defect todos filed
+Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
+Plan: 9 of 9
+Status: Phase complete — ready for verification
+Progress: [██████████] 100%
+Last activity: 2026-07-29
+
+**Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
+21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
+`230-VALIDATION.md` (8-slot observed-run evidence contract, 6 Wave 0 gaps), `230-01..09-PLAN.md`.
+
+**Two evidence slots close post-merge, by construction — not an oversight.** AFTER-PUSH (SC-1's
+push-to-main half) and AFTER-DOCSONLY (FAST-05) cannot be captured pre-merge: `ci.yml` triggers on
+`pull_request: branches: [main]`, so any pre-merge PR's `origin/main...HEAD` diff necessarily
+carries this phase's own non-Markdown changes and can never classify `docs_only=true`. FAST-05
+retains in-phase falsifiable evidence via a hermetic self-test of the extracted
+`scripts/ci/docs-only-classify.sh` plus two observed `docs_only=false` runs.
+
+**Milestone baseline to beat (measured 2026-07-28, last 40 runs):** PR mean 29.5m / p50 27.3m
+(n=21) · push mean 30.5m (n=7) · nightly **0 pass / 9 fail** (n=9). Sole PR critical path is
+`example_playwright_smoke` (23m), of which `design_gallery` is 734s (53%).
+
+**Verification philosophy (binds every phase):** success criteria are proven by *running CI and
+reading measured numbers*, never by reading YAML. `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`
+is the precedent — a milestone passed audits that were "code-level reads that never executed the
+specs" while the required Playwright check carried ~15 real failures. A `skipped` job proves
+nothing (`ci-gate` counts skipped as pass), and a demotion is honest only if the receiving lane is
+observed executing the work.
 
 ## Accumulated Context
 
@@ -323,6 +342,25 @@ Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cf
 - [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
 - [Phase 222]: 222-03: Treated the orchestrator's already-dispatched hex-publish.yml dry_run=true run (29132375168) against v1.3.0 as the authoritative HARD-02 readiness evidence rather than re-dispatching.
 - [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
+- [Phase ?]: D-21 satisfied: ci-run-metrics.sh + hermetic self-test committed and wired into fast_checks before any Phase 230 measurement is taken
+- [Phase ?]: Duration math uses jq fromdate (not shell date -d/-j) for macOS-dev/ubuntu-CI portability
+- [Phase ?]: 230-02: Collapsed ~84 per-board axe scans to one full-page WCAG 2.1/2.2 AA scan per design project (D-01) rather than a literal pixels-only split -- every board test reached axe in an identical page state and the registration cost that must stay on PR lives in beforeEach
+- [Phase ?]: 230-02: Tagged via Playwright's details-object form test(title, { tag: '@snapshot' }, fn) (D-02), never embedding the tag in titles, so all 28 board PNG baseline filenames stay byte-identical
+- [Phase ?]: Filtering is CLI-only on both gallery steps (D-03); playwright.config.ts stays byte-unchanged
+- [Phase ?]: design_gallery_snapshots stays inside example_playwright_smoke (not a new job) because the job name is a ruleset-14941512 required context (D-04)
+- [Phase ?]: design_gallery_snapshots wired into the seam-outcome aggregator's hard-coded outcome list (D-05 hard-fail boundary)
+- [Phase ?]: 230-04: admin_eval_render demoted to non-PR events (if: github.event_name != 'pull_request'); continue-on-error retained byte-unchanged pending GATE-04 in Phase 231
+- [Phase ?]: 230-04: concurrency group keys non-PR events on github.run_id (never queued/cancelled) instead of SEED-005's github.ref + conditional cancel-in-progress, avoiding queueing risk against the release lane's 30-minute gate-ci-green ceiling
+- [Phase ?]: FAST-05: docs-only classification rule extracted into a standalone hermetically self-tested script (not inlined) because the docs_only=true branch is unobservable on any pre-merge PR
+- [Phase ?]: FAST-05: every job-level condition added by plan 230-05 uses !cancelled() never always(), so FAST-04's cancel-in-progress genuinely stops a superseded run
+- [Phase ?]: 230-06: Playwright browser cache key encodes browser set (chromium-webkit) + literal version (1.59.1) per D-15..D-18; guard script cross-checks version against lockfile with grep/sed only, no jq/YAML dep
+- [Phase ?]: 230-07: example_playwright_smoke timeout set to 45 (not tighter) because its 41.7m historical maximum would be truncated by a value closer to its 28.5m measured duration; tightening deferred to Phase 235 (D-20)
+- [Phase ?]: 230-07: generated_admin_playwright_smoke timeout corrected 60->15 and moved to canonical post-runs-on slot; adjacent stale ship/v1.42-ci-gate-remediation head-ref condition left untouched (GATE-02, Phase 231 scope)
+- [Phase ?]: 230-07: ExUnit completeness contract counts timeout-minutes per job-block (not file-wide) so declarations concentrated in one job cannot vacuously satisfy the assertion
+- [Phase ?]: 230-08: MAINTAINING.md now carries the durable post-Phase-230 honest-skip set (three tiers) and the two accepted residuals this phase creates, verified against shipped ci.yml — the artifact Phase 231's GATE-03/GATE-05 will audit against.
+- [Phase ?]: AFTER-PR-WARM's warm commit is a one-line provenance comment in scripts/ci/playwright-cache-key-guard.sh recording the AFTER-PR run ID as the cache-seeding run
+- [Phase ?]: Task 2's dispatch precondition (recapture_branch empty) cannot succeed on a branch-ref workflow_dispatch; re-dispatched with recapture_branch set to the phase branch (D-04 relaxation)
+- [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
 
 ### Pending Todos
 
@@ -339,6 +377,7 @@ Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cf
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
+- v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
 
 ## Quick Tasks Completed
 
@@ -382,6 +421,7 @@ Last activity: 2026-07-28 — Sigra 1.4.0 published to Hex from tag v1.4.0 at cf
 | 260727-v15 | Disambiguate the duplicate "Email" label on the generated login page (Phase 229 PROOF-03 visual-acceptance finding). Once the "Other ways to sign in" disclosure is expanded, the magic-link field and `password_form/1`'s field both rendered the visible label "Email" in the same column. Changed the magic-link field at `login_html.ex:85` to `dgettext("sigra", "Email for sign-in link")` — the string already existed at line 68 (passkey-primary branch), so no new gettext msgid; `password_form/1` (line 111) left alone since it sits under the "or use a password" divider. Mirrored into the golden fixture `session_html.ex:85`. Propagation surface proved to be exactly 2 files: no ExUnit test asserted the label (only button copy), and no Playwright spec needed editing — `admin-generated.spec.ts:71`'s `getByLabel("Email", {exact: true})` is scoped to `#login_form`, which IS `password_form/1` (unchanged). Verified: compile warnings-as-errors clean; `mix sigra.fixture.rebless_golden --check` exit 0 (template→generator→fixture agreement, no full rebless needed); golden_diff + idempotency + auth_ui_contract 10/0. Diff is 2 files, 1 line each, `label=` value only. Observations left out of scope: the passkey-primary branch has the same duplicate shape (template L44/L111), and the example demo twin has its own plain `label="Email"` duplicate. | complete ✓ | 2026-07-27 |
 | 260728-glj | Fold the hand-written "Unreleased" block in CHANGELOG.md into the release-please-generated 1.4.0 section, so the v1.46 adopter-experience content shipped INSIDE the 1.4.0 Hex release instead of remaining under a heading reading "Unreleased" inside an already-released package; added a maintainer warning comment above the changelog header to prevent recurrence. Row written late deliberately: the work ran on the release-please branch, which forked from 743864c0 — before the v1.46 close-out commit e6f7a413 — so that branch's STATE.md was 47 lines behind main, and editing it there risked reverting close-out content at merge. Main now contains both, so the row is safe to add here. | complete ✓ | 2026-07-28 |
 | 260728-ivl | Post-release bookkeeping for the 1.4.0 Hex publish: filed two high-severity release-lane defect todos exposed by that release, and recorded the 260728-glj row above. (1) `gate-ci-green` in release-please.yml waits for `ci-gate` on the release SHA with a hard 30-minute ceiling (`max_attempts=60` × `wait_seconds=30`), which is BELOW the expected duration of a push-to-`main` ci.yml run — that run is strictly heavier than the `pull_request` run gating the Release PR because jobs like "Recapture admin-design baselines (in-CI)" are skipped on `pull_request`. On v1.4.0 it timed out at 17:16:37Z on a run that concluded **success** ~1 min later, so `publish-hex` was skipped and the tag/GitHub Release existed with nothing on Hex. (2) The HARD-02 "no silent rot" notifier has never worked: `notify-failure-issue.sh:33` calls `gh issue create --label release-lane-rot`, that label did not exist, so the job died with `could not add label: 'release-lane-rot' not found` and created **zero** issues — the loud signal was silent on its first real firing, and the same shared script backs ci.yml's red-ci-gate notifier. Label created as an immediate mitigation; durable self-healing fix left as a recommendation. | complete ✓ | 2026-07-28 |
+| 260728-kub | Captured the CI-efficiency fan-out investigation in-repo: refreshed SEED-005 with a 2026-07-28 re-measured baseline and filed two high-severity CI defects. **Headline finding: the CI/CD audit is already done and was orphaned** — `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` carries a prioritized Phase 198→203 sequence, but only 198 partially ran because v1.41 reused phase numbers 199-204 for unrelated work. The audit is still accurate (it named `design_gallery` at ~700s; re-measured 734s) and its #1 win — a `storageState` refactor of `admin-design.spec.ts:250-255`, −6 to −7.5 min at Low risk with zero coverage loss — was never implemented. Baseline: PR mean 29.5m / p50 27.3m (~56 runner-min for a 25.6m wall), push 30.5m (~92 runner-min), nightly **0 pass / 9 fail**. New todos: (1) `admin_eval_render` burns ~17m per PR for a red nobody reads — its mobile project uses a WebKit device preset while the job installs chromium only, and an `SVGAnimatedString` probe bug compounds it; because the harness aborts under `set -euo pipefail`, guards b1-b6 have never executed in CI. (2) `generated_admin_playwright_smoke` is gated on a long-merged branch name, so it is skipped on every PR while `ci-gate` counts skipped as pass — generated-host parity is verified on no PR at all. Scoped as milestone v1.47 CI-EFFICIENCY, phases 230-235, targeting the `<12m` PR wall-clock v1.40 missed. Seed edit verified non-destructive (74 insertions, **0 deletions**; verbatim playbook byte-identical). | complete ✓ | 2026-07-28 |
 
 ## Deferred Items
 
@@ -461,13 +501,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-19T22:04:27.383Z
-Stopped at: Phase 229 automated proof complete; awaiting human visual acceptance for PROOF-03
-Resume file: .planning/phases/229-adoption-handoff-terminal-ratification/229-PROGRESS.md
+Last session: 2026-07-29T02:36:14.111Z
+Stopped at: Completed 230-09-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan the first phase with `/gsd-plan-phase 230`
 
 ## Performance Metrics
 
@@ -570,3 +610,16 @@ Resume file: .planning/phases/229-adoption-handoff-terminal-ratification/229-PRO
 | Phase 222 P01 | 9min | 2 tasks | 6 files |
 | Phase 222 P02 | 20min | 3 tasks | 5 files |
 | Phase 222 P03 | 15min | 2 tasks | 2 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 230 P01 | 13min | 3 tasks | 4 files |
+| Phase 230 P02 | 10min | 2 tasks | 2 files |
+| Phase 230 P03 | ~20min | 3 tasks | 2 files |
+| Phase 230 P04 | 12min | 2 tasks | 1 files |
+| Phase 230 P05 | 20min | 3 tasks | 3 files |
+| Phase 230 P06 | 4min | 3 tasks | 3 files |
+| Phase 230 P07 | 25min | 2 tasks | 2 files |
+| Phase 230 P08 | ~15min | 2 tasks | 1 files |
+| Phase 230 P09 | 1h34m | 3 tasks | 3 files |
