@@ -1,0 +1,51 @@
+name: CI
+# KNOWN-BAD fixture for P6 (230-05). Structurally a valid ci.yml: it declares all three
+# lanes the guard names, so the guard's non-vacuity test PASSES and the red comes from the
+# clause under test rather than from an empty parse.
+#
+# The defect: `fast_checks` carries a docs_only gate, and `library_tests_shard` depends on
+# `changes`. Either alone removes coverage in exactly the dimension a docs-only PR touches.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    name: Detect docs-only change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.detect.outputs.docs_only }}
+    steps:
+      - name: Detect
+        id: detect
+        run: echo "docs_only=false" >> "$GITHUB_OUTPUT"
+
+  fast_checks:
+    name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [changes]
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+    steps:
+      - name: Milestone verification gate
+        run: bash scripts/ci/milestone-verification-gate.sh
+
+  library_tests_shard:
+    name: Library tests shard ${{ matrix.partition }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [changes]
+    steps:
+      - name: Run tests
+        run: mix test
+
+  library_tests:
+    name: Library tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [library_tests_shard]
+    if: always()
+    steps:
+      - name: Aggregate
+        run: echo ok

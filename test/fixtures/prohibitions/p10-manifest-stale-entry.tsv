@@ -1,0 +1,76 @@
+# Phase 230 (D-23): the honest-skip set, as data.
+#
+# WHY THIS FILE EXISTS
+# `ci-gate` counts a `skipped` conclusion as a pass, so "this lane was skipped" is
+# indistinguishable from "this lane passed" unless the legitimate skips are enumerated
+# somewhere a machine can read. That enumeration used to live only as prose in
+# MAINTAINING.md. Prose is now a RENDERER of this file, not a second source of truth:
+# scripts/ci/prohibitions/honest-skip-parity.test.mjs asserts
+# manifest <=> ci.yml <=> MAINTAINING.md and fails in every direction (an undocumented
+# demotion, a stale doc entry, or a manifest row naming a construct ci.yml does not have).
+#
+# CONSUMERS
+#   - scripts/ci/ci-demotion-observer.sh                   reads the `assert` rows to
+#                                                          decide what must have executed
+#                                                          on a non-pull_request run
+#   - scripts/ci/prohibitions/honest-skip-parity.test.mjs   three-way parity guard
+#   - Phase 231 GATE-03                                    SHOULD read this file rather
+#                                                          than re-deriving the set.
+#                                                          GATE-03 owns the `ci-gate`
+#                                                          pass/fail consequence; this
+#                                                          file owns the enumeration.
+#                                                          The pull_request half belongs
+#                                                          in GATE-03, not here.
+#
+# TIERS
+#   A  event-gated, pre-existing (Phase 196). NOT demoted by Phase 230. Phase 231's
+#      GATE-01/GATE-02 own these; the observer deliberately does NOT assert on them --
+#      asserting would add a tenth red to a 0-pass/9-fail nightly, which is the
+#      unread-noise failure this milestone exists to remove.
+#   B  event-gated, demoted BY Phase 230. These are exactly what AFTER-PUSH must observe
+#      executing on the receiving lane.
+#   C  diff-gated (docs-only). Skips on the CONTENT of the diff rather than the event --
+#      a different audit question from A/B.
+#
+# COLUMNS (TAB-separated; `#` and blank lines are comments)
+#   tier           A | B | C
+#   kind           job | step
+#   id             the ci.yml job id, or the step `id:` when kind=step. Every id here
+#                  MUST resolve in ci.yml -- the parity guard asserts it, which is what
+#                  stops this file from drifting into fiction.
+#   parent_job_id  owning job id when kind=step; `-` when kind=job. A step row's parent
+#                  MUST also appear here as a kind=job row -- that is how the observer
+#                  resolves the parent's display_name (the Actions API returns names,
+#                  never ids).
+#   display_name   the job `name:` / step `name:` EXACTLY as ci.yml spells it. The
+#                  parity guard pins id and display_name adjacent in ci.yml so the
+#                  API-facing lookup cannot rot independently of the id-facing guard.
+#   gate_level     job | step -- WHERE the predicate is applied. For the four
+#                  ruleset-required tier-C lanes this MUST stay `step`: a job-level
+#                  docs_only gate would make the required context `skipped` and can
+#                  strand a PR under ruleset 14941512 (D-06).
+#   gate           the literal gating predicate, normalized (${{ }} stripped, whitespace
+#                  collapsed)
+#   observer       assert | exempt | ignore
+#                    assert = must have executed on a non-PR run (tier B only)
+#                    exempt = event-gated but ALSO outcome-gated, so a skip on a healthy
+#                             run is CORRECT -- never assert
+#                    ignore = outside the observer's scope (tier A / tier C)
+#
+tier	kind	id	parent_job_id	display_name	gate_level	gate	observer
+A	job	install_matrix_renamed	-	Install matrix (flag combinations)	job	github.event_name != 'pull_request'	ignore
+A	job	upgrade_smoke	-	Upgrade smoke (published source series -> local candidate)	job	github.event_name != 'pull_request'	ignore
+A	job	passkeys_manual_fallback_smoke	-	Passkeys manual fallback smoke	job	github.event_name != 'pull_request'	ignore
+A	job	passkeys_opt_out_smoke	-	Passkeys opt-out smoke	job	github.event_name != 'pull_request'	ignore
+A	job	generated_admin_playwright_smoke	-	Generated admin Playwright smoke	job	github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'	ignore
+A	job	nightly_probe	-	Nightly probe (forced-failure self-test)	job	github.event_name != 'pull_request'	ignore
+A	job	admin_design_recapture	-	Recapture admin-design baselines (in-CI)	job	github.event_name != 'pull_request'	ignore
+A	job	admin_checkpoint_recapture	-	Recapture admin-checkpoint baselines (in-CI)	job	github.event_name != 'pull_request'	ignore
+A	job	notify_release_lane_rot	-	Notify on red ci-gate (release-lane-rot)	job	always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'	exempt
+B	job	admin_eval_render	-	Admin eval render + probe (evidence only, not a merge gate)	job	github.event_name != 'pull_request'	assert
+B	step	design_gallery_snapshots	example_playwright_smoke	Run design gallery board snapshots (non-PR)	step	!cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'	assert
+C	job	library_tests_dep_off	-	Library tests (dep-off — Threadline absent)	job	!cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true'	ignore
+C	job	example_unit_smoke	-	Example unit smoke (ExUnit + ConnTest)	step	needs.changes.outputs.docs_only != 'true'	ignore
+C	job	install_smoke	-	Install smoke (fresh phx.new + sigra.install)	step	needs.changes.outputs.docs_only != 'true'	ignore
+C	job	example_http_smoke	-	Example HTTP smoke (boot + curl critical routes)	step	needs.changes.outputs.docs_only != 'true'	ignore
+C	job	example_playwright_smoke	-	Example Playwright smoke (full lifecycle)	step	needs.changes.outputs.docs_only != 'true'	ignore

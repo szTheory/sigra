@@ -12,7 +12,7 @@ human_verification:
   - test: "Confirm AFTER-DOCSONLY: after merge, cut a docs-only branch from main, open a PR, and run `gh pr checks <n>` + `gh run view <id> --json jobs`, confirming `docs_only=true` and all five ruleset-required contexts report merge-eligible (success or a documented pass state) without running the heavy steps, while `fast_checks` and `library_tests` still execute in full."
     expected: "docs_only=true on a real markdown-only diff against main; required contexts merge-eligible; fast_checks/library_tests still run in full (not skipped)."
     why_human: "Structurally impossible pre-merge — `ci.yml` triggers on `pull_request: branches: [main]`, so every pre-merge PR carrying this phase's own ci.yml/spec changes necessarily diffs non-Markdown against origin/main and can never hit the docs_only=true branch. Confirmed via AFTER-CANCEL's Markdown-only probe commit, which still classified docs_only=false for exactly this structural reason."
-  - test: "Review the nine judgment-tier prohibitions recorded across 230-01..09-PLAN.md (all frontmatter status: unresolved) against the evidence this verification independently gathered, and mark each resolved or filed as a defect."
+  - test: "Review the 13 judgment-tier prohibitions recorded across 230-01..09-PLAN.md (all frontmatter status: unresolved) against the evidence this verification independently gathered, and mark each resolved or filed as a defect."
     expected: "Each MUST-NOT statement holds under independent review (see Prohibitions Review section below for this verifier's non-authoritative judgment on each)."
     why_human: "verification: judgment tier — LLM-judge verdict recorded below is non-authoritative; PLAN.md frontmatter was never flipped to resolved by the executor, so a maintainer should confirm the judgment before treating them as closed."
 ---
@@ -114,7 +114,7 @@ None found in the files modified by this phase. No `TBD`/`FIXME`/`XXX`/`TODO`/`H
 
 ### Prohibitions Review (judgment tier — non-authoritative LLM verdict)
 
-All nine judgment-tier prohibitions across `230-01` through `230-09-PLAN.md` carry `status: unresolved` in their own frontmatter (never flipped by the executor). Based on the independent evidence gathered above, this verifier's non-authoritative judgment is that **none were violated**:
+All 13 judgment-tier prohibitions across `230-01` through `230-09-PLAN.md` carry `status: unresolved` in their own frontmatter (never flipped by the executor). Based on the independent evidence gathered above, this verifier's non-authoritative judgment is that **none were violated**:
 
 | Prohibition (abbreviated) | Plan | Verdict | Basis |
 |---|---|---|---|
@@ -140,7 +140,7 @@ All nine judgment-tier prohibitions across `230-01` through `230-09-PLAN.md` car
 
 ### Gaps Summary
 
-No blocking gaps. All six requirements this phase owns (FAST-02 through FAST-07) are independently confirmed against live, re-fetched CI run data — not merely the ledger's transcription. The phase's stated goal ("PR path drops from ~29.5m toward ~12m in one step") is demonstrated with a real observed drop to 16m52s on the phase's own PR, correctly *not* claimed as reaching the ~12m headline (that is explicitly Phase 235's FAST-01 verdict, over a ≥10-run window). The two structurally-pending slots (AFTER-PUSH, AFTER-DOCSONLY) are genuinely impossible to capture before merge and are booked honestly with exact capture commands rather than claimed or dropped — this routes to human_needed rather than gaps_found, per the phase's own explicit post-merge-obligation framing. The nine judgment-tier prohibitions are all assessed as not-violated by this verifier but remain formally `unresolved` in PLAN.md frontmatter, which also routes to human_needed rather than a silent pass.
+No blocking gaps. All six requirements this phase owns (FAST-02 through FAST-07) are independently confirmed against live, re-fetched CI run data — not merely the ledger's transcription. The phase's stated goal ("PR path drops from ~29.5m toward ~12m in one step") is demonstrated with a real observed drop to 16m52s on the phase's own PR, correctly *not* claimed as reaching the ~12m headline (that is explicitly Phase 235's FAST-01 verdict, over a ≥10-run window). The two structurally-pending slots (AFTER-PUSH, AFTER-DOCSONLY) are genuinely impossible to capture before merge and are booked honestly with exact capture commands rather than claimed or dropped — this routes to human_needed rather than gaps_found, per the phase's own explicit post-merge-obligation framing. The 13 judgment-tier prohibitions are all assessed as not-violated by this verifier but remain formally `unresolved` in PLAN.md frontmatter, which also routes to human_needed rather than a silent pass.
 
 ---
 

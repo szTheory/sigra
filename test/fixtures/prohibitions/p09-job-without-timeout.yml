@@ -1,0 +1,136 @@
+name: CI
+# KNOWN-BAD fixture for P9 (230-07). Structurally complete enough to clear the guard's
+# non-vacuity floor (18 runner jobs) and both pinned poles, so the red is attributable to
+# exactly one defect: job_07 declares no `timeout-minutes` and therefore inherits GitHub's
+# 360-minute default -- a hung job burns six runner-hours instead of failing in bounded time.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  job_01:
+    name: Synthetic lane 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_02:
+    name: Synthetic lane 2
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_03:
+    name: Synthetic lane 3
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_04:
+    name: Synthetic lane 4
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_05:
+    name: Synthetic lane 5
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_06:
+    name: Synthetic lane 6
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_07:
+    name: Synthetic lane 7
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
+
+  job_08:
+    name: Synthetic lane 8
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_09:
+    name: Synthetic lane 9
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_10:
+    name: Synthetic lane 10
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_11:
+    name: Synthetic lane 11
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_12:
+    name: Synthetic lane 12
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_13:
+    name: Synthetic lane 13
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_14:
+    name: Synthetic lane 14
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_15:
+    name: Synthetic lane 15
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  job_16:
+    name: Synthetic lane 16
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo ok
+
+  example_playwright_smoke:
+    name: Example Playwright smoke (full lifecycle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - run: echo ok
+
+  generated_admin_playwright_smoke:
+    name: Generated admin Playwright smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - run: echo ok

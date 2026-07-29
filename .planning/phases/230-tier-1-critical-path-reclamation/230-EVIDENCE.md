@@ -764,3 +764,19 @@ demonstrated by this pair's `Install Playwright browsers` step timing, and is no
    or a non-empty `recapture_branch` (D-04). Recorded as a Rule 3 deviation in the AFTER-NONPR
    section above rather than silently working around it; the first (failed) attempt (run
    `30414636733`) is kept in the ledger for completeness alongside the corrected, captured run.
+
+4. **The `changes` job's base fetch shallow-grafts an already-complete checkout.** The job checks
+   out with `fetch-depth: 0` (full history) and then runs `git fetch origin "${BASE_REF}"
+   **`--depth=1`**, which writes `.git/shallow` and cuts the fetched ref's ancestry. Reproduced
+   locally: on a branch whose base has advanced, `git diff --name-only origin/main...HEAD` then
+   exits `128` with `fatal: origin/main...HEAD: no merge base`. **This fails CLOSED** — under
+   `set -euo pipefail` the pipeline aborts, the job reds, `docs_only` is never written, and every
+   consumer's `!= 'true'` guard runs the heavy steps. It has not fired in practice because a
+   `pull_request` run checks out `refs/pull/N/merge`, whose merge-base with `origin/main` IS
+   `origin/main`'s tip and is therefore inside the depth-1 boundary. Recorded rather than fixed:
+   the `--depth=1` shape was pattern-copied from `install_golden_contract`'s `detect` step, so
+   changing it is a two-site edit to shared CI plumbing and is out of this phase's scope. **Not a
+   merge-eligibility hole:** an *empty* diff (which classifies `docs_only=true`) is reachable only
+   when git SUCCEEDS and the PR genuinely changes nothing — the deliberate, recorded behaviour in
+   `230-05-PLAN.md`'s backstop truth, asserted as case E of `docs-only-classify.test.sh`. The two
+   paths are distinct and only the recorded one is reachable silently.
