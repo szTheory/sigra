@@ -172,13 +172,16 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
   });
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 
-  // GATE-02 / D-09: instrumented in place of the bare boolean assertion so
-  // every run -- pass or fail -- reports what it measured. See
-  // 231-02-DIAGNOSIS.md for the verdict this payload shape produced.
-  // offenders is capped at 15 entries so a pathological page cannot flood
-  // the job log; classList is used (not className) because className is an
-  // SVGAnimatedString on SVG elements and string methods throw on it (the
-  // same defect class plan 231-04 fixes in probes.ts).
+  // GATE-02 / D-09: instrumented in place of the bare boolean assertion so a
+  // future red is self-diagnosing. The diagnostic dispatch that named this
+  // gate's offenders is recorded in 231-02-DIAGNOSIS.md; the unconditional
+  // per-run log line used to gather that evidence is removed now that the
+  // diagnosis is recorded -- the structured payload lives on in the
+  // assertion's own failure message. offenders is capped at 15 entries so a
+  // pathological page cannot flood the job log; classList is used (not
+  // className) because className is an SVGAnimatedString on SVG elements and
+  // string methods throw on it (the same defect class plan 231-04 fixes in
+  // probes.ts).
   const reflowPayload = await page.evaluate(() => {
     const offenders: Array<{ tag: string; cls: string; right: number }> = [];
     for (const element of Array.from(document.querySelectorAll("*"))) {
@@ -199,7 +202,6 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
       offenders,
     };
   });
-  console.log(`gate02-reflow-instrumentation ${JSON.stringify(reflowPayload)}`);
   expect(
     reflowPayload.scrollWidth,
     `320px reflow: ${JSON.stringify(reflowPayload)}`,

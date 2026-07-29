@@ -648,6 +648,7 @@
   .sigra-auth select,
   .sigra-auth .input {
     width: 100%;
+    min-width: 0; /* GATE-02/D-09: a grid/flex item's automatic min size is min-content (~20ch for an <input>), which width: 100% does not override -- see 231-02-DIAGNOSIS.md */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);

@@ -182,6 +182,7 @@
   .sigra-auth input[type="password"],
   .sigra-auth input[type="text"] {
     width: 100%;
+    min-width: 0; /* GATE-02 / D-09: mirrors the template's reflow containment fix. */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);
