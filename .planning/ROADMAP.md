@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
+| 231. Gate Honesty + Nightly Revival | 1/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
