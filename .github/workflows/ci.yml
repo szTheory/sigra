@@ -1234,10 +1234,41 @@ jobs:
         if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example/priv/playwright
         run: npm ci
+      - name: Cache Playwright browsers
+        id: playwright_browsers_cache
+        if: needs.changes.outputs.docs_only != 'true'
+        # Phase 230 (FAST-06 / D-15, D-16, D-17, D-18): honest expected win is
+        # ~15-25s, not the measured ~61s install step -- only ~14s of that is
+        # the cacheable browser download; the ~33s `--with-deps` system-
+        # dependency install lives in /usr/lib, not ~/.cache/ms-playwright,
+        # and is not cacheable. The key deliberately encodes the browser set
+        # (chromium-webkit): admin_eval_render installs chromium only while
+        # its admin-eval-mobile project is iPhone 13 (WebKit), so a key
+        # shared with this job would restore WebKit binaries there and make
+        # it appear fixed without the fix, invalidating Phase 231's GATE-04
+        # diagnosis. The dependency install in the next step always runs on
+        # both branches -- skipping it on a hit produces a missing-system-
+        # dependency failure at test time.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v1
+          restore-keys: ${{ runner.os }}-playwright-chromium-webkit-
       - name: Install Playwright browsers
         if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
+        # Phase 230 (FAST-06 / D-17): cache-hit reports 'true' only on an
+        # exact key match; a restore-keys prefix hit reports 'false' and
+        # correctly re-runs the full install below. The OS dependency
+        # install always runs on both branches -- system libraries live
+        # outside the cached directory and skipping them produces a
+        # missing-system-dependency failure at test time.
+        run: |
+          if [ "${{ steps.playwright_browsers_cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium webkit
+          else
+            npx playwright install --with-deps chromium webkit
+          fi
       - name: Boot example app in background
         if: needs.changes.outputs.docs_only != 'true'
         working-directory: test/example
@@ -1478,6 +1509,7 @@ jobs:
           {
             echo "## example_playwright_smoke cache"
             echo "- deps cache (exact hit): ${{ steps.example_deps_cache.outputs.cache-hit }}"
+            echo "- Playwright browsers cache (exact hit): ${{ steps.playwright_browsers_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Collect curated admin checkpoint screenshots
         if: always()
