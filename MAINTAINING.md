@@ -196,6 +196,43 @@ PR changes. Gating either job would remove coverage in the one dimension the cha
 See `.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md` for the observed-run
 evidence backing each of these claims.
 
+#### Accepted residuals introduced by Phase 230
+
+Two coverage losses introduced by Phase 230 are accepted residuals and must never be silently
+treated as "unchanged coverage" — each is disclosed here with its backstop and its recovery route.
+
+1. **Per-board axe failure attribution.** The design gallery previously ran one full-document WCAG
+   scan per board test (~84 runs); it now runs one per design project (`admin-design-chromium`,
+   `admin-design-mobile`, `admin-design-dark` — 3 runs). Coverage is unchanged: every board test
+   reached axe in an identical page state on a gallery that renders static literal assigns only, so
+   the repeated per-board scans were repetitions of the same full-document scan, and the three
+   projects preserve the viewport and theme axes on which repeated axe scans are genuinely
+   non-redundant (`color-contrast` and `target-size` evaluate computed style). What is lost is the
+   board name in the failing test's title. **Backstop:** an axe violation still reports DOM
+   selectors that identify the offending board. **Recovery route:** the element-scoped axe
+   `.include(selector)` pattern already proven in-repo at
+   `test/example/priv/playwright/tests/admin-generated.spec.ts:160-163`
+   (`new AxeBuilder({ page }).include("main.sigra-auth")...`) — genuinely non-redundant only if
+   boards were scanned in distinct DOM states, which the design gallery does not do today.
+
+2. **A docs-only PR's Playwright context asserts nothing.** On a docs-only PR, the ruleset-required
+   `Example Playwright smoke (full lifecycle)` context concludes `success` with every browser seam
+   skipped. **Backstop:** the seam-outcome aggregator emits an explicit docs-only line in that case
+   (`"docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on
+   this run"`, `ci.yml:1530`), so a green context that asserted nothing says so in its own log —
+   Phase 231's GATE-03 uses that line to tell a correct skip from a rotted one. **Boundary:** this
+   applies only when the diff contains nothing outside Markdown and `.planning/`; any other changed
+   path runs the full matrix. **Evidence status:** the classification rule itself is pinned
+   in-phase by `scripts/ci/docs-only-classify.test.sh` (run inside `fast_checks` on every PR and
+   push), but the end-to-end docs-only run is `AFTER-DOCSONLY` in `230-EVIDENCE.md` and is a
+   post-merge obligation — no pre-merge pull request can classify `docs_only=true`, because its
+   base-to-HEAD diff against `origin/main` necessarily carries Phase 230's own non-Markdown
+   changes.
+
+**Pointer:** ROADMAP.md's SC-2 wording ("design-gallery snapshots off the PR gate") is superseded
+by the operative restatement in `230-EVIDENCE.md` — a job whose condition evaluates false is
+present in the job list with a `skipped` conclusion rather than absent from it.
+
 #### Accepted residuals (D-07 honest-truth disclosure)
 
 Two coverage areas moved to nightly are accepted residuals and must never be silently treated as "covered on PRs":
