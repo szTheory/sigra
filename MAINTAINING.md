@@ -134,14 +134,15 @@ The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** i
 - `install_matrix` (four flag-combination installs)
 - `upgrade_smoke` (published → local upgrade path)
 - `passkeys_manual_fallback_smoke` and `passkeys_opt_out_smoke`
-- `generated_admin_playwright_smoke` (generated-host admin behavior ~60 min)
+- `generated_admin_playwright_smoke` (generated-host admin behavior; see its `timeout-minutes:` for the current ceiling)
 - `nightly_probe` (forced-failure self-test; see runbook below)
 
 The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
 
 ### Honest-skip set after Phase 230 (v1.47 FAST-02/FAST-03/FAST-05)
 
-`ci-gate` counts a `skipped` conclusion as a pass (`ci.yml:1502`), so the tiers below are the
+`ci-gate` counts a `skipped` conclusion as a pass (the `ci-gate` job's result loop treats
+`"$result" != "success" && "$result" != "skipped"` as the only failing case), so the tiers below are the
 enumerated baseline against which Phase 231's GATE-03 distinguishes "skipped because correctly
 gated for this event" from "skipped because its gate rotted", and against which Phase 235's
 GATE-05 builds its before/after coverage inventory. Every entry names the construct (job id or
@@ -166,7 +167,8 @@ only so the post-Phase-230 honest-skip set reads as one list.
   `if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}`
   — newly gated to non-`pull_request` events, carrying the 84 per-board pixel-diff snapshot
   assertions (FAST-02, D-01/D-04). Its step id is in the seam-outcome aggregator's hard-coded
-  outcome list (`ci.yml:1234-1238`), so a snapshot regression on `main` still reds the
+  outcome list (the `Aggregate Playwright step outcomes` step's `for o in ...` loop inside
+  `example_playwright_smoke`), so a snapshot regression on `main` still reds the
   ruleset-required "Example Playwright smoke (full lifecycle)" context. The WCAG axe scan and the
   L1-state behaviour half of the same spec (`design_gallery`, filtered
   `--grep-invert '@snapshot'`) still run on every PR in the sibling step.
@@ -189,7 +191,7 @@ step and job above. Only an explicit `docs_only == 'true'` skips them.
 
 **Not skipped.** `fast_checks` and `library_tests`/`library_tests_shard` are deliberately exempt
 from Tier C and carry no `changes` dependency: their guards (`milestone-verification-gate.sh`,
-`getting-started-contract.sh`) and 13 ExUnit files under `test/sigra/planning/` and
+`getting-started-contract.sh`) and the ExUnit files under `test/sigra/planning/` and
 `test/sigra/*guides*` read `.planning/**` and `guides/**` directly — the exact paths a docs-only
 PR changes. Gating either job would remove coverage in the one dimension the change touches.
 
@@ -219,7 +221,8 @@ treated as "unchanged coverage" — each is disclosed here with its backstop and
    `Example Playwright smoke (full lifecycle)` context concludes `success` with every browser seam
    skipped. **Backstop:** the seam-outcome aggregator emits an explicit docs-only line in that case
    (`"docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on
-   this run"`, `ci.yml:1530`), so a green context that asserted nothing says so in its own log —
+   this run"`, emitted by the `Aggregate Playwright step outcomes` step), so a green context that
+   asserted nothing says so in its own log —
    Phase 231's GATE-03 uses that line to tell a correct skip from a rotted one. **Boundary:** this
    applies only when the diff contains nothing outside Markdown and `.planning/`; any other changed
    path runs the full matrix. **Evidence status:** the classification rule itself is pinned
@@ -228,6 +231,35 @@ treated as "unchanged coverage" — each is disclosed here with its backstop and
    post-merge obligation — no pre-merge pull request can classify `docs_only=true`, because its
    base-to-HEAD diff against `origin/main` necessarily carries Phase 230's own non-Markdown
    changes.
+
+3. **Semantic prohibitions are not mechanically adjudicable.** All 13 prohibitions recorded across
+   `230-01`…`230-09-PLAN.md` are now `verification: test`, each wired to a guard under
+   `scripts/ci/prohibitions/` and proved fail-first against a known-bad fixture in
+   `test/fixtures/prohibitions/` by `check prohibition-enforcement`. Three of them (P1's
+   performance-win *classification*, P8's "no overclaim anywhere in prose", P11's
+   correction-vs-weakening judgment) have a residual their guard cannot decide, recorded in each
+   descriptor's `residual:` field. **Why not automate the residual:** any check claiming to decide
+   it would substitute a weaker mechanical proxy for the stated criterion, and adopting such a
+   proxy *in order to close the item* is itself the move P11 forbids — automating it would be the
+   violation. **Why not a standing human gate:** the adjudication is one-time and retrospective
+   against a frozen artifact, so it has no recurring value, and a recurring gate for it would decay
+   into an unread checkbox — the failure mode this milestone exists to remove. **Backstop:** the
+   mechanized half makes the failure impossible to commit *silently* — a restatement must be
+   recorded as a named section carrying its evidence, and every duration claim must carry a run ID
+   and its producing command. A narrowing can therefore only be **recorded and reviewed**.
+   **Recovery route:** ordinary code review of that recorded diff, which already happens on every
+   PR; this creates no new blocking gate. The non-authoritative verdict in `230-VERIFICATION.md`
+   § Prohibitions Review (no violation found) stays disclosed as advisory and is deliberately not
+   upgraded to authoritative; a later phase that disagrees files a defect against this section.
+
+4. **A demoted construct is now observed, not assumed.** `.github/workflows/ci-observe.yml` runs on
+   `workflow_run: [completed]` and asserts that every construct marked `observer: assert` in
+   `.github/ci-skip-manifest.tsv` actually executed on the lane that received it. It is
+   deliberately **not** in `ci-gate.needs`, never runs on `pull_request`, and cannot change what
+   `ci-gate` counts as a pass — Phase 231's GATE-03 owns that, and should consume the manifest
+   rather than re-deriving the set. On the `schedule` lane the receipt currently warns instead of
+   failing, because the nightly baseline is 0 pass / 9 fail and a tenth red would be unreadable;
+   **that leniency is removed when Phase 231's GATE-01 lands.**
 
 **Pointer:** ROADMAP.md's SC-2 wording ("design-gallery snapshots off the PR gate") is superseded
 by the operative restatement in `230-EVIDENCE.md` — a job whose condition evaluates false is
