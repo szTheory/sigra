@@ -138,6 +138,13 @@ None - no external service configuration required.
 - The cache mechanics and the drift guard are both in place and self-verified; the phase's remaining Playwright-cache obligation is purely evidentiary: plan 09 Task 1 must capture the AFTER-PR (miss) and AFTER-PR-WARM (hit) pair from two completed runs on the same pull request and record both runs' `Install Playwright browsers` duration and `actions/cache` post-step duration verbatim in `230-EVIDENCE.md`.
 - Plan 230-07 continues editing `.github/workflows/ci.yml`; this plan's diff is scoped strictly to the `example_playwright_smoke` Playwright-cache block and the `fast_checks` guard-pair insertion, and does not touch the 230-03 gating, the seam-outcome aggregator, the 230-04 `admin_eval_render` gate/concurrency block, or the 230-05 `docs_only` guards elsewhere in the file.
 
+## Self-Check: PASSED
+
+All created files exist on disk (`scripts/ci/playwright-cache-key-guard.sh`,
+`scripts/ci/playwright-cache-key-guard.test.sh`,
+`.planning/phases/230-tier-1-critical-path-reclamation/230-06-SUMMARY.md`), and all four task
+commit hashes (`91de2331`, `69190c29`, `2c2e4a43`, `9dd497c3`) resolve in `git log --oneline --all`.
+
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-29*
