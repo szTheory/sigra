@@ -10,6 +10,45 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
   # are string/regex assertions over the raw file contents, following the
   # phase_153_infra_stability_contract_test.exs idiom.
   @spec_path "test/example/priv/playwright/tests/admin-design.spec.ts"
+  @ci_path ".github/workflows/ci.yml"
+  @recapture_gate_path "scripts/ci/snapshot-recapture-gate.sh"
+
+  # Plan 230-03: the six seam ids the aggregator must enumerate. A future
+  # seventh seam added without an aggregator entry fails this list, not just
+  # a hand-written assertion.
+  @aggregated_seam_ids [
+    "admin_behavior",
+    "admin_checkpoints",
+    "design_gallery",
+    "design_gallery_snapshots",
+    "non_admin_smoke",
+    "demo_showcase"
+  ]
+
+  # Extracts a top-level `ci.yml` job's body (from its `<job_id>:` line up to,
+  # but not including, the next top-level job's `<job_id>:` line, or end of
+  # file if it is the last job). No YAML parser is used -- this mirrors the
+  # phase_153_infra_stability_contract_test.exs File.read! + regex idiom.
+  defp extract_job(content, job_id) do
+    job_ids =
+      ~r/^  ([a-z_]+):$/m
+      |> Regex.scan(content, capture: :all_but_first)
+      |> List.flatten()
+
+    idx = Enum.find_index(job_ids, &(&1 == job_id))
+
+    assert idx, "job `#{job_id}:` not found in #{@ci_path}"
+
+    case Enum.at(job_ids, idx + 1) do
+      nil ->
+        [_, body] = Regex.run(~r/^  #{job_id}:$(.*)\z/ms, content)
+        body
+
+      next_id ->
+        [_, body] = Regex.run(~r/^  #{job_id}:$(.*?)^  #{next_id}:$/ms, content)
+        body
+    end
+  end
 
   test "board loop tags every board test @snapshot and iterates the full board catalog" do
     spec = File.read!(@spec_path)
@@ -105,5 +144,92 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
     assert component_count + group_count + config_count == 28,
            "the three board catalogs must total exactly 28 boards -- this is the number " <>
              "of @snapshot-tagged tests every design project must report per phase 230-02"
+  end
+
+  test "admin_design_recapture and snapshot-recapture-gate.sh stay ungrepped" do
+    ci = File.read!(@ci_path)
+    recapture_job = extract_job(ci, "admin_design_recapture")
+
+    assert recapture_job =~ "tests/admin-design.spec.ts",
+           "admin_design_recapture must still invoke #{@spec_path}"
+
+    assert recapture_job =~ "--update-snapshots",
+           "admin_design_recapture must still pass --update-snapshots so it recaptures " <>
+             "the full board inventory"
+
+    refute recapture_job =~ "--grep",
+           "admin_design_recapture must NOT pass any --grep/--grep-invert flag -- a " <>
+             "grepped recapture lane recaptures nothing (Pitfall 1) and reports green " <>
+             "having regenerated zero baselines"
+
+    gate = File.read!(@recapture_gate_path)
+
+    design_match =
+      Regex.run(~r/\(a2\) compare-mode admin design gallery.*?\(c\) ExUnit/s, gate)
+
+    assert design_match,
+           "the design-gallery invocation block ((a2)/(b2)) was not found in " <>
+             "#{@recapture_gate_path} -- expected markers between " <>
+             "\"(a2) compare-mode admin design gallery\" and \"(c) ExUnit\""
+
+    [design_block] = design_match
+
+    assert design_block =~ "tests/admin-design.spec.ts",
+           "#{@recapture_gate_path}'s design-gallery block must still invoke #{@spec_path}"
+
+    refute design_block =~ "--grep",
+           "#{@recapture_gate_path}'s design-gallery block must NOT pass any --grep/" <>
+             "--grep-invert flag -- the local compare-mode gate must keep the full set, " <>
+             "or it silently stops comparing the 84 snapshot boards it exists to protect"
+  end
+
+  test "the PR lane is filtered and the snapshot lane is event-gated" do
+    ci = File.read!(@ci_path)
+    job = extract_job(ci, "example_playwright_smoke")
+
+    assert job =~ "design_gallery_snapshots",
+           "example_playwright_smoke must contain the design_gallery_snapshots step id"
+
+    gallery_match =
+      Regex.run(~r/id: design_gallery\n.*?run: \|(.*?)- name:/s, job)
+
+    assert gallery_match, "design_gallery step's run: block not found in #{@ci_path}"
+    [_, gallery_run] = gallery_match
+
+    assert gallery_run =~ "--grep-invert",
+           "the design_gallery step's invocation must carry --grep-invert so the PR " <>
+             "lane excludes the 84 @snapshot pixel-diff tests"
+
+    snapshots_match =
+      Regex.run(~r/id: design_gallery_snapshots\n(.*?)- name: Run non-admin/s, job)
+
+    assert snapshots_match,
+           "design_gallery_snapshots step body not found in #{@ci_path}"
+
+    [_, snapshots_body] = snapshots_match
+
+    assert snapshots_body =~ "github.event_name != 'pull_request'",
+           "the design_gallery_snapshots step's if: must carry " <>
+             "github.event_name != 'pull_request' -- without it the 84-test pixel lane " <>
+             "would also run on every PR, defeating the whole demotion"
+  end
+
+  test "the aggregator enumerates every seam id" do
+    ci = File.read!(@ci_path)
+    job = extract_job(ci, "example_playwright_smoke")
+
+    aggregator_match =
+      Regex.run(~r/Aggregate Playwright step outcomes.*?\z/s, job)
+
+    assert aggregator_match, "Aggregate Playwright step outcomes step not found in #{@ci_path}"
+    [aggregator_region] = aggregator_match
+
+    for seam_id <- @aggregated_seam_ids do
+      assert aggregator_region =~ "steps.#{seam_id}.outcome",
+             "the seam-outcome aggregator must reference steps.#{seam_id}.outcome -- a " <>
+               "seam id missing from this loop has its failures silently discarded on " <>
+               "push/schedule/dispatch runs, which is the v1.42 failure mode this " <>
+               "milestone exists to remove"
+    end
   end
 end
