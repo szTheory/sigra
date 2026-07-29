@@ -459,17 +459,55 @@ This substitution is recorded in the per-requirement table below with evidence c
 
 ## AFTER-PUSH
 
-Status: pending (post-merge obligation)
+Status: captured (run 30466318240, observed by listener run 30468680093)
 
-**Post-merge obligation.** This slot needs the push-to-`main` run of the merge commit, which
-does not exist until the phase merges — there is no way to capture it before that point.
+Observed run: `30466318240` — push to `main` at `20e4fe3b`, conclusion `success`, wall-clock
+**28m29s** against the committed 29.5m mean / 27.3m p50 baseline.
 
-Post-merge capture command:
+Observed **by machine, not by hand**: `.github/workflows/ci-observe.yml` is a
+`workflow_run: [completed]` listener that fired automatically on that run's completion as
+listener run `30468680093` (all steps `success`). No human read a job list to produce this.
 
 ```
-gh run list --repo szTheory/sigra --branch main --limit 1 --json databaseId --jq '.[0].databaseId'
-bash scripts/ci/ci-run-metrics.sh --jobs <id-from-above>
+Demotion receipt -- run 30466318240 (event: push, wall-clock 28m29s)
+
+construct                 location                                           conclusion  duration  verdict
+admin_eval_render         job                                                failure     1124s     PASS
+design_gallery_snapshots  step in Example Playwright smoke (full lifecycle)  success     486s      PASS
+
+  every demoted construct executed on this lane.
 ```
+
+Verdict step output: `Every construct Phase 230 demoted executed on this push run.`
+
+**Why `admin_eval_render` reads `failure` / `PASS`.** The receipt asserts *execution*, not
+*success* — the construct was demoted off the PR lane, so the claim under test is that it still
+runs somewhere. `admin_eval_render` carries a deliberate `continue-on-error` red (it is evidence,
+not a merge gate), and treating that red as a receipt failure would make the receipt un-passable
+by design. `skipped` / `cancelled` / `timed_out` / a zero duration all still FAIL.
+
+Reproduce (one `gh` round-trip, no listener required):
+
+```
+gh run view 30466318240 --repo szTheory/sigra \
+  --json jobs,event,createdAt,updatedAt,databaseId > run-payload.json
+bash scripts/ci/ci-demotion-observer.sh --from-json run-payload.json --format table
+```
+
+**Discrepancy #5 (recorded, not silently corrected).** The listener's *first* firing —
+listener run `30463975230` over push run `30461966943` — concluded `failure`. Its observe and
+verdict steps both passed (`Every construct Phase 230 demoted executed on this push run`, with
+`admin_eval_render` 978s and `design_gallery_snapshots` 438s, wall-clock 23m45s), but the render
+step fed `demotion-observation.json` — the observer's own output — back into `--from-json`,
+which consumes a run payload carrying `.jobs`. It failed closed with `run payload is not an
+object carrying a .jobs array`. The assertion was correct; only its rendering was mis-wired.
+Fixed in PR #121 (`20e4fe3b`) and pinned by two regression cases in
+`scripts/ci/ci-demotion-observer.test.sh` — case **R** (the observer's own output is rejected by
+`--from-json`) and case **S** (a static assertion that `ci-observe.yml` never passes
+`demotion-observation.json` to `--from-json`, flunking if `--from-json` vanishes entirely so a
+rename cannot make it silently green). Case S is proven non-vacuous: it fails against the
+pre-fix file. This slot cites the post-fix run `30466318240`, not the run whose receipt job was
+red.
 
 ---
 
