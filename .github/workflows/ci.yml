@@ -1261,12 +1261,18 @@ jobs:
         # Without this step, !cancelled() guards allow later seams to run after
         # an early failure but the job would silently go green. The aggregator
         # is the load-bearing integrity control (T-197-03).
+        # Phase 230 (FAST-02 / D-05): design_gallery_snapshots was added to this
+        # list. Any future seam step MUST be added here too, or its failures are
+        # silently discarded on push/schedule/dispatch runs — this loop, not the
+        # step's own `if:`, is what decides whether a failure reaches the
+        # required "Example Playwright smoke (full lifecycle)" context.
         run: |
           set -euo pipefail
           fail=0
           for o in "${{ steps.admin_behavior.outcome }}" \
                    "${{ steps.admin_checkpoints.outcome }}" \
                    "${{ steps.design_gallery.outcome }}" \
+                   "${{ steps.design_gallery_snapshots.outcome }}" \
                    "${{ steps.non_admin_smoke.outcome }}" \
                    "${{ steps.demo_showcase.outcome }}"; do
             [ "$o" = "failure" ] && fail=1
