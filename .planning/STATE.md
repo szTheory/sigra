@@ -2,10 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-status: verifying
+current_phase: 231
+current_phase_name: Gate Honesty + Nightly Revival
+status: planning
 stopped_at: Completed 230-09-PLAN.md
-last_updated: "2026-07-29T02:36:14.122Z"
+last_updated: "2026-07-29T17:08:31.186Z"
 last_activity: 2026-07-29
+last_activity_desc: Phase 230 complete, transitioned to Phase 231
 progress:
   total_phases: 6
   completed_phases: 1
@@ -26,11 +29,11 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
+Phase: 231 — Gate Honesty + Nightly Revival
+Plan: Not started
+Status: Ready to plan
 Progress: [██████████] 100%
-Last activity: 2026-07-29
+Last activity: 2026-07-29 — Phase 230 complete, transitioned to Phase 231
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
