@@ -341,6 +341,15 @@ jobs:
         # `conclusion != 'skipped'` check waves through. Hermetic: a PATH-shadowed
         # recording `gh`, no network, no GH_TOKEN.
         run: bash scripts/ci/ci-demotion-observer.test.sh
+      - name: Wait-for-ci-gate self-test
+        # Phase 231 (DX-05 / D-20, D-21): hermetic proof that the extracted
+        # release-lane poll loop (scripts/ci/wait-for-ci-gate.sh, invoked by
+        # release-please.yml's gate-ci-green job) is fail-closed and its 120-attempt
+        # ceiling is wired. It is hermetic, so it proves the logic and never that a
+        # real release passed the gate -- that half is the standing receipt D-21
+        # books against the next real release (and the live invocation already
+        # recorded for this phase's own tracer slice against run 30466318240).
+        run: bash scripts/ci/wait-for-ci-gate.test.sh
       - name: Phase 230 prohibition guards
         # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
         # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
