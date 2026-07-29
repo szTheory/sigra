@@ -1198,7 +1198,32 @@ jobs:
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
-            --project=admin-design-dark
+            --project=admin-design-dark \
+            --grep-invert '@snapshot'
+      - name: Run design gallery board snapshots (non-PR)
+        id: design_gallery_snapshots
+        # Phase 230 (FAST-02 / D-01, D-04): the 84 per-board pixel-diff assertions
+        # run here, gated to push/schedule/dispatch only, so they never sit on the
+        # PR critical path (866s of a 28.5m job). The WCAG axe scan and the L1-state
+        # behaviour tests stay on the PR lane in the sibling `design_gallery` step
+        # above (filtered via --grep-invert '@snapshot'). This step lives inside
+        # this job rather than a new job because the job name
+        # "Example Playwright smoke (full lifecycle)" is a ruleset-14941512
+        # required context, so an in-job snapshot regression on a push to main
+        # still reds a hard gate (D-05 wires this step's id into the aggregator
+        # below so that failure is never silently discarded).
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep '@snapshot'
       - name: Run non-admin example browser smoke
         id: non_admin_smoke
         if: ${{ !cancelled() }}
