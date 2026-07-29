@@ -96,7 +96,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 230-06-PLAN.md — FAST-06: browser-set-scoped Playwright cache, branched install, and a lockfile version-drift guard
+- [x] 230-06-PLAN.md — FAST-06: browser-set-scoped Playwright cache, branched install, and a lockfile version-drift guard
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 5/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 6/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
