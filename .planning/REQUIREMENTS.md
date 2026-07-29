@@ -54,7 +54,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 - [ ] **DX-02**: Third-party GitHub Actions used in release-critical workflows are pinned to immutable SHAs.
 - [ ] **DX-03**: Dependabot covers Hex and npm dependencies in addition to GitHub Actions.
 - [ ] **DX-04**: Playwright spec files that no CI lane invokes are either wired into a lane or deleted.
-- [ ] **DX-05**: The two filed release-lane defects are resolved — `gate-ci-green` no longer times out on a green release, and the `release-lane-rot` notifier raises an issue when a lane fails.
+- [x] **DX-05**: The two filed release-lane defects are resolved — `gate-ci-green` no longer times out on a green release, and the `release-lane-rot` notifier raises an issue when a lane fails.
 - [ ] **DX-06**: SEED-006 is verified against current CI and closed as delivered, or its residual work is filed.
 
 ---
@@ -87,7 +87,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | DX-02 | Phase 234 | Pending |
 | DX-03 | Phase 234 | Pending |
 | DX-04 | Phase 234 | Pending |
-| DX-05 | Phase 231 | Pending |
+| DX-05 | Phase 231 | Complete |
 | DX-06 | Phase 234 | Pending |
 
 **Placement notes:**

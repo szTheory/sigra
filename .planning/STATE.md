@@ -2,18 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 230
-current_phase_name: tier-1-critical-path-reclamation
+current_phase: 231
 status: executing
-stopped_at: Phase 231 context gathered (assumptions mode)
-last_updated: "2026-07-29T19:38:17.150Z"
+stopped_at: Completed 231-01-PLAN.md
+last_updated: "2026-07-29T23:24:11.267Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 231 planning complete
+last_activity_desc: Phase 231 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 9
+  completed_plans: 10
   percent: 17
 ---
 
@@ -25,15 +24,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 230 — tier-1-critical-path-reclamation
+**Current focus:** Phase 231
 
 ## Current Position
 
-Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 9 of 9
+Phase: 231 — EXECUTING
+Plan: 2 of 11
 Status: Ready to execute
-Progress: [██████████] 100%
-Last activity: 2026-07-29 — Phase 231 planning complete
+Progress: [█████░░░░░] 50%
+Last activity: 2026-07-29 -- Phase 231 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -364,6 +363,8 @@ observed executing the work.
 - [Phase ?]: AFTER-PR-WARM's warm commit is a one-line provenance comment in scripts/ci/playwright-cache-key-guard.sh recording the AFTER-PR run ID as the cache-seeding run
 - [Phase ?]: Task 2's dispatch precondition (recapture_branch empty) cannot succeed on a branch-ref workflow_dispatch; re-dispatched with recapture_branch set to the phase branch (D-04 relaxation)
 - [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
+- [Phase ?]: D-20/D-21 (231-01): extracted release-please.yml's inline ci-gate poll loop into scripts/ci/wait-for-ci-gate.sh, raised max-attempts 60->120 (60m ceiling) with explicit timeout-minutes: 75, and proved it live against run 30466318240 (exit 0, attempts=1).
+- [Phase ?]: 231-01: added a Rule-3 actions/checkout step to gate-ci-green (not in the plan text) because the extracted script requires the repo checked out on the runner, unlike the prior inline shell.
 
 ### Pending Todos
 
@@ -504,9 +505,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T17:37:55.212Z
-Stopped at: Phase 231 context gathered (assumptions mode)
-Resume file: .planning/phases/231-gate-honesty-nightly-revival/231-CONTEXT.md
+Last session: 2026-07-29T23:24:11.257Z
+Stopped at: Completed 231-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -626,3 +627,4 @@ Resume file: .planning/phases/231-gate-honesty-nightly-revival/231-CONTEXT.md
 | Phase 230 P07 | 25min | 2 tasks | 2 files |
 | Phase 230 P08 | ~15min | 2 tasks | 1 files |
 | Phase 230 P09 | 1h34m | 3 tasks | 3 files |
+| Phase 231 P01 | 3min | 2 tasks | 4 files |

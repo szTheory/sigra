@@ -131,7 +131,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 231-01-PLAN.md — TRACER: extract the release-lane poll loop to `wait-for-ci-gate.sh`, wire the real `gate-ci-green` consumer, prove it live (DX-05 / D-20, D-21)
+- [x] 231-01-PLAN.md — TRACER: extract the release-lane poll loop to `wait-for-ci-gate.sh`, wire the real `gate-ci-green` consumer, prove it live (DX-05 / D-20, D-21)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
