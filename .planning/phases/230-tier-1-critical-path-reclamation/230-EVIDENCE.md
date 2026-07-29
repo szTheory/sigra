@@ -16,12 +16,12 @@ that never executed the specs" is the precedent failure this ledger exists to pr
 |------|-----------|--------------|--------|
 | [BEFORE-PR](#before-pr) | PR run `30390832059` (2026-07-28, pre-change) | `ci-run-metrics.sh --jobs 30390832059` | captured (run 30390832059) |
 | [BEFORE-PUSH](#before-push) | Push run `30389700235` (2026-07-28, pre-change) | `ci-run-metrics.sh --jobs 30389700235` | captured (run 30389700235) |
-| [AFTER-PR](#after-pr) | The phase's own PR, final commit — the **miss** half of FAST-06's pair | `ci-run-metrics.sh --jobs <id>` | pending |
-| [AFTER-PR-WARM](#after-pr-warm) | A second run on the **same** PR, pushed only after AFTER-PR's Playwright job concludes — the **hit** half of FAST-06's pair | `ci-run-metrics.sh --jobs <id>` | pending |
-| [AFTER-NONPR](#after-nonpr) | `workflow_dispatch` on the phase branch — the demoted `admin_eval_render` and the event-gated snapshot step observed *executing* inside the phase window | `ci-run-metrics.sh --jobs <id>` | pending |
+| [AFTER-PR](#after-pr) | The phase's own PR (#117), final commit — the **miss** half of FAST-06's pair | `ci-run-metrics.sh --jobs 30412458437` | captured (run 30412458437) |
+| [AFTER-PR-WARM](#after-pr-warm) | A second run on the **same** PR, pushed only after AFTER-PR's Playwright job concluded — the **hit** half of FAST-06's pair | `ci-run-metrics.sh --jobs 30413542431` | captured (run 30413542431) |
+| [AFTER-NONPR](#after-nonpr) | `workflow_dispatch` on the phase branch — the demoted `admin_eval_render` and the event-gated snapshot step observed *executing* inside the phase window | `ci-run-metrics.sh --jobs 30414885679` | captured (run 30414885679) |
 | [AFTER-PUSH](#after-push) | The push-to-`main` run of the merge commit | `ci-run-metrics.sh --jobs <id>` | pending (post-merge obligation) |
 | [AFTER-DOCSONLY](#after-docsonly) | A docs-only PR cut from `main` after the merge | `gh pr checks <n>` + `gh run view <id> --json jobs` | pending (post-merge obligation) |
-| [AFTER-CANCEL](#after-cancel) | Double-push probe on a throwaway PR branch cut from the phase branch | `gh run list --branch <b> --json conclusion` | pending |
+| [AFTER-CANCEL](#after-cancel) | Double-push probe on throwaway PR #120, branch cut from the phase branch | `gh run list --branch 230-09-cancel-probe --json conclusion` | captured (runs 30416160743 cancelled, 30416184110 completed) |
 
 ---
 
@@ -502,20 +502,78 @@ gh run view <id> --repo szTheory/sigra --json jobs
 
 ## AFTER-CANCEL
 
-Status: pending
+Status: captured (runs 30416160743 cancelled, 30416184110 completed)
 
-A double-push probe on a throwaway branch cut from the phase branch: push once, then push again
-immediately, and confirm the superseded run concludes `cancelled` (FAST-04's `concurrency:`
-group, D-12) while push/schedule runs on other branches are unaffected. This is also where the
-AFTER-DOCSONLY note above expects a Markdown-only probe commit to still classify `docs_only:
-false` if it inherits this phase's own diff, which is the "impossibility observed rather than
-argued" evidence cited for FAST-05.
+A double-push probe on a throwaway branch (`230-09-cancel-probe`) cut from the phase branch
+(`ci-efficiency-milestone-scope`, so it inherits the new workflow — a branch cut from `main`
+would run the pre-change workflow and prove nothing): push once, then push again immediately,
+and confirm the superseded run concludes `cancelled` (FAST-04's `concurrency:` group, D-12)
+while push/schedule runs on other branches are unaffected. This is also where the AFTER-DOCSONLY
+slot's expectation is tested directly: a Markdown-only probe commit still classifies
+`docs_only=false` because it inherits this phase's own diff — the "impossibility observed rather
+than argued" evidence cited for FAST-05.
+
+**Throwaway PR: #120** (`230-09-cancel-probe` → `main`, "throwaway: 230-09 AFTER-CANCEL probe (DO
+NOT MERGE)"). Commit 1 (`825250fa`, run `30416160743` created `2026-07-29T02:11:28Z`) added a
+single new Markdown file (`230-09-CANCEL-PROBE.md`) and nothing else. Commit 2 (`58ff93eb`, run
+`30416184110` created `2026-07-29T02:11:58Z` — **30 seconds** later, while commit 1's run was
+still in its early library-tests leg) edited that same file, still Markdown-only.
 
 Command:
 
 ```
-gh run list --repo szTheory/sigra --branch <throwaway-branch> --json conclusion
+gh run list --repo szTheory/sigra --branch 230-09-cancel-probe --json databaseId,headSha,status,conclusion,createdAt
 ```
+
+Output (verbatim):
+
+```json
+[
+  {"conclusion":"","createdAt":"2026-07-29T02:11:58Z","databaseId":30416184110,"headSha":"58ff93ebce6996b5f99c0814e89a6caeacb043b6","status":"queued"},
+  {"conclusion":"cancelled","createdAt":"2026-07-29T02:11:28Z","databaseId":30416160743,"headSha":"825250faba2db37f303dcc05da6b4fed75f359c5","status":"completed"}
+]
+```
+
+(captured mid-supersession, before the second run finished; re-fetched after both completed:)
+
+```json
+[
+  {"conclusion":"success","createdAt":"2026-07-29T02:11:58Z","databaseId":30416184110,"headSha":"58ff93ebce6996b5f99c0814e89a6caeacb043b6","status":"completed"},
+  {"conclusion":"cancelled","createdAt":"2026-07-29T02:11:28Z","databaseId":30416160743,"headSha":"825250faba2db37f303dcc05da6b4fed75f359c5","status":"completed"}
+]
+```
+
+The earlier run (`30416160743`, commit 1) concludes **`cancelled`** — superseded by the second
+push 30 seconds later, exactly the `concurrency: { group:
+${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }},
+cancel-in-progress: true }` behaviour D-12 specifies. The later run (`30416184110`, commit 2)
+**completed successfully**. No push/schedule/`workflow_dispatch` run in this phase's captured set
+(BEFORE-PR, BEFORE-PUSH, AFTER-PR, AFTER-PR-WARM, AFTER-NONPR above) reports `cancelled` or a
+queued start — a `gh run list --limit 15` snapshot taken at the same time shows the only two
+`cancelled`/superseded runs anywhere in the recent history are these two PR-#120 runs; the
+concurrent PR #117 run (`30416143238`, in flight at the same moment on a different PR/group) was
+unaffected.
+
+**The `docs_only` impossibility, observed rather than argued:** commit 1's `changes` job
+(`Detect docs-only change`, job `90463148921`) emits **`docs_only=false`**
+(`2026-07-29T02:12:24Z`), even though the commit itself touched only a new `.md` file. The
+classifier reads `git diff --name-only origin/main...HEAD`, and on this branch that diff carries
+every phase commit — `.github/workflows/ci.yml`, `scripts/ci/*.sh`,
+`test/example/priv/playwright/tests/admin-design.spec.ts`, `test/sigra/planning/*.exs` — none of
+which is Markdown or under `.planning/`. This is the **observed** demonstration that no pre-merge
+pull request carrying this phase's own changes can exercise the docs-only fast path, regardless
+of what its own newest commit touches: the classifier compares against `origin/main`, not against
+the commit's own diff, and `pull_request: branches: [main]` leaves no alternative base to escape
+that comparison.
+
+**Cleanup:** PR #120 closed without merging; branch `230-09-cancel-probe` deleted (remote and
+local):
+
+```
+gh pr close 120 --delete-branch
+```
+
+`gh pr view 120 --json state` → `{"state":"CLOSED"}`.
 
 ---
 
@@ -601,3 +659,108 @@ REQUIREMENTS.md:9-13's committed baseline, for comparison:
 by the amount expected from a 40-run sliding window advancing over the ~13 days between the
 original capture and this re-fetch — this is the expected, documented behavior of a windowed
 measurement, not a discrepancy in the method.
+
+---
+
+## Predicted vs. Observed Post-Change PR Wall-Clock
+
+**Predicted, stated before the observed number (230-CONTEXT.md, D-01/D-15/D-07 arithmetic):**
+
+- Pre-change critical path: `example_playwright_smoke` at **28.5m** (of a 28.7m BEFORE-PR run).
+- FAST-02 removes **~629s (~10.5m)** of gallery snapshot work from inside that job (D-01:
+  866s → ~237s for the axe-only PR step).
+- FAST-06 removes **~15-25s** more (D-15's honest browser-cache estimate, not the naive ~62s).
+- The new `changes` classifier adds up to **~36s** at the head of the DAG (D-07), partly masked
+  by `release_ref_guard` running alongside it.
+- Net prediction: 28.5m − 10.5m − ~20s + ~36s(partially masked) ≈ **~18m**.
+
+`FAST-03`'s 17m33s (`admin_eval_render`, BEFORE-PR) is deliberately **not** subtracted from this
+arithmetic: `admin_eval_render` was never inside `example_playwright_smoke` / the critical path
+on the PR event — it ran as its own parallel job (BEFORE-PR: `failure`/`17m33s`, non-blocking,
+`continue-on-error: true`) and demoting it removes ~56 runner-minutes of PR *cost*, not PR
+*wall-clock*. It does not move the critical path, because 17m33s was always under the 28.5m pole.
+
+**Observed:** AFTER-PR (run `30412458437`) — `example_playwright_smoke` **989s (16m29s)**, run
+wall-clock **16m52s** (`updatedAt - createdAt`). The observation lands **under** the ~18m
+prediction by roughly 1m — better than the arithmetic anticipated, plausibly because the
+`changes` classifier's ~36s head-of-DAG cost is genuinely masked by `release_ref_guard` running
+in parallel (both complete before `example_playwright_smoke` starts), rather than only partially.
+
+**This is not FAST-01.** ~18m predicted / 16m52s observed both land well short of the milestone's
+under-12m headline by design — **FAST-01 / under-12m is Phase 235's verdict**, after the Tier-2
+and Playwright-economics phases (`ROADMAP.md` v1.47 section), measured over ≥10 post-change runs
+in a dedicated window. This phase's own AFTER-PR is one run; Phase 235 owns the statistically
+meaningful sample.
+
+---
+
+## Per-Requirement Summary
+
+Evidence classes: **`observed`** (the criterion's own subject watched doing the thing on a named
+run) · **`proxy-observed`** (a different-but-analogous run stood in because the criterion's own
+trigger was unobtainable in the phase window, substitution named) · **`hermetic-unit`** (a
+committed self-test executed by `fast_checks` on every PR and push, no run watched) ·
+**`structural-argument`** (a property of the configuration, no run watched and no test executes
+the claim).
+
+| Req | Behavior | Evidence | Number / Fact | Class |
+|-----|----------|----------|----------------|-------|
+| FAST-02 | `@snapshot` tag-integrity (board tests tagged, axe tests not) | `mix test test/sigra/planning/phase_230_design_gallery_split_test.exs` | green | `hermetic-unit` |
+| FAST-02 | PR gallery step executes only axe scans | AFTER-PR, job `90451525539`, step `Run design gallery boards (chromium, mobile, dark)` | **39** tests, `39 passed (3.9m)` | `observed` |
+| FAST-02 | Non-PR snapshot step executes the demoted boards | AFTER-NONPR, job `90459154527`, step `Run design gallery board snapshots (non-PR)` | **84** tests, `84 passed (7.2m)` | `observed` |
+| FAST-02 | `admin_design_recapture` still executes the full inventory (Pitfall 1 guard; 120→123 correction) | AFTER-NONPR, job `90459122106` | **123** tests, `123 passed (12.1m)` | `observed` |
+| FAST-03 | `admin_eval_render` skipped on PR | AFTER-PR | `conclusion: skipped`, `0s` | `observed` |
+| FAST-03 | `admin_eval_render` executes on non-PR | AFTER-NONPR | `conclusion: failure` (GATE-04/D-11 scope, unrelated to demotion), `1074s`/`17m54s` | `observed` |
+| FAST-04 | Superseded PR run cancels | AFTER-CANCEL, run `30416160743` | `conclusion: cancelled` | `observed` |
+| FAST-04 | Later run on the same PR completes; no push/schedule/dispatch run cancels | AFTER-CANCEL run `30416184110` completed; 0 `cancelled` jobs across BEFORE-PR/BEFORE-PUSH/AFTER-PR/AFTER-PR-WARM/AFTER-NONPR | `success`; 0 cancellations elsewhere | `observed` |
+| FAST-05 | Classification rule, both directions + empty-input + crafted-path cases | `bash scripts/ci/docs-only-classify.test.sh` | `11 passed, 0 failed` | `hermetic-unit` |
+| FAST-05 | Classifier wired, emits on a real mixed diff | AFTER-PR job `90451499447` **and** AFTER-CANCEL job `90463148921` | `docs_only=false` (both) | `observed` |
+| FAST-05 | Docs-only fast path end-to-end (`docs_only=true`, five contexts merge-eligible) | AFTER-DOCSONLY (post-merge obligation) | not yet capturable pre-merge | `structural-argument` |
+| FAST-06 | Cache key tracks the lockfile version | `bash scripts/ci/playwright-cache-key-guard.test.sh` | `7 passed, 0 failed` | `hermetic-unit` |
+| FAST-06 | Miss-then-hit pair on one PR | AFTER-PR (`cache-hit: false`) → AFTER-PR-WARM (`cache-hit: true`) | see restated net below | `observed` |
+| FAST-07 | Every job declares `timeout-minutes` | `mix test test/sigra/planning/phase_230_ci_timeouts_test.exs` | green | `hermetic-unit` |
+| FAST-07 | No job in any captured run times out | BEFORE-PR, BEFORE-PUSH, AFTER-PR, AFTER-PR-WARM, AFTER-NONPR, AFTER-CANCEL | 0 `conclusion: timed_out` anywhere in six captured `--jobs` tables | `observed` |
+| SC-1 (push-to-main half) | Push-to-`main` run of the merge commit | AFTER-PUSH (post-merge obligation) | not yet capturable pre-merge | `structural-argument` |
+| SC-1 (non-PR never queued/cancelled) | `github.run_id`-group gives every non-PR event a group of one | AFTER-NONPR's 3s queue delay, 0 cancellations; AFTER-CANCEL's push/schedule-unaffected observation | consistent with, not yet the merge-commit proof | `structural-argument` |
+| SC-3 (concurrency half) | Superseded PR run cancels, others don't | AFTER-CANCEL | see FAST-04 rows above | `observed` |
+| SC-3 (schedule half) | Nightly-equivalent run observed executing the full non-PR matrix | AFTER-NONPR (`workflow_dispatch` substituting for `schedule`; nightly itself is 0-pass/9-fail, reviving it is **GATE-01 / Phase 231**) | 84-test snapshot step, 123-test recapture step, `admin_eval_render` real duration, all executing | `proxy-observed` |
+| SC-2 | `admin_eval_render` restated criterion (skipped <5s on PR, real duration on non-PR) | AFTER-PR (`skipped`, `0s`) + AFTER-NONPR (`failure`, `1074s`) | both halves observed | `observed` |
+
+**FAST-06's honest net, restated (not a headline saving figure):** a miss was logged on the
+key-introducing run (AFTER-PR, `30412458437`) and a hit on the next run of the same pull request
+(AFTER-PR-WARM, `30413542431`). The `actions/cache` post-step behaved exactly as the mechanism
+predicts — miss: **3.7s**, a real ~344MB upload (`Sent 361117333 of 361117333`); hit: **~0s**,
+`not saving cache` (no re-upload on an exact key match). The `Install Playwright browsers` step,
+however, did **not** show the predicted ~15-25s saving: miss **36s** (full
+`install --with-deps`, browser download + OS deps) vs hit **180s** (`install-deps` only — the
+correct cheaper branch was taken, confirmed by the literal command in the step log — but
+apt-get's package resolution for that non-cacheable OS-dependency set ran far slower on this
+particular run than D-15's ~33s baseline estimate). The cache mechanism itself is directly
+proven — `Cache hit for: Linux-playwright-chromium-webkit-1.59.1-v1` / `Cache restored from key:
+…` on the hit run, absent on the miss run — but the net PR-wall-clock benefit of FAST-06 is not
+demonstrated by this pair's `Install Playwright browsers` step timing, and is not claimed to be.
+
+---
+
+## Discrepancies (open items, not silently absorbed into adjusted expectations)
+
+1. **AFTER-PR-WARM's `Install Playwright browsers` step duration (180s) is higher than
+   AFTER-PR's (36s),** the opposite of D-15's ~15-25s-saving prediction for that step. Diagnosed
+   above: the cache-hit branch (`install-deps` only) was correctly selected, and the browser
+   binary restore is directly confirmed in the log — the extra time is entirely inside apt-get's
+   package resolution for the non-cacheable OS-dependency set (D-15's own documented scope
+   exclusion), which appears to have hit a slower window against the Ubuntu/Microsoft package
+   mirrors on this specific run. Not re-run to "fix" the number, per the plan's instruction to
+   record discrepancies rather than adjust expectations to match them.
+2. **`ci-gate` is `failure` on AFTER-NONPR** (run `30414885679`), caused by
+   `generated_admin_playwright_smoke` (`failure`). This is the **pre-existing, out-of-scope
+   GATE-02 defect** (`ci.yml:1343`'s stale `head_ref == 'ship/v1.42-ci-gate-remediation'`
+   condition — `230-CONTEXT.md` "Explicitly NOT in scope" list), not a Phase 230 regression;
+   `admin_eval_render`'s own `failure` on the same run is independently confirmed to **not**
+   contribute to `ci-gate` (it is absent from `ci-gate.needs`, D-10). Phase 231 owns fixing
+   GATE-02.
+3. **The plan's literal Task 2 precondition ("`recapture_branch` empty") cannot succeed on a
+   branch-ref `workflow_dispatch`** — `release_ref_guard` requires either a `refs/tags/v*` ref
+   or a non-empty `recapture_branch` (D-04). Recorded as a Rule 3 deviation in the AFTER-NONPR
+   section above rather than silently working around it; the first (failed) attempt (run
+   `30414636733`) is kept in the ledger for completeness alongside the corrected, captured run.
