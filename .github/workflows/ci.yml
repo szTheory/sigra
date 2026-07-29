@@ -2136,12 +2136,19 @@ jobs:
   #
   # NOT in ci-gate.needs — this is the expensive render evidence job, not the merge gate.
   # The merge-blocking forward-only signals are the committed-ledger guards in fast_checks.
-  # This job may run as pull_request or push; it is NOT gated to non-PR events so developers
-  # can inspect render evidence on their PR branches.
+  #
+  # Phase 230 (FAST-03 / D-10, D-11): demoted to push, schedule and workflow_dispatch only.
+  # This job measured 17m33s and gated nothing, so charging it to every PR was pure waste;
+  # it is not in ci-gate.needs and is not a ruleset-required context, so demotion breaks no
+  # gate. To get render evidence for a PR branch, dispatch this workflow on that ref
+  # (workflow_dispatch). continue-on-error: true below is deliberately retained — the two
+  # underlying harness defects are unfixed and stay unfixed here; removing it now would turn
+  # every push to main red and is explicitly GATE-04's scope in Phase 231, not this phase's.
   admin_eval_render:
     name: Admin eval render + probe (evidence only, not a merge gate)
     runs-on: ubuntu-latest
     needs: [release_ref_guard]
+    if: github.event_name != 'pull_request'
     # Advisory evidence lane — deliberately NOT in ci-gate.needs. continue-on-error
     # so a harness failure (or its own dev-boot flake) can never redden the
     # default-branch run; evidence bundles still upload as artifacts. The real
