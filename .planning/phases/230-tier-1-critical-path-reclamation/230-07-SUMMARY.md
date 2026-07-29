@@ -128,3 +128,12 @@ None - no external service configuration required.
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: .github/workflows/ci.yml
+- FOUND: test/sigra/planning/phase_230_ci_timeouts_test.exs
+- FOUND: .planning/phases/230-tier-1-critical-path-reclamation/230-07-SUMMARY.md
+- FOUND: e0129a53 (Task 1 commit)
+- FOUND: b404585d (Task 2 commit)
+- FOUND: 4568a7c4 (SUMMARY commit)
