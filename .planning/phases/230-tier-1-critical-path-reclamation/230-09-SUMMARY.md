@@ -246,3 +246,14 @@ for `szTheory/sigra`.
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md`
+- FOUND: `scripts/ci/playwright-cache-key-guard.sh`
+- FOUND: `.planning/phases/230-tier-1-critical-path-reclamation/230-09-SUMMARY.md`
+- FOUND commit `be2ff143` (chore: provenance comment / warm commit)
+- FOUND commit `e726f948` (docs: Task 1 capture)
+- FOUND commit `b49a47d2` (docs: Task 2 capture)
+- FOUND commit `93d8de01` (docs: Task 3 capture / ledger close)
+- FOUND commit `b3e99cc7` (docs: plan summary)
