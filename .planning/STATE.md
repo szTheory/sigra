@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: verifying
-stopped_at: Completed 230-09-PLAN.md
-last_updated: "2026-07-29T02:36:14.122Z"
+stopped_at: Phase 231 context gathered (assumptions mode)
+last_updated: "2026-07-29T17:37:55.221Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
@@ -501,9 +501,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T02:36:14.111Z
-Stopped at: Completed 230-09-PLAN.md
-Resume file: None
+Last session: 2026-07-29T17:37:55.212Z
+Stopped at: Phase 231 context gathered (assumptions mode)
+Resume file: .planning/phases/231-gate-honesty-nightly-revival/231-CONTEXT.md
 
 ## Operator Next Steps
 
