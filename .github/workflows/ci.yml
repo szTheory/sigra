@@ -148,7 +148,7 @@ jobs:
   # in the Actions UI. release_ref_guard stays standalone (D-12).
   # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating.
   # milestone-verification-gate.sh walks .planning/**, getting-started-contract.sh
-  # link-checks guides/introduction/getting-started.md, and 13 ExUnit files under
+  # link-checks guides/introduction/getting-started.md, and the ExUnit files under
   # test/sigra/planning/ and test/sigra/*guides* read those paths directly --
   # exactly what a docs-only PR changes. Gating this job would remove coverage
   # in the one dimension the change touches.
@@ -332,6 +332,33 @@ jobs:
         run: bash scripts/ci/playwright-cache-key-guard.sh
       - name: Playwright cache key guard self-test
         run: bash scripts/ci/playwright-cache-key-guard.test.sh
+      - name: Demotion observer self-test
+        # Phase 230 closeout: the observer behind .github/workflows/ci-observe.yml's
+        # demotion receipt -- the standing, permanent form of the AFTER-PUSH evidence
+        # item. Its load-bearing case is the fail-OPEN hole: an unfinished construct
+        # serializes `completedAt: "0001-01-01T00:00:00Z"` and `conclusion: ""`, which a
+        # duration check clamps to 0s (indistinguishable from a skip) and a
+        # `conclusion != 'skipped'` check waves through. Hermetic: a PATH-shadowed
+        # recording `gh`, no network, no GH_TOKEN.
+        run: bash scripts/ci/ci-demotion-observer.test.sh
+      - name: Phase 230 prohibition guards
+        # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
+        # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
+        # prohibition's frontmatter, and GSD's `check prohibition-enforcement` proves each
+        # one fail-FIRST against a known-bad fixture in test/fixtures/prohibitions/ before
+        # accepting a pass -- so these cannot rot into vacuous greens without the phase
+        # verification noticing. node:test rather than the repo's usual ExUnit idiom
+        # because that producer accepts only `node-test` / `lint-rule`.
+        # A bare directory arg is NOT valid here (node 22 resolves it as a module); the
+        # shell glob is load-bearing.
+        run: node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs
+      - name: Docs-only receipt self-test
+        # Phase 230 closeout: the observer behind ci-observe.yml's docs-only receipt --
+        # the standing form of AFTER-DOCSONLY. Asserts the five ruleset-required contexts
+        # stay merge-eligible on a docs_only=true run while fast_checks and the library
+        # suite still execute in full, and that an unestablishable classification is
+        # never silently read as `false`.
+        run: bash scripts/ci/docs-only-receipt.test.sh
       # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
       # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
       # node_modules), so they need the playwright deps installed first. Pin node and
