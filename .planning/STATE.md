@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: executing
-stopped_at: Completed 230-07-PLAN.md
-last_updated: "2026-07-29T00:43:51.704Z"
+stopped_at: Completed 230-08-PLAN.md
+last_updated: "2026-07-29T00:50:48.213Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
-Progress: [████████░░] 78%
+Progress: [█████████░] 89%
 Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -357,6 +357,7 @@ observed executing the work.
 - [Phase ?]: 230-07: example_playwright_smoke timeout set to 45 (not tighter) because its 41.7m historical maximum would be truncated by a value closer to its 28.5m measured duration; tightening deferred to Phase 235 (D-20)
 - [Phase ?]: 230-07: generated_admin_playwright_smoke timeout corrected 60->15 and moved to canonical post-runs-on slot; adjacent stale ship/v1.42-ci-gate-remediation head-ref condition left untouched (GATE-02, Phase 231 scope)
 - [Phase ?]: 230-07: ExUnit completeness contract counts timeout-minutes per job-block (not file-wide) so declarations concentrated in one job cannot vacuously satisfy the assertion
+- [Phase ?]: 230-08: MAINTAINING.md now carries the durable post-Phase-230 honest-skip set (three tiers) and the two accepted residuals this phase creates, verified against shipped ci.yml — the artifact Phase 231's GATE-03/GATE-05 will audit against.
 
 ### Pending Todos
 
@@ -497,8 +498,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:43:51.700Z
-Stopped at: Completed 230-07-PLAN.md
+Last session: 2026-07-29T00:50:48.207Z
+Stopped at: Completed 230-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -617,3 +618,4 @@ Resume file: None
 | Phase 230 P05 | 20min | 3 tasks | 3 files |
 | Phase 230 P06 | 4min | 3 tasks | 3 files |
 | Phase 230 P07 | 25min | 2 tasks | 2 files |
+| Phase 230 P08 | ~15min | 2 tasks | 1 files |

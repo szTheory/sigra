@@ -104,7 +104,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 230-08-PLAN.md — D-23 honest-skip set and accepted residuals, durably recorded in `MAINTAINING.md`
+- [x] 230-08-PLAN.md — D-23 honest-skip set and accepted residuals, durably recorded in `MAINTAINING.md`
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 7/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 8/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
