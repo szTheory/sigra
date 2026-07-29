@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 230
-current_phase_name: tier-1-critical-path-reclamation
 status: executing
-stopped_at: Completed 230-03-PLAN.md
-last_updated: "2026-07-29T00:11:11.582Z"
-last_activity: 2026-07-28
+stopped_at: Completed 230-04-PLAN.md
+last_updated: "2026-07-29T00:15:17.943Z"
+last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -29,10 +27,10 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 4 of 9
+Plan: 5 of 9
 Status: Ready to execute
-Progress: [███░░░░░░░] 33%
-Last activity: 2026-07-28
+Progress: [████░░░░░░] 44%
+Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -351,6 +349,8 @@ observed executing the work.
 - [Phase ?]: Filtering is CLI-only on both gallery steps (D-03); playwright.config.ts stays byte-unchanged
 - [Phase ?]: design_gallery_snapshots stays inside example_playwright_smoke (not a new job) because the job name is a ruleset-14941512 required context (D-04)
 - [Phase ?]: design_gallery_snapshots wired into the seam-outcome aggregator's hard-coded outcome list (D-05 hard-fail boundary)
+- [Phase ?]: 230-04: admin_eval_render demoted to non-PR events (if: github.event_name != 'pull_request'); continue-on-error retained byte-unchanged pending GATE-04 in Phase 231
+- [Phase ?]: 230-04: concurrency group keys non-PR events on github.run_id (never queued/cancelled) instead of SEED-005's github.ref + conditional cancel-in-progress, avoiding queueing risk against the release lane's 30-minute gate-ci-green ceiling
 
 ### Pending Todos
 
@@ -491,8 +491,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:11:11.571Z
-Stopped at: Completed 230-03-PLAN.md
+Last session: 2026-07-29T00:15:17.936Z
+Stopped at: Completed 230-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -607,3 +607,4 @@ Resume file: None
 | Phase 230 P01 | 13min | 3 tasks | 4 files |
 | Phase 230 P02 | 10min | 2 tasks | 2 files |
 | Phase 230 P03 | ~20min | 3 tasks | 2 files |
+| Phase 230 P04 | 12min | 2 tasks | 1 files |

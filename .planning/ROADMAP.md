@@ -88,7 +88,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 230-04-PLAN.md — FAST-03 + FAST-04: demote `admin_eval_render` to non-PR events; add workflow-level run supersession
+- [x] 230-04-PLAN.md — FAST-03 + FAST-04: demote `admin_eval_render` to non-PR events; add workflow-level run supersession
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 2/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 4/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |

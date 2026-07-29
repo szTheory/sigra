@@ -114,3 +114,10 @@ None - no external service configuration required.
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-28*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/230-tier-1-critical-path-reclamation/230-04-SUMMARY.md`
+- FOUND: commit `39443cf3` (Task 1)
+- FOUND: commit `4c10418c` (Task 2)
+- FOUND: commit `a5947eb7` (this SUMMARY)
