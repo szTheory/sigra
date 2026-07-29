@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: executing
-stopped_at: Completed 230-04-PLAN.md
-last_updated: "2026-07-29T00:15:17.943Z"
+stopped_at: Completed 230-05-PLAN.md
+last_updated: "2026-07-29T00:29:09.258Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 5 of 9
+Plan: 6 of 9
 Status: Ready to execute
-Progress: [████░░░░░░] 44%
+Progress: [██████░░░░] 56%
 Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -351,6 +351,8 @@ observed executing the work.
 - [Phase ?]: design_gallery_snapshots wired into the seam-outcome aggregator's hard-coded outcome list (D-05 hard-fail boundary)
 - [Phase ?]: 230-04: admin_eval_render demoted to non-PR events (if: github.event_name != 'pull_request'); continue-on-error retained byte-unchanged pending GATE-04 in Phase 231
 - [Phase ?]: 230-04: concurrency group keys non-PR events on github.run_id (never queued/cancelled) instead of SEED-005's github.ref + conditional cancel-in-progress, avoiding queueing risk against the release lane's 30-minute gate-ci-green ceiling
+- [Phase ?]: FAST-05: docs-only classification rule extracted into a standalone hermetically self-tested script (not inlined) because the docs_only=true branch is unobservable on any pre-merge PR
+- [Phase ?]: FAST-05: every job-level condition added by plan 230-05 uses !cancelled() never always(), so FAST-04's cancel-in-progress genuinely stops a superseded run
 
 ### Pending Todos
 
@@ -491,8 +493,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:15:17.936Z
-Stopped at: Completed 230-04-PLAN.md
+Last session: 2026-07-29T00:29:09.254Z
+Stopped at: Completed 230-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -608,3 +610,4 @@ Resume file: None
 | Phase 230 P02 | 10min | 2 tasks | 2 files |
 | Phase 230 P03 | ~20min | 3 tasks | 2 files |
 | Phase 230 P04 | 12min | 2 tasks | 1 files |
+| Phase 230 P05 | 20min | 3 tasks | 3 files |

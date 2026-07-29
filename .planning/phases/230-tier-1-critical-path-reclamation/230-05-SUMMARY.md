@@ -156,3 +156,13 @@ None - no external service configuration required.
 ---
 *Phase: 230-tier-1-critical-path-reclamation*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: scripts/ci/docs-only-classify.sh
+- FOUND: scripts/ci/docs-only-classify.test.sh
+- FOUND: .planning/phases/230-tier-1-critical-path-reclamation/230-05-SUMMARY.md
+- FOUND: 3b80d20e (Task 1 commit)
+- FOUND: 1e319d95 (Task 2 commit)
+- FOUND: 7899cd44 (Task 3 commit)
+- FOUND: 4490183c (this SUMMARY commit)

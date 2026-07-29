@@ -92,7 +92,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 230-05-PLAN.md — FAST-05: a `changes` job with fail-open polarity, step-level gating on four required lanes, `fast_checks`/`library_tests` exempt
+- [x] 230-05-PLAN.md — FAST-05: a `changes` job with fail-open polarity, step-level gating on four required lanes, `fast_checks`/`library_tests` exempt
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 4/9 | In Progress|  |
+| 230. Tier-1 Critical-Path Reclamation | 5/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
