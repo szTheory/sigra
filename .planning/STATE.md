@@ -2,18 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 230
-current_phase_name: tier-1-critical-path-reclamation
 status: executing
-stopped_at: Completed 230-01-PLAN.md
-last_updated: "2026-07-28T23:57:03.474Z"
-last_activity: 2026-07-28
-last_activity_desc: Phase 230 execution started
+stopped_at: Completed 230-02-PLAN.md
+last_updated: "2026-07-29T00:03:53.040Z"
+last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -30,10 +27,10 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
-Progress: [------------------------------] 0/6 phases ([█░░░░░░░░░] 11%)
-Last activity: 2026-07-28 -- Phase 230 execution started
+Progress: [██░░░░░░░░] 22%
+Last activity: 2026-07-29
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -347,6 +344,8 @@ observed executing the work.
 - [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
 - [Phase ?]: D-21 satisfied: ci-run-metrics.sh + hermetic self-test committed and wired into fast_checks before any Phase 230 measurement is taken
 - [Phase ?]: Duration math uses jq fromdate (not shell date -d/-j) for macOS-dev/ubuntu-CI portability
+- [Phase ?]: 230-02: Collapsed ~84 per-board axe scans to one full-page WCAG 2.1/2.2 AA scan per design project (D-01) rather than a literal pixels-only split -- every board test reached axe in an identical page state and the registration cost that must stay on PR lives in beforeEach
+- [Phase ?]: 230-02: Tagged via Playwright's details-object form test(title, { tag: '@snapshot' }, fn) (D-02), never embedding the tag in titles, so all 28 board PNG baseline filenames stay byte-identical
 
 ### Pending Todos
 
@@ -487,8 +486,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-28T23:57:03.461Z
-Stopped at: Completed 230-01-PLAN.md
+Last session: 2026-07-29T00:03:53.033Z
+Stopped at: Completed 230-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -601,3 +600,4 @@ Resume file: None
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 230 P01 | 13min | 3 tasks | 4 files |
+| Phase 230 P02 | 10min | 2 tasks | 2 files |

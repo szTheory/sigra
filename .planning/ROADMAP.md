@@ -80,7 +80,7 @@ Plans:
 **Wave 1**
 
 - [x] 230-01-PLAN.md — TRACER: committed CI run-metrics measurement instrument + hermetic self-test + BEFORE evidence slots (D-21)
-- [ ] 230-02-PLAN.md — FAST-02 spec half: tag the 28 board tests, add one full-page WCAG test per design project, fix the wrong doc comments
+- [x] 230-02-PLAN.md — FAST-02 spec half: tag the 28 board tests, add one full-page WCAG test per design project, fix the wrong doc comments
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -192,7 +192,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 230. Tier-1 Critical-Path Reclamation | 0/? | Not started | - |
+| 230. Tier-1 Critical-Path Reclamation | 2/9 | In Progress|  |
 | 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
