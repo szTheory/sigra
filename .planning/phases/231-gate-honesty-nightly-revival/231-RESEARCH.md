@@ -1161,32 +1161,35 @@ Probed on the working machine (darwin 25.5.0) and against CI's declared toolchai
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> **All five were adopted into plans during `/gsd-plan-phase 231` and verified by the plan-checker.**
+> None enters execution as an unknown. Adopting plan is recorded on each recommendation below.
 
 1. **Which element actually overflows at 320px/32px?**
    - *What we know:* the overflow is real (screenshot), the brand wordmark is not the cause, and the input `min-content` chain is the strongest structural candidate. Runner image, browser builds, and app name are all falsified as variance sources.
    - *What's unclear:* whether the passing runs measure a 320px viewport at all.
-   - *Recommendation:* make the instrumentation task the **first** task of the GATE-02 wave. One instrumented CI run resolves H1 vs H2 vs H3 definitively.
+   - *Recommendation:* make the instrumentation task the **first** task of the GATE-02 wave. One instrumented CI run resolves H1 vs H2 vs H3 definitively. **RESOLVED — adopted by plan 231-02 (Task 1 is first in the wave).**
 
 2. **Should `p10` gain a `gate`-column assertion in this phase?**
    - *What we know:* it is what would have caught GATE-02's defect, it is ~15 lines, and it directly serves GATE-03's mandate.
    - *What's unclear:* whether it is in scope, since no locked decision names it (D-01 assumed it already existed).
-   - *Recommendation:* **yes, include it.** C-1 makes the assumption false, and GATE-03's requirement text ("fails on the latter") is not satisfiable in a durable way without it.
+   - *Recommendation:* **yes, include it.** C-1 makes the assumption false, and GATE-03's requirement text ("fails on the latter") is not satisfiable in a durable way without it. **RESOLVED — adopted by plan 231-07 (the `gate`-column assertion) with the floor changes in the same commit.**
 
 3. **Does D-18's Pages source self-heal after D-17's seeds fix?**
    - *What we know:* `ensure-github-pages-legacy-branch.sh` runs only after a successful publish, and the publisher has never succeeded.
    - *What's unclear:* whether the script's REST call succeeds under the workflow's `pages: write` scope.
-   - *Recommendation:* observe the first post-fix run; if the Pages source is still `main`'s root, file the diagnosed defect under SC-1's fallback and stop — do **not** expand into repo-admin work (D-18 is explicit).
+   - *Recommendation:* observe the first post-fix run; if the Pages source is still `main`'s root, file the diagnosed defect under SC-1's fallback and stop — do **not** expand into repo-admin work (D-18 is explicit). **RESOLVED — adopted by plan 231-10 Task 3 (filed, not fixed).**
 
 4. **How many CI iterations will GATE-04 need before b1-b6 are green?**
    - *What we know:* six independent precondition classes (R4-R9), at least one of which (R6) is near-certain to fire.
    - *What's unclear:* whether R5 and R6 resolve in one recapture commit or several.
-   - *Recommendation:* structure the GATE-04 wave as *fix → run → read → regenerate → run → delete the mask*, with the "read" step explicitly budgeted rather than assumed instantaneous. D-11's four-step order already anticipates this; make step 3 a real task, not a checkbox.
+   - *Recommendation:* structure the GATE-04 wave as *fix → run → read → regenerate → run → delete the mask*, with the "read" step explicitly budgeted rather than assumed instantaneous. D-11's four-step order already anticipates this; make step 3 a real task, not a checkbox. **RESOLVED — adopted by plan 231-05, which makes step 3 a real read task and carries the phase's only blocking `checkpoint:decision` for the b3/b4 ledger re-base.**
 
 5. **Is `example_unit_smoke`'s absence from `ci-gate.needs` worth a note in the verdict script's output?**
    - *What we know:* it is ruleset-required yet absent (deferred, "file as a new todo").
    - *What's unclear:* nothing material.
-   - *Recommendation:* file the todo during planning as CONTEXT instructs; optionally have the verdict script *report* (never fail on) any ruleset-required name missing from its lane set — a zero-cost honesty signal that stays inside the deferral.
+   - *Recommendation:* file the todo during planning as CONTEXT instructs; optionally have the verdict script *report* (never fail on) any ruleset-required name missing from its lane set — a zero-cost honesty signal that stays inside the deferral. **RESOLVED — adopted by plan 231-09 Task 3 (todo filed) plus 231-08's advisory NOTE in the verdict output.**
 
 ---
 
