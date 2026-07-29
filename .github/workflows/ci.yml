@@ -31,6 +31,24 @@ on:
 permissions:
   contents: read
 
+# Phase 230 (FAST-04 / D-12, D-13, D-14): PR runs on the same PR number supersede
+# each other (superseded run concludes `cancelled`). Every non-PR event (push,
+# schedule, workflow_dispatch) keys on its own unique github.run_id, giving it a
+# group of one that is structurally never queued and never cancelled — release
+# integrity does not depend on the value of any expression. SEED-005's verbatim
+# proposal (group on github.ref with a conditional cancel-in-progress) was
+# rejected: cancel-in-progress: false still *queues* (GitHub holds one running
+# plus one pending per group), and queueing two rapid main pushes compounds the
+# release lane's 30-minute gate-ci-green polling ceiling. cancel-in-progress is
+# a bare boolean, never an expression producing a quoted string — the string
+# "false" is truthy and would cancel anyway. ci.yml's triggers are
+# push: branches: [main] plus pull_request: branches: [main], so there is no
+# same-SHA double trigger and the "cancelled run strands a required context"
+# hazard does not apply.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 # Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless
 # you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.
 # Library/install failures are unrelated to that secret.
