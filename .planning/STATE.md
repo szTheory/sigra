@@ -2,9 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
+current_phase: 231
 status: executing
-stopped_at: Completed 231-08-PLAN.md
-last_updated: "2026-07-30T08:18:00.376Z"
+stopped_at: Completed 231-09-PLAN.md
+last_updated: "2026-07-30T09:03:16.858Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
@@ -27,9 +28,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 9 of 11
+Plan: 10 of 11
 Status: Ready to execute
-Progress: [█████████░] 90%
+Progress: [██████████] 95%
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -375,6 +376,7 @@ observed executing the work.
 - [Phase ?]: GATE-02 marked Complete: stale head_ref gate deleted outright, confirmed executing (non-skipped) on two independent pull_request-event CI runs, confirmed in ci-gate.needs (merge-blocking). GATE-03 left Pending: p10 gained gate-column parity + rotted-gate-string assertions (a necessary static precondition) but ci-gate's own runtime skip-legitimacy verdict (honest-skip-verdict.sh) is not yet built.
 - [Phase ?]: Found and fixed a same-defect-class bug mid-plan: scripts/ci/ci-demotion-observer.test.sh's EVAL_NAME fixture carried admin_eval_render's pre-231-06 display name, silently drifting from the real manifest after 231-06's rename. Fixed as a strengthening (recorded truth now matches reality), not a widening.
 - [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
+- [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
 
 ### Pending Todos
 
@@ -517,8 +519,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T08:18:00.370Z
-Stopped at: Completed 231-08-PLAN.md
+Last session: 2026-07-30T09:03:16.849Z
+Stopped at: Completed 231-09-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -647,3 +649,4 @@ Resume file: None
 | Phase 231 P06 | 45min | 2 tasks | 4 files |
 | Phase 231 P07 | 1h9min | 2 tasks | 5 files |
 | Phase 231 P08 | ~35min | 2 tasks | 3 files |
+| Phase 231 P09 | ~50min | 3 tasks | 4 files |

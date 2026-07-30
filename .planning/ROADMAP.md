@@ -160,7 +160,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 231-09-PLAN.md — GATE-03 enforcement: `ci-gate` checkout + `changes` edge + verdict step, `force_rot_probe` input, SC-3's two dispatched runs (D-02, D-05, D-25)
+- [x] 231-09-PLAN.md — GATE-03 enforcement: `ci-gate` checkout + `changes` edge + verdict step, `force_rot_probe` input, SC-3's two dispatched runs (D-02, D-05, D-25)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
