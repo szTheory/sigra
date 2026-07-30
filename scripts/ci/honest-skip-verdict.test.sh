@@ -42,11 +42,11 @@
 #      input-provider exclusion (`changes`).
 #   S: workflow cross-check negative control -- a fixture workflow missing a
 #      lane from ci-gate.needs exits 1 naming it.
-#   T: (absent by design) the static wiring case asserting `ci-gate` itself
-#      invokes this script does not exist here -- it cannot pass until plan
-#      231-09 adds the step. A self-test that ships red is trusted by no
-#      one, so this gap is recorded, not silently omitted. Plan 231-09 owns
-#      case T.
+#   T: static wiring -- the shipped ci-gate job actually invokes this script
+#      (plan 231-09, D-02): the "Honest-skip verdict (GATE-03)" step exists,
+#      sits before the legacy "Verify required release CI lanes" step in
+#      list order, invokes honest-skip-verdict.sh, and its env carries the
+#      docs-only, event-name and probe keys.
 #
 # No network access and no GitHub access token are required or read anywhere in this file.
 set -euo pipefail
@@ -414,6 +414,30 @@ if [[ "$RC_S" -eq 1 ]] && grep -q "generated_admin_playwright_smoke" <<<"$OUT_S"
   pass "S: exit 1, names the lane missing from ci-gate.needs"
 else
   fail "S: rc=${RC_S}, output: ${OUT_S}"
+fi
+
+# ---- T: static wiring -- ci-gate actually invokes the verdict script ------
+echo "Test T: ci-gate's own step list invokes honest-skip-verdict.sh ahead of the legacy loop"
+CI_GATE_BLOCK="$(awk '
+  /^  ci-gate:[[:space:]]*$/ { in_job=1; print; next }
+  in_job && /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ { in_job=0 }
+  in_job { print }
+' "$REAL_WORKFLOW")"
+if [[ -z "$CI_GATE_BLOCK" ]]; then
+  fail "T: could not extract the ci-gate job block from ${REAL_WORKFLOW} -- the parse broke, this is not a pass"
+else
+  VERDICT_LINE="$(grep -n '^      - name: Honest-skip verdict (GATE-03)$' <<<"$CI_GATE_BLOCK" | head -1 | cut -d: -f1)"
+  LEGACY_LINE="$(grep -n '^      - name: Verify required release CI lanes$' <<<"$CI_GATE_BLOCK" | head -1 | cut -d: -f1)"
+  INVOKES_SCRIPT="$(grep -c 'honest-skip-verdict\.sh' <<<"$CI_GATE_BLOCK" || true)"
+  HAS_DOCS_ONLY="$(grep -c 'DOCS_ONLY:' <<<"$CI_GATE_BLOCK" || true)"
+  HAS_EVENT_NAME="$(grep -c 'EVENT_NAME:' <<<"$CI_GATE_BLOCK" || true)"
+  HAS_PROBE="$(grep -c 'FORCE_ROT_PROBE:' <<<"$CI_GATE_BLOCK" || true)"
+  if [[ -n "$VERDICT_LINE" && -n "$LEGACY_LINE" && "$VERDICT_LINE" -lt "$LEGACY_LINE" \
+        && "$INVOKES_SCRIPT" -ge 1 && "$HAS_DOCS_ONLY" -ge 1 && "$HAS_EVENT_NAME" -ge 1 && "$HAS_PROBE" -ge 1 ]]; then
+    pass "T: ci-gate invokes honest-skip-verdict.sh before the legacy loop, env carries docs-only/event-name/probe keys"
+  else
+    fail "T: verdict_line=${VERDICT_LINE:-<missing>} legacy_line=${LEGACY_LINE:-<missing>} invokes=${INVOKES_SCRIPT:-0} docs_only=${HAS_DOCS_ONLY:-0} event_name=${HAS_EVENT_NAME:-0} probe=${HAS_PROBE:-0}"
+  fi
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"

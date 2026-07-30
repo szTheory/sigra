@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: false
+      force_rot_probe:
+        description: 'Inject a synthetic rotted skip into the GATE-03 honest-skip verdict so the fail direction of ci-gate is provable on demand (set true to probe).'
+        required: false
+        type: boolean
+        default: false
       recapture_branch:
         description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'
         required: false
@@ -1832,7 +1837,17 @@ jobs:
     name: ci-gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # GATE-03 (Phase 231 / D-02): `changes` (first in needs: below) is an
+    # input provider for the honest-skip verdict step, not a gated lane --
+    # `changes` is absent from NEVER_DOCS_GATED
+    # (scripts/ci/prohibitions/_lib.mjs), so this edge is permitted.
+    # `if: always()` on this job stays unchanged, so a red or skipped
+    # `changes` cannot make ci-gate vanish. NOTE: honest-skip-verdict.sh's
+    # own needs: extractor requires every line in the needs: list below to
+    # be a bare `      - id` entry -- no comments or blanks inside the list
+    # itself, or the extraction silently yields zero entries.
     needs:
+      - changes
       - install_golden_contract
       - library_tests
       - library_tests_dep_off
@@ -1844,6 +1859,47 @@ jobs:
       - fast_checks
     if: always()
     steps:
+      # GATE-03 (Phase 231 / D-02): ci-gate was a pure aggregation job with
+      # no working tree until now. This checkout exists solely so the
+      # honest-skip verdict step below can read the committed manifest
+      # (.github/ci-skip-manifest.tsv) and this workflow file. Default
+      # fetch depth is correct: the script reads a committed file, never
+      # history.
+      - name: Checkout (honest-skip manifest)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      # GATE-03 (Phase 231 / D-02, D-05): runs BEFORE the legacy loop below,
+      # which stays byte-unchanged, so this diff is reviewable and today's
+      # behaviour is provably non-regressing. Distinguishes a correctly
+      # event-/diff-gated skip from a rotted one -- ci.yml's own legacy loop
+      # treats every skip as a pass with no such distinction. Every GitHub
+      # context value below reaches the shell only through this env: map,
+      # never inlined into the run: body (ci.yml:132-135, ASVS V5).
+      - name: Honest-skip verdict (GATE-03)
+        env:
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          EVENT_NAME: ${{ github.event_name }}
+          FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
+          INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
+          LIBRARY_TESTS: ${{ needs.library_tests.result }}
+          LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
+          INSTALL_SMOKE: ${{ needs.install_smoke.result }}
+          UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
+          EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
+          GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+          FAST_CHECKS: ${{ needs.fast_checks.result }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/honest-skip-verdict.sh --format table --event "${EVENT_NAME}" --docs-only "${DOCS_ONLY}" \
+            --lane install_golden_contract="${INSTALL_GOLDEN_CONTRACT}" \
+            --lane library_tests="${LIBRARY_TESTS}" \
+            --lane library_tests_dep_off="${LIBRARY_TESTS_DEP_OFF}" \
+            --lane install_smoke="${INSTALL_SMOKE}" \
+            --lane upgrade_smoke="${UPGRADE_SMOKE}" \
+            --lane example_http_smoke="${EXAMPLE_HTTP_SMOKE}" \
+            --lane example_playwright_smoke="${EXAMPLE_PLAYWRIGHT_SMOKE}" \
+            --lane generated_admin_playwright_smoke="${GENERATED_ADMIN_PLAYWRIGHT_SMOKE}" \
+            --lane fast_checks="${FAST_CHECKS}"
       - name: Verify required release CI lanes
         env:
           INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
