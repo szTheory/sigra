@@ -78,7 +78,7 @@ GH_STUB_LOG="${TMPDIR_ROOT}/gh-calls.log"
 PAYLOAD_FILE="${TMPDIR_ROOT}/payload.json"
 : > "$GH_STUB_LOG"
 
-EVAL_NAME="Admin eval render + probe (evidence only, not a merge gate)"
+EVAL_NAME="Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
 PW_NAME="Example Playwright smoke (full lifecycle)"
 SNAP_NAME="Run design gallery board snapshots (non-PR)"
 
