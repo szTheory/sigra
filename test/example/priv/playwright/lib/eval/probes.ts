@@ -493,11 +493,28 @@ export async function probeOffScaleRadiusShadowControl(page: Page, boardRoot?: s
       }
 
       // Check control height (min-height or height for sg-btn, sg-input, etc.)
+      //
+      // 231-05 (D-08 reconciliation): `sg-applied-chip__remove` is deliberately NOT listed.
+      // It was added here in Phase 216 (43b2a808) but that branch never actually executed
+      // until 231-04 fixed the SVG `className` crash that aborted every prior render — so it
+      // was an untested assumption, not a ratified tightening. When it finally ran (run
+      // 30504235540, job 90750408342) it produced 8 gate failures that directly contradict
+      // admin-quality-ledger.md:65, which ratifies the chip remove control at ~22x22 CSS px as
+      // "reviewed - near-threshold, D-08 precedent for dense admin inline chip remove". The
+      // --sg-control-* scale starts at 28px, so the ledger decision and this gate can never
+      // both hold. The scale is a *form control* rhythm rule; a dense inline chip affordance is
+      // not a form control, which is also why `sg-notice__link` (~21px inline action, likewise
+      // ledger-"reviewed") is absent from this list.
+      //
+      // Target size remains guarded and is NOT dropped: board-applied_chip runs
+      // assertNoAxeViolations across wcag2a/2aa/21a/21aa/22aa (2.5.8 target size) with 0
+      // violations. Do not re-add this class here without first reconciling D-08 in the ledger;
+      // if the dense-admin precedent is ever revisited, resize the CSS to a --sg-control-* step
+      // instead of reinstating a gate the design system explicitly excepts.
       const isControl =
         el.classList.contains('sg-btn') ||
         el.classList.contains('sg-input') ||
-        el.classList.contains('sg-select') ||
-        el.classList.contains('sg-applied-chip__remove');
+        el.classList.contains('sg-select');
 
       if (isControl) {
         // IN-01: minHeight resolves to "0px" (truthy string) for controls sized purely via
