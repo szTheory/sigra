@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 231
 status: executing
-stopped_at: "Completed 231-05-PLAN.md (D-11 step 3: harness proven green in CI, run 30512523387)"
-last_updated: "2026-07-30T04:29:20.856Z"
+stopped_at: Completed 231-06-PLAN.md
+last_updated: "2026-07-30T05:06:41.161Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 14
+  completed_plans: 15
   percent: 17
 ---
 
@@ -28,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: Ready to execute
-Progress: [███████░░░] 70%
+Progress: [████████░░] 75%
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -370,6 +369,9 @@ observed executing the work.
 - [Phase ?]: 231-04: admin_eval_render now installs chromium+webkit (was chromium-only), matching admin-eval-mobile's iPhone-13/WebKit project; browser cache key re-tokened -v1 -> -v2 with C-6 guard generalization
 - [Phase ?]: 231-04: probes.ts ember-class check derives from classList instead of className (SVGAnimatedString crash fix); p14 prohibition guard added, proven fail-first
 - [Phase ?]: 231-05: b1-b6 proven executing and passing in CI for the first time (run 30512523387, PASS -- all phases green); required 3 probe-vs-ratified-design-decision reconciliations (D-08 chip-remove, pill/code sub-scale tokens selector-scoped, gallery-frame card-nesting suppression), a fix-queue-lint.sh proxy exemption, a CI-native ledger rebase (33642->38016 open_findings), and a new sanctioned floor-rebase declaration mechanism in quality-findings-monotonic.sh -- all outside the plan's original file fence, operator-reviewed and authorized. GATE-04 NOT marked complete (231-06 owns removing continue-on-error). Found and characterized (not fixed) a genuine cross-run intermittent in Generated admin Playwright smoke, GATE-02's own lane.
+- [Phase ?]: GATE-04's literal REQUIREMENTS.md text is satisfied by two independent green admin_eval_render observations (231-05's run 30512523387, 231-06's run 30514238789), but the lane remains outside ci-gate.needs and never runs on pull_request -- the row is left Pending, not marked Complete, per the plan's own instruction.
+- [Phase ?]: admin_eval_render's job name, its skip-manifest row, and MAINTAINING.md's tier-B description were corrected (coordinator-directed) to stop calling the now-hard-signal lane 'evidence only, not a merge gate'.
+- [Phase ?]: Generated admin Playwright smoke's cross-run intermittent (320px reflow, admin-generated.spec.ts:79) recurred a third time (~60% failure rate across 5 observed runs) -- flagged as a blocking risk for 231-07, not fixed in this plan.
 
 ### Pending Todos
 
@@ -512,9 +514,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T04:29:20.846Z
-Stopped at: Completed 231-05-PLAN.md (D-11 step 3: harness proven green in CI, run 30512523387)
-Resume file: 231-06-PLAN.md
+Last session: 2026-07-30T05:06:41.155Z
+Stopped at: Completed 231-06-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -639,3 +641,4 @@ Resume file: 231-06-PLAN.md
 | Phase 231 P03 | 8min | 2 tasks | 2 files |
 | Phase 231 P04 | 22min | 2 tasks | 5 files |
 | Phase 231 P05 | 4h | 9 tasks | 9 files |
+| Phase 231 P06 | 45min | 2 tasks | 4 files |

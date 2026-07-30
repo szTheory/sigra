@@ -148,7 +148,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 231-06-PLAN.md — GATE-04 step 4: invert `p05` and delete the job-level mask in one commit; SC-4's receipt (D-11, D-13, C-3)
+- [x] 231-06-PLAN.md — GATE-04 step 4: invert `p05` and delete the job-level mask in one commit; SC-4's receipt (D-11, D-13, C-3)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 3/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 6/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
