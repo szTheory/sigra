@@ -140,7 +140,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 231-04-PLAN.md — GATE-04 steps 1-2: install WebKit, re-token the browser-set cache key, fix the `SVGAnimatedString` probe crash (D-11, D-12)
+- [x] 231-04-PLAN.md — GATE-04 steps 1-2: install WebKit, re-token the browser-set cache key, fix the `SVGAnimatedString` probe crash (D-11, D-12)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
