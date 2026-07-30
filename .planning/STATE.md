@@ -4,15 +4,15 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
 status: executing
-stopped_at: Completed 231-01-PLAN.md
-last_updated: "2026-07-29T23:24:11.267Z"
+stopped_at: Completed 231-02-PLAN.md
+last_updated: "2026-07-30T00:25:31.046Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 231 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 10
+  completed_plans: 11
   percent: 17
 ---
 
@@ -29,9 +29,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 55%
 Last activity: 2026-07-29 -- Phase 231 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -365,6 +365,8 @@ observed executing the work.
 - [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
 - [Phase ?]: D-20/D-21 (231-01): extracted release-please.yml's inline ci-gate poll loop into scripts/ci/wait-for-ci-gate.sh, raised max-attempts 60->120 (60m ceiling) with explicit timeout-minutes: 75, and proved it live against run 30466318240 (exit 0, attempts=1).
 - [Phase ?]: 231-01: added a Rule-3 actions/checkout step to gate-ci-green (not in the plan text) because the extracted script requires the repo checked out on the runner, unlike the prior inline shell.
+- [Phase ?]: GATE-02: H1 (stale-viewport false-green) killed by direct instrumented-run evidence; H2 operative per RESEARCH's literal criteria; structural CSS containment fix (min-width: 0) shipped to installer template + example twin + golden fixture, confirmed green on dispatched run 30501223643
+- [Phase ?]: release_ref_guard blocks a bare workflow_dispatch on a branch (requires refs/tags/v* or the recapture_branch input) -- a gap the plan's read_first missed; use recapture_branch as the sanctioned dispatch escape hatch for later 231 plans needing branch CI runs
 
 ### Pending Todos
 
@@ -505,8 +507,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T23:24:11.257Z
-Stopped at: Completed 231-01-PLAN.md
+Last session: 2026-07-30T00:25:31.037Z
+Stopped at: Completed 231-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -628,3 +630,4 @@ Resume file: None
 | Phase 230 P08 | ~15min | 2 tasks | 1 files |
 | Phase 230 P09 | 1h34m | 3 tasks | 3 files |
 | Phase 231 P01 | 3min | 2 tasks | 4 files |
+| Phase 231 P02 | 56min | 3 tasks | 5 files |

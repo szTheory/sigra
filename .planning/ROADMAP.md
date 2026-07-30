@@ -135,7 +135,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 231-02-PLAN.md — GATE-02 fix: instrument the 320px reflow assertion, read the runs, ship a real WCAG 1.4.10 containment fix (D-08, D-09)
+- [x] 231-02-PLAN.md — GATE-02 fix: instrument the 320px reflow assertion, read the runs, ship a real WCAG 1.4.10 containment fix (D-08, D-09)
 - [ ] 231-03-PLAN.md — DX-05 notifier half: self-healing `release-lane-rot` label with an extended hermetic `gh` stub (D-22)
 
 **Wave 3** *(blocked on Wave 2 completion)*
