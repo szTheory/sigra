@@ -459,6 +459,45 @@ test.describe('Admin eval — render matrix, probes, bundles', () => {
     const cleanFindings = findings2.filter((f) => f.anchor.includes('probe1-clean'));
     expect(cleanFindings.length, 'probe #1 must not flag an on-scale padding').toBe(0);
 
+    // 231-05 (D-08 reconciliation, second instance -- SELECTOR-SCOPED proof).
+    // The --sg-pill-pad-y/-x and --sg-code-pad-y allowance must apply ONLY to
+    // elements carrying a pill/badge/code class, never globally. Prove both
+    // directions: (a) a NON-pill, non-code element using the exact same
+    // pixel values (3px/10px) that the pill tokens resolve to must still be
+    // flagged -- this is the regression a global scale-widening would have
+    // silently created; (b) an element that legitimately carries .sg-status-pill
+    // with real pill-token padding must NOT be flagged.
+    await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.className = 'sg-probe-defect-spacing-not-a-pill';
+      el.setAttribute('data-testid', 'probe1-not-a-pill');
+      // 3px/10px match --sg-pill-pad-y/-x's resolved pixel values exactly, but this
+      // element carries no pill/badge/code class -- must still gate.
+      el.style.cssText = 'padding: 3px 10px !important;';
+      document.getElementById('probe-scope-root')!.appendChild(el);
+    });
+    const findingsNotPill = await probeOffTokenSpacing(page, '#probe-scope-root');
+    const notPillFindings = findingsNotPill.filter((f) => f.anchor.includes('probe1-not-a-pill'));
+    expect(
+      notPillFindings.length,
+      'probe #1 must still flag 3px/10px padding on a non-pill element -- the pill-token allowance is selector-scoped, not global',
+    ).toBeGreaterThan(0);
+
+    await page.evaluate(() => {
+      const el = document.createElement('div');
+      el.className = 'sg-status-pill';
+      el.setAttribute('data-tone', 'ok');
+      el.setAttribute('data-testid', 'probe1-real-pill');
+      el.textContent = 'OK';
+      document.getElementById('probe-scope-root')!.appendChild(el);
+    });
+    const findingsRealPill = await probeOffTokenSpacing(page, '#probe-scope-root');
+    const realPillFindings = findingsRealPill.filter((f) => f.anchor.includes('probe1-real-pill'));
+    expect(
+      realPillFindings.length,
+      'probe #1 must not flag a real .sg-status-pill using the documented --sg-pill-pad-* tokens (admin-token-reference.md:229-234)',
+    ).toBe(0);
+
     // Cleanup
     await page.evaluate(() => {
       document.getElementById('probe-scope-root')?.remove();

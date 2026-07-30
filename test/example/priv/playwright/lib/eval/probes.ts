@@ -146,24 +146,31 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
       return parseFloat(raw);
     }).filter((v) => !isNaN(v));
 
-    // 231-05 (D-08 reconciliation, second instance): the --sg-space-* scale is the
-    // GENERAL spacing rhythm, but the design system also ships purpose-built,
-    // documented "admin-layer decision" sub-scales for specific compact components
-    // (admin-token-reference.md:229-234) that are deliberately off the general
-    // scale -- the same relationship --sg-control-* has to plain heights. Reading
-    // ONLY --sg-space-* here (as probe #1 did until this run) treats every
-    // dedicated sub-scale as a defect. Fold the padding-relevant sub-scale tokens
-    // in as additional accepted scale points, same pattern probe #5 already uses
-    // for --sg-radius-*'s "full" (999px) addition below.
-    const EXTRA_SCALE_VARS = ['--sg-pill-pad-y', '--sg-pill-pad-x', '--sg-code-pad-y'];
-    for (const varName of EXTRA_SCALE_VARS) {
-      const raw = getComputedStyle(root).getPropertyValue(varName).trim();
-      if (!raw) continue;
-      const px = raw.endsWith('rem') ? parseFloat(raw) * rootFs : parseFloat(raw);
-      if (!isNaN(px)) scalePx.push(px);
-    }
+    const onScale = (px: number, extra: number[] = []) =>
+      scalePx.some((t) => Math.abs(px - t) <= 0.5) || extra.some((t) => Math.abs(px - t) <= 0.5);
 
-    const onScale = (px: number) => scalePx.some((t) => Math.abs(px - t) <= 0.5);
+    // 231-05 (D-08 reconciliation, second instance -- SELECTOR-SCOPED, not global).
+    // The --sg-space-* scale (scalePx above) is the GENERAL spacing rhythm and stays
+    // untouched for every element -- a stray off-scale padding on an arbitrary sg-*
+    // element must still gate. But the design system also ships purpose-built,
+    // documented "admin-layer decision" sub-scales for specific compact components
+    // (admin-token-reference.md:229-234), consumed by name in sigra_admin.css: the
+    // pill-pad tokens by .sg-scope-pill/.sg-status-pill/.sg-badge (the single shared
+    // rule at sigra_admin.css:322-334) and the code-pad token by .sg-code (:1104).
+    // These extra values are accepted ONLY for the elements whose own CSS rule
+    // actually names that token -- everything else keeps the space-only scale. A
+    // first attempt pushed all three onto the global scalePx array; that let ANY
+    // element's 3px/10px/1px padding pass, which would silently wave through a real
+    // off-token defect anywhere in the admin surface -- rejected on review.
+    const subScaleVarPx = (varName: string): number => {
+      const raw = getComputedStyle(root).getPropertyValue(varName).trim();
+      if (!raw) return NaN;
+      return raw.endsWith('rem') ? parseFloat(raw) * rootFs : parseFloat(raw);
+    };
+    const pillPadY = subScaleVarPx('--sg-pill-pad-y');
+    const pillPadX = subScaleVarPx('--sg-pill-pad-x');
+    const codePadY = subScaleVarPx('--sg-code-pad-y');
+    const PILL_CLASSES = ['sg-scope-pill', 'sg-status-pill', 'sg-badge'];
 
     const findings: ReturnType<typeof probeOffTokenSpacing extends (...a: infer _) => infer R ? () => R : never>[] = [];
     const SUPPRESS = 'data-sg-off-token-spacing-audit-only';
@@ -183,7 +190,18 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
         parseFloat(cs.paddingLeft),
       ].filter((v) => v > 0);
 
-      const offScale = padValues.filter((v) => !onScale(v));
+      // Selector-scoped extra scale: only the elements whose own CSS rule names
+      // the sub-scale token get the wider allowance.
+      const extraScale: number[] = [];
+      if (PILL_CLASSES.some((c) => el.classList.contains(c))) {
+        if (!isNaN(pillPadY)) extraScale.push(pillPadY);
+        if (!isNaN(pillPadX)) extraScale.push(pillPadX);
+      }
+      if (el.classList.contains('sg-code') && !isNaN(codePadY)) {
+        extraScale.push(codePadY);
+      }
+
+      const offScale = padValues.filter((v) => !onScale(v, extraScale));
       if (offScale.length === 0) continue;
 
       // Build structural anchor
