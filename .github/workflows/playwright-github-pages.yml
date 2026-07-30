@@ -86,6 +86,21 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
+      # All four example-booting jobs in ci.yml (:1288, :1950, :2258, :2506) seed the demo
+      # database before booting; this workflow was the one place that did not, which is why
+      # the admin users index never paginated and the checkpoint spec's next-page link never
+      # rendered here (scheduled run 30432494488, all three checkpoint projects). Copied from
+      # the ci.yml:2506-2513 admin_eval_render block deliberately, not the docs_only-guarded
+      # variants at :1288/:1950/:2258 — this workflow has no `changes` job, so a docs_only
+      # condition would evaluate empty and this step would silently never run.
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci
