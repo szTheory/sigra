@@ -136,7 +136,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 231-02-PLAN.md — GATE-02 fix: instrument the 320px reflow assertion, read the runs, ship a real WCAG 1.4.10 containment fix (D-08, D-09)
-- [ ] 231-03-PLAN.md — DX-05 notifier half: self-healing `release-lane-rot` label with an extended hermetic `gh` stub (D-22)
+- [x] 231-03-PLAN.md — DX-05 notifier half: self-healing `release-lane-rot` label with an extended hermetic `gh` stub (D-22)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 1/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 3/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |

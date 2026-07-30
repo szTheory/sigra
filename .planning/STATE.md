@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 231
 status: executing
-stopped_at: Completed 231-02-PLAN.md
-last_updated: "2026-07-30T00:25:31.046Z"
-last_activity: 2026-07-29
-last_activity_desc: Phase 231 execution started
+stopped_at: Completed 231-03-PLAN.md
+last_updated: "2026-07-30T00:33:36.295Z"
+last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 11
+  completed_plans: 12
   percent: 17
 ---
 
@@ -29,10 +27,10 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
-Progress: [██████░░░░] 55%
-Last activity: 2026-07-29 -- Phase 231 execution started
+Progress: [██████░░░░] 60%
+Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -367,6 +365,7 @@ observed executing the work.
 - [Phase ?]: 231-01: added a Rule-3 actions/checkout step to gate-ci-green (not in the plan text) because the extracted script requires the repo checked out on the runner, unlike the prior inline shell.
 - [Phase ?]: GATE-02: H1 (stale-viewport false-green) killed by direct instrumented-run evidence; H2 operative per RESEARCH's literal criteria; structural CSS containment fix (min-width: 0) shipped to installer template + example twin + golden fixture, confirmed green on dispatched run 30501223643
 - [Phase ?]: release_ref_guard blocks a bare workflow_dispatch on a branch (requires refs/tags/v* or the recapture_branch input) -- a gap the plan's read_first missed; use recapture_branch as the sanctioned dispatch escape hatch for later 231 plans needing branch CI runs
+- [Phase ?]: D-22/D-23: notify-failure-issue.sh self-heals a missing release-lane-rot label, fail-soft; issue #118 cited as already-observed D-23 evidence, no new probe staged
 
 ### Pending Todos
 
@@ -507,8 +506,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T00:25:31.037Z
-Stopped at: Completed 231-02-PLAN.md
+Last session: 2026-07-30T00:33:36.289Z
+Stopped at: Completed 231-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -631,3 +630,4 @@ Resume file: None
 | Phase 230 P09 | 1h34m | 3 tasks | 3 files |
 | Phase 231 P01 | 3min | 2 tasks | 4 files |
 | Phase 231 P02 | 56min | 3 tasks | 5 files |
+| Phase 231 P03 | 8min | 2 tasks | 2 files |
