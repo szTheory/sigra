@@ -264,9 +264,14 @@ treated as "unchanged coverage" — each is disclosed here with its backstop and
    `.github/ci-skip-manifest.tsv` actually executed on the lane that received it. It is
    deliberately **not** in `ci-gate.needs`, never runs on `pull_request`, and cannot change what
    `ci-gate` counts as a pass — Phase 231's GATE-03 owns that, and should consume the manifest
-   rather than re-deriving the set. On the `schedule` lane the receipt currently warns instead of
-   failing, because the nightly baseline is 0 pass / 9 fail and a tenth red would be unreadable;
-   **that leniency is removed when Phase 231's GATE-01 lands.**
+   rather than re-deriving the set. The `schedule` lane's warn-instead-of-fail leniency was
+   **removed by Phase 231's GATE-01** (plan 231-10, D-19): the receipt now fails on the scheduled
+   lane exactly as it does on the push lane. The evidence that justified removing it is the
+   measured nightly, run `30425416933` (2026-07-29T05:33Z) — 25 jobs, 23 green, and the only two
+   reds (`Generated admin Playwright smoke`, `Admin eval render + probe`) were this same phase's
+   own GATE-02 and GATE-04 defects, both fixed before this removal landed. A structural guard,
+   `scripts/ci/prohibitions/p16-no-schedule-lane-leniency.test.mjs`, asserts over comment-stripped
+   content that no trigger-dependent early exit can return.
 
 **Pointer:** ROADMAP.md's SC-2 wording ("design-gallery snapshots off the PR gate") is superseded
 by the operative restatement in `230-EVIDENCE.md` — a job whose condition evaluates false is

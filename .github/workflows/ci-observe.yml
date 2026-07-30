@@ -120,20 +120,6 @@ jobs:
           fi
           jq -r '.constructs[] | select(.verdict == "FAIL") | "::error::\(.id): \(.reason)"' \
             demotion-observation.json
-          # Nightly leniency, deliberate and self-retiring. The push lane is read (8 pass /
-          # 1 fail over the measured window), so a red there is signal. The scheduled lane
-          # is 0 pass / 9 fail, so a tenth red is unreadable by construction -- adding one
-          # would be the unread-noise failure this milestone exists to remove. The verdict
-          # computed above is IDENTICAL on both lanes; only the consequence differs, and
-          # the leniency is NOT conditional on any computed "is the nightly green?" state,
-          # because that would itself be a gate that rots.
-          # REMOVAL CONDITION: Phase 231 GATE-01. When a scheduled run concludes green (or
-          # every remaining red is a filed, diagnosed defect), delete this branch so the
-          # schedule lane fails like the push lane does.
-          if [ "$RUN_EVENT" = "schedule" ]; then
-            echo "::warning::Demotion receipt FAILED on the scheduled lane. Not failing this job: the nightly baseline is 0 pass / 9 fail, so an extra red is unreadable. Remove this leniency when Phase 231 GATE-01 lands."
-            exit 0
-          fi
           exit 1
 
   # ---------------------------------------------------------------------------
