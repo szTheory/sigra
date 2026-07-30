@@ -146,6 +146,23 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
       return parseFloat(raw);
     }).filter((v) => !isNaN(v));
 
+    // 231-05 (D-08 reconciliation, second instance): the --sg-space-* scale is the
+    // GENERAL spacing rhythm, but the design system also ships purpose-built,
+    // documented "admin-layer decision" sub-scales for specific compact components
+    // (admin-token-reference.md:229-234) that are deliberately off the general
+    // scale -- the same relationship --sg-control-* has to plain heights. Reading
+    // ONLY --sg-space-* here (as probe #1 did until this run) treats every
+    // dedicated sub-scale as a defect. Fold the padding-relevant sub-scale tokens
+    // in as additional accepted scale points, same pattern probe #5 already uses
+    // for --sg-radius-*'s "full" (999px) addition below.
+    const EXTRA_SCALE_VARS = ['--sg-pill-pad-y', '--sg-pill-pad-x', '--sg-code-pad-y'];
+    for (const varName of EXTRA_SCALE_VARS) {
+      const raw = getComputedStyle(root).getPropertyValue(varName).trim();
+      if (!raw) continue;
+      const px = raw.endsWith('rem') ? parseFloat(raw) * rootFs : parseFloat(raw);
+      if (!isNaN(px)) scalePx.push(px);
+    }
+
     const onScale = (px: number) => scalePx.some((t) => Math.abs(px - t) <= 0.5);
 
     const findings: ReturnType<typeof probeOffTokenSpacing extends (...a: infer _) => infer R ? () => R : never>[] = [];

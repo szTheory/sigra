@@ -81,7 +81,22 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           </div>
 
           <%!-- board-task_card --%>
-          <div id="board-task_card" class="sg-card sg-stack sg-stack--4">
+          <%!-- 231-05 (D-08 reconciliation): every gallery board uses this same
+               .sg-card presentational frame (a gallery-harness convention, not
+               shipped admin UI). task_card/1 itself renders .sg-card
+               (components.ex), so this board's own frame always nests a real
+               card inside a real card -- an artifact of demoing a card-shaped
+               component inside the gallery's own card-shaped frame, never
+               reproduced in production (index_live.ex / organization_live.ex
+               place <.task_card> inside .sg-grid, never .sg-card).
+               data-sg-card-nesting-audit-only is probe #8's purpose-built,
+               board-level escape hatch for exactly this case -- suppress here,
+               not by weakening the probe. --%>
+          <div
+            id="board-task_card"
+            class="sg-card sg-stack sg-stack--4"
+            data-sg-card-nesting-audit-only
+          >
             <p class="sg-muted sg-text-sm">task_card</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default</span>
@@ -365,7 +380,18 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           </div>
 
           <%!-- board-skeleton --%>
-          <div id="board-skeleton" class="sg-card sg-stack sg-stack--4">
+          <%!-- 231-05 (D-08 reconciliation): same gallery-frame artifact as
+               board-task_card above. This board's own demo content deliberately
+               includes a "card skeleton" example (a real .sg-card shell showing
+               skeleton bones inside it, distinct from .sg-skeleton itself) to
+               demonstrate what a card looks like mid-load -- nested inside this
+               board's own .sg-card frame. Not a production nesting bug; suppress
+               via probe #8's existing board-level escape hatch. --%>
+          <div
+            id="board-skeleton"
+            class="sg-card sg-stack sg-stack--4"
+            data-sg-card-nesting-audit-only
+          >
             <p class="sg-muted sg-text-sm">skeleton</p>
             <div
               class="sg-stack sg-stack--3"
