@@ -69,7 +69,7 @@ forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
 
 - **D-25:** Mechanism is a **local composite action** at `.github/actions/boot-example-app/action.yml` with inputs (`seeds`, `browsers`, `port`, `warm-paths`). A `scripts/ci/*.sh` cannot express it — the duplicated block contains four `uses:` steps (`actions/checkout`, `erlef/setup-beam`, `actions/setup-node`, `actions/cache`). No `.github/actions/` directory exists yet.
 - **D-26:** Seven call sites (not six): `example_unit_smoke` `ci.yml:742-775` (MIX_ENV=test, no boot, no node); `example_http_smoke` `:1180-1231` (boot, no seeds, no node/browsers); `example_playwright_smoke` `:1270-1408` (full + browser cache); `admin_design_recapture` `:2010-2089` (full, plain `install --with-deps`); `admin_checkpoint_recapture` `:2329-2379+` (full); `admin_eval_render` `:2570-2644` (full, **`PORT: 4011`**, warms only `/admin/_design`); `playwright-github-pages.yml:54-131` (full, p15-guarded). The comment at `ci.yml:2008-2009` calling itself a "verbatim clone of ci.yml:886–968" is **already stale** — the source is now at `:1270-1408`.
-- **D-27 (hard-fail):** The composite **must not** unconditionally include an `actions/cache` step. `ci.yml:1333-1355` documents that `admin_eval_render` declares no cache step *as a deliberate structural guarantee*; folding caching into a shared composite "would destroy that guarantee and re-open the Phase 231 GATE-04 bug." Gate caching behind an input, or keep the composite install-only.
+- **D-27 (hard-fail) [CORRECTED — see Corrections below]:** The composite **must not** unconditionally include the **Playwright browser** `actions/cache` step; that one must stay caller-owned, or it re-opens the Phase 231 GATE-04 bug. The **deps** cache may be unconditional in the composite. Correction: the original wording claimed `admin_eval_render` "declares no cache step as a deliberate structural guarantee" — it *does* declare one (`ci.yml:2581-2591`, id `admin_eval_render_deps_cache`); the structural guarantee concerns only the browser cache. Verified independently by 232-RESEARCH.md and 232-PATTERNS.md against HEAD.
 - **D-28:** Composite mechanics, verified: `uses:` steps are supported; `if:` on steps is supported; `shell:` is **required** on every run step; inputs are **all strings** (booleans arrive as `'true'`/`'false'`); `$GITHUB_ENV` **leaks outward** to the caller's later steps; `continue-on-error` on composite steps is **not supported**; there is no `secrets:` block; `${{ github.action_path }}` works.
 - **D-29:** `actions/cache` post-save works correctly **one level deep only** (actions/runner#2030 — post steps in *nested* composites get the wrong context). Never nest a cache-bearing composite. Composite step ids are action-scoped: the caller **cannot** read `steps.<internal-id>.outputs.cache-hit`; the action must re-export via `outputs.<id>.value`. On a total miss `cache-hit` is the **empty string, not `'false'`** — always compare `!= 'true'` (Sigra already does).
 - **D-30 (hard-fail):** Three guards parse the affected YAML literally and will red on a careless refactor: `p15-pages-publisher-seeds-before-boot.test.mjs` parses the literal step list of `playwright-github-pages.yml` (`stepList()` matches `^ {6}- name:`); `scripts/ci/playwright-cache-key-guard.sh:59-62` greps `ci.yml` for `playwright-chromium-webkit-<x.y.z>-vN` and fails closed; `p09-timeouts-not-truncating.test.mjs` requires one `timeout-minutes` per `runs-on:` job; `p10`'s step-id resolution matches `^\s+id: <id>` in `ci.yml`.
@@ -82,6 +82,50 @@ forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
 
 </decisions>
 
+<corrections>
+
+Applied at plan-phase time (2026-07-30), after `232-RESEARCH.md` and `232-PATTERNS.md`
+independently verified each against HEAD. Decision **substance** is intact in every case; only
+wrong **facts and citations** were corrected. Nothing was silently rewritten — each change is
+recorded here.
+
+1. **D-27 — materially misstated (corrected in place).** The original claimed `admin_eval_render`
+   declares no `actions/cache` step "as a deliberate structural guarantee." It **does** declare one
+   (`ci.yml:2581-2591`, id `admin_eval_render_deps_cache`). The guarantee concerns only the
+   **Playwright browser** cache. Operative rule: gate the *browser* cache behind an input (or keep
+   it caller-owned); the *deps* cache may be unconditional in the composite. This widens PW-03's
+   freedom and is plausibly the difference between meeting SC-4 and leaving the largest duplicated
+   block unfactored. D-27's intent (do not re-open the Phase 231 GATE-04 bug) stands.
+
+2. **Spec directory path — wrong throughout (corrected in `<canonical_refs>`).** CONTEXT.md wrote
+   `test/example/priv/playwright/specs/`; the real directory is **`tests/`**
+   (`playwright.config.ts:52` → `testDir: './tests'`). Note
+   `phase_230_design_gallery_split_test.exs:12` already uses the correct path, so CONTEXT.md was the
+   only wrong source. Grep for symbols, not paths (consistent with D-09).
+
+3. **New hazard not named in the original decisions — E-3, verified live against the pinned
+   Playwright 1.59.1.** `--shard` **suppresses Playwright's own `Error: No tests found` exit-1**. An
+   empty `--grep` alone exits 1 loudly; the *same* grep with `--shard` exits **0 silently**. The two
+   design steps today (`--grep-invert '@snapshot'`, `--grep '@snapshot'`) are protected by that
+   exit-1, and **PW-02 removes the protection**. Consequences, all binding on D-19:
+   - The emptiness assertion must cover the **grep** trigger, not just the file-count trigger.
+   - An empty shard leg emits **zero stdout** — there is no `0 passed` line to parse. `stats.expected`
+     from a `json` reporter is the only workable signal, which makes adding that reporter a Wave 0 item.
+   - Setup runs once per *invocation* and **does** run per shard leg — setup cost is paid once per shard.
+
+4. **Open conflict to resolve in the plan, not at execution — manifest ↔ observer.** If
+   `design_gallery_snapshots` moves into a matrix job, `p10` demands the manifest record the literal
+   `Example Playwright smoke shard ${{ matrix.seam }}`, while `ci-demotion-observer.sh:150` resolves
+   it against the API's *interpolated* `… shard design`. One cell, two incompatible requirements,
+   both fail closed. `232-RESEARCH.md` documents three resolutions and recommends keeping the
+   demoted step on a **non-matrix** job.
+
+5. **The six ledger-side prohibitions are 230-pinned.** `p01`/`p03`/`p08`/`p11`/`p12`/`p13`
+   hard-code `LEDGER = '.planning/phases/230-…/230-EVIDENCE.md'` and will **never** red on a 232
+   omission. 232 needs its own guards — treat this as a deliverable, not incidental.
+
+</corrections>
+
 <canonical_refs>
 
 **Phase / milestone**
@@ -93,13 +137,13 @@ forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
 - `.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md` (lines 168, 176–178, 189–192, 423–430)
 - `.planning/phases/231-gate-honesty-nightly-revival/231-CONTEXT.md`
 
-**Playwright**
-- `test/example/priv/playwright/playwright.config.ts` (11–13, 53–55, 94, 103–112)
-- `test/example/priv/playwright/specs/admin-design.spec.ts` (52, 108–109, 273–278, 286–290, 448–450)
+**Playwright** (note: the spec directory is `tests/`, **not** `specs/` — `playwright.config.ts:52` sets `testDir: './tests'`)
+- `test/example/priv/playwright/playwright.config.ts` (11–13, 52, 53–55, 94, 103–112)
+- `test/example/priv/playwright/tests/admin-design.spec.ts` (52, 108–109, 273–278, 286–290, 448–450)
 - `test/example/priv/playwright/helpers/adminFlows.ts` (57–63, 65–91)
-- `test/example/priv/playwright/specs/admin-flow-platform-admin.spec.ts` (269–320)
-- `test/example/priv/playwright/specs/admin-flow-support-investigator.spec.ts` (70)
-- `test/example/priv/playwright/specs/admin-coherence-sweep.spec.ts` (87–109)
+- `test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts` (269–320)
+- `test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts` (70)
+- `test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts` (87–109)
 - `test/example/priv/playwright/.gitignore`
 
 **Example app**
