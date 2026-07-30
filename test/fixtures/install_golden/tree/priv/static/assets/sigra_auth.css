@@ -479,11 +479,24 @@
     text-decoration: underline;
   }
 
+  /* GATE-02 gap-closure, round 3: live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md)
+     showed H2/P sharing one identical right edge (321.4375px) as the last remaining
+     offenders after rounds 1-2. Neither element had min-width: 0, so as grid items of
+     a single-implicit-column .sigra-auth-stack, both stretch to the shared column
+     track's width, which is itself floored by whichever sibling's own min-content is
+     largest (here, the <p> copy's longest unbreakable word). min-width: 0 lets each
+     item shrink; overflow-wrap/word-break give the text itself a last-resort break
+     point, mirroring the identical pattern already applied to
+     .sigra-auth-disclosure > summary (this file, ~line 244) and .sigra-auth-action
+     button text (~line 818) for the same reason. */
   .sigra-auth h1,
   .sigra-auth h2,
   .sigra-auth h3,
   .sigra-auth p {
     margin-top: 0;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
   .sigra-auth h1 {

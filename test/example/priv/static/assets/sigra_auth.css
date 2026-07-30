@@ -168,6 +168,15 @@
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
+  .sigra-auth h1,
+  .sigra-auth h2,
+  .sigra-auth h3,
+  .sigra-auth p {
+    min-width: 0; /* GATE-02 gap-closure round 3: mirrors the template's h1-h3/p containment fix (231-GAP-GATE02-SUMMARY.md). */
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
   .sigra-auth [data-passkey-login-status]:empty,
   .sigra-auth [data-passkey-login-status][data-passkey-status=""] {
     display: none;
