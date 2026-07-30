@@ -4,9 +4,9 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
 status: executing
-stopped_at: "231-05 BLOCKED: admin_eval_render phase (a) HARD-GATE finding needs a code decision outside 231-05's file fence (see 231-05-SUMMARY.md)"
-last_updated: "2026-07-30T01:29:32.671Z"
-last_activity: 2026-07-29
+stopped_at: "Completed 231-05-PLAN.md (D-11 step 3: harness proven green in CI, run 30512523387)"
+last_updated: "2026-07-30T04:29:20.856Z"
+last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
@@ -28,10 +28,10 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 Status: Ready to execute
-Progress: [███████░░░] 65%
-Last activity: 2026-07-29
+Progress: [███████░░░] 70%
+Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -369,6 +369,7 @@ observed executing the work.
 - [Phase ?]: D-22/D-23: notify-failure-issue.sh self-heals a missing release-lane-rot label, fail-soft; issue #118 cited as already-observed D-23 evidence, no new probe staged
 - [Phase ?]: 231-04: admin_eval_render now installs chromium+webkit (was chromium-only), matching admin-eval-mobile's iPhone-13/WebKit project; browser cache key re-tokened -v1 -> -v2 with C-6 guard generalization
 - [Phase ?]: 231-04: probes.ts ember-class check derives from classList instead of className (SVGAnimatedString crash fix); p14 prohibition guard added, proven fail-first
+- [Phase ?]: 231-05: b1-b6 proven executing and passing in CI for the first time (run 30512523387, PASS -- all phases green); required 3 probe-vs-ratified-design-decision reconciliations (D-08 chip-remove, pill/code sub-scale tokens selector-scoped, gallery-frame card-nesting suppression), a fix-queue-lint.sh proxy exemption, a CI-native ledger rebase (33642->38016 open_findings), and a new sanctioned floor-rebase declaration mechanism in quality-findings-monotonic.sh -- all outside the plan's original file fence, operator-reviewed and authorized. GATE-04 NOT marked complete (231-06 owns removing continue-on-error). Found and characterized (not fixed) a genuine cross-run intermittent in Generated admin Playwright smoke, GATE-02's own lane.
 
 ### Pending Todos
 
@@ -511,9 +512,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T01:29:32.651Z
-Stopped at: 231-05 BLOCKED: admin_eval_render phase (a) HARD-GATE finding needs a code decision outside 231-05's file fence (see 231-05-SUMMARY.md)
-Resume file: 231-05-PLAN.md (Task 1 done/read-only; Task 2 checkpoint + Task 3 NOT reached)
+Last session: 2026-07-30T04:29:20.846Z
+Stopped at: Completed 231-05-PLAN.md (D-11 step 3: harness proven green in CI, run 30512523387)
+Resume file: 231-06-PLAN.md
 
 ## Operator Next Steps
 
@@ -637,3 +638,4 @@ Resume file: 231-05-PLAN.md (Task 1 done/read-only; Task 2 checkpoint + Task 3 N
 | Phase 231 P02 | 56min | 3 tasks | 5 files |
 | Phase 231 P03 | 8min | 2 tasks | 2 files |
 | Phase 231 P04 | 22min | 2 tasks | 5 files |
+| Phase 231 P05 | 4h | 9 tasks | 9 files |

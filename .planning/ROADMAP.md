@@ -144,7 +144,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 231-05-PLAN.md — GATE-04 step 3 as a first-class task: run the harness in CI and *read* whether b1-b6 pass; ledger re-base decision checkpoint (D-11, D-14, D-15)
+- [x] 231-05-PLAN.md — GATE-04 step 3 as a first-class task: run the harness in CI and *read* whether b1-b6 pass; ledger re-base decision checkpoint (D-11, D-14, D-15)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
