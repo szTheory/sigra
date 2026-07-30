@@ -561,6 +561,90 @@ observation**, never evidence of health, and must not be recorded as `captured` 
 
 ---
 
+## Per-Lane Nightly-Equivalent Disposition (comprehensive, superseding the 3-row table above)
+
+This section is analysis, not a slot. It enumerates **every** lane that runs on a `schedule` event
+in `.github/workflows/ci.yml`, with its most-recent observed disposition and — where GATE-01's
+fallback applies — its filing location and owner. The three-row table above covers only the
+baseline run's original reds; this table covers the full current matrix.
+
+**Where `workflow_dispatch` is, and is not, a faithful proxy for `schedule`.** `ci.yml` contains
+no job whose `if:` distinguishes `schedule` from `push` or `workflow_dispatch` — every job in the
+file gates on the uniform `github.event_name != 'pull_request'` (confirmed by grepping every
+job's `if:` in the file: `release_ref_guard`, `changes`, `library_tests`, `library_tests_dep_off`,
+`example_unit_smoke`, `install_smoke`, `upgrade_smoke`, `passkeys_manual_fallback_smoke`,
+`install_matrix`, `passkeys_opt_out_smoke`, `example_http_smoke`, `example_playwright_smoke`,
+`generated_admin_playwright_smoke`, `notify_release_lane_rot`, `admin_design_recapture`,
+`admin_checkpoint_recapture`, `admin_eval_render`, `nightly_probe` — none references
+`github.event_name == 'schedule'` anywhere). `docs_only` is unconditionally `false` on any
+non-`pull_request` event (`ci.yml:138-141`), so no Tier-C skip is reachable on `schedule` either.
+**Within `ci.yml`'s own job matrix, a `workflow_dispatch` run is therefore structurally identical
+to a `schedule` run** — this is a different situation from the Pages publisher's
+`github.ref == 'refs/heads/main'` gate (AFTER-PAGES-PUBLISHER above), which genuinely cannot be
+exercised from any pre-merge dispatch. `workflow_dispatch` IS a faithful proxy for `ci.yml`'s own
+job matrix; it is NOT a faithful proxy for anything gated on `github.ref` or on the literal
+`schedule` trigger name.
+
+**Primary evidence run: `30526744204`** (`workflow_dispatch`, `force_rot_probe=false`, plan
+231-09's clean control, commit `d7f75397`) — the most recent full-matrix dispatch with zero
+probe interference, re-verified live 2026-07-30:
+
+```
+bash scripts/ci/ci-run-metrics.sh --jobs 30526744204
+```
+
+24 of 25 jobs `success`; the 25th (`Notify on red ci-gate`) correctly `skipped` (outcome-gated on
+`ci-gate` failure, which did not occur — not a red lane).
+
+| Lane | Current disposition | Sample (this phase) | Filed defect | Owner |
+|---|---|---|---|---|
+| `Fast checks` | green | deterministic hermetic guard suite, every dispatch/push this phase | — | — |
+| `Release ref guard` | green | every dispatch/push this phase | — | — |
+| `Detect docs-only change` | green (`docs_only=false`, structural on non-PR) | every dispatch/push this phase | — | — |
+| `Install matrix` (4 legs) | green | every dispatch/push this phase | — | — |
+| `Passkeys manual fallback smoke` | green | every dispatch/push this phase | — | — |
+| `Passkeys opt-out smoke` | green | every dispatch/push this phase | — | — |
+| `Nightly probe (forced-failure self-test)` | green | every dispatch/push this phase | — | — |
+| `Upgrade smoke` | green in **11/12** observed dispatches (~92%) | 1 failure: run `30504235540`, job `90750408326` — `FAIL: no published sigra release found on Hex for series 1 (after excluding: 1.20.0)`. **Not** the `<.button type>` compilation issue (that is Hex-side resolved per the todo's own status section) — this traces to the stray Hex `1.20.0` release still resolving as `latest_stable` | `.planning/todos/pending/2026-07-10-upgrade-smoke-button-type-hex-publish.md` (§ "Remaining" cross-references the stray-1.20.0 dependency) + `.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md` (the root cause) | **Jon** (interactive Hex auth required for `mix hex.retire`; deferred indefinitely per ADR 003, per MEMORY) |
+| `Example HTTP smoke` | green | every dispatch/push this phase | — | — |
+| `Example unit smoke` | green | every dispatch/push this phase | — | — |
+| `Example Playwright smoke` | green | every dispatch/push this phase | — | — |
+| `Install smoke` | green | every dispatch/push this phase | — | — |
+| `Install golden + idempotency contract` | green | every dispatch/push this phase | — | — |
+| `Library tests` (both shards + dep-off + aggregator) | green | every dispatch/push this phase | — | — |
+| `Generated admin Playwright smoke` | green — **12+ consecutive** since the corrected fix (`70bed477`, `231-GAP-GATE02`) landed, including this plan's own final PR run `30534368644` | 2 pre-fix intermittent failures observed at `be970b50` (231-05, 2026-07-29T23:26:50-04:00) and `91d42bf8` (231-06, 2026-07-30T00:33:48-04:00) — **both predate** the round-4 corrected commit `70bed477` (2026-07-30T02:10:47-04:00) and reproduce the exact defect `231-GAP-GATE02` diagnosed and fixed (grid-item min-content containment). Zero recurrences in any of the ~13 observations since. | already closed (GATE-02 Complete) | — |
+| `Admin eval render + probe` | green, mask removed | two independent green observations (`30512523387`, `30514238789`, see AFTER-EVAL-HARNESS) plus this dispatch | already closed (GATE-04's literal text satisfied per 231-06; checkbox left to verifier) | — |
+| `Recapture admin-design baselines` | green | **12/12** observed dispatches (100%) | — | — |
+| `Recapture admin-checkpoint baselines` | green in **11/12** observed dispatches (~92%) | 1 failure: run `30514238789`, job `90780471296` — the log's `FATAL: role "root" does not exist` line is Postgres service-container health-check noise (harmless, present on every run); the actual cause is `Could not mix rebar from any hex.pm mirror` — a transient network fetch failure, re-diagnosed by this plan (231-06's own SUMMARY reported the symptom without root-causing it) | `.planning/todos/pending/2026-07-30-recapture-job-transient-hexpm-mirror-failure.md` (filed by this plan) | unassigned (low severity, Tier-A, never in `ci-gate.needs`) |
+| `ci-gate` | green | every non-probe dispatch/push this phase, including the GATE-03 honest-skip verdict (which runs on `schedule` too, since `ci-gate` carries `if: always()` with no event restriction) | — | — |
+| `Notify on red ci-gate (release-lane-rot)` | correctly `skipped` (outcome-gated; fires only on `ci-gate` failure) — not a red lane | fires `success` when triggered (`30526771018`, the rot probe) | already proven both branches (D-23) | — |
+
+**Not part of `ci.yml`'s nightly matrix** (recorded separately, see the two-item list above):
+the Pages publisher (own workflow, own cron) and the Pages build deployment (GitHub-managed,
+not repo YAML).
+
+**Result: zero lanes in the `ci.yml` nightly-equivalent matrix are currently in an unaccounted-for
+red state.** Every lane is either sustained-green across this phase's full dispatch/push sample, or
+— for the two rare (~8% each) transients — filed, diagnosed, and owned as of this plan's commits.
+
+**Why GATE-01 is nonetheless left `Pending`, not `Complete`, despite this table.** GATE-01's
+literal text is a claim about **"the nightly scheduled run"** — a specific, identifiable run
+instance. No `schedule`-triggered run has occurred with this phase's fixes in place; the earliest
+possible one is the first `30 4 * * *` tick after this PR merges. This table is exhaustive
+proxy evidence, not the observation itself — and per the plan's own explicit prohibition (this
+plan's frontmatter `<prohibitions>` block): "MUST NOT declare GATE-01 satisfied on the basis
+that the nightly's known reds were fixed. The requirement is a claim about a run, and no run has
+happened yet at ledger time." The AFTER-NIGHTLY-POST-MERGE slot above remains the mechanism for
+closing it. **Fast-path closure criteria for whoever captures the first post-merge nightly:** if
+that run's job list matches this table (every lane green, or red only on `Upgrade smoke`/
+`Recapture admin-checkpoint baselines` at the already-filed, already-owned defects above), GATE-01's
+fallback disjunct is satisfied by the filings already on record — no new filing action is required,
+only pasting the run's verbatim output into the pending slot and flipping `REQUIREMENTS.md`'s
+GATE-01 checkbox. If a genuinely new, unfiled red appears, it must be filed and diagnosed before
+GATE-01 can close, per the disposition procedure's fallback activation criteria above.
+
+---
+
 ## Pre-Merge Hygiene Check
 
 GitHub honors a `[skip ci]` (or `[ci skip]`) token found **anywhere** in a commit message, and a
