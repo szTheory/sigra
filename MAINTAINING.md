@@ -134,7 +134,6 @@ The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** i
 - `install_matrix` (four flag-combination installs)
 - `upgrade_smoke` (published → local upgrade path)
 - `passkeys_manual_fallback_smoke` and `passkeys_opt_out_smoke`
-- `generated_admin_playwright_smoke` (generated-host admin behavior; see its `timeout-minutes:` for the current ceiling)
 - `nightly_probe` (forced-failure self-test; see runbook below)
 
 The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
@@ -150,11 +149,13 @@ step id) and its literal gating condition, verified against the shipped `ci.yml`
 this section was written.
 
 **Tier A — event-gated, pre-existing (Phase 196).** `install_matrix`, `upgrade_smoke`,
-`passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `generated_admin_playwright_smoke`,
-`nightly_probe`, plus the two recapture lanes (`admin_design_recapture`,
-`admin_checkpoint_recapture`) and `notify_release_lane_rot` — all gated to non-`pull_request`
-events. The "CI cadence" enumeration above is the authority for this tier; it is repeated here
-only so the post-Phase-230 honest-skip set reads as one list.
+`passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `nightly_probe`, plus the two
+recapture lanes (`admin_design_recapture`, `admin_checkpoint_recapture`) and
+`notify_release_lane_rot` — all gated to non-`pull_request` events. The "CI cadence" enumeration
+above is the authority for this tier; it is repeated here only so the post-Phase-230 honest-skip
+set reads as one list. `generated_admin_playwright_smoke` is no longer in this tier: Phase 231
+GATE-02 / D-06 deleted its `if:` condition outright (not replaced), so it now runs on every
+event, including `pull_request`, gated by nothing.
 
 **Tier B — event-gated, added by Phase 230.**
 
@@ -273,13 +274,19 @@ present in the job list with a `skipped` conclusion rather than absent from it.
 
 #### Accepted residuals (D-07 honest-truth disclosure)
 
-Two coverage areas moved to nightly are accepted residuals and must never be silently treated as "covered on PRs":
+One coverage area moved to nightly is an accepted residual and must never be silently treated as "covered on PRs":
 
 1. **`upgrade_smoke` whole upgrade path** — the published-package → local-candidate upgrade path has **no per-PR behavioral proxy**. It runs on `push: main` and release dispatch (so every merge to main is covered before release), but not on individual PRs. This is accepted as release-boundary coverage; any regression surfaces before a Hex publish.
 
-2. **Generated-host template parity** — `generated_admin_playwright_smoke` (the full generated-host admin Playwright run) is fully moved to nightly. Admin _behavior_ is proxied on PRs by `example_playwright_smoke`'s admin specs (a required lane). However, the **template-parity** check (installer-emitted shell vs library admin) becomes nightly-only. This residual is explicitly backstopped by **DIST-06 `scripts/ci/admin-acceptance-smoke.sh`** (`RUN_PARITY`) — the acceptance smoke script that scaffolds a fresh `phx.new + sigra.install` and runs the full Playwright suite against the generated host. This automation is the proxy for template-parity regressions between nightly runs.
+This residual is a deliberate, disclosed tradeoff that shortens PR wall-clock time without silently stranding correctness-critical coverage. It is documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
 
-These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
+**Retired (Phase 231 GATE-02 / D-06):** the former residual 2, "Generated-host template parity"
+(`generated_admin_playwright_smoke` fully moved to nightly), is closed. That job's stale
+`if:` condition — the one which had silently kept it off `pull_request` for months after the
+branch it referenced merged — was deleted outright, not replaced, so template parity is now
+verified on every pull request. `DIST-06 scripts/ci/admin-acceptance-smoke.sh` (`RUN_PARITY`)
+remains in place as a standalone acceptance smoke script, but it is no longer covering for a
+residual: the job itself now runs the check on the PR lane directly.
 
 #### Before/after acceptance evidence (v1.40 CI-PERF milestone — Phase 198)
 

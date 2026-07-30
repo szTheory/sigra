@@ -1686,15 +1686,22 @@ jobs:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
     # Phase 230 (FAST-07): only the timeout value and its position changed
-    # here. The head-ref condition on the next line is stale and left
-    # untouched -- correcting it is GATE-02, Phase 231's scope, not this
-    # plan's. 15 replaces the prior 60 -- about 16x this job's 3.73m
-    # measured duration (230-EVIDENCE.md) -- against the same 2x sizing
-    # rule applied to every other job.
+    # here. 15 replaces the prior 60 -- about 16x this job's 3.73m measured
+    # duration (230-EVIDENCE.md) -- against the same 2x sizing rule applied
+    # to every other job.
     timeout-minutes: 15
-    # GATE-02 / D-08: temporary integration-scoped relaxation — runs on PR #63's head branch
-    # (ship/v1.42-ci-gate-remediation) to prove generated-host parity in CI; remove after merge.
-    if: github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'
+    # Phase 231 GATE-02 / D-06: this job now runs on every event, including
+    # pull_request, with no condition at all. The branch-name condition it
+    # replaced (`... || github.head_ref == 'ship/v1.42-ci-gate-remediation'`)
+    # had evaluated false on every pull request since that branch merged
+    # months ago, so generated-host parity reported green while verifying
+    # nothing -- ci-gate counts a `skipped` conclusion as a pass. Do not
+    # replace this with the house `github.event_name != 'pull_request'`
+    # pattern either: that would still leave parity verified on no PR at
+    # all, which is the same defect restated rather than fixed. Measured
+    # cost: ~4 runner-minutes fully in parallel behind release_ref_guard
+    # (~3s), against a PR pole of 989s (example_playwright_smoke) -- FAST-01's
+    # p50 wall-clock target is unaffected (D-07).
     needs: release_ref_guard
     services:
       postgres:
