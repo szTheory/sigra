@@ -4,15 +4,15 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
 status: verifying
-stopped_at: Completed 231-11-PLAN.md — phase 231's 11 plans all executed; GATE-01 left Pending pending the first post-merge nightly
-last_updated: "2026-07-30T10:21:05.812Z"
+stopped_at: Phase 231 close-out bookkeeping applied — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling; 231-UAT.md written; GATE-01 remains Pending, blocked on the first post-merge scheduled nightly (see 231-UAT.md)
+last_updated: "2026-07-30T12:30:00.000Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 1
   total_plans: 20
   completed_plans: 20
-  percent: 33
+  percent: 17
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 231 — EXECUTING
+Phase: 231 — VERIFYING (human_needed)
 Plan: 11 of 11
-Status: Phase complete — ready for verification
-Progress: [██████████] 100%
+Status: All 11 plans executed and verified against the live repo (231-VERIFICATION.md); 4/5 requirements Complete (GATE-04 flipped by the verifier's independent ruling, see 231-UAT.md). GATE-01 remains Pending — its literal text names a specific post-merge scheduled-nightly observation that cannot exist before PR #125 merges. Phase stays open until that observation closes GATE-01.
+Progress: [██████████] 100% of this phase's plans; phase itself not closed
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -522,13 +522,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T10:21:05.802Z
-Stopped at: Completed 231-11-PLAN.md — phase 231's 11 plans all executed; GATE-01 left Pending pending the first post-merge nightly
+Last session: 2026-07-30T12:30:00.000Z
+Stopped at: Phase 231 close-out bookkeeping — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling, 231-UAT.md written recording GATE-01's post-merge-only observation and the standing backstops (D-18, DX-05's gate-ci-green ceiling), stale ci-observe.yml:78 comment fixed. Phase 231 remains open pending the first post-merge scheduled nightly.
 Resume file: None
 
 ## Operator Next Steps
 
-- Plan the first phase with `/gsd-plan-phase 230`
+- Merge PR #125 to `main`.
+- After merge, observe the first `schedule`-triggered nightly run of `ci.yml` (cron `30 4 * * *`) per `231-UAT.md` §3's exact `gh` commands, and use it to close GATE-01 (flip its checkbox in `.planning/REQUIREMENTS.md`, mark Phase 231 complete).
+- Then plan the next phase with `/gsd-plan-phase 232`.
 
 ## Performance Metrics
 

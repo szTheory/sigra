@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Next: `/gsd-plan-phase 230`.
+**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Phase 230 complete; Phase 231's 11 plans are all executed but the phase is not closed — verification returned `human_needed` on GATE-01, which is structurally unobservable until the first post-merge scheduled nightly (see `231-UAT.md`). Next: merge PR #125, observe the first `schedule`-triggered nightly, then close GATE-01 and proceed to `/gsd-plan-phase 232`.
 
 ## Milestones
 
@@ -49,7 +49,7 @@
 
 ## Phases
 
-- [ ] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
+- [x] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
 - [ ] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing
 - [ ] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude
 - [ ] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 11/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 11/11 | Verifying (human_needed — GATE-01 blocked on post-merge nightly, see 231-UAT.md) |  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
