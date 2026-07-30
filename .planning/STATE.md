@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 status: executing
-stopped_at: Completed 231-07-PLAN.md
-last_updated: "2026-07-30T07:59:01.029Z"
+stopped_at: Completed 231-08-PLAN.md
+last_updated: "2026-07-30T08:18:00.376Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 17
+  completed_plans: 18
   percent: 17
 ---
 
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 8 of 11
+Plan: 9 of 11
 Status: Ready to execute
-Progress: [█████████░] 85%
+Progress: [█████████░] 90%
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -374,6 +374,7 @@ observed executing the work.
 - [Phase ?]: Generated admin Playwright smoke's cross-run intermittent (320px reflow, admin-generated.spec.ts:79) recurred a third time (~60% failure rate across 5 observed runs) -- flagged as a blocking risk for 231-07, not fixed in this plan.
 - [Phase ?]: GATE-02 marked Complete: stale head_ref gate deleted outright, confirmed executing (non-skipped) on two independent pull_request-event CI runs, confirmed in ci-gate.needs (merge-blocking). GATE-03 left Pending: p10 gained gate-column parity + rotted-gate-string assertions (a necessary static precondition) but ci-gate's own runtime skip-legitimacy verdict (honest-skip-verdict.sh) is not yet built.
 - [Phase ?]: Found and fixed a same-defect-class bug mid-plan: scripts/ci/ci-demotion-observer.test.sh's EVAL_NAME fixture carried admin_eval_render's pre-231-06 display name, silently drifting from the real manifest after 231-06's rename. Fixed as a strengthening (recorded truth now matches reality), not a widening.
+- [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
 
 ### Pending Todos
 
@@ -516,8 +517,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T07:59:01.024Z
-Stopped at: Completed 231-07-PLAN.md
+Last session: 2026-07-30T08:18:00.370Z
+Stopped at: Completed 231-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -645,3 +646,4 @@ Resume file: None
 | Phase 231 P05 | 4h | 9 tasks | 9 files |
 | Phase 231 P06 | 45min | 2 tasks | 4 files |
 | Phase 231 P07 | 1h9min | 2 tasks | 5 files |
+| Phase 231 P08 | ~35min | 2 tasks | 3 files |

@@ -156,7 +156,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 231-08-PLAN.md — GATE-03 logic: `honest-skip-verdict.sh` + hermetic self-test, consuming the manifest and building no second oracle (D-01, D-03, D-04)
+- [x] 231-08-PLAN.md — GATE-03 logic: `honest-skip-verdict.sh` + hermetic self-test, consuming the manifest and building no second oracle (D-01, D-03, D-04)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 8/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 9/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
