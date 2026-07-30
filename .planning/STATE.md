@@ -4,14 +4,14 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
 status: executing
-stopped_at: Completed 231-04-PLAN.md
-last_updated: "2026-07-30T00:52:13.143Z"
+stopped_at: "231-05 BLOCKED: admin_eval_render phase (a) HARD-GATE finding needs a code decision outside 231-05's file fence (see 231-05-SUMMARY.md)"
+last_updated: "2026-07-30T01:29:32.671Z"
 last_activity: 2026-07-29
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 13
+  completed_plans: 14
   percent: 17
 ---
 
@@ -377,6 +377,7 @@ observed executing the work.
 ### Blockers/Concerns
 
 - **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
+- 231-05 BLOCKED: admin_eval_render's phase (a) aborted on a genuine HARD-GATE probe finding (probe #5 off-scale-radius-shadow-control: .sg-applied-chip__remove 22px control height not on --sg-control-* scale), first surfaced now that 231-04's WebKit+SVG fixes let phase (a) run for real (CI run 30504235540, job 90750408342). None of b1-b6 ever executed (set -euo pipefail aborted at phase (a)). Fix requires a code decision (CSS height, probe suppression attribute, or probe scope change) outside 231-05's file fence -- see 231-05-SUMMARY.md for the three routes. 231-06 (deletes ci.yml:2450 continue-on-error) MUST NOT proceed until this is resolved and a clean harness run is observed.
 
 ### Roadmap Evolution
 
@@ -509,9 +510,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T00:52:13.131Z
-Stopped at: Completed 231-04-PLAN.md
-Resume file: None
+Last session: 2026-07-30T01:29:32.651Z
+Stopped at: 231-05 BLOCKED: admin_eval_render phase (a) HARD-GATE finding needs a code decision outside 231-05's file fence (see 231-05-SUMMARY.md)
+Resume file: 231-05-PLAN.md (Task 1 done/read-only; Task 2 checkpoint + Task 3 NOT reached)
 
 ## Operator Next Steps
 
