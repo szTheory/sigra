@@ -164,7 +164,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 231-10-PLAN.md — GATE-01 structural: seeds prelude for the Pages publisher, schedule-lane leniency deleted, two new prohibition guards (D-17, D-18, D-19)
+- [x] 231-10-PLAN.md — GATE-01 structural: seeds prelude for the Pages publisher, schedule-lane leniency deleted, two new prohibition guards (D-17, D-18, D-19)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 9/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 10/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |

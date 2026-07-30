@@ -4,14 +4,14 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
 status: executing
-stopped_at: Completed 231-09-PLAN.md
-last_updated: "2026-07-30T09:03:16.858Z"
+stopped_at: Completed 231-10-PLAN.md
+last_updated: "2026-07-30T09:49:27.855Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
   percent: 17
 ---
 
@@ -28,9 +28,9 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 231 — EXECUTING
-Plan: 10 of 11
+Plan: 11 of 11
 Status: Ready to execute
-Progress: [██████████] 95%
+Progress: [█████████░] 91%
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -377,6 +377,7 @@ observed executing the work.
 - [Phase ?]: Found and fixed a same-defect-class bug mid-plan: scripts/ci/ci-demotion-observer.test.sh's EVAL_NAME fixture carried admin_eval_render's pre-231-06 display name, silently drifting from the real manifest after 231-06's rename. Fixed as a strengthening (recorded truth now matches reality), not a widening.
 - [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
 - [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
+- [Phase ?]: 231-10: D-17 fixed (Pages publisher seeds before boot, guarded by p15); D-19 fixed (schedule-lane leniency deleted from ci-observe.yml, guarded by p16); D-18 diagnosed and filed as a standing/backstop obligation (self-heal structurally unobservable pre-merge, github.ref==main gate); GATE-01 left Pending, owned to closure by 231-11's nightly observation.
 
 ### Pending Todos
 
@@ -519,8 +520,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T09:03:16.849Z
-Stopped at: Completed 231-09-PLAN.md
+Last session: 2026-07-30T09:49:27.850Z
+Stopped at: Completed 231-10-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -650,3 +651,4 @@ Resume file: None
 | Phase 231 P07 | 1h9min | 2 tasks | 5 files |
 | Phase 231 P08 | ~35min | 2 tasks | 3 files |
 | Phase 231 P09 | ~50min | 3 tasks | 4 files |
+| Phase 231 P10 | ~37min | 3 tasks | 7 files |
