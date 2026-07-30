@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 231
-status: executing
-stopped_at: Completed 231-10-PLAN.md
-last_updated: "2026-07-30T09:49:27.855Z"
+status: verifying
+stopped_at: Completed 231-11-PLAN.md — phase 231's 11 plans all executed; GATE-01 left Pending pending the first post-merge nightly
+last_updated: "2026-07-30T10:21:05.812Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 20
-  completed_plans: 19
-  percent: 17
+  completed_plans: 20
+  percent: 33
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: `.planning/PROJECT.md`
 
 Phase: 231 — EXECUTING
 Plan: 11 of 11
-Status: Ready to execute
-Progress: [█████████░] 91%
+Status: Phase complete — ready for verification
+Progress: [██████████] 100%
 Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -378,6 +378,8 @@ observed executing the work.
 - [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
 - [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
 - [Phase ?]: 231-10: D-17 fixed (Pages publisher seeds before boot, guarded by p15); D-19 fixed (schedule-lane leniency deleted from ci-observe.yml, guarded by p16); D-18 diagnosed and filed as a standing/backstop obligation (self-heal structurally unobservable pre-merge, github.ref==main gate); GATE-01 left Pending, owned to closure by 231-11's nightly observation.
+- [Phase ?]: 231-11: GATE-01 left Pending — literal text is a claim about a schedule-triggered run and none has occurred post-fix; declaring it satisfied from already-fixed baseline reds is explicitly forbidden by the plan's own Task 2 prohibition
+- [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
 
 ### Pending Todos
 
@@ -520,8 +522,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T09:49:27.850Z
-Stopped at: Completed 231-10-PLAN.md
+Last session: 2026-07-30T10:21:05.802Z
+Stopped at: Completed 231-11-PLAN.md — phase 231's 11 plans all executed; GATE-01 left Pending pending the first post-merge nightly
 Resume file: None
 
 ## Operator Next Steps
@@ -652,3 +654,4 @@ Resume file: None
 | Phase 231 P08 | ~35min | 2 tasks | 3 files |
 | Phase 231 P09 | ~50min | 3 tasks | 4 files |
 | Phase 231 P10 | ~37min | 3 tasks | 7 files |
+| Phase 231 P11 | 50min | 3 tasks | 1 files |

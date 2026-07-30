@@ -168,7 +168,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 231-11-PLAN.md — GATE-01 observation: `231-EVIDENCE.md` with one slot per criterion, D-16's fallback criteria recorded in advance, pre-squash hygiene (D-16, D-25)
+- [x] 231-11-PLAN.md — GATE-01 observation: `231-EVIDENCE.md` with one slot per criterion, D-16's fallback criteria recorded in advance, pre-squash hygiene (D-16, D-25)
 
 ### Phase 232: Playwright Economics — Authenticate Once, Then Shard
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 10/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 11/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
