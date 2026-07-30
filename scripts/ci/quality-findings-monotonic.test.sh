@@ -13,6 +13,13 @@
 #   D: documented proof that a bogus JSON key cannot silently defeat the parse
 #      (the Test-D lesson analog: the guard must parse the specific open_findings key,
 #      not silently skip rows with an unrecognized structure)
+#
+# Floor-rebase declaration mechanism (231-05, guides/reference/floor-rebase-declarations.json):
+#   E: no declarations file present + increase -> still fails (unchanged default)
+#   F: declaration present but prior_totals do not match the real ledger -> still fails
+#   G: declaration whose prior_totals/new_totals exactly match the real transition -> passes
+#   H: an increase beyond the declared new floor is NOT authorized by the same
+#      declaration -> still fails (proves one-time-use, not a reusable escape hatch)
 set -euo pipefail
 
 TMPDIR_ROOT=""
@@ -229,6 +236,151 @@ if grep -q "open findings increased" "$GUARD_STDERR_D" 2>/dev/null; then
 else
   fail "Test D: stderr does NOT contain 'open findings increased'; actual stderr: $(cat "$GUARD_STDERR_D")"
 fi
+
+# ==========================================================================
+# 231-05: floor-rebase declaration mechanism (guides/reference/
+# floor-rebase-declarations.json). Four required cases proving the
+# declaration is verified, not trusted, and authorizes exactly one
+# transition. Tests E and G are the ones that prove this did not just
+# punch a hole -- an absent/mismatched declaration must still fail exactly
+# like before this mechanism existed.
+# ==========================================================================
+
+DECL_PATH="$REPO/guides/reference/floor-rebase-declarations.json"
+
+# ---- Test E: absent declaration + increase -> fails (no hole punched) ----
+# Restates Test A's outcome explicitly for this section: with no declarations
+# file at all, an increase is caught exactly as before this mechanism existed.
+echo ""
+echo "Test E: no declarations file present + increase -> exit non-zero (unchanged from before)"
+
+git -C "$REPO" checkout -- guides/reference/admin-render-sha.json
+rm -f "$DECL_PATH"
+
+node -e "
+const fs = require('fs');
+const p = '$LEDGER_PATH';
+const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+d.cells['users-index-live']['light-desktop-populated']['open_findings'] = 4;
+fs.writeFileSync(p, JSON.stringify(d, null, 2) + '\n');
+"
+
+STDERR_E="$TMPDIR_ROOT/stderr_e.txt"
+set +e
+( cd "$REPO" && bash scripts/ci/quality-findings-monotonic.sh --base "$BASE_COMMIT" 2>"$STDERR_E" )
+GUARD_EXIT_E=$?
+set -e
+
+if [[ "$GUARD_EXIT_E" -ne 0 ]]; then
+  pass "Test E: no declarations file, 3→4 increase still exits non-zero"
+else
+  fail "Test E: no declarations file should still fail a 3→4 increase (got 0)"
+fi
+
+# ---- Test F: declaration present but does not match the real ledger -> fails ----
+echo ""
+echo "Test F: declaration whose totals do not match the real ledger -> exit non-zero"
+
+mkdir -p "$(dirname "$DECL_PATH")"
+node -e "
+const fs = require('fs');
+const decl = {
+  schema_version: 1,
+  declarations: [
+    {
+      id: 'test-mismatched-declaration',
+      run_id: '00000000000',
+      job_id: '11111111111',
+      commit_sha: 'deadbeef',
+      reason: 'deliberately WRONG prior_totals for Test F -- must be rejected',
+      // WRONG: real base is 3, this declares 999 -- must not validate.
+      prior_totals: { 'users-index-live/light-desktop-populated': 999 },
+      new_totals: { 'users-index-live/light-desktop-populated': 4 }
+    }
+  ]
+};
+fs.writeFileSync('$DECL_PATH', JSON.stringify(decl, null, 2) + '\n');
+"
+
+STDERR_F="$TMPDIR_ROOT/stderr_f.txt"
+set +e
+( cd "$REPO" && bash scripts/ci/quality-findings-monotonic.sh --base "$BASE_COMMIT" 2>"$STDERR_F" )
+GUARD_EXIT_F=$?
+set -e
+
+if [[ "$GUARD_EXIT_F" -ne 0 ]] && grep -q "does not match" "$STDERR_F" 2>/dev/null; then
+  pass "Test F: mismatched declaration is rejected and the increase still fails"
+else
+  fail "Test F: a declaration whose prior_totals do not match the real ledger should still fail (got $GUARD_EXIT_F); stderr: $(cat "$STDERR_F")"
+fi
+
+# ---- Test G: a matching, verified declaration authorizes the exact transition -> passes ----
+echo ""
+echo "Test G: declaration whose totals exactly match the real base/head ledger -> exit 0"
+
+node -e "
+const fs = require('fs');
+const decl = {
+  schema_version: 1,
+  declarations: [
+    {
+      id: 'test-matching-declaration',
+      run_id: '22222222222',
+      job_id: '33333333333',
+      commit_sha: 'cafef00d',
+      reason: 'Test G -- prior_totals/new_totals exactly match the real 3->4 transition.',
+      prior_totals: { 'users-index-live/light-desktop-populated': 3 },
+      new_totals: { 'users-index-live/light-desktop-populated': 4 }
+    }
+  ]
+};
+fs.writeFileSync('$DECL_PATH', JSON.stringify(decl, null, 2) + '\n');
+"
+
+STDERR_G="$TMPDIR_ROOT/stderr_g.txt"
+set +e
+( cd "$REPO" && bash scripts/ci/quality-findings-monotonic.sh --base "$BASE_COMMIT" 2>"$STDERR_G" )
+GUARD_EXIT_G=$?
+set -e
+
+if [[ "$GUARD_EXIT_G" -eq 0 ]] && grep -q "verified and authorizes" "$STDERR_G" 2>/dev/null; then
+  pass "Test G: a verified, matching declaration authorizes the exact declared transition"
+else
+  fail "Test G: a declaration matching the real ledger exactly should pass (got $GUARD_EXIT_G); stderr: $(cat "$STDERR_G")"
+fi
+
+# ---- Test H: an increase BEYOND the declared new floor still fails (one-time use) ----
+# Proves the same declaration cannot be reused to permit further, larger drift: once
+# the ledger moves past the exact new_totals value the declaration named, HEAD no
+# longer matches and the declaration stops validating.
+echo ""
+echo "Test H: increase beyond the declared new floor -> exit non-zero (not reusable for further drift)"
+
+# The declaration from Test G still names new_totals=4. Push HEAD to 5 (beyond it).
+node -e "
+const fs = require('fs');
+const p = '$LEDGER_PATH';
+const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+d.cells['users-index-live']['light-desktop-populated']['open_findings'] = 5;
+fs.writeFileSync(p, JSON.stringify(d, null, 2) + '\n');
+"
+
+STDERR_H="$TMPDIR_ROOT/stderr_h.txt"
+set +e
+( cd "$REPO" && bash scripts/ci/quality-findings-monotonic.sh --base "$BASE_COMMIT" 2>"$STDERR_H" )
+GUARD_EXIT_H=$?
+set -e
+
+if [[ "$GUARD_EXIT_H" -ne 0 ]]; then
+  pass "Test H: drift beyond the declared new floor (4→5) is NOT authorized by the stale declaration, still fails"
+else
+  fail "Test H: an increase beyond the declared new floor should still fail (got 0) -- the declaration must not be reusable for unlimited drift"
+fi
+
+# Cleanup: remove the test declarations file and restore the ledger so later tests
+# in this file (none currently follow, but keep the pattern) are not affected.
+rm -f "$DECL_PATH"
+git -C "$REPO" checkout -- guides/reference/admin-render-sha.json
 
 # ---- Summary -----------------------------------------------------------
 echo ""
