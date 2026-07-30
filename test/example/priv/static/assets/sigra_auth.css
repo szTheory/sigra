@@ -172,9 +172,8 @@
   .sigra-auth h2,
   .sigra-auth h3,
   .sigra-auth p {
-    min-width: 0; /* GATE-02 gap-closure round 3: mirrors the template's h1-h3/p containment fix (231-GAP-GATE02-SUMMARY.md). */
-    overflow-wrap: break-word;
-    word-break: normal;
+    min-width: 0; /* GATE-02 gap-closure round 3/4: mirrors the template's h1-h3/p containment fix, corrected to overflow-wrap: anywhere so it does not override .sigra-auth__product's own overflow-wrap with a value the CSS spec treats as weaker for intrinsic sizing (231-GAP-GATE02-SUMMARY.md). */
+    overflow-wrap: anywhere;
   }
 
   .sigra-auth [data-passkey-login-status]:empty,

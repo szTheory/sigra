@@ -479,24 +479,34 @@
     text-decoration: underline;
   }
 
-  /* GATE-02 gap-closure, round 3: live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md)
-     showed H2/P sharing one identical right edge (321.4375px) as the last remaining
-     offenders after rounds 1-2. Neither element had min-width: 0, so as grid items of
-     a single-implicit-column .sigra-auth-stack, both stretch to the shared column
+  /* GATE-02 gap-closure, round 3 (corrected -- see round-4 fix note below):
+     live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md) showed H2/P sharing one
+     identical right edge (321.4375px) as the last remaining offenders after rounds
+     1-2. Neither element had min-width: 0, so as grid items of a
+     single-implicit-column .sigra-auth-stack, both stretch to the shared column
      track's width, which is itself floored by whichever sibling's own min-content is
      largest (here, the <p> copy's longest unbreakable word). min-width: 0 lets each
-     item shrink; overflow-wrap/word-break give the text itself a last-resort break
-     point, mirroring the identical pattern already applied to
-     .sigra-auth-disclosure > summary (this file, ~line 244) and .sigra-auth-action
-     button text (~line 818) for the same reason. */
+     item shrink.
+     GATE-02 gap-closure, round 4 (regression fix): this rule's selector,
+     `.sigra-auth p`, has higher specificity (0,1,1) than the pre-existing
+     `.sigra-auth__product` rule (0,1,0) below and appears later in the file, so an
+     initial round-3 draft that used `overflow-wrap: break-word` here silently
+     overrode that rule's `overflow-wrap: anywhere` for the wordmark <p>. Per the CSS
+     Text spec, `anywhere` (not `break-word`) is what participates in a flex/grid
+     item's automatic-minimum-size calculation -- `break-word` only affects actual
+     render-time wrapping, not intrinsic sizing -- so that override reintroduced an
+     un-contained min-content floor on the wordmark and produced a much larger,
+     bursty overflow (scrollWidth 445-473px vs innerWidth 320px, observed on live CI
+     runs 30518012012 and 30518015684 immediately after the round-3 commit, never
+     before it). Using `anywhere` here matches .sigra-auth__product's already-proven
+     value, so the cascade agrees everywhere instead of silently overriding it. */
   .sigra-auth h1,
   .sigra-auth h2,
   .sigra-auth h3,
   .sigra-auth p {
     margin-top: 0;
     min-width: 0;
-    overflow-wrap: break-word;
-    word-break: normal;
+    overflow-wrap: anywhere;
   }
 
   .sigra-auth h1 {
