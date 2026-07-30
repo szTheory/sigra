@@ -183,7 +183,54 @@ Plans:
   4. The example-app boot prelude exists in exactly one definition referenced by the jobs that boot the app (it is duplicated verbatim across ~6 jobs today), and a full run afterwards shows every one of those jobs still booting successfully.
 
 **Proof discipline**: PW-01 must land and be measured **before** PW-02 restructures anything — otherwise the sharding win and the registration win are indistinguishable in the numbers, and the audit's ordering rationale is lost. Retries and `continue-on-error` are forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
-**Plans**: TBD
+**Plans**: 13 plans in 11 waves
+
+Plans:
+**Wave 1**
+
+- [ ] 232-01-PLAN.md — TRACER: committed step-level CI metrics instrument + hermetic self-test + `BEFORE-STEPS` captured on a real run (D-11)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 232-02-PLAN.md — the eight-slot evidence contract, the SC-1 restatement, and five 232-pinned prohibition guards (D-08, C-3)
+- [ ] 232-03-PLAN.md — `json` reporter + the shard non-emptiness wrapper and its hermetic self-test (D-14, D-19, E-3)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 232-04-PLAN.md — PW-01: setup project, shared `storageState`, registration-free `beforeEach`, setup-wiring contract (D-01..D-07, D-10)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 232-05-PLAN.md — PW-01 measured: `AFTER-PW01-PR`, `AFTER-PW01-NONPR`, the SC-1 verdict and the per-seam table (D-12, D-13, D-31)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 232-06-PLAN.md — PW-03: the `boot-example-app` composite action, its input surface ratified (D-25, D-27 as corrected, D-28, D-29)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 232-07-PLAN.md — convert the six `ci.yml` prelude call sites; browser cache stays caller-owned
+- [ ] 232-08-PLAN.md — convert the Pages publisher and rewrite `p15` to follow the `uses:` indirection (D-30)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 232-09-PLAN.md — PW-03 closed: "exactly one definition" contract + `AFTER-PW03-NONPR` on a real run (SC-4)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 232-10-PLAN.md — shard-axis decision from measured seams; design seams extracted onto `example_playwright_design` (manifest/observer conflict resolved)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 232-11-PLAN.md — PW-02: `example_playwright_shard` matrix + byte-identical thin aggregator, `--retries=0` and non-emptiness on every concurrent invocation (D-15..D-24)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 232-12-PLAN.md — dispatch-only one-leg failure probe + the shard-topology ExUnit contract
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
+- [ ] 232-13-PLAN.md — PW-02 measured: `AFTER-PW02-PR`, `AFTER-PW02-CONTEXT`, `AFTER-PW02-REDPROBE`, SC verdicts, FAST-01 reconciliation, `AFTER-PUSH` standing obligation
 
 ### Phase 233: Library Suite Economics
 
