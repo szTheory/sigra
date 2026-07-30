@@ -469,3 +469,92 @@ Whoever captures this run flips this slot's status to `captured (run <id>)`, pas
 `--json jobs` output (or `bash scripts/ci/ci-run-metrics.sh --jobs <id>` table) exactly as every
 other slot in this ledger does, and records the disposition against the procedure in the section
 below — written down now, before the run exists.
+
+---
+
+## GATE-01 Disposition Procedure (D-16, written before any post-merge run exists)
+
+This section is analysis, not a slot — it carries no `BEFORE-`/`AFTER-` heading and is deliberately
+written now, before AFTER-NIGHTLY-POST-MERGE has a run to point at, so that if the first nightly is
+not literally green, the response is a pre-agreed procedure rather than an after-the-fact
+negotiation about how green is green enough.
+
+**Primary target: literal green.** No job in the run concludes outside the `{success, skipped}`
+pair. This is the target this phase pursued throughout — GATE-02 and GATE-04's fixes exist
+specifically so the nightly's two substantive reds (see the per-red table below) no longer occur.
+
+**Fallback, held in reserve, not adopted up front.** The fallback — "every remaining red lane is a
+filed, diagnosed defect with an owner" — is available **only** when every remaining red on the
+captured run satisfies all three of: (1) it is filed as a written defect (a todo, an issue, or an
+equivalent tracked artifact), (2) that filing carries a diagnosis (what fails and why, not merely
+"this is red"), and (3) that filing names an **owner**. The fallback is explicitly **not**
+available as a way to wave through a red nobody has diagnosed — an un-filed, un-diagnosed,
+un-owned red on the captured run means GATE-01 is **not** satisfied, full stop, regardless of how
+many other jobs are green.
+
+**A nightly green because lanes did not execute is not a satisfied criterion.** `ci-gate` treats
+`skipped` as a pass; a nightly that is "green" only because its exhaustive lanes silently stopped
+running would satisfy nothing this requirement cares about. GATE-03's honest-skip verdict
+(`scripts/ci/honest-skip-verdict.sh`, wired into `ci-gate` by plan 231-09) is what distinguishes a
+legitimate event-gated skip from a rotted one, and — because `ci-gate` itself carries no event
+restriction (`if: always()`) — it runs on the `schedule` lane exactly as it does on `push` and
+`pull_request`. If the nightly's own `ci-gate` job is green, GATE-03's verdict is part of what made
+it green: a rotted skip on the nightly would fail `ci-gate` the same way the AFTER-ROT-PROBE slot
+above proves it does on `workflow_dispatch` and `pull_request`. A `skipped` conclusion on the
+nightly is therefore not, by itself, grounds for suspicion — but an un-filed job-level `failure` is
+never absorbed into "green" by this procedure regardless of what `ci-gate`'s own aggregate says.
+
+**Per-red disposition table, for the baseline run's three non-success jobs.** Each row states
+which plan fixed the underlying defect and which slot in this ledger proves the fix, so a reader
+checking the first post-merge nightly against this baseline does not have to reconstruct the chain
+themselves:
+
+| Baseline job (run `30425416933`) | Conclusion | Owning defect | Fixed by | Proof slot |
+|---|---|---|---|---|
+| `Generated admin Playwright smoke` | `failure` (229s) | GATE-02's 320px reflow assertion (D-08/D-09), corrected across four rounds in `231-GAP-GATE02` | plans 231-02, `231-GAP-GATE02`, 231-07 | [AFTER-GENERATED-HOST-SMOKE](#after-generated-host-smoke) |
+| `Admin eval render + probe` | `failure` (851s) | GATE-04's two Playwright-phase bugs (WebKit not installed, `SVGAnimatedString` crash) plus the job-level mask | plans 231-04, 231-05, 231-06 | [AFTER-EVAL-HARNESS](#after-eval-harness) |
+| `ci-gate` | `failure` (4s) | Propagation from `Generated admin Playwright smoke`'s own failure (`ci-gate.needs`) | same as row 1 (no independent defect) | [AFTER-GENERATED-HOST-SMOKE](#after-generated-host-smoke) |
+
+Every one of the baseline's three non-success jobs traces to a fix this phase already shipped and
+already proved on a live run, independent of the nightly itself — restating the phase's own
+framing that GATE-01 is largely **an observation of GATE-02 and GATE-04**, not independent work.
+If the first post-merge nightly reproduces any of these three exactly, that is a regression against
+an already-proven fix and should be investigated as such, not treated as a fresh unknown.
+
+**Two GATE-01 items that are NOT part of the CI nightly** — recorded here so a reader does not look
+for them inside the `ci.yml` nightly `schedule` run:
+
+1. **The Pages publisher** (`playwright-github-pages.yml`) is a separate workflow on its own cron
+   (`45 6 * * *`, distinct from `ci.yml`'s `30 4 * * *`). D-17's fix (the `Run demo seeds` step) and
+   its proof are recorded in [AFTER-PAGES-PUBLISHER](#after-pages-publisher) above, captured against
+   plan 231-10's dispatched run `30529885885`, not against any `ci.yml` nightly run.
+2. **The Pages build deployment** (`pages-build-deployment`) is a GitHub-managed workflow, not
+   repository YAML this phase can dispatch or observe directly. D-18's self-heal question is
+   diagnosed — not guessed at — in [AFTER-PAGES-PUBLISHER](#after-pages-publisher): the self-heal
+   script is hard-gated to `github.ref == 'refs/heads/main'` and could not be exercised from any
+   pre-merge dispatch. **This item is filed under GATE-01's fallback branch**, per the disposition
+   table above's third eligibility test:
+   - **Filed:** `.planning/todos/pending/2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md`
+   - **Diagnosed:** the todo states the exact structural gate (`github.ref == 'refs/heads/main'`)
+     and both candidate root causes (insufficient `GITHUB_TOKEN` scope vs. a Settings-level Pages
+     block), left open rather than guessed at.
+   - **Owner:** repo admin (the todo requires a live Settings → Pages read/write this phase's CI
+     token cannot perform pre-merge) — the same human-gated class D-18 explicitly fences this into,
+     alongside the already-deferred Hex retire (`.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`).
+   - The todo names its own first observable event (this PR's merge-triggered push, or the next
+     `45 6 * * *` schedule run) and the exact `gh api repos/szTheory/sigra/pages` command to re-check
+     it — so this filing is a live, actionable backstop, not a dead-letter finding.
+
+**Non-vacuity clause for the observation itself.** An observation that reads nothing is a broken
+read, not a green nightly — the same posture D-04 established for the honest-skip manifest,
+applied here to the nightly observation itself. Each of the following is a **failure of the
+observation**, never evidence of health, and must not be recorded as `captured` if it occurs:
+
+1. **An empty jobs array.** `gh run view <id> --json jobs` returning `{"jobs": []}` (or an
+   equivalent empty result) means the read broke, not that the nightly had nothing to check.
+2. **An unresolvable run ID.** A run ID that `gh run view` cannot resolve (deleted, wrong repo,
+   typo) means no observation happened at all — it must not be recorded as if a run were checked.
+3. **A status citing no run ID.** A slot whose `Status:` line says `captured` but names no run ID
+   is, by `p12-run-id-provenance.test.mjs`'s own enforced grammar, not distinguishable from a claim
+   invented without ever running the command — and is exactly the class of "a number nobody can
+   re-derive" this whole ledger exists to prevent.
