@@ -376,8 +376,15 @@ export async function probeEmberReservedFor(page: Page, boardRoot?: string): Pro
       const bg = cs.backgroundColor;
       const borderColor = cs.borderColor;
 
-      // Check for ember-like color usage on non-reserved elements
-      const isEmberClass = el.classList.contains('sg-ember') || el.className.includes('ember');
+      // Check for ember-like color usage on non-reserved elements.
+      // Derived entirely from classList, never className -- className is an
+      // SVGAnimatedString (not a plain string) on SVG elements, so calling a
+      // string method there throws a TypeError. classList is a DOMTokenList
+      // on both HTML and SVG elements, so scanning it is the SVG-safe
+      // equivalent.
+      const isEmberClass =
+        el.classList.contains('sg-ember') ||
+        Array.from(el.classList).some((c) => c.includes('ember'));
       if (!isEmberClass) continue;
 
       const testId = el.getAttribute('data-testid');
