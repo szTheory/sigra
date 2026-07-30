@@ -177,6 +177,9 @@
   .sigra-auth .max-w-sm { max-width: 24rem; }
   .sigra-auth .w-full { width: 100%; }
   .sigra-auth form { display: grid; gap: 1rem; }
+  .sigra-auth form :where(.fieldset, label) {
+    min-width: 0; /* GATE-02 gap-closure: mirrors the template's grid-item containment fix (231-GAP-GATE02-SUMMARY.md). */
+  }
 
   .sigra-auth input[type="email"],
   .sigra-auth input[type="password"],
