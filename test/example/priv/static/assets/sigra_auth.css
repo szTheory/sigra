@@ -168,6 +168,14 @@
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
+  .sigra-auth h1,
+  .sigra-auth h2,
+  .sigra-auth h3,
+  .sigra-auth p {
+    min-width: 0; /* GATE-02 gap-closure round 3/4: mirrors the template's h1-h3/p containment fix, corrected to overflow-wrap: anywhere so it does not override .sigra-auth__product's own overflow-wrap with a value the CSS spec treats as weaker for intrinsic sizing (231-GAP-GATE02-SUMMARY.md). */
+    overflow-wrap: anywhere;
+  }
+
   .sigra-auth [data-passkey-login-status]:empty,
   .sigra-auth [data-passkey-login-status][data-passkey-status=""] {
     display: none;
@@ -177,11 +185,18 @@
   .sigra-auth .max-w-sm { max-width: 24rem; }
   .sigra-auth .w-full { width: 100%; }
   .sigra-auth form { display: grid; gap: 1rem; }
+  .sigra-auth form :where(.fieldset, label) {
+    min-width: 0; /* GATE-02 gap-closure: mirrors the template's grid-item containment fix (231-GAP-GATE02-SUMMARY.md). */
+  }
+  .sigra-auth .label {
+    white-space: normal; /* GATE-02 gap-closure round 2: mirrors the template's nowrap-label fix (231-GAP-GATE02-SUMMARY.md). */
+  }
 
   .sigra-auth input[type="email"],
   .sigra-auth input[type="password"],
   .sigra-auth input[type="text"] {
     width: 100%;
+    min-width: 0; /* GATE-02 / D-09: mirrors the template's reflow containment fix. */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);

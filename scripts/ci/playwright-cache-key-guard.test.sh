@@ -7,12 +7,17 @@
 # `--lockfile` flags.
 #
 # Test cases (mirrors the plan's <behavior> block):
-#   A: matching fixture pair -> exit 0, PASS line names both versions.
+#   A: matching fixture pair (-v2 shape) -> exit 0, PASS line names both versions.
 #   B: mismatched versions -> exit 1, FAIL line names both versions + both paths.
 #   C: workflow fixture has no Playwright cache key at all -> exit 1 (absent
 #      key is drift, not an exemption).
 #   D: lockfile fixture has no @playwright/test entry -> exit 1.
 #   E: unknown flag -> exit 2 with an unknown-arg message on stderr.
+#   F: workflow fixture has the browser-set + version segment but NO -vN
+#      suffix token at all -> exit 1. Phase 231 / C-6: proves generalizing
+#      the extraction from a hard-coded -v1 to "any -vN" did not also make
+#      the -vN token itself optional -- a fail-closed guard must not become
+#      fail-open on the very thing it was generalized to accept.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,15 +47,22 @@ TMPDIR_ROOT="$(mktemp -d)"
 
 write_workflow() {
   # $1 = path, $2 = version to embed in the cache key (empty = omit the key entirely)
-  local path="$1" version="$2"
+  # $3 = version-token suffix without its leading dash, e.g. "v2" (defaults to
+  #      "v2"; pass the literal string "none" to omit the -vN suffix entirely
+  #      while still embedding the browser-set + version segment -- Test F)
+  local path="$1" version="$2" suffix="${3:-v2}"
   if [[ -n "$version" ]]; then
+    local key_tail="${version}"
+    if [[ "$suffix" != "none" ]]; then
+      key_tail="${version}-${suffix}"
+    fi
     cat > "$path" <<EOF
       - name: Cache Playwright browsers
         id: playwright_browsers_cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: \${{ runner.os }}-playwright-chromium-webkit-${version}-v1
+          key: \${{ runner.os }}-playwright-chromium-webkit-${key_tail}
           restore-keys: \${{ runner.os }}-playwright-chromium-webkit-
 EOF
   else
@@ -190,6 +202,25 @@ if [[ "$EXIT_E" -eq 2 && "$OUT_E" == *"unknown arg"* ]]; then
   pass "Test E: guard exits 2 with an unknown-arg message on --bogus-flag"
 else
   fail "Test E: guard exited ${EXIT_E} (expected 2) or missing unknown-arg message; output: ${OUT_E}"
+fi
+
+# ---- Test F: browser-set + version present but no -vN suffix -> exit 1 --
+echo "Test F: no -vN suffix token at all -> exit 1 (generalizing -v1 to -vN did not make -vN optional)"
+
+WF_F="${TMPDIR_ROOT}/ci-f.yml"
+LF_F="${TMPDIR_ROOT}/package-lock-f.json"
+write_workflow "$WF_F" "1.59.1" "none"
+write_lockfile "$LF_F" "1.59.1"
+
+set +e
+OUT_F="$(bash "$SCRIPT" --workflow "$WF_F" --lockfile "$LF_F" 2>&1)"
+EXIT_F=$?
+set -e
+
+if [[ "$EXIT_F" -eq 1 ]]; then
+  pass "Test F: guard exits 1 when the workflow key has no -vN suffix token"
+else
+  fail "Test F: guard exited ${EXIT_F} (expected 1) with no -vN suffix present; output: ${OUT_F}"
 fi
 
 # ---- Summary -------------------------------------------------------------

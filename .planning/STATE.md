@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
+current_phase: 231
 status: verifying
-stopped_at: Completed 230-09-PLAN.md
-last_updated: "2026-07-29T02:36:14.122Z"
-last_activity: 2026-07-29
+stopped_at: Phase 231 close-out bookkeeping applied — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling; 231-UAT.md written; GATE-01 remains Pending, blocked on the first post-merge scheduled nightly (see 231-UAT.md)
+last_updated: "2026-07-30T12:30:00.000Z"
+last_activity: 2026-07-30
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 20
+  completed_plans: 20
   percent: 17
 ---
 
@@ -22,15 +23,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 230 — tier-1-critical-path-reclamation
+**Current focus:** Phase 231
 
 ## Current Position
 
-Phase: 230 (tier-1-critical-path-reclamation) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
-Progress: [██████████] 100%
-Last activity: 2026-07-29
+Phase: 231 — VERIFYING (human_needed)
+Plan: 11 of 11
+Status: All 11 plans executed and verified against the live repo (231-VERIFICATION.md); 4/5 requirements Complete (GATE-04 flipped by the verifier's independent ruling, see 231-UAT.md). GATE-01 remains Pending — its literal text names a specific post-merge scheduled-nightly observation that cannot exist before PR #125 merges. Phase stays open until that observation closes GATE-01.
+Progress: [██████████] 100% of this phase's plans; phase itself not closed
+Last activity: 2026-07-30
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -361,6 +362,24 @@ observed executing the work.
 - [Phase ?]: AFTER-PR-WARM's warm commit is a one-line provenance comment in scripts/ci/playwright-cache-key-guard.sh recording the AFTER-PR run ID as the cache-seeding run
 - [Phase ?]: Task 2's dispatch precondition (recapture_branch empty) cannot succeed on a branch-ref workflow_dispatch; re-dispatched with recapture_branch set to the phase branch (D-04 relaxation)
 - [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
+- [Phase ?]: D-20/D-21 (231-01): extracted release-please.yml's inline ci-gate poll loop into scripts/ci/wait-for-ci-gate.sh, raised max-attempts 60->120 (60m ceiling) with explicit timeout-minutes: 75, and proved it live against run 30466318240 (exit 0, attempts=1).
+- [Phase ?]: 231-01: added a Rule-3 actions/checkout step to gate-ci-green (not in the plan text) because the extracted script requires the repo checked out on the runner, unlike the prior inline shell.
+- [Phase ?]: GATE-02: H1 (stale-viewport false-green) killed by direct instrumented-run evidence; H2 operative per RESEARCH's literal criteria; structural CSS containment fix (min-width: 0) shipped to installer template + example twin + golden fixture, confirmed green on dispatched run 30501223643
+- [Phase ?]: release_ref_guard blocks a bare workflow_dispatch on a branch (requires refs/tags/v* or the recapture_branch input) -- a gap the plan's read_first missed; use recapture_branch as the sanctioned dispatch escape hatch for later 231 plans needing branch CI runs
+- [Phase ?]: D-22/D-23: notify-failure-issue.sh self-heals a missing release-lane-rot label, fail-soft; issue #118 cited as already-observed D-23 evidence, no new probe staged
+- [Phase ?]: 231-04: admin_eval_render now installs chromium+webkit (was chromium-only), matching admin-eval-mobile's iPhone-13/WebKit project; browser cache key re-tokened -v1 -> -v2 with C-6 guard generalization
+- [Phase ?]: 231-04: probes.ts ember-class check derives from classList instead of className (SVGAnimatedString crash fix); p14 prohibition guard added, proven fail-first
+- [Phase ?]: 231-05: b1-b6 proven executing and passing in CI for the first time (run 30512523387, PASS -- all phases green); required 3 probe-vs-ratified-design-decision reconciliations (D-08 chip-remove, pill/code sub-scale tokens selector-scoped, gallery-frame card-nesting suppression), a fix-queue-lint.sh proxy exemption, a CI-native ledger rebase (33642->38016 open_findings), and a new sanctioned floor-rebase declaration mechanism in quality-findings-monotonic.sh -- all outside the plan's original file fence, operator-reviewed and authorized. GATE-04 NOT marked complete (231-06 owns removing continue-on-error). Found and characterized (not fixed) a genuine cross-run intermittent in Generated admin Playwright smoke, GATE-02's own lane.
+- [Phase ?]: GATE-04's literal REQUIREMENTS.md text is satisfied by two independent green admin_eval_render observations (231-05's run 30512523387, 231-06's run 30514238789), but the lane remains outside ci-gate.needs and never runs on pull_request -- the row is left Pending, not marked Complete, per the plan's own instruction.
+- [Phase ?]: admin_eval_render's job name, its skip-manifest row, and MAINTAINING.md's tier-B description were corrected (coordinator-directed) to stop calling the now-hard-signal lane 'evidence only, not a merge gate'.
+- [Phase ?]: Generated admin Playwright smoke's cross-run intermittent (320px reflow, admin-generated.spec.ts:79) recurred a third time (~60% failure rate across 5 observed runs) -- flagged as a blocking risk for 231-07, not fixed in this plan.
+- [Phase ?]: GATE-02 marked Complete: stale head_ref gate deleted outright, confirmed executing (non-skipped) on two independent pull_request-event CI runs, confirmed in ci-gate.needs (merge-blocking). GATE-03 left Pending: p10 gained gate-column parity + rotted-gate-string assertions (a necessary static precondition) but ci-gate's own runtime skip-legitimacy verdict (honest-skip-verdict.sh) is not yet built.
+- [Phase ?]: Found and fixed a same-defect-class bug mid-plan: scripts/ci/ci-demotion-observer.test.sh's EVAL_NAME fixture carried admin_eval_render's pre-231-06 display name, silently drifting from the real manifest after 231-06's rename. Fixed as a strengthening (recorded truth now matches reality), not a widening.
+- [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
+- [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
+- [Phase ?]: 231-10: D-17 fixed (Pages publisher seeds before boot, guarded by p15); D-19 fixed (schedule-lane leniency deleted from ci-observe.yml, guarded by p16); D-18 diagnosed and filed as a standing/backstop obligation (self-heal structurally unobservable pre-merge, github.ref==main gate); GATE-01 left Pending, owned to closure by 231-11's nightly observation.
+- [Phase ?]: 231-11: GATE-01 left Pending — literal text is a claim about a schedule-triggered run and none has occurred post-fix; declaring it satisfied from already-fixed baseline reds is explicitly forbidden by the plan's own Task 2 prohibition
+- [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
 
 ### Pending Todos
 
@@ -369,6 +388,8 @@ observed executing the work.
 ### Blockers/Concerns
 
 - **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
+- [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
+- **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 
 ### Roadmap Evolution
 
@@ -501,13 +522,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-29T02:36:14.111Z
-Stopped at: Completed 230-09-PLAN.md
+Last session: 2026-07-30T12:30:00.000Z
+Stopped at: Phase 231 close-out bookkeeping — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling, 231-UAT.md written recording GATE-01's post-merge-only observation and the standing backstops (D-18, DX-05's gate-ci-green ceiling), stale ci-observe.yml:78 comment fixed. Phase 231 remains open pending the first post-merge scheduled nightly.
 Resume file: None
 
 ## Operator Next Steps
 
-- Plan the first phase with `/gsd-plan-phase 230`
+- Merge PR #125 to `main`.
+- After merge, observe the first `schedule`-triggered nightly run of `ci.yml` (cron `30 4 * * *`) per `231-UAT.md` §3's exact `gh` commands, and use it to close GATE-01 (flip its checkbox in `.planning/REQUIREMENTS.md`, mark Phase 231 complete).
+- Then plan the next phase with `/gsd-plan-phase 232`.
 
 ## Performance Metrics
 
@@ -623,3 +646,14 @@ Resume file: None
 | Phase 230 P07 | 25min | 2 tasks | 2 files |
 | Phase 230 P08 | ~15min | 2 tasks | 1 files |
 | Phase 230 P09 | 1h34m | 3 tasks | 3 files |
+| Phase 231 P01 | 3min | 2 tasks | 4 files |
+| Phase 231 P02 | 56min | 3 tasks | 5 files |
+| Phase 231 P03 | 8min | 2 tasks | 2 files |
+| Phase 231 P04 | 22min | 2 tasks | 5 files |
+| Phase 231 P05 | 4h | 9 tasks | 9 files |
+| Phase 231 P06 | 45min | 2 tasks | 4 files |
+| Phase 231 P07 | 1h9min | 2 tasks | 5 files |
+| Phase 231 P08 | ~35min | 2 tasks | 3 files |
+| Phase 231 P09 | ~50min | 3 tasks | 4 files |
+| Phase 231 P10 | ~37min | 3 tasks | 7 files |
+| Phase 231 P11 | 50min | 3 tasks | 1 files |

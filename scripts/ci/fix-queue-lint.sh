@@ -147,6 +147,21 @@ try {
 // Collect open_findings per cell key — all admin surfaces must agree for the same cell key
 const cellKeyToOpenFindings = new Map();
 for (const surface of Object.keys(renderSha.cells || {})) {
+  // 231-05 (D-08 reconciliation, third instance -- pre-existing gap between two guards,
+  // not a probe-vs-ratified-decision case). fix-queue-build.mjs (Phase 218-01, Blocker-1,
+  // "PROXY SKIP INVARIANT" at :323-333) already treats renderSha.cells[surface].proxy===true
+  // as structurally exempt from recomputation -- its open_findings is a deliberately PINNED
+  // floor (197 light / 181 dark), by design never equal to a freshly-measured live board
+  // count. This check already parsed the proxy marker itself (immediately below) to avoid
+  // misreading it as a malformed cell, but never extended that same exemption to the
+  // CROSS-SURFACE AGREEMENT comparison -- so a pinned proxy floor was compared against a
+  // computed board count as if the two were meant to match, which they were never designed
+  // to do. This is the first CI-native render ever to exercise this comparison with real
+  // bundles (D-15 third defect class), which is what surfaced the gap. Exempt proxy surfaces
+  // from the cross-surface AGREEMENT check only -- clauses (a) non-negative and (b) <=
+  // totalUncollapsed still apply to them below, so a proxy value cannot silently drift
+  // arbitrarily either.
+  const isProxySurface = renderSha.cells[surface] && renderSha.cells[surface].proxy === true;
   for (const cellKey of Object.keys(renderSha.cells[surface] || {})) {
     const cellData = renderSha.cells[surface][cellKey];
     // The `proxy` flag (renderSha.cells[surface].proxy === true) is a surface-level boolean
@@ -172,13 +187,16 @@ for (const surface of Object.keys(renderSha.cells || {})) {
       );
     } else {
       // All admin surfaces must agree on the same open_findings for a given cell key,
-      // EXCEPT cells introduced at open_findings=0 (newly added surfaces that have not
+      // EXCEPT (a) cells introduced at open_findings=0 (newly added surfaces that have not
       // yet had a probe run against them are introduced with 0 as the sentinel
-      // "introduced but not yet measured" value — Plan 217-08 gate-safety invariant).
+      // "introduced but not yet measured" value — Plan 217-08 gate-safety invariant), and
+      // (b) proxy surfaces (see the isProxySurface comment above — pinned floor, not a live
+      // measurement, never meant to agree with a computed board count).
       // A 0-valued cell is exempt from cross-surface consistency: it will be populated
       // by the next fix-queue-build.mjs run once bundles are captured at the new surface.
-      if (openFindings === 0) {
-        // Newly introduced cell — skip cross-surface consistency check
+      if (openFindings === 0 || isProxySurface) {
+        // Newly introduced cell, or a structurally-pinned proxy surface — skip
+        // cross-surface consistency check for either reason.
       } else if (!cellKeyToOpenFindings.has(cellKey)) {
         cellKeyToOpenFindings.set(cellKey, { value: openFindings, firstSurface: surface });
       } else {

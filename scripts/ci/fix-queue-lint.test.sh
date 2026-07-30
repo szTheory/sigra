@@ -9,6 +9,10 @@
 #   Test 2: tampered priority/systemic_group → exit non-zero
 #   Test 3: open_findings in admin-render-sha.json != built - settled → exit non-zero
 #   Test 4: clean, freshly-built queue (from fix-queue-build.mjs) → exit 0
+#   Test 5: surface-level `proxy: true` marker is skipped, not treated as a cell → exit 0
+#   Test 6 (231-05): two non-proxy surfaces disagreeing on the same cell key → exit non-zero
+#   Test 7 (231-05): a proxy surface disagreeing with a real surface on the same cell key
+#                     is exempt (pinned floor, Phase 218-01 Blocker-1) → exit 0
 set -euo pipefail
 
 TMPDIR_ROOT=""
@@ -296,6 +300,71 @@ else
   fail "Test 5: proxy:true marker must be skipped, not flagged (got exit $EXIT_5)"
   cat "$STDERR_5" >&2 || true
   cat "$TMPDIR_ROOT/stdout_5.txt" || true
+fi
+
+# ── Test 6 (231-05, D-08 reconciliation #3): two REAL (non-proxy) surfaces disagreeing
+#     on the same cell key must STILL fail -- the proxy exemption must not broaden to
+#     every surface. Reuses Test 4/5's clean 2-entry queue (totalUncollapsed=2).
+echo ""
+echo "Test 6: two non-proxy surfaces disagree on the same cell key -> exit non-zero"
+
+OTHER_SURF="organization"
+node -e "
+const r = {
+  schema_version: 1,
+  notes: 'test',
+  cells: {
+    '$SURF': { '$CELL': { render_sha256: null, open_findings: 2 } },
+    '$OTHER_SURF': { '$CELL': { render_sha256: null, open_findings: 1 } }
+  }
+};
+process.stdout.write(JSON.stringify(r, null, 2) + '\n');
+" > "$RENDER_SHA"
+
+STDERR_6="$TMPDIR_ROOT/stderr_6.txt"
+set +e
+bash "$LINT" >"$TMPDIR_ROOT/stdout_6.txt" 2>"$STDERR_6"
+EXIT_6=$?
+set -e
+
+if [[ "$EXIT_6" -ne 0 ]] && grep -q "surfaces must agree" "$TMPDIR_ROOT/stdout_6.txt" "$STDERR_6" 2>/dev/null; then
+  pass "Test 6: two non-proxy surfaces disagreeing on the same cell exits non-zero, naming the mismatch"
+else
+  fail "Test 6: two non-proxy surfaces disagreeing on the same cell should exit non-zero (got $EXIT_6)"
+  cat "$STDERR_6" >&2 || true
+  cat "$TMPDIR_ROOT/stdout_6.txt" || true
+fi
+
+# ── Test 7 (231-05, D-08 reconciliation #3): a PROXY surface disagreeing with a real
+#     surface on the same cell key must PASS -- the proxy's open_findings is a pinned
+#     floor (Phase 218-01, Blocker-1), never meant to track a live board's count.
+echo ""
+echo "Test 7: proxy surface disagrees with a real surface on the same cell key -> exit 0"
+
+node -e "
+const r = {
+  schema_version: 1,
+  notes: 'test',
+  cells: {
+    '$SURF': { '$CELL': { render_sha256: null, open_findings: 2 } },
+    '$OTHER_SURF': { proxy: true, '$CELL': { render_sha256: null, open_findings: 1 } }
+  }
+};
+process.stdout.write(JSON.stringify(r, null, 2) + '\n');
+" > "$RENDER_SHA"
+
+STDERR_7="$TMPDIR_ROOT/stderr_7.txt"
+set +e
+bash "$LINT" >"$TMPDIR_ROOT/stdout_7.txt" 2>"$STDERR_7"
+EXIT_7=$?
+set -e
+
+if [[ "$EXIT_7" -eq 0 ]]; then
+  pass "Test 7: proxy surface disagreeing with a real surface is exempt, exits 0"
+else
+  fail "Test 7: a proxy surface disagreeing with a real surface should still exit 0 (got $EXIT_7)"
+  cat "$STDERR_7" >&2 || true
+  cat "$TMPDIR_ROOT/stdout_7.txt" || true
 fi
 
 # ── Results ──────────────────────────────────────────────────────────────────

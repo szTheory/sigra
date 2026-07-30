@@ -146,7 +146,31 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
       return parseFloat(raw);
     }).filter((v) => !isNaN(v));
 
-    const onScale = (px: number) => scalePx.some((t) => Math.abs(px - t) <= 0.5);
+    const onScale = (px: number, extra: number[] = []) =>
+      scalePx.some((t) => Math.abs(px - t) <= 0.5) || extra.some((t) => Math.abs(px - t) <= 0.5);
+
+    // 231-05 (D-08 reconciliation, second instance -- SELECTOR-SCOPED, not global).
+    // The --sg-space-* scale (scalePx above) is the GENERAL spacing rhythm and stays
+    // untouched for every element -- a stray off-scale padding on an arbitrary sg-*
+    // element must still gate. But the design system also ships purpose-built,
+    // documented "admin-layer decision" sub-scales for specific compact components
+    // (admin-token-reference.md:229-234), consumed by name in sigra_admin.css: the
+    // pill-pad tokens by .sg-scope-pill/.sg-status-pill/.sg-badge (the single shared
+    // rule at sigra_admin.css:322-334) and the code-pad token by .sg-code (:1104).
+    // These extra values are accepted ONLY for the elements whose own CSS rule
+    // actually names that token -- everything else keeps the space-only scale. A
+    // first attempt pushed all three onto the global scalePx array; that let ANY
+    // element's 3px/10px/1px padding pass, which would silently wave through a real
+    // off-token defect anywhere in the admin surface -- rejected on review.
+    const subScaleVarPx = (varName: string): number => {
+      const raw = getComputedStyle(root).getPropertyValue(varName).trim();
+      if (!raw) return NaN;
+      return raw.endsWith('rem') ? parseFloat(raw) * rootFs : parseFloat(raw);
+    };
+    const pillPadY = subScaleVarPx('--sg-pill-pad-y');
+    const pillPadX = subScaleVarPx('--sg-pill-pad-x');
+    const codePadY = subScaleVarPx('--sg-code-pad-y');
+    const PILL_CLASSES = ['sg-scope-pill', 'sg-status-pill', 'sg-badge'];
 
     const findings: ReturnType<typeof probeOffTokenSpacing extends (...a: infer _) => infer R ? () => R : never>[] = [];
     const SUPPRESS = 'data-sg-off-token-spacing-audit-only';
@@ -166,7 +190,18 @@ export async function probeOffTokenSpacing(page: Page, boardRoot?: string): Prom
         parseFloat(cs.paddingLeft),
       ].filter((v) => v > 0);
 
-      const offScale = padValues.filter((v) => !onScale(v));
+      // Selector-scoped extra scale: only the elements whose own CSS rule names
+      // the sub-scale token get the wider allowance.
+      const extraScale: number[] = [];
+      if (PILL_CLASSES.some((c) => el.classList.contains(c))) {
+        if (!isNaN(pillPadY)) extraScale.push(pillPadY);
+        if (!isNaN(pillPadX)) extraScale.push(pillPadX);
+      }
+      if (el.classList.contains('sg-code') && !isNaN(codePadY)) {
+        extraScale.push(codePadY);
+      }
+
+      const offScale = padValues.filter((v) => !onScale(v, extraScale));
       if (offScale.length === 0) continue;
 
       // Build structural anchor
@@ -376,8 +411,15 @@ export async function probeEmberReservedFor(page: Page, boardRoot?: string): Pro
       const bg = cs.backgroundColor;
       const borderColor = cs.borderColor;
 
-      // Check for ember-like color usage on non-reserved elements
-      const isEmberClass = el.classList.contains('sg-ember') || el.className.includes('ember');
+      // Check for ember-like color usage on non-reserved elements.
+      // Derived entirely from classList, never className -- className is an
+      // SVGAnimatedString (not a plain string) on SVG elements, so calling a
+      // string method there throws a TypeError. classList is a DOMTokenList
+      // on both HTML and SVG elements, so scanning it is the SVG-safe
+      // equivalent.
+      const isEmberClass =
+        el.classList.contains('sg-ember') ||
+        Array.from(el.classList).some((c) => c.includes('ember'));
       if (!isEmberClass) continue;
 
       const testId = el.getAttribute('data-testid');
@@ -486,11 +528,28 @@ export async function probeOffScaleRadiusShadowControl(page: Page, boardRoot?: s
       }
 
       // Check control height (min-height or height for sg-btn, sg-input, etc.)
+      //
+      // 231-05 (D-08 reconciliation): `sg-applied-chip__remove` is deliberately NOT listed.
+      // It was added here in Phase 216 (43b2a808) but that branch never actually executed
+      // until 231-04 fixed the SVG `className` crash that aborted every prior render — so it
+      // was an untested assumption, not a ratified tightening. When it finally ran (run
+      // 30504235540, job 90750408342) it produced 8 gate failures that directly contradict
+      // admin-quality-ledger.md:65, which ratifies the chip remove control at ~22x22 CSS px as
+      // "reviewed - near-threshold, D-08 precedent for dense admin inline chip remove". The
+      // --sg-control-* scale starts at 28px, so the ledger decision and this gate can never
+      // both hold. The scale is a *form control* rhythm rule; a dense inline chip affordance is
+      // not a form control, which is also why `sg-notice__link` (~21px inline action, likewise
+      // ledger-"reviewed") is absent from this list.
+      //
+      // Target size remains guarded and is NOT dropped: board-applied_chip runs
+      // assertNoAxeViolations across wcag2a/2aa/21a/21aa/22aa (2.5.8 target size) with 0
+      // violations. Do not re-add this class here without first reconciling D-08 in the ledger;
+      // if the dense-admin precedent is ever revisited, resize the CSS to a --sg-control-* step
+      // instead of reinstating a gate the design system explicitly excepts.
       const isControl =
         el.classList.contains('sg-btn') ||
         el.classList.contains('sg-input') ||
-        el.classList.contains('sg-select') ||
-        el.classList.contains('sg-applied-chip__remove');
+        el.classList.contains('sg-select');
 
       if (isControl) {
         // IN-01: minHeight resolves to "0px" (truthy string) for controls sized purely via

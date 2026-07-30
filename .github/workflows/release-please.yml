@@ -96,77 +96,34 @@ jobs:
   gate-ci-green:
     name: Verify CI is green on release SHA
     runs-on: ubuntu-latest
+    timeout-minutes: 75
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     permissions:
       actions: write
       contents: read
     steps:
+      # Phase 231 (DX-05 / D-21): the inline `run:` body below has no repo files of
+      # its own to read; this checkout exists solely so the extracted
+      # scripts/ci/wait-for-ci-gate.sh is present on the runner for the step after it
+      # to invoke -- the previous inline-shell version of this job needed no checkout.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      # Phase 231 (DX-05 / D-20, D-21): the 58-line inline poll loop that used to live
+      # here is extracted into scripts/ci/wait-for-ci-gate.sh so it can be reached by a
+      # hermetic self-test (wait-for-ci-gate.test.sh, wired into fast_checks) and by a
+      # live invocation against a real completed run -- see this phase's SUMMARY for
+      # the receipt. --max-attempts 120 (was the inline 60) raises the polling ceiling
+      # to 60 minutes at the unchanged 30s interval, above the measured 28m29s
+      # post-230 push wall-clock (run 30466318240) and its 42.3m historical max;
+      # `timeout-minutes: 75` above replaces the previously-inherited 360-minute
+      # default with an explicit ceiling comfortably above that 60-minute poll budget.
       - name: Wait for ci-gate on release SHA
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
           RELEASE_SHA: ${{ needs.release-please.outputs.sha }}
-        run: |
-          set -euo pipefail
-
-          sha="${RELEASE_SHA}"
-          if [ -z "$sha" ]; then
-            sha="$(gh api "repos/${REPOSITORY}/commits/${TAG_NAME}" --jq '.sha')"
-          fi
-
-          max_attempts=60
-          wait_seconds=30
-          last_run_url=""
-          ci_dispatched=false
-
-          for attempt in $(seq 1 "$max_attempts"); do
-            runs_json="$(gh run list \
-              --repo "$REPOSITORY" \
-              --workflow ci.yml \
-              --commit "$sha" \
-              --limit 20 \
-              --json databaseId,status,conclusion,url,createdAt)"
-
-            run_count="$(jq 'length' <<<"$runs_json")"
-            if [ "$run_count" -eq 0 ]; then
-              echo "No ci.yml run yet for ${sha} (${attempt}/${max_attempts})."
-              if [ "$attempt" -eq 3 ] && [ "$ci_dispatched" = false ]; then
-                gh workflow run ci.yml --ref "$TAG_NAME" --repo "$REPOSITORY"
-                ci_dispatched=true
-                echo "Dispatched ci.yml on tag ${TAG_NAME} for release SHA ${sha}."
-              fi
-              sleep "$wait_seconds"
-              continue
-            fi
-
-            last_run_url="$(jq -r 'sort_by(.createdAt) | reverse | .[0].url' <<<"$runs_json")"
-            incomplete="$(jq -r '[.[] | select(.status != "completed")] | length' <<<"$runs_json")"
-            if [ "$incomplete" -gt 0 ]; then
-              echo "ci.yml still running for ${sha} (${attempt}/${max_attempts}): ${last_run_url}"
-              sleep "$wait_seconds"
-              continue
-            fi
-
-            for run_id in $(jq -r 'sort_by(.createdAt) | reverse | .[].databaseId' <<<"$runs_json"); do
-              ci_gate="$(gh run view "$run_id" \
-                --repo "$REPOSITORY" \
-                --json jobs \
-                --jq '.jobs[] | select(.name == "ci-gate") | .conclusion' 2>/dev/null || true)"
-              if [ "$ci_gate" = "success" ]; then
-                run_url="$(gh run view "$run_id" --repo "$REPOSITORY" --json url --jq '.url')"
-                echo "ci-gate succeeded on release SHA ${sha}: ${run_url}"
-                exit 0
-              fi
-            done
-
-            echo "No successful ci-gate yet for ${sha} (${attempt}/${max_attempts}); waiting for a fresh run."
-            sleep "$wait_seconds"
-          done
-
-          echo "Timed out waiting for ci-gate on SHA ${sha}. Last run: ${last_run_url:-none}"
-          exit 1
+        run: bash scripts/ci/wait-for-ci-gate.sh --max-attempts 120
 
   publish-hex:
     name: Publish to Hex.pm

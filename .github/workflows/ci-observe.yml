@@ -74,10 +74,13 @@ jobs:
           gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --json jobs,event,createdAt,updatedAt,databaseId > run-payload.json
           # `set +e` is REQUIRED: GitHub invokes this body as `bash -e {0}`, so the
-          # observer's deliberate exit 1 would kill the step here -- before the verdict
-          # step can apply the schedule-lane leniency below. A soft-fail on the assertion
-          # is intended; a HARD failure (missing manifest, gh error) still reds the step
-          # via the empty-output check, so this is not a blanket `|| true`.
+          # observer's deliberate exit 1 would kill the step here -- before the
+          # separate Verdict step below gets a chance to read this step's output
+          # and apply its own pass/fail judgment (no event-conditional branch: the
+          # same verdict logic now applies uniformly on every trigger, D-19). A
+          # soft-fail on the assertion is intended; a HARD failure (missing
+          # manifest, gh error) still reds the step via the empty-output check,
+          # so this is not a blanket `|| true`.
           set +e
           bash scripts/ci/ci-demotion-observer.sh \
             --from-json run-payload.json --format json \
@@ -120,20 +123,6 @@ jobs:
           fi
           jq -r '.constructs[] | select(.verdict == "FAIL") | "::error::\(.id): \(.reason)"' \
             demotion-observation.json
-          # Nightly leniency, deliberate and self-retiring. The push lane is read (8 pass /
-          # 1 fail over the measured window), so a red there is signal. The scheduled lane
-          # is 0 pass / 9 fail, so a tenth red is unreadable by construction -- adding one
-          # would be the unread-noise failure this milestone exists to remove. The verdict
-          # computed above is IDENTICAL on both lanes; only the consequence differs, and
-          # the leniency is NOT conditional on any computed "is the nightly green?" state,
-          # because that would itself be a gate that rots.
-          # REMOVAL CONDITION: Phase 231 GATE-01. When a scheduled run concludes green (or
-          # every remaining red is a filed, diagnosed defect), delete this branch so the
-          # schedule lane fails like the push lane does.
-          if [ "$RUN_EVENT" = "schedule" ]; then
-            echo "::warning::Demotion receipt FAILED on the scheduled lane. Not failing this job: the nightly baseline is 0 pass / 9 fail, so an extra red is unreadable. Remove this leniency when Phase 231 GATE-01 lands."
-            exit 0
-          fi
           exit 1
 
   # ---------------------------------------------------------------------------

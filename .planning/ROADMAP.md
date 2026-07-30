@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Next: `/gsd-plan-phase 230`.
+**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Phase 230 complete; Phase 231's 11 plans are all executed but the phase is not closed — verification returned `human_needed` on GATE-01, which is structurally unobservable until the first post-merge scheduled nightly (see `231-UAT.md`). Next: merge PR #125, observe the first `schedule`-triggered nightly, then close GATE-01 and proceed to `/gsd-plan-phase 232`.
 
 ## Milestones
 
@@ -49,7 +49,7 @@
 
 ## Phases
 
-- [ ] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
+- [x] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
 - [ ] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing
 - [ ] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude
 - [ ] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock
@@ -124,7 +124,51 @@ Plans:
   5. `gate-ci-green` completes inside its polling ceiling on a real push-to-`main` run (its 30-minute ceiling is shorter than the run it waits for), and a red-probe of the release lane creates a tracking issue — i.e. the `release-lane-rot` label exists and `notify-failure-issue.sh` survives.
 
 **Proof discipline**: Every criterion here is a claim about what a run *did*. A YAML condition that "looks right" is exactly the failure mode this milestone exists to remove — GATE-02's defect is a condition that reads plausibly and has verified nothing for months.
-**Plans**: TBD
+**Plan order is locked** (CONTEXT D-24): GATE-02 fix → GATE-04 fix → GATE-02 enable → GATE-03 enforcement → GATE-01 observation. DX-05 is fully parallel (it touches only `release-please.yml` and `scripts/ci/notify-failure-issue.sh`). D-11 additionally locks an internal order inside the GATE-04 chain: install the browsers and re-token the cache key, fix the probe, run and *read*, and only then delete the mask.
+**Four corrections to the written record are planned work, not notes** (`231-RESEARCH.md` § Contradictions): the parity test D-01/D-10 cite does not exist (C-1); D-10's hard-fail boundary is therefore inverted (C-2); `p05` must be inverted in the same commit as the mask deletion (C-3); and SC-2's literal `9 passed` observable appears in no log, because the smoke script invokes Playwright twice (C-4).
+**Plans**: 11 plans in 10 waves
+
+Plans:
+**Wave 1**
+
+- [x] 231-01-PLAN.md — TRACER: extract the release-lane poll loop to `wait-for-ci-gate.sh`, wire the real `gate-ci-green` consumer, prove it live (DX-05 / D-20, D-21)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 231-02-PLAN.md — GATE-02 fix: instrument the 320px reflow assertion, read the runs, ship a real WCAG 1.4.10 containment fix (D-08, D-09)
+- [x] 231-03-PLAN.md — DX-05 notifier half: self-healing `release-lane-rot` label with an extended hermetic `gh` stub (D-22)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 231-04-PLAN.md — GATE-04 steps 1-2: install WebKit, re-token the browser-set cache key, fix the `SVGAnimatedString` probe crash (D-11, D-12)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 231-05-PLAN.md — GATE-04 step 3 as a first-class task: run the harness in CI and *read* whether b1-b6 pass; ledger re-base decision checkpoint (D-11, D-14, D-15)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 231-06-PLAN.md — GATE-04 step 4: invert `p05` and delete the job-level mask in one commit; SC-4's receipt (D-11, D-13, C-3)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 231-07-PLAN.md — GATE-02 enable: delete the stale `head_ref` gate plus every artifact recording it; new `p10` gate-column and rotted-gate assertions (D-06, D-07, D-10, C-1, C-2, C-4)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [x] 231-08-PLAN.md — GATE-03 logic: `honest-skip-verdict.sh` + hermetic self-test, consuming the manifest and building no second oracle (D-01, D-03, D-04)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [x] 231-09-PLAN.md — GATE-03 enforcement: `ci-gate` checkout + `changes` edge + verdict step, `force_rot_probe` input, SC-3's two dispatched runs (D-02, D-05, D-25)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [x] 231-10-PLAN.md — GATE-01 structural: seeds prelude for the Pages publisher, schedule-lane leniency deleted, two new prohibition guards (D-17, D-18, D-19)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [x] 231-11-PLAN.md — GATE-01 observation: `231-EVIDENCE.md` with one slot per criterion, D-16's fallback criteria recorded in advance, pre-squash hygiene (D-16, D-25)
 
 ### Phase 232: Playwright Economics — Authenticate Once, Then Shard
 
@@ -193,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 0/? | Not started | - |
+| 231. Gate Honesty + Nightly Revival | 11/11 | Verifying (human_needed — GATE-01 blocked on post-merge nightly, see 231-UAT.md) |  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |

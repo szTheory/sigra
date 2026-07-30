@@ -171,9 +171,73 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
     element.style.fontSize = "32px";
   });
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+
+  // GATE-02 / D-09: instrumented in place of the bare boolean assertion so a
+  // future red is self-diagnosing. The diagnostic dispatch that named this
+  // gate's offenders is recorded in 231-02-DIAGNOSIS.md; the unconditional
+  // per-run log line used to gather that evidence is removed now that the
+  // diagnosis is recorded -- the structured payload lives on in the
+  // assertion's own failure message. offenders is capped at 15 entries so a
+  // pathological page cannot flood the job log; classList is used (not
+  // className) because className is an SVGAnimatedString on SVG elements and
+  // string methods throw on it (the same defect class plan 231-04 fixes in
+  // probes.ts).
+  //
+  // GATE-02 gap-closure (231-GAP-GATE02-SUMMARY.md): the structural
+  // min-width: 0 fix explains the overflow *mechanism* but not why only a
+  // fraction of runs on the identical commit fail. Leading unconfirmed
+  // hypothesis: sans-serif fallback resolution varies across runners
+  // (sigra_auth.css ships no webfont, resolving `ui-sans-serif, system-ui,
+  // ..., sans-serif` through whatever fontconfig the runner has), shifting a
+  // text-metric-driven min-content floor across the 320px boundary. The
+  // first offender's resolved fontFamily, its own resolved min-width, and
+  // the root element's resolved font-size are captured here so the next
+  // red/green pair either confirms or kills that hypothesis with real
+  // evidence -- same discipline 231-02 applied to H1/H2.
+  const reflowPayload = await page.evaluate(() => {
+    const offenders: Array<{
+      tag: string;
+      cls: string;
+      right: number;
+      fontFamily?: string;
+      minWidth?: string;
+    }> = [];
+    for (const element of Array.from(document.querySelectorAll("*"))) {
+      const rect = element.getBoundingClientRect();
+      if (rect.right > window.innerWidth + 1) {
+        const offender: {
+          tag: string;
+          cls: string;
+          right: number;
+          fontFamily?: string;
+          minWidth?: string;
+        } = {
+          tag: element.tagName,
+          cls: Array.from(element.classList).join(" "),
+          right: rect.right,
+        };
+        if (offenders.length === 0) {
+          const computed = getComputedStyle(element);
+          offender.fontFamily = computed.fontFamily;
+          offender.minWidth = computed.minWidth;
+        }
+        offenders.push(offender);
+        if (offenders.length >= 15) break;
+      }
+    }
+    return {
+      innerWidth: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      rootFontSize: getComputedStyle(document.documentElement).fontSize,
+      offenders,
+    };
+  });
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-  ).toBe(true);
+    reflowPayload.scrollWidth,
+    `320px reflow: ${JSON.stringify(reflowPayload)}`,
+  ).toBeLessThanOrEqual(reflowPayload.innerWidth);
+
   await captureAdminCheckpoint(page, testInfo, {
     name: "auth-login-system-dark-320-reflow",
     prefix: "auth",

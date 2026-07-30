@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: false
+      force_rot_probe:
+        description: 'Inject a synthetic rotted skip into the GATE-03 honest-skip verdict so the fail direction of ci-gate is provable on demand (set true to probe).'
+        required: false
+        type: boolean
+        default: false
       recapture_branch:
         description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'
         required: false
@@ -341,6 +346,27 @@ jobs:
         # `conclusion != 'skipped'` check waves through. Hermetic: a PATH-shadowed
         # recording `gh`, no network, no GH_TOKEN.
         run: bash scripts/ci/ci-demotion-observer.test.sh
+      - name: Wait-for-ci-gate self-test
+        # Phase 231 (DX-05 / D-20, D-21): hermetic proof that the extracted
+        # release-lane poll loop (scripts/ci/wait-for-ci-gate.sh, invoked by
+        # release-please.yml's gate-ci-green job) is fail-closed and its 120-attempt
+        # ceiling is wired. It is hermetic, so it proves the logic and never that a
+        # real release passed the gate -- that half is the standing receipt D-21
+        # books against the next real release (and the live invocation already
+        # recorded for this phase's own tracer slice against run 30466318240).
+        run: bash scripts/ci/wait-for-ci-gate.test.sh
+      - name: Honest-skip verdict self-test
+        # Phase 231 (GATE-03 / D-01, D-03, D-04): hermetic proof that the
+        # manifest-driven legitimacy verdict (scripts/ci/honest-skip-verdict.sh)
+        # is correct in both directions -- an allowed skip passes, the same
+        # skip on a non-pull_request event fails naming the lane, and an
+        # allowed skip with a rotted (branch- or SHA-keyed) manifest gate
+        # fails anyway -- and fails closed on its own vacuity (an empty
+        # manifest intersection, a fully empty lane-result map, a workflow
+        # needs: parse yielding nothing). It is hermetic, so it proves the
+        # logic and never that ci-gate actually invokes it -- that half is
+        # plan 231-09's wiring step plus SC-3's two dispatched runs.
+        run: bash scripts/ci/honest-skip-verdict.test.sh
       - name: Phase 230 prohibition guards
         # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
         # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
@@ -1313,10 +1339,24 @@ jobs:
         # diagnosis. The dependency install in the next step always runs on
         # both branches -- skipping it on a hit produces a missing-system-
         # dependency failure at test time.
+        #
+        # Phase 231 (GATE-04 / D-11 step 1): admin_eval_render now installs
+        # chromium AND webkit too (the bug above is fixed), so the key is
+        # re-tokened -v1 -> -v2 to record this boundary explicitly in the
+        # key itself. The stronger guarantee is structural, not the token:
+        # admin_eval_render declares no `actions/cache` step at all, so no
+        # cross-job cache restore can ever hand it a browser without the
+        # install step actually running -- that is true regardless of what
+        # the token says. restore-keys below stays a bare prefix match on
+        # purpose: its ONLY consumer is this job (example_playwright_smoke),
+        # which installs both chromium and webkit on the cache-hit branch
+        # (install-deps) and the cache-miss branch (install --with-deps)
+        # alike, so a warm-start from an older -v1 entry can never leave a
+        # browser missing here.
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v1
+          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
           restore-keys: ${{ runner.os }}-playwright-chromium-webkit-
       - name: Install Playwright browsers
         if: needs.changes.outputs.docs_only != 'true'
@@ -1663,15 +1703,22 @@ jobs:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
     # Phase 230 (FAST-07): only the timeout value and its position changed
-    # here. The head-ref condition on the next line is stale and left
-    # untouched -- correcting it is GATE-02, Phase 231's scope, not this
-    # plan's. 15 replaces the prior 60 -- about 16x this job's 3.73m
-    # measured duration (230-EVIDENCE.md) -- against the same 2x sizing
-    # rule applied to every other job.
+    # here. 15 replaces the prior 60 -- about 16x this job's 3.73m measured
+    # duration (230-EVIDENCE.md) -- against the same 2x sizing rule applied
+    # to every other job.
     timeout-minutes: 15
-    # GATE-02 / D-08: temporary integration-scoped relaxation — runs on PR #63's head branch
-    # (ship/v1.42-ci-gate-remediation) to prove generated-host parity in CI; remove after merge.
-    if: github.event_name != 'pull_request' || github.head_ref == 'ship/v1.42-ci-gate-remediation'
+    # Phase 231 GATE-02 / D-06: this job now runs on every event, including
+    # pull_request, with no condition at all. The branch-name condition it
+    # replaced (`... || github.head_ref == 'ship/v1.42-ci-gate-remediation'`)
+    # had evaluated false on every pull request since that branch merged
+    # months ago, so generated-host parity reported green while verifying
+    # nothing -- ci-gate counts a `skipped` conclusion as a pass. Do not
+    # replace this with the house `github.event_name != 'pull_request'`
+    # pattern either: that would still leave parity verified on no PR at
+    # all, which is the same defect restated rather than fixed. Measured
+    # cost: ~4 runner-minutes fully in parallel behind release_ref_guard
+    # (~3s), against a PR pole of 989s (example_playwright_smoke) -- FAST-01's
+    # p50 wall-clock target is unaffected (D-07).
     needs: release_ref_guard
     services:
       postgres:
@@ -1790,7 +1837,17 @@ jobs:
     name: ci-gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # GATE-03 (Phase 231 / D-02): `changes` (first in needs: below) is an
+    # input provider for the honest-skip verdict step, not a gated lane --
+    # `changes` is absent from NEVER_DOCS_GATED
+    # (scripts/ci/prohibitions/_lib.mjs), so this edge is permitted.
+    # `if: always()` on this job stays unchanged, so a red or skipped
+    # `changes` cannot make ci-gate vanish. NOTE: honest-skip-verdict.sh's
+    # own needs: extractor requires every line in the needs: list below to
+    # be a bare `      - id` entry -- no comments or blanks inside the list
+    # itself, or the extraction silently yields zero entries.
     needs:
+      - changes
       - install_golden_contract
       - library_tests
       - library_tests_dep_off
@@ -1802,6 +1859,47 @@ jobs:
       - fast_checks
     if: always()
     steps:
+      # GATE-03 (Phase 231 / D-02): ci-gate was a pure aggregation job with
+      # no working tree until now. This checkout exists solely so the
+      # honest-skip verdict step below can read the committed manifest
+      # (.github/ci-skip-manifest.tsv) and this workflow file. Default
+      # fetch depth is correct: the script reads a committed file, never
+      # history.
+      - name: Checkout (honest-skip manifest)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      # GATE-03 (Phase 231 / D-02, D-05): runs BEFORE the legacy loop below,
+      # which stays byte-unchanged, so this diff is reviewable and today's
+      # behaviour is provably non-regressing. Distinguishes a correctly
+      # event-/diff-gated skip from a rotted one -- ci.yml's own legacy loop
+      # treats every skip as a pass with no such distinction. Every GitHub
+      # context value below reaches the shell only through this env: map,
+      # never inlined into the run: body (ci.yml:132-135, ASVS V5).
+      - name: Honest-skip verdict (GATE-03)
+        env:
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          EVENT_NAME: ${{ github.event_name }}
+          FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
+          INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
+          LIBRARY_TESTS: ${{ needs.library_tests.result }}
+          LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
+          INSTALL_SMOKE: ${{ needs.install_smoke.result }}
+          UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
+          EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
+          GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+          FAST_CHECKS: ${{ needs.fast_checks.result }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/honest-skip-verdict.sh --format table --event "${EVENT_NAME}" --docs-only "${DOCS_ONLY}" \
+            --lane install_golden_contract="${INSTALL_GOLDEN_CONTRACT}" \
+            --lane library_tests="${LIBRARY_TESTS}" \
+            --lane library_tests_dep_off="${LIBRARY_TESTS_DEP_OFF}" \
+            --lane install_smoke="${INSTALL_SMOKE}" \
+            --lane upgrade_smoke="${UPGRADE_SMOKE}" \
+            --lane example_http_smoke="${EXAMPLE_HTTP_SMOKE}" \
+            --lane example_playwright_smoke="${EXAMPLE_PLAYWRIGHT_SMOKE}" \
+            --lane generated_admin_playwright_smoke="${GENERATED_ADMIN_PLAYWRIGHT_SMOKE}" \
+            --lane fast_checks="${FAST_CHECKS}"
       - name: Verify required release CI lanes
         env:
           INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
@@ -2434,20 +2532,24 @@ jobs:
   # This job measured 17m33s and gated nothing, so charging it to every PR was pure waste;
   # it is not in ci-gate.needs and is not a ruleset-required context, so demotion breaks no
   # gate. To get render evidence for a PR branch, dispatch this workflow on that ref
-  # (workflow_dispatch). continue-on-error: true below is deliberately retained — the two
-  # underlying harness defects are unfixed and stay unfixed here; removing it now would turn
-  # every push to main red and is explicitly GATE-04's scope in Phase 231, not this phase's.
+  # (workflow_dispatch).
+  #
+  # Phase 231 (GATE-04 / D-11 step 4): the job-level continue-on-error that used to mask
+  # this lane is REMOVED. Plan 231-05 observed the harness's b1-b6 guards run to completion
+  # in CI for the first time (run 30512523387, job 90775422130, `PASS — all phases green`);
+  # that observation is what makes removal honest rather than premature. This lane is now a
+  # hard signal on push/schedule/workflow_dispatch: a harness failure reddens the run. The
+  # step-level `continue-on-error: true` at `id: admin_eval_harness` below is retained
+  # DELIBERATELY (D-13) — it lets partial evidence bundles upload as artifacts before the
+  # "Fail the job if harness did not PASS" step re-fails the job, so an investigator still
+  # has something to download when it dies. p05 (scripts/ci/prohibitions/) mechanically
+  # forbids reinstating the job-level mask and requires the step-level flag to stay.
   admin_eval_render:
-    name: Admin eval render + probe (evidence only, not a merge gate)
+    name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     needs: [release_ref_guard]
     if: github.event_name != 'pull_request'
-    # Advisory evidence lane — deliberately NOT in ci-gate.needs. continue-on-error
-    # so a harness failure (or its own dev-boot flake) can never redden the
-    # default-branch run; evidence bundles still upload as artifacts. The real
-    # merge signal is ci-gate + the committed-ledger guards in fast_checks.
-    continue-on-error: true
     # PORT must agree at COMPILE and RUNTIME: config.exs bakes
     # System.get_env("PORT", "4000") into ExampleWeb.Endpoint at compile time (a
     # compile_env key), so booting on a different PORT trips validate_compile_env
@@ -2514,9 +2616,9 @@ jobs:
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci
-      - name: Install Playwright browsers (chromium only — admin-eval uses chromium)
+      - name: Install Playwright browsers (chromium + webkit — admin-eval-mobile is iPhone 13/WebKit)
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Boot example app in background
         working-directory: test/example
         env:

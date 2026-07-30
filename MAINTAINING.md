@@ -134,7 +134,6 @@ The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** i
 - `install_matrix` (four flag-combination installs)
 - `upgrade_smoke` (published → local upgrade path)
 - `passkeys_manual_fallback_smoke` and `passkeys_opt_out_smoke`
-- `generated_admin_playwright_smoke` (generated-host admin behavior; see its `timeout-minutes:` for the current ceiling)
 - `nightly_probe` (forced-failure self-test; see runbook below)
 
 The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
@@ -150,18 +149,26 @@ step id) and its literal gating condition, verified against the shipped `ci.yml`
 this section was written.
 
 **Tier A — event-gated, pre-existing (Phase 196).** `install_matrix`, `upgrade_smoke`,
-`passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `generated_admin_playwright_smoke`,
-`nightly_probe`, plus the two recapture lanes (`admin_design_recapture`,
-`admin_checkpoint_recapture`) and `notify_release_lane_rot` — all gated to non-`pull_request`
-events. The "CI cadence" enumeration above is the authority for this tier; it is repeated here
-only so the post-Phase-230 honest-skip set reads as one list.
+`passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `nightly_probe`, plus the two
+recapture lanes (`admin_design_recapture`, `admin_checkpoint_recapture`) and
+`notify_release_lane_rot` — all gated to non-`pull_request` events. The "CI cadence" enumeration
+above is the authority for this tier; it is repeated here only so the post-Phase-230 honest-skip
+set reads as one list. `generated_admin_playwright_smoke` is no longer in this tier: Phase 231
+GATE-02 / D-06 deleted its `if:` condition outright (not replaced), so it now runs on every
+event, including `pull_request`, gated by nothing.
 
 **Tier B — event-gated, added by Phase 230.**
 
-- The job `admin_eval_render` (`Admin eval render + probe (evidence only, not a merge gate)`) —
-  `if: github.event_name != 'pull_request'` — newly gated to non-`pull_request` events, removing a
-  measured 17m33s from every PR (FAST-03, D-10). It is not in `ci-gate.needs`, is not a ruleset
-  context, and `continue-on-error: true` is retained pending Phase 231's GATE-04.
+- The job `admin_eval_render` (`Admin eval render + probe (hard signal on push/schedule/dispatch;
+  not in ci-gate)`) — `if: github.event_name != 'pull_request'` — newly gated to non-`pull_request`
+  events, removing a measured 17m33s from every PR (FAST-03, D-10). It is not in `ci-gate.needs`
+  and is not a ruleset context, so a failure here never blocks a merge and this job never runs on
+  a `pull_request` event at all — but as of Phase 231 GATE-04 (D-11 step 4), the JOB-level
+  `continue-on-error: true` that used to mask a harness failure is gone: on push, schedule, and
+  `workflow_dispatch` runs, a harness failure now reddens this job's own conclusion. The
+  STEP-level `continue-on-error: true` under `id: admin_eval_harness` (D-13) is retained
+  permanently so partial evidence bundles still upload as artifacts before the re-fail step turns
+  the job red.
 - The step `design_gallery_snapshots` ("Run design gallery board snapshots (non-PR)") inside
   `example_playwright_smoke` — `id: design_gallery_snapshots`,
   `if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}`
@@ -257,9 +264,14 @@ treated as "unchanged coverage" — each is disclosed here with its backstop and
    `.github/ci-skip-manifest.tsv` actually executed on the lane that received it. It is
    deliberately **not** in `ci-gate.needs`, never runs on `pull_request`, and cannot change what
    `ci-gate` counts as a pass — Phase 231's GATE-03 owns that, and should consume the manifest
-   rather than re-deriving the set. On the `schedule` lane the receipt currently warns instead of
-   failing, because the nightly baseline is 0 pass / 9 fail and a tenth red would be unreadable;
-   **that leniency is removed when Phase 231's GATE-01 lands.**
+   rather than re-deriving the set. The `schedule` lane's warn-instead-of-fail leniency was
+   **removed by Phase 231's GATE-01** (plan 231-10, D-19): the receipt now fails on the scheduled
+   lane exactly as it does on the push lane. The evidence that justified removing it is the
+   measured nightly, run `30425416933` (2026-07-29T05:33Z) — 25 jobs, 23 green, and the only two
+   reds (`Generated admin Playwright smoke`, `Admin eval render + probe`) were this same phase's
+   own GATE-02 and GATE-04 defects, both fixed before this removal landed. A structural guard,
+   `scripts/ci/prohibitions/p16-no-schedule-lane-leniency.test.mjs`, asserts over comment-stripped
+   content that no trigger-dependent early exit can return.
 
 **Pointer:** ROADMAP.md's SC-2 wording ("design-gallery snapshots off the PR gate") is superseded
 by the operative restatement in `230-EVIDENCE.md` — a job whose condition evaluates false is
@@ -267,13 +279,19 @@ present in the job list with a `skipped` conclusion rather than absent from it.
 
 #### Accepted residuals (D-07 honest-truth disclosure)
 
-Two coverage areas moved to nightly are accepted residuals and must never be silently treated as "covered on PRs":
+One coverage area moved to nightly is an accepted residual and must never be silently treated as "covered on PRs":
 
 1. **`upgrade_smoke` whole upgrade path** — the published-package → local-candidate upgrade path has **no per-PR behavioral proxy**. It runs on `push: main` and release dispatch (so every merge to main is covered before release), but not on individual PRs. This is accepted as release-boundary coverage; any regression surfaces before a Hex publish.
 
-2. **Generated-host template parity** — `generated_admin_playwright_smoke` (the full generated-host admin Playwright run) is fully moved to nightly. Admin _behavior_ is proxied on PRs by `example_playwright_smoke`'s admin specs (a required lane). However, the **template-parity** check (installer-emitted shell vs library admin) becomes nightly-only. This residual is explicitly backstopped by **DIST-06 `scripts/ci/admin-acceptance-smoke.sh`** (`RUN_PARITY`) — the acceptance smoke script that scaffolds a fresh `phx.new + sigra.install` and runs the full Playwright suite against the generated host. This automation is the proxy for template-parity regressions between nightly runs.
+This residual is a deliberate, disclosed tradeoff that shortens PR wall-clock time without silently stranding correctness-critical coverage. It is documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
 
-These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
+**Retired (Phase 231 GATE-02 / D-06):** the former residual 2, "Generated-host template parity"
+(`generated_admin_playwright_smoke` fully moved to nightly), is closed. That job's stale
+`if:` condition — the one which had silently kept it off `pull_request` for months after the
+branch it referenced merged — was deleted outright, not replaced, so template parity is now
+verified on every pull request. `DIST-06 scripts/ci/admin-acceptance-smoke.sh` (`RUN_PARITY`)
+remains in place as a standalone acceptance smoke script, but it is no longer covering for a
+residual: the job itself now runs the check on the PR lane directly.
 
 #### Before/after acceptance evidence (v1.40 CI-PERF milestone — Phase 198)
 

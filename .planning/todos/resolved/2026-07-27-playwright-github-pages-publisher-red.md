@@ -1,6 +1,8 @@
 ---
 created: 2026-07-27T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-07-30T00:00:00.000Z
+resolved_by: phase-231-10
 title: "Playwright reports (GitHub Pages)" scheduled workflow is red (spec toBeVisible / element-not-found), reddens main history
 area: ci
 files:
@@ -56,3 +58,34 @@ exited 1.
 CI-only / cosmetic publisher. Not a merge gate, does not block PRs. Low urgency but
 worth closing so `main`'s run history is clean. Pairs with the green-main triage
 (2026-07-27) that fixed the `CI` workflow's advisory admin-eval lane.
+
+## Resolution (2026-07-30, Phase 231 plan 231-10, D-17)
+
+This todo's stated hypothesis was **wrong**. The failure was never real spec drift, and
+the `continue-on-error` option floated above was correctly never applied — it would have
+been both unnecessary and forbidden (230's D-15 posture: never mask a red, fix the cause
+or file it with a diagnosis).
+
+**Actual root cause:** `playwright-github-pages.yml` set up the dev DB (`Setup example
+dev DB`) and then went straight into `Boot example app in background` with **no
+demo-seeds step**, while all four example-booting jobs in `ci.yml` (`:1288`, `:1950`,
+`:2258`, `:2506`) run one, seeding roughly thirty loadtest users. Without those seeded
+users the admin users index never paginates, so the checkpoint spec's
+`getByRole('link', { name: 'Next page' })` assertion never finds an element to become
+visible — which is precisely the `toBeVisible` / "element(s) not found" failure this
+todo originally observed, and precisely how scheduled run `30432494488` failed, in all
+three checkpoint projects (`admin-checkpoints-chromium`, `admin-checkpoints-mobile`,
+`admin-checkpoints-dark`), at `test/example/priv/playwright/tests/admin-checkpoints.spec.ts:230`.
+
+**Fix:** a `Run demo seeds` step, copied from the `admin_eval_render` block at
+`ci.yml:2506-2513` (the one seeds copy in the repo that carries no `docs_only` guard —
+this workflow has no `changes` job, so a docs-only-guarded copy would have evaluated
+empty and silently never run), inserted unconditionally between `Setup example dev DB`
+and `Boot example app in background`. Guarded by
+`scripts/ci/prohibitions/p15-pages-publisher-seeds-before-boot.test.mjs`, so the
+regression cannot silently return.
+
+The GitHub Pages source-building question this todo did not raise (D-18: whether
+`ensure-github-pages-legacy-branch.sh` can finally run after this fix, and whether Pages
+self-heals off `main`'s repo root) is tracked separately by Task 3 of the same plan, not
+folded into this todo.
