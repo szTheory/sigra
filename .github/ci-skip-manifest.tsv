@@ -67,7 +67,7 @@ A	job	nightly_probe	-	Nightly probe (forced-failure self-test)	job	github.event_
 A	job	admin_design_recapture	-	Recapture admin-design baselines (in-CI)	job	github.event_name != 'pull_request'	ignore
 A	job	admin_checkpoint_recapture	-	Recapture admin-checkpoint baselines (in-CI)	job	github.event_name != 'pull_request'	ignore
 A	job	notify_release_lane_rot	-	Notify on red ci-gate (release-lane-rot)	job	always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'	exempt
-B	job	admin_eval_render	-	Admin eval render + probe (evidence only, not a merge gate)	job	github.event_name != 'pull_request'	assert
+B	job	admin_eval_render	-	Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)	job	github.event_name != 'pull_request'	assert
 B	step	design_gallery_snapshots	example_playwright_smoke	Run design gallery board snapshots (non-PR)	step	!cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'	assert
 C	job	library_tests_dep_off	-	Library tests (dep-off — Threadline absent)	job	!cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true'	ignore
 C	job	example_unit_smoke	-	Example unit smoke (ExUnit + ConnTest)	step	needs.changes.outputs.docs_only != 'true'	ignore

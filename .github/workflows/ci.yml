@@ -2470,7 +2470,7 @@ jobs:
   # has something to download when it dies. p05 (scripts/ci/prohibitions/) mechanically
   # forbids reinstating the job-level mask and requires the step-level flag to stay.
   admin_eval_render:
-    name: Admin eval render + probe (evidence only, not a merge gate)
+    name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     needs: [release_ref_guard]

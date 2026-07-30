@@ -158,10 +158,16 @@ only so the post-Phase-230 honest-skip set reads as one list.
 
 **Tier B — event-gated, added by Phase 230.**
 
-- The job `admin_eval_render` (`Admin eval render + probe (evidence only, not a merge gate)`) —
-  `if: github.event_name != 'pull_request'` — newly gated to non-`pull_request` events, removing a
-  measured 17m33s from every PR (FAST-03, D-10). It is not in `ci-gate.needs`, is not a ruleset
-  context, and `continue-on-error: true` is retained pending Phase 231's GATE-04.
+- The job `admin_eval_render` (`Admin eval render + probe (hard signal on push/schedule/dispatch;
+  not in ci-gate)`) — `if: github.event_name != 'pull_request'` — newly gated to non-`pull_request`
+  events, removing a measured 17m33s from every PR (FAST-03, D-10). It is not in `ci-gate.needs`
+  and is not a ruleset context, so a failure here never blocks a merge and this job never runs on
+  a `pull_request` event at all — but as of Phase 231 GATE-04 (D-11 step 4), the JOB-level
+  `continue-on-error: true` that used to mask a harness failure is gone: on push, schedule, and
+  `workflow_dispatch` runs, a harness failure now reddens this job's own conclusion. The
+  STEP-level `continue-on-error: true` under `id: admin_eval_harness` (D-13) is retained
+  permanently so partial evidence bundles still upload as artifacts before the re-fail step turns
+  the job red.
 - The step `design_gallery_snapshots` ("Run design gallery board snapshots (non-PR)") inside
   `example_playwright_smoke` — `id: design_gallery_snapshots`,
   `if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}`
