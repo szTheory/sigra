@@ -11,6 +11,16 @@
 #      `gh issue create` (no spam -- one durable issue accumulates occurrences).
 #   C: LABEL/TITLE/BODY unset -> non-zero exit, zero `gh` calls at all
 #      (fail-closed, no partial call).
+#   D: label absent, no open issue -> exactly one `label create`, then exactly
+#      one `issue create`, exit 0 (Phase 231 D-22, self-heal).
+#   E: label present, no open issue -> zero `label create`, exactly one
+#      `issue create`, exit 0.
+#   F: an open issue already carries the label -> zero `label list`/`label
+#      create` calls, exactly one `issue comment`, exit 0 (comment path must
+#      not touch labels at all).
+#   G: `label create` denied -> a warning is logged, exactly one `issue
+#      create` still runs, exit 0 (losing the label must never cost the
+#      issue).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -52,6 +62,17 @@ if [[ "${1:-}" == "issue" && "${2:-}" == "list" ]]; then
   exit 0
 fi
 if [[ "${1:-}" == "issue" && ( "${2:-}" == "create" || "${2:-}" == "comment" ) ]]; then
+  exit 0
+fi
+if [[ "${1:-}" == "label" && "${2:-}" == "list" ]]; then
+  echo "${GH_STUB_LABEL_EXISTS:-}"
+  exit 0
+fi
+if [[ "${1:-}" == "label" && "${2:-}" == "create" ]]; then
+  if [[ -n "${GH_STUB_LABEL_CREATE_FAIL:-}" ]]; then
+    echo "gh stub: label create denied (simulated)" >&2
+    exit 1
+  fi
   exit 0
 fi
 echo "gh stub: unexpected invocation: $*" >&2
