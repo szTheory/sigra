@@ -558,3 +558,89 @@ observation**, never evidence of health, and must not be recorded as `captured` 
    is, by `p12-run-id-provenance.test.mjs`'s own enforced grammar, not distinguishable from a claim
    invented without ever running the command — and is exactly the class of "a number nobody can
    re-derive" this whole ledger exists to prevent.
+
+---
+
+## Pre-Merge Hygiene Check
+
+GitHub honors a `[skip ci]` (or `[ci skip]`) token found **anywhere** in a commit message, and a
+squash merge concatenates every commit body in the branch into one squash commit message
+(`MAINTAINING.md` § "Squash-merge `[skip ci]` footgun"). One occurrence anywhere in this phase's
+commit series — even inside prose describing another job's own commits, which this phase's own
+`231-RESEARCH.md` and several SUMMARYs do when discussing `admin_design_recapture` — would
+silently skip the entire push-to-main CI run when this branch squash-merges, eliminating SC-1's
+nightly evidence path before it could ever materialise (`231-RESEARCH.md` Pitfall 9).
+
+**Scan, run against this branch's full commit series relative to `origin/main`:**
+
+```
+git fetch origin main
+MB="$(git merge-base origin/main HEAD)"
+git log "$MB"..HEAD --format=%B | grep -i 'skip ci'
+```
+
+**Result, re-captured 2026-07-30 at this ledger's own final commit:**
+
+```
+$ git merge-base origin/main HEAD
+64c39f3b5cdce64a6ee60513f5fcdfb8af5c6fba
+
+$ git rev-list --count 64c39f3b5cdce64a6ee60513f5fcdfb8af5c6fba..HEAD
+55 commits
+
+$ git log 64c39f3b5cdce64a6ee60513f5fcdfb8af5c6fba..HEAD --format=%B | grep -i 'skip ci'
+(no output)
+$ echo $?
+1
+```
+
+**55 commits scanned, 0 occurrences of `skip ci` (case-insensitive) in any subject or body across
+the full range.** The scan is a genuine full-series check, not a spot check of the latest commit —
+`git log <range> --format=%B` concatenates every commit's subject and body across the entire range
+into one stream, matching exactly what a squash merge would produce. No remediation was required.
+
+**Terminal guard confirmation — every guard this phase built or extended, run once more at this
+ledger's own final commit, immediately before the PR is handed to review:**
+
+```
+$ node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs
+# tests 66
+# pass 66
+# fail 0
+
+$ bash scripts/ci/wait-for-ci-gate.test.sh
+Results: 11 passed, 0 failed
+wait-for-ci-gate.test: PASS
+
+$ bash scripts/ci/honest-skip-verdict.test.sh
+Results: 20 passed, 0 failed
+honest-skip-verdict.test: PASS
+
+$ bash scripts/ci/playwright-cache-key-guard.test.sh
+Results: 8 passed, 0 failed
+playwright-cache-key-guard.test: PASS
+
+$ bash scripts/ci/fix-queue-lint.test.sh
+7 checks: 7 passed, 0 failed
+fix-queue-lint.test.sh: PASS
+
+$ bash scripts/ci/quality-findings-monotonic.test.sh
+Results: 11 passed, 0 failed
+quality-findings-monotonic.test: PASS
+
+$ bash scripts/ci/ci-demotion-observer.test.sh
+Results: 19 passed, 0 failed
+ci-demotion-observer.test: PASS
+
+$ actionlint -shellcheck= .github/workflows/ci.yml .github/workflows/ci-observe.yml \
+    .github/workflows/playwright-github-pages.yml .github/workflows/release-please.yml
+(exit 0, no output)
+```
+
+Every guard this phase shipped or extended (`p14`, `p15`, `p16`, and every `p10`/`p05` change,
+all folded into the 66-test prohibition suite above; plus the six standalone `scripts/ci/*.test.sh`
+pairs this phase created or extended: `wait-for-ci-gate`, `honest-skip-verdict`,
+`playwright-cache-key-guard`, `fix-queue-lint`, `quality-findings-monotonic`,
+`ci-demotion-observer`) is green in one place, at the same commit this hygiene check itself was
+run against. This is the last point at which the phase's own guards are all confirmed green before
+the PR is handed to review.
