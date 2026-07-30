@@ -350,6 +350,18 @@ jobs:
         # books against the next real release (and the live invocation already
         # recorded for this phase's own tracer slice against run 30466318240).
         run: bash scripts/ci/wait-for-ci-gate.test.sh
+      - name: Honest-skip verdict self-test
+        # Phase 231 (GATE-03 / D-01, D-03, D-04): hermetic proof that the
+        # manifest-driven legitimacy verdict (scripts/ci/honest-skip-verdict.sh)
+        # is correct in both directions -- an allowed skip passes, the same
+        # skip on a non-pull_request event fails naming the lane, and an
+        # allowed skip with a rotted (branch- or SHA-keyed) manifest gate
+        # fails anyway -- and fails closed on its own vacuity (an empty
+        # manifest intersection, a fully empty lane-result map, a workflow
+        # needs: parse yielding nothing). It is hermetic, so it proves the
+        # logic and never that ci-gate actually invokes it -- that half is
+        # plan 231-09's wiring step plus SC-3's two dispatched runs.
+        run: bash scripts/ci/honest-skip-verdict.test.sh
       - name: Phase 230 prohibition guards
         # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
         # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
