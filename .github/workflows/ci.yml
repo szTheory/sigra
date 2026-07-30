@@ -1322,10 +1322,24 @@ jobs:
         # diagnosis. The dependency install in the next step always runs on
         # both branches -- skipping it on a hit produces a missing-system-
         # dependency failure at test time.
+        #
+        # Phase 231 (GATE-04 / D-11 step 1): admin_eval_render now installs
+        # chromium AND webkit too (the bug above is fixed), so the key is
+        # re-tokened -v1 -> -v2 to record this boundary explicitly in the
+        # key itself. The stronger guarantee is structural, not the token:
+        # admin_eval_render declares no `actions/cache` step at all, so no
+        # cross-job cache restore can ever hand it a browser without the
+        # install step actually running -- that is true regardless of what
+        # the token says. restore-keys below stays a bare prefix match on
+        # purpose: its ONLY consumer is this job (example_playwright_smoke),
+        # which installs both chromium and webkit on the cache-hit branch
+        # (install-deps) and the cache-miss branch (install --with-deps)
+        # alike, so a warm-start from an older -v1 entry can never leave a
+        # browser missing here.
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v1
+          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
           restore-keys: ${{ runner.os }}-playwright-chromium-webkit-
       - name: Install Playwright browsers
         if: needs.changes.outputs.docs_only != 'true'
@@ -2523,9 +2537,9 @@ jobs:
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci
-      - name: Install Playwright browsers (chromium only — admin-eval uses chromium)
+      - name: Install Playwright browsers (chromium + webkit — admin-eval-mobile is iPhone 13/WebKit)
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Boot example app in background
         working-directory: test/example
         env:

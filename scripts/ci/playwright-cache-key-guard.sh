@@ -2,7 +2,7 @@
 # Phase 230 (FAST-06 / D-16, D-18): Playwright browser cache key version-drift guard.
 #
 # Contract: asserts the version embedded in .github/workflows/ci.yml's
-# Playwright browser cache key (`playwright-chromium-webkit-<version>-v1`)
+# Playwright browser cache key (`playwright-chromium-webkit-<version>-vN`)
 # equals the resolved `@playwright/test` version in
 # test/example/priv/playwright/package-lock.json. package.json declares
 # "@playwright/test": "^1.48.0" while the lockfile currently resolves
@@ -12,6 +12,14 @@
 # Playwright fails at test time with a missing-executable error. This guard
 # is what makes that failure loud in fast_checks instead of silent inside a
 # passing example_playwright_smoke run.
+#
+# Phase 231 (GATE-04 / C-6): the `-vN` suffix segment is a boundary marker
+# the workflow re-tokens whenever the cached browser SET changes (-v1 -> -v2
+# when admin_eval_render started needing webkit too, see ci.yml's Playwright
+# browser cache comment). The extraction below matches ANY `-vN` token
+# rather than hard-coding `-v1`, so a future re-token advances the marker
+# without also silently turning this guard's "no cache key found" fail-closed
+# path into a real failure over an unrelated-looking cause.
 #
 # Does NOT cover: the browser set ("chromium-webkit") encoded in the same
 # key. That is D-16's concern, asserted structurally by plan 06 Task 1's
@@ -41,14 +49,16 @@ fail() {
 [[ -f "$LOCKFILE" ]] || fail "lockfile not found: ${LOCKFILE}"
 
 # The cache key line has the shape:
-#   key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v1
-# Extract the literal version between the browser-set segment and the -v1
-# suffix. No fallback: if the pattern is absent, key_version stays empty and
-# the guard below fails closed rather than silently passing.
-key_version="$(grep -oE 'playwright-chromium-webkit-[0-9]+\.[0-9]+\.[0-9]+-v1' "$WORKFLOW" \
+#   key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
+# Extract the literal version between the browser-set segment and the -vN
+# suffix, where N is any version token (not hard-coded to -v1 -- see the
+# Phase 231 / C-6 comment above). No fallback: if the pattern is absent,
+# key_version stays empty and the guard below fails closed rather than
+# silently passing.
+key_version="$(grep -oE 'playwright-chromium-webkit-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+' "$WORKFLOW" \
   | head -1 \
-  | sed -E 's/^playwright-chromium-webkit-([0-9]+\.[0-9]+\.[0-9]+)-v1$/\1/')" || true
-[[ -n "$key_version" ]] || fail "no Playwright browser cache key (playwright-chromium-webkit-<version>-v1) found in ${WORKFLOW}"
+  | sed -E 's/^playwright-chromium-webkit-([0-9]+\.[0-9]+\.[0-9]+)-v[0-9]+$/\1/')" || true
+[[ -n "$key_version" ]] || fail "no Playwright browser cache key (playwright-chromium-webkit-<version>-vN) found in ${WORKFLOW}"
 
 # The lockfile entry has the shape:
 #   "node_modules/@playwright/test": {
