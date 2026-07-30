@@ -182,16 +182,46 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
   // className) because className is an SVGAnimatedString on SVG elements and
   // string methods throw on it (the same defect class plan 231-04 fixes in
   // probes.ts).
+  //
+  // GATE-02 gap-closure (231-GAP-GATE02-SUMMARY.md): the structural
+  // min-width: 0 fix explains the overflow *mechanism* but not why only a
+  // fraction of runs on the identical commit fail. Leading unconfirmed
+  // hypothesis: sans-serif fallback resolution varies across runners
+  // (sigra_auth.css ships no webfont, resolving `ui-sans-serif, system-ui,
+  // ..., sans-serif` through whatever fontconfig the runner has), shifting a
+  // text-metric-driven min-content floor across the 320px boundary. The
+  // first offender's resolved fontFamily, its own resolved min-width, and
+  // the root element's resolved font-size are captured here so the next
+  // red/green pair either confirms or kills that hypothesis with real
+  // evidence -- same discipline 231-02 applied to H1/H2.
   const reflowPayload = await page.evaluate(() => {
-    const offenders: Array<{ tag: string; cls: string; right: number }> = [];
+    const offenders: Array<{
+      tag: string;
+      cls: string;
+      right: number;
+      fontFamily?: string;
+      minWidth?: string;
+    }> = [];
     for (const element of Array.from(document.querySelectorAll("*"))) {
       const rect = element.getBoundingClientRect();
       if (rect.right > window.innerWidth + 1) {
-        offenders.push({
+        const offender: {
+          tag: string;
+          cls: string;
+          right: number;
+          fontFamily?: string;
+          minWidth?: string;
+        } = {
           tag: element.tagName,
           cls: Array.from(element.classList).join(" "),
           right: rect.right,
-        });
+        };
+        if (offenders.length === 0) {
+          const computed = getComputedStyle(element);
+          offender.fontFamily = computed.fontFamily;
+          offender.minWidth = computed.minWidth;
+        }
+        offenders.push(offender);
         if (offenders.length >= 15) break;
       }
     }
@@ -199,6 +229,7 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
       innerWidth: window.innerWidth,
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
+      rootFontSize: getComputedStyle(document.documentElement).fontSize,
       offenders,
     };
   });
