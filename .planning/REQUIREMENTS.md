@@ -31,7 +31,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 ### Gate honesty (GATE)
 
 - [ ] **GATE-01**: The nightly scheduled run is green, or every remaining red lane is a filed, diagnosed defect with an owner.
-- [ ] **GATE-02**: Generated-host parity is verified on a lane that actually executes; no required or aggregated lane can report pass solely because it was skipped by a stale condition. (231-02 shipped the fix prerequisite — the lane is now green; the stale `head_ref` `if:` clause itself is still present and is removed by 231-07 per D-24's sequencing. Not complete until 231-07 lands.)
+- [x] **GATE-02**: Generated-host parity is verified on a lane that actually executes; no required or aggregated lane can report pass solely because it was skipped by a stale condition. (231-02 shipped the fix prerequisite; 231-GAP-GATE02 corrected it with 8/8 dispatched green runs; 231-07 deleted the stale `head_ref` `if:` clause outright and confirmed `generated_admin_playwright_smoke` executing — non-skipped — on two independent `pull_request`-event CI runs, `30521272305` and `30523049209`, with the lane confirmed in `ci-gate.needs` so the check is merge-blocking, not merely visible.)
 - [ ] **GATE-03**: `ci-gate` distinguishes "skipped because correctly gated for this event" from "skipped because its gate rotted", and fails on the latter.
 - [ ] **GATE-04**: `admin_eval_render` runs green on its new lane, and the harness guards downstream of its Playwright phase (`stale-render-guard.sh` and the fix-queue/anchor checks) demonstrably execute.
 - [ ] **GATE-05**: A maintainer can see, from a single artifact, which specs run on PR vs main vs nightly before and after this milestone, proving no test was silently dropped.
@@ -73,7 +73,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | FAST-06 | Phase 230 | Complete |
 | FAST-07 | Phase 230 | Complete |
 | GATE-01 | Phase 231 | Pending |
-| GATE-02 | Phase 231 | In Progress (fix landed 231-02; enable pending 231-07) |
+| GATE-02 | Phase 231 | Complete (231-02 + 231-GAP-GATE02 + 231-07) |
 | GATE-03 | Phase 231 | Pending |
 | GATE-04 | Phase 231 | Pending |
 | GATE-05 | Phase 235 | Pending |

@@ -152,7 +152,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 231-07-PLAN.md — GATE-02 enable: delete the stale `head_ref` gate plus every artifact recording it; new `p10` gate-column and rotted-gate assertions (D-06, D-07, D-10, C-1, C-2, C-4)
+- [x] 231-07-PLAN.md — GATE-02 enable: delete the stale `head_ref` gate plus every artifact recording it; new `p10` gate-column and rotted-gate assertions (D-06, D-07, D-10, C-1, C-2, C-4)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 6/11 | In Progress|  |
+| 231. Gate Honesty + Nightly Revival | 8/11 | In Progress|  |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
