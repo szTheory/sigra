@@ -648,6 +648,20 @@
     min-width: 0;
   }
 
+  /* GATE-02 gap-closure, round 2: live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md)
+     showed a residual, distinct overflow AFTER the grid-item containment fix above --
+     SPAN.label (the field-label wrapper Phoenix's default <.input> core component
+     renders) inherits DaisyUI's compiled .label utility class, which sets
+     white-space: nowrap. At 320px / 32px root font (WCAG 1.4.4 2x zoom simulation), a
+     nowrap span cannot shrink below its full unbroken text width, so it pokes past the
+     viewport regardless of any ancestor's min-width -- min-width only lifts an
+     automatic MINIMUM floor, it does not stop nowrap text from rendering at its full
+     intrinsic width. Allow it to wrap, mirroring the white-space: normal override
+     already applied to .sigra-auth-action button text below (this file, ~line 821). */
+  .sigra-auth .label {
+    white-space: normal;
+  }
+
   .sigra-auth label {
     color: var(--sigra-auth-text);
     font-weight: 650;
