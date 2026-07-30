@@ -1,28 +1,59 @@
-// P5 (230-04-PLAN.md) — mechanical enforcement.
+// P5 (230-04-PLAN.md), INVERTED in Phase 231 (231-06-PLAN.md, D-11 step 4 / C-3).
 //
-//   MUST NOT hide the admin-eval lane's unread red by demoting it and then abandoning the
-//   fix; the demotion is explicitly a precondition of Phase 231's GATE-04, not a substitute
-//   for it.
+// Phase 230 demoted `admin_eval_render` off the pull_request lane and masked it with a
+// JOB-level `continue-on-error: true`, deliberately, because its downstream guards
+// (b1-b6) had never once run to completion in CI. Plan 231-05 observed them do so (run
+// 30512523387, job 90775422130, `admin-eval-harness: PASS -- all phases green`), which is
+// D-11 step 4's precondition: only now is removing the mask honest, not premature.
+//
+// MUST NOT reinstate the job-level mask now that the lane is proven green. A red on the
+// unmasked lane is the signal working for the first time; the answer is to fix the cause
+// or file it with a diagnosis and an owner (D-15), never to re-mask.
+//
+// MUST retain the STEP-level `continue-on-error: true` under `id: admin_eval_harness`
+// (D-13) -- it is what lets partial evidence bundles upload as CI artifacts before the
+// re-fail step (`if: steps.admin_eval_harness.outcome == 'failure'`) turns the job red.
+// Losing it destroys the only artifact an investigator has when the harness dies. The two
+// flags sit at different indents (job: four spaces, step: eight), and only the four-space
+// one is forbidden below.
 //
 // Subject: .github/workflows/ci.yml (substitutable via GSD_PROHIB_SUBJECT).
-// Secondary: .planning/REQUIREMENTS.md — GATE-04 must still be a tracked, open requirement.
 //
-// DELIBERATELY ONE-DIRECTIONAL. A tempting stronger form asserts that
-// `continue-on-error: true` must DISAPPEAR once GATE-04 is marked Complete — self-retiring,
-// but it writes part of Phase 231's exit condition into a Phase 230 guard and would red
-// 231's own work mid-flight. Scope boundary respected: this guard only proves the follow-up
-// still exists and the lane was not silently deleted.
+// FORWARD-ONLY RATCHET, NOT SELF-RETIRING. This guard is no longer one-directional: the
+// same assertion that once demanded the job-level mask now forbids it, permanently. It no
+// longer references GATE-04's REQUIREMENTS.md coverage row -- that assertion's only
+// purpose was to prove the follow-up still existed, and the follow-up is this inversion.
 //
-// What silently breaks if this guard is deleted: the demotion becomes the fix. The 17m33s
-// unread red leaves the PR lane, GATE-04 quietly falls off REQUIREMENTS.md, and nothing
-// ever runs those harness guards again.
+// What silently breaks if this guard is deleted: nothing stops a future edit from
+// reinstating the job-level mask (hiding an unread red again, the exact abandonment the
+// pre-inversion guard forbade) or removing the step-level flag (losing the
+// evidence-upload path the moment the harness actually dies).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSubject, readRepoFile, stripYamlComments, jobBlock, jobLevelIfs } from './_lib.mjs';
+import { readSubject, stripYamlComments, jobBlock, jobLevelIfs } from './_lib.mjs';
 
 const ci = stripYamlComments(readSubject('.github/workflows/ci.yml'));
 const block = jobBlock(ci, 'admin_eval_render');
+
+/**
+ * Slice out a single step's text (from its `- name:`/`- uses:` header up to, but not
+ * including, the next step at the same indent) by locating a step-level `id:` line and
+ * walking outward. Kept local rather than promoted to `_lib.mjs` -- no other guard needs
+ * step-granularity yet, and a premature shared helper is its own kind of drift.
+ */
+function stepBlockById(jobBlockText, stepId) {
+  const idRe = new RegExp(`^ {8}id:\\s*${stepId}\\s*$`, 'm');
+  const idMatch = idRe.exec(jobBlockText);
+  if (!idMatch) return null;
+  const before = jobBlockText.slice(0, idMatch.index);
+  const priorHeaders = [...before.matchAll(/^ {6}- .*$/gm)];
+  const stepStart = priorHeaders.length > 0 ? priorHeaders[priorHeaders.length - 1].index : 0;
+  const after = jobBlockText.slice(idMatch.index);
+  const nextHeader = after.match(/\n {6}- /);
+  const stepEnd = nextHeader ? idMatch.index + nextHeader.index : jobBlockText.length;
+  return jobBlockText.slice(stepStart, stepEnd);
+}
 
 test('the admin_eval_render lane still exists', () => {
   assert.ok(
@@ -43,35 +74,32 @@ test('it is demoted off the pull_request lane, not merely disabled', () => {
   );
 });
 
-test('the unread red is retained and visible, not masked away', () => {
-  assert.match(
+test('the job-level mask cannot be reinstated (D-11 step 4, forward-only ratchet)', () => {
+  assert.doesNotMatch(
     block,
     /^ {4}continue-on-error:\s*true\s*$/m,
-    '`continue-on-error: true` was removed from admin_eval_render. Phase 230 retains it ' +
-      'DELIBERATELY (D-11): the two underlying harness defects are unfixed, and removing the ' +
-      'flag without fixing them would turn an unread red into a hard gate failure. Removing it ' +
-      'is Phase 231 GATE-04\'s job, together with the fix.',
+    '`continue-on-error: true` was reinstated on the admin_eval_render JOB. Phase 231 proved the ' +
+      'harness runs green end-to-end in CI (plan 231-05, run 30512523387, job 90775422130, ' +
+      '`admin-eval-harness: PASS — all phases green`) and removed this mask so a red harness now ' +
+      'reddens the run (D-11 step 4). Reinstating it hides an unread red again — D-15 forbids ' +
+      'answering a red harness that way. Fix the cause or file it with a diagnosis and an owner; ' +
+      'do not re-mask.',
   );
 });
 
-test('GATE-04 is still tracked as an open follow-up', () => {
-  const reqs = readRepoFile('.planning/REQUIREMENTS.md');
+test('the step-level artifact-upload flag under id: admin_eval_harness is retained (D-13)', () => {
+  const stepText = stepBlockById(block, 'admin_eval_harness');
+  assert.ok(
+    stepText,
+    'no step with `id: admin_eval_harness` found in admin_eval_render — the parse broke, this is ' +
+      'not a pass.',
+  );
   assert.match(
-    reqs,
-    /GATE-04/,
-    'GATE-04 no longer appears in REQUIREMENTS.md. The demotion was explicitly a PRECONDITION ' +
-      'of that requirement; deleting the requirement converts the demotion into the fix, which ' +
-      'is precisely the abandonment this prohibition names.',
-  );
-  const row = reqs.split('\n').find((l) => /\|\s*GATE-04\s*\|/.test(l));
-  assert.ok(
-    row,
-    'GATE-04 has no coverage row in REQUIREMENTS.md, so nothing records which phase owns it.',
-  );
-  assert.ok(
-    !/\bComplete\b/.test(row),
-    `GATE-04's coverage row reads "${row.trim()}". If it is genuinely complete, this guard has ` +
-      `served its purpose and should be retired together with the continue-on-error assertion ` +
-      `above — deliberately, in Phase 231, not silently.`,
+    stepText,
+    /^ {8}continue-on-error:\s*true\s*$/m,
+    'the STEP-level `continue-on-error: true` under `id: admin_eval_harness` is gone. D-13 retains ' +
+      'this permanently: it is what lets partial evidence bundles upload as CI artifacts before the ' +
+      're-fail step (`if: steps.admin_eval_harness.outcome == \'failure\'`) turns the job red. ' +
+      'Losing it destroys the only artifact an investigator has when the harness dies.',
   );
 });
