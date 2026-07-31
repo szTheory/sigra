@@ -1278,7 +1278,8 @@ jobs:
             port: "4004"
             base_url: http://localhost:4004
             server_log: /tmp/example-playwright-non-admin-smoke.log
-            browsers: chromium
+            # This seam includes the `mobile` Playwright project, which uses WebKit.
+            browsers: chromium webkit
           - seam: demo_showcase
             database: sigra_demo_showcase
             port: "4005"

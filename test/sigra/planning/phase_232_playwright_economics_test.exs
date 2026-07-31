@@ -29,7 +29,11 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
   test "design spec uses readiness-only beforeEach" do
     spec = File.read!(@spec_path)
-    [before_each] = Regex.run(~r/test\.beforeEach\(async \(\{ page \}\) => \{(.*?)\n  \}\);/s, spec, capture: :all_but_first)
+
+    [before_each] =
+      Regex.run(~r/test\.beforeEach\(async \(\{ page \}\) => \{(.*?)\n  \}\);/s, spec,
+        capture: :all_but_first
+      )
 
     assert before_each =~ "page.goto('/admin/_design')"
     assert before_each =~ "waitForLiveViewReady(page)"
@@ -128,6 +132,11 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     assert length(Regex.scan(~r/--retries=0/, shard)) >= 6
     assert shard =~ "--grep-invert '@snapshot'"
     assert shard =~ "--grep '@snapshot'"
+
+    assert shard =~
+             ~r/seam: non_admin_smoke.*?browsers: chromium webkit/s,
+           "non-admin smoke includes the WebKit-backed mobile project"
+
     refute shard =~ "continue-on-error"
     refute shard =~ ~r/auth.*schema.*prefix/is
 
