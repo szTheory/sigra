@@ -329,17 +329,11 @@ The actual matrix command must preserve current project selections: Chromium-onl
 
 All other material claims were verified in the live repository or cited from current official documentation.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **What is the optimal shard count after PW-01 measurement?**
-   - What we know: five existing execution seams are already explicit, and the historical audit estimated residual enforced work at roughly 519 seconds after prelude. [VERIFIED: .github/workflows/ci.yml:1414-1561; SEED-005-CICD-AUDIT-2026-06-20.md:175-180]
-   - What's unclear: current measured post-PW-01 seam duration and runner-minute cost.
-   - Recommendation: initially map the five existing seams one-to-one, collect job timing, and only coalesce short seams if observed wall-clock/queue cost warrants it.
+1. **Selected shard count and exhaustive seam mapping:** five matrix rows, one for each current independently invoked seam in `example_playwright_smoke`: `admin_behavior`, `admin_checkpoints`, `design_gallery` (including its non-PR `design_gallery_snapshots` event branch), `non_admin_smoke`, and `demo_showcase`. The live workflow inventory at `.github/workflows/ci.yml:1414-1561` contains exactly these five seam families. PW-01 timing remains an ordered evidence gate before this topology is implemented, but it does not make the row set conditional: coalescing would erase independently named failure ownership and would no longer be an exhaustive one-to-one migration of the current seams. [VERIFIED: .github/workflows/ci.yml:1414-1561; 232-CONTEXT.md D-03-D-05; phase_230_design_gallery_split_test.exs]
 
-2. **Which jobs count as every app-booting Playwright consumer for PW-03?**
-   - What we know: `example_playwright_smoke`, `admin_design_recapture`, `admin_checkpoint_recapture`, and `admin_eval_render` all visibly boot the example app; the final inventory must also inspect the preceding HTTP job before selecting consumers. [VERIFIED: .github/workflows/ci.yml:1159-1710,1989-2445,2547-2687]
-   - What's unclear: whether PW-03's phrase “Playwright job” intentionally excludes the non-Playwright HTTP smoke.
-   - Recommendation: scope the composite to every current app-booting Playwright job exactly; do not expand the phase to HTTP smoke without an explicit planning decision.
+2. **Complete PW-03 example-app-booting Playwright consumer inventory:** `example_playwright_smoke`, `admin_design_recapture`, `admin_checkpoint_recapture`, and `admin_eval_render`. Each of these four jobs checks out the repository, prepares the example dev app/database and Playwright dependencies, boots `test/example` with `mix phx.server`, waits on its HTTP endpoint, and then runs a Playwright command or harness. `example_http_smoke` is excluded because it boots the example app but runs curl HTTP checks rather than Playwright. `generated_admin_playwright_smoke` is excluded because `admin-acceptance-smoke.sh` builds and boots a disposable generated host; it does not consume the duplicated `test/example` boot prelude owned by PW-03. `install_matrix` is likewise an installer smoke, not a Playwright consumer of the example-app prelude. The Phase 232 structural contract must enumerate these four job IDs literally and fail if any stops calling the shared component or retains the extracted boot sequence. [VERIFIED: .github/workflows/ci.yml:1159-1247,1248-1701,1702-1835,1989-2296,2297-2546,2547-2686; scripts/ci/admin-acceptance-smoke.sh]
 
 ## Environment Availability
 
