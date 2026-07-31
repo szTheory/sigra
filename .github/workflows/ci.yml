@@ -546,8 +546,8 @@ jobs:
       - name: Run library tests (shard ${{ matrix.partition }})
         env:
           MIX_ENV: test
-          # TEST-01 (D-01): selects this leg's test file slice (round-robin by file).
-          # Local repro: MIX_TEST_PARTITION=1 mix test --partitions 2
+          # TEST-02 (D-03/D-04): the committed measured manifest, not Mix,
+          # selects this leg's explicit ordinary test file slice.
           MIX_TEST_PARTITION: ${{ matrix.partition }}
           PGUSER: postgres
           PGPASSWORD: postgres
@@ -557,7 +557,8 @@ jobs:
           SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
         run: |
           set -euo pipefail
-          mix test --partitions 2 --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
+          mapfile -t library_test_files < <(mix run --no-start test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')
+          mix test "${library_test_files[@]}" --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
       - name: CI run summary
         if: always()
         run: |

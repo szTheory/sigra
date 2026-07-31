@@ -71,7 +71,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              ":idempotency",
              "timeout: 300_000",
              ":scaffold"
-    ]
+           ]
   end
 
   test "scaffold classification is the canonical exact six-module set" do
@@ -97,10 +97,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     shard = job_body(File.read!(@workflow_path), "library_tests_shard")
 
     assert manifest =~ "@source_run_id 30_666_977_944"
-    assert manifest =~ "@partition_1"
-    assert manifest =~ "@partition_2"
+    assert manifest =~ "def partition(value) when value in [1, \"1\"]"
+    assert manifest =~ "def partition(value) when value in [2, \"2\"]"
     assert shard =~ "library_test_partitions.exs"
-    assert shard =~ "--partition \"${{ matrix.partition }}\""
+    assert shard =~ "Sigra.CI.LibraryTestPartitions.partition(\"${{ matrix.partition }}\")"
     refute shard =~ "--partitions 2"
   end
 
