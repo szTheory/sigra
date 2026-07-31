@@ -35,4 +35,32 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     refute before_each =~ "waitForTimeout"
     refute before_each =~ "retry"
   end
+
+  test "every design project has its namesake setup, unique state, and preserved render context" do
+    config = File.read!(@config_path)
+    setup = File.read!(@setup_path)
+
+    projects = ["chromium", "mobile", "dark"]
+
+    for project <- projects do
+      assert config =~ "name: 'admin-design-setup-#{project}'"
+
+      assert config =~
+               "name: 'admin-design-#{project}'",
+             "admin-design-#{project} must remain an explicit project"
+
+      assert config =~ "dependencies: ['admin-design-setup-#{project}']"
+      assert config =~ "storageState: 'test-results/.auth/admin-design-#{project}.json'"
+      assert setup =~ "platform-admin+dg-#{project}-"
+    end
+
+    assert length(Regex.scan(~r/name: 'admin-design-setup-[^']+'/, config)) == 3
+
+    states = Regex.scan(~r/storageState: '([^']+)'/, config, capture: :all_but_first)
+    assert states |> List.flatten() |> Enum.uniq() |> length() == 3
+
+    assert config =~ "use: { ...devices['iPhone 13'] }"
+    assert config =~ "...devices['Desktop Chrome'],\n        colorScheme: 'dark'"
+    refute File.read!(@spec_path) =~ "registerUser"
+  end
 end
