@@ -1,30 +1,25 @@
 ---
 phase: 233-library-suite-economics
-verified: 2026-07-31T22:45:00Z
-status: gaps_found
-score: 7/8 must-haves verified
+verified: 2026-07-31T23:29:58Z
+status: passed
+score: 16/16 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "The measured manifest is exhaustive and self-invalidating on ordinary-test coverage drift; required CI cannot pass while an intended ordinary library test is omitted."
-    status: failed
-    reason: "The manifest derives its paths only from the historical timing_probe.per_file_costs receipt. It never discovers the current test universe or compares it with the two selected partitions, so a newly added untagged ordinary *_test.exs file is absent from both shard argv lists while the two shards, scaffold receiver, and Library tests aggregate can still succeed."
-    artifacts:
-      - path: test/support/ci/library_test_partitions.exs
-        issue: "build_partitions!/0 reads only 233-EVIDENCE.json timing_probe.per_file_costs and filters scaffold paths; it contains no Path.wildcard/File discovery or exact-once reconciliation against current ordinary test files."
-      - path: test/sigra/planning/phase_233_library_economics_contract_test.exs
-        issue: "The passing contract exercises empty/duplicate/cost mutations but does not create or discover a current ordinary test file absent from the historical receipt, nor assert exact equality with the on-disk ordinary universe."
-    missing:
-      - "Fail closed by deriving the eligible current test-file universe (respecting test_load_filters and the exact scaffold set) and requiring equality with the manifest union before mix test runs."
-      - "Add a deterministic regression test for an on-disk, untagged ordinary test file absent from per_file_costs/partitions."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 7/8
+  gaps_closed:
+    - "The measured manifest is exhaustive and self-invalidating on ordinary-test coverage drift; required CI cannot pass while an intended ordinary library test is omitted."
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 233: Library Suite Economics Verification Report
 
 **Phase Goal:** The library shards do not become the new pole once Playwright stops being one.
-**Verified:** 2026-07-31T22:45:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-31T23:29:58Z
+**Status:** passed
+**Re-verification:** Yes — after Plan 233-06 gap closure
 
 ## Goal Achievement
 
@@ -32,77 +27,96 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | Slow-test visibility no longer requires serial library execution. | ✓ VERIFIED | CI run `30668911851` for functional SHA `6974bd1e2e4214fd5b9d519a987dfef2c3e89b89` ran shard 1 and shard 2 concurrently (starts one second apart). Each job invoked one `mix test` process with both `ExUnit.CLIFormatter` and `Sigra.CI.ExUnitTimingFormatter`; both receipts were uploaded. |
-| 2 | The two ordinary library shards are materially balanced. | ✓ VERIFIED | Exact PR run durations were 115s and 114s: an after-gap of 1s versus the inherited 470s/278s before-gap of 192s. `233-EVIDENCE.json` records the inputs and computed gap. |
-| 3 | The six subprocess-heavy scaffold tests are removed from ordinary shard wall-clock and execute on every PR. | ✓ VERIFIED | `library_tests_scaffold` has no docs/path/event gate and ran for 909s on the exact PR run; ordinary timing receipts report no canonical scaffold paths. |
-| 4 | Upgrade, golden-diff, and idempotency coverage remains on a pull-request event. | ✓ VERIFIED | The run's scaffold receipt/evidence names `test/upgrade_test.exs`, `test/sigra/install/golden_diff_test.exs`, and `test/sigra/install/idempotency_test.exs`; `library_tests_scaffold` concluded success. |
-| 5 | `Library tests` fails closed unless both ordinary shards and the scaffold receiver succeed. | ✓ VERIFIED | Workflow aggregate has `needs: [library_tests_shard, library_tests_scaffold]`, `if: always()`, and rejects either result unless it is `success`; the executable contract tests these branches and passed. The aggregate itself passed in run `30668911851`. |
-| 6 | The final evidence is an exact, retry-free pull-request observation of the functional implementation. | ✓ VERIFIED | Direct `gh run view 30668911851` returned `event=pull_request`, `attempt=1`, matching functional SHA, and all four topology jobs successful. Current `HEAD` only adds planning/evidence/review documentation after that functional SHA. |
-| 7 | The current repository ordinary suite is covered exactly once and the two newly added Phase 233 tests are not omitted. | ✓ VERIFIED | Independent manifest expansion finds both `test/support/ci/ex_unit_timing_formatter_test.exs` (partition 2) and `test/sigra/planning/phase_233_library_economics_contract_test.exs` (partition 1). They also appear in `timing_probe.per_file_costs`; CR-01's assertion that they are absent is not reproducible at current HEAD. |
-| 8 | Coverage cannot silently drift when a new ordinary test file is introduced. | ✗ FAILED | The partition implementation reads the fixed historical receipt only. Neither production code nor its contract discovers/reconciles the present ordinary test-file universe. An added untagged test therefore receives no ordinary shard argv entry, and `mix test --only scaffold` does not select it; all required jobs can still be green. |
+| 1 | Ordinary shards retain ExUnit parallelism and same-run slow-test visibility. | ✓ VERIFIED | The shard has exactly one `mix test`, no `--trace`/`--slowest`, and configures both `ExUnit.CLIFormatter` and `Sigra.CI.ExUnitTimingFormatter` with a shard-owned fixed receipt path. GitHub PR run `30668911851`, attempt 1, shows both legs starting one second apart and succeeding. |
+| 2 | Timing receipts are deterministic, safe, and handle empty/malformed completed-test inputs correctly. | ✓ VERIFIED | `ExUnitTimingFormatter` sorts entries, permits only the three CI paths, atomically writes receipts, and raises on malformed events. `mix test test/support/ci/ex_unit_timing_formatter_test.exs` passed: 5 tests. |
+| 3 | The timing-probe evidence is a retry-free PR observation with usable measured costs and inherited baseline. | ✓ VERIFIED | `233-EVIDENCE.json` records timing probe `30666977944`, `pull_request`, attempt 1, both receipt identities, 217 per-file costs, and the 470s/278s baseline. |
+| 4 | The measured two-list assignment uses costs rather than test count and preserves deterministic tie behavior. | ✓ VERIFIED | `assign!/1` orders by descending `time_us` then path and assigns exact ties to partition 1. The focused contract exercises lexical equal-cost ordering and tie ownership. |
+| 5 | The ordinary suite is owned exactly once by two shards; the exact six scaffold modules are excluded and template render remains ordinary. | ✓ VERIFIED | Live production expansion returned 107 and 104 paths; `build_partitions!/0` reports `current=211 assigned=211 unique=211`. The contract verifies the six tags, exact exclusion, and template-render inclusion. |
+| 6 | The scaffold receiver runs on every PR and retains upgrade, golden-diff, and idempotency coverage. | ✓ VERIFIED | `library_tests_scaffold` has no docs/path/event gate and runs `mix test --only scaffold`. Run `30668911851` was a successful PR run; its evidence names the three required files and records the 909s receiver. |
+| 7 | `Library tests` remains merge-blocking and fails closed unless both ordinary matrix legs and the scaffold receiver succeed. | ✓ VERIFIED | The aggregate has `needs: [library_tests_shard, library_tests_scaffold]`, `if: always()`, and rejects either non-`success` result. The contract exercises topology and the observed aggregate succeeded in run `30668911851`. |
+| 8 | The observed ordinary after-gap is materially smaller while no coverage was deleted. | ✓ VERIFIED | Final PR evidence at functional SHA `6974bd1e2e4214fd5b9d519a987dfef2c3e89b89` records 115s/114s ordinary jobs: a 1s gap versus the inherited 192s gap; ordinary receipts contain no scaffold paths. |
+| 9 | The current eligible ordinary universe is discovered through the actual project `test_load_filters` before either shard launches tests. | ✓ VERIFIED | `current_ordinary_paths!/1` enumerates `test/**/*_test.exs`, normalizes repo-relative paths, and applies `Mix.Project.config()[:test_load_filters]`; current `mix.exs` filters exclude only the example/fixtures subtrees. |
+| 10 | A current ordinary test omitted from historical receipt-derived ownership fails closed rather than being silently appended or skipped. | ✓ VERIFIED | `build_partitions!/1` invokes `validate_current_universe!/2`; the deterministic temporary-filesystem test writes `test/new_ordinary_test.exs` without a cost and asserts the named missing-path `ArgumentError`. The 14-test contract passed. |
+| 11 | Drift validation rejects missing, stale, duplicate, scaffold-leaking, and empty ownership. | ✓ VERIFIED | `validate_current_universe!/2` checks non-empty exact-once assignment, scaffold leakage, and both set-difference directions. Focused tests cover each mutation with named diagnostics. |
+| 12 | A validator or selector failure cannot be masked by shell plumbing; an empty selector also stops before test execution. | ✓ VERIFIED | The CI selector uses an exit-status-preserving command substitution under `set -euo pipefail`, then checks non-empty output/argv/members before its sole `mix test`. The executable shell-harness contract proves a failing selector never reaches its sentinel and a success reaches it once. |
+| 13 | Live discovery validates the committed measured assignment without changing shard topology, routing, or appending guessed costs. | ✓ VERIFIED | Production defaults still load the committed `timing_probe.per_file_costs`, remove only the fixed scaffold set, and call live validation after assignment. Neither discovery nor CI synthesizes costs or creates additional shards. |
+| 14 | The two Phase-233 contract/formatter tests themselves are not omitted by the historical receipt. | ✓ VERIFIED | Both `test/support/ci/ex_unit_timing_formatter_test.exs` and `test/sigra/planning/phase_233_library_economics_contract_test.exs` occur in `per_file_costs` and in the validated current partition union. |
+| 15 | Plan 233-06 closed the prior verification blocker without regressing verified economics/routing. | ✓ VERIFIED | The new live-universe reconciliation and CI transport are wired in production, all focused tests pass, and the prior PR evidence/topology remains unchanged and independently rechecked through GitHub. |
+| 16 | No Plan 233 must-have prohibition was violated. | ✓ VERIFIED | Plans 01–05 declare none. Plan 06's flagged descriptors specify preservation of the already-proven timing and receiver contracts; both remain wired and covered by focused tests and the observed PR run. |
 
-**Score:** 7/8 truths verified (0 present, behavior-unverified)
+**Score:** 16/16 deduplicated observable truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `test/support/ci/ex_unit_timing_formatter.ex` | Same-run deterministic timing formatter | ✓ VERIFIED | Substantive formatter is configured by both ordinary CI legs and covered by focused formatter tests. |
-| `test/support/ci/library_test_partitions.exs` | Two-list measured ordinary-suite manifest | ⚠️ HOLLOW | Exists, is substantive, and is invoked by CI, but its only data source is the historical receipt; no live inventory guard prevents silent omission of later ordinary tests. |
-| `test/sigra/planning/phase_233_library_economics_contract_test.exs` | Exact coverage and fail-closed topology contract | ✗ STUB FOR DRIFT CLAIM | 13 focused assertions pass, but none exercises or forbids a current test file missing from the fixed receipt/manifest. |
-| `.github/workflows/ci.yml` | Two ordinary shards, receiver, aggregate, receipts | ✓ VERIFIED | Exact PR execution validates the wired topology. |
-| `233-EVIDENCE.json` / `233-EVIDENCE.md` | Machine-readable before/after PR evidence | ✓ VERIFIED | Run identity, attempt, job durations, artifacts, required context, and coverage routing are present and independently cross-checked with GitHub. |
+| `test/support/ci/ex_unit_timing_formatter.ex` | Same-run deterministic receipt formatter | ✓ VERIFIED | Substantive GenServer formatter with fixed-path validation, ordered receipt creation, and atomic output. |
+| `test/support/ci/ex_unit_timing_formatter_test.exs` | Formatter lifecycle/error tests | ✓ VERIFIED | Five focused tests passed. |
+| `test/support/ci/library_test_partitions.exs` | Measured two-shard manifest plus current-universe reconciliation | ✓ VERIFIED | Reads historical costs, constructs the two lists, discovers the live filtered universe, and rejects any difference before returning paths. |
+| `test/sigra/planning/phase_233_library_economics_contract_test.exs` | Routing, manifest, and selector regressions | ✓ VERIFIED | Fourteen focused tests passed, including temporary on-disk omission and failing-selector behavior. |
+| `.github/workflows/ci.yml` | Ordinary matrix, unconditional receiver, and fail-closed aggregate | ✓ VERIFIED | Selector output is guarded before one `mix test`; scaffold/aggregate topology is present and observed on a PR. |
+| `233-EVIDENCE.json` / `233-EVIDENCE.md` | Retry-free before/after PR evidence | ✓ VERIFIED | Machine-readable run identity, costs, jobs, receipts, coverage and duration comparison are present; run metadata was independently re-fetched. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| `ci.yml` ordinary shard | timing formatter | formatter flags and fixed `SIGRA_EXUNIT_TIMING_PATH` | WIRED | One test invocation writes the uploaded same-job receipt. |
-| timing-probe evidence | partition manifest | `JSON.decode!` → `timing_probe.per_file_costs` | WIRED, UNSAFE | The historic source is consumed, but current repository coverage is not validated. |
-| partition manifest | ordinary shard `mix test` | `mix run ... LibraryTestPartitions.partition(...)` | WIRED | Explicit path argv is passed to `mix test`; this is the mechanism that makes later omissions silent. |
-| scaffold receiver | `Library tests` aggregate | `needs` + exact-success shell check | WIRED | Static contract plus observed PR aggregate support it. |
+| `ci.yml` ordinary shard | Timing formatter | Both formatter flags plus `SIGRA_EXUNIT_TIMING_PATH` | WIRED | Same single `mix test` invocation writes the uploaded receipt. |
+| Timing-probe receipt | Partition manifest | `JSON.decode!` → `timing_probe.per_file_costs` | WIRED | The measured source remains authoritative for assignment. |
+| `mix.exs` filters | Live manifest universe | `Mix.Project.config()[:test_load_filters]` | WIRED | No duplicate filter regex is embedded in the manifest module. |
+| Live filesystem | Partition manifest | `Path.wildcard` → normalized/filter-matched paths → exact equality | WIRED | Current 211-file universe equals the 211 unique assigned paths. |
+| Partition selector | CI test argv | Status-preserving command substitution then non-empty checks | WIRED | A raised selector exits the CI shell before the sole `mix test`. |
+| Scaffold tags | Scaffold receiver | `mix test --only scaffold` | WIRED | Exact six paths are tagged and receiver is unconditional. |
+| Shard and receiver results | `Library tests` | `needs`, `if: always()`, explicit exact-success checks | WIRED | Any non-success fails the required aggregate. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| partition manifest | `costs` | committed `233-EVIDENCE.json` `timing_probe.per_file_costs` | Yes, but historical only | ⚠️ STATIC SNAPSHOT |
-| CI ordinary shards | `library_test_files` | manifest partition output | Yes, explicit paths | ⚠️ HOLLOW FOR NEW FILES |
-| evidence ledger | after durations/job ids | GitHub run `30668911851` | Yes | ✓ FLOWING |
+| Timing formatter | Completed ExUnit tests | Same test process | Yes | ✓ FLOWING |
+| Partition manifest | Measured costs | Committed retry-free receipt | Yes, then live-validated | ✓ FLOWING |
+| Partition manifest | Eligible ordinary paths | Current filesystem + live Mix configuration | Yes | ✓ FLOWING |
+| CI shard argv | Selected paths | Validated partition output | Yes | ✓ FLOWING |
+| Evidence ledger | Jobs, durations, artifacts | GitHub PR runs | Yes; direct `gh run view` cross-check succeeded | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Focused formatter and Phase 233 contract | `mix test test/support/ci/ex_unit_timing_formatter_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs` | 13 tests, 0 failures | ✓ PASS |
-| Exact required topology run | `gh run view 30668911851 --json databaseId,event,headSha,conclusion,attempt,jobs,url` | pull_request, attempt 1, matching functional SHA; both shards, receiver, and aggregate success | ✓ PASS |
-| Current manifest includes CR-01's two named tests | expand both `LibraryTestPartitions.partition/1` lists and search paths | formatter test in partition 2; contract test in partition 1 | ✓ PASS |
-| Inventory drift rejection | inspect `build_partitions!/0` and contract's coverage assertions | no current-universe discovery/equality check exists | ✗ FAIL |
+| Plan-06 manifest/CI failure paths | `mix test test/sigra/planning/phase_233_library_economics_contract_test.exs` | 14 tests, 0 failures | ✓ PASS |
+| Timing formatter behavior | `mix test test/support/ci/ex_unit_timing_formatter_test.exs` | 5 tests, 0 failures | ✓ PASS |
+| Phase formatting | `mix format --check-formatted …` | Exit 0 | ✓ PASS |
+| Current production selectors | `mix run … LibraryTestPartitions.partition/1` | Partition 1: 107 paths; partition 2: 104 paths | ✓ PASS |
+| Live exact ownership | `build_partitions!/0` + `current_ordinary_paths!/0` | `current=211 assigned=211 unique=211` | ✓ PASS |
+| Final PR topology | `gh run view 30668911851 …` | `pull_request`, attempt 1, exact functional SHA; both shards, scaffold, and aggregate success | ✓ PASS |
+
+### Probe Execution
+
+Step 7c: SKIPPED — no Phase 233 probe scripts are declared or present; the focused contract suite supplies the deterministic executable checks.
 
 ### Requirements Coverage
 
-| Requirement | Source Plan | Description | Status | Evidence |
+| Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| TEST-01 | 233-01, 02, 05 | Slow-test visibility does not force serial execution. | ✓ SATISFIED | Same-run timing formatter/receipts and two concurrently starting successful shards on the exact PR run. |
-| TEST-02 | 233-02, 04, 05 | Two shards complete in comparable time. | ✓ SATISFIED | 1s after-gap is strictly smaller than 192s before-gap. |
-| TEST-03 | 233-03, 05 | Heavy install tests no longer dominate ordinary shard wall-clock with recorded routing. | ✓ SATISFIED | Exact scaffold receiver routing and named PR coverage; ordinary shards complete in ~115s. |
+| TEST-01 | 233-01, 02, 05, 06 | Slow-test visibility does not force serial library execution. | ✓ SATISFIED | Parallel same-run formatter wiring, timing receipt tests, and retry-free PR run evidence. |
+| TEST-02 | 233-02, 04, 05, 06 | Two library shards finish in comparable time. | ✓ SATISFIED | Cost-based deterministic split and observed 115s/114s final PR durations (1s gap versus 192s baseline). |
+| TEST-03 | 233-03, 04, 05, 06 | Subprocess-heavy install tests no longer dominate ordinary shard wall-clock. | ✓ SATISFIED | Exact scaffold extraction, unconditional 909s PR receiver, preserved named coverage, and ordinary receipts without scaffold paths. |
 
-All three plan-declared IDs are mapped in `REQUIREMENTS.md` to Phase 233; none is orphaned. Their observed economics are satisfied, but the phase's explicit fail-closed manifest-drift acceptance criterion is not, so the phase goal cannot be accepted as complete.
+All plan-declared IDs map to Phase 233 in `REQUIREMENTS.md`; no Phase 233 requirement is orphaned. No later milestone phase specifically defers a remaining Phase 233 concern.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | --- | --- | --- | --- | --- |
-| `test/support/ci/library_test_partitions.exs` | 73-78 | Historical fixed list used as the complete suite with no inventory comparison | 🛑 Blocker | Required CI can remain green while a later ordinary test is never run. |
-| `test/sigra/planning/phase_233_library_economics_contract_test.exs` | 110-143 | Test name claims missing coverage validation but only checks empty/duplicate/invalid-cost cases | 🛑 Blocker | Passing contract is misleading: it cannot detect the stated drift failure. |
+| `test/sigra/planning/phase_233_library_economics_contract_test.exs` | 112–231 | Runtime `Code.require_file/1` leaves direct manifest calls unresolved at compile time. | ⚠️ Warning | The focused suite passes but emits undefined-function compiler warnings, obscuring new warnings. This does not weaken execution of the asserted regressions. |
 
-### Gaps Summary
+No untracked `TBD`, `FIXME`, or `XXX` debt marker was found in Phase 233 implementation files. The `console.log`/`return null` matches in the changed passkeys fixture are JavaScript fixture behavior, not empty Elixir test implementation or user-visible stubs.
 
-The measured PR topology genuinely improves the shard economics and preserves the explicitly named heavy tests. The code review's narrower CR-01 claim is inaccurate at current HEAD: both named tests are in the receipt-derived manifest and were observed in the PR run.
+### Human Verification Required
 
-Nevertheless, the underlying safety property is absent. `LibraryTestPartitions.build_partitions!/0` treats an old timing receipt as the entire ordinary suite. It does not enumerate the current eligible test files, subtract the exact scaffold class, or reject a difference. Because CI passes only the resulting explicit paths to `mix test`, a new untagged ordinary test is selected by neither ordinary shard nor `--only scaffold`; `Library tests` still aggregates successful jobs and reports green. This is a blocking gap under the phase's stated "coverage cannot silently drift" contract and the phase requirement that CI must not pass without its intended library tests.
+None. All phase behavior claims are covered by deterministic code inspection, focused automated tests, live selector execution, and re-fetched CI evidence.
 
 ---
 
-_Verified: 2026-07-31T22:45:00Z_
+_Verified: 2026-07-31T23:29:58Z_
 _Verifier: the agent (gsd-verifier)_
