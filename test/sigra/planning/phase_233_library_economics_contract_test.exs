@@ -168,6 +168,95 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     end
   end
 
+  @tag :partition_universe
+  test "uses live load filters and subtracts only the exact scaffold paths" do
+    Code.require_file(@partition_manifest_path)
+    root = temporary_root()
+
+    write_fixture(root, "test/included_test.exs")
+    write_fixture(root, "test/sigra/install/template_render_test.exs")
+    write_fixture(root, "test/example/ignored_test.exs")
+    write_fixture(root, "test/fixtures/ignored_test.exs")
+
+    for scaffold_path <- scaffold_paths() do
+      write_fixture(root, scaffold_path)
+    end
+
+    ordinary_paths = Sigra.CI.LibraryTestPartitions.current_ordinary_paths!(root: root)
+
+    assert ordinary_paths == [
+             "test/included_test.exs",
+             "test/sigra/install/template_render_test.exs"
+           ]
+  end
+
+  @tag :partition_universe
+  test "rejects stale, duplicate, and scaffold-leaking ownership with named diagnostics" do
+    Code.require_file(@partition_manifest_path)
+    root = complete_universe_root(["test/first_test.exs", "test/second_test.exs"])
+
+    assert_raise ArgumentError, ~r/stale manifest paths: test\/stale_test\.exs/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate_current_universe!(
+        partition_data(["test/first_test.exs", "test/stale_test.exs"], ["test/second_test.exs"]),
+        root: root
+      )
+    end
+
+    assert_raise ArgumentError, ~r/exactly once/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate_current_universe!(
+        partition_data(["test/first_test.exs"], ["test/first_test.exs", "test/second_test.exs"]),
+        root: root
+      )
+    end
+
+    assert_raise ArgumentError,
+                 ~r/scaffold paths must not be assigned: test\/upgrade_test\.exs/,
+                 fn ->
+                   Sigra.CI.LibraryTestPartitions.validate_current_universe!(
+                     partition_data(["test/first_test.exs", "test/upgrade_test.exs"], [
+                       "test/second_test.exs"
+                     ]),
+                     root: root
+                   )
+                 end
+  end
+
+  test "equal measured costs retain lexical ordering and partition one wins exact ties" do
+    Code.require_file(@partition_manifest_path)
+
+    assert %{
+             1 => %{paths: ["test/a_test.exs"], total_us: 1},
+             2 => %{paths: ["test/b_test.exs"], total_us: 1}
+           } =
+             Sigra.CI.LibraryTestPartitions.assign!([
+               %{"path" => "test/b_test.exs", "time_us" => 1},
+               %{"path" => "test/a_test.exs", "time_us" => 1}
+             ])
+  end
+
+  test "ordinary shard shell transport stops before its test command when selector fails" do
+    {failed_output, failed_status} = run_selector_harness("exit 19")
+
+    assert failed_status != 0
+    assert failed_output == ""
+    refute File.exists?(selector_sentinel_path())
+
+    {successful_output, 0} = run_selector_harness("printf 'test/sigra/auth_test.exs\\n'")
+
+    assert successful_output == ""
+    assert File.exists?(selector_sentinel_path())
+  end
+
+  test "ordinary shard workflow preserves selector status and validates argv before mix test" do
+    shard = job_body(File.read!(@workflow_path), "library_tests_shard")
+
+    assert shard =~ "library_test_files_output=\"$(mix run"
+    assert shard =~ "library test partition selector returned no paths"
+    assert shard =~ "library test partition argv is empty"
+    assert shard =~ "library test partition argv contains an empty path"
+    assert length(Regex.scan(~r/^          mix test\b/m, shard)) == 1
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
@@ -207,5 +296,60 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     path = Path.join(root, relative_path)
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, "defmodule Fixture do\nend\n")
+  end
+
+  defp complete_universe_root(ordinary_paths) do
+    root = temporary_root()
+
+    Enum.each(ordinary_paths, &write_fixture(root, &1))
+    Enum.each(scaffold_paths(), &write_fixture(root, &1))
+    root
+  end
+
+  defp temporary_root do
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-partition-universe-#{System.unique_integer([:positive])}"
+      )
+
+    on_exit(fn -> File.rm_rf!(root) end)
+    root
+  end
+
+  defp partition_data(first_paths, second_paths) do
+    %{
+      1 => %{paths: first_paths, total_us: 1},
+      2 => %{paths: second_paths, total_us: 1}
+    }
+  end
+
+  defp run_selector_harness(selector) do
+    sentinel = selector_sentinel_path()
+    File.rm(sentinel)
+
+    script = """
+    set -euo pipefail
+    selector="$1"
+    sentinel="$2"
+    library_test_files_output="$(bash -c "$selector")"
+    if [[ -z "${library_test_files_output//[[:space:]]/}" ]]; then
+      exit 1
+    fi
+    mapfile -t library_test_files <<< "$library_test_files_output"
+    if (( ${#library_test_files[@]} == 0 )); then
+      exit 1
+    fi
+    for library_test_file in "${library_test_files[@]}"; do
+      [[ -n "$library_test_file" ]] || exit 1
+    done
+    touch "$sentinel"
+    """
+
+    System.cmd("bash", ["-c", script, "bash", selector, sentinel], stderr_to_stdout: true)
+  end
+
+  defp selector_sentinel_path do
+    Path.join(System.tmp_dir!(), "sigra-selector-harness-sentinel")
   end
 end
