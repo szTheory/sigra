@@ -8,11 +8,19 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert shard =~ "partition: [1, 2]"
     assert shard =~ "SIGRA_EXUNIT_TIMING_PATH"
+    assert shard =~ "test -s \"$SIGRA_EXUNIT_TIMING_PATH\""
     assert shard =~ "Sigra.CI.ExUnitTimingFormatter"
     assert shard =~ "ExUnit.CLIFormatter"
     assert length(Regex.scan(~r/^          mix test\b/m, shard)) == 1
     refute shard =~ "--slowest"
     refute shard =~ "--trace"
+  end
+
+  test "timing output path is selected only by the two shard identities" do
+    shard = job_body(File.read!(@workflow_path), "library_tests_shard")
+
+    assert shard =~ "/tmp/sigra-library-${{ matrix.partition }}-timings.json"
+    refute shard =~ "timing output unavailable"
   end
 
   test "timing receipts are retained from the same shard job" do

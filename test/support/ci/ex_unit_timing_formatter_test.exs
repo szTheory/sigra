@@ -6,8 +6,8 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
   test "build_receipt turns completed tests into a deterministic timing receipt" do
     receipt =
       ExUnitTimingFormatter.build_receipt("1", [
-        completed_test(Sigra.ZTimingTest, :later, "test/z_timing_test.exs", 10, :passed),
-        completed_test(Sigra.ATimingTest, :first, "test/a_timing_test.exs", 20, :failed)
+        completed_test(Sigra.ZTimingTest, :later, "test/z_timing_test.exs", 10, nil),
+        completed_test(Sigra.ATimingTest, :first, "test/a_timing_test.exs", 20, {:failed, []})
       ])
 
     assert receipt.schema_version == 1
@@ -32,6 +32,35 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
                time_us: 10
              }
            ]
+  end
+
+  test "equal durations retain lexical file module and name order" do
+    receipt =
+      ExUnitTimingFormatter.build_receipt("2", [
+        completed_test(Sigra.ATimingTest, :zeta, "test/z_test.exs", 10, nil),
+        completed_test(Sigra.ZTimingTest, :alpha, "test/a_test.exs", 10, {:skipped, "reason"}),
+        completed_test(Sigra.ATimingTest, :alpha, "test/a_test.exs", 10, {:excluded, "filter"})
+      ])
+
+    assert Enum.map(receipt.tests, &{&1.file, &1.module, &1.name, &1.outcome}) == [
+             {"test/a_test.exs", "Sigra.ATimingTest", "alpha", "excluded"},
+             {"test/a_test.exs", "Sigra.ZTimingTest", "alpha", "skipped"},
+             {"test/z_test.exs", "Sigra.ATimingTest", "zeta", "passed"}
+           ]
+  end
+
+  test "malformed completed-test data is rejected rather than recorded as timing" do
+    assert_raise ArgumentError, ~r/completed ExUnit.Test events/, fn ->
+      ExUnitTimingFormatter.build_receipt("1", [%{time: 10}])
+    end
+  end
+
+  test "only fixed CI-owned timing receipt paths are accepted" do
+    for path <- [nil, "", "relative.json", "/tmp/../sigra-library-1-timings.json", "/tmp/other.json"] do
+      assert_raise Sigra.CI.ExUnitTimingFormatter.InvalidOutputPathError, fn ->
+        ExUnitTimingFormatter.validate_output_path!(path)
+      end
+    end
   end
 
   test "write_receipt writes a JSON object only to the selected CI receipt path" do
