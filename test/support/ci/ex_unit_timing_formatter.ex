@@ -20,7 +20,7 @@ defmodule Sigra.CI.ExUnitTimingFormatter do
 
   @impl GenServer
   def init(_opts) do
-    path = System.fetch_env!("SIGRA_EXUNIT_TIMING_PATH")
+    path = System.get_env("SIGRA_EXUNIT_TIMING_PATH")
 
     {:ok,
      %{
@@ -56,7 +56,10 @@ defmodule Sigra.CI.ExUnitTimingFormatter do
       tests: entries,
       total: length(entries),
       passed: Enum.count(entries, &(&1.outcome == "passed")),
-      failed: Enum.count(entries, &(&1.outcome == "failed"))
+      failed: Enum.count(entries, &(&1.outcome == "failed")),
+      skipped: Enum.count(entries, &(&1.outcome == "skipped")),
+      excluded: Enum.count(entries, &(&1.outcome == "excluded")),
+      invalid: Enum.count(entries, &(&1.outcome == "invalid"))
     }
   end
 
@@ -104,10 +107,11 @@ defmodule Sigra.CI.ExUnitTimingFormatter do
   defp test_entry!(_test),
     do: raise(ArgumentError, "timing receipt requires completed ExUnit.Test events")
 
-  defp normalize_outcome!(:passed), do: "passed"
-  defp normalize_outcome!(:failed), do: "failed"
-  defp normalize_outcome!(:skipped), do: "skipped"
-  defp normalize_outcome!(:excluded), do: "excluded"
+  defp normalize_outcome!(nil), do: "passed"
+  defp normalize_outcome!({:failed, _failure}), do: "failed"
+  defp normalize_outcome!({:skipped, _reason}), do: "skipped"
+  defp normalize_outcome!({:excluded, _reason}), do: "excluded"
+  defp normalize_outcome!({:invalid, _module}), do: "invalid"
 
   defp normalize_outcome!(state),
     do: raise(ArgumentError, "unknown completed test state: #{inspect(state)}")
@@ -118,13 +122,19 @@ defmodule Sigra.CI.ExUnitTimingFormatter do
          tests: tests,
          total: total,
          passed: passed,
-         failed: failed
+         failed: failed,
+         skipped: skipped,
+         excluded: excluded,
+         invalid: invalid
        }) do
     "{" <>
       "\"failed\":#{failed}," <>
+      "\"excluded\":#{excluded}," <>
+      "\"invalid\":#{invalid}," <>
       "\"partition\":#{JSON.encode!(partition)}," <>
       "\"passed\":#{passed}," <>
       "\"schema_version\":#{schema_version}," <>
+      "\"skipped\":#{skipped}," <>
       "\"tests\":[#{Enum.map_join(tests, ",", &encode_test/1)}]," <>
       "\"total\":#{total}" <>
       "}"
