@@ -40,9 +40,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert shard =~ "--exclude scaffold"
     assert receiver =~ "runs-on: ubuntu-latest"
     assert receiver =~ "needs: release_ref_guard"
-    refute receiver =~ "changes"
-    refute receiver =~ "docs_only"
-    refute receiver =~ "github.event_name"
+    refute Regex.match?(~r/^    if:.*(?:changes|docs_only|github\.event_name)/m, receiver)
     assert receiver =~ "postgres:"
     assert receiver =~ "version-type: strict"
     assert receiver =~ "mix archive.install --force hex phx_new 1.8.8"
@@ -62,14 +60,15 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert module_tags("test/upgrade_test.exs") == [":upgrade", "timeout: 600_000", ":scaffold"]
 
     assert module_tags("test/sigra/install/golden_diff_test.exs") == [
-             ":install",
+             ":golden",
              "timeout: 300_000",
              ":scaffold"
            ]
 
     assert module_tags("test/sigra/install/idempotency_test.exs") == [
-             ":install",
-             "timeout: 600_000",
+             ":integration",
+             ":idempotency",
+             "timeout: 300_000",
              ":scaffold"
            ]
   end

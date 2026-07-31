@@ -23,6 +23,7 @@ defmodule Sigra.Install.IdempotencyTest do
   @moduletag :integration
   @moduletag :idempotency
   @moduletag timeout: 300_000
+  @moduletag :scaffold
 
   setup_all do
     {:ok, %{app_dir: app_dir, stdout: first_stdout}} = InstallFixture.setup_tmp_app()

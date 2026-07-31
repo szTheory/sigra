@@ -37,6 +37,7 @@ defmodule Sigra.Install.GoldenDiffTest do
 
   @moduletag :golden
   @moduletag timeout: 300_000
+  @moduletag :scaffold
 
   @fixture_dir Path.expand("../../fixtures/install_golden", __DIR__)
   @fixture_tree_dir Path.join(@fixture_dir, "tree")

@@ -557,7 +557,7 @@ jobs:
           SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
         run: |
           set -euo pipefail
-          mix test --partitions 2 --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
+          mix test --partitions 2 --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
       - name: CI run summary
         if: always()
         run: |
@@ -593,6 +593,88 @@ jobs:
       # Relocated to library_tests_dep_off which already has a compiled toolchain —
       # runs once per CI run, never per shard (N× cost for one artifact).
 
+  # TEST-03 (D-05/D-06): this receiver deliberately has no path or docs-only gate.
+  library_tests_scaffold:
+    name: Library tests scaffold
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        id: deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch library deps
+        run: mix deps.get
+      - name: Run scaffold library tests
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-scaffold-timings.json
+        run: |
+          set -euo pipefail
+          mix test --only scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
+      - name: CI run summary
+        if: always()
+        run: |
+          {
+            echo "## library_tests scaffold"
+            echo "- elixir: $(elixir --version | tail -1)"
+            echo "- otp: $(erl -noshell -eval 'io:format(\"~s\", [erlang:system_info(otp_release)]), halt().')"
+            echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
+            echo "- deps cache (exact hit): ${{ steps.deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Test timing summary
+        if: always()
+        env:
+          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-scaffold-timings.json
+        run: |
+          set -euo pipefail
+          test -s "$SIGRA_EXUNIT_TIMING_PATH"
+          {
+            echo "## Slowest scaffold tests"
+            echo "| Time (ms) | Test | Outcome |"
+            echo "| ---: | --- | --- |"
+            jq -r '.tests[:10][] | "| \(.time_us / 1000) | `\(.module).\(.name)` | \(.outcome) |"' "$SIGRA_EXUNIT_TIMING_PATH"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload scaffold timing receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-test-timings-scaffold
+          path: /tmp/sigra-library-scaffold-timings.json
+          if-no-files-found: error
+          retention-days: 7
+
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
   # (confirmed via gh api repos/szTheory/sigra/rulesets/14941512 at execution time).
@@ -607,7 +689,7 @@ jobs:
     name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [library_tests_shard]
+    needs: [library_tests_shard, library_tests_scaffold]
     if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
     steps:
       - name: Require all library_tests shards to pass
@@ -615,13 +697,18 @@ jobs:
           # needs.<matrix-job>.result is 'success' only if EVERY leg succeeded.
           # 'failure' if any leg failed — independent of fail-fast: false.
           SHARDS: ${{ needs.library_tests_shard.result }}
+          SCAFFOLD: ${{ needs.library_tests_scaffold.result }}
         run: |
           set -euo pipefail
           if [[ "$SHARDS" != "success" ]]; then
             echo "library_tests_shard result: $SHARDS"
             exit 1
           fi
-          echo "all library_tests shards passed"
+          if [[ "$SCAFFOLD" != "success" ]]; then
+            echo "library_tests_scaffold result: $SCAFFOLD"
+            exit 1
+          fi
+          echo "all library tests passed"
 
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
