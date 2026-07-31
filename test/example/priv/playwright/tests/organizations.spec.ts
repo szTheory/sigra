@@ -27,14 +27,15 @@ async function waitForLiveViewReady(
 
 async function dismissFlash(page: Parameters<typeof test>[0]['page']) {
   for (let index = 0; index < 2; index += 1) {
-    const flash = page.locator('#flash-group [data-flash]:visible').first();
+    const visibleFlashes = page.locator('#flash-group [data-flash]:visible');
+    const visibleCount = await visibleFlashes.count();
 
-    if ((await flash.count()) === 0) {
+    if (visibleCount === 0) {
       return;
     }
 
-    await flash.getByRole('button', { name: 'close' }).click();
-    await expect(flash).toBeHidden();
+    await visibleFlashes.first().getByRole('button', { name: 'close' }).click();
+    await expect(visibleFlashes).toHaveCount(visibleCount - 1);
   }
 }
 
