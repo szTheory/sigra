@@ -6,7 +6,8 @@ defmodule Sigra.Planning.Phase58OauthOa01CiContractTest do
 
   Phase 195 (TEST-01) partitioned the lane: the actual `mix test` run moved out of
   the `library_tests:` job (now a thin name-preserving aggregator) into the
-  `library_tests_shard:` matrix worker, which runs `mix test --partitions 2`. The
+  `library_tests_shard:` matrix worker, which runs the committed measured file
+  partition. The
   OA-01 contract (library tests run `mix test`, never excluding OAuth) is unchanged —
   this lock now anchors on the worker that performs the run. If the workflow
   intentionally changes, update this file deliberately.
@@ -43,8 +44,10 @@ defmodule Sigra.Planning.Phase58OauthOa01CiContractTest do
 
     job = library_tests_shard_job(yml)
     assert job =~ "Run library tests"
-    # Phase 195: the run is the partitioned invocation `mix test --partitions 2`.
-    assert job =~ "mix test --partitions 2"
+    # Phase 233: the worker receives an explicit measured file list, while OA-01
+    # continues to require a normal `mix test` invocation without OAuth exclusions.
+    assert job =~ "library_test_partitions.exs"
+    assert job =~ "mix test \"${library_test_files[@]}\""
     refute job =~ ~r/--exclude.*oauth/i
   end
 end
