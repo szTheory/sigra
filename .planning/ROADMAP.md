@@ -51,7 +51,7 @@
 
 - [x] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
 - [x] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing (completed 2026-07-31)
-- [ ] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude
+- [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [ ] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock
 - [ ] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed
 - [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measure against the baseline table, publish the before/after coverage inventory, update CONTRIBUTING, close SEED-005 and the CI-PERF arc entry
@@ -209,11 +209,11 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 232-06-PLAN.md — Live-run checkpoint for concurrent shard overlap, branch-protection resolution, and non-PR shared-boot consumers
+- [x] 232-06-PLAN.md — Live-run checkpoint for concurrent shard overlap, branch-protection resolution, and non-PR shared-boot consumers
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 232-07-PLAN.md — Seal the ordered evidence ledger and requirement dispositions from real PR/non-PR runs
+- [x] 232-07-PLAN.md — Seal the ordered evidence ledger and requirement dispositions from real PR/non-PR runs
 
 ### Phase 233: Library Suite Economics
 
@@ -268,7 +268,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
 | 231. Gate Honesty + Nightly Revival | 11/11 | Complete | 2026-07-31 |
-| 232. Playwright Economics | 0/? | Not started | - |
+| 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
 | 235. Terminal Ratification | 0/? | Not started | - |
