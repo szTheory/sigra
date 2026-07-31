@@ -104,6 +104,22 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute shard =~ "--partitions 2"
   end
 
+  test "partition validation rejects empty, duplicate, missing, and invalid measured costs" do
+    Code.require_file(@partition_manifest_path)
+
+    assert_raise ArgumentError, ~r/non-empty/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate!(%{1 => [], 2 => ["test/sigra/auth_test.exs"]})
+    end
+
+    assert_raise ArgumentError, ~r/exactly once/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate!(%{1 => ["test/sigra/auth_test.exs"], 2 => ["test/sigra/auth_test.exs"]})
+    end
+
+    assert_raise ArgumentError, ~r/positive measured cost/, fn ->
+      Sigra.CI.LibraryTestPartitions.assign!([%{"path" => "test/a_test.exs", "time_us" => nil}])
+    end
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
