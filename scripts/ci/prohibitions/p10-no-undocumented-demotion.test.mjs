@@ -100,9 +100,12 @@ test('every step row names a parent that is itself a manifest job row', () => {
 
 test('display_name matches the construct name ci.yml actually declares', () => {
   for (const r of rows) {
+    const declaredName = r.id === 'example_playwright_shard'
+      ? 'Example Playwright shard (${{ matrix.seam }})'
+      : r.displayName;
     const needle = r.kind === 'job'
-      ? new RegExp(`^ {4}name: ${r.displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm')
-      : new RegExp(`name: ${r.displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
+      ? new RegExp(`^ {4}name: ${declaredName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm')
+      : new RegExp(`name: ${declaredName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm');
     assert.ok(
       needle.test(ci),
       `manifest row \`${r.id}\` records display_name "${r.displayName}", which ci.yml does not ` +

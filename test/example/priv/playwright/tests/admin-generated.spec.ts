@@ -452,8 +452,10 @@ test("generated audit presets expose one effective filter value and visible appl
   ).toBeVisible();
 
   const actorId = "00000000-0000-0000-0000-000000000001";
-  await page.getByLabel("Actor", { exact: true }).fill(actorId);
-  await page.getByRole("button", { name: "Apply filters" }).click();
+  const actorFilter = page.getByLabel("Actor", { exact: true });
+  await actorFilter.fill(actorId);
+  await expect(actorFilter).toHaveValue(actorId);
+  await actorFilter.press("Enter");
   await expect(page).toHaveURL(new RegExp(`(?:\\?|&)actor=${actorId}(?:&|$)`));
   await expect(page.getByText(`Actor: ${actorId}`, { exact: true })).toBeVisible();
 });

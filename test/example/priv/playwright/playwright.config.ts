@@ -8,9 +8,12 @@ import { defineConfig, devices } from '@playwright/test';
 // authored in a later plan; this config reserves the partitioning surface so
 // the checkpoint file slots into a pre-scoped, reviewer-artifact-friendly lane.
 //
-// DB state is shared across specs, so we run serially (workers: 1, fullyParallel: false).
-// retries: 1 in CI is the ONLY concession to timing flake — D-15 forbids masking real
-// flake with continue-on-error or higher retry counts.
+// Each Playwright invocation remains internally serial (workers: 1,
+// fullyParallel: false) because tests inside that invocation share its runner-local
+// example database. Phase 232 isolates independent seam invocations in separate CI
+// matrix jobs, so this per-invocation setting is no longer a global correctness lock.
+// Retries stay at zero everywhere; CI shard commands repeat --retries=0 explicitly so
+// observed isolation evidence cannot be masked by a recovered attempt.
 //
 // D-01..D-05, D-26..D-30: admin behavior truth stays on `chromium` only; mobile
 // and dark-mode coverage comes from the dedicated checkpoint projects rather
@@ -50,9 +53,10 @@ const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: './test-results',
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI ? 1 : 0,
+  retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   // The example app boots in MIX_ENV=dev which falls back to :longpoll
   // transport when the WebSocket handshake can't complete (common in
@@ -174,31 +178,58 @@ export default defineConfig({
     // Runs against /admin/_design (dev-only route). Excluded from chromium and
     // mobile via testIgnore so design lane stays partitioned.
     {
+      name: 'admin-design-setup-chromium',
+      testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design chromium/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
       name: 'admin-design-chromium',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-chromium'],
       use: {
         ...devices['Desktop Chrome'],
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-chromium.json',
       },
     },
     // Admin design gallery lane (mobile): mobile-viewport board baselines.
     {
+      name: 'admin-design-setup-mobile',
+      testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design mobile/,
+      use: { ...devices['iPhone 13'] },
+    },
+    {
       name: 'admin-design-mobile',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-mobile'],
       use: {
         ...devices['iPhone 13'],
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-mobile.json',
       },
     },
     // Admin design gallery lane (dark theme): dark-mode board baselines using
     // `colorScheme: 'dark'` rather than an interactive toggle (per D-29 pattern).
     {
+      name: 'admin-design-setup-dark',
+      testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design dark/,
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
+      },
+    },
+    {
       name: 'admin-design-dark',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-dark'],
       use: {
         ...devices['Desktop Chrome'],
         colorScheme: 'dark',
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-dark.json',
       },
     },
     // Admin eval lane (Desktop Chrome DPR1): render matrix + probes + bundle writes.

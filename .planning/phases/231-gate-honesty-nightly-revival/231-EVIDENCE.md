@@ -30,7 +30,7 @@ is deliberately generic across every phase's ledger to enforce, with no opt-in m
 | [AFTER-EVAL-HARNESS](#after-eval-harness) | `admin_eval_render`'s b1-b6 guards executing and passing, mask removed, two independent commits | GATE-04 (SC-4) | `gh run view --log --job <id>` | captured (runs 30512523387, 30514238789) |
 | [AFTER-RELEASE-LANE-WAIT](#after-release-lane-wait) | The extracted `wait-for-ci-gate.sh` polling loop, invoked live against a real completed push-to-main run | DX-05 (SC-5) | `bash scripts/ci/wait-for-ci-gate.sh` | captured (run 30466318240) |
 | [AFTER-PAGES-PUBLISHER](#after-pages-publisher) | The GitHub Pages publisher seeded and green; the Pages-source self-heal question diagnosed | GATE-01 (D-17/D-18) | `gh workflow run` + `gh api .../pages` | captured (run 30529885885) |
-| [AFTER-NIGHTLY-POST-MERGE](#after-nightly-post-merge) | The first `schedule`-triggered nightly after this phase merges | GATE-01 (SC-1's "after" half) | `gh run view <id> --json jobs` (post-merge, not yet run) | pending (structural obligation: requires a `schedule` event this phase cannot force forward) |
+| [AFTER-NIGHTLY-POST-MERGE](#after-nightly-post-merge) | The first `schedule`-triggered nightly after this phase merges | GATE-01 (SC-1's "after" half) | `gh run view 30607570671 --json event,headSha,conclusion,jobs` + `ci-run-metrics.sh --jobs 30607570671` | captured (run 30607570671) |
 
 ---
 
@@ -450,25 +450,56 @@ under GATE-01's fallback disposition below, not claimed as either outcome.
 
 ## AFTER-NIGHTLY-POST-MERGE
 
-Status: pending (structural obligation: requires a `schedule` event this phase cannot force forward)
+Status: captured (run 30607570671)
 
-GATE-01's SC-1 "after" half: the first `schedule`-triggered nightly run after this phase merges to
-`main`. The cron (`30 4 * * *`, `ci.yml:22-24`) cannot be forced forward, and no
-`workflow_dispatch` produces a `schedule` event — a dispatched run is a structurally different
-trigger, not a substitute (the same class of "structurally unobservable pre-merge" finding D-21
-already established for `gate-ci-green`, and AFTER-PAGES-PUBLISHER re-establishes above for the
-Pages self-heal). This slot is booked honestly as pending rather than claimed from a proxy run.
+GATE-01's SC-1 "after" half is now directly observed. PR #125 merged at
+2026-07-30T14:36:14Z as `4bba9c71ae95a51bc2c3586010518a1c3439ab5f`. The next `ci.yml`
+nightly, run `30607570671`, was created at 2026-07-31T05:43:10Z with `event: schedule`, used that
+merge SHA, and concluded `success` at 2026-07-31T06:11:26Z.
 
-Exact capture command, to be run against the first scheduled run's ID once it exists:
+Capture commands:
 
 ```
-gh run view <first-scheduled-run-after-merge-id> --repo szTheory/sigra --json jobs
+gh run view 30607570671 --repo szTheory/sigra --json event,headSha,conclusion,jobs
+bash scripts/ci/ci-run-metrics.sh --jobs 30607570671
 ```
 
-Whoever captures this run flips this slot's status to `captured (run <id>)`, pastes the verbatim
-`--json jobs` output (or `bash scripts/ci/ci-run-metrics.sh --jobs <id>` table) exactly as every
-other slot in this ledger does, and records the disposition against the procedure in the section
-below — written down now, before the run exists.
+Captured metrics:
+
+```text
+job                                                                                conclusion  duration_s  duration
+Detect docs-only change                                                            success     6s          0m6s
+Install matrix (flag combinations)                                                 success     112s        1m52s
+Passkeys manual fallback smoke                                                     success     123s        2m3s
+Fast checks (milestone/installer/contracts/snapshot/ledger guards)                 success     26s         0m26s
+Install matrix (flag combinations) (--no-organizations --no-passkeys)              success     104s        1m44s
+Install matrix (flag combinations) (--no-passkeys)                                 success     109s        1m49s
+Install matrix (flag combinations) (--no-organizations)                            success     108s        1m48s
+Nightly probe (forced-failure self-test)                                           success     3s          0m3s
+Release ref guard                                                                  success     2s          0m2s
+Passkeys opt-out smoke                                                             success     187s        3m7s
+Upgrade smoke (published source series -> local candidate)                         success     115s        1m55s
+Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)  success     1681s       28m1s
+Recapture admin-checkpoint baselines (in-CI)                                       success     263s        4m23s
+Generated admin Playwright smoke                                                   success     265s        4m25s
+Recapture admin-design baselines (in-CI)                                           success     792s        13m12s
+Library tests shard 2                                                              success     311s        5m11s
+Library tests shard 1                                                              success     454s        7m34s
+Install golden + idempotency contract (subprocess harness)                         success     375s        6m15s
+Library tests (dep-off — Threadline absent)                                        success     99s         1m39s
+Example HTTP smoke (boot + curl critical routes)                                   success     58s         0m58s
+Example Playwright smoke (full lifecycle)                                          success     1497s       24m57s
+Example unit smoke (ExUnit + ConnTest)                                             success     55s         0m55s
+Install smoke (fresh phx.new + sigra.install)                                      success     114s        1m54s
+Library tests                                                                      success     4s          0m4s
+ci-gate                                                                            success     5s          0m5s
+Notify on red ci-gate (release-lane-rot)                                           skipped     0s          0m0s
+```
+
+Disposition: the primary literal-green branch applies. Every executing job succeeded; the only
+skip is the outcome-gated red-notification job because `ci-gate` succeeded. Both baseline red
+lanes (`Generated admin Playwright smoke`, `Admin eval render + probe`) executed and passed. No
+fallback filing was needed for this run.
 
 ---
 
@@ -627,21 +658,10 @@ not repo YAML).
 red state.** Every lane is either sustained-green across this phase's full dispatch/push sample, or
 — for the two rare (~8% each) transients — filed, diagnosed, and owned as of this plan's commits.
 
-**Why GATE-01 is nonetheless left `Pending`, not `Complete`, despite this table.** GATE-01's
-literal text is a claim about **"the nightly scheduled run"** — a specific, identifiable run
-instance. No `schedule`-triggered run has occurred with this phase's fixes in place; the earliest
-possible one is the first `30 4 * * *` tick after this PR merges. This table is exhaustive
-proxy evidence, not the observation itself — and per the plan's own explicit prohibition (this
-plan's frontmatter `<prohibitions>` block): "MUST NOT declare GATE-01 satisfied on the basis
-that the nightly's known reds were fixed. The requirement is a claim about a run, and no run has
-happened yet at ledger time." The AFTER-NIGHTLY-POST-MERGE slot above remains the mechanism for
-closing it. **Fast-path closure criteria for whoever captures the first post-merge nightly:** if
-that run's job list matches this table (every lane green, or red only on `Upgrade smoke`/
-`Recapture admin-checkpoint baselines` at the already-filed, already-owned defects above), GATE-01's
-fallback disjunct is satisfied by the filings already on record — no new filing action is required,
-only pasting the run's verbatim output into the pending slot and flipping `REQUIREMENTS.md`'s
-GATE-01 checkbox. If a genuinely new, unfiled red appears, it must be filed and diagnosed before
-GATE-01 can close, per the disposition procedure's fallback activation criteria above.
+**GATE-01 closure.** The specific run instance required by the literal text now exists and is
+captured in AFTER-NIGHTLY-POST-MERGE. Run `30607570671` matches the table: every executing lane is
+green and the sole skip is legitimate. GATE-01 therefore closes on the primary branch, without
+using the fallback disjunct.
 
 ---
 
