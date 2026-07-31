@@ -85,6 +85,10 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
     assert action =~ "using: composite"
 
+    assert action =~
+             "example-dev-port${{ inputs.app-port }}-otp",
+           "cached compile output must be partitioned by the endpoint's compile-time port"
+
     for marker <- ["mix ecto.create", "mix run priv/repo/seeds.exs", "mix phx.server", "curl -sf"] do
       assert length(Regex.scan(Regex.compile!(Regex.escape(marker)), action)) == 1,
              "shared action must own #{marker} exactly once"
