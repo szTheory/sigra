@@ -69,7 +69,7 @@ test('no ceiling is tight enough to truncate a run, and none is absurdly loose',
 });
 
 test('the two measured poles stay pinned above their observed maxima', () => {
-  const poles = { example_playwright_smoke: 45, generated_admin_playwright_smoke: 15 };
+  const poles = { example_playwright_shard: 30, generated_admin_playwright_smoke: 15 };
   for (const [id, expected] of Object.entries(poles)) {
     const hit = runnerJobs.find(([jobId]) => jobId === id);
     assert.ok(hit, `pole job \`${id}\` not found — the parse broke, this is not a pass.`);
@@ -78,8 +78,9 @@ test('the two measured poles stay pinned above their observed maxima', () => {
       value,
       expected,
       `job \`${id}\` has timeout-minutes: ${value}, expected ${expected}. These two are pinned ` +
-        `because they were set against MEASURED durations (example_playwright_smoke ran 28.5m ` +
-        `with a 41.7m historical max). Changing one without a fresh measurement is exactly the ` +
+        `because they were set against MEASURED durations (the pre-shard Playwright lifecycle ` +
+        `ran 28.5m with a 41.7m historical max; Phase 232 split that work across isolated ` +
+        `30-minute shard ceilings). Changing one without a fresh measurement is exactly the ` +
         `guesswork this prohibition forbids.`,
     );
   }

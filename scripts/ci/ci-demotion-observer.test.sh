@@ -79,8 +79,8 @@ PAYLOAD_FILE="${TMPDIR_ROOT}/payload.json"
 : > "$GH_STUB_LOG"
 
 EVAL_NAME="Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
-PW_NAME="Example Playwright smoke (full lifecycle)"
-SNAP_NAME="Run design gallery board snapshots (non-PR)"
+PW_NAME="Example Playwright shard (design_gallery)"
+SNAP_NAME="Run design gallery behavior and snapshots"
 
 # Canned green non-PR payload, mirroring run 30414885679.
 BASE_PAYLOAD="$(jq -n \

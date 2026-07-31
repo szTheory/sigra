@@ -67,7 +67,8 @@ A	job	admin_design_recapture	-	Recapture admin-design baselines (in-CI)	job	gith
 A	job	admin_checkpoint_recapture	-	Recapture admin-checkpoint baselines (in-CI)	job	github.event_name != 'pull_request'	ignore
 A	job	notify_release_lane_rot	-	Notify on red ci-gate (release-lane-rot)	job	always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'	exempt
 B	job	admin_eval_render	-	Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)	job	github.event_name != 'pull_request'	assert
-B	step	design_gallery_snapshots	example_playwright_smoke	Run design gallery board snapshots (non-PR)	step	!cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'	assert
+B	step	design_gallery_snapshots	example_playwright_shard	Run design gallery behavior and snapshots	step	!cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'design_gallery' && github.event_name != 'pull_request'	assert
+C	job	example_playwright_shard	-	Example Playwright shard (design_gallery)	step	needs.changes.outputs.docs_only != 'true'	ignore
 C	job	library_tests_dep_off	-	Library tests (dep-off — Threadline absent)	job	!cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true'	ignore
 C	job	example_unit_smoke	-	Example unit smoke (ExUnit + ConnTest)	step	needs.changes.outputs.docs_only != 'true'	ignore
 C	job	install_smoke	-	Install smoke (fresh phx.new + sigra.install)	step	needs.changes.outputs.docs_only != 'true'	ignore

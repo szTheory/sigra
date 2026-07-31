@@ -1356,6 +1356,7 @@ jobs:
           find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \; || true
 
       - name: Run design gallery behavior
+        id: design_gallery
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'design_gallery' && github.event_name == 'pull_request' }}
         working-directory: test/example/priv/playwright
         env:
@@ -1371,6 +1372,7 @@ jobs:
             --retries=0
 
       - name: Run design gallery behavior and snapshots
+        id: design_gallery_snapshots
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'design_gallery' && github.event_name != 'pull_request' }}
         working-directory: test/example/priv/playwright
         env:
@@ -1463,7 +1465,7 @@ jobs:
             exit 1
           fi
           if [ "$DOCS_ONLY" = "true" ]; then
-            echo "docs-only fast path: every Playwright shard skipped its browser body"
+            echo "docs-only fast path: every Playwright seam was skipped (all five shard browser bodies)"
           else
             echo "all five isolated Playwright shards passed"
           fi
