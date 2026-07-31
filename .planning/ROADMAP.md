@@ -231,10 +231,24 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 233-01-PLAN.md — Restore parallel ExUnit timing visibility in the same ordinary shard run
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 233-02-PLAN.md — Capture a retry-free PR timing probe and measured per-file costs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 233-03-PLAN.md — Extract the exact scaffold class into a fail-closed required PR receiver
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 233-04-PLAN.md — Rebalance the two ordinary shards with a measured explicit manifest
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 233-05-PLAN.md — Seal before/after durations, named coverage, and required-check evidence
 
 ### Phase 234: Hygiene, Supply Chain, and Contributor DX
