@@ -245,11 +245,11 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 233-04-PLAN.md — Rebalance the two ordinary shards with a measured explicit manifest
+- [x] 233-04-PLAN.md — Rebalance the two ordinary shards with a measured explicit manifest
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 233-05-PLAN.md — Seal before/after durations, named coverage, and required-check evidence
+- [x] 233-05-PLAN.md — Seal before/after durations, named coverage, and required-check evidence
 
 ### Phase 234: Hygiene, Supply Chain, and Contributor DX
 
