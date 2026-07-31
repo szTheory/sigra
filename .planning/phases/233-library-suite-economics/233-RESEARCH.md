@@ -284,15 +284,17 @@ library_tests:
 | A1 | A committed generated file manifest is simpler and safer here than automatic assignment because it can be mechanically reviewed for one-to-one coverage. | Architecture Patterns / Pitfall 3 | Planner may choose an automatic assignment generator with an equivalently strong coverage guard. |
 | A2 | A workflow-contract test can prove absence of serializing flags and receipt wiring without an external CI run. | Common Pitfalls | Live PR evidence remains mandatory; contract test alone cannot establish durations or coverage execution. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should timing receipts be uploaded as artifacts or committed only into the phase evidence ledger?**
+1. **RESOLVED — Should timing receipts be uploaded as artifacts or committed only into the phase evidence ledger?**
    - What we know: GitHub artifacts can retain timing JSON beyond a job, and `$GITHUB_STEP_SUMMARY` already publishes shard information. [CITED: https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts] [VERIFIED: .github/workflows/ci.yml]
    - Recommendation: emit JSON to the summary and attach it as a small artifact during the phase; commit only the analyzed real-PR evidence, not volatile raw timing output. [ASSUMED]
+   - Resolution: upload the same-run timing artifacts while committing only the analyzed evidence.
 
-2. **Which six modules receive `:scaffold`?**
+2. **RESOLVED — Which six modules receive `:scaffold`?**
    - What we know: the canonical audit names generator passkeys opt-out, passkeys JS, golden diff, idempotency, vault promotion, and upgrade, while current source inspection finds each uses the expensive install fixture; `template_render_test.exs` is async and does not use it. [VERIFIED: SEED-005-CICD-AUDIT-2026-06-20.md and test/**]
    - Recommendation: make the list explicit in a contract test, treating it as an exact expected set. [ASSUMED]
+   - Resolution: enforce the canonical exact six-module scaffold set in the contract while retaining `template_render_test.exs` in ordinary shards.
 
 ## Environment Availability
 
