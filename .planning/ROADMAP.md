@@ -237,7 +237,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 233-02-PLAN.md — Capture a retry-free PR timing probe and measured per-file costs
+- [x] 233-02-PLAN.md — Capture a retry-free PR timing probe and measured per-file costs
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
