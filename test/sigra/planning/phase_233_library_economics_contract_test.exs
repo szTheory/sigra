@@ -70,7 +70,25 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              ":idempotency",
              "timeout: 300_000",
              ":scaffold"
-           ]
+    ]
+  end
+
+  test "scaffold classification is the canonical exact six-module set" do
+    assert scaffold_modules() ==
+             MapSet.new([
+               "test/upgrade_test.exs",
+               "test/sigra/install/generator_passkeys_opt_out_test.exs",
+               "test/sigra/install/features/passkeys_js_test.exs",
+               "test/sigra/install/golden_diff_test.exs",
+               "test/sigra/install/idempotency_test.exs",
+               "test/sigra/install/vault_promotion_test.exs"
+             ])
+
+    template_render = File.read!("test/sigra/install/template_render_test.exs")
+
+    assert template_render =~ "use ExUnit.Case, async: true"
+    assert template_render =~ "@moduletag :install"
+    refute template_render =~ "@moduletag :scaffold"
   end
 
   defp job_body(workflow, job_id) do
@@ -88,5 +106,12 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> String.split("\n")
     |> Enum.filter(&String.starts_with?(&1, "  @moduletag "))
     |> Enum.map(&String.replace_prefix(&1, "  @moduletag ", ""))
+  end
+
+  defp scaffold_modules do
+    "test/**/*.exs"
+    |> Path.wildcard()
+    |> Enum.filter(fn path -> ":scaffold" in module_tags(path) end)
+    |> MapSet.new()
   end
 end
