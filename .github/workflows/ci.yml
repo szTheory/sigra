@@ -1267,145 +1267,20 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
-        id: setup
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
         if: needs.changes.outputs.docs_only != 'true'
+        uses: ./.github/actions/example-playwright-boot
         with:
-          version-file: .tool-versions
-          version-type: strict
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
-        if: needs.changes.outputs.docs_only != 'true'
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
-      - name: Cache example deps
-        id: example_deps_cache
-        if: needs.changes.outputs.docs_only != 'true'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            test/example/deps
-            test/example/_build
-          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
-          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
-      - name: Fetch example deps
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix deps.get
-      - name: Compile example
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix compile --warnings-as-errors
-      - name: Setup example dev DB
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix ecto.create && mix ecto.migrate
-      - name: Run demo seeds
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix run priv/repo/seeds.exs
-      - name: Install Playwright deps
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example/priv/playwright
-        run: npm ci
-      - name: Cache Playwright browsers
-        id: playwright_browsers_cache
-        if: needs.changes.outputs.docs_only != 'true'
-        # Phase 230 (FAST-06 / D-15, D-16, D-17, D-18): honest expected win is
-        # ~15-25s, not the measured ~61s install step -- only ~14s of that is
-        # the cacheable browser download; the ~33s `--with-deps` system-
-        # dependency install lives in /usr/lib, not ~/.cache/ms-playwright,
-        # and is not cacheable. The key deliberately encodes the browser set
-        # (chromium-webkit): admin_eval_render installs chromium only while
-        # its admin-eval-mobile project is iPhone 13 (WebKit), so a key
-        # shared with this job would restore WebKit binaries there and make
-        # it appear fixed without the fix, invalidating Phase 231's GATE-04
-        # diagnosis. The dependency install in the next step always runs on
-        # both branches -- skipping it on a hit produces a missing-system-
-        # dependency failure at test time.
-        #
-        # Phase 231 (GATE-04 / D-11 step 1): admin_eval_render now installs
-        # chromium AND webkit too (the bug above is fixed), so the key is
-        # re-tokened -v1 -> -v2 to record this boundary explicitly in the
-        # key itself. The stronger guarantee is structural, not the token:
-        # admin_eval_render declares no `actions/cache` step at all, so no
-        # cross-job cache restore can ever hand it a browser without the
-        # install step actually running -- that is true regardless of what
-        # the token says. restore-keys below stays a bare prefix match on
-        # purpose: its ONLY consumer is this job (example_playwright_smoke),
-        # which installs both chromium and webkit on the cache-hit branch
-        # (install-deps) and the cache-miss branch (install --with-deps)
-        # alike, so a warm-start from an older -v1 entry can never leave a
-        # browser missing here.
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
-          restore-keys: ${{ runner.os }}-playwright-chromium-webkit-
-      - name: Install Playwright browsers
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example/priv/playwright
-        # Phase 230 (FAST-06 / D-17): cache-hit reports 'true' only on an
-        # exact key match; a restore-keys prefix hit reports 'false' and
-        # correctly re-runs the full install below. The OS dependency
-        # install always runs on both branches -- system libraries live
-        # outside the cached directory and skipping them produces a
-        # missing-system-dependency failure at test time.
-        run: |
-          if [ "${{ steps.playwright_browsers_cache.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install-deps chromium webkit
-          else
-            npx playwright install --with-deps chromium webkit
-          fi
-      - name: Boot example app in background
-        if: needs.changes.outputs.docs_only != 'true'
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-          PHX_SERVER: "true"
-        # WR-04: redirect stdout+stderr so boot output is not interleaved
-        # with later step output and is recoverable via a dedicated failure
-        # step. See also: install_matrix:291, admin-acceptance-smoke.sh:207.
-        run: mix phx.server > /tmp/example-playwright-server.log 2>&1 &
-      - name: Wait for app and warm up LiveView routes
-        if: needs.changes.outputs.docs_only != 'true'
-        run: |
-          # Wait for root.
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:4000/ > /dev/null; then
-              echo "App responding after ${i}s"
-              break
-            fi
-            sleep 1
-          done
-          # Warm up the routes the test will hit. With `plug_init_mode:
-          # :runtime` in dev, first-touch of each route pays compile-on-
-          # demand latency — without this, Playwright's first toHaveURL
-          # check on /users/register races the first LiveView compile.
-          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
-            curl -sf -o /dev/null "http://localhost:4000${path}" \
-              && echo "warmed ${path}" \
-              || echo "warmup miss ${path} (non-fatal)"
-          done
+          database-name: sigra_example_dev
+          app-port: "4000"
+          base-url: http://localhost:4000
+          server-log: /tmp/example-playwright-server.log
+          browsers: chromium webkit
+          cache-browsers: "true"
+          browser-cache-key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
+
       # Phase 31 Plan 4 (D-19..D-25, D-26..D-30): run admin browser truth,
       # admin checkpoints, and non-admin browser smoke as separate seams
       # within a single job so each failure surfaces against its seam while
@@ -1612,8 +1487,8 @@ jobs:
         run: |
           {
             echo "## example_playwright_smoke cache"
-            echo "- deps cache (exact hit): ${{ steps.example_deps_cache.outputs.cache-hit }}"
-            echo "- Playwright browsers cache (exact hit): ${{ steps.playwright_browsers_cache.outputs.cache-hit }}"
+            echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
+            echo "- Playwright browsers cache (exact hit): ${{ steps.boot.outputs.browser_cache_hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Collect curated admin checkpoint screenshots
         if: always()
@@ -2005,88 +1880,18 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      # Boot prelude — verbatim clone of example_playwright_smoke (ci.yml:886–968)
-      # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
-        id: setup
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
         with:
-          version-file: .tool-versions
-          version-type: strict
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
-      - name: Cache example deps
-        id: recapture_example_deps_cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            test/example/deps
-            test/example/_build
-          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
-          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
-      - name: Fetch example deps
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix deps.get
-      - name: Compile example
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix compile --warnings-as-errors
-      - name: Setup example dev DB
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix ecto.create && mix ecto.migrate
-      - name: Run demo seeds
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix run priv/repo/seeds.exs
-      - name: Install Playwright deps
-        working-directory: test/example/priv/playwright
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
-      - name: Boot example app in background
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-          PHX_SERVER: "true"
-        # WR-04: redirect stdout+stderr so boot output is not interleaved with
-        # step output and is recoverable via the failure dump step below.
-        run: mix phx.server > /tmp/example-recapture-server.log 2>&1 &
-      - name: Wait for app and warm up LiveView routes
-        run: |
-          # Wait for root.
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:4000/ > /dev/null; then
-              echo "App responding after ${i}s"
-              break
-            fi
-            sleep 1
-          done
-          # Warm up the routes the test will hit — first-touch pays compile-on-demand
-          # latency in dev mode.
-          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
-            curl -sf -o /dev/null "http://localhost:4000${path}" \
-              && echo "warmed ${path}" \
-              || echo "warmup miss ${path} (non-fatal)"
-          done
+          database-name: sigra_admin_design_recapture
+          app-port: "4000"
+          base-url: http://localhost:4000
+          server-log: /tmp/example-admin-design-recapture-server.log
+          browsers: chromium webkit
+          warmup-paths: /users/register /users/log_in /admin/_design
+
       - name: Re-establish board-notice canary (OQ1 deliberate re-baseline)
         # OQ1: The global --font-sans override modifies board-notice (the design-lane
         # canary). snapshot-canary-guard.sh forbids a canary *modify* (line 104) but
@@ -2313,86 +2118,17 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      # Boot prelude — verbatim clone of admin_design_recapture (ci.yml:1406–1485)
-      # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
-        id: setup
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
         with:
-          version-file: .tool-versions
-          version-type: strict
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
-      - name: Cache example deps
-        id: checkpoint_recapture_example_deps_cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            test/example/deps
-            test/example/_build
-          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
-          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
-      - name: Fetch example deps
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix deps.get
-      - name: Compile example
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix compile --warnings-as-errors
-      - name: Setup example dev DB
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix ecto.create && mix ecto.migrate
-      - name: Run demo seeds
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix run priv/repo/seeds.exs
-      - name: Install Playwright deps
-        working-directory: test/example/priv/playwright
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
-      - name: Boot example app in background
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-          PHX_SERVER: "true"
-        run: mix phx.server > /tmp/example-checkpoint-recapture-server.log 2>&1 &
-      - name: Wait for app and warm up LiveView routes
-        run: |
-          # Wait for root.
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:4000/ > /dev/null; then
-              echo "App responding after ${i}s"
-              break
-            fi
-            sleep 1
-          done
-          # Warm up the routes the test will hit — first-touch pays compile-on-demand
-          # latency in dev mode.
-          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
-            curl -sf -o /dev/null "http://localhost:4000${path}" \
-              && echo "warmed ${path}" \
-              || echo "warmup miss ${path} (non-fatal)"
-          done
+          database-name: sigra_admin_checkpoint_recapture
+          app-port: "4000"
+          base-url: http://localhost:4000
+          server-log: /tmp/example-checkpoint-recapture-server.log
+          browsers: chromium webkit
+
       - name: Re-establish impersonation-banner canary (D-03.2 delete-rebirth)
         # snapshot-canary-guard.sh forbids a canary *modify* but tolerates a canary
         # *added*. A working-tree-only delete + recreate still reads as `modified`
@@ -2567,81 +2303,18 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
-        id: setup
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
         with:
-          version-file: .tool-versions
-          version-type: strict
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
-      - name: Cache example deps (admin-eval-render lane)
-        id: admin_eval_render_deps_cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            test/example/deps
-            test/example/_build
-          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
-          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
-      - name: Fetch example deps
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix deps.get
-      - name: Compile example
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-        run: mix compile --warnings-as-errors
-      - name: Setup example dev DB
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix ecto.create && mix ecto.migrate
-      - name: Run demo seeds
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix run priv/repo/seeds.exs
-      - name: Install Playwright deps
-        working-directory: test/example/priv/playwright
-        run: npm ci
-      - name: Install Playwright browsers (chromium + webkit — admin-eval-mobile is iPhone 13/WebKit)
-        working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
-      - name: Boot example app in background
-        working-directory: test/example
-        env:
-          MIX_ENV: dev
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-          PORT: "4011"
-          PHX_SERVER: "true"
-        run: mix phx.server > /tmp/example-admin-eval-render-server.log 2>&1 &
-      - name: Wait for app to respond on PORT 4011
-        run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:4011/ > /dev/null; then
-              echo "App responding after ${i}s"
-              break
-            fi
-            sleep 1
-          done
-          # Warm up the admin design gallery route so the first Playwright hit is compiled
-          curl -sf -o /dev/null "http://localhost:4011/admin/_design" \
-            && echo "warmed /admin/_design" \
-            || echo "warmup miss /admin/_design (non-fatal)"
+          database-name: sigra_admin_eval_render
+          app-port: "4011"
+          base-url: http://localhost:4011
+          server-log: /tmp/example-admin-eval-render-server.log
+          browsers: chromium webkit
+          warmup-paths: /admin/_design
+
       - name: Run admin-eval harness (render matrix + derivative guards)
         # JUDGE-CI-01: render+probe is here (off the merge path), never in fast_checks.
         # The harness runs the spec across all 3 projects and chains the 5 derivative guards.
@@ -2675,7 +2348,7 @@ jobs:
         run: |
           {
             echo "## admin_eval_render cache"
-            echo "- deps cache (exact hit): ${{ steps.admin_eval_render_deps_cache.outputs.cache-hit }}"
+            echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
