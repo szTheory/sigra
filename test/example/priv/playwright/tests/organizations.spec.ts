@@ -343,7 +343,6 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(page).toHaveURL(
     new RegExp(`/organizations/${renamedSlug}/settings$`),
   );
-  await dismissFlash(page);
 
   // --- Step 13: Slug alias redirect (7-day window) ---
   // Navigate to the old slug; the LoadOrganizationFromSlug plug should
