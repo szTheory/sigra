@@ -1,6 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test';
-import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
 //
@@ -35,32 +34,6 @@ async function waitForLiveViewReady(page: Page) {
   await page.evaluate(async () => { await (document as any).fonts.ready; });
   const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
   expect(ok, 'Space Grotesk must be loaded before snapshot').toBe(true);
-}
-
-async function registerUser(page: Page, email: string, password: string) {
-  await page.goto('/users/register');
-  await waitForLiveViewReady(page);
-  await page.fill('input[name="user[email]"]', email);
-  await page.fill('input[name="user[password]"]', password);
-  await Promise.all([
-    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
-    page.getByRole('button', { name: /Create an account/ }).click(),
-  ]);
-  await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-}
-
-let registrationSequence = 0;
-
-function adminDesignEmail(testInfo: TestInfo) {
-  // Example.SigraAdminPolicy requires this prefix for global admin access.
-  const project = testInfo.project.name
-    .replace(/^admin-design-/, '')
-    .replace(/[^a-z0-9]+/gi, '')
-    .slice(0, 8);
-  const sequence = (++registrationSequence).toString(36);
-  const timestamp = Date.now().toString(36);
-
-  return `platform-admin+dg-${timestamp}-${project}-${sequence}-${testInfo.retry}@example.test`;
 }
 
 /**
@@ -264,15 +237,10 @@ async function normalizedInnerHTML(locator: Locator) {
 }
 
 test.describe('Design gallery board snapshots', () => {
-  // Each Playwright test runs in an isolated browser context, so the admin
-  // session must be established inside the test's own context (mirrors
-  // admin-checkpoints.spec.ts, which calls registerUser per test). Registering
-  // once in beforeAll on a separate page does NOT authenticate the test pages.
-  // The gallery renders static literal assigns only, so the unique per-test
-  // email never appears in any board screenshot — captures stay deterministic.
-  test.beforeEach(async ({ page }, testInfo) => {
-    const adminEmail = adminDesignEmail(testInfo);
-    await registerUser(page, adminEmail, TEST_PASSWORD);
+  // Each design project supplies an authenticated storageState from its matching
+  // setup project. The gallery remains deterministic because its literal assigns
+  // do not render the setup identity into board screenshots.
+  test.beforeEach(async ({ page }) => {
     await page.goto('/admin/_design');
     await waitForLiveViewReady(page);
   });

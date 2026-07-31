@@ -50,6 +50,7 @@ const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: './test-results',
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
@@ -174,11 +175,18 @@ export default defineConfig({
     // Runs against /admin/_design (dev-only route). Excluded from chromium and
     // mobile via testIgnore so design lane stays partitioned.
     {
+      name: 'admin-design-setup-chromium',
+      testMatch: /admin-design\.setup\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
       name: 'admin-design-chromium',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-chromium'],
       use: {
         ...devices['Desktop Chrome'],
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-chromium.json',
       },
     },
     // Admin design gallery lane (mobile): mobile-viewport board baselines.
