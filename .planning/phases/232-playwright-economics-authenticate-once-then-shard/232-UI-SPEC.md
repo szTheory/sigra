@@ -1,7 +1,7 @@
 ---
 phase: 232
 slug: playwright-economics-authenticate-once-then-shard
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-31
@@ -94,15 +94,24 @@ No application copy is introduced or modified. The following entries expressly p
 
 ## UI Considerations
 
-Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved. These are existing rendered states whose coverage must survive the test-infrastructure change; the phase creates no new UI state.
+Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved. Six additional probe rows were explicitly dismissed as inapplicable. These are existing rendered states whose coverage must survive the test-infrastructure change; the phase creates no new UI state.
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
-| authenticated | `/admin/_design` in each design project | ✅ covered | Each project loads its own ephemeral authenticated `storageState`; its policy-valid admin session reaches the existing gallery without re-registering per test. |
-| loading | LiveView gallery navigation and font loading | ✅ covered | Each test continues to wait for attached `.phx-connected`, `document.fonts.ready`, and a successful Space Grotesk check; no sleeps are allowed. |
-| populated | 13 component, 11 group, and 4 configuration boards | ✅ covered | Existing board IDs, screenshots, behavior assertions, and full-page axe scan are preserved; no board markup or fixture state changes. |
-| responsive / theme | desktop light, iPhone 13 mobile, desktop dark projects | ✅ covered | Project-specific state is orthogonal to viewport and `colorScheme`; current screenshot and overflow coverage remains intact. |
-| error / partial failure | shard and terminal CI result | ✅ covered | Every shard reports to the byte-identical terminal aggregator, which fails for any shard failure; no advisory, retry-masked, or `continue-on-error` outcome is allowed. |
+| loading | `/admin/_design` gallery | ✅ covered | The existing gallery loading behavior remains unchanged, and every test waits for attached `.phx-connected`, `document.fonts.ready`, and a successful Space Grotesk check before assertions or screenshots. |
+| populated | `/admin/_design` gallery | ✅ covered | The populated gallery preserves all 13 component boards, 11 group boards, and 4 configuration boards, with unchanged IDs, fixtures, behavior assertions, axe scans, and screenshot baselines. |
+| overflow | `/admin/_design` gallery | ✅ covered | Existing desktop and iPhone 13 gallery baselines and overflow assertions remain byte-for-byte in force; authentication reuse and sharding may not alter wrapping, clipping, scrolling, or viewport configuration. |
+| loading | Authenticated admin navigation | ✅ covered | Navigation to `/admin/_design` preserves the existing admin loading treatment and completes only after explicit LiveView attachment and font-readiness signals; sleeps and retry-based readiness are forbidden. |
+| overflow | Responsive admin navigation | ✅ covered | Existing responsive admin navigation behavior remains unchanged across desktop light, iPhone 13 mobile, and desktop dark projects, including current overflow coverage and stable hooks. |
+
+Dismissed as inapplicable:
+
+- Gallery `empty`: the gallery uses a fixed, curated board inventory; an empty dataset is not a supported Phase 232 UI state.
+- Gallery `error`: Phase 232 adds no application error state; gallery setup or load failures remain test diagnostics and fail the run.
+- Gallery `partial`: a partially rendered or missing board is a failing test condition, not a supported UI state.
+- Gallery `zero-one-many`: the gallery is a curated, non-variable fixture inventory rather than a runtime collection.
+- Navigation `error`: Phase 232 introduces no navigation failure UI or copy; an authentication or navigation failure fails the Playwright shard.
+- Navigation `long-text`: Phase 232 changes no navigation labels or application copy, so it introduces no new long-text condition.
 
 ## Registry Safety
 
@@ -113,11 +122,11 @@ Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved. T
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS — no copy delta confirmed
-- [ ] Dimension 2 Visuals: PASS — no visual delta confirmed
-- [ ] Dimension 3 Color: PASS — existing theme tokens preserved
-- [ ] Dimension 4 Typography: PASS — existing font readiness/baselines preserved
-- [ ] Dimension 5 Spacing: PASS — no layout or CSS delta confirmed
-- [ ] Dimension 6 Registry Safety: PASS — no registry use
+- [x] Dimension 1 Copywriting: PASS — no copy delta confirmed
+- [x] Dimension 2 Visuals: PASS — no visual delta confirmed
+- [x] Dimension 3 Color: PASS — existing theme tokens preserved
+- [x] Dimension 4 Typography: PASS — existing font readiness/baselines preserved
+- [x] Dimension 5 Spacing: PASS — no layout or CSS delta confirmed
+- [x] Dimension 6 Registry Safety: PASS — no registry use
 
-**Approval:** pending
+**Approval:** approved — 2026-07-31
