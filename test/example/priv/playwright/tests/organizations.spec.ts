@@ -28,14 +28,20 @@ async function waitForLiveViewReady(
 async function dismissFlash(page: Parameters<typeof test>[0]['page']) {
   for (let index = 0; index < 2; index += 1) {
     const visibleFlashes = page.locator('#flash-group [data-flash]:visible');
-    const visibleCount = await visibleFlashes.count();
 
-    if (visibleCount === 0) {
+    if ((await visibleFlashes.count()) === 0) {
       return;
     }
 
-    await visibleFlashes.first().getByRole('button', { name: 'close' }).click();
-    await expect(visibleFlashes).toHaveCount(visibleCount - 1);
+    const flash = visibleFlashes.first();
+    const flashId = await flash.getAttribute('id');
+
+    if (!flashId) {
+      throw new Error('visible flash is missing its stable id');
+    }
+
+    await flash.getByRole('button', { name: 'close' }).click();
+    await expect(page.locator(`#${flashId}`)).toBeHidden();
   }
 }
 
