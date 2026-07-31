@@ -183,7 +183,37 @@ Plans:
   4. The example-app boot prelude exists in exactly one definition referenced by the jobs that boot the app (it is duplicated verbatim across ~6 jobs today), and a full run afterwards shows every one of those jobs still booting successfully.
 
 **Proof discipline**: PW-01 must land and be measured **before** PW-02 restructures anything — otherwise the sharding win and the registration win are indistinguishable in the numbers, and the audit's ordering rationale is lost. Retries and `continue-on-error` are forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
-**Plans**: TBD
+**Plans**: 7 plans in 7 waves
+
+Plans:
+
+**Wave 1**
+
+- [ ] 232-01-PLAN.md — TRACER: authenticate one design project once, expand to three distinct ephemeral states, and preserve gallery readiness/coverage (PW-01, D-01/D-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 232-02-PLAN.md — Ordered observation checkpoint: require a successful PW-01-only retry-free run before topology changes (D-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 232-03-PLAN.md — Capture the attributable BEFORE/AFTER-PW-01 duration and count receipt (PW-01, D-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 232-04-PLAN.md — Extract one parameterized example Playwright boot action and wire every app-booting consumer (PW-03, D-08)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 232-05-PLAN.md — Introduce isolated retry-zero matrix shards and the exact-name fail-closed required aggregator (PW-02/PW-03, D-04–D-07)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 232-06-PLAN.md — Live-run checkpoint for concurrent shard overlap, branch-protection resolution, and non-PR shared-boot consumers
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 232-07-PLAN.md — Seal the ordered evidence ledger and requirement dispositions from real PR/non-PR runs
 
 ### Phase 233: Library Suite Economics
 
