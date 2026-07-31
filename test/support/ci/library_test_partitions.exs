@@ -32,16 +32,15 @@ defmodule Sigra.CI.LibraryTestPartitions do
   def total_us(value),
     do: raise(ArgumentError, "unknown library test partition: #{inspect(value)}")
 
-  defp build_partitions! do
-    costs =
-      @evidence_path
-      |> File.read!()
-      |> JSON.decode!()
-      |> get_in(["timing_probe", "per_file_costs"])
-      |> Enum.reject(&MapSet.member?(@scaffold_paths, &1["path"]))
-      |> Enum.sort_by(&{-&1["time_us"], &1["path"]})
+  def assign!(costs) when is_list(costs) do
+    unless Enum.all?(costs, fn cost ->
+             is_binary(cost["path"]) and is_integer(cost["time_us"]) and cost["time_us"] > 0
+           end) do
+      raise ArgumentError, "partition assignment requires positive measured cost and path"
+    end
 
     costs
+    |> Enum.sort_by(&{-&1["time_us"], &1["path"]})
     |> Enum.reduce(%{1 => %{paths: [], total_us: 0}, 2 => %{paths: [], total_us: 0}}, fn cost,
                                                                                          partitions ->
       partition = if partitions[1].total_us <= partitions[2].total_us, do: 1, else: 2
@@ -55,5 +54,29 @@ defmodule Sigra.CI.LibraryTestPartitions do
       end)
     end)
     |> Map.new(fn {partition, data} -> {partition, %{data | paths: Enum.sort(data.paths)}} end)
+  end
+
+  def validate!(partitions) when is_map(partitions) do
+    paths = List.wrap(partitions[1]) ++ List.wrap(partitions[2])
+
+    if partitions[1] in [nil, []] or partitions[2] in [nil, []],
+      do: raise(ArgumentError, "partitions must be non-empty")
+
+    if length(paths) != MapSet.size(MapSet.new(paths)),
+      do: raise(ArgumentError, "paths must be assigned exactly once")
+
+    partitions
+  end
+
+  defp build_partitions! do
+    costs =
+      @evidence_path
+      |> File.read!()
+      |> JSON.decode!()
+      |> get_in(["timing_probe", "per_file_costs"])
+      |> Enum.reject(&MapSet.member?(@scaffold_paths, &1["path"]))
+      |> Enum.sort_by(&{-&1["time_us"], &1["path"]})
+
+    costs |> assign!()
   end
 end

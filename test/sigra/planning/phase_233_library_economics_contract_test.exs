@@ -112,7 +112,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     end
 
     assert_raise ArgumentError, ~r/exactly once/, fn ->
-      Sigra.CI.LibraryTestPartitions.validate!(%{1 => ["test/sigra/auth_test.exs"], 2 => ["test/sigra/auth_test.exs"]})
+      Sigra.CI.LibraryTestPartitions.validate!(%{
+        1 => ["test/sigra/auth_test.exs"],
+        2 => ["test/sigra/auth_test.exs"]
+      })
     end
 
     assert_raise ArgumentError, ~r/positive measured cost/, fn ->
