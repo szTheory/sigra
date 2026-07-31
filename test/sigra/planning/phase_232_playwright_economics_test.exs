@@ -96,6 +96,48 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     end
   end
 
+  test "five isolated retry-zero shards converge on the protected terminal result" do
+    workflow = File.read!(@workflow_path)
+    shard = job_body(workflow, "example_playwright_shard")
+    terminal = job_body(workflow, "example_playwright_smoke")
+
+    expected_seams = [
+      "admin_behavior",
+      "admin_checkpoints",
+      "design_gallery",
+      "non_admin_smoke",
+      "demo_showcase"
+    ]
+
+    assert shard =~ "fail-fast: false"
+    assert shard =~ "image: postgres:15"
+    assert shard =~ "uses: ./.github/actions/example-playwright-boot"
+
+    actual_seams =
+      Regex.scan(~r/^\s+- seam: ([a-z_]+)$/m, shard, capture: :all_but_first)
+      |> List.flatten()
+
+    assert actual_seams == expected_seams
+
+    for seam <- expected_seams do
+      assert shard =~ "seam: #{seam}"
+      assert shard =~ "sigra_#{seam}"
+      assert shard =~ "/tmp/example-playwright-#{String.replace(seam, "_", "-")}.log"
+    end
+
+    assert length(Regex.scan(~r/--retries=0/, shard)) >= 6
+    assert shard =~ "--grep-invert '@snapshot'"
+    assert shard =~ "--grep '@snapshot'"
+    refute shard =~ "continue-on-error"
+    refute shard =~ ~r/auth.*schema.*prefix/is
+
+    assert terminal =~ "name: Example Playwright smoke (full lifecycle)"
+    assert terminal =~ "example_playwright_shard"
+    assert terminal =~ "if: always()"
+    assert terminal =~ "needs.example_playwright_shard.result"
+    assert terminal =~ "exit 1"
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
