@@ -2,36 +2,38 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 231
-status: verifying
-stopped_at: Phase 231 close-out bookkeeping applied — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling; 231-UAT.md written; GATE-01 remains Pending, blocked on the first post-merge scheduled nightly (see 231-UAT.md)
-last_updated: "2026-07-30T12:30:00.000Z"
-last_activity: 2026-07-30
+current_phase: 232
+current_phase_name: Playwright Economics — Authenticate Once, Then Shard
+status: planning
+stopped_at: "Phase 231 complete — scheduled run 30607570671 closed GATE-01; ready to plan Phase 232"
+last_updated: "2026-07-31T14:58:17.266Z"
+last_activity: 2026-07-31
+last_activity_desc: Phase 231 complete, transitioned to Phase 232
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 20
   completed_plans: 20
-  percent: 17
+  percent: 33
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md`
+See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 231
+**Current focus:** Phase 232 — Playwright Economics — Authenticate Once, Then Shard
 
 ## Current Position
 
-Phase: 231 — VERIFYING (human_needed)
-Plan: 11 of 11
-Status: All 11 plans executed and verified against the live repo (231-VERIFICATION.md); 4/5 requirements Complete (GATE-04 flipped by the verifier's independent ruling, see 231-UAT.md). GATE-01 remains Pending — its literal text names a specific post-merge scheduled-nightly observation that cannot exist before PR #125 merges. Phase stays open until that observation closes GATE-01.
-Progress: [██████████] 100% of this phase's plans; phase itself not closed
-Last activity: 2026-07-30
+Phase: 232 — Playwright Economics — Authenticate Once, Then Shard
+Plan: Not started
+Status: Ready to plan
+Progress: 2/6 milestone phases complete (33%); Phase 232 not started
+Last activity: 2026-07-31 — Phase 231 complete, transitioned to Phase 232
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -54,6 +56,11 @@ is the precedent — a milestone passed audits that were "code-level reads that 
 specs" while the required Playwright check carried ~15 real failures. A `skipped` job proves
 nothing (`ci-gate` counts skipped as pass), and a demotion is honest only if the receiving lane is
 observed executing the work.
+
+**Phase 231 closure:** Scheduled run `30607570671` is the measured successor to the 0/9 nightly
+baseline: `event: schedule`, PR #125 merge SHA, overall success, 25 executing jobs green, and one
+legitimate notification skip. The separate Pages publisher also ran green (`30613728531`), but its
+source-update REST call received `403`; that repo-admin follow-up remains filed and owned.
 
 ## Accumulated Context
 
@@ -378,7 +385,8 @@ observed executing the work.
 - [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
 - [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
 - [Phase ?]: 231-10: D-17 fixed (Pages publisher seeds before boot, guarded by p15); D-19 fixed (schedule-lane leniency deleted from ci-observe.yml, guarded by p16); D-18 diagnosed and filed as a standing/backstop obligation (self-heal structurally unobservable pre-merge, github.ref==main gate); GATE-01 left Pending, owned to closure by 231-11's nightly observation.
-- [Phase ?]: 231-11: GATE-01 left Pending — literal text is a claim about a schedule-triggered run and none has occurred post-fix; declaring it satisfied from already-fixed baseline reds is explicitly forbidden by the plan's own Task 2 prohibition
+- [Phase 231]: GATE-01 closed on the required real event: scheduled run 30607570671 succeeded on PR #125's merge SHA with all executing lanes green; no proxy or fallback was used.
+- [Phase 231]: The Pages publisher's post-merge run 30613728531 proved seeds and publication green, then narrowed D-18 to a default-GITHUB_TOKEN `PUT /pages` 403; repo admin owns the manual Pages-source change.
 - [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
 
 ### Pending Todos
@@ -522,15 +530,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-30T12:30:00.000Z
-Stopped at: Phase 231 close-out bookkeeping — GATE-04 flipped Complete per 231-VERIFICATION.md's ruling, 231-UAT.md written recording GATE-01's post-merge-only observation and the standing backstops (D-18, DX-05's gate-ci-green ceiling), stale ci-observe.yml:78 comment fixed. Phase 231 remains open pending the first post-merge scheduled nightly.
+Last session: 2026-07-31T14:58:17.266Z
+Stopped at: Phase 231 complete — scheduled run 30607570671 closed GATE-01; ready to plan Phase 232
 Resume file: None
 
 ## Operator Next Steps
 
-- Merge PR #125 to `main`.
-- After merge, observe the first `schedule`-triggered nightly run of `ci.yml` (cron `30 4 * * *`) per `231-UAT.md` §3's exact `gh` commands, and use it to close GATE-01 (flip its checkbox in `.planning/REQUIREMENTS.md`, mark Phase 231 complete).
-- Then plan the next phase with `/gsd-plan-phase 232`.
+- Plan the next phase with `$gsd-plan-phase 232`.
+- Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
 

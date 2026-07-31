@@ -10,15 +10,20 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY in planning.** v1.46 ADOPTER-EXPERIENCE shipped 2026-07-27
-(`override_closeout`, 15/15 requirements, 8 audit findings deferred).
+**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-231 are complete; Phase 232
+(Playwright Economics — Authenticate Once, Then Shard) is next.
+
+Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
+on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
+The related Pages publisher is green, while its source-setting REST call is a separately filed
+repo-admin follow-up after the default workflow token received `403`.
 
 **Hex is current again.** `sigra 1.4.0` published 2026-07-28 from tag `v1.4.0` at `cfc5e6b8`
 — the first release since `1.3.0`. The v1.46 changelog content was folded into the 1.4.0
 section before merge, so it ships as release notes rather than orphaned under `## Unreleased`.
-Two release-lane defects surfaced during that publish and are filed: `gate-ci-green`'s
-30-minute ceiling is shorter than the push-to-main run it waits for, and the HARD-02
-`release-lane-rot` notifier had never worked because its label did not exist. The stray
+Two release-lane defects surfaced during that publish and were repaired in Phase 231:
+`gate-ci-green` now has a 75-minute job ceiling with 120 polling attempts, and the HARD-02
+`release-lane-rot` notifier self-heals its missing label. The stray
 `1.20.0` still outranks everything on Hex — the retire is blocked by Hex 2.5's OAuth token
 scopes (not ownership), so documented install lines are pinned `{:sigra, "~> 1.4.0"}` as a
 zero-auth workaround.
@@ -997,6 +1002,7 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | v1.39 admin `sg-*` CSS ships as a distributed installer asset (`sigra_admin.css`) | The admin design system was example-trapped — generated hosts mounted the library admin LiveViews effectively unstyled. Ship it like `sigra_auth.css`, with merge-blocking example≡template byte-parity and a styled generated-host smoke. | ✓ Validated v1.39 (Phase 184) — DIST-01..06; closes the production-readiness distribution gap |
 | v1.39 idempotent fractal quality system (ledger + monotonic guard + scorecard) | A re-runnable design-system audit needs a forward-only ratchet: a quality-tier ledger per fractal-level item, a merge-blocking monotonic guard vs base ref, and a deterministic D1–D11 scorecard, so re-runs start from "current = ratified" and never regress. | ✓ Validated v1.39 (Phases 185–192) — ~35 ledger cells locked Tier 1; Phase 192 terminal gate proved forward-only vs origin/main |
 | v1.39 hand-rolled example-only `/admin/_design` gallery (no `phx_storybook` dep) | Auditing every component/group in every state/theme/width needs an isolated harness, but a storybook dependency would violate the minimal-deps constraint and isn't host-shippable. Build it in `test/example/` only, contract-guarded against ever being templated to the installer. | ✓ Validated v1.39 (Phase 185, INFRA-01) — gallery + `admin-design-{chromium,mobile,dark}` snapshot+axe lane |
+| A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
 
 ## Evolution
 

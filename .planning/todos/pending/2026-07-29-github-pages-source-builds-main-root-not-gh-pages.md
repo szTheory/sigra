@@ -1,7 +1,7 @@
 ---
 created: 2026-07-29T00:00:00.000Z
 status: pending
-title: "GitHub Pages still builds main's repo root instead of the gh-pages publish branch — self-heal not yet observable pre-merge"
+title: "GitHub Pages still builds main's repo root instead of the gh-pages publish branch — workflow token receives 403"
 area: ci
 files:
   - .github/workflows/playwright-github-pages.yml
@@ -56,15 +56,27 @@ opportunity to run yet. It becomes observable at the first `push: main` (this ph
 merge, since it touches `playwright-github-pages.yml` and matches that trigger's path filter)
 or the next `schedule` run after merge (`45 6 * * *`), whichever comes first.
 
-**Two candidate causes if it does not self-heal once it finally runs**, per D-18's original
-framing — not yet distinguished:
-1. The default `GITHUB_TOKEN`'s declared job permissions (`contents: write, pages: write`) are
-   insufficient for the Pages REST API's `PUT /repos/{owner}/{repo}/pages` call. The script
-   itself anticipates this (`ensure-github-pages-legacy-branch.sh:66-70`): a `403` /
-   "Resource not accessible by integration" response is caught, logged, and the script exits 0
-   without changing anything, non-fatally.
-2. A Settings-level Pages configuration state that no workflow token, regardless of scope, can
-   change via the REST API (would require a manual Settings → Pages change).
+## Post-merge verification (2026-07-31)
+
+The first post-merge scheduled publisher run, `30613728531`, used merge SHA
+`4bba9c71ae95a51bc2c3586010518a1c3439ab5f` and concluded `success`. Its `Publish Playwright
+site` job executed all of the previously-unobservable steps:
+
+- `Run demo seeds`: `success`
+- `Publish to gh-pages branch`: `success` (force-pushed deploy commit `a8df83a`)
+- `Point GitHub Pages at gh-pages (REST API)`: `success` at the step level because the script's
+  expected permission failure is non-fatal
+
+The step log identifies the operative cause precisely:
+
+```text
+ensure-github-pages-legacy-branch: updating Pages source -> gh-pages / (was: main /)
+ensure-github-pages-legacy-branch: Pages API PUT returned 403 (default GITHUB_TOKEN often cannot change Pages source). gh-pages push already ran; set repo Pages → branch gh-pages / manually if needed.
+```
+
+The live Pages API still reports `source: {"branch":"main","path":"/"}` and `status: errored`.
+Candidate cause 1 is therefore confirmed: the workflow's default token cannot perform the source
+update. A repo admin must set Settings → Pages → Build and deployment → Branch to `gh-pages` /.
 
 ## Owner
 
@@ -73,15 +85,10 @@ Repo admin (`szTheory`) — this is explicitly fenced out of Phase 231's scope b
 into a repo-admin Pages reconfiguration." In the same human-gated class as the deferred Hex
 retire (`.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`).
 
-## Suggested verification (post-merge)
+## Required owner action
 
-1. After this phase's PR merges to `main`, watch the resulting `push`-triggered
-   `Playwright reports (GitHub Pages)` run (or the next `45 6 * * *` scheduled run).
-2. `gh run view <id> --json jobs -q '.jobs[] | {name, conclusion}'` — confirm `Publish to
-   gh-pages branch` and `Point GitHub Pages at gh-pages (REST API)` are no longer `skipped`.
-3. Read the `Point GitHub Pages at gh-pages (REST API)` step's log for
-   `ensure-github-pages-legacy-branch: updated.` (success) vs the `403` warning path.
-4. `gh api repos/szTheory/sigra/pages --jq '.source'` — if it now reads
-   `{"branch": "gh-pages", "path": "/"}`, close this todo. If it still reads `main` / `/`, the
-   candidate cause is narrowed by whichever log line appeared in step 3, and a manual
-   Settings → Pages → Build and deployment → Branch change becomes the fix.
+1. In repository Settings → Pages → Build and deployment, select branch `gh-pages` and path `/`.
+2. Confirm `gh api repos/szTheory/sigra/pages --jq '.source'` returns
+   `{"branch":"gh-pages","path":"/"}`.
+3. Trigger or await the next Pages build, confirm the deployment succeeds, then move this todo to
+   `resolved/` with the run ID and final API response.
