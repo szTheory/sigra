@@ -69,6 +69,16 @@ schema_version=1 total=1368
 
 Both receipt schema checks passed, neither shard was skipped, and the source run had a single attempt. Raw receipts are intentionally not committed; the immutable artifact names and SHA-256 digests preserve provenance.
 
+## Deterministic per-file aggregation
+
+The two validated receipts were aggregated by repository-relative `file` path, rejecting non-integer/negative timings, empty receipts, non-repository paths, and duplicate `(file,module,name)` identities. Equal totals use lexical path order after descending total microseconds.
+
+```sh
+jq -s 'def repo_path: if startswith("/home/runner/work/sigra/sigra/") then sub("^/home/runner/work/sigra/sigra/"; "") else error("non-repository receipt path") end; if length != 2 then error("expected exactly two receipts") else . end | if all(.[]; .schema_version == 1 and ((.tests | type) == "array") and ((.tests | length) > 0)) then . else error("invalid or empty receipt") end | [.[].tests[] | if ((.file | type) == "string" and (.module | type) == "string" and (.name | type) == "string" and (.time_us | type) == "number" and (.time_us | floor == .) and .time_us >= 0) then {path: (.file | repo_path), identity: [.file, .module, .name] | join("\\u0000"), time_us: .time_us} else error("invalid test timing entry") end] | if (length > 0 and (([.[].identity] | length) == ([.[].identity] | unique | length))) then . else error("empty or duplicate test identity") end | sort_by(.path) | group_by(.path) | map({path: .[0].path, time_us: (map(.time_us) | add)}) | sort_by(-.time_us, .path)' <receipt-1.json> <receipt-2.json>
+```
+
+Result: 217 unique repository-relative files, totalling `506537530` microseconds. The highest measured costs are `test/sigra/install/features/passkeys_js_test.exs` (173836450us), `test/sigra/install/generator_passkeys_opt_out_test.exs` (129066942us), and `test/sigra/install/golden_diff_test.exs` (115942689us). The committed JSON carries the complete sorted aggregate; volatile raw receipts remain downloadable under the named artifacts.
+
 ## Requirement disposition
 
 - **TEST-01:** observed on the retry-free PR run.

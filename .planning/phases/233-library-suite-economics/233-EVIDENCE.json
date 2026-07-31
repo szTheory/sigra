@@ -42,7 +42,876 @@
       "gh run download 30666977944 --name library-test-timings-1 --dir <temp>/library-test-timings-1",
       "gh run download 30666977944 --name library-test-timings-2 --dir <temp>/library-test-timings-2"
     ],
-    "per_file_costs": []
+    "per_file_costs": [
+  {
+    "path": "test/sigra/install/features/passkeys_js_test.exs",
+    "time_us": 173836450
+  },
+  {
+    "path": "test/sigra/install/generator_passkeys_opt_out_test.exs",
+    "time_us": 129066942
+  },
+  {
+    "path": "test/sigra/install/golden_diff_test.exs",
+    "time_us": 115942689
+  },
+  {
+    "path": "test/sigra/install/vault_promotion_test.exs",
+    "time_us": 65510628
+  },
+  {
+    "path": "test/sigra/install/idempotency_test.exs",
+    "time_us": 5203642
+  },
+  {
+    "path": "test/sigra/install/features/admin_test.exs",
+    "time_us": 2126723
+  },
+  {
+    "path": "test/sigra/auth_test.exs",
+    "time_us": 1808496
+  },
+  {
+    "path": "test/sigra/crypto_test.exs",
+    "time_us": 1346128
+  },
+  {
+    "path": "test/sigra/token_test.exs",
+    "time_us": 1163286
+  },
+  {
+    "path": "test/sigra/install/features/organizations_test.exs",
+    "time_us": 732209
+  },
+  {
+    "path": "test/sigra/mfa_audit_atomicity_test.exs",
+    "time_us": 643565
+  },
+  {
+    "path": "test/sigra/passkeys/user_passkey_test.exs",
+    "time_us": 612142
+  },
+  {
+    "path": "test/sigra/mfa_test.exs",
+    "time_us": 561002
+  },
+  {
+    "path": "test/sigra/admin/glossary_test.exs",
+    "time_us": 344040
+  },
+  {
+    "path": "test/sigra/audit_multi_step_test.exs",
+    "time_us": 322960
+  },
+  {
+    "path": "test/sigra/plug/fetch_bearer_test.exs",
+    "time_us": 301670
+  },
+  {
+    "path": "test/sigra/credo/no_log_safe2_in_lib_test.exs",
+    "time_us": 290545
+  },
+  {
+    "path": "test/sigra/install/generator_wiring_test.exs",
+    "time_us": 285345
+  },
+  {
+    "path": "test/sigra/jwt/signer_test.exs",
+    "time_us": 259725
+  },
+  {
+    "path": "test/sigra/install/generator_mfa_test.exs",
+    "time_us": 253779
+  },
+  {
+    "path": "test/sigra/organizations/context_test.exs",
+    "time_us": 214069
+  },
+  {
+    "path": "test/sigra/account_audit_atomicity_test.exs",
+    "time_us": 213529
+  },
+  {
+    "path": "test/sigra/api_token_audit_atomic_test.exs",
+    "time_us": 212582
+  },
+  {
+    "path": "test/sigra/jwt_test.exs",
+    "time_us": 199555
+  },
+  {
+    "path": "test/sigra/guides_dx02_test.exs",
+    "time_us": 181639
+  },
+  {
+    "path": "test/sigra/rate_limiters/hammer_test.exs",
+    "time_us": 173716
+  },
+  {
+    "path": "test/sigra/install/generator_email_test.exs",
+    "time_us": 166834
+  },
+  {
+    "path": "test/sigra/install/scope_template_invariants_test.exs",
+    "time_us": 159299
+  },
+  {
+    "path": "test/sigra/admin/index_live_test.exs",
+    "time_us": 159075
+  },
+  {
+    "path": "test/sigra/oauth/enterprise_callback_test.exs",
+    "time_us": 145779
+  },
+  {
+    "path": "test/sigra/organizations/invitations_test.exs",
+    "time_us": 143180
+  },
+  {
+    "path": "test/sigra/passkeys/registration_test.exs",
+    "time_us": 130414
+  },
+  {
+    "path": "test/sigra/templates/generator_emission_audit_test.exs",
+    "time_us": 127800
+  },
+  {
+    "path": "test/sigra/admin/users_query_test.exs",
+    "time_us": 126774
+  },
+  {
+    "path": "test/sigra/telemetry_test.exs",
+    "time_us": 113819
+  },
+  {
+    "path": "test/sigra/credo/no_unscoped_org_query_in_lib_test.exs",
+    "time_us": 110546
+  },
+  {
+    "path": "test/sigra/workers/account_deletion_test.exs",
+    "time_us": 81441
+  },
+  {
+    "path": "test/sigra/oauth/strategies_test.exs",
+    "time_us": 77981
+  },
+  {
+    "path": "test/sigra/audit/forwarders/threadline_test.exs",
+    "time_us": 77325
+  },
+  {
+    "path": "test/sigra/admin/organizations_detail_test.exs",
+    "time_us": 76043
+  },
+  {
+    "path": "test/sigra/jwt_refresh_audit_cofate_test.exs",
+    "time_us": 75965
+  },
+  {
+    "path": "test/sigra/install/features/coverage_test.exs",
+    "time_us": 74492
+  },
+  {
+    "path": "test/sigra/install/auth_ui_contract_test.exs",
+    "time_us": 73985
+  },
+  {
+    "path": "test/sigra/passkeys_test.exs",
+    "time_us": 72026
+  },
+  {
+    "path": "test/sigra/install/template_syntax_test.exs",
+    "time_us": 66024
+  },
+  {
+    "path": "test/sigra/auth_org_selection_test.exs",
+    "time_us": 63614
+  },
+  {
+    "path": "test/sigra/account/deletion_test.exs",
+    "time_us": 62922
+  },
+  {
+    "path": "test/sigra/doctor_test.exs",
+    "time_us": 59939
+  },
+  {
+    "path": "test/sigra/install/oauth_generator_test.exs",
+    "time_us": 59800
+  },
+  {
+    "path": "test/sigra/install/template_render_test.exs",
+    "time_us": 59772
+  },
+  {
+    "path": "test/sigra/install/generator_reset_test.exs",
+    "time_us": 55705
+  },
+  {
+    "path": "test/sigra/passkeys/wax_roundtrip_test.exs",
+    "time_us": 55325
+  },
+  {
+    "path": "test/sigra/plug/load_active_organization_test.exs",
+    "time_us": 54924
+  },
+  {
+    "path": "test/sigra/oauth/oauth_test.exs",
+    "time_us": 52927
+  },
+  {
+    "path": "test/sigra/install/api_token_generator_test.exs",
+    "time_us": 52788
+  },
+  {
+    "path": "test/sigra/delivery_test.exs",
+    "time_us": 50479
+  },
+  {
+    "path": "test/sigra/install/generator_passkeys_foundation_test.exs",
+    "time_us": 49563
+  },
+  {
+    "path": "test/sigra/plug/passkey_challenge_test.exs",
+    "time_us": 48288
+  },
+  {
+    "path": "test/sigra/templates/installer_drift_test.exs",
+    "time_us": 47479
+  },
+  {
+    "path": "test/sigra/application_cookie_warning_test.exs",
+    "time_us": 47307
+  },
+  {
+    "path": "test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs",
+    "time_us": 46684
+  },
+  {
+    "path": "test/sigra/config_test.exs",
+    "time_us": 45483
+  },
+  {
+    "path": "test/sigra/admin/users_actions_test.exs",
+    "time_us": 43173
+  },
+  {
+    "path": "test/sigra/auth_enterprise_session_metadata_test.exs",
+    "time_us": 42377
+  },
+  {
+    "path": "test/sigra/install/features/core_test.exs",
+    "time_us": 41657
+  },
+  {
+    "path": "test/sigra/architecture_guides_contract_test.exs",
+    "time_us": 40777
+  },
+  {
+    "path": "test/sigra/behaviours_test.exs",
+    "time_us": 39139
+  },
+  {
+    "path": "test/sigra/admin/audit/query_test.exs",
+    "time_us": 38352
+  },
+  {
+    "path": "test/sigra/plug/load_organization_from_slug_test.exs",
+    "time_us": 37037
+  },
+  {
+    "path": "test/sigra/plug/rate_limit_test.exs",
+    "time_us": 34078
+  },
+  {
+    "path": "test/sigra/install/isolation_test.exs",
+    "time_us": 32449
+  },
+  {
+    "path": "test/sigra/install/design_gallery_isolation_test.exs",
+    "time_us": 32404
+  },
+  {
+    "path": "test/sigra/auth/login_and_lockout_audit_atomicity_test.exs",
+    "time_us": 32401
+  },
+  {
+    "path": "test/sigra/optional_deps_test.exs",
+    "time_us": 31381
+  },
+  {
+    "path": "test/mix/tasks/sigra.install_test.exs",
+    "time_us": 30412
+  },
+  {
+    "path": "test/sigra/plug/require_mfa_test.exs",
+    "time_us": 30001
+  },
+  {
+    "path": "test/sigra/oauth/oauth_ceremony_audit_test.exs",
+    "time_us": 29720
+  },
+  {
+    "path": "test/sigra/install/features/passkeys_test.exs",
+    "time_us": 28965
+  },
+  {
+    "path": "test/sigra/plug/fetch_session_test.exs",
+    "time_us": 28723
+  },
+  {
+    "path": "test/sigra/organizations/config_test.exs",
+    "time_us": 28632
+  },
+  {
+    "path": "test/sigra/doctest_test.exs",
+    "time_us": 28105
+  },
+  {
+    "path": "test/sigra/upgrade_test.exs",
+    "time_us": 27731
+  },
+  {
+    "path": "test/sigra/admin/authorizer_test.exs",
+    "time_us": 26501
+  },
+  {
+    "path": "test/sigra/ua_parser_test.exs",
+    "time_us": 26426
+  },
+  {
+    "path": "test/sigra/audit/audit_assertions_test.exs",
+    "time_us": 25534
+  },
+  {
+    "path": "test/sigra/audit/query_filters_test.exs",
+    "time_us": 24969
+  },
+  {
+    "path": "test/sigra/planning/phase_153_infra_stability_contract_test.exs",
+    "time_us": 24378
+  },
+  {
+    "path": "test/sigra/api_token/scope_registry_test.exs",
+    "time_us": 24236
+  },
+  {
+    "path": "test/sigra/audit/log_safe_scope_test.exs",
+    "time_us": 22764
+  },
+  {
+    "path": "test/sigra/auth/register_audit_atomicity_test.exs",
+    "time_us": 22601
+  },
+  {
+    "path": "test/sigra/workers/cleanup_expired_invitations_test.exs",
+    "time_us": 22297
+  },
+  {
+    "path": "test/sigra/enterprise_connections/activation_test.exs",
+    "time_us": 21920
+  },
+  {
+    "path": "test/sigra/cookie_domain_test.exs",
+    "time_us": 20695
+  },
+  {
+    "path": "test/sigra/plug/require_authenticated_test.exs",
+    "time_us": 20451
+  },
+  {
+    "path": "test/sigra/upgrade/backfill_test.exs",
+    "time_us": 20319
+  },
+  {
+    "path": "test/sigra/jwt/refresh_token_test.exs",
+    "time_us": 19198
+  },
+  {
+    "path": "test/sigra/admin/components_test.exs",
+    "time_us": 17735
+  },
+  {
+    "path": "test/sigra/plug/forbid_during_impersonation_test.exs",
+    "time_us": 17219
+  },
+  {
+    "path": "test/sigra/suspicious_login_test.exs",
+    "time_us": 17010
+  },
+  {
+    "path": "test/sigra/live_view/admin_scope_test.exs",
+    "time_us": 16644
+  },
+  {
+    "path": "test/sigra/session_stores/ecto_test.exs",
+    "time_us": 15982
+  },
+  {
+    "path": "test/sigra/planning/phase_149_launch_evidence_and_announcement_pack_test.exs",
+    "time_us": 15884
+  },
+  {
+    "path": "test/sigra/passkeys/authentication_test.exs",
+    "time_us": 15627
+  },
+  {
+    "path": "test/sigra/testing_audit_test.exs",
+    "time_us": 15439
+  },
+  {
+    "path": "test/sigra/mfa/trust_test.exs",
+    "time_us": 15161
+  },
+  {
+    "path": "test/sigra/account/password_change_test.exs",
+    "time_us": 15116
+  },
+  {
+    "path": "test/sigra/organizations/query_test.exs",
+    "time_us": 15084
+  },
+  {
+    "path": "test/sigra/templates/settings_live_test.exs",
+    "time_us": 14828
+  },
+  {
+    "path": "test/sigra/oauth/auth_integration_test.exs",
+    "time_us": 14806
+  },
+  {
+    "path": "test/sigra/enterprise_connections/context_test.exs",
+    "time_us": 14551
+  },
+  {
+    "path": "test/support/ci/ex_unit_timing_formatter_test.exs",
+    "time_us": 14298
+  },
+  {
+    "path": "test/sigra/plug/require_scopes_test.exs",
+    "time_us": 14153
+  },
+  {
+    "path": "test/sigra/planning/phase_230_design_gallery_split_test.exs",
+    "time_us": 14118
+  },
+  {
+    "path": "test/sigra/mfa/error_test.exs",
+    "time_us": 13693
+  },
+  {
+    "path": "test/sigra/oauth/oauth_audit_atomicity_test.exs",
+    "time_us": 13650
+  },
+  {
+    "path": "test/sigra/scope/hydration_test.exs",
+    "time_us": 13558
+  },
+  {
+    "path": "test/sigra/install/generator_passkey_primary_login_test.exs",
+    "time_us": 13121
+  },
+  {
+    "path": "test/sigra/account/email_change_test.exs",
+    "time_us": 13088
+  },
+  {
+    "path": "test/sigra/oauth/config_test.exs",
+    "time_us": 12997
+  },
+  {
+    "path": "test/sigra/install/migration_timestamps_test.exs",
+    "time_us": 12236
+  },
+  {
+    "path": "test/sigra/data_export_test.exs",
+    "time_us": 11522
+  },
+  {
+    "path": "test/sigra/audit_property_test.exs",
+    "time_us": 11219
+  },
+  {
+    "path": "test/sigra/passkeys/rate_limit_test.exs",
+    "time_us": 10720
+  },
+  {
+    "path": "test/sigra/branding_test.exs",
+    "time_us": 10472
+  },
+  {
+    "path": "test/sigra/api_token_test.exs",
+    "time_us": 10416
+  },
+  {
+    "path": "test/sigra/workers/audit_forward_test.exs",
+    "time_us": 10215
+  },
+  {
+    "path": "test/sigra/install/injection_test.exs",
+    "time_us": 9906
+  },
+  {
+    "path": "test/sigra/mix/tasks/doctor_task_test.exs",
+    "time_us": 9681
+  },
+  {
+    "path": "test/sigra/install/templates_layout_test.exs",
+    "time_us": 9639
+  },
+  {
+    "path": "test/sigra/planning/phase_230_ci_timeouts_test.exs",
+    "time_us": 9464
+  },
+  {
+    "path": "test/sigra/plug/require_membership_test.exs",
+    "time_us": 9434
+  },
+  {
+    "path": "test/sigra/password_policy_test.exs",
+    "time_us": 9332
+  },
+  {
+    "path": "test/sigra/planning/phase_232_playwright_economics_test.exs",
+    "time_us": 9251
+  },
+  {
+    "path": "test/sigra/install/injector_test.exs",
+    "time_us": 8860
+  },
+  {
+    "path": "test/sigra/live_view/organization_scope_test.exs",
+    "time_us": 8676
+  },
+  {
+    "path": "test/sigra/mfa/backup_codes_test.exs",
+    "time_us": 8443
+  },
+  {
+    "path": "test/sigra/auth_fixtures_scenario_test.exs",
+    "time_us": 7560
+  },
+  {
+    "path": "test/sigra/enterprise_connections/validation_test.exs",
+    "time_us": 7128
+  },
+  {
+    "path": "test/sigra/passkeys/config_test.exs",
+    "time_us": 6900
+  },
+  {
+    "path": "test/sigra/plug/require_admin_access_test.exs",
+    "time_us": 6890
+  },
+  {
+    "path": "test/sigra/planning/phase_146_release_validation_test.exs",
+    "time_us": 6880
+  },
+  {
+    "path": "test/sigra/passkeys/cose_serialization_test.exs",
+    "time_us": 6828
+  },
+  {
+    "path": "test/sigra/enterprise_routing/discovery_test.exs",
+    "time_us": 6661
+  },
+  {
+    "path": "test/sigra/audit/forwarders/noop_test.exs",
+    "time_us": 6634
+  },
+  {
+    "path": "test/sigra/auth_plain_map_regression_test.exs",
+    "time_us": 6620
+  },
+  {
+    "path": "test/sigra/install/scope_template_fields_test.exs",
+    "time_us": 6483
+  },
+  {
+    "path": "test/sigra/oauth/assent_oidc_contract_test.exs",
+    "time_us": 6418
+  },
+  {
+    "path": "test/sigra/install/features/core_post_instructions_test.exs",
+    "time_us": 6269
+  },
+  {
+    "path": "test/sigra/oauth/enterprise_reconciliation_test.exs",
+    "time_us": 6144
+  },
+  {
+    "path": "test/sigra/audit/query_test.exs",
+    "time_us": 5965
+  },
+  {
+    "path": "test/sigra/install/purely_additive_test.exs",
+    "time_us": 5939
+  },
+  {
+    "path": "test/sigra/recipes/companion_lib_contract_test.exs",
+    "time_us": 5891
+  },
+  {
+    "path": "test/sigra/impersonation_test.exs",
+    "time_us": 5627
+  },
+  {
+    "path": "test/sigra/audit/query_index_test.exs",
+    "time_us": 5599
+  },
+  {
+    "path": "test/sigra/audit/cursor_test.exs",
+    "time_us": 5502
+  },
+  {
+    "path": "test/sigra/application_forwarders_test.exs",
+    "time_us": 5457
+  },
+  {
+    "path": "test/sigra/install/generator_passkey_management_test.exs",
+    "time_us": 5392
+  },
+  {
+    "path": "test/sigra/testing_test.exs",
+    "time_us": 5191
+  },
+  {
+    "path": "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+    "time_us": 5076
+  },
+  {
+    "path": "test/sigra/mfa/lockout_test.exs",
+    "time_us": 4929
+  },
+  {
+    "path": "test/sigra/config_forwarders_test.exs",
+    "time_us": 4794
+  },
+  {
+    "path": "test/sigra/planning/phase_148_evaluator_funnel_and_first_run_dx_test.exs",
+    "time_us": 4533
+  },
+  {
+    "path": "test/sigra/plug/require_mfa_enrolled_test.exs",
+    "time_us": 4180
+  },
+  {
+    "path": "test/sigra/plug/put_active_organization_test.exs",
+    "time_us": 4132
+  },
+  {
+    "path": "test/sigra/passkeys/sign_count_policy_test.exs",
+    "time_us": 4080
+  },
+  {
+    "path": "test/sigra/plug/require_password_change_test.exs",
+    "time_us": 4021
+  },
+  {
+    "path": "test/sigra/error_test.exs",
+    "time_us": 4007
+  },
+  {
+    "path": "test/sigra/scope/plug_liveview_parity_test.exs",
+    "time_us": 3876
+  },
+  {
+    "path": "test/sigra/ecto/types/string_list_test.exs",
+    "time_us": 3848
+  },
+  {
+    "path": "test/sigra/organizations/last_owner_test.exs",
+    "time_us": 3680
+  },
+  {
+    "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+    "time_us": 3584
+  },
+  {
+    "path": "test/sigra/passkeys/migration_test.exs",
+    "time_us": 3379
+  },
+  {
+    "path": "test/sigra/plug/require_sudo_test.exs",
+    "time_us": 3229
+  },
+  {
+    "path": "test/sigra/admin_test.exs",
+    "time_us": 3098
+  },
+  {
+    "path": "test/sigra/admin/live/enterprise_connection_live_test.exs",
+    "time_us": 3077
+  },
+  {
+    "path": "test/sigra/mfa/config_test.exs",
+    "time_us": 3008
+  },
+  {
+    "path": "test/sigra/planning/phase_51_install_golden_ci_contract_test.exs",
+    "time_us": 2923
+  },
+  {
+    "path": "test/sigra/audit_integration_test.exs",
+    "time_us": 2911
+  },
+  {
+    "path": "test/sigra/planning/phase_222_release_lane_hardening_test.exs",
+    "time_us": 2858
+  },
+  {
+    "path": "test/sigra/oauth/callback_test.exs",
+    "time_us": 2811
+  },
+  {
+    "path": "test/sigra/audit/changeset_test.exs",
+    "time_us": 2658
+  },
+  {
+    "path": "test/sigra/templates/session_templates_test.exs",
+    "time_us": 2468
+  },
+  {
+    "path": "test/sigra/workers/token_cleanup_test.exs",
+    "time_us": 2281
+  },
+  {
+    "path": "test/sigra/audit/forwarder_test.exs",
+    "time_us": 2145
+  },
+  {
+    "path": "test/sigra/audit_observability_test.exs",
+    "time_us": 1992
+  },
+  {
+    "path": "test/sigra/planning/phase_147_upgrade_migration_lanes_test.exs",
+    "time_us": 1971
+  },
+  {
+    "path": "test/sigra/organizations/schema_test.exs",
+    "time_us": 1809
+  },
+  {
+    "path": "test/sigra/audit_sensitive_data_test.exs",
+    "time_us": 1668
+  },
+  {
+    "path": "test/sigra/oauth/oauth_settings_template_contract_test.exs",
+    "time_us": 1416
+  },
+  {
+    "path": "test/sigra/install/generated_impersonation_parity_test.exs",
+    "time_us": 1392
+  },
+  {
+    "path": "test/sigra/scope/hydration_impersonation_test.exs",
+    "time_us": 980
+  },
+  {
+    "path": "test/sigra/audit_security_test.exs",
+    "time_us": 793
+  },
+  {
+    "path": "test/sigra/audit_telemetry_test.exs",
+    "time_us": 550
+  },
+  {
+    "path": "test/sigra/install/generator_passkey_mfa_challenge_test.exs",
+    "time_us": 525
+  },
+  {
+    "path": "test/sigra/planning/phase_57_nyquist_matrix_contract_test.exs",
+    "time_us": 429
+  },
+  {
+    "path": "test/sigra/workers/email_delivery_test.exs",
+    "time_us": 426
+  },
+  {
+    "path": "test/sigra/organizations/slug_test.exs",
+    "time_us": 347
+  },
+  {
+    "path": "test/sigra/testing/assert_audit_logged_test.exs",
+    "time_us": 230
+  },
+  {
+    "path": "test/sigra/audit_test.exs",
+    "time_us": 222
+  },
+  {
+    "path": "test/sigra/audit/forwarders/dispatch_test.exs",
+    "time_us": 176
+  },
+  {
+    "path": "test/sigra/workers/behaviour_test.exs",
+    "time_us": 160
+  },
+  {
+    "path": "test/sigra/enterprise_connections/schema_test.exs",
+    "time_us": 147
+  },
+  {
+    "path": "test/sigra/install/report_test.exs",
+    "time_us": 146
+  },
+  {
+    "path": "test/sigra/email_test.exs",
+    "time_us": 142
+  },
+  {
+    "path": "test/sigra/planning/phase_58_oauth_oa01_ci_contract_test.exs",
+    "time_us": 131
+  },
+  {
+    "path": "test/sigra/workers/audit_cleanup_test.exs",
+    "time_us": 109
+  },
+  {
+    "path": "test/sigra/lockout_test.exs",
+    "time_us": 96
+  },
+  {
+    "path": "test/sigra/identity_test.exs",
+    "time_us": 59
+  },
+  {
+    "path": "test/sigra/scope/build_test.exs",
+    "time_us": 54
+  },
+  {
+    "path": "test/sigra/mfa/credential_test.exs",
+    "time_us": 31
+  },
+  {
+    "path": "test/sigra/hooks_test.exs",
+    "time_us": 30
+  },
+  {
+    "path": "test/sigra/session_test.exs",
+    "time_us": 18
+  },
+  {
+    "path": "test/sigra/env_test.exs",
+    "time_us": 5
+  },
+  {
+    "path": "test/sigra/install/feature_test.exs",
+    "time_us": 4
+  },
+  {
+    "path": "test/sigra/planning/phase_50_nyquist_docs_contract_test.exs",
+    "time_us": 0
+  },
+  {
+    "path": "test/sigra/planning/phase_52_milestone_honesty_contract_test.exs",
+    "time_us": 0
+  },
+  {
+    "path": "test/upgrade_test.exs",
+    "time_us": 0
+  }
+]
   },
   "requirements": {
     "TEST-01": "observed on retry-free pull_request run 30666977944",
