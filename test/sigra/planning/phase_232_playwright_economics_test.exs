@@ -137,6 +137,14 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
              ~r/seam: non_admin_smoke.*?browsers: chromium webkit/s,
            "non-admin smoke includes the WebKit-backed mobile project"
 
+    assert length(Regex.scan(~r/browser_cache_key: playwright-chromium-1\.59\.1-v3/, shard)) == 2
+
+    assert length(
+             Regex.scan(~r/browser_cache_key: playwright-chromium-webkit-1\.59\.1-v3/, shard)
+           ) == 3
+
+    assert shard =~ "browser-cache-key: ${{ runner.os }}-${{ matrix.browser_cache_key }}"
+
     refute shard =~ "continue-on-error"
     refute shard =~ ~r/auth.*schema.*prefix/is
 
