@@ -193,11 +193,11 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 232-02-PLAN.md — Ordered observation checkpoint: require a successful PW-01-only retry-free run before topology changes (D-03)
+- [x] 232-02-PLAN.md — Ordered observation checkpoint: require a successful PW-01-only retry-free run before topology changes (D-03)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 232-03-PLAN.md — Capture the attributable BEFORE/AFTER-PW-01 duration and count receipt (PW-01, D-03)
+- [x] 232-03-PLAN.md — Capture the attributable BEFORE/AFTER-PW-01 duration and count receipt (PW-01, D-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
