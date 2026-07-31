@@ -552,19 +552,12 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
+          # D-02: this fixed, CI-owned receipt is written by the same parallel
+          # ExUnit process; no log parser or second timing-only test run exists.
+          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
         run: |
-          set -o pipefail
-          # Measurement gate (Task 2 / RESEARCH Pitfall 1):
-          # Option (a) CHOSEN: keep --slowest 10 per shard (D-01 default).
-          # ⚠ Note: --slowest forces --trace forces --max-cases 1 (serial within shard).
-          # Parallelism is across legs (2 legs × serial-within); within-shard async is not unlocked.
-          # Rationale: D-01 default; preserves per-test timing observability in $GITHUB_STEP_SUMMARY.
-          # A/B evidence: Option (b) (drop --slowest) showed ~47% speedup on async-only files locally,
-          # but the serial subprocess/DDL tests (~11 files, 23-33s each) bound the actual shard
-          # walltime. The partition win (~halving the ~14m test portion to ~7-8m) is the primary gain.
-          # Dropping --slowest (Option b) is deferred to a future phase if the subprocess serial tail
-          # is addressed (D-15/D-20).
-          mix test --partitions 2 --slowest 10 2>&1 | tee /tmp/library_tests_${{ matrix.partition }}.log
+          set -euo pipefail
+          mix test --partitions 2 --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
       - name: CI run summary
         if: always()
         run: |
@@ -577,16 +570,25 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Test timing summary
         if: always()
+        env:
+          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
         run: |
+          set -euo pipefail
+          test -s "$SIGRA_EXUNIT_TIMING_PATH"
           {
             echo "## Slowest tests (shard ${{ matrix.partition }})"
-            echo '```'
-            # Reuse the tee'd log from the shard run above — do NOT re-run.
-            # Log path is partition-suffixed so both legs write distinct files (no collision).
-            awk '/slowest/{f=1} f{print} /Finished in/{f=0}' /tmp/library_tests_${{ matrix.partition }}.log 2>/dev/null \
-              || echo "(timing output unavailable)"
-            echo '```'
+            echo "| Time (ms) | Test | Outcome |"
+            echo "| ---: | --- | --- |"
+            jq -r '.tests[:10][] | "| \(.time_us / 1000) | `\(.module).\(.name)` | \(.outcome) |"' "$SIGRA_EXUNIT_TIMING_PATH"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload timing receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-test-timings-${{ matrix.partition }}
+          path: /tmp/sigra-library-${{ matrix.partition }}-timings.json
+          if-no-files-found: error
+          retention-days: 7
       # NOTE: `mix docs` (docs build check) REMOVED from this shard job (D-07).
       # Relocated to library_tests_dep_off which already has a compiled toolchain —
       # runs once per CI run, never per shard (N× cost for one artifact).
