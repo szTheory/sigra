@@ -2,6 +2,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   use ExUnit.Case, async: true
 
   @workflow_path ".github/workflows/ci.yml"
+  @partition_manifest_path "test/support/ci/library_test_partitions.exs"
 
   test "ordinary library shards use one parallel test invocation with both formatters" do
     shard = job_body(File.read!(@workflow_path), "library_tests_shard")
@@ -89,6 +90,18 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert template_render =~ "use ExUnit.Case, async: true"
     assert template_render =~ "@moduletag :install"
     refute template_render =~ "@moduletag :scaffold"
+  end
+
+  test "ordinary shards consume a committed measured two-list manifest" do
+    manifest = File.read!(@partition_manifest_path)
+    shard = job_body(File.read!(@workflow_path), "library_tests_shard")
+
+    assert manifest =~ "@source_run_id 30_666_977_944"
+    assert manifest =~ "@partition_1"
+    assert manifest =~ "@partition_2"
+    assert shard =~ "library_test_partitions.exs"
+    assert shard =~ "--partition \"${{ matrix.partition }}\""
+    refute shard =~ "--partitions 2"
   end
 
   defp job_body(workflow, job_id) do
