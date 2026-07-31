@@ -137,6 +137,28 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              ])
   end
 
+  @tag :partition_universe
+  test "rejects an on-disk ordinary test missing from measured ownership" do
+    Code.require_file(@partition_manifest_path)
+
+    root = Path.join(System.tmp_dir!(), "sigra-partition-universe-#{System.unique_integer([:positive])}")
+    on_exit(fn -> File.rm_rf!(root) end)
+
+    write_fixture(root, "test/measured_test.exs")
+    write_fixture(root, "test/new_ordinary_test.exs")
+
+    for scaffold_path <- scaffold_paths() do
+      write_fixture(root, scaffold_path)
+    end
+
+    assert_raise ArgumentError, ~r/missing current paths: test\/new_ordinary_test\.exs/, fn ->
+      Sigra.CI.LibraryTestPartitions.build_partitions!(
+        root: root,
+        costs: [%{"path" => "test/measured_test.exs", "time_us" => 1}]
+      )
+    end
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
@@ -159,5 +181,22 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> Path.wildcard()
     |> Enum.filter(fn path -> ":scaffold" in module_tags(path) end)
     |> MapSet.new()
+  end
+
+  defp scaffold_paths do
+    [
+      "test/upgrade_test.exs",
+      "test/sigra/install/generator_passkeys_opt_out_test.exs",
+      "test/sigra/install/features/passkeys_js_test.exs",
+      "test/sigra/install/golden_diff_test.exs",
+      "test/sigra/install/idempotency_test.exs",
+      "test/sigra/install/vault_promotion_test.exs"
+    ]
+  end
+
+  defp write_fixture(root, relative_path) do
+    path = Path.join(root, relative_path)
+    File.mkdir_p!(Path.dirname(path))
+    File.write!(path, "defmodule Fixture do\nend\n")
   end
 end
