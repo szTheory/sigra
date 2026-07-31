@@ -141,10 +141,16 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   test "rejects an on-disk ordinary test missing from measured ownership" do
     Code.require_file(@partition_manifest_path)
 
-    root = Path.join(System.tmp_dir!(), "sigra-partition-universe-#{System.unique_integer([:positive])}")
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-partition-universe-#{System.unique_integer([:positive])}"
+      )
+
     on_exit(fn -> File.rm_rf!(root) end)
 
     write_fixture(root, "test/measured_test.exs")
+    write_fixture(root, "test/second_measured_test.exs")
     write_fixture(root, "test/new_ordinary_test.exs")
 
     for scaffold_path <- scaffold_paths() do
@@ -154,7 +160,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert_raise ArgumentError, ~r/missing current paths: test\/new_ordinary_test\.exs/, fn ->
       Sigra.CI.LibraryTestPartitions.build_partitions!(
         root: root,
-        costs: [%{"path" => "test/measured_test.exs", "time_us" => 1}]
+        costs: [
+          %{"path" => "test/measured_test.exs", "time_us" => 2},
+          %{"path" => "test/second_measured_test.exs", "time_us" => 1}
+        ]
       )
     end
   end

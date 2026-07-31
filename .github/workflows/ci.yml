@@ -558,7 +558,22 @@ jobs:
         run: |
           set -euo pipefail
           mix compile --quiet
-          mapfile -t library_test_files < <(mix run --no-start --no-compile --no-deps-check -r test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')
+          library_test_files_output="$(mix run --no-start --no-compile --no-deps-check -r test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')"
+          if [[ -z "${library_test_files_output//[[:space:]]/}" ]]; then
+            echo "library test partition selector returned no paths"
+            exit 1
+          fi
+          mapfile -t library_test_files <<< "$library_test_files_output"
+          if (( ${#library_test_files[@]} == 0 )); then
+            echo "library test partition argv is empty"
+            exit 1
+          fi
+          for library_test_file in "${library_test_files[@]}"; do
+            if [[ -z "$library_test_file" ]]; then
+              echo "library test partition argv contains an empty path"
+              exit 1
+            fi
+          done
           mix test "${library_test_files[@]}" --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
       - name: CI run summary
         if: always()

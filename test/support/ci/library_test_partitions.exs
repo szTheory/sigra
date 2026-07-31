@@ -68,15 +68,94 @@ defmodule Sigra.CI.LibraryTestPartitions do
     partitions
   end
 
-  defp build_partitions! do
+  @spec build_partitions!(keyword()) :: %{1 => map(), 2 => map()}
+  def build_partitions!(opts \\ []) do
     costs =
-      @evidence_path
-      |> File.read!()
-      |> JSON.decode!()
-      |> get_in(["timing_probe", "per_file_costs"])
+      opts
+      |> Keyword.get_lazy(:costs, &measured_costs/0)
       |> Enum.reject(&MapSet.member?(@scaffold_paths, &1["path"]))
       |> Enum.sort_by(&{-&1["time_us"], &1["path"]})
 
-    costs |> assign!()
+    partitions = assign!(costs)
+    validate_current_universe!(partitions, opts)
+    partitions
+  end
+
+  @spec current_ordinary_paths!(keyword()) :: [String.t()]
+  def current_ordinary_paths!(opts \\ []) do
+    root = Keyword.get(opts, :root, File.cwd!())
+
+    eligible_paths =
+      root
+      |> Path.join("test/**/*_test.exs")
+      |> Path.wildcard()
+      |> Enum.map(&repository_path(root, &1))
+      |> Enum.filter(&matches_load_filters?/1)
+      |> Enum.sort()
+
+    missing_scaffold_paths = MapSet.difference(@scaffold_paths, MapSet.new(eligible_paths))
+
+    unless MapSet.size(missing_scaffold_paths) == 0 do
+      raise ArgumentError,
+            "configured scaffold paths are missing or excluded: #{format_paths(missing_scaffold_paths)}"
+    end
+
+    eligible_paths
+    |> Enum.reject(&MapSet.member?(@scaffold_paths, &1))
+  end
+
+  @spec validate_current_universe!(map(), keyword()) :: map()
+  def validate_current_universe!(partitions, opts \\ []) when is_map(partitions) do
+    assigned_paths = List.wrap(partitions[1].paths) ++ List.wrap(partitions[2].paths)
+
+    validate!(%{1 => partitions[1].paths, 2 => partitions[2].paths})
+
+    scaffold_leaks = Enum.filter(assigned_paths, &MapSet.member?(@scaffold_paths, &1))
+
+    if scaffold_leaks != [] do
+      raise ArgumentError,
+            "scaffold paths must not be assigned: #{Enum.join(Enum.sort(scaffold_leaks), ", ")}"
+    end
+
+    current_paths = MapSet.new(current_ordinary_paths!(opts))
+    assigned_path_set = MapSet.new(assigned_paths)
+    missing_paths = MapSet.difference(current_paths, assigned_path_set)
+    stale_paths = MapSet.difference(assigned_path_set, current_paths)
+
+    if MapSet.size(missing_paths) > 0 or MapSet.size(stale_paths) > 0 do
+      raise ArgumentError,
+            "current ordinary test manifest mismatch; missing current paths: #{format_paths(missing_paths)}; stale manifest paths: #{format_paths(stale_paths)}"
+    end
+
+    partitions
+  end
+
+  defp measured_costs do
+    @evidence_path
+    |> File.read!()
+    |> JSON.decode!()
+    |> get_in(["timing_probe", "per_file_costs"])
+  end
+
+  defp matches_load_filters?(path) do
+    Mix.Project.config()
+    |> Keyword.fetch!(:test_load_filters)
+    |> Enum.any?(fn
+      %Regex{} = filter -> Regex.match?(filter, path)
+      filter when is_function(filter, 1) -> filter.(path)
+      filter when is_binary(filter) -> filter == path
+    end)
+  end
+
+  defp repository_path(root, path) do
+    path
+    |> Path.relative_to(root)
+    |> String.replace("\\\\", "/")
+  end
+
+  defp format_paths(paths) do
+    paths
+    |> Enum.sort()
+    |> Enum.join(", ")
   end
 end
