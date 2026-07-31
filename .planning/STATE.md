@@ -5,8 +5,8 @@ milestone_name: CI-EFFICIENCY
 current_phase: 232
 current_phase_name: Playwright Economics — Authenticate Once, Then Shard
 status: planning
-stopped_at: Phase 232 context gathered (assumptions mode)
-last_updated: "2026-07-31T15:39:22.936Z"
+stopped_at: Phase 232 UI-SPEC approved
+last_updated: "2026-07-31T16:11:06.430Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 231 complete, transitioned to Phase 232
 progress:
@@ -530,9 +530,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-31T15:39:22.922Z
-Stopped at: Phase 232 context gathered (assumptions mode)
-Resume file: .planning/phases/232-playwright-economics-authenticate-once-then-shard/232-CONTEXT.md
+Last session: 2026-07-31T16:11:06.421Z
+Stopped at: Phase 232 UI-SPEC approved
+Resume file: .planning/phases/232-playwright-economics-authenticate-once-then-shard/232-UI-SPEC.md
 
 ## Operator Next Steps
 
