@@ -201,11 +201,11 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 232-04-PLAN.md — Extract one parameterized example Playwright boot action and wire every app-booting consumer (PW-03, D-08)
+- [x] 232-04-PLAN.md — Extract one parameterized example Playwright boot action and wire every app-booting consumer (PW-03, D-08)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 232-05-PLAN.md — Introduce isolated retry-zero matrix shards and the exact-name fail-closed required aggregator (PW-02/PW-03, D-04–D-07)
+- [x] 232-05-PLAN.md — Introduce isolated retry-zero matrix shards and the exact-name fail-closed required aggregator (PW-02/PW-03, D-04–D-07)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
