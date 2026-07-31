@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 233
-current_phase_name: Library Suite Economics
+current_phase_name: library-suite-economics
 status: executing
-stopped_at: Phase 233 context gathered (assumptions mode)
-last_updated: "2026-07-31T21:18:42.920Z"
+stopped_at: Completed 233-01-PLAN.md
+last_updated: "2026-07-31T21:28:44.984Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 232 complete, transitioned to Phase 233
+last_activity_desc: Phase 233 execution started
 progress:
   total_phases: 6
   completed_phases: 3
@@ -25,15 +25,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 233 — Library Suite Economics
+**Current focus:** Phase 233 — library-suite-economics
 
 ## Current Position
 
-Phase: 233 — Library Suite Economics
-Plan: Not started
+Phase: 233 (library-suite-economics) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([█████░░░░░] 50%); Phase 233 not started
-Last activity: 2026-07-31 — Phase 232 complete, transitioned to Phase 233
+Progress: 3/6 milestone phases complete ([█████████░] 88%); Phase 233 not started
+Last activity: 2026-07-31 — Phase 233 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -390,6 +390,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
 - [Phase ?]: Each design project owns a matching UI setup project and test-results/.auth storageState file.
 - [Phase ?]: Design beforeEach retains only navigation and deterministic LiveView/font readiness.
+- [Phase ?]: Keep ExUnit.CLIFormatter and add a deterministic receipt formatter in the same parallel mix test invocation.
+- [Phase ?]: Restrict timing writes to fixed CI-owned /tmp paths and fail closed when the receipt is absent.
 
 ### Pending Todos
 
@@ -532,9 +534,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-31T20:45:05.631Z
-Stopped at: Phase 233 context gathered (assumptions mode)
-Resume file: .planning/phases/233-library-suite-economics/233-CONTEXT.md
+Last session: 2026-07-31T21:28:44.974Z
+Stopped at: Completed 233-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -667,3 +669,4 @@ Resume file: .planning/phases/233-library-suite-economics/233-CONTEXT.md
 | Phase 231 P10 | ~37min | 3 tasks | 7 files |
 | Phase 231 P11 | 50min | 3 tasks | 1 files |
 | Phase 232 P01 | 8min | 2 tasks | 6 files |
+| Phase 233-library-suite-economics P01 | 15min | 2 tasks | 5 files |
