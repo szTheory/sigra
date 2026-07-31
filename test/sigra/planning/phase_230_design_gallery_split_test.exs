@@ -13,14 +13,13 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
   @ci_path ".github/workflows/ci.yml"
   @recapture_gate_path "scripts/ci/snapshot-recapture-gate.sh"
 
-  # Plan 230-03: the six seam ids the aggregator must enumerate. A future
-  # seventh seam added without an aggregator entry fails this list, not just
+  # Phase 232: the five runner-isolated seams the matrix must enumerate. A future
+  # sixth seam added without a matrix entry fails this list, not just
   # a hand-written assertion.
   @aggregated_seam_ids [
     "admin_behavior",
     "admin_checkpoints",
     "design_gallery",
-    "design_gallery_snapshots",
     "non_admin_smoke",
     "demo_showcase"
   ]
@@ -185,23 +184,22 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
 
   test "the PR lane is filtered and the snapshot lane is event-gated" do
     ci = File.read!(@ci_path)
-    job = extract_job(ci, "example_playwright_smoke")
-
-    assert job =~ "design_gallery_snapshots",
-           "example_playwright_smoke must contain the design_gallery_snapshots step id"
+    job = extract_job(ci, "example_playwright_shard")
 
     gallery_match =
-      Regex.run(~r/id: design_gallery\n.*?run: \|(.*?)- name:/s, job)
+      Regex.run(~r/name: Run design gallery behavior\n(.*?)run: \|(.*?)- name:/s, job)
 
     assert gallery_match, "design_gallery step's run: block not found in #{@ci_path}"
-    [_, gallery_run] = gallery_match
+    [_, gallery_meta, gallery_run] = gallery_match
 
     assert gallery_run =~ "--grep-invert",
            "the design_gallery step's invocation must carry --grep-invert so the PR " <>
              "lane excludes the 84 @snapshot pixel-diff tests"
 
+    assert gallery_meta =~ "github.event_name == 'pull_request'"
+
     snapshots_match =
-      Regex.run(~r/id: design_gallery_snapshots\n(.*?)- name: Run non-admin/s, job)
+      Regex.run(~r/name: Run design gallery behavior and snapshots\n(.*?)- name: Run non-admin/s, job)
 
     assert snapshots_match,
            "design_gallery_snapshots step body not found in #{@ci_path}"
@@ -216,20 +214,15 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
 
   test "the aggregator enumerates every seam id" do
     ci = File.read!(@ci_path)
-    job = extract_job(ci, "example_playwright_smoke")
-
-    aggregator_match =
-      Regex.run(~r/Aggregate Playwright step outcomes.*?\z/s, job)
-
-    assert aggregator_match, "Aggregate Playwright step outcomes step not found in #{@ci_path}"
-    [aggregator_region] = aggregator_match
+    shard = extract_job(ci, "example_playwright_shard")
+    terminal = extract_job(ci, "example_playwright_smoke")
 
     for seam_id <- @aggregated_seam_ids do
-      assert aggregator_region =~ "steps.#{seam_id}.outcome",
-             "the seam-outcome aggregator must reference steps.#{seam_id}.outcome -- a " <>
-               "seam id missing from this loop has its failures silently discarded on " <>
-               "push/schedule/dispatch runs, which is the v1.42 failure mode this " <>
-               "milestone exists to remove"
+      assert shard =~ "seam: #{seam_id}",
+             "the matrix must enumerate #{seam_id} so its result reaches aggregation"
     end
+
+    assert terminal =~ "needs.example_playwright_shard.result"
+    assert terminal =~ "if: always()"
   end
 end

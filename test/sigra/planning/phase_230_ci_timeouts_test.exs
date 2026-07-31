@@ -70,20 +70,24 @@ defmodule Sigra.Planning.Phase230CiTimeoutsTest do
     end
   end
 
-  test "pole values are pinned: example_playwright_smoke=45, generated_admin_playwright_smoke=15" do
+  test "Playwright shard/terminal and generated-host timeout values are pinned" do
     blocks = Map.new(job_blocks())
 
-    playwright_block =
+    shard_block =
+      blocks["example_playwright_shard"] ||
+        flunk("example_playwright_shard job block not found")
+
+    [[_, shard_value]] = timeout_declarations(shard_block)
+
+    assert String.to_integer(shard_value) == 30,
+           "example_playwright_shard's timeout-minutes is #{shard_value}, expected 30"
+
+    terminal_block =
       blocks["example_playwright_smoke"] ||
-        flunk("example_playwright_smoke job block not found — cannot verify its timeout is 45")
+        flunk("example_playwright_smoke terminal job block not found")
 
-    [[_, playwright_value]] = timeout_declarations(playwright_block)
-
-    assert String.to_integer(playwright_value) == 45,
-           "example_playwright_smoke's timeout-minutes is #{playwright_value}, expected 45 — " <>
-             "it measured 28.5m and has hit a 41.7m historical maximum (230-EVIDENCE.md), so " <>
-             "any value at or below 41.7m would time out the measured baseline this phase is " <>
-             "judged on"
+    [[_, terminal_value]] = timeout_declarations(terminal_block)
+    assert String.to_integer(terminal_value) == 5
 
     generated_admin_block =
       blocks["generated_admin_playwright_smoke"] ||

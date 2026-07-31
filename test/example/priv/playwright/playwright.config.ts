@@ -8,9 +8,12 @@ import { defineConfig, devices } from '@playwright/test';
 // authored in a later plan; this config reserves the partitioning surface so
 // the checkpoint file slots into a pre-scoped, reviewer-artifact-friendly lane.
 //
-// DB state is shared across specs, so we run serially (workers: 1, fullyParallel: false).
-// retries: 1 in CI is the ONLY concession to timing flake — D-15 forbids masking real
-// flake with continue-on-error or higher retry counts.
+// Each Playwright invocation remains internally serial (workers: 1,
+// fullyParallel: false) because tests inside that invocation share its runner-local
+// example database. Phase 232 isolates independent seam invocations in separate CI
+// matrix jobs, so this per-invocation setting is no longer a global correctness lock.
+// Retries stay at zero everywhere; CI shard commands repeat --retries=0 explicitly so
+// observed isolation evidence cannot be masked by a recovered attempt.
 //
 // D-01..D-05, D-26..D-30: admin behavior truth stays on `chromium` only; mobile
 // and dark-mode coverage comes from the dedicated checkpoint projects rather
@@ -53,7 +56,7 @@ export default defineConfig({
   outputDir: './test-results',
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI ? 1 : 0,
+  retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   // The example app boots in MIX_ENV=dev which falls back to :longpoll
   // transport when the WebSocket handshake can't complete (common in

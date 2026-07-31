@@ -1245,18 +1245,46 @@ jobs:
             echo "- deps cache (exact hit): ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  example_playwright_smoke:
-    name: Example Playwright smoke (full lifecycle)
+  example_playwright_shard:
+    name: Example Playwright shard (${{ matrix.seam }})
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     needs: [release_ref_guard, changes]
-    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
-    # gate explicitly while removing `changes` from the set of results that
-    # can skip this required lane. `!cancelled()` (never `always()`,
-    # T-230-05-07) preserves fail-open intent on a `changes` failure while
-    # still stopping when FAST-04 supersedes the run -- without it, this
-    # 28.5m job would keep running on a superseded SHA.
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - seam: admin_behavior
+            database: sigra_admin_behavior
+            port: "4001"
+            base_url: http://localhost:4001
+            server_log: /tmp/example-playwright-admin-behavior.log
+            browsers: chromium
+          - seam: admin_checkpoints
+            database: sigra_admin_checkpoints
+            port: "4002"
+            base_url: http://localhost:4002
+            server_log: /tmp/example-playwright-admin-checkpoints.log
+            browsers: chromium webkit
+          - seam: design_gallery
+            database: sigra_design_gallery
+            port: "4003"
+            base_url: http://localhost:4003
+            server_log: /tmp/example-playwright-design-gallery.log
+            browsers: chromium webkit
+          - seam: non_admin_smoke
+            database: sigra_non_admin_smoke
+            port: "4004"
+            base_url: http://localhost:4004
+            server_log: /tmp/example-playwright-non-admin-smoke.log
+            browsers: chromium
+          - seam: demo_showcase
+            database: sigra_demo_showcase
+            port: "4005"
+            base_url: http://localhost:4005
+            server_log: /tmp/example-playwright-demo-showcase.log
+            browsers: chromium
     services:
       postgres:
         image: postgres:15
@@ -1268,39 +1296,26 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Boot example app through shared action
+
+      - name: Boot isolated example app
         id: boot
         if: needs.changes.outputs.docs_only != 'true'
         uses: ./.github/actions/example-playwright-boot
         with:
-          database-name: sigra_example_dev
-          app-port: "4000"
-          base-url: http://localhost:4000
-          server-log: /tmp/example-playwright-server.log
-          browsers: chromium webkit
+          database-name: ${{ matrix.database }}
+          app-port: ${{ matrix.port }}
+          base-url: ${{ matrix.base_url }}
+          server-log: ${{ matrix.server_log }}
+          browsers: ${{ matrix.browsers }}
           cache-browsers: "true"
-          browser-cache-key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
+          browser-cache-key: ${{ runner.os }}-playwright-${{ matrix.seam }}-1.59.1-v3
 
-      # Phase 31 Plan 4 (D-19..D-25, D-26..D-30): run admin browser truth,
-      # admin checkpoints, and non-admin browser smoke as separate seams
-      # within a single job so each failure surfaces against its seam while
-      # keeping one shared booted example app.
-      - name: Run admin behavior browser truth (chromium)
-        id: admin_behavior
-        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+      - name: Run admin behavior browser truth
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'admin_behavior' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # D-04, D-27: the canonical Phase 31 browser contract specs. They run
-        # only on the `chromium` project per wave 1's partitioning
-        # (playwright.config.ts). admin-modal-interaction (PAGE-03 ConfirmDialog
-        # APG gates) is wired in here so the ConfirmDialog hook's
-        # focus-trap/Escape/focus-return behavior is actually guarded — it was
-        # authored in phase 189 but previously never run in CI.
-        # D-05/D-06 (212-02): the 3 persona-flow specs (FLOW-01) are appended
-        # here — they match ADMIN_BEHAVIOR_SPECS and run on chromium only;
-        # mobile testIgnore excludes them, so no silent-skip risk.
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/admin-user-operations.spec.ts \
@@ -1310,112 +1325,73 @@ jobs:
             tests/admin-flow-platform-admin.spec.ts \
             tests/admin-flow-support-investigator.spec.ts \
             tests/admin-flow-org-admin.spec.ts \
-            --project=chromium
-      - name: Run admin checkpoints (chromium, mobile, dark-chromium)
-        id: admin_checkpoints
-        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+            --project=chromium \
+            --retries=0
+
+      - name: Run admin checkpoints
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'admin_checkpoints' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # D-26..D-30: the admin-checkpoints.spec.ts fan-out runs once per
-        # project — `admin-checkpoints-chromium` (desktop), `admin-checkpoints-mobile`
-        # (mobile viewport), and `admin-checkpoints-dark` (the dark-chromium
-        # checkpoint lane using `colorScheme: 'dark'`). Mobile and dark-mode
-        # admin regressions therefore surface from this seam alone without
-        # rerunning the full behavior suite across every theme and viewport.
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/admin-checkpoints.spec.ts \
             --project=admin-checkpoints-chromium \
             --project=admin-checkpoints-mobile \
-            --project=admin-checkpoints-dark
-      # Playwright clears test-results/ at the START of each `playwright test`
-      # invocation, so stage the curated admin checkpoint PNGs IMMEDIATELY after
-      # the checkpoints run — before the design-gallery / non-admin / demo-showcase
-      # steps below each wipe test-results. (The design-gallery step was inserted
-      # between checkpoints and this staging step in v1.39 and was silently wiping
-      # the PNGs, so the artifact bundle contract found 0.)
-      - name: Stage admin checkpoint PNGs (before later runs clear test-results)
-        if: ${{ steps.admin_checkpoints.outcome == 'success' && needs.changes.outputs.docs_only != 'true' }}
+            --project=admin-checkpoints-dark \
+            --retries=0
+
+      - name: Stage admin checkpoint PNGs
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'admin_checkpoints' }}
         working-directory: test/example/priv/playwright
         run: |
           mkdir -p artifacts/admin-checkpoints/
-          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
-            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
-            echo "staging ${src_count} admin-*.png file(s) from test-results/"
-            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
-          else
-            echo "warning: no admin-*.png under test-results/ after admin checkpoints"
-          fi
-          ls -la artifacts/admin-checkpoints/ || true
-      - name: Run design gallery boards (chromium, mobile, dark)
-        id: design_gallery
-        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+          find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \; || true
+
+      - name: Run design gallery behavior
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'design_gallery' && github.event_name == 'pull_request' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # HARD-GATING (Phase 197 / D-10): continue-on-error removed; gallery
-        # now fails the job via the aggregator on any visual regression.
-        # Root-cause correction (D-07): the original non-blocking premise was that
-        # "the brand webfont does not load in CI dev-mode boot" — that was factually
-        # wrong (no @font-face, no *.woff2, and no Google Fonts link was ever served;
-        # the ~20–53px height delta was an OS system-ui font-metric difference between
-        # the macOS capture box and the ubuntu CI runner).
-        # Remediation (Plans 03–04): a self-hosted Space Grotesk variable woff2 is now
-        # committed to test/example/priv/static/assets/fonts/ and wired via @font-face
-        # + --font-sans in app.css; admin-design.spec.ts awaits document.fonts.ready +
-        # asserts fonts.check before any snapshot; CI-native baselines were recaptured
-        # by the admin_design_recapture sibling job and merged. Render is now
-        # OS-independent and the gallery can hard-gate again (SEED-006 addressed).
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
             --project=admin-design-dark \
-            --grep-invert '@snapshot'
-      - name: Run design gallery board snapshots (non-PR)
-        id: design_gallery_snapshots
-        # Phase 230 (FAST-02 / D-01, D-04): the 84 per-board pixel-diff assertions
-        # run here, gated to push/schedule/dispatch only, so they never sit on the
-        # PR critical path (866s of a 28.5m job). The WCAG axe scan and the L1-state
-        # behaviour tests stay on the PR lane in the sibling `design_gallery` step
-        # above (filtered via --grep-invert '@snapshot'). This step lives inside
-        # this job rather than a new job because the job name
-        # "Example Playwright smoke (full lifecycle)" is a ruleset-14941512
-        # required context, so an in-job snapshot regression on a push to main
-        # still reds a hard gate (D-05 wires this step's id into the aggregator
-        # below so that failure is never silently discarded).
-        # Phase 230 (FAST-05 / D-07): the docs-only condition is composed
-        # into the existing expression -- this step already never runs on a
-        # pull_request event, so the addition is a no-op there, but every
-        # heavy step in this job's span carries the condition consistently.
-        if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}
+            --grep-invert '@snapshot' \
+            --retries=0
+
+      - name: Run design gallery behavior and snapshots
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'design_gallery' && github.event_name != 'pull_request' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
             --project=admin-design-dark \
-            --grep '@snapshot'
+            --grep '@snapshot' \
+            --retries=0
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0
+
       - name: Run non-admin example browser smoke
-        id: non_admin_smoke
-        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'non_admin_smoke' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # Keeps non-admin coverage (golden-path, organizations, passkey-*)
-        # in its own step so admin failures isolate cleanly. These run on
-        # the default `chromium` project; mobile coverage for these specs
-        # runs on the `mobile` project which excludes admin behavior/
-        # checkpoint specs per wave 1 partitioning.
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/golden-path.spec.ts \
@@ -1423,156 +1399,68 @@ jobs:
             tests/passkeys-hooks.spec.ts \
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
-            tests/passkey-options.spec.ts
-      - name: Run demo-showcase spec (demo-showcase-chromium)
-        id: demo_showcase
-        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
+            tests/passkey-options.spec.ts \
+            --retries=0
+
+      - name: Run demo showcase
+        if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'demo_showcase' }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
           npx playwright test \
             tests/demo-showcase.spec.ts \
-            --project=demo-showcase-chromium
-      - name: Aggregate Playwright step outcomes
-        if: always()
-        # D-02 (197-02): re-fails the job if any guarded seam returned 'failure'.
-        # Without this step, !cancelled() guards allow later seams to run after
-        # an early failure but the job would silently go green. The aggregator
-        # is the load-bearing integrity control (T-197-03).
-        # Phase 230 (FAST-02 / D-05): design_gallery_snapshots was added to this
-        # list. Any future seam step MUST be added here too, or its failures are
-        # silently discarded on push/schedule/dispatch runs — this loop, not the
-        # step's own `if:`, is what decides whether a failure reaches the
-        # required "Example Playwright smoke (full lifecycle)" context.
-        # Phase 230 (FAST-05 / D-23): when every seam outcome is `skipped` (the
-        # docs-only fast path), say so explicitly rather than just printing
-        # "all seams passed" — a green "Example Playwright smoke (full
-        # lifecycle)" carrying this line asserted nothing about browser
-        # behaviour. This is the signal Phase 231's GATE-03 uses to tell a
-        # correctly-gated skip from a rotted one.
+            --project=demo-showcase-chromium \
+            --retries=0
+
+      - name: Dump isolated example app log
+        if: failure()
+        env:
+          SERVER_LOG: ${{ matrix.server_log }}
+        run: |
+          echo "--- $SERVER_LOG ---"
+          cat "$SERVER_LOG" || echo "(no log file)"
+
+      - name: Upload shard diagnostics
+        if: always() && needs.changes.outputs.docs_only != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: example-playwright-${{ matrix.seam }}-${{ github.run_id }}
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/test-results/
+            test/example/priv/playwright/artifacts/
+          retention-days: 7
+          if-no-files-found: warn
+
+  example_playwright_smoke:
+    name: Example Playwright smoke (full lifecycle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [release_ref_guard, changes, example_playwright_shard]
+    if: always()
+    steps:
+      - name: Aggregate every Playwright shard result
+        env:
+          RELEASE_GUARD: ${{ needs.release_ref_guard.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          SHARDS: ${{ needs.example_playwright_shard.result }}
         run: |
           set -euo pipefail
-          fail=0
-          all_skipped=1
-          for o in "${{ steps.admin_behavior.outcome }}" \
-                   "${{ steps.admin_checkpoints.outcome }}" \
-                   "${{ steps.design_gallery.outcome }}" \
-                   "${{ steps.design_gallery_snapshots.outcome }}" \
-                   "${{ steps.non_admin_smoke.outcome }}" \
-                   "${{ steps.demo_showcase.outcome }}"; do
-            [ "$o" = "failure" ] && fail=1
-            [ "$o" = "skipped" ] || all_skipped=0
-          done
-          if [ "$fail" -eq 1 ]; then
-            echo "::error::one or more Playwright seams failed"; exit 1
+          if [ "$RELEASE_GUARD" != "success" ]; then
+            echo "::error::release_ref_guard=$RELEASE_GUARD"
+            exit 1
           fi
-          if [ "$all_skipped" -eq 1 ]; then
-            echo "docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on this run"
+          if [ "$SHARDS" != "success" ]; then
+            echo "::error::example_playwright_shard=$SHARDS"
+            exit 1
+          fi
+          if [ "$DOCS_ONLY" = "true" ]; then
+            echo "docs-only fast path: every Playwright shard skipped its browser body"
           else
-            echo "all seams passed"
+            echo "all five isolated Playwright shards passed"
           fi
-      - name: Dump example app log (on failure)
-        if: failure()
-        # WR-04: surface the backgrounded server log directly in the
-        # failure step so investigators do not need to pull the retained-
-        # video artifact to see why boot or a runtime exception killed a
-        # Playwright run.
-        run: |
-          echo "--- /tmp/example-playwright-server.log ---"
-          cat /tmp/example-playwright-server.log || echo "(no log file)"
-      - name: Cache hit summary
-        if: always()
-        run: |
-          {
-            echo "## example_playwright_smoke cache"
-            echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
-            echo "- Playwright browsers cache (exact hit): ${{ steps.boot.outputs.browser_cache_hit }}"
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Collect curated admin checkpoint screenshots
-        if: always()
-        working-directory: test/example/priv/playwright
-        # D-19, D-20, D-25: curated reviewer screenshots for passing admin
-        # runs come from explicit test-authored PNGs (adminArtifactName),
-        # not indiscriminate whole-run directories. Gather them under a
-        # predictable path so `admin-example-report` can always publish the
-        # reviewer bundle without shipping traces or retained video from
-        # every passing run.
-        run: |
-          mkdir -p artifacts/admin-checkpoints/
-          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
-            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
-            # cp warnings instead of silently overwriting an earlier
-            # checkpoint with a later one. adminArtifactName embeds the
-            # project slug so distinct lanes should not collide today, but
-            # if a test ever calls captureAdminCheckpoint twice with the
-            # same name, the second copy is skipped rather than eating the
-            # first. Pair with the source count below so reviewers can
-            # eyeball expected-vs-collected from the step log.
-            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
-            echo "source admin-*.png count under test-results/: ${src_count}"
-            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
-          fi
-          echo "curated admin checkpoint screenshots:"
-          ls -la artifacts/admin-checkpoints/ || true
-      - name: Admin artifact bundle contract (Phase 35)
-        # Phase 230 (FAST-05 / D-07, Rule 1 auto-fix): without the docs_only
-        # guard, this step's bare `success()` still runs on the docs-only
-        # fast path (a skipped admin_checkpoints step does not count as a
-        # failure), then hard-fails because 0 PNGs were captured against a
-        # MIN_COUNT=15 floor -- turning a correctly-gated skip into a false
-        # red on the "Example Playwright smoke (full lifecycle)" required
-        # context, defeating FAST-05's entire purpose.
-        if: ${{ success() && needs.changes.outputs.docs_only != 'true' }}
-        run: bash scripts/ci/admin-artifact-bundle-contract.sh test/example/priv/playwright/artifacts/admin-checkpoints
-      # D-19, D-22: green-run reviewer bundle scoped to this dedicated admin
-      # job. Published on every run (success or failure) so the Playwright
-      # HTML report plus the curated checkpoint PNGs are always available;
-      # D-21's richer diagnostics upload is separate.
-      #
-      # D-23: branch-aware retention is expressed as two mutually exclusive
-      # upload steps — 14 days for main/release runs, 7 days for PR/push
-      # runs. Keeping the retention values literal makes the policy grep-
-      # auditable from the workflow file without having to read GitHub
-      # Actions expression evaluation rules.
-      - name: Upload admin example review bundle (main, 14d retention)
-        if: always() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: admin-example-report
-          path: |
-            test/example/priv/playwright/playwright-report/
-            test/example/priv/playwright/artifacts/admin-checkpoints/
-          retention-days: 14
-      - name: Upload admin example review bundle (PR/push, 7d retention)
-        if: always() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: admin-example-report
-          path: |
-            test/example/priv/playwright/playwright-report/
-            test/example/priv/playwright/artifacts/admin-checkpoints/
-          retention-days: 7
-      # D-21, D-24: traces, failure screenshots, and retained videos (from
-      # the selective `video: 'retain-on-failure'` on checkpoint and
-      # admin-generated projects) land under test-results/. This bundle
-      # uploads only on failure per D-20/D-22 so the success review bundle
-      # stays lightweight. Retention mirrors the review bundle policy.
-      - name: Upload admin example failure diagnostics (main, 14d retention)
-        if: failure() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: admin-example-failure-diagnostics
-          path: test/example/priv/playwright/test-results/
-          retention-days: 14
-      - name: Upload admin example failure diagnostics (PR/push, 7d retention)
-        if: failure() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: admin-example-failure-diagnostics
-          path: test/example/priv/playwright/test-results/
-          retention-days: 7
 
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke

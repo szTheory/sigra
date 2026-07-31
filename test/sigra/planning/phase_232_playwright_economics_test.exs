@@ -70,7 +70,7 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     workflow = File.read!(@workflow_path)
 
     consumers = [
-      "example_playwright_smoke",
+      "example_playwright_shard",
       "admin_design_recapture",
       "admin_checkpoint_recapture",
       "admin_eval_render"
