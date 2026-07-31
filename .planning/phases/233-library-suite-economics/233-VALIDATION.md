@@ -2,7 +2,7 @@
 phase: 233
 slug: library-suite-economics
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-31
 ---
@@ -38,7 +38,7 @@ created: 2026-07-31
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 233-01-01 | 01 | 1 | TEST-01 | T-233-01 | Timing output uses a fixed CI-owned path and does not interpolate event data into shell | unit + workflow contract | `mix test test/support/ci/ex_unit_timing_formatter_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs` | ❌ W0 | ⬜ pending |
+| 233-01-01 | 01 | 1 | TEST-01 | T-233-01 | Timing output uses a fixed CI-owned path and does not interpolate event data into shell | unit + workflow contract | `mix test test/support/ci/ex_unit_timing_formatter_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs` | ✅ W0 | ✅ green |
 | 233-02-01 | 02 | 2 | TEST-02 | N/A | contract | `mix test test/sigra/planning/phase_233_library_economics_contract_test.exs` | ❌ W0 | ⬜ pending |
 | 233-03-01 | 03 | 2 | TEST-03 | T-233-02 | The required aggregator fails unless ordinary shards and the PR scaffold receiver succeed | workflow contract + PR observation | `mix test test/sigra/planning/phase_233_library_economics_contract_test.exs`; `gh run view <run-id> --json jobs` | ❌ W0 | ⬜ pending |
 
@@ -48,7 +48,7 @@ created: 2026-07-31
 
 ## Wave 0 Requirements
 
-- [ ] `test/support/ci/ex_unit_timing_formatter_test.exs` — deterministic timing sort, schema, and error paths.
+- [x] `test/support/ci/ex_unit_timing_formatter_test.exs` — deterministic timing sort, schema, and error paths.
 - [ ] `test/sigra/planning/phase_233_library_economics_contract_test.exs` — scaffold tags, CI commands, manifest coverage, receiver, and aggregator edges.
 - [ ] Add a receipt-validation helper/test if the timing and PR evidence schemas are not otherwise mechanically asserted.
 
@@ -67,6 +67,6 @@ None. Live GitHub Actions behavior must be verified through automated pull-reque
 - [ ] Wave 0 covers all missing test references.
 - [ ] No watch-mode flags.
 - [ ] Local feedback latency is under 60 seconds.
-- [ ] `nyquist_compliant: true` set in frontmatter.
+- [x] `nyquist_compliant: true` set in frontmatter after the focused formatter/workflow command passed.
 
 **Approval:** pending

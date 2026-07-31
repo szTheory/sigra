@@ -56,7 +56,13 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
   end
 
   test "only fixed CI-owned timing receipt paths are accepted" do
-    for path <- [nil, "", "relative.json", "/tmp/../sigra-library-1-timings.json", "/tmp/other.json"] do
+    for path <- [
+          nil,
+          "",
+          "relative.json",
+          "/tmp/../sigra-library-1-timings.json",
+          "/tmp/other.json"
+        ] do
       assert_raise Sigra.CI.ExUnitTimingFormatter.InvalidOutputPathError, fn ->
         ExUnitTimingFormatter.validate_output_path!(path)
       end
@@ -71,7 +77,7 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
     :ok = ExUnitTimingFormatter.write_receipt!(path, receipt)
 
     assert File.read!(path) ==
-             "{\"failed\":0,\"partition\":\"1\",\"passed\":0,\"schema_version\":1,\"tests\":[],\"total\":0}\n"
+             "{\"failed\":0,\"excluded\":0,\"invalid\":0,\"partition\":\"1\",\"passed\":0,\"schema_version\":1,\"skipped\":0,\"tests\":[],\"total\":0}\n"
   end
 
   defp completed_test(module, name, file, time, state) do
