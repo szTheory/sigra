@@ -10,7 +10,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert shard =~ "SIGRA_EXUNIT_TIMING_PATH"
     assert shard =~ "Sigra.CI.ExUnitTimingFormatter"
     assert shard =~ "ExUnit.CLIFormatter"
-    assert length(Regex.scan(~r/\bmix test\b/, shard)) == 1
+    assert length(Regex.scan(~r/^          mix test\b/m, shard)) == 1
     refute shard =~ "--slowest"
     refute shard =~ "--trace"
   end
