@@ -4,6 +4,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   alias Sigra.Test.InstallFixture
 
   @moduletag timeout: 180_000
+  @moduletag :scaffold
 
   @cases [
     %{label: "passkeys disabled", flags: ["--no-passkeys"]},

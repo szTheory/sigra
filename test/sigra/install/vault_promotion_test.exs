@@ -5,6 +5,7 @@ defmodule Sigra.Install.VaultPromotionTest do
 
   @moduletag :install
   @moduletag timeout: 600_000
+  @moduletag :scaffold
 
   test "mix sigra.install --passkeys emits the real vault and encrypted binary templates" do
     {:ok, %{app_dir: app_dir}} =
