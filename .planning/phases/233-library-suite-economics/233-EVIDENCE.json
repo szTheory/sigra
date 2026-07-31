@@ -913,8 +913,28 @@
   }
 ]
   },
-  "requirements": {
-    "TEST-01": "observed on retry-free pull_request run 30666977944",
-    "TEST-02": "measured-input-ready; pending extraction, manifest, and final after-run comparison"
-  }
+  "before_gap_seconds": 192,
+  "after_gap_seconds": 1,
+  "after": {
+    "run_id": 30668911851,
+    "pr_number": 175,
+    "head_sha": "6974bd1e2e4214fd5b9d519a987dfef2c3e89b89",
+    "event": "pull_request",
+    "workflow": "CI",
+    "retry_free": true,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "ordinary_shards": [
+      {"partition": 1, "job_id": 91282336899, "duration_seconds": 115, "conclusion": "success", "artifact": {"id": 8808076796, "name": "library-test-timings-1", "sha256": "78604b612b797d44bb28ad3693a17caeb5a564b12e316f5899b58b592e728541"}},
+      {"partition": 2, "job_id": 91282336901, "duration_seconds": 114, "conclusion": "success", "artifact": {"id": 8808076684, "name": "library-test-timings-2", "sha256": "6defe9902362eb31e81c12906c7b33b8b7154f4f8bdafd0a02fab69fe876e009"}}
+    ],
+    "scaffold_receiver": {"job_id": 91282336849, "duration_seconds": 909, "conclusion": "success", "artifact": {"id": 8808320928, "name": "library-test-timings-scaffold", "sha256": "2f324a60e8f3f2792264187b4ecebf1582fef07a4075cd2f5383c7121eab39be"}, "required_files": ["test/upgrade_test.exs", "test/sigra/install/golden_diff_test.exs", "test/sigra/install/idempotency_test.exs"]},
+    "required_check": {"name": "Library tests", "job_id": 91284867297, "conclusion": "success"},
+    "observations": {"ordinary_scaffold_paths": [], "parallel_start_seconds_apart": 1, "same_run_formatter": true, "second_timing_pass": false}
+  },
+  "requirements": [
+    {"id": "TEST-01", "status": "complete", "evidence": "same-run timing receipts and parallel ordinary jobs"},
+    {"id": "TEST-02", "status": "complete", "evidence": "after gap 1s is strictly below 192s"},
+    {"id": "TEST-03", "status": "complete", "evidence": "successful scaffold receiver and exact Library tests aggregate"}
+  ]
 }

@@ -83,3 +83,9 @@ Result: 217 unique repository-relative files, totalling `506537530` microseconds
 
 - **TEST-01:** observed on the retry-free PR run.
 - **TEST-02:** measured-input-ready only; extraction, manifest, and final after-run comparison remain open.
+
+## Final exact-head observation
+
+Run [30668911851](https://github.com/szTheory/sigra/actions/runs/30668911851) is the retry-free `pull_request` CI run for PR #175 functional SHA `6974bd1e2e4214fd5b9d519a987dfef2c3e89b89`. Its ordinary shards succeeded in 115s and 114s (1s gap, below the inherited 192s gap); the scaffold receiver succeeded in 909s; and the byte-stable required `Library tests` aggregate succeeded.
+
+Downloaded receipts: `library-test-timings-1` SHA-256 `78604b612b797d44bb28ad3693a17caeb5a564b12e316f5899b58b592e728541`, `library-test-timings-2` SHA-256 `6defe9902362eb31e81c12906c7b33b8b7154f4f8bdafd0a02fab69fe876e009`, and `library-test-timings-scaffold` SHA-256 `2f324a60e8f3f2792264187b4ecebf1582fef07a4075cd2f5383c7121eab39be`. The receiver receipt contains `test/upgrade_test.exs`, `golden_diff_test.exs`, and `idempotency_test.exs`; ordinary receipts contain no canonical scaffold paths.
