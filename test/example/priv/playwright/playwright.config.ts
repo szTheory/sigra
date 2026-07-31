@@ -177,6 +177,7 @@ export default defineConfig({
     {
       name: 'admin-design-setup-chromium',
       testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design chromium/,
       use: { ...devices['Desktop Chrome'] },
     },
     {
@@ -191,22 +192,41 @@ export default defineConfig({
     },
     // Admin design gallery lane (mobile): mobile-viewport board baselines.
     {
+      name: 'admin-design-setup-mobile',
+      testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design mobile/,
+      use: { ...devices['iPhone 13'] },
+    },
+    {
       name: 'admin-design-mobile',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-mobile'],
       use: {
         ...devices['iPhone 13'],
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-mobile.json',
       },
     },
     // Admin design gallery lane (dark theme): dark-mode board baselines using
     // `colorScheme: 'dark'` rather than an interactive toggle (per D-29 pattern).
     {
+      name: 'admin-design-setup-dark',
+      testMatch: /admin-design\.setup\.ts/,
+      grep: /authenticate admin design dark/,
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
+      },
+    },
+    {
       name: 'admin-design-dark',
       testMatch: ADMIN_DESIGN_SPEC,
+      dependencies: ['admin-design-setup-dark'],
       use: {
         ...devices['Desktop Chrome'],
         colorScheme: 'dark',
         video: checkpointVideo,
+        storageState: 'test-results/.auth/admin-design-dark.json',
       },
     },
     // Admin eval lane (Desktop Chrome DPR1): render matrix + probes + bundle writes.
