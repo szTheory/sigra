@@ -241,7 +241,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 233-03-PLAN.md — Extract the exact scaffold class into a fail-closed required PR receiver
+- [x] 233-03-PLAN.md — Extract the exact scaffold class into a fail-closed required PR receiver
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
