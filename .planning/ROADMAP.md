@@ -228,7 +228,7 @@ Plans:
   4. `upgrade_test` and golden-contract coverage are demonstrably still exercised on a **pull_request** event after any extraction — the audit's sharpest hazard, because `upgrade_smoke` is nightly-only and `ci-gate` counts a skipped lane as a pass, so this coverage can vanish while everything reports green.
 
 **Proof discipline**: "Faster" here is a per-job duration comparison, and "still covered" is a test-count or spec-name observation on a PR run. Deleting tests to make CI faster is out of scope; only demotion with evidence and a named receiving lane is permitted.
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 **Wave 1**
@@ -250,6 +250,10 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [x] 233-05-PLAN.md — Seal before/after durations, named coverage, and required-check evidence
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 233-06-PLAN.md — Fail closed when the live ordinary-test universe drifts from measured shard ownership
 
 ### Phase 234: Hygiene, Supply Chain, and Contributor DX
 
