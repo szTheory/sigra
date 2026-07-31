@@ -189,7 +189,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 232-01-PLAN.md — TRACER: authenticate one design project once, expand to three distinct ephemeral states, and preserve gallery readiness/coverage (PW-01, D-01/D-02)
+- [x] 232-01-PLAN.md — TRACER: authenticate one design project once, expand to three distinct ephemeral states, and preserve gallery readiness/coverage (PW-01, D-01/D-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

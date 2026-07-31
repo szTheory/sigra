@@ -38,7 +38,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Playwright economics (PW)
 
-- [ ] **PW-01**: The design-board specs authenticate once per project instead of registering a fresh user before every test.
+- [x] **PW-01**: The design-board specs authenticate once per project instead of registering a fresh user before every test.
 - [ ] **PW-02**: Playwright specs can run in parallel without cross-spec database interference, so `workers: 1` is no longer required for correctness.
 - [ ] **PW-03**: The example-app boot prelude is defined once and reused, rather than duplicated verbatim across jobs.
 
@@ -77,7 +77,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | GATE-03 | Phase 231 | Complete (231-08 + 231-09; runs `30526744204`/`30526771018`/`30526727106`) |
 | GATE-04 | Phase 231 | Complete (231-04 + 231-05 + 231-06; runs `30512523387`/`30514238789`; flipped by `231-VERIFICATION.md`'s independent ruling — hard signal on push/schedule/dispatch, not merge-blocking) |
 | GATE-05 | Phase 235 | Pending |
-| PW-01 | Phase 232 | Pending |
+| PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Pending |
 | PW-03 | Phase 232 | Pending |
 | TEST-01 | Phase 233 | Pending |

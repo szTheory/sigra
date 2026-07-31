@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 232
-current_phase_name: Playwright Economics — Authenticate Once, Then Shard
+current_phase_name: playwright-economics-authenticate-once-then-shard
 status: executing
-stopped_at: Phase 232 UI-SPEC approved
-last_updated: "2026-07-31T16:39:12.248Z"
+stopped_at: Completed 232-01-PLAN.md
+last_updated: "2026-07-31T16:55:19.670Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 231 complete, transitioned to Phase 232
+last_activity_desc: Phase 232 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 27
-  completed_plans: 20
+  completed_plans: 21
   percent: 33
 ---
 
@@ -25,15 +25,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 232 — Playwright Economics — Authenticate Once, Then Shard
+**Current focus:** Phase 232 — playwright-economics-authenticate-once-then-shard
 
 ## Current Position
 
-Phase: 232 — Playwright Economics — Authenticate Once, Then Shard
-Plan: Not started
+Phase: 232 (playwright-economics-authenticate-once-then-shard) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Progress: 2/6 milestone phases complete (33%); Phase 232 not started
-Last activity: 2026-07-31 — Phase 231 complete, transitioned to Phase 232
+Progress: 2/6 milestone phases complete ([████████░░] 78%); Phase 232 not started
+Last activity: 2026-07-31 — Phase 232 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -388,6 +388,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 231]: GATE-01 closed on the required real event: scheduled run 30607570671 succeeded on PR #125's merge SHA with all executing lanes green; no proxy or fallback was used.
 - [Phase 231]: The Pages publisher's post-merge run 30613728531 proved seeds and publication green, then narrowed D-18 to a default-GITHUB_TOKEN `PUT /pages` 403; repo admin owns the manual Pages-source change.
 - [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
+- [Phase ?]: Each design project owns a matching UI setup project and test-results/.auth storageState file.
+- [Phase ?]: Design beforeEach retains only navigation and deterministic LiveView/font readiness.
 
 ### Pending Todos
 
@@ -530,9 +532,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-31T16:11:06.421Z
-Stopped at: Phase 232 UI-SPEC approved
-Resume file: .planning/phases/232-playwright-economics-authenticate-once-then-shard/232-UI-SPEC.md
+Last session: 2026-07-31T16:55:19.659Z
+Stopped at: Completed 232-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -664,3 +666,4 @@ Resume file: .planning/phases/232-playwright-economics-authenticate-once-then-sh
 | Phase 231 P09 | ~50min | 3 tasks | 4 files |
 | Phase 231 P10 | ~37min | 3 tasks | 7 files |
 | Phase 231 P11 | 50min | 3 tasks | 1 files |
+| Phase 232 P01 | 8min | 2 tasks | 6 files |
