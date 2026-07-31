@@ -253,7 +253,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 233-06-PLAN.md — Fail closed when the live ordinary-test universe drifts from measured shard ownership
+- [x] 233-06-PLAN.md — Fail closed when the live ordinary-test universe drifts from measured shard ownership
 
 ### Phase 234: Hygiene, Supply Chain, and Contributor DX
 

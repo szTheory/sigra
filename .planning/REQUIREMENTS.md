@@ -44,9 +44,9 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Library suite economics (TEST)
 
-- [ ] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially.
-- [ ] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works.
-- [ ] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification.
+- [x] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially.
+- [x] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works.
+- [x] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification.
 
 ### Hygiene and contributor DX (DX)
 
