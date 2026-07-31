@@ -163,6 +163,12 @@ async function assertCheckpointScreenshot(page: Page, testInfo: TestInfo, slug: 
 }
 
 test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
+  // This single test intentionally traverses every curated checkpoint and runs
+  // axe plus screenshot assertions at each stop. WebKit mobile can exceed the
+  // global 60-second ceiling on loaded GitHub runners without any assertion or
+  // readiness failure, so give this inventory workflow its own bounded budget.
+  test.describe.configure({ timeout: 120_000 });
+
   test('captures curated admin review pages across desktop/mobile/dark', async ({
     page,
   }, testInfo) => {

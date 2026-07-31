@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Phase 230 complete; Phase 231's 11 plans are all executed but the phase is not closed — verification returned `human_needed` on GATE-01, which is structurally unobservable until the first post-merge scheduled nightly (see `231-UAT.md`). Next: merge PR #125, observe the first `schedule`-triggered nightly, then close GATE-01 and proceed to `/gsd-plan-phase 232`.
+**Status:** Active milestone — **v1.47 CI-EFFICIENCY** (Phases 230-235). Phases 230-231 are complete. Phase 231 closed on scheduled run `30607570671`, the first post-merge nightly: overall success on PR #125's merge SHA, with every executing job green. Next: plan Phase 232.
 
 ## Milestones
 
@@ -50,7 +50,7 @@
 ## Phases
 
 - [x] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
-- [ ] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing
+- [x] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing (completed 2026-07-31)
 - [ ] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude
 - [ ] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock
 - [ ] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed
@@ -183,7 +183,37 @@ Plans:
   4. The example-app boot prelude exists in exactly one definition referenced by the jobs that boot the app (it is duplicated verbatim across ~6 jobs today), and a full run afterwards shows every one of those jobs still booting successfully.
 
 **Proof discipline**: PW-01 must land and be measured **before** PW-02 restructures anything — otherwise the sharding win and the registration win are indistinguishable in the numbers, and the audit's ordering rationale is lost. Retries and `continue-on-error` are forbidden as flake mitigation (D-15, recorded in `playwright.config.ts`).
-**Plans**: TBD
+**Plans**: 7 plans in 7 waves
+
+Plans:
+
+**Wave 1**
+
+- [x] 232-01-PLAN.md — TRACER: authenticate one design project once, expand to three distinct ephemeral states, and preserve gallery readiness/coverage (PW-01, D-01/D-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 232-02-PLAN.md — Ordered observation checkpoint: require a successful PW-01-only retry-free run before topology changes (D-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 232-03-PLAN.md — Capture the attributable BEFORE/AFTER-PW-01 duration and count receipt (PW-01, D-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 232-04-PLAN.md — Extract one parameterized example Playwright boot action and wire every app-booting consumer (PW-03, D-08)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 232-05-PLAN.md — Introduce isolated retry-zero matrix shards and the exact-name fail-closed required aggregator (PW-02/PW-03, D-04–D-07)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 232-06-PLAN.md — Live-run checkpoint for concurrent shard overlap, branch-protection resolution, and non-PR shared-boot consumers
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 232-07-PLAN.md — Seal the ordered evidence ledger and requirement dispositions from real PR/non-PR runs
 
 ### Phase 233: Library Suite Economics
 
@@ -237,7 +267,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
-| 231. Gate Honesty + Nightly Revival | 11/11 | Verifying (human_needed — GATE-01 blocked on post-merge nightly, see 231-UAT.md) |  |
+| 231. Gate Honesty + Nightly Revival | 11/11 | Complete | 2026-07-31 |
 | 232. Playwright Economics | 0/? | Not started | - |
 | 233. Library Suite Economics | 0/? | Not started | - |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
