@@ -233,7 +233,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 233-01-PLAN.md — Restore parallel ExUnit timing visibility in the same ordinary shard run
+- [x] 233-01-PLAN.md — Restore parallel ExUnit timing visibility in the same ordinary shard run
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
