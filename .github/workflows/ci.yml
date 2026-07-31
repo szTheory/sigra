@@ -557,7 +557,8 @@ jobs:
           SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
         run: |
           set -euo pipefail
-          mapfile -t library_test_files < <(mix run --no-start test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')
+          mix compile --quiet
+          mapfile -t library_test_files < <(mix run --no-start --no-compile --no-deps-check -r test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')
           mix test "${library_test_files[@]}" --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
       - name: CI run summary
         if: always()

@@ -34,9 +34,9 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
   def assign!(costs) when is_list(costs) do
     unless Enum.all?(costs, fn cost ->
-             is_binary(cost["path"]) and is_integer(cost["time_us"]) and cost["time_us"] > 0
+             is_binary(cost["path"]) and is_integer(cost["time_us"]) and cost["time_us"] >= 0
            end) do
-      raise ArgumentError, "partition assignment requires positive measured cost and path"
+      raise ArgumentError, "partition assignment requires non-negative measured cost and path"
     end
 
     costs

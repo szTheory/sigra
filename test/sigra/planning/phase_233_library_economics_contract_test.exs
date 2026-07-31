@@ -101,6 +101,11 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert manifest =~ "def partition(value) when value in [2, \"2\"]"
     assert shard =~ "library_test_partitions.exs"
     assert shard =~ "Sigra.CI.LibraryTestPartitions.partition(\"${{ matrix.partition }}\")"
+    assert shard =~ "mix compile --quiet"
+
+    assert shard =~
+             "mix run --no-start --no-compile --no-deps-check -r test/support/ci/library_test_partitions.exs"
+
     refute shard =~ "--partitions 2"
   end
 
@@ -118,9 +123,18 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
       })
     end
 
-    assert_raise ArgumentError, ~r/positive measured cost/, fn ->
+    assert_raise ArgumentError, ~r/non-negative measured cost/, fn ->
       Sigra.CI.LibraryTestPartitions.assign!([%{"path" => "test/a_test.exs", "time_us" => nil}])
     end
+
+    assert %{
+             1 => %{paths: ["test/a_test.exs", "test/b_test.exs"], total_us: 0},
+             2 => %{paths: [], total_us: 0}
+           } =
+             Sigra.CI.LibraryTestPartitions.assign!([
+               %{"path" => "test/a_test.exs", "time_us" => 0},
+               %{"path" => "test/b_test.exs", "time_us" => 0}
+             ])
   end
 
   defp job_body(workflow, job_id) do
