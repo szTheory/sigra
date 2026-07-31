@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "before": {
+    "source": ".planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md",
+    "run_id": 30390832059,
+    "event": "pull_request",
+    "shards": {
+      "1": {"duration_seconds": 470, "conclusion": "success"},
+      "2": {"duration_seconds": 278, "conclusion": "success"}
+    },
+    "command": "bash scripts/ci/ci-run-metrics.sh --jobs 30390832059"
+  },
+  "timing_probe": {
+    "run_id": 30666977944,
+    "pr_number": 175,
+    "head_sha": "5803ef3d03f9a224143a70a3ffe55aefdf0aa621",
+    "event": "pull_request",
+    "workflow": "CI",
+    "url": "https://github.com/szTheory/sigra/actions/runs/30666977944",
+    "created_at": "2026-07-31T21:33:09Z",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "retry_free": true,
+    "selection": {
+      "matched_fields": ["workflow=CI", "event=pull_request", "pr_number=175", "head_sha=5803ef3d03f9a224143a70a3ffe55aefdf0aa621"],
+      "command": "gh api repos/szTheory/sigra/actions/runs?event=pull_request&head_sha=5803ef3d03f9a224143a70a3ffe55aefdf0aa621&per_page=100"
+    },
+    "shards": [
+      {"partition": 1, "job_id": 91276189948, "name": "Library tests shard 1", "conclusion": "success", "duration_seconds": 476},
+      {"partition": 2, "job_id": 91276189887, "name": "Library tests shard 2", "conclusion": "success", "duration_seconds": 304}
+    ],
+    "artifacts": [
+      {"partition": 1, "name": "library-test-timings-1", "file": "sigra-library-1-timings.json", "sha256": "97f08b7bc0a14fc213344109942b650826ac27acaefda939beaf458335e55208", "schema_version": 1, "total_tests": 1135},
+      {"partition": 2, "name": "library-test-timings-2", "file": "sigra-library-2-timings.json", "sha256": "7b88e69f0759f4137f35d1d877565da44c665d28a774b169315e3a4ba3e71e8e", "schema_version": 1, "total_tests": 1368}
+    ],
+    "receipt_validation": {"schema_version": 1, "nonempty": true, "malformed_values_rejected": true, "duplicate_test_identities_rejected": true},
+    "commands": [
+      "gh run watch 30666977944 --exit-status",
+      "gh run view 30666977944 --json databaseId,event,headSha,conclusion,jobs,url",
+      "gh pr checks 175",
+      "bash scripts/ci/ci-run-metrics.sh --jobs 30666977944",
+      "gh run download 30666977944 --name library-test-timings-1 --dir <temp>/library-test-timings-1",
+      "gh run download 30666977944 --name library-test-timings-2 --dir <temp>/library-test-timings-2"
+    ],
+    "per_file_costs": []
+  },
+  "requirements": {
+    "TEST-01": "observed on retry-free pull_request run 30666977944",
+    "TEST-02": "measured-input-ready; pending extraction, manifest, and final after-run comparison"
+  }
+}
