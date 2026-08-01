@@ -1,15 +1,13 @@
 {
   "schema_version": 1,
   "local_mix_ci": {
-    "status": "failed",
-    "conclusion": "failure",
+    "status": "pending",
     "commit_sha": "4a743aaa19ade881b04e2a78b63b8cb00d91edba",
     "clean_before": true,
     "detached_worktree": true,
     "command": "MIX_ENV=test mix ci",
     "started_at": "2026-08-01T02:38:56Z",
     "completed_at": "2026-08-01T02:42:52Z",
-    "exit_status": 2,
     "ordered_legs": [
       "format --check-formatted",
       "deps.get --check-locked",
@@ -21,9 +19,12 @@
     ],
     "log_sha256": "8555d0404f5d5b2ee9a1f28fb8aab0a7c0dd9b3bc76df142b6430b904c856ae8",
     "command_output_path": "/tmp/sigra-234-09-proof.c0AKzf/mix-ci.log",
-    "diagnostics": "The full-suite test leg failed because both new evidence receipt slots were deliberately empty: local_mix_ci and pr_ci rejected missing status values. The run therefore did not reach ci.install_golden or sigra.dep_off."
+    "diagnostics": "Capture pending: the prior detached run proved the staged contract self-gated the full alias. A fresh literal alias run will replace this slot only after it succeeds."
   },
-  "pr_ci": {},
+  "pr_ci": {
+    "status": "pending",
+    "diagnostics": "Capture pending: Task 2 records the exact successful pull_request run after the local receipt is green."
+  },
   "dependabot": {},
   "gallery": {}
 }
