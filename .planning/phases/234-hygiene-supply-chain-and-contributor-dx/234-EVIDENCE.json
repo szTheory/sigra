@@ -26,8 +26,12 @@
     "diagnostics": "Succeeded after MIX_ENV=test mix deps.get bootstrap in a clean detached checkout; the captured log was removed after hashing."
   },
   "pr_ci": {
-    "status": "pending",
-    "diagnostics": "Capture pending: Task 2 records the exact successful pull_request run after the local receipt is green."
+    "status": "failed",
+    "event": "pull_request",
+    "commit_sha": "091c6aa274c29b16f363562f764ac62232304607",
+    "run_id": "30720751244",
+    "url": "https://github.com/szTheory/sigra/actions/runs/30720751244",
+    "diagnostics": "Observed failure: Example Playwright smoke (full lifecycle), job 91424837821, reported example_playwright_shard=failure. The sole direct library owner job 91424010878 was still in progress when GitHub API polling hit HTTP 403 rate-limit responses twice; terminal job metadata and logs could not be retrieved. No retry of the workflow was performed."
   },
   "dependabot": {},
   "gallery": {}
