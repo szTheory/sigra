@@ -70,8 +70,13 @@ defmodule ExampleWeb.AdminUserFiltersLiveTest do
       refute html =~ "Visible in this scope"
       refute html =~ "All accounts visible in this admin scope."
       refute html =~ ~s(id="users-metric-total-help")
-      assert html =~ "These users are locked out after failed sign-in attempts. Review the user before unlocking."
-      assert html =~ "These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+
+      assert html =~
+               "These users are locked out after failed sign-in attempts. Review the user before unlocking."
+
+      assert html =~
+               "These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+
       assert html =~ ~s(data-tone="risk")
       assert html =~ ~s(data-tone="warn")
 
