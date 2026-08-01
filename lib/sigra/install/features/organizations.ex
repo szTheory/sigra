@@ -59,7 +59,6 @@ defmodule Sigra.Install.Features.Organizations do
        Path.join(["lib", otp_app, ctx, "organization_membership.ex"])},
       {:eex, "organizations/organization_slug_alias.ex",
        Path.join(["lib", otp_app, ctx, "organization_slug_alias.ex"])},
-
       {:eex, "organizations/enterprise_connection.ex",
        Path.join(["lib", otp_app, ctx, "enterprise_connection.ex"])},
       {:eex, "organizations/enterprise_connection_oidc_settings.ex",
@@ -113,7 +112,6 @@ defmodule Sigra.Install.Features.Organizations do
       # (plain controller per D-05 / ORG-UX-03).
       {:eex, "organizations/controllers/organization_switch_controller.ex",
        Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])},
-
       {:eex, "organizations/controllers/enterprise_sso_controller.ex",
        Path.join(["lib", web, "controllers", "enterprise_sso_controller.ex"])},
 

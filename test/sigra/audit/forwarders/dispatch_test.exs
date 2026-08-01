@@ -51,7 +51,14 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
   describe "dispatch/3 with :sync" do
     test "Test 1 — :sync calls forwarder inline and returns :ok (D-10)" do
       # Arrange
-      metadata = %{id: "test-uuid", action: "auth.login.success", actor_id: "user-1", outcome: "success", occurred_at: DateTime.utc_now()}
+      metadata = %{
+        id: "test-uuid",
+        action: "auth.login.success",
+        actor_id: "user-1",
+        outcome: "success",
+        occurred_at: DateTime.utc_now()
+      }
+
       opts = [dispatch: :sync]
 
       # Act
@@ -69,7 +76,14 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
       # Now that AuditForward is compiled (Plan 04), the async path calls oban.insert/1.
       # The :oban option is BOTH the running-check target AND the insert module.
       # StubOban.insert/1 captures the call and returns {:ok, %Oban.Job{}}.
-      metadata = %{id: "audit-uuid-1234", action: "auth.login.success", actor_id: "u1", outcome: "success", occurred_at: DateTime.utc_now()}
+      metadata = %{
+        id: "audit-uuid-1234",
+        action: "auth.login.success",
+        actor_id: "u1",
+        outcome: "success",
+        occurred_at: DateTime.utc_now()
+      }
+
       opts = [dispatch: :async, oban: StubOban]
 
       # Act — should not raise; async path calls StubOban.insert/1
@@ -84,7 +98,14 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
     test "Test 3 — :auto routes to :sync when Oban NOT supervised (D-12)" do
       # Arrange — pass :oban override pointing at nonexistent atom
       # Process.whereis(@no_oban_module) == nil → routes to :sync
-      metadata = %{id: "uuid-auto-nosync", action: "auth.logout", actor_id: "u2", outcome: "success", occurred_at: DateTime.utc_now()}
+      metadata = %{
+        id: "uuid-auto-nosync",
+        action: "auth.logout",
+        actor_id: "u2",
+        outcome: "success",
+        occurred_at: DateTime.utc_now()
+      }
+
       opts = [dispatch: :auto, oban: @no_oban_module]
 
       # Act
@@ -105,7 +126,14 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
       {:ok, agent_pid} = Agent.start(fn -> :ok end)
       Process.register(agent_pid, StubOban)
 
-      metadata = %{id: "uuid-auto-async", action: "session.create", actor_id: "u3", outcome: "success", occurred_at: DateTime.utc_now()}
+      metadata = %{
+        id: "uuid-auto-async",
+        action: "session.create",
+        actor_id: "u3",
+        outcome: "success",
+        occurred_at: DateTime.utc_now()
+      }
+
       opts = [dispatch: :auto, oban: StubOban]
 
       # Act — :auto sees StubOban is supervised → routes :async

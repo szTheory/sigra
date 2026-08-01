@@ -142,15 +142,15 @@ defmodule Mix.Tasks.Sigra.DoctorTest do
   # ---------------------------------------------------------------------------
 
   test "on :fail verdict, output is non-empty before exit({:shutdown, 1}) is called" do
-    stdout = capture_io(fn ->
-      catch_exit(
-        capture_io(:stderr, fn ->
-          Mix.Tasks.Sigra.Doctor.run_with_opts(misconfig_opts())
-        end)
-      )
-    end)
+    stdout =
+      capture_io(fn ->
+        catch_exit(
+          capture_io(:stderr, fn ->
+            Mix.Tasks.Sigra.Doctor.run_with_opts(misconfig_opts())
+          end)
+        )
+      end)
 
     assert stdout != "", "expected non-empty stdout output before the exit call"
   end
-
 end

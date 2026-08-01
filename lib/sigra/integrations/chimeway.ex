@@ -52,7 +52,8 @@ if Code.ensure_loaded?(Chimeway) do
     def dispatch_magic_link(repo, user, _raw_token, url, opts \\ []) do
       with true <- enabled?(),
            user_token_schema <- user_token_schema(opts),
-           {:ok, token_inserted_at} <- fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+           {:ok, token_inserted_at} <-
+             fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
         user_id = user_id_string(user)
         idempotency_key = magic_link_idempotency_key(user_id, token_inserted_at)
 
@@ -94,7 +95,14 @@ if Code.ensure_loaded?(Chimeway) do
     def dispatch_magic_link_after_request(repo, email, opts \\ []) do
       auth_opts =
         opts
-        |> Keyword.take([:user_schema, :user_token_schema, :url_fun, :rate_limiter, :max_requests, :window_ms])
+        |> Keyword.take([
+          :user_schema,
+          :user_token_schema,
+          :url_fun,
+          :rate_limiter,
+          :max_requests,
+          :window_ms
+        ])
         |> Keyword.merge(
           user_schema: Keyword.get(opts, :user_schema, user_schema(opts)),
           user_token_schema: Keyword.get(opts, :user_token_schema, user_token_schema(opts)),
@@ -182,7 +190,12 @@ if Code.ensure_loaded?(Chimeway) do
 
       url = confirmation_url_fun.(encoded_token)
 
-      case dispatch_confirmation_code(repo, user, encoded_token, code, url,
+      case dispatch_confirmation_code(
+             repo,
+             user,
+             encoded_token,
+             code,
+             url,
              Keyword.put(opts, :confirmation_id, link_token.id)
            ) do
         {:ok, result} -> {:ok, {encoded_token, code, url, result}}
@@ -329,7 +342,8 @@ if Code.ensure_loaded?(Chimeway) do
         {:ok,
          %{
            user_id: Map.get(params, :user_id) || Map.get(params, "user_id"),
-           confirmation_id: Map.get(params, :confirmation_id) || Map.get(params, "confirmation_id"),
+           confirmation_id:
+             Map.get(params, :confirmation_id) || Map.get(params, "confirmation_id"),
            kind: "confirmation_code"
          }}
       end
@@ -382,8 +396,12 @@ if Code.ensure_loaded?(Chimeway) do
         ensure_table!()
 
         case :ets.lookup(@table, idempotency_key) do
-          [{^idempotency_key, secrets}] -> secrets
-          [] -> raise ArgumentError, "no pending delivery for idempotency_key #{inspect(idempotency_key)}"
+          [{^idempotency_key, secrets}] ->
+            secrets
+
+          [] ->
+            raise ArgumentError,
+                  "no pending delivery for idempotency_key #{inspect(idempotency_key)}"
         end
       end
 

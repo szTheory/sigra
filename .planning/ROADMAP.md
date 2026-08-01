@@ -52,7 +52,7 @@
 - [x] **Phase 230: Tier-1 Critical-Path Reclamation** - All low-risk PR-path wins in one revertible step: gallery snapshots off PR (a11y stays), eval probe demoted, `concurrency:`, path filters, browser cache, `timeout-minutes`
 - [x] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing (completed 2026-07-31)
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
-- [ ] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock
+- [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [ ] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed
 - [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measure against the baseline table, publish the before/after coverage inventory, update CONTRIBUTING, close SEED-005 and the CI-PERF arc entry
 
@@ -228,7 +228,32 @@ Plans:
   4. `upgrade_test` and golden-contract coverage are demonstrably still exercised on a **pull_request** event after any extraction — the audit's sharpest hazard, because `upgrade_smoke` is nightly-only and `ci-gate` counts a skipped lane as a pass, so this coverage can vanish while everything reports green.
 
 **Proof discipline**: "Faster" here is a per-job duration comparison, and "still covered" is a test-count or spec-name observation on a PR run. Deleting tests to make CI faster is out of scope; only demotion with evidence and a named receiving lane is permitted.
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+**Wave 1**
+
+- [x] 233-01-PLAN.md — Restore parallel ExUnit timing visibility in the same ordinary shard run
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 233-02-PLAN.md — Capture a retry-free PR timing probe and measured per-file costs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 233-03-PLAN.md — Extract the exact scaffold class into a fail-closed required PR receiver
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 233-04-PLAN.md — Rebalance the two ordinary shards with a measured explicit manifest
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 233-05-PLAN.md — Seal before/after durations, named coverage, and required-check evidence
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 233-06-PLAN.md — Fail closed when the live ordinary-test universe drifts from measured shard ownership
 
 ### Phase 234: Hygiene, Supply Chain, and Contributor DX
 
@@ -244,7 +269,41 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: TBD
+**Plans**: 14 plans in 6 waves
+
+Plans:
+
+**Wave 1**
+
+- [x] 234-01-PLAN.md — Trace `mix ci` from contributor CLI into the existing PR library lane with golden-safe parity contracts
+- [x] 234-06-PLAN.md — Pin and mechanically inventory release-critical third-party Actions
+- [x] 234-07-PLAN.md — Add and fail-closed validate weekly Actions, Mix, and npm Dependabot coverage
+
+**Wave 2** *(after the alias tracer where required)*
+
+- [x] 234-02-PLAN.md — Format the first bounded library-source batch under the golden-safe ownership boundary
+- [x] 234-03-PLAN.md — Format the remaining library and example-app source batch without behavior drift
+- [x] 234-04-PLAN.md — Format the first bounded library-test batch without weakening assertions
+- [x] 234-11-PLAN.md — Format the complementary routing and security-sensitive library-source batch
+- [x] 234-12-PLAN.md — Format the complementary migration and admin-test example batch
+- [x] 234-13-PLAN.md — Format the complementary enterprise/install/OAuth library-test batch
+- [x] 234-08-PLAN.md — Wire the two orphan specs and publish the exhaustive Playwright lane inventory
+
+**Wave 3** *(blocked on every bounded formatter batch)*
+
+- [x] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
+
+**Wave 4** *(blocked on the repository-wide local gate)*
+
+- [x] 234-09-PLAN.md — Execute `mix ci` in a clean worktree and observe the direct alias on a real PR
+
+**Wave 5** *(blocked on all implementation and PR evidence)*
+
+- [ ] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
+
+**Wave 6** *(blocked on all structural and managed-service evidence)*
+
+- [ ] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
@@ -269,7 +328,7 @@ Plans:
 | 230. Tier-1 Critical-Path Reclamation | 9/9 | Complete   | 2026-07-29 |
 | 231. Gate Honesty + Nightly Revival | 11/11 | Complete | 2026-07-31 |
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
-| 233. Library Suite Economics | 0/? | Not started | - |
+| 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
 | 235. Terminal Ratification | 0/? | Not started | - |
 

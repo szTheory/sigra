@@ -170,7 +170,9 @@ defmodule Sigra.EnterpriseRouting.DiscoveryTest do
   end
 
   test "get_routable_connection/2 resolves the canonical org entry" do
-    assert {:ok, result} = Sigra.EnterpriseRouting.get_routable_connection(@config, %{slug: "acme"})
+    assert {:ok, result} =
+             Sigra.EnterpriseRouting.get_routable_connection(@config, %{slug: "acme"})
+
     assert result.organization_slug == "acme"
     assert result.connection_id == "conn-acme"
     assert result.routing_source == :explicit_org

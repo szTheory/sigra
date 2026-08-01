@@ -31,7 +31,8 @@ defmodule Sigra.OAuth.EnterpriseReconciliation do
              normalized_email,
              enterprise_context.connection_id
            ),
-         {:ok, principal} <- resolve_principal(config, identity_match, user_info, normalized_email) do
+         {:ok, principal} <-
+           resolve_principal(config, identity_match, user_info, normalized_email) do
       do_reconcile(
         config,
         organizations_config,
@@ -112,7 +113,9 @@ defmodule Sigra.OAuth.EnterpriseReconciliation do
 
         :jit_create ->
           trust_email = Keyword.get(config.oauth, :trust_provider_email, true)
-          confirmed_at = if trust_email and user_info["email_verified"] == true, do: now, else: nil
+
+          confirmed_at =
+            if trust_email and user_info["email_verified"] == true, do: now, else: nil
 
           user_changeset =
             user_schema
@@ -189,7 +192,8 @@ defmodule Sigra.OAuth.EnterpriseReconciliation do
           {:error, :unsafe_email_claim}
         end
 
-      {:error, _step, reason, _changes} when reason in [:provider_subject_conflict, :unsafe_email_claim] ->
+      {:error, _step, reason, _changes}
+      when reason in [:provider_subject_conflict, :unsafe_email_claim] ->
         {:error, reason}
 
       {:error, _step, _reason, _changes} ->
@@ -223,7 +227,12 @@ defmodule Sigra.OAuth.EnterpriseReconciliation do
     end
   end
 
-  defp resolve_principal(_config, %{identity: _identity, user: _user} = match, _user_info, _normalized_email) do
+  defp resolve_principal(
+         _config,
+         %{identity: _identity, user: _user} = match,
+         _user_info,
+         _normalized_email
+       ) do
     {:ok, %{mode: :existing_identity, identity: match.identity, user: match.user}}
   end
 

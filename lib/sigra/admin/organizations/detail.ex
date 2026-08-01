@@ -60,7 +60,10 @@ defmodule Sigra.Admin.Organizations.Detail do
         membership_schema
         |> from(as: :membership)
         |> where([membership: m], m.organization_id == ^org_id)
-        |> join(:inner, [membership: m], u in ^helpers.user_schema, as: :user, on: u.id == m.user_id)
+        |> join(:inner, [membership: m], u in ^helpers.user_schema,
+          as: :user,
+          on: u.id == m.user_id
+        )
         |> select([membership: m, user: u], %{user: u, role: m.role})
         |> config.repo.all()
         |> Enum.map(&shape_member_row/1)

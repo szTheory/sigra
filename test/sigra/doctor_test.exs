@@ -88,6 +88,7 @@ defmodule Sigra.DoctorTest do
     oauth = find_row(result.rows, :oauth)
     assert oauth.state == :configured_but_missing
     assert result.verdict == :fail
+
     assert result.wiring == [
              "[oauth] OAuth providers are configured but Assent is missing. Add `{:assent, \"~> 0.3\"}` to mix.exs."
            ]
@@ -111,11 +112,12 @@ defmodule Sigra.DoctorTest do
     ]
 
     # oban_running: false overrides the supervision check
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: false
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: false
+      )
 
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :configured_but_missing
@@ -133,11 +135,12 @@ defmodule Sigra.DoctorTest do
       email: [delivery_mode: :async]
     ]
 
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: false
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: false
+      )
 
     async_email = find_row(result.rows, :async_email)
     assert async_email.state == :configured_but_missing
@@ -180,11 +183,12 @@ defmodule Sigra.DoctorTest do
       ]
     ]
 
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: true
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: true
+      )
 
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :configured_but_missing
@@ -239,11 +243,12 @@ defmodule Sigra.DoctorTest do
       ]
     ]
 
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: true
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: true
+      )
 
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :configured_but_missing
@@ -269,12 +274,13 @@ defmodule Sigra.DoctorTest do
     # Inject a module_loaded? that always returns false — simulates any not-loaded module
     always_not_loaded = fn _module -> false end
 
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: true,
-      module_loaded?: always_not_loaded
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: true,
+        module_loaded?: always_not_loaded
+      )
 
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :configured_but_missing
@@ -295,12 +301,13 @@ defmodule Sigra.DoctorTest do
     # Inject a module_loaded? that always returns true — simulates all modules loaded
     always_loaded = fn _module -> true end
 
-    result = Doctor.diagnose(
-      predicates: predicates,
-      host_sigra: host_sigra,
-      oban_running: true,
-      module_loaded?: always_loaded
-    )
+    result =
+      Doctor.diagnose(
+        predicates: predicates,
+        host_sigra: host_sigra,
+        oban_running: true,
+        module_loaded?: always_loaded
+      )
 
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :loaded_active
@@ -323,17 +330,18 @@ defmodule Sigra.DoctorTest do
   test "result has exactly 9 rows covering all D-05 features" do
     result = Doctor.diagnose(predicates: all_false_predicates(), host_sigra: [])
 
-    expected_features = MapSet.new([
-      :totp_mfa,
-      :password_migration,
-      :oauth,
-      :rate_limiting,
-      :jwt,
-      :async_email,
-      :audit_forwarding,
-      :encryption,
-      :enterprise_connections
-    ])
+    expected_features =
+      MapSet.new([
+        :totp_mfa,
+        :password_migration,
+        :oauth,
+        :rate_limiting,
+        :jwt,
+        :async_email,
+        :audit_forwarding,
+        :encryption,
+        :enterprise_connections
+      ])
 
     actual_features = result.rows |> Enum.map(& &1.feature) |> MapSet.new()
 

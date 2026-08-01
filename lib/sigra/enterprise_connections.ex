@@ -26,7 +26,10 @@ defmodule Sigra.EnterpriseConnections do
   @spec change_connection(config(), map(), map()) :: Ecto.Changeset.t()
   def change_connection(config, scope, attrs \\ %{}) do
     connection = get_connection(config, scope) || struct(connection_schema(config))
-    attrs = attrs |> normalize_attrs() |> Map.put("organization_id", active_organization_id!(scope))
+
+    attrs =
+      attrs |> normalize_attrs() |> Map.put("organization_id", active_organization_id!(scope))
+
     connection_schema(config).changeset(connection, attrs)
   end
 
@@ -48,7 +51,8 @@ defmodule Sigra.EnterpriseConnections do
     with true <- changeset.valid? || {:error, changeset},
          candidate <- Ecto.Changeset.apply_changes(changeset),
          {:ok, diagnostics} <- Validation.validate(config, candidate),
-         {:ok, persisted} <- persist(Ecto.Changeset.change(changeset, validated_attrs(diagnostics)), config) do
+         {:ok, persisted} <-
+           persist(Ecto.Changeset.change(changeset, validated_attrs(diagnostics)), config) do
       {:ok, persisted}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -161,13 +165,18 @@ defmodule Sigra.EnterpriseConnections do
   defp normalize_attrs(attrs) when is_map(attrs), do: attrs
   defp normalize_attrs(_attrs), do: %{}
 
-  defp active_organization_id(%{active_organization: %{id: id}}) when not is_nil(id), do: {:ok, id}
+  defp active_organization_id(%{active_organization: %{id: id}}) when not is_nil(id),
+    do: {:ok, id}
+
   defp active_organization_id(_scope), do: {:error, :missing_organization}
 
   defp active_organization_id!(scope) do
     case active_organization_id(scope) do
-      {:ok, id} -> id
-      {:error, :missing_organization} -> raise ArgumentError, "enterprise connections require an active organization"
+      {:ok, id} ->
+        id
+
+      {:error, :missing_organization} ->
+        raise ArgumentError, "enterprise connections require an active organization"
     end
   end
 end

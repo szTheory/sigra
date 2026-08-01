@@ -129,7 +129,8 @@ defmodule Sigra.EnterpriseRouting do
 
   defp resolve_organization(config, %{slug: slug}) when is_binary(slug) do
     with {:ok, organization_schema} <- organization_schema(config),
-         organization when not is_nil(organization) <- config.repo.get_by(organization_schema, slug: slug) do
+         organization when not is_nil(organization) <-
+           config.repo.get_by(organization_schema, slug: slug) do
       {:ok, organization.id, organization}
     else
       _ -> {:error, :org_connection_unavailable}
@@ -144,7 +145,8 @@ defmodule Sigra.EnterpriseRouting do
 
   defp fetch_organization(config, organization_id) do
     with {:ok, organization_schema} <- organization_schema(config),
-         organization when not is_nil(organization) <- config.repo.get(organization_schema, organization_id) do
+         organization when not is_nil(organization) <-
+           config.repo.get(organization_schema, organization_id) do
       {:ok, organization}
     else
       _ -> {:error, :org_connection_unavailable}

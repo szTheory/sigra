@@ -10,8 +10,11 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-231 are complete; Phase 232
-(Playwright Economics — Authenticate Once, Then Shard) is next.
+**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-233 are complete; Phase 234
+(Hygiene, Supply Chain, and Contributor DX) is next. Phase 233 cut the library suite into
+two measured ordinary-test shards plus an unconditional scaffold receiver, retained
+same-run slow-test visibility, and added fail-closed reconciliation against the live
+Mix-filtered test universe.
 
 Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
 on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
@@ -586,6 +589,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — Phase 233
+- ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.
+
 ### Validated — v1.43 STABILIZE (shipped 2026-07-03)
 - ✓ **COMPAT-01, COMPAT-02, COMPAT-03** — generated host compiles clean against phx.new ≥1.8.8 under `--warnings-as-errors`; install golden fixture reblessed; all 11 archive pins → 1.8.8 + `--check` drift-detector; acceptance smoke green (Phase 213, 2/2).
 - ✓ **DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05** — Oban enqueue guard (`OptionalDeps.oban_running?/0`) + regression test; `delete_session/3` IDOR ownership guard + deny-path test; deferred phase-209/phase-200 code-review items resolved/re-triaged; stray Hex `1.20.0` wart corrected (tag deleted, contract.md → 1.1.0, panel-schema-check retired); app.css orphaned-comment corruption cleaned + CI guard (Phase 214, 5/5).
@@ -1049,6 +1055,8 @@ This document evolves at phase transitions and milestone boundaries.
 - **2026-04-09** — Phase 8 account lifecycle completion notes.
 
 </details>
+
+*Last updated: 2026-07-31 — Phase 233 LIBRARY-SUITE-ECONOMICS complete (6/6 plans; verification passed 16/16). Phase 234 is next.*
 
 *Last updated: 2026-05-28 — Phase 136 (Verification Proof Bundle + Narrative-Honesty Corrigendum) shipped (PROOF-01, DOC-01). PROOF-01 proof bundle run on release-branch HEAD — five hard test/docs gates green (full `mix test` 2252/0, `test/sigra/audit/` 60/0, dep-off lane 2246/0, `test/example/` 236/0, `mix docs --warnings-as-errors` exit 0); `mix credo --strict` recorded as a non-CI-enforced local advisory (506 pre-existing library style/design issues disclosed, non-blocking — the 2 enforced custom Sigra checks pass). Per-phase `131–136-VERIFICATION.md` all filed with canonical dash-prefix names (132 history-preserving rename, 133 backfilled). DOC-01 v1.25 EMAIL-RAILS Mailglass corrigendum landed across MILESTONES.md/PROJECT.md/CHANGELOG.md (the library-resident adapter + `--with-mailglass` flag did not land; recipe-only host-owned `Sigra.Mailer` posture). PROOF-01 + DOC-01 reconciled in-place. **v1.29 SUITE-INTEGRATION shipped and archived on 2026-05-29 via `/gsd-complete-milestone` — milestone audit passed (16/16 requirements, 6/6 phases, 5/5 integration, 2/2 flows); ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.29-*`, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.29`.***
 

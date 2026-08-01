@@ -44,16 +44,16 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Library suite economics (TEST)
 
-- [ ] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially.
-- [ ] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works.
-- [ ] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification.
+- [x] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially.
+- [x] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works.
+- [x] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification.
 
 ### Hygiene and contributor DX (DX)
 
-- [ ] **DX-01**: `mix ci` reproduces the PR gate, including formatting and dependency-lock checks.
-- [ ] **DX-02**: Third-party GitHub Actions used in release-critical workflows are pinned to immutable SHAs.
-- [ ] **DX-03**: Dependabot covers Hex and npm dependencies in addition to GitHub Actions.
-- [ ] **DX-04**: Playwright spec files that no CI lane invokes are either wired into a lane or deleted.
+- [x] **DX-01**: `mix ci` reproduces the PR gate, including formatting and dependency-lock checks.
+- [x] **DX-02**: Third-party GitHub Actions used in release-critical workflows are pinned to immutable SHAs.
+- [x] **DX-03**: Dependabot covers Hex and npm dependencies in addition to GitHub Actions.
+- [x] **DX-04**: Playwright spec files that no CI lane invokes are either wired into a lane or deleted.
 - [x] **DX-05**: The two filed release-lane defects are resolved — `gate-ci-green` no longer times out on a green release, and the `release-lane-rot` notifier raises an issue when a lane fails.
 - [ ] **DX-06**: SEED-006 is verified against current CI and closed as delivered, or its residual work is filed.
 
@@ -80,13 +80,13 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Complete |
 | PW-03 | Phase 232 | Complete |
-| TEST-01 | Phase 233 | Pending |
-| TEST-02 | Phase 233 | Pending |
-| TEST-03 | Phase 233 | Pending |
-| DX-01 | Phase 234 | Pending |
-| DX-02 | Phase 234 | Pending |
-| DX-03 | Phase 234 | Pending |
-| DX-04 | Phase 234 | Pending |
+| TEST-01 | Phase 233 | Gaps Found |
+| TEST-02 | Phase 233 | Gaps Found |
+| TEST-03 | Phase 233 | Gaps Found |
+| DX-01 | Phase 234 | Complete |
+| DX-02 | Phase 234 | Complete |
+| DX-03 | Phase 234 | Complete |
+| DX-04 | Phase 234 | Complete |
 | DX-05 | Phase 231 | Complete |
 | DX-06 | Phase 234 | Pending |
 

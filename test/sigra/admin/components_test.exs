@@ -594,6 +594,7 @@ defmodule Sigra.Admin.ComponentsTest do
     css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
 
     assert css =~ ".sg-skeleton::after"
+
     assert Regex.match?(
              ~r/@keyframes sg-skeleton-shimmer \{[\s\S]*transform:\s*translateX\(100%\)/,
              css

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 233
-current_phase_name: Library Suite Economics
-status: planning
-stopped_at: Phase 232 complete; ready to plan Phase 233
-last_updated: "2026-07-31T20:02:58.651Z"
+current_phase: 234
+current_phase_name: hygiene-supply-chain-and-contributor-dx
+status: executing
+stopped_at: Completed 234-05-PLAN.md
+last_updated: "2026-08-01T23:21:03.945Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 232 complete, transitioned to Phase 233
+last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 27
-  completed_plans: 27
-  percent: 50
+  completed_phases: 4
+  total_plans: 47
+  completed_plans: 45
+  percent: 67
 ---
 
 # Project State
@@ -25,15 +25,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 233 — Library Suite Economics
+**Current focus:** Phase 234 — hygiene-supply-chain-and-contributor-dx
 
 ## Current Position
 
-Phase: 233 — Library Suite Economics
-Plan: Not started
-Status: Ready to plan
-Progress: 3/6 milestone phases complete ([█████░░░░░] 50%); Phase 233 not started
-Last activity: 2026-07-31 — Phase 232 complete, transitioned to Phase 233
+Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
+Plan: 13 of 14
+Status: Ready to execute
+Progress: 3/6 milestone phases complete ([██████████] 96%); Phase 233 not started
+Last activity: 2026-07-31 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -390,6 +390,29 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
 - [Phase ?]: Each design project owns a matching UI setup project and test-results/.auth storageState file.
 - [Phase ?]: Design beforeEach retains only navigation and deterministic LiveView/font readiness.
+- [Phase ?]: Keep ExUnit.CLIFormatter and add a deterministic receipt formatter in the same parallel mix test invocation.
+- [Phase ?]: Restrict timing writes to fixed CI-owned /tmp paths and fail closed when the receipt is absent.
+- [Phase ?]: Use PR #175 run 30666977944 as the retry-free timing probe because it exactly matches the pull_request event and head SHA.
+- [Phase ?]: Preserve timing artifact names and SHA-256 digests while committing deterministic per-file aggregates rather than volatile raw receipts.
+- [Phase ?]: Use an unconditional scaffold receiver and exact-success Library tests aggregation for all six InstallFixture-heavy modules.
+- [Phase ?]: Library shard manifests now fail closed against the live Mix-filtered ordinary test universe; discovery validates receipt-derived assignment without rebalancing it.
+- [Phase ?]: library_tests_shard is the sole full-suite owner and invokes literal MIX_ENV=test mix ci once.
+- [Phase ?]: Generated install-golden tree bytes are outside formatter ownership; CSS and prohibition fixtures remain covered.
+- [Phase 234]: Scope immutable-action enforcement to release-please and manual Hex-publish workflows.
+- [Phase 234]: Reject the annotated v5 tag object explicitly despite its 40-character SHA shape.
+- [Phase ?]: Dependabot coverage remains three independent weekly entries; no grouping, registries, ignores, or packages added.
+- [Phase ?]: DX-03 uses fail-closed local structural proof; GitHub update-job evidence remains service-owned.
+- [Phase ?]: Native Mix formatter output is authoritative for bounded D-04 cleanup; generated install-golden bytes remain outside formatter ownership.
+- [Phase ?]: 234-03: Native mix format output is authoritative for bounded D-04 layout-only normalization.
+- [Phase ?]: 234-03: Exact formatter checks plus example warnings-as-errors compilation resolve the DX-01 formatting edge without inferred textual ordering.
+- [Phase ?]: Use native mix format output as the sole source for D-04 layout normalization; retain test names, tags, selectors, expected values, and assertions.
+- [Phase ?]: Use the documented disposable PostgreSQL setup for focused database-backed formatting proof instead of accepting invalidated tests.
+- [Phase ?]: Playwright inventory uses exact live-spec reconciliation with literal workflow/config seams for Phase 235 GATE-05.
+- [Phase ?]: Both useful orphan specs run in the existing admin_behavior Chromium shard with explicit retry-zero evidence.
+- [Phase ?]: D-04 formatter cleanup uses two explicit reversible source batches while excluding generated install-golden tree bytes.
+- [Phase ?]: Plan 234-12 used native Mix formatting only on eight persistence-sensitive example paths and proved warnings-clean compilation.
+- [Phase ?]: D-04 uses exact bounded formatter batches, focused ExUnit execution, and an empty install-golden-tree diff to preserve test meaning.
+- [Phase ?]: Native mix format closes D-04 only with repository-wide formatting plus empty generated-golden diff and focused golden tests.
 
 ### Pending Todos
 
@@ -532,8 +555,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-07-31T20:02:58.651Z
-Stopped at: Phase 232 complete; ready to plan Phase 233
+Last session: 2026-08-01T02:31:31.045Z
+Stopped at: Completed 234-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -667,3 +690,18 @@ Resume file: None
 | Phase 231 P10 | ~37min | 3 tasks | 7 files |
 | Phase 231 P11 | 50min | 3 tasks | 1 files |
 | Phase 232 P01 | 8min | 2 tasks | 6 files |
+| Phase 233-library-suite-economics P01 | 15min | 2 tasks | 5 files |
+| Phase 233-library-suite-economics P02 | 18m | 2 tasks | 3 files |
+| Phase 233-library-suite-economics P03 | 5m | 2 tasks | 8 files |
+| Phase 233-library-suite-economics P06 | 5m | 2 tasks | 3 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P01 | 7m | 2 tasks | 6 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P06 | 3min | 2 tasks | 2 files |
+| Phase 234 P07 | 3min | 2 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P02 | 1m | 2 tasks | 7 files |
+| Phase 234 P03 | 1m | 2 tasks | 7 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P04 | 187s | 2 tasks | 7 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P08 | 5m | 2 tasks | 4 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P11 | 6m | 2 tasks | 8 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P12 | 3 min | 2 tasks | 8 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P13 | 4min | 2 tasks | 8 files |
+| Phase 234 P05 | 3m | 2 tasks | 6 files |

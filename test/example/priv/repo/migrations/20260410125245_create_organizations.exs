@@ -34,7 +34,9 @@ defmodule Example.Repo.Migrations.CreateOrganizations do
         references(
           :organizations,
           Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(
         :user_id,
@@ -62,7 +64,9 @@ defmodule Example.Repo.Migrations.CreateOrganizations do
         references(
           :organizations,
           Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(
         :invited_by_id,

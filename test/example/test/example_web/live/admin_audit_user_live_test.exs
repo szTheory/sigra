@@ -288,7 +288,9 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
            ~r/<a[^>]+href="([^"]+)"[^>]*aria-label="Next page"/,
            html
          ) do
-      [_, href] -> href
+      [_, href] ->
+        href
+
       _ ->
         # Try reversed attribute order
         case Regex.run(

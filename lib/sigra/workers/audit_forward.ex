@@ -117,9 +117,7 @@ if Code.ensure_loaded?(Oban.Worker) do
             }
           )
 
-          Logger.warning(
-            "[Sigra.Workers.AuditForward] perform/1 rescued: #{reason}"
-          )
+          Logger.warning("[Sigra.Workers.AuditForward] perform/1 rescued: #{reason}")
 
           {:error, reason}
       catch
@@ -235,13 +233,27 @@ if Code.ensure_loaded?(Oban.Worker) do
           result = forwarder_module.handle_event(event, %{count: 1}, metadata, opts)
 
           case result do
-            :ok -> :ok
-            {:ok, _} -> :ok
-            {:error, :schema_mismatch} -> {:cancel, :schema_mismatch}
-            {:error, :missing_actor} -> {:cancel, :schema_mismatch}
-            {:error, :invalid_actor_ref} -> {:cancel, :schema_mismatch}
-            {:error, :missing_repo} -> {:cancel, :schema_mismatch}
-            {:error, reason} -> {:error, reason}
+            :ok ->
+              :ok
+
+            {:ok, _} ->
+              :ok
+
+            {:error, :schema_mismatch} ->
+              {:cancel, :schema_mismatch}
+
+            {:error, :missing_actor} ->
+              {:cancel, :schema_mismatch}
+
+            {:error, :invalid_actor_ref} ->
+              {:cancel, :schema_mismatch}
+
+            {:error, :missing_repo} ->
+              {:cancel, :schema_mismatch}
+
+            {:error, reason} ->
+              {:error, reason}
+
             other ->
               Logger.warning(
                 "[Sigra.Workers.AuditForward] Unexpected return from #{inspect(forwarder_module)}: #{inspect(other)}"
@@ -274,9 +286,7 @@ if Code.ensure_loaded?(Oban.Worker) do
             }
           )
 
-          Logger.warning(
-            "[Sigra.Workers.AuditForward] Forwarder raised: #{reason}"
-          )
+          Logger.warning("[Sigra.Workers.AuditForward] Forwarder raised: #{reason}")
 
           {:error, reason}
       catch

@@ -65,14 +65,30 @@ defmodule Sigra.OAuth.Callback do
         provider_str = to_string(provider) |> String.downcase()
         provider_uid = to_string(user_info["sub"])
 
-        do_process(config, provider, provider_str, provider_uid, user_info, token, enterprise_context)
+        do_process(
+          config,
+          provider,
+          provider_str,
+          provider_uid,
+          user_info,
+          token,
+          enterprise_context
+        )
       end
     end
   end
 
   # -- Private --
 
-  defp do_process(config, provider, provider_str, provider_uid, user_info, token, enterprise_context) do
+  defp do_process(
+         config,
+         provider,
+         provider_str,
+         provider_uid,
+         user_info,
+         token,
+         enterprise_context
+       ) do
     repo = config.repo
     identity_schema = config.identity_schema
     user_schema = config.user_schema
@@ -123,7 +139,14 @@ defmodule Sigra.OAuth.Callback do
              }}
           else
             # New user registration
-            register_oauth_user(config, provider, provider_str, user_info, token, enterprise_context)
+            register_oauth_user(
+              config,
+              provider,
+              provider_str,
+              user_info,
+              token,
+              enterprise_context
+            )
           end
       end
     end
@@ -375,15 +398,29 @@ defmodule Sigra.OAuth.Callback do
       auth_method: :oauth,
       provider: provider
     }
-    |> maybe_put(:active_organization_id, enterprise_context && enterprise_context.organization_id)
-    |> maybe_put(:enterprise_connection_id, enterprise_context && enterprise_context.connection_id)
-    |> maybe_put(:enterprise_routing_source, enterprise_context && enterprise_context.routing_source)
+    |> maybe_put(
+      :active_organization_id,
+      enterprise_context && enterprise_context.organization_id
+    )
+    |> maybe_put(
+      :enterprise_connection_id,
+      enterprise_context && enterprise_context.connection_id
+    )
+    |> maybe_put(
+      :enterprise_routing_source,
+      enterprise_context && enterprise_context.routing_source
+    )
   end
 
   defp validate_enterprise_context(_config, _provider, nil), do: {:ok, nil}
-  defp validate_enterprise_context(_config, _provider, %{state: nil, session: nil}), do: {:ok, nil}
 
-  defp validate_enterprise_context(config, provider, %{state: state_context, session: session_context}) do
+  defp validate_enterprise_context(_config, _provider, %{state: nil, session: nil}),
+    do: {:ok, nil}
+
+  defp validate_enterprise_context(config, provider, %{
+         state: state_context,
+         session: session_context
+       }) do
     state_context = normalize_enterprise_context(state_context)
     session_context = normalize_enterprise_context(session_context)
 
@@ -395,8 +432,11 @@ defmodule Sigra.OAuth.Callback do
         {:error, %OAuthError{provider: provider, error_code: :enterprise_context_mismatch}}
 
       true ->
-        case EnterpriseRouting.get_routable_connection(config, %{id: state_context.organization_id}) do
-          {:ok, %{connection_id: connection_id}} when connection_id == state_context.connection_id ->
+        case EnterpriseRouting.get_routable_connection(config, %{
+               id: state_context.organization_id
+             }) do
+          {:ok, %{connection_id: connection_id}}
+          when connection_id == state_context.connection_id ->
             {:ok, state_context}
 
           _ ->

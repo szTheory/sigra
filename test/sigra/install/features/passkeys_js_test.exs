@@ -4,6 +4,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
   alias Sigra.Test.InstallFixture
 
   @moduletag timeout: 180_000
+  @moduletag :scaffold
 
   @passkey_import ~s(import { PasskeyHooks } from "./passkey_hooks")
   @passkey_hooks_line ~s(hooks: { ...colocatedHooks, ...PasskeyHooks })

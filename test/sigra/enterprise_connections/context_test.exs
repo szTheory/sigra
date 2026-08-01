@@ -30,8 +30,20 @@ defmodule Sigra.EnterpriseConnections.ContextTest do
 
     def changeset(settings, attrs) do
       settings
-      |> cast(attrs, [:issuer, :discovery_document_uri, :client_id, :encrypted_client_secret, :client_authentication_method, :scopes])
-      |> validate_required([:issuer, :client_id, :encrypted_client_secret, :client_authentication_method])
+      |> cast(attrs, [
+        :issuer,
+        :discovery_document_uri,
+        :client_id,
+        :encrypted_client_secret,
+        :client_authentication_method,
+        :scopes
+      ])
+      |> validate_required([
+        :issuer,
+        :client_id,
+        :encrypted_client_secret,
+        :client_authentication_method
+      ])
     end
   end
 
@@ -44,7 +56,11 @@ defmodule Sigra.EnterpriseConnections.ContextTest do
 
     schema "enterprise_connections" do
       field :protocol, Ecto.Enum, values: [:oidc], default: :oidc
-      field :status, Ecto.Enum, values: [:draft, :validation_failed, :active, :disabled], default: :draft
+
+      field :status, Ecto.Enum,
+        values: [:draft, :validation_failed, :active, :disabled],
+        default: :draft
+
       field :display_name, :string
       field :login_hint_domains, {:array, :string}, default: []
       field :last_validated_at, :utc_datetime_usec
@@ -56,7 +72,15 @@ defmodule Sigra.EnterpriseConnections.ContextTest do
 
     def changeset(connection, attrs) do
       connection
-      |> cast(attrs, [:organization_id, :protocol, :status, :display_name, :login_hint_domains, :last_validated_at, :last_validation_error])
+      |> cast(attrs, [
+        :organization_id,
+        :protocol,
+        :status,
+        :display_name,
+        :login_hint_domains,
+        :last_validated_at,
+        :last_validation_error
+      ])
       |> validate_required([:organization_id, :protocol, :status, :display_name])
       |> cast_embed(:oidc_settings, required: true, with: &TestOIDCSettings.changeset/2)
     end
@@ -72,19 +96,18 @@ defmodule Sigra.EnterpriseConnections.ContextTest do
     %{
       repo: Sigra.MockRepo,
       schemas: %{enterprise_connection: TestConnection},
-      http_client:
-        fn _opts ->
-          {:ok,
-           %{
-             status: 200,
-             body: %{
-               "issuer" => "https://issuer.example",
-               "authorization_endpoint" => "https://issuer.example/auth",
-               "token_endpoint" => "https://issuer.example/token",
-               "jwks_uri" => "https://issuer.example/jwks"
-             }
-           }}
-        end
+      http_client: fn _opts ->
+        {:ok,
+         %{
+           status: 200,
+           body: %{
+             "issuer" => "https://issuer.example",
+             "authorization_endpoint" => "https://issuer.example/auth",
+             "token_endpoint" => "https://issuer.example/token",
+             "jwks_uri" => "https://issuer.example/jwks"
+           }
+         }}
+      end
     }
   end
 
@@ -113,6 +136,7 @@ defmodule Sigra.EnterpriseConnections.ContextTest do
 
     assert {:ok, connection} =
              Sigra.EnterpriseConnections.save_connection(config(), scope(org_id), valid_attrs())
+
     assert connection.organization_id == org_id
   end
 

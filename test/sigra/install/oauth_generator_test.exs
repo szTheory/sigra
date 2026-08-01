@@ -239,7 +239,11 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       # rather than the full `create table(:user_identities)` literal.
       assert String.contains?(content, "create table(:user_identities")
       assert String.contains?(content, "@prefix_opts")
-      assert String.contains?(content, "unique_index(:user_identities, [:user_id, :provider], @prefix_opts)")
+
+      assert String.contains?(
+               content,
+               "unique_index(:user_identities, [:user_id, :provider], @prefix_opts)"
+             )
 
       assert String.contains?(
                content,
@@ -338,7 +342,12 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       schema = EEx.eval_file(Path.join(@template_dir, "user_identity.ex"), binding)
 
       assert String.contains?(migration, ~s(@auth_prefix "auth"))
-      assert String.contains?(migration, "create table(:user_identities, Keyword.merge(@prefix_opts")
+
+      assert String.contains?(
+               migration,
+               "create table(:user_identities, Keyword.merge(@prefix_opts"
+             )
+
       assert String.contains?(migration, "references(:users, Keyword.merge(@ref_opts")
       assert String.contains?(schema, ~s(@schema_prefix "auth"))
     end

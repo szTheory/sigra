@@ -178,7 +178,8 @@ defmodule Mix.Tasks.Sigra.Install do
       {:ok, _prefix} ->
         Mix.raise("--auth-prefix is only supported for Postgres repos.")
 
-      :error -> nil
+      :error ->
+        nil
     end
   end
 

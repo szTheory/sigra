@@ -78,7 +78,9 @@ defmodule Sigra.AuditTelemetryTest do
     end
 
     # The new pair has the right shape (Pitfall 4 idempotency key).
-    assert is_binary(metadata.id), "metadata.id must be a UUID string, got: #{inspect(metadata.id)}"
+    assert is_binary(metadata.id),
+           "metadata.id must be a UUID string, got: #{inspect(metadata.id)}"
+
     assert match?(%DateTime{}, metadata.occurred_at),
            "metadata.occurred_at must be a %DateTime{}, got: #{inspect(metadata.occurred_at)}"
   end

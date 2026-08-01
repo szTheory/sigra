@@ -193,9 +193,7 @@ if Code.ensure_loaded?(Threadline) do
             }
           )
 
-          Logger.warning(
-            "[Sigra.Audit.Forwarders.Threadline] Caught exit: #{inspect(reason)}"
-          )
+          Logger.warning("[Sigra.Audit.Forwarders.Threadline] Caught exit: #{inspect(reason)}")
 
           :ok
 
@@ -213,9 +211,7 @@ if Code.ensure_loaded?(Threadline) do
             }
           )
 
-          Logger.warning(
-            "[Sigra.Audit.Forwarders.Threadline] Caught throw: #{inspect(value)}"
-          )
+          Logger.warning("[Sigra.Audit.Forwarders.Threadline] Caught throw: #{inspect(value)}")
 
           :ok
       end

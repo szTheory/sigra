@@ -122,7 +122,9 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
     [_, group_body] = group_match
     [_, config_body] = config_match
 
-    count_boards = fn body -> body |> then(&Regex.scan(~r/'board-[a-zA-Z0-9_-]+'/, &1)) |> length() end
+    count_boards = fn body ->
+      body |> then(&Regex.scan(~r/'board-[a-zA-Z0-9_-]+'/, &1)) |> length()
+    end
 
     component_count = count_boards.(component_body)
     group_count = count_boards.(group_body)
@@ -199,7 +201,10 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
     assert gallery_meta =~ "github.event_name == 'pull_request'"
 
     snapshots_match =
-      Regex.run(~r/name: Run design gallery behavior and snapshots\n(.*?)- name: Run non-admin/s, job)
+      Regex.run(
+        ~r/name: Run design gallery behavior and snapshots\n(.*?)- name: Run non-admin/s,
+        job
+      )
 
     assert snapshots_match,
            "design_gallery_snapshots step body not found in #{@ci_path}"

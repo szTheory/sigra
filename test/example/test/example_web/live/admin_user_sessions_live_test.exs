@@ -14,7 +14,9 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
   describe "revoke flow (happy path)" do
     test "open dialog -> confirm revokes a single session and the list updates", %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "sessions-revoke-one@example.com", display_name: "Revoke One"})
+
+      target =
+        user_fixture(%{email: "sessions-revoke-one@example.com", display_name: "Revoke One"})
 
       keep = session_fixture(target, %{ip: "10.9.9.1"})
       victim = session_fixture(target, %{ip: "10.9.9.2"})
@@ -46,7 +48,9 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
 
     test "open dialog -> confirm revokes all sessions and shows the empty state", %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "sessions-revoke-all@example.com", display_name: "Revoke All"})
+
+      target =
+        user_fixture(%{email: "sessions-revoke-all@example.com", display_name: "Revoke All"})
 
       session_fixture(target, %{ip: "10.8.8.1"})
       session_fixture(target, %{ip: "10.8.8.2"})
@@ -71,7 +75,9 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
 
     test "cancelling the confirm dialog leaves sessions intact", %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "sessions-cancel@example.com", display_name: "Cancel Revoke"})
+
+      target =
+        user_fixture(%{email: "sessions-cancel@example.com", display_name: "Cancel Revoke"})
 
       session = session_fixture(target, %{ip: "10.7.7.7"})
 
@@ -111,7 +117,9 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
   describe "scope safety + authorization" do
     test "the global scope ribbon and breadcrumbs reflect the active scope", %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "sessions-global-scope@example.com", display_name: "Global Scope"})
+
+      target =
+        user_fixture(%{email: "sessions-global-scope@example.com", display_name: "Global Scope"})
 
       session_fixture(target, %{ip: "10.5.5.5"})
 

@@ -127,7 +127,9 @@ defmodule Example.Demo.Seeds do
             # The `@demo.tasklane.test` domain keeps seed data in the test domain while
             # the `loadtest-` prefix allows BOTH persona-count queries to exclude it.
             hex_token = Base.encode16(:crypto.hash(:md5, "bulk-user-#{n}-v1"), case: :lower)
-            email = "loadtest-#{String.pad_leading("#{n}", 2, "0")}-#{hex_token}@demo.tasklane.test"
+
+            email =
+              "loadtest-#{String.pad_leading("#{n}", 2, "0")}-#{hex_token}@demo.tasklane.test"
 
             # UUID-shaped identifier embedded in the display name for rendering pressure.
             uuid_shaped =
@@ -858,7 +860,9 @@ defmodule Example.Demo.Seeds do
           subject = Map.fetch!(users, event.email)
           actor = Map.fetch!(users, event.actor)
           organization_id = event.org && Map.fetch!(organizations, event.org).id
-          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * @seconds_per_day, :second)
+
+          occurred_at =
+            DateTime.add(@seed_reference_ts, -event.offset * @seconds_per_day, :second)
 
           %AuditEvent{}
           |> AuditEvent.changeset(

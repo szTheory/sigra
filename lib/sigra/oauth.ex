@@ -150,10 +150,12 @@ defmodule Sigra.OAuth do
                 {:ok, user_info, token} ->
                   Callback.process_callback(config, provider, user_info, token,
                     enterprise_context: %{
-                      state: normalize_enterprise_context(Map.get(state_data, :enterprise_context)),
+                      state:
+                        normalize_enterprise_context(Map.get(state_data, :enterprise_context)),
                       session:
                         normalize_enterprise_context(
-                          session_params[:enterprise_context] || session_params["enterprise_context"]
+                          session_params[:enterprise_context] ||
+                            session_params["enterprise_context"]
                         )
                     }
                   )

@@ -30,7 +30,9 @@ defmodule Sigra.Planning.Phase230CiTimeoutsTest do
           rest
 
         _ ->
-          flunk("could not find top-level `jobs:` line in #{@ci} — the parse broke, this is not a pass")
+          flunk(
+            "could not find top-level `jobs:` line in #{@ci} — the parse broke, this is not a pass"
+          )
       end
 
     after_jobs

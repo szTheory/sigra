@@ -18,6 +18,7 @@ defmodule Sigra.UpgradeIntegrationTest do
 
   @moduletag :upgrade
   @moduletag timeout: 600_000
+  @moduletag :scaffold
 
   setup_all do
     original_cloak_key = System.get_env("CLOAK_KEY")

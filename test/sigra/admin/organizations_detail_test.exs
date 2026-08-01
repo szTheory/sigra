@@ -166,12 +166,22 @@ defmodule Sigra.Admin.OrganizationsDetailTest do
     insert_membership(other, org2, "member")
 
     # org1 invitations: pending+future, pending+expired, accepted, revoked
-    pending_future = insert_invitation(org1, "future@example.com", "member", expires_at: ~U[2099-01-01 00:00:00Z])
-    pending_expired = insert_invitation(org1, "expired@example.com", "admin", expires_at: ~U[2020-01-01 00:00:00Z])
+    pending_future =
+      insert_invitation(org1, "future@example.com", "member",
+        expires_at: ~U[2099-01-01 00:00:00Z]
+      )
+
+    pending_expired =
+      insert_invitation(org1, "expired@example.com", "admin",
+        expires_at: ~U[2020-01-01 00:00:00Z]
+      )
+
     insert_invitation(org1, "accepted@example.com", "member", accepted_at: @now)
     insert_invitation(org1, "revoked@example.com", "member", revoked_at: @now)
     # org2 pending invitation — must never appear in org1 results.
-    insert_invitation(org2, "org2pending@example.com", "member", expires_at: ~U[2099-01-01 00:00:00Z])
+    insert_invitation(org2, "org2pending@example.com", "member",
+      expires_at: ~U[2099-01-01 00:00:00Z]
+    )
 
     config = %{
       repo: @repo,
@@ -243,7 +253,9 @@ defmodule Sigra.Admin.OrganizationsDetailTest do
     end
 
     test "returns [] when no membership schema can be resolved", ctx do
-      config = Map.delete(ctx.config, :membership_schema) |> Map.put(:accounts_module, BareAccounts)
+      config =
+        Map.delete(ctx.config, :membership_schema) |> Map.put(:accounts_module, BareAccounts)
+
       assert Detail.member_roster(config, ctx.org1_scope) == []
     end
   end

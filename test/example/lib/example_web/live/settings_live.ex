@@ -40,7 +40,11 @@ defmodule ExampleWeb.SettingsLive do
   end
 
   @impl true
-  def handle_params(%{"token" => token}, _uri, %{assigns: %{live_action: :confirm_email}} = socket) do
+  def handle_params(
+        %{"token" => token},
+        _uri,
+        %{assigns: %{live_action: :confirm_email}} = socket
+      ) do
     case Auth.confirm_email_change(token) do
       {:ok, _user} ->
         {:noreply,
@@ -308,7 +312,11 @@ defmodule ExampleWeb.SettingsLive do
 
       {:error, _changeset} ->
         {:noreply,
-         put_flash(socket, :error, "Something went wrong while processing your request. Please try again.")}
+         put_flash(
+           socket,
+           :error,
+           "Something went wrong while processing your request. Please try again."
+         )}
     end
   end
 
@@ -321,7 +329,10 @@ defmodule ExampleWeb.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your password has been changed. All other sessions have been signed out.")
+         |> put_flash(
+           :info,
+           "Your password has been changed. All other sessions have been signed out."
+         )
          |> assign(force_password_change?: false, password_form: to_form(%{}, as: "password"))}
 
       {:error, changeset} ->
@@ -337,7 +348,10 @@ defmodule ExampleWeb.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Password set successfully. You can now sign in with email and password.")
+         |> put_flash(
+           :info,
+           "Password set successfully. You can now sign in with email and password."
+         )
          |> assign(has_password?: true, password_form: to_form(%{}, as: "password"))}
 
       {:error, changeset} ->
@@ -352,7 +366,10 @@ defmodule ExampleWeb.SettingsLive do
       {:ok, updated_user, scheduled_date} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.")
+         |> put_flash(
+           :info,
+           "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings."
+         )
          |> assign(
            current_scope: %{socket.assigns.current_scope | user: updated_user},
            deletion_status: Auth.deletion_status(updated_user),
@@ -362,9 +379,14 @@ defmodule ExampleWeb.SettingsLive do
       {:error, reason} ->
         message =
           case reason do
-            :already_scheduled -> "Your account is already scheduled for deletion."
-            :cooldown -> "You recently cancelled a deletion request. Please wait before requesting again."
-            _ -> "Something went wrong while processing your request. Please try again."
+            :already_scheduled ->
+              "Your account is already scheduled for deletion."
+
+            :cooldown ->
+              "You recently cancelled a deletion request. Please wait before requesting again."
+
+            _ ->
+              "Something went wrong while processing your request. Please try again."
           end
 
         {:noreply, put_flash(socket, :error, message)}
@@ -387,7 +409,11 @@ defmodule ExampleWeb.SettingsLive do
 
       {:error, _reason} ->
         {:noreply,
-         put_flash(socket, :error, "Something went wrong while processing your request. Please try again.")}
+         put_flash(
+           socket,
+           :error,
+           "Something went wrong while processing your request. Please try again."
+         )}
     end
   end
 

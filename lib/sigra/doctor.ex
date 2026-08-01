@@ -258,8 +258,7 @@ defmodule Sigra.Doctor do
           ~s(Add `{:assent, "~> 0.3"}` to mix.exs deps to enable OAuth/OIDC/social login.),
         hint_available:
           ~s(Assent loaded. Configure providers in sigra_config: `oauth: [providers: [google: [...]]]`.),
-        hint_active:
-          ~s(OAuth active. Assent loaded and OAuth providers configured.),
+        hint_active: ~s(OAuth active. Assent loaded and OAuth providers configured.),
         hint_broken:
           ~s(OAuth providers are configured but Assent is missing. Add `{:assent, "~> 0.3"}` to mix.exs.)
       },
@@ -269,12 +268,10 @@ defmodule Sigra.Doctor do
         availability_keys: [:hammer],
         configured?: &rate_limiting_configured?/1,
         hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
-        hint_missing:
-          ~s(Add `{:hammer, "~> 7.3"}` to mix.exs deps to enable rate limiting.),
+        hint_missing: ~s(Add `{:hammer, "~> 7.3"}` to mix.exs deps to enable rate limiting.),
         hint_available:
           ~s(Hammer loaded. Configure rate limiting in sigra_config: `rate_limiting: [limiter: MyApp.RateLimiter]`.),
-        hint_active:
-          ~s(Rate limiting active. Hammer loaded and limiter configured.),
+        hint_active: ~s(Rate limiting active. Hammer loaded and limiter configured.),
         hint_broken:
           ~s(Rate limiting is configured but Hammer is missing. Add `{:hammer, "~> 7.3"}` to mix.exs.)
       },
@@ -286,10 +283,8 @@ defmodule Sigra.Doctor do
         hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:joken, "~> 2.6"}` to mix.exs deps to enable JWT signing/verification.),
-        hint_available:
-          ~s(Joken loaded. Enable JWT in sigra_config: `jwt: [enabled: true]`.),
-        hint_active:
-          ~s(JWT active. Joken loaded and jwt: [enabled: true] in config.),
+        hint_available: ~s(Joken loaded. Enable JWT in sigra_config: `jwt: [enabled: true]`.),
+        hint_active: ~s(JWT active. Joken loaded and jwt: [enabled: true] in config.),
         hint_broken:
           ~s(JWT is enabled in config but Joken is missing. Add `{:joken, "~> 2.6"}` to mix.exs.)
       },
@@ -333,8 +328,7 @@ defmodule Sigra.Doctor do
           ~s(Add `{:cloak_ecto, "~> 1.3"}` to mix.exs and run `mix sigra.upgrade` to enable at-rest encryption.),
         hint_available:
           ~s(Encryption vault configured. Enable passkeys in sigra_config to activate.),
-        hint_active:
-          ~s(Encryption active. Vault configured and passkeys enabled.),
+        hint_active: ~s(Encryption active. Vault configured and passkeys enabled.),
         hint_broken:
           "Encryption is required (passkeys enabled) but the encryption module is the plaintext stub. Run 'mix sigra.upgrade' and set CLOAK_KEY."
       },

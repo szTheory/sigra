@@ -122,6 +122,7 @@ defmodule Sigra.Workers.AuditForwardTest do
     test "returns a positive integer for attempts 1, 2, 3" do
       for attempt <- [1, 2, 3] do
         result = AuditForward.backoff(%Oban.Job{attempt: attempt})
+
         assert is_integer(result) and result > 0,
                "AuditForward.backoff(#{attempt}) returned #{inspect(result)}"
       end

@@ -38,35 +38,35 @@ defmodule Example.Demo.Branding do
   ]
 
   @tasklane_light Profile.new!(
-                  product_name: "Tasklane",
-                  logo_url: "/images/tasklane-mark.svg",
-                  logo_alt: "Tasklane logo",
-                  accent_color: "#045f73",
-                  accent_foreground: "#ffffff",
-                  background_color: "#edf7f6",
-                  surface_color: "#fbfefd",
-                  text_color: "#10242c",
-                  muted_color: "#526971",
-                  border_color: "#bfd8d6",
-                  email_from_name: "Tasklane",
-                  email_from_address: "noreply@demo.tasklane.test",
-                  theme: :light
-                )
+                    product_name: "Tasklane",
+                    logo_url: "/images/tasklane-mark.svg",
+                    logo_alt: "Tasklane logo",
+                    accent_color: "#045f73",
+                    accent_foreground: "#ffffff",
+                    background_color: "#edf7f6",
+                    surface_color: "#fbfefd",
+                    text_color: "#10242c",
+                    muted_color: "#526971",
+                    border_color: "#bfd8d6",
+                    email_from_name: "Tasklane",
+                    email_from_address: "noreply@demo.tasklane.test",
+                    theme: :light
+                  )
   @tasklane_dark Profile.new!(
-                 product_name: "Tasklane",
-                 logo_url: "/images/tasklane-mark.svg",
-                 logo_alt: "Tasklane logo",
-                 accent_color: "#5eead4",
-                 accent_foreground: "#062029",
-                 background_color: "#061b22",
-                 surface_color: "#0b2930",
-                 text_color: "#e9fffb",
-                 muted_color: "#a7c5c5",
-                 border_color: "#1f4b52",
-                 email_from_name: "Tasklane",
-                 email_from_address: "noreply@demo.tasklane.test",
-                 theme: :dark
-               )
+                   product_name: "Tasklane",
+                   logo_url: "/images/tasklane-mark.svg",
+                   logo_alt: "Tasklane logo",
+                   accent_color: "#5eead4",
+                   accent_foreground: "#062029",
+                   background_color: "#061b22",
+                   surface_color: "#0b2930",
+                   text_color: "#e9fffb",
+                   muted_color: "#a7c5c5",
+                   border_color: "#1f4b52",
+                   email_from_name: "Tasklane",
+                   email_from_address: "noreply@demo.tasklane.test",
+                   theme: :dark
+                 )
 
   @rail_accent_light Profile.new!(
                        product_name: "Rail Accent",
