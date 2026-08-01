@@ -487,22 +487,14 @@ jobs:
           PGHOST: localhost
         run: MIX_ENV=test mix sigra.fixture.rebless_golden --check
 
-  # TEST-01 (D-01/D-04): 2-leg matrix shard worker. Each leg gets its own
-  # postgres service container (free DB isolation per D-05). The partition is NOT
-  # in the cache key (D-06: both legs share one warm -library- entry).
-  # fail-fast: false (D-01) so one shard failing does not cancel the sibling.
-  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating --
-  # same rationale as fast_checks above. The library test suite is exactly
-  # what a docs-only PR's .planning/**/guides/** changes need asserted on.
+  # DX-01: sole full-library-suite owner. It deliberately remains exempt from
+  # docs-only gating: repository-facing documentation changes still need the
+  # library contract checked on every pull request.
   library_tests_shard:
-    name: Library tests shard ${{ matrix.partition }}
+    name: Library tests shard
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: release_ref_guard
-    strategy:
-      fail-fast: false            # D-01: one shard failing must NOT cancel the sibling
-      matrix:
-        partition: [1, 2]         # D-04: N=2
     services:
       postgres:
         image: postgres:15
@@ -521,8 +513,6 @@ jobs:
         with:
           version-file: .tool-versions
           version-type: strict
-      # D-06: cache key UNCHANGED from Phase 194 — partition is NOT in the key so
-      # both legs share one warm -library- entry (no split, no doubled cold-compile).
       - name: Cache library deps
         id: deps_cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -543,154 +533,12 @@ jobs:
         run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         run: mix deps.get
-      - name: Run library tests (shard ${{ matrix.partition }})
+      - name: Run contributor CI gate
         env:
-          MIX_ENV: test
-          # TEST-02 (D-03/D-04): the committed measured manifest, not Mix,
-          # selects this leg's explicit ordinary test file slice.
-          MIX_TEST_PARTITION: ${{ matrix.partition }}
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-          # D-02: this fixed, CI-owned receipt is written by the same parallel
-          # ExUnit process; no log parser or second timing-only test run exists.
-          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
-        run: |
-          set -euo pipefail
-          mix compile --quiet
-          library_test_files_output="$(mix run --no-start --no-compile --no-deps-check -r test/support/ci/library_test_partitions.exs -e 'IO.puts(Enum.join(Sigra.CI.LibraryTestPartitions.partition("${{ matrix.partition }}"), "\n"))')"
-          if [[ -z "${library_test_files_output//[[:space:]]/}" ]]; then
-            echo "library test partition selector returned no paths"
-            exit 1
-          fi
-          mapfile -t library_test_files <<< "$library_test_files_output"
-          if (( ${#library_test_files[@]} == 0 )); then
-            echo "library test partition argv is empty"
-            exit 1
-          fi
-          for library_test_file in "${library_test_files[@]}"; do
-            if [[ -z "$library_test_file" ]]; then
-              echo "library test partition argv contains an empty path"
-              exit 1
-            fi
-          done
-          mix test "${library_test_files[@]}" --exclude scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
-      - name: CI run summary
-        if: always()
-        run: |
-          {
-            echo "## library_tests shard ${{ matrix.partition }}"
-            echo "- elixir: $(elixir --version | tail -1)"
-            echo "- otp: $(erl -noshell -eval 'io:format("~s", [erlang:system_info(otp_release)]), halt().')"
-            echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
-            echo "- deps cache (exact hit): ${{ steps.deps_cache.outputs.cache-hit }}"
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Test timing summary
-        if: always()
-        env:
-          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-${{ matrix.partition }}-timings.json
-        run: |
-          set -euo pipefail
-          test -s "$SIGRA_EXUNIT_TIMING_PATH"
-          {
-            echo "## Slowest tests (shard ${{ matrix.partition }})"
-            echo "| Time (ms) | Test | Outcome |"
-            echo "| ---: | --- | --- |"
-            jq -r '.tests[:10][] | "| \(.time_us / 1000) | `\(.module).\(.name)` | \(.outcome) |"' "$SIGRA_EXUNIT_TIMING_PATH"
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload timing receipt
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: library-test-timings-${{ matrix.partition }}
-          path: /tmp/sigra-library-${{ matrix.partition }}-timings.json
-          if-no-files-found: error
-          retention-days: 7
-      # NOTE: `mix docs` (docs build check) REMOVED from this shard job (D-07).
-      # Relocated to library_tests_dep_off which already has a compiled toolchain —
-      # runs once per CI run, never per shard (N× cost for one artifact).
-
-  # TEST-03 (D-05/D-06): this receiver deliberately has no path or docs-only gate.
-  library_tests_scaffold:
-    name: Library tests scaffold
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: release_ref_guard
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: sigra_test
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd pg_isready --health-interval 10s
-          --health-timeout 5s --health-retries 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
-        id: setup
-        with:
-          version-file: .tool-versions
-          version-type: strict
-      - name: Cache library deps
-        id: deps_cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
-          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
-      - name: Install Hex + Rebar
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
-      - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.8
-      - name: Fetch library deps
-        run: mix deps.get
-      - name: Run scaffold library tests
-        env:
-          MIX_ENV: test
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-scaffold-timings.json
-        run: |
-          set -euo pipefail
-          mix test --only scaffold --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
-      - name: CI run summary
-        if: always()
-        run: |
-          {
-            echo "## library_tests scaffold"
-            echo "- elixir: $(elixir --version | tail -1)"
-            echo "- otp: $(erl -noshell -eval 'io:format(\"~s\", [erlang:system_info(otp_release)]), halt().')"
-            echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
-            echo "- deps cache (exact hit): ${{ steps.deps_cache.outputs.cache-hit }}"
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Test timing summary
-        if: always()
-        env:
-          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-scaffold-timings.json
-        run: |
-          set -euo pipefail
-          test -s "$SIGRA_EXUNIT_TIMING_PATH"
-          {
-            echo "## Slowest scaffold tests"
-            echo "| Time (ms) | Test | Outcome |"
-            echo "| ---: | --- | --- |"
-            jq -r '.tests[:10][] | "| \(.time_us / 1000) | `\(.module).\(.name)` | \(.outcome) |"' "$SIGRA_EXUNIT_TIMING_PATH"
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload scaffold timing receipt
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: library-test-timings-scaffold
-          path: /tmp/sigra-library-scaffold-timings.json
-          if-no-files-found: error
-          retention-days: 7
+        run: MIX_ENV=test mix ci
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
@@ -706,23 +554,16 @@ jobs:
     name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [library_tests_shard, library_tests_scaffold]
+    needs: [library_tests_shard]
     if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
     steps:
-      - name: Require all library_tests shards to pass
+      - name: Require the library suite owner to pass
         env:
-          # needs.<matrix-job>.result is 'success' only if EVERY leg succeeded.
-          # 'failure' if any leg failed — independent of fail-fast: false.
-          SHARDS: ${{ needs.library_tests_shard.result }}
-          SCAFFOLD: ${{ needs.library_tests_scaffold.result }}
+          SHARD: ${{ needs.library_tests_shard.result }}
         run: |
           set -euo pipefail
-          if [[ "$SHARDS" != "success" ]]; then
-            echo "library_tests_shard result: $SHARDS"
-            exit 1
-          fi
-          if [[ "$SCAFFOLD" != "success" ]]; then
-            echo "library_tests_scaffold result: $SCAFFOLD"
+          if [[ "$SHARD" != "success" ]]; then
+            echo "library_tests_shard result: $SHARD"
             exit 1
           fi
           echo "all library tests passed"
@@ -775,44 +616,10 @@ jobs:
         env:
           MIX_ENV: test
         run: mix deps.get
-      # Compile deps BEFORE removing threadline. On a cache miss `_build` is empty,
-      # and `mix compile --no-deps-check` (below) does not build dependencies — it
-      # would compile the library against absent Ecto/Phoenix.LiveView and fail with
-      # "module Ecto.Query is not loaded". Compiling deps first (in test env, the env
-      # the project compile uses) makes the lane robust to cache misses.
-      - name: Compile deps in test env (dep-off lane)
-        env:
-          MIX_ENV: test
-        run: mix deps.compile
-      # D-07: mix docs relocated here from the shard job (which is N× cost for one artifact).
-      # This job already has a compiled toolchain (setup-beam + deps + compile above),
-      # is not a shard, and runs exactly once per CI run — the correct host for docs.
-      # MUST run BEFORE the threadline removal below: `mix docs` (MIX_ENV=dev) does a
-      # deps check, and once :threadline is unlocked/cleaned that check fails with
-      # "Unchecked dependencies ... Can't continue due to errors on dependencies".
+      # The sole alias owner exercises dep-off. This lane now owns only the one
+      # docs build that is intentionally outside the contributor alias.
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
-      - name: Remove :threadline from dep graph (dep-off lane)
-        env:
-          MIX_ENV: test
-        run: |
-          mix deps.unlock threadline
-          mix deps.clean threadline --build
-      - name: Compile without Threadline (proves Code.ensure_loaded? wraps work)
-        env:
-          MIX_ENV: test
-        run: mix compile --warnings-as-errors --no-deps-check
-      # D-10/D-11/D-14: Run only the :threadline_guard tagged subset.
-      # `--only threadline_guard` fails RED on zero matches — a dropped/renamed tag turns CI red,
-      # never silently green (the D-11 trust property). This matches the final command in the
-      # `mix sigra.dep_off` alias exactly; local repro: MIX_ENV=test mix sigra.dep_off (D-14).
-      - name: Run guard subset (Threadline absent — :threadline_guard tagged modules only)
-        env:
-          MIX_ENV: test
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
-        run: mix test --only threadline_guard --no-deps-check
       - name: Cache hit summary
         if: always()
         run: |

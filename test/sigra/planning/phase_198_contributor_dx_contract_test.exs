@@ -50,7 +50,8 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
   test "198-03: formatter covers intended tests but excludes generated golden bytes" do
     formatter = read!(".formatter.exs")
 
-    assert formatter =~ "test/{sigra,support,mix,fixtures}/**/*.{ex,exs}"
+    assert formatter =~ "test/{sigra,support,mix}/**/*.{ex,exs}"
+    assert formatter =~ "test/fixtures/{css,prohibitions}/**/*.{ex,exs}"
     refute formatter =~ "test/fixtures/install_golden/tree/**"
     refute formatter =~ "test/{sigra,support,mix,fixtures}/**/*.{ex,exs}"
   end
