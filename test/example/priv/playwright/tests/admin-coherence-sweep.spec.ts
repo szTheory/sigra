@@ -1,7 +1,7 @@
-import { test, expect, type Page } from '@playwright/test';
-import { readFileSync } from 'fs';
-import path from 'path';
-import { TEST_PASSWORD } from '../helpers/fixtures';
+import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "fs";
+import path from "path";
+import { TEST_PASSWORD } from "../helpers/fixtures";
 
 // Phase 159 Plan 4: admin coherence filmstrip spec.
 //
@@ -10,9 +10,9 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 //
 // This spec verifies the Phase 159 coherence contract (D-07):
 //   1. Global overview                     (/admin)            — notice visible
-//   2. Org overview                        (/admin/organizations/acme-corp)    — scope_ribbon, pills
-//   3. Users index                         (/admin/users)      — scope_ribbon, passkeys pill
-//   4. User audit                          (/admin/users/:id/audit)            — scope_ribbon, page_back
+//   2. Org overview                        (/admin/organizations/acme-corp)    — scoped heading, pills
+//   3. Users index                         (/admin/users)      — scope_ribbon, review-status pill
+//   4. User audit                          (/admin/users/:id/audit)            — scope_ribbon, breadcrumb hierarchy
 //   5. Audit explorer                      (/admin/audit)      — scope_ribbon
 //   6. Org roster                          (/admin/organizations/acme-corp/users) — scope_ribbon
 //
@@ -32,19 +32,22 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 // playwright.config.ts changes are required.
 
 async function waitForLiveViewReady(page: Page) {
-  await page.waitForSelector('[data-phx-session].phx-connected', {
-    state: 'attached',
+  await page.waitForSelector("[data-phx-session].phx-connected", {
+    state: "attached",
   });
 }
 
 async function registerUser(page: Page, email: string, password: string) {
-  await page.goto('/users/register');
+  await page.goto("/users/register");
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
-  await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
-    (form as HTMLFormElement).requestSubmit();
-  });
+  await page
+    .locator('form:has(input[name="user[password]"])')
+    .first()
+    .evaluate((form) => {
+      (form as HTMLFormElement).requestSubmit();
+    });
   await expect(page).not.toHaveURL(/\/users\/register/);
 }
 
@@ -53,10 +56,10 @@ async function clearBrowserSession(page: Page) {
 }
 
 async function createOrganization(page: Page, name: string, slug: string) {
-  await page.goto('/organizations');
+  await page.goto("/organizations");
   await waitForLiveViewReady(page);
   await page.fill('input[name="organization[name]"]', name);
-  await expect(page.locator('#slug-preview')).toHaveText(slug);
+  await expect(page.locator("#slug-preview")).toHaveText(slug);
   await page.click('button:has-text("Create organization")');
   await expect(page).toHaveURL(new RegExp(`/organizations/${slug}/members$`));
   await waitForLiveViewReady(page);
@@ -65,51 +68,65 @@ async function createOrganization(page: Page, name: string, slug: string) {
 async function openUserDetail(page: Page, targetEmail: string) {
   await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
   await waitForLiveViewReady(page);
-  await page.getByRole('link', { name: 'Open user' }).first().click();
+  await page.getByRole("link", { name: "Open user" }).first().click();
   await waitForLiveViewReady(page);
   await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
 }
 
-test.describe('Phase 159 coherence sweep', () => {
-  test('all 6 admin screens satisfy the coherence contract', async ({ page }) => {
+test.describe("Phase 159 coherence sweep", () => {
+  test("all 6 admin screens satisfy the coherence contract", async ({
+    page,
+  }) => {
     // SETUP: Register a platform admin for the journey
     const adminEmail = `platform-admin+coherence-${Date.now()}@example.test`;
     await registerUser(page, adminEmail, TEST_PASSWORD);
-    await page.goto('/admin');
+    await page.goto("/admin");
     await waitForLiveViewReady(page);
 
     // SCREEN 1 — Global overview (/admin)
     // The overview archetype surfaces a notice alarm as its primary signal.
     // scope_ribbon is NOT required on the overview archetype (it has its own scope context).
-    await expect(page.locator('.sg-notice').first()).toBeVisible();
+    await expect(page.locator(".sg-notice").first()).toBeVisible();
 
     // SCREEN 2 — Org overview (/admin/organizations/acme-corp)
     // Requires mix run priv/repo/seeds.exs — acme-corp org, grace@demo.tasklane.test member,
     // expired invite row, and deletion-scheduled user must exist in the database.
-    await page.goto('/admin/organizations/acme-corp');
+    await page.goto("/admin/organizations/acme-corp");
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
+    // Organization overview deliberately uses its scoped page heading rather
+    // than the users-index scope ribbon. Keep the tenant-context assertion
+    // here so this route cannot regress to a generic overview.
+    await expect(
+      page.getByRole("heading", { name: "Acme Corp", exact: true }),
+    ).toBeVisible();
     // FIXT-01: Expired pill — seeded expired invitation for acme-corp
     // Requires mix run priv/repo/seeds.exs (expired-invite@demo.tasklane.test row)
     await expect(
-      page.locator('.sg-status-pill[data-tone="risk"]').filter({ hasText: 'Expired' })
+      page
+        .locator('.sg-status-pill[data-tone="risk"]')
+        .filter({ hasText: "Expired" }),
     ).toBeVisible();
     // FIXT-02: Deletion scheduled pill — grace@demo.tasklane.test is scheduled for deletion
     // Requires mix run priv/repo/seeds.exs (grace@demo.tasklane.test with deletion scheduled)
     await expect(
-      page.locator('.sg-status-pill[data-tone="warn"]').filter({ hasText: 'Deletion scheduled' })
+      page
+        .locator('.sg-status-pill[data-tone="warn"]')
+        .filter({ hasText: "Deletion scheduled" }),
     ).toBeVisible();
 
     // SCREEN 3 — Users index (/admin/users)
-    await page.goto('/admin/users');
+    await page.goto("/admin/users");
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
-    // FIXT-03: Passkeys pill — pat@demo.tasklane.test has a registered passkey
-    // Requires mix run priv/repo/seeds.exs (pat@demo.tasklane.test must exist with passkey)
-    await page.goto('/admin/users?q=pat%40demo.tasklane.test');
+    await expect(page.locator(".sg-scope-ribbon")).toBeVisible();
+    // FIXT-03: No-MFA pill — Pat has no MFA, an actionable review state.
+    // Requires mix run priv/repo/seeds.exs (pat@demo.tasklane.test fixture).
+    await page.goto("/admin/users?q=pat%40demo.tasklane.test");
     await waitForLiveViewReady(page);
     await expect(
-      page.locator('.sg-status-pill[data-tone="ok"]').filter({ hasText: 'Passkeys' }).first()
+      page
+        .locator('.sg-status-pill[data-tone="warn"]')
+        .filter({ hasText: "No MFA" })
+        .first(),
     ).toBeVisible();
 
     // SCREEN 4 — User audit (/admin/users/:id/audit)
@@ -117,22 +134,28 @@ test.describe('Phase 159 coherence sweep', () => {
     await openUserDetail(page, adminEmail);
     // Navigate to full audit via the "View full audit" link on the user detail page.
     // (Do not use /audit/i — that matches the global nav "Audit" link first.)
-    await page.getByRole('link', { name: /view full audit/i }).click();
+    await page.getByRole("link", { name: /view full audit/i }).click();
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(/\/admin\/users\/[^?]+\/audit/);
-    await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
-    // page_back: user-audit screen must have a Back link
-    await expect(page.getByRole('link', { name: /back/i })).toBeVisible();
+    await expect(page.locator(".sg-scope-ribbon")).toBeVisible();
+    // Per-user audit uses breadcrumbs rather than a page-back control, which
+    // keeps the nested user and list-return context explicit.
+    const auditBreadcrumb = page.getByRole("navigation", {
+      name: "Breadcrumb",
+    });
+    await expect(
+      auditBreadcrumb.getByRole("link", { name: adminEmail, exact: true }),
+    ).toBeVisible();
 
     // SCREEN 5 — Audit explorer (/admin/audit)
-    await page.goto('/admin/audit');
+    await page.goto("/admin/audit");
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
+    await expect(page.locator(".sg-scope-ribbon")).toBeVisible();
 
     // SCREEN 6 — Org roster (/admin/organizations/acme-corp/users)
-    await page.goto('/admin/organizations/acme-corp/users');
+    await page.goto("/admin/organizations/acme-corp/users");
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
+    await expect(page.locator(".sg-scope-ribbon")).toBeVisible();
 
     // GATE-03: Filter chip motion guard — two-phase check (static CSS source + runtime computed style).
     //
@@ -149,29 +172,43 @@ test.describe('Phase 159 coherence sweep', () => {
     //   Chromium headless matches pointer:fine (it exposes a pointer device), so the @media
     //   guard IS active. We assert the transition is populated (non-empty) — confirming the
     //   guard-scoped transition declaration is wired up and the CSS variable resolves.
-    const cssPath = path.resolve(__dirname, '../../../priv/static/assets/css/app.css');
-    const cssText = readFileSync(cssPath, 'utf-8');
+    const cssPath = path.resolve(
+      __dirname,
+      "../../../priv/static/assets/sigra_admin.css",
+    );
+    const cssText = readFileSync(cssPath, "utf-8");
 
     // Phase 1a: unconditional .sg-filter-chip block must not contain 'transition'
-    const unconditionalChipStart = cssText.indexOf('.sg-filter-chip {');
-    const unconditionalChipEnd = cssText.indexOf('}', unconditionalChipStart);
-    const unconditionalBlock = cssText.slice(unconditionalChipStart, unconditionalChipEnd + 1);
+    const unconditionalChipStart = cssText.indexOf(".sg-filter-chip {");
+    const unconditionalChipEnd = cssText.indexOf("}", unconditionalChipStart);
+    const unconditionalBlock = cssText.slice(
+      unconditionalChipStart,
+      unconditionalChipEnd + 1,
+    );
     expect(unconditionalBlock).not.toMatch(/transition/);
 
     // Phase 1b: @media guard block must contain transition for .sg-filter-chip
-    const mediaGuardStart = cssText.indexOf('@media (hover: hover) and (pointer: fine)');
-    const mediaGuardEnd = cssText.indexOf('\n  }', cssText.indexOf('.sg-filter-chip:hover', mediaGuardStart)) + 4;
+    const mediaGuardStart = cssText.indexOf(
+      "@media (hover: hover) and (pointer: fine)",
+    );
+    const mediaGuardEnd =
+      cssText.indexOf(
+        "\n  }",
+        cssText.indexOf(".sg-filter-chip:hover", mediaGuardStart),
+      ) + 4;
     const mediaGuardBlock = cssText.slice(mediaGuardStart, mediaGuardEnd);
     expect(mediaGuardBlock).toMatch(/\.sg-filter-chip/);
     expect(mediaGuardBlock).toMatch(/transition/);
 
     // Phase 2: runtime computed-style check — Chromium headless exposes pointer:fine so
     // the @media guard is active; transition must be a non-empty string.
-    await page.goto('/admin/users');
+    await page.goto("/admin/users");
     await waitForLiveViewReady(page);
-    const chip = page.locator('label.sg-filter-chip').first();
+    const chip = page.locator("label.sg-filter-chip").first();
     await chip.focus();
-    const transition = await chip.evaluate((el) => getComputedStyle(el).transition);
+    const transition = await chip.evaluate(
+      (el) => getComputedStyle(el).transition,
+    );
     // Chromium headless has pointer:fine — @media guard is active; transition is populated.
     expect(transition.length).toBeGreaterThan(0);
   });

@@ -160,7 +160,9 @@ function oklabChannels(value: string): [number, number, number] {
   // 0.50/1.00/1.03 and turned white into cyan.
   return [
     linearSrgbToChannel(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
-    linearSrgbToChannel(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    linearSrgbToChannel(
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    ),
     linearSrgbToChannel(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
   ];
 }
@@ -388,7 +390,7 @@ test.describe("admin theme switch", () => {
     const notice = page.locator(".sg-notice");
     await expect(notice).toHaveCount(1);
     await expect(notice).toBeVisible();
-    await expect(notice).toContainText(/accounts need review|All clear/);
+    await expect(notice).toContainText(/users need review|No flagged accounts/);
     await expect(notice).not.toHaveAttribute("role", /.+/);
     await expect(notice).not.toHaveAttribute("data-phx-id", /.+/);
   });
@@ -402,7 +404,7 @@ test.describe("admin theme switch", () => {
 
     const notice = page.locator(".sg-notice");
     await expect(notice).toHaveCount(1);
-    await expect(notice).toContainText(/accounts need review|All clear/);
+    await expect(notice).toContainText(/users need review|No flagged accounts/);
     await expect(notice).not.toHaveAttribute("role", /.+/);
 
     const switcher = page.getByRole("radiogroup", { name: "Theme" });
@@ -496,7 +498,7 @@ test.describe("admin theme switch", () => {
     await waitForLiveViewReady(page);
 
     const action = page.locator(".sg-notice__action");
-    await expect(action).toHaveText("Review accounts");
+    await expect(action).toHaveText("Review users");
     await expect(action).toHaveAttribute(
       "href",
       "/admin/users?needs_review=true",
@@ -597,8 +599,10 @@ test.describe("admin theme switch", () => {
     await page.goto("/admin/users");
     await waitForLiveViewReady(page);
 
-    const metric = page.locator("#users-metric-mfa");
-    const help = page.locator("#users-metric-mfa-help");
+    // User health intentionally renders only decision-bearing metrics. Locked
+    // users is the accessible, actionable metric that owns this help behavior.
+    const metric = page.locator("#users-metric-locked");
+    const help = page.locator("#users-metric-locked-help");
 
     await expect(
       page.getByRole("heading", { name: "User health" }),
@@ -613,59 +617,31 @@ test.describe("admin theme switch", () => {
       "aria-describedby",
       /.+/,
     );
-    await expect(metric).toContainText("MFA enabled");
+    await expect(metric).toContainText("Locked users");
+    await expect(metric).toContainText("locked out");
     await expect(metric).toContainText(/% of total users/);
     await expect(
       page.locator("#users-metric-total .sg-metric__subvalue"),
     ).toHaveCount(0);
     await expectMetricTextRowsAligned(page, [
       "#users-metric-total",
-      "#users-metric-confirmed",
-      "#users-metric-mfa",
-      "#users-metric-passkeys",
       "#users-metric-locked",
       "#users-metric-deletion",
     ]);
     await expect(metric).toHaveAttribute(
       "aria-describedby",
-      "users-metric-mfa-help",
+      "users-metric-locked-help",
     );
     await expect(metric).toHaveAttribute("tabindex", "0");
     await expect(metric.locator("[data-sg-metric-help-trigger]")).toHaveCount(
       0,
     );
     await expect(help).toBeHidden();
-    await expect(
-      page.locator("#users-metric-confirmed .sg-metric__icon"),
-    ).toHaveAttribute("data-icon", "check");
     await expect(metric.locator(".sg-metric__icon")).toHaveAttribute(
       "data-icon",
-      "mfa",
+      "lock",
     );
-    await expect(metric.locator(".sg-metric__icon-text")).toHaveText("MFA");
-    await expect(metric.locator(".sg-metric__icon-svg")).toHaveCount(0);
-    await expect(
-      page.locator("#users-metric-passkeys .sg-metric__icon"),
-    ).toHaveAttribute("data-icon", "fingerprint");
-    const iconSizes = await page.evaluate(() => {
-      const checkSvg = document.querySelector(
-        "#users-metric-confirmed .sg-metric__icon-svg",
-      ) as SVGElement | null;
-      const fingerprintSvg = document.querySelector(
-        "#users-metric-passkeys .sg-metric__icon-svg",
-      ) as SVGElement | null;
-
-      if (!checkSvg || !fingerprintSvg) {
-        throw new Error("Expected confirmed and passkey metric SVG icons");
-      }
-
-      return {
-        checkWidth: checkSvg.getBoundingClientRect().width,
-        fingerprintWidth: fingerprintSvg.getBoundingClientRect().width,
-      };
-    });
-    expect(iconSizes.checkWidth).toBeGreaterThan(17);
-    expect(iconSizes.fingerprintWidth).toBeGreaterThan(17);
+    await expect(metric.locator(".sg-metric__icon-svg")).toBeVisible();
     await expect
       .poll(async () =>
         page
@@ -696,6 +672,10 @@ test.describe("admin theme switch", () => {
     await page.keyboard.press("Escape");
     await expect(help).toBeHidden();
 
+    // Escape deliberately suppresses the synthetic mouseover produced by a
+    // collapsing metric. Move the pointer to a different target first, then
+    // exercise a genuine hover-to-reopen path.
+    await page.getByRole("heading", { name: "Find users" }).hover();
     await metric.hover();
     await expect(help).toBeVisible();
     await page.keyboard.press("Escape");
@@ -769,7 +749,9 @@ test.describe("admin theme switch", () => {
     await nav.getByRole("link", { name: "Users" }).click();
     await expect(page).toHaveURL(/\/admin\/users$/);
     await waitForLiveViewReady(page);
-    await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Users", exact: true }),
+    ).toBeVisible();
 
     expect(documentRequests).toEqual([]);
   });
@@ -866,11 +848,23 @@ test.describe("admin theme switch", () => {
   test("user detail uses breadcrumbs for filtered list context", async ({
     page,
   }) => {
-    const email = await logInAsPlatformAdmin(page);
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/users?order_by=inserted_at&order_direction=desc");
     await waitForLiveViewReady(page);
 
-    await page.getByRole("link", { name: "Open user" }).first().click();
+    const openUser = page.getByRole("link", { name: "Open user" }).first();
+    const targetEmail = await openUser
+      .locator("xpath=ancestor::tr")
+      .locator('span[title*="@"]')
+      .textContent();
+
+    if (!targetEmail) {
+      throw new Error(
+        "Expected the selected user row to expose an email address",
+      );
+    }
+
+    await openUser.click();
     await expect(page).toHaveURL(/\/admin\/users\/[^/]+\?return_to=/);
     await waitForLiveViewReady(page);
 
@@ -884,7 +878,9 @@ test.describe("admin theme switch", () => {
       "href",
       "/admin/users?order_by=inserted_at&order_direction=desc",
     );
-    await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(email);
+    await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(
+      targetEmail,
+    );
     await expect(page.getByRole("link", { name: "Back to users" })).toHaveCount(
       0,
     );
@@ -905,14 +901,11 @@ test.describe("admin theme switch", () => {
       page.getByRole("heading", { name: "Investigate an event" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Review risky accounts" }),
+      page.getByRole("heading", { name: "Review risky users" }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "User snapshot" }),
     ).toBeVisible();
-    await expect(page.locator("#overview-metric-total-users")).toContainText(
-      "total users",
-    );
     await expect(page.locator("#overview-metric-new-users")).toContainText(
       "new this week",
     );
@@ -922,14 +915,12 @@ test.describe("admin theme switch", () => {
     await expect(
       page.locator('#overview-metric-new-users [data-icon="calendar-plus"]'),
     ).toHaveCount(0);
-    await expect(page.locator("#overview-metric-auth-coverage")).toContainText(
-      "MFA coverage",
+    await expect(page.locator("#overview-metric-active-users")).toContainText(
+      "active this week",
     );
     await expectMetricTextRowsAligned(page, [
-      "#overview-metric-total-users",
       "#overview-metric-new-users",
       "#overview-metric-active-users",
-      "#overview-metric-auth-coverage",
     ]);
     await expect(page.locator(".sg-posture-strip")).toHaveCount(0);
     await expect(
