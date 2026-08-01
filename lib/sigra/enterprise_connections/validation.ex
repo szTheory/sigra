@@ -16,7 +16,8 @@ defmodule Sigra.EnterpriseConnections.Validation do
     with {:ok, oidc_settings} <- oidc_settings(connection),
          :ok <- require_string(oidc_settings.issuer, "Issuer is required."),
          :ok <- require_string(oidc_settings.client_id, "Client ID is required."),
-         :ok <- require_string(oidc_settings.encrypted_client_secret, "Client secret is required."),
+         :ok <-
+           require_string(oidc_settings.encrypted_client_secret, "Client secret is required."),
          :ok <- validate_scopes(oidc_settings.scopes),
          :ok <- validate_client_authentication_method(oidc_settings.client_authentication_method),
          {:ok, discovery_url} <- discovery_url(oidc_settings),
@@ -51,8 +52,9 @@ defmodule Sigra.EnterpriseConnections.Validation do
 
   defp validate_scopes(_scopes), do: {:error, :validation_failed, "Scopes must include openid."}
 
-  defp validate_client_authentication_method(method) when method in @supported_client_authentication_methods,
-    do: :ok
+  defp validate_client_authentication_method(method)
+       when method in @supported_client_authentication_methods,
+       do: :ok
 
   defp validate_client_authentication_method(_method),
     do:
@@ -105,7 +107,9 @@ defmodule Sigra.EnterpriseConnections.Validation do
   end
 
   defp matches_issuer(value, issuer) when is_binary(value) and value == issuer, do: :ok
-  defp matches_issuer(_value, _issuer), do: {:error, :validation_failed, "OIDC discovery issuer mismatch."}
+
+  defp matches_issuer(_value, _issuer),
+    do: {:error, :validation_failed, "OIDC discovery issuer mismatch."}
 
   defp require_document_key(document, key) do
     case Map.get(document, key) do
