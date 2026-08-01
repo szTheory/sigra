@@ -295,7 +295,7 @@ Plans:
 
 **Wave 4** *(blocked on the repository-wide local gate)*
 
-- [ ] 234-09-PLAN.md — Execute `mix ci` in a clean worktree and observe the direct alias on a real PR
+- [x] 234-09-PLAN.md — Execute `mix ci` in a clean worktree and observe the direct alias on a real PR
 
 **Wave 5** *(blocked on all implementation and PR evidence)*
 
