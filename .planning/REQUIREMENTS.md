@@ -50,7 +50,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Hygiene and contributor DX (DX)
 
-- [ ] **DX-01**: `mix ci` reproduces the PR gate, including formatting and dependency-lock checks.
+- [x] **DX-01**: `mix ci` reproduces the PR gate, including formatting and dependency-lock checks.
 - [ ] **DX-02**: Third-party GitHub Actions used in release-critical workflows are pinned to immutable SHAs.
 - [ ] **DX-03**: Dependabot covers Hex and npm dependencies in addition to GitHub Actions.
 - [ ] **DX-04**: Playwright spec files that no CI lane invokes are either wired into a lane or deleted.
@@ -83,7 +83,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | TEST-01 | Phase 233 | Gaps Found |
 | TEST-02 | Phase 233 | Gaps Found |
 | TEST-03 | Phase 233 | Gaps Found |
-| DX-01 | Phase 234 | Pending |
+| DX-01 | Phase 234 | Complete |
 | DX-02 | Phase 234 | Pending |
 | DX-03 | Phase 234 | Pending |
 | DX-04 | Phase 234 | Pending |

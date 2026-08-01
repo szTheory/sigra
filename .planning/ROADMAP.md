@@ -275,7 +275,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 234-01-PLAN.md — Trace `mix ci` from contributor CLI into the existing PR library lane with golden-safe parity contracts
+- [x] 234-01-PLAN.md — Trace `mix ci` from contributor CLI into the existing PR library lane with golden-safe parity contracts
 - [ ] 234-06-PLAN.md — Pin and mechanically inventory release-critical third-party Actions
 - [ ] 234-07-PLAN.md — Add and fail-closed validate weekly Actions, Mix, and npm Dependabot coverage
 
