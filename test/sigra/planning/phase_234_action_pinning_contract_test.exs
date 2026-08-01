@@ -1,0 +1,94 @@
+defmodule Sigra.Planning.Phase234ActionPinningContractTest do
+  use ExUnit.Case, async: true
+
+  @release_workflows [
+    ".github/workflows/release-please.yml",
+    ".github/workflows/hex-publish.yml"
+  ]
+  @release_please_path ".github/workflows/release-please.yml"
+  @release_please_ref "45996ed1f6d02564a971a2fa1b5860e934307cf7"
+  @forbidden_tag_object "0dfd8538845b8e92600d271a895a5372865d4062"
+
+  test "release-critical workflows are an explicit, live universe" do
+    assert @release_workflows == [
+             ".github/workflows/release-please.yml",
+             ".github/workflows/hex-publish.yml"
+           ]
+
+    for path <- @release_workflows do
+      assert File.exists?(path), "release-critical workflow #{path} is missing from the repository"
+    end
+  end
+
+  test "every third-party release action is immutable and version-annotated" do
+    inventory = production_inventory()
+
+    assert inventory != [], "release action inventory is empty; the extractor must not silently pass"
+
+    for action <- inventory do
+      assert action.ref =~ ~r/^[0-9a-f]{40}$/,
+             "#{action.workflow}:#{action.line} has non-immutable action ref #{inspect(action.ref)}"
+
+      assert is_binary(action.comment) and action.comment =~ ~r/^v\S+/,
+             "#{action.workflow}:#{action.line} is missing a same-line semantic version comment"
+    end
+  end
+
+  test "Release Please uses the reviewed dereferenced v5.0.0 commit" do
+    workflow = File.read!(@release_please_path)
+
+    assert workflow =~
+             "uses: googleapis/release-please-action@#{@release_please_ref} # v5.0.0",
+           "#{@release_please_path} must use the locked Release Please commit with its v5.0.0 comment"
+
+    refute workflow =~ "googleapis/release-please-action@v5"
+    refute workflow =~ @forbidden_tag_object
+  end
+
+  test "privileged Release Please boundaries remain byte-stable around the pin" do
+    workflow = File.read!(@release_please_path)
+
+    assert workflow =~ "on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:"
+
+    assert workflow =~
+             "permissions:\n  actions: write\n  contents: write\n  issues: write\n  pull-requests: write"
+
+    assert workflow =~ "release_created: ${{ steps.release.outputs.release_created }}"
+    assert workflow =~ "tag_name: ${{ steps.release.outputs.tag_name }}"
+    assert workflow =~ "version: ${{ steps.release.outputs.version }}"
+    assert workflow =~ "sha: ${{ steps.release.outputs.sha }}"
+    assert workflow =~ "if: ${{ steps.release-preflight.outputs.should_run == 'true' }}"
+    assert workflow =~ "token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}"
+  end
+
+  defp production_inventory do
+    @release_workflows
+    |> Enum.flat_map(fn path ->
+      path
+      |> File.read!()
+      |> action_inventory(path)
+    end)
+  end
+
+  defp action_inventory(workflow, workflow_path) do
+    workflow
+    |> String.split("\n")
+    |> Enum.with_index(1)
+    |> Enum.flat_map(fn {line, line_number} ->
+      case Regex.run(~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/, line) do
+        [_, action, comment] -> action_entry(workflow_path, line_number, action, comment)
+        [_, action] -> action_entry(workflow_path, line_number, action, nil)
+        nil -> []
+      end
+    end)
+  end
+
+  defp action_entry(_workflow_path, _line_number, "./" <> _local_action, _comment), do: []
+
+  defp action_entry(workflow_path, line_number, action, comment) do
+    case String.split(action, "@", parts: 2) do
+      [_repository, ref] -> [%{workflow: workflow_path, line: line_number, action: action, ref: ref, comment: comment}]
+      _ -> [%{workflow: workflow_path, line: line_number, action: action, ref: "", comment: comment}]
+    end
+  end
+end
