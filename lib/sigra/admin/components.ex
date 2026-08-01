@@ -910,7 +910,10 @@ defmodule Sigra.Admin.Components do
         help="Shown on generated auth screens and email headers when set."
       />
   """
-  attr :name, :string, required: true, doc: "the form field name (used in both the HTML name and id)"
+  attr :name, :string,
+    required: true,
+    doc: "the form field name (used in both the HTML name and id)"
+
   attr :label, :string, required: true, doc: "the visible label for the field"
   attr :value, :string, required: true, doc: "the current field value"
   attr :required, :boolean, default: false, doc: "marks the input as required"
@@ -961,7 +964,10 @@ defmodule Sigra.Admin.Components do
         value={field_value(@draft_params, name)}
       />
   """
-  attr :name, :string, required: true, doc: "the form field name; also used as the hook data attribute value"
+  attr :name, :string,
+    required: true,
+    doc: "the form field name; also used as the hook data attribute value"
+
   attr :label, :string, required: true, doc: "the accessible label for the colour picker"
   attr :value, :string, required: true, doc: "the current hex colour value (e.g., \"#c2410c\")"
 
@@ -1016,12 +1022,27 @@ defmodule Sigra.Admin.Components do
         email_surface_testid="admin-auth-branding-light-email-preview-surface"
       />
   """
-  attr :profile, :any, required: true, doc: "the %Sigra.Branding.Profile{} used to derive CSS variables and preview content"
-  attr :theme, :string, required: true, doc: "the data-theme attribute value (\"light\" or \"dark\")"
+  attr :profile, :any,
+    required: true,
+    doc: "the %Sigra.Branding.Profile{} used to derive CSS variables and preview content"
+
+  attr :theme, :string,
+    required: true,
+    doc: "the data-theme attribute value (\"light\" or \"dark\")"
+
   attr :active, :boolean, required: true, doc: "true when this panel is the currently visible tab"
-  attr :login_testid, :string, required: true, doc: "data-testid for the login preview card (used when not active)"
-  attr :email_testid, :string, required: true, doc: "data-testid for the email preview card (used when not active)"
-  attr :email_surface_testid, :string, required: true, doc: "data-testid for the email preview surface (used when not active)"
+
+  attr :login_testid, :string,
+    required: true,
+    doc: "data-testid for the login preview card (used when not active)"
+
+  attr :email_testid, :string,
+    required: true,
+    doc: "data-testid for the email preview card (used when not active)"
+
+  attr :email_surface_testid, :string,
+    required: true,
+    doc: "data-testid for the email preview surface (used when not active)"
 
   def preview_pair(assigns) do
     ~H"""
