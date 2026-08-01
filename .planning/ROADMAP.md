@@ -269,7 +269,7 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: 10 plans in 4 waves
+**Plans**: 14 plans in 6 waves
 
 Plans:
 
@@ -284,16 +284,26 @@ Plans:
 - [ ] 234-02-PLAN.md — Format the first bounded library-source batch under the golden-safe ownership boundary
 - [ ] 234-03-PLAN.md — Format the remaining library and example-app source batch without behavior drift
 - [ ] 234-04-PLAN.md — Format the first bounded library-test batch without weakening assertions
-- [ ] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
+- [ ] 234-11-PLAN.md — Format the complementary routing and security-sensitive library-source batch
+- [ ] 234-12-PLAN.md — Format the complementary migration and admin-test example batch
+- [ ] 234-13-PLAN.md — Format the complementary enterprise/install/OAuth library-test batch
 - [ ] 234-08-PLAN.md — Wire the two orphan specs and publish the exhaustive Playwright lane inventory
 
-**Wave 3** *(blocked on Waves 1–2 local-gate work)*
+**Wave 3** *(blocked on every bounded formatter batch)*
+
+- [ ] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
+
+**Wave 4** *(blocked on the repository-wide local gate)*
 
 - [ ] 234-09-PLAN.md — Execute `mix ci` in a clean worktree and observe the direct alias on a real PR
 
-**Wave 4** *(blocked on all implementation and PR evidence)*
+**Wave 5** *(blocked on all implementation and PR evidence)*
 
 - [ ] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
+
+**Wave 6** *(blocked on all structural and managed-service evidence)*
+
+- [ ] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
