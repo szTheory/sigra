@@ -291,7 +291,7 @@ Plans:
 
 **Wave 3** *(blocked on every bounded formatter batch)*
 
-- [ ] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
+- [x] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
 
 **Wave 4** *(blocked on the repository-wide local gate)*
 
