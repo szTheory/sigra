@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Completed 234-04-PLAN.md
-last_updated: "2026-08-01T02:04:36.822Z"
+stopped_at: Completed 234-08-PLAN.md
+last_updated: "2026-08-01T02:10:16.125Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 47
-  completed_plans: 39
+  completed_plans: 40
   percent: 67
 ---
 
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 7 of 14
+Plan: 8 of 14
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([████████░░] 83%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([█████████░] 85%); Phase 233 not started
 Last activity: 2026-07-31 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -407,6 +407,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: 234-03: Exact formatter checks plus example warnings-as-errors compilation resolve the DX-01 formatting edge without inferred textual ordering.
 - [Phase ?]: Use native mix format output as the sole source for D-04 layout normalization; retain test names, tags, selectors, expected values, and assertions.
 - [Phase ?]: Use the documented disposable PostgreSQL setup for focused database-backed formatting proof instead of accepting invalidated tests.
+- [Phase ?]: Playwright inventory uses exact live-spec reconciliation with literal workflow/config seams for Phase 235 GATE-05.
+- [Phase ?]: Both useful orphan specs run in the existing admin_behavior Chromium shard with explicit retry-zero evidence.
 
 ### Pending Todos
 
@@ -549,8 +551,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-01T02:04:36.810Z
-Stopped at: Completed 234-04-PLAN.md
+Last session: 2026-08-01T02:10:16.114Z
+Stopped at: Completed 234-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -694,3 +696,4 @@ Resume file: None
 | Phase 234-hygiene-supply-chain-and-contributor-dx P02 | 1m | 2 tasks | 7 files |
 | Phase 234 P03 | 1m | 2 tasks | 7 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P04 | 187s | 2 tasks | 7 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P08 | 5m | 2 tasks | 4 files |
