@@ -99,4 +99,55 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
       assert_sha256!(receipt["log_sha256"], "log_sha256")
     end)
   end
+
+  @tag :release
+  test "release receipt binds the immutable main merge to an executed pinned action" do
+    receipt = evidence()["release"]
+
+    assert receipt["status"] == "success"
+    assert receipt["event"] == "push"
+    assert receipt["workflow_conclusion"] == "success"
+    assert receipt["job_conclusion"] == "success"
+    assert receipt["action_step_name"] == "Run Release Please"
+    assert receipt["action_step_conclusion"] == "success"
+    assert receipt["action_ref"] ==
+             "googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7"
+    assert receipt["token_source"] == "Actions"
+    assert receipt["permissions"] == [
+             "actions:write",
+             "contents:write",
+             "issues:write",
+             "pull-requests:write"
+           ]
+    assert receipt["release_created"] == false
+
+    assert receipt["downstream_jobs"] == %{
+             "gate_ci_green" => "skipped_no_release_created",
+             "publish_hex" => "skipped_no_release_created"
+           }
+
+    for key <- [
+          "pr_number",
+          "pr_url",
+          "merge_sha",
+          "run_id",
+          "run_url",
+          "job_id",
+          "job_url",
+          "started_at",
+          "completed_at",
+          "diagnostics"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["pr_number"] =~ ~r/\A\d+\z/
+    assert receipt["merge_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert receipt["run_id"] =~ ~r/\A\d+\z/
+    assert receipt["job_id"] =~ ~r/\A\d+\z/
+    assert receipt["pr_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/pull\/\d+\z/
+    assert receipt["run_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
+    assert receipt["job_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+    assert_sha256!(receipt["log_sha256"], "release.log_sha256")
+  end
 end

@@ -47,6 +47,33 @@
     "log_sha256": "52cec734c2c98775bbdccb7eff9be3958ff173227f5c548106b115d2d4ea71ca",
     "diagnostics": "Successful replacement receipt. Direct owner job 91429048026, Library tests job 91430018832, Example Playwright smoke job 91429670715, and ci-gate job 91430034838 all succeeded. Prior failed-receipt diagnostics remain preserved in commits 7aac6c71 and a7ac457c and the scoped tracker."
   },
+  "release": {
+    "status": "success",
+    "event": "push",
+    "pr_number": "175",
+    "pr_url": "https://github.com/szTheory/sigra/pull/175",
+    "merge_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
+    "run_id": "30723565705",
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/30723565705",
+    "job_id": "91431188895",
+    "job_url": "https://github.com/szTheory/sigra/actions/runs/30723565705/job/91431188895",
+    "workflow_conclusion": "success",
+    "job_conclusion": "success",
+    "action_step_name": "Run Release Please",
+    "action_step_conclusion": "success",
+    "action_ref": "googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7",
+    "token_source": "Actions",
+    "permissions": ["actions:write", "contents:write", "issues:write", "pull-requests:write"],
+    "release_created": false,
+    "downstream_jobs": {
+      "gate_ci_green": "skipped_no_release_created",
+      "publish_hex": "skipped_no_release_created"
+    },
+    "started_at": "2026-08-01T23:33:40Z",
+    "completed_at": "2026-08-01T23:33:57Z",
+    "log_sha256": "6a2b9b3ee9ba87a7e9d50ee52687df7b1017a2dde6798849209454997c7ccd6e",
+    "diagnostics": "The push-triggered Release Please job executed successfully on the immutable post-merge SHA. Downstream gate-ci-green and publish-hex jobs were conditionally skipped because Release Please reported no release_created output; this is distinct from a skipped or missing Release Please action step."
+  },
   "dependabot": {},
   "gallery": {}
 }
