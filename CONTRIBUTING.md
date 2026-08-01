@@ -10,12 +10,17 @@
 
 ## Reproducing the PR gate locally (mix ci)
 
-Run `mix ci` to reproduce the locally-faithful portion of the PR-fast required gate without leaving your terminal. It chains exactly four legs in the same order as CI:
+Run `mix ci` to reproduce the locally-faithful library gate without leaving your terminal. It chains exactly seven legs in the same order as CI:
 
-1. `compile --warnings-as-errors` — library compiles with zero warnings.
-2. `test` — full library test suite.
-3. `ci.install_golden` — install golden diff + idempotency contract (`test/sigra/install/`).
-4. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
+1. `format --check-formatted` — committed Elixir sources are formatted.
+2. `deps.get --check-locked` — `mix.lock` matches the declared dependencies.
+3. `deps.unlock --check-unused` — the lock contains no unused dependency entries.
+4. `compile --warnings-as-errors` — library compiles with zero warnings.
+5. `test` — full library test suite, including scaffold-tagged coverage.
+6. `ci.install_golden` — install golden diff + idempotency contract (`test/sigra/install/`).
+7. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
+
+CI's `library_tests_shard` job is the sole library-suite owner and calls the same command directly with `MIX_ENV=test mix ci`. The byte-stable `Library tests` job remains the protected aggregation of that owner. Local parity is retry-free: retries are not part of `mix ci`.
 
 If `mix ci` is red, your PR will be red. If `mix ci` is green, the locally-faithful portion of the gate is green (CI-only lanes may still fail; see below).
 
@@ -43,7 +48,8 @@ The fixture is reblessed against 1.8.8 — use this version locally to keep your
 The following gates run in CI but are excluded from `mix ci` because they either require Ubuntu font metrics or heavy infrastructure that cannot be reproduced faithfully on a local macOS machine:
 
 - **Ubuntu-baselined Playwright visual snapshots** (`admin-checkpoints-*`, `admin-design-*`): pixel baselines are captured on Ubuntu with specific system fonts. Local macOS runs produce sub-pixel font-metric diffs that diverge from the stored PNGs even when the UI is correct. Do **not** re-record baselines locally. Instead, download the `admin-example-report` artifact from the GitHub Actions run and open `playwright-report/index.html` in your browser.
-- **Heavy scaffold smokes** — the install smoke and HTTP smoke run the full `phx.new + sigra.install` scaffolding against a live dev server. They are excluded from the default `mix ci` run because they take several minutes and require Docker. You can run them manually:
+- **Example-app smoke and Playwright lanes** — these boot the generated host and run browser seams against its live dev server. The deterministic Playwright seam remains CI-only; use the existing `test/example/priv/playwright` scripts when reproducing it locally.
+- **Heavy install and HTTP smokes** — these run the full `phx.new + sigra.install` scaffolding against a live dev server. You can run them manually:
   - `scripts/ci/install-smoke.sh` — scaffolds a new host app and boots it.
   - boot the example app + `scripts/ci/http-smoke.sh` — hits live HTTP endpoints.
 
@@ -51,9 +57,10 @@ The following gates run in CI but are excluded from `mix ci` because they either
 
 These are useful for code quality but are deliberately **not** part of `mix ci` because they are not required checks in the PR gate. Running them locally may produce reds that CI does not enforce:
 
-- `mix format --check-formatted`
 - `mix credo --strict`
 - `mix dialyzer`
+
+`mix_audit` is also intentionally omitted from the PR gate.
 
 ### Known non-regression mix test failures (v1.40)
 

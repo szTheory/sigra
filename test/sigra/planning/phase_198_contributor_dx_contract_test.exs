@@ -64,6 +64,27 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, shard)) == 1
   end
 
+  test "198-05: contributor instructions publish the exact local reproduction boundary" do
+    contributing = read!("CONTRIBUTING.md")
+
+    for text <- [
+          "mix ci",
+          "format --check-formatted",
+          "deps.get --check-locked",
+          "deps.unlock --check-unused",
+          "compile --warnings-as-errors",
+          "ci.install_golden",
+          "sigra.dep_off",
+          "library_tests_shard",
+          "Library tests",
+          "MIX_ENV=test mix ci",
+          "phx_new 1.8.8",
+          "retry-free"
+        ] do
+      assert contributing =~ text
+    end
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
