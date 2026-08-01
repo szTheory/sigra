@@ -43,7 +43,8 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   defmodule Repo do
     def get_by(Sigra.Test.MockIdentity, clauses) do
       Enum.find(state().identities, fn identity ->
-        identity.provider == clauses[:provider] and identity.provider_uid == clauses[:provider_uid]
+        identity.provider == clauses[:provider] and
+          identity.provider_uid == clauses[:provider_uid]
       end)
     end
 
@@ -53,13 +54,15 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
 
     def get_by(TestMembership, clauses) do
       Enum.find(state().memberships, fn membership ->
-        membership.organization_id == clauses[:organization_id] and membership.user_id == clauses[:user_id]
+        membership.organization_id == clauses[:organization_id] and
+          membership.user_id == clauses[:user_id]
       end)
     end
 
     def get_by(TestInvitation, clauses) do
       Enum.find(state().invitations, fn invitation ->
-        invitation.organization_id == clauses[:organization_id] and invitation.email == clauses[:email]
+        invitation.organization_id == clauses[:organization_id] and
+          invitation.email == clauses[:email]
       end)
     end
 
@@ -85,12 +88,17 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
 
         match?(%TestMembership{}, struct) ->
           if Enum.any?(state().memberships, fn membership ->
-               membership.organization_id == struct.organization_id and membership.user_id == struct.user_id
+               membership.organization_id == struct.organization_id and
+                 membership.user_id == struct.user_id
              end) do
             {:error, unique_error(struct, :user_id)}
           else
             membership = %{struct | id: struct.id || Ecto.UUID.generate()}
-            update_state(fn current -> %{current | memberships: [membership | current.memberships]} end)
+
+            update_state(fn current ->
+              %{current | memberships: [membership | current.memberships]}
+            end)
+
             {:ok, membership}
           end
 
@@ -132,7 +140,8 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
 
     def enterprise_pending_invitations(TestInvitation, org_id) do
       Enum.filter(state().invitations, fn invitation ->
-        invitation.organization_id == org_id and is_nil(invitation.accepted_at) and is_nil(invitation.revoked_at)
+        invitation.organization_id == org_id and is_nil(invitation.accepted_at) and
+          is_nil(invitation.revoked_at)
       end)
     end
 
@@ -176,7 +185,11 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   end
 
   test "existing identity wins first and reuses existing membership" do
-    user = %Sigra.Test.MockUser{id: 42, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]}
+    user = %Sigra.Test.MockUser{
+      id: 42,
+      email: "oauth@example.com",
+      confirmed_at: ~U[2026-01-01 00:00:00Z]
+    }
 
     put_state(%{
       users: [user],
@@ -209,7 +222,12 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   end
 
   test "auto-claim requires one verified exact email match and creates membership" do
-    user = %Sigra.Test.MockUser{id: 52, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]}
+    user = %Sigra.Test.MockUser{
+      id: 52,
+      email: "oauth@example.com",
+      confirmed_at: ~U[2026-01-01 00:00:00Z]
+    }
+
     put_state(%{users: [user], identities: [], memberships: [], invitations: []})
 
     assert {:ok, :logged_in, resolved_user, metadata} =
@@ -232,8 +250,16 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   test "duplicate email matches fail closed" do
     put_state(%{
       users: [
-        %Sigra.Test.MockUser{id: 1, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]},
-        %Sigra.Test.MockUser{id: 2, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]}
+        %Sigra.Test.MockUser{
+          id: 1,
+          email: "oauth@example.com",
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        },
+        %Sigra.Test.MockUser{
+          id: 2,
+          email: "oauth@example.com",
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        }
       ],
       identities: [],
       memberships: [],
@@ -253,7 +279,11 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   test "provider subject conflict fails closed when identity is bound to another connection" do
     put_state(%{
       users: [
-        %Sigra.Test.MockUser{id: 42, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]}
+        %Sigra.Test.MockUser{
+          id: 42,
+          email: "oauth@example.com",
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        }
       ],
       identities: [
         %Sigra.Test.MockIdentity{
@@ -281,7 +311,11 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   test "exact pending invite is consumed before default jit membership" do
     put_state(%{
       users: [
-        %Sigra.Test.MockUser{id: 77, email: "oauth@example.com", confirmed_at: ~U[2026-01-01 00:00:00Z]}
+        %Sigra.Test.MockUser{
+          id: 77,
+          email: "oauth@example.com",
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        }
       ],
       identities: [],
       memberships: [],
@@ -317,7 +351,12 @@ defmodule Sigra.OAuth.EnterpriseReconciliationTest do
   end
 
   def get_state do
-    Process.get({__MODULE__, :state}, %{users: [], identities: [], memberships: [], invitations: []})
+    Process.get({__MODULE__, :state}, %{
+      users: [],
+      identities: [],
+      memberships: [],
+      invitations: []
+    })
   end
 
   def update_state(fun) do

@@ -103,6 +103,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
 
     assert runbook =~ "mix hex.build --unpack --output sigra-hex-inspect"
     assert runbook =~ "mix hex.publish --dry-run --yes"
+
     assert runbook =~
              "scripts/ci/release-post-publish-verify.sh --package sigra --version 1.0.0 --tag v1.0.0"
 

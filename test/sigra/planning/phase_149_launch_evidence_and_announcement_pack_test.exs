@@ -31,7 +31,14 @@ defmodule Sigra.Planning.Phase149LaunchEvidenceAndAnnouncementPackTest do
 
     assert announcement =~ "Hex 1.0.0"
 
-    for category <- ["phx.gen.auth", "Pow", "Guardian", "Ueberauth", "hosted auth", "Sigra's hybrid model"] do
+    for category <- [
+          "phx.gen.auth",
+          "Pow",
+          "Guardian",
+          "Ueberauth",
+          "hosted auth",
+          "Sigra's hybrid model"
+        ] do
       assert alternatives =~ category
     end
 
@@ -83,7 +90,13 @@ defmodule Sigra.Planning.Phase149LaunchEvidenceAndAnnouncementPackTest do
     assert next_steps =~ "docs/launch/v1.0/alternatives.md"
     assert next_steps =~ "docs/launch/v1.0/evidence.md"
 
-    for entry <- ["announcement.md", "alternatives.md", "evidence.md", "changelog.md", "security.md"] do
+    for entry <- [
+          "announcement.md",
+          "alternatives.md",
+          "evidence.md",
+          "changelog.md",
+          "security.md"
+        ] do
       assert llms =~ entry
     end
 
