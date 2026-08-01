@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Completed 234-12-PLAN.md
-last_updated: "2026-08-01T02:15:52.938Z"
+stopped_at: Completed 234-13-PLAN.md
+last_updated: "2026-08-01T02:19:19.912Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 47
-  completed_plans: 42
+  completed_plans: 43
   percent: 67
 ---
 
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 10 of 14
+Plan: 11 of 14
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([█████████░] 89%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([█████████░] 91%); Phase 233 not started
 Last activity: 2026-07-31 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -411,6 +411,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Both useful orphan specs run in the existing admin_behavior Chromium shard with explicit retry-zero evidence.
 - [Phase ?]: D-04 formatter cleanup uses two explicit reversible source batches while excluding generated install-golden tree bytes.
 - [Phase ?]: Plan 234-12 used native Mix formatting only on eight persistence-sensitive example paths and proved warnings-clean compilation.
+- [Phase ?]: D-04 uses exact bounded formatter batches, focused ExUnit execution, and an empty install-golden-tree diff to preserve test meaning.
 
 ### Pending Todos
 
@@ -553,8 +554,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-01T02:15:52.927Z
-Stopped at: Completed 234-12-PLAN.md
+Last session: 2026-08-01T02:19:19.900Z
+Stopped at: Completed 234-13-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -701,3 +702,4 @@ Resume file: None
 | Phase 234-hygiene-supply-chain-and-contributor-dx P08 | 5m | 2 tasks | 4 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P11 | 6m | 2 tasks | 8 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P12 | 3 min | 2 tasks | 8 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P13 | 4min | 2 tasks | 8 files |

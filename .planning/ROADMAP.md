@@ -286,7 +286,7 @@ Plans:
 - [x] 234-04-PLAN.md — Format the first bounded library-test batch without weakening assertions
 - [x] 234-11-PLAN.md — Format the complementary routing and security-sensitive library-source batch
 - [x] 234-12-PLAN.md — Format the complementary migration and admin-test example batch
-- [ ] 234-13-PLAN.md — Format the complementary enterprise/install/OAuth library-test batch
+- [x] 234-13-PLAN.md — Format the complementary enterprise/install/OAuth library-test batch
 - [x] 234-08-PLAN.md — Wire the two orphan specs and publish the exhaustive Playwright lane inventory
 
 **Wave 3** *(blocked on every bounded formatter batch)*
