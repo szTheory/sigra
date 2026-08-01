@@ -269,7 +269,31 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: TBD
+**Plans**: 10 plans in 4 waves
+
+Plans:
+
+**Wave 1**
+
+- [ ] 234-01-PLAN.md — Trace `mix ci` from contributor CLI into the existing PR library lane with golden-safe parity contracts
+- [ ] 234-06-PLAN.md — Pin and mechanically inventory release-critical third-party Actions
+- [ ] 234-07-PLAN.md — Add and fail-closed validate weekly Actions, Mix, and npm Dependabot coverage
+
+**Wave 2** *(after the alias tracer where required)*
+
+- [ ] 234-02-PLAN.md — Format the first bounded library-source batch under the golden-safe ownership boundary
+- [ ] 234-03-PLAN.md — Format the remaining library and example-app source batch without behavior drift
+- [ ] 234-04-PLAN.md — Format the first bounded library-test batch without weakening assertions
+- [ ] 234-05-PLAN.md — Finish repository formatting and prove generated golden bytes remain unchanged
+- [ ] 234-08-PLAN.md — Wire the two orphan specs and publish the exhaustive Playwright lane inventory
+
+**Wave 3** *(blocked on Waves 1–2 local-gate work)*
+
+- [ ] 234-09-PLAN.md — Execute `mix ci` in a clean worktree and observe the direct alias on a real PR
+
+**Wave 4** *(blocked on all implementation and PR evidence)*
+
+- [ ] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
