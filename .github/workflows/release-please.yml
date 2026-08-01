@@ -85,7 +85,7 @@ jobs:
       - name: Run Release Please
         id: release
         if: ${{ steps.release-preflight.outputs.should_run == 'true' }}
-        uses: googleapis/release-please-action@v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           # Optional: set secret RELEASE_PLEASE_TOKEN (fine-grained PAT) if the
           # default token cannot open Release PRs; otherwise github.token suffices.
