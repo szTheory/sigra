@@ -161,7 +161,9 @@ defmodule Sigra.ApplicationForwardersTest do
       # This integration test confirms the full cascade works end-to-end
       # Configure a missing module so we get a warning we can capture
       Application.put_env(:test_app, :sigra_config,
-        audit: [forwarders: [[module: CascadeTestMissingModule, dispatch: :sync, id: :cascade_test]]]
+        audit: [
+          forwarders: [[module: CascadeTestMissingModule, dispatch: :sync, id: :cascade_test]]
+        ]
       )
 
       log =
