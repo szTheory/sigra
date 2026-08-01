@@ -123,7 +123,12 @@ defmodule Sigra.OAuth.EnterpriseCallbackTest do
 
     def get_by(TestMembership, clauses) do
       if clauses[:organization_id] == "org-acme" and clauses[:user_id] == 42 do
-        %TestMembership{id: "membership-acme-42", organization_id: "org-acme", user_id: 42, role: :member}
+        %TestMembership{
+          id: "membership-acme-42",
+          organization_id: "org-acme",
+          user_id: 42,
+          role: :member
+        }
       end
     end
 
