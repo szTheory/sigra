@@ -286,7 +286,10 @@ defmodule Sigra.JWT do
           end
         rescue
           e ->
-            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+            reason =
+              if match?(%Ecto.ConstraintError{}, e),
+                do: :constraint_violation,
+                else: :database_error
 
             :telemetry.execute(
               [:sigra, :audit, :log_safe_error],
@@ -332,7 +335,10 @@ defmodule Sigra.JWT do
           end
         rescue
           e ->
-            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+            reason =
+              if match?(%Ecto.ConstraintError{}, e),
+                do: :constraint_violation,
+                else: :database_error
 
             :telemetry.execute(
               [:sigra, :audit, :log_safe_error],

@@ -84,8 +84,7 @@ defmodule Sigra.JWT.RefreshToken do
         family_id = metadata["family_id"]
         revoke_family(config, family_id, opts)
 
-        {:error, :reuse_detected,
-         %{user_id: token_record.user_id, family_id: family_id}}
+        {:error, :reuse_detected, %{user_id: token_record.user_id, family_id: family_id}}
 
       {:ok, :rotate, token_record, metadata} ->
         user_token_schema = Keyword.fetch!(opts, :user_token_schema)
@@ -162,7 +161,9 @@ defmodule Sigra.JWT.RefreshToken do
       user = %{id: superseded_struct.user_id}
       scopes = metadata["scopes"] || []
       family_id = metadata["family_id"]
-      {raw, insert_struct} = refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
+
+      {raw, insert_struct} =
+        refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
 
       case repo.insert(insert_struct) do
         {:ok, record} -> {:ok, {raw, record, scopes}}
@@ -312,7 +313,9 @@ defmodule Sigra.JWT.RefreshToken do
   # -- Private --
 
   defp do_create(config, user, scopes, family_id, user_token_schema) do
-    {raw_token, token_struct} = refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
+    {raw_token, token_struct} =
+      refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
+
     {:ok, record} = config.repo.insert(token_struct)
     {raw_token, record}
   end
