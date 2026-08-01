@@ -150,4 +150,49 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipt["job_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
     assert_sha256!(receipt["log_sha256"], "release.log_sha256")
   end
+
+  @tag :dependabot
+  test "Dependabot evidence has the exact configured tuple set and fails closed when job logs are unavailable" do
+    receipt = evidence()["dependabot"]
+
+    assert receipt["default_branch_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert_sha256!(receipt["config_sha256"], "dependabot.config_sha256")
+    assert receipt["diagnostic_url"] == "https://github.com/szTheory/sigra/network/updates"
+    assert_non_empty_string!(receipt, "diagnostics")
+
+    slots = receipt["slots"]
+
+    assert Enum.map(slots, &{&1["ecosystem"], &1["directory"]}) == [
+             {"github-actions", "/"},
+             {"mix", "/"},
+             {"npm", "/test/example/priv/playwright"}
+           ]
+
+    case receipt["status"] do
+      "success" ->
+        for slot <- slots do
+          assert slot["status"] == "success"
+
+          for key <- ["job_id", "timestamp", "job_log_url", "capture_sha256"] do
+            assert_non_empty_string!(slot, key)
+          end
+
+          assert slot["job_id"] =~ ~r/\A\d+\z/
+          assert slot["job_log_url"] =~ ~r/\Ahttps:\/\/github\.com\//
+          assert_sha256!(slot["capture_sha256"], "dependabot.capture_sha256")
+        end
+
+      "failed" ->
+        for slot <- slots do
+          assert slot["status"] == "failed"
+          assert_non_empty_string!(slot, "reason")
+          assert_non_empty_string!(slot, "diagnostic_url")
+          assert slot["diagnostic_url"] =~ ~r/\Ahttps:\/\/github\.com\//
+          assert_sha256!(slot["capture_sha256"], "dependabot.capture_sha256")
+        end
+
+      other ->
+        flunk("Dependabot evidence must be success or failed with durable diagnostics, got: #{inspect(other)}")
+    end
+  end
 end
