@@ -26,8 +26,20 @@ defmodule Sigra.EnterpriseConnections.ActivationTest do
 
     def changeset(settings, attrs) do
       settings
-      |> cast(attrs, [:issuer, :discovery_document_uri, :client_id, :encrypted_client_secret, :client_authentication_method, :scopes])
-      |> validate_required([:issuer, :client_id, :encrypted_client_secret, :client_authentication_method])
+      |> cast(attrs, [
+        :issuer,
+        :discovery_document_uri,
+        :client_id,
+        :encrypted_client_secret,
+        :client_authentication_method,
+        :scopes
+      ])
+      |> validate_required([
+        :issuer,
+        :client_id,
+        :encrypted_client_secret,
+        :client_authentication_method
+      ])
     end
   end
 
@@ -40,7 +52,11 @@ defmodule Sigra.EnterpriseConnections.ActivationTest do
 
     schema "enterprise_connections" do
       field :protocol, Ecto.Enum, values: [:oidc], default: :oidc
-      field :status, Ecto.Enum, values: [:draft, :validation_failed, :active, :disabled], default: :draft
+
+      field :status, Ecto.Enum,
+        values: [:draft, :validation_failed, :active, :disabled],
+        default: :draft
+
       field :display_name, :string
       field :login_hint_domains, {:array, :string}, default: []
       field :last_validated_at, :utc_datetime_usec
@@ -51,7 +67,15 @@ defmodule Sigra.EnterpriseConnections.ActivationTest do
 
     def changeset(connection, attrs) do
       connection
-      |> cast(attrs, [:organization_id, :protocol, :status, :display_name, :login_hint_domains, :last_validated_at, :last_validation_error])
+      |> cast(attrs, [
+        :organization_id,
+        :protocol,
+        :status,
+        :display_name,
+        :login_hint_domains,
+        :last_validated_at,
+        :last_validation_error
+      ])
       |> validate_required([:organization_id, :protocol, :status, :display_name])
       |> cast_embed(:oidc_settings, required: true, with: &TestOIDCSettings.changeset/2)
     end
