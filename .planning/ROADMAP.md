@@ -284,7 +284,7 @@ Plans:
 - [x] 234-02-PLAN.md — Format the first bounded library-source batch under the golden-safe ownership boundary
 - [x] 234-03-PLAN.md — Format the remaining library and example-app source batch without behavior drift
 - [x] 234-04-PLAN.md — Format the first bounded library-test batch without weakening assertions
-- [ ] 234-11-PLAN.md — Format the complementary routing and security-sensitive library-source batch
+- [x] 234-11-PLAN.md — Format the complementary routing and security-sensitive library-source batch
 - [ ] 234-12-PLAN.md — Format the complementary migration and admin-test example batch
 - [ ] 234-13-PLAN.md — Format the complementary enterprise/install/OAuth library-test batch
 - [x] 234-08-PLAN.md — Wire the two orphan specs and publish the exhaustive Playwright lane inventory
