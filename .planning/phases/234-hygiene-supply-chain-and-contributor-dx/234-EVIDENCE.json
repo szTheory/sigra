@@ -26,7 +26,7 @@
     "diagnostics": "Succeeded after MIX_ENV=test mix deps.get bootstrap in a clean detached checkout; the captured log was removed after hashing."
   },
   "pr_ci": {
-    "status": "failed",
+    "status": "pending",
     "event": "pull_request",
     "commit_sha": "091c6aa274c29b16f363562f764ac62232304607",
     "run_id": "30720751244",
@@ -45,7 +45,7 @@
     "library_tests_conclusion": "success",
     "library_tests_skipped": false,
     "log_sha256": "edab6f0b1763c09c633985bf41e91d8ffbd1a5a8dd9092df862f493425dcf63b",
-    "diagnostics": "Final GitHub receipt: direct library owner job 91424010878 and protected Library tests job 91425089394 both succeeded. Overall run failed because Example Playwright smoke (full lifecycle), job 91424837821, reported example_playwright_shard=failure; ci-gate consequently failed its honest-skip verdict. GitHub API rate-limited two earlier polling requests, but recovered for terminal metadata/log retrieval. No workflow retry was performed."
+    "diagnostics": "Pending replacement receipt after the admin_behavior repair. The prior failed receipt remains preserved in commit a7ac457c and its scoped tracker: direct library owner job 91424010878 and protected Library tests job 91425089394 succeeded, while the old Example Playwright smoke aggregate failed on stale admin assertions. The repaired admin_behavior shard passed in run 30722291400, but that run's contributor alias correctly rejected this previously failed receipt before a replacement receipt could be recorded. No workflow retry was performed."
   },
   "dependabot": {},
   "gallery": {}
