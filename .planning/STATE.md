@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Completed 234-01-PLAN.md
-last_updated: "2026-08-01T01:46:22.255Z"
+stopped_at: Completed 234-06-PLAN.md
+last_updated: "2026-08-01T01:50:06.574Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 47
-  completed_plans: 34
+  completed_plans: 35
   percent: 67
 ---
 
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([███████░░░] 72%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([███████░░░] 74%); Phase 233 not started
 Last activity: 2026-07-31 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -398,6 +398,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Library shard manifests now fail closed against the live Mix-filtered ordinary test universe; discovery validates receipt-derived assignment without rebalancing it.
 - [Phase ?]: library_tests_shard is the sole full-suite owner and invokes literal MIX_ENV=test mix ci once.
 - [Phase ?]: Generated install-golden tree bytes are outside formatter ownership; CSS and prohibition fixtures remain covered.
+- [Phase 234]: Scope immutable-action enforcement to release-please and manual Hex-publish workflows.
+- [Phase 234]: Reject the annotated v5 tag object explicitly despite its 40-character SHA shape.
 
 ### Pending Todos
 
@@ -540,8 +542,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-01T01:46:22.244Z
-Stopped at: Completed 234-01-PLAN.md
+Last session: 2026-08-01T01:50:06.563Z
+Stopped at: Completed 234-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -680,3 +682,4 @@ Resume file: None
 | Phase 233-library-suite-economics P03 | 5m | 2 tasks | 8 files |
 | Phase 233-library-suite-economics P06 | 5m | 2 tasks | 3 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P01 | 7m | 2 tasks | 6 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P06 | 3min | 2 tasks | 2 files |
