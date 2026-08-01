@@ -306,17 +306,15 @@ assert admin-theme.spec.ts and admin-coherence-sweep.spec.ts have resolved owner
 |---|---|---|---|
 | A1 | Both orphan specs can be added to `admin_behavior` without changing the intended test partition. | Architecture Patterns | A source-level inspection may show one is obsolete or needs a distinct project; planner must inspect each spec before wiring. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which exact CI job should call `mix ci` without duplicating/scaling the full suite?**
+1. **RESOLVED — `library_tests_shard` is the sole full-suite `mix ci` owner.**
    - What we know: protected `Library tests` is an aggregate over sharded work, while `mix ci` is one full local sequence. [VERIFIED: `ci.yml`, `mix.exs`]
-   - What's unclear: whether a dedicated existing required/non-required library lane can safely become the call-through while keeping costs and check names stable.
-   - Recommendation: planner’s first implementation task must inspect every library lane and select one that preserves required contexts; test workflow invocation structurally and observe the PR run. [HIGH — CONTEXT D-01]
+   - Planning resolution: `library_tests_shard` alone invokes the full `MIX_ENV=test mix ci` suite. Duplicate shard, scaffold, and dependency-off suite execution is removed, while the protected `Library tests` aggregation and its required-check identity remain intact. The implementation plan must prove exact-one ownership structurally and observe it on a PR run. [HIGH — CONTEXT D-01; resolved by Plans 01/09]
 
-2. **Are the two orphan specs useful and non-duplicative?**
+2. **RESOLVED — retain both orphan specs and route them through `admin_behavior`.**
    - What we know: both have no explicit CI command; `admin-theme` matches the configuration behavior regex, while `admin-coherence-sweep` does not. [VERIFIED: `ci.yml`, `playwright.config.ts`]
-   - What's unclear: their assertion intent versus existing behavior/checkpoint/design coverage.
-   - Recommendation: inspect source and wire by default; delete only with committed obsolete/duplicate evidence. [HIGH — CONTEXT D-09]
+   - Planning resolution after source inspection: `admin-theme.spec.ts` and `admin-coherence-sweep.spec.ts` both carry useful admin behavior coverage and are deliberately routed into the existing `admin_behavior` CI lane. Neither is deleted for convenience; the inventory contract must prove their command- and config-level ownership. [HIGH — CONTEXT D-09; resolved by Plan 08]
 
 ## Environment Availability
 

@@ -19,7 +19,7 @@ created: 2026-07-31
 |----------|-------|
 | **Framework** | ExUnit (repository existing) |
 | **Config file** | `mix.exs` |
-| **Quick run command** | `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_234_hygiene_contract_test.exs` |
+| **Quick run command** | `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs` |
 | **Full suite command** | `mix ci` |
 | **Estimated runtime** | Measure during Wave 0 and record in execution evidence |
 
@@ -54,8 +54,11 @@ created: 2026-07-31
 
 ## Wave 0 Requirements
 
-- [ ] Revise `test/sigra/planning/phase_198_contributor_dx_contract_test.exs` for the new alias-as-CI-call-through contract.
-- [ ] Add `test/sigra/planning/phase_234_hygiene_contract_test.exs` (or a deterministic `scripts/ci` guard plus self-test) covering action pins, Dependabot shape, and inventory reconciliation.
+- [ ] Revise `test/sigra/planning/phase_198_contributor_dx_contract_test.exs` and `test/sigra/planning/phase_233_library_economics_contract_test.exs` for the alias-as-CI-call-through and exact-one-suite-owner contracts.
+- [ ] Add `test/sigra/planning/phase_234_action_pinning_contract_test.exs` for the release-critical immutable-action contract.
+- [ ] Add `test/sigra/planning/phase_234_dependabot_contract_test.exs` for the exact Dependabot ecosystem/directory contract.
+- [ ] Add `test/sigra/planning/phase_234_playwright_inventory_contract_test.exs` for live-spec and executable-lane reconciliation.
+- [ ] Add `test/sigra/planning/phase_234_evidence_contract_test.exs` for local/PR/service receipts and validation-signoff mutation coverage.
 - [ ] Add the committed Phase 234 Playwright spec-to-lane inventory artifact consumed by the reconciliation guard.
 - [ ] Add machine-readable receipt slots/evidence for Dependabot update jobs and a current gallery execution.
 
