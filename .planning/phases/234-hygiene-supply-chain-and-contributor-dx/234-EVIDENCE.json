@@ -31,7 +31,21 @@
     "commit_sha": "091c6aa274c29b16f363562f764ac62232304607",
     "run_id": "30720751244",
     "url": "https://github.com/szTheory/sigra/actions/runs/30720751244",
-    "diagnostics": "Observed failure: Example Playwright smoke (full lifecycle), job 91424837821, reported example_playwright_shard=failure. The sole direct library owner job 91424010878 was still in progress when GitHub API polling hit HTTP 403 rate-limit responses twice; terminal job metadata and logs could not be retrieved. No retry of the workflow was performed."
+    "conclusion": "failure",
+    "job_id": "91424010878",
+    "job_url": "https://github.com/szTheory/sigra/actions/runs/30720751244/job/91424010878",
+    "started_at": "2026-08-01T22:12:17Z",
+    "completed_at": "2026-08-01T22:23:52Z",
+    "direct_mix_ci_step_name": "Run contributor CI gate",
+    "direct_mix_ci_step_count": 1,
+    "library_suite_owner_count": 1,
+    "retired_library_suite_execution_count": 0,
+    "continue_on_error_count": 0,
+    "library_tests_job_id": "91425089394",
+    "library_tests_conclusion": "success",
+    "library_tests_skipped": false,
+    "log_sha256": "edab6f0b1763c09c633985bf41e91d8ffbd1a5a8dd9092df862f493425dcf63b",
+    "diagnostics": "Final GitHub receipt: direct library owner job 91424010878 and protected Library tests job 91425089394 both succeeded. Overall run failed because Example Playwright smoke (full lifecycle), job 91424837821, reported example_playwright_shard=failure; ci-gate consequently failed its honest-skip verdict. GitHub API rate-limited two earlier polling requests, but recovered for terminal metadata/log retrieval. No workflow retry was performed."
   },
   "dependabot": {},
   "gallery": {}
