@@ -1,13 +1,15 @@
 {
   "schema_version": 1,
   "local_mix_ci": {
-    "status": "pending",
+    "status": "success",
+    "conclusion": "success",
     "commit_sha": "4a743aaa19ade881b04e2a78b63b8cb00d91edba",
     "clean_before": true,
     "detached_worktree": true,
     "command": "MIX_ENV=test mix ci",
-    "started_at": "2026-08-01T02:38:56Z",
-    "completed_at": "2026-08-01T02:42:52Z",
+    "started_at": "2026-08-01T22:06:52Z",
+    "completed_at": "2026-08-01T22:10:54Z",
+    "exit_status": 0,
     "ordered_legs": [
       "format --check-formatted",
       "deps.get --check-locked",
@@ -17,9 +19,11 @@
       "ci.install_golden",
       "sigra.dep_off"
     ],
-    "log_sha256": "8555d0404f5d5b2ee9a1f28fb8aab0a7c0dd9b3bc76df142b6430b904c856ae8",
-    "command_output_path": "/tmp/sigra-234-09-proof.c0AKzf/mix-ci.log",
-    "diagnostics": "Capture pending: the prior detached run proved the staged contract self-gated the full alias. A fresh literal alias run will replace this slot only after it succeeds."
+    "formatter_check": "passed",
+    "golden_tree": "unchanged",
+    "log_sha256": "f64c6b44d6aef4d98295196e117f5969e8b4ebc411c89e81f94235a28e0a97a3",
+    "command_output_path": "/tmp/sigra-234-09-final.nrvDis/mix-ci.log",
+    "diagnostics": "Succeeded after MIX_ENV=test mix deps.get bootstrap in a clean detached checkout; the captured log was removed after hashing."
   },
   "pr_ci": {
     "status": "pending",
