@@ -1,20 +1,17 @@
 defmodule Sigra.Planning.Phase58OauthOa01CiContractTest do
   @moduledoc """
   **D-58-11** structural lock for **OA-01** / phase **58**: the library test lane
-  in `.github/workflows/ci.yml` must keep a **Run library tests** step whose `run:`
-  command is plain **`mix test`** (no OAuth-related `--exclude` flags).
+  in `.github/workflows/ci.yml` must keep the sole contributor-gate step whose
+  `run:` command is **`MIX_ENV=test mix ci`** (no OAuth-related `--exclude` flags).
 
-  Phase 195 (TEST-01) partitioned the lane: the actual `mix test` run moved out of
-  the `library_tests:` job (now a thin name-preserving aggregator) into the
-  `library_tests_shard:` matrix worker, which runs the committed measured file
-  partition. The
-  OA-01 contract (library tests run `mix test`, never excluding OAuth) is unchanged —
-  this lock now anchors on the worker that performs the run. If the workflow
-  intentionally changes, update this file deliberately.
+  Phase 234 (DX-01) made `library_tests_shard:` the sole full-suite owner, invoking
+  the same contributor gate used locally. OA-01's no-OAuth-exclusion guarantee is
+  unchanged — this lock anchors on that direct CI gate. If the workflow intentionally
+  changes, update this file deliberately.
 
-  Anchors: `library_tests_shard`, `Run library tests`, `mix test`, boundary job
-  `library_tests:` (the aggregator that follows the worker — used only to delimit
-  the worker body; update if renamed).
+  Anchors: `library_tests_shard`, `Run contributor CI gate`, `MIX_ENV=test mix ci`,
+  boundary job `library_tests:` (the aggregator that follows the worker — used only
+  to delimit the worker body; update if renamed).
   """
 
   use ExUnit.Case, async: true
@@ -38,16 +35,15 @@ defmodule Sigra.Planning.Phase58OauthOa01CiContractTest do
     end
   end
 
-  test "58-01: library_tests shard worker runs mix test without oauth excludes" do
+  test "58-01: library_tests shard worker runs contributor gate without oauth excludes" do
     yml = read_ci!()
     assert yml =~ "library_tests_shard:"
 
     job = library_tests_shard_job(yml)
-    assert job =~ "Run library tests"
-    # Phase 233: the worker receives an explicit measured file list, while OA-01
-    # continues to require a normal `mix test` invocation without OAuth exclusions.
-    assert job =~ "library_test_partitions.exs"
-    assert job =~ "mix test \"${library_test_files[@]}\""
+    assert job =~ "Run contributor CI gate"
+    # Phase 234: the worker owns the complete suite through the contributor alias;
+    # OA-01 continues to prohibit excluding OAuth from that gate.
+    assert job =~ "MIX_ENV=test mix ci"
     refute job =~ ~r/--exclude.*oauth/i
   end
 end

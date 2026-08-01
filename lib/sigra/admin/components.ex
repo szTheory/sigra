@@ -1034,7 +1034,7 @@ defmodule Sigra.Admin.Components do
 
   attr :login_testid, :string,
     required: true,
-    doc: "data-testid for the login preview card (used when not active)"
+    doc: "data-testid for the sign-in preview card (used when not active)"
 
   attr :email_testid, :string,
     required: true,
