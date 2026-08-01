@@ -37,7 +37,27 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
     assert inventory["phase_235_gate_input"] == true
     assert inventory["schema_version"] == "sigra.playwright-ownership/v1"
+    assert inventory["generated_from"] == "test/example/priv/playwright/tests/*.spec.ts"
     assert validate_inventory!(inventory) == :ok
+
+    assert inventory["specs"] |> Enum.map(& &1["spec"]) ==
+             inventory["specs"] |> Enum.map(& &1["spec"]) |> Enum.sort()
+
+    for spec <- [
+          "test/example/priv/playwright/tests/admin-theme.spec.ts",
+          "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts"
+        ] do
+      assert %{
+               "lanes" => [
+                 %{
+                   "job" => "example_playwright_shard",
+                   "seam" => "seam: admin_behavior",
+                   "project" => "chromium"
+                 }
+               ]
+             } =
+               Enum.find(inventory["specs"], &(&1["spec"] == spec))
+    end
   end
 
   test "inventory validation rejects missing, stale, duplicate, unowned, and broken lane tokens" do
@@ -54,17 +74,36 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       validate_inventory!(Map.put(inventory, "specs", [stale | inventory["specs"]]))
     end
 
-    assert_raise ArgumentError, ~r/duplicate inventory spec: #{Regex.escape(first["spec"])}/, fn ->
-      validate_inventory!(Map.put(inventory, "specs", [first | inventory["specs"]]))
-    end
+    assert_raise ArgumentError,
+                 ~r/duplicate inventory spec: #{Regex.escape(first["spec"])}/,
+                 fn ->
+                   validate_inventory!(Map.put(inventory, "specs", [first | inventory["specs"]]))
+                 end
 
     assert_raise ArgumentError, ~r/has no lane owners: #{Regex.escape(first["spec"])}/, fn ->
       validate_inventory!(Map.put(inventory, "specs", [Map.put(first, "lanes", []) | rest]))
     end
 
-    assert_lane_mutation_fails(inventory, "job", "missing_playwright_job", ~r/missing workflow job/)
-    assert_lane_mutation_fails(inventory, "command_marker", "missing command marker", ~r/missing command marker/)
-    assert_lane_mutation_fails(inventory, "config_seam", "MISSING_CONFIG_SEAM", ~r/missing config seam/)
+    assert_lane_mutation_fails(
+      inventory,
+      "job",
+      "missing_playwright_job",
+      ~r/missing workflow job/
+    )
+
+    assert_lane_mutation_fails(
+      inventory,
+      "command_marker",
+      "missing command marker",
+      ~r/missing command marker/
+    )
+
+    assert_lane_mutation_fails(
+      inventory,
+      "config_seam",
+      "MISSING_CONFIG_SEAM",
+      ~r/missing config seam/
+    )
   end
 
   defp assert_lane_mutation_fails(inventory, field, value, message) do
@@ -125,7 +164,8 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
   defp validate_spec!(%{"spec" => spec, "lanes" => []}, _workflow, _config),
     do: raise(ArgumentError, "spec has no lane owners: #{spec}")
 
-  defp validate_spec!(spec, _workflow, _config), do: raise(ArgumentError, "malformed inventory spec: #{inspect(spec)}")
+  defp validate_spec!(spec, _workflow, _config),
+    do: raise(ArgumentError, "malformed inventory spec: #{inspect(spec)}")
 
   defp validate_lane!(lane, workflow, config) do
     for field <- ["workflow", "job", "seam", "events", "command_marker", "project", "config_seam"] do
@@ -134,13 +174,19 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
     workflow_path = lane["workflow"]
 
+    unless is_list(lane["events"]) and lane["events"] != [] and
+             Enum.all?(lane["events"], &is_binary/1) and
+             lane["events"] == Enum.sort(lane["events"]) do
+      raise ArgumentError, "events must be a non-empty sorted list"
+    end
+
     unless workflow_path == @workflow_path do
       raise ArgumentError, "unsupported workflow path: #{workflow_path}"
     end
 
-    job = job_body(workflow, lane["job"])
+    job = workflow_job!(workflow, lane["job"])
 
-    unless job =~ "seam: #{lane["seam"]}" do
+    unless job =~ lane["seam"] do
       raise ArgumentError, "missing workflow seam: #{lane["seam"]}"
     end
 
@@ -165,6 +211,15 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     "test/example/priv/playwright/tests/*.spec.ts"
     |> Path.wildcard()
     |> Enum.sort()
+  end
+
+  defp workflow_job!(workflow, job_id) do
+    pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
+
+    case Regex.named_captures(pattern, workflow) do
+      %{"body" => body} -> body
+      _ -> raise ArgumentError, "missing workflow job: #{job_id}"
+    end
   end
 
   defp format_paths(paths), do: paths |> MapSet.to_list() |> Enum.sort() |> Enum.join(", ")
