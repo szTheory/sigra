@@ -233,7 +233,8 @@ defmodule Example.Demo.Personas do
       "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console",
       "pat" =>
         "Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index",
-      "grace" => "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill",
+      "grace" =>
+        "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill",
       "zoe" =>
         "Zero-state user — confirmed, no MFA/passkey/identity/org/sessions/audit; drives empty panels on user detail"
     }

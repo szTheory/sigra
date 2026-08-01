@@ -617,7 +617,13 @@ defmodule Sigra.Organizations.Invitations do
         {:ok,
          Multi.new()
          |> Multi.append(
-           Sigra.Organizations.add_member_multi(config, user_scope, org, user_ref, invitation.role)
+           Sigra.Organizations.add_member_multi(
+             config,
+             user_scope,
+             org,
+             user_ref,
+             invitation.role
+           )
          )
          |> Multi.update(:accept_invitation, accept_changeset)}
     end
