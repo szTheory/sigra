@@ -28,8 +28,10 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
 
   test "Dependabot parser fails closed with named diagnostics" do
     fixtures = [
-      {"missing directory", "  - package-ecosystem: mix\n    schedule:\n      interval: weekly\n", "directory"},
-      {"missing interval", "  - package-ecosystem: mix\n    directory: /\n    schedule:\n", "interval"},
+      {"missing directory", "  - package-ecosystem: mix\n    schedule:\n      interval: weekly\n",
+       "directory"},
+      {"missing interval", "  - package-ecosystem: mix\n    directory: /\n    schedule:\n",
+       "interval"},
       {"duplicate ecosystem directory", two_updates("mix", "/", "mix", "/"), "duplicate"},
       {"unknown ecosystem", single_update("bundler", "/"), "unknown ecosystem"},
       {"malformed indentation", "  - package-ecosystem: mix\n   directory: /\n", "malformed"},
@@ -48,7 +50,8 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
   end
 
   defp two_updates(first_ecosystem, first_directory, second_ecosystem, second_directory) do
-    single_update(first_ecosystem, first_directory) <> single_update(second_ecosystem, second_directory)
+    single_update(first_ecosystem, first_directory) <>
+      single_update(second_ecosystem, second_directory)
   end
 
   defp parse_updates!(yaml) do
@@ -79,9 +82,12 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
     {entries, current, _section} =
       Enum.reduce(lines, {[], nil, nil}, fn line, {entries, current, section} ->
         case line do
-          "" -> {entries, current, section}
+          "" ->
+            {entries, current, section}
+
           "  - package-ecosystem: " <> value ->
-            {finish_entry!(entries, current), %{ecosystem: scalar!(value, "package-ecosystem")}, nil}
+            {finish_entry!(entries, current), %{ecosystem: scalar!(value, "package-ecosystem")},
+             nil}
 
           "    directory: " <> value ->
             {entries, put_field!(current, :directory, scalar!(value, "directory")), nil}
@@ -194,7 +200,8 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
   end
 
   defp assert_manifest_pair!(directory, manifest, lockfile) do
-    assert manifest_pair_exists?(directory, manifest, lockfile), "missing #{directory}/#{manifest} or #{lockfile}"
+    assert manifest_pair_exists?(directory, manifest, lockfile),
+           "missing #{directory}/#{manifest} or #{lockfile}"
   end
 
   defp manifest_pair_exists?(directory, manifest, lockfile) do
