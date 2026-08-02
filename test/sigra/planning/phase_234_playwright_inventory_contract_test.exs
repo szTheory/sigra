@@ -106,6 +106,21 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     )
   end
 
+  test "inventory validation rejects a direct lane borrowing a sibling spec marker" do
+    inventory = inventory!()
+    {admin_audit, other_specs} = pop_spec!(inventory["specs"], "admin-audit.spec.ts")
+    [lane] = admin_audit["lanes"]
+
+    swapped_audit =
+      Map.put(admin_audit, "lanes", [Map.put(lane, "command_marker", "tests/admin-theme.spec.ts")])
+
+    assert_raise ArgumentError,
+                 ~r/admin-audit\.spec\.ts.*tests\/admin-theme\.spec\.ts/,
+                 fn ->
+                   validate_inventory!(Map.put(inventory, "specs", [swapped_audit | other_specs]))
+                 end
+  end
+
   defp assert_lane_mutation_fails(inventory, field, value, message) do
     [first | rest] = inventory["specs"]
     [lane | lanes] = first["lanes"]
@@ -113,6 +128,14 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
     assert_raise ArgumentError, message, fn ->
       validate_inventory!(Map.put(inventory, "specs", [mutated | rest]))
+    end
+  end
+
+  defp pop_spec!(specs, spec_name) do
+    Enum.split_with(specs, &String.ends_with?(&1["spec"], spec_name))
+    |> case do
+      {[spec], others} -> {spec, others}
+      _ -> raise "missing unique inventory spec: #{spec_name}"
     end
   end
 
