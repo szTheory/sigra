@@ -11,6 +11,13 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
     "test/sigra/planning/phase_234_evidence_contract_test.exs"
   ]
+  @command_receipt_commands [
+    "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence",
+    "mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs",
+    "mix test test/sigra/planning/",
+    "mix format --check-formatted",
+    "test -z \"$(git diff --name-only -- test/fixtures/install_golden/tree)\" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs"
+  ]
   @mix_ci_legs [
     "format --check-formatted",
     "deps.get --check-locked",
@@ -471,37 +478,18 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
-  test "validation sign-off parses its exact contract inventory before allowing a status transition" do
+  test "validation sign-off retains a durable draft diagnostic while stale receipts fail parsing" do
     validation = File.read!(@validation_path)
 
-    assert %{
-             frontmatter: %{
-               "status" => "draft",
-               "nyquist_compliant" => "false",
-               "wave_0_complete" => "false"
-             },
-             quick_run_paths: @quick_run_paths,
-             wave_0_items: wave_0_items,
-             task_statuses: task_statuses,
-             command_receipts: command_receipts,
-             approval: approval
-           } = parsed = parse_validation!(validation)
+    assert validation =~ "status: draft"
+    assert validation =~ "**Approval:** blocked"
 
-    assert Enum.all?(wave_0_items, & &1.complete),
-           "every Wave 0 artifact must be checked before sign-off"
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        parse_validation!(validation)
+      end
 
-    assert Enum.all?(task_statuses, &(&1 == "✅ green")),
-           "every task-map row must be green before sign-off"
-
-    assert length(command_receipts) == 5
-    assert Enum.count(command_receipts, &(&1.exit_status == "0")) == 4
-    assert Enum.count(command_receipts, &(&1.exit_status == "1")) == 1
-    assert Enum.all?(command_receipts, &valid_command_receipt?/1)
-    assert approval =~ "Dependabot residual"
-    assert approval =~ "golden fixture residual"
-
-    assert :complete = signoff_state(evidence())
-    assert :blocked = assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
+    assert error.message =~ "exit_status"
   end
 
   @tag :validation_signoff
@@ -527,10 +515,10 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
-  test "missing or red evidence and command receipts force every completion field to remain false" do
+  test "shared exact command receipt validator rejects every incomplete mutation and transition stays draft" do
     slots = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
     green_evidence = Map.new(slots, &{&1, %{"status" => "success"}})
-    green_commands = List.duplicate(%{exit_status: "0"}, 5)
+    green_commands = green_command_receipts()
 
     complete = %{
       "status" => "complete",
@@ -541,6 +529,41 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     draft = %{"status" => "draft", "nyquist_compliant" => "false", "wave_0_complete" => "false"}
 
     assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
+
+    mutations =
+      [{"zero rows", [], "exactly five"} |
+       Enum.map(0..4, fn index ->
+         {"missing #{index}", List.delete_at(green_commands, index), "exactly five"}
+       end)] ++
+        [
+          {"extra row", green_commands ++ [List.last(green_commands)], "exactly five"},
+          {"duplicate command", List.replace_at(green_commands, 1, List.first(green_commands)),
+           "exact ordered command inventory"},
+          {"reordered rows", Enum.reverse(green_commands), "exact ordered command inventory"},
+          {"empty command", List.replace_at(green_commands, 0, %{List.first(green_commands) | command: ""}),
+           "exact ordered command inventory"},
+          {"malformed timestamp",
+           List.replace_at(green_commands, 0, %{List.first(green_commands) | timestamp: "yesterday"}),
+           "UTC ISO-8601"},
+          {"malformed hash",
+           List.replace_at(green_commands, 0, %{List.first(green_commands) | output_hash: "hash"}),
+           "lowercase SHA-256"},
+          {"nonzero exit",
+           List.replace_at(green_commands, 0, %{List.first(green_commands) | exit_status: "1"}),
+           "exit_status"},
+          {"stale command",
+           List.replace_at(green_commands, 0, %{List.first(green_commands) | command: "mix test stale"}),
+           "exact ordered command inventory"}
+        ]
+
+    for {name, commands, error_message} <- mutations do
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          assert_transition_allowed!(draft, green_evidence, commands)
+        end
+
+      assert error.message =~ error_message, "#{name}: #{error.message}"
+    end
 
     for slot <- slots do
       assert :blocked =
@@ -554,10 +577,17 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
                assert_transition_allowed!(draft, Map.delete(green_evidence, slot), green_commands)
     end
 
-    assert :blocked =
-             assert_transition_allowed!(draft, green_evidence, [
-               %{exit_status: "1"} | tl(green_commands)
-             ])
+  end
+
+  defp green_command_receipts do
+    Enum.map(@command_receipt_commands, fn command ->
+      %{
+        command: command,
+        timestamp: "2026-08-02T04:00:00Z",
+        exit_status: "0",
+        output_hash: String.duplicate("a", 64)
+      }
+    end)
   end
 
   defp parse_validation!(validation) do
