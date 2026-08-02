@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Phase 234 validation blocked on durable residuals
-last_updated: "2026-08-02T02:11:50.722Z"
-last_activity: 2026-07-31
+stopped_at: Completed 234-15-PLAN.md
+last_updated: "2026-08-02T02:26:16.561Z"
+last_activity: 2026-08-01
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 4
   total_plans: 51
-  completed_plans: 47
-  percent: 83
+  completed_plans: 48
+  percent: 67
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 14 of 14
+Plan: 2 of 18
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
-Last activity: 2026-07-31 — Phase 234 execution started
+Progress: 3/6 milestone phases complete ([█████████░] 94%); Phase 233 not started
+Last activity: 2026-08-01 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -417,6 +417,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Dependabot remains unresolved until authenticated GitHub job logs exist for all three ecosystems.
 - [Phase ?]: SEED-006 is closed by the successful 126-test gallery receipt; admin_eval_render remains a separate non-gating diagnostic.
 - [Phase ?]: Phase 234 validation remains draft until Dependabot receipts and golden fixture verification are green.
+- [Phase ?]: Verified phx_new 1.8.8 regeneration was byte-identical to the committed dev-config golden; restored phx_new 1.8.9 after proof.
 
 ### Pending Todos
 
@@ -560,9 +561,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T01:35:01.525Z
-Stopped at: Phase 234 validation blocked on durable residuals
-Resume file: .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md
+Last session: 2026-08-02T02:26:16.545Z
+Stopped at: Completed 234-15-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -712,3 +713,4 @@ Resume file: .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VA
 | Phase 234 P05 | 3m | 2 tasks | 6 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P10 | 2h | 3 tasks | 6 files |
 | Phase 234 P14 | 8min | 1 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P15 | 10 minutes | 2 tasks | 5 files |

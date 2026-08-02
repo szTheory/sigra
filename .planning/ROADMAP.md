@@ -307,7 +307,7 @@ Plans:
 
 **Wave 7** *(gap closure after initial verification)*
 
-- [ ] 234-15-PLAN.md — Repair `mix ci` so the dep-off leg is non-destructive and the golden/idempotency proof is green
+- [x] 234-15-PLAN.md — Repair `mix ci` so the dep-off leg is non-destructive and the golden/idempotency proof is green
 - [ ] 234-17-PLAN.md — Capture authenticated, fail-closed Dependabot processing receipts for all three ecosystem tuples
 
 **Wave 8** *(blocked on both Wave 7 gap repairs)*
