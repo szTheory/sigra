@@ -305,6 +305,46 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "recomputation fails closed for missing populations and preserves deterministic median edges" do
+    assert_raise ArgumentError, ~r/runs must be a non-empty list/, fn ->
+      recompute_statistics!(nil, "pull_request")
+    end
+
+    assert_raise ArgumentError, ~r/runs must be a non-empty list/, fn ->
+      recompute_statistics!([], "pull_request")
+    end
+
+    single_run = %{
+      "event" => "pull_request",
+      "created_at" => "2026-08-02T00:00:00Z",
+      "updated_at" => "2026-08-02T00:00:00Z",
+      "conclusion" => "cancelled"
+    }
+
+    assert recompute_statistics!([single_run], "pull_request") == %{
+             "trigger" => "pull_request",
+             "n" => 1,
+             "mean_seconds" => 0,
+             "p50_seconds" => 0,
+             "max_seconds" => 0,
+             "pass" => 0,
+             "fail" => 1
+           }
+
+    equal_runs =
+      for _ <- 1..10 do
+        %{
+          "event" => "pull_request",
+          "created_at" => "2026-08-02T00:00:00Z",
+          "updated_at" => "2026-08-02T00:12:00Z",
+          "conclusion" => "success"
+        }
+      end
+
+    assert recompute_statistics!(equal_runs, "pull_request")["p50_seconds"] == 720
+    assert strict_fast_01_status(10, 720) == "miss"
+  end
+
   test "contributor topology names live direct owners, aggregates, reproduction, and non-PR signals" do
     contributing = File.read!(@contributing_path)
 
