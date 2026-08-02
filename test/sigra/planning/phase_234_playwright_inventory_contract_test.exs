@@ -150,7 +150,9 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     [eval_lane] = admin_eval["lanes"]
 
     swapped_harness =
-      Map.put(admin_eval, "lanes", [Map.put(eval_lane, "harness_spec_marker", "tests/admin-generated.spec.ts")])
+      Map.put(admin_eval, "lanes", [
+        Map.put(eval_lane, "harness_spec_marker", "tests/admin-generated.spec.ts")
+      ])
 
     assert_raise ArgumentError, ~r/admin-eval\.spec\.ts.*tests\/admin-eval\.spec\.ts/, fn ->
       validate_inventory!(Map.put(inventory, "specs", [swapped_harness | other_specs]))
