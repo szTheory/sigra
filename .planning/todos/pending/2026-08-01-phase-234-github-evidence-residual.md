@@ -38,3 +38,21 @@ each tuple in `234-EVIDENCE.json`. Then run:
 ```bash
 mix test test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --only dependabot
 ```
+
+## Authenticated revalidation — 2026-08-02T02:40:44Z
+
+The persistent deterministic GitHub session was authenticated and the single required
+pre-collection REST core check reported `4988/5000`, so authentication and rate limits
+no longer block collection. The latest `github-actions:/` version-update job,
+`1499842989`, was successfully processed with no PRs affected. Collection then halted on
+the latest `mix:/` version-update job, `1499842991`: GitHub reported
+`Dependabot cannot open any more pull requests` because the configured open-PR limit of
+five was exceeded. Its sanitized diagnostic receipt hash is
+`4ffa5797fc16b54bea8dd69d9905dd0d8c879f2c300e0f76014a81f0ba1eb3a0`.
+
+This is a deterministic service processing error, not a transport failure; it was not
+retried. No raw job logs, authenticated HTML, cookies, credentials, or browser state were
+persisted. Dependabot evidence remains failed and DX-03 remains open because the required
+three successful exact-tuple receipts cannot be validated. After Dependabot can process
+the Mix update, re-run the bounded browser collection from the root Dependabot page and
+validate all three receipts with the command above.

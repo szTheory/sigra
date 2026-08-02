@@ -79,7 +79,7 @@
     "default_branch_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
     "config_sha256": "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
     "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-    "diagnostics": "At 2026-08-02T02:29:42Z, the gh-authenticated account had repository admin permission and REST core remaining 4121/5000. The isolated deterministic browser still had no authenticated GitHub session and GitHub returned its sign-in surface for the Dependabot job-log route, so no job IDs, timestamps, status summaries, or full-log URLs can be truthfully captured. Do not infer processing from the absence of Dependabot PRs.",
+    "diagnostics": "At 2026-08-02T02:40:44Z, authenticated deterministic browser collection confirmed a successful github-actions:/ no-update job (1499842989), but halted on mix:/ because its latest version-update job 1499842991 errored: Dependabot cannot open any more pull requests. REST core remaining was 4988/5000 before collection. No raw logs or browser state were retained, and no tuple is promoted until all three exact successful receipts validate.",
     "slots": [
       {
         "ecosystem": "github-actions",
@@ -93,9 +93,14 @@
         "ecosystem": "mix",
         "directory": "/",
         "status": "failed",
-        "reason": "authenticated_browser_session_unavailable",
-        "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-        "capture_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "reason": "latest_version_update_job_errored",
+        "job_id": "1499842991",
+        "captured_at": "2026-08-02T02:40:44Z",
+        "processed_status": "processing_error",
+        "status_summary": "Dependabot cannot open any more pull requests.",
+        "diagnostic_url": "https://github.com/szTheory/sigra/network/updates/1499842991",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91431195294?check_suite_focus=true",
+        "capture_sha256": "4ffa5797fc16b54bea8dd69d9905dd0d8c879f2c300e0f76014a81f0ba1eb3a0"
       },
       {
         "ecosystem": "npm",
