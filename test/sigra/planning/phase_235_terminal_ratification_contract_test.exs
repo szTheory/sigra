@@ -3,6 +3,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   @ledger_path ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
   @workflow_path ".github/workflows/ci.yml"
+  @contributing_path "CONTRIBUTING.md"
+  @mix_path "mix.exs"
+  @playwright_config_path "test/example/priv/playwright/playwright.config.ts"
+  @playwright_package_path "test/example/priv/playwright/package.json"
   @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
   @cutoff_sha "6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a"
   @top_level_keys MapSet.new(~w(schema_version topology_cutoff capture_endpoint baseline measurements ownership receipts verdict closeout))
@@ -181,6 +185,53 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "contributor topology names live direct owners, aggregates, reproduction, and non-PR signals" do
+    contributing = File.read!(@contributing_path)
+
+    assert validate_contributor_topology!(
+             contributing,
+             File.read!(@workflow_path),
+             File.read!(@mix_path),
+             File.read!(@playwright_config_path),
+             File.read!(@playwright_package_path)
+           ) == :ok
+  end
+
+  test "contributor topology contract rejects aggregate ownership, missing seams, commands, paths, and false PR ownership" do
+    contributing = File.read!(@contributing_path)
+    workflow = File.read!(@workflow_path)
+    mix_exs = File.read!(@mix_path)
+    playwright_config = File.read!(@playwright_config_path)
+    playwright_package = File.read!(@playwright_package_path)
+
+    assert_raise ArgumentError, ~r/direct owner example_playwright_shard/, fn ->
+      String.replace(contributing, "example_playwright_shard", "example_playwright_smoke", global: false)
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
+    assert_raise ArgumentError, ~r/Playwright seam demo_showcase/, fn ->
+      String.replace(contributing, "demo_showcase", "demo-showcase-removed", global: false)
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
+    assert_raise ArgumentError, ~r/local parity command/, fn ->
+      String.replace(contributing, "MIX_ENV=test mix ci", "mix ci", global: false)
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
+    assert_raise ArgumentError, ~r/Playwright reproduction path/, fn ->
+      String.replace(contributing, "test/example/priv/playwright", "test/example/priv/browser", global: false)
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
+    for signal <- ~w(admin_eval_render admin_design_recapture) do
+      assert_raise ArgumentError, ~r/non-PR signal #{signal}/, fn ->
+        String.replace(contributing, "#{signal} is intentionally non-PR", "#{signal} is a PR executor", global: false)
+        |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+      end
+    end
+  end
+
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
@@ -313,6 +364,43 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     closeout = ledger["closeout"]
     unless closeout["measurement_ready"] and closeout["performance_target_achieved"] == (status == "pass") and not closeout["records_reconciled"], do: raise(ArgumentError, "closeout verdict")
     :ok
+  end
+
+  defp validate_contributor_topology!(contributing, workflow, mix_exs, playwright_config, playwright_package) do
+    require_text!(contributing, "MIX_ENV=test mix ci", "local parity command")
+    require_text!(contributing, "library_tests_shard", "direct owner library_tests_shard")
+    require_text!(contributing, "library_tests / Library tests", "terminal aggregate Library tests")
+    require_text!(contributing, "example_playwright_shard", "direct owner example_playwright_shard")
+    require_text!(contributing, "example_playwright_smoke / Example Playwright smoke (full lifecycle)", "terminal aggregate Example Playwright smoke")
+
+    for seam <- ~w(admin_behavior admin_checkpoints design_gallery non_admin_smoke demo_showcase) do
+      require_text!(contributing, seam, "Playwright seam #{seam}")
+      require_text!(workflow, "seam: #{seam}", "workflow Playwright seam #{seam}")
+    end
+
+    require_text!(contributing, "test/example/priv/playwright", "Playwright reproduction path")
+    require_text!(contributing, "npm test", "Playwright reproduction command")
+    require_text!(contributing, "playwright.config.ts", "Playwright reproduction config")
+
+    require_text!(workflow, "library_tests_shard:", "workflow library direct owner")
+    require_text!(workflow, "library_tests:", "workflow library aggregate")
+    require_text!(workflow, "example_playwright_shard:", "workflow Playwright direct owner")
+    require_text!(workflow, "example_playwright_smoke:", "workflow Playwright aggregate")
+    require_text!(mix_exs, "ci:", "mix ci alias")
+    require_text!(playwright_config, "projects:", "Playwright config projects")
+    require_text!(playwright_package, "\"test\": \"playwright test\"", "Playwright package test command")
+
+    for signal <- ~w(admin_eval_render admin_design_recapture) do
+      require_text!(contributing, "#{signal} is intentionally non-PR", "non-PR signal #{signal}")
+      require_text!(contributing, "push, schedule, and workflow_dispatch", "non-PR event conditions")
+      require_text!(workflow, "#{signal}:", "workflow non-PR signal #{signal}")
+    end
+
+    :ok
+  end
+
+  defp require_text!(text, expected, diagnostic) do
+    unless text =~ expected, do: raise(ArgumentError, diagnostic)
   end
 
   defp strict_fast_01_status(count, p50) when count >= 10 and p50 < 720, do: "pass"
