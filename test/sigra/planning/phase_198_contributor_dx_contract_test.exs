@@ -85,6 +85,23 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     end
   end
 
+  test "198-06: dep-off has one cleanup harness and no inline destructive alias" do
+    mix_exs = read!("mix.exs")
+
+    dep_off =
+      Regex.run(~r/"sigra\.dep_off":\s*\[(.*?)\]/s, aliases_region(mix_exs),
+        capture: :all_but_first
+      )
+      |> List.first()
+
+    assert dep_off =~ "cmd bash scripts/ci/sigra-dep-off.sh"
+    assert length(Regex.scan(~r/sigra-dep-off\.sh/, dep_off)) == 1
+    refute dep_off =~ "deps.unlock threadline"
+    refute dep_off =~ "deps.clean threadline --build"
+    assert File.regular?(Path.join(root(), "scripts/ci/sigra-dep-off.sh"))
+    assert File.regular?(Path.join(root(), "scripts/ci/test-sigra-dep-off.sh"))
+  end
+
   defp job_body(workflow, job_id) do
     pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
 
