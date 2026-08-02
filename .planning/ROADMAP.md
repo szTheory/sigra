@@ -312,7 +312,7 @@ Plans:
 
 **Wave 8** *(blocked on both Wave 7 gap repairs)*
 
-- [ ] 234-16-PLAN.md — Refresh clean-checkout evidence for the repaired, non-destructive local gate
+- [x] 234-16-PLAN.md — Refresh clean-checkout evidence for the repaired, non-destructive local gate
 
 **Wave 9** *(blocked on refreshed local and managed-service evidence)*
 
