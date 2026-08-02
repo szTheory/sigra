@@ -113,6 +113,27 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "ownership validation rejects otherwise valid keys outside the reviewed universe" do
+    ledger = ledger!()
+    rows = ledger["ownership"]["rows"]
+    last_row = List.last(rows)
+
+    assert_raise ArgumentError, ~r/unexpected ownership key.*workflow_dispatch/, fn ->
+      extra_event =
+        last_row
+        |> Map.put("family", "unclassified_event_family")
+        |> Map.put("spec", nil)
+        |> Map.put("event", "workflow_dispatch")
+
+      put_in(ledger, ["ownership", "rows"], rows ++ [extra_event]) |> validate_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/unexpected ownership key.*unclassified_family/, fn ->
+      extra_family = last_row |> Map.put("family", "unclassified_family") |> Map.put("spec", nil)
+      put_in(ledger, ["ownership", "rows"], rows ++ [extra_family]) |> validate_ledger!()
+    end
+  end
+
   test "validation fails closed for malformed captured-window mutations" do
     ledger = ledger!()
 
