@@ -8,28 +8,2685 @@
   "capture_endpoint": {
     "status": "pending",
     "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event <event> --format json",
-    "note": "No live capture has been performed by this tracer."
+    "note": "No live capture has been performed by this plan."
   },
   "baseline": {
-    "pull_request": {"n": 21, "mean_seconds": 1770, "p50_seconds": 1638, "max_seconds": 2502, "pass": 17, "fail": 4},
-    "push": {"n": 7, "mean_seconds": 1830, "p50_seconds": 1656, "max_seconds": 2538, "pass": 6, "fail": 1},
-    "schedule": {"n": 9, "mean_seconds": 1638, "p50_seconds": 1626, "max_seconds": 1764, "pass": 0, "fail": 9}
+    "pull_request": {
+      "n": 21,
+      "mean_seconds": 1770,
+      "p50_seconds": 1638,
+      "max_seconds": 2502,
+      "pass": 17,
+      "fail": 4
+    },
+    "push": {
+      "n": 7,
+      "mean_seconds": 1830,
+      "p50_seconds": 1656,
+      "max_seconds": 2538,
+      "pass": 6,
+      "fail": 1
+    },
+    "schedule": {
+      "n": 9,
+      "mean_seconds": 1638,
+      "p50_seconds": 1626,
+      "max_seconds": 1764,
+      "pass": 0,
+      "fail": 9
+    }
   },
   "measurements": {
-    "pull_request": {"status": "pending", "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event pull_request --format json", "run_ids": []},
-    "push": {"status": "pending", "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event push --format json", "run_ids": []},
-    "schedule": {"status": "pending", "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event schedule --format json", "run_ids": []}
+    "pull_request": {
+      "status": "pending",
+      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event pull_request --format json",
+      "run_ids": []
+    },
+    "push": {
+      "status": "pending",
+      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event push --format json",
+      "run_ids": []
+    },
+    "schedule": {
+      "status": "pending",
+      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event schedule --format json",
+      "run_ids": []
+    }
   },
   "ownership": {
+    "source_inventory": {
+      "path": ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json",
+      "schema_version": "sigra.playwright-ownership/v1",
+      "phase_235_gate_input": true,
+      "sha256": "c11853b270ffaa7c8f65c5aa1f9d620098813d71f236e01554087611ca970bc3"
+    },
     "rows": [
-      {"family": "library_scaffold_golden", "event": "pull_request", "before": {"direct_owner": "library_tests_shard_1", "seam": "Library tests shard 1", "invocation": "MIX_ENV=test mix test", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "after": {"direct_owner": "library_tests_shard", "seam": "Run contributor CI gate", "invocation": "MIX_ENV=test mix ci", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "receiver": "library_tests_shard", "phase": "233-library-suite-economics", "receipt": "phase_233_library_suite"},
-      {"family": "library_scaffold_golden", "event": "push", "before": {"direct_owner": "library_tests_shard_1", "seam": "Library tests shard 1", "invocation": "MIX_ENV=test mix test", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "after": {"direct_owner": "library_tests_shard", "seam": "Run contributor CI gate", "invocation": "MIX_ENV=test mix ci", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "receiver": "library_tests_shard", "phase": "233-library-suite-economics", "receipt": "phase_233_library_suite"},
-      {"family": "library_scaffold_golden", "event": "schedule", "before": {"direct_owner": "library_tests_shard_1", "seam": "Library tests shard 1", "invocation": "MIX_ENV=test mix test", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "after": {"direct_owner": "library_tests_shard", "seam": "Run contributor CI gate", "invocation": "MIX_ENV=test mix ci", "terminal_aggregate": {"id": "library_tests", "name": "Library tests"}, "state": "executed"}, "receiver": "library_tests_shard", "phase": "233-library-suite-economics", "receipt": "phase_233_library_suite"}
+      {
+        "family": "admin_eval_harness_guards",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "admin_eval_harness_guards",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "admin_eval_harness_guards",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "admin_eval_render",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "admin_eval_render",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "admin_eval_render",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "ci_gate_aggregate",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "ci_gate_before",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "ci_gate",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "receiver": "ci_gate",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "ci_gate_aggregate",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "ci_gate_before",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "ci_gate",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "receiver": "ci_gate",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "ci_gate_aggregate",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "ci_gate_before",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "ci_gate",
+          "seam": "ci_gate",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "ci_gate",
+            "name": "ci-gate"
+          },
+          "state": "executed"
+        },
+        "receiver": "ci_gate",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_axe",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_axe",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_axe",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_snapshots",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "admin_design_recapture_before",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "after": {
+          "direct_owner": "admin_design_recapture",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "intentionally_absent"
+        },
+        "receiver": "admin_design_recapture",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_snapshots",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "admin_design_recapture_before",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_design_recapture",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_design_recapture",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "design_gallery_snapshots",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "admin_design_recapture_before",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_design_recapture",
+          "seam": "admin_design_recapture",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_design_recapture",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "example_playwright_aggregate",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "example_playwright_aggregate",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "example_playwright_aggregate",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/*.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "generated_host_acceptance",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "generated_host_acceptance",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "generated_host_acceptance",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "231-gate-honesty-nightly-revival",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "library_dep_off",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "library_tests_dep_off_before",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_dep_off",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_dep_off",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_dep_off",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "library_tests_dep_off_before",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_dep_off",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_dep_off",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_dep_off",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "library_tests_dep_off_before",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_dep_off",
+          "seam": "library_tests_dep_off",
+          "invocation": "ci-gate",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_dep_off",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_ordinary_shards",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_ordinary_shards",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_ordinary_shards",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_scaffold_golden",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_scaffold_golden",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_scaffold_golden",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_tests_aggregate",
+        "spec": null,
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_tests_aggregate",
+        "spec": null,
+        "event": "push",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "library_tests_aggregate",
+        "spec": null,
+        "event": "schedule",
+        "before": {
+          "direct_owner": "library_tests_shard_before",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "library_tests_shard",
+          "seam": "Run contributor CI gate",
+          "invocation": "MIX_ENV=test mix ci",
+          "terminal_aggregate": {
+            "id": "library_tests",
+            "name": "Library tests"
+          },
+          "state": "executed"
+        },
+        "receiver": "library_tests_shard",
+        "phase": "233-library-suite-economics",
+        "receipt": "phase_233_library_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-audit.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-audit.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-audit.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-audit.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-checkpoints.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-checkpoints.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-checkpoints.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-checkpoints.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-coherence-sweep.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-design.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-design.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-design.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-design.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "admin_eval_render_before",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "admin_eval_render",
+          "seam": "Run admin-eval harness",
+          "invocation": "scripts/ci/admin-eval-harness.sh",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "admin_eval_render",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-org-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-platform-admin.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-flow-support-investigator.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-generated.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-generated.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-generated.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "generated_admin_playwright_smoke_before",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "generated_admin_playwright_smoke",
+          "seam": "generated_admin_playwright_smoke",
+          "invocation": "scripts/ci/admin-acceptance-smoke.sh --test all",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "generated_admin_playwright_smoke",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-modal-interaction.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-modal-interaction.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-modal-interaction.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-modal-interaction.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-theme.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-theme.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-theme.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-theme.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-user-operations.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-user-operations.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/admin-user-operations.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/admin-user-operations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/demo-showcase.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/demo-showcase.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/demo-showcase.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/demo-showcase.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/ga-uat-shift-left.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/golden-path.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/golden-path.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/golden-path.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/golden-path.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/impersonation.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/impersonation.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/impersonation.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/impersonation.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/organizations.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/organizations.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/organizations.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/organizations.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-login.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-login.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-login.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-login.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-options.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-options.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkey-options.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkey-options.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkeys-hooks.spec.ts",
+        "event": "pull_request",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkeys-hooks.spec.ts",
+        "event": "push",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      },
+      {
+        "family": "playwright_spec",
+        "spec": "test/example/priv/playwright/tests/passkeys-hooks.spec.ts",
+        "event": "schedule",
+        "before": {
+          "direct_owner": "example_playwright_shard_before",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "after": {
+          "direct_owner": "example_playwright_shard",
+          "seam": "example_playwright_shard",
+          "invocation": "tests/passkeys-hooks.spec.ts",
+          "terminal_aggregate": {
+            "id": "example_playwright_smoke",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          "state": "executed"
+        },
+        "receiver": "example_playwright_shard",
+        "phase": "232-playwright-economics-authenticate-once-then-shard",
+        "receipt": "phase_232_playwright_suite"
+      }
     ]
   },
   "receipts": {
-    "phase_233_library_suite": {"kind": "phase_evidence", "path": ".planning/phases/233-library-suite-economics/233-EVIDENCE.json", "run_id": "30668911851", "captured_at": "2026-07-31T20:01:31Z"}
+    "phase_233_library_suite": {
+      "kind": "phase_evidence",
+      "path": ".planning/phases/233-library-suite-economics/233-EVIDENCE.json",
+      "run_id": "30668911851",
+      "captured_at": "2026-07-31T20:01:31Z"
+    },
+    "phase_232_playwright_suite": {
+      "kind": "phase_evidence",
+      "path": ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-EVIDENCE.md",
+      "run_id": "30658864370",
+      "captured_at": "2026-07-31T20:01:31Z"
+    }
   },
-  "verdict": {"status": "pending", "fast_01": "not_evaluated"},
-  "closeout": {"status": "pending", "gate_05": "not_evaluated"}
+  "verdict": {
+    "status": "pending",
+    "fast_01": "not_evaluated"
+  },
+  "closeout": {
+    "status": "pending",
+    "gate_05": "not_evaluated"
+  }
 }
