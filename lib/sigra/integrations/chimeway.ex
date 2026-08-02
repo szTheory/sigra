@@ -49,11 +49,11 @@ if Code.ensure_loaded?(Chimeway) do
     """
     @spec dispatch_magic_link(module(), struct(), String.t(), String.t(), keyword()) ::
             {:ok, map()} | {:duplicate, struct()} | {:error, term()}
-    def dispatch_magic_link(repo, user, _raw_token, url, opts \\ []) do
+    def dispatch_magic_link(repo, user, raw_token, url, opts \\ []) do
       with true <- enabled?(),
            user_token_schema <- user_token_schema(opts),
            {:ok, token_inserted_at} <-
-             fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+             fetch_magic_link_token_inserted_at(repo, user, raw_token, user_token_schema) do
         user_id = user_id_string(user)
         idempotency_key = magic_link_idempotency_key(user_id, token_inserted_at)
 
@@ -218,12 +218,13 @@ if Code.ensure_loaded?(Chimeway) do
       |> then(&magic_link_idempotency_key(user_id, &1))
     end
 
-    defp fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+    defp fetch_magic_link_token_inserted_at(repo, user, raw_token, user_token_schema) do
+      hashed_token = Sigra.Token.hash_token(raw_token)
+
       case repo.one(
              from(t in user_token_schema,
-               where: t.user_id == ^user.id and t.context == "magic_link",
-               order_by: [desc: t.inserted_at],
-               limit: 1,
+               where:
+                 t.user_id == ^user.id and t.context == "magic_link" and t.token == ^hashed_token,
                select: t.inserted_at
              )
            ) do
