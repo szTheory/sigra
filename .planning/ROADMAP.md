@@ -303,7 +303,7 @@ Plans:
 
 **Wave 6** *(blocked on all structural and managed-service evidence)*
 
-- [ ] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
+- [x] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
