@@ -299,7 +299,7 @@ Plans:
 
 **Wave 5** *(blocked on all implementation and PR evidence)*
 
-- [ ] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
+- [x] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
 
 **Wave 6** *(blocked on all structural and managed-service evidence)*
 
