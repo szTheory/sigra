@@ -250,21 +250,19 @@ The first command is the existing contract precedent; the second is the recommen
 |---|---|---|---|
 | A1 | `phase_235_terminal_ratification_contract_test.exs` is the preferred new test filename. | Code Examples / Project Structure | None functionally; planner may choose a repository-consistent alternative. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Has the fixed after-window accumulated ten eligible PR runs when execution begins?**
+1. **RESOLVED — Has the fixed after-window accumulated ten eligible PR runs when execution begins?**
    - What we know: FAST-01 requires at least ten and the installed CLI/instrument can collect them.
-   - What's unclear: The future capture endpoint and exact count are runtime data.
-   - Recommendation: Make evidence collection a checkpoint: if fewer than ten exist, commit the ledger/contract and wait/collect legitimate post-cutoff runs; do not dispatch synthetic PR runs or claim FAST-01 early.
+   - Resolution: This is a runtime branch, not an unanswered design choice. Before collection, automation writes `.planning/phases/235-terminal-ratification-measured-not-read/235-INSUFFICIENT-RUNS.json` with the immutable cutoff, observed UTC timestamp, exact eligible terminal PR count and public run IDs, rate-limit remaining/reset data, source command, and `status: blocked`, then stops Plan 02 without human UAT when the count is below ten or collection is rate-limit blocked. The same Plan 02 is re-entered only when a fresh read-only check proves at least ten eligible post-cutoff terminal PR runs exist inside the immutable window and the REST core budget is above 250; HTTP 403/429 remains a hard stop until GitHub's reported reset/retry time. No synthetic run may be dispatched and no partial FAST-01 verdict may be recorded.
 
-2. **Does the measured p50 meet <12 minutes?**
+2. **RESOLVED — Does the measured p50 meet <12 minutes?**
    - What we know: Baseline is 27.3m p50 and the methodology is locked.
-   - What's unclear: Post-change distribution.
-   - Recommendation: Branch closeout text on the actual verdict; a miss must include binding-pole job receipts and an evidence-backed residual.
+   - Resolution: This is a runtime result branch. Apply the strict `observed_p50_seconds < 720` comparison to the stored wall-mode output after at least ten eligible runs; equality or a larger value is a miss. Branch closeout text on that actual verdict, and require binding-pole job receipts plus an evidence-backed residual on a miss.
 
-3. **Is timeout tightening warranted?**
+3. **RESOLVED — Is timeout tightening warranted?**
    - What we know: It is discretionary but may not change evidence-window scope or become remediation.
-   - Recommendation: Defer unless measured steady-state run/job data establishes a safe bounded value; otherwise record no change.
+   - Resolution: This is a runtime evidence branch with a conservative default, not an open design choice. Make no timeout change unless the captured steady-state run/job data establishes a safe bounded value without truncating the evidence window or expanding Phase 235 into remediation; otherwise record that no change was made.
 
 ## Environment Availability
 
