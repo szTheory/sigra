@@ -827,20 +827,36 @@ defmodule Sigra.Admin.Components do
   def audit_pagination_nav(assigns) do
     ~H"""
     <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
+      <span
+        :if={is_nil(@meta.previous_page)}
+        class="sg-btn sg-btn--secondary sg-btn--icon is-disabled"
+        aria-disabled="true"
+      >
+        <span aria-hidden="true">&larr;</span>
+        <span class="sr-only">Previous page</span>
+      </span>
       <a
-        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
+        :if={@meta.previous_page}
+        class="sg-btn sg-btn--secondary sg-btn--icon"
         href={@prev_href}
-        aria-disabled={to_string(is_nil(@meta.previous_page))}
         aria-label="Previous page"
       >
         <span aria-hidden="true">&larr;</span>
         <span class="sr-only">Previous page</span>
       </a>
       <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
+      <span
+        :if={is_nil(@meta.next_page)}
+        class="sg-btn sg-btn--secondary sg-btn--icon is-disabled"
+        aria-disabled="true"
+      >
+        <span aria-hidden="true">&rarr;</span>
+        <span class="sr-only">Next page</span>
+      </span>
       <a
-        class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
+        :if={@meta.next_page}
+        class="sg-btn sg-btn--secondary sg-btn--icon"
         href={@next_href}
-        aria-disabled={to_string(is_nil(@meta.next_page))}
         aria-label="Next page"
       >
         <span aria-hidden="true">&rarr;</span>

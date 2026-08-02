@@ -704,4 +704,30 @@ defmodule Sigra.Admin.ComponentsTest do
       render_component(&Components.audit_row/1, row: row)
     end
   end
+
+  test "audit pagination renders a non-link Previous control at the first cursor page" do
+    html =
+      render_component(&Components.audit_pagination_nav/1,
+        meta: %{current_page: 1, previous_page: nil, next_page: "next-cursor"},
+        prev_href: "/admin/audit?cursor=previous-cursor",
+        next_href: "/admin/audit?cursor=next-cursor"
+      )
+
+    assert html =~ ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+    refute html =~ ~s(href="/admin/audit?cursor=previous-cursor")
+    assert html =~ ~s(href="/admin/audit?cursor=next-cursor")
+  end
+
+  test "audit pagination renders a non-link Next control at the last cursor page" do
+    html =
+      render_component(&Components.audit_pagination_nav/1,
+        meta: %{current_page: 2, previous_page: "previous-cursor", next_page: nil},
+        prev_href: "/admin/audit?cursor=previous-cursor",
+        next_href: "/admin/audit?cursor=next-cursor"
+      )
+
+    assert html =~ ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+    assert html =~ ~s(href="/admin/audit?cursor=previous-cursor")
+    refute html =~ ~s(href="/admin/audit?cursor=next-cursor")
+  end
 end
