@@ -346,6 +346,16 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
+    assert_raise ArgumentError, ~r/aggregate executor contradiction/, fn ->
+      (contributing <> "\n- `library_tests / Library tests` executes `MIX_ENV=test mix ci`.\n")
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
+    assert_raise ArgumentError, ~r/non-PR executor contradiction admin_eval_render/, fn ->
+      (contributing <> "\n- `admin_eval_render` executes on pull requests.\n")
+      |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
+    end
+
     for signal <- ~w(admin_eval_render admin_design_recapture) do
       assert_raise ArgumentError, ~r/non-PR signal #{signal}/, fn ->
         String.replace(
