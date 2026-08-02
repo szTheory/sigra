@@ -20,6 +20,11 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     "ci.install_golden",
     "sigra.dep_off"
   ]
+  @dependabot_tuples [
+    {"github-actions", "/"},
+    {"mix", "/"},
+    {"npm", "/test/example/priv/playwright"}
+  ]
 
   defp evidence do
     @evidence_path
@@ -170,6 +175,43 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :dependabot
+  test "Dependabot successful processed-job receipts reject exact-set and field mutations" do
+    receipt = successful_dependabot_receipt()
+
+    assert :ok = validate_dependabot_receipt!(receipt)
+
+    mutations = [
+      {"duplicate tuple", put_in(receipt, ["slots", Access.at(1), "ecosystem"], "github-actions"),
+       "tuple"},
+      {"missing tuple", %{receipt | "slots" => Enum.take(receipt["slots"], 2)}, "tuple"},
+      {"extra tuple", %{receipt | "slots" => receipt["slots"] ++ [List.first(receipt["slots"])]},
+       "tuple"},
+      {"red status", put_in(receipt, ["slots", Access.at(0), "processed_status"], "failed"),
+       "processed_status"},
+      {"empty job ID", put_in(receipt, ["slots", Access.at(0), "job_id"], ""), "job_id"},
+      {"malformed timestamp", put_in(receipt, ["slots", Access.at(0), "timestamp"], "yesterday"),
+       "timestamp"},
+      {"wrong job URL", put_in(receipt, ["slots", Access.at(0), "job_log_url"], "https://example.com/job"),
+       "job_log_url"},
+      {"malformed receipt hash", put_in(receipt, ["slots", Access.at(0), "capture_sha256"], "hash"),
+       "capture_sha256"},
+      {"no PR without successful no-update proof",
+       put_in(receipt, ["slots", Access.at(0), "status_summary"], "Processed dependency update"),
+       "status_summary"},
+      {"config mismatch", Map.put(receipt, "config_sha256", String.duplicate("0", 64)),
+       "config_sha256"}
+    ]
+
+    for {name, mutated, field} <- mutations do
+      error =
+        assert_raise ExUnit.AssertionError, name, fn ->
+          validate_dependabot_receipt!(mutated)
+        end
+
+      assert error.message =~ field, "#{name}: #{error.message}"
+    end
+  end
+
   test "Dependabot evidence has the exact configured tuple set and fails closed when job logs are unavailable" do
     receipt = evidence()["dependabot"]
 
