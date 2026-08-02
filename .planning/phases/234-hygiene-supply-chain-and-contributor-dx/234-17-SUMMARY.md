@@ -43,11 +43,12 @@ status: blocked
 
 1. **Task 1 RED: Add Dependabot processed receipt mutations** — `7fdf0994` (test)
 2. **Task 1 GREEN: Enforce Dependabot processed receipts** — `76c59335` (feat)
-3. **Task 2: Record Dependabot authentication boundary** — `0ea35ce0` (docs; blocked collection attempt)
+3. **Task 1 REFACTOR: Format Dependabot receipt contract** — `84c6d154` (refactor)
+4. **Task 2: Record Dependabot authentication boundary** — `0ea35ce0` (docs; blocked collection attempt)
 
 ## Verification
 
-`mix test test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --only dependabot` passed: 1 test, 0 failures. Local PostgreSQL connection-refused logs are pre-existing harness noise and do not affect this file-backed contract.
+`mix format --check-formatted test/sigra/planning/phase_234_evidence_contract_test.exs` and `mix test test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --only dependabot` passed. Local PostgreSQL connection-refused logs are pre-existing harness noise and do not affect this file-backed contract.
 
 ## Authentication Gate
 
@@ -68,4 +69,4 @@ Authenticate the deterministic browser to GitHub as a maintainer with repository
 ## Self-Check: PASSED
 
 - Contract test and evidence/residual artifacts exist at the recorded paths.
-- Commits `7fdf0994`, `76c59335`, and `0ea35ce0` exist in history.
+- Commits `7fdf0994`, `76c59335`, `84c6d154`, and `0ea35ce0` exist in history.
