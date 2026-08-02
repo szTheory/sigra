@@ -121,6 +121,54 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
                  end
   end
 
+  test "inventory validation permits only the documented exact-spec harness mappings" do
+    inventory = inventory!()
+
+    assert_harness_lane!(inventory, "admin-eval.spec.ts", %{
+      "harness_path" => "scripts/ci/admin-eval-harness.sh",
+      "harness_spec_marker" => "tests/admin-eval.spec.ts"
+    })
+
+    assert_harness_lane!(inventory, "admin-generated.spec.ts", %{
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    })
+
+    {admin_eval, other_specs} = pop_spec!(inventory["specs"], "admin-eval.spec.ts")
+    [eval_lane] = admin_eval["lanes"]
+
+    swapped_harness =
+      Map.put(admin_eval, "lanes", [Map.put(eval_lane, "harness_spec_marker", "tests/admin-generated.spec.ts")])
+
+    assert_raise ArgumentError, ~r/admin-eval\.spec\.ts.*tests\/admin-eval\.spec\.ts/, fn ->
+      validate_inventory!(Map.put(inventory, "specs", [swapped_harness | other_specs]))
+    end
+
+    {admin_audit, remaining_specs} = pop_spec!(inventory["specs"], "admin-audit.spec.ts")
+    [audit_lane] = admin_audit["lanes"]
+
+    unauthorized_indirection =
+      audit_lane
+      |> Map.put("command_marker", "scripts/ci/admin-eval-harness.sh")
+      |> Map.put("harness_path", "scripts/ci/admin-eval-harness.sh")
+      |> Map.put("harness_spec_marker", "tests/admin-eval.spec.ts")
+
+    unauthorized_audit = Map.put(admin_audit, "lanes", [unauthorized_indirection])
+
+    assert_raise ArgumentError, ~r/admin-audit\.spec\.ts.*expected direct invocation/, fn ->
+      validate_inventory!(Map.put(inventory, "specs", [unauthorized_audit | remaining_specs]))
+    end
+
+    assert_raise ArgumentError, ~r/admin-eval\.spec\.ts.*tests\/admin-eval\.spec\.ts/, fn ->
+      validate_harness_spec_invocation!(
+        "test/example/priv/playwright/tests/admin-eval.spec.ts",
+        "scripts/ci/admin-eval-harness.sh",
+        "tests/admin-eval.spec.ts",
+        "npx playwright test tests/admin-theme.spec.ts"
+      )
+    end
+  end
+
   defp assert_lane_mutation_fails(inventory, field, value, message) do
     [first | rest] = inventory["specs"]
     [lane | lanes] = first["lanes"]
@@ -136,6 +184,15 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     |> case do
       {[spec], others} -> {spec, others}
       _ -> raise "missing unique inventory spec: #{spec_name}"
+    end
+  end
+
+  defp assert_harness_lane!(inventory, spec_name, expected_fields) do
+    {spec, _others} = pop_spec!(inventory["specs"], spec_name)
+    [lane] = spec["lanes"]
+
+    for {field, expected} <- expected_fields do
+      assert lane[field] == expected
     end
   end
 
