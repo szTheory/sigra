@@ -191,10 +191,11 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
       {"empty job ID", put_in(receipt, ["slots", Access.at(0), "job_id"], ""), "job_id"},
       {"malformed timestamp", put_in(receipt, ["slots", Access.at(0), "timestamp"], "yesterday"),
        "timestamp"},
-      {"wrong job URL", put_in(receipt, ["slots", Access.at(0), "job_log_url"], "https://example.com/job"),
+      {"wrong job URL",
+       put_in(receipt, ["slots", Access.at(0), "job_log_url"], "https://example.com/job"),
        "job_log_url"},
-      {"malformed receipt hash", put_in(receipt, ["slots", Access.at(0), "capture_sha256"], "hash"),
-       "capture_sha256"},
+      {"malformed receipt hash",
+       put_in(receipt, ["slots", Access.at(0), "capture_sha256"], "hash"), "capture_sha256"},
       {"no PR without successful no-update proof",
        put_in(receipt, ["slots", Access.at(0), "status_summary"], "Processed dependency update"),
        "status_summary"},
@@ -277,7 +278,8 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipt["default_branch_sha"] == "fe33154088053ce9ccc0e9301348a2841c87745c",
            "default_branch_sha must match the authenticated default-branch receipt"
 
-    assert receipt["config_sha256"] == "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
+    assert receipt["config_sha256"] ==
+             "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
            "config_sha256 must match the decoded default-branch Dependabot configuration"
 
     slots = receipt["slots"]
