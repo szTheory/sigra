@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
-status: executing
-stopped_at: Completed 234-18-PLAN.md
-last_updated: "2026-08-02T03:18:49.142Z"
-last_activity: 2026-08-01
+status: verifying
+stopped_at: Completed 234-20-PLAN.md
+last_updated: "2026-08-02T14:28:04.425Z"
+last_activity: 2026-08-02
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 51
-  completed_plans: 51
-  percent: 83
+  completed_phases: 4
+  total_plans: 53
+  completed_plans: 52
+  percent: 67
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 18 of 18
-Status: Ready — refreshed local and managed-service evidence are complete; Plan 18 validation ratification remains
-Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
-Last activity: 2026-08-01 — Phase 234 execution started
+Plan: 20 of 20
+Status: Phase complete — ready for verification
+Progress: 3/6 milestone phases complete ([██████████] 98%); Phase 233 not started
+Last activity: 2026-08-02 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -423,6 +423,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: DX-01 evidence uses a detached Plan 15 worktree with exact lock/status hashes and sanitized log digests.
 - [Phase ?]: Completion authorization accepts only the shared exact five-command receipt inventory.
 - [Phase ?]: Phase 234 ratification consumes immutable DX-02, DX-04, and DX-06 evidence without reopening implementation.
+- [Phase ?]: Direct Playwright inventory rows derive and require their exact workflow spec marker.
+- [Phase ?]: Only admin-eval and admin-generated may use allowlisted harness-to-spec ownership mappings.
+- [Phase ?]: Phase 234 validation receipts bind every command to one reviewed SHA and a 30-minute UTC window.
 
 ### Pending Todos
 
@@ -567,8 +570,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T03:18:49.132Z
-Stopped at: Completed 234-18-PLAN.md
+Last session: 2026-08-02T14:28:04.399Z
+Stopped at: Completed 234-20-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -723,3 +726,5 @@ Resume file: None
 | Phase 234 P17 | 31m | 2 tasks | 4 files |
 | Phase 234 P16 | 10 minutes | 1 tasks | 3 files |
 | Phase 234 P18 | 6 minutes | 2 tasks | 2 files |
+| Phase 234 P19 | 6min | 2 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P20 | 14m | 2 tasks | 3 files |
