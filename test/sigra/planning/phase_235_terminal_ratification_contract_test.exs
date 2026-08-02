@@ -154,6 +154,12 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "FAST-01 uses a strict sub-720 comparator and an evidence-backed miss diagnosis" do
+    ledger = ledger!()
+
+    assert validate_verdict!(ledger) == :ok
+  end
+
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
@@ -260,6 +266,18 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     pull_request = ledger["measurements"]["pull_request"]
     unless length(pull_request["run_ids"]) >= 10, do: raise(ArgumentError, "eligible pull request count")
+    :ok
+  end
+
+  defp validate_verdict!(ledger) do
+    fast_01 = ledger["verdict"]["fast_01"]
+    unless fast_01["threshold_seconds"] == 720 and fast_01["comparator"] == "lt", do: raise(ArgumentError, "strict comparator")
+
+    expected = ledger["measurements"]["pull_request"]["statistics"]["p50_seconds"]
+    unless fast_01["observed_p50_seconds"] == expected, do: raise(ArgumentError, "stored metrics output")
+
+    status = if fast_01["eligible_pr_run_count"] >= 10 and expected < 720, do: "pass", else: "miss"
+    unless fast_01["status"] == status, do: raise(ArgumentError, "strict verdict")
     :ok
   end
 
