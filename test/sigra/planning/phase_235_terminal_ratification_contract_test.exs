@@ -8,7 +8,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   @top_level_keys MapSet.new(~w(schema_version topology_cutoff capture_endpoint baseline measurements ownership receipts verdict closeout))
   @events ~w(pull_request push schedule)
 
-  test "the terminal ratification ledger is a pending, versioned tracer with an immutable cutoff" do
+  test "the terminal ratification ledger is a captured, versioned ledger with an immutable cutoff" do
     ledger = ledger!()
 
     assert validate_ledger!(ledger) == :ok
@@ -16,7 +16,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert ledger["schema_version"] == "sigra.terminal-ratification/v1"
     assert ledger["topology_cutoff"]["source_commit_sha"] == @cutoff_sha
     assert ledger["topology_cutoff"]["committed_at"] == "2026-08-01T02:06:30Z"
-    assert ledger["capture_endpoint"]["status"] == "pending"
+    assert ledger["capture_endpoint"]["status"] == "captured"
     assert ledger["verdict"]["status"] == "pending"
     assert ledger["closeout"]["status"] == "pending"
   end
@@ -78,7 +78,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
-  test "validation fails closed for malformed and success-shaped pending ledger mutations" do
+  test "validation fails closed for malformed captured-window mutations" do
     ledger = ledger!()
 
     assert_raise ArgumentError, ~r/exact top-level keys/, fn ->
@@ -101,8 +101,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       put_in(ledger, ["ownership", "rows", Access.at(0), "after", "direct_owner"], "library_tests") |> validate_ledger!()
     end
 
-    assert_raise ArgumentError, ~r/pending measurement/, fn ->
-      put_in(ledger, ["measurements", "pull_request", "status"], "complete") |> validate_ledger!()
+    assert_raise ArgumentError, ~r/captured wall measurement/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "status"], "pending") |> validate_ledger!()
     end
 
     assert_raise ArgumentError, ~r/missing ownership events/, fn ->
@@ -128,6 +128,30 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     ledger = ledger!()
 
     assert validate_captured_ledger!(ledger) == :ok
+
+    assert_raise ArgumentError, ~r/pre-cutoff/, fn ->
+      update_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "created_at"], fn _ -> "2026-08-01T02:06:29Z" end) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/post-endpoint/, fn ->
+      update_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "updated_at"], fn _ -> "2026-08-02T18:07:05Z" end) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/duplicate run id/, fn ->
+      update_in(ledger, ["measurements", "pull_request", "run_ids"], fn ids -> [hd(ids) | ids] end) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/wrong event/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "event"], "push") |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/nonterminal/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "conclusion"], nil) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/captured wall measurement/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "command"], "bash scripts/ci/ci-run-metrics.sh --mode jobspan") |> validate_captured_ledger!()
+    end
   end
 
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
@@ -136,7 +160,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     unless MapSet.new(Map.keys(ledger)) == @top_level_keys, do: raise(ArgumentError, "exact top-level keys required")
     unless ledger["schema_version"] == "sigra.terminal-ratification/v1", do: raise(ArgumentError, "schema version")
     validate_cutoff!(ledger["topology_cutoff"])
-    validate_pending!(ledger)
+    validate_capture!(ledger)
     validate_baseline!(ledger["baseline"])
     validate_inventory!(ledger["ownership"]["source_inventory"])
     validate_rows!(ledger["ownership"]["rows"])
@@ -150,13 +174,13 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
   defp validate_cutoff!(_), do: raise(ArgumentError, "cutoff SHA or timestamp")
 
-  defp validate_pending!(ledger) do
-    unless ledger["capture_endpoint"]["status"] == "pending", do: raise(ArgumentError, "capture endpoint")
+  defp validate_capture!(ledger) do
+    unless ledger["capture_endpoint"]["status"] == "captured", do: raise(ArgumentError, "capture endpoint")
     unless ledger["verdict"]["status"] == "pending" and ledger["closeout"]["status"] == "pending", do: raise(ArgumentError, "pending verdict or closeout")
 
     for event <- @events do
       measurement = ledger["measurements"][event]
-      unless measurement["status"] == "pending" and measurement["run_ids"] == [] and not Map.has_key?(measurement, "statistics"), do: raise(ArgumentError, "pending measurement #{event}")
+      unless measurement["status"] == "captured", do: raise(ArgumentError, "captured wall measurement #{event}")
     end
   end
 
@@ -207,14 +231,30 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   defp validate_captured_ledger!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured", do: raise(ArgumentError, "captured endpoint")
 
+    cutoff = ledger["topology_cutoff"]["committed_at"]
+    endpoint = ledger["capture_endpoint"]["captured_at"]
+
     for event <- @events do
       measurement = ledger["measurements"][event]
       command = measurement["command"] || ""
 
       unless measurement["status"] == "captured" and is_list(measurement["run_ids"]) and
-               command =~ "--mode wall" and command =~ "--since 2026-08-01T02:06:30Z" and
-               command =~ "--event #{event}" and command =~ "--limit 100" and command =~ "--format json" do
+               command =~ "--mode wall" and command =~ "--since '2026-08-01T02:06:30Z'" and
+               command =~ "--event #{event}" and command =~ "--limit 100" and command =~ "--format json" and
+               measurement["immutable_cutoff"] == cutoff and measurement["capture_endpoint"] == endpoint and
+               is_map(measurement["statistics"]) and is_binary(measurement["output_sha256"]) do
         raise(ArgumentError, "captured wall measurement #{event}")
+      end
+
+      ids = measurement["run_ids"]
+      runs = measurement["runs"]
+      unless ids == Enum.map(runs, & &1["id"]) and length(ids) == length(Enum.uniq(ids)), do: raise(ArgumentError, "duplicate run id")
+
+      for run <- runs do
+        unless run["event"] == event, do: raise(ArgumentError, "wrong event")
+        unless is_binary(run["conclusion"]), do: raise(ArgumentError, "nonterminal")
+        unless run["created_at"] >= cutoff, do: raise(ArgumentError, "pre-cutoff")
+        unless run["created_at"] <= endpoint and run["updated_at"] <= endpoint, do: raise(ArgumentError, "post-endpoint")
       end
     end
 

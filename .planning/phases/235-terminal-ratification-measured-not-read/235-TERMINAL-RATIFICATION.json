@@ -6,9 +6,11 @@
     "rationale": "Last milestone commit in the live topology-path history; later terminal evidence must use this immutable cutoff."
   },
   "capture_endpoint": {
-    "status": "pending",
-    "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event <event> --format json",
-    "note": "No live capture has been performed by this plan."
+    "status": "captured",
+    "captured_at": "2026-08-02T18:07:04Z",
+    "immutable_cutoff": "2026-08-01T02:06:30Z",
+    "source_command": "gh run list --repo szTheory/sigra --workflow ci.yml --limit 100 --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha",
+    "population_sha256": "6462b127e09de5a017e4b718e4928341ab81be33f627dcef6d637560bc74a530"
   },
   "baseline": {
     "pull_request": {
@@ -36,23 +38,301 @@
       "fail": 9
     }
   },
-  "measurements": {
-    "pull_request": {
-      "status": "pending",
-      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event pull_request --format json",
-      "run_ids": []
+    "measurements": {
+      "pull_request": {
+        "status": "captured",
+        "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since '2026-08-01T02:06:30Z' --event pull_request --limit 100 --format json",
+        "immutable_cutoff": "2026-08-01T02:06:30Z",
+        "capture_endpoint": "2026-08-02T18:07:04Z",
+        "run_ids": [
+          30729540659,
+          30729540143,
+          30729534413,
+          30729531710,
+          30729487808,
+          30723622708,
+          30723615281,
+          30723608377,
+          30723607878,
+          30723605581,
+          30723601060,
+          30723600313,
+          30723596945,
+          30723593560,
+          30723575804,
+          30723164608,
+          30722736494,
+          30722291400,
+          30720751244
+        ],
+        "runs": [
+          {
+            "id": 30729540659,
+            "event": "pull_request",
+            "created_at": "2026-08-02T02:49:47Z",
+            "updated_at": "2026-08-02T03:03:49Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729540659",
+            "head_sha": "4ed2de7f7ed5823ceff6b6e3f34235f5198abe55"
+          },
+          {
+            "id": 30729540143,
+            "event": "pull_request",
+            "created_at": "2026-08-02T02:49:46Z",
+            "updated_at": "2026-08-02T03:00:14Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729540143",
+            "head_sha": "8a09a35810d16c294b7549d566d3afb41cef410d"
+          },
+          {
+            "id": 30729534413,
+            "event": "pull_request",
+            "created_at": "2026-08-02T02:49:34Z",
+            "updated_at": "2026-08-02T02:59:38Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729534413",
+            "head_sha": "9073630826ef89baf3950260d783935a39fbae56"
+          },
+          {
+            "id": 30729531710,
+            "event": "pull_request",
+            "created_at": "2026-08-02T02:49:28Z",
+            "updated_at": "2026-08-02T03:00:52Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729531710",
+            "head_sha": "8c0137166deee86e4f0af8c5187f75ca53df24bb"
+          },
+          {
+            "id": 30729487808,
+            "event": "pull_request",
+            "created_at": "2026-08-02T02:47:54Z",
+            "updated_at": "2026-08-02T03:00:13Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729487808",
+            "head_sha": "036f9cd472216e04a34e6c0ab48b024e4dcd1220"
+          },
+          {
+            "id": 30723622708,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:35:22Z",
+            "updated_at": "2026-08-01T23:50:41Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723622708",
+            "head_sha": "a8a7c9635a92e6e7e44db49cd0d7b623c9218678"
+          },
+          {
+            "id": 30723615281,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:35:09Z",
+            "updated_at": "2026-08-01T23:48:01Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723615281",
+            "head_sha": "4b6c2771b38961cbb5e89a7a2e8db85ff61e4606"
+          },
+          {
+            "id": 30723608377,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:58Z",
+            "updated_at": "2026-08-01T23:51:40Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723608377",
+            "head_sha": "84e90835ff27526198002e3347ffc10aa218c72a"
+          },
+          {
+            "id": 30723607878,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:57Z",
+            "updated_at": "2026-08-01T23:55:35Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723607878",
+            "head_sha": "9c256a28d48f02475fe55281e02d0ce8c786c9b3"
+          },
+          {
+            "id": 30723605581,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:52Z",
+            "updated_at": "2026-08-01T23:46:59Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723605581",
+            "head_sha": "ab401c89210db781883da3d938039abe004a03b1"
+          },
+          {
+            "id": 30723601060,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:43Z",
+            "updated_at": "2026-08-01T23:47:55Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723601060",
+            "head_sha": "071d3fb0a01d6e4c150ccb4184f832527a5e656f"
+          },
+          {
+            "id": 30723600313,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:42Z",
+            "updated_at": "2026-08-01T23:47:57Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723600313",
+            "head_sha": "ae3440ee5bea7f908d13625f732f37b316013fe3"
+          },
+          {
+            "id": 30723596945,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:35Z",
+            "updated_at": "2026-08-01T23:47:37Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723596945",
+            "head_sha": "66546d7d73c448be28f135e3685d1c2146a1d473"
+          },
+          {
+            "id": 30723593560,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:34:29Z",
+            "updated_at": "2026-08-01T23:58:36Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723593560",
+            "head_sha": "c3b819b1747b2ee2f67350a17892729d5650837f"
+          },
+          {
+            "id": 30723575804,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:33:57Z",
+            "updated_at": "2026-08-01T23:47:20Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723575804",
+            "head_sha": "358bd272d7198fe1a79d20ded36a04de5802d7cc"
+          },
+          {
+            "id": 30723164608,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:21:13Z",
+            "updated_at": "2026-08-01T23:32:59Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723164608",
+            "head_sha": "3fed50f58277cd768845c9fdb6207865508dfc2c"
+          },
+          {
+            "id": 30722736494,
+            "event": "pull_request",
+            "created_at": "2026-08-01T23:08:23Z",
+            "updated_at": "2026-08-01T23:20:08Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30722736494",
+            "head_sha": "778888d10b5c873894b62d79405e208ee28cbf00"
+          },
+          {
+            "id": 30722291400,
+            "event": "pull_request",
+            "created_at": "2026-08-01T22:55:20Z",
+            "updated_at": "2026-08-01T23:07:11Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30722291400",
+            "head_sha": "123f35e320a1864bbc58ab94b64ebf078ffc85bd"
+          },
+          {
+            "id": 30720751244,
+            "event": "pull_request",
+            "created_at": "2026-08-01T22:12:07Z",
+            "updated_at": "2026-08-01T22:23:52Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30720751244",
+            "head_sha": "091c6aa274c29b16f363562f764ac62232304607"
+          }
+        ],
+        "statistics": {
+          "trigger": "pull_request",
+          "n": 19,
+          "mean_seconds": 821.1052631578947,
+          "p50_seconds": 772,
+          "max_seconds": 1447,
+          "pass": 13,
+          "fail": 6
+        },
+        "output_sha256": "ed89ece54295e1e7549095b918a31e064e496757c21d664677bdcc97cdcd6f16",
+        "exit_status": 0
+      },
+      "push": {
+        "status": "captured",
+        "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since '2026-08-01T02:06:30Z' --event push --limit 100 --format json",
+        "immutable_cutoff": "2026-08-01T02:06:30Z",
+        "capture_endpoint": "2026-08-02T18:07:04Z",
+        "run_ids": [
+          30729478819,
+          30723565742
+        ],
+        "runs": [
+          {
+            "id": 30729478819,
+            "event": "push",
+            "created_at": "2026-08-02T02:47:35Z",
+            "updated_at": "2026-08-02T03:11:34Z",
+            "conclusion": "success",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30729478819",
+            "head_sha": "4935fe65aa80b69fffd3f0efc02911a8515a86f5"
+          },
+          {
+            "id": 30723565742,
+            "event": "push",
+            "created_at": "2026-08-01T23:33:38Z",
+            "updated_at": "2026-08-01T23:57:19Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30723565742",
+            "head_sha": "fe33154088053ce9ccc0e9301348a2841c87745c"
+          }
+        ],
+        "statistics": {
+          "trigger": "push",
+          "n": 2,
+          "mean_seconds": 1430,
+          "p50_seconds": 1439,
+          "max_seconds": 1439,
+          "pass": 1,
+          "fail": 1
+        },
+        "output_sha256": "d35a39bd9416d4007291871dad75aca4e73b5a3fffeff99878e63963dab62d1b",
+        "exit_status": 0
+      },
+      "schedule": {
+        "status": "captured",
+        "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since '2026-08-01T02:06:30Z' --event schedule --limit 100 --format json",
+        "immutable_cutoff": "2026-08-01T02:06:30Z",
+        "capture_endpoint": "2026-08-02T18:07:04Z",
+        "run_ids": [
+          30734422326,
+          30686149095
+        ],
+        "runs": [
+          {
+            "id": 30734422326,
+            "event": "schedule",
+            "created_at": "2026-08-02T05:36:30Z",
+            "updated_at": "2026-08-02T06:02:16Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30734422326",
+            "head_sha": "4935fe65aa80b69fffd3f0efc02911a8515a86f5"
+          },
+          {
+            "id": 30686149095,
+            "event": "schedule",
+            "created_at": "2026-08-01T05:36:13Z",
+            "updated_at": "2026-08-01T05:58:20Z",
+            "conclusion": "failure",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30686149095",
+            "head_sha": "2a96d72fbc287848ae136a301e55aa489a770eaa"
+          }
+        ],
+        "statistics": {
+          "trigger": "schedule",
+          "n": 2,
+          "mean_seconds": 1436.5,
+          "p50_seconds": 1546,
+          "max_seconds": 1546,
+          "pass": 0,
+          "fail": 2
+        },
+        "output_sha256": "8e078a304262832f464b56907a6aa30d73c6bde8e55b3b7d193dc68e915309ff",
+        "exit_status": 0
+      }
     },
-    "push": {
-      "status": "pending",
-      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event push --format json",
-      "run_ids": []
-    },
-    "schedule": {
-      "status": "pending",
-      "command": "bash scripts/ci/ci-run-metrics.sh --mode wall --since 2026-08-01T02:06:30Z --event schedule --format json",
-      "run_ids": []
-    }
-  },
   "ownership": {
     "source_inventory": {
       "path": ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json",
@@ -2679,6 +2959,29 @@
       "path": ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-EVIDENCE.md",
       "run_id": "30658864370",
       "captured_at": "2026-07-31T20:01:31Z"
+    },
+    "ownership": {
+      "pull_request": {
+        "run_id": 30729540659,
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/30729540659",
+        "conclusion": "success",
+        "jobs_sha256": "e923090f35a369441cf914b1db4107a5509bc3c58689f58d0412be042f6e8de4",
+        "jobs_command": "gh run view 30729540659 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs"
+      },
+      "push": {
+        "run_id": 30729478819,
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/30729478819",
+        "conclusion": "success",
+        "jobs_sha256": "41c2bc96a3ee4663b96481fe1330bc55b21d9b6ee6c84afccca977093094e2a1",
+        "jobs_command": "gh run view 30729478819 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs"
+      },
+      "schedule": {
+        "run_id": 30734422326,
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/30734422326",
+        "conclusion": "failure",
+        "jobs_sha256": "6c46a3915f0c8a21670468a10bb154b03d4241f3805ff21b9108c7782376b240",
+        "jobs_command": "gh run view 30734422326 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs"
+      }
     }
   },
   "verdict": {
