@@ -4,6 +4,18 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
   @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
+  @harness_mappings %{
+    "test/example/priv/playwright/tests/admin-eval.spec.ts" => %{
+      "command_marker" => "scripts/ci/admin-eval-harness.sh",
+      "harness_path" => "scripts/ci/admin-eval-harness.sh",
+      "harness_spec_marker" => "tests/admin-eval.spec.ts"
+    },
+    "test/example/priv/playwright/tests/admin-generated.spec.ts" => %{
+      "command_marker" => "scripts/ci/admin-acceptance-smoke.sh --test all",
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    }
+  }
 
   test "admin_behavior explicitly owns both useful orphan specs on retry-zero chromium" do
     workflow = File.read!(@workflow_path)
@@ -159,6 +171,13 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       validate_inventory!(Map.put(inventory, "specs", [unauthorized_audit | remaining_specs]))
     end
 
+    extra_harness_field = Map.put(eval_lane, "harness_extra", "not-allowed")
+    extra_field_eval = Map.put(admin_eval, "lanes", [extra_harness_field])
+
+    assert_raise ArgumentError, ~r/admin-eval\.spec\.ts.*unexpected harness metadata/, fn ->
+      validate_inventory!(Map.put(inventory, "specs", [extra_field_eval | other_specs]))
+    end
+
     assert_raise ArgumentError, ~r/admin-eval\.spec\.ts.*tests\/admin-eval\.spec\.ts/, fn ->
       validate_harness_spec_invocation!(
         "test/example/priv/playwright/tests/admin-eval.spec.ts",
@@ -274,22 +293,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       raise ArgumentError, "missing workflow event: #{Enum.join(lane["events"], ", ")}"
     end
 
-    if String.starts_with?(lane["command_marker"], "tests/") do
-      expected_marker = direct_command_marker!(spec)
-
-      unless lane["command_marker"] == expected_marker do
-        raise ArgumentError,
-              "spec #{spec} must use direct command marker #{expected_marker}, got #{lane["command_marker"]}"
-      end
-
-      unless job =~ expected_marker do
-        raise ArgumentError, "missing command marker for #{spec}: #{expected_marker}"
-      end
-    else
-      unless job =~ lane["command_marker"] do
-        raise ArgumentError, "missing command marker for #{spec}: #{lane["command_marker"]}"
-      end
-    end
+    validate_invocation!(spec, lane, job)
 
     unless config =~ "name: '#{lane["project"]}'" do
       raise ArgumentError, "missing Playwright project: #{lane["project"]}"
@@ -304,6 +308,70 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   defp direct_command_marker!(spec),
     do: raise(ArgumentError, "unsupported Playwright spec path: #{spec}")
+
+  defp validate_invocation!(spec, lane, job) do
+    case Map.get(@harness_mappings, spec) do
+      nil -> validate_direct_invocation!(spec, lane, job)
+      mapping -> validate_harness_invocation!(spec, lane, job, mapping)
+    end
+  end
+
+  defp validate_direct_invocation!(spec, lane, job) do
+    if Map.has_key?(lane, "harness_path") or Map.has_key?(lane, "harness_spec_marker") do
+      raise ArgumentError, "spec #{spec} expected direct invocation, not harness metadata"
+    end
+
+    expected_marker = direct_command_marker!(spec)
+
+    unless lane["command_marker"] == expected_marker do
+      raise ArgumentError,
+            "spec #{spec} must use direct command marker #{expected_marker}, got #{lane["command_marker"]}"
+    end
+
+    unless job =~ expected_marker do
+      raise ArgumentError, "missing command marker for #{spec}: #{expected_marker}"
+    end
+  end
+
+  defp validate_harness_invocation!(spec, lane, job, mapping) do
+    unexpected_harness_fields =
+      lane
+      |> Map.keys()
+      |> Enum.filter(&String.starts_with?(&1, "harness_"))
+      |> Kernel.--(["harness_path", "harness_spec_marker"])
+
+    if unexpected_harness_fields != [] do
+      raise ArgumentError,
+            "spec #{spec} has unexpected harness metadata: #{Enum.join(unexpected_harness_fields, ", ")}"
+    end
+
+    for {field, expected} <- mapping do
+      unless lane[field] == expected do
+        raise ArgumentError,
+              "spec #{spec} must use harness #{mapping["harness_path"]} with #{field} #{expected}, got #{inspect(lane[field])}"
+      end
+    end
+
+    unless job =~ mapping["command_marker"] do
+      raise ArgumentError, "missing command marker for #{spec}: #{mapping["command_marker"]}"
+    end
+
+    harness_source = File.read!(mapping["harness_path"])
+
+    validate_harness_spec_invocation!(
+      spec,
+      mapping["harness_path"],
+      mapping["harness_spec_marker"],
+      harness_source
+    )
+  end
+
+  defp validate_harness_spec_invocation!(spec, harness_path, expected_marker, harness_source) do
+    unless harness_source =~ expected_marker do
+      raise ArgumentError,
+            "spec #{spec} harness #{harness_path} must invoke #{expected_marker}"
+    end
+  end
 
   defp live_specs do
     "test/example/priv/playwright/tests/*.spec.ts"
