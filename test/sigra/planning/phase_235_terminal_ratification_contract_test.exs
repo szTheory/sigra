@@ -101,6 +101,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     inventory_specs = Enum.map(inventory["specs"], & &1["spec"])
     assert length(inventory_specs) == 20
     assert inventory_specs == Enum.sort(inventory_specs)
+    assert MapSet.size(expected_ownership_keys!()) == 93
+    assert MapSet.new(Enum.map(rows, &row_key/1)) == expected_ownership_keys!()
 
     assert Enum.map(rows, &row_key/1) == Enum.sort_by(rows, &row_key/1) |> Enum.map(&row_key/1)
 
@@ -167,7 +169,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       put_in(ledger, ["measurements", "pull_request", "status"], "pending") |> validate_ledger!()
     end
 
-    assert_raise ArgumentError, ~r/missing ownership events/, fn ->
+    assert_raise ArgumentError, ~r/missing ownership key/, fn ->
       update_in(ledger, ["ownership", "rows"], &Enum.drop(&1, 1)) |> validate_ledger!()
     end
 
@@ -545,6 +547,21 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     stale = actual_playwright_specs -- expected_playwright_specs
     if missing != [], do: raise(ArgumentError, "missing Playwright spec #{hd(missing)}")
     if stale != [], do: raise(ArgumentError, "stale Playwright spec #{hd(stale)}")
+
+    expected_keys = expected_ownership_keys!()
+    actual_keys = MapSet.new(keys)
+
+    missing_keys =
+      MapSet.difference(expected_keys, actual_keys) |> MapSet.to_list() |> Enum.sort()
+
+    unexpected_keys =
+      MapSet.difference(actual_keys, expected_keys) |> MapSet.to_list() |> Enum.sort()
+
+    if missing_keys != [],
+      do: raise(ArgumentError, "missing ownership key #{inspect(hd(missing_keys))}")
+
+    if unexpected_keys != [],
+      do: raise(ArgumentError, "unexpected ownership key #{inspect(hd(unexpected_keys))}")
 
     unless keys == Enum.sort(keys), do: raise(ArgumentError, "sorted ownership rows")
 
@@ -934,6 +951,22 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp row_key(row), do: {row["family"], row["spec"] || "", row["event"]}
+
+  defp expected_ownership_keys! do
+    playwright_specs =
+      @inventory_path
+      |> File.read!()
+      |> Jason.decode!()
+      |> Map.fetch!("specs")
+      |> Enum.map(&Map.fetch!(&1, "spec"))
+
+    (Enum.map(playwright_specs, &{"playwright_spec", &1}) ++
+       Enum.map(required_non_playwright_families(), &{&1, nil}))
+    |> Enum.flat_map(fn {family, spec} ->
+      Enum.map(@events, &{family, spec || "", &1})
+    end)
+    |> MapSet.new()
+  end
 
   defp inventory_sha256! do
     {output, 0} = System.cmd("shasum", ["-a", "256", @inventory_path])
