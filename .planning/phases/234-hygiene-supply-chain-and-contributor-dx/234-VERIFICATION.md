@@ -1,55 +1,40 @@
 ---
 phase: 234-hygiene-supply-chain-and-contributor-dx
-verified: 2026-08-02T03:26:33Z
+verified: 2026-08-02T14:36:32Z
 status: gaps_found
-score: 4/7 must-haves verified
+next_action: "Repair the evidence-slot exact-set validator and add a production-transition mutation for an extra failed slot."
+next_command: "/gsd-plan-phase 234 --gaps"
+score: 6/7 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
-  previous_score: 3/7
+  previous_score: 4/7
   gaps_closed:
-    - "The dep-off leg restores mix.lock and dependency state; a clean detached mix ci receipt is now present."
-    - "Dependabot has exact successful processed-job receipts for github-actions, mix, and npm."
-    - "The command receipt inventory is now exactly five rows and is shared by parsing and transition authorization."
+    - "Completion authorization now calls all six concrete receipt validators and rejects bare or partial success-shaped receipts."
+    - "Command receipts now bind to reviewed_commit_sha and to the 30-minute reviewed_at freshness window."
+    - "Playwright inventory rows now bind to their own direct spec marker or one of two exact, resolved harness mappings."
   gaps_remaining:
-    - "Completion authorization accepts malformed bare success evidence slots."
-    - "Command receipts are not bound to the reviewed revision or a freshness window."
-    - "A Playwright spec can borrow another spec's valid command marker."
+    - "The claimed exact six-slot evidence set accepts arbitrary extra slots, including a failed one, because the validator compares only an intersection."
   regressions: []
 gaps:
-  - truth: "No empty, partial, inferred, skipped, red, malformed, or stale evidence set authorizes complete/true/true."
+  - truth: "Validation completion is fail-closed for the exact required evidence set, so no added, red, inferred, or unvalidated evidence slot can be silently ignored."
     status: failed
-    reason: "assert_transition_allowed!/3 checks only that each slot is a map whose status is success. Its own green test supplies six bare %{\"status\" => \"success\"} maps and is authorized complete, bypassing the concrete receipt validators."
+    reason: "validate_required_evidence!/1 claims to require an exact six-slot set but compares the required slots with an intersection (lines 637-642). A receipts map containing all six valid slots plus an extra failed or malformed slot passes that check and can authorize complete/true/true. No mutation test exercises this path."
     artifacts:
-      - path: test/sigra/planning/phase_234_evidence_contract_test.exs
-        issue: "Lines 529-543 demonstrate malformed receipt acceptance; lines 741-745 never call local, PR, release, Dependabot, gallery, or historical-gallery validators."
+      - path: "test/sigra/planning/phase_234_evidence_contract_test.exs"
+        issue: "The exact-set assertion permits extra keys; transition mutations cover required slots only."
     missing:
-      - "Validate every concrete evidence slot in assert_transition_allowed!/3 and add malformed-success mutations through that production transition path."
-  - truth: "234-VALIDATION.md changes to complete/true/true only after structural, local-command, and GitHub-service evidence is currently green."
-    status: failed
-    reason: "The five command rows have syntax, order, exit, and hash checks, but no receipt commit SHA, equality-to-reviewed-revision check, or freshness limit. A historical green table can authorize a changed revision."
-    artifacts:
-      - path: test/sigra/planning/phase_234_evidence_contract_test.exs
-        issue: "validate_command_receipts!/1 at lines 706-730 accepts any syntactically valid UTC timestamp; the stale mutation at lines 571-575 changes command text rather than time or revision."
-    missing:
-      - "Bind every command receipt to the reviewed commit and reject stale timestamps; add wrong-SHA and stale-timestamp transition mutations."
-  - truth: "Every Playwright inventory row names a CI lane that invokes that exact spec, and changed lane ownership fails closed."
-    status: failed
-    reason: "validate_spec!/3 discards spec and validate_lane!/3 only tests whether the marker occurs anywhere in the job. Swapping admin-theme.spec.ts for another existing marker in the same job remains valid."
-    artifacts:
-      - path: test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
-        issue: "Lines 159-162 call validate_lane!/3 without spec; line 197 uses unbound job =~ command_marker."
-    missing:
-      - "Pass the spec to lane validation, require the exact spec invocation except documented harness cases, and add a swapped-existing-marker mutation."
+      - "Require MapSet.new(Map.keys(receipts)) to equal the required six-slot set."
+      - "Add production-path mutations with an extra failed slot and an extra malformed/success-shaped slot; both must reject completion."
 ---
 
 # Phase 234: Hygiene, Supply Chain, and Contributor DX Verification Report
 
 **Phase Goal:** A contributor can reproduce the gate locally, and the repo's action/dependency surface stops drifting silently.
-**Verified:** 2026-08-02T03:26:33Z
+**Verified:** 2026-08-02T14:36:32Z
 **Status:** gaps_found
-**Re-verification:** Yes — after Plans 15–18 gap closure
+**Re-verification:** Yes — after Plans 19–20 gap closure
 
 ## Goal Achievement
 
@@ -57,90 +42,88 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | A contributor can run the seven-leg `MIX_ENV=test mix ci` gate without dirtying `mix.lock`; CI invokes the same alias once. | ✓ VERIFIED | `mix.exs:143-162` defines all seven legs; `ci.yml:493-541` has the sole owner and one literal invocation. `bash scripts/ci/test-sigra-dep-off.sh` passed all six cleanup assertions; local receipt records clean pre/post hashes and exit 0. |
-| 2 | Release-critical third-party actions are immutable SHA pins with version comments. | ✓ VERIFIED | The focused action-pinning contract passed; its explicit live universe is `release-please.yml` and `hex-publish.yml`, and Release Please uses `45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0`. |
-| 3 | Dependabot covers GitHub Actions, Mix, and npm with processed-service evidence. | ✓ VERIFIED | Config hash is exactly `a689…44e0`; `234-EVIDENCE.json` has three ordered successful tuple receipts with numeric job IDs, UTC timestamps, GitHub URLs, and 64-char sanitized hashes. Dependabot contract passed. |
-| 4 | Every live Playwright spec is inventory-owned by a lane that actually invokes that exact spec, and drift fails closed. | ✗ FAILED | The current 20-row inventory is present, but its verifier permits a row to borrow another spec's marker in the same job. This fails the required drift-proof, not merely a cosmetic test detail. |
-| 5 | SEED-006 is closed against a current real gallery execution or tracked residual. | ✓ VERIFIED | The seed’s Phase 234 closeout cites run `30723701267`, gallery job `91431828624`, `126 passed (5.4m)`, zero retries, and correctly isolates the non-gating admin-eval failure. |
-| 6 | Validation completion is fail-closed against malformed/inferred evidence. | ✗ FAILED | `assert_transition_allowed!/3` authorizes six bare success maps rather than concrete, validated receipts. This is the review’s CR-01, independently confirmed from current lines 529-543 and 741-745. |
-| 7 | Validation completion uses current evidence for the reviewed state. | ✗ FAILED | Exact five-row cardinality is repaired, but command receipts carry neither revision identity nor a freshness bound. CR-02 remains valid. |
+| 1 | A contributor can run the seven-leg `MIX_ENV=test mix ci` gate without dirtying `mix.lock`; CI invokes the same alias once. | ✓ VERIFIED | `mix.exs:143-162` declares the seven legs and `ci.yml:541` is the direct invocation. The focused parity suite passed (31 tests); `scripts/ci/test-sigra-dep-off.sh` passed all six success/failure cleanup assertions. The committed detached-worktree receipt records exit 0 and identical pre/post lock and status hashes. |
+| 2 | Release-critical third-party Actions are immutable SHA pins with version comments. | ✓ VERIFIED | The action-pinning contract passed; all five scoped `uses:` entries in `release-please.yml` and `hex-publish.yml` are 40-character SHA pins with comments. The committed release receipt identifies a successful `Run Release Please` execution using the dereferenced v5 SHA. |
+| 3 | Dependabot covers GitHub Actions, Mix, and npm with processed-service evidence. | ✓ VERIFIED | `.github/dependabot.yml` contains exactly the three required weekly ecosystems/directories. The passing contract reconciles manifests/locks, and `234-EVIDENCE.json` contains three shaped successful processed-job receipts. |
+| 4 | Every live Playwright spec is inventory-owned by the exact CI invocation, including only documented harness indirection. | ✓ VERIFIED | The live-set contract passed (6 tests). It now rejects a sibling-marker swap and allows only the two explicit mappings, tracing both harness sources to `admin-eval.spec.ts` and `admin-generated.spec.ts`. Inventory contains 20 live specs. |
+| 5 | SEED-006 is closed against a current real gallery execution or tracked residual. | ✓ VERIFIED | The evidence ledger records dispatch `30723701267`: gallery job `91431828624` succeeded with `126 passed (5.4m)`, zero retries, and the non-gating admin-eval failure is separately diagnosed. |
+| 6 | Completion authorization validates concrete receipts and uses one reviewed, fresh command-receipt snapshot. | ✓ VERIFIED | `assert_transition_allowed!/3` invokes all six receipt validators at lines 1068-1106; production-path bare/partial receipt mutations, wrong-SHA, stale/future, and ordering mutations passed in the named `validation_signoff` test run (5 tests). |
+| 7 | Validation completion is fail-closed for the exact required evidence set. | ✗ FAILED | `validate_required_evidence!/1` uses `MapSet.intersection` at lines 637-642 rather than equality, so unvalidated extra evidence is tolerated despite the stated exact-set contract. |
 
-**Score:** 4/7 truths verified (0 present, behavior-unverified).
+**Score:** 6/7 truths verified (0 present, behavior-unverified).
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `mix.exs`, `ci.yml`, `scripts/ci/sigra-dep-off.sh` | One safe local/CI gate | ✓ VERIFIED | Substantive alias, direct CI call-through, and harness are wired. |
-| `.formatter.exs` | Golden-safe formatting boundary | ✓ VERIFIED | Inputs enumerate intended sources without the generated golden tree; the recorded formatter receipt exits 0. |
-| release workflows + pinning contract | Immutable release-action surface | ✓ VERIFIED | Focused contract passes and source refs are 40-character SHAs with comments. |
-| `.github/dependabot.yml`, evidence ledger | Exact three-ecosystem coverage | ✓ VERIFIED | Config, manifest links, receipts, and receipt schema are substantive and matched. |
-| `234-PLAYWRIGHT-INVENTORY.json`, ownership contract | Exact spec-to-executable-lane mapping | ✗ STUBBED GUARD | Inventory is populated and current, but the guard's key spec-to-marker link is not bound. |
-| `234-VALIDATION.md`, evidence contract | Current fail-closed authorization | ✗ STUBBED GUARD | Shared command validator is wired, but receipt-schema and freshness validation are omitted from the transition. |
+| `mix.exs`, `ci.yml`, `scripts/ci/sigra-dep-off.sh` | Safe, shared local/CI gate | ✓ VERIFIED | Substantive alias, sole direct CI owner, cleanup trap, and deterministic cleanup harness are wired. |
+| `.formatter.exs` | Golden-safe format boundary | ✓ VERIFIED | Formatter and golden/idempotency command completed successfully; generated tree remained unchanged. |
+| release workflows + pinning contract | Immutable release-action surface | ✓ VERIFIED | Source pin inventory and focused mutation contract pass. |
+| `.github/dependabot.yml`, `234-EVIDENCE.json` | Exact three-ecosystem coverage | ✓ VERIFIED | Configuration, local manifests, and processed receipt tuples are substantive and reconciled. |
+| `234-PLAYWRIGHT-INVENTORY.json`, ownership contract | Exact spec-to-lane ownership | ✓ VERIFIED | JSON is populated; direct and documented harness wiring is enforced by mutation tests. |
+| `234-VALIDATION.md`, evidence contract | Exact fail-closed final authorization | ✗ STUBBED GUARD | Concrete validation and freshness checks are wired, but unvalidated extra evidence slots remain accepted. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| `library_tests_shard` | `mix ci` | literal `MIX_ENV=test mix ci` | WIRED | One direct call at `ci.yml:541`; protected `Library tests` aggregate consumes it. |
-| Dependabot config | evidence ledger | exact tuple receipts | WIRED | Three configured tuples match three successful ledger slots; config hash matches current file. |
-| Playwright inventory | workflow command | per-spec marker | NOT_WIRED | The validator only proves a marker exists in the job, not that it is the inventory spec. |
-| evidence ledger | validation transition | concrete receipt validators | NOT_WIRED | Transition checks status strings only, allowing fabricated malformed receipts. |
-| validation receipt table | reviewed revision | revision/freshness binding | NOT_WIRED | No command receipt SHA or age policy exists. |
+| `library_tests_shard` | `mix ci` | literal `MIX_ENV=test mix ci` | WIRED | One direct call at `ci.yml:541`; the focused contract proves sole suite ownership and required aggregation. |
+| Dependabot config | evidence ledger | exact processed tuple receipts | WIRED | Three configured tuples match three successful slot receipts. |
+| Playwright inventory | workflow/harness invocation | row spec passed to spec-aware validator | WIRED | Direct marker equality and two allowlisted harness traces are exercised by mutations. |
+| evidence ledger | validation transition | concrete receipt validators | WIRED | `assert_transition_allowed!/3` calls `validate_required_evidence!/1`, which dispatches all six validators. |
+| evidence slot set | validation transition | exact required-slot check | NOT_WIRED | The implemented intersection test does not reject an extra unvalidated slot. |
+| validation receipt table | reviewed revision | SHA and 30-minute freshness binding | WIRED | Validator compares every command SHA to `reviewed_commit_sha`, timestamps to `reviewed_at`, and tests wrong/stale cases. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| Dependabot evidence | `slots` | Authenticated GitHub update-job identifiers | Yes | ✓ FLOWING |
-| Playwright inventory | `specs[].lanes` | Live spec glob plus workflow/config markers | Current values populated, ownership binding absent | ✗ HOLLOW |
-| Validation approval | command/evidence receipts | Markdown table and JSON evidence | Can be supplied by stale or malformed success-shaped values | ✗ DISCONNECTED from fail-closed claim |
+| Dependabot evidence | `slots` | Authenticated GitHub update-job receipts | Yes | ✓ FLOWING |
+| Playwright inventory | `specs[].lanes` | Live spec glob, workflow jobs, and two harness sources | Yes | ✓ FLOWING |
+| Validation approval | receipts and command receipt table | `234-EVIDENCE.json` and `234-VALIDATION.md` | Required slots flow through concrete validators; extra slots bypass validation | ✗ HOLLOW |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Receipt inventory mutation suite | `mix test …phase_234_evidence_contract_test.exs --only validation_signoff` | 3 tests, 0 failures; nevertheless fixture demonstrates bare-success bypass | ✗ FAIL (test is insufficient) |
-| Playwright ownership reconciliation | `mix test …phase_234_playwright_inventory_contract_test.exs` | 4 tests, 0 failures; source inspection proves swapped valid marker is untested/accepted | ✗ FAIL (test is insufficient) |
-| Contributor dep-off cleanup | `bash scripts/ci/test-sigra-dep-off.sh` | 6 passed, 0 failed | ✓ PASS |
-| Alias, library owner, action pin, Dependabot contracts | focused four-file `mix test` run | 17 tests, 0 failures | ✓ PASS |
+| Exact Playwright ownership | `mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs` | 6 tests, 0 failures | ✓ PASS |
+| Related Playwright topology | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs` | 6 tests, 0 failures | ✓ PASS |
+| Concrete receipt and snapshot transition | `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff` | 5 tests, 0 failures | ✓ PASS |
+| Final evidence shape | `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence` | 1 test, 0 failures | ✓ PASS |
+| All focused Phase 234 contracts | six-file focused `mix test` command from validation receipt | 31 tests, 0 failures | ✓ PASS |
+| Golden-safe formatter boundary | `mix format --check-formatted` plus golden/idempotency tests | Exit 0; no generated-tree diff | ✓ PASS |
+| Contributor cleanup invariants | `bash scripts/ci/test-sigra-dep-off.sh` | 6 passed, 0 failed | ✓ PASS |
 
-The focused ExUnit runs emitted expected unavailable-local-Postgres connection noise, but all listed planning tests passed and do not require a database assertion.
+The ExUnit commands emitted expected unavailable-local-Postgres connection noise but no test failures; these planning contracts do not require a database connection.
 
 ### Requirements Coverage
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| DX-01 | 01–05, 09, 11–18 | `mix ci` reproduces PR gate with formatting/lock checks | ✓ SATISFIED | Safe alias, CI direct call, cleanup regression, and green detached receipt. |
-| DX-02 | 06, 10, 14, 18 | Release-critical Actions use immutable SHAs | ✓ SATISFIED | Source inventory and passing focused mutation contract. |
-| DX-03 | 07, 10, 14, 17–18 | Dependabot covers Mix/npm/Actions | ✓ SATISFIED | Exact config plus three processed GitHub receipts. |
-| DX-04 | 08, 10, 14, 18 | No Playwright spec is unowned | ✗ BLOCKED | Present inventory has 20 rows, but missing spec-to-marker binding means the required anti-drift guarantee is not enforceable. |
-| DX-06 | 10, 14, 18 | SEED-006 delivered or residual filed | ✓ SATISFIED | Current and historical gallery evidence is recorded in the seed and ledger. |
+| DX-01 | 01–05, 09, 11–16, 18, 20 | `mix ci` reproduces PR gate with formatting/lock checks | ✓ SATISFIED | Seven-leg alias, direct CI call, formatter/golden checks, cleanup harness, and recorded clean run. |
+| DX-02 | 06, 10, 14, 18, 20 | Release-critical Actions use immutable SHAs | ✓ SATISFIED | Exact scoped pin inventory and passing contract; successful post-pin release receipt. |
+| DX-03 | 07, 10, 14, 17–18, 20 | Dependabot covers Mix/npm/Actions | ✓ SATISFIED | Exact config and three processed service receipts. |
+| DX-04 | 08, 10, 14, 18–20 | No Playwright spec is unowned | ✓ SATISFIED | Exact inventory-to-direct/harness invocation ownership is now mutation-protected. |
+| DX-06 | 10, 14, 18, 20 | SEED-006 delivered or residual filed | ✓ SATISFIED | Current gallery evidence and isolated non-gating diagnostic are recorded. |
 
-No Phase 234 requirement is orphaned: each listed DX ID appears in PLAN frontmatter. Phase 235 does not specifically schedule any of these repairs, so none are deferred.
+No Phase 234 requirement is orphaned: all five IDs occur in plan frontmatter. Phase 235 does not specifically schedule the remaining validation-authority repair, so it is not deferred.
 
 ### Review Adjudication
 
-| Finding | Verdict | Independent evidence |
-| --- | --- | --- |
-| CR-01 bare-success completion authorization | 🛑 BLOCKER — valid | Current test constructs `green_evidence` from bare success maps and expects `:complete`; production transition performs only the same status check. |
-| CR-02 stale/unbound command receipts | 🛑 BLOCKER — valid | Current rows/validator lack a commit SHA and freshness window; the alleged stale mutation changes only command text. |
-| WR-01 unbound Playwright command marker | 🛑 BLOCKER — escalated from warning | Current validator discards the spec before testing `job =~ command_marker`; it cannot prevent silent reassignment of a row to another real marker. This invalidates DX-04’s anti-drift purpose. |
+The five findings in `234-REVIEW.md` concern SSRF, atom exhaustion, Chimeway credentials, validation persistence, and refresh-token concurrency in application code. They are serious but are unrelated to this phase's hygiene/supply-chain/contributor-DX deliverables and are not used to decide this phase verdict. The prior Phase 234 verification findings CR-01, CR-02, and the unbound Playwright marker are closed by the current source and deterministic tests.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-| --- | --- | --- | --- |
-| `phase_234_evidence_contract_test.exs` | 532–543, 741–745 | Bare-map success authorization | 🛑 BLOCKER | Malformed or fabricated evidence can ratify completion. |
-| `phase_234_evidence_contract_test.exs` | 706–730 | No revision/freshness validation | 🛑 BLOCKER | Historical receipts can ratify a changed state. |
-| `phase_234_playwright_inventory_contract_test.exs` | 159–162, 197 | Spec-disconnected marker lookup | 🛑 BLOCKER | Future loss of browser coverage can be represented as owned. |
-| Phase-owned files | — | `TBD` / `FIXME` / `XXX` markers | None | No unreferenced debt-marker blocker found. |
+| --- | --- | --- | --- | --- |
+| `phase_234_evidence_contract_test.exs` | 637–642 | Intersection presented as an exact evidence-set check | 🛑 BLOCKER | A new failed or malformed evidence slot can be ignored while completion is authorized. |
+| Phase-owned contract/config files | — | `TBD` / `FIXME` / `XXX` markers | None | No unreferenced debt-marker blocker found. |
 
 ### Gaps Summary
 
-Plans 15–18 genuinely closed the original local-safety, Dependabot-evidence, and empty-command-list gaps. The phase remains blocked because its final authorization can be fooled by malformed or stale evidence, and its Playwright inventory lacks the exact ownership link that prevents silent coverage loss. These are deterministic code/test defects; no human verification can close them.
+The repaired artifacts substantively deliver the five roadmap outcomes, and every named deterministic test run passed. However, Phase 234's completion contract still contradicts its fail-closed evidence claim: it silently accepts an evidence map with additional unvalidated slots. This is a phase-goal blocker because the phase exists to prevent action/dependency evidence from drifting silently. Repair the equality check and add the two production-transition mutations before ratifying the phase.
 
 ---
 
-_Verified: 2026-08-02T03:26:33Z_
+_Verified: 2026-08-02T14:36:32Z_
 _Verifier: the agent (gsd-verifier)_
