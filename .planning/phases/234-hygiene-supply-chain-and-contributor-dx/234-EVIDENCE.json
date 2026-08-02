@@ -107,5 +107,38 @@
       }
     ]
   },
-  "gallery": {}
+  "gallery": {
+    "status": "success",
+    "event": "workflow_dispatch",
+    "commit_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
+    "run_id": "30723701267",
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/30723701267",
+    "workflow_conclusion": "failure",
+    "job_id": "91431828624",
+    "job_url": "https://github.com/szTheory/sigra/actions/runs/30723701267/job/91431828624",
+    "job_conclusion": "success",
+    "shared_boot_step_name": "Boot example app through shared action",
+    "shared_boot_conclusion": "success",
+    "retry_count": 0,
+    "design_test_count": 126,
+    "design_test_result": "126 passed (5.4m)",
+    "snapshot_canary": "PASS (0 changed slug(s), all within allowlist)",
+    "started_at": "2026-08-01T23:46:41Z",
+    "completed_at": "2026-08-01T23:56:16Z",
+    "log_sha256": "30902b6dfeb8c42796bb3358ddc9e42287478856ecaf874427035c83d83ed30d",
+    "non_gating_admin_eval": {
+      "job_id": "91431828604",
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/30723701267/job/91431828604",
+      "conclusion": "failure",
+      "failure_step": "Fail the job if harness did not PASS",
+      "diagnostics": "The admin_eval_render hard-signal job is intentionally outside ci-gate. Its failure makes the overall dispatch red but does not invalidate the separately successful gallery job; Phase 234 does not alter its policy, retries, or UI implementation."
+    },
+    "diagnostics": "The current shared-boot gallery receipt is successful. The workflow-level failure is solely the separately recorded non-gating admin-evaluation diagnostic, not a gallery contradiction."
+  },
+  "historical_gallery": {
+    "status": "success",
+    "run_id": "30659282026",
+    "design_test_count": 126,
+    "diagnostics": "Phase 232 immutable receipt: the shared-boot admin_design_recapture consumer passed 126 design tests."
+  }
 }

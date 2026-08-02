@@ -110,15 +110,19 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipt["job_conclusion"] == "success"
     assert receipt["action_step_name"] == "Run Release Please"
     assert receipt["action_step_conclusion"] == "success"
+
     assert receipt["action_ref"] ==
              "googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7"
+
     assert receipt["token_source"] == "Actions"
+
     assert receipt["permissions"] == [
              "actions:write",
              "contents:write",
              "issues:write",
              "pull-requests:write"
            ]
+
     assert receipt["release_created"] == false
 
     assert receipt["downstream_jobs"] == %{
@@ -146,8 +150,13 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipt["run_id"] =~ ~r/\A\d+\z/
     assert receipt["job_id"] =~ ~r/\A\d+\z/
     assert receipt["pr_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/pull\/\d+\z/
-    assert receipt["run_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
-    assert receipt["job_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert receipt["run_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
+
+    assert receipt["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
     assert_sha256!(receipt["log_sha256"], "release.log_sha256")
   end
 
@@ -192,7 +201,91 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
         end
 
       other ->
-        flunk("Dependabot evidence must be success or failed with durable diagnostics, got: #{inspect(other)}")
+        flunk(
+          "Dependabot evidence must be success or failed with durable diagnostics, got: #{inspect(other)}"
+        )
     end
+  end
+
+  @tag :gallery
+  test "gallery receipt proves the retry-free shared-boot consumer and isolates a non-gating evaluation diagnostic" do
+    receipt = evidence()["gallery"]
+    historical = evidence()["historical_gallery"]
+
+    assert receipt["status"] == "success"
+    assert receipt["event"] == "workflow_dispatch"
+    assert receipt["commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert receipt["job_conclusion"] == "success"
+    assert receipt["shared_boot_step_name"] == "Boot example app through shared action"
+    assert receipt["shared_boot_conclusion"] == "success"
+    assert receipt["retry_count"] == 0
+    assert receipt["design_test_count"] == 126
+    assert receipt["design_test_result"] == "126 passed (5.4m)"
+    assert receipt["snapshot_canary"] == "PASS (0 changed slug(s), all within allowlist)"
+
+    for key <- [
+          "run_id",
+          "run_url",
+          "job_id",
+          "job_url",
+          "started_at",
+          "completed_at",
+          "diagnostics"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["run_id"] =~ ~r/\A\d+\z/
+    assert receipt["job_id"] =~ ~r/\A\d+\z/
+
+    assert receipt["run_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
+
+    assert receipt["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert_sha256!(receipt["log_sha256"], "gallery.log_sha256")
+
+    # The dispatch is not globally green because admin_eval_render is deliberately
+    # non-gating. Its diagnostic must be named instead of being misattributed to the
+    # successful gallery receipt.
+    assert receipt["workflow_conclusion"] == "failure"
+    admin_eval = receipt["non_gating_admin_eval"]
+    assert admin_eval["conclusion"] == "failure"
+    assert admin_eval["failure_step"] == "Fail the job if harness did not PASS"
+    assert admin_eval["job_id"] =~ ~r/\A\d+\z/
+
+    assert admin_eval["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert_non_empty_string!(admin_eval, "diagnostics")
+
+    assert historical["status"] == "success"
+    assert historical["run_id"] == "30659282026"
+    assert historical["design_test_count"] == 126
+    assert_non_empty_string!(historical, "diagnostics")
+  end
+
+  @tag :final_evidence
+  test "final evidence names every GitHub-owned slot without treating a failed residual as success" do
+    receipts = evidence()
+
+    for slot <- [
+          "local_mix_ci",
+          "pr_ci",
+          "release",
+          "dependabot",
+          "gallery",
+          "historical_gallery"
+        ] do
+      assert is_map(receipts[slot]), "missing evidence slot #{slot}"
+      assert_non_empty_string!(receipts[slot], "status")
+    end
+
+    assert receipts["release"]["status"] == "success"
+    assert receipts["gallery"]["status"] == "success"
+    assert receipts["historical_gallery"]["status"] == "success"
+    assert receipts["dependabot"]["status"] == "failed"
+    assert_non_empty_string!(receipts["dependabot"], "diagnostics")
   end
 end
