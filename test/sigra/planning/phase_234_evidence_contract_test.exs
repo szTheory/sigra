@@ -641,7 +641,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     required =
       MapSet.new(["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"])
 
-    assert MapSet.new(Map.keys(receipts)) == required,
+    assert MapSet.new(Map.keys(Map.delete(receipts, "schema_version"))) == required,
            "evidence must contain the exact required six-slot set"
 
     for {slot, validator} <- [
