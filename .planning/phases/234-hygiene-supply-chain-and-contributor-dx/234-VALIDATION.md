@@ -1,9 +1,9 @@
 ---
 phase: 234
 slug: hygiene-supply-chain-and-contributor-dx
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-31
 ---
 
@@ -83,12 +83,12 @@ All phase behaviors must have automated evidence. GitHub-owned behaviors may req
 
 | Command | UTC completed | Exit | Output SHA-256 |
 |---------|---------------|------|----------------|
-| `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence` | 2026-08-02T01:30:12Z | 0 | `d73f67004509eb9b93972c78711dcba84745ff413cf8a0f51b3f0cb4f37e0b2e` |
-| `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs` | 2026-08-02T01:30:18Z | 0 | `cb13166255c4fba8ccc28ac13546784691f08ce1fb6a1de60155f04b129b2202` |
-| `mix test test/sigra/planning/` | 2026-08-02T01:30:22Z | 0 | `fd83aca755ee3115d25b880de56fc3fa5fc1b7fde83cf50f8714fd458e645efe` |
-| `mix format --check-formatted` | 2026-08-02T01:30:25Z | 0 | `f57af136af7f075eeff02cdd79d93b53a43a23a8e10470c001497b37945575ae` |
-| `test -z "$(git diff --name-only -- test/fixtures/install_golden/tree)" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` | 2026-08-02T01:31:38Z | 1 | `6d0d43c1d782ac1777467a54bd16be683d8042feadcbfbd1d403a1c8a43cebe3` |
+| `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence` | 2026-08-02T03:14:13Z | 0 | `2a856f6f9709eed0a703870243c482853172bc578a58b37646161c184dc4137b` |
+| `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs` | 2026-08-02T03:14:14Z | 0 | `366f74d4ca75c0efe4bd6ecf793f83f33468de2f4564916c118c26c083a632cf` |
+| `mix test test/sigra/planning/` | 2026-08-02T03:14:15Z | 0 | `b84eaf48334b7f94d126da493549748bad63344f9ead3fc9d1b0c0affd23b94b` |
+| `mix format --check-formatted` | 2026-08-02T03:14:15Z | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `test -z "$(git diff --name-only -- test/fixtures/install_golden/tree)" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` | 2026-08-02T03:15:28Z | 0 | `876af7d027415647005842183d1643cacb5594610a90dc70ee6b64e422c6e42d` |
 
 The command receipts above are sanitized hashes only; captured output paths, session credentials, cookies, and environment values are not recorded.
 
-**Approval:** blocked — Dependabot residual: all three configured ecosystem slots remain `failed` in `234-EVIDENCE.json` because an authenticated GitHub browser session was unavailable to capture per-ecosystem job logs. golden fixture residual: the required golden/idempotency command exits 1 because the generated `config/dev.exs` is 2,679 bytes while the committed fixture is 3,252 bytes. `status: draft`, `nyquist_compliant: false`, and `wave_0_complete: false` are intentionally retained until both residuals are resolved.
+**Approval:** approved — machine evidence ratified at 2026-08-02T03:15:28Z; exact five-command receipt inventory, Wave 0/task rows, immutable service receipts, and all final evidence slots are green at this commit snapshot. Approval receipt SHA-256: `876af7d027415647005842183d1643cacb5594610a90dc70ee6b64e422c6e42d`.

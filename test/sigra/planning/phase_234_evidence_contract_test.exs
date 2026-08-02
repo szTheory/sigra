@@ -478,18 +478,29 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
-  test "validation sign-off retains a durable draft diagnostic while stale receipts fail parsing" do
+  test "validation sign-off parses the exact green inventory before authorizing completion" do
     validation = File.read!(@validation_path)
 
-    assert validation =~ "status: draft"
-    assert validation =~ "**Approval:** blocked"
+    assert %{
+             frontmatter: %{
+               "status" => "complete",
+               "nyquist_compliant" => "true",
+               "wave_0_complete" => "true"
+             },
+             quick_run_paths: @quick_run_paths,
+             wave_0_items: wave_0_items,
+             task_statuses: task_statuses,
+             command_receipts: command_receipts,
+             approval: approval
+           } = parsed = parse_validation!(validation)
 
-    error =
-      assert_raise ExUnit.AssertionError, fn ->
-        parse_validation!(validation)
-      end
+    assert Enum.all?(wave_0_items, & &1.complete)
+    assert Enum.all?(task_statuses, &(&1 == "✅ green"))
 
-    assert error.message =~ "exit_status"
+    assert :complete =
+             assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
+
+    assert approval =~ "machine evidence ratified"
   end
 
   @tag :validation_signoff
