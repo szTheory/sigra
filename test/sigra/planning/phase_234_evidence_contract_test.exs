@@ -477,6 +477,175 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert_non_empty_string!(receipts["dependabot"], "diagnostics")
   end
 
+  defp validate_pr_ci_receipt!(receipt) do
+    assert receipt["status"] == "success", "pr_ci.status must be success"
+    assert receipt["event"] == "pull_request", "pr_ci.event must be pull_request"
+    assert receipt["conclusion"] == "success", "pr_ci.conclusion must be success"
+    assert receipt["direct_mix_ci_step_count"] == 1
+    assert receipt["library_suite_owner_count"] == 1
+    assert receipt["retired_library_suite_execution_count"] == 0
+    assert receipt["continue_on_error_count"] == 0
+    assert receipt["library_tests_conclusion"] == "success"
+    assert receipt["library_tests_skipped"] == false
+
+    for key <- [
+          "commit_sha",
+          "run_id",
+          "job_id",
+          "url",
+          "started_at",
+          "completed_at",
+          "direct_mix_ci_step_name"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert receipt["run_id"] =~ ~r/\A\d+\z/
+    assert receipt["job_id"] =~ ~r/\A\d+\z/
+    assert receipt["url"] =~ ~r/\Ahttps:\/\//
+    assert_sha256!(receipt["log_sha256"], "pr_ci.log_sha256")
+    :ok
+  end
+
+  defp validate_release_receipt!(receipt) do
+    assert receipt["status"] == "success", "release.status must be success"
+    assert receipt["event"] == "push"
+    assert receipt["workflow_conclusion"] == "success"
+    assert receipt["job_conclusion"] == "success"
+    assert receipt["action_step_name"] == "Run Release Please"
+    assert receipt["action_step_conclusion"] == "success"
+
+    assert receipt["action_ref"] ==
+             "googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7"
+
+    assert receipt["token_source"] == "Actions"
+
+    assert receipt["permissions"] == [
+             "actions:write",
+             "contents:write",
+             "issues:write",
+             "pull-requests:write"
+           ]
+
+    assert receipt["release_created"] == false
+
+    assert receipt["downstream_jobs"] == %{
+             "gate_ci_green" => "skipped_no_release_created",
+             "publish_hex" => "skipped_no_release_created"
+           }
+
+    for key <- [
+          "pr_number",
+          "pr_url",
+          "merge_sha",
+          "run_id",
+          "run_url",
+          "job_id",
+          "job_url",
+          "started_at",
+          "completed_at",
+          "diagnostics"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["pr_number"] =~ ~r/\A\d+\z/
+    assert receipt["merge_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert receipt["run_id"] =~ ~r/\A\d+\z/
+    assert receipt["job_id"] =~ ~r/\A\d+\z/
+    assert receipt["pr_url"] =~ ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/pull\/\d+\z/
+
+    assert receipt["run_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
+
+    assert receipt["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert_sha256!(receipt["log_sha256"], "release.log_sha256")
+    :ok
+  end
+
+  defp validate_gallery_receipt!(receipt) do
+    assert receipt["status"] == "success", "gallery.status must be success"
+    assert receipt["event"] == "workflow_dispatch"
+    assert receipt["commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert receipt["job_conclusion"] == "success"
+    assert receipt["shared_boot_step_name"] == "Boot example app through shared action"
+    assert receipt["shared_boot_conclusion"] == "success"
+    assert receipt["retry_count"] == 0
+    assert receipt["design_test_count"] == 126
+    assert receipt["design_test_result"] == "126 passed (5.4m)"
+    assert receipt["snapshot_canary"] == "PASS (0 changed slug(s), all within allowlist)"
+
+    for key <- [
+          "run_id",
+          "run_url",
+          "job_id",
+          "job_url",
+          "started_at",
+          "completed_at",
+          "diagnostics"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["run_id"] =~ ~r/\A\d+\z/
+    assert receipt["job_id"] =~ ~r/\A\d+\z/
+
+    assert receipt["run_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\z/
+
+    assert receipt["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert_sha256!(receipt["log_sha256"], "gallery.log_sha256")
+    assert receipt["workflow_conclusion"] == "failure"
+    admin_eval = receipt["non_gating_admin_eval"]
+    assert admin_eval["conclusion"] == "failure"
+    assert admin_eval["failure_step"] == "Fail the job if harness did not PASS"
+    assert admin_eval["job_id"] =~ ~r/\A\d+\z/
+
+    assert admin_eval["job_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/\d+\/job\/\d+\z/
+
+    assert_non_empty_string!(admin_eval, "diagnostics")
+    :ok
+  end
+
+  defp validate_historical_gallery_receipt!(receipt) do
+    assert receipt["status"] == "success", "historical_gallery.status must be success"
+    assert receipt["run_id"] == "30659282026"
+    assert receipt["design_test_count"] == 126
+    assert_non_empty_string!(receipt, "diagnostics")
+    :ok
+  end
+
+  defp validate_required_evidence!(receipts) do
+    required = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
+
+    assert MapSet.new(Map.keys(receipts)) |> MapSet.intersection(MapSet.new(required)) ==
+             MapSet.new(required),
+           "evidence must contain the exact required six-slot set"
+
+    for {slot, validator} <- [
+          {"local_mix_ci", &validate_local_mix_ci_receipt!/1},
+          {"pr_ci", &validate_pr_ci_receipt!/1},
+          {"release", &validate_release_receipt!/1},
+          {"dependabot", &validate_dependabot_receipt!/1},
+          {"gallery", &validate_gallery_receipt!/1},
+          {"historical_gallery", &validate_historical_gallery_receipt!/1}
+        ] do
+      try do
+        assert :ok = validator.(receipts[slot])
+      rescue
+        error in ExUnit.AssertionError -> flunk("#{slot} receipt invalid: #{error.message}")
+      end
+    end
+
+    :ok
+  end
+
   @tag :validation_signoff
   test "validation sign-off parses the exact green inventory before authorizing completion" do
     validation = File.read!(@validation_path)
@@ -527,9 +696,47 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
+  test "production transition rejects bare and partial successful evidence receipts" do
+    complete = %{
+      "status" => "complete",
+      "nyquist_compliant" => "true",
+      "wave_0_complete" => "true"
+    }
+
+    green_commands = green_command_receipts()
+    green_evidence = evidence()
+
+    assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
+
+    for {slot, missing_field} <- [
+          {"local_mix_ci", "conclusion"},
+          {"pr_ci", "run_id"},
+          {"release", "merge_sha"},
+          {"dependabot", "slots"},
+          {"gallery", "run_id"},
+          {"historical_gallery", "run_id"}
+        ],
+        mutation <- [
+          %{"status" => "success"},
+          Map.delete(green_evidence[slot], missing_field)
+        ] do
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          assert_transition_allowed!(
+            complete,
+            Map.put(green_evidence, slot, mutation),
+            green_commands
+          )
+        end
+
+      assert error.message =~ slot or error.message =~ missing_field
+    end
+  end
+
+  @tag :validation_signoff
   test "shared exact command receipt validator rejects every incomplete mutation and transition stays draft" do
     slots = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
-    green_evidence = Map.new(slots, &{&1, %{"status" => "success"}})
+    green_evidence = evidence()
     green_commands = green_command_receipts()
 
     complete = %{
@@ -738,7 +945,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     assert :ok = validate_command_receipts!(command_receipts)
 
-    evidence_green? =
+    evidence_statuses_green? =
       Enum.all?(
         ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"],
         fn slot -> is_map(receipts[slot]) and receipts[slot]["status"] == "success" end
@@ -746,7 +953,9 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     commands_green? = Enum.all?(command_receipts, &(&1.exit_status == "0"))
 
-    if evidence_green? and commands_green? do
+    if evidence_statuses_green? and commands_green? do
+      assert :ok = validate_required_evidence!(receipts)
+
       assert transition_fields == %{
                "status" => "complete",
                "nyquist_compliant" => "true",
