@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
-current_phase_name: Terminal Ratification — Measured, Not Read
+current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Phase 235 context gathered (assumptions mode)
-last_updated: "2026-08-02T17:54:26.585Z"
+stopped_at: Completed 235-01-PLAN.md
+last_updated: "2026-08-02T18:04:14.157Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 234 complete, transitioned to Phase 235
+last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 57
-  completed_plans: 54
+  completed_plans: 55
   percent: 83
 ---
 
@@ -25,15 +25,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 234 — hygiene-supply-chain-and-contributor-dx
+**Current focus:** Phase 235 — terminal-ratification-measured-not-read
 
 ## Current Position
 
-Phase: 235 — Terminal Ratification — Measured, Not Read
-Plan: Not started
+Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
-Last activity: 2026-08-02 — Phase 234 complete, transitioned to Phase 235
+Progress: 3/6 milestone phases complete ([██████████] 96%); Phase 233 not started
+Last activity: 2026-08-02 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -428,6 +428,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Phase 234 validation receipts bind every command to one reviewed SHA and a 30-minute UTC window.
 - [Phase ?]: Phase 234 completion accepts only the exact six evidence receipt keys; schema_version remains metadata.
 - [Phase ?]: Installer golden fixture tracks the pinned phx_new 1.8.8 scaffold rather than preserving stale 1.8.7 bytes.
+- [Phase ?]: Phase 235 Plan 01 pins terminal ownership to the Phase 234 inventory hash and leaves measurement verdicts explicitly pending.
 
 ### Pending Todos
 
@@ -572,9 +573,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T17:23:07.982Z
-Stopped at: Phase 235 context gathered (assumptions mode)
-Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-CONTEXT.md
+Last session: 2026-08-02T18:04:14.140Z
+Stopped at: Completed 235-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -731,3 +732,4 @@ Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-CO
 | Phase 234 P19 | 6min | 2 tasks | 2 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P20 | 14m | 2 tasks | 3 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P21 | 22m | 1 tasks | 3 files |
+| Phase 235 P01 | 6min | 2 tasks | 2 files |

@@ -349,7 +349,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 235-01-PLAN.md — Trace and expand the single fail-closed terminal measurement/ownership ledger
+- [x] 235-01-PLAN.md — Trace and expand the single fail-closed terminal measurement/ownership ledger
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
