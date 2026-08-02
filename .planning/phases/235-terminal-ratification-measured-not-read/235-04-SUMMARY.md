@@ -70,7 +70,14 @@ status: complete
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 2 - Tracking consistency] Reconciled stale Phase 235 roadmap metadata**
+- **Found during:** Plan closeout
+- **Issue:** The roadmap still declared three Phase 235 plans, so its automatic progress updater could not represent the completed gap-closure Plan 04 or the final 4/4 count.
+- **Fix:** Added the Plan 04 wave, corrected the plan count/progress row, and recorded the GATE-05 traceability completion while preserving FAST-01 as the owned measured residual.
+- **Files modified:** `.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`, `.planning/STATE.md`
+- **Commit:** `1c693dd9`
 
 ## Known Stubs
 
