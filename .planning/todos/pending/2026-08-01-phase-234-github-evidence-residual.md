@@ -72,4 +72,4 @@ Dependabot contract before this residual was resolved. This history retains the 
 authentication and open-PR-limit diagnostics; it stores no cookies, tokens, raw HTML, or raw
 job logs.
 
-**Evidence commit:** `PENDING_TASK_2_COMMIT`
+**Evidence commit:** `fa32a9a5`
