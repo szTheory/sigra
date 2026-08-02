@@ -5,8 +5,8 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Completed 234-15-PLAN.md
-last_updated: "2026-08-02T02:26:16.561Z"
+stopped_at: "Blocked 234-17-PLAN.md: authenticated Dependabot browser session required"
+last_updated: "2026-08-02T02:30:41.288Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 234 execution started
 progress:
@@ -30,8 +30,8 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 2 of 18
-Status: Ready to execute
+Plan: 17 of 18
+Status: Blocked — authenticated GitHub browser session required for Dependabot receipts
 Progress: 3/6 milestone phases complete ([█████████░] 94%); Phase 233 not started
 Last activity: 2026-08-01 — Phase 234 execution started
 
@@ -429,6 +429,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
+- 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
 
 ### Roadmap Evolution
 
@@ -561,9 +562,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T02:26:16.545Z
-Stopped at: Completed 234-15-PLAN.md
-Resume file: None
+Last session: 2026-08-02T02:30:41.272Z
+Stopped at: Blocked 234-17-PLAN.md: authenticated Dependabot browser session required
+Resume file: .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-17-PLAN.md
 
 ## Operator Next Steps
 
