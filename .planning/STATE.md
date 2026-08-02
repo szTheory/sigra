@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
 Plan: 18 of 18
-Status: Blocked — authenticated GitHub browser session required for Dependabot receipts
+Status: Ready — refreshed local and managed-service evidence are complete; Plan 18 validation ratification remains
 Progress: 3/6 milestone phases complete ([██████████] 98%); Phase 233 not started
 Last activity: 2026-08-01 — Phase 234 execution started
 
