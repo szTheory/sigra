@@ -12,6 +12,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   @residual_path ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
   @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
   @cutoff_sha "6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a"
+  @capture_instant "2026-08-02T18:07:04Z"
+  @population_sha "6462b127e09de5a017e4b718e4928341ab81be33f627dcef6d637560bc74a530"
   @top_level_keys MapSet.new(
                     ~w(schema_version topology_cutoff capture_endpoint baseline measurements ownership receipts verdict closeout)
                   )
@@ -265,6 +267,21 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         ["measurements", "pull_request", "runs", Access.at(0), "conclusion"],
         "failure"
       )
+      |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/capture instant/, fn ->
+      put_in(ledger, ["capture_endpoint", "captured_at"], "2026-08-02T18:07:05Z")
+      |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/population SHA-256/, fn ->
+      put_in(ledger, ["capture_endpoint", "population_sha256"], String.duplicate("0", 64))
+      |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/duplicate run id/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "id"], "30729540659")
       |> validate_captured_ledger!()
     end
   end
@@ -559,6 +576,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
              ledger["closeout"]["status"] == "records_reconciled",
            do: raise(ArgumentError, "measured verdict or closeout")
 
+    capture = ledger["capture_endpoint"]
+
+    unless capture["captured_at"] == @capture_instant and
+             capture["population_sha256"] == @population_sha and
+             capture["source_command"] ==
+               "gh run list --repo szTheory/sigra --workflow ci.yml --limit 100 --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha" and
+             same_instant?(capture["captured_at"], @capture_instant),
+           do: raise(ArgumentError, "capture instant or source population")
+
     for event <- @events do
       measurement = ledger["measurements"][event]
 
@@ -665,6 +691,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     cutoff = ledger["topology_cutoff"]["committed_at"]
     endpoint = ledger["capture_endpoint"]["captured_at"]
 
+    unless endpoint == @capture_instant and ledger["capture_endpoint"]["population_sha256"] == @population_sha,
+      do: raise(ArgumentError, "capture instant or population SHA-256")
+
     for event <- @events do
       measurement = ledger["measurements"][event]
       command = measurement["command"] || ""
@@ -684,8 +713,16 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       ids = measurement["run_ids"]
       runs = measurement["runs"]
 
-      unless ids == Enum.map(runs, & &1["id"]) and length(ids) == length(Enum.uniq(ids)),
+      unless ids == Enum.map(runs, & &1["id"]) and length(ids) == length(Enum.uniq(ids)) and
+               Enum.all?(ids, &(is_integer(&1) and &1 > 0)),
         do: raise(ArgumentError, "duplicate run id")
+
+      unless Enum.all?(runs, fn run ->
+               is_integer(run["id"]) and run["id"] > 0 and
+                 run["url"] == "https://github.com/szTheory/sigra/actions/runs/#{run["id"]}" and
+                 is_binary(run["head_sha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["head_sha"])
+             end),
+             do: raise(ArgumentError, "positive run id or canonical URL")
 
       validate_window_bounds!(runs, event, cutoff, endpoint)
       statistics = recompute_statistics!(runs, event)
