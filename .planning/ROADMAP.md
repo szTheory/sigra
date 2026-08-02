@@ -269,7 +269,7 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: 18 plans in 9 waves
+**Plans**: 21 plans in 12 waves
 
 Plans:
 
@@ -317,6 +317,18 @@ Plans:
 **Wave 9** *(blocked on refreshed local and managed-service evidence)*
 
 - [x] 234-18-PLAN.md — Enforce the exact command-receipt inventory and ratify validation only from fully green evidence
+
+**Wave 10** *(gap closure after exact receipt-inventory ratification)*
+
+- [x] 234-19-PLAN.md — Bind each Playwright inventory row to its own direct marker or an explicit harness mapping
+
+**Wave 11** *(blocked on the Playwright ownership repair)*
+
+- [x] 234-20-PLAN.md — Validate every concrete evidence receipt and re-ratify the reviewed snapshot
+
+**Wave 12** *(blocked on concrete receipt validation)*
+
+- [ ] 234-21-PLAN.md — Reject every seventh evidence slot through the production completion transition
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
