@@ -181,7 +181,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   defp validate_spec!(%{"spec" => spec, "lanes" => lanes}, workflow, config)
        when is_binary(spec) and is_list(lanes) and lanes != [] do
-    Enum.each(lanes, &validate_lane!(&1, workflow, config))
+    Enum.each(lanes, &validate_lane!(spec, &1, workflow, config))
   end
 
   defp validate_spec!(%{"spec" => spec, "lanes" => []}, _workflow, _config),
@@ -190,7 +190,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
   defp validate_spec!(spec, _workflow, _config),
     do: raise(ArgumentError, "malformed inventory spec: #{inspect(spec)}")
 
-  defp validate_lane!(lane, workflow, config) do
+  defp validate_lane!(spec, lane, workflow, config) do
     for field <- ["workflow", "job", "seam", "events", "command_marker", "project", "config_seam"] do
       unless Map.has_key?(lane, field), do: raise(ArgumentError, "missing lane field: #{field}")
     end
@@ -217,8 +217,21 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       raise ArgumentError, "missing workflow event: #{Enum.join(lane["events"], ", ")}"
     end
 
-    unless job =~ lane["command_marker"] do
-      raise ArgumentError, "missing command marker: #{lane["command_marker"]}"
+    if String.starts_with?(lane["command_marker"], "tests/") do
+      expected_marker = direct_command_marker!(spec)
+
+      unless lane["command_marker"] == expected_marker do
+        raise ArgumentError,
+              "spec #{spec} must use direct command marker #{expected_marker}, got #{lane["command_marker"]}"
+      end
+
+      unless job =~ expected_marker do
+        raise ArgumentError, "missing command marker for #{spec}: #{expected_marker}"
+      end
+    else
+      unless job =~ lane["command_marker"] do
+        raise ArgumentError, "missing command marker for #{spec}: #{lane["command_marker"]}"
+      end
     end
 
     unless config =~ "name: '#{lane["project"]}'" do
@@ -229,6 +242,11 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       raise ArgumentError, "missing config seam: #{lane["config_seam"]}"
     end
   end
+
+  defp direct_command_marker!("test/example/priv/playwright/" <> spec), do: spec
+
+  defp direct_command_marker!(spec),
+    do: raise(ArgumentError, "unsupported Playwright spec path: #{spec}")
 
   defp live_specs do
     "test/example/priv/playwright/tests/*.spec.ts"
