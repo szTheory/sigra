@@ -328,7 +328,7 @@ Plans:
 
 **Wave 12** *(blocked on concrete receipt validation)*
 
-- [ ] 234-21-PLAN.md — Reject every seventh evidence slot through the production completion transition
+- [x] 234-21-PLAN.md — Reject every seventh evidence slot through the production completion transition
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 

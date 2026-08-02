@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: Completed 234-20-PLAN.md
-last_updated: "2026-08-02T14:54:25.913Z"
+stopped_at: Completed 234-21-PLAN.md
+last_updated: "2026-08-02T15:31:27.513Z"
 last_activity: 2026-08-02
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 54
-  completed_plans: 52
-  percent: 67
+  completed_plans: 54
+  percent: 83
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 20 of 20
+Plan: 2 of 21
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 98%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
 Last activity: 2026-08-02 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -426,6 +426,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Direct Playwright inventory rows derive and require their exact workflow spec marker.
 - [Phase ?]: Only admin-eval and admin-generated may use allowlisted harness-to-spec ownership mappings.
 - [Phase ?]: Phase 234 validation receipts bind every command to one reviewed SHA and a 30-minute UTC window.
+- [Phase ?]: Phase 234 completion accepts only the exact six evidence receipt keys; schema_version remains metadata.
+- [Phase ?]: Installer golden fixture tracks the pinned phx_new 1.8.8 scaffold rather than preserving stale 1.8.7 bytes.
 
 ### Pending Todos
 
@@ -570,8 +572,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T14:28:04.399Z
-Stopped at: Completed 234-20-PLAN.md
+Last session: 2026-08-02T15:31:27.497Z
+Stopped at: Completed 234-21-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -728,3 +730,4 @@ Resume file: None
 | Phase 234 P18 | 6 minutes | 2 tasks | 2 files |
 | Phase 234 P19 | 6min | 2 tasks | 2 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P20 | 14m | 2 tasks | 3 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P21 | 22m | 1 tasks | 3 files |
