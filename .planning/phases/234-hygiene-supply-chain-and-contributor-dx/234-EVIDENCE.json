@@ -79,7 +79,7 @@
     "default_branch_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
     "config_sha256": "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
     "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-    "diagnostics": "The gh-authenticated account has repository admin permission and the default-branch config was fetched and hashed, but the isolated deterministic browser has no authenticated GitHub session. GitHub returned its sign-in surface for the Dependabot job-log route, so no job IDs, timestamps, status summaries, or full-log URLs can be truthfully captured. Do not infer processing from the absence of Dependabot PRs.",
+    "diagnostics": "At 2026-08-02T02:29:42Z, the gh-authenticated account had repository admin permission and REST core remaining 4121/5000. The isolated deterministic browser still had no authenticated GitHub session and GitHub returned its sign-in surface for the Dependabot job-log route, so no job IDs, timestamps, status summaries, or full-log URLs can be truthfully captured. Do not infer processing from the absence of Dependabot PRs.",
     "slots": [
       {
         "ecosystem": "github-actions",

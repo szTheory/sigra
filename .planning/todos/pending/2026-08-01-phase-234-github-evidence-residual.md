@@ -21,6 +21,16 @@ URL was observed. The absence of a Dependabot PR is not evidence of processing.
 
 **Owner:** repository maintainer with a GitHub browser session that has write access.
 
+## Revalidation attempt — 2026-08-02T02:29:42Z
+
+`gh auth status` confirmed the `szTheory` account is active with repository access, and the
+single pre-collection `gh api rate_limit` check reported REST core `remaining: 4121` of
+`5000` (above the 250-request floor). The bounded deterministic browser then navigated once
+to the job-log surface and reached GitHub's sign-in form. No session state, cookies, page
+content, or logs were saved. This is an authentication boundary, not successful service
+processing; the three failed evidence rows remain authoritative until a maintainer-provided
+authenticated browser session exposes the exact job receipts.
+
 **Recheck:** Open <https://github.com/szTheory/sigra/network/updates>, use Insights →
 Dependency graph → Dependabot, and record `Recent update jobs` plus full-log URLs for
 each tuple in `234-EVIDENCE.json`. Then run:
