@@ -353,7 +353,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 235-02-PLAN.md — Capture the immutable run window and record the honest FAST-01 verdict
+- [x] 235-02-PLAN.md — Capture the immutable run window and record the honest FAST-01 verdict
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
