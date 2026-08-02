@@ -639,7 +639,14 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp validate_required_evidence!(receipts) do
     required =
-      MapSet.new(["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"])
+      MapSet.new([
+        "local_mix_ci",
+        "pr_ci",
+        "release",
+        "dependabot",
+        "gallery",
+        "historical_gallery"
+      ])
 
     assert MapSet.new(Map.keys(Map.delete(receipts, "schema_version"))) == required,
            "evidence must contain the exact required six-slot set"
@@ -819,7 +826,9 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
             "mix test test/sigra/planning/phase_234_evidence_contract_test.exs",
             global: false
           ),
-          String.replace(validation, row, String.replace(row, "✅ green", "⬜ pending"), global: false)
+          String.replace(validation, row, String.replace(row, "✅ green", "⬜ pending"),
+            global: false
+          )
         ] do
       error = assert_raise ExUnit.AssertionError, fn -> parse_validation!(mutated) end
 
