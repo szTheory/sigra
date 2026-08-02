@@ -527,16 +527,16 @@
           "state": "executed"
         },
         "after": {
-          "direct_owner": "ci_gate",
-          "seam": "ci_gate",
+          "direct_owner": "ci-gate",
+          "seam": "ci-gate",
           "invocation": "ci-gate",
           "terminal_aggregate": {
-            "id": "ci_gate",
+            "id": "ci-gate",
             "name": "ci-gate"
           },
           "state": "executed"
         },
-        "receiver": "ci_gate",
+        "receiver": "ci-gate",
         "phase": "231-gate-honesty-nightly-revival",
         "receipt": "phase_232_playwright_suite"
       },
@@ -555,16 +555,16 @@
           "state": "executed"
         },
         "after": {
-          "direct_owner": "ci_gate",
-          "seam": "ci_gate",
+          "direct_owner": "ci-gate",
+          "seam": "ci-gate",
           "invocation": "ci-gate",
           "terminal_aggregate": {
-            "id": "ci_gate",
+            "id": "ci-gate",
             "name": "ci-gate"
           },
           "state": "executed"
         },
-        "receiver": "ci_gate",
+        "receiver": "ci-gate",
         "phase": "231-gate-honesty-nightly-revival",
         "receipt": "phase_232_playwright_suite"
       },
@@ -583,16 +583,16 @@
           "state": "executed"
         },
         "after": {
-          "direct_owner": "ci_gate",
-          "seam": "ci_gate",
+          "direct_owner": "ci-gate",
+          "seam": "ci-gate",
           "invocation": "ci-gate",
           "terminal_aggregate": {
-            "id": "ci_gate",
+            "id": "ci-gate",
             "name": "ci-gate"
           },
           "state": "executed"
         },
-        "receiver": "ci_gate",
+        "receiver": "ci-gate",
         "phase": "231-gate-honesty-nightly-revival",
         "receipt": "phase_232_playwright_suite"
       },
@@ -2992,6 +2992,7 @@
         "run_id": 30723615281,
         "run_url": "https://github.com/szTheory/sigra/actions/runs/30723615281",
         "wall_seconds": 772,
+        "source_receipt": {"command": "gh run view 30723615281 --repo szTheory/sigra --json databaseId,event,url,jobs", "output": "{\"databaseId\":30723615281,\"event\":\"pull_request\",\"jobs\":[{\"completedAt\":\"2026-08-01T23:47:12Z\",\"conclusion\":\"success\",\"name\":\"Library tests shard\",\"startedAt\":\"2026-08-01T23:35:50Z\"}],\"url\":\"https://github.com/szTheory/sigra/actions/runs/30723615281\"}\n", "sha256": "0d7931c57fd538a97b32204f61200c9178b9c621361a021424ce62085e58fedc"},
         "command": "bash scripts/ci/ci-run-metrics.sh --jobs 30723615281 --format json",
         "output_sha256": "5cabeeee382cdf9ecf6c89c2718c540ee32e4025723ada56fd858846d019466e",
         "binding_pole": {"name": "Library tests shard", "conclusion": "success", "duration_seconds": 682}
@@ -3001,6 +3002,7 @@
         "run_id": 30723593560,
         "run_url": "https://github.com/szTheory/sigra/actions/runs/30723593560",
         "wall_seconds": 1447,
+        "source_receipt": {"command": "gh run view 30723593560 --repo szTheory/sigra --json databaseId,event,url,jobs", "output": "{\"databaseId\":30723593560,\"event\":\"pull_request\",\"jobs\":[{\"completedAt\":\"2026-08-01T23:58:18Z\",\"conclusion\":\"success\",\"name\":\"Example Playwright shard (admin_checkpoints)\",\"startedAt\":\"2026-08-01T23:40:36Z\"}],\"url\":\"https://github.com/szTheory/sigra/actions/runs/30723593560\"}\n", "sha256": "d12a65e97338436e2855ebbccb93e824ed7941c530d61c9559741912c00ccbe2"},
         "command": "bash scripts/ci/ci-run-metrics.sh --jobs 30723593560 --format json",
         "output_sha256": "87596429cc1f932790e8d21729e32f41ea5b3a562eefc61bcf590cd812b792dc",
         "binding_pole": {"name": "Example Playwright shard (admin_checkpoints)", "conclusion": "success", "duration_seconds": 1062}

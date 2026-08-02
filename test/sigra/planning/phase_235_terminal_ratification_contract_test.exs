@@ -785,6 +785,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
                    is_map(receipt["binding_pole"]) and is_binary(receipt["binding_pole"]["name"])
                end),
              do: raise(ArgumentError, "miss receipt")
+
+      validate_binding_pole_receipts!(receipts, ledger["measurements"]["pull_request"]["runs"])
     else
       unless receipts == [], do: raise(ArgumentError, "pass receipt")
     end
@@ -797,6 +799,33 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
            do: raise(ArgumentError, "closeout verdict")
 
     :ok
+  end
+
+  defp validate_binding_pole_receipts!(receipts, pr_runs) do
+    for receipt <- receipts do
+      run = Enum.find(pr_runs, &(&1["id"] == receipt["run_id"])) || raise(ArgumentError, "binding run id")
+      source = receipt["source_receipt"] || %{}
+
+      unless source["command"] == "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json databaseId,event,url,jobs" and
+               is_binary(source["output"]) and is_binary(source["sha256"]) and
+               source["sha256"] == sha256_hex(source["output"]),
+             do: raise(ArgumentError, "binding source receipt")
+
+      source_run = Jason.decode!(source["output"])
+      pole = receipt["binding_pole"]
+
+      unless source_run["databaseId"] == run["id"] and source_run["event"] == "pull_request" and
+               source_run["url"] == run["url"] and receipt["run_url"] == run["url"] and
+               is_list(source_run["jobs"]) and
+               Enum.count(source_run["jobs"], &(&1["name"] == pole["name"])) == 1,
+             do: raise(ArgumentError, "binding source identity or job")
+
+      job = Enum.find(source_run["jobs"], &(&1["name"] == pole["name"]))
+      duration = max(DateTime.diff(parse_timestamp!(job["completedAt"]), parse_timestamp!(job["startedAt"]), :second), 0)
+
+      unless job["conclusion"] == pole["conclusion"] and duration == pole["duration_seconds"],
+        do: raise(ArgumentError, "binding job duration")
+    end
   end
 
   defp validate_closeout_records!(ledger, _contributing, seed, milestone_arc, residual) do
