@@ -73,8 +73,8 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert :ok = validate_local_mix_ci_receipt!(receipt)
 
     mutations = [
-      {"mismatched lock hashes", Map.put(receipt, "mix_lock_sha256_after", String.duplicate("0", 64)),
-       "mix_lock_sha256"},
+      {"mismatched lock hashes",
+       Map.put(receipt, "mix_lock_sha256_after", String.duplicate("0", 64)), "mix_lock_sha256"},
       {"mismatched status hashes",
        Map.put(receipt, "git_status_sha256_after", String.duplicate("0", 64)),
        "git_status_sha256"},
@@ -105,6 +105,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     assert receipt["golden_idempotency_status"] == "passed",
            "golden_idempotency_status must be passed"
+
     assert receipt["exit_status"] == 0
     assert receipt["command"] == "MIX_ENV=test mix ci"
     assert receipt["ordered_legs"] == @mix_ci_legs
@@ -130,8 +131,10 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert_sha256!(receipt["mix_lock_sha256_after"], "mix_lock_sha256_after")
     assert_sha256!(receipt["git_status_sha256_before"], "git_status_sha256_before")
     assert_sha256!(receipt["git_status_sha256_after"], "git_status_sha256_after")
+
     assert receipt["mix_lock_sha256_before"] == receipt["mix_lock_sha256_after"],
            "mix_lock_sha256 before/after must match"
+
     assert receipt["git_status_sha256_before"] == receipt["git_status_sha256_after"],
            "git_status_sha256 before/after must match"
 
