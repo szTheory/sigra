@@ -13,10 +13,23 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   ]
   @command_receipt_commands [
     "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence",
-    "mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs",
-    "mix test test/sigra/planning/",
+    "mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --exclude validation_signoff",
+    "mix test test/sigra/planning/ --exclude validation_signoff",
     "mix format --check-formatted",
     "test -z \"$(git diff --name-only -- test/fixtures/install_golden/tree)\" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs"
+  ]
+  @required_gap_task_receipts [
+    {"234-19-01", "mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+     "✅ green"},
+    {"234-19-02",
+     "mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs && mix test test/sigra/planning/phase_232_playwright_economics_test.exs",
+     "✅ green"},
+    {"234-20-01",
+     "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff --only final_evidence",
+     "✅ green"},
+    {"234-20-02",
+     "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+     "✅ green"}
   ]
   @mix_ci_legs [
     "format --check-formatted",
@@ -654,14 +667,20 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
              frontmatter: %{
                "status" => "complete",
                "nyquist_compliant" => "true",
-               "wave_0_complete" => "true"
+               "wave_0_complete" => "true",
+               "reviewed_commit_sha" => reviewed_commit_sha,
+               "reviewed_at" => reviewed_at
              },
              quick_run_paths: @quick_run_paths,
              wave_0_items: wave_0_items,
              task_statuses: task_statuses,
              command_receipts: command_receipts,
+             gap_task_receipts: @required_gap_task_receipts,
              approval: approval
            } = parsed = parse_validation!(validation)
+
+    assert reviewed_commit_sha =~ ~r/\A[0-9a-f]{40}\z/
+    assert match?({:ok, _, 0}, DateTime.from_iso8601(reviewed_at))
 
     assert Enum.all?(wave_0_items, & &1.complete)
     assert Enum.all?(task_statuses, &(&1 == "✅ green"))
@@ -670,6 +689,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
              assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
 
     assert approval =~ "machine evidence ratified"
+    assert approval =~ "234-19-01, 234-19-02, 234-20-01, and 234-20-02"
   end
 
   @tag :validation_signoff
@@ -713,7 +733,9 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     complete = %{
       "status" => "complete",
       "nyquist_compliant" => "true",
-      "wave_0_complete" => "true"
+      "wave_0_complete" => "true",
+      "reviewed_commit_sha" => String.duplicate("b", 40),
+      "reviewed_at" => "2026-08-02T04:00:00Z"
     }
 
     green_commands = green_command_receipts()
@@ -755,10 +777,18 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     complete = %{
       "status" => "complete",
       "nyquist_compliant" => "true",
-      "wave_0_complete" => "true"
+      "wave_0_complete" => "true",
+      "reviewed_commit_sha" => String.duplicate("b", 40),
+      "reviewed_at" => "2026-08-02T04:00:00Z"
     }
 
-    draft = %{"status" => "draft", "nyquist_compliant" => "false", "wave_0_complete" => "false"}
+    draft = %{
+      "status" => "draft",
+      "nyquist_compliant" => "false",
+      "wave_0_complete" => "false",
+      "reviewed_commit_sha" => String.duplicate("b", 40),
+      "reviewed_at" => "2026-08-02T04:00:00Z"
+    }
 
     assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
 
@@ -792,7 +822,27 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
            List.replace_at(green_commands, 0, %{
              List.first(green_commands)
              | command: "mix test stale"
-           }), "exact ordered command inventory"}
+           }), "exact ordered command inventory"},
+          {"wrong commit SHA",
+           List.replace_at(green_commands, 0, %{
+             List.first(green_commands)
+             | commit_sha: String.duplicate("c", 40)
+           }), "commit_sha"},
+          {"stale timestamp",
+           List.replace_at(green_commands, 0, %{
+             List.first(green_commands)
+             | timestamp: "2026-08-02T03:29:59Z"
+           }), "freshness"},
+          {"future timestamp",
+           List.replace_at(green_commands, 0, %{
+             List.first(green_commands)
+             | timestamp: "2026-08-02T04:00:01Z"
+           }), "freshness"},
+          {"non-monotonic timestamp",
+           List.replace_at(green_commands, 1, %{
+             Enum.at(green_commands, 1)
+             | timestamp: "2026-08-02T03:59:59Z"
+           }), "nondecreasing"}
         ]
 
     for {name, commands, error_message} <- mutations do
@@ -823,7 +873,8 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
         command: command,
         timestamp: "2026-08-02T04:00:00Z",
         exit_status: "0",
-        output_hash: String.duplicate("a", 64)
+        output_hash: String.duplicate("a", 64),
+        commit_sha: String.duplicate("b", 40)
       }
     end)
   end
@@ -834,10 +885,20 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     quick_run_paths = parse_quick_run_paths!(body)
     wave_0_items = parse_wave_0_items!(body)
     task_statuses = parse_task_statuses!(body)
+    gap_task_receipts = parse_gap_task_receipts!(body)
     command_receipts = parse_command_receipts!(body)
     approval = parse_approval!(body)
 
-    assert :ok = validate_command_receipts!(command_receipts)
+    assert :ok = validate_review_fields!(frontmatter)
+
+    assert :ok =
+             validate_command_receipts!(
+               command_receipts,
+               frontmatter["reviewed_commit_sha"],
+               frontmatter["reviewed_at"]
+             )
+
+    assert :ok = validate_gap_task_receipts!(gap_task_receipts)
 
     assert quick_run_paths == @quick_run_paths,
            "quick-run contract inventory must equal the exact six focused contract paths; got: #{inspect(quick_run_paths)}"
@@ -854,6 +915,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
       quick_run_paths: quick_run_paths,
       wave_0_items: wave_0_items,
       task_statuses: task_statuses,
+      gap_task_receipts: gap_task_receipts,
       command_receipts: command_receipts,
       approval: approval
     }
@@ -902,18 +964,28 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp parse_command_receipts!(body) do
     Regex.scan(
-      ~r/^\| `(.+?)` \| (\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ) \| (\d+) \| `([0-9a-f]{64})` \|$/m,
+      ~r/^\| `(.+?)` \| (\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ) \| (\d+) \| `([0-9a-f]{64})` \| `([0-9a-f]{40})` \|$/m,
       body,
       capture: :all_but_first
     )
-    |> Enum.map(fn [command, timestamp, exit_status, output_hash] ->
+    |> Enum.map(fn [command, timestamp, exit_status, output_hash, commit_sha] ->
       %{
         command: command,
         timestamp: timestamp,
         exit_status: exit_status,
-        output_hash: output_hash
+        output_hash: output_hash,
+        commit_sha: commit_sha
       }
     end)
+  end
+
+  defp parse_gap_task_receipts!(body) do
+    Regex.scan(
+      ~r/^\| (234-(?:19|20)-\d\d) \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| (.+?) \| [^|]* \| (✅ green|⬜ pending|❌ red|⚠️ flaky) \|$/m,
+      body,
+      capture: :all_but_first
+    )
+    |> Enum.map(fn [task_id, command, status] -> {task_id, command, status} end)
   end
 
   defp parse_approval!(body) do
@@ -923,7 +995,26 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     end
   end
 
-  defp validate_command_receipts!(command_receipts) when is_list(command_receipts) do
+  defp validate_review_fields!(frontmatter) do
+    assert frontmatter["reviewed_commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/,
+           "reviewed_commit_sha must be a lowercase 40-character SHA"
+
+    assert is_binary(frontmatter["reviewed_at"]) and
+             match?({:ok, _, 0}, DateTime.from_iso8601(frontmatter["reviewed_at"])),
+           "reviewed_at must be a UTC ISO-8601 timestamp"
+
+    :ok
+  end
+
+  defp validate_gap_task_receipts!(gap_task_receipts) do
+    assert gap_task_receipts == @required_gap_task_receipts,
+           "gap task verification rows must equal the exact ordered Plans 19–20 tuple set; got: #{inspect(gap_task_receipts)}"
+
+    :ok
+  end
+
+  defp validate_command_receipts!(command_receipts, reviewed_commit_sha, reviewed_at)
+       when is_list(command_receipts) do
     assert length(command_receipts) == length(@command_receipt_commands),
            "command receipt inventory must contain exactly five rows"
 
@@ -932,6 +1023,9 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     assert Enum.uniq_by(command_receipts, & &1.command) == command_receipts,
            "command receipt inventory must not contain duplicate commands"
+
+    {:ok, reviewed_at, 0} = DateTime.from_iso8601(reviewed_at)
+    earliest = DateTime.add(reviewed_at, -1_800, :second)
 
     Enum.each(command_receipts, fn receipt ->
       assert is_binary(receipt.command) and String.trim(receipt.command) != "",
@@ -945,18 +1039,43 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
       assert is_binary(receipt.output_hash) and receipt.output_hash =~ ~r/\A[0-9a-f]{64}\z/,
              "command receipt output_hash must be a lowercase SHA-256"
+
+      assert receipt.commit_sha == reviewed_commit_sha,
+             "command receipt commit_sha must equal reviewed_commit_sha"
+
+      {:ok, timestamp, 0} = DateTime.from_iso8601(receipt.timestamp)
+
+      assert DateTime.compare(timestamp, earliest) != :lt and
+               DateTime.compare(timestamp, reviewed_at) != :gt,
+             "command receipt freshness must be within the reviewed 1,800-second interval"
     end)
+
+    timestamps =
+      Enum.map(command_receipts, fn receipt ->
+        {:ok, timestamp, 0} = DateTime.from_iso8601(receipt.timestamp)
+        timestamp
+      end)
+
+    assert timestamps == Enum.sort(timestamps, {:asc, DateTime}),
+           "command receipt timestamps must be nondecreasing"
 
     :ok
   end
 
-  defp validate_command_receipts!(_command_receipts),
+  defp validate_command_receipts!(_command_receipts, _reviewed_commit_sha, _reviewed_at),
     do: flunk("command receipt inventory must be a list")
 
   defp assert_transition_allowed!(frontmatter, receipts, command_receipts) do
     transition_fields = Map.take(frontmatter, ["status", "nyquist_compliant", "wave_0_complete"])
 
-    assert :ok = validate_command_receipts!(command_receipts)
+    assert :ok = validate_review_fields!(frontmatter)
+
+    assert :ok =
+             validate_command_receipts!(
+               command_receipts,
+               frontmatter["reviewed_commit_sha"],
+               frontmatter["reviewed_at"]
+             )
 
     evidence_statuses_green? =
       Enum.all?(
