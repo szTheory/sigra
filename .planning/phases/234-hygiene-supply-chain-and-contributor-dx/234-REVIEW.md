@@ -1,14 +1,12 @@
 ---
 phase: 234-hygiene-supply-chain-and-contributor-dx
-reviewed: 2026-08-02T01:37:34Z
-depth: deep
-files_reviewed: 67
+reviewed: 2026-08-01T23:22:07Z
+depth: standard
+files_reviewed: 61
 files_reviewed_list:
-  - .formatter.exs
   - .github/dependabot.yml
   - .github/workflows/ci.yml
   - .github/workflows/release-please.yml
-  - CONTRIBUTING.md
   - lib/mix/tasks/sigra.install.ex
   - lib/sigra/admin/components.ex
   - lib/sigra/admin/organizations/detail.ex
@@ -27,14 +25,11 @@ files_reviewed_list:
   - lib/sigra/oauth/enterprise_reconciliation.ex
   - lib/sigra/organizations/invitations.ex
   - lib/sigra/workers/audit_forward.ex
-  - mix.exs
   - test/example/lib/example/demo/branding.ex
   - test/example/lib/example/demo/personas.ex
   - test/example/lib/example/demo/seeds.ex
   - test/example/lib/example_web/live/settings_live.ex
   - test/example/priv/playwright/playwright.config.ts
-  - test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts
-  - test/example/priv/playwright/tests/admin-theme.spec.ts
   - test/example/priv/repo/migrations/20260410125245_create_organizations.exs
   - test/example/priv/repo/migrations/20260525010000_create_enterprise_connections.exs
   - test/example/priv/repo/migrations/20260528152137_threadline_audit_schema.exs
@@ -69,63 +64,61 @@ files_reviewed_list:
   - test/sigra/planning/phase_234_dependabot_contract_test.exs
   - test/sigra/planning/phase_234_evidence_contract_test.exs
   - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
-  - test/sigra/planning/phase_58_oauth_oa01_ci_contract_test.exs
   - test/sigra/workers/audit_forward_test.exs
 findings:
-  critical: 1
+  critical: 2
   warning: 1
   info: 0
-  total: 2
+  total: 3
 status: issues_found
 ---
 
 # Phase 234: Code Review Report
 
-**Reviewed:** 2026-08-02T01:37:34Z
-**Depth:** deep
-**Files Reviewed:** 67
+**Reviewed:** 2026-08-01T23:22:07Z
+**Depth:** standard
+**Files Reviewed:** 61
 **Status:** issues_found
 
 ## Summary
 
-The CI, supply-chain, Playwright ownership, validation contracts, and formatter batches were reviewed. The focused Phase 234 contract suite passes (29 tests), but two defects remain: the claimed fail-closed sign-off can be completed without any command receipts, and the advertised local `mix ci` command destructively modifies the contributor's lockfile.
-
-## Narrative Findings (AI reviewer)
+The configured GitHub Actions use immutable SHA pins and the focused Phase 234 contract suite passes (23 tests). However, the new machine-evidence completion gate can ratify stale or structurally invalid service evidence, and the Playwright ownership inventory can claim a spec is covered by a lane that executes a different spec. These defects undermine Phase 234's stated fail-closed evidence and ownership guarantees.
 
 ## Critical Issues
 
-### CR-01: Validation completion accepts an empty command-receipt set
+### CR-01: Completion authorization accepts a bare `status: success` for every evidence slot
 
-**Classification:** BLOCKER
+**File:** `test/sigra/planning/phase_234_evidence_contract_test.exs:741`
+**Issue:** `assert_transition_allowed!/3` authorizes the completed validation state when each receipt is merely a map with `"status" => "success"`. It does not call `validate_local_mix_ci_receipt!/1`, `validate_dependabot_receipt!/1`, or equivalent validators for PR, release, and gallery receipts. Thus a malformed or fabricated slot (for example `%{"status" => "success"}`) is sufficient to authorize `status: complete`, despite the intended exact, fail-closed evidence gate. The mutation test itself demonstrates this bypass by using six such bare maps at line 532 and expecting completion at line 543.
 
-**File:** `test/sigra/planning/phase_234_evidence_contract_test.exs:516`
-
-**Issue:** `Enum.all?([], ...)` returns `true`. Once the external evidence slots are green, `assert_transition_allowed!/3` accepts the complete frontmatter even when all command-receipt rows have been deleted. This contradicts the plan's stated fail-closed requirement and permits a Nyquist-complete claim without any local verification receipts. The mutation coverage checks a red receipt but never a missing/empty receipt set.
-
-**Fix:** Require the exact expected receipt inventory and validate each receipt before declaring it green. For example:
+**Fix:** Make the transition function validate each concrete receipt before testing the transition fields, and add mutations that pass malformed `status: success` slots to the real sign-off path. For example:
 
 ```elixir
-commands_green? =
-  length(command_receipts) == 5 and
-    Enum.all?(command_receipts, &(valid_command_receipt?(&1) and &1.exit_status == "0"))
+assert :ok = validate_local_mix_ci_receipt!(receipts["local_mix_ci"])
+assert :ok = validate_pr_ci_receipt!(receipts["pr_ci"])
+assert :ok = validate_release_receipt!(receipts["release"])
+assert :ok = validate_dependabot_receipt!(receipts["dependabot"])
+assert :ok = validate_gallery_receipt!(receipts["gallery"])
 ```
 
-Add an assertion that `assert_transition_allowed!(complete, green_evidence, [])` is blocked, plus cases for missing and malformed rows.
+### CR-02: Command receipts are neither fresh nor bound to the reviewed revision
+
+**File:** `test/sigra/planning/phase_234_evidence_contract_test.exs:706`
+**Issue:** The exact-inventory validator checks only command text, syntactic UTC timestamps, exit code, and hash shape. It does not require a receipt commit SHA, bind it to `HEAD`, or impose any freshness limit. An old successful five-command table can therefore authorize the current validation after source or evidence changes. The purported “stale command” mutation at lines 571-575 changes the command string, not its timestamp or revision, so it does not test this failure mode.
+
+**Fix:** Add a commit SHA to every receipt and require it to equal the validated phase revision (or require a signed/CI-attested run for that SHA). Also reject timestamps outside a documented validity window and add stale-timestamp and wrong-SHA mutation tests.
 
 ## Warnings
 
-### WR-01: The documented local CI gate leaves `mix.lock` changed
+### WR-01: Playwright inventory validation does not bind a spec to its claimed command marker
 
-**Classification:** WARNING
+**File:** `test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:159`
+**Issue:** `validate_spec!/3` passes only the lane object to `validate_lane!/3`; the spec path is discarded. `validate_lane!/3` then verifies that `command_marker` occurs somewhere in the job, not that it is the basename/path of this inventory entry. Replacing `admin-theme.spec.ts`'s marker with another existing marker in `example_playwright_shard` leaves the inventory valid while falsely reporting `admin-theme` as owned. This can silently remove browser coverage during a future shard edit.
 
-**File:** `mix.exs:163-168`
-
-**Issue:** `mix ci` now calls `sigra.dep_off`, whose first leg is `deps.unlock threadline`. Unlike the preceding `--check-unused` leg, `deps.unlock threadline` is destructive: it removes the direct dependency lock entry and writes `mix.lock`. Thus a successful local command advertised as a contributor gate leaves a tracked file dirty and the workspace missing the optional dependency; the documentation actively directs contributors to run it at `CONTRIBUTING.md:13-23`. CI gets a disposable checkout, but developer worktrees do not.
-
-**Fix:** Keep the destructive dep-off proof in an isolated CI workspace/process, or restore the original lock/dependency state reliably before the alias returns. Prefer a dedicated script that copies `mix.lock` to a temporary location, runs the dep-off check, and restores it in an `after`/shell `trap`; verify `git diff --exit-code -- mix.lock` after `mix ci`.
+**Fix:** Pass `spec` to `validate_lane!/4`, require the marker to execute that exact spec (with explicit exceptions for harness-owned specs), and add a mutation which swaps two valid existing markers and must fail.
 
 ---
 
-_Reviewed: 2026-08-02T01:37:34Z_
+_Reviewed: 2026-08-01T23:22:07Z_
 _Reviewer: the agent (gsd-code-reviewer)_
-_Depth: deep_
+_Depth: standard_
