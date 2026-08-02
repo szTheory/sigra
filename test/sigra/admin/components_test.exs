@@ -713,7 +713,9 @@ defmodule Sigra.Admin.ComponentsTest do
         next_href: "/admin/audit?cursor=next-cursor"
       )
 
-    assert html =~ ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+    assert html =~
+             ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+
     refute html =~ ~s(href="/admin/audit?cursor=previous-cursor")
     assert html =~ ~s(href="/admin/audit?cursor=next-cursor")
   end
@@ -726,7 +728,9 @@ defmodule Sigra.Admin.ComponentsTest do
         next_href: "/admin/audit?cursor=next-cursor"
       )
 
-    assert html =~ ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+    assert html =~
+             ~s(<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">)
+
     assert html =~ ~s(href="/admin/audit?cursor=previous-cursor")
     refute html =~ ~s(href="/admin/audit?cursor=next-cursor")
   end
