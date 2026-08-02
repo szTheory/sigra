@@ -3,12 +3,14 @@
   "local_mix_ci": {
     "status": "success",
     "conclusion": "success",
-    "commit_sha": "4a743aaa19ade881b04e2a78b63b8cb00d91edba",
+    "commit_sha": "d78381a423d7470683e226e39b1086116a7ecb7b",
     "clean_before": true,
+    "clean_after": true,
     "detached_worktree": true,
+    "dependency_restore_verified": true,
     "command": "MIX_ENV=test mix ci",
-    "started_at": "2026-08-01T22:06:52Z",
-    "completed_at": "2026-08-01T22:10:54Z",
+    "started_at": "2026-08-02T03:01:51Z",
+    "completed_at": "2026-08-02T03:07:16Z",
     "exit_status": 0,
     "ordered_legs": [
       "format --check-formatted",
@@ -21,9 +23,20 @@
     ],
     "formatter_check": "passed",
     "golden_tree": "unchanged",
-    "log_sha256": "f64c6b44d6aef4d98295196e117f5969e8b4ebc411c89e81f94235a28e0a97a3",
-    "command_output_path": "/tmp/sigra-234-09-final.nrvDis/mix-ci.log",
-    "diagnostics": "Succeeded after MIX_ENV=test mix deps.get bootstrap in a clean detached checkout; the captured log was removed after hashing."
+    "golden_idempotency_status": "passed",
+    "mix_lock_sha256_before": "00aae780dd5c56ded217abe8d76bbbaf588f218ca5a2769a4114ef915e7d909f",
+    "mix_lock_sha256_after": "00aae780dd5c56ded217abe8d76bbbaf588f218ca5a2769a4114ef915e7d909f",
+    "git_status_sha256_before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_status_sha256_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log_sha256": "ce9df11a01e38b9a31df295230f341544bf175b37f4c78a76709ed93171db30f",
+    "command_output_path": "removed from harness-owned temporary directory after hashing",
+    "prior_failed_attempt": {
+      "status": "failed",
+      "commit_sha": "d78381a423d7470683e226e39b1086116a7ecb7b",
+      "log_sha256": "ef24d106af587adb408bf34160fdd507070d969bbf3fd50d3b2c61901db2acd3",
+      "diagnostics": "Fresh detached worktree lacked compiled locked dependencies before the formatter leg; the harness was removed after sanitizing the failed log hash."
+    },
+    "diagnostics": "A fresh detached worktree bootstrapped locked dependencies before one literal MIX_ENV=test mix ci run. All seven ordered legs, including golden/idempotency, passed; post-run locked dependency retrieval and threadline compilation passed; lockfile and normalized status hashes remained identical; harness-owned raw logs were removed after hashing."
   },
   "pr_ci": {
     "status": "success",

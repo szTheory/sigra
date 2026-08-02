@@ -96,11 +96,15 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp validate_local_mix_ci_receipt!(receipt) do
     assert receipt["conclusion"] == "success"
-    assert receipt["clean_before"] == true
-    assert receipt["clean_after"] == true
-    assert receipt["detached_worktree"] == true
-    assert receipt["dependency_restore_verified"] == true
-    assert receipt["golden_idempotency_status"] == "passed"
+    assert receipt["clean_before"] == true, "clean_before must be true"
+    assert receipt["clean_after"] == true, "clean_after must be true"
+    assert receipt["detached_worktree"] == true, "detached_worktree must be true"
+
+    assert receipt["dependency_restore_verified"] == true,
+           "dependency_restore_verified must be true"
+
+    assert receipt["golden_idempotency_status"] == "passed",
+           "golden_idempotency_status must be passed"
     assert receipt["exit_status"] == 0
     assert receipt["command"] == "MIX_ENV=test mix ci"
     assert receipt["ordered_legs"] == @mix_ci_legs
