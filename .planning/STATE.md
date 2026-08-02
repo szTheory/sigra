@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Completed 235-03-PLAN.md
-last_updated: "2026-08-02T18:45:18.437Z"
+stopped_at: Completed 235-04-PLAN.md
+last_updated: "2026-08-02T19:04:48.386Z"
 last_activity: 2026-08-02
 last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
   completed_phases: 6
   total_plans: 58
-  completed_plans: 57
+  completed_plans: 58
   percent: 100
 ---
 
@@ -30,8 +30,8 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Plan: 4 of 4
+Status: Awaiting phase verification; FAST-01 remains an owned measured residual
 Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
 Last activity: 2026-08-02 — Phase 235 execution started
 
@@ -433,6 +433,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Plan 02 sealed same-window PR/push/schedule receipts; Plan 03 alone reconciles records.
 - [Phase ?]: FAST-01 remains unmet: 19 retained PR runs produced a 772-second p50, which is not strictly less than 720 seconds.
 - [Phase ?]: GATE-05 is reconciled only after one focused contract validates the contributor topology and both closeout records against the terminal ledger.
+- [Phase ?]: FAST-01 remains unmet: receipt-bound recomputation confirms 19 PR runs with a 772-second p50, above the strict 720-second threshold.
+- [Phase ?]: GATE-05 ownership is closed under exact 93-key equality from the Phase 234 inventory and declared non-Playwright families.
 
 ### Pending Todos
 
@@ -577,8 +579,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T18:20:38.651Z
-Stopped at: Completed 235-03-PLAN.md
+Last session: 2026-08-02T19:04:48.374Z
+Stopped at: Completed 235-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -739,3 +741,4 @@ Resume file: None
 | Phase 235 P01 | 6min | 2 tasks | 2 files |
 | Phase 235-terminal-ratification-measured-not-read P02 | 9min | 2 tasks | 2 files |
 | Phase 235 P03 | 5min | 2 tasks | 6 files |
+| Phase 235-terminal-ratification-measured-not-read P04 | 10min | 3 tasks | 3 files |
