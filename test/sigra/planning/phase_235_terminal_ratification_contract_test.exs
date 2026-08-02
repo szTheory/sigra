@@ -124,6 +124,12 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "captured windows require one immutable bounded terminal population and literal wall-mode provenance" do
+    ledger = ledger!()
+
+    assert validate_captured_ledger!(ledger) == :ok
+  end
+
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
@@ -197,6 +203,25 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
   defp validate_rows!(_), do: raise(ArgumentError, "ownership rows")
+
+  defp validate_captured_ledger!(ledger) do
+    unless ledger["capture_endpoint"]["status"] == "captured", do: raise(ArgumentError, "captured endpoint")
+
+    for event <- @events do
+      measurement = ledger["measurements"][event]
+      command = measurement["command"] || ""
+
+      unless measurement["status"] == "captured" and is_list(measurement["run_ids"]) and
+               command =~ "--mode wall" and command =~ "--since 2026-08-01T02:06:30Z" and
+               command =~ "--event #{event}" and command =~ "--limit 100" and command =~ "--format json" do
+        raise(ArgumentError, "captured wall measurement #{event}")
+      end
+    end
+
+    pull_request = ledger["measurements"]["pull_request"]
+    unless length(pull_request["run_ids"]) >= 10, do: raise(ArgumentError, "eligible pull request count")
+    :ok
+  end
 
   defp same_instant?(left, right) do
     {:ok, left, _} = DateTime.from_iso8601(left)
