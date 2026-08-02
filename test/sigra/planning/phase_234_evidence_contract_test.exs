@@ -29,6 +29,9 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
      "✅ green"},
     {"234-20-02",
      "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+     "✅ green"},
+    {"234-21-01",
+     "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
      "✅ green"}
   ]
   @mix_ci_legs [
@@ -769,6 +772,38 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
+  test "production transition rejects every unexpected seventh evidence slot" do
+    complete = %{
+      "status" => "complete",
+      "nyquist_compliant" => "true",
+      "wave_0_complete" => "true",
+      "reviewed_commit_sha" => String.duplicate("b", 40),
+      "reviewed_at" => "2026-08-02T04:00:00Z"
+    }
+
+    green_commands = green_command_receipts()
+    green_evidence = evidence()
+
+    assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
+
+    for {slot, receipt} <- [
+          {"unexpected_failed", %{"status" => "failed"}},
+          {"unexpected_malformed_success", %{"status" => "success"}}
+        ] do
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          assert_transition_allowed!(
+            complete,
+            Map.put(green_evidence, slot, receipt),
+            green_commands
+          )
+        end
+
+      assert error.message =~ "exact required six-slot set" or error.message =~ slot
+    end
+  end
+
+  @tag :validation_signoff
   test "shared exact command receipt validator rejects every incomplete mutation and transition stays draft" do
     slots = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
     green_evidence = evidence()
@@ -981,7 +1016,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp parse_gap_task_receipts!(body) do
     Regex.scan(
-      ~r/^\| (234-(?:19|20)-\d\d) \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| (.+?) \| [^|]* \| (✅ green|⬜ pending|❌ red|⚠️ flaky) \|$/m,
+      ~r/^\| (234-(?:19|20|21)-\d\d) \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| [^|]* \| (.+?) \| [^|]* \| (✅ green|⬜ pending|❌ red|⚠️ flaky) \|$/m,
       body,
       capture: :all_but_first
     )
@@ -1008,7 +1043,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp validate_gap_task_receipts!(gap_task_receipts) do
     assert gap_task_receipts == @required_gap_task_receipts,
-           "gap task verification rows must equal the exact ordered Plans 19–20 tuple set; got: #{inspect(gap_task_receipts)}"
+           "gap task verification rows must equal the exact ordered Plans 19–21 tuple set; got: #{inspect(gap_task_receipts)}"
 
     :ok
   end
