@@ -1,14 +1,10 @@
 ---
 phase: 234-hygiene-supply-chain-and-contributor-dx
-reviewed: 2026-08-02T15:35:35Z
+reviewed: 2026-08-02T15:47:55Z
 depth: standard
-files_reviewed: 65
+files_reviewed: 57
 files_reviewed_list:
-  - .formatter.exs
-  - .github/dependabot.yml
   - .github/workflows/ci.yml
-  - .github/workflows/release-please.yml
-  - CONTRIBUTING.md
   - lib/mix/tasks/sigra.install.ex
   - lib/sigra/admin/components.ex
   - lib/sigra/admin/organizations/detail.ex
@@ -27,7 +23,6 @@ files_reviewed_list:
   - lib/sigra/oauth/enterprise_reconciliation.ex
   - lib/sigra/organizations/invitations.ex
   - lib/sigra/workers/audit_forward.ex
-  - mix.exs
   - test/example/lib/example/demo/branding.ex
   - test/example/lib/example/demo/personas.ex
   - test/example/lib/example/demo/seeds.ex
@@ -41,7 +36,6 @@ files_reviewed_list:
   - test/example/test/example_web/live/admin_audit_user_live_test.exs
   - test/example/test/example_web/live/admin_user_filters_live_test.exs
   - test/example/test/example_web/live/admin_user_sessions_live_test.exs
-  - test/fixtures/install_golden/tree/config/dev.exs
   - test/sigra/admin/components_test.exs
   - test/sigra/admin/organizations_detail_test.exs
   - test/sigra/application_forwarders_test.exs
@@ -64,86 +58,60 @@ files_reviewed_list:
   - test/sigra/planning/phase_230_ci_timeouts_test.exs
   - test/sigra/planning/phase_230_design_gallery_split_test.exs
   - test/sigra/planning/phase_233_library_economics_contract_test.exs
-  - test/sigra/planning/phase_234_action_pinning_contract_test.exs
-  - test/sigra/planning/phase_234_dependabot_contract_test.exs
   - test/sigra/planning/phase_234_evidence_contract_test.exs
   - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
   - test/sigra/workers/audit_forward_test.exs
 findings:
-  critical: 5
-  warning: 0
+  critical: 1
+  warning: 2
   info: 0
-  total: 5
+  total: 3
 status: issues_found
 ---
 
 # Phase 234: Code Review Report
 
-**Reviewed:** 2026-08-02T15:35:35Z
+**Reviewed:** 2026-08-02T15:47:55Z
 **Depth:** standard
-**Files Reviewed:** 65
+**Files Reviewed:** 57
 **Status:** issues_found
 
 ## Summary
 
-The supplied workflow/configuration, library, example, migration, and test files were reviewed at standard depth. A focused enterprise/audit/OAuth worker selection passed (22 tests), but it does not exercise the defects below. Five BLOCKER findings permit SSRF, exhaust the BEAM atom table, prevent authentication messages from carrying their credentials, crash a normal validation-failure path, or break one-time refresh-token rotation under concurrency.
+The reviewed source contains an SSRF primitive in organization-admin OIDC validation, plus two correctness defects in authentication delivery and cursor navigation. Focused ExUnit coverage passed (45 tests), but it does not exercise these adversarial paths.
 
 ## Narrative Findings (AI reviewer)
 
 ## Critical Issues
 
-### CR-01: OIDC validation permits arbitrary server-side requests
+### CR-01: OIDC validation fetches an administrator-controlled URL without SSRF controls
 
-**Classification:** BLOCKER
+**File:** `lib/sigra/enterprise_connections/validation.ex:64-89`
 
-**File:** `lib/sigra/enterprise_connections/validation.ex:64-80`
+**Issue:** `discovery_document_uri` is accepted as any nonblank string and supplied directly to the configured HTTP client. Organization administrators can therefore make the Sigra host request arbitrary HTTP(S) and non-HTTP URLs, including loopback, link-local/cloud-metadata, and private-network targets. The issuer check occurs only after the request and does not prevent the network access; redirects must also be constrained. This makes a tenant-admin configuration screen a server-side request forgery primitive.
 
-**Issue:** An organization-controlled `discovery_document_uri` is accepted verbatim and passed to `Req.get/1`. There is no scheme, host, IP-range, DNS-rebinding, redirect, or response-size policy. An authenticated org admin can therefore make the Sigra server request loopback/private endpoints (including cloud metadata services) and expose whether they are reachable through the validation result/error behavior.
+**Fix:** Parse and validate the URI before fetching: permit only `https`, reject userinfo and non-443 ports unless explicitly supported, resolve the hostname and reject loopback/link-local/private/reserved addresses (including every redirect target), then invoke `Req` with redirects disabled or with the same validator applied to each redirect. Add tests for `http://127.0.0.1`, `http://169.254.169.254`, IPv6 loopback, private DNS answers, and a public URL redirecting to a private address.
 
-**Fix:** Parse and validate the URI before calling the HTTP client: require HTTPS, reject userinfo/ports as appropriate, resolve and reject loopback/link-local/private/reserved addresses for every redirect target, disable redirects or revalidate each one, and impose connect/read/response-size limits. If private IdPs must be supported, make an explicit, narrowly documented allowlist configuration instead of accepting arbitrary URLs.
+## Warnings
 
-### CR-02: Audit action strings are converted into permanent atoms
+### WR-01: Magic-link dispatch can bind the wrong URL to an idempotency key under concurrent requests
 
-**Classification:** BLOCKER
+**File:** `lib/sigra/integrations/chimeway.ex:52-60`
 
-**File:** `lib/sigra/audit/forwarders/threadline.ex:269-275`
+**Issue:** `dispatch_magic_link/5` ignores the returned raw token and finds the user's newest `magic_link` token instead. A second request between insertion and `fetch_magic_link_token_inserted_at/3` makes the first dispatch store URL A under token B's idempotency key. The second dispatch then sees the duplicate key; depending on timing, one request's URL is sent for the other's token and the other login request receives no usable delivery.
 
-**Issue:** `String.to_atom/1` turns every audit action string into a non-garbage-collected BEAM atom. The forwarder accepts telemetry metadata, so a host which records request-derived or otherwise unbounded action strings can permanently exhaust the atom table and terminate the VM. The nearby comment explicitly acknowledges the atom-growth risk but leaves the unsafe operation active.
+**Fix:** Carry the inserted token's immutable identifier or timestamp out of `Sigra.Auth.request_magic_link/3` and derive the idempotency key from that exact record. Do not query for the newest user token after issuing it. Add a deterministic concurrent-request test that interleaves two requests for the same user and asserts each delivery key maps to its own URL.
 
-**Fix:** Keep action names as strings through the Threadline boundary, or translate only a finite, application-owned allowlist with `String.to_existing_atom/1`. Reject/telemetry-report unknown action strings; never create atoms from runtime metadata.
+### WR-02: Disabled cursor controls remain live links
 
-### CR-03: Chimeway delivery discards the link and confirmation code
+**File:** `lib/sigra/admin/components.ex:830-844`
 
-**Classification:** BLOCKER
+**Issue:** At either cursor boundary the control gets `aria-disabled="true"` and an `is-disabled` class, but retains its `href`. `aria-disabled` does not suppress native anchor navigation, so keyboard and pointer users can activate a visually disabled Previous/Next control and reload a boundary page. This contradicts the component's disabled state and makes navigation behavior depend on the caller's fallback URL.
 
-**File:** `lib/sigra/integrations/chimeway.ex:291-303,358-369`
-
-**Issue:** Both notifier `rendering/2` functions call `PendingDelivery.pop!/1`, then discard its result (`_secrets`). The returned email assigns contain only static subject/body text; neither the magic-link URL nor the confirmation code/URL is passed on. Since `pop!/1` deletes the ETS entry, the required credential cannot be recovered later. Every successful Chimeway authentication notification therefore sends a message that cannot be used to sign in or confirm the account.
-
-**Fix:** Consume the popped values and pass the URL/code into the renderer's protected template inputs (or have the rendering adapter render the message immediately from those values). Add integration tests asserting that a delivered magic-link message includes its URL and that confirmation delivery includes the code.
-
-### CR-04: Failed validation persistence raises instead of returning a changeset error
-
-**Classification:** BLOCKER
-
-**File:** `lib/sigra/enterprise_connections.ex:61-71`
-
-**Issue:** When discovery returns `{:error, :validation_failed, message}`, the code pattern-matches `{:ok, persisted} = persist(...)`. `persist/2` legitimately returns `{:error, changeset}` for a DB/constraint/changeset failure, turning a normal admin validation outcome into a `MatchError` and crashing the caller. The public spec promises an error tuple, not an exception.
-
-**Fix:** Handle `persist/2` with `case`/`with` and return `{:error, changeset}` on persistence failure; return `{:error, :validation_failed, persisted}` only after a successful update. Add a test-double repo that returns `{:error, changeset}` from this branch.
-
-### CR-05: Refresh-token rotation has a replay race
-
-**Classification:** BLOCKER
-
-**File:** `lib/sigra/jwt/refresh_token.ex:127-143,93-106`
-
-**Issue:** Rotation reads a token's metadata without a row lock, observes it as unsuperseded, then updates it and inserts a replacement. Two simultaneous refresh requests can both classify the same token as `:rotate`, both write `superseded_at`, and each mint a valid successor. That defeats one-time-use rotation/reuse detection and leaves a stolen token able to create a valid session if raced with the legitimate client.
-
-**Fix:** Make classification and supersession a single atomic conditional update inside a transaction (for example, `UPDATE ... WHERE superseded_at IS NULL RETURNING ...`), treating a zero-row update as reuse and revoking the family. Add a concurrent two-request test that proves exactly one refresh succeeds and the other triggers reuse handling.
+**Fix:** Render a non-link element (`<span aria-disabled="true">`) at the boundary, or omit `href`, set `tabindex="-1"`, and prevent click/keyboard activation. Cover both first- and last-page markup/activation behavior in the component and LiveView tests.
 
 ---
 
-_Reviewed: 2026-08-02T15:35:35Z_
+_Reviewed: 2026-08-02T15:47:55Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
