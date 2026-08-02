@@ -347,9 +347,16 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
+**Wave 1**
 
 - [ ] 235-01-PLAN.md — Trace and expand the single fail-closed terminal measurement/ownership ledger
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 235-02-PLAN.md — Capture the immutable run window and record the honest FAST-01 verdict
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 235-03-PLAN.md — Reconcile contributor topology, SEED-005, and CI-PERF from the measured ledger
 
 ## Progress
