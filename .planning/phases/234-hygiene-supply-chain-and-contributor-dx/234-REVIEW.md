@@ -1,8 +1,8 @@
 ---
 phase: 234-hygiene-supply-chain-and-contributor-dx
-reviewed: 2026-08-02T14:32:13Z
+reviewed: 2026-08-02T15:35:35Z
 depth: standard
-files_reviewed: 64
+files_reviewed: 65
 files_reviewed_list:
   - .formatter.exs
   - .github/dependabot.yml
@@ -41,6 +41,7 @@ files_reviewed_list:
   - test/example/test/example_web/live/admin_audit_user_live_test.exs
   - test/example/test/example_web/live/admin_user_filters_live_test.exs
   - test/example/test/example_web/live/admin_user_sessions_live_test.exs
+  - test/fixtures/install_golden/tree/config/dev.exs
   - test/sigra/admin/components_test.exs
   - test/sigra/admin/organizations_detail_test.exs
   - test/sigra/application_forwarders_test.exs
@@ -78,14 +79,14 @@ status: issues_found
 
 # Phase 234: Code Review Report
 
-**Reviewed:** 2026-08-02T14:32:13Z
+**Reviewed:** 2026-08-02T15:35:35Z
 **Depth:** standard
-**Files Reviewed:** 64
+**Files Reviewed:** 65
 **Status:** issues_found
 
 ## Summary
 
-The supplied workflow/configuration, library, example, migration, and test files were reviewed at standard depth. The focused enterprise/audit/OAuth worker test selection passed (25 tests), but it does not exercise the defects below. Five BLOCKER findings permit SSRF, exhaust the BEAM atom table, prevent authentication messages from carrying their credentials, crash a normal validation-failure path, or break one-time refresh-token rotation under concurrency.
+The supplied workflow/configuration, library, example, migration, and test files were reviewed at standard depth. A focused enterprise/audit/OAuth worker selection passed (22 tests), but it does not exercise the defects below. Five BLOCKER findings permit SSRF, exhaust the BEAM atom table, prevent authentication messages from carrying their credentials, crash a normal validation-failure path, or break one-time refresh-token rotation under concurrency.
 
 ## Narrative Findings (AI reviewer)
 
@@ -143,6 +144,6 @@ The supplied workflow/configuration, library, example, migration, and test files
 
 ---
 
-_Reviewed: 2026-08-02T14:32:13Z_
+_Reviewed: 2026-08-02T15:35:35Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
