@@ -1,11 +1,11 @@
 ---
 phase: 234
 slug: hygiene-supply-chain-and-contributor-dx
-status: complete
-nyquist_compliant: true
-wave_0_complete: true
-reviewed_commit_sha: 81fe88b2665ba75c7f5251a9ce44615d661bf56e
-reviewed_at: 2026-08-02T14:25:00Z
+status: draft
+nyquist_compliant: false
+wave_0_complete: false
+reviewed_commit_sha: 7134fb123902a543f614e47a86988c8ebf0623f1
+reviewed_at: 2026-08-02T15:09:20Z
 created: 2026-07-31
 ---
 
@@ -53,6 +53,7 @@ created: 2026-07-31
 | 234-19-02 | 19 | 10 | DX-04 | T-234-19-02 | Only two harness mappings resolve to their exact specs | structural contract | mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs && mix test test/sigra/planning/phase_232_playwright_economics_test.exs | ✅ existing file revised | ✅ green |
 | 234-20-01 | 20 | 11 | DX-01/DX-02/DX-03/DX-04/DX-06 | T-234-20-01 | Concrete evidence receipts validate before completion | evidence transition | mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff --only final_evidence | ✅ existing file revised | ✅ green |
 | 234-20-02 | 20 | 11 | DX-01/DX-02/DX-03/DX-04/DX-06 | T-234-20-02 | Command and task receipts bind to one reviewed snapshot | sign-off contract | mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs | ✅ existing file revised | ✅ green |
+| 234-21-01 | 21 | 12 | DX-01/DX-02/DX-03/DX-04/DX-06 | T-234-21-01 | Production completion admits exactly the six named evidence keys and rejects every additional slot | evidence transition | mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs | ✅ existing file revised | ❌ red |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -84,18 +85,18 @@ All phase behaviors must have automated evidence. GitHub-owned behaviors may req
 - [x] No watch-mode flags
 - [x] Feedback latency is measured and bounded
 - [x] Completion transition is blocked while any immutable evidence slot is red
-- [x] Exact green rows cover 234-19-01, 234-19-02, 234-20-01, and 234-20-02
+- [ ] Wave 12 task 234-21-01 remains blocked: golden/idempotency verification failed before approval
 
 ### Command Receipts
 
 | Command | UTC completed | Exit | Output SHA-256 | Commit SHA |
 |---------|---------------|------|----------------|------------|
-| `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence` | 2026-08-02T14:24:08Z | 0 | `4b5d89fdf7f1053206200de09f94d78cb52a80f23ca1d48cf7892167334530f3` | `81fe88b2665ba75c7f5251a9ce44615d661bf56e` |
-| `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --exclude validation_signoff` | 2026-08-02T14:24:15Z | 0 | `6ea6e5474682dd718f093f1963e3db1ee449bfce03f4e7ff458377d25522b2cd` | `81fe88b2665ba75c7f5251a9ce44615d661bf56e` |
-| `mix test test/sigra/planning/ --exclude validation_signoff` | 2026-08-02T14:24:23Z | 0 | `a6123b43ce41572341c6a143cb8d1993f28676355bb8fd589e945792731b64cf` | `81fe88b2665ba75c7f5251a9ce44615d661bf56e` |
-| `mix format --check-formatted` | 2026-08-02T14:24:28Z | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | `81fe88b2665ba75c7f5251a9ce44615d661bf56e` |
-| `test -z "$(git diff --name-only -- test/fixtures/install_golden/tree)" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` | 2026-08-02T14:24:54Z | 0 | `876af7d027415647005842183d1643cacb5594610a90dc70ee6b64e422c6e42d` | `81fe88b2665ba75c7f5251a9ce44615d661bf56e` |
+| `mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only final_evidence` | 2026-08-02T15:03:14Z | 0 | `d73da4dab846da3e04bc9f4643cc587813e7dcf7cf584eb7432a387e6aed5793` | `7134fb123902a543f614e47a86988c8ebf0623f1` |
+| `mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --exclude validation_signoff` | 2026-08-02T15:03:15Z | 0 | `0164563134654d9598ae8e3a63f35679bb851cac2380bb021277befcdc011a71` | `7134fb123902a543f614e47a86988c8ebf0623f1` |
+| `mix test test/sigra/planning/ --exclude validation_signoff` | 2026-08-02T15:03:17Z | 0 | `7c81ec82f75e29521702f19cfadfb20f1cf0017658df9a1d64428b1a0716c345` | `7134fb123902a543f614e47a86988c8ebf0623f1` |
+| `mix format --check-formatted` | 2026-08-02T15:03:17Z | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | `7134fb123902a543f614e47a86988c8ebf0623f1` |
+| `test -z "$(git diff --name-only -- test/fixtures/install_golden/tree)" && mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` | 2026-08-02T15:08:18Z | 1 | `c3189611b5528322869a111e116df7d014c6364a46b95911143a3aac0ac21ef2` | `7134fb123902a543f614e47a86988c8ebf0623f1` |
 
 The command receipts above are sanitized hashes only; captured output paths, session credentials, cookies, and environment values are not recorded.
 
-**Approval:** approved — machine evidence ratified at 2026-08-02T14:25:00Z; exact five-command receipt inventory, Wave 0/task rows including exact green coverage for 234-19-01, 234-19-02, 234-20-01, and 234-20-02, immutable service receipts, and all final evidence slots are green at reviewed commit `81fe88b2665ba75c7f5251a9ce44615d661bf56e`. Approval receipt SHA-256: `876af7d027415647005842183d1643cacb5594610a90dc70ee6b64e422c6e42d`.
+**Approval:** not approved — Wave 12 remains draft at 2026-08-02T15:09:20Z. The first four refreshed receipt commands passed, but `golden_diff_test` reported a byte mismatch in generated `config/dev.exs` (expected 3252 bytes, actual 2679 bytes; first mismatch byte 1477) before `234-21-01` could be approved. Failing receipt SHA-256: `c3189611b5528322869a111e116df7d014c6364a46b95911143a3aac0ac21ef2`.
