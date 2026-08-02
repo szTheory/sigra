@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: 234
 current_phase_name: hygiene-supply-chain-and-contributor-dx
 status: executing
-stopped_at: "Blocked 234-17-PLAN.md: authenticated Dependabot browser session required"
-last_updated: "2026-08-02T02:30:41.288Z"
+stopped_at: Completed 234-17-PLAN.md
+last_updated: "2026-08-02T02:55:51.912Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 234 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 51
-  completed_plans: 48
+  completed_plans: 49
   percent: 67
 ---
 
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 17 of 18
+Plan: 18 of 18
 Status: Blocked — authenticated GitHub browser session required for Dependabot receipts
-Progress: 3/6 milestone phases complete ([█████████░] 94%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([██████████] 96%); Phase 233 not started
 Last activity: 2026-08-01 — Phase 234 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -418,6 +418,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: SEED-006 is closed by the successful 126-test gallery receipt; admin_eval_render remains a separate non-gating diagnostic.
 - [Phase ?]: Phase 234 validation remains draft until Dependabot receipts and golden fixture verification are green.
 - [Phase ?]: Verified phx_new 1.8.8 regeneration was byte-identical to the committed dev-config golden; restored phx_new 1.8.9 after proof.
+- [Phase ?]: Dependabot service processing evidence requires exactly three authenticated, sanitized receipt rows; a no-update result is valid only when the successful job summary proves it.
+- [Phase ?]: Dependabot receipt validation anchors to the current default-branch SHA at collection time while preserving the decoded configuration hash.
 
 ### Pending Todos
 
@@ -562,9 +564,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T02:30:41.272Z
-Stopped at: Blocked 234-17-PLAN.md: authenticated Dependabot browser session required
-Resume file: .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-17-PLAN.md
+Last session: 2026-08-02T02:55:51.902Z
+Stopped at: Completed 234-17-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -715,3 +717,4 @@ Resume file: .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-17
 | Phase 234-hygiene-supply-chain-and-contributor-dx P10 | 2h | 3 tasks | 6 files |
 | Phase 234 P14 | 8min | 1 tasks | 2 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P15 | 10 minutes | 2 tasks | 5 files |
+| Phase 234 P17 | 31m | 2 tasks | 4 files |
