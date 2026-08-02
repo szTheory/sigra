@@ -5,8 +5,8 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: planning
-stopped_at: Completed 234-21-PLAN.md
-last_updated: "2026-08-02T15:42:52.258Z"
+stopped_at: Phase 235 context gathered (assumptions mode)
+last_updated: "2026-08-02T17:23:07.999Z"
 last_activity: 2026-08-02
 last_activity_desc: Phase 234 complete, transitioned to Phase 235
 progress:
@@ -572,9 +572,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T15:31:27.497Z
-Stopped at: Completed 234-21-PLAN.md
-Resume file: None
+Last session: 2026-08-02T17:23:07.982Z
+Stopped at: Phase 235 context gathered (assumptions mode)
+Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-CONTEXT.md
 
 ## Operator Next Steps
 
