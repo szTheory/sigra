@@ -1,6 +1,6 @@
 # Phase 234 GitHub evidence residual
 
-**Status:** Open — DX-03 is not complete.
+**Status:** Resolved — DX-03 has exact authenticated Dependabot processing receipts.
 
 ## Dependabot job-log authentication boundary
 
@@ -56,3 +56,20 @@ persisted. Dependabot evidence remains failed and DX-03 remains open because the
 three successful exact-tuple receipts cannot be validated. After Dependabot can process
 the Mix update, re-run the bounded browser collection from the root Dependabot page and
 validate all three receipts with the command above.
+
+## Resolved revalidation — 2026-08-02T02:49:41Z
+
+After PR #176 freed one Mix open-PR slot, a single authenticated, serial browser collection
+rechecked the exact configured tuples. GitHub showed a finished processed update check for
+each tuple: `github-actions:/` job `1499842989` (no dependency updates), `mix:/` job
+`1500015096` (PR #184), and `npm:/test/example/priv/playwright` job `1499842994` (PR #177).
+The collection's only REST core preflight reported `4906/5000`, and the decoded Dependabot
+configuration hash remained `a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0`
+on default-branch SHA `4935fe65aa80b69fffd3f0efc02911a8515a86f5`.
+
+The successful rows are recorded in the Task 2 evidence commit below and passed the strict
+Dependabot contract before this residual was resolved. This history retains the earlier
+authentication and open-PR-limit diagnostics; it stores no cookies, tokens, raw HTML, or raw
+job logs.
+
+**Evidence commit:** `PENDING_TASK_2_COMMIT`

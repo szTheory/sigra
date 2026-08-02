@@ -75,40 +75,49 @@
     "diagnostics": "The push-triggered Release Please job executed successfully on the immutable post-merge SHA. Downstream gate-ci-green and publish-hex jobs were conditionally skipped because Release Please reported no release_created output; this is distinct from a skipped or missing Release Please action step."
   },
   "dependabot": {
-    "status": "failed",
-    "default_branch_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
+    "status": "success",
+    "default_branch_sha": "4935fe65aa80b69fffd3f0efc02911a8515a86f5",
     "config_sha256": "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
     "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-    "diagnostics": "At 2026-08-02T02:40:44Z, authenticated deterministic browser collection confirmed a successful github-actions:/ no-update job (1499842989), but halted on mix:/ because its latest version-update job 1499842991 errored: Dependabot cannot open any more pull requests. REST core remaining was 4988/5000 before collection. No raw logs or browser state were retained, and no tuple is promoted until all three exact successful receipts validate.",
+    "diagnostics": "At 2026-08-02T02:49:41Z, one serial authenticated-browser collection observed the latest finished Dependabot update checks for all three configured tuples. REST core remaining was 4906/5000 before collection. Each receipt records only the tuple, job ID, UTC timestamp, processed status summary, GitHub URLs, optional PR URL, and SHA-256 of its sanitized receipt; no raw logs, authenticated HTML, cookies, credentials, or browser state were retained.",
     "slots": [
       {
         "ecosystem": "github-actions",
         "directory": "/",
-        "status": "failed",
-        "reason": "authenticated_browser_session_unavailable",
-        "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-        "capture_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "status": "success",
+        "job_id": "1499842989",
+        "timestamp": "2026-08-01T23:34:41Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; no dependency updates available.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1499842989",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91431194922?check_suite_focus=true",
+        "capture_sha256": "4421622ee25606a974af2b4a189c287a0dfe249098c36978c6f367189871f823"
       },
       {
         "ecosystem": "mix",
         "directory": "/",
-        "status": "failed",
-        "reason": "latest_version_update_job_errored",
-        "job_id": "1499842991",
-        "captured_at": "2026-08-02T02:40:44Z",
-        "processed_status": "processing_error",
-        "status_summary": "Dependabot cannot open any more pull requests.",
-        "diagnostic_url": "https://github.com/szTheory/sigra/network/updates/1499842991",
-        "full_log_url": "https://github.com/szTheory/sigra/runs/91431195294?check_suite_focus=true",
-        "capture_sha256": "4ffa5797fc16b54bea8dd69d9905dd0d8c879f2c300e0f76014a81f0ba1eb3a0"
+        "status": "success",
+        "job_id": "1500015096",
+        "timestamp": "2026-08-02T02:49:41Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; associated Dependabot pull request created.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1500015096",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91447147825?check_suite_focus=true",
+        "associated_pr_url": "https://github.com/szTheory/sigra/pull/184",
+        "capture_sha256": "ccbc86b453413850b5409fc62b3f066901e52e792de777467afb0b6ecc3b157b"
       },
       {
         "ecosystem": "npm",
         "directory": "/test/example/priv/playwright",
-        "status": "failed",
-        "reason": "authenticated_browser_session_unavailable",
-        "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
-        "capture_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "status": "success",
+        "job_id": "1499842994",
+        "timestamp": "2026-08-01T23:34:53Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; associated Dependabot pull request created.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1499842994",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91431195493?check_suite_focus=true",
+        "associated_pr_url": "https://github.com/szTheory/sigra/pull/177",
+        "capture_sha256": "bab7416183ad146936cf0ed3f9419aa0a9a6f11e6c2ca64668def590f4dea2f1"
       }
     ]
   },

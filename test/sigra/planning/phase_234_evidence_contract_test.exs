@@ -252,7 +252,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   defp successful_dependabot_receipt do
     %{
       "status" => "success",
-      "default_branch_sha" => "fe33154088053ce9ccc0e9301348a2841c87745c",
+      "default_branch_sha" => "4935fe65aa80b69fffd3f0efc02911a8515a86f5",
       "config_sha256" => "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
       "slots" =>
         Enum.map(@dependabot_tuples, fn {ecosystem, directory} ->
@@ -275,7 +275,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   defp validate_dependabot_receipt!(receipt) do
     assert receipt["status"] == "success", "dependabot.status must be success"
 
-    assert receipt["default_branch_sha"] == "fe33154088053ce9ccc0e9301348a2841c87745c",
+    assert receipt["default_branch_sha"] == "4935fe65aa80b69fffd3f0efc02911a8515a86f5",
            "default_branch_sha must match the authenticated default-branch receipt"
 
     assert receipt["config_sha256"] ==
@@ -387,7 +387,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :final_evidence
-  test "final evidence names every GitHub-owned slot without treating a failed residual as success" do
+  test "final evidence names every GitHub-owned slot as successful only with a valid Dependabot receipt" do
     receipts = evidence()
 
     for slot <- [
@@ -405,7 +405,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipts["release"]["status"] == "success"
     assert receipts["gallery"]["status"] == "success"
     assert receipts["historical_gallery"]["status"] == "success"
-    assert receipts["dependabot"]["status"] == "failed"
+    assert receipts["dependabot"]["status"] == "success"
     assert_non_empty_string!(receipts["dependabot"], "diagnostics")
   end
 
@@ -439,7 +439,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert approval =~ "Dependabot residual"
     assert approval =~ "golden fixture residual"
 
-    assert {:residual, "dependabot"} = signoff_state(evidence())
+    assert :complete = signoff_state(evidence())
     assert :blocked = assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
   end
 
