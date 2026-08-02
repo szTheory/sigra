@@ -1,12 +1,14 @@
 ---
 phase: 234-hygiene-supply-chain-and-contributor-dx
-reviewed: 2026-08-01T23:22:07Z
+reviewed: 2026-08-02T14:32:13Z
 depth: standard
-files_reviewed: 61
+files_reviewed: 64
 files_reviewed_list:
+  - .formatter.exs
   - .github/dependabot.yml
   - .github/workflows/ci.yml
   - .github/workflows/release-please.yml
+  - CONTRIBUTING.md
   - lib/mix/tasks/sigra.install.ex
   - lib/sigra/admin/components.ex
   - lib/sigra/admin/organizations/detail.ex
@@ -25,6 +27,7 @@ files_reviewed_list:
   - lib/sigra/oauth/enterprise_reconciliation.ex
   - lib/sigra/organizations/invitations.ex
   - lib/sigra/workers/audit_forward.ex
+  - mix.exs
   - test/example/lib/example/demo/branding.ex
   - test/example/lib/example/demo/personas.ex
   - test/example/lib/example/demo/seeds.ex
@@ -66,59 +69,80 @@ files_reviewed_list:
   - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
   - test/sigra/workers/audit_forward_test.exs
 findings:
-  critical: 2
-  warning: 1
+  critical: 5
+  warning: 0
   info: 0
-  total: 3
+  total: 5
 status: issues_found
 ---
 
 # Phase 234: Code Review Report
 
-**Reviewed:** 2026-08-01T23:22:07Z
+**Reviewed:** 2026-08-02T14:32:13Z
 **Depth:** standard
-**Files Reviewed:** 61
+**Files Reviewed:** 64
 **Status:** issues_found
 
 ## Summary
 
-The configured GitHub Actions use immutable SHA pins and the focused Phase 234 contract suite passes (23 tests). However, the new machine-evidence completion gate can ratify stale or structurally invalid service evidence, and the Playwright ownership inventory can claim a spec is covered by a lane that executes a different spec. These defects undermine Phase 234's stated fail-closed evidence and ownership guarantees.
+The supplied workflow/configuration, library, example, migration, and test files were reviewed at standard depth. The focused enterprise/audit/OAuth worker test selection passed (25 tests), but it does not exercise the defects below. Five BLOCKER findings permit SSRF, exhaust the BEAM atom table, prevent authentication messages from carrying their credentials, crash a normal validation-failure path, or break one-time refresh-token rotation under concurrency.
+
+## Narrative Findings (AI reviewer)
 
 ## Critical Issues
 
-### CR-01: Completion authorization accepts a bare `status: success` for every evidence slot
+### CR-01: OIDC validation permits arbitrary server-side requests
 
-**File:** `test/sigra/planning/phase_234_evidence_contract_test.exs:741`
-**Issue:** `assert_transition_allowed!/3` authorizes the completed validation state when each receipt is merely a map with `"status" => "success"`. It does not call `validate_local_mix_ci_receipt!/1`, `validate_dependabot_receipt!/1`, or equivalent validators for PR, release, and gallery receipts. Thus a malformed or fabricated slot (for example `%{"status" => "success"}`) is sufficient to authorize `status: complete`, despite the intended exact, fail-closed evidence gate. The mutation test itself demonstrates this bypass by using six such bare maps at line 532 and expecting completion at line 543.
+**Classification:** BLOCKER
 
-**Fix:** Make the transition function validate each concrete receipt before testing the transition fields, and add mutations that pass malformed `status: success` slots to the real sign-off path. For example:
+**File:** `lib/sigra/enterprise_connections/validation.ex:64-80`
 
-```elixir
-assert :ok = validate_local_mix_ci_receipt!(receipts["local_mix_ci"])
-assert :ok = validate_pr_ci_receipt!(receipts["pr_ci"])
-assert :ok = validate_release_receipt!(receipts["release"])
-assert :ok = validate_dependabot_receipt!(receipts["dependabot"])
-assert :ok = validate_gallery_receipt!(receipts["gallery"])
-```
+**Issue:** An organization-controlled `discovery_document_uri` is accepted verbatim and passed to `Req.get/1`. There is no scheme, host, IP-range, DNS-rebinding, redirect, or response-size policy. An authenticated org admin can therefore make the Sigra server request loopback/private endpoints (including cloud metadata services) and expose whether they are reachable through the validation result/error behavior.
 
-### CR-02: Command receipts are neither fresh nor bound to the reviewed revision
+**Fix:** Parse and validate the URI before calling the HTTP client: require HTTPS, reject userinfo/ports as appropriate, resolve and reject loopback/link-local/private/reserved addresses for every redirect target, disable redirects or revalidate each one, and impose connect/read/response-size limits. If private IdPs must be supported, make an explicit, narrowly documented allowlist configuration instead of accepting arbitrary URLs.
 
-**File:** `test/sigra/planning/phase_234_evidence_contract_test.exs:706`
-**Issue:** The exact-inventory validator checks only command text, syntactic UTC timestamps, exit code, and hash shape. It does not require a receipt commit SHA, bind it to `HEAD`, or impose any freshness limit. An old successful five-command table can therefore authorize the current validation after source or evidence changes. The purported “stale command” mutation at lines 571-575 changes the command string, not its timestamp or revision, so it does not test this failure mode.
+### CR-02: Audit action strings are converted into permanent atoms
 
-**Fix:** Add a commit SHA to every receipt and require it to equal the validated phase revision (or require a signed/CI-attested run for that SHA). Also reject timestamps outside a documented validity window and add stale-timestamp and wrong-SHA mutation tests.
+**Classification:** BLOCKER
 
-## Warnings
+**File:** `lib/sigra/audit/forwarders/threadline.ex:269-275`
 
-### WR-01: Playwright inventory validation does not bind a spec to its claimed command marker
+**Issue:** `String.to_atom/1` turns every audit action string into a non-garbage-collected BEAM atom. The forwarder accepts telemetry metadata, so a host which records request-derived or otherwise unbounded action strings can permanently exhaust the atom table and terminate the VM. The nearby comment explicitly acknowledges the atom-growth risk but leaves the unsafe operation active.
 
-**File:** `test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:159`
-**Issue:** `validate_spec!/3` passes only the lane object to `validate_lane!/3`; the spec path is discarded. `validate_lane!/3` then verifies that `command_marker` occurs somewhere in the job, not that it is the basename/path of this inventory entry. Replacing `admin-theme.spec.ts`'s marker with another existing marker in `example_playwright_shard` leaves the inventory valid while falsely reporting `admin-theme` as owned. This can silently remove browser coverage during a future shard edit.
+**Fix:** Keep action names as strings through the Threadline boundary, or translate only a finite, application-owned allowlist with `String.to_existing_atom/1`. Reject/telemetry-report unknown action strings; never create atoms from runtime metadata.
 
-**Fix:** Pass `spec` to `validate_lane!/4`, require the marker to execute that exact spec (with explicit exceptions for harness-owned specs), and add a mutation which swaps two valid existing markers and must fail.
+### CR-03: Chimeway delivery discards the link and confirmation code
+
+**Classification:** BLOCKER
+
+**File:** `lib/sigra/integrations/chimeway.ex:291-303,358-369`
+
+**Issue:** Both notifier `rendering/2` functions call `PendingDelivery.pop!/1`, then discard its result (`_secrets`). The returned email assigns contain only static subject/body text; neither the magic-link URL nor the confirmation code/URL is passed on. Since `pop!/1` deletes the ETS entry, the required credential cannot be recovered later. Every successful Chimeway authentication notification therefore sends a message that cannot be used to sign in or confirm the account.
+
+**Fix:** Consume the popped values and pass the URL/code into the renderer's protected template inputs (or have the rendering adapter render the message immediately from those values). Add integration tests asserting that a delivered magic-link message includes its URL and that confirmation delivery includes the code.
+
+### CR-04: Failed validation persistence raises instead of returning a changeset error
+
+**Classification:** BLOCKER
+
+**File:** `lib/sigra/enterprise_connections.ex:61-71`
+
+**Issue:** When discovery returns `{:error, :validation_failed, message}`, the code pattern-matches `{:ok, persisted} = persist(...)`. `persist/2` legitimately returns `{:error, changeset}` for a DB/constraint/changeset failure, turning a normal admin validation outcome into a `MatchError` and crashing the caller. The public spec promises an error tuple, not an exception.
+
+**Fix:** Handle `persist/2` with `case`/`with` and return `{:error, changeset}` on persistence failure; return `{:error, :validation_failed, persisted}` only after a successful update. Add a test-double repo that returns `{:error, changeset}` from this branch.
+
+### CR-05: Refresh-token rotation has a replay race
+
+**Classification:** BLOCKER
+
+**File:** `lib/sigra/jwt/refresh_token.ex:127-143,93-106`
+
+**Issue:** Rotation reads a token's metadata without a row lock, observes it as unsuperseded, then updates it and inserts a replacement. Two simultaneous refresh requests can both classify the same token as `:rotate`, both write `superseded_at`, and each mint a valid successor. That defeats one-time-use rotation/reuse detection and leaves a stolen token able to create a valid session if raced with the legitimate client.
+
+**Fix:** Make classification and supersession a single atomic conditional update inside a transaction (for example, `UPDATE ... WHERE superseded_at IS NULL RETURNING ...`), treating a zero-row update as reuse and revoking the family. Add a concurrent two-request test that proves exactly one refresh succeeds and the other triggers reuse handling.
 
 ---
 
-_Reviewed: 2026-08-01T23:22:07Z_
+_Reviewed: 2026-08-02T14:32:13Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
