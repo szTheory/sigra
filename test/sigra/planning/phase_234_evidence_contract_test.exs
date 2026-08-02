@@ -62,22 +62,76 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     receipt = evidence()["local_mix_ci"]
 
     assert_capture_or_success!(receipt, "local_mix_ci", fn ->
-      assert receipt["conclusion"] == "success"
-      assert receipt["clean_before"] == true
-      assert receipt["detached_worktree"] == true
-      assert receipt["exit_status"] == 0
-      assert receipt["command"] == "MIX_ENV=test mix ci"
-      assert receipt["ordered_legs"] == @mix_ci_legs
-      assert receipt["formatter_check"] == "passed"
-      assert receipt["golden_tree"] == "unchanged"
-
-      for key <- ["commit_sha", "started_at", "completed_at", "command_output_path"] do
-        assert_non_empty_string!(receipt, key)
-      end
-
-      assert receipt["commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
-      assert_sha256!(receipt["log_sha256"], "log_sha256")
+      assert :ok = validate_local_mix_ci_receipt!(receipt)
     end)
+  end
+
+  @tag :local_mix_ci
+  test "local mix ci receipt fails closed when contributor cleanup measurements are mutated" do
+    receipt = evidence()["local_mix_ci"]
+
+    assert :ok = validate_local_mix_ci_receipt!(receipt)
+
+    mutations = [
+      {"mismatched lock hashes", Map.put(receipt, "mix_lock_sha256_after", String.duplicate("0", 64)),
+       "mix_lock_sha256"},
+      {"mismatched status hashes",
+       Map.put(receipt, "git_status_sha256_after", String.duplicate("0", 64)),
+       "git_status_sha256"},
+      {"dependency restoration false", Map.put(receipt, "dependency_restore_verified", false),
+       "dependency_restore_verified"},
+      {"golden/idempotency red", Map.put(receipt, "golden_idempotency_status", "failed"),
+       "golden_idempotency_status"}
+    ]
+
+    for {name, mutated, field} <- mutations do
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          validate_local_mix_ci_receipt!(mutated)
+        end
+
+      assert error.message =~ field, "#{name}: #{error.message}"
+    end
+  end
+
+  defp validate_local_mix_ci_receipt!(receipt) do
+    assert receipt["conclusion"] == "success"
+    assert receipt["clean_before"] == true
+    assert receipt["clean_after"] == true
+    assert receipt["detached_worktree"] == true
+    assert receipt["dependency_restore_verified"] == true
+    assert receipt["golden_idempotency_status"] == "passed"
+    assert receipt["exit_status"] == 0
+    assert receipt["command"] == "MIX_ENV=test mix ci"
+    assert receipt["ordered_legs"] == @mix_ci_legs
+    assert receipt["formatter_check"] == "passed"
+    assert receipt["golden_tree"] == "unchanged"
+
+    for key <- [
+          "commit_sha",
+          "started_at",
+          "completed_at",
+          "command_output_path",
+          "mix_lock_sha256_before",
+          "mix_lock_sha256_after",
+          "git_status_sha256_before",
+          "git_status_sha256_after"
+        ] do
+      assert_non_empty_string!(receipt, key)
+    end
+
+    assert receipt["commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+    assert_sha256!(receipt["log_sha256"], "log_sha256")
+    assert_sha256!(receipt["mix_lock_sha256_before"], "mix_lock_sha256_before")
+    assert_sha256!(receipt["mix_lock_sha256_after"], "mix_lock_sha256_after")
+    assert_sha256!(receipt["git_status_sha256_before"], "git_status_sha256_before")
+    assert_sha256!(receipt["git_status_sha256_after"], "git_status_sha256_after")
+    assert receipt["mix_lock_sha256_before"] == receipt["mix_lock_sha256_after"],
+           "mix_lock_sha256 before/after must match"
+    assert receipt["git_status_sha256_before"] == receipt["git_status_sha256_after"],
+           "git_status_sha256 before/after must match"
+
+    :ok
   end
 
   @tag :pr_ci
