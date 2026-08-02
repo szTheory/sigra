@@ -1,59 +1,54 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-verified: 2026-08-02T19:12:46Z
+verified: 2026-08-02T22:47:11Z
 status: gaps_found
-score: 4/8 must-haves verified
+score: 4/10 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
-  previous_score: 7/10
+  previous_score: 4/8
   gaps_closed:
-    - "The contract now recomputes stored statistics and verifies each stored canonical-output SHA-256."
-    - "The contract now requires exact 93-key ownership-universe equality and rejects extra family/event rows."
-    - "The contributor topology check now scopes direct owners, aggregate dependencies, and non-PR guards to workflow job blocks."
+    - "The three ci_gate_aggregate ledger rows now name ci-gate, the live workflow job."
+    - "Closeout validation now composes the supplied CONTRIBUTING.md topology check."
   gaps_remaining:
-    - "The captured population, capture endpoint, run identities, and binding-pole job evidence remain self-asserted rather than source-receipt-bound."
-    - "The ownership contract accepts arbitrary owner/receiver/receipt values; the committed ci_gate rows name a non-existent workflow job instead of ci-gate."
+    - "No canonical gh run-list receipt is retained or validated against the captured population."
+    - "Binding-pole receipts do not prove selection, wall_seconds, command, or output_sha256 against the measured median/max evidence."
+    - "The 93 ownership rows are not checked against a complete live workflow/receipt semantics map."
   regressions: []
 gaps:
-  - truth: "The terminal ledger proves its FAST-01 measurement from one immutable, bounded GitHub run population."
+  - truth: "The terminal ledger derives the honest FAST-01 result from immutable retained measured evidence."
     status: failed
-    reason: "The contract recalculates values only from mutable ledger data. It never pins capture_endpoint.captured_at or population_sha256, validates retained IDs as source identities, or retains/hash-checks the raw gh run-list response. Changing endpoint, rows, statistics receipt, and digest coherently can produce a different accepted verdict."
+    reason: "The capture endpoint is pinned as strings, but the raw gh run-list response whose SHA is claimed is neither retained nor consumed. The validator recomputes only self-supplied ledger runs, so a coherent replacement of the source population remains acceptable."
     artifacts:
       - path: "test/sigra/planning/phase_235_terminal_ratification_contract_test.exs"
-        issue: "validate_capture!/1 only checks status; validate_captured_ledger!/1 only makes run_ids equal mutable runs; population_sha256 is never read."
+        issue: "validate_capture!/1 and validate_captured_ledger!/1 never decode or hash-check a canonical source population receipt."
     missing:
-      - "Pin the capture instant and validate it as an ISO-8601 instant."
-      - "Commit a canonical raw run-list receipt (or equivalent immutable source receipt), verify its SHA-256, and require positive retained IDs/URLs/events/timestamps to match it."
-      - "Add endpoint, source-population, nil/string/invented-ID, and coherent-forgery mutations."
-  - truth: "A measured FAST-01 miss has authentic binding-pole evidence tied to the retained PR population."
+      - "Retain the exact bounded gh run-list bytes, hash them, and reconcile every retained run's identity and provenance fields to those bytes."
+  - truth: "Each binding-pole diagnosis authenticates the measured median and maximum evidence."
     status: failed
-    reason: "For a miss, validate_verdict!/1 only requires a nonempty receipt whose command embeds its own run_id, any binary digest, and a binary pole name. It does not require the ID to be a retained PR run, validate the URL/digest against retained --jobs output, or compare pole fields to that output."
+    reason: "CR-01 is confirmed. validate_binding_pole_receipts!/2 only validates a receipt's chosen job against a retained run. It never derives the expected median/max runs, requires the two selections, compares receipt.wall_seconds, or validates the ci-run-metrics command/output_sha256."
     artifacts:
       - path: "test/sigra/planning/phase_235_terminal_ratification_contract_test.exs"
-        issue: "Lines 741-750 admit a fabricated binding-pole receipt."
+        issue: "Lines 790-840 permit forged median/max labels and metric-output metadata while retaining a valid source job receipt."
     missing:
-      - "Retain canonical per-run --jobs output, bind and hash it, require receipt IDs to occur in the retained PR population, and validate URL, selection, job name, conclusion, and duration."
-  - truth: "The ownership artifact accurately names the executable lane that carries every affected family on PR, main, and nightly."
+      - "Derive exact median-neighbor and maximum run IDs/durations from the retained PR population; require exactly those receipts and bind command, wall_seconds, and digest to replayed metrics output."
+  - truth: "The single ownership artifact proves every family/spec's actual PR, main, and nightly destination."
     status: failed
-    reason: "Exact key coverage is enforced, but each of 93 rows is accepted with only nonempty direct_owner/receiver/receipt strings. The committed ci_gate_aggregate rows name after.direct_owner and receiver ci_gate, whereas the live workflow job is ci-gate. Thus the artifact already contains an inaccurate destination and the contract would admit further fabricated mappings."
+    reason: "Exact 93-key coverage and the ci-gate spelling are checked, but all other owner/aggregate/receiver/receipt values are accepted as arbitrary nonempty strings. No complete row-semantic map is compared to parsed ci.yml job IDs or evidence receipt contents."
     artifacts:
-      - path: ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
-        issue: "Three ci_gate_aggregate rows contain ci_gate, not the live ci-gate job identifier."
       - path: "test/sigra/planning/phase_235_terminal_ratification_contract_test.exs"
-        issue: "validate_rows!/1 validates only nonempty semantic fields, apart from a library_tests aggregate special case."
+        issue: "validate_rows!/1 only semantically constrains ci_gate_aggregate; it does not implement the Plan 05 workflow/receipt mapping contract for the remaining rows."
     missing:
-      - "Correct the ci_gate rows and enforce a declared family/event-to-owner/aggregate/receiver/receipt mapping against parsed workflow job IDs and evidence receipts."
-      - "Add wrong-but-plausible owner, receiver, aggregate, and receipt mutation coverage."
+      - "Declare and validate each family/event owner, aggregate, receiver, state, and receipt against parsed workflow jobs and retained evidence."
 ---
 
 # Phase 235: Terminal Ratification — Measured, Not Read Verification Report
 
 **Phase Goal:** The milestone's headline claims are proven from run data, and a maintainer can see exactly what moved and where it landed.
-**Verified:** 2026-08-02T19:12:46Z
+**Verified:** 2026-08-02T22:47:11Z
 **Status:** gaps_found
-**Re-verification:** Yes — after Plan 04 gap closure
+**Re-verification:** Yes — after Plan 05 claimed closure
 
 ## Goal Achievement
 
@@ -61,53 +56,56 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | PR wall-clock is under 12 minutes at p50 across at least 10 post-change PR runs. | ✗ FAILED | The ledger reports 19 PR runs and p50 772 seconds; `772 >= 720`. The roadmap permits honest disclosure, but FAST-01 remains Pending in REQUIREMENTS.md. |
-| 2 | The FAST-01 result is proven from a fixed, immutable bounded run population. | ✗ FAILED | `population_sha256` has no consumer; lines 554-568 do not pin the endpoint and lines 684-705 bind only self-supplied rows/receipt bytes. |
-| 3 | Push and schedule have reliable same-window measured counterparts. | ✗ FAILED | They are recalculated from ledger rows, but those rows share the same unbound endpoint/source-population weakness. |
-| 4 | The ownership artifact has the exact declared Playwright/non-Playwright key universe. | ✓ VERIFIED | Focused test passed; lines 611-624 compare the actual MapSet to the 93-key inventory-derived universe and tests reject extra family/event rows. |
-| 5 | The ownership artifact accurately states where every affected family landed. | ✗ FAILED | The live job is `ci-gate` (`ci.yml:1522`), while all three `ci_gate_aggregate` rows say `ci_gate`; arbitrary nonempty mappings also pass lines 643-656. |
-| 6 | CONTRIBUTING accurately distinguishes direct owners, aggregates, local reproduction, and intentionally non-PR signals. | ✓ VERIFIED | Focused topology tests passed; workflow-scoped checks confirm `library_tests_shard`, `example_playwright_shard`, aggregate `needs`, and both non-PR job guards. |
-| 7 | SEED-005 and CI-PERF reconcile the terminal result and the FAST-01 residual is ledger-linked. | ✓ VERIFIED | Both records cite the terminal ledger, 19 runs/772 seconds, the honest miss, and the single pending residual path. |
-| 8 | The closeout contract resists contributor-topology contradictions. | ✓ VERIFIED | Lines 845-965 extract named job blocks and reject aggregate-executor and false-PR claims; its contradiction mutations pass. |
+| 1 | The FAST-01 result is computed using the baseline-compatible wall measurement and strict `< 720` rule. | ✓ VERIFIED | The focused contract recomputes 19 PR runs and obtains p50 772; `strict_fast_01_status/2` rejects 720. |
+| 2 | FAST-01 is actually under 12 minutes p50 over at least 10 post-change PR runs. | ✗ FAILED | The committed result is 772 seconds across 19 runs; FAST-01 remains unchecked/Pending in REQUIREMENTS.md. The roadmap expressly requires disclosure of this miss. |
+| 3 | An immutable source receipt independently binds every retained run used by the terminal calculation. | ✗ FAILED | No canonical `gh run list` output exists in the ledger and no validator reads `population_sha256` against receipt bytes. |
+| 4 | Binding-pole receipts prove the median and maximum diagnoses from the retained PR population. | ✗ FAILED | Confirmed CR-01: receipt selection, `wall_seconds`, metrics command, and `output_sha256` are not compared with the derived poles or output. |
+| 5 | One artifact contains the exact before/after PR/push/schedule ownership universe. | ✓ VERIFIED | The hash-pinned Phase 234 inventory plus 11 non-Playwright families form, and the contract enforces, the 93-key cross product. |
+| 6 | That artifact accurately identifies the executable owner/aggregate/receiver and receipt for every row. | ✗ FAILED | Only `ci_gate_aggregate` receives semantic checking; arbitrary nonempty values pass for the other 90 rows. |
+| 7 | Push and schedule outcomes are recorded using the same window. | ✗ FAILED | The ledger records 1/1 push and 0/2 schedule outcomes, but their source populations have the same unbound-receipt flaw as the PR data. |
+| 8 | CONTRIBUTING describes the post-v1.47 topology and local reproduction path that CI actually uses. | ✓ VERIFIED | Contract passes direct job block, aggregate-needs, local `MIX_ENV=test mix ci`, Playwright seam, and non-PR guard checks. |
+| 9 | SEED-005 and CI-PERF reconcile the executed 230–235 sequence and ledger-linked FAST-01 residual. | ✓ VERIFIED | Focused closeout test validates the artifact links, 19/772 miss wording, push/schedule outcomes, and sole residual. |
+| 10 | Plan 05 hardens existing evidence without altering CI topology or fabricating a pass. | ✓ VERIFIED | Its three commits modify only the ledger and focused contract; the retained result remains the 772-second miss. |
 
-**Score:** 4/8 truths verified (0 present, behavior-unverified)
+**Score:** 4/10 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `.planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json` | Single terminal measurement and ownership source | ⚠️ PARTIAL | Substantive 3,040-line ledger with current data, canonical metric output, and 93 rows; provenance and one live owner are not correct/fail-closed. |
-| `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | Fail-closed ledger/topology/closeout contract | ⚠️ PARTIAL | Substantive and executed (13 tests pass), but it omits source-population, binding-pole, and full ownership-semantics enforcement. |
-| `CONTRIBUTING.md` | Current CI topology and local reproduction | ✓ VERIFIED | The scoped test and direct workflow inspection agree. |
-| `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` | Ledger-backed terminal addendum | ✓ VERIFIED | Documents the measured miss and residual without claiming target achievement. |
-| `.planning/MILESTONE-ARC.md` | Reconciled CI-PERF outcome | ✓ VERIFIED | Cites the ledger and preserves the FAST-01 miss/residual. |
+| `235-TERMINAL-RATIFICATION.json` | Immutable terminal measurements and before/after ownership ledger | ⚠️ PARTIAL | Substantive 3,042-line ledger, but source-run evidence is self-asserted and ownership semantics are incomplete. |
+| `phase_235_terminal_ratification_contract_test.exs` | Fail-closed source, pole, ownership, and closeout contract | ⚠️ PARTIAL | 13 focused tests pass, but they do not exercise the required source-population or pole/row semantic mutations. |
+| `CONTRIBUTING.md` | Accurate topology and local reproduction | ✓ VERIFIED | Parsed live-workflow checks pass. |
+| `SEED-005...md` / `MILESTONE-ARC.md` | Ledger-backed closeout | ✓ VERIFIED | Current wording is validated against the measured miss. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Phase 234 inventory | Terminal ledger | Pinned inventory SHA and exact 93-key cross-product | ✓ WIRED | Test reads the inventory, checks its SHA, and enforces exact key equality. |
-| Retained GitHub run data | Terminal ledger | Capture endpoint, run IDs, metadata, canonical metric receipt | ✗ NOT PROVEN | No retained raw source receipt or endpoint/population-hash validation exists. |
-| Terminal ledger | Focused contract | Recomputed stats → canonical receipt → digest → verdict | ⚠️ PARTIAL | Internally wired and recomputed, but all inputs can be coherently replaced. |
-| Live CI workflow | Ownership ledger | After direct owner, aggregate, and receiver | ✗ NOT_WIRED | Full-row semantics are not checked; `ci_gate` demonstrably does not match `ci-gate`. |
-| Live CI workflow | CONTRIBUTING | Owners, aggregates, direct commands, event guards | ✓ WIRED | Named workflow-block extraction and contradiction tests pass. |
+| Phase 234 inventory | Terminal ledger | Hash-pinned exact 93-key cross-product | ✓ WIRED | Validator reads the inventory and enforces exact key equality. |
+| GitHub run-list evidence | Terminal ledger | Raw bounded receipt → retained identities → statistics | ✗ NOT WIRED | Endpoint/hash constants have no retained raw population to bind. |
+| Retained PR data | Binding-pole diagnosis | Derived median/max → replayed metrics receipt | ✗ PARTIAL | A source job is validated, but the claimed poles and metrics metadata are not bound. |
+| Live CI workflow | Ownership ledger | Parsed jobs/needs → each row's semantic mapping | ✗ NOT WIRED | The validator parses workflow blocks only for CONTRIBUTING, not the ownership-row map. |
+| CONTRIBUTING | Closeout contract | Supplied contributor content → topology validation | ✓ WIRED | `validate_closeout_records!/5` calls `validate_contributor_topology!/5`. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| Terminal ledger | `measurements.*.runs` / statistics | Committed run metadata | No independently bound source receipt | ⚠️ SELF-ASSERTED |
-| Terminal ledger | `ownership.rows` | Phase 234 inventory plus workflow/evidence labels | Exact key set flows; semantic destination map is unconstrained | ✗ HOLLOW_MAPPING |
-| CONTRIBUTING | CI overview statements | Parsed `ci.yml` job blocks | Yes | ✓ FLOWING |
+| Terminal ledger | `measurements.*.runs` / statistics | Self-contained JSON rows | No independently retained source receipt | ⚠️ SELF-ASSERTED |
+| Terminal ledger | `receipts.binding_pole` | Embedded per-run source-job JSON | Individual job identity exists, but not the asserted pole/metric relationship | ⚠️ PARTIAL |
+| Ownership ledger | `ownership.rows` | Inventory plus literals | Key set flows; destination semantics do not | ✗ HOLLOW_MAPPING |
+| CONTRIBUTING | topology statements | Parsed `ci.yml` blocks | Yes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Phase 235 terminal contract | `MIX_ENV=test mix test test/sigra/planning/phase_235_terminal_ratification_contract_test.exs --trace` | 13 tests, 0 failures | ✓ PASS — coverage gaps found by source inspection |
-| Metric semantics | `bash scripts/ci/ci-run-metrics.test.sh` | 9 passed, 0 failed | ✓ PASS |
-| Phase 234 inventory contract | `MIX_ENV=test mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs` | 6 tests, 0 failures | ✓ PASS |
-| Current owner reconciliation | `jq` direct owners vs `ci.yml` job IDs | `ci_gate` has no matching job; live ID is `ci-gate` | ✗ FAIL |
+| Focused Phase 235 contract | `MIX_ENV=test mix test test/sigra/planning/phase_235_terminal_ratification_contract_test.exs --trace` | 13 tests, 0 failures | ✓ PASS |
+| Metrics instrument | `bash scripts/ci/ci-run-metrics.test.sh` | 9 passed, 0 failed | ✓ PASS |
+| Review CR-01 source inspection | `validate_binding_pole_receipts!/2` at lines 816–841 | No expected-selection, wall-time, command, or output-digest comparisons | ✗ FAIL |
+
+The focused test command emitted PostgreSQL connection-refused diagnostics during test application startup, but all 13 selected contract tests completed successfully; these filesystem-only contract tests do not require a database.
 
 ### Probe Execution
 
@@ -117,41 +115,34 @@ Step 7c: SKIPPED — no Phase 235 probe script or declared probe was found.
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| FAST-01 | 235-01, 235-02, 235-03, 235-04 | Under-12-minute PR p50 over at least 10 post-change runs | ✗ BLOCKED | Reported p50 is 772 seconds, not strict `< 720`; additionally the claimed source population/binding-pole proof is not immutable. |
-| GATE-05 | 235-01, 235-02, 235-03, 235-04 | One before/after PR/main/nightly ownership artifact with no silently dropped tests | ✗ BLOCKED | Exact row keys pass, but inaccurate/unvalidated destinations mean the artifact cannot prove where work landed. |
+| FAST-01 | 235-01 through 235-05 | PR merge verdict under 12m p50 across at least 10 post-change runs | ✗ BLOCKED | The recorded 19-run p50 is 772 seconds (not `< 720`) and the claimed immutable evidence boundary/pole proof is incomplete. |
+| GATE-05 | 235-01 through 235-05 | Single before/after PR/main/nightly ownership artifact proving no silent drop | ✗ BLOCKED | Exact coverage keys are proven, but arbitrary ownership destinations and receipts are still accepted. |
 
-Every requirement declared by every Phase 235 PLAN (`FAST-01`, `GATE-05`) is mapped in REQUIREMENTS.md to Phase 235. No orphaned phase requirement was found. No later milestone phase exists to defer these gaps to.
+All requirements declared in the Phase 235 plans (`FAST-01`, `GATE-05`) are mapped to Phase 235 in REQUIREMENTS.md. No orphaned Phase 235 requirement exists. There is no later milestone phase that specifically defers these gaps.
 
-### Review Findings Re-evaluated
+### Review Finding Re-evaluated
 
 | Finding | Verdict | Effect |
 | --- | --- | --- |
-| CR-01: capture endpoint can move | Confirmed BLOCKER | In scope of Plan 04's immutable-run-population must-have; invalidates run-data proof. |
-| CR-02: retained run identities not real/bound | Confirmed BLOCKER | In scope; ledger cannot be traced to GitHub executions. |
-| CR-03: binding-pole receipt is unbound | Confirmed BLOCKER | In scope; the required miss diagnosis can be fabricated. |
-| WR-01: arbitrary ownership semantics | Confirmed BLOCKER | Although classified Warning by review, it fails a must-have and has an observed `ci_gate`/`ci-gate` contradiction. |
-| WR-02: closeout ignores supplied contributor record | Confirmed WARNING | The separate topology test verifies current CONTRIBUTING, but closeout does not itself compose that validation; harden it with a contradiction mutation. |
-
-The three critical findings are not advisory hardening: Plan 04 explicitly promised immutable evidence, a fail-closed ownership contract, and workflow-related topology. They therefore block goal achievement. WR-02 is advisory only; WR-01 is escalated because it produces an observable inaccurate ownership row.
+| CR-01: binding-pole receipt can accept forged median/max evidence | **Confirmed BLOCKER** | It directly defeats the phase goal's requirement to derive the honest FAST-01 result from retained measured evidence. The passing suite does not test this invariant. |
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-| --- | --- | --- | --- | --- |
-| `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 554-705 | Endpoint/population hash unused; self-derived run receipts | 🛑 BLOCKER | A coherent forged population can pass. |
-| `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 741-750 | Minimal binding-pole receipt validation | 🛑 BLOCKER | A fabricated diagnosis can pass. |
-| `235-TERMINAL-RATIFICATION.json` | `ci_gate_aggregate` rows | `ci_gate` instead of workflow job `ci-gate` | 🛑 BLOCKER | Maintainer is shown an incorrect destination. |
-| `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 765 | `_contributing` ignored by closeout validator | ⚠️ Warning | Closeout composition is weaker than claimed. |
+| --- | --- | --- | --- |
+| `phase_235_terminal_ratification_contract_test.exs` | 790–840 | Receipt fields validated only for local consistency, not derived-pole consistency | 🛑 BLOCKER | A forged median/max diagnosis can pass. |
+| `phase_235_terminal_ratification_contract_test.exs` | 575–755 | Capture constants and mutable ledger runs, with no raw run-list receipt | 🛑 BLOCKER | A coherent replacement population can pass. |
+| `phase_235_terminal_ratification_contract_test.exs` | 673–694 | Almost all ownership values are only nonempty strings | 🛑 BLOCKER | The ownership artifact cannot prove where tests actually landed. |
 
-No Phase 235-created file contains an unreferenced `TBD`, `FIXME`, or `XXX` debt marker.
+No unreferenced `TBD`, `FIXME`, or `XXX` marker was found in Phase 235's modified artifacts.
 
 ### Gaps Summary
 
-Plan 04 repaired the original internal integrity defects: it recomputes ledger statistics, checks canonical digest bytes, closes the exact ownership key set, and semantically checks the present contributor wording. That is real progress, but it does not make the milestone headline claims proven from run data.
+Plan 05 repaired the observed `ci_gate` spelling and made the closeout validator consume CONTRIBUTING. Those fixes are real, but they do not fulfill its central evidence-boundary contract. The ledger still proves only that its own editable rows are internally consistent. It neither anchors the population to a retained GitHub response nor proves that its two binding-pole claims are the median and maximum of that population. Its coverage inventory is exhaustive by key but not trustworthy by executable destination.
 
-The external evidence boundary remains forgeable, and the ownership artifact currently names a job that does not exist. These are implementation gaps, not human-UAT questions. This is an **Escalation Gate**: a corrective closure plan must bind raw GitHub evidence and each ownership mapping, while preserving the honest 772-second FAST-01 miss.
+This is an **Escalation Gate**. A corrective closure plan must add the missing source and replay receipts, fail-closed pole-selection checks, and exhaustive workflow/receipt ownership semantics. It must retain the honest 772-second FAST-01 miss rather than declare FAST-01 achieved.
 
 ---
 
-_Verified: 2026-08-02T19:12:46Z_
+_Verified: 2026-08-02T22:47:11Z_
 _Verifier: the agent (gsd-verifier)_
