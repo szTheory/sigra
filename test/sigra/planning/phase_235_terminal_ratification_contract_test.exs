@@ -522,6 +522,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       )
     end
 
+    assert_raise ArgumentError, ~r/contributor topology/, fn ->
+      validate_closeout_records!(ledger, nil, seed, milestone_arc, residual)
+    end
+
     pass_ledger =
       ledger
       |> put_in(["verdict", "fast_01", "status"], "pass")
@@ -679,6 +683,14 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       unless is_binary(row["receiver"]) and row["receiver"] != "" and is_binary(row["receipt"]) and
                row["receipt"] != "",
              do: raise(ArgumentError, "receipt or receiver #{row["event"]}")
+
+      if row["family"] == "ci_gate_aggregate" do
+        expected = "ci-gate"
+
+        unless after_row["direct_owner"] == expected and after_row["seam"] == expected and
+                 get_in(after_row, ["terminal_aggregate", "id"]) == expected and row["receiver"] == expected,
+               do: raise(ArgumentError, "ci-gate ownership semantics")
+      end
     end
   end
 
@@ -828,7 +840,17 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
-  defp validate_closeout_records!(ledger, _contributing, seed, milestone_arc, residual) do
+  defp validate_closeout_records!(ledger, contributing, seed, milestone_arc, residual) do
+    unless is_binary(contributing), do: raise(ArgumentError, "contributor topology")
+
+    validate_contributor_topology!(
+      contributing,
+      File.read!(@workflow_path),
+      File.read!(@mix_path),
+      File.read!(@playwright_config_path),
+      File.read!(@playwright_package_path)
+    )
+
     fast_01 = ledger["verdict"]["fast_01"]
     closeout = ledger["closeout"]
 
