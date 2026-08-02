@@ -324,40 +324,50 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     playwright_config = File.read!(@playwright_config_path)
     playwright_package = File.read!(@playwright_package_path)
 
-    assert_raise ArgumentError, ~r/direct owner example_playwright_shard/, fn ->
+    assert_raise ArgumentError, ~r/Playwright topology statement/, fn ->
       String.replace(contributing, "example_playwright_shard", "example_playwright_smoke",
         global: false
       )
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
-    assert_raise ArgumentError, ~r/Playwright seam demo_showcase/, fn ->
+    assert_raise ArgumentError, ~r/Playwright topology statement/, fn ->
       String.replace(contributing, "demo_showcase", "demo-showcase-removed", global: false)
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
-    assert_raise ArgumentError, ~r/local parity command/, fn ->
+    assert_raise ArgumentError, ~r/library topology statement/, fn ->
       String.replace(contributing, "MIX_ENV=test mix ci", "mix ci")
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
-    assert_raise ArgumentError, ~r/Playwright reproduction path/, fn ->
+    assert_raise ArgumentError, ~r/Playwright topology statement/, fn ->
       String.replace(contributing, "test/example/priv/playwright", "test/example/priv/browser")
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
     assert_raise ArgumentError, ~r/aggregate executor contradiction/, fn ->
-      (contributing <> "\n- `library_tests / Library tests` executes `MIX_ENV=test mix ci`.\n")
+      String.replace(
+        contributing,
+        "## Reviewing admin Playwright artifacts",
+        "- `library_tests / Library tests` executes `MIX_ENV=test mix ci`.\n\n## Reviewing admin Playwright artifacts",
+        global: false
+      )
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
     assert_raise ArgumentError, ~r/non-PR executor contradiction admin_eval_render/, fn ->
-      (contributing <> "\n- `admin_eval_render` executes on pull requests.\n")
+      String.replace(
+        contributing,
+        "## Reviewing admin Playwright artifacts",
+        "- `admin_eval_render` executes on pull requests.\n\n## Reviewing admin Playwright artifacts",
+        global: false
+      )
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
     for signal <- ~w(admin_eval_render admin_design_recapture) do
-      assert_raise ArgumentError, ~r/non-PR signal #{signal}/, fn ->
+      assert_raise ArgumentError, ~r/#{signal} topology statement/, fn ->
         String.replace(
           contributing,
           "`#{signal}` is intentionally non-PR",
@@ -799,6 +809,66 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
          playwright_config,
          playwright_package
        ) do
+    overview = ci_overview!(contributing)
+    library_shard = workflow_job_block!(workflow, "library_tests_shard")
+    library_aggregate = workflow_job_block!(workflow, "library_tests")
+    playwright_shard = workflow_job_block!(workflow, "example_playwright_shard")
+    playwright_aggregate = workflow_job_block!(workflow, "example_playwright_smoke")
+
+    require_text!(library_shard, "run: MIX_ENV=test mix ci", "library direct-owner command")
+    require_text!(library_aggregate, "needs: [library_tests_shard]", "library aggregate needs")
+    require_text!(playwright_shard, "npx playwright test", "Playwright direct-owner command")
+    require_text!(playwright_aggregate, "example_playwright_shard", "Playwright aggregate needs")
+
+    if library_aggregate =~ "MIX_ENV=test mix ci" or playwright_aggregate =~ "npx playwright test" do
+      raise ArgumentError, "aggregate executes suite"
+    end
+
+    for signal <- ~w(admin_eval_render admin_design_recapture) do
+      workflow
+      |> workflow_job_block!(signal)
+      |> require_text!(
+        "if: github.event_name != 'pull_request'",
+        "workflow non-PR signal #{signal}"
+      )
+    end
+
+    require_unique_statement!(
+      overview,
+      "- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the seven-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.",
+      "library topology statement"
+    )
+
+    require_unique_statement!(
+      overview,
+      "- **Playwright** — `example_playwright_shard` is the direct five-seam executor for `admin_behavior`, `admin_checkpoints`, `design_gallery`, `non_admin_smoke`, and `demo_showcase`. `example_playwright_smoke / Example Playwright smoke (full lifecycle)` reads those seam results as the terminal aggregate; it does not execute the browser seams itself. Curated admin checkpoint PNGs are collected under `test/example/priv/playwright/artifacts/admin-checkpoints/`.",
+      "Playwright topology statement"
+    )
+
+    require_unique_statement!(
+      overview,
+      "- **Intentional non-PR signal: admin eval** — `admin_eval_render` is intentionally non-PR and runs on push, schedule, and workflow_dispatch; it is a hard diagnostic signal rather than a PR executor or protected required check.",
+      "admin_eval_render topology statement"
+    )
+
+    require_unique_statement!(
+      overview,
+      "- **Intentional non-PR signal: design recapture** — `admin_design_recapture` is intentionally non-PR and runs on push, schedule, and workflow_dispatch for its guarded baseline-recapture conditions; it is likewise not a PR executor or protected required check.",
+      "admin_design_recapture topology statement"
+    )
+
+    if overview =~ "`library_tests / Library tests` executes" or
+         overview =~
+           "`example_playwright_smoke / Example Playwright smoke (full lifecycle)` executes" do
+      raise ArgumentError, "aggregate executor contradiction"
+    end
+
+    for signal <- ~w(admin_eval_render admin_design_recapture) do
+      if Regex.match?(~r/`#{Regex.escape(signal)}`[^\n.]*executes on pull requests/i, overview) do
+        raise ArgumentError, "non-PR executor contradiction #{signal}"
+      end
+    end
+
     require_text!(contributing, "MIX_ENV=test mix ci", "local parity command")
     require_text!(contributing, "library_tests_shard", "direct owner library_tests_shard")
 
@@ -829,10 +899,6 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     require_text!(contributing, "npm test", "Playwright reproduction command")
     require_text!(contributing, "playwright.config.ts", "Playwright reproduction config")
 
-    require_text!(workflow, "library_tests_shard:", "workflow library direct owner")
-    require_text!(workflow, "library_tests:", "workflow library aggregate")
-    require_text!(workflow, "example_playwright_shard:", "workflow Playwright direct owner")
-    require_text!(workflow, "example_playwright_smoke:", "workflow Playwright aggregate")
     require_text!(mix_exs, "ci:", "mix ci alias")
     require_text!(playwright_config, "projects:", "Playwright config projects")
 
@@ -854,8 +920,6 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         "push, schedule, and workflow_dispatch",
         "non-PR event conditions"
       )
-
-      require_text!(workflow, "#{signal}:", "workflow non-PR signal #{signal}")
     end
 
     :ok
@@ -863,6 +927,27 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp require_text!(text, expected, diagnostic) do
     unless text =~ expected, do: raise(ArgumentError, diagnostic)
+  end
+
+  defp ci_overview!(contributing) do
+    case Regex.named_captures(~r/^## CI overview\n(?<overview>.*?)(?=^## |\z)/ms, contributing) do
+      %{"overview" => overview} -> overview
+      _ -> raise ArgumentError, "CI overview section"
+    end
+  end
+
+  defp require_unique_statement!(overview, statement, diagnostic) do
+    count = overview |> String.split("\n") |> Enum.count(&(String.trim(&1) == statement))
+    unless count == 1, do: raise(ArgumentError, diagnostic)
+  end
+
+  defp workflow_job_block!(workflow, job_id) do
+    pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
+
+    case Regex.named_captures(pattern, workflow) do
+      %{"body" => body} -> body
+      _ -> raise ArgumentError, "workflow job block #{job_id}"
+    end
   end
 
   defp strict_fast_01_status(count, p50) when count >= 10 and p50 < 720, do: "pass"
