@@ -247,6 +247,7 @@
           "pass": 13,
           "fail": 6
         },
+        "output_receipt": "[\n  {\n    \"trigger\": \"pull_request\",\n    \"n\": 19,\n    \"mean_seconds\": 821.1052631578947,\n    \"p50_seconds\": 772,\n    \"max_seconds\": 1447,\n    \"pass\": 13,\n    \"fail\": 6\n  }\n]\n",
         "output_sha256": "ed89ece54295e1e7549095b918a31e064e496757c21d664677bdcc97cdcd6f16",
         "exit_status": 0
       },
@@ -288,6 +289,7 @@
           "pass": 1,
           "fail": 1
         },
+        "output_receipt": "[\n  {\n    \"trigger\": \"push\",\n    \"n\": 2,\n    \"mean_seconds\": 1430,\n    \"p50_seconds\": 1439,\n    \"max_seconds\": 1439,\n    \"pass\": 1,\n    \"fail\": 1\n  }\n]\n",
         "output_sha256": "d35a39bd9416d4007291871dad75aca4e73b5a3fffeff99878e63963dab62d1b",
         "exit_status": 0
       },
@@ -329,6 +331,7 @@
           "pass": 0,
           "fail": 2
         },
+        "output_receipt": "[\n  {\n    \"trigger\": \"schedule\",\n    \"n\": 2,\n    \"mean_seconds\": 1436.5,\n    \"p50_seconds\": 1546,\n    \"max_seconds\": 1546,\n    \"pass\": 0,\n    \"fail\": 2\n  }\n]\n",
         "output_sha256": "8e078a304262832f464b56907a6aa30d73c6bde8e55b3b7d193dc68e915309ff",
         "exit_status": 0
       }
