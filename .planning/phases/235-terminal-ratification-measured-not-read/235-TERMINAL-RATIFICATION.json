@@ -3024,10 +3024,14 @@
     }
   },
   "closeout": {
-    "status": "pending_records_reconciliation",
-    "gate_05": "not_evaluated",
+    "status": "records_reconciled",
+    "gate_05": "reconciled",
     "measurement_ready": true,
     "performance_target_achieved": false,
-    "records_reconciled": false
+    "contributing_path": "CONTRIBUTING.md",
+    "seed_path": ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md",
+    "milestone_arc_path": ".planning/MILESTONE-ARC.md",
+    "residual_path": ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md",
+    "records_reconciled": true
   }
 }

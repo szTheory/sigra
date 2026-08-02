@@ -281,9 +281,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
 
     pass_ledger = ledger |> put_in(["verdict", "fast_01", "status"], "pass") |> put_in(["closeout", "performance_target_achieved"], true) |> put_in(["closeout", "residual_path"], nil)
+    pass_seed = String.replace(seed, "FAST-01 remains unmet", "FAST-01 target achieved")
+    pass_arc = String.replace(milestone_arc, "FAST-01 remains unmet", "FAST-01 target achieved")
 
     assert_raise ArgumentError, ~r/residual present on pass/, fn ->
-      validate_closeout_records!(pass_ledger, contributing, seed, milestone_arc, residual)
+      validate_closeout_records!(pass_ledger, contributing, pass_seed, pass_arc, residual)
     end
   end
 
@@ -440,11 +442,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       require_text!(record, "schedule: 0 success / 2 non-success", "schedule outcomes")
     end
 
-    require_text!(milestone_arc, "FAST-01 remains unmet", "FAST-01 miss claim")
     unless not String.contains?(milestone_arc, "### ACTIVE — promoted to milestone v1.40"), do: raise(ArgumentError, "stale ACTIVE status")
 
     case fast_01["status"] do
       "miss" ->
+        require_text!(milestone_arc, "FAST-01 remains unmet", "FAST-01 miss claim")
         unless closeout["residual_path"] == @residual_path and is_binary(residual), do: raise(ArgumentError, "residual path")
         require_text!(seed, @residual_path, "seed residual link")
         require_text!(milestone_arc, @residual_path, "arc residual link")
@@ -458,6 +460,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         end
 
       "pass" ->
+        require_text!(milestone_arc, "FAST-01 target achieved", "FAST-01 pass claim")
+        if String.contains?(milestone_arc, "FAST-01 remains unmet"), do: raise(ArgumentError, "miss prose on pass")
         unless is_nil(closeout["residual_path"]) and is_nil(residual), do: raise(ArgumentError, "residual present on pass")
       _ ->
         raise ArgumentError, "FAST-01 status"

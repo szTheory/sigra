@@ -264,10 +264,11 @@ The remaining meaningful work clusters are:
 
 > **Meta-framing (graduated from 137-LEARNINGS, 2026-05-29):** the honest bottleneck for "is Sigra done?" is **absence of real adopters, not missing features**. Demo Showcase is the best remaining *build*; the move after it is non-code — a 1.0 Hex cut + adoption push. Weight that above further feature wedges.
 
-### ACTIVE — promoted to milestone v1.40 (2026-06-19)
+### RECONCILED — CI-EFFICIENCY terminal measurement (2026-08-02)
 
-**ID:** `CI-PERF` — **CI/CD Pipeline Performance Audit** (filed 2026-06-18; promoted to active milestone **v1.40 CI-PERF** on 2026-06-19; see `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` + `.planning/REQUIREMENTS.md`)
-**Lane:** Maintenance / trust (CI) + contributor DX. **Priority:** Medium-High, but **not** correctness — CI is green, just slow (~17–30m PR wall-clock; long poles: `library_tests` ~16m unpartitioned, `library_tests_dep_off` ~13m full rerun, two Playwright lanes ~8–22m). Driven by the verbatim companion playbook in the seed. Guardrails: keep high-value gates, cut only lowest-signal/flaky, deterministic, cache correctly, never trade trust for speed.
+**ID:** `CI-PERF` — **CI/CD Pipeline Performance Audit** (filed 2026-06-18; promoted to active milestone **v1.40 CI-PERF** on 2026-06-19; see `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` + `.planning/REQUIREMENTS.md`). The historical baseline remains the original ~17–30m PR wall-clock record; the audit was completed in 2026 and its remediation sequence was executed as **Phases 230–235**, rather than re-audited.
+
+The terminal receipt is `.planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json`: 19 retained pull_request runs produced a 772 seconds p50. FAST-01 remains unmet because 772 is not strictly less than 720; this is a delivered remediation sequence with an honest measured miss, not a target-achieved claim. Same-window outcomes were push: 1 success / 1 non-success and schedule: 0 success / 2 non-success. The ledger-backed binding-pole residual is `.planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md`.
 
 ## The "Diminishing Returns" Wall (Permanent Non-Goals)
 
