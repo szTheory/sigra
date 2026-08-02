@@ -32,7 +32,12 @@ defmodule Sigra.EnterpriseConnections.ValidationTest do
 
     config = %{
       dns_resolver: fn _host -> {:ok, [{93, 184, 216, 34}]} end,
-      http_client: fn url: _url ->
+      http_client: fn opts ->
+        assert Keyword.fetch!(opts, :url) ==
+                 "https://issuer.example/.well-known/openid-configuration"
+
+        assert Keyword.fetch!(opts, :redirect) == false
+
         {:ok,
          %{
            status: 200,
@@ -69,7 +74,8 @@ defmodule Sigra.EnterpriseConnections.ValidationTest do
   end
 
   test "rejects a hostname with a private DNS answer before making an HTTP request" do
-    connection = connection_with_discovery_uri("https://idp.example/.well-known/openid-configuration")
+    connection =
+      connection_with_discovery_uri("https://idp.example/.well-known/openid-configuration")
 
     assert {:error, :validation_failed, "OIDC discovery host resolves to a private address."} =
              Validation.validate(

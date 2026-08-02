@@ -110,7 +110,8 @@ defmodule Sigra.EnterpriseConnections.Validation do
     end
   end
 
-  defp require_https(%URI{scheme: "https", host: host}) when is_binary(host) and host != "", do: :ok
+  defp require_https(%URI{scheme: "https", host: host}) when is_binary(host) and host != "",
+    do: :ok
 
   defp require_https(_uri),
     do: {:error, :validation_failed, "OIDC discovery URL must use HTTPS."}
@@ -131,8 +132,11 @@ defmodule Sigra.EnterpriseConnections.Validation do
          true <- addresses != [] and Enum.all?(addresses, &public_address?/1) do
       :ok
     else
-      false -> {:error, :validation_failed, "OIDC discovery host resolves to a private address."}
-      {:error, _reason} -> {:error, :validation_failed, "OIDC discovery host could not be resolved."}
+      false ->
+        {:error, :validation_failed, "OIDC discovery host resolves to a private address."}
+
+      {:error, _reason} ->
+        {:error, :validation_failed, "OIDC discovery host could not be resolved."}
     end
   end
 
@@ -160,7 +164,9 @@ defmodule Sigra.EnterpriseConnections.Validation do
          {:ok, ipv6} <- :inet.getaddrs(host, :inet6) do
       {:ok, ipv4 ++ ipv6}
     else
-      {:error, :nxdomain} -> {:error, :nxdomain}
+      {:error, :nxdomain} ->
+        {:error, :nxdomain}
+
       {:error, _reason} ->
         # A hostname may legitimately publish only one address family.
         ipv4 = addresses_for(host, :inet)
@@ -177,7 +183,7 @@ defmodule Sigra.EnterpriseConnections.Validation do
     end
   end
 
-  defp public_address?({a, b, c, d}) do
+  defp public_address?({a, b, c, _d}) do
     not (a == 0 or a == 10 or a == 127 or a >= 224 or
            (a == 100 and b in 64..127) or
            (a == 169 and b == 254) or
@@ -190,11 +196,13 @@ defmodule Sigra.EnterpriseConnections.Validation do
 
   defp public_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: false
   defp public_address?({0, 0, 0, 0, 0, 0, 0, 0}), do: false
+
   defp public_address?({0, 0, 0, 0, 0, 0xFFFF, a, b}),
     do: public_address?({div(a, 256), rem(a, 256), div(b, 256), rem(b, 256)})
 
   defp public_address?({first, second, _rest3, _rest4, _rest5, _rest6, _rest7, _rest8}),
     do: first not in 0xFC..0xFF and not (first == 0xFE and second in 0x80..0xBF)
+
   defp public_address?(_address), do: false
 
   defp validate_discovery_document(document, issuer) do
