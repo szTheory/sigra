@@ -316,7 +316,7 @@ Plans:
 
 **Wave 9** *(blocked on refreshed local and managed-service evidence)*
 
-- [ ] 234-18-PLAN.md — Enforce the exact command-receipt inventory and ratify validation only from fully green evidence
+- [x] 234-18-PLAN.md — Enforce the exact command-receipt inventory and ratify validation only from fully green evidence
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
