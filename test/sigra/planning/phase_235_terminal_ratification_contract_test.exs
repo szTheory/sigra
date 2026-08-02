@@ -159,6 +159,22 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert_raise ArgumentError, ~r/captured wall measurement/, fn ->
       put_in(ledger, ["measurements", "pull_request", "command"], "bash scripts/ci/ci-run-metrics.sh --mode jobspan") |> validate_captured_ledger!()
     end
+
+    assert_raise ArgumentError, ~r/recomputed statistics/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "statistics", "p50_seconds"], 719) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/output receipt/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "output_receipt"], "[]\n") |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/output SHA-256/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "output_sha256"], String.duplicate("x", 64)) |> validate_captured_ledger!()
+    end
+
+    assert_raise ArgumentError, ~r/recomputed statistics/, fn ->
+      put_in(ledger, ["measurements", "pull_request", "runs", Access.at(0), "conclusion"], "failure") |> validate_captured_ledger!()
+    end
   end
 
   test "FAST-01 uses a strict sub-720 comparator and an evidence-backed miss diagnosis" do
@@ -172,6 +188,14 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     assert_raise ArgumentError, ~r/stored metrics output/, fn ->
       put_in(ledger, ["verdict", "fast_01", "observed_p50_seconds"], 719) |> validate_verdict!()
+    end
+
+    assert_raise ArgumentError, ~r/eligible pull request count/, fn ->
+      put_in(ledger, ["verdict", "fast_01", "eligible_pr_run_count"], 10) |> validate_verdict!()
+    end
+
+    assert_raise ArgumentError, ~r/same-window measurements/, fn ->
+      put_in(ledger, ["verdict", "same_window_measurements", "pull_request", "pass"], 19) |> validate_verdict!()
     end
 
     assert_raise ArgumentError, ~r/strict verdict/, fn ->
