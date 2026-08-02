@@ -76,7 +76,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | GATE-02 | Phase 231 | Complete (231-02 + 231-GAP-GATE02 + 231-07) |
 | GATE-03 | Phase 231 | Complete (231-08 + 231-09; runs `30526744204`/`30526771018`/`30526727106`) |
 | GATE-04 | Phase 231 | Complete (231-04 + 231-05 + 231-06; runs `30512523387`/`30514238789`; flipped by `231-VERIFICATION.md`'s independent ruling — hard signal on push/schedule/dispatch, not merge-blocking) |
-| GATE-05 | Phase 235 | Complete (235-04 exact ownership and topology contract) |
+| GATE-05 | Phase 235 | Pending |
 | PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Complete |
 | PW-03 | Phase 232 | Complete |
