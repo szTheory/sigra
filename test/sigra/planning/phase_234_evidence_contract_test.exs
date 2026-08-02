@@ -2,6 +2,15 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   use ExUnit.Case, async: true
 
   @evidence_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-EVIDENCE.json"
+  @validation_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
+  @quick_run_paths [
+    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+    "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+    "test/sigra/planning/phase_234_action_pinning_contract_test.exs",
+    "test/sigra/planning/phase_234_dependabot_contract_test.exs",
+    "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+    "test/sigra/planning/phase_234_evidence_contract_test.exs"
+  ]
   @mix_ci_legs [
     "format --check-formatted",
     "deps.get --check-locked",
@@ -287,5 +296,241 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert receipts["historical_gallery"]["status"] == "success"
     assert receipts["dependabot"]["status"] == "failed"
     assert_non_empty_string!(receipts["dependabot"], "diagnostics")
+  end
+
+  @tag :validation_signoff
+  test "validation sign-off parses its exact contract inventory before allowing a status transition" do
+    validation = File.read!(@validation_path)
+
+    assert %{
+             frontmatter: %{
+               "status" => "draft",
+               "nyquist_compliant" => "false",
+               "wave_0_complete" => "false"
+             },
+             quick_run_paths: @quick_run_paths,
+             wave_0_items: wave_0_items,
+             task_statuses: task_statuses,
+             command_receipts: command_receipts,
+             approval: approval
+           } = parsed = parse_validation!(validation)
+
+    assert Enum.all?(wave_0_items, & &1.complete),
+           "every Wave 0 artifact must be checked before sign-off"
+
+    assert Enum.all?(task_statuses, &(&1 == "✅ green")),
+           "every task-map row must be green before sign-off"
+
+    assert length(command_receipts) == 5
+    assert Enum.count(command_receipts, &(&1.exit_status == "0")) == 4
+    assert Enum.count(command_receipts, &(&1.exit_status == "1")) == 1
+    assert Enum.all?(command_receipts, &valid_command_receipt?/1)
+    assert approval =~ "Dependabot residual"
+    assert approval =~ "golden fixture residual"
+
+    assert {:residual, "dependabot"} = signoff_state(evidence())
+    assert :blocked = assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
+  end
+
+  @tag :validation_signoff
+  test "a stale quick-run contract path fails closed with the named path" do
+    validation = File.read!(@validation_path)
+
+    stale_path = "test/sigra/planning/stale_phase_234_contract_test.exs"
+
+    stale_validation =
+      String.replace(
+        validation,
+        "test/sigra/planning/phase_234_dependabot_contract_test.exs",
+        stale_path,
+        global: false
+      )
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        parse_validation!(stale_validation)
+      end
+
+    assert error.message =~ stale_path
+  end
+
+  @tag :validation_signoff
+  test "missing or red evidence and command receipts force every completion field to remain false" do
+    slots = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
+    green_evidence = Map.new(slots, &{&1, %{"status" => "success"}})
+    green_commands = List.duplicate(%{exit_status: "0"}, 5)
+
+    complete = %{
+      "status" => "complete",
+      "nyquist_compliant" => "true",
+      "wave_0_complete" => "true"
+    }
+
+    draft = %{"status" => "draft", "nyquist_compliant" => "false", "wave_0_complete" => "false"}
+
+    assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
+
+    for slot <- slots do
+      assert :blocked =
+               assert_transition_allowed!(
+                 draft,
+                 Map.put(green_evidence, slot, %{"status" => "failed"}),
+                 green_commands
+               )
+
+      assert :blocked =
+               assert_transition_allowed!(draft, Map.delete(green_evidence, slot), green_commands)
+    end
+
+    assert :blocked =
+             assert_transition_allowed!(draft, green_evidence, [
+               %{exit_status: "1"} | tl(green_commands)
+             ])
+  end
+
+  defp parse_validation!(validation) do
+    [frontmatter, body] = String.split(validation, "---\n", parts: 3) |> Enum.drop(1)
+    frontmatter = parse_frontmatter!(frontmatter)
+    quick_run_paths = parse_quick_run_paths!(body)
+    wave_0_items = parse_wave_0_items!(body)
+    task_statuses = parse_task_statuses!(body)
+    command_receipts = parse_command_receipts!(body)
+    approval = parse_approval!(body)
+
+    assert quick_run_paths == @quick_run_paths,
+           "quick-run contract inventory must equal the exact six focused contract paths; got: #{inspect(quick_run_paths)}"
+
+    assert Enum.uniq(quick_run_paths) == quick_run_paths,
+           "quick-run contract inventory contains duplicates"
+
+    Enum.each(quick_run_paths, fn path ->
+      assert File.exists?(path), "quick-run contract path does not exist: #{path}"
+    end)
+
+    %{
+      frontmatter: frontmatter,
+      quick_run_paths: quick_run_paths,
+      wave_0_items: wave_0_items,
+      task_statuses: task_statuses,
+      command_receipts: command_receipts,
+      approval: approval
+    }
+  end
+
+  defp parse_frontmatter!(frontmatter) do
+    frontmatter
+    |> String.split("\n", trim: true)
+    |> Enum.reduce(%{}, fn line, fields ->
+      case String.split(line, ":", parts: 2) do
+        [key, value] -> Map.put(fields, key, String.trim(value))
+        _ -> flunk("malformed validation frontmatter: #{inspect(line)}")
+      end
+    end)
+  end
+
+  defp parse_quick_run_paths!(body) do
+    [command] =
+      Regex.run(~r/\| \*\*Quick run command\*\* \| `([^`]+)` \|/, body, capture: :all_but_first)
+
+    case String.split(command, " ") do
+      ["mix", "test" | paths] when paths != [] -> paths
+      _ -> flunk("Quick run command must be a mix test command with paths")
+    end
+  end
+
+  defp parse_wave_0_items!(body) do
+    Regex.scan(~r/^- \[([ x])\] (.+)$/m, body, capture: :all_but_first)
+    |> Enum.map(fn [mark, item] -> %{complete: mark == "x", item: item} end)
+    |> case do
+      [] -> flunk("validation must contain a Wave 0 checklist")
+      items -> items
+    end
+  end
+
+  defp parse_task_statuses!(body) do
+    Regex.scan(~r/^\| 234-[^|]+\|.*?\| (✅ green|⬜ pending|❌ red|⚠️ flaky) \|$/m, body,
+      capture: :all_but_first
+    )
+    |> List.flatten()
+    |> case do
+      [] -> flunk("validation must contain task-map status rows")
+      statuses -> statuses
+    end
+  end
+
+  defp parse_command_receipts!(body) do
+    Regex.scan(
+      ~r/^\| `(.+?)` \| (\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ) \| (\d+) \| `([0-9a-f]{64})` \|$/m,
+      body,
+      capture: :all_but_first
+    )
+    |> Enum.map(fn [command, timestamp, exit_status, output_hash] ->
+      %{
+        command: command,
+        timestamp: timestamp,
+        exit_status: exit_status,
+        output_hash: output_hash
+      }
+    end)
+  end
+
+  defp parse_approval!(body) do
+    case Regex.run(~r/^\*\*Approval:\*\* (.+)$/m, body, capture: :all_but_first) do
+      [approval] -> approval
+      _ -> flunk("validation must name an approval state")
+    end
+  end
+
+  defp valid_command_receipt?(%{exit_status: exit_status, output_hash: hash})
+       when exit_status in ["0", "1"] do
+    hash =~ ~r/\A[0-9a-f]{64}\z/
+  end
+
+  defp valid_command_receipt?(_receipt), do: false
+
+  defp signoff_state(receipts) do
+    required_slots = [
+      "local_mix_ci",
+      "pr_ci",
+      "release",
+      "dependabot",
+      "gallery",
+      "historical_gallery"
+    ]
+
+    case Enum.find(required_slots, &(receipts[&1]["status"] != "success")) do
+      nil -> :complete
+      slot -> {:residual, slot}
+    end
+  end
+
+  defp assert_transition_allowed!(frontmatter, receipts, command_receipts) do
+    transition_fields = Map.take(frontmatter, ["status", "nyquist_compliant", "wave_0_complete"])
+
+    evidence_green? =
+      Enum.all?(
+        ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"],
+        fn slot -> is_map(receipts[slot]) and receipts[slot]["status"] == "success" end
+      )
+
+    commands_green? = Enum.all?(command_receipts, &(&1.exit_status == "0"))
+
+    if evidence_green? and commands_green? do
+      assert transition_fields == %{
+               "status" => "complete",
+               "nyquist_compliant" => "true",
+               "wave_0_complete" => "true"
+             }
+
+      :complete
+    else
+      assert transition_fields == %{
+               "status" => "draft",
+               "nyquist_compliant" => "false",
+               "wave_0_complete" => "false"
+             }
+
+      :blocked
+    end
   end
 end
