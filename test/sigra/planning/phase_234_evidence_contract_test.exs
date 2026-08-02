@@ -696,6 +696,19 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   @tag :validation_signoff
+  test "validation sign-off binds every receipt to one reviewed snapshot" do
+    parsed = parse_validation!(File.read!(@validation_path))
+
+    assert parsed.frontmatter["reviewed_commit_sha"] =~ ~r/\A[0-9a-f]{40}\z/
+
+    assert parsed.frontmatter["reviewed_at"] =~ ~r/\A\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ\z/
+
+    assert Enum.all?(parsed.command_receipts, fn receipt ->
+             receipt.commit_sha == parsed.frontmatter["reviewed_commit_sha"]
+           end)
+  end
+
+  @tag :validation_signoff
   test "production transition rejects bare and partial successful evidence receipts" do
     complete = %{
       "status" => "complete",
