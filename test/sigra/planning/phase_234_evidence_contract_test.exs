@@ -505,6 +505,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
         stale_path,
         global: false
       )
+      |> String.replace("| 1 |", "| 0 |")
 
     error =
       assert_raise ExUnit.AssertionError, fn ->
@@ -531,20 +532,25 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     assert :complete = assert_transition_allowed!(complete, green_evidence, green_commands)
 
     mutations =
-      [{"zero rows", [], "exactly five"} |
-       Enum.map(0..4, fn index ->
-         {"missing #{index}", List.delete_at(green_commands, index), "exactly five"}
-       end)] ++
+      [
+        {"zero rows", [], "exactly five"}
+        | Enum.map(0..4, fn index ->
+            {"missing #{index}", List.delete_at(green_commands, index), "exactly five"}
+          end)
+      ] ++
         [
           {"extra row", green_commands ++ [List.last(green_commands)], "exactly five"},
           {"duplicate command", List.replace_at(green_commands, 1, List.first(green_commands)),
            "exact ordered command inventory"},
           {"reordered rows", Enum.reverse(green_commands), "exact ordered command inventory"},
-          {"empty command", List.replace_at(green_commands, 0, %{List.first(green_commands) | command: ""}),
+          {"empty command",
+           List.replace_at(green_commands, 0, %{List.first(green_commands) | command: ""}),
            "exact ordered command inventory"},
           {"malformed timestamp",
-           List.replace_at(green_commands, 0, %{List.first(green_commands) | timestamp: "yesterday"}),
-           "UTC ISO-8601"},
+           List.replace_at(green_commands, 0, %{
+             List.first(green_commands)
+             | timestamp: "yesterday"
+           }), "UTC ISO-8601"},
           {"malformed hash",
            List.replace_at(green_commands, 0, %{List.first(green_commands) | output_hash: "hash"}),
            "lowercase SHA-256"},
@@ -552,8 +558,10 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
            List.replace_at(green_commands, 0, %{List.first(green_commands) | exit_status: "1"}),
            "exit_status"},
           {"stale command",
-           List.replace_at(green_commands, 0, %{List.first(green_commands) | command: "mix test stale"}),
-           "exact ordered command inventory"}
+           List.replace_at(green_commands, 0, %{
+             List.first(green_commands)
+             | command: "mix test stale"
+           }), "exact ordered command inventory"}
         ]
 
     for {name, commands, error_message} <- mutations do
@@ -576,7 +584,6 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
       assert :blocked =
                assert_transition_allowed!(draft, Map.delete(green_evidence, slot), green_commands)
     end
-
   end
 
   defp green_command_receipts do
@@ -598,6 +605,8 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     task_statuses = parse_task_statuses!(body)
     command_receipts = parse_command_receipts!(body)
     approval = parse_approval!(body)
+
+    assert :ok = validate_command_receipts!(command_receipts)
 
     assert quick_run_paths == @quick_run_paths,
            "quick-run contract inventory must equal the exact six focused contract paths; got: #{inspect(quick_run_paths)}"
@@ -683,31 +692,40 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
     end
   end
 
-  defp valid_command_receipt?(%{exit_status: exit_status, output_hash: hash})
-       when exit_status in ["0", "1"] do
-    hash =~ ~r/\A[0-9a-f]{64}\z/
+  defp validate_command_receipts!(command_receipts) when is_list(command_receipts) do
+    assert length(command_receipts) == length(@command_receipt_commands),
+           "command receipt inventory must contain exactly five rows"
+
+    assert Enum.map(command_receipts, & &1.command) == @command_receipt_commands,
+           "command receipt inventory must equal the exact ordered command inventory"
+
+    assert Enum.uniq_by(command_receipts, & &1.command) == command_receipts,
+           "command receipt inventory must not contain duplicate commands"
+
+    Enum.each(command_receipts, fn receipt ->
+      assert is_binary(receipt.command) and String.trim(receipt.command) != "",
+             "command receipt command must be non-empty"
+
+      assert is_binary(receipt.timestamp) and
+               match?({:ok, _datetime, 0}, DateTime.from_iso8601(receipt.timestamp)),
+             "command receipt timestamp must be a UTC ISO-8601 timestamp"
+
+      assert receipt.exit_status == "0", "command receipt exit_status must be 0"
+
+      assert is_binary(receipt.output_hash) and receipt.output_hash =~ ~r/\A[0-9a-f]{64}\z/,
+             "command receipt output_hash must be a lowercase SHA-256"
+    end)
+
+    :ok
   end
 
-  defp valid_command_receipt?(_receipt), do: false
-
-  defp signoff_state(receipts) do
-    required_slots = [
-      "local_mix_ci",
-      "pr_ci",
-      "release",
-      "dependabot",
-      "gallery",
-      "historical_gallery"
-    ]
-
-    case Enum.find(required_slots, &(receipts[&1]["status"] != "success")) do
-      nil -> :complete
-      slot -> {:residual, slot}
-    end
-  end
+  defp validate_command_receipts!(_command_receipts),
+    do: flunk("command receipt inventory must be a list")
 
   defp assert_transition_allowed!(frontmatter, receipts, command_receipts) do
     transition_fields = Map.take(frontmatter, ["status", "nyquist_compliant", "wave_0_complete"])
+
+    assert :ok = validate_command_receipts!(command_receipts)
 
     evidence_green? =
       Enum.all?(
