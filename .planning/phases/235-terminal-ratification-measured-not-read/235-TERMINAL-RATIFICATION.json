@@ -2982,14 +2982,52 @@
         "jobs_sha256": "6c46a3915f0c8a21670468a10bb154b03d4241f3805ff21b9108c7782376b240",
         "jobs_command": "gh run view 30734422326 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs"
       }
-    }
+    },
+    "binding_pole": [
+      {
+        "selection": "median_neighbor",
+        "run_id": 30723615281,
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/30723615281",
+        "wall_seconds": 772,
+        "command": "bash scripts/ci/ci-run-metrics.sh --jobs 30723615281 --format json",
+        "output_sha256": "5cabeeee382cdf9ecf6c89c2718c540ee32e4025723ada56fd858846d019466e",
+        "binding_pole": {"name": "Library tests shard", "conclusion": "success", "duration_seconds": 682}
+      },
+      {
+        "selection": "maximum_duration",
+        "run_id": 30723593560,
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/30723593560",
+        "wall_seconds": 1447,
+        "command": "bash scripts/ci/ci-run-metrics.sh --jobs 30723593560 --format json",
+        "output_sha256": "87596429cc1f932790e8d21729e32f41ea5b3a562eefc61bcf590cd812b792dc",
+        "binding_pole": {"name": "Example Playwright shard (admin_checkpoints)", "conclusion": "success", "duration_seconds": 1062}
+      }
+    ]
   },
   "verdict": {
-    "status": "pending",
-    "fast_01": "not_evaluated"
+    "status": "measured",
+    "fast_01": {
+      "status": "miss",
+      "threshold_seconds": 720,
+      "comparator": "lt",
+      "eligible_pr_run_count": 19,
+      "observed_p50_seconds": 772,
+      "baseline_p50_seconds": 1638,
+      "delta_from_baseline_seconds": -866,
+      "measurement_source": "measurements.pull_request.statistics.p50_seconds",
+      "reason": "772 seconds is not strictly less than 720 seconds"
+    },
+    "same_window_measurements": {
+      "pull_request": {"n": 19, "p50_seconds": 772, "pass": 13, "fail": 6},
+      "push": {"n": 2, "p50_seconds": 1439, "pass": 1, "fail": 1},
+      "schedule": {"n": 2, "p50_seconds": 1546, "pass": 0, "fail": 2}
+    }
   },
   "closeout": {
-    "status": "pending",
-    "gate_05": "not_evaluated"
+    "status": "pending_records_reconciliation",
+    "gate_05": "not_evaluated",
+    "measurement_ready": true,
+    "performance_target_achieved": false,
+    "records_reconciled": false
   }
 }

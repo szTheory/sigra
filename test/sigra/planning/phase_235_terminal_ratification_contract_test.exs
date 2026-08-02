@@ -17,8 +17,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert ledger["topology_cutoff"]["source_commit_sha"] == @cutoff_sha
     assert ledger["topology_cutoff"]["committed_at"] == "2026-08-01T02:06:30Z"
     assert ledger["capture_endpoint"]["status"] == "captured"
-    assert ledger["verdict"]["status"] == "pending"
-    assert ledger["closeout"]["status"] == "pending"
+    assert ledger["verdict"]["status"] == "measured"
+    assert ledger["closeout"]["status"] == "pending_records_reconciliation"
   end
 
   test "baseline-compatible measurements preserve the committed seconds without recomputation" do
@@ -158,6 +158,27 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     ledger = ledger!()
 
     assert validate_verdict!(ledger) == :ok
+
+    assert strict_fast_01_status(10, 719) == "pass"
+    assert strict_fast_01_status(10, 720) == "miss"
+    assert strict_fast_01_status(10, 721) == "miss"
+
+    assert_raise ArgumentError, ~r/stored metrics output/, fn ->
+      put_in(ledger, ["verdict", "fast_01", "observed_p50_seconds"], 719) |> validate_verdict!()
+    end
+
+    assert_raise ArgumentError, ~r/strict verdict/, fn ->
+      ledger
+      |> put_in(["verdict", "fast_01", "eligible_pr_run_count"], 9)
+      |> put_in(["verdict", "fast_01", "observed_p50_seconds"], 719)
+      |> put_in(["measurements", "pull_request", "statistics", "p50_seconds"], 719)
+      |> put_in(["verdict", "fast_01", "status"], "pass")
+      |> validate_verdict!()
+    end
+
+    assert_raise ArgumentError, ~r/miss receipt/, fn ->
+      put_in(ledger, ["receipts", "binding_pole"], []) |> validate_verdict!()
+    end
   end
 
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
@@ -182,7 +203,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp validate_capture!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured", do: raise(ArgumentError, "capture endpoint")
-    unless ledger["verdict"]["status"] == "pending" and ledger["closeout"]["status"] == "pending", do: raise(ArgumentError, "pending verdict or closeout")
+    unless ledger["verdict"]["status"] == "measured" and ledger["closeout"]["status"] == "pending_records_reconciliation", do: raise(ArgumentError, "measured verdict or closeout")
 
     for event <- @events do
       measurement = ledger["measurements"][event]
@@ -276,10 +297,26 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     expected = ledger["measurements"]["pull_request"]["statistics"]["p50_seconds"]
     unless fast_01["observed_p50_seconds"] == expected, do: raise(ArgumentError, "stored metrics output")
 
-    status = if fast_01["eligible_pr_run_count"] >= 10 and expected < 720, do: "pass", else: "miss"
+    status = strict_fast_01_status(fast_01["eligible_pr_run_count"], expected)
     unless fast_01["status"] == status, do: raise(ArgumentError, "strict verdict")
+
+    receipts = ledger["receipts"]["binding_pole"]
+    if status == "miss" do
+      unless is_list(receipts) and receipts != [] and Enum.all?(receipts, fn receipt ->
+               receipt["command"] =~ "--jobs #{receipt["run_id"]}" and is_binary(receipt["output_sha256"]) and
+                 is_map(receipt["binding_pole"]) and is_binary(receipt["binding_pole"]["name"])
+             end), do: raise(ArgumentError, "miss receipt")
+    else
+      unless receipts == [], do: raise(ArgumentError, "pass receipt")
+    end
+
+    closeout = ledger["closeout"]
+    unless closeout["measurement_ready"] and closeout["performance_target_achieved"] == (status == "pass") and not closeout["records_reconciled"], do: raise(ArgumentError, "closeout verdict")
     :ok
   end
+
+  defp strict_fast_01_status(count, p50) when count >= 10 and p50 < 720, do: "pass"
+  defp strict_fast_01_status(_count, _p50), do: "miss"
 
   defp same_instant?(left, right) do
     {:ok, left, _} = DateTime.from_iso8601(left)
