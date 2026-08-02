@@ -215,18 +215,18 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
 
     assert_raise ArgumentError, ~r/local parity command/, fn ->
-      String.replace(contributing, "MIX_ENV=test mix ci", "mix ci", global: false)
+      String.replace(contributing, "MIX_ENV=test mix ci", "mix ci")
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
     assert_raise ArgumentError, ~r/Playwright reproduction path/, fn ->
-      String.replace(contributing, "test/example/priv/playwright", "test/example/priv/browser", global: false)
+      String.replace(contributing, "test/example/priv/playwright", "test/example/priv/browser")
       |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
     end
 
     for signal <- ~w(admin_eval_render admin_design_recapture) do
       assert_raise ArgumentError, ~r/non-PR signal #{signal}/, fn ->
-        String.replace(contributing, "#{signal} is intentionally non-PR", "#{signal} is a PR executor", global: false)
+        String.replace(contributing, "`#{signal}` is intentionally non-PR", "`#{signal}` is a PR executor", global: false)
         |> validate_contributor_topology!(workflow, mix_exs, playwright_config, playwright_package)
       end
     end
@@ -391,7 +391,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     require_text!(playwright_package, "\"test\": \"playwright test\"", "Playwright package test command")
 
     for signal <- ~w(admin_eval_render admin_design_recapture) do
-      require_text!(contributing, "#{signal} is intentionally non-PR", "non-PR signal #{signal}")
+      require_text!(contributing, "`#{signal}` is intentionally non-PR", "non-PR signal #{signal}")
       require_text!(contributing, "push, schedule, and workflow_dispatch", "non-PR event conditions")
       require_text!(workflow, "#{signal}:", "workflow non-PR signal #{signal}")
     end
