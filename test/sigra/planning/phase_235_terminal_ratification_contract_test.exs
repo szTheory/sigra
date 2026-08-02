@@ -7,6 +7,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   @mix_path "mix.exs"
   @playwright_config_path "test/example/priv/playwright/playwright.config.ts"
   @playwright_package_path "test/example/priv/playwright/package.json"
+  @seed_path ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md"
+  @milestone_arc_path ".planning/MILESTONE-ARC.md"
+  @residual_path ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
   @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
   @cutoff_sha "6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a"
   @top_level_keys MapSet.new(~w(schema_version topology_cutoff capture_endpoint baseline measurements ownership receipts verdict closeout))
@@ -22,7 +25,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert ledger["topology_cutoff"]["committed_at"] == "2026-08-01T02:06:30Z"
     assert ledger["capture_endpoint"]["status"] == "captured"
     assert ledger["verdict"]["status"] == "measured"
-    assert ledger["closeout"]["status"] == "pending_records_reconciliation"
+    assert ledger["closeout"]["status"] == "records_reconciled"
   end
 
   test "baseline-compatible measurements preserve the committed seconds without recomputation" do
@@ -232,6 +235,58 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "terminal closeout reconciles the completed audit and the measured FAST-01 miss" do
+    ledger = ledger!()
+    seed = File.read!(@seed_path)
+    milestone_arc = File.read!(@milestone_arc_path)
+    contributing = File.read!(@contributing_path)
+    residual = File.read!(@residual_path)
+
+    assert validate_closeout_records!(ledger, contributing, seed, milestone_arc, residual) == :ok
+  end
+
+  test "terminal closeout contract rejects contradicted verdict prose, artifacts, residuals, and stale active framing" do
+    ledger = ledger!()
+    contributing = File.read!(@contributing_path)
+    seed = File.read!(@seed_path)
+    milestone_arc = File.read!(@milestone_arc_path)
+    residual = File.read!(@residual_path)
+
+    assert_raise ArgumentError, ~r/seed terminal addendum/, fn ->
+      validate_closeout_records!(ledger, contributing, String.replace(seed, "Phase 235 terminal addendum", "terminal note"), milestone_arc, residual)
+    end
+
+    assert_raise ArgumentError, ~r/FAST-01 miss claim/, fn ->
+      validate_closeout_records!(ledger, contributing, seed, String.replace(milestone_arc, "FAST-01 remains unmet", "FAST-01 target achieved"), residual)
+    end
+
+    assert_raise ArgumentError, ~r/exact PR p50/, fn ->
+      validate_closeout_records!(ledger, contributing, seed, String.replace(milestone_arc, "772 seconds", "719 seconds"), residual)
+    end
+
+    assert_raise ArgumentError, ~r/terminal artifact link/, fn ->
+      validate_closeout_records!(ledger, contributing, String.replace(seed, @ledger_path, "terminal-ledger-removed"), milestone_arc, residual)
+    end
+
+    assert_raise ArgumentError, ~r/residual path/, fn ->
+      validate_closeout_records!(ledger, contributing, seed, milestone_arc, nil)
+    end
+
+    assert_raise ArgumentError, ~r/binding-pole receipt/, fn ->
+      validate_closeout_records!(ledger, contributing, seed, milestone_arc, String.replace(residual, "30723593560", "removed-receipt"))
+    end
+
+    assert_raise ArgumentError, ~r/stale ACTIVE status/, fn ->
+      validate_closeout_records!(ledger, contributing, seed, "### ACTIVE — promoted to milestone v1.40\n" <> milestone_arc, residual)
+    end
+
+    pass_ledger = ledger |> put_in(["verdict", "fast_01", "status"], "pass") |> put_in(["closeout", "performance_target_achieved"], true) |> put_in(["closeout", "residual_path"], nil)
+
+    assert_raise ArgumentError, ~r/residual present on pass/, fn ->
+      validate_closeout_records!(pass_ledger, contributing, seed, milestone_arc, residual)
+    end
+  end
+
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
@@ -254,7 +309,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp validate_capture!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured", do: raise(ArgumentError, "capture endpoint")
-    unless ledger["verdict"]["status"] == "measured" and ledger["closeout"]["status"] == "pending_records_reconciliation", do: raise(ArgumentError, "measured verdict or closeout")
+    unless ledger["verdict"]["status"] == "measured" and ledger["closeout"]["status"] == "records_reconciled", do: raise(ArgumentError, "measured verdict or closeout")
 
     for event <- @events do
       measurement = ledger["measurements"][event]
@@ -362,7 +417,52 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
 
     closeout = ledger["closeout"]
-    unless closeout["measurement_ready"] and closeout["performance_target_achieved"] == (status == "pass") and not closeout["records_reconciled"], do: raise(ArgumentError, "closeout verdict")
+    unless closeout["measurement_ready"] and closeout["performance_target_achieved"] == (status == "pass") and closeout["records_reconciled"], do: raise(ArgumentError, "closeout verdict")
+    :ok
+  end
+
+  defp validate_closeout_records!(ledger, _contributing, seed, milestone_arc, residual) do
+    fast_01 = ledger["verdict"]["fast_01"]
+    closeout = ledger["closeout"]
+
+    unless closeout["contributing_path"] == @contributing_path and closeout["seed_path"] == @seed_path and
+             closeout["milestone_arc_path"] == @milestone_arc_path and closeout["records_reconciled"], do: raise(ArgumentError, "closeout paths")
+
+    require_text!(seed, "## Addendum 2026-08-02 — Phase 235 terminal addendum", "seed terminal addendum")
+    require_text!(seed, "audit was completed in 2026", "completed audit claim")
+    require_text!(seed, "Phases 230–235", "executed phase sequence")
+
+    for record <- [seed, milestone_arc] do
+      require_text!(record, @ledger_path, "terminal artifact link")
+      require_text!(record, "#{fast_01["eligible_pr_run_count"]} retained pull_request runs", "exact PR count")
+      require_text!(record, "#{fast_01["observed_p50_seconds"]} seconds", "exact PR p50")
+      require_text!(record, "push: 1 success / 1 non-success", "push outcomes")
+      require_text!(record, "schedule: 0 success / 2 non-success", "schedule outcomes")
+    end
+
+    require_text!(milestone_arc, "FAST-01 remains unmet", "FAST-01 miss claim")
+    unless not String.contains?(milestone_arc, "### ACTIVE — promoted to milestone v1.40"), do: raise(ArgumentError, "stale ACTIVE status")
+
+    case fast_01["status"] do
+      "miss" ->
+        unless closeout["residual_path"] == @residual_path and is_binary(residual), do: raise(ArgumentError, "residual path")
+        require_text!(seed, @residual_path, "seed residual link")
+        require_text!(milestone_arc, @residual_path, "arc residual link")
+        require_text!(residual, @ledger_path, "residual terminal artifact link")
+        require_text!(residual, "#{fast_01["eligible_pr_run_count"]} retained pull_request runs", "residual exact PR count")
+        require_text!(residual, "#{fast_01["observed_p50_seconds"]} seconds", "residual exact PR p50")
+
+        for receipt <- ledger["receipts"]["binding_pole"] do
+          require_text!(residual, Integer.to_string(receipt["run_id"]), "binding-pole receipt")
+          require_text!(residual, receipt["command"], "binding-pole command")
+        end
+
+      "pass" ->
+        unless is_nil(closeout["residual_path"]) and is_nil(residual), do: raise(ArgumentError, "residual present on pass")
+      _ ->
+        raise ArgumentError, "FAST-01 status"
+    end
+
     :ok
   end
 
