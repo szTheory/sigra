@@ -204,7 +204,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     for {name, mutated, field} <- mutations do
       error =
-        assert_raise ExUnit.AssertionError, name, fn ->
+        assert_raise ExUnit.AssertionError, fn ->
           validate_dependabot_receipt!(mutated)
         end
 
@@ -230,17 +230,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
     case receipt["status"] do
       "success" ->
-        for slot <- slots do
-          assert slot["status"] == "success"
-
-          for key <- ["job_id", "timestamp", "job_log_url", "capture_sha256"] do
-            assert_non_empty_string!(slot, key)
-          end
-
-          assert slot["job_id"] =~ ~r/\A\d+\z/
-          assert slot["job_log_url"] =~ ~r/\Ahttps:\/\/github\.com\//
-          assert_sha256!(slot["capture_sha256"], "dependabot.capture_sha256")
-        end
+        assert :ok = validate_dependabot_receipt!(receipt)
 
       "failed" ->
         for slot <- slots do
@@ -255,6 +245,83 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
         flunk(
           "Dependabot evidence must be success or failed with durable diagnostics, got: #{inspect(other)}"
         )
+    end
+  end
+
+  defp successful_dependabot_receipt do
+    %{
+      "status" => "success",
+      "default_branch_sha" => "fe33154088053ce9ccc0e9301348a2841c87745c",
+      "config_sha256" => "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
+      "slots" =>
+        Enum.map(@dependabot_tuples, fn {ecosystem, directory} ->
+          %{
+            "ecosystem" => ecosystem,
+            "directory" => directory,
+            "status" => "success",
+            "job_id" => "123456789",
+            "timestamp" => "2026-08-01T23:59:59Z",
+            "processed_status" => "processed_successfully",
+            "status_summary" => "Successfully processed; no dependency updates available.",
+            "job_log_url" =>
+              "https://github.com/szTheory/sigra/network/updates/123456789?ecosystem=#{ecosystem}",
+            "capture_sha256" => String.duplicate("a", 64)
+          }
+        end)
+    }
+  end
+
+  defp validate_dependabot_receipt!(receipt) do
+    assert receipt["status"] == "success", "dependabot.status must be success"
+
+    assert receipt["default_branch_sha"] == "fe33154088053ce9ccc0e9301348a2841c87745c",
+           "default_branch_sha must match the authenticated default-branch receipt"
+
+    assert receipt["config_sha256"] == "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
+           "config_sha256 must match the decoded default-branch Dependabot configuration"
+
+    slots = receipt["slots"]
+
+    assert is_list(slots), "slots must be a list"
+
+    assert Enum.map(slots, &{&1["ecosystem"], &1["directory"]}) == @dependabot_tuples,
+           "tuple set must contain exactly the ordered configured ecosystems/directories"
+
+    Enum.each(slots, &validate_dependabot_slot!/1)
+    :ok
+  end
+
+  defp validate_dependabot_slot!(slot) do
+    assert slot["status"] == "success", "status must name a successful tuple receipt"
+    assert_non_empty_string!(slot, "job_id")
+    assert slot["job_id"] =~ ~r/\A\d+\z/, "job_id must be numeric"
+    assert_non_empty_string!(slot, "timestamp")
+
+    assert match?({:ok, _datetime, 0}, DateTime.from_iso8601(slot["timestamp"])),
+           "timestamp must be a UTC ISO-8601 timestamp"
+
+    assert_non_empty_string!(slot, "processed_status")
+
+    assert slot["processed_status"] =~ ~r/processed.*success|success.*processed/i,
+           "processed_status must name successful processing"
+
+    assert_non_empty_string!(slot, "status_summary")
+    assert_non_empty_string!(slot, "job_log_url")
+
+    assert slot["job_log_url"] =~
+             ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/network\/updates\/\d+/,
+           "job_log_url must be a GitHub Dependabot job-log URL"
+
+    assert_sha256!(slot["capture_sha256"], "dependabot.capture_sha256")
+
+    if is_nil(slot["associated_pr_url"]) do
+      assert slot["status_summary"] =~ ~r/no (dependency )?updates?|up[- ]to[- ]date/i,
+             "status_summary must prove the successful no-update outcome when associated_pr_url is absent"
+    else
+      assert is_binary(slot["associated_pr_url"]) and
+               slot["associated_pr_url"] =~
+                 ~r/\Ahttps:\/\/github\.com\/szTheory\/sigra\/pull\/\d+\z/,
+             "associated_pr_url must be a GitHub pull-request URL"
     end
   end
 
