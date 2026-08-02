@@ -638,10 +638,10 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
   end
 
   defp validate_required_evidence!(receipts) do
-    required = ["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"]
+    required =
+      MapSet.new(["local_mix_ci", "pr_ci", "release", "dependabot", "gallery", "historical_gallery"])
 
-    assert MapSet.new(Map.keys(receipts)) |> MapSet.intersection(MapSet.new(required)) ==
-             MapSet.new(required),
+    assert MapSet.new(Map.keys(receipts)) == required,
            "evidence must contain the exact required six-slot set"
 
     for {slot, validator} <- [
@@ -692,7 +692,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
              assert_transition_allowed!(parsed.frontmatter, evidence(), command_receipts)
 
     assert approval =~ "machine evidence ratified"
-    assert approval =~ "234-19-01, 234-19-02, 234-20-01, and 234-20-02"
+    assert approval =~ "234-19-01, 234-19-02, 234-20-01, 234-20-02, and 234-21-01"
   end
 
   @tag :validation_signoff
@@ -800,6 +800,30 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
         end
 
       assert error.message =~ "exact required six-slot set" or error.message =~ slot
+    end
+  end
+
+  @tag :validation_signoff
+  test "validation contract rejects every invalid 234-21-01 row mutation" do
+    validation = File.read!(@validation_path)
+
+    row =
+      "| 234-21-01 | 21 | 12 | DX-01/DX-02/DX-03/DX-04/DX-06 | T-234-21-01 | Production completion admits exactly the six named evidence keys and rejects every additional slot | evidence transition | mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs | ✅ existing file revised | ✅ green |"
+
+    for mutated <- [
+          String.replace(validation, row <> "\n", "", global: false),
+          String.replace(validation, row, row <> "\n" <> row, global: false),
+          String.replace(
+            validation,
+            "mix test test/sigra/planning/phase_234_evidence_contract_test.exs --only validation_signoff && mix test test/sigra/planning/phase_234_evidence_contract_test.exs && mix test test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+            "mix test test/sigra/planning/phase_234_evidence_contract_test.exs",
+            global: false
+          ),
+          String.replace(validation, row, String.replace(row, "✅ green", "⬜ pending"), global: false)
+        ] do
+      error = assert_raise ExUnit.AssertionError, fn -> parse_validation!(mutated) end
+
+      assert error.message =~ "234-21-01"
     end
   end
 
@@ -1043,7 +1067,7 @@ defmodule Sigra.Planning.Phase234EvidenceContractTest do
 
   defp validate_gap_task_receipts!(gap_task_receipts) do
     assert gap_task_receipts == @required_gap_task_receipts,
-           "gap task verification rows must equal the exact ordered Plans 19–21 tuple set; got: #{inspect(gap_task_receipts)}"
+           "gap task verification rows must equal #{inspect(@required_gap_task_receipts)}; got: #{inspect(gap_task_receipts)}"
 
     :ok
   end
