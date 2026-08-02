@@ -357,7 +357,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 235-03-PLAN.md — Reconcile contributor topology, SEED-005, and CI-PERF from the measured ledger
+- [x] 235-03-PLAN.md — Reconcile contributor topology, SEED-005, and CI-PERF from the measured ledger
 
 ## Progress
 

@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
-status: executing
-stopped_at: Completed 235-02-PLAN.md
-last_updated: "2026-08-02T18:13:22.659Z"
+status: verifying
+stopped_at: Completed 235-03-PLAN.md
+last_updated: "2026-08-02T18:20:38.669Z"
 last_activity: 2026-08-02
 last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 57
-  completed_plans: 56
-  percent: 83
+  completed_plans: 57
+  percent: 100
 ---
 
 # Project State
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 98%); Phase 233 not started
+Status: Phase complete — ready for verification
+Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
 Last activity: 2026-08-02 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -431,6 +431,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Phase 235 Plan 01 pins terminal ownership to the Phase 234 inventory hash and leaves measurement verdicts explicitly pending.
 - [Phase ?]: FAST-01 measured miss: 19 retained PR runs produced a 772-second p50, which is not strictly less than the 720-second target.
 - [Phase ?]: Plan 02 sealed same-window PR/push/schedule receipts; Plan 03 alone reconciles records.
+- [Phase ?]: FAST-01 remains unmet: 19 retained PR runs produced a 772-second p50, which is not strictly less than 720 seconds.
+- [Phase ?]: GATE-05 is reconciled only after one focused contract validates the contributor topology and both closeout records against the terminal ledger.
 
 ### Pending Todos
 
@@ -575,8 +577,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-02T18:13:22.642Z
-Stopped at: Completed 235-02-PLAN.md
+Last session: 2026-08-02T18:20:38.651Z
+Stopped at: Completed 235-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -736,3 +738,4 @@ Resume file: None
 | Phase 234-hygiene-supply-chain-and-contributor-dx P21 | 22m | 1 tasks | 3 files |
 | Phase 235 P01 | 6min | 2 tasks | 2 files |
 | Phase 235-terminal-ratification-measured-not-read P02 | 9min | 2 tasks | 2 files |
+| Phase 235 P03 | 5min | 2 tasks | 6 files |
