@@ -269,7 +269,7 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: 14 plans in 6 waves
+**Plans**: 18 plans in 9 waves
 
 Plans:
 
@@ -304,6 +304,19 @@ Plans:
 **Wave 6** *(blocked on all structural and managed-service evidence)*
 
 - [x] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
+
+**Wave 7** *(gap closure after initial verification)*
+
+- [ ] 234-15-PLAN.md — Repair `mix ci` so the dep-off leg is non-destructive and the golden/idempotency proof is green
+- [ ] 234-17-PLAN.md — Capture authenticated, fail-closed Dependabot processing receipts for all three ecosystem tuples
+
+**Wave 8** *(blocked on both Wave 7 gap repairs)*
+
+- [ ] 234-16-PLAN.md — Refresh clean-checkout evidence for the repaired, non-destructive local gate
+
+**Wave 9** *(blocked on refreshed local and managed-service evidence)*
+
+- [ ] 234-18-PLAN.md — Enforce the exact command-receipt inventory and ratify validation only from fully green evidence
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
