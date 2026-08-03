@@ -11,9 +11,21 @@ SIGNER_WORKFLOW="szTheory/sigra/.github/workflows/terminal-ratification-evidence
 SOURCE_REF="refs/heads/main"
 SUBJECT_DIGEST="022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244"
 
-for command in gh jq mktemp; do
+for command in gh jq mktemp realpath; do
   command -v "$command" >/dev/null || { echo "missing_required_command:$command" >&2; exit 1; }
 done
+
+GH_BIN="$(realpath "$(command -v gh)")"
+JQ_BIN="$(realpath "$(command -v jq)")"
+MKTEMP_BIN="$(realpath "$(command -v mktemp)")"
+case "$GH_BIN" in
+  /usr/bin/gh|/opt/hostedtoolcache/gh/*/x64/gh|/opt/homebrew/Cellar/gh/*/bin/gh|/usr/local/Cellar/gh/*/bin/gh) ;;
+  *) echo "untrusted_gh_executable:$GH_BIN" >&2; exit 1 ;;
+esac
+case "$JQ_BIN" in
+  /usr/bin/jq|/opt/homebrew/Cellar/jq/*/bin/jq|/usr/local/Cellar/jq/*/bin/jq) ;;
+  *) echo "untrusted_jq_executable:$JQ_BIN" >&2; exit 1 ;;
+esac
 
 for input in "$RECEIPT" "$BUNDLE" "$TRUSTED_ROOT"; do
   test -s "$input" || { echo "missing_or_empty_retained_input:$input" >&2; exit 1; }
@@ -25,11 +37,14 @@ case "$(uname -s)" in
     isolation=(/usr/bin/sandbox-exec -p '(version 1) (allow default) (deny network*)')
     ;;
   Linux)
-    unshare --user --map-root-user --net true >/dev/null 2>&1 || {
+    if /usr/bin/unshare --user --map-root-user --net true >/dev/null 2>&1; then
+      isolation=(/usr/bin/unshare --user --map-root-user --net)
+    elif command -v sudo >/dev/null && sudo -n /usr/bin/unshare --net true >/dev/null 2>&1; then
+      isolation=(sudo -n /usr/bin/unshare --net)
+    else
       echo "network_isolation_unavailable:unshare" >&2
       exit 1
-    }
-    isolation=(unshare --user --map-root-user --net)
+    fi
     ;;
   *)
     echo "network_isolation_unavailable:unsupported_platform" >&2
@@ -37,7 +52,7 @@ case "$(uname -s)" in
     ;;
 esac
 
-work="$(mktemp -d)"
+work="$($MKTEMP_BIN -d)"
 trap 'rm -rf "$work"' EXIT
 mkdir "$work/home"
 cp "$RECEIPT" "$work/receipt.json"
@@ -48,9 +63,9 @@ verify() {
   local output="$1"
   shift
   "${isolation[@]}" /usr/bin/env -i \
-    PATH="$PATH" HOME="$work/home" \
+    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin HOME="$work/home" \
     GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
-    gh attestation verify "$@" \
+    "$GH_BIN" attestation verify "$@" \
       --bundle "$work/bundle.jsonl" \
       --custom-trusted-root "$work/trusted-root.jsonl" \
       --repo "$REPO" \
@@ -60,7 +75,7 @@ verify() {
 }
 
 verify "$work/positive.json" "$work/receipt.json"
-jq -e --arg digest "$SUBJECT_DIGEST" '
+"$JQ_BIN" -e --arg digest "$SUBJECT_DIGEST" '
   length == 1 and
   .[0].verificationResult.statement.subject[0].digest.sha256 == $digest and
   .[0].verificationResult.signature.certificate.sourceRepositoryURI == "https://github.com/szTheory/sigra" and
@@ -96,15 +111,15 @@ printf x | dd of="$work/trusted-root.jsonl" bs=1 seek=0 conv=notrunc status=none
 expect_failure trusted_root_byte "$work/receipt.json"
 cp "$work/root-pristine.jsonl" "$work/trusted-root.jsonl"
 
-if "${isolation[@]}" /usr/bin/env -i PATH="$PATH" HOME="$work/home" GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
-  gh attestation verify "$work/receipt.json" --bundle "$work/bundle.jsonl" --custom-trusted-root "$work/trusted-root.jsonl" --repo "$REPO" \
+if "${isolation[@]}" /usr/bin/env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin HOME="$work/home" GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
+  "$GH_BIN" attestation verify "$work/receipt.json" --bundle "$work/bundle.jsonl" --custom-trusted-root "$work/trusted-root.jsonl" --repo "$REPO" \
   --signer-workflow "szTheory/sigra/.github/workflows/not-terminal-ratification.yml" --source-ref "$SOURCE_REF" --format json >"$work/signer.json"; then
   echo "adversarial_case_unexpectedly_verified:signer_workflow" >&2
   exit 1
 fi
 
-if "${isolation[@]}" /usr/bin/env -i PATH="$PATH" HOME="$work/home" GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
-  gh attestation verify "$work/receipt.json" --bundle "$work/bundle.jsonl" --custom-trusted-root "$work/trusted-root.jsonl" --repo "$REPO" \
+if "${isolation[@]}" /usr/bin/env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin HOME="$work/home" GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
+  "$GH_BIN" attestation verify "$work/receipt.json" --bundle "$work/bundle.jsonl" --custom-trusted-root "$work/trusted-root.jsonl" --repo "$REPO" \
   --signer-workflow "$SIGNER_WORKFLOW" --source-ref refs/heads/not-main --format json >"$work/source-ref.json"; then
   echo "adversarial_case_unexpectedly_verified:source_ref" >&2
   exit 1

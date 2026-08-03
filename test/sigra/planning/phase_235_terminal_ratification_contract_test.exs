@@ -49,6 +49,16 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
            }
   end
 
+  test "required fast checks continuously verify retained offline provenance" do
+    workflow = File.read!(@workflow_path)
+    verifier = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.sh")
+
+    assert workflow =~ "bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh"
+    assert workflow =~ "bash scripts/ci/verify-terminal-ratification-attestation-offline.sh"
+    assert verifier =~ ~s(\"$GH_BIN\" attestation verify)
+    refute verifier =~ ~r/\n\s+gh attestation verify/
+  end
+
   test "the terminal ratification ledger is a captured, versioned ledger with an immutable cutoff" do
     ledger = ledger!()
 
