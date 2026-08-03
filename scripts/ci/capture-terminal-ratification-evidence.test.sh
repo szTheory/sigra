@@ -23,9 +23,9 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
     if [[ "${FAKE_MODE:-ok}" == inverted_run ]]; then
       echo '{"total_count":1,"workflow_runs":[{"id":1,"event":"pull_request","conclusion":"success","created_at":"2026-08-02T03:00:00Z","updated_at":"2026-08-02T02:00:00Z"}]}'
     else
-      echo '{"total_count":1,"workflow_runs":[{"id":1,"event":"pull_request","conclusion":"success","created_at":"2026-08-02T02:00:00Z","updated_at":"2026-08-02T03:00:00Z"}]}'
+      echo '{"total_count":2,"workflow_runs":[{"id":1,"event":"pull_request","conclusion":"success","created_at":"2026-08-02T02:00:00Z","updated_at":"2026-08-02T03:00:00Z"},{"id":2,"event":"workflow_dispatch","conclusion":"failure","created_at":"2026-08-02T03:01:00Z","updated_at":"2026-08-02T03:02:00Z"}]}'
     fi ;;
-  2) echo '{"total_count":1,"workflow_runs":[]}' ;;
+  2) echo '{"total_count":2,"workflow_runs":[]}' ;;
   *) echo "unexpected run page: $*" >&2; exit 1 ;;
   esac
 elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 1 ]]; then
@@ -37,7 +37,7 @@ EOF
 chmod +x "$TMP/bin/gh"
 
 FAKE_GH_LOG="$TMP/calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/receipt.json"
-jq -e '.workflow_runs == {requested_pages:[1,2], data_page_count:1, terminal_page:2, exhausted:true, total_count:1, pages:.workflow_runs.pages}' "$TMP/receipt.json" >/dev/null
+jq -e '.workflow_runs == {requested_pages:[1,2], data_page_count:1, terminal_page:2, exhausted:true, total_count:2, pages:.workflow_runs.pages} and ([.workflow_runs.pages[].body.workflow_runs[] | select(.event == "workflow_dispatch")] | length) == 1' "$TMP/receipt.json" >/dev/null
 grep -q 'workflows/ci.yml/runs.*page=1' "$TMP/calls"
 grep -q 'workflows/ci.yml/runs.*page=2' "$TMP/calls"
 test "$(grep -c '/jobs?' "$TMP/calls")" -eq 23
