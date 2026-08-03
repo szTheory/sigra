@@ -147,6 +147,24 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "ownership semantics reject live-but-wrong destinations across every class" do
+    ledger = ledger!()
+
+    for family <- required_non_playwright_families() ++ ["playwright_spec"] do
+      index = Enum.find_index(ledger["ownership"]["rows"], &(&1["family"] == family and &1["event"] == "pull_request"))
+
+      assert_raise ArgumentError, ~r/ownership semantics/, fn ->
+        put_in(ledger, ["ownership", "rows", Access.at(index), "receiver"], "wrong-receiver")
+        |> validate_ledger!()
+      end
+
+      assert_raise ArgumentError, ~r/ownership semantics/, fn ->
+        put_in(ledger, ["ownership", "rows", Access.at(index), "after", "direct_owner"], "fast_checks")
+        |> validate_ledger!()
+      end
+    end
+  end
+
   test "validation fails closed for malformed captured-window mutations" do
     ledger = ledger!()
 
@@ -570,6 +588,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     validate_inventory!(ledger["ownership"]["source_inventory"])
     validate_rows!(ledger["ownership"]["rows"])
     validate_ownership_receipts!(ledger["receipts"]["ownership"])
+    validate_ownership_semantics!(ledger["ownership"]["rows"])
     validate_captured_ledger!(ledger)
     validate_verdict!(ledger)
     :ok
@@ -739,6 +758,68 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp validate_ownership_receipts!(_), do: raise(ArgumentError, "ownership receipts")
+
+  defp validate_ownership_semantics!(rows) do
+    workflow = File.read!(@workflow_path)
+    inventory = @inventory_path |> File.read!() |> Jason.decode!() |> Map.fetch!("specs")
+
+    for row <- rows do
+      expected = expected_ownership_row!(row, inventory)
+      after_row = row["after"]
+
+      unless Map.take(after_row, ~w(direct_owner seam invocation terminal_aggregate state)) == expected.after and
+               row["receiver"] == expected.receiver and row["phase"] == expected.phase and
+               row["receipt"] == expected.receipt,
+             do: raise(ArgumentError, "ownership semantics #{row["family"]}/#{row["event"]}")
+
+      direct = workflow_job_block!(workflow, after_row["direct_owner"])
+      aggregate = workflow_job_block!(workflow, after_row["terminal_aggregate"]["id"])
+
+      require_text!(direct, "name:", "ownership direct job")
+      require_text!(aggregate, "name: #{after_row["terminal_aggregate"]["name"]}", "ownership aggregate name")
+
+      case after_row["state"] do
+        "executed" ->
+          unless event_job_executed?(row["event"], after_row["direct_owner"]),
+            do: raise(ArgumentError, "ownership event execution #{row["family"]}")
+        "intentionally_absent" ->
+          require_text!(direct, "github.event_name != 'pull_request'", "ownership absent guard")
+        _ -> raise ArgumentError, "ownership state"
+      end
+    end
+  end
+
+  defp expected_ownership_row!(%{"family" => "playwright_spec", "spec" => spec, "event" => event}, inventory) do
+    lanes = inventory |> Enum.find(&(&1["spec"] == spec)) |> Map.fetch!("lanes")
+    lane = Enum.find(lanes, &(event in &1["events"])) || hd(lanes)
+    owner = lane["job"]
+    {owner, seam, invocation} =
+      case spec do
+        "test/example/priv/playwright/tests/admin-eval.spec.ts" -> {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh"}
+        "test/example/priv/playwright/tests/admin-generated.spec.ts" -> {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke", "scripts/ci/admin-acceptance-smoke.sh --test all"}
+        _ -> {owner, owner, lane["command_marker"]}
+      end
+    %{after: %{ "direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => "example_playwright_smoke", "name" => "Example Playwright smoke (full lifecycle)"}, "state" => "executed"}, receiver: owner, phase: "232-playwright-economics-authenticate-once-then-shard", receipt: "phase_232_playwright_suite"}
+  end
+
+  defp expected_ownership_row!(%{"family" => family, "event" => event}, _inventory) do
+    {owner, seam, invocation, aggregate, phase, receipt} =
+      case family do
+        f when f in ~w(admin_eval_harness_guards admin_eval_render) -> {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh", "example_playwright_smoke", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
+        "ci_gate_aggregate" -> {"ci-gate", "ci-gate", "ci-gate", "ci-gate", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
+        "design_gallery_snapshots" -> {"admin_design_recapture", "admin_design_recapture", "tests/admin-design.spec.ts", "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard", "phase_232_playwright_suite"}
+        f when f in ~w(design_gallery_axe example_playwright_aggregate) -> {"example_playwright_shard", "example_playwright_shard", "tests/*.spec.ts", "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard", "phase_232_playwright_suite"}
+        "generated_host_acceptance" -> {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke", "scripts/ci/admin-acceptance-smoke.sh --test all", "example_playwright_smoke", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
+        "library_dep_off" -> {"library_tests_dep_off", "library_tests_dep_off", "ci-gate", "library_tests", "233-library-suite-economics", "phase_233_library_suite"}
+        f when f in ~w(library_ordinary_shards library_scaffold_golden library_tests_aggregate) -> {"library_tests_shard", "Run contributor CI gate", "MIX_ENV=test mix ci", "library_tests", "233-library-suite-economics", "phase_233_library_suite"}
+      end
+    state = if event == "pull_request" and owner in ~w(admin_eval_render admin_design_recapture), do: "intentionally_absent", else: "executed"
+    aggregate_name = if aggregate == "library_tests", do: "Library tests", else: if(aggregate == "ci-gate", do: "ci-gate", else: "Example Playwright smoke (full lifecycle)")
+    %{after: %{"direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => aggregate, "name" => aggregate_name}, "state" => state}, receiver: owner, phase: phase, receipt: receipt}
+  end
+
+  defp event_job_executed?("pull_request", _owner), do: true
+  defp event_job_executed?(_event, _owner), do: true
 
   defp validate_captured_ledger!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured",
