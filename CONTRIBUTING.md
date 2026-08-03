@@ -16,8 +16,8 @@ Run `mix ci` to reproduce the locally-faithful library gate without leaving your
 2. `deps.get --check-locked` — `mix.lock` matches the declared dependencies.
 3. `deps.unlock --check-unused` — the lock contains no unused dependency entries.
 4. `compile --warnings-as-errors` — library compiles with zero warnings.
-5. `test` — full library test suite, including scaffold-tagged coverage.
-6. `ci.install_golden` — install golden diff + idempotency contract (`test/sigra/install/`).
+5. `test --exclude scaffold` — the ordinary library suite; scaffold-tagged modules are deliberately excluded so no receiver runs twice.
+6. `ci.install_golden` — the one explicit `mix test` receiver for all six scaffold modules: upgrade, generator passkeys opt-out, passkeys JS, golden diff, idempotency, and vault promotion. This leg owns those modules exactly once, including golden diff and idempotency.
 7. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
 
 CI's `library_tests_shard` job is the sole library-suite owner and calls the same command directly with `MIX_ENV=test mix ci`. The byte-stable `Library tests` job remains the protected aggregation of that owner. Local parity is retry-free: retries are not part of `mix ci`.

@@ -30,7 +30,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
-      "test",
+      "test --exclude scaffold",
       "ci.install_golden",
       "sigra.dep_off"
     ]
@@ -73,6 +73,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
           "deps.get --check-locked",
           "deps.unlock --check-unused",
           "compile --warnings-as-errors",
+          "test --exclude scaffold",
           "ci.install_golden",
           "sigra.dep_off",
           "library_tests_shard",
