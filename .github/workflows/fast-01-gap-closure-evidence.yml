@@ -1,0 +1,39 @@
+name: FAST-01 post-remediation evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Fix protected endpoint at workflow start
+        id: endpoint
+        shell: bash
+        run: echo "value=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+      - name: Capture post-remediation FAST-01 window
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/capture-fast-01-gap-closure.sh --protected-output fast-01-gap-closure-remeasurement.json --endpoint "${{ steps.endpoint.outputs.value }}"
+      - name: Require a measured independent population
+        run: jq -e '.schema_version == "sigra.fast-01-gap-closure-remeasurement/v1" and .status == "measured" and .eligible_pr_run_count >= 10 and (.verdict == "pass" or .verdict == "miss")' fast-01-gap-closure-remeasurement.json
+      - name: Attest post-remediation provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-path: fast-01-gap-closure-remeasurement.json
+      - name: Upload post-remediation subject
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: fast-01-gap-closure-remeasurement
+          path: fast-01-gap-closure-remeasurement.json

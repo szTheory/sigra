@@ -14,7 +14,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert remediation["population_cutoff"]["timestamp"] == "2026-08-03T21:37:08Z"
     assert collector =~ "cutoff_blob_digest_mismatch"
     assert collector =~ "old_population_overlap"
-    assert File.read!(receipt) |> :crypto.hash(:sha256) |> Base.encode16(case: :lower) == remediation["immutable_prior_receipt"]["sha256"]
+    assert :crypto.hash(:sha256, File.read!(receipt)) |> Base.encode16(case: :lower) == remediation["immutable_prior_receipt"]["sha256"]
     assert remediation["immutable_prior_receipt"]["eligible_pr_run_count"] == 13
     assert remediation["immutable_prior_receipt"]["p50_seconds"] == 724
     assert remediation["immutable_prior_receipt"]["verdict"] == "miss"
