@@ -8,13 +8,13 @@
   "diagnostics": [
     "requires_at_least_10_terminal_pull_request_runs"
   ],
-  "eligible_pr_run_count": 4,
+  "eligible_pr_run_count": 9,
   "endpoint_source": "collector_current_utc",
   "event": "pull_request",
   "exhausted": true,
   "rate_limit": {
-    "remaining": 4825,
-    "reset": "1785778564"
+    "remaining": 4391,
+    "reset": "1785785822"
   },
   "repository": "szTheory/sigra",
   "requested_pages": [
@@ -22,6 +22,46 @@
     2
   ],
   "runs": [
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T18:28:09Z",
+      "event": "pull_request",
+      "run_id": 30841403783,
+      "updated_at": "2026-08-03T18:45:29Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30841403783"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T18:15:30Z",
+      "event": "pull_request",
+      "run_id": 30840458645,
+      "updated_at": "2026-08-03T18:27:44Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30840458645"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T17:34:41Z",
+      "event": "pull_request",
+      "run_id": 30837378307,
+      "updated_at": "2026-08-03T18:06:56Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30837378307"
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-03T17:22:18Z",
+      "event": "pull_request",
+      "run_id": 30836435395,
+      "updated_at": "2026-08-03T17:30:51Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30836435395"
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-03T17:11:56Z",
+      "event": "pull_request",
+      "run_id": 30835648577,
+      "updated_at": "2026-08-03T17:20:19Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30835648577"
+    },
     {
       "conclusion": "success",
       "created_at": "2026-08-03T15:38:46Z",
@@ -61,7 +101,7 @@
   "status": "insufficient_population",
   "verdict": null,
   "window": {
-    "endpoint": "2026-08-03T17:06:56Z"
+    "endpoint": "2026-08-03T18:53:56Z"
   },
   "workflow": "ci.yml"
 }
