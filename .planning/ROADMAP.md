@@ -369,7 +369,7 @@ Plans:
 
 **Wave 6** *(gap closure; blocked on Wave 5 completion)*
 
-- [ ] 235-06-PLAN.md — Bind the terminal ledger to canonical source bytes, replay both binding poles, and prove all 93 ownership destinations
+- [x] 235-06-PLAN.md — Bind the terminal ledger to canonical source bytes, replay both binding poles, and prove all 93 ownership destinations
 
 ## Progress
 
