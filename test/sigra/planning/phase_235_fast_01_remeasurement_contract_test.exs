@@ -18,7 +18,8 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
     assert is_nil(readiness["statistics"])
     assert is_nil(readiness["verdict"])
     assert readiness["status"] in ["insufficient_population", "ready"]
-    assert terminal["eligible_pr_run_count"] == 19
-    assert terminal["observed_p50_seconds"] == 772
+    assert terminal["verdict"]["fast_01"]["eligible_pr_run_count"] == 19
+    assert terminal["verdict"]["fast_01"]["observed_p50_seconds"] == 772
+    assert terminal["verdict"]["fast_01"]["status"] == "miss"
   end
 end

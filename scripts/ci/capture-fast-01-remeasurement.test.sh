@@ -34,24 +34,25 @@ endpoint="$2"
 if [[ "${FAKE_HTTP:-}" == "403" || "${FAKE_HTTP:-}" == "429" ]]; then exit 1; fi
 page="${endpoint##*page=}"
 if [[ "$page" != "1" ]]; then jq -n '{total_count: (env.FAKE_RUNS | fromjson | length), workflow_runs: []}'; exit 0; fi
-jq -n --argjson runs "$(cat "$FAKE_RUNS")" '{total_count: ($runs|length), workflow_runs:$runs}'
+jq -n --argjson runs "$FAKE_RUNS" '{total_count: ($runs|length), workflow_runs:$runs}'
 EOF
 chmod +x "$TMP/bin/gh"
 
 run_readiness() {
-  local count="$1" out="$TMP/out-$count.json"
+  local count="$1"
+  local out="$TMP/out-$count.json"
   make_runs "$count" 719 "$TMP/runs.json"
   local before after endpoint
-  before="$(/usr/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
+  before="$(/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
   PATH="$TMP/bin:$PATH" FAKE_RUNS="$(cat "$TMP/runs.json")" "$COLLECTOR" --readiness "$out"
-  after="$(/usr/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
+  after="$(/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
   endpoint="$(jq -r '.window.endpoint' "$out")"
   [[ "$endpoint" > "$before" || "$endpoint" == "$before" ]] || fail "endpoint predates invocation"
   [[ "$endpoint" < "$after" || "$endpoint" == "$after" ]] || fail "endpoint follows invocation"
-  jq -e --arg expected "$(if (( count < 10 )); then echo insufficient_population; else echo ready; fi)" '
+  jq -e --arg expected "$(if (( count < 10 )); then echo insufficient_population; else echo ready; fi)" --argjson count "$count" '
     .schema_version == "sigra.fast-01-remeasurement-readiness/v1" and
     .authority == "readiness_only" and .endpoint_source == "collector_current_utc" and
-    .status == $expected and .eligible_pr_run_count == ($expected | if . == "ready" then 10 else . end | .) // true and
+    .status == $expected and .eligible_pr_run_count == $count and
     .statistics == null and .verdict == null and (.runs | length) == .eligible_pr_run_count
   ' "$out" >/dev/null || fail "readiness schema/status mismatch for n=$count"
 }
