@@ -4,11 +4,11 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
-status: executing
-stopped_at: Completed 235-10-PLAN.md
-last_updated: "2026-08-03T20:33:12.637Z"
+status: gaps_found
+stopped_at: Phase 235 verified with FAST-01 gap (13 runs, p50 724s)
+last_updated: "2026-08-03T20:51:27.266Z"
 last_activity: 2026-08-03
-last_activity_desc: Plan 235-10 complete — protected FAST-01 remeasurement retained as a 13-run / 724-second miss
+last_activity_desc: Plan 235-10 complete; protected FAST-01 remeasurement retained as a 13-run / 724-second miss
 progress:
   total_phases: 6
   completed_phases: 5
@@ -29,9 +29,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
+Phase: 235 (terminal-ratification-measured-not-read) — GAPS FOUND
 Plan: 10 of 10
-Status: Execution complete; phase verification pending
+Status: gaps_found
 Progress: 5/6 milestone phases complete; 64/64 plans executed ([██████████] 100%)
 Last activity: 2026-08-03 — Plan 235-10 complete; protected FAST-01 remeasurement retained as a 13-run / 724-second miss
 
@@ -586,9 +586,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T20:33:12.625Z
-Stopped at: Completed 235-10-PLAN.md
-Resume file: None
+Last session: 2026-08-03T20:51:27.253Z
+Stopped at: Phase 235 verified with FAST-01 gap (13 runs, p50 724s)
+Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-VERIFICATION.md
 
 ## Operator Next Steps
 
