@@ -16,8 +16,14 @@ if [[ $# -ne 1 ]]; then
 fi
 OUTPUT="$1"
 TMPDIR_CAPTURE="$(mktemp -d)"
-trap 'rm -rf "$TMPDIR_CAPTURE"; rm -f "$OUTPUT"' ERR INT TERM
-trap 'rm -rf "$TMPDIR_CAPTURE"' EXIT
+output_tmp=""
+cleanup() {
+  rm -rf "$TMPDIR_CAPTURE"
+  if [[ -n "$output_tmp" ]]; then
+    rm -f "$output_tmp"
+  fi
+}
+trap cleanup ERR INT TERM EXIT
 
 fail() { echo "capture-terminal-ratification-evidence: FAIL: $*" >&2; exit 1; }
 command -v gh >/dev/null 2>&1 || fail "gh CLI not found on PATH"
@@ -27,6 +33,12 @@ command -v jq >/dev/null 2>&1 || fail "jq not found on PATH"
 REMAINING="$(gh api rate_limit --jq '.resources.core.remaining')" || fail "rate_limit_preflight_failed"
 [[ "$REMAINING" =~ ^[0-9]+$ ]] || fail "rate_limit_preflight_malformed"
 (( REMAINING > 250 )) || fail "rate_limit_remaining_at_or_below_250"
+
+# Never take ownership of the caller's receipt path until a complete, validated
+# replacement exists. A failed refresh must preserve any retained evidence.
+output_dir="$(dirname -- "$OUTPUT")"
+[[ -d "$output_dir" ]] || fail "output_directory_missing"
+output_tmp="$(mktemp "$output_dir/.terminal-ratification.XXXXXX")" || fail "output_temporary_file_failed"
 
 request_page() {
   local endpoint="$1" page="$2" out="$3"
@@ -121,7 +133,8 @@ jq -S -n --arg repository "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTO
   };
   {schema_version: "sigra.terminal-ratification-receipt/v1", repository: $repository, workflow: $workflow,
    window: {cutoff: $cutoff, endpoint: $endpoint}, workflow_runs: receipt($run_pages; "workflow_runs"), jobs: $jobs[0]}
-' >"$OUTPUT" || fail "canonical_output_failed"
+' >"$output_tmp" || fail "canonical_output_failed"
 
-test -s "$OUTPUT" || fail "empty_canonical_output"
-trap - ERR INT TERM
+test -s "$output_tmp" || fail "empty_canonical_output"
+mv -f -- "$output_tmp" "$OUTPUT" || fail "canonical_output_replace_failed"
+output_tmp=""

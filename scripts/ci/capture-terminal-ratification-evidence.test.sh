@@ -17,6 +17,10 @@ set -euo pipefail
 RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
 printf '%s\n' "$*" >>"$FAKE_GH_LOG"
 if [[ "$1" == api && "$2" == rate_limit ]]; then echo 251; exit 0; fi
+if [[ "${FAKE_MODE:-ok}" == api_failure ]]; then
+  echo "synthetic API failure" >&2
+  exit 1
+fi
 PAGE="$(printf '%s' "$*" | sed -n 's/.*page=\([0-9][0-9]*\).*/\1/p')"
 if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
   case "$PAGE" in
@@ -82,6 +86,15 @@ set -e
 test "$RC" -ne 0
 grep -q 'run_chronology_or_identity_invalid' "$TMP/inverted.err"
 test ! -e "$TMP/inverted.json"
+
+printf '%s' 'retained receipt bytes' >"$TMP/existing-receipt.json"
+set +e
+FAKE_MODE=api_failure FAKE_GH_LOG="$TMP/api-failure-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/existing-receipt.json" 2>"$TMP/api-failure.err"
+RC=$?
+set -e
+test "$RC" -ne 0
+grep -q 'github_api_request_failed_page_1' "$TMP/api-failure.err"
+test "$(<"$TMP/existing-receipt.json")" = 'retained receipt bytes'
 
 for mode in missing_run unexpected_run; do
   set +e
