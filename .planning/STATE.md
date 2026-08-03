@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Ready to execute 235-09-PLAN.md
-last_updated: "2026-08-03T16:54:21.109Z"
+stopped_at: Completed 235-09-PLAN.md
+last_updated: "2026-08-03T17:09:22.551Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 235 gap planning complete — 10 plans, 2 pending
+last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 64
-  completed_plans: 62
-  percent: 97
+  completed_plans: 63
+  percent: 83
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
-Plan: 9 of 10
+Plan: 2 of 10
 Status: Ready to execute
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 gap closure planned
-Last activity: 2026-08-03 — Phase 235 gap planning complete; Plans 09–10 ready
+Progress: 5/6 milestone phases complete ([██████████] 98%); Phase 235 gap closure planned
+Last activity: 2026-08-03 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -440,6 +440,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
 - [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
 - [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
+- [Phase ?]: FAST-01 readiness is non-authoritative; only the protected main workflow may emit a verdict.
+- [Phase ?]: The live fresh population has four PR runs and remains insufficient_population; FAST-01 is not marked complete.
 
 ### Pending Todos
 
@@ -584,8 +586,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T04:00:16.745Z
-Stopped at: Completed 235-08-PLAN.md
+Last session: 2026-08-03T17:09:22.534Z
+Stopped at: Completed 235-09-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -750,3 +752,4 @@ Resume file: None
 | Phase 235 P06 | 12m | 3 tasks | 2 files |
 | Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
 | Phase 235 P08 | unknown | 3 tasks | 7 files |
+| Phase 235-terminal-ratification-measured-not-read P09 | 18min | 2 tasks | 6 files |

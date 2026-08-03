@@ -381,7 +381,7 @@ Plans:
 
 **Wave 9** *(gap closure; blocked on Wave 8 completion)*
 
-- [ ] 235-09-PLAN.md — Build fixed-cutoff readiness and protected remeasurement automation without changing the existing verdict
+- [x] 235-09-PLAN.md — Build fixed-cutoff readiness and protected remeasurement automation without changing the existing verdict
 
 **Wave 10** *(gap closure; blocked on Wave 9 completion and a qualifying ≥10-run population)*
 
