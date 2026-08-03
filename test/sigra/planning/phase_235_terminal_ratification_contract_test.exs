@@ -284,6 +284,19 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       |> validate_captured_ledger!()
     end
 
+    assert_raise ArgumentError, ~r/inverted run timestamps/, fn ->
+      ledger
+      |> put_in(
+        ["measurements", "pull_request", "runs", Access.at(0), "created_at"],
+        "2026-08-02T18:00:00Z"
+      )
+      |> put_in(
+        ["measurements", "pull_request", "runs", Access.at(0), "updated_at"],
+        "2026-08-02T17:59:59Z"
+      )
+      |> validate_captured_ledger!()
+    end
+
     assert_raise ArgumentError, ~r/duplicate run id/, fn ->
       update_in(ledger, ["measurements", "pull_request", "run_ids"], fn ids -> [hd(ids) | ids] end)
       |> validate_captured_ledger!()
@@ -921,11 +934,13 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
 
     source_runs = validate_source_receipt!(ledger["capture_endpoint"], cutoff, endpoint)
+    cutoff_at = parse_timestamp!(cutoff)
+    endpoint_at = parse_timestamp!(endpoint)
 
     bounded_source =
       source_runs
       |> Enum.filter(fn run ->
-        run["createdAt"] >= cutoff and run["updatedAt"] <= endpoint and run["event"] in @events
+        source_run_within_window?(run, cutoff_at, endpoint_at) and run["event"] in @events
       end)
       |> Map.new(&{&1["databaseId"], source_run_to_ledger_run(&1)})
 
@@ -950,6 +965,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
            do: raise(ArgumentError, "source receipt")
 
     runs = Jason.decode!(receipt["output"])
+    cutoff_at = parse_timestamp!(cutoff)
+    endpoint_at = parse_timestamp!(endpoint)
 
     unless is_list(runs) and Enum.all?(runs, fn run ->
              MapSet.new(Map.keys(run)) ==
@@ -957,13 +974,33 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
                is_integer(run["databaseId"]) and run["databaseId"] > 0 and run["event"] in @events ++ ["workflow_dispatch"] and
                is_binary(run["createdAt"]) and is_binary(run["updatedAt"]) and is_binary(run["conclusion"]) and
                run["url"] == "https://github.com/szTheory/sigra/actions/runs/#{run["databaseId"]}" and
-               is_binary(run["headSha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["headSha"])
+               is_binary(run["headSha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["headSha"]) and
+               source_run_chronological?(run)
            end) and
              runs |> Enum.map(& &1["databaseId"]) |> Enum.uniq() |> length() == length(runs) and
-             Enum.any?(runs, &(&1["createdAt"] >= cutoff and &1["updatedAt"] <= endpoint)),
+             Enum.any?(runs, &source_run_within_window?(&1, cutoff_at, endpoint_at)),
            do: raise(ArgumentError, "source receipt fields")
 
     runs
+  end
+
+  defp source_run_chronological?(run) do
+    created_at = parse_timestamp!(run["createdAt"])
+    updated_at = parse_timestamp!(run["updatedAt"])
+
+    if DateTime.compare(updated_at, created_at) == :lt,
+      do: raise(ArgumentError, "inverted source run timestamps")
+
+    true
+  end
+
+  defp source_run_within_window?(run, cutoff_at, endpoint_at) do
+    created_at = parse_timestamp!(run["createdAt"])
+    updated_at = parse_timestamp!(run["updatedAt"])
+
+    DateTime.compare(created_at, cutoff_at) != :lt and
+      DateTime.compare(created_at, endpoint_at) != :gt and
+      DateTime.compare(updated_at, endpoint_at) != :gt
   end
 
   defp source_run_to_ledger_run(source) do
@@ -1352,6 +1389,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
         created_at = parse_timestamp!(run["created_at"])
         updated_at = parse_timestamp!(run["updated_at"])
+
+        if DateTime.compare(updated_at, created_at) == :lt,
+          do: raise(ArgumentError, "inverted run timestamps")
+
         duration = max(DateTime.diff(updated_at, created_at, :second), 0)
         {duration, pass + if(run["conclusion"] == "success", do: 1, else: 0)}
       end)
@@ -1387,6 +1428,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
       created_at = parse_timestamp!(run["created_at"])
       updated_at = parse_timestamp!(run["updated_at"])
+
+      if DateTime.compare(updated_at, created_at) == :lt,
+        do: raise(ArgumentError, "inverted run timestamps")
+
       if DateTime.compare(created_at, cutoff_at) == :lt, do: raise(ArgumentError, "pre-cutoff")
 
       if DateTime.compare(created_at, endpoint_at) == :gt or
