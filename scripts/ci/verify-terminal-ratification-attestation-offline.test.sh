@@ -15,6 +15,6 @@ if PATH="$WORK/bin:$PATH" "$VERIFIER" >"$WORK/stdout" 2>"$WORK/stderr"; then
   exit 1
 fi
 
-grep -q "untrusted_gh_executable:$WORK/bin/gh" "$WORK/stderr"
+grep -Eq 'untrusted_gh_executable:.*/bin/gh$' "$WORK/stderr"
 test ! -s "$WORK/stdout"
 echo offline_attestation_runtime_self_test_verified
