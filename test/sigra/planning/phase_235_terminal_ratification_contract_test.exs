@@ -2,6 +2,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   use ExUnit.Case, async: true
 
   @ledger_path ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+  @protected_receipt_path ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json"
   @workflow_path ".github/workflows/ci.yml"
   @evidence_workflow_path ".github/workflows/terminal-ratification-evidence.yml"
   @contributing_path "CONTRIBUTING.md"
@@ -386,6 +387,24 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "protected receipt digest, measured run fields, and job manifests are bound to the ledger" do
+    ledger = ledger!()
+    receipt = protected_receipt!()
+
+    assert validate_protected_receipt!(ledger, receipt) == :ok
+
+    assert_raise ArgumentError, ~r/protected receipt population/, fn ->
+      receipt
+      |> put_in(["workflow_runs", "pages", Access.at(0), "body", "workflow_runs", Access.at(0), "conclusion"], "cancelled")
+      |> then(&validate_protected_receipt!(ledger, &1))
+    end
+
+    assert_raise ArgumentError, ~r/protected receipt jobs manifest/, fn ->
+      update_in(receipt, ["jobs"], &Enum.drop(&1, 1))
+      |> then(&validate_protected_receipt!(ledger, &1))
+    end
+  end
+
   test "FAST-01 uses a strict sub-720 comparator and an evidence-backed miss diagnosis" do
     ledger = ledger!()
 
@@ -641,6 +660,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
+  defp protected_receipt!, do: @protected_receipt_path |> File.read!() |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
     unless MapSet.new(Map.keys(ledger)) == @top_level_keys,
@@ -1009,8 +1029,107 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     unless bounded_source == measured_runs,
       do: raise(ArgumentError, "source receipt population")
 
+    validate_protected_receipt!(ledger, protected_receipt!())
+
     :ok
   end
+
+  defp validate_protected_receipt!(ledger, receipt) do
+    provenance = ledger["capture_endpoint"]["protected_provenance"]
+    receipt_bytes = File.read!(@protected_receipt_path)
+
+    unless sha256_hex(receipt_bytes) == provenance["subject_sha256"],
+      do: raise(ArgumentError, "protected receipt digest")
+
+    unless receipt["schema_version"] == "sigra.terminal-ratification-receipt/v1" and
+             receipt["repository"] == "szTheory/sigra" and receipt["workflow"] == "ci.yml" and
+             receipt["window"] == %{"cutoff" => ledger["topology_cutoff"]["committed_at"], "endpoint" => @capture_instant},
+      do: raise(ArgumentError, "protected receipt identity")
+
+    runs_receipt = receipt["workflow_runs"] || %{}
+    pages = runs_receipt["pages"] || []
+
+    unless runs_receipt["requested_pages"] == [1, 2] and runs_receipt["data_page_count"] == 1 and
+             runs_receipt["terminal_page"] == 2 and runs_receipt["exhausted"] and
+             runs_receipt["total_count"] == 24 and
+             Enum.map(pages, & &1["page"]) == [1, 2] and
+             is_list(get_in(pages, [Access.at(0), "body", "workflow_runs"])) and
+             get_in(pages, [Access.at(0), "body", "total_count"]) == 24 and
+             get_in(pages, [Access.at(1), "body", "workflow_runs"]) == [] and
+             get_in(pages, [Access.at(1), "body", "total_count"]) == 24,
+      do: raise(ArgumentError, "protected receipt workflow manifest")
+
+    protected_runs = get_in(pages, [Access.at(0), "body", "workflow_runs"])
+    normalized_runs = Enum.map(protected_runs, &protected_run_to_ledger_run!/1)
+    cutoff_at = parse_timestamp!(ledger["topology_cutoff"]["committed_at"])
+    endpoint_at = parse_timestamp!(@capture_instant)
+
+    unless length(normalized_runs) == 24 and Enum.map(normalized_runs, & &1["id"]) |> Enum.uniq() |> length() == 24,
+      do: raise(ArgumentError, "protected receipt workflow population")
+
+    protected_measurements =
+      normalized_runs
+      |> Enum.filter(&(&1["event"] in @events and ledger_run_within_window?(&1, cutoff_at, endpoint_at)))
+      |> Map.new(&{&1["id"], &1})
+
+    measured_runs =
+      for event <- @events,
+          run <- ledger["measurements"][event]["runs"],
+          into: %{},
+          do: {run["id"], run}
+
+    unless protected_measurements == measured_runs,
+      do: raise(ArgumentError, "protected receipt population")
+
+    validate_protected_job_manifests!(receipt["jobs"], Map.keys(measured_runs))
+    :ok
+  end
+
+  defp protected_run_to_ledger_run!(run) do
+    normalized = %{
+      "id" => run["id"], "event" => run["event"], "created_at" => run["created_at"],
+      "updated_at" => run["updated_at"], "conclusion" => run["conclusion"],
+      "url" => run["html_url"], "head_sha" => run["head_sha"]
+    }
+
+    unless is_integer(normalized["id"]) and normalized["id"] > 0 and normalized["event"] in @events ++ ["workflow_dispatch"] and
+             is_binary(normalized["created_at"]) and is_binary(normalized["updated_at"]) and is_binary(normalized["conclusion"]) and
+             normalized["url"] == "https://github.com/szTheory/sigra/actions/runs/#{normalized["id"]}" and
+             is_binary(normalized["head_sha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, normalized["head_sha"]),
+      do: raise(ArgumentError, "protected receipt run fields")
+
+    normalized
+  end
+
+  defp ledger_run_within_window?(run, cutoff_at, endpoint_at) do
+    created_at = parse_timestamp!(run["created_at"])
+    updated_at = parse_timestamp!(run["updated_at"])
+    DateTime.compare(created_at, cutoff_at) != :lt and DateTime.compare(created_at, endpoint_at) != :gt and
+      DateTime.compare(updated_at, created_at) != :lt and DateTime.compare(updated_at, endpoint_at) != :gt
+  end
+
+  defp validate_protected_job_manifests!(jobs, measurement_ids) when is_list(jobs) do
+    manifests = Map.new(jobs, &{&1["run_id"], &1})
+
+    unless MapSet.new(Map.keys(manifests)) == MapSet.new(measurement_ids) and length(jobs) == length(measurement_ids),
+      do: raise(ArgumentError, "protected receipt jobs manifest")
+
+    for {run_id, manifest} <- manifests do
+      pages = manifest["pages"] || []
+
+      unless Enum.map(pages, & &1["page"]) == [1, 2] and
+               is_list(get_in(pages, [Access.at(0), "body", "jobs"])) and
+               get_in(pages, [Access.at(0), "body", "jobs"]) != [] and
+               is_integer(get_in(pages, [Access.at(0), "body", "total_count"])) and
+               get_in(pages, [Access.at(1), "body", "jobs"]) == [] and
+               get_in(pages, [Access.at(1), "body", "total_count"]) == get_in(pages, [Access.at(0), "body", "total_count"]) and
+               length(get_in(pages, [Access.at(0), "body", "jobs"])) == get_in(pages, [Access.at(0), "body", "total_count"]) and
+               Enum.all?(get_in(pages, [Access.at(0), "body", "jobs"]), &(is_integer(&1["id"]) and &1["run_id"] == run_id)),
+        do: raise(ArgumentError, "protected receipt jobs manifest")
+    end
+  end
+
+  defp validate_protected_job_manifests!(_, _), do: raise(ArgumentError, "protected receipt jobs manifest")
 
   defp validate_source_receipt!(capture, cutoff, endpoint) do
     receipt = capture["source_receipt"] || %{}
