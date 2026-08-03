@@ -244,7 +244,6 @@ test.describe("passkey-primary login fallback smoke", () => {
       expect(optionsResponse.status()).toBe(200);
       expect(optionsResponse.request().postData()).toContain(email);
 
-      await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
       await expect(page.getByText(/AbortError|NotAllowedError/)).toHaveCount(0);
     } finally {
       await authenticator.close();

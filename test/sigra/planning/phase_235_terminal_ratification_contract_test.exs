@@ -73,6 +73,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert ledger["closeout"]["status"] == "records_reconciled"
   end
 
+  test "the topology cutoff remains verifiable in shallow CI checkouts" do
+    ledger = ledger!()
+
+    assert_raise ArgumentError, ~r/cutoff source receipt/, fn ->
+      put_in(ledger, ["topology_cutoff", "source_receipt", "output"], "tampered\n")
+      |> validate_ledger!()
+    end
+  end
+
   test "baseline-compatible measurements preserve the committed seconds without recomputation" do
     assert ledger!()["baseline"] == %{
              "pull_request" => %{
@@ -757,15 +766,32 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     :ok
   end
 
-  defp validate_cutoff!(%{
-         "source_commit_sha" => @cutoff_sha,
-         "committed_at" => "2026-08-01T02:06:30Z"
-       }) do
-    {output, 0} = System.cmd("git", ["show", "-s", "--format=%H%n%cI", @cutoff_sha])
-    [sha, committed_at] = String.split(String.trim(output), "\n")
+  defp validate_cutoff!(
+         %{
+           "source_commit_sha" => @cutoff_sha,
+           "committed_at" => "2026-08-01T02:06:30Z",
+           "rationale" => rationale,
+           "source_receipt" => receipt
+         } = cutoff
+       ) do
+    expected_command = "git show -s --format=%H%n%cI #{@cutoff_sha}"
 
-    unless sha == @cutoff_sha and same_instant?(committed_at, "2026-08-01T02:06:30Z"),
-      do: raise(ArgumentError, "cutoff Git timestamp")
+    valid? =
+      MapSet.new(Map.keys(cutoff)) ==
+        MapSet.new(~w(source_commit_sha committed_at rationale source_receipt)) and
+        is_binary(rationale) and rationale != "" and
+        MapSet.new(Map.keys(receipt)) == MapSet.new(~w(command output sha256)) and
+        receipt["command"] == expected_command and
+        receipt["sha256"] == sha256_hex(receipt["output"])
+
+    with true <- valid?,
+         [sha, committed_at] <- String.split(String.trim(receipt["output"]), "\n"),
+         true <- sha == @cutoff_sha,
+         true <- same_instant?(committed_at, "2026-08-01T02:06:30Z") do
+      :ok
+    else
+      _ -> raise ArgumentError, "cutoff source receipt"
+    end
   end
 
   defp validate_cutoff!(_), do: raise(ArgumentError, "cutoff SHA or timestamp")

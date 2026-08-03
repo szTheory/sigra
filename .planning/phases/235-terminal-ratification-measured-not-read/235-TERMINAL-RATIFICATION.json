@@ -3,7 +3,12 @@
   "topology_cutoff": {
     "source_commit_sha": "6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a",
     "committed_at": "2026-08-01T02:06:30Z",
-    "rationale": "Last milestone commit in the live topology-path history; later terminal evidence must use this immutable cutoff."
+    "rationale": "Last milestone commit in the live topology-path history; later terminal evidence must use this immutable cutoff.",
+    "source_receipt": {
+      "command": "git show -s --format=%H%n%cI 6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a",
+      "output": "6c57d7b4a22aa87a757a6f508f2cf4fdb414e40a\n2026-07-31T22:06:30-04:00\n",
+      "sha256": "4b51cae9b9fb12f88992797a0024a67317218f8e02729053e69c5276bd641c40"
+    }
   },
   "capture_endpoint": {
     "status": "captured",

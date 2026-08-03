@@ -49,6 +49,21 @@ config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
+# Reload browser tabs when matching files change.
+config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
+  live_reload: [
+    web_console_logger: true,
+    patterns: [
+      # Static assets, except user uploads
+      ~r"priv/static/(?!uploads/).*\.(js|css|png|jpeg|jpg|gif|svg)$"E,
+      # Gettext translations
+      ~r"priv/gettext/.*\.po$"E,
+      # Router, Controllers, LiveViews and LiveComponents
+      ~r"lib/sigra_install_golden_tmp_web/router\.ex$"E,
+      ~r"lib/sigra_install_golden_tmp_web/(controllers|live|components)/.*\.(ex|heex)$"E
+    ]
+  ]
+
 # Enable dev routes for dashboard and mailbox
 config :sigra_install_golden_tmp, dev_routes: true
 
