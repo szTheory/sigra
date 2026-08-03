@@ -646,6 +646,18 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     capture = ledger["capture_endpoint"]
 
+    unless Map.take(capture["protected_provenance"] || %{}, ~w(artifact_path attestation_path trusted_root_path signer_workflow source_ref subject_sha256 workflow_run_id workflow_run_url)) == %{
+             "artifact_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json",
+             "attestation_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl",
+             "trusted_root_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl",
+             "signer_workflow" => "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
+             "source_ref" => "refs/heads/main",
+             "subject_sha256" => "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+             "workflow_run_id" => 30782184713,
+             "workflow_run_url" => "https://github.com/szTheory/sigra/actions/runs/30782184713"
+           },
+           do: raise(ArgumentError, "protected provenance")
+
     unless capture["captured_at"] == @capture_instant and
              capture["population_sha256"] == @population_sha and
              capture["source_command"] ==

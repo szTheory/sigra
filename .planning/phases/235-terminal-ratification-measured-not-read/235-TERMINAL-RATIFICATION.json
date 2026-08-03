@@ -9,6 +9,16 @@
     "status": "captured",
     "captured_at": "2026-08-02T18:07:04Z",
     "immutable_cutoff": "2026-08-01T02:06:30Z",
+    "protected_provenance": {
+      "artifact_path": ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json",
+      "attestation_path": ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl",
+      "trusted_root_path": ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl",
+      "signer_workflow": "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
+      "source_ref": "refs/heads/main",
+      "subject_sha256": "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+      "workflow_run_id": 30782184713,
+      "workflow_run_url": "https://github.com/szTheory/sigra/actions/runs/30782184713"
+    },
     "source_command": "gh run list --repo szTheory/sigra --workflow ci.yml --limit 100 --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha",
     "population_sha256": "6462b127e09de5a017e4b718e4928341ab81be33f627dcef6d637560bc74a530",
     "source_receipt": {
