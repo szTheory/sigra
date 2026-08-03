@@ -1,6 +1,6 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-reviewed: 2026-08-03T14:10:18Z
+reviewed: 2026-08-03T14:22:03Z
 depth: standard
 files_reviewed: 8
 files_reviewed_list:
@@ -22,21 +22,21 @@ status: clean
 
 # Phase 235: Code Review Report
 
-**Reviewed:** 2026-08-03T14:10:18Z
-**Depth:** standard (targeted CR-01 resolution check)
+**Reviewed:** 2026-08-03T14:22:03Z
+**Depth:** standard (targeted protected-job binding check)
 **Files Reviewed:** 8
 **Status:** clean
 
 ## Summary
 
-CR-01 is resolved. The offline verifier pins `githubWorkflowSHA` to `83ef9f5d7b00a99aa945cf9839c056283c3e6c65`; the retained ledger records and the focused ExUnit contract requires the same immutable value. The policy rejects a mismatched SHA assertion before reporting success. No remaining issue was found in the targeted resolution scope.
+CR-01 remains resolved. The targeted `d33a43c7` review also found the protected-job binding sound: every retained pull-request, push, and schedule run is checked against the direct owner's workflow-name prefix. Executed rows require a completed non-skipped job, while intentional absences require a present skipped job. The corrected admin-eval pull-request rows now use `intentionally_absent`; push and schedule remain executed. Mutations that remove the push owner or skip the schedule owner fail the contract. No issue was found in this targeted scope.
 
 ## Narrative Findings (AI reviewer)
 
-No findings. The reviewed CR-01 remediation correctly binds the attestation to the specific evidence-workflow revision.
+No findings. The reviewed ownership rows are bound to protected job evidence with the expected event and execution semantics.
 
 ---
 
-_Reviewed: 2026-08-03T14:10:18Z_
+_Reviewed: 2026-08-03T14:22:03Z_
 _Reviewer: the agent (gsd-code-reviewer)_
-_Depth: standard (targeted CR-01 resolution check)_
+_Depth: standard (targeted protected-job binding check)_
