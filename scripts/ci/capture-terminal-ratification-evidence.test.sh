@@ -16,8 +16,9 @@ cat >"$TMP/bin/gh" <<'EOF'
 set -euo pipefail
 printf '%s\n' "$*" >>"$FAKE_GH_LOG"
 if [[ "$1" == api && "$2" == rate_limit ]]; then echo 251; exit 0; fi
-if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ "$*" =~ page=([0-9]+) ]]; then
-  case "${BASH_REMATCH[1]}" in
+PAGE="$(printf '%s' "$*" | sed -n 's/.*[?&]page=\([0-9][0-9]*\)$/\1/p')"
+if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
+  case "$PAGE" in
   1)
     if [[ "${FAKE_MODE:-ok}" == inverted_run ]]; then
       echo '{"total_count":1,"workflow_runs":[{"id":1,"event":"pull_request","conclusion":"success","created_at":"2026-08-02T03:00:00Z","updated_at":"2026-08-02T02:00:00Z"}]}'
@@ -27,7 +28,7 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ "$*" =~ page=([0-9]+) ]]; then
   2) echo '{"total_count":1,"workflow_runs":[]}' ;;
   *) echo "unexpected run page: $*" >&2; exit 1 ;;
   esac
-elif [[ "$*" == *'/jobs?'* ]] && [[ "$*" =~ page=([0-9]+) ]] && [[ "${BASH_REMATCH[1]}" == 1 ]]; then
+elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 1 ]]; then
   echo '{"total_count":0,"jobs":[]}'
 else
   echo "unexpected gh invocation: $*" >&2; exit 1
