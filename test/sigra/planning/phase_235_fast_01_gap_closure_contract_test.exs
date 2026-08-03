@@ -42,6 +42,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert workflow =~ "workflow_dispatch:"
     refute workflow =~ "inputs:"
     assert workflow =~ "github.ref == 'refs/heads/main'"
+    assert workflow =~ "fetch-depth: 0"
     assert workflow =~ "--protected-output fast-01-gap-closure-remeasurement.json"
     assert workflow =~ "eligible_pr_run_count >= 10"
     refute workflow =~ "pull_request:"

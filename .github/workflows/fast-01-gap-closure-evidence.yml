@@ -18,6 +18,10 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # The collector proves ancestry for the remediation cutoff, which is
+          # intentionally older than the single-commit checkout default.
+          fetch-depth: 0
       - name: Fix protected endpoint at workflow start
         id: endpoint
         shell: bash
