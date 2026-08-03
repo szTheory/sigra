@@ -84,7 +84,8 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
   | all(.[]; . as $run | ($run.id | type == "number") and ($run.event | type == "string" and (. == "pull_request" or . == "push" or . == "schedule" or . == "workflow_dispatch")) and ($run.conclusion | type == "string" and length > 0) and ($run.created_at | type == "string" and . >= $cutoff and . <= $endpoint) and ($run.updated_at | type == "string" and . <= $endpoint and . >= $run.created_at))
 ' "$RUNS_MANIFEST" >/dev/null || fail "run_chronology_or_identity_invalid"
 
-JOB_MANIFESTS="[]"
+JOB_MANIFESTS_FILE="$TMPDIR_CAPTURE/jobs.json"
+printf '%s\n' '[]' >"$JOB_MANIFESTS_FILE"
 for run_id in "${RUN_IDS[@]}"; do
   manifest="$TMPDIR_CAPTURE/jobs-${run_id}.manifest.jsonl"
   collect_pages "repos/${REPO}/actions/runs/${run_id}/jobs?" jobs "jobs-${run_id}" "$manifest"
@@ -92,10 +93,12 @@ for run_id in "${RUN_IDS[@]}"; do
     [.[].body.jobs[]]
     | all(.[]; . as $job | ($job.id|type) == "number" and ($job.name|type) == "string" and ($job.name|length) > 0 and ($job.conclusion|type) == "string" and ($job.conclusion|length) > 0 and (if $job.conclusion == "skipped" then (($job.started_at|type) == "string" or $job.started_at == null) and (($job.completed_at|type) == "string" or $job.completed_at == null) else ($job.started_at|type) == "string" and ($job.completed_at|type) == "string" and $job.completed_at >= $job.started_at end))
   ' "$manifest" >/dev/null || fail "job_chronology_or_identity_invalid_run_${run_id}"
-  JOB_MANIFESTS="$(jq -c --arg id "$run_id" --slurpfile pages "$manifest" '. + [{run_id: ($id|tonumber), pages: $pages}]' <<<"$JOB_MANIFESTS")"
+  jobs_next="$TMPDIR_CAPTURE/jobs-${run_id}.json"
+  jq --arg id "$run_id" --slurpfile pages "$manifest" '. + [{run_id: ($id|tonumber), pages: $pages}]' "$JOB_MANIFESTS_FILE" >"$jobs_next" || fail "job_manifest_append_failed"
+  mv "$jobs_next" "$JOB_MANIFESTS_FILE"
 done
 
-jq -S -n --arg repository "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile run_pages "$RUNS_MANIFEST" --argjson jobs "$JOB_MANIFESTS" '
+jq -S -n --arg repository "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile run_pages "$RUNS_MANIFEST" --slurpfile jobs "$JOB_MANIFESTS_FILE" '
   def receipt($pages; $key): {
     requested_pages: [$pages[].page],
     data_page_count: ([$pages[] | select(.body[$key] | length > 0)] | length),
@@ -105,7 +108,7 @@ jq -S -n --arg repository "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTO
     pages: $pages
   };
   {schema_version: "sigra.terminal-ratification-receipt/v1", repository: $repository, workflow: $workflow,
-   window: {cutoff: $cutoff, endpoint: $endpoint}, workflow_runs: receipt($run_pages; "workflow_runs"), jobs: $jobs}
+   window: {cutoff: $cutoff, endpoint: $endpoint}, workflow_runs: receipt($run_pages; "workflow_runs"), jobs: $jobs[0]}
 ' >"$OUTPUT" || fail "canonical_output_failed"
 
 test -s "$OUTPUT" || fail "empty_canonical_output"
