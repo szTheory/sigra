@@ -10,6 +10,7 @@ REPO="szTheory/sigra"
 SIGNER_WORKFLOW="szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml"
 SOURCE_REF="refs/heads/main"
 SUBJECT_DIGEST="022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244"
+EXPECTED_WORKFLOW_SHA="83ef9f5d7b00a99aa945cf9839c056283c3e6c65"
 
 for command in gh jq mktemp realpath; do
   command -v "$command" >/dev/null || { echo "missing_required_command:$command" >&2; exit 1; }
@@ -75,18 +76,25 @@ verify() {
 }
 
 verify "$work/positive.json" "$work/receipt.json"
-"$JQ_BIN" -e --arg digest "$SUBJECT_DIGEST" '
+"$JQ_BIN" -e --arg digest "$SUBJECT_DIGEST" --arg workflow_sha "$EXPECTED_WORKFLOW_SHA" '
   length == 1 and
   .[0].verificationResult.statement.subject[0].digest.sha256 == $digest and
   .[0].verificationResult.signature.certificate.sourceRepositoryURI == "https://github.com/szTheory/sigra" and
   .[0].verificationResult.signature.certificate.sourceRepositoryRef == "refs/heads/main" and
   .[0].verificationResult.signature.certificate.githubWorkflowRepository == "szTheory/sigra" and
   .[0].verificationResult.signature.certificate.githubWorkflowRef == "refs/heads/main" and
-  .[0].verificationResult.signature.certificate.githubWorkflowSHA != ""
+  .[0].verificationResult.signature.certificate.githubWorkflowSHA == $workflow_sha
 ' "$work/positive.json" >/dev/null || {
   echo "positive_policy_binding_failed" >&2
   exit 1
 }
+
+if "$JQ_BIN" -e --arg workflow_sha "0000000000000000000000000000000000000000" \
+  '.[0].verificationResult.signature.certificate.githubWorkflowSHA == $workflow_sha' \
+  "$work/positive.json" >/dev/null; then
+  echo "adversarial_case_unexpectedly_verified:workflow_sha" >&2
+  exit 1
+fi
 
 expect_failure() {
   local name="$1"

@@ -16,6 +16,7 @@
       "signer_workflow": "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
       "source_ref": "refs/heads/main",
       "subject_sha256": "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+      "workflow_sha": "83ef9f5d7b00a99aa945cf9839c056283c3e6c65",
       "workflow_run_id": 30782184713,
       "workflow_run_url": "https://github.com/szTheory/sigra/actions/runs/30782184713"
     },
