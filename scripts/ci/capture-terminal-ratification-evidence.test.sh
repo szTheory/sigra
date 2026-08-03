@@ -29,6 +29,11 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
   *) echo "unexpected run page: $*" >&2; exit 1 ;;
   esac
 elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 1 ]]; then
+  if [[ "${FAKE_MODE:-ok}" == large ]]; then
+    payload="$(head -c 140000 /dev/zero | tr '\0' x)"
+    printf '{"total_count":1,"jobs":[{"id":7,"name":"%s","conclusion":"success","started_at":"2026-08-02T02:00:00Z","completed_at":"2026-08-02T03:00:00Z"}]}\n' "$payload"
+    exit 0
+  fi
   if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted ]]; then
     echo '{"total_count":1,"jobs":[{"id":9,"name":"real job","conclusion":"success","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"}]}'
   else
@@ -63,3 +68,6 @@ RC=$?
 set -e
 test "$RC" -ne 0
 grep -q 'job_chronology_or_identity_invalid_run_' "$TMP/job-inverted.err"
+
+FAKE_MODE=large FAKE_GH_LOG="$TMP/large-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/large.json"
+jq -e '.jobs | length == 23' "$TMP/large.json" >/dev/null
