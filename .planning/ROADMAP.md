@@ -373,7 +373,7 @@ Plans:
 
 **Wave 7** *(gap closure; blocked on Wave 6 completion)*
 
-- [ ] 235-07-PLAN.md — Establish a main-only attested capture path with complete pagination and chronology rejection
+- [x] 235-07-PLAN.md — Establish a main-only attested capture path with complete pagination and chronology rejection
 
 **Wave 8** *(gap closure; blocked on the Wave 7 workflow landing on protected main)*
 
