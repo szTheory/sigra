@@ -26,4 +26,8 @@ jq '.[0].id=30828457128' "$TMP/runs.json" >"$TMP/overlap.json"; if PATH="$TMP/bi
 jq '.[1].id=.[0].id' "$TMP/runs.json" >"$TMP/duplicate.json"; if PATH="$TMP/bin:$PATH" FAKE_RUNS="$(<"$TMP/duplicate.json")" "$COLLECTOR" --readiness "$TMP/duplicate-out.json" >/dev/null 2>&1; then fail "duplicate id accepted"; fi
 if PATH="$TMP/bin:$PATH" FAKE_BAD_PAGE=1 FAKE_RUNS="$(<"$TMP/runs.json")" "$COLLECTOR" --readiness "$TMP/malformed-page.json" >/dev/null 2>&1; then fail "malformed pagination page accepted"; fi
 for duration in 719 720 721; do make_runs 10 "$((duration + 4))"; PATH="$TMP/bin:$PATH" FAKE_RUNS="$(<"$TMP/runs.json")" "$COLLECTOR" --protected-output "$TMP/protected-$duration.json" --endpoint 2026-08-03T22:00:00Z; jq -e --arg expected "$(if ((duration==719)); then echo pass; else echo miss; fi)" --argjson duration "$duration" '.status=="measured" and .verdict==$expected and .statistics.p50_seconds==$duration and .statistics.ordering=="{wall_seconds, run_id}"' "$TMP/protected-$duration.json" >/dev/null || fail "strict comparator $duration"; done
+make_runs 10 719
+jq '.[0].updated_at="2026-08-03T22:00:01Z"' "$TMP/runs.json" >"$TMP/completed-after-endpoint.json"
+PATH="$TMP/bin:$PATH" FAKE_RUNS="$(<"$TMP/completed-after-endpoint.json")" "$COLLECTOR" --protected-output "$TMP/protected-completed-after-endpoint.json" --endpoint 2026-08-03T22:00:00Z
+jq -e '.status=="measured" and .eligible_pr_run_count==10 and ([.runs[] | select(.run_id==900000) | .wall_seconds] == [1372])' "$TMP/protected-completed-after-endpoint.json" >/dev/null || fail "terminal run completed after fixed endpoint rejected"
 echo "capture-fast-01-gap-closure.test: PASS"
