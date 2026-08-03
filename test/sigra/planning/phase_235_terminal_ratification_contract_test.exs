@@ -3,6 +3,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   @ledger_path ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
   @workflow_path ".github/workflows/ci.yml"
+  @evidence_workflow_path ".github/workflows/terminal-ratification-evidence.yml"
   @contributing_path "CONTRIBUTING.md"
   @mix_path "mix.exs"
   @playwright_config_path "test/example/priv/playwright/playwright.config.ts"
@@ -18,6 +19,14 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
                     ~w(schema_version topology_cutoff capture_endpoint baseline measurements ownership receipts verdict closeout)
                   )
   @events ~w(pull_request push schedule)
+
+  test "protected terminal-ratification evidence workflow exists" do
+    workflow = File.read!(@evidence_workflow_path)
+
+    assert workflow =~ "workflow_dispatch:"
+    assert workflow =~ "refs/heads/main"
+    assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+  end
 
   test "the terminal ratification ledger is a captured, versioned ledger with an immutable cutoff" do
     ledger = ledger!()
