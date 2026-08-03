@@ -28,6 +28,26 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
   end
 
+  test "captured measurements require protected offline provenance" do
+    provenance = ledger!()["capture_endpoint"]["protected_provenance"]
+
+    assert provenance == %{
+             "artifact_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json",
+             "attestation_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl",
+             "trusted_root_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl",
+             "signer_workflow" =>
+               "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
+             "source_ref" => "refs/heads/main",
+             "subject_sha256" =>
+               "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+             "workflow_run_id" => 30782184713,
+             "workflow_run_url" => "https://github.com/szTheory/sigra/actions/runs/30782184713"
+           }
+  end
+
   test "the terminal ratification ledger is a captured, versioned ledger with an immutable cutoff" do
     ledger = ledger!()
 
