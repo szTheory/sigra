@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 10 plans in 10 waves
+**Plans**: 13 plans in 13 waves
 
 Plans:
 **Wave 1**
@@ -387,6 +387,18 @@ Plans:
 
 - [x] 235-10-PLAN.md — Capture one independently attested population and reconcile FAST-01 from the strict measured verdict
 
+**Wave 11** *(gap closure; blocked on Wave 10 completion)*
+
+- [ ] 235-11-PLAN.md — Remove measured Library-test duplication while preserving the direct `mix ci` contract and GATE-05 ownership
+
+**Wave 12** *(gap closure; blocked on Wave 11 completion and its protected-main remediation merge)*
+
+- [ ] 235-12-PLAN.md — Establish an independent post-remediation population boundary and fail-closed protected evidence producer
+
+**Wave 13** *(gap closure; blocked on Wave 12 completion and a qualifying ≥10-run population)*
+
+- [ ] 235-13-PLAN.md — Capture one protected post-remediation population and reconcile FAST-01 only under the strict `<720` verdict
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -396,7 +408,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 8/10 | Gap closure planned; FAST-01 residual remains measured | — |
+| 235. Terminal Ratification | 10/13 | Gap closure planned; FAST-01 residual remains measured | — |
 
 ## Requirement Coverage
 
