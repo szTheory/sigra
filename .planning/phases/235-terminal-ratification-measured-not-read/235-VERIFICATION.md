@@ -1,37 +1,36 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-verified: 2026-08-03T14:19:52Z
+verified: 2026-08-03T20:55:00Z
 status: gaps_found
-score: 9/10 must-haves verified
+score: 5/6 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
-  previous_score: 8/10
-  gaps_closed:
-    - "Every ownership row is now joined to the workflow-derived direct-owner job-name prefix in every retained protected event manifest; executed rows require a terminal non-skipped job and intentionally_absent rows require present skipped jobs."
+  previous_score: 9/10
+  gaps_closed: []
   gaps_remaining:
-    - "FAST-01 remains a measured miss: 19 PR runs have p50 772 seconds, not strictly below 720 seconds."
+    - "FAST-01 remains a strict measured miss: the independently attested population has n=13 and p50=724 seconds, not <720 seconds."
   regressions: []
 gaps:
   - truth: "FAST-01 is achieved: PR p50 is under 12 minutes across at least 10 post-change PR runs."
     status: failed
-    reason: "The protected, replayed measurement contains 19 eligible pull_request runs and p50 772 seconds. The requirement uses a strict <720-second comparator."
+    reason: "The protected-main receipt is complete and eligible (n=13), but its queue-inclusive wall-time p50 is 724 seconds. The requirement comparator is strict <720 seconds."
     artifacts:
-      - path: ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
-        issue: "verdict.fast_01.status is miss with observed_p50_seconds 772 and threshold_seconds 720."
+      - path: ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT.json"
+        issue: "status is measured, verdict is miss, eligible_pr_run_count is 13, and statistics.p50_seconds is 724."
       - path: ".planning/REQUIREMENTS.md"
-        issue: "FAST-01 is accurately open/Gaps Found, confirming the target is not achieved."
+        issue: "FAST-01 is explicitly unchecked and mapped to Phase 235 with status Gaps Found."
     missing:
-      - "A future, independently measured PR population whose p50 is strictly below 720 seconds; do not change the threshold or waive the existing miss."
+      - "A new protected, independent population of at least 10 terminal PR runs with p50 strictly below 720 seconds; retain the cutoff and threshold rather than waiving this miss."
 ---
 
 # Phase 235: Terminal Ratification — Measured, Not Read Verification Report
 
 **Phase Goal:** The milestone's headline claims are proven from run data, and a maintainer can see exactly what moved and where it landed.
-**Verified:** 2026-08-03T14:19:52Z
+**Verified:** 2026-08-03T20:55:00Z
 **Status:** gaps_found
-**Re-verification:** Yes — after protected ownership-job binding repair `d33a43c7`
+**Re-verification:** Yes — after the protected independent FAST-01 measurement
 
 ## Goal Achievement
 
@@ -39,94 +38,79 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | Terminal measurements use queue-inclusive wall mode, all conclusions, sorted `floor(n/2)` p50, and strict `< 720` comparison. | ✓ VERIFIED | Metrics contract passes; the ledger recomputes the retained PR population as p50 772 and treats 720 as a miss. |
-| 2 | FAST-01 is achieved: PR p50 is under 12 minutes across at least 10 post-change PR runs. | ✗ FAILED | Protected replay proves `n=19`, but p50 is `772`, not strictly below `720`. |
-| 3 | The complete source population is independently authenticated and exhaustively paginated. | ✓ VERIFIED | Protected receipt has 24 first-page runs plus retained empty page 2, with complete two-page job manifests; offline verification binds its SHA to protected-main run `30782184713`, signer/ref, and evidence-workflow commit `83ef9f5d7b00a99aa945cf9839c056283c3e6c65`. |
-| 4 | Binding-pole diagnoses are deterministically selected and replayed from retained PR data. | ✓ VERIFIED | Focused contract passes and the ledger retains the 772-second miss with its binding-pole receipts. |
-| 5 | One artifact has the exact before/after PR, push, and schedule ownership-key universe. | ✓ VERIFIED | Hash-pinned Phase 234 inventory and exact sorted 93-row comparison pass. |
-| 6 | Every ownership row proves its actual executable owner, aggregate, receiver, and protected event receipt. | ✓ VERIFIED | `validate_protected_ownership_jobs!/3` joins every row to every protected run for its event through the workflow-derived job-name prefix. Executed rows require a terminal, non-skipped job; intentionally absent rows require present skipped jobs. Renamed push admin-eval and skipped schedule library-owner mutations both fail. |
-| 7 | Push and schedule outcomes over the same measurement window are recorded from run data. | ✓ VERIFIED | Attested population maps exactly to push `1 success / 1 non-success` and schedule `0 success / 2 non-success`. |
-| 8 | CONTRIBUTING describes current topology and CI-used local reproduction. | ✓ VERIFIED | Phase 235 and Phase 198 contributor contracts relate direct owners, aggregates, `MIX_ENV=test mix ci`, and Playwright seams to live sources. |
-| 9 | SEED-005 and CI-PERF reconcile the delivered audit sequence and honest FAST residual. | ✓ VERIFIED | Both records retain the 19/772 miss, same-window outcomes, and residual path. |
-| 10 | Closeout preserves the 772-second miss rather than fabricating a pass. | ✓ VERIFIED | Ledger status is `miss`; FAST-01 remains unchecked/Gaps Found and its residual is open. |
+| 1 | PR wall time is measured against the baseline semantics: all terminal conclusions, queue-inclusive wall time, stable `{wall_seconds, run_id}` ordering, `floor(n/2)` p50, and strict `<720` comparison. | ✓ VERIFIED | `235-FAST-01-REMEASUREMENT.json` declares `mode: wall`, the required ordering, n=13, p50=724, and `verdict: miss`; `ci-run-metrics.test.sh` passed 9/9 including even/odd p50 and failure-row retention. |
+| 2 | FAST-01 is achieved: PR p50 is under 12 minutes across at least 10 post-change PR runs. | ✗ FAILED | Protected receipt has the required 13 terminal PR runs, but p50 is **724 seconds**, four seconds above the strict 720-second ceiling. |
+| 3 | A single committed artifact proves where every covered item ran before versus after across PR, push, and schedule, with an executable receiver and protected receipt. | ✓ VERIFIED | `235-TERMINAL-RATIFICATION.json` has 93 ownership rows; the focused Phase 235 contracts passed 22/22 and reject aggregate-only, stale, malformed, and event-guarded ownership. |
+| 4 | Push and schedule outcomes over the terminal measurement window are recorded. | ✓ VERIFIED | Terminal ledger retains captured push and schedule measurements and outcomes; its protected receipt validates offline. |
+| 5 | CONTRIBUTING describes the live CI topology and supported local reproduction path. | ✓ VERIFIED | `CONTRIBUTING.md` names `MIX_ENV=test mix ci`, `library_tests_shard`/`Library tests`, the direct Playwright seams/aggregate, and intentional non-PR lanes. |
+| 6 | SEED-005/CI-PERF reconciliation preserves an honest residual instead of claiming a performance pass, while GATE-05 stays independently complete. | ✓ VERIFIED | Requirement records keep FAST-01 unchecked/Gaps Found and GATE-05 checked/Complete; the protected 93-row ownership proof is independent of the new FAST receipt. |
 
-**Score:** 9/10 truths verified (0 present, behavior-unverified)
+**Score:** 5/6 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `235-PROTECTED-RECEIPTS.json` | Complete protected run/job receipt | ✓ VERIFIED | 24-run two-page source and 23 complete two-page job manifests; SHA matches ledger provenance. |
-| Attestation bundle + trusted root | Offline-verifiable external provenance | ✓ VERIFIED | Network-denied verifier accepts the subject and rejects altered receipt, bundle, root, signer, and source ref. |
-| `235-TERMINAL-RATIFICATION.json` | Single terminal measurement and ownership ledger | ✓ VERIFIED | Measurements flow exactly from protected evidence; 93 ownership rows are now verified against protected jobs. |
-| `phase_235_terminal_ratification_contract_test.exs` | Fail-closed evidence and ownership contract | ✓ VERIFIED | Contains the protected ownership join and negative push/schedule mutation coverage; 20 focused tests pass. |
-| Contributor and closeout records | Accurate topology and residual disclosure | ✓ VERIFIED | Contract-backed and congruent with the measured miss. |
+| `235-FAST-01-REMEASUREMENT.json` | Protected independent FAST population and strict verdict | ✓ VERIFIED | Exists, is substantive, and records `authority: protected_main_attestation`, n=13, wall p50=724, `miss`. |
+| FAST attestation, trusted root, and offline verifier | Offline provenance check for the exact fresh receipt | ✓ VERIFIED | `verify-fast-01-remeasurement-attestation-offline.sh` passed positive verification and adverse receipt/bundle/root/signer/ref cases. |
+| `235-TERMINAL-RATIFICATION.json` | Exact before/after ownership inventory and terminal measurements | ✓ VERIFIED | Versioned ledger has 93 rows and retained PR/push/schedule evidence; focused contract passed. |
+| `235-PROTECTED-RECEIPTS.json` and terminal verifier | GATE-05 protected execution proof | ✓ VERIFIED | Offline terminal verifier passed; requirement points to protected main run `30782184713`. |
+| `CONTRIBUTING.md` | Current CI topology and local reproduction | ✓ VERIFIED | Substantive, current descriptions match direct owners and aggregates in `ci.yml`. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Protected receipt | Ledger measurements | Attested digest → complete pages → normalized exact run map | ✓ WIRED | All measured PR/push/schedule rows equal protected data. |
-| Evidence workflow | Attestation | Protected-main signer/ref/workflow SHA → network-denied offline verification | ✓ WIRED | Positive and adverse cases pass as expected; current workflow blob equals `origin/main`. |
-| Phase 234 inventory | Ownership ledger | Hash-pinned exact 93-key comparison | ✓ WIRED | Missing, duplicate, and extra ownership rows fail. |
-| `ci.yml` and protected event jobs | Every ownership row | Eligibility + workflow-name prefix + terminal/non-skipped (or skipped absence) job | ✓ WIRED | The repaired validator is invoked from `validate_protected_receipt!/2`; adversarial push/schedule mutations fail. |
-| Ledger | Requirements/closeout documents | Verdict-driven status and wording | ✓ WIRED | FAST-01 remains open; GATE-05 is independently proven and Complete. |
+| Protected FAST receipt | FAST-01 requirement status | Exact n/p50/verdict flow | ✓ WIRED | The receipt's strict `miss` is reflected in unchecked FAST-01/Gaps Found; no pass was fabricated. |
+| FAST receipt/bundle/root | Offline verifier | Network-denied subject, repository, signer, and main-ref validation | ✓ WIRED | Direct verifier execution succeeded and exercised negative inputs. |
+| Phase 234 inventory and protected job receipts | 93-row terminal ownership ledger | Contract reconciliation and executable-owner validation | ✓ WIRED | 22 focused contract tests passed. |
+| Terminal ownership receipt | GATE-05 requirement | Protected run `30782184713` and 93-row evidence | ✓ WIRED | `REQUIREMENTS.md` independently marks GATE-05 Complete. |
+| `CONTRIBUTING.md` | `ci.yml` / local CI command | Direct owner and aggregate topology | ✓ WIRED | The documented `mix ci`, library, Playwright, and non-PR lanes match the checked workflow topology. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| Terminal measurements | `measurements.*.runs` / statistics | Attested protected source pages | Yes | ✓ FLOWING |
-| Binding-pole receipts | Selected PR jobs | Retained PR rows and job data | Yes | ✓ FLOWING |
-| Ownership rows | `after.direct_owner`, event state, receiver | Phase 234 inventory + `ci.yml` + protected job manifests | Yes | ✓ FLOWING |
-| Contributor/closeout documents | Topology and verdict wording | `ci.yml`, Mix/Playwright sources, ledger | Yes | ✓ FLOWING |
+| FAST receipt | `runs`, `eligible_pr_run_count`, `statistics.p50_seconds` | Protected workflow's paginated `ci.yml` PR-run collection | Yes | ✓ FLOWING |
+| Terminal ledger | `ownership.rows` and event measurements | Phase 234 inventory plus protected run/job manifests | Yes | ✓ FLOWING |
+| CONTRIBUTING | owner/aggregate and reproduction descriptions | `ci.yml`, Mix alias, and Playwright seams | Yes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Offline protected attestation | `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` | Positive verification plus altered receipt/bundle/root/signer/ref failures; exit 0 | ✓ PASS |
-| Dispatch correlation selector | `bash scripts/ci/correlate-terminal-ratification-dispatch.sh --self-test` | Exactly-one accepted; zero/multiple/stale/wrong identity rejected | ✓ PASS |
-| Protected collector | `bash scripts/ci/capture-terminal-ratification-evidence.test.sh` | Hermetic production-collector fixtures pass | ✓ PASS |
 | Metrics semantics | `bash scripts/ci/ci-run-metrics.test.sh` | 9 passed, 0 failed | ✓ PASS |
-| Protected ownership join | `MIX_ENV=test mix test test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 20 tests, 0 failures; renamed push owner and skipped schedule owner are rejected | ✓ PASS |
-| Planning contracts | `MIX_ENV=test mix test test/sigra/planning/` | 115 tests, 0 failures, 12 skipped | ✓ PASS |
+| Fresh collector boundary and pagination checks | `bash scripts/ci/capture-fast-01-remeasurement.test.sh` | PASS | ✓ PASS |
+| Fresh protected attestation | `bash scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh` | Positive plus adverse receipt/bundle/root/signer/ref checks passed | ✓ PASS |
+| GATE-05 protected attestation | `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` | Positive plus adverse cases passed | ✓ PASS |
+| Focused Phase 235 contracts | `MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_remeasurement_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 22 tests, 0 failures | ✓ PASS |
 
-The test startup logs local PostgreSQL connection refusals, but these deterministic planning contracts complete without a database.
+The ExUnit process logged unavailable local PostgreSQL connections during startup; these planning contracts completed without database access.
 
 ### Probe Execution
 
-Step 7c: SKIPPED — no Phase 235 `probe-*.sh` script is declared. Applicable deterministic checks were executed above.
+Step 7c: SKIPPED — Phase 235 declares no `probe-*.sh` script. The deterministic collector, attestation, and contract checks above are the applicable runnable evidence.
 
 ### Requirements Coverage
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| FAST-01 | 235-01 through 235-08 | PR p50 under 12 minutes across at least 10 post-change runs | ✗ BLOCKED | Protected evidence proves 19 runs, p50 772 seconds; the explicit `<720` target is unmet. |
-| GATE-05 | 235-01 through 235-08 | One artifact proves no test was silently dropped across PR/main/nightly | ✓ SATISFIED | Exact 93-row inventory plus event eligibility and protected terminal/non-skipped owner-job evidence all validate together. |
+| FAST-01 | 235-01 through 235-10 | PR p50 under 12 minutes across at least 10 post-change runs | ✗ BLOCKED | Authoritative replacement measurement is n=13, p50=724 seconds, verdict `miss`; 724 is not strictly below 720. |
+| GATE-05 | 235-01 through 235-10 | One artifact proves no test was silently dropped across PR/main/nightly | ✓ SATISFIED | Protected receipt and exact 93-row execution proof validate offline; requirement is checked Complete. |
 
-All Phase 235 plan requirements are FAST-01 and GATE-05; none is orphaned. There is no later phase in this milestone that specifically resolves the remaining FAST-01 miss.
-
-### Review Finding Re-evaluation
-
-| Earlier finding | Current verdict | Evidence |
-| --- | --- | --- |
-| Capped source population | Closed | Protected source has total `24`, pages `[1,2]`, and terminal empty page. |
-| Self-authenticating digest | Closed | External offline attestation binds signer, repository, ref, commit, and subject. |
-| Inverted measured timestamps | Closed | Retained measured run/job chronology rejects inversions before duration use. |
-| Disconnected ownership execution proof | Closed | `validate_protected_ownership_jobs!/3` is invoked by protected receipt validation and has adverse push/schedule mutation coverage. |
+All IDs declared by the ten Phase 235 PLAN frontmatters are FAST-01 and GATE-05. Both appear in `REQUIREMENTS.md`; no Phase 235 requirement is orphaned. The current milestone has no later phase that explicitly resolves the FAST-01 miss.
 
 ### Anti-Patterns Found
 
-No blocker or warning anti-pattern was found in the Phase 235 implementation artifacts. No unreferenced `TBD`, `FIXME`, or `XXX` marker was found.
+No Phase-235 blocker marker (`TBD`, `FIXME`, or `XXX`) was found in the inspected runtime artifacts. The prior review's warning remains: the FAST offline verifier is not itself invoked by `ci.yml`; it was executed directly here and does not invalidate the retained evidence, but future CI wiring should add its hermetic self-test and verifier.
 
 ### Gaps Summary
 
-Plans 07–08 and `d33a43c7` now provide complete, externally authenticated source data and an automated row-to-protected-job execution proof. **GATE-05 is independently satisfied.**
+**GATE-05 is independently achieved.** The immutable inventory, execution-proof wiring, and protected attestation all validate.
 
-The phase goal is still not fully achieved because **FAST-01 remains an honest measured miss**: 19 eligible PR runs have a p50 of 772 seconds, not the required value strictly below 720 seconds. This is an **Escalation Gate**: retain the evidence and residual, and only close FAST-01 after a new qualifying measurement proves the target.
+**FAST-01 is not achieved.** The authoritative protected remeasurement has a sufficient sample but a strict miss: **n=13, p50=724 seconds**. This is a **BLOCKER / Escalation Gate** for the phase goal. Do not rewrite the requirement, treat 724 as a pass, or select a new preferred window; only a future independent protected population with p50 below 720 seconds can close it.
 
 ---
 
-_Verified: 2026-08-03T14:19:52Z_
+_Verified: 2026-08-03T20:55:00Z_
 _Verifier: the agent (gsd-verifier)_
