@@ -2973,7 +2973,7 @@
         "run_id": 30729540659,
         "run_url": "https://github.com/szTheory/sigra/actions/runs/30729540659",
         "conclusion": "success",
-        "jobs_sha256": "e923090f35a369441cf914b1db4107a5509bc3c58689f58d0412be042f6e8de4",
+        "jobs_sha256": "cc60d81b57170b37fc2f22bc997a36f5acfaff6d875367f87e6d2bf2dd609dd9",
         "jobs_command": "gh run view 30729540659 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",
         "jobs_receipt": {
           "command": "gh run view 30729540659 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",
@@ -2985,7 +2985,7 @@
         "run_id": 30729478819,
         "run_url": "https://github.com/szTheory/sigra/actions/runs/30729478819",
         "conclusion": "success",
-        "jobs_sha256": "41c2bc96a3ee4663b96481fe1330bc55b21d9b6ee6c84afccca977093094e2a1",
+        "jobs_sha256": "f8418580b4bf18e8ffad600d1e2f24908afa885c0c7f888f63a39ca597d66c11",
         "jobs_command": "gh run view 30729478819 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",
         "jobs_receipt": {
           "command": "gh run view 30729478819 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",
@@ -2997,7 +2997,7 @@
         "run_id": 30734422326,
         "run_url": "https://github.com/szTheory/sigra/actions/runs/30734422326",
         "conclusion": "failure",
-        "jobs_sha256": "6c46a3915f0c8a21670468a10bb154b03d4241f3805ff21b9108c7782376b240",
+        "jobs_sha256": "733bfffad4b91eed7fcbfffa92fc6ae1d3aface9d23532628225f4b0892d0e18",
         "jobs_command": "gh run view 30734422326 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",
         "jobs_receipt": {
           "command": "gh run view 30734422326 --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs",

@@ -138,6 +138,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "ownership receipts bind each terminal event to retained jobs bytes" do
+    ledger = ledger!()
+
+    assert_raise ArgumentError, ~r/ownership receipt/, fn ->
+      update_in(ledger, ["receipts", "ownership", "pull_request"], &Map.delete(&1, "jobs_receipt"))
+      |> validate_ledger!()
+    end
+  end
+
   test "validation fails closed for malformed captured-window mutations" do
     ledger = ledger!()
 
@@ -560,6 +569,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     validate_baseline!(ledger["baseline"])
     validate_inventory!(ledger["ownership"]["source_inventory"])
     validate_rows!(ledger["ownership"]["rows"])
+    validate_ownership_receipts!(ledger["receipts"]["ownership"])
     validate_captured_ledger!(ledger)
     validate_verdict!(ledger)
     :ok
@@ -701,6 +711,34 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp validate_rows!(_), do: raise(ArgumentError, "ownership rows")
+
+  defp validate_ownership_receipts!(receipts) when is_map(receipts) do
+    unless MapSet.new(Map.keys(receipts)) == MapSet.new(@events),
+      do: raise(ArgumentError, "ownership receipt events")
+
+    for event <- @events do
+      receipt = receipts[event] || %{}
+      jobs_receipt = receipt["jobs_receipt"] || %{}
+
+      unless is_integer(receipt["run_id"]) and receipt["run_id"] > 0 and
+               receipt["run_url"] == "https://github.com/szTheory/sigra/actions/runs/#{receipt["run_id"]}" and
+               receipt["jobs_command"] ==
+                 "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs" and
+               MapSet.new(Map.keys(jobs_receipt)) == MapSet.new(~w(command output sha256)) and
+               jobs_receipt["command"] == receipt["jobs_command"] and is_binary(jobs_receipt["output"]) and
+               jobs_receipt["sha256"] == receipt["jobs_sha256"] and jobs_receipt["sha256"] == sha256_hex(jobs_receipt["output"]),
+             do: raise(ArgumentError, "ownership receipt #{event}")
+
+      source = Jason.decode!(jobs_receipt["output"])
+
+      unless source["databaseId"] == receipt["run_id"] and source["event"] == event and
+               source["url"] == receipt["run_url"] and source["conclusion"] == receipt["conclusion"] and
+               is_list(source["jobs"]),
+             do: raise(ArgumentError, "ownership receipt identity #{event}")
+    end
+  end
+
+  defp validate_ownership_receipts!(_), do: raise(ArgumentError, "ownership receipts")
 
   defp validate_captured_ledger!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured",
