@@ -20,7 +20,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Critical path (FAST)
 
-- [ ] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change.
+- [ ] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. Protected run `30849907303` measured 13 terminal PR runs through `2026-08-03T20:22:31Z` at p50 724 seconds; the strict `< 720` threshold remains unmet. Receipt: `235-FAST-01-REMEASUREMENT.json`.
 - [x] **FAST-02**: Design-gallery snapshot boards no longer run on the PR gate; they run on push-to-main and nightly, and their accessibility assertions still run on every PR.
 - [x] **FAST-03**: `admin_eval_render` no longer runs on pull requests.
 - [x] **FAST-04**: Pushing a new commit to a PR branch cancels the superseded in-flight CI run instead of letting it complete; main and scheduled runs are never cancelled.
