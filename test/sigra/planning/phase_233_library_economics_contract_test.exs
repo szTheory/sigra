@@ -81,17 +81,20 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   test "remediation receipt rejects altered measurements, timing, source digests, and cutoff" do
     receipt = remediation_receipt!()
 
-    Enum.each([
-      put_in(receipt, ["after", "library_job", "duration_seconds"], 692),
-      put_in(receipt, ["after", "run_wall_seconds"], 724),
-      put_in(receipt, ["after", "run_attempt"], 2),
-      put_in(receipt, ["before", "protected_median", "contributor_step_seconds"], 645),
-      put_in(receipt, ["file_digests", "mix.exs"], String.duplicate("0", 64)),
-      put_in(receipt, ["population_cutoff", "sha"], String.duplicate("a", 40)),
-      put_in(receipt, ["immutable_prior_receipt", "verdict"], "pass")
-    ], fn mutated ->
-      assert_raise ExUnit.AssertionError, fn -> assert_remediation_receipt!(mutated) end
-    end)
+    Enum.each(
+      [
+        put_in(receipt, ["after", "library_job", "duration_seconds"], 692),
+        put_in(receipt, ["after", "run_wall_seconds"], 724),
+        put_in(receipt, ["after", "run_attempt"], 2),
+        put_in(receipt, ["before", "protected_median", "contributor_step_seconds"], 645),
+        put_in(receipt, ["file_digests", "mix.exs"], String.duplicate("0", 64)),
+        put_in(receipt, ["population_cutoff", "sha"], String.duplicate("a", 40)),
+        put_in(receipt, ["immutable_prior_receipt", "verdict"], "pass")
+      ],
+      fn mutated ->
+        assert_raise ExUnit.AssertionError, fn -> assert_remediation_receipt!(mutated) end
+      end
+    )
   end
 
   defp library_job_ids(workflow) do
@@ -103,7 +106,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
   defp assert_remediation_receipt!(receipt) do
     assert MapSet.new(Map.keys(receipt)) ==
-             MapSet.new(~w(schema_version status purpose evidence_design before after immutable_prior_receipt file_digests population_cutoff source_commands))
+             MapSet.new(
+               ~w(schema_version status purpose evidence_design before after immutable_prior_receipt file_digests population_cutoff source_commands)
+             )
 
     assert receipt["schema_version"] == "sigra.fast-01-remediation/v1"
     assert receipt["status"] == "measured_remediation"
@@ -137,13 +142,17 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              30_840_458_645
            ]
 
-    assert Enum.map(receipt["before"]["source_runs"], & &1["library_job"]["duration_seconds"]) == [673, 692, 698]
+    assert Enum.map(receipt["before"]["source_runs"], & &1["library_job"]["duration_seconds"]) ==
+             [673, 692, 698]
+
     assert Enum.all?(receipt["before"]["source_runs"], &timing_consistent?/1)
 
     after_run = receipt["after"]
 
     assert MapSet.new(Map.keys(after_run)) ==
-             MapSet.new(~w(run_id pr_number head_sha url event conclusion run_attempt retry_free created_at updated_at run_wall_seconds library_job protected_aggregate))
+             MapSet.new(
+               ~w(run_id pr_number head_sha url event conclusion run_attempt retry_free created_at updated_at run_wall_seconds library_job protected_aggregate)
+             )
 
     assert after_run["run_id"] == 30_854_850_199
     assert after_run["pr_number"] == 195
@@ -152,7 +161,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert after_run["conclusion"] == "success"
     assert after_run["run_attempt"] == 1
     assert after_run["retry_free"]
-    assert duration_seconds(after_run["created_at"], after_run["updated_at"]) == after_run["run_wall_seconds"]
+
+    assert duration_seconds(after_run["created_at"], after_run["updated_at"]) ==
+             after_run["run_wall_seconds"]
+
     assert after_run["library_job"]["name"] == "Library tests shard"
     assert after_run["library_job"]["conclusion"] == "success"
     assert timing_consistent?(after_run)
@@ -163,7 +175,8 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert receipt["file_digests"] == %{
              "mix.exs" => "8b96195f50a5b22b33e44620d4c19a49bd039188a15400553a739094581c84ca",
-             "CONTRIBUTING.md" => "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b",
+             "CONTRIBUTING.md" =>
+               "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b",
              "test/sigra/planning/phase_198_contributor_dx_contract_test.exs" =>
                "f72e3be86a7bf1bbb59572b3d01899b77d37cca8a2112b45d8550d08a5d02b7d",
              "test/sigra/planning/phase_233_library_economics_contract_test.exs" =>
@@ -183,8 +196,11 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     step_ok? =
       case job["contributor_step"] do
-        nil -> true
-        step -> duration_seconds(step["started_at"], step["completed_at"]) == step["duration_seconds"]
+        nil ->
+          true
+
+        step ->
+          duration_seconds(step["started_at"], step["completed_at"]) == step["duration_seconds"]
       end
 
     job_ok? and step_ok?
