@@ -377,7 +377,7 @@ Plans:
 
 **Wave 8** *(gap closure; blocked on the Wave 7 workflow landing on protected main)*
 
-- [ ] 235-08-PLAN.md — Retain and verify protected receipts, prove real event execution, and reconcile honest requirement statuses
+- [x] 235-08-PLAN.md — Retain and verify protected receipts, prove real event execution, and reconcile honest requirement statuses
 
 ## Progress
 

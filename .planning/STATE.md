@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Completed 235-07-PLAN.md
-last_updated: "2026-08-03T01:54:19.350Z"
+stopped_at: Completed 235-08-PLAN.md
+last_updated: "2026-08-03T04:00:16.762Z"
 last_activity: 2026-08-02
 last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 62
-  completed_plans: 61
-  percent: 83
+  completed_plans: 62
+  percent: 100
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 98%); Phase 233 not started
+Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
 Last activity: 2026-08-02 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -438,6 +438,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: FAST-01 remains an honest miss at 19 retained PR runs and 772 seconds p50.
 - [Phase ?]: Phase 235 ownership evidence is source-bound to Phase 234 inventory, ci.yml, and retained event receipts.
 - [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
+- [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
+- [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
 
 ### Pending Todos
 
@@ -582,8 +584,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T01:54:19.339Z
-Stopped at: Completed 235-07-PLAN.md
+Last session: 2026-08-03T04:00:16.745Z
+Stopped at: Completed 235-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -747,3 +749,4 @@ Resume file: None
 | Phase 235-terminal-ratification-measured-not-read P04 | 10min | 3 tasks | 3 files |
 | Phase 235 P06 | 12m | 3 tasks | 2 files |
 | Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
+| Phase 235 P08 | unknown | 3 tasks | 7 files |
