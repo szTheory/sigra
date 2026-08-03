@@ -204,6 +204,12 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     assert validate_captured_ledger!(ledger) == :ok
 
+    assert_raise ArgumentError, ~r/source receipt/, fn ->
+      ledger
+      |> put_in(["capture_endpoint", "source_receipt"], nil)
+      |> validate_captured_ledger!()
+    end
+
     assert_raise ArgumentError, ~r/pre-cutoff/, fn ->
       update_in(
         ledger,
