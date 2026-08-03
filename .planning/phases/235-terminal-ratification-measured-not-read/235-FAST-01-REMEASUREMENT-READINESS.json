@@ -1,0 +1,67 @@
+{
+  "authority": "readiness_only",
+  "command": "bash scripts/ci/capture-fast-01-remeasurement.sh --readiness .planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT-READINESS.json",
+  "cutoff": {
+    "sha": "a282b3deed009e62707b1a01d16da053a53e37d8",
+    "timestamp": "2026-08-03T15:36:12Z"
+  },
+  "diagnostics": [
+    "requires_at_least_10_terminal_pull_request_runs"
+  ],
+  "eligible_pr_run_count": 4,
+  "endpoint_source": "collector_current_utc",
+  "event": "pull_request",
+  "exhausted": true,
+  "rate_limit": {
+    "remaining": 4825,
+    "reset": "1785778564"
+  },
+  "repository": "szTheory/sigra",
+  "requested_pages": [
+    1,
+    2
+  ],
+  "runs": [
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T15:38:46Z",
+      "event": "pull_request",
+      "run_id": 30828469039,
+      "updated_at": "2026-08-03T15:49:17Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828469039"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T15:38:38Z",
+      "event": "pull_request",
+      "run_id": 30828459398,
+      "updated_at": "2026-08-03T15:50:59Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828459398"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T15:38:36Z",
+      "event": "pull_request",
+      "run_id": 30828457128,
+      "updated_at": "2026-08-03T15:50:37Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828457128"
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T15:38:35Z",
+      "event": "pull_request",
+      "run_id": 30828455141,
+      "updated_at": "2026-08-03T15:50:15Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828455141"
+    }
+  ],
+  "schema_version": "sigra.fast-01-remeasurement-readiness/v1",
+  "source_api": "GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",
+  "statistics": null,
+  "status": "insufficient_population",
+  "verdict": null,
+  "window": {
+    "endpoint": "2026-08-03T17:06:56Z"
+  },
+  "workflow": "ci.yml"
+}
