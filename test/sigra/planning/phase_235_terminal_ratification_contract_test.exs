@@ -194,6 +194,31 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
+  test "ownership semantics reject direct jobs whose event guards cannot execute" do
+    ledger = ledger!()
+    workflow = File.read!(@workflow_path)
+
+    assert_raise ArgumentError, ~r/ownership event execution library_ordinary_shards/, fn ->
+      String.replace(
+        workflow,
+        "  library_tests_shard:\n",
+        "  library_tests_shard:\n    if: false\n",
+        global: false
+      )
+      |> then(&validate_ownership_semantics!(ledger["ownership"]["rows"], &1))
+    end
+
+    assert_raise ArgumentError, ~r/ownership event execution library_ordinary_shards/, fn ->
+      String.replace(
+        workflow,
+        "  library_tests_shard:\n",
+        "  library_tests_shard:\n    if: github.event_name == 'push'\n",
+        global: false
+      )
+      |> then(&validate_ownership_semantics!(ledger["ownership"]["rows"], &1))
+    end
+  end
+
   test "validation fails closed for malformed captured-window mutations" do
     ledger = ledger!()
 
@@ -813,8 +838,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp validate_ownership_receipts!(_), do: raise(ArgumentError, "ownership receipts")
 
-  defp validate_ownership_semantics!(rows) do
-    workflow = File.read!(@workflow_path)
+  defp validate_ownership_semantics!(rows, workflow \\ File.read!(@workflow_path)) do
     inventory = @inventory_path |> File.read!() |> Jason.decode!() |> Map.fetch!("specs")
 
     for row <- rows do
@@ -834,7 +858,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
       case after_row["state"] do
         "executed" ->
-          unless event_job_executed?(row["event"], after_row["direct_owner"]),
+          unless event_job_executed?(row["event"], direct),
             do: raise(ArgumentError, "ownership event execution #{row["family"]}")
         "intentionally_absent" ->
           require_text!(direct, "github.event_name != 'pull_request'", "ownership absent guard")
@@ -872,8 +896,38 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     %{after: %{"direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => aggregate, "name" => aggregate_name}, "state" => state}, receiver: owner, phase: phase, receipt: receipt}
   end
 
-  defp event_job_executed?("pull_request", _owner), do: true
-  defp event_job_executed?(_event, _owner), do: true
+  defp event_job_executed?(event, job_block) do
+    case Regex.named_captures(~r/^    if:\s*(?<condition>.+?)\s*$/m, job_block) do
+      nil -> true
+      %{"condition" => condition} -> event_condition_allows?(condition, event)
+    end
+  end
+
+  defp event_condition_allows?(condition, event) do
+    condition = condition |> String.trim() |> String.replace_prefix("${{", "") |> String.replace_suffix("}}", "") |> String.trim()
+
+    if condition == "false" do
+      false
+    else
+      predicates =
+        Regex.scan(~r/github\.event_name\s*(==|!=)\s*['\"]([^'\"]+)['\"]/, condition, capture: :all_but_first)
+        |> Enum.map(fn
+          ["==", expected] -> event == expected
+          ["!=", expected] -> event != expected
+        end)
+
+      case predicates do
+        [] -> true
+        [predicate] -> predicate
+        _ ->
+          cond do
+            String.contains?(condition, "&&") -> Enum.all?(predicates)
+            String.contains?(condition, "||") -> Enum.any?(predicates)
+            true -> false
+          end
+      end
+    end
+  end
 
   defp validate_captured_ledger!(ledger) do
     unless ledger["capture_endpoint"]["status"] == "captured",
