@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 6 plans in 6 waves
+**Plans**: 8 plans in 8 waves
 
 Plans:
 **Wave 1**
@@ -371,6 +371,14 @@ Plans:
 
 - [x] 235-06-PLAN.md — Bind the terminal ledger to canonical source bytes, replay both binding poles, and prove all 93 ownership destinations
 
+**Wave 7** *(gap closure; blocked on Wave 6 completion)*
+
+- [ ] 235-07-PLAN.md — Establish a main-only attested capture path with complete pagination and chronology rejection
+
+**Wave 8** *(gap closure; blocked on the Wave 7 workflow landing on protected main)*
+
+- [ ] 235-08-PLAN.md — Retain and verify protected receipts, prove real event execution, and reconcile honest requirement statuses
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -380,7 +388,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 4/5 | Gap closure planned; FAST-01 residual remains measured | — |
+| 235. Terminal Ratification | 6/8 | Gap closure planned; FAST-01 residual remains measured | — |
 
 ## Requirement Coverage
 
