@@ -414,6 +414,48 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       update_in(receipt, ["jobs"], &Enum.drop(&1, 1))
       |> then(&validate_protected_receipt!(ledger, &1))
     end
+
+    push_run_id = protected_event_run_ids(receipt, "push") |> hd()
+
+    assert_raise ArgumentError, ~r/protected ownership job/, fn ->
+      update_in(receipt, ["jobs"], fn manifests ->
+        Enum.map(manifests, fn manifest ->
+          if manifest["run_id"] == push_run_id do
+            update_in(manifest, ["pages", Access.at(0), "body", "jobs"], fn jobs ->
+              Enum.map(jobs, fn job ->
+                if String.starts_with?(job["name"], "Admin eval render + probe"),
+                  do: Map.put(job, "name", "Removed protected owner"),
+                  else: job
+              end)
+            end)
+          else
+            manifest
+          end
+        end)
+      end)
+      |> then(&validate_protected_receipt!(ledger, &1))
+    end
+
+    schedule_run_id = protected_event_run_ids(receipt, "schedule") |> hd()
+
+    assert_raise ArgumentError, ~r/protected ownership job/, fn ->
+      update_in(receipt, ["jobs"], fn manifests ->
+        Enum.map(manifests, fn manifest ->
+          if manifest["run_id"] == schedule_run_id do
+            update_in(manifest, ["pages", Access.at(0), "body", "jobs"], fn jobs ->
+              Enum.map(jobs, fn job ->
+                if String.starts_with?(job["name"], "Library tests shard"),
+                  do: Map.put(job, "conclusion", "skipped"),
+                  else: job
+              end)
+            end)
+          else
+            manifest
+          end
+        end)
+      end)
+      |> then(&validate_protected_receipt!(ledger, &1))
+    end
   end
 
   test "FAST-01 uses a strict sub-720 comparator and an evidence-backed miss diagnosis" do
@@ -909,7 +951,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         "test/example/priv/playwright/tests/admin-generated.spec.ts" -> {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke", "scripts/ci/admin-acceptance-smoke.sh --test all"}
         _ -> {owner, owner, lane["command_marker"]}
       end
-    %{after: %{ "direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => "example_playwright_smoke", "name" => "Example Playwright smoke (full lifecycle)"}, "state" => "executed"}, receiver: owner, phase: "232-playwright-economics-authenticate-once-then-shard", receipt: "phase_232_playwright_suite"}
+    state = if event == "pull_request" and owner == "admin_eval_render", do: "intentionally_absent", else: "executed"
+    %{after: %{ "direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => "example_playwright_smoke", "name" => "Example Playwright smoke (full lifecycle)"}, "state" => state}, receiver: owner, phase: "232-playwright-economics-authenticate-once-then-shard", receipt: "phase_232_playwright_suite"}
   end
 
   defp expected_ownership_row!(%{"family" => family, "event" => event}, _inventory) do
@@ -1094,7 +1137,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       do: raise(ArgumentError, "protected receipt population")
 
     validate_protected_job_manifests!(receipt["jobs"], Map.keys(measured_runs))
+    validate_protected_ownership_jobs!(ledger["ownership"]["rows"], receipt["jobs"], protected_runs)
     :ok
+  end
+
+  defp protected_event_run_ids(receipt, event) do
+    receipt["workflow_runs"]["pages"]
+    |> Enum.flat_map(& &1["body"]["workflow_runs"])
+    |> Enum.filter(&(&1["event"] == event))
+    |> Enum.map(& &1["id"])
   end
 
   defp protected_run_to_ledger_run!(run) do
@@ -1142,6 +1193,57 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp validate_protected_job_manifests!(_, _), do: raise(ArgumentError, "protected receipt jobs manifest")
+
+  defp validate_protected_ownership_jobs!(rows, jobs, protected_runs) do
+    events_by_run = Map.new(protected_runs, &{&1["id"], &1["event"]})
+    manifests = Map.new(jobs, &{&1["run_id"], &1})
+
+    runs_by_event =
+      protected_runs
+      |> Enum.filter(&(&1["event"] in @events))
+      |> Enum.group_by(& &1["event"], & &1["id"])
+
+    for row <- rows do
+      event = row["event"]
+      state = row["after"]["state"]
+      name_prefix = workflow_job_name_prefix!(row["after"]["direct_owner"])
+
+      for run_id <- Map.fetch!(runs_by_event, event) do
+        jobs_for_owner =
+          manifests
+          |> Map.fetch!(run_id)
+          |> get_in(["pages", Access.at(0), "body", "jobs"])
+          |> Enum.filter(&(events_by_run[&1["run_id"]] == event and String.starts_with?(&1["name"], name_prefix)))
+
+        valid? =
+          case state do
+            "executed" ->
+              Enum.any?(jobs_for_owner, fn job ->
+                is_binary(job["conclusion"]) and job["conclusion"] not in ["", "skipped"] and
+                  is_binary(job["completed_at"])
+              end)
+
+            "intentionally_absent" ->
+              jobs_for_owner != [] and Enum.all?(jobs_for_owner, &(&1["conclusion"] == "skipped"))
+
+            _ ->
+              false
+          end
+
+        unless valid?,
+          do: raise(ArgumentError, "protected ownership job #{row["family"]}/#{event}/#{run_id}")
+      end
+    end
+  end
+
+  defp workflow_job_name_prefix!(job_id) do
+    block = workflow_job_block!(File.read!(@workflow_path), job_id)
+
+    case Regex.run(~r/^    name:\s*(.+?)\s*$/m, block, capture: :all_but_first) do
+      [name] -> name |> String.split("${{") |> hd() |> String.trim()
+      _ -> raise ArgumentError, "protected ownership job name #{job_id}"
+    end
+  end
 
   defp validate_source_receipt!(capture, cutoff, endpoint) do
     receipt = capture["source_receipt"] || %{}

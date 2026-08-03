@@ -1632,7 +1632,7 @@
             "id": "example_playwright_smoke",
             "name": "Example Playwright smoke (full lifecycle)"
           },
-          "state": "executed"
+          "state": "intentionally_absent"
         },
         "after": {
           "direct_owner": "admin_eval_render",
@@ -1642,7 +1642,7 @@
             "id": "example_playwright_smoke",
             "name": "Example Playwright smoke (full lifecycle)"
           },
-          "state": "executed"
+          "state": "intentionally_absent"
         },
         "receiver": "admin_eval_render",
         "phase": "232-playwright-economics-authenticate-once-then-shard",
