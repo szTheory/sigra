@@ -14,7 +14,7 @@ mkdir -p "$TMP/bin"
 cat >"$TMP/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
+FETCHED_RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30723701267 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
 printf '%s\n' "$*" >>"$FAKE_GH_LOG"
 if [[ "$1" == api && "$2" == rate_limit ]]; then echo 251; exit 0; fi
 if [[ "${FAKE_MODE:-ok}" == api_failure ]]; then
@@ -28,7 +28,7 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
     if [[ "${FAKE_MODE:-ok}" == inverted_run ]]; then
       echo '{"total_count":1,"workflow_runs":[{"id":1,"event":"pull_request","conclusion":"success","created_at":"2026-08-02T03:00:00Z","updated_at":"2026-08-02T02:00:00Z"}]}'
     else
-      run_ids=("${RUN_IDS[@]}")
+      run_ids=("${FETCHED_RUN_IDS[@]}")
       if [[ "${FAKE_MODE:-ok}" == missing_run ]]; then
         unset 'run_ids[${#run_ids[@]}-1]'
       elif [[ "${FAKE_MODE:-ok}" == unexpected_run ]]; then
@@ -45,7 +45,7 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
     if [[ "${FAKE_MODE:-ok}" == inverted_run ]]; then
       echo '{"total_count":1,"workflow_runs":[]}'
     else
-      if [[ "${FAKE_MODE:-ok}" == missing_run ]]; then echo '{"total_count":22,"workflow_runs":[]}'; else echo '{"total_count":23,"workflow_runs":[]}'; fi
+      if [[ "${FAKE_MODE:-ok}" == missing_run ]]; then echo '{"total_count":23,"workflow_runs":[]}'; else echo '{"total_count":24,"workflow_runs":[]}'; fi
     fi ;;
   *) echo "unexpected run page: $*" >&2; exit 1 ;;
   esac
@@ -69,10 +69,16 @@ EOF
 chmod +x "$TMP/bin/gh"
 
 FAKE_GH_LOG="$TMP/calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/receipt.json"
-jq -e '.workflow_runs == {requested_pages:[1,2], data_page_count:1, terminal_page:2, exhausted:true, total_count:23, pages:.workflow_runs.pages} and ([.workflow_runs.pages[].body.workflow_runs[]] | length) == 23' "$TMP/receipt.json" >/dev/null
+jq -e '
+  .workflow_runs == {requested_pages:[1,2], data_page_count:1, terminal_page:2, exhausted:true, total_count:24, pages:.workflow_runs.pages} and
+  ([.workflow_runs.pages[].body.workflow_runs[] | .id] | length) == 24 and
+  ([.workflow_runs.pages[].body.workflow_runs[] | .id] | sort) == [30686149095,30720751244,30722291400,30722736494,30723164608,30723565742,30723575804,30723593560,30723596945,30723600313,30723601060,30723605581,30723607878,30723608377,30723615281,30723622708,30723701267,30729478819,30729487808,30729531710,30729534413,30729540143,30729540659,30734422326] and
+  ([.jobs[].run_id] | sort) == [30686149095,30720751244,30722291400,30722736494,30723164608,30723565742,30723575804,30723593560,30723596945,30723600313,30723601060,30723605581,30723607878,30723608377,30723615281,30723622708,30729478819,30729487808,30729531710,30729534413,30729540143,30729540659,30734422326] and
+  ([.jobs[].run_id] | index(30723701267) | not)
+' "$TMP/receipt.json" >/dev/null
 grep -q 'workflows/ci.yml/runs.*page=1' "$TMP/calls"
 grep -q 'workflows/ci.yml/runs.*page=2' "$TMP/calls"
-# Each of the 23 fixed historical runs must retain both its data page and the
+# Each of the 23 measured historical runs must retain both its data page and the
 # terminal empty page that proves pagination exhaustion.
 test "$(grep -c '/jobs?' "$TMP/calls")" -eq 46
 test "$(grep -c '/jobs?.*&page=1$' "$TMP/calls")" -eq 23

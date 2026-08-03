@@ -8,7 +8,12 @@ WORKFLOW="ci.yml"
 CUTOFF="2026-08-01T02:06:30Z"
 ENDPOINT="2026-08-02T18:07:04Z"
 MAX_PAGES=10000
-RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
+# The attested receipt is the exact 24-run API population.  The one
+# terminal-ratification workflow_dispatch run is deliberately retained in that
+# receipt, but is not a CI measurement and therefore has no jobs manifest.
+FETCHED_RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30723701267 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
+EXCLUDED_TERMINAL_RATIFICATION_RUN_ID=30723701267
+MEASUREMENT_RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
 
 if [[ $# -ne 1 ]]; then
   echo "capture-terminal-ratification-evidence: FAIL: expected OUTPUT_PATH" >&2
@@ -98,11 +103,19 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
 
 # The workflow-run pages are the attestation's population.  Do not let a
 # complete-but-different response be paired with jobs from this fixed history.
-EXPECTED_RUN_IDS="$(printf '%s\n' "${RUN_IDS[@]}" | jq -s 'map(tonumber)')"
-jq -s -e --argjson expected "$EXPECTED_RUN_IDS" '
+EXPECTED_FETCHED_RUN_IDS="$(printf '%s\n' "${FETCHED_RUN_IDS[@]}" | jq -s 'map(tonumber)')"
+EXPECTED_MEASUREMENT_RUN_IDS="$(printf '%s\n' "${MEASUREMENT_RUN_IDS[@]}" | jq -s 'map(tonumber)')"
+jq -s -e \
+  --argjson expected_fetched "$EXPECTED_FETCHED_RUN_IDS" \
+  --argjson expected_measurements "$EXPECTED_MEASUREMENT_RUN_IDS" \
+  --argjson excluded "$EXCLUDED_TERMINAL_RATIFICATION_RUN_ID" '
   [.[].body.workflow_runs[].id] as $actual
-  | if ($actual | length) == ($expected | length) and
-       ($actual | sort) == ($expected | sort)
+  | ($actual | map(select(. != $excluded))) as $measurements
+  | if ($actual | length) == ($expected_fetched | length) and
+       ($actual | sort) == ($expected_fetched | sort) and
+       ($actual | map(select(. == $excluded)) | length) == 1 and
+       ($measurements | length) == ($expected_measurements | length) and
+       ($measurements | sort) == ($expected_measurements | sort)
     then .
     else error("unexpected_workflow_run_population")
     end
@@ -110,7 +123,7 @@ jq -s -e --argjson expected "$EXPECTED_RUN_IDS" '
 
 JOB_MANIFESTS_FILE="$TMPDIR_CAPTURE/jobs.json"
 printf '%s\n' '[]' >"$JOB_MANIFESTS_FILE"
-for run_id in "${RUN_IDS[@]}"; do
+for run_id in "${MEASUREMENT_RUN_IDS[@]}"; do
   manifest="$TMPDIR_CAPTURE/jobs-${run_id}.manifest.jsonl"
   collect_pages "repos/${REPO}/actions/runs/${run_id}/jobs?" jobs "jobs-${run_id}" "$manifest"
   jq -s -e '
