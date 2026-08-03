@@ -29,7 +29,13 @@ if [[ "$*" == *'workflows/ci.yml/runs?'* ]] && [[ -n "$PAGE" ]]; then
   *) echo "unexpected run page: $*" >&2; exit 1 ;;
   esac
 elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 1 ]]; then
-  echo '{"total_count":0,"jobs":[]}'
+  if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted ]]; then
+    echo '{"total_count":1,"jobs":[{"id":9,"name":"real job","conclusion":"success","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"}]}'
+  else
+    echo '{"total_count":2,"jobs":[{"id":7,"name":"skipped with inversion","conclusion":"skipped","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"},{"id":8,"name":"skipped without schedule","conclusion":"skipped","started_at":null,"completed_at":null}]}'
+  fi
+elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 2 ]]; then
+  if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted ]]; then echo '{"total_count":1,"jobs":[]}'; else echo '{"total_count":2,"jobs":[]}'; fi
 else
   echo "unexpected gh invocation: $*" >&2; exit 1
 fi
@@ -41,6 +47,7 @@ jq -e '.workflow_runs == {requested_pages:[1,2], data_page_count:1, terminal_pag
 grep -q 'workflows/ci.yml/runs.*page=1' "$TMP/calls"
 grep -q 'workflows/ci.yml/runs.*page=2' "$TMP/calls"
 test "$(grep -c '/jobs?' "$TMP/calls")" -eq 23
+jq -e 'all(.jobs[].pages[0].body.jobs[]; .conclusion == "skipped")' "$TMP/receipt.json" >/dev/null
 
 set +e
 FAKE_MODE=inverted_run FAKE_GH_LOG="$TMP/inverted-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/inverted.json" 2>"$TMP/inverted.err"
@@ -49,3 +56,10 @@ set -e
 test "$RC" -ne 0
 grep -q 'run_chronology_or_identity_invalid' "$TMP/inverted.err"
 test ! -e "$TMP/inverted.json"
+
+set +e
+FAKE_MODE=non_skipped_inverted FAKE_GH_LOG="$TMP/job-inverted-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/job-inverted.json" 2>"$TMP/job-inverted.err"
+RC=$?
+set -e
+test "$RC" -ne 0
+grep -q 'job_chronology_or_identity_invalid_run_' "$TMP/job-inverted.err"
