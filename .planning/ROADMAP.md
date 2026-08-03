@@ -53,8 +53,8 @@
 - [x] **Phase 231: Gate Honesty + Nightly Revival** - Revive the 0-pass/9-fail nightly and repair the gates that report green while verifying nothing (completed 2026-07-31)
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
-- [ ] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed
-- [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measure against the baseline table, publish the before/after coverage inventory, update CONTRIBUTING, close SEED-005 and the CI-PERF arc entry
+- [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
+- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measured against the baseline table, published the before/after coverage inventory, updated CONTRIBUTING, and closed GATE-05; FAST-01 remains an owned measured residual (completed 2026-08-02)
 
 ## Phase Details
 
@@ -269,7 +269,7 @@ Plans:
   5. SEED-006 is closed as delivered against a real run of the gallery lane, or its residual work is filed as a tracked defect with evidence.
 
 **Proof discipline**: DX-01 is only true if a CI lane runs the alias — an alias that merely *resembles* the gate is the drift this criterion exists to prevent. DX-04's inventory is the same artifact class as GATE-05 and should be produced so Phase 235 can consume it.
-**Plans**: 14 plans in 6 waves
+**Plans**: 21 plans in 12 waves
 
 Plans:
 
@@ -299,11 +299,36 @@ Plans:
 
 **Wave 5** *(blocked on all implementation and PR evidence)*
 
-- [ ] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
+- [x] 234-10-PLAN.md — Ratify release, Dependabot, and gallery behavior on GitHub; close SEED-006 and seal coverage evidence
 
 **Wave 6** *(blocked on all structural and managed-service evidence)*
 
-- [ ] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
+- [x] 234-14-PLAN.md — Ratify Nyquist validation only after every evidence slot and automated command is green
+
+**Wave 7** *(gap closure after initial verification)*
+
+- [x] 234-15-PLAN.md — Repair `mix ci` so the dep-off leg is non-destructive and the golden/idempotency proof is green
+- [x] 234-17-PLAN.md — Capture authenticated, fail-closed Dependabot processing receipts for all three ecosystem tuples (blocked: deterministic browser lacks GitHub authentication)
+
+**Wave 8** *(blocked on both Wave 7 gap repairs)*
+
+- [x] 234-16-PLAN.md — Refresh clean-checkout evidence for the repaired, non-destructive local gate
+
+**Wave 9** *(blocked on refreshed local and managed-service evidence)*
+
+- [x] 234-18-PLAN.md — Enforce the exact command-receipt inventory and ratify validation only from fully green evidence
+
+**Wave 10** *(gap closure after exact receipt-inventory ratification)*
+
+- [x] 234-19-PLAN.md — Bind each Playwright inventory row to its own direct marker or an explicit harness mapping
+
+**Wave 11** *(blocked on the Playwright ownership repair)*
+
+- [x] 234-20-PLAN.md — Validate every concrete evidence receipt and re-ratify the reviewed snapshot
+
+**Wave 12** *(blocked on concrete receipt validation)*
+
+- [x] 234-21-PLAN.md — Reject every seventh evidence slot through the production completion transition
 
 ### Phase 235: Terminal Ratification — Measured, Not Read
 
@@ -319,7 +344,40 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: TBD
+**Plans**: 8 plans in 8 waves
+
+Plans:
+**Wave 1**
+
+- [x] 235-01-PLAN.md — Trace and expand the single fail-closed terminal measurement/ownership ledger
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 235-02-PLAN.md — Capture the immutable run window and record the honest FAST-01 verdict
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 235-03-PLAN.md — Reconcile contributor topology, SEED-005, and CI-PERF from the measured ledger
+
+**Wave 4** *(gap closure)*
+
+- [x] 235-04-PLAN.md — Bind terminal metrics to canonical receipts, close exact ownership equality, and reject contributor-topology contradictions
+
+**Wave 5** *(gap closure; blocked on Wave 4 completion)*
+
+- [x] 235-05-PLAN.md — Bind canonical run/job source receipts, enforce exact ownership semantics, and compose contributor closeout validation
+
+**Wave 6** *(gap closure; blocked on Wave 5 completion)*
+
+- [x] 235-06-PLAN.md — Bind the terminal ledger to canonical source bytes, replay both binding poles, and prove all 93 ownership destinations
+
+**Wave 7** *(gap closure; blocked on Wave 6 completion)*
+
+- [x] 235-07-PLAN.md — Establish a main-only attested capture path with complete pagination and chronology rejection
+
+**Wave 8** *(gap closure; blocked on the Wave 7 workflow landing on protected main)*
+
+- [x] 235-08-PLAN.md — Retain and verify protected receipts, prove real event execution, and reconcile honest requirement statuses
 
 ## Progress
 
@@ -329,8 +387,8 @@ Plans:
 | 231. Gate Honesty + Nightly Revival | 11/11 | Complete | 2026-07-31 |
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
-| 234. Hygiene, Supply Chain, Contributor DX | 0/? | Not started | - |
-| 235. Terminal Ratification | 0/? | Not started | - |
+| 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
+| 235. Terminal Ratification | 6/8 | Gap closure planned; FAST-01 residual remains measured | — |
 
 ## Requirement Coverage
 

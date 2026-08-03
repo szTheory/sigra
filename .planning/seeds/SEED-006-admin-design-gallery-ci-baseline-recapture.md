@@ -137,3 +137,28 @@ fixed-viewport admin-checkpoints were not affected.
 - `continue-on-error: true` removed from "Run design gallery boards"; lane hard-gates. ✓
 - MG-5/6 data-dependency disposition: `test.skip` with recorded todo reference (D-11b). ✓
   See `.planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md`
+
+---
+
+## Phase 234 delivered closeout (D-10)
+
+**Status:** DELIVERED — current immutable gallery evidence confirms the Phase 197
+remediation; this seed does not reopen gallery implementation.
+
+The corrected cause remains host-OS `system-ui` font-metric variation, not a webfont
+loading failure. The durable remediation is the self-hosted Space Grotesk asset,
+CI-native baseline recapture, and restored hard gate described above.
+
+- Historical corroboration: [run 30659282026](https://github.com/szTheory/sigra/actions/runs/30659282026)
+  recorded the shared-boot `admin_design_recapture` consumer passing 126 design tests.
+- Current receipt: [run 30723701267](https://github.com/szTheory/sigra/actions/runs/30723701267),
+  [gallery job 91431828624](https://github.com/szTheory/sigra/actions/runs/30723701267/job/91431828624),
+  executed on main commit `fe33154088053ce9ccc0e9301348a2841c87745c`. Shared boot succeeded;
+  the gallery completed **126 passed (5.4m)** with `--retries=0`, the snapshot canary
+  reported zero changed slugs, and the sibling OQ3 comparisons closed.
+
+The dispatch's overall failure is separately attributable to non-gating
+`admin_eval_render` job 91431828604, whose hard-signal harness ended at “Fail the job if
+harness did not PASS.” It is not part of `ci-gate` and did not affect the successful gallery
+job. Per Phase 234 D-11/D-12, this closeout does not change its policy, add retries, or alter
+gallery UI/snapshots.

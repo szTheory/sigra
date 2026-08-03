@@ -48,7 +48,7 @@ The fixture is reblessed against 1.8.8 — use this version locally to keep your
 The following gates run in CI but are excluded from `mix ci` because they either require Ubuntu font metrics or heavy infrastructure that cannot be reproduced faithfully on a local macOS machine:
 
 - **Ubuntu-baselined Playwright visual snapshots** (`admin-checkpoints-*`, `admin-design-*`): pixel baselines are captured on Ubuntu with specific system fonts. Local macOS runs produce sub-pixel font-metric diffs that diverge from the stored PNGs even when the UI is correct. Do **not** re-record baselines locally. Instead, download the `admin-example-report` artifact from the GitHub Actions run and open `playwright-report/index.html` in your browser.
-- **Example-app smoke and Playwright lanes** — these boot the generated host and run browser seams against its live dev server. The deterministic Playwright seam remains CI-only; use the existing `test/example/priv/playwright` scripts when reproducing it locally.
+- **Example-app smoke and Playwright lanes** — these boot the generated host and run browser seams against its live dev server. The deterministic browser work remains CI-only. To reproduce its supported package/config surface locally, work from `test/example/priv/playwright`, use `npm test`, and consult `playwright.config.ts`; CI supplies the generated-host server and seam-specific environment.
 - **Heavy install and HTTP smokes** — these run the full `phx.new + sigra.install` scaffolding against a live dev server. You can run them manually:
   - `scripts/ci/install-smoke.sh` — scaffolds a new host app and boots it.
   - boot the example app + `scripts/ci/http-smoke.sh` — hits live HTTP endpoints.
@@ -71,11 +71,13 @@ The following failures appear on a stock v1.40 checkout and are **not regression
 
 ## CI overview
 
-- **Library tests** — full `mix test` for the Hex package.
+- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the seven-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.
 - **Example + install matrix** — compiles the example app and runs installer smoke paths.
 - **Milestone verification gate** — `scripts/ci/milestone-verification-gate.sh` ensures completed milestone phases keep a verification report on disk.
 - **Installer milestone audit** — `scripts/ci/installer-milestone-audit.sh` (paths-filtered on pull requests) encodes critical installer integration checks (INT-01..INT-03).
-- **Playwright** — `example_playwright_smoke` boots `test/example` and runs browser suites; curated admin checkpoint PNGs are collected under `test/example/priv/playwright/artifacts/admin-checkpoints/`.
+- **Playwright** — `example_playwright_shard` is the direct five-seam executor for `admin_behavior`, `admin_checkpoints`, `design_gallery`, `non_admin_smoke`, and `demo_showcase`. `example_playwright_smoke / Example Playwright smoke (full lifecycle)` reads those seam results as the terminal aggregate; it does not execute the browser seams itself. Curated admin checkpoint PNGs are collected under `test/example/priv/playwright/artifacts/admin-checkpoints/`.
+- **Intentional non-PR signal: admin eval** — `admin_eval_render` is intentionally non-PR and runs on push, schedule, and workflow_dispatch; it is a hard diagnostic signal rather than a PR executor or protected required check.
+- **Intentional non-PR signal: design recapture** — `admin_design_recapture` is intentionally non-PR and runs on push, schedule, and workflow_dispatch for its guarded baseline-recapture conditions; it is likewise not a PR executor or protected required check.
 - **Admin artifact bundle contract** — after a green Playwright admin run, `scripts/ci/admin-artifact-bundle-contract.sh` asserts the curated PNG bundle meets minimum count and file size.
 
 ## Reviewing admin Playwright artifacts

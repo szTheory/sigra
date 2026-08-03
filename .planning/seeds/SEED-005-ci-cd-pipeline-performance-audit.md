@@ -1081,3 +1081,9 @@ Make the final recommendations cohesive. The output should feel like one integra
 
 </INFLATED_COMPANION_PROMPT_FOR_CI_CD_PERFORMANCE_AUDIT>
 ```
+
+## Addendum 2026-08-02 — Phase 235 terminal addendum
+
+The audit was completed in 2026 in `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md`; its remediation sequence was executed as **Phases 230–235**, not re-audited. The immutable terminal receipt is `.planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json`.
+
+That receipt retained 19 retained pull_request runs and measured a 772 seconds p50. FAST-01 remains unmet: 772 is not strictly less than the 720-second target. Same-window outcomes were push: 1 success / 1 non-success and schedule: 0 success / 2 non-success. The binding-pole follow-up is owned in `.planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md`; it preserves the run/job receipts without rewriting this audit history or claiming the target was achieved.

@@ -8,7 +8,12 @@ WORKFLOW="ci.yml"
 CUTOFF="2026-08-01T02:06:30Z"
 ENDPOINT="2026-08-02T18:07:04Z"
 MAX_PAGES=10000
-RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
+# The attested receipt is the exact 24-run API population.  The one
+# terminal-ratification workflow_dispatch run is deliberately retained in that
+# receipt, but is not a CI measurement and therefore has no jobs manifest.
+FETCHED_RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30723701267 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
+EXCLUDED_TERMINAL_RATIFICATION_RUN_ID=30723701267
+MEASUREMENT_RUN_IDS=(30686149095 30720751244 30722291400 30722736494 30723164608 30723565742 30723575804 30723593560 30723596945 30723600313 30723601060 30723605581 30723607878 30723608377 30723615281 30723622708 30729478819 30729487808 30729531710 30729534413 30729540143 30729540659 30734422326)
 
 if [[ $# -ne 1 ]]; then
   echo "capture-terminal-ratification-evidence: FAIL: expected OUTPUT_PATH" >&2
@@ -16,8 +21,14 @@ if [[ $# -ne 1 ]]; then
 fi
 OUTPUT="$1"
 TMPDIR_CAPTURE="$(mktemp -d)"
-trap 'rm -rf "$TMPDIR_CAPTURE"; rm -f "$OUTPUT"' ERR INT TERM
-trap 'rm -rf "$TMPDIR_CAPTURE"' EXIT
+output_tmp=""
+cleanup() {
+  rm -rf "$TMPDIR_CAPTURE"
+  if [[ -n "$output_tmp" ]]; then
+    rm -f "$output_tmp"
+  fi
+}
+trap cleanup ERR INT TERM EXIT
 
 fail() { echo "capture-terminal-ratification-evidence: FAIL: $*" >&2; exit 1; }
 command -v gh >/dev/null 2>&1 || fail "gh CLI not found on PATH"
@@ -27,6 +38,12 @@ command -v jq >/dev/null 2>&1 || fail "jq not found on PATH"
 REMAINING="$(gh api rate_limit --jq '.resources.core.remaining')" || fail "rate_limit_preflight_failed"
 [[ "$REMAINING" =~ ^[0-9]+$ ]] || fail "rate_limit_preflight_malformed"
 (( REMAINING > 250 )) || fail "rate_limit_remaining_at_or_below_250"
+
+# Never take ownership of the caller's receipt path until a complete, validated
+# replacement exists. A failed refresh must preserve any retained evidence.
+output_dir="$(dirname -- "$OUTPUT")"
+[[ -d "$output_dir" ]] || fail "output_directory_missing"
+output_tmp="$(mktemp "$output_dir/.terminal-ratification.XXXXXX")" || fail "output_temporary_file_failed"
 
 request_page() {
   local endpoint="$1" page="$2" out="$3"
@@ -41,9 +58,9 @@ validate_manifest() {
   jq -s -e --arg key "$item_key" '
     if type != "array" or length == 0 then error("absent_terminal_empty_page") else . end
     | . as $pages
-    | if all(.[]; (.page | type == "number" and floor == . and . > 0) and (.body | type == "object")) then . else error("malformed_envelope") end
+    | if all(.[]; (.page|type) == "number" and ((.page|floor) == .page) and .page > 0 and (.body|type) == "object") then . else error("malformed_envelope") end
     | if ([.[].page] | sort) == [range(1; length + 1)] then . else error("non_contiguous_or_duplicate_page") end
-    | if ([.[].body.total_count] | all(.[]; type == "number" and floor == . and . >= 0)) then . else error("malformed_total_count") end
+    | if ([.[].body.total_count] | all(type == "number" and (floor == .) and . >= 0)) then . else error("malformed_total_count") end
     | if ([.[].body.total_count] | unique | length) == 1 then . else error("total_count_changed") end
     | if (.[-1].body[$key] | type) == "array" and (.[-1].body[$key] | length) == 0 then . else error("absent_terminal_empty_page") end
     | if ([.[0:-1][].body[$key] | length] | add // 0) == .[0].body.total_count then . else error("total_count_disagreement") end
@@ -81,12 +98,32 @@ collect_pages "$RUNS_ENDPOINT" workflow_runs runs "$RUNS_MANIFEST"
 # Reject clock inversions and malformed historical identities before any duration consumer sees them.
 jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
   [.[].body.workflow_runs[]]
-  | all(.[]; . as $run | ($run.id | type == "number") and ($run.event | type == "string" and (. == "pull_request" or . == "push" or . == "schedule" or . == "workflow_dispatch")) and ($run.conclusion | type == "string" and length > 0) and ($run.created_at | type == "string" and . >= $cutoff and . <= $endpoint) and ($run.updated_at | type == "string" and . <= $endpoint and . >= $run.created_at))
+  | all(.[]; (.id|type) == "number" and (.event == "pull_request" or .event == "push" or .event == "schedule" or .event == "workflow_dispatch") and (.conclusion|type) == "string" and length > 0 and (.created_at|type) == "string" and (.updated_at|type) == "string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at <= $endpoint and .updated_at >= .created_at)
 ' "$RUNS_MANIFEST" >/dev/null || fail "run_chronology_or_identity_invalid"
+
+# The workflow-run pages are the attestation's population.  Do not let a
+# complete-but-different response be paired with jobs from this fixed history.
+EXPECTED_FETCHED_RUN_IDS="$(printf '%s\n' "${FETCHED_RUN_IDS[@]}" | jq -s 'map(tonumber)')"
+EXPECTED_MEASUREMENT_RUN_IDS="$(printf '%s\n' "${MEASUREMENT_RUN_IDS[@]}" | jq -s 'map(tonumber)')"
+jq -s -e \
+  --argjson expected_fetched "$EXPECTED_FETCHED_RUN_IDS" \
+  --argjson expected_measurements "$EXPECTED_MEASUREMENT_RUN_IDS" \
+  --argjson excluded "$EXCLUDED_TERMINAL_RATIFICATION_RUN_ID" '
+  [.[].body.workflow_runs[].id] as $actual
+  | ($actual | map(select(. != $excluded))) as $measurements
+  | if ($actual | length) == ($expected_fetched | length) and
+       ($actual | sort) == ($expected_fetched | sort) and
+       ($actual | map(select(. == $excluded)) | length) == 1 and
+       ($measurements | length) == ($expected_measurements | length) and
+       ($measurements | sort) == ($expected_measurements | sort)
+    then .
+    else error("unexpected_workflow_run_population")
+    end
+' "$RUNS_MANIFEST" >/dev/null || fail "workflow_run_population_mismatch"
 
 JOB_MANIFESTS_FILE="$TMPDIR_CAPTURE/jobs.json"
 printf '%s\n' '[]' >"$JOB_MANIFESTS_FILE"
-for run_id in "${RUN_IDS[@]}"; do
+for run_id in "${MEASUREMENT_RUN_IDS[@]}"; do
   manifest="$TMPDIR_CAPTURE/jobs-${run_id}.manifest.jsonl"
   collect_pages "repos/${REPO}/actions/runs/${run_id}/jobs?" jobs "jobs-${run_id}" "$manifest"
   jq -s -e '
@@ -109,7 +146,8 @@ jq -S -n --arg repository "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTO
   };
   {schema_version: "sigra.terminal-ratification-receipt/v1", repository: $repository, workflow: $workflow,
    window: {cutoff: $cutoff, endpoint: $endpoint}, workflow_runs: receipt($run_pages; "workflow_runs"), jobs: $jobs[0]}
-' >"$OUTPUT" || fail "canonical_output_failed"
+' >"$output_tmp" || fail "canonical_output_failed"
 
-test -s "$OUTPUT" || fail "empty_canonical_output"
-trap - ERR INT TERM
+test -s "$output_tmp" || fail "empty_canonical_output"
+mv -f -- "$output_tmp" "$OUTPUT" || fail "canonical_output_replace_failed"
+output_tmp=""

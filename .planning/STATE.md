@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 234
-current_phase_name: hygiene-supply-chain-and-contributor-dx
+current_phase: 235
+current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Completed 234-05-PLAN.md
-last_updated: "2026-08-01T23:21:03.945Z"
-last_activity: 2026-07-31
-last_activity_desc: Phase 234 execution started
+stopped_at: Completed 235-08-PLAN.md
+last_updated: "2026-08-03T04:00:16.762Z"
+last_activity: 2026-08-02
+last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 47
-  completed_plans: 45
-  percent: 67
+  completed_phases: 6
+  total_plans: 62
+  completed_plans: 62
+  percent: 100
 ---
 
 # Project State
@@ -25,15 +25,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 234 — hygiene-supply-chain-and-contributor-dx
+**Current focus:** Phase 235 — terminal-ratification-measured-not-read
 
 ## Current Position
 
-Phase: 234 (hygiene-supply-chain-and-contributor-dx) — EXECUTING
-Plan: 13 of 14
+Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
+Plan: 3 of 8
 Status: Ready to execute
-Progress: 3/6 milestone phases complete ([██████████] 96%); Phase 233 not started
-Last activity: 2026-07-31 — Phase 234 execution started
+Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
+Last activity: 2026-08-02 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -413,6 +413,33 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Plan 234-12 used native Mix formatting only on eight persistence-sensitive example paths and proved warnings-clean compilation.
 - [Phase ?]: D-04 uses exact bounded formatter batches, focused ExUnit execution, and an empty install-golden-tree diff to preserve test meaning.
 - [Phase ?]: Native mix format closes D-04 only with repository-wide formatting plus empty generated-golden diff and focused golden tests.
+- [Phase ?]: Release Please receipt is bound to post-merge main; no-release downstream skips are explicit.
+- [Phase ?]: Dependabot remains unresolved until authenticated GitHub job logs exist for all three ecosystems.
+- [Phase ?]: SEED-006 is closed by the successful 126-test gallery receipt; admin_eval_render remains a separate non-gating diagnostic.
+- [Phase ?]: Phase 234 validation remains draft until Dependabot receipts and golden fixture verification are green.
+- [Phase ?]: Verified phx_new 1.8.8 regeneration was byte-identical to the committed dev-config golden; restored phx_new 1.8.9 after proof.
+- [Phase ?]: Dependabot service processing evidence requires exactly three authenticated, sanitized receipt rows; a no-update result is valid only when the successful job summary proves it.
+- [Phase ?]: Dependabot receipt validation anchors to the current default-branch SHA at collection time while preserving the decoded configuration hash.
+- [Phase ?]: DX-01 evidence uses a detached Plan 15 worktree with exact lock/status hashes and sanitized log digests.
+- [Phase ?]: Completion authorization accepts only the shared exact five-command receipt inventory.
+- [Phase ?]: Phase 234 ratification consumes immutable DX-02, DX-04, and DX-06 evidence without reopening implementation.
+- [Phase ?]: Direct Playwright inventory rows derive and require their exact workflow spec marker.
+- [Phase ?]: Only admin-eval and admin-generated may use allowlisted harness-to-spec ownership mappings.
+- [Phase ?]: Phase 234 validation receipts bind every command to one reviewed SHA and a 30-minute UTC window.
+- [Phase ?]: Phase 234 completion accepts only the exact six evidence receipt keys; schema_version remains metadata.
+- [Phase ?]: Installer golden fixture tracks the pinned phx_new 1.8.8 scaffold rather than preserving stale 1.8.7 bytes.
+- [Phase ?]: Phase 235 Plan 01 pins terminal ownership to the Phase 234 inventory hash and leaves measurement verdicts explicitly pending.
+- [Phase ?]: FAST-01 measured miss: 19 retained PR runs produced a 772-second p50, which is not strictly less than the 720-second target.
+- [Phase ?]: Plan 02 sealed same-window PR/push/schedule receipts; Plan 03 alone reconciles records.
+- [Phase ?]: FAST-01 remains unmet: 19 retained PR runs produced a 772-second p50, which is not strictly less than 720 seconds.
+- [Phase ?]: GATE-05 is reconciled only after one focused contract validates the contributor topology and both closeout records against the terminal ledger.
+- [Phase ?]: FAST-01 remains unmet: receipt-bound recomputation confirms 19 PR runs with a 772-second p50, above the strict 720-second threshold.
+- [Phase ?]: GATE-05 ownership is closed under exact 93-key equality from the Phase 234 inventory and declared non-Playwright families.
+- [Phase ?]: FAST-01 remains an honest miss at 19 retained PR runs and 772 seconds p50.
+- [Phase ?]: Phase 235 ownership evidence is source-bound to Phase 234 inventory, ci.yml, and retained event receipts.
+- [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
+- [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
+- [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
 
 ### Pending Todos
 
@@ -423,6 +450,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
 - [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
+- Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
+- 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
 
 ### Roadmap Evolution
 
@@ -555,8 +584,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-01T02:31:31.045Z
-Stopped at: Completed 234-05-PLAN.md
+Last session: 2026-08-03T04:00:16.745Z
+Stopped at: Completed 235-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -705,3 +734,19 @@ Resume file: None
 | Phase 234-hygiene-supply-chain-and-contributor-dx P12 | 3 min | 2 tasks | 8 files |
 | Phase 234-hygiene-supply-chain-and-contributor-dx P13 | 4min | 2 tasks | 8 files |
 | Phase 234 P05 | 3m | 2 tasks | 6 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P10 | 2h | 3 tasks | 6 files |
+| Phase 234 P14 | 8min | 1 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P15 | 10 minutes | 2 tasks | 5 files |
+| Phase 234 P17 | 31m | 2 tasks | 4 files |
+| Phase 234 P16 | 10 minutes | 1 tasks | 3 files |
+| Phase 234 P18 | 6 minutes | 2 tasks | 2 files |
+| Phase 234 P19 | 6min | 2 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P20 | 14m | 2 tasks | 3 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P21 | 22m | 1 tasks | 3 files |
+| Phase 235 P01 | 6min | 2 tasks | 2 files |
+| Phase 235-terminal-ratification-measured-not-read P02 | 9min | 2 tasks | 2 files |
+| Phase 235 P03 | 5min | 2 tasks | 6 files |
+| Phase 235-terminal-ratification-measured-not-read P04 | 10min | 3 tasks | 3 files |
+| Phase 235 P06 | 12m | 3 tasks | 2 files |
+| Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
+| Phase 235 P08 | unknown | 3 tasks | 7 files |

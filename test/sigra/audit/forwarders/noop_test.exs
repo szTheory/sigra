@@ -1,5 +1,8 @@
 defmodule Sigra.Audit.Forwarders.NoopTest do
-  use ExUnit.Case, async: true
+  # capture_log/1 installs a process-wide Logger capture handler. Keep this
+  # module synchronous so intentional warnings from unrelated async tests
+  # cannot be misattributed to the silent Noop forwarder.
+  use ExUnit.Case, async: false
   @moduletag :threadline_guard
 
   import ExUnit.CaptureLog

@@ -3,12 +3,14 @@
   "local_mix_ci": {
     "status": "success",
     "conclusion": "success",
-    "commit_sha": "4a743aaa19ade881b04e2a78b63b8cb00d91edba",
+    "commit_sha": "d78381a423d7470683e226e39b1086116a7ecb7b",
     "clean_before": true,
+    "clean_after": true,
     "detached_worktree": true,
+    "dependency_restore_verified": true,
     "command": "MIX_ENV=test mix ci",
-    "started_at": "2026-08-01T22:06:52Z",
-    "completed_at": "2026-08-01T22:10:54Z",
+    "started_at": "2026-08-02T03:01:51Z",
+    "completed_at": "2026-08-02T03:07:16Z",
     "exit_status": 0,
     "ordered_legs": [
       "format --check-formatted",
@@ -21,9 +23,20 @@
     ],
     "formatter_check": "passed",
     "golden_tree": "unchanged",
-    "log_sha256": "f64c6b44d6aef4d98295196e117f5969e8b4ebc411c89e81f94235a28e0a97a3",
-    "command_output_path": "/tmp/sigra-234-09-final.nrvDis/mix-ci.log",
-    "diagnostics": "Succeeded after MIX_ENV=test mix deps.get bootstrap in a clean detached checkout; the captured log was removed after hashing."
+    "golden_idempotency_status": "passed",
+    "mix_lock_sha256_before": "00aae780dd5c56ded217abe8d76bbbaf588f218ca5a2769a4114ef915e7d909f",
+    "mix_lock_sha256_after": "00aae780dd5c56ded217abe8d76bbbaf588f218ca5a2769a4114ef915e7d909f",
+    "git_status_sha256_before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_status_sha256_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log_sha256": "ce9df11a01e38b9a31df295230f341544bf175b37f4c78a76709ed93171db30f",
+    "command_output_path": "removed from harness-owned temporary directory after hashing",
+    "prior_failed_attempt": {
+      "status": "failed",
+      "commit_sha": "d78381a423d7470683e226e39b1086116a7ecb7b",
+      "log_sha256": "ef24d106af587adb408bf34160fdd507070d969bbf3fd50d3b2c61901db2acd3",
+      "diagnostics": "Fresh detached worktree lacked compiled locked dependencies before the formatter leg; the harness was removed after sanitizing the failed log hash."
+    },
+    "diagnostics": "A fresh detached worktree bootstrapped locked dependencies before one literal MIX_ENV=test mix ci run. All seven ordered legs, including golden/idempotency, passed; post-run locked dependency retrieval and threadline compilation passed; lockfile and normalized status hashes remained identical; harness-owned raw logs were removed after hashing."
   },
   "pr_ci": {
     "status": "success",
@@ -47,6 +60,112 @@
     "log_sha256": "52cec734c2c98775bbdccb7eff9be3958ff173227f5c548106b115d2d4ea71ca",
     "diagnostics": "Successful replacement receipt. Direct owner job 91429048026, Library tests job 91430018832, Example Playwright smoke job 91429670715, and ci-gate job 91430034838 all succeeded. Prior failed-receipt diagnostics remain preserved in commits 7aac6c71 and a7ac457c and the scoped tracker."
   },
-  "dependabot": {},
-  "gallery": {}
+  "release": {
+    "status": "success",
+    "event": "push",
+    "pr_number": "175",
+    "pr_url": "https://github.com/szTheory/sigra/pull/175",
+    "merge_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
+    "run_id": "30723565705",
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/30723565705",
+    "job_id": "91431188895",
+    "job_url": "https://github.com/szTheory/sigra/actions/runs/30723565705/job/91431188895",
+    "workflow_conclusion": "success",
+    "job_conclusion": "success",
+    "action_step_name": "Run Release Please",
+    "action_step_conclusion": "success",
+    "action_ref": "googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7",
+    "token_source": "Actions",
+    "permissions": ["actions:write", "contents:write", "issues:write", "pull-requests:write"],
+    "release_created": false,
+    "downstream_jobs": {
+      "gate_ci_green": "skipped_no_release_created",
+      "publish_hex": "skipped_no_release_created"
+    },
+    "started_at": "2026-08-01T23:33:40Z",
+    "completed_at": "2026-08-01T23:33:57Z",
+    "log_sha256": "6a2b9b3ee9ba87a7e9d50ee52687df7b1017a2dde6798849209454997c7ccd6e",
+    "diagnostics": "The push-triggered Release Please job executed successfully on the immutable post-merge SHA. Downstream gate-ci-green and publish-hex jobs were conditionally skipped because Release Please reported no release_created output; this is distinct from a skipped or missing Release Please action step."
+  },
+  "dependabot": {
+    "status": "success",
+    "default_branch_sha": "4935fe65aa80b69fffd3f0efc02911a8515a86f5",
+    "config_sha256": "a6894c6df4edc32b84883c7c9ffab761266c4078a1383ca813f6286c3fbf44e0",
+    "diagnostic_url": "https://github.com/szTheory/sigra/network/updates",
+    "diagnostics": "At 2026-08-02T02:49:41Z, one serial authenticated-browser collection observed the latest finished Dependabot update checks for all three configured tuples. REST core remaining was 4906/5000 before collection. Each receipt records only the tuple, job ID, UTC timestamp, processed status summary, GitHub URLs, optional PR URL, and SHA-256 of its sanitized receipt; no raw logs, authenticated HTML, cookies, credentials, or browser state were retained.",
+    "slots": [
+      {
+        "ecosystem": "github-actions",
+        "directory": "/",
+        "status": "success",
+        "job_id": "1499842989",
+        "timestamp": "2026-08-01T23:34:41Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; no dependency updates available.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1499842989",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91431194922?check_suite_focus=true",
+        "capture_sha256": "4421622ee25606a974af2b4a189c287a0dfe249098c36978c6f367189871f823"
+      },
+      {
+        "ecosystem": "mix",
+        "directory": "/",
+        "status": "success",
+        "job_id": "1500015096",
+        "timestamp": "2026-08-02T02:49:41Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; associated Dependabot pull request created.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1500015096",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91447147825?check_suite_focus=true",
+        "associated_pr_url": "https://github.com/szTheory/sigra/pull/184",
+        "capture_sha256": "ccbc86b453413850b5409fc62b3f066901e52e792de777467afb0b6ecc3b157b"
+      },
+      {
+        "ecosystem": "npm",
+        "directory": "/test/example/priv/playwright",
+        "status": "success",
+        "job_id": "1499842994",
+        "timestamp": "2026-08-01T23:34:53Z",
+        "processed_status": "processed_successfully",
+        "status_summary": "Update check processed successfully; associated Dependabot pull request created.",
+        "job_log_url": "https://github.com/szTheory/sigra/network/updates/1499842994",
+        "full_log_url": "https://github.com/szTheory/sigra/runs/91431195493?check_suite_focus=true",
+        "associated_pr_url": "https://github.com/szTheory/sigra/pull/177",
+        "capture_sha256": "bab7416183ad146936cf0ed3f9419aa0a9a6f11e6c2ca64668def590f4dea2f1"
+      }
+    ]
+  },
+  "gallery": {
+    "status": "success",
+    "event": "workflow_dispatch",
+    "commit_sha": "fe33154088053ce9ccc0e9301348a2841c87745c",
+    "run_id": "30723701267",
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/30723701267",
+    "workflow_conclusion": "failure",
+    "job_id": "91431828624",
+    "job_url": "https://github.com/szTheory/sigra/actions/runs/30723701267/job/91431828624",
+    "job_conclusion": "success",
+    "shared_boot_step_name": "Boot example app through shared action",
+    "shared_boot_conclusion": "success",
+    "retry_count": 0,
+    "design_test_count": 126,
+    "design_test_result": "126 passed (5.4m)",
+    "snapshot_canary": "PASS (0 changed slug(s), all within allowlist)",
+    "started_at": "2026-08-01T23:46:41Z",
+    "completed_at": "2026-08-01T23:56:16Z",
+    "log_sha256": "30902b6dfeb8c42796bb3358ddc9e42287478856ecaf874427035c83d83ed30d",
+    "non_gating_admin_eval": {
+      "job_id": "91431828604",
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/30723701267/job/91431828604",
+      "conclusion": "failure",
+      "failure_step": "Fail the job if harness did not PASS",
+      "diagnostics": "The admin_eval_render hard-signal job is intentionally outside ci-gate. Its failure makes the overall dispatch red but does not invalidate the separately successful gallery job; Phase 234 does not alter its policy, retries, or UI implementation."
+    },
+    "diagnostics": "The current shared-boot gallery receipt is successful. The workflow-level failure is solely the separately recorded non-gating admin-evaluation diagnostic, not a gallery contradiction."
+  },
+  "historical_gallery": {
+    "status": "success",
+    "run_id": "30659282026",
+    "design_test_count": 126,
+    "diagnostics": "Phase 232 immutable receipt: the shared-boot admin_design_recapture consumer passed 126 design tests."
+  }
 }
