@@ -1,0 +1,148 @@
+{
+  "schema_version": "sigra.fast-01-remediation/v1",
+  "status": "measured_remediation",
+  "purpose": "A retry-free remediation measurement that authorizes a new population but does not complete FAST-01.",
+  "evidence_design": {
+    "mode": "two_pr",
+    "measured_remediation_pr": 195,
+    "rule": "The evidence-only PR records this receipt after the remediation PR merged; its own CI is not the measured remediation run."
+  },
+  "before": {
+    "source_runs": [
+      {
+        "run_id": 30828457128,
+        "head_sha": "23634799cae910e1f4b6e192515d313d76b40c0a",
+        "url": "https://github.com/szTheory/sigra/actions/runs/30828457128",
+        "event": "pull_request",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-08-03T15:38:36Z",
+        "updated_at": "2026-08-03T15:50:37Z",
+        "run_wall_seconds": 721,
+        "library_job": {
+          "id": 91736086971,
+          "name": "Library tests shard",
+          "conclusion": "success",
+          "started_at": "2026-08-03T15:38:56Z",
+          "completed_at": "2026-08-03T15:50:09Z",
+          "duration_seconds": 673
+        }
+      },
+      {
+        "run_id": 30844334551,
+        "head_sha": "b4a58bf759088c4315e9164e91b2f2e357cb92e2",
+        "url": "https://github.com/szTheory/sigra/actions/runs/30844334551",
+        "event": "pull_request",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-08-03T19:06:55Z",
+        "updated_at": "2026-08-03T19:18:59Z",
+        "run_wall_seconds": 724,
+        "library_job": {
+          "id": 91788844747,
+          "name": "Library tests shard",
+          "conclusion": "success",
+          "started_at": "2026-08-03T19:07:12Z",
+          "completed_at": "2026-08-03T19:18:44Z",
+          "duration_seconds": 692,
+          "contributor_step": {
+            "number": 9,
+            "name": "Run contributor CI gate",
+            "conclusion": "success",
+            "started_at": "2026-08-03T19:07:54Z",
+            "completed_at": "2026-08-03T19:18:40Z",
+            "duration_seconds": 646
+          }
+        }
+      },
+      {
+        "run_id": 30840458645,
+        "head_sha": "4cd9f9a41860630e24f90f9b370b30547b96f21c",
+        "url": "https://github.com/szTheory/sigra/actions/runs/30840458645",
+        "event": "pull_request",
+        "conclusion": "success",
+        "run_attempt": 1,
+        "created_at": "2026-08-03T18:15:30Z",
+        "updated_at": "2026-08-03T18:27:44Z",
+        "run_wall_seconds": 734,
+        "library_job": {
+          "id": 91775948897,
+          "name": "Library tests shard",
+          "conclusion": "success",
+          "started_at": "2026-08-03T18:15:45Z",
+          "completed_at": "2026-08-03T18:27:23Z",
+          "duration_seconds": 698
+        }
+      }
+    ],
+    "protected_median": {
+      "run_id": 30844334551,
+      "library_job_seconds": 692,
+      "contributor_step_seconds": 646,
+      "run_wall_seconds": 724
+    }
+  },
+  "after": {
+    "run_id": 30854850199,
+    "pr_number": 195,
+    "head_sha": "d034eaa0473f28e60214343673e5f05c36c1460b",
+    "url": "https://github.com/szTheory/sigra/actions/runs/30854850199",
+    "event": "pull_request",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "retry_free": true,
+    "created_at": "2026-08-03T21:29:33Z",
+    "updated_at": "2026-08-03T21:37:23Z",
+    "run_wall_seconds": 470,
+    "library_job": {
+      "id": 91823388126,
+      "name": "Library tests shard",
+      "conclusion": "success",
+      "started_at": "2026-08-03T21:29:51Z",
+      "completed_at": "2026-08-03T21:32:19Z",
+      "duration_seconds": 148,
+      "contributor_step": {
+        "number": 9,
+        "name": "Run contributor CI gate",
+        "conclusion": "success",
+        "started_at": "2026-08-03T21:30:29Z",
+        "completed_at": "2026-08-03T21:32:17Z",
+        "duration_seconds": 108
+      }
+    },
+    "protected_aggregate": {
+      "id": 91823983653,
+      "name": "Library tests",
+      "conclusion": "success",
+      "started_at": "2026-08-03T21:32:30Z",
+      "completed_at": "2026-08-03T21:32:34Z"
+    }
+  },
+  "immutable_prior_receipt": {
+    "path": ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT.json",
+    "sha256": "1245a469b33af8bed185bc0ffff47612d9866c25f816fd5ae58060736149cd02",
+    "eligible_pr_run_count": 13,
+    "p50_seconds": 724,
+    "verdict": "miss"
+  },
+  "file_digests": {
+    "mix.exs": "8b96195f50a5b22b33e44620d4c19a49bd039188a15400553a739094581c84ca",
+    "CONTRIBUTING.md": "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b",
+    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs": "f72e3be86a7bf1bbb59572b3d01899b77d37cca8a2112b45d8550d08a5d02b7d",
+    "test/sigra/planning/phase_233_library_economics_contract_test.exs": "cf90ce56cf583f96a98a1bf0b0b517d2cfab8e0986c7c7b3e6564a25d6041010"
+  },
+  "population_cutoff": {
+    "sha": "54c33e904155a454255952666711c882afdd06e4",
+    "timestamp": "2026-08-03T21:37:08Z",
+    "source": "ruleset-governed squash merge of remediation PR #195"
+  },
+  "source_commands": [
+    "gh api repos/szTheory/sigra/actions/runs/30828457128",
+    "gh api repos/szTheory/sigra/actions/runs/30844334551",
+    "gh api repos/szTheory/sigra/actions/runs/30840458645",
+    "gh api repos/szTheory/sigra/actions/runs/30854850199",
+    "gh api repos/szTheory/sigra/actions/runs/{run_id}/jobs?per_page=100",
+    "gh api repos/szTheory/sigra/actions/jobs/{job_id}",
+    "gh api repos/szTheory/sigra/commits/54c33e904155a454255952666711c882afdd06e4"
+  ]
+}
