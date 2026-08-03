@@ -17,4 +17,5 @@ fi
 
 grep -Eq 'untrusted_gh_executable:.*/bin/gh$' "$WORK/stderr"
 test ! -s "$WORK/stdout"
+grep -Fq '/usr/bin/sudo -n /usr/bin/rm -rf -- "$work"' "$VERIFIER"
 echo offline_attestation_runtime_self_test_verified

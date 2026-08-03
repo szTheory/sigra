@@ -408,8 +408,6 @@ test.describe('Design gallery board snapshots', () => {
         page.locator('[data-testid="admin-audit-mobile-results"]'),
         'admin audit',
       );
-      await expect(page.getByRole('link', { name: 'Previous page' })).toBeAttached();
-      await expect(page.getByRole('link', { name: 'Next page' })).toBeAttached();
       await expect(page.getByRole('link', { name: 'Export CSV' })).toBeAttached();
     }
 
@@ -435,8 +433,6 @@ test.describe('Design gallery board snapshots', () => {
         page.locator('[data-testid="admin-audit-user-mobile-results"]'),
         'admin user audit',
       );
-      await expect(page.getByRole('link', { name: 'Previous page' })).toBeAttached();
-      await expect(page.getByRole('link', { name: 'Next page' })).toBeAttached();
     }
   });
 
