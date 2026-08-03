@@ -38,7 +38,7 @@ request_page() {
 
 validate_manifest() {
   local manifest="$1" item_key="$2" label="$3"
-  jq -e --arg key "$item_key" '
+  jq -s -e --arg key "$item_key" '
     if type != "array" or length == 0 then error("absent_terminal_empty_page") else . end
     | . as $pages
     | if all(.[]; (.page|type) == "number" and (.page|floor) == . and .page > 0 and (.body|type) == "object") then . else error("malformed_envelope") end
