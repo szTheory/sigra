@@ -760,7 +760,62 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         do: raise(ArgumentError, "output SHA-256 #{event}")
     end
 
+    source_runs = validate_source_receipt!(ledger["capture_endpoint"], cutoff, endpoint)
+
+    bounded_source =
+      source_runs
+      |> Enum.filter(fn run ->
+        run["createdAt"] >= cutoff and run["updatedAt"] <= endpoint and run["event"] in @events
+      end)
+      |> Map.new(&{&1["databaseId"], source_run_to_ledger_run(&1)})
+
+    measured_runs =
+      for event <- @events,
+          run <- ledger["measurements"][event]["runs"],
+          into: %{},
+          do: {run["id"], run}
+
+    unless bounded_source == measured_runs,
+      do: raise(ArgumentError, "source receipt population")
+
     :ok
+  end
+
+  defp validate_source_receipt!(capture, cutoff, endpoint) do
+    receipt = capture["source_receipt"] || %{}
+
+    unless MapSet.new(Map.keys(receipt)) == MapSet.new(~w(command output sha256)) and
+             receipt["command"] == capture["source_command"] and is_binary(receipt["output"]) and
+             receipt["sha256"] == @population_sha and receipt["sha256"] == sha256_hex(receipt["output"]),
+           do: raise(ArgumentError, "source receipt")
+
+    runs = Jason.decode!(receipt["output"])
+
+    unless is_list(runs) and Enum.all?(runs, fn run ->
+             MapSet.new(Map.keys(run)) ==
+               MapSet.new(~w(databaseId event createdAt updatedAt conclusion url headSha)) and
+               is_integer(run["databaseId"]) and run["databaseId"] > 0 and run["event"] in @events ++ ["workflow_dispatch"] and
+               is_binary(run["createdAt"]) and is_binary(run["updatedAt"]) and is_binary(run["conclusion"]) and
+               run["url"] == "https://github.com/szTheory/sigra/actions/runs/#{run["databaseId"]}" and
+               is_binary(run["headSha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["headSha"])
+           end) and
+             runs |> Enum.map(& &1["databaseId"]) |> Enum.uniq() |> length() == length(runs) and
+             Enum.any?(runs, &(&1["createdAt"] >= cutoff and &1["updatedAt"] <= endpoint)),
+           do: raise(ArgumentError, "source receipt fields")
+
+    runs
+  end
+
+  defp source_run_to_ledger_run(source) do
+    %{
+      "id" => source["databaseId"],
+      "event" => source["event"],
+      "created_at" => source["createdAt"],
+      "updated_at" => source["updatedAt"],
+      "conclusion" => source["conclusion"],
+      "url" => source["url"],
+      "head_sha" => source["headSha"]
+    }
   end
 
   defp validate_verdict!(ledger) do
@@ -799,7 +854,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       unless is_list(receipts) and receipts != [] and
                Enum.all?(receipts, fn receipt ->
                  receipt["command"] =~ "--jobs #{receipt["run_id"]}" and
-                   is_binary(receipt["output_sha256"]) and
+                   is_map(receipt["metrics_receipt"]) and
                    is_map(receipt["binding_pole"]) and is_binary(receipt["binding_pole"]["name"])
                end),
              do: raise(ArgumentError, "miss receipt")
@@ -820,31 +875,71 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp validate_binding_pole_receipts!(receipts, pr_runs) do
+    expected =
+      pr_runs
+      |> Enum.map(&Map.put(&1, "wall_seconds", wall_seconds!(&1)))
+      |> Enum.sort_by(&{&1["wall_seconds"], &1["id"]})
+      |> then(fn runs ->
+        %{
+          "median_neighbor" => Enum.at(runs, div(length(runs), 2)),
+          "maximum_duration" => List.last(runs)
+        }
+      end)
+
+    unless MapSet.new(Enum.map(receipts, & &1["selection"])) == MapSet.new(Map.keys(expected)) and
+             length(receipts) == map_size(expected),
+           do: raise(ArgumentError, "binding selections")
+
     for receipt <- receipts do
-      run = Enum.find(pr_runs, &(&1["id"] == receipt["run_id"])) || raise(ArgumentError, "binding run id")
+      run = Map.fetch!(expected, receipt["selection"])
       source = receipt["source_receipt"] || %{}
 
-      unless source["command"] == "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json databaseId,event,url,jobs" and
+      unless source["command"] == "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json jobs --jq .jobs" and
                is_binary(source["output"]) and is_binary(source["sha256"]) and
                source["sha256"] == sha256_hex(source["output"]),
              do: raise(ArgumentError, "binding source receipt")
 
-      source_run = Jason.decode!(source["output"])
+      jobs = Jason.decode!(source["output"])
       pole = receipt["binding_pole"]
 
-      unless source_run["databaseId"] == run["id"] and source_run["event"] == "pull_request" and
-               source_run["url"] == run["url"] and receipt["run_url"] == run["url"] and
-               is_list(source_run["jobs"]) and
-               Enum.count(source_run["jobs"], &(&1["name"] == pole["name"])) == 1,
+      unless receipt["run_url"] == run["url"] and is_list(jobs) and
+               Enum.count(jobs, &(&1["name"] == pole["name"])) == 1,
              do: raise(ArgumentError, "binding source identity or job")
 
-      job = Enum.find(source_run["jobs"], &(&1["name"] == pole["name"]))
+      unless receipt["run_id"] == run["id"] and receipt["wall_seconds"] == run["wall_seconds"],
+        do: raise(ArgumentError, "binding selection or wall seconds")
+
+      job = Enum.find(jobs, &(&1["name"] == pole["name"]))
       duration = max(DateTime.diff(parse_timestamp!(job["completedAt"]), parse_timestamp!(job["startedAt"]), :second), 0)
 
       unless job["conclusion"] == pole["conclusion"] and duration == pole["duration_seconds"],
         do: raise(ArgumentError, "binding job duration")
+
+      metrics = receipt["metrics_receipt"] || %{}
+      expected_jobs =
+        jobs
+        |> Enum.map(fn candidate ->
+          %{
+            "name" => candidate["name"],
+            "conclusion" => candidate["conclusion"],
+            "duration_seconds" =>
+              max(DateTime.diff(parse_timestamp!(candidate["completedAt"]), parse_timestamp!(candidate["startedAt"]), :second), 0)
+          }
+        end)
+
+      unless MapSet.new(Map.keys(metrics)) == MapSet.new(~w(command output sha256)) and
+               metrics["command"] == receipt["command"] and
+               metrics["command"] == "bash scripts/ci/ci-run-metrics.sh --jobs #{run["id"]} --format json" and
+               is_binary(metrics["output"]) and Jason.decode!(metrics["output"]) == expected_jobs and
+               metrics["sha256"] == sha256_hex(metrics["output"]),
+             do: raise(ArgumentError, "binding metrics receipt")
     end
   end
+
+  defp wall_seconds!(run) do
+    max(DateTime.diff(parse_timestamp!(run["updated_at"]), parse_timestamp!(run["created_at"]), :second), 0)
+  end
+
 
   defp validate_closeout_records!(ledger, contributing, seed, milestone_arc, residual) do
     unless is_binary(contributing), do: raise(ArgumentError, "contributor topology")
