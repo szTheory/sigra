@@ -385,7 +385,7 @@ Plans:
 
 **Wave 10** *(gap closure; blocked on Wave 9 completion and a qualifying ≥10-run population)*
 
-- [ ] 235-10-PLAN.md — Capture one independently attested population and reconcile FAST-01 from the strict measured verdict
+- [x] 235-10-PLAN.md — Capture one independently attested population and reconcile FAST-01 from the strict measured verdict
 
 ## Progress
 
