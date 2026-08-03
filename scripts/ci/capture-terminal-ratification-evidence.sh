@@ -84,6 +84,18 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
   | all(.[]; (.id|type) == "number" and (.event == "pull_request" or .event == "push" or .event == "schedule" or .event == "workflow_dispatch") and (.conclusion|type) == "string" and length > 0 and (.created_at|type) == "string" and (.updated_at|type) == "string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at <= $endpoint and .updated_at >= .created_at)
 ' "$RUNS_MANIFEST" >/dev/null || fail "run_chronology_or_identity_invalid"
 
+# The workflow-run pages are the attestation's population.  Do not let a
+# complete-but-different response be paired with jobs from this fixed history.
+EXPECTED_RUN_IDS="$(printf '%s\n' "${RUN_IDS[@]}" | jq -s 'map(tonumber)')"
+jq -s -e --argjson expected "$EXPECTED_RUN_IDS" '
+  [.[].body.workflow_runs[].id] as $actual
+  | if ($actual | length) == ($expected | length) and
+       ($actual | sort) == ($expected | sort)
+    then .
+    else error("unexpected_workflow_run_population")
+    end
+' "$RUNS_MANIFEST" >/dev/null || fail "workflow_run_population_mismatch"
+
 JOB_MANIFESTS_FILE="$TMPDIR_CAPTURE/jobs.json"
 printf '%s\n' '[]' >"$JOB_MANIFESTS_FILE"
 for run_id in "${RUN_IDS[@]}"; do
