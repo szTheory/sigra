@@ -41,9 +41,9 @@ validate_manifest() {
   jq -s -e --arg key "$item_key" '
     if type != "array" or length == 0 then error("absent_terminal_empty_page") else . end
     | . as $pages
-    | if all(.[]; (.page|type) == "number" and (.page|floor) == . and .page > 0 and (.body|type) == "object") then . else error("malformed_envelope") end
+    | if all(.[]; (.page|type) == "number" and ((.page|floor) == .page) and .page > 0 and (.body|type) == "object") then . else error("malformed_envelope") end
     | if ([.[].page] | sort) == [range(1; length + 1)] then . else error("non_contiguous_or_duplicate_page") end
-    | if ([.[].body.total_count] | all(type == "number" and floor == . and . >= 0)) then . else error("malformed_total_count") end
+    | if ([.[].body.total_count] | all(type == "number" and (floor == .) and . >= 0)) then . else error("malformed_total_count") end
     | if ([.[].body.total_count] | unique | length) == 1 then . else error("total_count_changed") end
     | if (.[-1].body[$key] | type) == "array" and (.[-1].body[$key] | length) == 0 then . else error("absent_terminal_empty_page") end
     | if ([.[0:-1][].body[$key] | length] | add // 0) == .[0].body.total_count then . else error("total_count_disagreement") end
