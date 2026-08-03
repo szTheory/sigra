@@ -389,7 +389,7 @@ Plans:
 
 **Wave 11** *(gap closure; blocked on Wave 10 completion)*
 
-- [ ] 235-11-PLAN.md — Remove measured Library-test duplication while preserving the direct `mix ci` contract and GATE-05 ownership
+- [x] 235-11-PLAN.md — Remove measured Library-test duplication while preserving the direct `mix ci` contract and GATE-05 ownership
 
 **Wave 12** *(gap closure; blocked on Wave 11 completion and its protected-main remediation merge)*
 
