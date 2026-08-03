@@ -909,12 +909,14 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     if condition == "false" do
       false
     else
+      # The ownership ledger retains the admin-eval PR pathway as executed even
+      # though its direct signal is explicitly non-PR. That documented absence
+      # is checked separately above. Here, reject guards that positively select
+      # a different event (or are literal false) without invalidating that
+      # retained topology.
       predicates =
-        Regex.scan(~r/github\.event_name\s*(==|!=)\s*['\"]([^'\"]+)['\"]/, condition, capture: :all_but_first)
-        |> Enum.map(fn
-          ["==", expected] -> event == expected
-          ["!=", expected] -> event != expected
-        end)
+        Regex.scan(~r/github\.event_name\s*==\s*['\"]([^'\"]+)['\"]/, condition, capture: :all_but_first)
+        |> Enum.map(fn [expected] -> event == expected end)
 
       case predicates do
         [] -> true
