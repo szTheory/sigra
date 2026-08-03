@@ -71,7 +71,9 @@ status: complete
 
 The initial protected dispatch `30845588405` produced no subject because a shallow checkout lacked the cutoff commit; no verdict was accepted from it.
 
-## Self-Check: PASSED
+## Self-Check
+
+**Result:** PASSED
 
 - Evidence files exist and receipt digest `1245a469b33af8bed185bc0ffff47612d9866c25f816fd5ae58060736149cd02` verifies with the retained bundle and trusted root.
 - `MIX_ENV=test mix test test/sigra/planning/` passed with 118 tests, 0 failures, and 12 skipped.
