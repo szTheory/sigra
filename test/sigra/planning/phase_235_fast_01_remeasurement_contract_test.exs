@@ -12,6 +12,7 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
   test "pins the fresh protected-main cutoff and leaves readiness non-authoritative" do
     collector = File.read!(@collector)
     readiness = File.read!(@readiness) |> Jason.decode!()
+
     terminal =
       File.read!(
         Path.join(
@@ -37,6 +38,7 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
   test "protects the only measured subject without joining ci.yml" do
     workflow = File.read!(@workflow)
     ci = File.read!(Path.join(@root, ".github/workflows/ci.yml"))
+
     coverage =
       File.read!(
         Path.join(
