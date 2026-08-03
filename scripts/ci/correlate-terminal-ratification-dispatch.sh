@@ -35,7 +35,7 @@ select_run() {
 
 self_test() {
   local tmp before after out rc
-  tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+  tmp="$(mktemp -d)"; trap "rm -rf '$tmp'" EXIT
   before="$tmp/before.json"; after="$tmp/after.json"; out="$tmp/out.json"
   printf '%s\n' '{"total_count":0,"workflow_runs":[]}' >"$before"
   printf '%s\n' '{"total_count":1,"workflow_runs":[{"id":42,"html_url":"https://example.test/42","workflow_id":7,"event":"workflow_dispatch","head_sha":"abc","created_at":"2026-08-03T00:00:00Z"}]}' >"$after"
@@ -65,4 +65,4 @@ self_test() {
 
 if [[ "${1:-}" == "--self-test" ]]; then self_test; exit 0; fi
 [[ "$#" == 12 && "$1" == "--pre" && "$3" == "--post" && "$5" == "--workflow-id" && "$7" == "--head-sha" && "$9" == "--not-before" && "${11}" == "--output" ]] || fail "usage"
-select_run "$2" "$4" "$6" "$8" "$10" "${12}"
+select_run "$2" "$4" "$6" "$8" "${10}" "${12}"
