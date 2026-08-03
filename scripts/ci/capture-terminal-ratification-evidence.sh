@@ -128,7 +128,7 @@ for run_id in "${MEASUREMENT_RUN_IDS[@]}"; do
   collect_pages "repos/${REPO}/actions/runs/${run_id}/jobs?" jobs "jobs-${run_id}" "$manifest"
   jq -s -e '
     [.[].body.jobs[]]
-    | all(.[]; . as $job | ($job.id|type) == "number" and ($job.name|type) == "string" and ($job.name|length) > 0 and ($job.conclusion|type) == "string" and ($job.conclusion|length) > 0 and (if $job.conclusion == "skipped" then (($job.started_at|type) == "string" or $job.started_at == null) and (($job.completed_at|type) == "string" or $job.completed_at == null) else ($job.started_at|type) == "string" and ($job.completed_at|type) == "string" and $job.completed_at >= $job.started_at end))
+    | all(.[]; . as $job | ($job.id|type) == "number" and ($job.name|type) == "string" and ($job.name|length) > 0 and ($job.conclusion|type) == "string" and ($job.conclusion|length) > 0 and (if $job.conclusion == "skipped" then (if $job.started_at == null and $job.completed_at == null then true elif ($job.started_at|type) == "string" and ($job.completed_at|type) == "string" then $job.completed_at >= $job.started_at else false end) else ($job.started_at|type) == "string" and ($job.completed_at|type) == "string" and $job.completed_at >= $job.started_at end))
   ' "$manifest" >/dev/null || fail "job_chronology_or_identity_invalid_run_${run_id}"
   jobs_next="$TMPDIR_CAPTURE/jobs-${run_id}.json"
   jq --arg id "$run_id" --slurpfile pages "$manifest" '. + [{run_id: ($id|tonumber), pages: $pages}]' "$JOB_MANIFESTS_FILE" >"$jobs_next" || fail "job_manifest_append_failed"

@@ -57,11 +57,13 @@ elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 1 ]]; then
   fi
   if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted ]]; then
     echo '{"total_count":1,"jobs":[{"id":9,"name":"real job","conclusion":"success","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"}]}'
+  elif [[ "${FAKE_MODE:-ok}" == skipped_inverted ]]; then
+    echo '{"total_count":1,"jobs":[{"id":7,"name":"skipped with inversion","conclusion":"skipped","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"}]}'
   else
-    echo '{"total_count":2,"jobs":[{"id":7,"name":"skipped with inversion","conclusion":"skipped","started_at":"2026-08-02T03:00:00Z","completed_at":"2026-08-02T02:59:59Z"},{"id":8,"name":"skipped without schedule","conclusion":"skipped","started_at":null,"completed_at":null}]}'
+    echo '{"total_count":2,"jobs":[{"id":7,"name":"skipped with schedule","conclusion":"skipped","started_at":"2026-08-02T02:00:00Z","completed_at":"2026-08-02T03:00:00Z"},{"id":8,"name":"skipped without schedule","conclusion":"skipped","started_at":null,"completed_at":null}]}'
   fi
 elif [[ "$*" == *'/jobs?'* ]] && [[ "$PAGE" == 2 ]]; then
-  if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted || "${FAKE_MODE:-ok}" == large ]]; then echo '{"total_count":1,"jobs":[]}'; else echo '{"total_count":2,"jobs":[]}'; fi
+  if [[ "${FAKE_MODE:-ok}" == non_skipped_inverted || "${FAKE_MODE:-ok}" == skipped_inverted || "${FAKE_MODE:-ok}" == large ]]; then echo '{"total_count":1,"jobs":[]}'; else echo '{"total_count":2,"jobs":[]}'; fi
 else
   echo "unexpected gh invocation: $*" >&2; exit 1
 fi
@@ -119,6 +121,14 @@ RC=$?
 set -e
 test "$RC" -ne 0
 grep -q 'job_chronology_or_identity_invalid_run_' "$TMP/job-inverted.err"
+
+set +e
+FAKE_MODE=skipped_inverted FAKE_GH_LOG="$TMP/skipped-job-inverted-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/skipped-job-inverted.json" 2>"$TMP/skipped-job-inverted.err"
+RC=$?
+set -e
+test "$RC" -ne 0
+grep -q 'job_chronology_or_identity_invalid_run_' "$TMP/skipped-job-inverted.err"
+test ! -e "$TMP/skipped-job-inverted.json"
 
 FAKE_MODE=large FAKE_GH_LOG="$TMP/large-calls" PATH="$TMP/bin:$PATH" "$COLLECTOR" "$TMP/large.json"
 jq -e '.jobs | length == 23' "$TMP/large.json" >/dev/null
