@@ -54,6 +54,7 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
     assert workflow =~ "id-token: write"
     assert workflow =~ "attestations: write"
     assert workflow =~ "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+    assert workflow =~ "fetch-depth: 0"
     assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
     assert workflow =~ "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     assert workflow =~ "eligible_pr_run_count >= 10"
