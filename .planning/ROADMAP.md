@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 5 plans in 5 waves
+**Plans**: 6 plans in 6 waves
 
 Plans:
 **Wave 1**
@@ -365,7 +365,11 @@ Plans:
 
 **Wave 5** *(gap closure; blocked on Wave 4 completion)*
 
-- [ ] 235-05-PLAN.md — Bind canonical run/job source receipts, enforce exact ownership semantics, and compose contributor closeout validation
+- [x] 235-05-PLAN.md — Bind canonical run/job source receipts, enforce exact ownership semantics, and compose contributor closeout validation
+
+**Wave 6** *(gap closure; blocked on Wave 5 completion)*
+
+- [ ] 235-06-PLAN.md — Bind the terminal ledger to canonical source bytes, replay both binding poles, and prove all 93 ownership destinations
 
 ## Progress
 
