@@ -7,6 +7,7 @@ WORKFLOW="ci.yml"
 EVENT="pull_request"
 CUTOFF_SHA="a282b3deed009e62707b1a01d16da053a53e37d8"
 CUTOFF="2026-08-03T15:36:12Z"
+CUTOFF_EPOCH="1785771372"
 MAX_PAGES=10000
 
 usage() { echo "usage: $0 --readiness OUTPUT | --protected-output OUTPUT --endpoint UTC" >&2; exit 2; }
@@ -22,7 +23,9 @@ esac
 command -v gh >/dev/null 2>&1 || fail "gh CLI not found on PATH"
 command -v jq >/dev/null 2>&1 || fail "jq not found on PATH"
 git merge-base --is-ancestor "$CUTOFF_SHA" origin/main || fail "cutoff_not_on_origin_main"
-[[ "$(git show -s --format=%cI "$CUTOFF_SHA")" == "2026-08-03T15:36:12+00:00" ]] || fail "cutoff_timestamp_mismatch"
+# Compare the instant, not Git's equivalent ISO-8601 spelling (`Z` vs
+# `+00:00` differs across Git versions/platforms).
+[[ "$(git show -s --format=%ct "$CUTOFF_SHA")" == "$CUTOFF_EPOCH" ]] || fail "cutoff_timestamp_mismatch"
 git show --format= --name-only "$CUTOFF_SHA" | grep -qx '.github/workflows/ci.yml' || fail "cutoff_not_topology_affecting"
 
 # The readiness endpoint is intentionally sampled at the collection boundary.  It
@@ -63,7 +66,11 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
   | if ([.[].page] | sort) == [range(1; length + 1)] then . else error("non_contiguous_pages") end
   | if (.[-1].body.workflow_runs | type == "array" and length == 0) then . else error("missing_terminal_empty_page") end
   | if all(.[0:-1][]; (.body.workflow_runs | type == "array" and length > 0)) then . else error("empty_nonterminal_page") end
-  | ([.[].body.workflow_runs[]?] | .) as $runs
+  # The collector population is pull-request runs only. Other ci.yml events
+  # may legitimately be in progress (and therefore have no conclusion) while a
+  # readiness collection occurs; they are not evidence and must not poison the
+  # declared population.  Every selected PR row remains fail-closed below.
+  | ([.[].body.workflow_runs[]? | select(.event == "pull_request")] | .) as $runs
   | if ($runs | map(.id) | unique | length) == ($runs | length) then . else error("duplicate_run_id") end
   | if all($runs[]; (.id|type)=="number" and (.event|type)=="string" and (.conclusion|type)=="string" and (.conclusion|length)>0 and (.created_at|type)=="string" and (.updated_at|type)=="string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at >= .created_at and .updated_at <= $endpoint) then . else error("run_chronology_or_identity_invalid") end
 ' "$MANIFEST" >/dev/null || fail "manifest_invalid"

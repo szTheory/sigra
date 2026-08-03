@@ -7,6 +7,8 @@ COLLECTOR="$ROOT/scripts/ci/capture-fast-01-remeasurement.sh"
 
 fail() { echo "capture-fast-01-remeasurement.test: FAIL: $*" >&2; exit 1; }
 [[ -x "$COLLECTOR" ]] || fail "collector missing or not executable"
+grep -Fq 'git show -s --format=%ct "$CUTOFF_SHA"' "$COLLECTOR" || fail "cutoff instant is not compared canonically"
+grep -Fq 'CUTOFF_EPOCH="1785771372"' "$COLLECTOR" || fail "fixed cutoff epoch drifted"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -58,6 +60,18 @@ run_readiness() {
 }
 
 for n in 0 1 9 10 11; do run_readiness "$n"; done
+
+# A concurrent push run is outside the declared PR population and may still be
+# in progress.  Its null conclusion must not suppress valid readiness, whereas
+# the same malformed state on a PR row remains fail-closed.
+make_runs 10 719 "$TMP/runs.json"
+jq '. + [{id: 9999, event: "push", conclusion: null, created_at: "2026-08-03T15:36:13Z", updated_at: "2026-08-03T15:36:14Z", html_url: "https://example.test/9999"}]' "$TMP/runs.json" >"$TMP/mixed.json"
+PATH="$TMP/bin:$PATH" FAKE_RUNS="$(cat "$TMP/mixed.json")" "$COLLECTOR" --readiness "$TMP/mixed-out.json"
+jq -e '.eligible_pr_run_count == 10 and .status == "ready"' "$TMP/mixed-out.json" >/dev/null || fail "in-progress push poisoned PR readiness"
+jq '.[0].conclusion = null' "$TMP/runs.json" >"$TMP/malformed-pr.json"
+if PATH="$TMP/bin:$PATH" FAKE_RUNS="$(cat "$TMP/malformed-pr.json")" "$COLLECTOR" --readiness "$TMP/malformed-pr-out.json" >/dev/null 2>&1; then
+  fail "collector accepted malformed pull_request row"
+fi
 
 make_runs 10 719 "$TMP/runs.json"
 for bad in '--endpoint 2030-01-01T00:00:00Z' 'extra'; do
