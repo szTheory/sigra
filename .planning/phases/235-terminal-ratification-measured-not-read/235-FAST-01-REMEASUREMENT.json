@@ -1,0 +1,102 @@
+{
+  "authority": "protected_main_attestation",
+  "cutoff": {
+    "sha": "a282b3deed009e62707b1a01d16da053a53e37d8",
+    "timestamp": "2026-08-03T15:36:12Z"
+  },
+  "eligible_pr_run_count": 13,
+  "event": "pull_request",
+  "repository": "szTheory/sigra",
+  "runs": [
+    {
+      "conclusion": "failure",
+      "run_id": 30835648577,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30835648577",
+      "wall_seconds": 503
+    },
+    {
+      "conclusion": "failure",
+      "run_id": 30836435395,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30836435395",
+      "wall_seconds": 513
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30828469039,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828469039",
+      "wall_seconds": 631
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30828455141,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828455141",
+      "wall_seconds": 700
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30843386219,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30843386219",
+      "wall_seconds": 711
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30828457128,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828457128",
+      "wall_seconds": 721
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30844334551,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30844334551",
+      "wall_seconds": 724
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30840458645,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30840458645",
+      "wall_seconds": 734
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30828459398,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30828459398",
+      "wall_seconds": 741
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30846144265,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30846144265",
+      "wall_seconds": 765
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30841403783,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30841403783",
+      "wall_seconds": 1040
+    },
+    {
+      "conclusion": "success",
+      "run_id": 30837378307,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30837378307",
+      "wall_seconds": 1935
+    },
+    {
+      "conclusion": "cancelled",
+      "run_id": 30847098643,
+      "url": "https://github.com/szTheory/sigra/actions/runs/30847098643",
+      "wall_seconds": 1940
+    }
+  ],
+  "schema_version": "sigra.fast-01-remeasurement/v1",
+  "statistics": {
+    "mode": "wall",
+    "ordering": "{wall_seconds, run_id}",
+    "p50_seconds": 724
+  },
+  "status": "measured",
+  "verdict": "miss",
+  "window": {
+    "endpoint": "2026-08-03T20:22:31Z"
+  },
+  "workflow": "ci.yml"
+}

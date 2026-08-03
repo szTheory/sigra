@@ -5,7 +5,9 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   @phase ".planning/phases/235-terminal-ratification-measured-not-read"
 
   test "uses immutable remediation-cutoff blobs while retaining later two-PR receipt validation" do
-    remediation = File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-REMEDIATION.json"))) |> Jason.decode!()
+    remediation =
+      File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-REMEDIATION.json")))
+      |> Jason.decode!()
     collector = File.read!(Path.join(@root, "scripts/ci/capture-fast-01-gap-closure.sh"))
     receipt = Path.join(@root, Path.join(@phase, "235-FAST-01-REMEASUREMENT.json"))
 
@@ -14,14 +16,17 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert remediation["population_cutoff"]["timestamp"] == "2026-08-03T21:37:08Z"
     assert collector =~ "cutoff_blob_digest_mismatch"
     assert collector =~ "old_population_overlap"
-    assert :crypto.hash(:sha256, File.read!(receipt)) |> Base.encode16(case: :lower) == remediation["immutable_prior_receipt"]["sha256"]
+    assert :crypto.hash(:sha256, File.read!(receipt)) |> Base.encode16(case: :lower) ==
+             remediation["immutable_prior_receipt"]["sha256"]
     assert remediation["immutable_prior_receipt"]["eligible_pr_run_count"] == 13
     assert remediation["immutable_prior_receipt"]["p50_seconds"] == 724
     assert remediation["immutable_prior_receipt"]["verdict"] == "miss"
   end
 
   test "readiness stays non-authoritative and protected evidence is separate from ci" do
-    readiness = File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-GAP-CLOSURE-READINESS.json"))) |> Jason.decode!()
+    readiness =
+      File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-GAP-CLOSURE-READINESS.json")))
+      |> Jason.decode!()
     workflow = File.read!(Path.join(@root, ".github/workflows/fast-01-gap-closure-evidence.yml"))
     ci = File.read!(Path.join(@root, ".github/workflows/ci.yml"))
 
