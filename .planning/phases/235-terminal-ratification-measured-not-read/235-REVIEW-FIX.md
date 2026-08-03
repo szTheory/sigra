@@ -1,52 +1,53 @@
 ---
 phase: 235
-fixed_at: 2026-08-03T14:20:00Z
-review_path: /Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
-iteration: 3
-findings_in_scope: 2
+fixed_at: 2026-08-03T20:47:10Z
+review_path: .planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
+iteration: 2
+findings_in_scope: 3
 fixed: 2
-skipped: 0
-status: all_fixed
+skipped: 1
+status: partial
 ---
 
 # Phase 235: Code Review Fix Report
 
-**Fixed at:** 2026-08-03T14:20:00Z
-**Source review:** `/Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
-**Iteration:** 3
+**Fixed at:** 2026-08-03T20:47:10Z
+**Source review:** `.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
+**Iteration:** 2
 
 **Summary:**
 
-- Findings in scope: 2
+- Findings in scope: 3
 - Fixed: 2
-- Skipped: 0
+- Skipped: 1
 
 ## Fixed Issues
 
-### CR-01: Fixed run allowlist rejects the actual retained population
+### BL-01: Skipped jobs with inverted timestamps are accepted into the attested receipt
 
 **Files modified:** `scripts/ci/capture-terminal-ratification-evidence.sh`, `scripts/ci/capture-terminal-ratification-evidence.test.sh`
-**Commit:** `33874623`
-**Status:** fixed and machine-verified
-**Applied fix:** The collector now validates the exact 24 fetched workflow-run IDs, retains `30723701267` in the canonical receipt, and explicitly excludes only that terminal-ratification `workflow_dispatch` run from the exact 23-run measurement/job universe. The hermetic regression fixture proves both exact populations and that no jobs manifest is retrieved for the excluded run.
-**Verification:** `bash -n`, `git diff --check`, and `scripts/ci/capture-terminal-ratification-evidence.test.sh` passed.
+**Commit:** 4d070d62
+**Applied fix:** Skipped jobs must now have both timestamps null or both valid strings in chronological order. The collector contract includes an inverted skipped-job fixture that must fail.
+**Verification:** `bash -n` passed for the collector and its test; `bash scripts/ci/capture-terminal-ratification-evidence.test.sh` passed.
 
-### CR-02: Attested receipt is not cryptographically or semantically bound to the ledger being ratified
+### BL-02: Event-guard validation treats exclusion conditions as executable
 
 **Files modified:** `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs`
-**Commit:** `bd5e868a`
-**Status:** fixed and machine-verified
-**Applied fix:** The contract now hashes the protected receipt against `protected_provenance.subject_sha256`, normalizes all protected `pull_request`, `push`, and `schedule` run fields, requires exact equality with every ledger measurement run, and requires complete two-page job manifests for every measured run. Mutation regressions reject altered protected run fields and incomplete jobs manifests.
-**Verification:** `elixir` parse check, direct protected-versus-ledger normalized-population comparison, `git diff --check`, and `scripts/ci/verify-terminal-ratification-attestation-offline.sh` passed. The orchestrator ran the focused Phase 235 suite in the primary worktree: 20 tests, 0 failures.
+**Commit:** 9ab0e7a2
+**Applied fix:** Replaced the positive-match heuristic with a limited evaluator for `==`/`!=` event predicates and `&&`/`||`, rejecting unsupported atoms. Added a mutation test for a direct owner excluded from `pull_request`.
+**Verification:** Elixir parsed the contract successfully with `Code.string_to_quoted!/1`. The focused ExUnit contract could not run because this worktree has no declared Mix dependencies; it requires human verification after dependencies are restored.
 
-## Closure Remediations
+## Skipped Issues
 
-- `3c553f0d` and `44838c03` wire the retained offline proof and PATH-shadow self-test into the required `fast_checks` CI lane.
-- `d0133045` pins the attested producer workflow SHA in the offline policy and ledger contract.
-- The final targeted review reports `status: clean` with 0 critical, warning, or informational findings.
+### WR-01: FAST-01 retained-attestation verifier is never run
+
+**File:** `scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh:85`
+**Reason:** Deferred: Phase 235 Plan 10 decision D-08 explicitly forbids altering `ci.yml`, adding a new gate, or changing CI topology during measured reconciliation.
+**Original issue:** The retained FAST-01 provenance verifier is not invoked by repository automation, so regressions to its receipt, trust-root, signer, source-ref, or network-isolation checks can land undetected.
+**Recommended future action:** Add a required CI step, alongside the terminal provenance verification, to run `bash scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh`. Add a hermetic PATH-shadowing/runtime self-test for that verifier as well, so CI proves it rejects an untrusted `gh` executable before running the retained-evidence check.
 
 ---
 
-_Fixed: 2026-08-03T14:20:00Z_
+_Fixed: 2026-08-03T20:47:10Z_
 _Fixer: the agent (gsd-code-fixer)_
-_Iteration: 3_
+_Iteration: 2_

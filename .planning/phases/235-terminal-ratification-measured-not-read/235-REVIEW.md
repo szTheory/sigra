@@ -1,6 +1,6 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-reviewed: 2026-08-03T20:38:50Z
+reviewed: 2026-08-03T20:46:10Z
 depth: standard
 files_reviewed: 10
 files_reviewed_list:
@@ -15,46 +15,38 @@ files_reviewed_list:
   - test/sigra/planning/phase_235_fast_01_remeasurement_contract_test.exs
   - test/sigra/planning/phase_235_terminal_ratification_contract_test.exs
 findings:
-  critical: 2
-  warning: 0
+  critical: 0
+  warning: 1
   info: 0
-  total: 2
+  total: 1
 status: issues_found
 ---
 
 # Phase 235: Code Review Report
 
-**Reviewed:** 2026-08-03T20:38:50Z
+**Reviewed:** 2026-08-03T20:46:10Z
 **Depth:** standard
 **Files Reviewed:** 10
 **Status:** issues_found
 
 ## Summary
 
-The evidence collectors, provenance verifiers, and their contract tests were reviewed. Two fail-closed guarantees are incomplete: malformed skipped-job chronology can enter an attested receipt, and the event-guard contract can certify a job that is actually excluded from an event.
+The BL-01 fix is effective: the terminal collector rejects skipped jobs unless both timestamps are null or both are chronological timestamps. The BL-02 fix is also effective: the condition evaluator correctly rejects a direct job guarded away from `pull_request` rather than treating `!=` as executable. The supplied collector tests and both focused ExUnit contract files pass.
+
+One provenance verifier remains unreachable from repository automation: no workflow invokes the FAST-01 offline verifier. Consequently, later breakage of its receipt, trust-root, signer, source-ref, or network-isolation checks can land without any required check detecting it.
 
 ## Narrative Findings (AI reviewer)
 
-## Blockers
+## Warnings
 
-### BL-01: Skipped jobs with inverted timestamps are accepted into the attested receipt
+### WR-01: FAST-01 retained-attestation verifier is never run
 
-**File:** `scripts/ci/capture-terminal-ratification-evidence.sh:131`
-
-**Issue:** The skipped-job branch accepts any string `started_at` and `completed_at` without checking their order. Therefore, a response containing `completed_at` before `started_at` passes validation and is emitted into the provenance-attested receipt. The collector test deliberately supplies and accepts this impossible state at `scripts/ci/capture-terminal-ratification-evidence.test.sh:61,86`, so the regression is protected rather than detected. This undermines the receipt's claim to retain chronologically valid job evidence.
-
-**Fix:** If a skipped job supplies both timestamps, parse and require `completed_at >= started_at`; otherwise require both values to be null (or explicitly define and validate the supported partial-null form). Add a test that the inverted skipped-job fixture fails.
-
-### BL-02: Event-guard validation treats exclusion conditions as executable
-
-**File:** `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs:981-1004`
-
-**Issue:** `event_condition_allows?/2` only extracts `github.event_name == ...` predicates. A guard such as `github.event_name != 'pull_request'` yields no predicates and returns `true`, so `validate_ownership_semantics!/2` will certify the job as executable for a pull-request ownership row even though GitHub skips it. This lets a protected ownership regression pass the phase contract test.
-
-**Fix:** Replace the heuristic with a deliberately limited parser/evaluator that handles both `==` and `!=` predicates (and `&&`/`||`), failing closed for unsupported expressions. Add a mutation test that inserts `if: github.event_name != 'pull_request'` into an executed direct owner and asserts rejection.
+**File:** `scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh:85`
+**Issue:** This verifier contains the only offline positive and adversarial validation of the retained FAST-01 provenance, but no workflow in `.github/workflows/` invokes it (nor is there a self-test equivalent to the terminal verifier's required-`fast_checks` invocation). The manual evidence workflow only creates and attests a subject. Its successful completion therefore does not prove that the retained bundle, trusted root, expected digest, signer workflow, and main-ref policy are still independently verifiable. A regression in this script or its retained inputs will remain undetected until someone runs it manually.
+**Fix:** Add a required CI step, alongside the terminal provenance verification, to run `bash scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh`. Add a hermetic PATH-shadowing/runtime self-test for that verifier as well, so CI proves it rejects an untrusted `gh` executable before running the retained-evidence check.
 
 ---
 
-_Reviewed: 2026-08-03T20:38:50Z_
+_Reviewed: 2026-08-03T20:46:10Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
