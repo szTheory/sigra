@@ -81,7 +81,7 @@ collect_pages "$RUNS_ENDPOINT" workflow_runs runs "$RUNS_MANIFEST"
 # Reject clock inversions and malformed historical identities before any duration consumer sees them.
 jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
   [.[].body.workflow_runs[]]
-  | all(.[]; . as $run | ($run.id | type == "number") and ($run.event | type == "string" and (. == "pull_request" or . == "push" or . == "schedule")) and ($run.conclusion | type == "string" and length > 0) and ($run.created_at | type == "string" and . >= $cutoff and . <= $endpoint) and ($run.updated_at | type == "string" and . <= $endpoint and . >= $run.created_at))
+  | all(.[]; . as $run | ($run.id | type == "number") and ($run.event | type == "string" and (. == "pull_request" or . == "push" or . == "schedule" or . == "workflow_dispatch")) and ($run.conclusion | type == "string" and length > 0) and ($run.created_at | type == "string" and . >= $cutoff and . <= $endpoint) and ($run.updated_at | type == "string" and . <= $endpoint and . >= $run.created_at))
 ' "$RUNS_MANIFEST" >/dev/null || fail "run_chronology_or_identity_invalid"
 
 JOB_MANIFESTS="[]"
