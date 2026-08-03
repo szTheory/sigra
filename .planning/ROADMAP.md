@@ -393,7 +393,7 @@ Plans:
 
 **Wave 12** *(gap closure; blocked on Wave 11 completion and its protected-main remediation merge)*
 
-- [ ] 235-12-PLAN.md — Establish an independent post-remediation population boundary and fail-closed protected evidence producer
+- [x] 235-12-PLAN.md — Establish an independent post-remediation population boundary and fail-closed protected evidence producer
 
 **Wave 13** *(gap closure; blocked on Wave 12 completion and a qualifying ≥10-run population)*
 

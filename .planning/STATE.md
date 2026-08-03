@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
 status: executing
-stopped_at: Completed 235-11-PLAN.md
-last_updated: "2026-08-03T22:02:29.930Z"
+stopped_at: Completed 235-12-PLAN.md; FAST-01 remains insufficient_population (7/10)
+last_updated: "2026-08-03T22:14:48.475Z"
 last_activity: 2026-08-03
 last_activity_desc: Plan 235-11 complete; protected remediation receipt retained and FAST-01 remains open
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 67
-  completed_plans: 65
-  percent: 97
+  completed_plans: 66
+  percent: 83
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
-Plan: 12 of 13
+Plan: 13 of 13
 Status: Ready to execute
-Progress: 5/6 milestone phases complete; 65/67 plans executed ([██████████] 97%)
+Progress: 5/6 milestone phases complete; 65/67 plans executed ([██████████] 99%)
 Last activity: 2026-08-03 — Plan 235-11 complete; protected remediation receipt retained and FAST-01 remains open
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -444,6 +444,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: The live fresh population has four PR runs and remains insufficient_population; FAST-01 is not marked complete.
 - [Phase ?]: PR #195 run 30854850199 is the sole remediation measurement; PR #196 only stores and verifies that receipt.
 - [Phase ?]: The next FAST-01 population begins strictly after protected-main remediation merge 54c33e904155a454255952666711c882afdd06e4.
+- [Phase ?]: Two-PR remediation receipt digests are verified against immutable cutoff blobs, not later evidence-only main.
+- [Phase ?]: Plan 12 readiness has seven independent rows and null statistics/verdict; FAST-01 remains open pending n>=10.
 
 ### Pending Todos
 
@@ -588,9 +590,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T22:02:29.912Z
-Stopped at: Completed 235-11-PLAN.md
-Resume file: 235-12-PLAN.md
+Last session: 2026-08-03T22:14:48.459Z
+Stopped at: Completed 235-12-PLAN.md; FAST-01 remains insufficient_population (7/10)
+Resume file: 235-13-PLAN.md
 
 ## Operator Next Steps
 
@@ -757,3 +759,4 @@ Resume file: 235-12-PLAN.md
 | Phase 235-terminal-ratification-measured-not-read P09 | 18min | 2 tasks | 6 files |
 | Phase 235 P10 | 3h 25m | 2 tasks | 7 files |
 | Phase 235 P11 | 42m | 2 tasks | 5 files |
+| Phase 235 P12 | 10min | 2 tasks | 6 files |
