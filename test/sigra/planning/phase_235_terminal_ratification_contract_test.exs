@@ -224,6 +224,16 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       String.replace(
         workflow,
         "  library_tests_shard:\n",
+        "  library_tests_shard:\n    if: github.event_name != 'pull_request'\n",
+        global: false
+      )
+      |> then(&validate_ownership_semantics!(ledger["ownership"]["rows"], &1))
+    end
+
+    assert_raise ArgumentError, ~r/ownership event execution library_ordinary_shards/, fn ->
+      String.replace(
+        workflow,
+        "  library_tests_shard:\n",
         "  library_tests_shard:\n    if: github.event_name == 'push'\n",
         global: false
       )
@@ -979,30 +989,37 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp event_condition_allows?(condition, event) do
-    condition = condition |> String.trim() |> String.replace_prefix("${{", "") |> String.replace_suffix("}}", "") |> String.trim()
+    condition
+    |> String.trim()
+    |> String.replace_prefix("${{", "")
+    |> String.replace_suffix("}}", "")
+    |> String.split("#", parts: 2)
+    |> hd()
+    |> String.trim()
+    |> String.split("||", trim: true)
+    |> Enum.map(&event_condition_and_allows?(&1, event))
+    |> Enum.any?(& &1)
+  end
 
-    if condition == "false" do
-      false
-    else
-      # The ownership ledger retains the admin-eval PR pathway as executed even
-      # though its direct signal is explicitly non-PR. That documented absence
-      # is checked separately above. Here, reject guards that positively select
-      # a different event (or are literal false) without invalidating that
-      # retained topology.
-      predicates =
-        Regex.scan(~r/github\.event_name\s*==\s*['\"]([^'\"]+)['\"]/, condition, capture: :all_but_first)
-        |> Enum.map(fn [expected] -> event == expected end)
+  defp event_condition_and_allows?(condition, event) do
+    condition
+    |> String.split("&&", trim: true)
+    |> Enum.map(&event_condition_atom_allows?(&1, event))
+    |> Enum.all?(& &1)
+  end
 
-      case predicates do
-        [] -> true
-        [predicate] -> predicate
-        _ ->
-          cond do
-            String.contains?(condition, "&&") -> Enum.all?(predicates)
-            String.contains?(condition, "||") -> Enum.any?(predicates)
-            true -> false
-          end
-      end
+  defp event_condition_atom_allows?(atom, event) do
+    atom = String.trim(atom)
+
+    cond do
+      atom in ["true", "always()", "!cancelled()"] -> true
+      atom in ["needs.release_ref_guard.result == 'success'", "needs.changes.outputs.docs_only != 'true'"] -> true
+      captures = Regex.named_captures(~r/^github\.event_name\s*(?<operator>==|!=)\s*['\"](?<expected>[^'\"]+)['\"]$/, atom) ->
+        case captures do
+          %{"operator" => "==", "expected" => expected} -> event == expected
+          %{"operator" => "!=", "expected" => expected} -> event != expected
+        end
+      true -> false
     end
   end
 
