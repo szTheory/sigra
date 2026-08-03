@@ -1,0 +1,33 @@
+name: Terminal ratification evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Capture fixed historical receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/capture-terminal-ratification-evidence.sh terminal-ratification-receipt.json
+      - name: Attest receipt provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-path: terminal-ratification-receipt.json
+      - name: Upload receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: terminal-ratification-receipt
+          path: terminal-ratification-receipt.json
