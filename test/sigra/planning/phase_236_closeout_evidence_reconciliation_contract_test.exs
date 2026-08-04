@@ -214,6 +214,29 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     end
   end
 
+  @tag :validation_replay_baseline
+  test "validation replay baseline derives historical lifecycles and preserves retained bodies" do
+    baseline = validation_replay_baseline!()
+
+    assert historical_lifecycle!("d93bb10a^", 230) == %{
+             "status" => "validated",
+             "nyquist_compliant" => "true",
+             "wave_0_complete" => "true"
+           }
+
+    Enum.each(baseline["replay_targets"], fn target ->
+      assert historical_lifecycle!(target["source_commit"], target["phase"]) ==
+               target["expected_lifecycle"]
+
+      assert lifecycle!(target["staged_baseline_path"]) == target["expected_lifecycle"]
+      assert sha256!(target["staged_baseline_path"]) == target["staged_baseline_sha256"]
+      assert retained_body_sha256!(target["staged_baseline_path"]) == target["retained_body_sha256"]
+    end)
+
+    assert baseline["claim_limit"] ==
+             "This committed replay proves a bounded forward lifecycle transition; it cannot authenticate an earlier LLM invocation or retroactively authenticate disputed 2026-08-04 edits."
+  end
+
   defp summary_contents do
     @summary_directories
     |> Enum.flat_map(&Path.wildcard(Path.join(@root, &1 <> "/*-SUMMARY.md")))
@@ -358,4 +381,64 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     |> then(&:crypto.hash(:sha256, &1))
     |> Base.encode16(case: :lower)
   end
+
+  defp validation_replay_baseline! do
+    @root
+    |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-VALIDATION-REPLAY-BASELINE.json")
+    |> File.read!()
+    |> Jason.decode!()
+  end
+
+  defp historical_lifecycle!(commit, phase) do
+    path = ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"
+
+    {contents, 0} = System.cmd("git", ["show", "#{commit}:#{path}"], cd: @root)
+    lifecycle_from_contents!(contents)
+  end
+
+  defp lifecycle!(path) do
+    path |> Path.join(@root) |> File.read!() |> lifecycle_from_contents!()
+  end
+
+  defp lifecycle_from_contents!(contents) do
+    fields = frontmatter!(contents)
+
+    Map.take(fields, ["status", "nyquist_compliant", "wave_0_complete"])
+  end
+
+  defp retained_body_sha256!(path) do
+    path
+    |> Path.join(@root)
+    |> File.read!()
+    |> retained_body!()
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+  end
+
+  defp frontmatter!(contents) do
+    with [frontmatter] <- Regex.run(~r/\A---\n(.*?)\n---\n/s, contents, capture: :all_but_first) do
+      frontmatter
+      |> String.split("\n", trim: true)
+      |> Enum.reduce(%{}, fn line, fields ->
+        case String.split(line, ": ", parts: 2) do
+          [key, value] -> Map.put(fields, key, value)
+          _ -> fields
+        end
+      end)
+    else
+      _ -> raise ArgumentError, "validation artifact is missing first YAML frontmatter"
+    end
+  end
+
+  defp retained_body!(contents) do
+    case Regex.run(~r/\A---\n.*?\n---\n(.*)\z/s, contents, capture: :all_but_first) do
+      [body] -> body
+      _ -> raise ArgumentError, "validation artifact is missing retained body"
+    end
+  end
+
+  defp phase_directory!(230), do: "230-tier-1-critical-path-reclamation"
+  defp phase_directory!(231), do: "231-gate-honesty-nightly-revival"
+  defp phase_directory!(232), do: "232-playwright-economics-authenticate-once-then-shard"
+  defp phase_directory!(234), do: "234-hygiene-supply-chain-and-contributor-dx"
 end
