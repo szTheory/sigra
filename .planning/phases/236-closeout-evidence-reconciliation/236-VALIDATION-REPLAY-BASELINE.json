@@ -22,7 +22,16 @@
       ".planning/phases/236-closeout-evidence-reconciliation/.gitkeep": "8b137891791fe96927ad78e64b0aad7bded08bdc"
     }
   },
-  "phase_232_recovery": {"status": "pending"},
+  "phase_232_recovery": {
+    "validator_commit_sha": "494d6765a8cb475e4aadac6ca7063652a48d5f8b",
+    "phase_234_recovery_predecessor_sha": "494d6765a8cb475e4aadac6ca7063652a48d5f8b",
+    "parent_sha": "d88f00ae3dbe796851cee6877d56380bafb65a75",
+    "changed_paths_name_status": ["M\t.planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md"],
+    "before_lifecycle": {"status": "ready", "nyquist_compliant": "true", "wave_0_complete": "false"},
+    "after_lifecycle": {"status": "validated", "nyquist_compliant": "true", "wave_0_complete": "true"},
+    "before_sha256": "3c34acf06e33410ffff73cd0f5cf87fd9299ab89662b366beb771ab0ad86d3a9",
+    "after_sha256": "aeaf2db1005b3066015dfd26055974d3e3cf5ac1c5a0f4e707f9191df07b8ec9"
+  },
   "phase_234_recovery": {"status": "pending"},
   "baseline_commit_sha": null,
   "baseline_commit_recorded_in": null,
@@ -47,6 +56,11 @@
         "nyquist_compliant": "false",
         "wave_0_complete": "false"
       },
+      "current_expected_lifecycle": {
+        "status": "validated",
+        "nyquist_compliant": "true",
+        "wave_0_complete": "true"
+      },
       "pre_reset_sha256": "c3cef8f5f75513914c1331ab4a22e64883419f1beac4cd465205b925887f2036",
       "staged_baseline_sha256": "459b2043634da650cb6a4ef42415c47266779608f348868f4ea5297195dce9dc",
       "retained_body_sha256": "4807527e54fda2fa60d1d0bf6e0ae2d354348385e1e7821e63be812c5ad4ea2f"
@@ -61,6 +75,11 @@
         "nyquist_compliant": "true",
         "wave_0_complete": "false"
       },
+      "current_expected_lifecycle": {
+        "status": "validated",
+        "nyquist_compliant": "true",
+        "wave_0_complete": "true"
+      },
       "pre_reset_sha256": "aeaf2db1005b3066015dfd26055974d3e3cf5ac1c5a0f4e707f9191df07b8ec9",
       "staged_baseline_sha256": "3c34acf06e33410ffff73cd0f5cf87fd9299ab89662b366beb771ab0ad86d3a9",
       "retained_body_sha256": "c513a8405064512a21c3a5c8541c9b278aa4dba4c938952b7438c51c715dc236"
@@ -71,6 +90,11 @@
       "source_commit": "2e090f6a^",
       "source_blob": "8dcf1849c8c1f9a7d8702a8c4301284095b1ffa6",
       "expected_lifecycle": {
+        "status": "complete",
+        "nyquist_compliant": "true",
+        "wave_0_complete": "true"
+      },
+      "current_expected_lifecycle": {
         "status": "complete",
         "nyquist_compliant": "true",
         "wave_0_complete": "true"

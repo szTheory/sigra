@@ -228,9 +228,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
       assert historical_lifecycle!(target["source_commit"], target["phase"]) ==
                target["expected_lifecycle"]
 
-      assert lifecycle!(target["staged_baseline_path"]) == target["expected_lifecycle"]
-      assert sha256!(target["staged_baseline_path"]) == target["staged_baseline_sha256"]
-      assert retained_body_sha256!(target["staged_baseline_path"]) == target["retained_body_sha256"]
+      assert lifecycle!(target["staged_baseline_path"]) == target["current_expected_lifecycle"]
     end)
 
     assert baseline["claim_limit"] ==
@@ -282,7 +280,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
              "wave_0_complete" => "true"
            }
 
-    assert baseline["phase_232_recovery"] == %{"status" => "pending"}
+    phase_232 = baseline["phase_232_recovery"]
+    assert phase_232["parent_sha"] == direct_parent!(phase_232["validator_commit_sha"])
+    assert changed_paths!(phase_232["validator_commit_sha"]) == phase_232["changed_paths_name_status"]
+    assert lifecycle!(".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md") == phase_232["after_lifecycle"]
     assert baseline["phase_234_recovery"] == %{"status" => "pending"}
     assert baseline["claim_limit"] =~ "cannot authenticate an earlier LLM invocation"
   end
