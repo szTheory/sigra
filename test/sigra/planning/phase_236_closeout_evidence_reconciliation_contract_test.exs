@@ -20,6 +20,12 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     "scripts/planning/phase-236-audit-snapshot.exs",
     "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
   ]
+  @plan_07_execution_paths [
+    ".planning/phases/236-closeout-evidence-reconciliation/236-07-SUMMARY.md",
+    "scripts/planning/phase-236-audit-snapshot-test.exs",
+    "scripts/planning/phase-236-audit-snapshot.exs",
+    "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
+  ]
   @summary_directories [
     ".planning/phases/231-gate-honesty-nightly-revival",
     ".planning/phases/233-library-suite-economics"
@@ -386,11 +392,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert git!("merge-base", ["--is-ancestor", @plan_07_baseline_sha, "HEAD"]) == ""
     assert git!("merge-base", ["--is-ancestor", @plan_07_task_1_sha, "HEAD"]) == ""
 
+    assert git!("merge-base", ["--is-ancestor", @plan_07_completion_sha, "HEAD"]) == ""
+
     assert changed_paths_between!(@plan_07_baseline_sha, @plan_07_completion_sha) ==
-             Enum.filter(
-               @scope_allowlist,
-               &(&1 != ".planning/phases/236-closeout-evidence-reconciliation/236-06-SUMMARY.md")
-             )
+             @plan_07_execution_paths
 
     assert validate_scope_paths!(
              changed_paths_between!(@plan_06_amendment_sha, @plan_06_completion_sha),
@@ -710,10 +715,17 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   defp changed_paths_between!(from, to), do: changed_paths_between!(@root, from, to)
 
   defp changed_paths_between!(repository, from, to),
-    do: git_lines_in!(repository, "diff", ["--name-only", "#{from}..#{to}"])
+    do: changed_paths_between!(repository, from, to, &git_lines_in!/3)
 
-  defp changed_paths_between!(repository, from, to, _command_runner),
-    do: changed_paths_between!(repository, from, to)
+  defp changed_paths_between!(repository, from, to, command_runner) do
+    repository
+    |> command_runner.("rev-list", ["#{from}..#{to}"])
+    |> Enum.flat_map(fn commit ->
+      command_runner.(repository, "diff-tree", ["--no-commit-id", "--name-only", "-r", commit])
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
 
   defp validate_scope_paths!(paths, allowlist) do
     rejected_paths = Enum.reject(paths, &(&1 in allowlist))
