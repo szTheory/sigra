@@ -73,7 +73,11 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile old "$OLD
   | ([.[].body.workflow_runs[]? | select(.event == "pull_request")] | .) as $runs
   | if ($runs | map(.id) | unique | length) == ($runs | length) then . else error("duplicate_run_id") end
   | if ([ $runs[].id ] | any(. as $id | $old[0].runs[] | .run_id == $id)) then error("old_population_overlap") else . end
-  | if all($runs[]; (.id|type)=="number" and (.conclusion|type)=="string" and (.conclusion|length)>0 and (.created_at|type)=="string" and (.updated_at|type)=="string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at >= .created_at and .updated_at <= $endpoint) then . else error("run_chronology_or_identity_invalid") end
+  # The GitHub created query fixes population membership at the workflow-start
+  # endpoint. A run which started within that immutable window can legitimately
+  # become terminal just after it, so retain its complete wall-clock interval
+  # rather than rejecting it as an inverted chronology.
+  | if all($runs[]; (.id|type)=="number" and (.conclusion|type)=="string" and (.conclusion|length)>0 and (.created_at|type)=="string" and (.updated_at|type)=="string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at >= .created_at) then . else error("run_chronology_or_identity_invalid") end
 ' "$MANIFEST" >/dev/null || fail "manifest_invalid"
 
 if [[ "$MODE" == readiness ]]; then
