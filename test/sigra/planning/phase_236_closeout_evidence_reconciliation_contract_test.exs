@@ -412,7 +412,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   @tag :scope_fence
-  test "scope fence rejects a forbidden path restored within a committed range" do
+  test "scope fence rejects restored and merge-resolution forbidden paths within a committed range" do
     repository =
       Path.join(System.tmp_dir!(), "sigra-phase-236-#{System.unique_integer([:positive])}")
 
@@ -422,32 +422,59 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     temporary_git!(repository, ["init"])
     temporary_git!(repository, ["config", "user.email", "phase-236@example.test"])
     temporary_git!(repository, ["config", "user.name", "Phase 236 Contract"])
+    base_branch = temporary_git!(repository, ["branch", "--show-current"])
 
     File.write!(Path.join(repository, "allowed.txt"), "baseline\n")
-    File.write!(Path.join(repository, "forbidden.txt"), "baseline\n")
+    File.write!(Path.join(repository, "restored-forbidden.txt"), "baseline\n")
+    File.write!(Path.join(repository, "merge-forbidden.txt"), "baseline\n")
     temporary_git!(repository, ["add", "."])
     temporary_git!(repository, ["commit", "-m", "baseline"])
     baseline = temporary_git!(repository, ["rev-parse", "HEAD"])
 
     File.write!(Path.join(repository, "allowed.txt"), "allowed mutation\n")
-    File.write!(Path.join(repository, "forbidden.txt"), "forbidden mutation\n")
+    File.write!(Path.join(repository, "restored-forbidden.txt"), "forbidden mutation\n")
     temporary_git!(repository, ["add", "."])
-    temporary_git!(repository, ["commit", "-m", "mutate allowed and forbidden"])
+    temporary_git!(repository, ["commit", "-m", "mutate allowed and restored forbidden"])
 
-    File.write!(Path.join(repository, "forbidden.txt"), "baseline\n")
-    temporary_git!(repository, ["add", "forbidden.txt"])
+    File.write!(Path.join(repository, "restored-forbidden.txt"), "baseline\n")
+    temporary_git!(repository, ["add", "restored-forbidden.txt"])
     temporary_git!(repository, ["commit", "-m", "restore forbidden"])
+
+    temporary_git!(repository, ["checkout", "-b", "merge-resolution"])
+    File.write!(Path.join(repository, "allowed.txt"), "branch mutation\n")
+    temporary_git!(repository, ["add", "allowed.txt"])
+    temporary_git!(repository, ["commit", "-m", "mutate allowed on branch"])
+
+    temporary_git!(repository, ["checkout", base_branch])
+    File.write!(Path.join(repository, "allowed.txt"), "main mutation\n")
+    temporary_git!(repository, ["add", "allowed.txt"])
+    temporary_git!(repository, ["commit", "-m", "mutate allowed on main"])
+
+    {_merge_output, merge_status} =
+      System.cmd("git", ["merge", "--no-ff", "merge-resolution"],
+        cd: repository,
+        stderr_to_stdout: true
+      )
+
+    assert merge_status != 0
+
+    File.write!(Path.join(repository, "allowed.txt"), "resolved allowed mutation\n")
+    File.write!(Path.join(repository, "merge-forbidden.txt"), "forbidden merge resolution\n")
+    temporary_git!(repository, ["add", "allowed.txt", "merge-forbidden.txt"])
+    temporary_git!(repository, ["commit", "-m", "resolve merge with forbidden path"])
     endpoint = temporary_git!(repository, ["rev-parse", "HEAD"])
 
     assert temporary_git!(repository, ["diff", "--name-only", "#{baseline}..#{endpoint}"]) ==
-             "allowed.txt"
+             "allowed.txt\nmerge-forbidden.txt"
 
     paths = changed_paths_between!(repository, baseline, endpoint)
-    assert paths == ["allowed.txt", "forbidden.txt"]
+    assert paths == ["allowed.txt", "merge-forbidden.txt", "restored-forbidden.txt"]
 
-    assert_raise ArgumentError, ~r/scope fence rejected: forbidden.txt/, fn ->
-      validate_scope_paths!(paths, ["allowed.txt"])
-    end
+    assert_raise ArgumentError,
+                 ~r/scope fence rejected: merge-forbidden.txt, restored-forbidden.txt/,
+                 fn ->
+                   validate_scope_paths!(paths, ["allowed.txt"])
+                 end
 
     assert_raise ArgumentError, ~r/git rev-list failed/, fn ->
       changed_paths_between!(repository, "not-a-revision", endpoint)
@@ -721,7 +748,13 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     repository
     |> command_runner.("rev-list", ["#{from}..#{to}"])
     |> Enum.flat_map(fn commit ->
-      command_runner.(repository, "diff-tree", ["--no-commit-id", "--name-only", "-r", commit])
+      command_runner.(repository, "diff-tree", [
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "-m",
+        commit
+      ])
     end)
     |> Enum.uniq()
     |> Enum.sort()
