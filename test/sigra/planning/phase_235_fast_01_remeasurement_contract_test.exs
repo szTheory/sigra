@@ -3,13 +3,24 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
 
   @root Path.expand("../../..", __DIR__)
   @collector Path.join(@root, "scripts/ci/capture-fast-01-remeasurement.sh")
-  @readiness Path.join(@root, ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT-READINESS.json")
+  @readiness Path.join(
+               @root,
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT-READINESS.json"
+             )
   @workflow Path.join(@root, ".github/workflows/fast-01-remeasurement-evidence.yml")
 
   test "pins the fresh protected-main cutoff and leaves readiness non-authoritative" do
     collector = File.read!(@collector)
     readiness = File.read!(@readiness) |> Jason.decode!()
-    terminal = File.read!(Path.join(@root, ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json")) |> Jason.decode!()
+
+    terminal =
+      File.read!(
+        Path.join(
+          @root,
+          ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+        )
+      )
+      |> Jason.decode!()
 
     assert collector =~ "a282b3deed009e62707b1a01d16da053a53e37d8"
     assert collector =~ "2026-08-03T15:36:12Z"
@@ -27,7 +38,14 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
   test "protects the only measured subject without joining ci.yml" do
     workflow = File.read!(@workflow)
     ci = File.read!(Path.join(@root, ".github/workflows/ci.yml"))
-    coverage = File.read!(Path.join(@root, ".planning/phases/235-terminal-ratification-measured-not-read/235-COVERAGE.md"))
+
+    coverage =
+      File.read!(
+        Path.join(
+          @root,
+          ".planning/phases/235-terminal-ratification-measured-not-read/235-COVERAGE.md"
+        )
+      )
 
     assert workflow =~ "workflow_dispatch:"
     refute workflow =~ "inputs:"

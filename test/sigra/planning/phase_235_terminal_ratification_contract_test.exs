@@ -45,7 +45,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
              "subject_sha256" =>
                "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
              "workflow_sha" => "83ef9f5d7b00a99aa945cf9839c056283c3e6c65",
-             "workflow_run_id" => 30782184713,
+             "workflow_run_id" => 30_782_184_713,
              "workflow_run_url" => "https://github.com/szTheory/sigra/actions/runs/30782184713"
            }
   end
@@ -62,14 +62,19 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   test "terminal verifier pins bash and trusted staging before input copies" do
     verifier = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.sh")
-    runtime_test = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.test.sh")
+
+    runtime_test =
+      File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.test.sh")
 
     assert String.starts_with?(verifier, "#!/bin/bash\n")
     assert verifier =~ "BASH_SOURCE[0]"
     refute verifier =~ "command -v"
     assert verifier =~ "TMPDIR= TMP= TEMP="
     assert verifier =~ "trusted_staging_failed"
-    assert runtime_test =~ "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd"
+
+    assert runtime_test =~
+             "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd"
+
     assert runtime_test =~ "offline_attestation_verified"
   end
 
@@ -196,7 +201,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     ledger = ledger!()
 
     assert_raise ArgumentError, ~r/ownership receipt/, fn ->
-      update_in(ledger, ["receipts", "ownership", "pull_request"], &Map.delete(&1, "jobs_receipt"))
+      update_in(
+        ledger,
+        ["receipts", "ownership", "pull_request"],
+        &Map.delete(&1, "jobs_receipt")
+      )
       |> validate_ledger!()
     end
   end
@@ -205,7 +214,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     ledger = ledger!()
 
     for family <- required_non_playwright_families() ++ ["playwright_spec"] do
-      index = Enum.find_index(ledger["ownership"]["rows"], &(&1["family"] == family and &1["event"] == "pull_request"))
+      index =
+        Enum.find_index(
+          ledger["ownership"]["rows"],
+          &(&1["family"] == family and &1["event"] == "pull_request")
+        )
 
       assert_raise ArgumentError, ~r/ownership semantics/, fn ->
         put_in(ledger, ["ownership", "rows", Access.at(index), "receiver"], "wrong-receiver")
@@ -213,7 +226,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       end
 
       assert_raise ArgumentError, ~r/ownership semantics/, fn ->
-        put_in(ledger, ["ownership", "rows", Access.at(index), "after", "direct_owner"], "fast_checks")
+        put_in(
+          ledger,
+          ["ownership", "rows", Access.at(index), "after", "direct_owner"],
+          "fast_checks"
+        )
         |> validate_ledger!()
       end
     end
@@ -429,7 +446,18 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     assert_raise ArgumentError, ~r/protected receipt population/, fn ->
       receipt
-      |> put_in(["workflow_runs", "pages", Access.at(0), "body", "workflow_runs", Access.at(0), "conclusion"], "cancelled")
+      |> put_in(
+        [
+          "workflow_runs",
+          "pages",
+          Access.at(0),
+          "body",
+          "workflow_runs",
+          Access.at(0),
+          "conclusion"
+        ],
+        "cancelled"
+      )
       |> then(&validate_protected_receipt!(ledger, &1))
     end
 
@@ -780,15 +808,23 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     capture = ledger["capture_endpoint"]
 
-    unless Map.take(capture["protected_provenance"] || %{}, ~w(artifact_path attestation_path trusted_root_path signer_workflow source_ref subject_sha256 workflow_sha workflow_run_id workflow_run_url)) == %{
-             "artifact_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json",
-             "attestation_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl",
-             "trusted_root_path" => ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl",
-             "signer_workflow" => "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
+    unless Map.take(
+             capture["protected_provenance"] || %{},
+             ~w(artifact_path attestation_path trusted_root_path signer_workflow source_ref subject_sha256 workflow_sha workflow_run_id workflow_run_url)
+           ) == %{
+             "artifact_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json",
+             "attestation_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl",
+             "trusted_root_path" =>
+               ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl",
+             "signer_workflow" =>
+               "szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml",
              "source_ref" => "refs/heads/main",
-             "subject_sha256" => "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+             "subject_sha256" =>
+               "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
              "workflow_sha" => "83ef9f5d7b00a99aa945cf9839c056283c3e6c65",
-             "workflow_run_id" => 30782184713,
+             "workflow_run_id" => 30_782_184_713,
              "workflow_run_url" => "https://github.com/szTheory/sigra/actions/runs/30782184713"
            },
            do: raise(ArgumentError, "protected provenance")
@@ -899,7 +935,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         expected = "ci-gate"
 
         unless after_row["direct_owner"] == expected and after_row["seam"] == expected and
-                 get_in(after_row, ["terminal_aggregate", "id"]) == expected and row["receiver"] == expected,
+                 get_in(after_row, ["terminal_aggregate", "id"]) == expected and
+                 row["receiver"] == expected,
                do: raise(ArgumentError, "ci-gate ownership semantics")
       end
     end
@@ -916,18 +953,22 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       jobs_receipt = receipt["jobs_receipt"] || %{}
 
       unless is_integer(receipt["run_id"]) and receipt["run_id"] > 0 and
-               receipt["run_url"] == "https://github.com/szTheory/sigra/actions/runs/#{receipt["run_id"]}" and
+               receipt["run_url"] ==
+                 "https://github.com/szTheory/sigra/actions/runs/#{receipt["run_id"]}" and
                receipt["jobs_command"] ==
                  "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json databaseId,event,createdAt,updatedAt,conclusion,url,headSha,jobs" and
                MapSet.new(Map.keys(jobs_receipt)) == MapSet.new(~w(command output sha256)) and
-               jobs_receipt["command"] == receipt["jobs_command"] and is_binary(jobs_receipt["output"]) and
-               jobs_receipt["sha256"] == receipt["jobs_sha256"] and jobs_receipt["sha256"] == sha256_hex(jobs_receipt["output"]),
+               jobs_receipt["command"] == receipt["jobs_command"] and
+               is_binary(jobs_receipt["output"]) and
+               jobs_receipt["sha256"] == receipt["jobs_sha256"] and
+               jobs_receipt["sha256"] == sha256_hex(jobs_receipt["output"]),
              do: raise(ArgumentError, "ownership receipt #{event}")
 
       source = Jason.decode!(jobs_receipt["output"])
 
       unless source["databaseId"] == receipt["run_id"] and source["event"] == event and
-               source["url"] == receipt["run_url"] and source["conclusion"] == receipt["conclusion"] and
+               source["url"] == receipt["run_url"] and
+               source["conclusion"] == receipt["conclusion"] and
                is_list(source["jobs"]),
              do: raise(ArgumentError, "ownership receipt identity #{event}")
     end
@@ -942,7 +983,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       expected = expected_ownership_row!(row, inventory)
       after_row = row["after"]
 
-      unless Map.take(after_row, ~w(direct_owner seam invocation terminal_aggregate state)) == expected.after and
+      unless Map.take(after_row, ~w(direct_owner seam invocation terminal_aggregate state)) ==
+               expected.after and
                row["receiver"] == expected.receiver and row["phase"] == expected.phase and
                row["receipt"] == expected.receipt,
              do: raise(ArgumentError, "ownership semantics #{row["family"]}/#{row["event"]}")
@@ -951,47 +993,132 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       aggregate = workflow_job_block!(workflow, after_row["terminal_aggregate"]["id"])
 
       require_text!(direct, "name:", "ownership direct job")
-      require_text!(aggregate, "name: #{after_row["terminal_aggregate"]["name"]}", "ownership aggregate name")
+
+      require_text!(
+        aggregate,
+        "name: #{after_row["terminal_aggregate"]["name"]}",
+        "ownership aggregate name"
+      )
 
       case after_row["state"] do
         "executed" ->
           unless event_job_executed?(row["event"], direct),
             do: raise(ArgumentError, "ownership event execution #{row["family"]}")
+
         "intentionally_absent" ->
           require_text!(direct, "github.event_name != 'pull_request'", "ownership absent guard")
-        _ -> raise ArgumentError, "ownership state"
+
+        _ ->
+          raise ArgumentError, "ownership state"
       end
     end
   end
 
-  defp expected_ownership_row!(%{"family" => "playwright_spec", "spec" => spec, "event" => event}, inventory) do
+  defp expected_ownership_row!(
+         %{"family" => "playwright_spec", "spec" => spec, "event" => event},
+         inventory
+       ) do
     lanes = inventory |> Enum.find(&(&1["spec"] == spec)) |> Map.fetch!("lanes")
     lane = Enum.find(lanes, &(event in &1["events"])) || hd(lanes)
     owner = lane["job"]
+
     {owner, seam, invocation} =
       case spec do
-        "test/example/priv/playwright/tests/admin-eval.spec.ts" -> {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh"}
-        "test/example/priv/playwright/tests/admin-generated.spec.ts" -> {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke", "scripts/ci/admin-acceptance-smoke.sh --test all"}
-        _ -> {owner, owner, lane["command_marker"]}
+        "test/example/priv/playwright/tests/admin-eval.spec.ts" ->
+          {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh"}
+
+        "test/example/priv/playwright/tests/admin-generated.spec.ts" ->
+          {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke",
+           "scripts/ci/admin-acceptance-smoke.sh --test all"}
+
+        _ ->
+          {owner, owner, lane["command_marker"]}
       end
-    state = if event == "pull_request" and owner == "admin_eval_render", do: "intentionally_absent", else: "executed"
-    %{after: %{ "direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => "example_playwright_smoke", "name" => "Example Playwright smoke (full lifecycle)"}, "state" => state}, receiver: owner, phase: "232-playwright-economics-authenticate-once-then-shard", receipt: "phase_232_playwright_suite"}
+
+    state =
+      if event == "pull_request" and owner == "admin_eval_render",
+        do: "intentionally_absent",
+        else: "executed"
+
+    %{
+      after: %{
+        "direct_owner" => owner,
+        "seam" => seam,
+        "invocation" => invocation,
+        "terminal_aggregate" => %{
+          "id" => "example_playwright_smoke",
+          "name" => "Example Playwright smoke (full lifecycle)"
+        },
+        "state" => state
+      },
+      receiver: owner,
+      phase: "232-playwright-economics-authenticate-once-then-shard",
+      receipt: "phase_232_playwright_suite"
+    }
   end
 
   defp expected_ownership_row!(%{"family" => family, "event" => event}, _inventory) do
     {owner, seam, invocation, aggregate, phase, receipt} =
       case family do
-        f when f in ~w(admin_eval_harness_guards admin_eval_render) -> {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh", "example_playwright_smoke", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
-        "ci_gate_aggregate" -> {"ci-gate", "ci-gate", "ci-gate", "ci-gate", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
-        "design_gallery_snapshots" -> {"admin_design_recapture", "admin_design_recapture", "tests/admin-design.spec.ts", "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard", "phase_232_playwright_suite"}
-        f when f in ~w(design_gallery_axe example_playwright_aggregate) -> {"example_playwright_shard", "example_playwright_shard", "tests/*.spec.ts", "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard", "phase_232_playwright_suite"}
-        "generated_host_acceptance" -> {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke", "scripts/ci/admin-acceptance-smoke.sh --test all", "example_playwright_smoke", "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
-        "library_dep_off" -> {"library_tests_dep_off", "library_tests_dep_off", "ci-gate", "library_tests", "233-library-suite-economics", "phase_233_library_suite"}
-        f when f in ~w(library_ordinary_shards library_scaffold_golden library_tests_aggregate) -> {"library_tests_shard", "Run contributor CI gate", "MIX_ENV=test mix ci", "library_tests", "233-library-suite-economics", "phase_233_library_suite"}
+        f when f in ~w(admin_eval_harness_guards admin_eval_render) ->
+          {"admin_eval_render", "Run admin-eval harness", "scripts/ci/admin-eval-harness.sh",
+           "example_playwright_smoke", "231-gate-honesty-nightly-revival",
+           "phase_232_playwright_suite"}
+
+        "ci_gate_aggregate" ->
+          {"ci-gate", "ci-gate", "ci-gate", "ci-gate", "231-gate-honesty-nightly-revival",
+           "phase_232_playwright_suite"}
+
+        "design_gallery_snapshots" ->
+          {"admin_design_recapture", "admin_design_recapture", "tests/admin-design.spec.ts",
+           "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard",
+           "phase_232_playwright_suite"}
+
+        f when f in ~w(design_gallery_axe example_playwright_aggregate) ->
+          {"example_playwright_shard", "example_playwright_shard", "tests/*.spec.ts",
+           "example_playwright_smoke", "232-playwright-economics-authenticate-once-then-shard",
+           "phase_232_playwright_suite"}
+
+        "generated_host_acceptance" ->
+          {"generated_admin_playwright_smoke", "generated_admin_playwright_smoke",
+           "scripts/ci/admin-acceptance-smoke.sh --test all", "example_playwright_smoke",
+           "231-gate-honesty-nightly-revival", "phase_232_playwright_suite"}
+
+        "library_dep_off" ->
+          {"library_tests_dep_off", "library_tests_dep_off", "ci-gate", "library_tests",
+           "233-library-suite-economics", "phase_233_library_suite"}
+
+        f when f in ~w(library_ordinary_shards library_scaffold_golden library_tests_aggregate) ->
+          {"library_tests_shard", "Run contributor CI gate", "MIX_ENV=test mix ci",
+           "library_tests", "233-library-suite-economics", "phase_233_library_suite"}
       end
-    state = if event == "pull_request" and owner in ~w(admin_eval_render admin_design_recapture), do: "intentionally_absent", else: "executed"
-    aggregate_name = if aggregate == "library_tests", do: "Library tests", else: if(aggregate == "ci-gate", do: "ci-gate", else: "Example Playwright smoke (full lifecycle)")
-    %{after: %{"direct_owner" => owner, "seam" => seam, "invocation" => invocation, "terminal_aggregate" => %{"id" => aggregate, "name" => aggregate_name}, "state" => state}, receiver: owner, phase: phase, receipt: receipt}
+
+    state =
+      if event == "pull_request" and owner in ~w(admin_eval_render admin_design_recapture),
+        do: "intentionally_absent",
+        else: "executed"
+
+    aggregate_name =
+      if aggregate == "library_tests",
+        do: "Library tests",
+        else:
+          if(aggregate == "ci-gate",
+            do: "ci-gate",
+            else: "Example Playwright smoke (full lifecycle)"
+          )
+
+    %{
+      after: %{
+        "direct_owner" => owner,
+        "seam" => seam,
+        "invocation" => invocation,
+        "terminal_aggregate" => %{"id" => aggregate, "name" => aggregate_name},
+        "state" => state
+      },
+      receiver: owner,
+      phase: phase,
+      receipt: receipt
+    }
   end
 
   defp event_job_executed?(event, job_block) do
@@ -1025,14 +1152,27 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     atom = String.trim(atom)
 
     cond do
-      atom in ["true", "always()", "!cancelled()"] -> true
-      atom in ["needs.release_ref_guard.result == 'success'", "needs.changes.outputs.docs_only != 'true'"] -> true
-      captures = Regex.named_captures(~r/^github\.event_name\s*(?<operator>==|!=)\s*['\"](?<expected>[^'\"]+)['\"]$/, atom) ->
+      atom in ["true", "always()", "!cancelled()"] ->
+        true
+
+      atom in [
+        "needs.release_ref_guard.result == 'success'",
+        "needs.changes.outputs.docs_only != 'true'"
+      ] ->
+        true
+
+      captures =
+          Regex.named_captures(
+            ~r/^github\.event_name\s*(?<operator>==|!=)\s*['\"](?<expected>[^'\"]+)['\"]$/,
+            atom
+          ) ->
         case captures do
           %{"operator" => "==", "expected" => expected} -> event == expected
           %{"operator" => "!=", "expected" => expected} -> event != expected
         end
-      true -> false
+
+      true ->
+        false
     end
   end
 
@@ -1043,8 +1183,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     cutoff = ledger["topology_cutoff"]["committed_at"]
     endpoint = ledger["capture_endpoint"]["captured_at"]
 
-    unless endpoint == @capture_instant and ledger["capture_endpoint"]["population_sha256"] == @population_sha,
-      do: raise(ArgumentError, "capture instant or population SHA-256")
+    unless endpoint == @capture_instant and
+             ledger["capture_endpoint"]["population_sha256"] == @population_sha,
+           do: raise(ArgumentError, "capture instant or population SHA-256")
 
     for event <- @events do
       measurement = ledger["measurements"][event]
@@ -1067,12 +1208,13 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
       unless ids == Enum.map(runs, & &1["id"]) and length(ids) == length(Enum.uniq(ids)) and
                Enum.all?(ids, &(is_integer(&1) and &1 > 0)),
-        do: raise(ArgumentError, "duplicate run id")
+             do: raise(ArgumentError, "duplicate run id")
 
       unless Enum.all?(runs, fn run ->
                is_integer(run["id"]) and run["id"] > 0 and
                  run["url"] == "https://github.com/szTheory/sigra/actions/runs/#{run["id"]}" and
-                 is_binary(run["head_sha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["head_sha"])
+                 is_binary(run["head_sha"]) and
+                 Regex.match?(~r/\A[0-9a-f]{40}\z/, run["head_sha"])
              end),
              do: raise(ArgumentError, "positive run id or canonical URL")
 
@@ -1128,8 +1270,11 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     unless receipt["schema_version"] == "sigra.terminal-ratification-receipt/v1" and
              receipt["repository"] == "szTheory/sigra" and receipt["workflow"] == "ci.yml" and
-             receipt["window"] == %{"cutoff" => ledger["topology_cutoff"]["committed_at"], "endpoint" => @capture_instant},
-      do: raise(ArgumentError, "protected receipt identity")
+             receipt["window"] == %{
+               "cutoff" => ledger["topology_cutoff"]["committed_at"],
+               "endpoint" => @capture_instant
+             },
+           do: raise(ArgumentError, "protected receipt identity")
 
     runs_receipt = receipt["workflow_runs"] || %{}
     pages = runs_receipt["pages"] || []
@@ -1142,19 +1287,22 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
              get_in(pages, [Access.at(0), "body", "total_count"]) == 24 and
              get_in(pages, [Access.at(1), "body", "workflow_runs"]) == [] and
              get_in(pages, [Access.at(1), "body", "total_count"]) == 24,
-      do: raise(ArgumentError, "protected receipt workflow manifest")
+           do: raise(ArgumentError, "protected receipt workflow manifest")
 
     protected_runs = get_in(pages, [Access.at(0), "body", "workflow_runs"])
     normalized_runs = Enum.map(protected_runs, &protected_run_to_ledger_run!/1)
     cutoff_at = parse_timestamp!(ledger["topology_cutoff"]["committed_at"])
     endpoint_at = parse_timestamp!(@capture_instant)
 
-    unless length(normalized_runs) == 24 and Enum.map(normalized_runs, & &1["id"]) |> Enum.uniq() |> length() == 24,
-      do: raise(ArgumentError, "protected receipt workflow population")
+    unless length(normalized_runs) == 24 and
+             Enum.map(normalized_runs, & &1["id"]) |> Enum.uniq() |> length() == 24,
+           do: raise(ArgumentError, "protected receipt workflow population")
 
     protected_measurements =
       normalized_runs
-      |> Enum.filter(&(&1["event"] in @events and ledger_run_within_window?(&1, cutoff_at, endpoint_at)))
+      |> Enum.filter(
+        &(&1["event"] in @events and ledger_run_within_window?(&1, cutoff_at, endpoint_at))
+      )
       |> Map.new(&{&1["id"], &1})
 
     measured_runs =
@@ -1167,7 +1315,13 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       do: raise(ArgumentError, "protected receipt population")
 
     validate_protected_job_manifests!(receipt["jobs"], Map.keys(measured_runs))
-    validate_protected_ownership_jobs!(ledger["ownership"]["rows"], receipt["jobs"], protected_runs)
+
+    validate_protected_ownership_jobs!(
+      ledger["ownership"]["rows"],
+      receipt["jobs"],
+      protected_runs
+    )
+
     :ok
   end
 
@@ -1180,16 +1334,24 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp protected_run_to_ledger_run!(run) do
     normalized = %{
-      "id" => run["id"], "event" => run["event"], "created_at" => run["created_at"],
-      "updated_at" => run["updated_at"], "conclusion" => run["conclusion"],
-      "url" => run["html_url"], "head_sha" => run["head_sha"]
+      "id" => run["id"],
+      "event" => run["event"],
+      "created_at" => run["created_at"],
+      "updated_at" => run["updated_at"],
+      "conclusion" => run["conclusion"],
+      "url" => run["html_url"],
+      "head_sha" => run["head_sha"]
     }
 
-    unless is_integer(normalized["id"]) and normalized["id"] > 0 and normalized["event"] in @events ++ ["workflow_dispatch"] and
-             is_binary(normalized["created_at"]) and is_binary(normalized["updated_at"]) and is_binary(normalized["conclusion"]) and
-             normalized["url"] == "https://github.com/szTheory/sigra/actions/runs/#{normalized["id"]}" and
-             is_binary(normalized["head_sha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, normalized["head_sha"]),
-      do: raise(ArgumentError, "protected receipt run fields")
+    unless is_integer(normalized["id"]) and normalized["id"] > 0 and
+             normalized["event"] in (@events ++ ["workflow_dispatch"]) and
+             is_binary(normalized["created_at"]) and is_binary(normalized["updated_at"]) and
+             is_binary(normalized["conclusion"]) and
+             normalized["url"] ==
+               "https://github.com/szTheory/sigra/actions/runs/#{normalized["id"]}" and
+             is_binary(normalized["head_sha"]) and
+             Regex.match?(~r/\A[0-9a-f]{40}\z/, normalized["head_sha"]),
+           do: raise(ArgumentError, "protected receipt run fields")
 
     normalized
   end
@@ -1197,15 +1359,19 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   defp ledger_run_within_window?(run, cutoff_at, endpoint_at) do
     created_at = parse_timestamp!(run["created_at"])
     updated_at = parse_timestamp!(run["updated_at"])
-    DateTime.compare(created_at, cutoff_at) != :lt and DateTime.compare(created_at, endpoint_at) != :gt and
-      DateTime.compare(updated_at, created_at) != :lt and DateTime.compare(updated_at, endpoint_at) != :gt
+
+    DateTime.compare(created_at, cutoff_at) != :lt and
+      DateTime.compare(created_at, endpoint_at) != :gt and
+      DateTime.compare(updated_at, created_at) != :lt and
+      DateTime.compare(updated_at, endpoint_at) != :gt
   end
 
   defp validate_protected_job_manifests!(jobs, measurement_ids) when is_list(jobs) do
     manifests = Map.new(jobs, &{&1["run_id"], &1})
 
-    unless MapSet.new(Map.keys(manifests)) == MapSet.new(measurement_ids) and length(jobs) == length(measurement_ids),
-      do: raise(ArgumentError, "protected receipt jobs manifest")
+    unless MapSet.new(Map.keys(manifests)) == MapSet.new(measurement_ids) and
+             length(jobs) == length(measurement_ids),
+           do: raise(ArgumentError, "protected receipt jobs manifest")
 
     for {run_id, manifest} <- manifests do
       pages = manifest["pages"] || []
@@ -1215,14 +1381,20 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
                get_in(pages, [Access.at(0), "body", "jobs"]) != [] and
                is_integer(get_in(pages, [Access.at(0), "body", "total_count"])) and
                get_in(pages, [Access.at(1), "body", "jobs"]) == [] and
-               get_in(pages, [Access.at(1), "body", "total_count"]) == get_in(pages, [Access.at(0), "body", "total_count"]) and
-               length(get_in(pages, [Access.at(0), "body", "jobs"])) == get_in(pages, [Access.at(0), "body", "total_count"]) and
-               Enum.all?(get_in(pages, [Access.at(0), "body", "jobs"]), &(is_integer(&1["id"]) and &1["run_id"] == run_id)),
-        do: raise(ArgumentError, "protected receipt jobs manifest")
+               get_in(pages, [Access.at(1), "body", "total_count"]) ==
+                 get_in(pages, [Access.at(0), "body", "total_count"]) and
+               length(get_in(pages, [Access.at(0), "body", "jobs"])) ==
+                 get_in(pages, [Access.at(0), "body", "total_count"]) and
+               Enum.all?(
+                 get_in(pages, [Access.at(0), "body", "jobs"]),
+                 &(is_integer(&1["id"]) and &1["run_id"] == run_id)
+               ),
+             do: raise(ArgumentError, "protected receipt jobs manifest")
     end
   end
 
-  defp validate_protected_job_manifests!(_, _), do: raise(ArgumentError, "protected receipt jobs manifest")
+  defp validate_protected_job_manifests!(_, _),
+    do: raise(ArgumentError, "protected receipt jobs manifest")
 
   defp validate_protected_ownership_jobs!(rows, jobs, protected_runs) do
     events_by_run = Map.new(protected_runs, &{&1["id"], &1["event"]})
@@ -1243,7 +1415,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
           manifests
           |> Map.fetch!(run_id)
           |> get_in(["pages", Access.at(0), "body", "jobs"])
-          |> Enum.filter(&(events_by_run[&1["run_id"]] == event and String.starts_with?(&1["name"], name_prefix)))
+          |> Enum.filter(
+            &(events_by_run[&1["run_id"]] == event and
+                String.starts_with?(&1["name"], name_prefix))
+          )
 
         valid? =
           case state do
@@ -1280,22 +1455,27 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     unless MapSet.new(Map.keys(receipt)) == MapSet.new(~w(command output sha256)) and
              receipt["command"] == capture["source_command"] and is_binary(receipt["output"]) and
-             receipt["sha256"] == @population_sha and receipt["sha256"] == sha256_hex(receipt["output"]),
+             receipt["sha256"] == @population_sha and
+             receipt["sha256"] == sha256_hex(receipt["output"]),
            do: raise(ArgumentError, "source receipt")
 
     runs = Jason.decode!(receipt["output"])
     cutoff_at = parse_timestamp!(cutoff)
     endpoint_at = parse_timestamp!(endpoint)
 
-    unless is_list(runs) and Enum.all?(runs, fn run ->
-             MapSet.new(Map.keys(run)) ==
-               MapSet.new(~w(databaseId event createdAt updatedAt conclusion url headSha)) and
-               is_integer(run["databaseId"]) and run["databaseId"] > 0 and run["event"] in @events ++ ["workflow_dispatch"] and
-               is_binary(run["createdAt"]) and is_binary(run["updatedAt"]) and is_binary(run["conclusion"]) and
-               run["url"] == "https://github.com/szTheory/sigra/actions/runs/#{run["databaseId"]}" and
-               is_binary(run["headSha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["headSha"]) and
-               source_run_chronological?(run)
-           end) and
+    unless is_list(runs) and
+             Enum.all?(runs, fn run ->
+               MapSet.new(Map.keys(run)) ==
+                 MapSet.new(~w(databaseId event createdAt updatedAt conclusion url headSha)) and
+                 is_integer(run["databaseId"]) and run["databaseId"] > 0 and
+                 run["event"] in (@events ++ ["workflow_dispatch"]) and
+                 is_binary(run["createdAt"]) and is_binary(run["updatedAt"]) and
+                 is_binary(run["conclusion"]) and
+                 run["url"] ==
+                   "https://github.com/szTheory/sigra/actions/runs/#{run["databaseId"]}" and
+                 is_binary(run["headSha"]) and Regex.match?(~r/\A[0-9a-f]{40}\z/, run["headSha"]) and
+                 source_run_chronological?(run)
+             end) and
              runs |> Enum.map(& &1["databaseId"]) |> Enum.uniq() |> length() == length(runs) and
              Enum.any?(runs, &source_run_within_window?(&1, cutoff_at, endpoint_at)),
            do: raise(ArgumentError, "source receipt fields")
@@ -1410,7 +1590,8 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
       run = Map.fetch!(expected, receipt["selection"])
       source = receipt["source_receipt"] || %{}
 
-      unless source["command"] == "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json jobs --jq .jobs" and
+      unless source["command"] ==
+               "gh run view #{receipt["run_id"]} --repo szTheory/sigra --json jobs --jq .jobs" and
                is_binary(source["output"]) and is_binary(source["sha256"]) and
                source["sha256"] == sha256_hex(source["output"]),
              do: raise(ArgumentError, "binding source receipt")
@@ -1426,12 +1607,22 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
         do: raise(ArgumentError, "binding selection or wall seconds")
 
       job = Enum.find(jobs, &(&1["name"] == pole["name"]))
-      duration = max(DateTime.diff(parse_timestamp!(job["completedAt"]), parse_timestamp!(job["startedAt"]), :second), 0)
+
+      duration =
+        max(
+          DateTime.diff(
+            parse_timestamp!(job["completedAt"]),
+            parse_timestamp!(job["startedAt"]),
+            :second
+          ),
+          0
+        )
 
       unless job["conclusion"] == pole["conclusion"] and duration == pole["duration_seconds"],
         do: raise(ArgumentError, "binding job duration")
 
       metrics = receipt["metrics_receipt"] || %{}
+
       expected_jobs =
         jobs
         |> Enum.map(fn candidate ->
@@ -1439,13 +1630,21 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
             "name" => candidate["name"],
             "conclusion" => candidate["conclusion"],
             "duration_seconds" =>
-              max(DateTime.diff(parse_timestamp!(candidate["completedAt"]), parse_timestamp!(candidate["startedAt"]), :second), 0)
+              max(
+                DateTime.diff(
+                  parse_timestamp!(candidate["completedAt"]),
+                  parse_timestamp!(candidate["startedAt"]),
+                  :second
+                ),
+                0
+              )
           }
         end)
 
       unless MapSet.new(Map.keys(metrics)) == MapSet.new(~w(command output sha256)) and
                metrics["command"] == receipt["command"] and
-               metrics["command"] == "bash scripts/ci/ci-run-metrics.sh --jobs #{run["id"]} --format json" and
+               metrics["command"] ==
+                 "bash scripts/ci/ci-run-metrics.sh --jobs #{run["id"]} --format json" and
                is_binary(metrics["output"]) and Jason.decode!(metrics["output"]) == expected_jobs and
                metrics["sha256"] == sha256_hex(metrics["output"]),
              do: raise(ArgumentError, "binding metrics receipt")
@@ -1453,9 +1652,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp wall_seconds!(run) do
-    max(DateTime.diff(parse_timestamp!(run["updated_at"]), parse_timestamp!(run["created_at"]), :second), 0)
+    max(
+      DateTime.diff(
+        parse_timestamp!(run["updated_at"]),
+        parse_timestamp!(run["created_at"]),
+        :second
+      ),
+      0
+    )
   end
-
 
   defp validate_closeout_records!(ledger, contributing, seed, milestone_arc, residual) do
     unless is_binary(contributing), do: raise(ArgumentError, "contributor topology")

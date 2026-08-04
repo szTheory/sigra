@@ -42,8 +42,13 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   end
 
   test "FAST verifier pins bash and establishes trusted staging before retained inputs" do
-    verifier = File.read!(Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh"))
-    runtime_test = File.read!(Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.test.sh"))
+    verifier =
+      File.read!(Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh"))
+
+    runtime_test =
+      File.read!(
+        Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.test.sh")
+      )
 
     assert String.starts_with?(verifier, "#!/bin/bash\n")
     assert verifier =~ "BASH_SOURCE[0]"
@@ -53,7 +58,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert verifier =~ "trusted_staging_failed"
     assert verifier =~ "offline_fast_01_gap_closure_attestation_verified"
     assert runtime_test =~ ~s("$VERIFIER")
-    assert runtime_test =~ "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd shasum awk"
+
+    assert runtime_test =~
+             "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd shasum awk"
+
     assert runtime_test =~ "offline_fast_01_gap_closure_attestation_verified"
   end
 
