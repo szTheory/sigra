@@ -36,7 +36,7 @@ key-decisions:
   - "A second CI dispatch was run specifically to obtain a second independent green observation on a different commit, per the coordinator's explicit direction that one green run is a thinner basis for removing a mask than two. Both runs are cited in the SUMMARY with run id, job id, and quoted banners."
   - "Generated admin Playwright smoke's cross-run intermittent (231-05's finding, GATE-02's own lane) recurred a third time on this plan's dispatch, at the exact same assertion (:79, 320px reflow) and the same numeric signature (scrollWidth 343 / clientWidth 320) as `be970b50`'s failure. Per the coordinator's explicit instruction, this was NOT fixed, NOT retried, and NOT masked with continue-on-error -- it is recorded here as a tally update (now 3 failures in 5 observed runs, ~60%) and flagged as a blocking risk for 231-07, which is scoped to enable that same lane as a PR check."
 
-requirements-completed: []
+requirements-completed: [GATE-04]
 
 coverage:
   - id: D1

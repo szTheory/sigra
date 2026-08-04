@@ -38,7 +38,7 @@ key-decisions:
   - "Re-diagnosed the one Recapture admin-checkpoint baselines failure this phase observed (run 30514238789): 231-06-SUMMARY.md cited a Postgres 'role root does not exist' FATAL log line as the symptom, but that line is the Postgres service container's own default health-check noise (present, harmless, on every Postgres-service job). The actual failure is 'Could not mix rebar from any hex.pm mirror' immediately above it in the same log -- a transient dependency-fetch network flake, unrelated to the database. Filed accordingly, not under a misleading Postgres framing."
   - "Re-diagnosed the one Upgrade smoke failure this phase observed (run 30504235540): NOT the already-Hex-side-resolved <.button type> compilation issue, but 'FAIL: no published sigra release found on Hex for series 1 (after excluding: 1.20.0)' -- the same stray-Hex-1.20.0 root cause the existing button-type todo's own 'Remaining' section already cross-references. No new todo needed; both existing filings already cover it."
 
-requirements-completed: []
+requirements-completed: [GATE-01]
 
 coverage:
   - id: D1
