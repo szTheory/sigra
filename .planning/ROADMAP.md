@@ -447,7 +447,7 @@ Plans:
 **Goal:** Reconcile the four audited SUMMARY declarations and eight stale traceability rows, canonically validate Phases 230/231/232/234, and produce a fresh v1.47 audit without changing product, CI topology, or retained runtime evidence.
 **Requirements**: None (evidence-closeout phase; no fabricated requirement IDs or probe predicates)
 **Depends on:** Phase 235
-**Plans:** 3 plans
+**Plans:** 5 plans
 
 Plans:
 **Wave 1**
@@ -461,6 +461,14 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 236-03-PLAN.md — Regenerate and ratify the fresh v1.47 milestone audit verdict.
+
+**Wave 4** *(gap closure; blocked on Wave 3 completion)*
+
+- [ ] 236-04-PLAN.md — Capture canonical validator provenance and mechanically prove the Phase 234 stop/resume chain.
+
+**Wave 5** *(gap closure; blocked on Wave 4 completion)*
+
+- [ ] 236-05-PLAN.md — Regenerate the v1.47 audit with canonical invocation and source-to-report provenance.
 
 ---
 
