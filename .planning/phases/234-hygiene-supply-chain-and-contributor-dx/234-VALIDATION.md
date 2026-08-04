@@ -100,3 +100,27 @@ All phase behaviors must have automated evidence. GitHub-owned behaviors may req
 The command receipts above are sanitized hashes only; captured output paths, session credentials, cookies, and environment values are not recorded.
 
 **Approval:** machine evidence ratified at 2026-08-02T15:28:48Z — Wave 12 tasks 234-19-01, 234-19-02, 234-20-01, 234-20-02, and 234-21-01 are covered by the exact green verification map, refreshed reviewed-snapshot receipts, exact six-slot production-transition behavior, and zero-failure post-population verification.
+
+## Validation Audit 2026-08-04 (Phase 236 canonical reconciliation — blocked)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 1 |
+| Resolved | 0 |
+| Escalated | 1 |
+
+The canonical re-audit first passed all six focused Phase-234 planning contracts (41 tests,
+0 failures). It then stopped at the required formatter gate. Exact generated diagnostic:
+
+```text
+** (Mix) mix format failed due to --check-formatted.
+The following files are not formatted:
+
+/Users/jon/projects/sigra/test/sigra/planning/phase_235_fast_01_remeasurement_contract_test.exs
+/Users/jon/projects/sigra/test/sigra/planning/phase_235_terminal_ratification_contract_test.exs
+/Users/jon/projects/sigra/test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs
+```
+
+No Phase-234 lifecycle field was promoted. Per Phase 236 scope, the Phase-235 formatter drift is
+retained as an out-of-scope blocker; it was neither edited nor waived. No GitHub evidence was
+queried or recaptured.
