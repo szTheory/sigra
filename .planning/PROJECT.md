@@ -10,11 +10,12 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is complete.** All six phases (230-235) and all 68 plans
+**Milestone v1.47 CI-EFFICIENCY is complete.** All seven phases (230-236) and all 76 plans
 are complete. Phase 235 terminal ratification independently verified FAST-01 from a
 protected 15-run population at strict p50 486 seconds and GATE-05 from the protected
-93-row ownership ledger; both retained-evidence verifiers now establish trusted staging
-before network-denied provenance checks.
+93-row ownership ledger; Phase 236 then reconciled closeout evidence, canonical lifecycle
+validation, audit provenance, and the fail-closed committed-range scope fence without
+changing product, CI topology, or retained runtime evidence.
 
 Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
 on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
@@ -1124,4 +1125,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-07-10 — `/gsd-new-milestone` opened **v1.45 RELEASE-CURRENCY** (phases continue from 221). Maintenance-first/post-1.0 lane chosen over an 11th UI milestone: **get Sigra current and trustworthy on Hex.** Root cause mapped: Hex is stuck at v1.1.0 because release-please auto-publish (`release-please.yml` → `hex-publish` job, gated on `gate-ci-green`) has been blocked since 2026-07-03 — `ci-gate` is red on every push to `main` from a **push/schedule-only, PR-invisible** `Upgrade smoke` `<.button type>` warning-as-error; v1.2.0 (#66) + v1.3.0 (#74) were cut + tagged + GitHub-released but silently never published. Four target features: (1) fix the `<.button type>` upgrade-smoke blocker (lib + installer template + example parity, golden re-bless) → `ci-gate` green; (2) publish v1.2.0 + v1.3.0 contiguous + retire stray `1.20.0` so `latest_stable` resolves to GA; (3) release-lane hardening so a red gate can't silently strand a release (Upgrade-smoke PR-visible/alerting + auto-publish fails loudly); (4) ship-honest generated-host debt (security-adjacent WR-01 installer `scope:` fix + golden re-bless, WR-02 copy, app.css corruption-guard false-negative, up.sh --help). Human-gated: `mix hex.retire` + publish dispatch (interactive Hex write-auth). Deferred: FEAT-01/02/03, SEED-005 CI-perf, further UI. Next: define REQUIREMENTS.md → roadmap.*
 
-*Last updated: 2026-08-03 — Phase **235 Terminal Ratification — Measured, Not Read** complete (14/14 plans; verifier 5/5, status passed). FAST-01 is protected at n=15 / strict p50=486 seconds, GATE-05 retains its protected 93-row ownership proof, and both authoritative offline verifiers now use hostile-environment-tested trusted staging. Milestone v1.47 CI-EFFICIENCY is 6/6 phases and 68/68 plans complete.*
+*Last updated: 2026-08-04 — Phase **236 Closeout Evidence Reconciliation** complete (8/8 plans; verifier 10/10, status passed). The reconciled audit and lifecycle evidence are verified, and the committed-range scope fence now fails closed for restored and merge-resolution-only forbidden paths. Milestone v1.47 CI-EFFICIENCY is 7/7 phases and 76/76 plans complete.*
