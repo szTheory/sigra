@@ -7,14 +7,14 @@ requires:
   - phase: 236-closeout-evidence-reconciliation
     provides: "Immutable-evidence contract from Plan 01."
 provides:
-  - "Fresh canonical validation audits for Phases 230, 231, and 232."
-  - "Durable, fail-closed Phase 234 formatter diagnostic without a lifecycle promotion."
+  - "Fresh canonical validation audits for Phases 230, 231, 232, and 234."
+  - "A successful Phase 234 lifecycle promotion after its formatter gate was repaired."
 affects: [236-03, v1.47-milestone-audit]
 tech-stack:
   added: []
   patterns:
     - "Validator lifecycle fields change only after the phase's retained deterministic coverage passes."
-    - "A validator failure is recorded verbatim and stops later lifecycle work."
+    - "A validator failure remains recorded until a later successful canonical rerun resolves it."
 key-files:
   created: [.planning/phases/236-closeout-evidence-reconciliation/236-02-SUMMARY.md]
   modified:
@@ -24,9 +24,9 @@ key-files:
     - .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md
 key-decisions:
   - "Retained observed GitHub receipts were not queried or recaptured; canonical local validator checks supplied the fresh audit."
-  - "Phase 234 remains unpromoted because its required formatter gate reports Phase 235 drift."
+  - "Phase 234 was promoted only after the formatter correction in 40ceb739 and the full deterministic validator gate passed."
 patterns-established:
-  - "Fail closed at the first validator failure and retain the generated diagnostic in the target VALIDATION artifact."
+  - "Fail closed at the first validator failure, retain its diagnostics, and promote only on a later successful canonical rerun."
 requirements-completed: []
 coverage:
   - id: D1
@@ -37,46 +37,50 @@ coverage:
         status: pass
     human_judgment: false
   - id: D2
-    description: "Phase 234 formatter failure is preserved and blocks lifecycle promotion."
+    description: "Phase 234 received a fresh canonical lifecycle audit after its required formatter gate passed."
     verification:
       - kind: other
         ref: "mix format --check-formatted"
-        status: fail
+        status: pass
     human_judgment: false
-duration: 7min
+duration: 10min
 completed: 2026-08-04
-status: blocked
+status: complete
 ---
 
 # Phase 236 Plan 02: Canonical Lifecycle Reconciliation Summary
 
-**Phases 230, 231, and 232 were canonically revalidated from retained deterministic evidence; Phase 234 is fail-closed on a formatter diagnostic in Phase 235 files.**
+**Phases 230, 231, 232, and 234 are canonically validated while protected Phase 230–235 evidence remains byte-identical.**
 
 ## Performance
 
-- **Duration:** 7 min
-- **Tasks:** 1.5/2 completed; Task 2 stopped at the Phase 234 validator gate.
-- **Files modified:** 4 validation artifacts and this summary.
+- **Duration:** 10 min across the initial run and resume.
+- **Tasks:** 2/2 completed.
+- **Files modified:** Four validation artifacts and this summary.
 
 ## Accomplishments
 
-- Revalidated Phase 230 with its CI-metrics, docs-only, cache-key, ExUnit, and actionlint coverage; all checks passed.
-- Revalidated Phase 231 with seven deterministic shell suites, the 66-test prohibition suite, and actionlint; all checks passed.
-- Revalidated Phase 232 with its focused contract (6/0), planning suite (130/0, 12 skipped), and retry-zero Playwright inventory (393 tests in 21 files).
-- Preserved the Phase 234 formatter failure in its canonical validation artifact without changing its lifecycle header.
+- Revalidated Phase 230 with its CI-metrics, docs-only, cache-key, ExUnit, and actionlint coverage.
+- Revalidated Phase 231 with deterministic shell suites, the prohibition suite, and actionlint.
+- Revalidated Phase 232 with its focused contract, planning suite, and retry-zero Playwright inventory.
+- Revalidated Phase 234 after `40ceb739` formatted the three Phase 235 planning contracts that had blocked the initial validator run.
+- Preserved Phase 233/235 validation artifacts and all Phase 230–235 verification/protected-receipt digests, as proven by the Phase 236 contract.
 
 ## Task Commits
 
 1. **Task 1: Canonically validate Phases 230 and 231** — `d93bb10a`
-2. **Task 2 (partial): Canonically validate Phase 232** — `06f3734c`
+2. **Task 2: Canonically validate Phases 232 and 234** — `06f3734c` (Phase 232) and this plan-closeout commit (Phase 234 resume)
 
 ## Verification
 
-- `mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` passed repeatedly: 3 tests, 0 failures.
-- Phase 230: `bash scripts/ci/ci-run-metrics.test.sh`, `bash scripts/ci/docs-only-classify.test.sh`, `bash scripts/ci/playwright-cache-key-guard.test.sh`, two focused Phase-230 contracts, and `actionlint -shellcheck= .github/workflows/ci.yml` passed.
-- Phase 231: seven shell suites passed (11/0, 20/0, 8/0, 7/0, 11/0, 19/0, 7/0); `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` passed 66/0; actionlint passed for `ci.yml`, `ci-observe.yml`, and `playwright-github-pages.yml`.
-- Phase 232: focused contract 6/0; planning suite 130/0 with 12 skipped; Playwright list 393 tests in 21 files.
-- Phase 234: six focused planning contracts passed 41/0, then `mix format --check-formatted` failed on three Phase-235 planning tests. No later Phase-234 verification or lifecycle promotion was run.
+- `MIX_ENV=test mix test test/sigra/planning/phase_198_contributor_dx_contract_test.exs test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs test/sigra/planning/phase_234_dependabot_contract_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_234_evidence_contract_test.exs --exclude validation_signoff` — passed: 34 tests, 0 failures, 7 excluded.
+- `mix format --check-formatted` — passed.
+- `MIX_ENV=test mix test test/sigra/planning/ --exclude validation_signoff` — passed: 123 tests, 0 failures, 12 skipped, 7 excluded.
+- `test -z "$(git diff --name-only -- test/fixtures/install_golden/tree)" && MIX_ENV=test mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` — passed.
+- `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` — passed: 3 tests, 0 failures; it confirms the immutable evidence digests.
+- The four target validation headers declare `status: validated`, `nyquist_compliant: true`, and `wave_0_complete: true`.
+
+Expected local Postgrex connection-refused startup messages accompanied filesystem-backed planning contracts; all commands above exited zero.
 
 ## Deviations from Plan
 
@@ -92,19 +96,20 @@ status: blocked
 **Total deviations:** 1 auto-fixed (Rule 3 blocking).
 **Impact on plan:** No product or evidence change; the validator audit used only existing, evidenced targets.
 
-## Issues Encountered
+## Historical Blocker Resolved
 
-- Phase 234 is blocked by `mix format --check-formatted`. The exact generated diagnostic names `phase_235_fast_01_remeasurement_contract_test.exs`, `phase_235_terminal_ratification_contract_test.exs`, and `phase_235_fast_01_gap_closure_contract_test.exs`; it is retained in `234-VALIDATION.md`.
-- Expected local Postgrex connection-refused startup noise accompanied filesystem-backed planning contracts; every reported passing ExUnit command exited zero.
+- The initial Phase 234 canonical validator run correctly stopped at `mix format --check-formatted` and retained the exact Phase 235 diagnostics in `234-VALIDATION.md`.
+- The three affected Phase 235 contracts were mechanically formatted and committed by the designated owner in `40ceb739`.
+- This resume re-ran the canonical Phase 234 validation gates successfully; the validator, not manual approval prose, promoted the lifecycle state to `validated`.
 
 ## Next Phase Readiness
 
-- Do not run Phase 236 Plan 03 or promote Phase 234 until the recorded Phase 235 formatter drift is resolved by its owner and `$gsd-validate-phase 234` succeeds.
-- Phase 233 and 235 protected validation artifacts and all protected receipts remain unmodified; no CI/GitHub evidence lookup occurred.
+- Plan 03 may proceed: all four D-03 target phases are canonically validated and D-04 protected evidence remains exact.
+- Phase 231 Pages-source administration, Phase 232 edge-semantics assumptions, Phase 233 compiler warnings, and the Phase 235 historical verifier remain documented non-blocking debt under D-06.
 
 ## Self-Check: PASSED
 
-- Commits `d93bb10a` and `06f3734c` exist in history.
-- The 230, 231, and 232 validation artifacts exist and declare `status: validated`, `nyquist_compliant: true`, and `wave_0_complete: true`.
-- The Phase 234 validation artifact retains the formatter diagnostic and does not declare `status: validated`.
-- `git diff --check` passed before this summary was written.
+- Commits `d93bb10a`, `06f3734c`, and `40ceb739` exist in history.
+- All four target validation artifacts exist and declare the three canonical lifecycle flags.
+- The Phase 236 immutable-evidence contract passed after the Phase 234 promotion.
+- `git diff --check` passed for the Plan 02 artifacts.

@@ -1,7 +1,7 @@
 ---
 phase: 234
 slug: hygiene-supply-chain-and-contributor-dx
-status: complete
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 reviewed_commit_sha: 46c56e0fc830bd49c6a2da4336a646dce63ba280
@@ -124,3 +124,19 @@ The following files are not formatted:
 No Phase-234 lifecycle field was promoted. Per Phase 236 scope, the Phase-235 formatter drift is
 retained as an out-of-scope blocker; it was neither edited nor waived. No GitHub evidence was
 queried or recaptured.
+
+## Validation Audit 2026-08-04 (Phase 236 canonical reconciliation — passed)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+The canonical re-audit was resumed after the formatter correction in `40ceb739`. The six focused
+Phase-234 planning contracts passed (34 tests, 0 failures, 7 excluded), the repository formatter
+passed, the planning suite passed (123 tests, 0 failures, 12 skipped, 7 excluded), and the
+install golden-diff/idempotency checks passed. Existing GitHub-owned receipts remain retained;
+no GitHub evidence was queried or recaptured. The Phase 236 immutable-evidence contract passed
+(3 tests, 0 failures). The successful deterministic result now promotes this artifact to
+`status: validated`.
