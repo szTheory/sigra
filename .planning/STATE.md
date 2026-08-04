@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
-status: executing
-stopped_at: Completed 235-12-PLAN.md; FAST-01 remains insufficient_population (7/10)
-last_updated: "2026-08-03T22:14:48.475Z"
-last_activity: 2026-08-03
-last_activity_desc: Plan 235-11 complete; protected remediation receipt retained and FAST-01 remains open
+status: complete
+stopped_at: Completed 235-13-PLAN.md
+last_updated: "2026-08-04T00:30:56.469Z"
+last_activity: 2026-08-04
+last_activity_desc: Phase 235 Plan 13 complete; FAST-01 and GATE-05 independently verified
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 67
-  completed_plans: 66
-  percent: 83
+  completed_plans: 67
+  percent: 100
 ---
 
 # Project State
@@ -29,11 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
+Phase: 235 (terminal-ratification-measured-not-read) — COMPLETE
 Plan: 13 of 13
-Status: Ready to execute
-Progress: 5/6 milestone phases complete; 65/67 plans executed ([██████████] 99%)
-Last activity: 2026-08-03 — Plan 235-11 complete; protected remediation receipt retained and FAST-01 remains open
+Status: Complete
+Progress: 6/6 milestone phases complete; 67/67 plans executed ([██████████] 100%)
+Last activity: 2026-08-04 — Phase 235 Plan 13 complete; FAST-01 and GATE-05 independently verified
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -446,6 +446,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: The next FAST-01 population begins strictly after protected-main remediation merge 54c33e904155a454255952666711c882afdd06e4.
 - [Phase ?]: Two-PR remediation receipt digests are verified against immutable cutoff blobs, not later evidence-only main.
 - [Phase ?]: Plan 12 readiness has seven independent rows and null statistics/verdict; FAST-01 remains open pending n>=10.
+- [Phase ?]: FAST-01 closed only from independently recomputed protected-main run 30865183650: n=15, strict p50=486s; prior 772s and 724s misses retained.
+- [Phase ?]: GATE-05 remains independently Complete on protected run 30782184713 with its unchanged 93-row ownership proof and offline verifier.
 
 ### Pending Todos
 
@@ -590,9 +592,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T22:14:48.459Z
-Stopped at: Completed 235-12-PLAN.md; FAST-01 remains insufficient_population (7/10)
-Resume file: 235-13-PLAN.md
+Last session: 2026-08-04T00:30:56.457Z
+Stopped at: Completed 235-13-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -760,3 +762,4 @@ Resume file: 235-13-PLAN.md
 | Phase 235 P10 | 3h 25m | 2 tasks | 7 files |
 | Phase 235 P11 | 42m | 2 tasks | 5 files |
 | Phase 235 P12 | 10min | 2 tasks | 6 files |
+| Phase 235 P13 | 486s | 2 tasks | 7 files |
