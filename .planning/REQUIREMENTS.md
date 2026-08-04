@@ -20,7 +20,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Critical path (FAST)
 
-- [ ] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. Protected run `30849907303` measured 13 terminal PR runs through `2026-08-03T20:22:31Z` at p50 724 seconds; the strict `< 720` threshold remains unmet. Receipt: `235-FAST-01-REMEASUREMENT.json`.
+- [x] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. Protected producer run `30865183650` independently measured 15 terminal `pull_request` runs through `2026-08-04T00:19:10Z` at canonical queue-inclusive wall p50 486 seconds; 486 is strictly below the `< 720` threshold. Receipt: `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json` (cutoff `54c33e904155a454255952666711c882afdd06e4` at `2026-08-03T21:37:08Z`). Earlier 19-run/772-second and 13-run/724-second misses remain retained historical evidence.
 - [x] **FAST-02**: Design-gallery snapshot boards no longer run on the PR gate; they run on push-to-main and nightly, and their accessibility assertions still run on every PR.
 - [x] **FAST-03**: `admin_eval_render` no longer runs on pull requests.
 - [x] **FAST-04**: Pushing a new commit to a PR branch cancels the superseded in-flight CI run instead of letting it complete; main and scheduled runs are never cancelled.
@@ -65,7 +65,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| FAST-01 | Phase 235 | Gaps Found |
+| FAST-01 | Phase 235 | Complete (protected run `30865183650`; cutoff `2026-08-03T21:37:08Z`; endpoint `2026-08-04T00:19:10Z`; n=15; p50=486s; `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json`) |
 | FAST-02 | Phase 230 | Complete |
 | FAST-03 | Phase 230 | Complete |
 | FAST-04 | Phase 230 | Complete |
