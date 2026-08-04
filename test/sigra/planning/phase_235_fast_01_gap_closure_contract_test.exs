@@ -156,7 +156,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
              :ok
 
     assert_raise ArgumentError, ~r/FAST-01/, fn ->
-      String.replace(requirements, "- [x] **FAST-01**", "- [ ] **FAST-01")
+      String.replace(requirements, "run `30865183650`", "run `00000000000`")
       |> validate_reconciliation!(residual, terminal, gate_receipt, gate_verifier)
     end
 
