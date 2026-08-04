@@ -464,11 +464,11 @@ Plans:
 
 **Wave 4** *(gap closure; blocked on Wave 3 completion)*
 
-- [ ] 236-04-PLAN.md — Capture canonical validator provenance and mechanically prove the Phase 234 stop/resume chain.
+- [ ] 236-04-PLAN.md — Replay disputed lifecycle transitions from exact committed baselines through the installed validation skills.
 
 **Wave 5** *(gap closure; blocked on Wave 4 completion)*
 
-- [ ] 236-05-PLAN.md — Regenerate the v1.47 audit with canonical invocation and source-to-report provenance.
+- [ ] 236-05-PLAN.md — Freeze the complete resolved audit inputs, invoke the installed audit skill, and bind its output to those sources.
 
 ---
 
