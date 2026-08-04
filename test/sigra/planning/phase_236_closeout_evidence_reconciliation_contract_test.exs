@@ -80,7 +80,11 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     end
 
     extra_id =
-      Map.update!(summaries, "233-05", &String.replace(&1, "[TEST-02, TEST-03]", "[TEST-02, TEST-03, TEST-01]"))
+      Map.update!(
+        summaries,
+        "233-05",
+        &String.replace(&1, "[TEST-02, TEST-03]", "[TEST-02, TEST-03, TEST-01]")
+      )
 
     assert_raise ArgumentError, ~r/SUMMARY ownership/, fn ->
       validate_summary_ownership!(extra_id)
@@ -99,13 +103,23 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     assert validate_traceability!(requirements) == :ok
 
-    checkbox_only = String.replace(requirements, "| TEST-01 | Phase 233 | Complete |", "| TEST-01 | Phase 233 | Gaps Found |")
+    checkbox_only =
+      String.replace(
+        requirements,
+        "| TEST-01 | Phase 233 | Complete |",
+        "| TEST-01 | Phase 233 | Gaps Found |"
+      )
 
     assert_raise ArgumentError, ~r/approved traceability/, fn ->
       validate_traceability!(checkbox_only)
     end
 
-    unapproved = String.replace(requirements, "| PW-01 | Phase 232 | Complete |", "| PW-01 | Phase 232 | Gaps Found |")
+    unapproved =
+      String.replace(
+        requirements,
+        "| PW-01 | Phase 232 | Complete |",
+        "| PW-01 | Phase 232 | Gaps Found |"
+      )
 
     assert_raise ArgumentError, ~r/approved traceability/, fn ->
       validate_traceability!(unapproved)
@@ -130,7 +144,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp completed_ids!(summary) do
     with [frontmatter] <- Regex.run(~r/\A---\n(.*?)\n---/s, summary, capture: :all_but_first),
-         [ids] <- Regex.run(~r/^requirements-completed:\s*\[([^\]]*)\]\s*$/m, frontmatter, capture: :all_but_first) do
+         [ids] <-
+           Regex.run(~r/^requirements-completed:\s*\[([^\]]*)\]\s*$/m, frontmatter,
+             capture: :all_but_first
+           ) do
       ids
       |> String.split(",", trim: true)
       |> Enum.map(&String.trim/1)
@@ -141,8 +158,8 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp validate_traceability!(requirements) do
     rows = traceability_rows(requirements)
-    ownership = Map.new(rows, fn {id, phase, _status} -> {id, phase} end)
-    statuses = Map.new(rows, fn {id, _phase, status} -> {id, status} end)
+    ownership = Map.new(rows, fn [id, phase, _status] -> {id, phase} end)
+    statuses = Map.new(rows, fn [id, _phase, status] -> {id, status} end)
 
     unless ownership == @traceability_ownership and length(rows) == 24 do
       raise ArgumentError, "traceability must retain the exact 24-row ownership map"
@@ -178,18 +195,32 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp assert_three_source_support! do
     checked_requirements = File.read!(Path.join(@root, ".planning/REQUIREMENTS.md"))
-    verification_233 = File.read!(Path.join(@root, ".planning/phases/233-library-suite-economics/233-VERIFICATION.md"))
-    verification_234 = File.read!(Path.join(@root, ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md"))
+
+    verification_233 =
+      File.read!(
+        Path.join(@root, ".planning/phases/233-library-suite-economics/233-VERIFICATION.md")
+      )
+
+    verification_234 =
+      File.read!(
+        Path.join(
+          @root,
+          ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md"
+        )
+      )
+
     contracts = [
       "test/sigra/planning/phase_233_library_economics_contract_test.exs",
       "test/sigra/planning/phase_234_evidence_contract_test.exs"
     ]
 
     Enum.each(@reconciled_ids, fn id ->
-      verification = if String.starts_with?(id, "TEST"), do: verification_233, else: verification_234
+      verification =
+        if String.starts_with?(id, "TEST"), do: verification_233, else: verification_234
 
       unless checked_requirements =~ "- [x] **#{id}**" and verification =~ "| #{id} |" and
-               verification =~ "✓ SATISFIED" and Enum.all?(contracts, &File.exists?(Path.join(@root, &1))) do
+               verification =~ "✓ SATISFIED" and
+               Enum.all?(contracts, &File.exists?(Path.join(@root, &1))) do
         raise ArgumentError, "three-source support is incomplete for #{id}"
       end
     end)

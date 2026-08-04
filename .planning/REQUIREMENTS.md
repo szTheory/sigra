@@ -80,15 +80,15 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Complete |
 | PW-03 | Phase 232 | Complete |
-| TEST-01 | Phase 233 | Gaps Found |
-| TEST-02 | Phase 233 | Gaps Found |
-| TEST-03 | Phase 233 | Gaps Found |
-| DX-01 | Phase 234 | Gaps Found |
-| DX-02 | Phase 234 | Gaps Found |
-| DX-03 | Phase 234 | Gaps Found |
-| DX-04 | Phase 234 | Gaps Found |
+| TEST-01 | Phase 233 | Complete |
+| TEST-02 | Phase 233 | Complete |
+| TEST-03 | Phase 233 | Complete |
+| DX-01 | Phase 234 | Complete |
+| DX-02 | Phase 234 | Complete |
+| DX-03 | Phase 234 | Complete |
+| DX-04 | Phase 234 | Complete |
 | DX-05 | Phase 231 | Complete |
-| DX-06 | Phase 234 | Gaps Found |
+| DX-06 | Phase 234 | Complete |
 
 **Placement notes:**
 
