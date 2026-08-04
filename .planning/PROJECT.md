@@ -10,7 +10,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is complete.** All seven phases (230-236) and all 76 plans
+**Milestone v1.47 CI-EFFICIENCY shipped on 2026-08-04.** All seven phases (230-236) and all 76 plans
 are complete. Phase 235 terminal ratification independently verified FAST-01 from a
 protected 15-run population at strict p50 486 seconds and GATE-05 from the protected
 93-row ownership ledger; Phase 236 then reconciled closeout evidence, canonical lifecycle
@@ -36,7 +36,8 @@ The adopted experience is now coherent end to end and proven from a fresh genera
 install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke →
 deny, with deterministic evidence in CI.
 
-**What the next milestone should probably weigh.** The v1.46 audit's clearest signal is
+**Next milestone goals.** Re-rank the deferred planning backlog against current product needs.
+The v1.46 audit's clearest signal is
 that the auth-UI lane has thin *runtime* proof: exactly one generated auth surface (login,
 no-passkeys) is ever rendered in a browser, so roughly 1,100 lines of template change rest
 on source-string assertions (finding W-3). Finding W-1 is the receipt — a duplicate-label
@@ -65,7 +66,7 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 </details>
 
-## Current Milestone: v1.47 CI-EFFICIENCY
+## Latest Shipped Milestone: v1.47 CI-EFFICIENCY (shipped 2026-08-04 — override_closeout)
 
 **Goal:** Cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest — by *executing* the already-written SEED-005 audit rather than re-running it.
 
@@ -77,7 +78,11 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 **Key context:** `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` is a finished audit with a prioritized Phase 198→203 sequence; only 198 partially ran because v1.41 reused phase numbers 199–204. It was re-verified accurate on 2026-07-28 (it named `design_gallery` at ~700s; measured 734s). SEED-005's verbatim scope guardrails bind: keep high-value gates, cut only lowest-signal/flaky with evidence, never trade trust for speed, cache correctly, keep it simple. Target is the `<12m` bar v1.40 set (38.6m → 22.1m, −43%), missed, and disclosed honestly.
 
-Phases continue from **230**. Explicitly deferred: credo, dialyzer and mix_audit as new gates; the `async: false` posture (contract-locked by `phase_153_infra_stability_contract_test.exs`); larger or self-hosted runners; and the Hex `1.20.0` retire.
+**Outcome:** FAST-01 closed at a strict 486-second p50 from 15 protected PR runs (below the 12-minute threshold); nightly and CI-gate execution are now evidenced rather than inferred; Playwright and library test paths were optimized without dropping coverage; and contributor CI parity, action pinning, and dependency hygiene were strengthened. The closeout evidence phase reconciled all 24 requirements and the canonical audit reports no requirement, integration, or flow gaps.
+
+**Deferred at close:** 14 global planning artifacts were acknowledged in `STATE.md` for future prioritization. The closeout is an override because the manager's verification projection still reports Phases 231 and 233 stale despite their passed reports and the canonical audit.
+
+Full detail: `milestones/v1.47-ROADMAP.md`; requirements: `milestones/v1.47-REQUIREMENTS.md`.
 
 ## Latest Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
 
