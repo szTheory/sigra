@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.47
-milestone_name: CI-EFFICIENCY
-status: Awaiting next milestone
-stopped_at: Completed 236-08-PLAN.md
-last_updated: "2026-08-04T21:21:42.268Z"
+milestone: v1.48
+milestone_name: B2C-ALPHA-READINESS
+status: executing
+stopped_at: Phase 237 implementation started
+last_updated: "2026-08-04T22:10:00.000Z"
 last_activity: 2026-08-04
-last_activity_desc: Milestone v1.47 completed and archived
+last_activity_desc: Milestone v1.48 started from first B2C adopter readiness plan
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 76
-  completed_plans: 76
-  percent: 100
-current_phase: 236
-current_phase_name: closeout-evidence-reconciliation
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+current_phase: 237
+current_phase_name: canonical-b2c-generator-contract
 ---
 
 # Project State
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 236 — closeout-evidence-reconciliation
+**Current focus:** Phase 237 — canonical-b2c-generator-contract
 
 ## Current Position
 
-Phase: Milestone v1.47 complete
+Phase: 237 — canonical-b2c-generator-contract
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-04 — Milestone v1.47 completed and archived
+Status: Implementing canonical B2C profile
+Last activity: 2026-08-04 — Milestone v1.48 started
 
 ## Accumulated Context
 

@@ -8,6 +8,15 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current Milestone: v1.48 B2C-ALPHA-READINESS
+
+**Goal:** Make the canonical single-user Phoenix authentication profile trustworthy for a first B2C adopter, including Google OAuth, hosted iPhone session return, and fail-closed Crosswake interop.
+
+**Target features:**
+- Fresh-host proof for `--no-admin --no-organizations --no-passkeys` plus Google OAuth.
+- Rendered generated-auth browser and accessibility proof for the selected email and OAuth journeys.
+- Personal-account SIGRA-to-Crosswake session contract and a provider-neutral launch rehearsal.
+
 ## Current State
 
 **Milestone v1.47 CI-EFFICIENCY shipped on 2026-08-04.** All seven phases (230-236) and all 76 plans

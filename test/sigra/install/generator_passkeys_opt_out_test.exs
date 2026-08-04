@@ -11,6 +11,11 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     %{
       label: "passkeys disabled with organizations disabled",
       flags: ["--no-organizations", "--no-passkeys"]
+    },
+    %{
+      label: "B2C Alpha profile omits admin, organizations, and passkeys",
+      flags: ["--no-admin", "--no-organizations", "--no-passkeys"],
+      b2c_alpha?: true
     }
   ]
 
@@ -30,9 +35,13 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   ]
 
   describe "mix sigra.install opt out" do
-    for %{label: label, flags: flags} <- @cases do
+    for %{label: label, flags: flags} = install_case <- @cases do
       @tag flags: flags
-      test "#{label} omits passkey routes, files, dependencies, and residue", %{flags: flags} do
+      @tag b2c_alpha?: Map.get(install_case, :b2c_alpha?, false)
+      test "#{label} omits passkey routes, files, dependencies, and residue", %{
+        flags: flags,
+        b2c_alpha?: b2c_alpha?
+      } do
         {:ok, %{app_dir: app_dir}} =
           InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name())
 
@@ -77,6 +86,17 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
           refute tree_contains?(app_dir, forbidden),
                  "unexpected residue #{inspect(forbidden)} in generated app"
         end
+
+        if b2c_alpha? do
+          refute router =~ "/admin"
+          refute router =~ "/organizations"
+
+          refute File.exists?(
+                   Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/components/admin_shell.ex")
+                 )
+
+          refute File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/organization.ex"))
+        end
       end
     end
 
@@ -85,8 +105,20 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
       assert source =~ "--no-passkeys"
       assert source =~ "--no-organizations\", \"--no-passkeys"
+      assert source =~ "--no-admin\", \"--no-organizations\", \"--no-passkeys"
       assert source =~ "passkeys disabled"
       assert source =~ "opt out"
+    end
+
+    test "fresh-host smoke locks the B2C Alpha generator command and Google OAuth output" do
+      source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
+
+      assert source =~ "--no-admin --no-organizations --no-passkeys"
+      assert source =~ "mix sigra.gen.oauth --providers google"
+      assert source =~ "sigra_b2c_alpha"
+      assert source =~ "oauth_controller.ex"
+      assert source =~ "assert_no_match '/admin'"
+      assert source =~ "assert_no_match '/organizations'"
     end
   end
 

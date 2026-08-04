@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # scripts/ci/passkeys-opt-out-smoke.sh
 #
-# Verifies the assets-enabled passkey opt-out path for both disabled combinations:
+# Verifies the assets-enabled passkey opt-out path for the supported disabled combinations:
 #   1. --no-passkeys
 #   2. --no-organizations --no-passkeys
+#   3. --no-admin --no-organizations --no-passkeys (the B2C Alpha profile)
 #
 # For each leg this script scaffolds a fresh Phoenix app with assets enabled,
 # patches in the local Sigra path dep, runs `mix sigra.install`, and proves
 # passkey-only assets, deps, config, and routes are omitted while the app still
-# compiles, builds assets, migrates, and boots.
+# compiles, builds assets, migrates, and boots. The B2C Alpha leg also generates
+# Google OAuth and asserts that the selected authentication boundary is present.
 #
 # Local reproduction:
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/passkeys-opt-out-smoke.sh
@@ -47,6 +49,15 @@ assert_no_match() {
   fi
 }
 
+assert_file_present() {
+  local path="$1"
+
+  if [[ ! -f "${path}" ]]; then
+    echo "FAIL: expected file to exist: ${path}"
+    exit 1
+  fi
+}
+
 patch_mix_exs() {
   export SIGRA_REPO
   elixir -e '
@@ -61,6 +72,23 @@ patch_mix_exs() {
     end
 
     File.write!(path, new_content)
+  '
+}
+
+add_cloak_ecto() {
+  elixir -e '
+    path = "mix.exs"
+    content = File.read!(path)
+    anchor = "      {:sigra, path: System.get_env(\"SIGRA_REPO\")},\n"
+
+    unless String.contains?(content, anchor) do
+      IO.puts(:stderr, "FAIL: expected Sigra path dependency anchor in mix.exs")
+      System.halt(1)
+    end
+
+    unless String.contains?(content, "{:cloak_ecto,") do
+      File.write!(path, String.replace(content, anchor, anchor <> "      {:cloak_ecto, \"~> 1.3\"},\n", global: false))
+    end
   '
 }
 
@@ -89,11 +117,8 @@ run_leg() {
   mix deps.get
 
   echo "==> passkeys-opt-out: running mix sigra.install for ${label}"
-  if [[ "${flags}" == "--no-passkeys" ]]; then
-    MIX_ENV=dev mix sigra.install Accounts User users --no-passkeys --yes
-  else
-    MIX_ENV=dev mix sigra.install Accounts User users --no-organizations --no-passkeys --yes
-  fi
+  # shellcheck disable=SC2086 # flags are fixed literals supplied below.
+  MIX_ENV=dev mix sigra.install Accounts User users ${flags} --yes
 
   echo "==> passkeys-opt-out: asserting omitted passkey assets, deps, config, and routes"
   assert_file_missing "assets/js/passkey_hooks.js"
@@ -104,6 +129,25 @@ run_leg() {
   assert_no_match '/users/log_in/passkey' "lib/${label}_web/router.ex"
   assert_no_match '/users/settings/mfa/passkeys' "lib/${label}_web/router.ex"
   assert_no_match '/users/mfa/passkey' "lib/${label}_web/router.ex"
+
+  if [[ "${label}" == "sigra_b2c_alpha" ]]; then
+    echo "==> passkeys-opt-out: generating Google OAuth for B2C Alpha"
+    add_cloak_ecto
+    mix deps.get
+    MIX_ENV=dev mix sigra.gen.oauth --providers google
+
+    assert_file_present "lib/${label}/accounts/user_identity.ex"
+    assert_file_present "lib/${label}_web/controllers/oauth_controller.ex"
+    assert_file_present "lib/${label}_web/controllers/oauth_buttons.html.heex"
+    assert_file_present "lib/${label}/vault.ex"
+    assert_no_match '/admin' "lib/${label}_web/router.ex"
+    assert_no_match '/organizations' "lib/${label}_web/router.ex"
+    assert_no_match 'passkey' "config/config.exs"
+    grep -q '# Sigra OAuth' "lib/${label}_web/router.ex" || {
+      echo "FAIL: expected generated Google OAuth routes"
+      exit 1
+    }
+  fi
 
   echo "==> passkeys-opt-out: compiling and building assets"
   MIX_ENV=dev mix compile --warnings-as-errors
@@ -146,5 +190,6 @@ mkdir -p "${TMP_ROOT}"
 
 run_leg "--no-passkeys" "sigra_no_passkeys"
 run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
+run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
 
 echo "==> passkeys-opt-out: success"
