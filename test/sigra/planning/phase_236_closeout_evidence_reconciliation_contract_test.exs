@@ -237,6 +237,17 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
              "This committed replay proves a bounded forward lifecycle transition; it cannot authenticate an earlier LLM invocation or retroactively authenticate disputed 2026-08-04 edits."
   end
 
+  @tag :validation_replay_recovery
+  test "recovery ledger pins the accepted mixed Phase 231 validator boundary" do
+    baseline = validation_replay_baseline!()
+
+    assert baseline["planning_anchor_sha"] == "70bca9972a9a7635636bcb3d2c77938c23c4255f"
+    assert baseline["allowed_starting_head"] == git!("rev-parse", "HEAD")
+
+    assert baseline["phase_231_recovery"]["validator_commit_sha"] ==
+             "fe8e4305cbfa1ede8bd2c0424202204b9f93f030"
+  end
+
   defp summary_contents do
     @summary_directories
     |> Enum.flat_map(&Path.wildcard(Path.join(@root, &1 <> "/*-SUMMARY.md")))
@@ -387,6 +398,11 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-VALIDATION-REPLAY-BASELINE.json")
     |> File.read!()
     |> Jason.decode!()
+  end
+
+  defp git!(command, argument) do
+    {output, 0} = System.cmd("git", [command, argument], cd: @root)
+    String.trim(output)
   end
 
   defp historical_lifecycle!(commit, phase) do
