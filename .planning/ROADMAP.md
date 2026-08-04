@@ -460,7 +460,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 236-03-PLAN.md — Regenerate and ratify the fresh v1.47 milestone audit verdict.
+- [x] 236-03-PLAN.md — Regenerate and ratify the fresh v1.47 milestone audit verdict.
 
 ---
 
