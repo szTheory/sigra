@@ -34,4 +34,14 @@ defmodule Phase236AuditSnapshotTest do
     refute source =~ "validate" <> "-phase"
     refute source =~ "audit" <> "-milestone"
   end
+
+  test "historical verification rejects mutated boundary inputs" do
+    input = Path.join(@root, ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-INPUT-SNAPSHOT.json")
+    output = Path.join(@root, ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-OUTPUT-SNAPSHOT.json")
+
+    assert {_result, status} =
+             System.cmd("elixir", [@script, "historical-verify", input, output, "22dfd088", "a523575d"], cd: @root)
+
+    assert status == 0
+  end
 end

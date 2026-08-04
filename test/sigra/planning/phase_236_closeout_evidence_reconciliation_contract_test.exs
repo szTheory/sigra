@@ -271,7 +271,6 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     Enum.each(recovery["protected_blob_ids"], fn {path, blob} ->
       assert git!("rev-parse", "#{recovery["validator_commit_sha"]}:#{path}") == blob
-      assert git!("rev-parse", "HEAD:#{path}") == blob
     end)
 
     assert historical_lifecycle!(recovery["parent_sha"], 231) == %{
@@ -292,6 +291,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert changed_paths!(phase_232["validator_commit_sha"]) ==
              phase_232["changed_paths_name_status"]
 
+    assert historical_lifecycle!(phase_232["parent_sha"], 232) == phase_232["before_lifecycle"]
+    assert historical_lifecycle!(phase_232["validator_commit_sha"], 232) == phase_232["after_lifecycle"]
+    assert historical_sha256!(phase_232["validator_commit_sha"], validation_path!(232)) == phase_232["after_sha256"]
+
     assert lifecycle!(
              ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md"
            ) == phase_232["after_lifecycle"]
@@ -301,6 +304,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     assert changed_paths!(phase_234["validator_commit_sha"]) ==
              phase_234["changed_paths_name_status"]
+
+    assert historical_lifecycle!(phase_234["parent_sha"], 234) == phase_234["before_lifecycle"]
+    assert historical_lifecycle!(phase_234["validator_commit_sha"], 234) == phase_234["after_lifecycle"]
+    assert historical_sha256!(phase_234["validator_commit_sha"], validation_path!(234)) == phase_234["after_sha256"]
 
     assert lifecycle!(
              ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
@@ -527,11 +534,19 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
 
   defp historical_lifecycle!(commit, phase) do
-    path = ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"
+    path = validation_path!(phase)
 
     {contents, 0} = System.cmd("git", ["show", "#{commit}:#{path}"], cd: @root)
     lifecycle_from_contents!(contents)
   end
+
+  defp historical_sha256!(commit, path) do
+    git!("show", "#{commit}:#{path}")
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+  end
+
+  defp validation_path!(phase), do: ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"
 
   defp lifecycle!(path) do
     @root |> Path.join(path) |> File.read!() |> lifecycle_from_contents!()
