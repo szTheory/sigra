@@ -1,46 +1,48 @@
 ---
 phase: 236-closeout-evidence-reconciliation
-verified: 2026-08-04T16:16:02Z
+verified: 2026-08-04T19:37:55Z
 status: gaps_found
-score: 5/8 must-haves verified
+score: 7/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
+re_verification:
+  previous_status: gaps_found
+  previous_score: 5/8
+  gaps_closed:
+    - "D-03 lifecycle transitions for 230/231/232/234 are checked at recorded Git boundaries rather than mutable HEAD."
+    - "The Phase 234 blocked formatter diagnostic and later successful lifecycle transition are retained in the replay evidence."
+  gaps_remaining:
+    - "The audit-boundary verifier accepts caller-supplied snapshot documents without binding them to the committed snapshot blobs."
+    - "The required Plan 06 scope-fence baseline e9fee981 is not an ancestor of HEAD after the approved rebase."
+  regressions: []
 gaps:
-  - truth: "D-03: Phases 230, 231, 232, and 234 reach status: validated only through successful canonical validator runs."
-    status: failed
-    reason: "The lifecycle fields and editable Validation Audit prose exist, but no durable, machine-verifiable record proves that the canonical validate-phase workflow executed the four commands or owned the mutations. The Phase 236 contract does not test this link."
-    artifacts:
-      - path: ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
-        issue: "The promotion from status: complete to status: validated is an ordinary documentation diff plus narrative; it has no validator receipt or fail-closed provenance assertion."
-      - path: "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
-        issue: "Its three passing tests cover SUMMARY ownership, traceability, and immutable digests only; it contains no validator-invocation/provenance assertion."
-    missing:
-      - "Durable machine-readable evidence from the canonical validator for phases 230, 231, 232, and 234, bound to their lifecycle mutations."
-      - "A deterministic contract that rejects a manually edited validated lifecycle state lacking that evidence."
-  - truth: "Validator failure preserves its exact diagnostics and stops later lifecycle/audit work; no approval prose or manual status edit substitutes for success."
-    status: failed
-    reason: "Phase 234 retains a blocked formatter narrative followed by a passed narrative, but these are editable claims and no execution receipt or contract proves the required stop/resume ordering."
-    artifacts:
-      - path: ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
-        issue: "The history is documented but not mechanically bound to command exit results or the later promotion."
-    missing:
-      - "Fail-closed validator execution evidence that records the formatter failure, blocks promotion, and records the succeeding resumed run."
   - truth: "D-05: a fresh canonical v1.47 audit is the sole terminal closeout verdict."
     status: failed
-    reason: "The new audit has the required totals and empty gap arrays, but neither its frontmatter nor an automated check identifies or proves a canonical audit-milestone invocation. No durable invocation record exists in the repository."
+    reason: "The historical verifier validates the contents supplied by its caller but never byte-compares them with the input/output snapshot blobs at the freeze and audit commits. A forged, internally consistent reduced manifest can therefore pass the historical-boundary checks."
     artifacts:
-      - path: ".planning/v1.47-v1.47-MILESTONE-AUDIT.md"
-        issue: "It is a substantive report, but lacks durable audit-run provenance (for example audit_type/auditor/receipt) and is not source-bound by a deterministic test."
+      - path: "scripts/planning/phase-236-audit-snapshot.exs"
+        issue: "historical_verify!/4 reads arbitrary input_path/output_path and uses their declared paths/digests; it does not load or compare the committed snapshots from Git."
+      - path: "scripts/planning/phase-236-audit-snapshot-test.exs"
+        issue: "Adversarial tests mutate real copies but do not test a wholly forged self-consistent input/output pair."
     missing:
-      - "A durable canonical-audit execution record and a deterministic source-to-report assertion for its totals, Nyquist classification, and gap arrays."
+      - "Bind the supplied JSON to git_show!(freeze_commit, committed input-snapshot path) and git_show!(audit_commit, committed output-snapshot path), or remove caller-controlled paths."
+      - "Add a forged but self-consistent manifest/output adversarial test that must fail."
+  - truth: "The post-Plan-05 scope fence fails closed for the committed range, current tracked working tree, and untracked paths."
+    status: failed
+    reason: "Plan 06 requires e9fee981 as its baseline, but e9fee981 is not an ancestor of HEAD after the authorized rebase. Its required committed-range command returns 236-06-PLAN.md, a path explicitly outside the four-path allowlist."
+    artifacts:
+      - path: ".planning/phases/236-closeout-evidence-reconciliation/236-06-PLAN.md"
+        issue: "The declared baseline and allowlist contradict the rewritten history; the plan file itself is rejected by its mandatory gate."
+    missing:
+      - "Replan or amend the scope fence to the finalized, ancestor baseline and prove all three collections with the amended contract."
 ---
 
 # Phase 236: Closeout Evidence Reconciliation Verification Report
 
 **Phase Goal:** Reconcile the four audited SUMMARY declarations and eight stale traceability rows, canonically validate Phases 230/231/232/234, and produce a fresh v1.47 audit without changing product, CI topology, or retained runtime evidence.
-**Verified:** 2026-08-04T16:16:02Z
+**Verified:** 2026-08-04T19:37:55Z
 **Status:** gaps_found
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after prior gap closure
 
 ## Goal Achievement
 
@@ -48,70 +50,71 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | D-01 exact SUMMARY ownership is limited to GATE-01 → 231-11, GATE-04 → 231-06, TEST-02/03 → 233-05, with no historical narrative rewrite. | ✓ VERIFIED | `git diff 0d4aae8c^..931eab02` changes only the three frontmatter fields; the focused contract deliberately rejects wrong owner, extra ID, duplicate field, and non-owner declaration. |
-| 2 | D-02 reconciles exactly TEST-01..03 and DX-01..04/DX-06 while retaining the 24-row ownership map. | ✓ VERIFIED | The same scoped diff changes only eight status cells; the executed contract asserts 24 rows, exact ownership, the approved complete set, checked requirements, verification rows, and named contracts. |
-| 3 | D-04 protected verification, compliant validation, and receipt inputs retain their exact bytes. | ✓ VERIFIED | `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` passed 3/0; an independent `shasum -a 256` matched all six VERIFICATION, two protected VALIDATION, and four protected receipt/attestation digests. |
-| 4 | The reconciliation guard is substantive and fails closed for ownership, traceability, and digest mutation. | ✓ VERIFIED | The 361-line ExUnit filesystem contract contains five in-memory adverse mutations and three executable tests; focused execution passed 3/0. |
-| 5 | D-03 lifecycle transitions for 230/231/232/234 were performed by successful canonical validator runs, not by manual edits. | ✗ FAILED | All four headers now declare `validated`/`true`/`true`, and Phase 234 retains prose about a blocked then resumed run. However, no machine-readable validator run record or provenance test binds those edits to `$gsd-validate-phase`; source inspection finds only editable narrative. |
-| 6 | A validator failure retains exact diagnostics and prevents later lifecycle/audit work until a successful rerun. | ✗ FAILED | The Phase 234 formatter diagnostic is retained and its promotion follows it in git history, but no deterministic evidence proves the command exit, stop boundary, or resume ordering. |
-| 7 | D-05 fresh audit reports 24/24, Nyquist compliant, and no requirement/integration/flow gaps. | ✓ VERIFIED | The new audit frontmatter reports requirements 24/24, all six compliant phases, and three empty gap arrays; its 24-row cross-reference matches the current checked traceability and source artifacts. |
-| 8 | The fresh audit is the canonical, sole terminal closeout verdict rather than hand-authored approval prose. | ✗ FAILED | `.planning/v1.47-v1.47-MILESTONE-AUDIT.md` is new and substantive, but has no durable audit-milestone provenance and no test binds it to the audit workflow. |
+| 1 | D-01 exact SUMMARY ownership is limited to GATE-01 → 231-11, GATE-04 → 231-06, TEST-02/03 → 233-05. | ✓ VERIFIED | The focused ExUnit contract passes and checks the complete owner map plus hostile ownership/extra-ID mutations. |
+| 2 | D-02 reconciles exactly TEST-01..03 and DX-01..04/DX-06 in the 24-row ownership map. | ✓ VERIFIED | Contract test passes the exact row, status, verification-row, and named-contract assertions. |
+| 3 | D-04 retained verification, compliant validation, and receipt inputs retain their intended bytes. | ✓ VERIFIED | The seven-test contract verifies its pinned digest set; no committed product/CI/runtime-evidence path is in the completed Plan 06 implementation range. |
+| 4 | The reconciliation guard fails closed on ownership, traceability, digest, replay, and adverse boundary mutations. | ✓ VERIFIED | `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` passed 7/0. |
+| 5 | D-03 lifecycle evidence for 230/231/232/234 is canonical and ordered. | ✓ VERIFIED | The contract recomputes the recorded mixed Phase 231 boundary and isolated Phase 232/234 validator transitions, parents, scopes, lifecycle deltas, and retained-body hashes. |
+| 6 | The Phase 234 formatter failure is retained and later lifecycle work follows a successful recovery. | ✓ VERIFIED | Replay assertions and the retained validation history check the blocked-to-successful transition rather than treating current lifecycle prose as proof. |
+| 7 | The audit artifact reports 24/24, Nyquist compliant, and empty requirement/integration/flow gaps. | ✓ VERIFIED | The committed audit and output snapshot contain 24/24, 6/6, 8/8, 7/7, `overall: compliant`, and empty gap arrays. |
+| 8 | D-05 audit provenance is source-bound to the committed historical inputs and output. | ✗ FAILED | `historical_verify!/4` accepts caller-controlled snapshot paths and never binds either document to the snapshot blobs in the asserted Git commits. |
+| 9 | The required Plan 06 scope fence passes its own committed-range, tracked-worktree, and untracked-path checks. | ✗ FAILED | `e9fee981` is not an ancestor of HEAD; `git diff --name-only e9fee981..HEAD` includes forbidden `236-06-PLAN.md`. |
 
-**Score:** 5/8 truths verified (0 present, behavior-unverified)
+**Score:** 7/9 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` | Fail-closed ownership, traceability, and digest contract | ✓ VERIFIED | Exists, substantive, directly executed (3 tests, 0 failures); its assertions are connected to the listed planning evidence. |
-| `231-06-SUMMARY.md`, `231-11-SUMMARY.md`, `233-05-SUMMARY.md` | Four exact completion declarations | ✓ VERIFIED | Fields are exactly `[GATE-04]`, `[GATE-01]`, and `[TEST-02, TEST-03]`; history confirms frontmatter-only edits. |
-| `.planning/REQUIREMENTS.md` | Eight reconciled traceability cells | ✓ VERIFIED | All 24 rows retain ownership; exactly the authorized eight changed from `Gaps Found` to `Complete`. |
-| `230/231/232/234-VALIDATION.md` | Canonical validator-owned lifecycle/audit trails | ⚠️ PRESENT, PROVENANCE UNVERIFIED | Headers and narratives are present; ownership by the validator is not mechanically demonstrated. |
-| `.planning/v1.47-v1.47-MILESTONE-AUDIT.md` | Fresh canonical terminal audit | ⚠️ PRESENT, PROVENANCE UNVERIFIED | Content is substantive and internally consistent, but no auditable workflow record proves canonical generation. |
+| `test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` | Fail-closed evidence and replay contract | ✓ VERIFIED | Substantive seven-test filesystem/Git contract; focused run passed. |
+| `236-VALIDATION-REPLAY-BASELINE.json` | Historical validation lifecycle ledger | ✓ VERIFIED | Referenced facts are recomputed against Git objects by the contract. |
+| `scripts/planning/phase-236-audit-snapshot.exs` | Source-bound historical audit verifier | ✗ STUB AT TRUST BOUNDARY | It checks self-consistency, but not that supplied snapshot documents are the committed inputs/outputs. |
+| `.planning/v1.47-v1.47-MILESTONE-AUDIT.md` | Fresh terminal audit report | ⚠️ PRESENT, SOURCE BINDING FAILED | Report contents are substantive, but the only historical verifier has the caller-input bypass above. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Phase 236 contract | Protected 230–235 reports/receipts | Exact SHA-256 reads | ✓ WIRED | The executed test reads each protected path and compares a pinned digest. |
-| Canonical `validate-phase` workflow | 230/231/232/234 VALIDATION lifecycle | Validator-owned transition | ✗ NOT PROVEN | Workflow documentation says it owns the transition, but no execution/provenance artifact connects it to the phase mutations. |
-| `REQUIREMENTS.md` | Fresh v1.47 audit | Canonical three-source audit | ⚠️ PARTIAL | Current rows and audit totals agree, but the audit generation link is undocumented and untested. |
+| Reconciliation contract | SUMMARY/traceability/protected evidence | Exact ownership, status, and SHA-256 checks | ✓ WIRED | Executed with 7/0 passing tests. |
+| Validator history | 230/231/232/234 lifecycle records | Commit parent, scope, and lifecycle replay | ✓ WIRED | Historical commit evidence is directly queried. |
+| Frozen audit sources | audit output snapshot and milestone audit | `historical_verify!/4` | ✗ NOT WIRED | It trusts arbitrary caller JSON rather than the committed snapshot blobs. |
+| Plan 06 baseline | scope fence | `git diff --name-only e9fee981..HEAD` | ✗ NOT WIRED | Rebased history invalidates the specified baseline relationship and rejects the Plan file. |
 
 ### Data-Flow Trace (Level 4)
 
-Not applicable. This phase has no dynamic runtime rendering or data-producing application artifact; its data flow is repository evidence read by the filesystem contract.
+Not applicable: this is repository evidence tooling, not a dynamic rendering/data-serving feature.
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Reconciliation mutation checks and digest fence | `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` | 3 tests, 0 failures (local Postgrex startup connection-refused logs were non-fatal) | ✓ PASS |
-| Repository formatting after Phase 234’s prior formatter block | `mix format --check-formatted` | Exit 0 | ✓ PASS |
-| Protected bytes | `shasum -a 256` over the 12 pinned artifacts | Every digest matched the contract’s pinned value | ✓ PASS |
-| Canonical validator/auditor invocation provenance | N/A | No deterministic receipt, event log, or source-bound contract exists | ✗ FAIL |
+| Full reconciliation/replay contract | `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` | 7 tests, 0 failures | ✓ PASS |
+| Historical verifier positive and adversarial cases | `elixir scripts/planning/phase-236-audit-snapshot-test.exs` | 3 tests, 0 failures | ⚠️ INSUFFICIENT: coverage omits forged self-consistent documents |
+| Exact formatting | `mix format --check-formatted` on the three Plan 06 Elixir files | exit 0 | ✓ PASS |
+| Mandatory Plan 06 committed scope | declared `e9fee981..HEAD` range with declared allowlist | rejects `236-06-PLAN.md` | ✗ FAIL |
 
 ### Probe Execution
 
-SKIPPED — Phase 236 declares no requirement IDs and no probe predicate; fabricating a probe would violate the phase boundary.
+SKIPPED — Phase 236 declares no requirement IDs or probe predicate; no predicate was fabricated.
 
 ### Requirements Coverage
 
-Phase 236 declares `requirements: []` in all three plans. No requirement IDs were fabricated. Its evidence-closeout truths were checked directly above.
+Phase 236 declares `requirements: []` in every plan, and ROADMAP/REQUIREMENTS map no Phase 236 requirement ID. No IDs were fabricated.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-| --- | --- | --- | --- |
-| `234-VALIDATION.md` | 128–142 | Editable prose asserts promotion after success without command receipt/provenance | 🛑 Blocker | Cannot distinguish a canonical validator mutation from a hand edit. |
-| `v1.47-v1.47-MILESTONE-AUDIT.md` | 1–24 | No audit workflow provenance or source-bound automated check | 🛑 Blocker | The terminal verdict cannot be proven canonical. |
+| --- | --- | --- | --- | --- |
+| `scripts/planning/phase-236-audit-snapshot.exs` | 53–62, 85–119 | Caller-controlled evidence documents are treated as historical inputs | 🛑 Blocker | Allows a forged manifest/output pair to bypass the audit source boundary. |
+| `236-06-PLAN.md` | 39–42, 128–139 | Scope baseline is no longer valid after rebase | 🛑 Blocker | The phase's declared fail-closed final gate cannot pass. |
 
 ### Gaps Summary
 
-The reconciliation itself is real and well protected: scoped history, executable adverse tests, and independent SHA-256 checks substantiate D-01, D-02, and D-04. The closeout goal nevertheless requires more than the resulting text. The canonical validator and canonical audit are the trust boundaries of this phase, but their execution is only asserted in editable Markdown. This is observable absence of implementation evidence, not a request for manual UAT.
+The prior lifecycle-provenance gaps are closed by real commit-scoped checks. The terminal audit provenance remains incomplete because its verifier can authenticate an arbitrary self-consistent JSON pair, rather than the snapshots committed at the claimed boundaries. Independently, the authorized rebase left the Plan 06 scope-fence baseline stale; the prescribed range fails its own allowlist.
 
-No later milestone phase exists to defer these gaps to. The required escalation action is to add durable, machine-verifiable validator/auditor provenance (or an equivalent fail-closed source-bound contract), then re-run Phase 236 verification.
+No later milestone phase is available to defer either issue. This is an escalation gate: amend/replan the baseline and repair the snapshot binding, then re-run verification.
 
 ---
 
-_Verified: 2026-08-04T16:16:02Z_
+_Verified: 2026-08-04T19:37:55Z_
 _Verifier: the agent (gsd-verifier)_
