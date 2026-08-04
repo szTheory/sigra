@@ -452,7 +452,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 236-01-PLAN.md — Build the Wave 0 evidence-integrity contract and reconcile exact SUMMARY/traceability metadata.
+- [x] 236-01-PLAN.md — Build the Wave 0 evidence-integrity contract and reconcile exact SUMMARY/traceability metadata.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
