@@ -2,6 +2,33 @@
 
 *Living document updated at milestone boundaries. v1.30 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
 
+## Milestone: v1.47 — CI-EFFICIENCY
+
+**Shipped:** 2026-08-04 (`override_closeout`)  
+**Phases:** 7 (230–236) | **Plans:** 76 | **Tasks:** 93
+
+### What Was Built
+
+Reduced the protected PR population's strict p50 to 486 seconds across 15 terminal runs, below the 12-minute target. Restored evidence-based gate honesty and a green nightly; moved repeat Playwright setup into authenticated storage state plus isolated shards; restored library-suite economics; and made contributor CI locally reproducible with pinned actions, dependency hygiene, and a machine-checked CI inventory. The final closeout phase reconciled all 24 requirements and hardened the audit-evidence boundary.
+
+### What Worked
+
+- Run-data-first verification prevented the milestone from closing on a merely plausible CI topology: FAST-01 remained open until the protected 15-run population proved the target.
+- The dedicated reconciliation phase corrected stale traceability and validation metadata without altering delivered behavior or retained evidence.
+- Fail-closed contracts around CI ownership, test partitions, and audit inputs made the resulting performance and gate claims durable.
+
+### What Was Inefficient
+
+- Phase-local verification becoming stale after later planning evidence required a closeout reconciliation phase; verification lifecycle state should be kept current as milestones evolve.
+- The generic open-artifact audit treats historic backlog and dormant seeds as closeout decisions, requiring explicit deferral even when they are unrelated to the shipped scope.
+
+### Key Lessons
+
+- Keep performance targets tied to a frozen, sufficient run population and report misses honestly until new evidence closes them.
+- Preserve a clear distinction between milestone requirements and globally prioritized backlog items so archive gates remain actionable.
+
+---
+
 ## In-flight posture capture: v1.32 — RELEASE-ADOPTION
 
 **Captured:** 2026-05-31 during Phase 147 planning/execution handoff  
