@@ -10,11 +10,11 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-234 are complete; Phase 235
-(Terminal Ratification — Measured, Not Read) is next. Phase 234 made `mix ci` the
-executable local/PR parity path, pinned the release-critical action surface, expanded
-Dependabot coverage, assigned every Playwright spec an executable owner, and closed
-the evidence ledger with an exact six-slot completion contract.
+**Milestone v1.47 CI-EFFICIENCY is complete.** All six phases (230-235) and all 68 plans
+are complete. Phase 235 terminal ratification independently verified FAST-01 from a
+protected 15-run population at strict p50 486 seconds and GATE-05 from the protected
+93-row ownership ledger; both retained-evidence verifiers now establish trusted staging
+before network-denied provenance checks.
 
 Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
 on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
@@ -1124,4 +1124,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-07-10 — `/gsd-new-milestone` opened **v1.45 RELEASE-CURRENCY** (phases continue from 221). Maintenance-first/post-1.0 lane chosen over an 11th UI milestone: **get Sigra current and trustworthy on Hex.** Root cause mapped: Hex is stuck at v1.1.0 because release-please auto-publish (`release-please.yml` → `hex-publish` job, gated on `gate-ci-green`) has been blocked since 2026-07-03 — `ci-gate` is red on every push to `main` from a **push/schedule-only, PR-invisible** `Upgrade smoke` `<.button type>` warning-as-error; v1.2.0 (#66) + v1.3.0 (#74) were cut + tagged + GitHub-released but silently never published. Four target features: (1) fix the `<.button type>` upgrade-smoke blocker (lib + installer template + example parity, golden re-bless) → `ci-gate` green; (2) publish v1.2.0 + v1.3.0 contiguous + retire stray `1.20.0` so `latest_stable` resolves to GA; (3) release-lane hardening so a red gate can't silently strand a release (Upgrade-smoke PR-visible/alerting + auto-publish fails loudly); (4) ship-honest generated-host debt (security-adjacent WR-01 installer `scope:` fix + golden re-bless, WR-02 copy, app.css corruption-guard false-negative, up.sh --help). Human-gated: `mix hex.retire` + publish dispatch (interactive Hex write-auth). Deferred: FEAT-01/02/03, SEED-005 CI-perf, further UI. Next: define REQUIREMENTS.md → roadmap.*
 
-*Last updated: 2026-08-02 — Phase **234 Hygiene, Supply Chain, and Contributor DX** complete (21/21 plans; verifier 7/7, status passed). `mix ci` is the executable contributor/PR parity path, release-critical actions and Dependabot coverage are fail-closed, every Playwright spec has an exact executable owner, SEED-006 evidence is ratified, and completion now admits exactly the six named evidence slots. The final gap also reblessed the generated `config/dev.exs` golden from stale Phoenix 1.8.7 scaffold bytes to the pinned `phx_new` 1.8.8 output. Phase 235 terminal ratification is next.*
+*Last updated: 2026-08-03 — Phase **235 Terminal Ratification — Measured, Not Read** complete (14/14 plans; verifier 5/5, status passed). FAST-01 is protected at n=15 / strict p50=486 seconds, GATE-05 retains its protected 93-row ownership proof, and both authoritative offline verifiers now use hostile-environment-tested trusted staging. Milestone v1.47 CI-EFFICIENCY is 6/6 phases and 68/68 plans complete.*

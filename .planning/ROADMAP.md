@@ -54,7 +54,7 @@
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
-- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - Protected producer run `30865183650` measured n=15 / strict p50=486s, but verification remains blocked on two offline-verifier staging trust boundaries (completed 2026-08-03)
+- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - Protected producer run `30865183650` measured n=15 / strict p50=486s; trusted-staging gap closure passed 5/5 verification (completed 2026-08-03)
 
 ## Phase Details
 
