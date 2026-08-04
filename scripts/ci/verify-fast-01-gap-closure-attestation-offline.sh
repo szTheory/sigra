@@ -40,7 +40,7 @@ esac
 FIXED_PARENT=$(builtin cd -P -- "$FIXED_PARENT" && builtin pwd -P) || { echo trusted_staging_failed:fixed_parent >&2; exit 1; }
 [[ $FIXED_PARENT == /* && -d $FIXED_PARENT && ! -L $FIXED_PARENT ]] || { echo trusted_staging_failed:fixed_parent >&2; exit 1; }
 case "$($UNAME_BIN -s)" in
-  Darwin) [[ $($STAT_BIN -f %u "$FIXED_PARENT") == 0 && $($STAT_BIN -f %Lp "$FIXED_PARENT") == 1777 ]] || { echo trusted_staging_failed:fixed_parent >&2; exit 1; };;
+  Darwin) [[ $($STAT_BIN -f %u "$FIXED_PARENT") == 0 && $($STAT_BIN -f %Lp "$FIXED_PARENT") =~ ^(777|1777)$ ]] || { echo trusted_staging_failed:fixed_parent >&2; exit 1; };;
   Linux) [[ $($STAT_BIN -c %u "$FIXED_PARENT") == 0 ]] || { echo trusted_staging_failed:fixed_parent >&2; exit 1; };;
 esac
 
