@@ -450,9 +450,16 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 236-01-PLAN.md — Build the Wave 0 evidence-integrity contract and reconcile exact SUMMARY/traceability metadata.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 236-02-PLAN.md — Run canonical Nyquist validation for Phases 230, 231, 232, and 234.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 236-03-PLAN.md — Regenerate and ratify the fresh v1.47 milestone audit verdict.
 
 ---
