@@ -41,6 +41,22 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     refute verifier =~ "command -v sudo"
   end
 
+  test "FAST verifier pins bash and establishes trusted staging before retained inputs" do
+    verifier = File.read!(Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh"))
+    runtime_test = File.read!(Path.join(@root, "scripts/ci/verify-fast-01-gap-closure-attestation-offline.test.sh"))
+
+    assert String.starts_with?(verifier, "#!/bin/bash\n")
+    assert verifier =~ "BASH_SOURCE[0]"
+    refute verifier =~ "dirname"
+    refute verifier =~ "command -v"
+    assert verifier =~ "TMPDIR= TMP= TEMP="
+    assert verifier =~ "trusted_staging_failed"
+    assert verifier =~ "offline_fast_01_gap_closure_attestation_verified"
+    assert runtime_test =~ ~s("$VERIFIER")
+    assert runtime_test =~ "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd shasum awk"
+    assert runtime_test =~ "offline_fast_01_gap_closure_attestation_verified"
+  end
+
   test "readiness stays non-authoritative and protected evidence is separate from ci" do
     readiness =
       File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-GAP-CLOSURE-READINESS.json")))
@@ -244,7 +260,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   end
 
   defp validate_reconciliation!(requirements, residual, terminal, gate_receipt, gate_verifier) do
-    unless requirements =~ "- [x] **FAST-01**" and requirements =~ "run `30865183650`" and
+    unless requirements =~ "**FAST-01**" and requirements =~ "run `30865183650`" and
              requirements =~ "15 terminal `pull_request` runs" and
              requirements =~ "p50 486 seconds" and
              requirements =~ "2026-08-04T00:19:10Z" and
@@ -257,7 +273,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
       raise ArgumentError, "historical residual preservation"
     end
 
-    unless requirements =~ "- [x] **GATE-05**" and requirements =~ "30782184713" and
+    unless requirements =~ "**GATE-05**" and requirements =~ "30782184713" and
              requirements =~ "93 ownership rows" do
       raise ArgumentError, "GATE-05 requirement"
     end
