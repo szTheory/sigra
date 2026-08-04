@@ -67,6 +67,17 @@ defmodule Phase236AuditSnapshotTest do
 
     assert status == 0
 
+    assert {wrong_commit_output, wrong_commit_status} =
+             System.cmd(
+               "elixir",
+               [@script, "historical-verify", input, output, "a523575d", "a523575d"],
+               cd: @root,
+               stderr_to_stdout: true
+             )
+
+    assert wrong_commit_status != 0
+    assert wrong_commit_output =~ "freeze commit differs"
+
     temp =
       Path.join(System.tmp_dir!(), "phase-236-historical-#{System.unique_integer([:positive])}")
 
@@ -102,14 +113,70 @@ defmodule Phase236AuditSnapshotTest do
     )
 
     assert_historical_failure!(altered_input, altered_output, "22dfd088", "a523575d")
+
+    forged_input =
+      input
+      |> File.read!()
+      |> :json.decode()
+      |> Map.put("files", [])
+      |> Map.put("resolvers", [])
+      |> with_manifest_sha()
+
+    forged_output =
+      output
+      |> File.read!()
+      |> :json.decode()
+      |> Map.put("input_manifest_sha256", forged_input["manifest_sha256"])
+      |> Map.put("post_audit_manifest_sha256", forged_input["manifest_sha256"])
+
+    assert forged_input["manifest_sha256"] == manifest_sha(forged_input)
+    assert forged_output["input_manifest_sha256"] == forged_output["post_audit_manifest_sha256"]
+
+    File.write!(altered_input, forged_input |> :json.encode() |> IO.iodata_to_binary())
+    File.write!(altered_output, forged_output |> :json.encode() |> IO.iodata_to_binary())
+
+    assert_historical_failure!(
+      altered_input,
+      altered_output,
+      "22dfd088",
+      "a523575d",
+      "committed input snapshot differs"
+    )
   end
 
-  defp assert_historical_failure!(input, output, freeze, audit) do
-    assert {_result, status} =
+  defp assert_historical_failure!(input, output, freeze, audit, expected_error \\ nil) do
+    assert {result, status} =
              System.cmd("elixir", [@script, "historical-verify", input, output, freeze, audit],
-               cd: @root
+               cd: @root,
+               stderr_to_stdout: true
              )
 
     assert status != 0
+
+    if expected_error, do: assert(result =~ expected_error)
   end
+
+  defp with_manifest_sha(snapshot) do
+    manifest = snapshot |> Map.drop(["starting_commit", "manifest_sha256"]) |> canonical_json()
+    Map.put(snapshot, "manifest_sha256", sha256(manifest))
+  end
+
+  defp manifest_sha(snapshot),
+    do:
+      snapshot |> Map.drop(["starting_commit", "manifest_sha256"]) |> canonical_json() |> sha256()
+
+  defp canonical_json(value) when is_map(value) do
+    value
+    |> Enum.sort_by(&elem(&1, 0))
+    |> Enum.map(fn {key, item} -> [:json.encode(key), ":", canonical_json(item)] end)
+    |> IO.iodata_to_binary()
+    |> then(&("{" <> &1 <> "}"))
+  end
+
+  defp canonical_json(value) when is_list(value),
+    do: "[" <> Enum.map_join(value, ",", &canonical_json/1) <> "]"
+
+  defp canonical_json(value), do: value |> :json.encode() |> IO.iodata_to_binary()
+
+  defp sha256(value), do: :crypto.hash(:sha256, value) |> Base.encode16(case: :lower)
 end

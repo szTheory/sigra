@@ -3,6 +3,10 @@
 defmodule Phase236AuditSnapshot do
   @root Path.expand("../..", __DIR__)
   @phase_numbers 230..235
+  @expected_freeze_sha "22dfd0880967dd84cdee153fa9b1dd1b083f83f5"
+  @expected_audit_sha "a523575d4fb40baac371112d5a4476db5b153ae7"
+  @input_snapshot_path ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-INPUT-SNAPSHOT.json"
+  @output_snapshot_path ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-OUTPUT-SNAPSHOT.json"
 
   def main(args) do
     case args do
@@ -51,11 +55,23 @@ defmodule Phase236AuditSnapshot do
   end
 
   def historical_verify!(input_path, output_path, freeze_commit, audit_commit) do
-    input = input_path |> absolute() |> File.read!() |> :json.decode()
-    output = output_path |> absolute() |> File.read!() |> :json.decode()
-    starting_commit = input["starting_commit"]
     freeze_commit = git!("rev-parse", [freeze_commit])
+    assert_equal!(@expected_freeze_sha, freeze_commit, "freeze commit")
+
     audit_commit = git!("rev-parse", [audit_commit])
+    assert_equal!(@expected_audit_sha, audit_commit, "audit commit")
+
+    committed_input = git_show!(freeze_commit, @input_snapshot_path)
+    committed_output = git_show!(audit_commit, @output_snapshot_path)
+    supplied_input = input_path |> absolute() |> File.read!()
+    supplied_output = output_path |> absolute() |> File.read!()
+
+    assert_equal!(committed_input, supplied_input, "committed input snapshot")
+    assert_equal!(committed_output, supplied_output, "committed output snapshot")
+
+    input = :json.decode(committed_input)
+    output = :json.decode(committed_output)
+    starting_commit = input["starting_commit"]
 
     assert_equal!(input["manifest_sha256"], manifest_sha(input), "input manifest")
     assert_equal!(starting_commit, git!("rev-parse", ["#{freeze_commit}^"]), "freeze parent")
