@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 13 plans in 13 waves
+**Plans**: 14 plans in 14 waves
 
 Plans:
 **Wave 1**
@@ -398,6 +398,10 @@ Plans:
 **Wave 13** *(gap closure; blocked on Wave 12 completion and a qualifying ≥10-run population)*
 
 - [x] 235-13-PLAN.md — Capture one protected post-remediation population and reconcile FAST-01 only under the strict `<720` verdict
+
+**Wave 14** *(gap closure; blocked on Wave 13 completion)*
+
+- [ ] 235-14-PLAN.md — Establish trusted verifier staging and checkpoint-reaching regressions for FAST-01 and GATE-05
 
 ## Progress
 
