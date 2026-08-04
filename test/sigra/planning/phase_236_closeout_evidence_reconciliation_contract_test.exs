@@ -5,6 +5,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   @plan_06_amendment_sha "4aaa3a739b3d53b86de41136857ece240c0807a5"
   @plan_06_completion_sha "b6c67ed987fae364bb8e41dab21a8942bbc952a1"
   @plan_07_baseline_sha "8f55900b8a7ecd0e9730d89f6560ea31ff00a50d"
+  @plan_07_completion_sha "287065751e2ed44d39d112801a06503de740e45d"
   @plan_07_task_1_sha "7bc7dae8"
   @scope_allowlist [
     "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs",
@@ -385,13 +386,82 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert git!("merge-base", ["--is-ancestor", @plan_07_baseline_sha, "HEAD"]) == ""
     assert git!("merge-base", ["--is-ancestor", @plan_07_task_1_sha, "HEAD"]) == ""
 
-    assert Enum.all?(
-             changed_paths_between!(@plan_07_baseline_sha, "HEAD"),
-             &(&1 in @scope_allowlist)
-           )
+    assert changed_paths_between!(@plan_07_baseline_sha, @plan_07_completion_sha) ==
+             Enum.filter(
+               @scope_allowlist,
+               &(&1 != ".planning/phases/236-closeout-evidence-reconciliation/236-06-SUMMARY.md")
+             )
 
-    assert Enum.all?(tracked_paths!(), &(&1 in @scope_allowlist))
-    assert Enum.all?(untracked_paths!(), &(&1 in @scope_allowlist))
+    assert validate_scope_paths!(
+             changed_paths_between!(@plan_06_amendment_sha, @plan_06_completion_sha),
+             @scope_allowlist
+           ) == :ok
+
+    assert validate_scope_paths!(
+             changed_paths_between!(@plan_07_baseline_sha, @plan_07_completion_sha),
+             @scope_allowlist
+           ) == :ok
+
+    assert validate_scope_paths!(tracked_paths!(), @scope_allowlist) == :ok
+    assert validate_scope_paths!(untracked_paths!(), @scope_allowlist) == :ok
+  end
+
+  @tag :scope_fence
+  test "scope fence rejects a forbidden path restored within a committed range" do
+    repository =
+      Path.join(System.tmp_dir!(), "sigra-phase-236-#{System.unique_integer([:positive])}")
+
+    on_exit(fn -> File.rm_rf(repository) end)
+
+    File.mkdir_p!(repository)
+    temporary_git!(repository, ["init"])
+    temporary_git!(repository, ["config", "user.email", "phase-236@example.test"])
+    temporary_git!(repository, ["config", "user.name", "Phase 236 Contract"])
+
+    File.write!(Path.join(repository, "allowed.txt"), "baseline\n")
+    File.write!(Path.join(repository, "forbidden.txt"), "baseline\n")
+    temporary_git!(repository, ["add", "."])
+    temporary_git!(repository, ["commit", "-m", "baseline"])
+    baseline = temporary_git!(repository, ["rev-parse", "HEAD"])
+
+    File.write!(Path.join(repository, "allowed.txt"), "allowed mutation\n")
+    File.write!(Path.join(repository, "forbidden.txt"), "forbidden mutation\n")
+    temporary_git!(repository, ["add", "."])
+    temporary_git!(repository, ["commit", "-m", "mutate allowed and forbidden"])
+
+    File.write!(Path.join(repository, "forbidden.txt"), "baseline\n")
+    temporary_git!(repository, ["add", "forbidden.txt"])
+    temporary_git!(repository, ["commit", "-m", "restore forbidden"])
+    endpoint = temporary_git!(repository, ["rev-parse", "HEAD"])
+
+    assert temporary_git!(repository, ["diff", "--name-only", "#{baseline}..#{endpoint}"]) ==
+             "allowed.txt"
+
+    paths = changed_paths_between!(repository, baseline, endpoint)
+    assert paths == ["allowed.txt", "forbidden.txt"]
+
+    assert_raise ArgumentError, ~r/scope fence rejected: forbidden.txt/, fn ->
+      validate_scope_paths!(paths, ["allowed.txt"])
+    end
+
+    assert_raise ArgumentError, ~r/git rev-list failed/, fn ->
+      changed_paths_between!(repository, "not-a-revision", endpoint)
+    end
+
+    Process.delete(:phase_236_diff_tree_seen)
+
+    assert_raise ArgumentError, ~r/injected diff-tree failure/, fn ->
+      changed_paths_between!(repository, baseline, endpoint, fn current_repository,
+                                                                command,
+                                                                arguments ->
+        if command == "diff-tree" and Process.get(:phase_236_diff_tree_seen) do
+          raise ArgumentError, "injected diff-tree failure"
+        end
+
+        if command == "diff-tree", do: Process.put(:phase_236_diff_tree_seen, true)
+        git_lines_in!(current_repository, command, arguments)
+      end)
+    end
   end
 
   @tag :audit_input_snapshot
@@ -637,7 +707,38 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   defp changed_paths!(commit),
     do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
 
-  defp changed_paths_between!(from, to), do: git_lines!("diff", ["--name-only", "#{from}..#{to}"])
+  defp changed_paths_between!(from, to), do: changed_paths_between!(@root, from, to)
+
+  defp changed_paths_between!(repository, from, to),
+    do: git_lines_in!(repository, "diff", ["--name-only", "#{from}..#{to}"])
+
+  defp changed_paths_between!(repository, from, to, _command_runner),
+    do: changed_paths_between!(repository, from, to)
+
+  defp validate_scope_paths!(paths, allowlist) do
+    rejected_paths = Enum.reject(paths, &(&1 in allowlist))
+
+    case rejected_paths do
+      [] -> :ok
+      _ -> raise ArgumentError, "scope fence rejected: #{Enum.join(rejected_paths, ", ")}"
+    end
+  end
+
+  defp temporary_git!(repository, arguments),
+    do: git_in!(repository, hd(arguments), tl(arguments))
+
+  defp git_lines_in!(repository, command, arguments),
+    do: git_in!(repository, command, arguments) |> String.split("\n", trim: true)
+
+  defp git_in!(repository, command, arguments) do
+    case System.cmd("git", [command | arguments], cd: repository, stderr_to_stdout: true) do
+      {output, 0} ->
+        String.trim(output)
+
+      {output, status} ->
+        raise ArgumentError, "git #{command} failed (exit #{status}): #{String.trim(output)}"
+    end
+  end
 
   defp plan_introduction_sha! do
     path = ".planning/phases/236-closeout-evidence-reconciliation/236-07-PLAN.md"
