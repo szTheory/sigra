@@ -1,53 +1,55 @@
 ---
 phase: 235
-fixed_at: 2026-08-03T20:47:10Z
-review_path: .planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
+fixed_at: 2026-08-04T00:46:00Z
+review_path: /Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
 iteration: 2
-findings_in_scope: 3
-fixed: 2
-skipped: 1
-status: partial
+findings_in_scope: 4
+fixed: 4
+skipped: 0
+status: all_fixed
 ---
 
 # Phase 235: Code Review Fix Report
 
-**Fixed at:** 2026-08-03T20:47:10Z
-**Source review:** `.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
+**Fixed at:** 2026-08-04T00:46:00Z
+**Source review:** `/Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
 **Iteration:** 2
 
 **Summary:**
 
-- Findings in scope: 3
-- Fixed: 2
-- Skipped: 1
+- Findings in scope: 4
+- Fixed: 4
+- Skipped: 0
 
 ## Fixed Issues
 
-### BL-01: Skipped jobs with inverted timestamps are accepted into the attested receipt
+### CR-01: Fresh-window evidence workflow cannot satisfy its collector's Git-history checks
 
-**Files modified:** `scripts/ci/capture-terminal-ratification-evidence.sh`, `scripts/ci/capture-terminal-ratification-evidence.test.sh`
-**Commit:** 4d070d62
-**Applied fix:** Skipped jobs must now have both timestamps null or both valid strings in chronological order. The collector contract includes an inverted skipped-job fixture that must fail.
-**Verification:** `bash -n` passed for the collector and its test; `bash scripts/ci/capture-terminal-ratification-evidence.test.sh` passed.
+**Files modified:** `.github/workflows/fast-01-remeasurement-evidence.yml`, `test/sigra/planning/phase_235_fast_01_remeasurement_contract_test.exs`
+**Commit:** `8160a8a8`
+**Applied fix:** Configured checkout with full Git history and locked the requirement in the workflow contract test.
 
-### BL-02: Event-guard validation treats exclusion conditions as executable
+### CR-02: Gap-closure collector treats an empty remediation digest map as validated evidence
 
-**Files modified:** `test/sigra/planning/phase_235_terminal_ratification_contract_test.exs`
-**Commit:** 9ab0e7a2
-**Applied fix:** Replaced the positive-match heuristic with a limited evaluator for `==`/`!=` event predicates and `&&`/`||`, rejecting unsupported atoms. Added a mutation test for a direct owner excluded from `pull_request`.
-**Verification:** Elixir parsed the contract successfully with `Code.string_to_quoted!/1`. The focused ExUnit contract could not run because this worktree has no declared Mix dependencies; it requires human verification after dependencies are restored.
+**Files modified:** `scripts/ci/capture-fast-01-gap-closure.sh`, `scripts/ci/capture-fast-01-gap-closure.test.sh`, `test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs`
+**Commit:** `6b8fe46f`
+**Applied fix:** Pinned the remediation receipt bytes and rejected digest maps unless they contain the exact expected paths and SHA-256 values.
 
-## Skipped Issues
+### CR-03: Terminal offline verifier's fallback isolation can be replaced through PATH
 
-### WR-01: FAST-01 retained-attestation verifier is never run
+**Files modified:** `scripts/ci/verify-terminal-ratification-attestation-offline.sh`, `scripts/ci/verify-terminal-ratification-attestation-offline.test.sh`, `test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs`
+**Commit:** `f33b3645`
+**Applied fix:** Replaced PATH-based sudo resolution with the trusted `/usr/bin/sudo` path, added matching cleanup, and covered a shadowed-sudo path.
 
-**File:** `scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh:85`
-**Reason:** Deferred: Phase 235 Plan 10 decision D-08 explicitly forbids altering `ci.yml`, adding a new gate, or changing CI topology during measured reconciliation.
-**Original issue:** The retained FAST-01 provenance verifier is not invoked by repository automation, so regressions to its receipt, trust-root, signer, source-ref, or network-isolation checks can land undetected.
-**Recommended future action:** Add a required CI step, alongside the terminal provenance verification, to run `bash scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh`. Add a hermetic PATH-shadowing/runtime self-test for that verifier as well, so CI proves it rejects an untrusted `gh` executable before running the retained-evidence check.
+### CR-01 (iteration 2): Offline verifiers execute a PATH-controlled `mktemp` before isolation
+
+**Files modified:** `scripts/ci/verify-fast-01-remeasurement-attestation-offline.sh`, `scripts/ci/verify-terminal-ratification-attestation-offline.sh`, `scripts/ci/verify-fast-01-remeasurement-attestation-offline.test.sh`, `scripts/ci/verify-terminal-ratification-attestation-offline.test.sh`
+**Commit:** `498bd264`
+**Applied fix:** Removed PATH-based `realpath` resolution, choose `/usr/bin/mktemp` or `/bin/mktemp` only, fail closed when neither exists, and use absolute system paths for setup and cleanup commands. Both verifier self-tests prepend a malicious `mktemp` and prove it is never executed.
+**Verification:** `bash -n` and both runtime self-tests passed. The scoped ExUnit command could not start because required Mix dependencies are absent in this isolated worktree.
 
 ---
 
-_Fixed: 2026-08-03T20:47:10Z_
+_Fixed: 2026-08-04T00:46:00Z_
 _Fixer: the agent (gsd-code-fixer)_
 _Iteration: 2_
