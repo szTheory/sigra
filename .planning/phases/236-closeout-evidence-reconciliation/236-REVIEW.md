@@ -1,12 +1,12 @@
 ---
 phase: 236-closeout-evidence-reconciliation
-reviewed: 2026-08-04T19:38:00Z
+reviewed: 2026-08-04T16:45:00-04:00
 depth: standard
 files_reviewed: 3
 files_reviewed_list:
-  - test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs
   - scripts/planning/phase-236-audit-snapshot.exs
   - scripts/planning/phase-236-audit-snapshot-test.exs
+  - test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs
 findings:
   critical: 1
   warning: 0
@@ -17,29 +17,35 @@ status: issues_found
 
 # Phase 236: Code Review Report
 
-**Reviewed:** 2026-08-04T19:38:00Z
+**Reviewed:** 2026-08-04T16:45:00-04:00
 **Depth:** standard
 **Files Reviewed:** 3
 **Status:** issues_found
 
 ## Summary
 
-The Phase 236 contract and snapshot tests execute successfully (7 and 3 tests respectively), but the new historical verifier does not bind its supplied JSON documents to the Git objects it claims to authenticate. Consequently, a caller can forge a self-consistent input/output pair that the verifier accepts for the recorded commits, so it cannot serve as a trustworthy historical audit boundary.
-
-## Narrative Findings (AI reviewer)
+Reviewed the snapshot utility, its focused ExUnit coverage, and the Phase 236 reconciliation contract. The new per-commit collector handles transient changes in a linear history, but it does not inspect merge-commit changes. This leaves the scope fence bypassable through a forbidden path introduced during merge conflict resolution.
 
 ## Critical Issues
 
-### CR-01: Historical verifier trusts uncommitted caller-supplied snapshot documents
+### CR-01: Merge-commit changes bypass the committed-range scope fence
 
-**File:** `scripts/planning/phase-236-audit-snapshot.exs:53-62, 85-119`
+**Classification:** BLOCKER
+**File:** `/Users/jon/projects/sigra/test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs:724`
+**Issue:** `git diff-tree` emits no diff for a merge commit unless a merge-diff mode is requested. The collector calls it once per commit without `-m`, so `rev-list` includes a merge commit but the path set omits every path changed only by that merge's resolution. A forbidden path can therefore be added or altered while resolving a conflict, retained at the endpoint, and still pass `validate_scope_paths!/2`. This violates the stated fail-closed, every-commit scope fence.
 
-**Issue:** `historical_verify!/4` reads both `input_path` and `output_path` directly from caller-controlled paths, then only proves that each document is internally self-consistent. It never reads or byte-compares the input snapshot committed at `freeze_commit` nor the output snapshot committed at `audit_commit`. An attacker can therefore supply an input with an empty (or selectively reduced) `files` list, a correctly recomputed `manifest_sha256`, the required claim-limit text, and an empty resolver list; they can pair it with an output that repeats that manifest hash and the real audit blob digest. The ancestry and commit-scope assertions still pass, as do all subsequent checks, while the verifier has skipped the historical source evidence it is supposed to establish. The existing adversarial test only mutates fields in copies of the real documents and misses this replacement attack.
+**Fix:** Request per-parent merge diffs and preserve the deduplicated union; add a temporary-repository regression that introduces a forbidden change in a non-fast-forward merge resolution.
 
-**Fix:** Make the verifier derive both documents from fixed repository paths and the supplied, resolved commits, for example `git_show!(freeze_commit, @input_snapshot_path)` and `git_show!(audit_commit, @output_snapshot_path)`. If file arguments must remain for a diagnostic mode, byte-compare them to those Git objects before decoding and reject any mismatch. Add a test that passes a fully forged but internally valid manifest/output pair (including `files: []`) and asserts that verification fails.
+```elixir
+command_runner.(repository, "diff-tree", [
+  "--no-commit-id", "--name-only", "-r", "-m", commit
+])
+```
+
+The regression should assert that `changed_paths_between!/3` returns the forbidden path and that `validate_scope_paths!/2` raises.
 
 ---
 
-_Reviewed: 2026-08-04T19:38:00Z_
+_Reviewed: 2026-08-04T16:45:00-04:00_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
