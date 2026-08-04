@@ -30,4 +30,8 @@ make_runs 10 719
 jq '.[0].updated_at="2026-08-03T22:00:01Z"' "$TMP/runs.json" >"$TMP/completed-after-endpoint.json"
 PATH="$TMP/bin:$PATH" FAKE_RUNS="$(<"$TMP/completed-after-endpoint.json")" "$COLLECTOR" --protected-output "$TMP/protected-completed-after-endpoint.json" --endpoint 2026-08-03T22:00:00Z
 jq -e '.status=="measured" and .eligible_pr_run_count==10 and ([.runs[] | select(.run_id==900000) | .wall_seconds] == [1372])' "$TMP/protected-completed-after-endpoint.json" >/dev/null || fail "terminal run completed after fixed endpoint rejected"
+make_runs 10 719
+jq '. + [(. [0] | .id=910000 | .conclusion=null)]' "$TMP/runs.json" >"$TMP/with-in-progress-pr.json"
+PATH="$TMP/bin:$PATH" FAKE_RUNS="$(<"$TMP/with-in-progress-pr.json")" "$COLLECTOR" --protected-output "$TMP/protected-terminal-only.json" --endpoint 2026-08-03T22:00:00Z
+jq -e '.status=="measured" and .eligible_pr_run_count==10 and ([.runs[] | select(.run_id==910000)] | length == 0)' "$TMP/protected-terminal-only.json" >/dev/null || fail "in-progress pull request was included in terminal population"
 echo "capture-fast-01-gap-closure.test: PASS"
