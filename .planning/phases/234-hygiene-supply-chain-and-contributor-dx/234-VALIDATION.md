@@ -1,7 +1,7 @@
 ---
 phase: 234
 slug: hygiene-supply-chain-and-contributor-dx
-status: complete
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 reviewed_commit_sha: 46c56e0fc830bd49c6a2da4336a646dce63ba280
