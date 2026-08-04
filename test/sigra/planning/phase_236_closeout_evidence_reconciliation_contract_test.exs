@@ -2,6 +2,23 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   use ExUnit.Case, async: true
 
   @root Path.expand("../../..", __DIR__)
+  @plan_06_amendment_sha "4aaa3a739b3d53b86de41136857ece240c0807a5"
+  @plan_06_completion_sha "b6c67ed987fae364bb8e41dab21a8942bbc952a1"
+  @plan_07_baseline_sha "8f55900b8a7ecd0e9730d89f6560ea31ff00a50d"
+  @plan_07_task_1_sha "7bc7dae8"
+  @scope_allowlist [
+    "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs",
+    "scripts/planning/phase-236-audit-snapshot.exs",
+    "scripts/planning/phase-236-audit-snapshot-test.exs",
+    ".planning/phases/236-closeout-evidence-reconciliation/236-06-SUMMARY.md",
+    ".planning/phases/236-closeout-evidence-reconciliation/236-07-SUMMARY.md"
+  ]
+  @plan_06_execution_paths [
+    ".planning/phases/236-closeout-evidence-reconciliation/236-06-SUMMARY.md",
+    "scripts/planning/phase-236-audit-snapshot-test.exs",
+    "scripts/planning/phase-236-audit-snapshot.exs",
+    "test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
+  ]
   @summary_directories [
     ".planning/phases/231-gate-honesty-nightly-revival",
     ".planning/phases/233-library-suite-economics"
@@ -337,6 +354,47 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   @tag :audit_input_snapshot
+  test "scope fence pins the finalized Plan 06 and Plan 07 boundaries" do
+    assert git!("merge-base", ["--is-ancestor", @plan_06_amendment_sha, @plan_06_completion_sha]) ==
+             ""
+
+    assert direct_parent!("c1a146d59b03528bcd1d8e4ac9cb3a97400e66c7") == @plan_06_amendment_sha
+
+    assert direct_parent!("fcb558948b96c12d8b11fea65edeee9ff62ee5f6") ==
+             "c1a146d59b03528bcd1d8e4ac9cb3a97400e66c7"
+
+    assert direct_parent!("c7ec527ea7b86ff3d3ae2adcebf140598a331d88") ==
+             "fcb558948b96c12d8b11fea65edeee9ff62ee5f6"
+
+    assert direct_parent!(@plan_06_completion_sha) == "c7ec527ea7b86ff3d3ae2adcebf140598a331d88"
+
+    assert changed_paths!(@plan_06_amendment_sha) == [
+             "M\t.planning/phases/236-closeout-evidence-reconciliation/236-06-PLAN.md"
+           ]
+
+    assert changed_paths_between!(@plan_06_amendment_sha, @plan_06_completion_sha) ==
+             @plan_06_execution_paths
+
+    assert plan_introduction_sha!() == @plan_07_baseline_sha
+
+    assert changed_paths!(@plan_07_baseline_sha) == [
+             "A\t.planning/phases/236-closeout-evidence-reconciliation/236-07-PLAN.md"
+           ]
+
+    assert direct_parent!(@plan_07_task_1_sha) == @plan_07_baseline_sha
+    assert git!("merge-base", ["--is-ancestor", @plan_07_baseline_sha, "HEAD"]) == ""
+    assert git!("merge-base", ["--is-ancestor", @plan_07_task_1_sha, "HEAD"]) == ""
+
+    assert Enum.all?(
+             changed_paths_between!(@plan_07_baseline_sha, "HEAD"),
+             &(&1 in @scope_allowlist)
+           )
+
+    assert Enum.all?(tracked_paths!(), &(&1 in @scope_allowlist))
+    assert Enum.all?(untracked_paths!(), &(&1 in @scope_allowlist))
+  end
+
+  @tag :audit_input_snapshot
   test "audit input snapshot freezes every workflow source class and resolved v1.47 member" do
     snapshot =
       @root
@@ -578,6 +636,20 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp changed_paths!(commit),
     do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
+
+  defp changed_paths_between!(from, to), do: git_lines!("diff", ["--name-only", "#{from}..#{to}"])
+
+  defp plan_introduction_sha! do
+    path = ".planning/phases/236-closeout-evidence-reconciliation/236-07-PLAN.md"
+
+    case git_lines!("log", ["--diff-filter=A", "--format=%H", "--", path]) do
+      [sha] -> sha
+      _ -> raise ArgumentError, "Plan 07 must have one committed introduction boundary"
+    end
+  end
+
+  defp tracked_paths!, do: git_lines!("diff", ["--name-only", "HEAD"])
+  defp untracked_paths!, do: git_lines!("ls-files", ["--others", "--exclude-standard"])
 
   defp historical_lifecycle!(commit, phase) do
     path = validation_path!(phase)
