@@ -60,6 +60,19 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     refute verifier =~ ~r/\n\s+gh attestation verify/
   end
 
+  test "terminal verifier pins bash and trusted staging before input copies" do
+    verifier = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.sh")
+    runtime_test = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.test.sh")
+
+    assert String.starts_with?(verifier, "#!/bin/bash\n")
+    assert verifier =~ "BASH_SOURCE[0]"
+    refute verifier =~ "command -v"
+    assert verifier =~ "TMPDIR= TMP= TEMP="
+    assert verifier =~ "trusted_staging_failed"
+    assert runtime_test =~ "bash dirname uname mktemp realpath readlink stat env gh jq mkdir cp rm sandbox-exec unshare sudo true dd"
+    assert runtime_test =~ "offline_attestation_verified"
+  end
+
   test "the terminal ratification ledger is a captured, versioned ledger with an immutable cutoff" do
     ledger = ledger!()
 
