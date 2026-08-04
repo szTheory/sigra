@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: terminal-ratification-measured-not-read
-status: gaps_found
+status: executing
 stopped_at: Phase 235 verification found offline-verifier staging trust gaps
-last_updated: "2026-08-04T00:54:05Z"
-last_activity: 2026-08-04
-last_activity_desc: Phase 235 verification found two offline-verifier trust-boundary gaps
+last_updated: "2026-08-04T02:08:14.052Z"
+last_activity: 2026-08-03
+last_activity_desc: Phase 235 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 67
-  completed_plans: 67
-  percent: 83
+  completed_phases: 6
+  total_plans: 68
+  completed_plans: 68
+  percent: 100
 ---
 
 # Project State
@@ -29,11 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (terminal-ratification-measured-not-read) — GAPS FOUND
-Plan: 13 of 13
-Status: Verification gaps found
-Progress: 5/6 milestone phases complete; 67/67 plans executed ([████████░░] 83%)
-Last activity: 2026-08-04 — Phase 235 verification found two offline-verifier trust-boundary gaps
+Phase: 235 (terminal-ratification-measured-not-read) — EXECUTING
+Plan: 14 of 14
+Status: Ready to execute
+Progress: 5/6 milestone phases complete; 67/67 plans executed ([██████████] 100%)
+Last activity: 2026-08-03 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -448,6 +448,83 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Plan 12 readiness has seven independent rows and null statistics/verdict; FAST-01 remains open pending n>=10.
 - [Phase ?]: FAST-01 closed only from independently recomputed protected-main run 30865183650: n=15, strict p50=486s; prior 772s and 724s misses retained.
 - [Phase ?]: GATE-05 remains independently Complete on protected run 30782184713 with its unchanged 93-row ownership proof and offline verifier.
+- [Phase 235]: ---
+
+phase: 235-terminal-ratification-measured-not-read
+plan: 14
+subsystem: ci-verification
+tags: [bash, attestation, trusted-staging, offline-verification]
+requires: [235-13]
+provides: [FAST-01 trusted staging, GATE-05 trusted staging]
+affects: [offline attestation verification]
+tech-stack:
+  added: []
+  patterns: [pinned bash entrypoint, absolute utility inventory, fixed-parent staging]
+key-files:
+  created:
+
+    - scripts/ci/verify-fast-01-gap-closure-attestation-offline.test.sh
+  modified:
+
+    - scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh
+    - scripts/ci/verify-terminal-ratification-attestation-offline.sh
+    - scripts/ci/verify-terminal-ratification-attestation-offline.test.sh
+    - test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs
+    - test/sigra/planning/phase_235_terminal_ratification_contract_test.exs
+
+decisions:
+
+  - Pin verifier entrypoints to /bin/bash and use Bash-only script-root derivation.
+  - Stage retained inputs beneath a validated fixed parent after clearing temporary overrides.
+
+metrics:
+  tasks_completed: 2
+status: complete
+---
+
+# Phase 235 Plan 14: Trusted Offline Attestation Staging Summary
+
+**FAST-01 and GATE-05 retained evidence now passes through pinned-Bash, fixed-parent trusted staging before offline provenance verification.**
+
+## Accomplishments
+
+- Hardened both verifier entrypoints against caller-controlled PATH and temporary-directory state.
+- Added direct hostile-environment regressions that require each final positive marker and zero sentinel executions.
+- Kept retained receipts, readiness input, config, and workflow-owned STATE byte-identical and unstaged.
+
+## Verification
+
+- `scripts/ci/verify-fast-01-gap-closure-attestation-offline.test.sh` — passed.
+- `scripts/ci/verify-terminal-ratification-attestation-offline.test.sh` — passed.
+- Both live offline attestation verifiers — passed their positive and adverse cases.
+- `MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` — passed (focused contracts; local PostgreSQL connection warnings are non-fatal test setup noise).
+
+## Commits
+
+- `a035e742` — FAST trusted-staging RED tests.
+- `171b992e` — FAST verifier hardening.
+- `b098ada8` — terminal trusted-staging RED tests.
+- `db617f5f` — terminal verifier hardening.
+- `91ab9d93` — reconciliation mutation coverage correction.
+- `4b077966` — Darwin trusted-parent compatibility correction.
+
+## Deviations from Plan
+
+### Auto-fixed Issues
+
+1. **[Rule 1 - Bug] Contract assumed requirement checkboxes were already checked**
+   - **Found during:** Task 1
+   - **Fix:** Validate immutable FAST/GATE evidence text without requiring mutable checkbox state.
+   - **Files modified:** `test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs`
+
+2. **[Rule 1 - Bug] Darwin trusted temporary parent exposes mode 0777**
+   - **Found during:** Task 2
+   - **Fix:** Accept the root-owned, non-symlink platform parent with mode `0777` or `01777`, while retaining a private mode-0700 work directory.
+   - **Files modified:** both offline verifier scripts
+
+**Total deviations:** 2 auto-fixed.
+
+## Self-Check: PASSED
 
 ### Pending Todos
 
