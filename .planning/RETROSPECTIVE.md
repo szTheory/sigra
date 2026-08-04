@@ -4,7 +4,7 @@
 
 ## Milestone: v1.47 — CI-EFFICIENCY
 
-**Shipped:** 2026-08-04 (`override_closeout`)  
+**Shipped:** 2026-08-04 (`override_closeout`)
 **Phases:** 7 (230–236) | **Plans:** 76 | **Tasks:** 93
 
 ### What Was Built
