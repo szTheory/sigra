@@ -464,7 +464,7 @@ Plans:
 
 **Wave 4** *(gap closure; blocked on Wave 3 completion)*
 
-- [ ] 236-04-PLAN.md — Replay disputed lifecycle transitions from exact committed baselines through the installed validation skills.
+- [ ] 236-04-PLAN.md — Continue from the committed baseline and mixed Phase 231 validator boundary; validate Phases 232 then 234 through the installed skills.
 
 **Wave 5** *(gap closure; blocked on Wave 4 completion)*
 
