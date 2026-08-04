@@ -1,0 +1,37 @@
+ExUnit.start()
+
+defmodule Phase236AuditSnapshotTest do
+  use ExUnit.Case, async: false
+
+  @root Path.expand("../..", __DIR__)
+  @script Path.join(@root, "scripts/planning/phase-236-audit-snapshot.exs")
+
+  test "snapshot inventories canonical sources and comparison rejects a mutation" do
+    {json, 0} = System.cmd("elixir", [@script], cd: @root)
+    snapshot = :json.decode(json)
+    paths = Enum.map(snapshot["files"], & &1["path"])
+
+    assert ".planning/ROADMAP.md" in paths
+    assert ".planning/REQUIREMENTS.md" in paths
+    assert Enum.any?(paths, &String.ends_with?(&1, "230-VERIFICATION.md"))
+    assert Enum.any?(paths, &String.ends_with?(&1, "235-VALIDATION.md"))
+    assert Enum.any?(paths, &String.ends_with?(&1, "236-04-SUMMARY.md"))
+    assert Enum.map(snapshot["members"], & &1["phase"]) == Enum.to_list(230..235)
+    assert Enum.map(snapshot["files"], & &1["path"]) == Enum.sort(paths)
+    assert Enum.all?(snapshot["resolvers"], &Map.has_key?(&1, "exit_status"))
+
+    temp = Path.join(System.tmp_dir!(), "phase-236-audit-snapshot-#{System.unique_integer([:positive])}.json")
+    File.write!(temp, json)
+    assert {_output, 0} = System.cmd("elixir", [@script, "compare", temp], cd: @root)
+    File.write!(temp, String.replace(json, snapshot["manifest_sha256"], String.duplicate("0", 64), global: false))
+    assert {_output, status} = System.cmd("elixir", [@script, "compare", temp], cd: @root)
+    assert status != 0
+  end
+
+  test "utility is snapshot-only and has no audit dispatch" do
+    source = File.read!(@script)
+    refute source =~ "$gsd-"
+    refute source =~ "validate" <> "-phase"
+    refute source =~ "audit" <> "-milestone"
+  end
+end

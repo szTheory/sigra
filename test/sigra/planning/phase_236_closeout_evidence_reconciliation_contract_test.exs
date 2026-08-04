@@ -309,6 +309,34 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert baseline["claim_limit"] =~ "cannot authenticate an earlier LLM invocation"
   end
 
+  @tag :audit_input_snapshot
+  test "audit input snapshot freezes every workflow source class and resolved v1.47 member" do
+    snapshot =
+      @root
+      |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-INPUT-SNAPSHOT.json")
+      |> File.read!()
+      |> :json.decode()
+
+    paths = Enum.map(snapshot["files"], & &1["path"])
+    required = [
+      "AGENTS.md",
+      ".planning/PROJECT.md",
+      ".planning/STATE.md",
+      ".planning/ROADMAP.md",
+      ".planning/REQUIREMENTS.md",
+      ".planning/config.json",
+      ".planning/phases/236-closeout-evidence-reconciliation/236-04-SUMMARY.md"
+    ]
+
+    assert Enum.all?(required, &(&1 in paths))
+    assert Enum.map(snapshot["members"], & &1["phase"]) == Enum.to_list(230..235)
+    assert Enum.any?(paths, &String.ends_with?(&1, "230-VERIFICATION.md"))
+    assert Enum.any?(paths, &String.ends_with?(&1, "235-VALIDATION.md"))
+    assert Enum.any?(snapshot["resolvers"], &(&1["command"] == "init.milestone-op"))
+    assert Enum.any?(snapshot["resolvers"], &(&1["command"] == "loop render-hooks verify:post --raw"))
+    assert "It does not invoke an audit or cryptographically authenticate an LLM or skill invocation." in snapshot["claim_limits"]
+  end
+
   defp summary_contents do
     @summary_directories
     |> Enum.flat_map(&Path.wildcard(Path.join(@root, &1 <> "/*-SUMMARY.md")))
