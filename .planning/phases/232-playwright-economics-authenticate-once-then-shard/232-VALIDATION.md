@@ -1,9 +1,9 @@
 ---
 phase: 232
 slug: playwright-economics-authenticate-once-then-shard
-status: ready
+status: validated
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-31
 revised: 2026-07-31
 ---
@@ -35,16 +35,16 @@ revised: 2026-07-31
 
 | Task ID | Plan | Wave | Requirement | Threat / ASVS | Sampling mode | Automated command or evidence command | Manual/evidence gate | Wave 0 dependency | Status |
 |---------|------|------|-------------|---------------|---------------|---------------------------------------|----------------------|-------------------|--------|
-| 232-01-01 | 01 | 1 | PW-01 | T-232-01/02/03; V2/V3/V4 | RED→GREEN structural + Playwright inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && cd test/example/priv/playwright && npx playwright test --list --project=admin-design-chromium --retries=0` | Initialize `BEFORE-PW-01` from run `30390832059`; preserve command/output and counts | **Creates first:** structural test and evidence ledger | ⬜ pending |
-| 232-01-02 | 01 | 1 | PW-01 | T-232-01/02/03; V2/V3/V4 | RED→GREEN expansion + three-project inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && cd test/example/priv/playwright && npx playwright test --list --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark --retries=0` | Compare all three project/list counts to the BEFORE receipt | Uses artifacts created by 232-01-01 | ⬜ pending |
-| 232-02-01 | 02 | 2 | PW-01 | T-232-04; V2/V3/V4 | blocking observed-CI checkpoint | `gh run view <after-pw01-run-id> --json databaseId,event,headSha,conclusion,jobs` | Require successful retry-zero, count-identical PW-01-only run on pre-shard topology; record BEFORE and AFTER IDs | Evidence ledger exists from 232-01-01 | ⬜ pending |
-| 232-03-01 | 03 | 3 | PW-01 | T-232-05; V2/V3/V4 | structural + observed receipt capture | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && bash scripts/ci/ci-run-metrics.sh --jobs <before-run-id> && bash scripts/ci/ci-run-metrics.sh --jobs <after-pw01-run-id>` | Seal `AFTER-PW-01`; stop on count, retry, or topology discrepancy | Structural test and ledger already exist | ⬜ pending |
-| 232-04-01 | 04 | 4 | PW-03 | T-232-06/07; V2/V3/V4 | RED structural consumer contract | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs` | Contract must literally enumerate `example_playwright_smoke`, `admin_design_recapture`, `admin_checkpoint_recapture`, and `admin_eval_render` | Extends structural test created in 232-01-01, after PW-01 receipt is sealed | ⬜ pending |
-| 232-04-02 | 04 | 4 | PW-03 | T-232-06/07; V2/V3/V4 | GREEN structural + planning regression | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/` | One shared action owns the prelude; all four consumers use it and preserve gates/services/commands | Failing consumer contract from 232-04-01 | ⬜ pending |
-| 232-05-01 | 05 | 5 | PW-02, PW-03 | T-232-08/09/10; V2/V3/V4 | RED structural shard contract | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs` | Contract must literally enumerate five rows: `admin_behavior`, `admin_checkpoints`, `design_gallery`, `non_admin_smoke`, `demo_showcase` | Extends structural test after shared action exists | ⬜ pending |
-| 232-05-02 | 05 | 5 | PW-02, PW-03 | T-232-08/09/10; V2/V3/V4 | GREEN structural + planning + complete inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/ && cd test/example/priv/playwright && npx playwright test --list --retries=0` | Preserve event-specific design snapshot routing; exact-name aggregator must fail closed over every shard result | Failing shard contract from 232-05-01 | ⬜ pending |
-| 232-06-01 | 06 | 6 | PW-02, PW-03 | T-232-11; V2/V3/V4 | blocking observed PR/non-PR checkpoint | `gh run view <after-shard-pr-run-id> --json databaseId,event,headSha,conclusion,jobs && gh pr checks <pr-number> && gh run view <after-shard-nonpr-run-id> --json databaseId,event,headSha,conclusion,jobs` | Require overlapping successful retry-zero shards, exact required context, and successful execution of all four shared-boot consumers across qualifying runs | Plans 04-05 structural contracts green | ⬜ pending |
-| 232-07-01 | 07 | 7 | PW-01, PW-02, PW-03 | T-232-12/13; V2/V3/V4 | final structural + observed evidence seal | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/ && gh pr checks <pr-number>` | Capture `AFTER-SHARD-PR` and `AFTER-SHARD-NONPR`; map each requirement to structural and observed evidence separately | All prior evidence IDs and summaries available | ⬜ pending |
+| 232-01-01 | 01 | 1 | PW-01 | T-232-01/02/03; V2/V3/V4 | RED→GREEN structural + Playwright inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && cd test/example/priv/playwright && npx playwright test --list --project=admin-design-chromium --retries=0` | Initialize `BEFORE-PW-01` from run `30390832059`; preserve command/output and counts | **Creates first:** structural test and evidence ledger | ✅ green |
+| 232-01-02 | 01 | 1 | PW-01 | T-232-01/02/03; V2/V3/V4 | RED→GREEN expansion + three-project inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && cd test/example/priv/playwright && npx playwright test --list --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark --retries=0` | Compare all three project/list counts to the BEFORE receipt | Uses artifacts created by 232-01-01 | ✅ green |
+| 232-02-01 | 02 | 2 | PW-01 | T-232-04; V2/V3/V4 | blocking observed-CI checkpoint | `gh run view <after-pw01-run-id> --json databaseId,event,headSha,conclusion,jobs` | Require successful retry-zero, count-identical PW-01-only run on pre-shard topology; record BEFORE and AFTER IDs | Evidence ledger exists from 232-01-01 | ✅ green |
+| 232-03-01 | 03 | 3 | PW-01 | T-232-05; V2/V3/V4 | structural + observed receipt capture | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && bash scripts/ci/ci-run-metrics.sh --jobs <before-run-id> && bash scripts/ci/ci-run-metrics.sh --jobs <after-pw01-run-id>` | Seal `AFTER-PW-01`; stop on count, retry, or topology discrepancy | Structural test and ledger already exist | ✅ green |
+| 232-04-01 | 04 | 4 | PW-03 | T-232-06/07; V2/V3/V4 | RED structural consumer contract | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs` | Contract must literally enumerate `example_playwright_smoke`, `admin_design_recapture`, `admin_checkpoint_recapture`, and `admin_eval_render` | Extends structural test created in 232-01-01, after PW-01 receipt is sealed | ✅ green |
+| 232-04-02 | 04 | 4 | PW-03 | T-232-06/07; V2/V3/V4 | GREEN structural + planning regression | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/` | One shared action owns the prelude; all four consumers use it and preserve gates/services/commands | Failing consumer contract from 232-04-01 | ✅ green |
+| 232-05-01 | 05 | 5 | PW-02, PW-03 | T-232-08/09/10; V2/V3/V4 | RED structural shard contract | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs` | Contract must literally enumerate five rows: `admin_behavior`, `admin_checkpoints`, `design_gallery`, `non_admin_smoke`, `demo_showcase` | Extends structural test after shared action exists | ✅ green |
+| 232-05-02 | 05 | 5 | PW-02, PW-03 | T-232-08/09/10; V2/V3/V4 | GREEN structural + planning + complete inventory | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/ && cd test/example/priv/playwright && npx playwright test --list --retries=0` | Preserve event-specific design snapshot routing; exact-name aggregator must fail closed over every shard result | Failing shard contract from 232-05-01 | ✅ green |
+| 232-06-01 | 06 | 6 | PW-02, PW-03 | T-232-11; V2/V3/V4 | blocking observed PR/non-PR checkpoint | `gh run view <after-shard-pr-run-id> --json databaseId,event,headSha,conclusion,jobs && gh pr checks <pr-number> && gh run view <after-shard-nonpr-run-id> --json databaseId,event,headSha,conclusion,jobs` | Require overlapping successful retry-zero shards, exact required context, and successful execution of all four shared-boot consumers across qualifying runs | Plans 04-05 structural contracts green | ✅ green |
+| 232-07-01 | 07 | 7 | PW-01, PW-02, PW-03 | T-232-12/13; V2/V3/V4 | final structural + observed evidence seal | `mix test test/sigra/planning/phase_232_playwright_economics_test.exs && mix test test/sigra/planning/ && gh pr checks <pr-number>` | Capture `AFTER-SHARD-PR` and `AFTER-SHARD-NONPR`; map each requirement to structural and observed evidence separately | All prior evidence IDs and summaries available | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -85,4 +85,18 @@ Wave 0 is fulfilled inside the leading tracer before later tasks consume its art
 - [x] Structural feedback target is under 30 seconds; long observations are blocking evidence gates.
 - [x] ASVS L1 with high-severity blocking is sampled through V2/V3/V4 mappings in every plan threat model.
 
-**Approval:** ready for execution, with Wave 0 completed by task 232-01-01.
+**Approval:** automated validation complete (2026-08-04)
+
+## Validation Audit 2026-08-04 (Phase 236 canonical reconciliation)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Canonical validator re-audit completed from Phase 236. The focused structural contract passed
+(6 tests, 0 failures), the full planning suite passed (130 tests, 0 failures, 12 skipped), and the
+retry-zero Playwright inventory listed 393 tests across 21 files. Existing ordered GitHub receipts
+and Phase 232 verification evidence were retained; no GitHub evidence was queried or recaptured.
+The Phase 236 immutable-evidence contract also passed (3 tests, 0 failures).
