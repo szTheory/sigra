@@ -229,6 +229,9 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
                target["expected_lifecycle"]
 
       assert lifecycle!(target["staged_baseline_path"]) == target["current_expected_lifecycle"]
+
+      assert retained_body_sha256!(target["staged_baseline_path"]) ==
+               target["retained_body_sha256"]
     end)
 
     assert baseline["claim_limit"] ==
@@ -292,8 +295,12 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
              phase_232["changed_paths_name_status"]
 
     assert historical_lifecycle!(phase_232["parent_sha"], 232) == phase_232["before_lifecycle"]
-    assert historical_lifecycle!(phase_232["validator_commit_sha"], 232) == phase_232["after_lifecycle"]
-    assert historical_sha256!(phase_232["validator_commit_sha"], validation_path!(232)) == phase_232["after_sha256"]
+
+    assert historical_lifecycle!(phase_232["validator_commit_sha"], 232) ==
+             phase_232["after_lifecycle"]
+
+    assert historical_sha256!(phase_232["validator_commit_sha"], validation_path!(232)) ==
+             phase_232["after_sha256"]
 
     assert lifecycle!(
              ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md"
@@ -306,8 +313,12 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
              phase_234["changed_paths_name_status"]
 
     assert historical_lifecycle!(phase_234["parent_sha"], 234) == phase_234["before_lifecycle"]
-    assert historical_lifecycle!(phase_234["validator_commit_sha"], 234) == phase_234["after_lifecycle"]
-    assert historical_sha256!(phase_234["validator_commit_sha"], validation_path!(234)) == phase_234["after_sha256"]
+
+    assert historical_lifecycle!(phase_234["validator_commit_sha"], 234) ==
+             phase_234["after_lifecycle"]
+
+    assert historical_sha256!(phase_234["validator_commit_sha"], validation_path!(234)) ==
+             phase_234["after_sha256"]
 
     assert lifecycle!(
              ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
@@ -320,11 +331,14 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   test "audit input snapshot freezes every workflow source class and resolved v1.47 member" do
     snapshot =
       @root
-      |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-INPUT-SNAPSHOT.json")
+      |> Path.join(
+        ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-INPUT-SNAPSHOT.json"
+      )
       |> File.read!()
       |> :json.decode()
 
     paths = Enum.map(snapshot["files"], & &1["path"])
+
     required = [
       "AGENTS.md",
       ".planning/PROJECT.md",
@@ -340,21 +354,44 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert Enum.any?(paths, &String.ends_with?(&1, "230-VERIFICATION.md"))
     assert Enum.any?(paths, &String.ends_with?(&1, "235-VALIDATION.md"))
     assert Enum.any?(snapshot["resolvers"], &(&1["command"] == "init.milestone-op"))
-    assert Enum.any?(snapshot["resolvers"], &(&1["command"] == "loop render-hooks verify:post --raw"))
-    assert "It does not invoke an audit or cryptographically authenticate an LLM or skill invocation." in snapshot["claim_limits"]
+
+    assert Enum.any?(
+             snapshot["resolvers"],
+             &(&1["command"] == "loop render-hooks verify:post --raw")
+           )
+
+    assert "It does not invoke an audit or cryptographically authenticate an LLM or skill invocation." in snapshot[
+             "claim_limits"
+           ]
   end
 
   @tag :audit_output_snapshot
   test "canonical audit output remains source-bound, complete, and bounded in provenance" do
     output =
       @root
-      |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-OUTPUT-SNAPSHOT.json")
+      |> Path.join(
+        ".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-OUTPUT-SNAPSHOT.json"
+      )
       |> File.read!()
       |> :json.decode()
 
     assert output["result"] == "compliant"
-    assert output["scores"] == %{"requirements" => "24/24", "phases" => "6/6", "integration" => "8/8", "flows" => "7/7"}
-    assert output["nyquist"] == %{"compliant_phases" => Enum.to_list(230..235), "partial_phases" => [], "not_validated_phases" => [], "missing_phases" => [], "overall" => "compliant"}
+
+    assert output["scores"] == %{
+             "requirements" => "24/24",
+             "phases" => "6/6",
+             "integration" => "8/8",
+             "flows" => "7/7"
+           }
+
+    assert output["nyquist"] == %{
+             "compliant_phases" => Enum.to_list(230..235),
+             "partial_phases" => [],
+             "not_validated_phases" => [],
+             "missing_phases" => [],
+             "overall" => "compliant"
+           }
+
     assert output["gaps"] == %{"requirements" => [], "integration" => [], "flows" => []}
     assert output["claim_limit"] =~ "cannot cryptographically establish LLM identity"
     audit = File.read!(Path.join(@root, ".planning/v1.47-v1.47-MILESTONE-AUDIT.md"))
@@ -541,12 +578,15 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   defp historical_sha256!(commit, path) do
-    git!("show", "#{commit}:#{path}")
+    {contents, 0} = System.cmd("git", ["show", "#{commit}:#{path}"], cd: @root)
+
+    contents
     |> then(&:crypto.hash(:sha256, &1))
     |> Base.encode16(case: :lower)
   end
 
-  defp validation_path!(phase), do: ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"
+  defp validation_path!(phase),
+    do: ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"
 
   defp lifecycle!(path) do
     @root |> Path.join(path) |> File.read!() |> lifecycle_from_contents!()
