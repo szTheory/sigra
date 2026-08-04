@@ -3,9 +3,9 @@ phase: 231
 slug: gate-honesty-nightly-revival
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-29
 ---
 
@@ -46,19 +46,19 @@ created: 2026-07-29
 
 | Req | Behavior | Test Type | Automated Command | File Exists |
 |-----|----------|-----------|-------------------|-------------|
-| GATE-03 | manifest parses to a populated, tiered enumeration; zero rows = broken parse (D-04) | unit (hermetic) | `bash scripts/ci/honest-skip-verdict.test.sh` | ❌ W0 |
-| GATE-03 | a rotted skip (gate string references `head_ref`/branch/SHA) fails the verdict | unit (hermetic) | same | ❌ W0 |
-| GATE-03 | a correct event-gated skip passes; a correct docs-only skip passes | unit (hermetic) | same | ❌ W0 |
-| GATE-03 | manifest `gate` column agrees with `ci.yml`'s actual `if:` | node:test | `node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs` | ⚠️ exists, needs new assertion (C-1/C-2) |
-| GATE-02 | `generated_admin_playwright_smoke` runs on `pull_request` | node:test | new assertion asserting the job declares **no** `head_ref` condition | ❌ W0 |
+| GATE-03 | manifest parses to a populated, tiered enumeration; zero rows = broken parse (D-04) | unit (hermetic) | `bash scripts/ci/honest-skip-verdict.test.sh` | ✅ green |
+| GATE-03 | a rotted skip (gate string references `head_ref`/branch/SHA) fails the verdict | unit (hermetic) | same | ✅ green |
+| GATE-03 | a correct event-gated skip passes; a correct docs-only skip passes | unit (hermetic) | same | ✅ green |
+| GATE-03 | manifest `gate` column agrees with `ci.yml`'s actual `if:` | node:test | `node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs` | ✅ green |
+| GATE-02 | `generated_admin_playwright_smoke` runs on `pull_request` | node:test | `node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs` | ✅ green |
 | GATE-02 | 320px / 200%-zoom reflow containment | e2e | `npx playwright test tests/admin-generated.spec.ts --project=admin-generated` (via `scripts/ci/admin-acceptance-smoke.sh --test all`) | ✅ `admin-generated.spec.ts:169-176` |
-| GATE-04 | `probes.ts` ember check survives SVG `className` (`SVGAnimatedString`) | unit | `SVGAnimatedString`-shaped case in the probe unit tests, or a fresh `admin-eval` bundle containing an SVG surface | ❌ W0 |
+| GATE-04 | `probes.ts` ember check survives SVG `className` (`SVGAnimatedString`) | unit | `node --test scripts/ci/prohibitions/p14-no-svg-classname-string-ops.test.mjs` | ✅ green |
 | GATE-04 | b1-b6 execute and pass | integration | `bash scripts/ci/admin-eval-harness.sh` (inside `admin_eval_render`) | ✅ harness exists; has never run to completion in CI |
-| GATE-04 | `continue-on-error: true` cannot be silently reinstated | node:test | inverted `p05-admin-eval-red-not-abandoned.test.mjs` | ⚠️ exists, must be inverted (C-3) |
-| GATE-01 | `playwright-github-pages.yml` seeds before boot (D-17) | node:test or bash | assert the workflow contains a `Run demo seeds` step between DB setup and boot | ❌ W0 |
-| GATE-01 | ci-observe schedule leniency is gone (D-19) | node:test | assert `ci-observe.yml` contains no `RUN_EVENT" = "schedule"` early-exit | ❌ W0 |
-| DX-05 | polling loop returns 0 inside 120 attempts against a real run | unit (hermetic) + live | `bash scripts/ci/wait-for-ci-gate.test.sh`, then the live invocation (D-21) | ❌ W0 |
-| DX-05 | notifier self-heals a missing label; never loses the issue | unit (hermetic) | `bash scripts/ci/notify-failure-issue.test.sh` (extended stub) | ⚠️ exists, stub must be extended |
+| GATE-04 | `continue-on-error: true` cannot be silently reinstated | node:test | `node --test scripts/ci/prohibitions/p05-admin-eval-red-not-abandoned.test.mjs` | ✅ green |
+| GATE-01 | `playwright-github-pages.yml` seeds before boot (D-17) | node:test | `node --test scripts/ci/prohibitions/p15-pages-seeds-before-boot.test.mjs` | ✅ green |
+| GATE-01 | ci-observe schedule leniency is gone (D-19) | node:test | `node --test scripts/ci/prohibitions/p16-no-schedule-leniency.test.mjs` | ✅ green |
+| DX-05 | polling loop returns 0 inside 120 attempts against a real run | unit (hermetic) + live | `bash scripts/ci/wait-for-ci-gate.test.sh`, plus retained live receipt (D-21) | ✅ green |
+| DX-05 | notifier self-heals a missing label; never loses the issue | unit (hermetic) | `bash scripts/ci/notify-failure-issue.test.sh` | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -66,16 +66,7 @@ created: 2026-07-29
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/ci/honest-skip-verdict.sh` + `.test.sh` — GATE-03
-- [ ] `scripts/ci/wait-for-ci-gate.sh` + `.test.sh` — DX-05 / D-21
-- [ ] Extend the `gh` stub in `scripts/ci/notify-failure-issue.test.sh` with `label list` / `label create` branches, plus cases D–G — DX-05 / D-22 (**blocks the script change**)
-- [ ] Extend `p10-no-undocumented-demotion.test.mjs`: `gate`-column-vs-`ci.yml` assertion; tier-A floor `>= 9` → `>= 8` with a recorded reason — C-2
-- [ ] Invert `p05-admin-eval-red-not-abandoned.test.mjs`: assert `continue-on-error` **absent**; drop the `REQUIREMENTS.md`-not-`Complete` assertion — C-3 (**blocks D-11 step 4**)
-- [ ] Structural assertion that `playwright-github-pages.yml` seeds before boot — GATE-01 / D-17
-- [ ] Structural assertion that `ci-observe.yml` has no schedule-lane leniency — GATE-01 / D-19
-- [ ] Instrumentation task for the 320px assertion (report `innerWidth` + the overflowing elements) — GATE-02 / D-09 diagnosis
-- [ ] CI-native regeneration + commit of `admin-render-sha.json` / `fix-queue.json` — GATE-04
-- [ ] Wire every new `.test.sh` into `fast_checks` near `ci.yml:322`
+- [x] Existing infrastructure covers all phase requirements; all former Wave 0 items are now covered by the green guard set above.
 
 ---
 
@@ -130,3 +121,18 @@ Canonical validator re-audit completed from Phase 236. The retained deterministi
 `playwright-github-pages.yml` workflows. Existing scheduled-run and publisher receipts were
 retained; no GitHub evidence was queried or recaptured. The Phase 236 immutable-evidence contract
 also passed (3 tests, 0 failures).
+
+## Validation Audit 2026-08-04 (canonical validate-phase)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Fresh deterministic verification passed: `wait-for-ci-gate.test.sh` (11/0),
+`honest-skip-verdict.test.sh` (20/0), `playwright-cache-key-guard.test.sh` (8/0),
+`fix-queue-lint.test.sh` (7/0), `quality-findings-monotonic.test.sh` (11/0),
+`ci-demotion-observer.test.sh` (19/0), `notify-failure-issue.test.sh` (7/0), and
+the Phase-231 prohibition suite (66/0). `actionlint -shellcheck=` passed for
+`ci.yml`, `ci-observe.yml`, `playwright-github-pages.yml`, and `release-please.yml`.

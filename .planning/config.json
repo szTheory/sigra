@@ -45,11 +45,31 @@
   "project_code": null,
   "phase_naming": "sequential",
   "agent_skills": {},
-  "resolve_model_ids": "omit",
+  "resolve_model_ids": true,
   "mode": "yolo",
   "granularity": "fine",
-  "model_overrides": {
-    "gsd-executor": "claude-sonnet-4-6",
-    "gsd-code-fixer": "claude-sonnet-4-6"
+  "model_overrides": {},
+  "runtime": "codex",
+  "model_profile_overrides": {
+    "codex": {
+      "opus": "gpt-5.6-sol",
+      "sonnet": "gpt-5.6-terra",
+      "haiku": "gpt-5.6-luna"
+    }
+  },
+  "model_policy": {
+    "provider": "openai",
+    "high": "gpt-5.6-sol",
+    "medium": "gpt-5.6-terra",
+    "low": "gpt-5.6-luna",
+    "budget": "medium"
+  },
+  "effort": {
+    "default": "medium",
+    "routing_tier_defaults": {
+      "light": "medium",
+      "standard": "medium",
+      "heavy": "medium"
+    }
   }
 }
