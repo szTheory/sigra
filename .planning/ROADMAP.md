@@ -442,6 +442,19 @@ Plans:
 - Deleting tests for speed, or masking flake with retries / `continue-on-error` (D-15).
 - Retiring the stray Hex `1.20.0` (ADR 003; operator-deferred).
 
+### Phase 236: Closeout Evidence Reconciliation
+
+**Goal:** Reconcile the four audited SUMMARY declarations and eight stale traceability rows, canonically validate Phases 230/231/232/234, and produce a fresh v1.47 audit without changing product, CI topology, or retained runtime evidence.
+**Requirements**: None (evidence-closeout phase; no fabricated requirement IDs or probe predicates)
+**Depends on:** Phase 235
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 236-01-PLAN.md — Build the Wave 0 evidence-integrity contract and reconcile exact SUMMARY/traceability metadata.
+- [ ] 236-02-PLAN.md — Run canonical Nyquist validation for Phases 230, 231, 232, and 234.
+- [ ] 236-03-PLAN.md — Regenerate and ratify the fresh v1.47 milestone audit verdict.
+
 ---
 
 ## Shipped Milestone Detail
