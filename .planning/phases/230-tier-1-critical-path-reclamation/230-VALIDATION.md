@@ -204,3 +204,18 @@ whose `if:` evaluates false is **still present** in `gh run view --json jobs` wi
 Current verification: `ci-run-metrics.test.sh` (9 passed), `docs-only-classify.test.sh`
 (11 passed), `playwright-cache-key-guard.test.sh` (8 passed), the two Phase-230 ExUnit contract
 files (12 tests, 0 failures), and `actionlint -shellcheck= .github/workflows/ci.yml` all passed.
+
+## Validation Audit 2026-08-04 (Phase 236 canonical reconciliation)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Canonical validator re-audit completed from Phase 236: the retained deterministic Phase-230
+coverage passed (`ci-run-metrics.test.sh` 9/0, `docs-only-classify.test.sh` 11/0,
+`playwright-cache-key-guard.test.sh` 8/0, two Phase-230 ExUnit contracts 12/0, and
+`actionlint -shellcheck= .github/workflows/ci.yml`). Existing observed-run evidence was retained;
+no GitHub evidence was queried or recaptured. The Phase 236 immutable-evidence contract also passed
+(3 tests, 0 failures).

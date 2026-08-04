@@ -3,9 +3,9 @@ phase: 231
 slug: gate-honesty-nightly-revival
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-29
 ---
 
@@ -104,11 +104,29 @@ created: 2026-07-29
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s for guard self-tests
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s for guard self-tests
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** automated validation complete (2026-08-04)
+
+## Validation Audit 2026-08-04 (Phase 236 canonical reconciliation)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Canonical validator re-audit completed from Phase 236. The retained deterministic coverage passed:
+`wait-for-ci-gate.test.sh` (11/0), `honest-skip-verdict.test.sh` (20/0),
+`playwright-cache-key-guard.test.sh` (8/0), `fix-queue-lint.test.sh` (7/0),
+`quality-findings-monotonic.test.sh` (11/0), `ci-demotion-observer.test.sh` (19/0),
+`notify-failure-issue.test.sh` (7/0), and the Phase-231 prohibition suite (66/0).
+`actionlint -shellcheck=` passed for the retained `ci.yml`, `ci-observe.yml`, and
+`playwright-github-pages.yml` workflows. Existing scheduled-run and publisher receipts were
+retained; no GitHub evidence was queried or recaptured. The Phase 236 immutable-evidence contract
+also passed (3 tests, 0 failures).
