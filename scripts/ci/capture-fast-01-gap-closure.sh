@@ -70,7 +70,10 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile old "$OLD
   | if ([.[].page] | sort) == [range(1; length + 1)] then . else error("non_contiguous_pages") end
   | if (.[-1].body.workflow_runs | type == "array" and length == 0) then . else error("missing_terminal_empty_page") end
   | if all(.[0:-1][]; (.body.workflow_runs | type == "array" and length > 0)) then . else error("empty_nonterminal_page") end
-  | ([.[].body.workflow_runs[]? | select(.event == "pull_request")] | .) as $runs
+  # The endpoint query can include PR runs which are not terminal yet. They
+  # cannot contribute a complete wall interval, so the population is every
+  # terminal PR conclusion rather than only successful PR runs.
+  | ([.[].body.workflow_runs[]? | select(.event == "pull_request" and (.conclusion|type) == "string" and (.conclusion|length) > 0)] | .) as $runs
   | if ($runs | map(.id) | unique | length) == ($runs | length) then . else error("duplicate_run_id") end
   | if ([ $runs[].id ] | any(. as $id | $old[0].runs[] | .run_id == $id)) then error("old_population_overlap") else . end
   # The GitHub created query fixes population membership at the workflow-start
@@ -82,12 +85,12 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile old "$OLD
 
 if [[ "$MODE" == readiness ]]; then
   jq -S -n --arg endpoint "$ENDPOINT" --arg cutoff "$CUTOFF" --arg sha "$CUTOFF_SHA" --arg reset "$RESET" --argjson remaining "$REMAINING" --arg command "bash scripts/ci/capture-fast-01-gap-closure.sh --readiness $OUTPUT" --slurpfile pages "$MANIFEST" '
-    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request") ] | map({run_id:.id,url:.html_url,event:.event,conclusion:.conclusion,created_at:.created_at,updated_at:.updated_at})) as $runs
+    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request" and (.conclusion|type) == "string" and (.conclusion|length) > 0) ] | map({run_id:.id,url:.html_url,event:.event,conclusion:.conclusion,created_at:.created_at,updated_at:.updated_at})) as $runs
     | {schema_version:"sigra.fast-01-gap-closure-readiness/v1",authority:"readiness_only",endpoint_source:"collector_current_utc",repository:"szTheory/sigra",workflow:"ci.yml",event:"pull_request",cutoff:{sha:$sha,timestamp:$cutoff},window:{endpoint:$endpoint},command:$command,source_api:"GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",requested_pages:[$pages[].page],exhausted:true,rate_limit:{remaining:$remaining,reset:$reset},runs:$runs,eligible_pr_run_count:($runs|length),statistics:null,verdict:null,status:(if ($runs|length)<10 then "insufficient_population" else "ready" end),diagnostics:(if ($runs|length)<10 then ["requires_at_least_10_terminal_pull_request_runs"] else [] end)}
   ' >"$OUTTMP" || fail "canonical_readiness_output_failed"
 else
   jq -S -n --arg endpoint "$ENDPOINT" --arg cutoff "$CUTOFF" --arg sha "$CUTOFF_SHA" --slurpfile pages "$MANIFEST" '
-    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request") ] | map({run_id:.id,wall_seconds:((.updated_at|fromdateiso8601)-(.created_at|fromdateiso8601)),conclusion:.conclusion,url:.html_url})) as $runs
+    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request" and (.conclusion|type) == "string" and (.conclusion|length) > 0) ] | map({run_id:.id,wall_seconds:((.updated_at|fromdateiso8601)-(.created_at|fromdateiso8601)),conclusion:.conclusion,url:.html_url})) as $runs
     | if ($runs|length)<10 then error("insufficient_population") else . end
     | ($runs|sort_by(.wall_seconds,.run_id)) as $ordered | ($ordered[($ordered|length/2|floor)].wall_seconds) as $p50
     | {schema_version:"sigra.fast-01-gap-closure-remeasurement/v1",authority:"protected_main_attestation",repository:"szTheory/sigra",workflow:"ci.yml",event:"pull_request",cutoff:{sha:$sha,timestamp:$cutoff},window:{endpoint:$endpoint},runs:$ordered,eligible_pr_run_count:($ordered|length),statistics:{mode:"wall",ordering:"{wall_seconds, run_id}",p50_seconds:$p50},verdict:(if $p50<720 then "pass" else "miss" end),status:"measured"}
