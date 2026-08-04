@@ -447,7 +447,7 @@ Plans:
 **Goal:** Reconcile the four audited SUMMARY declarations and eight stale traceability rows, canonically validate Phases 230/231/232/234, and produce a fresh v1.47 audit without changing product, CI topology, or retained runtime evidence.
 **Requirements**: None (evidence-closeout phase; no fabricated requirement IDs or probe predicates)
 **Depends on:** Phase 235
-**Plans:** 5 plans
+**Plans:** 8/8 plans complete
 
 Plans:
 **Wave 1**
