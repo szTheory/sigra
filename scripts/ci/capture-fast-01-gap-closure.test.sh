@@ -5,6 +5,9 @@ fail() { echo "capture-fast-01-gap-closure.test: FAIL: $*" >&2; exit 1; }
 [[ -x "$COLLECTOR" ]] || fail "collector missing or not executable"
 grep -Fq 'CUTOFF_SHA="54c33e904155a454255952666711c882afdd06e4"' "$COLLECTOR" || fail "cutoff drifted"
 grep -Fq 'cutoff_blob_digest_mismatch' "$COLLECTOR" || fail "cutoff blob validation absent"
+grep -Fq 'REMEDIATION_RECEIPT_SHA256="d77d3be877bfd8d75693ca57535caad54c35981deeba45089811482156e22c5a"' "$COLLECTOR" || fail "remediation receipt digest is not pinned"
+grep -Fq 'remediation_digest_schema_invalid' "$COLLECTOR" || fail "remediation digest schema validation absent"
+grep -Fq 'keys | sort == ["CONTRIBUTING.md", "mix.exs", "test/sigra/planning/phase_198_contributor_dx_contract_test.exs", "test/sigra/planning/phase_233_library_economics_contract_test.exs"]' "$COLLECTOR" || fail "remediation digest paths are not exact"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT; mkdir -p "$TMP/bin"
 
 make_runs() { jq -n --argjson count "$1" --argjson duration "$2" '[range(0;$count)|{id:(900000+.),event:"pull_request",conclusion:(if .%3==0 then "failure" elif .%3==1 then "cancelled" else "success" end),created_at:"2026-08-03T21:37:09Z",updated_at:("2026-08-03T21:"+((37+(($duration+.)/60|floor))|tostring|if length==1 then "0"+. else . end)+":"+(($duration+.)%60|tostring|if length==1 then "0"+. else . end)+"Z"),html_url:("https://example.test/"+(900000+.|tostring))}]' >"$TMP/runs.json"; }

@@ -11,6 +11,8 @@ CUTOFF_EPOCH="1785793028"
 MAX_PAGES=10000
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OLD_RECEIPT="$ROOT/.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT.json"
+REMEDIATION_RECEIPT="$ROOT/.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json"
+REMEDIATION_RECEIPT_SHA256="d77d3be877bfd8d75693ca57535caad54c35981deeba45089811482156e22c5a"
 
 usage() { echo "usage: $0 --readiness OUTPUT | --protected-output OUTPUT --endpoint UTC" >&2; exit 2; }
 fail() { echo "capture-fast-01-gap-closure: FAIL: $*" >&2; exit 1; }
@@ -26,6 +28,7 @@ esac
 command -v gh >/dev/null 2>&1 || fail "gh_cli_not_found"
 command -v jq >/dev/null 2>&1 || fail "jq_not_found"
 [[ -f "$OLD_RECEIPT" ]] || fail "immutable_prior_receipt_missing"
+[[ -f "$REMEDIATION_RECEIPT" ]] || fail "remediation_receipt_missing"
 git merge-base --is-ancestor "$CUTOFF_SHA" origin/main || fail "cutoff_not_on_origin_main"
 [[ "$(git show -s --format=%ct "$CUTOFF_SHA")" == "$CUTOFF_EPOCH" ]] || fail "cutoff_timestamp_mismatch"
 
@@ -33,10 +36,16 @@ git merge-base --is-ancestor "$CUTOFF_SHA" origin/main || fail "cutoff_not_on_or
 # remediation merge, not a later evidence-only main commit. Verify those blobs
 # directly at the immutable cutoff so later receipt-validation code cannot alter
 # the historical evidence claim.
+[[ "$(sha256 < "$REMEDIATION_RECEIPT")" == "$REMEDIATION_RECEIPT_SHA256" ]] || fail "remediation_receipt_digest_mismatch"
+jq -e '
+  (.file_digests | type == "object") and
+  (.file_digests | keys | sort == ["CONTRIBUTING.md", "mix.exs", "test/sigra/planning/phase_198_contributor_dx_contract_test.exs", "test/sigra/planning/phase_233_library_economics_contract_test.exs"]) and
+  all(.file_digests[]; type == "string" and test("^[0-9a-f]{64}$"))
+' "$REMEDIATION_RECEIPT" >/dev/null || fail "remediation_digest_schema_invalid"
 while IFS=$'\t' read -r file_name expected; do
   actual="$(git show "$CUTOFF_SHA:$file_name" | sha256)" || fail "cutoff_blob_missing_${file_name}"
   [[ "$actual" == "$expected" ]] || fail "cutoff_blob_digest_mismatch_${file_name}"
-done < <(jq -r '.file_digests | to_entries[] | "\(.key)\t\(.value)"' "$ROOT/.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json")
+done < <(jq -r '.file_digests | to_entries[] | "\(.key)\t\(.value)"' "$REMEDIATION_RECEIPT")
 
 DATE_BIN="/usr/bin/date"; [[ -x "$DATE_BIN" ]] || DATE_BIN="/bin/date"
 if [[ "$MODE" == readiness ]]; then ENDPOINT="$($DATE_BIN -u +%Y-%m-%dT%H:%M:%SZ)"; fi
