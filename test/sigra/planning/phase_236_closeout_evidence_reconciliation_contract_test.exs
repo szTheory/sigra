@@ -245,6 +245,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     assert direct_parent!(baseline["red_only_commit_sha"]) == baseline["planning_anchor_sha"]
     assert direct_parent!(baseline["task_1_predecessor_sha"]) == baseline["red_only_commit_sha"]
+
     assert changed_paths!(baseline["red_only_commit_sha"]) == [
              "M\ttest/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
            ]
@@ -253,7 +254,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
              "M\t.planning/phases/236-closeout-evidence-reconciliation/236-04-PLAN.md"
            ]
 
-    assert git_lines!("rev-list", ["--count", "#{baseline["planning_anchor_sha"]}..#{baseline["task_1_predecessor_sha"]}"]) == ["2"]
+    assert git_lines!("rev-list", [
+             "--count",
+             "#{baseline["planning_anchor_sha"]}..#{baseline["task_1_predecessor_sha"]}"
+           ]) == ["2"]
 
     recovery = baseline["phase_231_recovery"]
     assert recovery["validator_commit_sha"] == "fe8e4305cbfa1ede8bd2c0424202204b9f93f030"
@@ -261,7 +265,9 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert recovery["classification"] =~ "successful canonical"
     assert recovery["classification"] =~ "mixed"
     assert recovery["classification"] =~ "not an isolated validator commit"
-    assert changed_paths!(recovery["validator_commit_sha"]) == recovery["changed_paths_name_status"]
+
+    assert changed_paths!(recovery["validator_commit_sha"]) ==
+             recovery["changed_paths_name_status"]
 
     Enum.each(recovery["protected_blob_ids"], fn {path, blob} ->
       assert git!("rev-parse", "#{recovery["validator_commit_sha"]}:#{path}") == blob
@@ -282,9 +288,24 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     phase_232 = baseline["phase_232_recovery"]
     assert phase_232["parent_sha"] == direct_parent!(phase_232["validator_commit_sha"])
-    assert changed_paths!(phase_232["validator_commit_sha"]) == phase_232["changed_paths_name_status"]
-    assert lifecycle!(".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md") == phase_232["after_lifecycle"]
-    assert baseline["phase_234_recovery"] == %{"status" => "pending"}
+
+    assert changed_paths!(phase_232["validator_commit_sha"]) ==
+             phase_232["changed_paths_name_status"]
+
+    assert lifecycle!(
+             ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md"
+           ) == phase_232["after_lifecycle"]
+
+    phase_234 = baseline["phase_234_recovery"]
+    assert phase_234["parent_sha"] == direct_parent!(phase_234["validator_commit_sha"])
+
+    assert changed_paths!(phase_234["validator_commit_sha"]) ==
+             phase_234["changed_paths_name_status"]
+
+    assert lifecycle!(
+             ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
+           ) == phase_234["after_lifecycle"]
+
     assert baseline["claim_limit"] =~ "cannot authenticate an earlier LLM invocation"
   end
 
@@ -435,7 +456,9 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp validation_replay_baseline! do
     @root
-    |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-VALIDATION-REPLAY-BASELINE.json")
+    |> Path.join(
+      ".planning/phases/236-closeout-evidence-reconciliation/236-VALIDATION-REPLAY-BASELINE.json"
+    )
     |> File.read!()
     |> Jason.decode!()
   end
@@ -453,7 +476,8 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
   defp direct_parent!(commit), do: git!("rev-parse", "#{commit}^")
 
-  defp changed_paths!(commit), do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
+  defp changed_paths!(commit),
+    do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
 
   defp historical_lifecycle!(commit, phase) do
     path = ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"

@@ -32,7 +32,15 @@
     "before_sha256": "3c34acf06e33410ffff73cd0f5cf87fd9299ab89662b366beb771ab0ad86d3a9",
     "after_sha256": "aeaf2db1005b3066015dfd26055974d3e3cf5ac1c5a0f4e707f9191df07b8ec9"
   },
-  "phase_234_recovery": {"status": "pending"},
+  "phase_234_recovery": {
+    "validator_commit_sha": "0e0084468fe89f158254a6ea64870f2e2b6828bf",
+    "parent_sha": "930ce606790a278a785ba398ee87073d35bae92e",
+    "changed_paths_name_status": ["M\t.planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"],
+    "before_lifecycle": {"status": "complete", "nyquist_compliant": "true", "wave_0_complete": "true"},
+    "after_lifecycle": {"status": "validated", "nyquist_compliant": "true", "wave_0_complete": "true"},
+    "before_sha256": "5fa02edac9408bfa4d2ff181e5084bd8fc176d9617e2982a484ee06eefad5b87",
+    "after_sha256": "cfcdbd03e4e2e4cb3e0b30a91d403da48ebb9da04448682c3e5fae8a23c5bc0d"
+  },
   "baseline_commit_sha": null,
   "baseline_commit_recorded_in": null,
   "phase_230": {
@@ -95,7 +103,7 @@
         "wave_0_complete": "true"
       },
       "current_expected_lifecycle": {
-        "status": "complete",
+        "status": "validated",
         "nyquist_compliant": "true",
         "wave_0_complete": "true"
       },
