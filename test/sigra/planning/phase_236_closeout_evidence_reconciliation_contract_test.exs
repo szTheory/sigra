@@ -241,11 +241,50 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   test "recovery ledger pins the accepted mixed Phase 231 validator boundary" do
     baseline = validation_replay_baseline!()
 
-    assert baseline["planning_anchor_sha"] == "70bca9972a9a7635636bcb3d2c77938c23c4255f"
-    assert baseline["allowed_starting_head"] == git!("rev-parse", "HEAD")
+    assert baseline["planning_anchor_sha"] == "4980446683c5badf3f75f38b00b7960c05aad5e0"
+    assert baseline["red_only_commit_sha"] == "814b778336fce5a1b927dcad8d1cb844870301ae"
+    assert baseline["task_1_predecessor_sha"] == "f4f1c8674d77b25cba7ed832062d8e91b8795a3b"
 
-    assert baseline["phase_231_recovery"]["validator_commit_sha"] ==
-             "fe8e4305cbfa1ede8bd2c0424202204b9f93f030"
+    assert direct_parent!(baseline["red_only_commit_sha"]) == baseline["planning_anchor_sha"]
+    assert direct_parent!(baseline["task_1_predecessor_sha"]) == baseline["red_only_commit_sha"]
+    assert changed_paths!(baseline["red_only_commit_sha"]) == [
+             "M\ttest/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs"
+           ]
+
+    assert changed_paths!(baseline["task_1_predecessor_sha"]) == [
+             "M\t.planning/phases/236-closeout-evidence-reconciliation/236-04-PLAN.md"
+           ]
+
+    assert git_lines!("rev-list", ["--count", "#{baseline["planning_anchor_sha"]}..#{baseline["task_1_predecessor_sha"]}"]) == ["2"]
+
+    recovery = baseline["phase_231_recovery"]
+    assert recovery["validator_commit_sha"] == "fe8e4305cbfa1ede8bd2c0424202204b9f93f030"
+    assert direct_parent!(recovery["validator_commit_sha"]) == recovery["parent_sha"]
+    assert recovery["classification"] =~ "successful canonical"
+    assert recovery["classification"] =~ "mixed"
+    assert recovery["classification"] =~ "not an isolated validator commit"
+    assert changed_paths!(recovery["validator_commit_sha"]) == recovery["changed_paths_name_status"]
+
+    Enum.each(recovery["protected_blob_ids"], fn {path, blob} ->
+      assert git!("rev-parse", "#{recovery["validator_commit_sha"]}:#{path}") == blob
+      assert git!("rev-parse", "HEAD:#{path}") == blob
+    end)
+
+    assert historical_lifecycle!(recovery["parent_sha"], 231) == %{
+             "status" => "draft",
+             "nyquist_compliant" => "false",
+             "wave_0_complete" => "false"
+           }
+
+    assert historical_lifecycle!(recovery["validator_commit_sha"], 231) == %{
+             "status" => "validated",
+             "nyquist_compliant" => "true",
+             "wave_0_complete" => "true"
+           }
+
+    assert baseline["phase_232_recovery"] == %{"status" => "pending"}
+    assert baseline["phase_234_recovery"] == %{"status" => "pending"}
+    assert baseline["claim_limit"] =~ "cannot authenticate an earlier LLM invocation"
   end
 
   defp summary_contents do
@@ -400,10 +439,20 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     |> Jason.decode!()
   end
 
-  defp git!(command, argument) do
-    {output, 0} = System.cmd("git", [command, argument], cd: @root)
+  defp git!(command, argument) when is_binary(argument), do: git!(command, [argument])
+
+  defp git!(command, arguments) when is_list(arguments) do
+    {output, 0} = System.cmd("git", [command | arguments], cd: @root)
     String.trim(output)
   end
+
+  defp git_lines!(command, arguments) do
+    command |> git!(arguments) |> String.split("\n", trim: true)
+  end
+
+  defp direct_parent!(commit), do: git!("rev-parse", "#{commit}^")
+
+  defp changed_paths!(commit), do: git_lines!("diff-tree", ["--no-commit-id", "--name-status", "-r", commit])
 
   defp historical_lifecycle!(commit, phase) do
     path = ".planning/phases/#{phase_directory!(phase)}/#{phase}-VALIDATION.md"

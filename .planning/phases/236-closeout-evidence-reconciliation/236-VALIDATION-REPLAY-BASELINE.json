@@ -1,6 +1,29 @@
 {
   "schema_version": 1,
   "claim_limit": "This committed replay proves a bounded forward lifecycle transition; it cannot authenticate an earlier LLM invocation or retroactively authenticate disputed 2026-08-04 edits.",
+  "planning_anchor_sha": "4980446683c5badf3f75f38b00b7960c05aad5e0",
+  "red_only_commit_sha": "814b778336fce5a1b927dcad8d1cb844870301ae",
+  "task_1_predecessor_sha": "f4f1c8674d77b25cba7ed832062d8e91b8795a3b",
+  "phase_231_recovery": {
+    "validator_commit_sha": "fe8e4305cbfa1ede8bd2c0424202204b9f93f030",
+    "parent_sha": "86a27bd48bffd7eb8ea5f7e01261976f2a4e794b",
+    "classification": "successful canonical Phase 231 validator output in a five-path mixed commit; not an isolated validator commit",
+    "changed_paths_name_status": [
+      "M\t.planning/STATE.md",
+      "M\t.planning/config.json",
+      "M\t.planning/phases/231-gate-honesty-nightly-revival/231-VALIDATION.md",
+      "M\t.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-READINESS.json",
+      "A\t.planning/phases/236-closeout-evidence-reconciliation/.gitkeep"
+    ],
+    "protected_blob_ids": {
+      ".planning/STATE.md": "5dbb3c4d9ae3c2ee20f80372a20d8de66cda2b86",
+      ".planning/config.json": "4795fe342a18a8f5995958cf6453fc2fdcb3b23f",
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-READINESS.json": "8144525c8a8ff8c99df377651e313681d859dd00",
+      ".planning/phases/236-closeout-evidence-reconciliation/.gitkeep": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+    }
+  },
+  "phase_232_recovery": {"status": "pending"},
+  "phase_234_recovery": {"status": "pending"},
   "baseline_commit_sha": null,
   "baseline_commit_recorded_in": null,
   "phase_230": {
