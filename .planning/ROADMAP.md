@@ -456,7 +456,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 236-02-PLAN.md — Run canonical Nyquist validation for Phases 230, 231, 232, and 234.
+- [x] 236-02-PLAN.md — Run canonical Nyquist validation for Phases 230, 231, 232, and 234.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
