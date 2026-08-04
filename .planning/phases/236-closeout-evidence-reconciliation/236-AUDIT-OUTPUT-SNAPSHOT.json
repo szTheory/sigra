@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "result": "compliant",
+  "input_manifest_sha256": "e25714d9135f174de19b757cb6c9bc8b3fd94f08925b34889da425327cc2e2dd",
+  "post_audit_manifest_sha256": "e25714d9135f174de19b757cb6c9bc8b3fd94f08925b34889da425327cc2e2dd",
+  "audit_path": ".planning/v1.47-v1.47-MILESTONE-AUDIT.md",
+  "audit_sha256": "58115dae3d128eb94a41ff2b2ca9ad6ad9271228a893a1bda883b72994777a1f",
+  "executed_at": "2026-08-04T18:45:58Z",
+  "scores": {
+    "requirements": "24/24",
+    "phases": "6/6",
+    "integration": "8/8",
+    "flows": "7/7"
+  },
+  "nyquist": {
+    "compliant_phases": [230, 231, 232, 233, 234, 235],
+    "partial_phases": [],
+    "not_validated_phases": [],
+    "missing_phases": [],
+    "overall": "compliant"
+  },
+  "gaps": {
+    "requirements": [],
+    "integration": [],
+    "flows": []
+  },
+  "orchestration": "$gsd-audit-milestone v1.47 invoked in the live runtime with its integration-checker agent.",
+  "claim_limit": "The live execution SUMMARY records the skill invocation; repository snapshots deterministically bind sources to output but cannot cryptographically establish LLM identity."
+}

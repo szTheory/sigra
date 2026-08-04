@@ -337,6 +337,25 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert "It does not invoke an audit or cryptographically authenticate an LLM or skill invocation." in snapshot["claim_limits"]
   end
 
+  @tag :audit_output_snapshot
+  test "canonical audit output remains source-bound, complete, and bounded in provenance" do
+    output =
+      @root
+      |> Path.join(".planning/phases/236-closeout-evidence-reconciliation/236-AUDIT-OUTPUT-SNAPSHOT.json")
+      |> File.read!()
+      |> :json.decode()
+
+    assert output["result"] == "compliant"
+    assert output["scores"] == %{"requirements" => "24/24", "phases" => "6/6", "integration" => "8/8", "flows" => "7/7"}
+    assert output["nyquist"] == %{"compliant_phases" => Enum.to_list(230..235), "partial_phases" => [], "not_validated_phases" => [], "missing_phases" => [], "overall" => "compliant"}
+    assert output["gaps"] == %{"requirements" => [], "integration" => [], "flows" => []}
+    assert output["claim_limit"] =~ "cannot cryptographically establish LLM identity"
+    audit = File.read!(Path.join(@root, ".planning/v1.47-v1.47-MILESTONE-AUDIT.md"))
+    assert sha256!(".planning/v1.47-v1.47-MILESTONE-AUDIT.md") == output["audit_sha256"]
+    assert audit =~ "status: tech_debt"
+    assert audit =~ "The milestone audit has no closure gap"
+  end
+
   defp summary_contents do
     @summary_directories
     |> Enum.flat_map(&Path.wildcard(Path.join(@root, &1 <> "/*-SUMMARY.md")))
