@@ -54,7 +54,7 @@
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
-- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measured against the baseline table, published the before/after coverage inventory, updated CONTRIBUTING, closed GATE-05, and closed FAST-01 from protected producer run `30865183650` (n=15, strict p50=486s; completed 2026-08-04)
+- [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - Protected producer run `30865183650` measured n=15 / strict p50=486s, but verification remains blocked on two offline-verifier staging trust boundaries
 
 ## Phase Details
 
@@ -408,7 +408,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 10/13 | Gap closure planned; FAST-01 residual remains measured | — |
+| 235. Terminal Ratification | 13/13 | Gaps found; offline-verifier staging trust repair required | — |
 
 ## Requirement Coverage
 
