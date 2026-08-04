@@ -105,6 +105,12 @@ status: complete
 **Total deviations:** 1 auto-fixed (Rule 1 bug).
 **Impact on plan:** Necessary test correctness repair; no scope expansion or protected-evidence mutation.
 
+## Review Repair (2026-08-04)
+
+- Strengthened the ownership fence to scan every Phase 231 and 233 SUMMARY, require one narrow completion declaration for each approved owner, and reject duplicate completion fields or declarations on a non-owner.
+- Bound every reconciled TEST/DX requirement to its exact `✓ SATISFIED` verification-table row and its named deterministic contract test, instead of accepting unrelated contract-file existence.
+- Re-ran the focused Phase 236 contract successfully; historic evidence and reconciliation metadata remain unchanged.
+
 ## Issues Encountered
 
 - The focused Mix invocation emitted expected local Postgrex connection-refused noise for unavailable test database ports; the filesystem-only contract itself completed with 3 tests and 0 failures.

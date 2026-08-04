@@ -2,15 +2,15 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   use ExUnit.Case, async: true
 
   @root Path.expand("../../..", __DIR__)
-  @summary_paths %{
-    "231-11" => ".planning/phases/231-gate-honesty-nightly-revival/231-11-SUMMARY.md",
-    "231-06" => ".planning/phases/231-gate-honesty-nightly-revival/231-06-SUMMARY.md",
-    "233-05" => ".planning/phases/233-library-suite-economics/233-05-SUMMARY.md"
-  }
+  @summary_directories [
+    ".planning/phases/231-gate-honesty-nightly-revival",
+    ".planning/phases/233-library-suite-economics"
+  ]
   @summary_ownership %{
-    "231-11" => ["GATE-01"],
-    "231-06" => ["GATE-04"],
-    "233-05" => ["TEST-02", "TEST-03"]
+    "GATE-01" => "231-11",
+    "GATE-04" => "231-06",
+    "TEST-02" => "233-05",
+    "TEST-03" => "233-05"
   }
   @reconciled_ids ~w(TEST-01 TEST-02 TEST-03 DX-01 DX-02 DX-03 DX-04 DX-06)
   @traceability_ownership %{
@@ -65,6 +65,73 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl" =>
       "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f"
   }
+  @three_source_support %{
+    "TEST-01" => %{
+      verification_path: ".planning/phases/233-library-suite-economics/233-VERIFICATION.md",
+      verification_row:
+        "| TEST-01 | 233-01, 02, 05, 06 | Slow-test visibility does not force serial library execution. | ✓ SATISFIED | Parallel same-run formatter wiring, timing receipt tests, and retry-free PR run evidence. |",
+      contract_path: "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      contract_test: "library execution universe is fail-closed and has one full-suite owner"
+    },
+    "TEST-02" => %{
+      verification_path: ".planning/phases/233-library-suite-economics/233-VERIFICATION.md",
+      verification_row:
+        "| TEST-02 | 233-02, 04, 05, 06 | Two library shards finish in comparable time. | ✓ SATISFIED | Cost-based deterministic split and observed 115s/114s final PR durations (1s gap versus 192s baseline). |",
+      contract_path: "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      contract_test:
+        "remediation receipt is closed, retry-free, source-bound, and preserves the strict prior miss"
+    },
+    "TEST-03" => %{
+      verification_path: ".planning/phases/233-library-suite-economics/233-VERIFICATION.md",
+      verification_row:
+        "| TEST-03 | 233-03, 04, 05, 06 | Subprocess-heavy install tests no longer dominate ordinary shard wall-clock. | ✓ SATISFIED | Exact scaffold extraction, unconditional 909s PR receiver, preserved named coverage, and ordinary receipts without scaffold paths. |",
+      contract_path: "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      contract_test:
+        "scaffold modules have one explicit ci.install_golden receiver and are excluded from broad test"
+    },
+    "DX-01" => %{
+      verification_path:
+        ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md",
+      verification_row:
+        "| DX-01 | 01-05, 09, 11-16, 18, 20-21 | `mix ci` reproduces the PR gate with formatting and lock checks | ✓ SATISFIED | Alias/workflow parity, complete formatting, clean-worktree receipt, and exact final authorization. |",
+      contract_path: "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+      contract_test: "198-01: mix ci has the ordered seven-leg contributor gate exactly once"
+    },
+    "DX-02" => %{
+      verification_path:
+        ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md",
+      verification_row:
+        "| DX-02 | 06, 10, 14, 18, 20-21 | Release-critical Actions use immutable SHAs | ✓ SATISFIED | Current pins, mutation-backed pinning contract, and successful Release Please run. |",
+      contract_path: "test/sigra/planning/phase_234_action_pinning_contract_test.exs",
+      contract_test: "every third-party release action is immutable and version-annotated"
+    },
+    "DX-03" => %{
+      verification_path:
+        ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md",
+      verification_row:
+        "| DX-03 | 07, 10, 14, 17-18, 20-21 | Dependabot covers GitHub Actions, Mix, and npm | ✓ SATISFIED | Exact config, manifests/locks, and three processed update-job receipts. |",
+      contract_path: "test/sigra/planning/phase_234_dependabot_contract_test.exs",
+      contract_test: "Dependabot owns exactly the three locked weekly ecosystems"
+    },
+    "DX-04" => %{
+      verification_path:
+        ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md",
+      verification_row:
+        "| DX-04 | 08, 10, 14, 18-21 | No live Playwright spec is unowned | ✓ SATISFIED | Exact inventory, CI/harness wiring, and mutation-backed reconciliation. |",
+      contract_path: "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+      contract_test:
+        "inventory validation rejects missing, stale, duplicate, unowned, and broken lane tokens"
+    },
+    "DX-06" => %{
+      verification_path:
+        ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md",
+      verification_row:
+        "| DX-06 | 10, 14, 18, 20-21 | SEED-006 is delivered or residual filed | ✓ SATISFIED | Current successful gallery job and isolated non-gating diagnostic. |",
+      contract_path: "test/sigra/planning/phase_234_evidence_contract_test.exs",
+      contract_test:
+        "gallery receipt proves the retry-free shared-boot consumer and isolates a non-gating evaluation diagnostic"
+    }
+  }
 
   @tag :summary_reconciliation
   test "SUMMARY requirement ownership is exact and rejects wrong owners or extra IDs" do
@@ -89,6 +156,27 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert_raise ArgumentError, ~r/SUMMARY ownership/, fn ->
       validate_summary_ownership!(extra_id)
     end
+
+    duplicate_field =
+      Map.update!(summaries, "231-11", fn summary ->
+        String.replace(
+          summary,
+          "\n---\n",
+          "\nrequirements-completed: [GATE-04]\n---\n",
+          global: false
+        )
+      end)
+
+    assert_raise ArgumentError, ~r/exactly one narrow requirements-completed field/, fn ->
+      validate_summary_ownership!(duplicate_field)
+    end
+
+    non_owner =
+      Map.update!(summaries, "231-01", &String.replace(&1, "[DX-05]", "[DX-05, GATE-01]"))
+
+    assert_raise ArgumentError, ~r/SUMMARY ownership/, fn ->
+      validate_summary_ownership!(non_owner)
+    end
   end
 
   @tag :summary_reconciliation
@@ -103,15 +191,15 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     assert validate_traceability!(requirements) == :ok
 
-    checkbox_only =
+    unchecked_requirement =
       String.replace(
         requirements,
-        "| TEST-01 | Phase 233 | Complete |",
-        "| TEST-01 | Phase 233 | Gaps Found |"
+        "- [x] **TEST-01**",
+        "- [ ] **TEST-01**"
       )
 
-    assert_raise ArgumentError, ~r/approved traceability/, fn ->
-      validate_traceability!(checkbox_only)
+    assert_raise ArgumentError, ~r/checked requirement/, fn ->
+      validate_traceability!(unchecked_requirement)
     end
 
     unapproved =
@@ -127,32 +215,73 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   defp summary_contents do
-    Map.new(@summary_paths, fn {summary, path} ->
-      {summary, File.read!(Path.join(@root, path))}
+    @summary_directories
+    |> Enum.flat_map(&Path.wildcard(Path.join(@root, &1 <> "/*-SUMMARY.md")))
+    |> Map.new(fn path ->
+      {Path.basename(path, "-SUMMARY.md"), File.read!(path)}
     end)
   end
 
   defp validate_summary_ownership!(summaries) do
-    ownership = Map.new(summaries, fn {summary, body} -> {summary, completed_ids!(body)} end)
+    ownership =
+      Map.new(summaries, fn {summary, body} ->
+        {summary, completed_ids!(body, summary in Map.values(@summary_ownership))}
+      end)
 
-    unless ownership == @summary_ownership do
+    expected_target_declarations =
+      @summary_ownership
+      |> Enum.group_by(fn {_id, summary} -> summary end, fn {id, _summary} -> id end)
+      |> Map.new(fn {summary, ids} -> {summary, Enum.sort(ids)} end)
+
+    target_declarations =
+      ownership
+      |> Map.take(Map.values(@summary_ownership))
+      |> Map.new(fn {summary, ids} -> {summary, Enum.sort(ids)} end)
+
+    declared_target_ownership =
+      Enum.reduce(ownership, %{}, fn {summary, ids}, declared ->
+        Enum.reduce(ids, declared, fn id, acc ->
+          if Map.has_key?(@summary_ownership, id),
+            do: Map.update(acc, id, [summary], &[summary | &1]),
+            else: acc
+        end)
+      end)
+      |> Map.new(fn {id, summaries} -> {id, Enum.sort(summaries)} end)
+
+    expected_inverted_ownership =
+      Map.new(@summary_ownership, fn {id, summary} -> {id, [summary]} end)
+
+    unless target_declarations == expected_target_declarations and
+             declared_target_ownership == expected_inverted_ownership do
       raise ArgumentError, "SUMMARY ownership must exactly match the D-01 declaration map"
     end
 
     :ok
   end
 
-  defp completed_ids!(summary) do
-    with [frontmatter] <- Regex.run(~r/\A---\n(.*?)\n---/s, summary, capture: :all_but_first),
-         [ids] <-
-           Regex.run(~r/^requirements-completed:\s*\[([^\]]*)\]\s*$/m, frontmatter,
-             capture: :all_but_first
-           ) do
-      ids
-      |> String.split(",", trim: true)
-      |> Enum.map(&String.trim/1)
+  defp completed_ids!(summary, required?) do
+    with [frontmatter] <- Regex.run(~r/\A---\n(.*?)\n---/s, summary, capture: :all_but_first) do
+      fields =
+        Regex.scan(~r/^requirements-completed:\s*\[([^\]]*)\]\s*$/m, frontmatter,
+          capture: :all_but_first
+        )
+
+      case fields do
+        [[ids]] ->
+          ids |> String.split(",", trim: true) |> Enum.map(&String.trim/1)
+
+        [] when not required? ->
+          []
+
+        [] ->
+          raise ArgumentError, "SUMMARY is missing a narrow requirements-completed field"
+
+        _ ->
+          raise ArgumentError,
+                "SUMMARY must contain exactly one narrow requirements-completed field"
+      end
     else
-      _ -> raise ArgumentError, "SUMMARY is missing a narrow requirements-completed field"
+      _ -> raise ArgumentError, "SUMMARY is missing frontmatter"
     end
   end
 
@@ -183,7 +312,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
       raise ArgumentError, "approved traceability completion set changed"
     end
 
-    assert_three_source_support!()
+    assert_three_source_support!(requirements)
     :ok
   end
 
@@ -193,38 +322,34 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     )
   end
 
-  defp assert_three_source_support! do
-    checked_requirements = File.read!(Path.join(@root, ".planning/REQUIREMENTS.md"))
-
-    verification_233 =
-      File.read!(
-        Path.join(@root, ".planning/phases/233-library-suite-economics/233-VERIFICATION.md")
-      )
-
-    verification_234 =
-      File.read!(
-        Path.join(
-          @root,
-          ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md"
-        )
-      )
-
-    contracts = [
-      "test/sigra/planning/phase_233_library_economics_contract_test.exs",
-      "test/sigra/planning/phase_234_evidence_contract_test.exs"
-    ]
-
+  defp assert_three_source_support!(requirements) do
     Enum.each(@reconciled_ids, fn id ->
-      verification =
-        if String.starts_with?(id, "TEST"), do: verification_233, else: verification_234
+      %{
+        verification_path: verification_path,
+        verification_row: verification_row,
+        contract_path: contract_path,
+        contract_test: contract_test
+      } =
+        Map.fetch!(@three_source_support, id)
 
-      unless checked_requirements =~ "- [x] **#{id}**" and verification =~ "| #{id} |" and
-               verification =~ "✓ SATISFIED" and
-               Enum.all?(contracts, &File.exists?(Path.join(@root, &1))) do
-        raise ArgumentError, "three-source support is incomplete for #{id}"
+      verification = File.read!(Path.join(@root, verification_path))
+      contract = File.read!(Path.join(@root, contract_path))
+
+      unless requirements =~ "- [x] **#{id}**" do
+        raise ArgumentError, "checked requirement source is incomplete for #{id}"
+      end
+
+      unless occurrence_count(verification, verification_row) == 1 do
+        raise ArgumentError, "verification row source is incomplete for #{id}"
+      end
+
+      unless contract =~ "test \"#{contract_test}\" do" do
+        raise ArgumentError, "deterministic contract source is incomplete for #{id}"
       end
     end)
   end
+
+  defp occurrence_count(text, substring), do: length(String.split(text, substring)) - 1
 
   defp sha256!(path) do
     path
