@@ -40,8 +40,8 @@ case "$(uname -s)" in
   Linux)
     if /usr/bin/unshare --user --map-root-user --net true >/dev/null 2>&1; then
       isolation=(/usr/bin/unshare --user --map-root-user --net)
-    elif command -v sudo >/dev/null && sudo -n /usr/bin/unshare --net true >/dev/null 2>&1; then
-      isolation=(sudo -n /usr/bin/unshare --net)
+    elif test -x /usr/bin/sudo && /usr/bin/sudo -n /usr/bin/unshare --net true >/dev/null 2>&1; then
+      isolation=(/usr/bin/sudo -n /usr/bin/unshare --net)
     else
       echo "network_isolation_unavailable:unshare" >&2
       exit 1
@@ -54,7 +54,14 @@ case "$(uname -s)" in
 esac
 
 work="$($MKTEMP_BIN -d)"
-trap 'rm -rf "$work"' EXIT
+cleanup() {
+  if [[ "${isolation[0]}" == "/usr/bin/sudo" ]]; then
+    /usr/bin/sudo -n /usr/bin/rm -rf -- "$work"
+  else
+    rm -rf -- "$work"
+  fi
+}
+trap cleanup EXIT
 mkdir "$work/home"
 cp "$RECEIPT" "$work/receipt.json"
 cp "$BUNDLE" "$work/bundle.jsonl"

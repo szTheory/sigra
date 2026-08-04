@@ -29,6 +29,18 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert remediation["immutable_prior_receipt"]["verdict"] == "miss"
   end
 
+  test "terminal offline verifier never resolves sudo through PATH" do
+    verifier =
+      File.read!(
+        Path.join(@root, "scripts/ci/verify-terminal-ratification-attestation-offline.sh")
+      )
+
+    assert verifier =~ "test -x /usr/bin/sudo && /usr/bin/sudo -n /usr/bin/unshare --net true"
+    assert verifier =~ "isolation=(/usr/bin/sudo -n /usr/bin/unshare --net)"
+    assert verifier =~ "/usr/bin/sudo -n /usr/bin/rm -rf -- \"$work\""
+    refute verifier =~ "command -v sudo"
+  end
+
   test "readiness stays non-authoritative and protected evidence is separate from ci" do
     readiness =
       File.read!(Path.join(@root, Path.join(@phase, "235-FAST-01-GAP-CLOSURE-READINESS.json")))
