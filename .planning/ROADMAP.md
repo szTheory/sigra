@@ -464,11 +464,11 @@ Plans:
 
 **Wave 4** *(gap closure; blocked on Wave 3 completion)*
 
-- [ ] 236-04-PLAN.md — Continue from the committed baseline and mixed Phase 231 validator boundary; validate Phases 232 then 234 through the installed skills.
+- [x] 236-04-PLAN.md — Continue from the committed baseline and mixed Phase 231 validator boundary; validate Phases 232 then 234 through the installed skills.
 
 **Wave 5** *(gap closure; blocked on Wave 4 completion)*
 
-- [ ] 236-05-PLAN.md — Freeze the complete resolved audit inputs, invoke the installed audit skill, and bind its output to those sources.
+- [x] 236-05-PLAN.md — Freeze the complete resolved audit inputs, invoke the installed audit skill, and bind its output to those sources.
 
 ---
 

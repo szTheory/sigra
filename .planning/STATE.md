@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 236
 current_phase_name: closeout-evidence-reconciliation
 status: executing
-stopped_at: Phase 236 context gathered (assumptions mode)
-last_updated: "2026-08-04T17:43:02.414Z"
+stopped_at: Completed 236-05-PLAN.md
+last_updated: "2026-08-04T18:47:23.680Z"
 last_activity: 2026-08-04
 last_activity_desc: Phase 236 execution started
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 73
-  completed_plans: 71
-  percent: 86
+  completed_plans: 73
+  percent: 100
 ---
 
 # Project State
@@ -30,8 +30,8 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 236 (closeout-evidence-reconciliation) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 236
+Plan: 2 of 5
+Status: Ready to execute
 Progress: 6/6 milestone phases complete; 68/68 plans executed ([██████████] 100%)
 Last activity: 2026-08-04 — Phase 236 execution started
 
@@ -448,6 +448,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Plan 12 readiness has seven independent rows and null statistics/verdict; FAST-01 remains open pending n>=10.
 - [Phase ?]: FAST-01 closed only from independently recomputed protected-main run 30865183650: n=15, strict p50=486s; prior 772s and 724s misses retained.
 - [Phase ?]: GATE-05 remains independently Complete on protected run 30782184713 with its unchanged 93-row ownership proof and offline verifier.
+- [Phase ?]: Snapshot claims bind deterministic sources and outputs, not an invoking LLM's identity.
+- [Phase ?]: The installed audit orchestration and integration-checker agent supply the live audit result.
 
 ### Pending Todos
 
@@ -593,9 +595,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-04T15:08:43.683Z
-Stopped at: Phase 236 context gathered (assumptions mode)
-Resume file: .planning/phases/236-closeout-evidence-reconciliation/236-CONTEXT.md
+Last session: 2026-08-04T18:47:23.663Z
+Stopped at: Completed 236-05-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -764,3 +766,4 @@ Resume file: .planning/phases/236-closeout-evidence-reconciliation/236-CONTEXT.m
 | Phase 235 P11 | 42m | 2 tasks | 5 files |
 | Phase 235 P12 | 10min | 2 tasks | 6 files |
 | Phase 235 P13 | 486s | 2 tasks | 7 files |
+| Phase 236-closeout-evidence-reconciliation P05 | 17min | 2 tasks | 6 files |
