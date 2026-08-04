@@ -40,14 +40,16 @@ status: complete
 ## Accomplishments
 
 - Replaced endpoint-only range inspection with a sorted, deduplicated union of `git rev-list from..to` commit paths collected by `git diff-tree --no-commit-id --name-only -r`.
+- Corrected the collector to request per-parent merge diffs with `-m`, so merge-resolution-only paths cannot bypass the committed-range scope fence.
 - Made enumeration and per-commit collection fail closed with contextual `ArgumentError` diagnostics on nonzero Git exits.
 - Added a deterministic temporary-repository regression proving an allowed-plus-forbidden intermediate change remains visible after the forbidden file is restored at the endpoint.
+- Extended that regression with a non-fast-forward merge whose resolution adds a forbidden path; the collector returns it and the same scope validator rejects it.
 - Pinned Plan 07 range verification to completion commit `287065751e2ed44d39d112801a06503de740e45d`; later bookkeeping cannot affect the audited range.
 - Kept the original five-path `@scope_allowlist` unchanged and applied it to Plan 06, Plan 07, tracked, and untracked path collectors.
 
 ## Task Commits
 
-1. **Task 1: Reject restored forbidden paths across committed execution ranges** — `8f7d7e27` (`test`, RED) and `b8d27fef` (`fix`, GREEN)
+1. **Task 1: Reject restored forbidden paths across committed execution ranges** — `8f7d7e27` (`test`, RED), `b8d27fef` (`fix`, GREEN), and `c7431bda` (`fix`, merge-resolution scope correction)
 
 ## Verification
 
@@ -55,11 +57,13 @@ status: complete
 - `MIX_ENV=test mix test test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` — passed: 9 tests, 0 failures.
 - `mix format --check-formatted test/sigra/planning/phase_236_closeout_evidence_reconciliation_contract_test.exs` — passed.
 - `git diff --check` — passed.
+- Corrective verification after CR-01: the focused `:scope_fence` test passed (1 test, 0 failures), then the complete contract passed (9 tests, 0 failures), formatting passed, and `git diff --check` passed.
 
 ## Decisions Made
 
 - Per-commit collection is the required scope-fence mechanism because endpoint-tree diffs cannot reveal transient forbidden mutations.
 - The historic Plan 07 end SHA is fixed to its already-committed completion rather than `HEAD`.
+- Merge commits are diffed against each parent, preserving the fail-closed union for changes introduced while resolving conflicts.
 
 ## Deviations from Plan
 
@@ -76,5 +80,5 @@ None.
 ## Self-Check: PASSED
 
 - The hardened contract test and this summary exist.
-- Task commits `8f7d7e27` and `b8d27fef` exist in Git history.
+- Task commits `8f7d7e27`, `b8d27fef`, and corrective commit `c7431bda` exist in Git history.
 - All specified deterministic verification commands passed.
