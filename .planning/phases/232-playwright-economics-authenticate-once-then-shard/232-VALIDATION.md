@@ -1,9 +1,9 @@
 ---
 phase: 232
 slug: playwright-economics-authenticate-once-then-shard
-status: validated
+status: ready
 nyquist_compliant: true
-wave_0_complete: true
+wave_0_complete: false
 created: 2026-07-31
 revised: 2026-07-31
 ---

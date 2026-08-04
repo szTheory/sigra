@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "claim_limit": "This committed replay proves a bounded forward lifecycle transition; it cannot authenticate an earlier LLM invocation or retroactively authenticate disputed 2026-08-04 edits.",
+  "baseline_commit_sha": null,
+  "baseline_commit_recorded_in": null,
+  "phase_230": {
+    "source_commit": "d93bb10a^",
+    "source_blob": "a818dcfa2dd680037b110f007c5ca76a5e46a558",
+    "expected_lifecycle": {
+      "status": "validated",
+      "nyquist_compliant": "true",
+      "wave_0_complete": "true"
+    },
+    "classification": "pre-existing canonical state; excluded from replay"
+  },
+  "replay_targets": [
+    {
+      "phase": 231,
+      "staged_baseline_path": ".planning/phases/231-gate-honesty-nightly-revival/231-VALIDATION.md",
+      "source_commit": "d93bb10a^",
+      "source_blob": "5e5e26de0b56fcc7f8ff6e69afa2362f1951a07e",
+      "expected_lifecycle": {
+        "status": "draft",
+        "nyquist_compliant": "false",
+        "wave_0_complete": "false"
+      },
+      "pre_reset_sha256": "c3cef8f5f75513914c1331ab4a22e64883419f1beac4cd465205b925887f2036",
+      "staged_baseline_sha256": "459b2043634da650cb6a4ef42415c47266779608f348868f4ea5297195dce9dc",
+      "retained_body_sha256": "4807527e54fda2fa60d1d0bf6e0ae2d354348385e1e7821e63be812c5ad4ea2f"
+    },
+    {
+      "phase": 232,
+      "staged_baseline_path": ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md",
+      "source_commit": "06f3734c^",
+      "source_blob": "c718fcce8c17e1bea167049535375dd4f4ec235b",
+      "expected_lifecycle": {
+        "status": "ready",
+        "nyquist_compliant": "true",
+        "wave_0_complete": "false"
+      },
+      "pre_reset_sha256": "aeaf2db1005b3066015dfd26055974d3e3cf5ac1c5a0f4e707f9191df07b8ec9",
+      "staged_baseline_sha256": "3c34acf06e33410ffff73cd0f5cf87fd9299ab89662b366beb771ab0ad86d3a9",
+      "retained_body_sha256": "c513a8405064512a21c3a5c8541c9b278aa4dba4c938952b7438c51c715dc236"
+    },
+    {
+      "phase": 234,
+      "staged_baseline_path": ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md",
+      "source_commit": "2e090f6a^",
+      "source_blob": "8dcf1849c8c1f9a7d8702a8c4301284095b1ffa6",
+      "expected_lifecycle": {
+        "status": "complete",
+        "nyquist_compliant": "true",
+        "wave_0_complete": "true"
+      },
+      "pre_reset_sha256": "cfcdbd03e4e2e4cb3e0b30a91d403da48ebb9da04448682c3e5fae8a23c5bc0d",
+      "staged_baseline_sha256": "5fa02edac9408bfa4d2ff181e5084bd8fc176d9617e2982a484ee06eefad5b87",
+      "retained_body_sha256": "e4dd11873a0567ad37b5adc59977b2983cedb63ca904545f83b0265c83aa2d69"
+    }
+  ]
+}

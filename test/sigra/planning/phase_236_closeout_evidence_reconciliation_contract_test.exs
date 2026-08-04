@@ -397,7 +397,7 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   defp lifecycle!(path) do
-    path |> Path.join(@root) |> File.read!() |> lifecycle_from_contents!()
+    @root |> Path.join(path) |> File.read!() |> lifecycle_from_contents!()
   end
 
   defp lifecycle_from_contents!(contents) do
@@ -407,8 +407,8 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
   end
 
   defp retained_body_sha256!(path) do
-    path
-    |> Path.join(@root)
+    @root
+    |> Path.join(path)
     |> File.read!()
     |> retained_body!()
     |> then(&:crypto.hash(:sha256, &1))
