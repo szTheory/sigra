@@ -229,9 +229,6 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
                target["expected_lifecycle"]
 
       assert lifecycle!(target["staged_baseline_path"]) == target["current_expected_lifecycle"]
-
-      assert retained_body_sha256!(target["staged_baseline_path"]) ==
-               target["retained_body_sha256"]
     end)
 
     assert baseline["claim_limit"] ==
@@ -302,6 +299,12 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     assert historical_sha256!(phase_232["validator_commit_sha"], validation_path!(232)) ==
              phase_232["after_sha256"]
 
+    assert historical_retained_body_sha256!(
+             phase_232["validator_commit_sha"],
+             validation_path!(232)
+           ) ==
+             Enum.find(baseline["replay_targets"], &(&1["phase"] == 232))["retained_body_sha256"]
+
     assert lifecycle!(
              ".planning/phases/232-playwright-economics-authenticate-once-then-shard/232-VALIDATION.md"
            ) == phase_232["after_lifecycle"]
@@ -319,6 +322,12 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
 
     assert historical_sha256!(phase_234["validator_commit_sha"], validation_path!(234)) ==
              phase_234["after_sha256"]
+
+    assert historical_retained_body_sha256!(
+             phase_234["validator_commit_sha"],
+             validation_path!(234)
+           ) ==
+             Enum.find(baseline["replay_targets"], &(&1["phase"] == 234))["retained_body_sha256"]
 
     assert lifecycle!(
              ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
@@ -598,10 +607,10 @@ defmodule Sigra.Planning.Phase236CloseoutEvidenceReconciliationContractTest do
     Map.take(fields, ["status", "nyquist_compliant", "wave_0_complete"])
   end
 
-  defp retained_body_sha256!(path) do
-    @root
-    |> Path.join(path)
-    |> File.read!()
+  defp historical_retained_body_sha256!(commit, path) do
+    {contents, 0} = System.cmd("git", ["show", "#{commit}:#{path}"], cd: @root)
+
+    contents
     |> retained_body!()
     |> then(&:crypto.hash(:sha256, &1))
     |> Base.encode16(case: :lower)
