@@ -401,7 +401,7 @@ Plans:
 
 **Wave 14** *(gap closure; blocked on Wave 13 completion)*
 
-- [x] 235-14-PLAN.md — Establish trusted verifier staging and checkpoint-reaching regressions for FAST-01 and GATE-05
+- [ ] 235-14-PLAN.md — Establish trusted verifier staging and checkpoint-reaching regressions for FAST-01 and GATE-05
 
 ## Progress
 
