@@ -56,7 +56,7 @@ defmodule <%= web_module %>.SettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Account Settings

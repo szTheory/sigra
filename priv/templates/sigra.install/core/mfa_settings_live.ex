@@ -62,7 +62,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <%%= if @mfa_enabled do %>
         <%% # Surface 3: MFA Settings Card %>

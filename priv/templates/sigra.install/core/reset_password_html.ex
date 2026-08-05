@@ -13,7 +13,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   """
   def new(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
@@ -45,7 +45,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   """
   def edit(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset your password")}
@@ -73,7 +73,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   """
   def expired(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset link expired")}

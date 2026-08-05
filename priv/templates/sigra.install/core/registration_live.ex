@@ -6,7 +6,7 @@ defmodule <%= web_module %>.RegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <.header>
           Register

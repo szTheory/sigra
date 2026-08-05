@@ -14,7 +14,7 @@ defmodule <%= web_module %>.ResetPasswordLive do
 
   def render(%{live_action: :new} = assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
@@ -48,7 +48,7 @@ defmodule <%= web_module %>.ResetPasswordLive do
 
   def render(%{live_action: :edit} = assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset your password")}
