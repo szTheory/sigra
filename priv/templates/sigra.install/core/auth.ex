@@ -143,6 +143,36 @@ defmodule <%= context_module %> do
   end
 
   @doc """
+  Delivers a magic-link email when the supplied address belongs to a user.
+
+  Returns the same enumeration-safe result as `request_magic_link/2`.
+  """
+  def deliver_user_magic_link_instructions(email, magic_link_url_fun)
+      when is_binary(email) and is_function(magic_link_url_fun, 1) do
+    case request_magic_link(email, magic_link_url_fun) do
+      {:ok, {_raw_token, url}} ->
+        user = get_user_by_email(email)
+
+        if user do
+          email_struct = <%= context_module %>.Emails.magic_link_email(user, url)
+
+          Sigra.Delivery.deliver(:magic_link, %{
+            user_id: user.id,
+            to: user.email,
+            subject: email_struct.subject,
+            body: %{html: email_struct.html_body, text: email_struct.text_body},
+            url: url
+          }, delivery_opts())
+        end
+
+        {:ok, :sent}
+
+      result ->
+        result
+    end
+  end
+
+  @doc """
   Verifies a magic link token.
 
   Returns `{:ok, user}` if valid (token is consumed), or `{:error, reason}`.

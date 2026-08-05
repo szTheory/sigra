@@ -12,6 +12,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
+  @session_controller "priv/templates/sigra.install/core/session_controller.ex"
   @auth_components "priv/templates/sigra.install/core/sigra_auth_components.ex"
   @auth_flash_views [
     "priv/templates/sigra.install/core/confirmation_html.ex",
@@ -203,15 +204,35 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
            "OAuth controller must not require an unassigned conn config"
 
     assert Regex.match?(
-             ~r/session_params = %\{\s*state: get_session\(conn, :sigra_oauth_state\)/s,
+             ~r/session_params = %\{\s*sigra_state: get_session\(conn, :sigra_oauth_state\)/s,
              oauth_controller
            ),
-           "OAuth callback must restore the Sigra state as Assent's :state session value"
+           "OAuth callback must restore the Sigra state under Sigra's :sigra_state session key"
 
     assert_contains!(
       oauth_controller,
       "code_verifier: get_session(conn, :sigra_oauth_code_verifier)",
       "OAuth callback Assent session"
+    )
+  end
+
+  test "generated magic-link requests deliver the newly-issued URL to the host mailbox" do
+    auth_template = read!(@auth_template)
+    session_controller = read!(@session_controller)
+
+    for marker <- [
+          "def deliver_user_magic_link_instructions(email, magic_link_url_fun)",
+          "<%= context_module %>.Emails.magic_link_email(user, url)",
+          "Sigra.Delivery.deliver(:magic_link",
+          "url: url"
+        ] do
+      assert_contains!(auth_template, marker, "generated magic-link delivery")
+    end
+
+    assert_contains!(
+      session_controller,
+      "Auth.deliver_user_magic_link_instructions(email, url_fun)",
+      "generated magic-link controller delivery"
     )
   end
 

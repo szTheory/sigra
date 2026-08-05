@@ -59,7 +59,7 @@ defmodule <%= web_module %>.OAuthController do
     case validate_provider(config, provider) do
       {:ok, provider_atom} ->
         session_params = %{
-          state: get_session(conn, :sigra_oauth_state),
+          sigra_state: get_session(conn, :sigra_oauth_state),
           code_verifier: get_session(conn, :sigra_oauth_code_verifier)
         }
 
