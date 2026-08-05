@@ -71,6 +71,7 @@ status: complete
 6. **CR remediation: POSIX portable smoke regexes** — `e52ccf8b` (fix)
 7. **Source-lock remediation: robust Cloak dependency assertion** — `c9f41cc2` (test)
 8. **Source-lock remediation: generated-file core checks** — `b481fc8f` (test)
+9. **Source-lock remediation: magic-link handler predicates** — `103ad84a` (test)
 
 ## Files Created/Modified
 
@@ -133,6 +134,14 @@ status: complete
 - **Files modified:** `test/sigra/install/generator_passkeys_opt_out_test.exs`
 - **Verification:** exact port-5432 scoped test command was started but did not finish within the local runner window; its focused source-lock test passed (`1 test, 0 failures`), alongside formatter, parser, shell syntax, and diff checks.
 - **Committed in:** `b481fc8f`
+
+**7. [Rule 2 - Missing critical functionality] Magic-link handler signature source lock**
+- **Found during:** Final code review
+- **Issue:** The source lock proved the generated SessionController path and helper calls but omitted the smoke's exact magic-link request and verification handler-signature predicates.
+- **Fix:** Added literal-safe source locks for both generated SessionController handler assertions.
+- **Files modified:** `test/sigra/install/generator_passkeys_opt_out_test.exs`
+- **Verification:** exact focused port-5432 test passed (`1 test, 0 failures`), with formatter, parser, shell syntax, and diff checks also passing.
+- **Committed in:** `103ad84a`
 
 ## Issues Encountered
 
