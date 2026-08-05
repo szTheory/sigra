@@ -60,7 +60,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Prove the local Assent Google OIDC seam through generated routes** - `97d77310` (test RED), `517f5e5d` (feat GREEN)
+1. **Task 1: Prove the local Assent Google OIDC seam through generated routes** - `97d77310` (test RED), `517f5e5d` (feat GREEN), `7d9149dc` (callback-target hardening)
 
 ## Files Created
 
@@ -101,4 +101,4 @@ The reusable `--probe-oauth` harness is ready for CI runtime evidence and for la
 ## Self-Check: PASSED
 
 - Found both created source artifacts.
-- Found RED commit `97d77310` and GREEN commit `517f5e5d`.
+- Found RED commit `97d77310`, GREEN commit `517f5e5d`, and callback hardening commit `7d9149dc`.
