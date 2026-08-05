@@ -217,13 +217,19 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     for marker <- [
           "name: Generated auth runtime proof",
           "workflow_dispatch:",
-          "phase-238-generated-auth-proof-*",
           "release_ref_guard:",
           "EVIDENCE_REF: ${{ inputs.evidence_ref }}",
-          "GITHUB_REF_NAME: ${{ github.ref_name }}"
+          "GITHUB_REF_NAME: ${{ github.ref_name }}",
+          "test \"$EVIDENCE_REF\" = \"$GITHUB_REF_NAME\""
         ] do
       assert_contains!(workflow, marker, "isolated generated-auth workflow")
     end
+
+    refute String.contains?(workflow, "push:"),
+           "isolated runtime proof must be explicitly workflow-dispatched at its evidence ref"
+
+    refute String.contains?(workflow, "phase-238-generated-auth-proof-*"),
+           "tag inference cannot be used to correlate Phase 238 proof evidence"
 
     job =
       case Regex.run(
