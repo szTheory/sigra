@@ -181,7 +181,8 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
       assert source =~ "--no-admin --no-organizations --no-passkeys"
       assert source =~ "add_cloak_ecto"
-      assert source =~ "{:cloak_ecto, \"~> 1.3\"}"
+      assert Regex.match?(~r/\{:cloak_ecto,\s*\\?"~> 1\.3\\?"/, source)
+      assert source =~ "String.replace(content, anchor, anchor <>"
       assert source =~ "mix sigra.gen.oauth --providers google"
       assert source =~ "sigra_b2c_alpha"
       assert source =~ "get \"/log_in\", SessionController, :new"
