@@ -7,6 +7,8 @@ import {
 
 test.describe.configure({ mode: 'serial' });
 
+const collisionEmail = 'oauth-collision@example.test';
+
 const waitForLiveViewReady = async (page: Page) => {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
@@ -38,8 +40,7 @@ async function logOut(page: Page) {
 }
 
 test('generated B2C email authentication journey', async ({ page }) => {
-  const suffix = `${Date.now()}-${test.info().parallelIndex}`;
-  const email = `generated-auth-${suffix}@example.test`;
+  const email = collisionEmail;
   const password = 'GeneratedAuthPassword123!';
 
   await page.goto('/users/register');
@@ -93,4 +94,40 @@ test('generated B2C email authentication journey', async ({ page }) => {
 
   await logInWithPassword(page, email, replacementPassword);
   await expect(page.getByRole('button', { name: /log out/i })).toBeVisible();
+  await logOut(page);
+
+  const oidcRequests: string[] = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith('/oidc/')) {
+      oidcRequests.push(url.toString());
+    }
+  });
+
+  const authorization = page.waitForRequest((request) =>
+    request.url().includes('/oidc/authorize'),
+  );
+  await page.goto('/auth/google');
+  const authorizationRequest = await authorization;
+  const authorizationUrl = new URL(authorizationRequest.url());
+  expect(authorizationUrl.hostname).toBe('127.0.0.1');
+  expect(authorizationUrl.pathname).toBe('/oidc/authorize');
+  expect(authorizationUrl.searchParams.get('state')).toMatch(/^.+\..+$/);
+  expect(authorizationUrl.searchParams.get('code_challenge')).toMatch(
+    /^[A-Za-z0-9_-]{43}$/,
+  );
+  expect(authorizationUrl.searchParams.get('code_challenge_method')).toBe('S256');
+  expect(authorizationUrl.searchParams.has('nonce')).toBe(false);
+
+  await expect(page).toHaveURL(/\/users\/log_in/);
+  await expect(
+    page.getByText(
+      'An account with this email exists. Log in to link your google account.',
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: /log out/i })).toHaveCount(0);
+  expect(
+    oidcRequests.map((requestUrl) => new URL(requestUrl).pathname).sort(),
+  ).toEqual(['/oidc/.well-known/openid-configuration', '/oidc/authorize', '/oidc/token']);
 });
