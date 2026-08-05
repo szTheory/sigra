@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 238
 current_phase_name: generated-auth-runtime-proof
-status: blocked
-stopped_at: "Phase 238 blocked: exact-SHA CI harness self-reference failure"
-last_updated: "2026-08-05T16:26:15.400Z"
+status: executing
+stopped_at: Completed 238-06-PLAN.md
+last_updated: "2026-08-05T21:35:08.556Z"
 last_activity: 2026-08-05
-last_activity_desc: verifier confirmed 0/3 runtime truths after two red direct CI runs
+last_activity_desc: Phase 238 execution resumed (wave continue)
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 5
-  percent: 25
+  completed_plans: 7
+  percent: 50
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 238 (generated-auth-runtime-proof) — BLOCKED
-Plan: 5 of 5 (evidence blocked)
-Status: Repair `scripts/ci/generated-auth-runtime-proof.sh` self-reference, then rerun exact-SHA CI proof
-Last activity: 2026-08-05 — verifier confirmed 0/3 runtime truths after two red direct CI runs
+Phase: 238 (generated-auth-runtime-proof) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-08-05 — Phase 238 execution resumed (wave continue)
 
 ## Accumulated Context
 
@@ -424,6 +424,7 @@ Last activity: 2026-08-05 — verifier confirmed 0/3 runtime truths after two re
 - [Phase ?]: The installed audit orchestration and integration-checker agent supply the live audit result.
 - [Phase ?]: Committed execution ranges use rev-list plus per-commit diff-tree, not endpoint-tree differences.
 - [Phase ?]: Plan 07 ends at immutable completion commit 287065751e2ed44d39d112801a06503de740e45d.
+- [Phase ?]: Dedicated workflow-dispatch receipt at exact SHA is the runtime proof source.
 
 ### Pending Todos
 
@@ -436,6 +437,7 @@ Last activity: 2026-08-05 — verifier confirmed 0/3 runtime truths after two re
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
+- Phase 238 Plan 06 exact-SHA generated auth proof run 31029916206 job 92387755937 failed: generated OIDC double calls Logger.info/1 without require Logger under --warnings-as-errors. Three bounded runtime fixes were committed; no passing evidence was written.
 
 ### Roadmap Evolution
 
@@ -569,9 +571,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-05T14:23:05.637Z
-Stopped at: Phase 238 context gathered (assumptions mode)
-Resume file: .planning/phases/238-generated-auth-runtime-proof/238-CONTEXT.md
+Last session: 2026-08-05T21:35:08.547Z
+Stopped at: Completed 238-06-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -741,6 +743,7 @@ Resume file: .planning/phases/238-generated-auth-runtime-proof/238-CONTEXT.md
 | Phase 235 P13 | 486s | 2 tasks | 7 files |
 | Phase 236-closeout-evidence-reconciliation P05 | 17min | 2 tasks | 6 files |
 | Phase 236 P08 | 5m | 1 tasks | 1 files |
+| Phase 238-generated-auth-runtime-proof P06 | 0 | 1 tasks | 8 files |
 
 ## Deferred Items
 

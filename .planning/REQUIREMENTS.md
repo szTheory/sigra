@@ -12,9 +12,9 @@
 
 ### Auth journey proof
 
-- [ ] **AUTH-01**: A generated B2C host browser suite proves registration, confirmation, email/password sign-in and logout, magic-link request/verification, and password reset completion.
-- [ ] **AUTH-02**: The same suite proves Google OAuth start/callback and account-link collision behavior with a deterministic provider double; no CI credential is required.
-- [ ] **AUTH-03**: Each rendered B2C auth state passes Axe and stable label/control and duplicate-ID checks.
+- [x] **AUTH-01**: A generated B2C host browser suite proves registration, confirmation, email/password sign-in and logout, magic-link request/verification, and password reset completion.
+- [x] **AUTH-02**: The same suite proves Google OAuth start/callback and account-link collision behavior with a deterministic provider double; no CI credential is required.
+- [x] **AUTH-03**: Each rendered B2C auth state passes Axe and stable label/control and duplicate-ID checks.
 
 ### Crosswake interop
 
