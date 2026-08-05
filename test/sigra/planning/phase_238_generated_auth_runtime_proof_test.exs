@@ -294,6 +294,16 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     end
   end
 
+  test "browser OAuth assertions only observe the authorization redirect" do
+    journey = read!(@journey)
+
+    assert_contains!(
+      journey,
+      ").toEqual(['/oidc/authorize']);",
+      "browser OAuth request boundary"
+    )
+  end
+
   test "Generated Auth Runtime Proof has a dispatchable isolated workflow with only its prerequisite guard" do
     workflow = read!(@workflow)
 

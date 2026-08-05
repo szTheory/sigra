@@ -228,7 +228,9 @@ test('generated B2C email authentication journey', async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole('button', { name: /log out/i })).toHaveCount(0);
   await assertAuthState(page, 'Google collision login');
+  // The browser owns only the authorization redirect; discovery and token
+  // exchange are server-to-server calls and are asserted from the proof log.
   expect(
     oidcRequests.map((requestUrl) => new URL(requestUrl).pathname).sort(),
-  ).toEqual(['/oidc/.well-known/openid-configuration', '/oidc/authorize', '/oidc/token']);
+  ).toEqual(['/oidc/authorize']);
 });
