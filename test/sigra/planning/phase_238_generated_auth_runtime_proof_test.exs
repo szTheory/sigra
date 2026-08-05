@@ -219,6 +219,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     auth_components = read!(@auth_components)
 
     for marker <- [
+          "attr :flash, :map, default: %{}",
           "Phoenix.Flash.get(@flash, :info)",
           "Phoenix.Flash.get(@flash, :error)",
           "role=\"status\"",
