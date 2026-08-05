@@ -99,6 +99,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
              harness
            ),
            "assert_locked_contract must read the retained harness through CI_DIR after boot_and_run_spec changes into APP_DIR"
+
+    assert_contains!(harness, "grep -Eq", "portable retained-harness contract checks")
+    refute String.contains?(harness, "rg -q"),
+           "retained-harness contract checks must not depend on rg being installed in the CI runner"
   end
 
   test "Generated Auth Runtime Proof CI lane is non-skipping, PostgreSQL-backed, and diagnostic" do

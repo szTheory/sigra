@@ -197,11 +197,11 @@ EOF
 
 assert_locked_contract() {
   grep -q -- '--probe-oauth' "${CI_DIR}/generated-auth-runtime-proof.sh" || fail "focused probe entry point missing"
-  rg -q 'base_url: "http://127\.0\.0\.1:' "config/config.exs" || fail "Google base_url is not loopback"
-  rg -q 'id_token_signed_response_alg: "HS256"' "config/config.exs" || fail "HS256 contract missing"
-  rg -q 'code_verifier: true' "config/config.exs" || fail "PKCE contract missing"
-  rg -q 'oauth: Application.fetch_env!' "lib/${APP_NAME}/accounts.ex" || fail "generated config is not wired into Accounts"
-  ! rg -q 'userinfo|jwks_uri|nonce:' "lib/${APP_NAME}_web/controllers/oidc_double_controller.ex" || fail "double grew an excluded OIDC dependency"
+  grep -Eq 'base_url: "http://127\.0\.0\.1:' "config/config.exs" || fail "Google base_url is not loopback"
+  grep -Eq 'id_token_signed_response_alg: "HS256"' "config/config.exs" || fail "HS256 contract missing"
+  grep -Eq 'code_verifier: true' "config/config.exs" || fail "PKCE contract missing"
+  grep -Eq 'oauth: Application.fetch_env!' "lib/${APP_NAME}/accounts.ex" || fail "generated config is not wired into Accounts"
+  ! grep -Eq 'userinfo|jwks_uri|nonce:' "lib/${APP_NAME}_web/controllers/oidc_double_controller.ex" || fail "double grew an excluded OIDC dependency"
 }
 
 boot_and_run_spec() {
@@ -232,8 +232,8 @@ boot_and_run_spec() {
   done
   curl -sf "http://127.0.0.1:${PORT}/" >/dev/null || { cat "${SERVER_LOG}"; fail "generated host did not become ready"; }
   SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test "${SPEC_FILES[@]}" --project=generated-auth --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
-  rg -q 'oidc-double authorize accepted generated state and PKCE' "${SERVER_LOG}" || fail "authorization double did not receive generated state/PKCE"
-  rg -q 'oidc-double token accepted matching PKCE verifier' "${SERVER_LOG}" || fail "token double did not receive matching PKCE verifier"
+  grep -q 'oidc-double authorize accepted generated state and PKCE' "${SERVER_LOG}" || fail "authorization double did not receive generated state/PKCE"
+  grep -q 'oidc-double token accepted matching PKCE verifier' "${SERVER_LOG}" || fail "token double did not receive matching PKCE verifier"
 }
 
 case "$*" in
