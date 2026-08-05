@@ -127,6 +127,14 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
                  )
 
           assert migration_present?(app_dir, "*_create_user_identities.exs")
+          assert router =~ "get \"/log_in\", SessionController, :new"
+          assert router =~ "post \"/log_in\", SessionController, :create"
+          assert router =~ "get \"/log_in/:token\", SessionController, :magic_link"
+          assert session_controller =~ "Auth.authenticate_user"
+          assert session_controller =~ "def create(conn, %{\"_action\" => \"magic_link\""
+          assert session_controller =~ "Auth.request_magic_link"
+          assert session_controller =~ "def magic_link(conn, %{\"token\" => token})"
+          assert session_controller =~ "Auth.verify_magic_link"
           assert router =~ "# Sigra OAuth"
           assert router =~ "get \"/:provider\", OAuthController, :request"
           assert router =~ "get \"/:provider/callback\", OAuthController, :callback"
@@ -168,7 +176,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "opt out"
     end
 
-    test "fresh-host smoke locks the B2C Alpha generator command and Google OAuth output" do
+    test "fresh-host smoke locks the B2C Alpha retained-core and Google OAuth contract" do
       source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
 
       assert source =~ "--no-admin --no-organizations --no-passkeys"
@@ -176,6 +184,14 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "{:cloak_ecto, \"~> 1.3\"}"
       assert source =~ "mix sigra.gen.oauth --providers google"
       assert source =~ "sigra_b2c_alpha"
+      assert source =~ "get \"/log_in\", SessionController, :new"
+      assert source =~ "post \"/log_in\", SessionController, :create"
+      assert source =~ "get \"/log_in/:token\", SessionController, :magic_link"
+      assert source =~ "Auth.authenticate_user"
+      assert source =~ "def create\\(conn, %\\{\\\"_action\\\" => \\\"magic_link\\\""
+      assert source =~ "Auth.request_magic_link"
+      assert source =~ "def magic_link\\(conn, %\\{\\\"token\\\" => token\\}\\)"
+      assert source =~ "Auth.verify_magic_link"
       assert source =~ "oauth_controller.ex"
       assert source =~ "oauth_html.ex"
       assert source =~ "oauth_buttons.html.heex"

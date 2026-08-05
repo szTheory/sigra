@@ -177,6 +177,16 @@ run_leg() {
     router="lib/${label}_web/router.ex"
     config="config/config.exs"
     application="lib/${label}/application.ex"
+    session_controller="lib/${label}_web/controllers/session_controller.ex"
+
+    assert_match 'get "/log_in", SessionController, :new' "${router}"
+    assert_match 'post "/log_in", SessionController, :create' "${router}"
+    assert_match 'get "/log_in/:token", SessionController, :magic_link' "${router}"
+    assert_match 'Auth.authenticate_user' "${session_controller}"
+    assert_match 'def create\(conn, %\{"_action" => "magic_link"' "${session_controller}"
+    assert_match 'Auth.request_magic_link' "${session_controller}"
+    assert_match 'def magic_link\(conn, %\{"token" => token\}\)' "${session_controller}"
+    assert_match 'Auth.verify_magic_link' "${session_controller}"
 
     assert_match '# Sigra OAuth' "${router}"
     assert_match 'get "/:provider", OAuthController, :request' "${router}"
