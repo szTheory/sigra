@@ -19,6 +19,14 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**Phase 237 canonical B2C generator contract complete (2026-08-04).** The exact
+`--no-admin --no-organizations --no-passkeys` fresh-host lifecycle now has
+PostgreSQL-backed smoke proof through Google OAuth generation, assets deployment,
+migration, boot, and root HTTP response; the fast fixture locks the emitted OAuth
+surface and disabled-feature absence contract. Phase 238 is next. The Phase 237
+review records a shared temporary server-log path and boot-timeout cleanup issue
+for follow-up.
+
 **Milestone v1.47 CI-EFFICIENCY shipped on 2026-08-04.** All seven phases (230-236) and all 76 plans
 are complete. Phase 235 terminal ratification independently verified FAST-01 from a
 protected 15-run population at strict p50 486 seconds and GATE-05 from the protected
