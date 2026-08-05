@@ -38,7 +38,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
              "#{project} must ignore generated-auth specs so it cannot run them against test/example"
     end
 
-    assert Regex.match?(~r/name: 'admin-generated'[\s\S]*?testMatch: ADMIN_GENERATED_SPEC/m, config),
+    assert Regex.match?(
+             ~r/name: 'admin-generated'[\s\S]*?testMatch: ADMIN_GENERATED_SPEC/m,
+             config
+           ),
            "admin-generated must remain a separate admin parity partition"
   end
 
@@ -69,7 +72,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     assert_contains!(mailbox, "expect.poll(", "mailbox fixture")
     assert_contains!(mailbox, "intervals: [250, 500, 1_000]", "mailbox fixture")
-    refute String.contains?(mailbox, "waitForTimeout"), "mailbox fixture must not use fixed browser sleeps"
+
+    refute String.contains?(mailbox, "waitForTimeout"),
+           "mailbox fixture must not use fixed browser sleeps"
+
     refute Regex.match?(~r/\bsleep\s*\(/, mailbox), "mailbox fixture must not use fixed delays"
 
     for marker <- [
@@ -106,6 +112,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
            "assert_locked_contract must read the retained harness through CI_DIR after boot_and_run_spec changes into APP_DIR"
 
     assert_contains!(harness, "grep -Eq", "portable retained-harness contract checks")
+
     refute String.contains?(harness, "rg -q"),
            "retained-harness contract checks must not depend on rg being installed in the CI runner"
   end
@@ -115,12 +122,27 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     assert_contains!(
       registration_live,
-      "Ecto.Changeset.change(user, password: user_params[\"password\"])",
+      "assign(trigger_submit: true, submitted_password: user_params[\"password\"])",
       "post-registration native sign-in form"
     )
 
-    assert_contains!(registration_live, ":if={!@trigger_submit}", "native sign-in password control")
-    assert_contains!(registration_live, ":if={@trigger_submit}", "native sign-in password handoff")
+    assert_contains!(
+      registration_live,
+      ":if={!@trigger_submit}",
+      "native sign-in password control"
+    )
+
+    assert_contains!(
+      registration_live,
+      ":if={@trigger_submit}",
+      "native sign-in password handoff"
+    )
+
+    assert_contains!(
+      registration_live,
+      "value={@submitted_password}",
+      "native sign-in password value"
+    )
   end
 
   test "generated base audit migration supports the logged-in runtime handoff without organizations" do
@@ -148,7 +170,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     end
 
     job =
-      case Regex.run(~r/^  generated_auth_runtime_proof:\s*$([\s\S]*?)(?=^  [a-zA-Z0-9_-]+:\s*$|\z)/m, workflow) do
+      case Regex.run(
+             ~r/^  generated_auth_runtime_proof:\s*$([\s\S]*?)(?=^  [a-zA-Z0-9_-]+:\s*$|\z)/m,
+             workflow
+           ) do
         [_, block] -> block
         _ -> flunk("generated_auth_runtime_proof job block not found")
       end
