@@ -25,7 +25,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 237 — canonical-b2c-generator-contract
+**Current focus:** Phase 238 — generated auth runtime proof
 
 ## Current Position
 
