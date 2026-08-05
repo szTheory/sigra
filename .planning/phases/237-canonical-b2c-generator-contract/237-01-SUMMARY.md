@@ -68,6 +68,7 @@ status: complete
 3. **WR-01 remediation: retain B2C core login coverage** — `4fe7dd35` (fix)
 4. **CR-01 remediation: isolate smoke temporary files** — `a3645956` (fix)
 5. **CI remediation: portable retained-core matcher** — `7d6ac87f` (fix)
+6. **CR remediation: POSIX portable smoke regexes** — `e52ccf8b` (fix)
 
 ## Files Created/Modified
 
@@ -107,6 +108,14 @@ status: complete
 - **Verification:** formatter, Elixir parser, shell syntax, template/source agreement checks, and diff checks passed.
 - **Committed in:** `7d6ac87f`
 
+**4. [Rule 1 - Bug] POSIX-compatible fallback regex**
+- **Found during:** Final code review
+- **Issue:** The portable `grep -E` fallback could not reliably interpret the passkey configuration assertion's `\s*` whitespace token on BSD/POSIX grep.
+- **Fix:** Replaced it with `[[:space:]]*` and extended the fixture source lock to require both `assert_match` and `assert_no_match` to delegate to the portable matcher.
+- **Files modified:** `scripts/ci/passkeys-opt-out-smoke.sh`, `test/sigra/install/generator_passkeys_opt_out_test.exs`
+- **Verification:** formatter, Elixir parser, shell syntax, POSIX character-class probe, source-lock static checks, and diff checks passed.
+- **Committed in:** `e52ccf8b`
+
 ## Issues Encountered
 
 - Local PostgreSQL is unavailable (`pg_isready` returned no response). The full `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` lifecycle was not run locally and is **BLOCKED**, not passed. Exact-commit CI job `passkeys_opt_out_smoke` must supply the required PostgreSQL evidence.
@@ -123,4 +132,4 @@ The commit pair is ready for the existing CI PostgreSQL service lane. Do not clo
 ## Self-Check: PASSED
 
 - Both modified source files exist and all task/remediation commits are present in git history.
-- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core/template agreement, cleanup, portable-matcher source checks, and `git diff --check` passed.
+- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core/template agreement, cleanup, portable-matcher and POSIX-regex source checks, and `git diff --check` passed.
