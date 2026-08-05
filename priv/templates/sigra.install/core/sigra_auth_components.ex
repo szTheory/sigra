@@ -22,6 +22,7 @@ defmodule <%= web_module %>.SigraAuthComponents do
       |> assign(:branding, branding)
       |> assign(:theme, theme_attr(branding))
       |> assign(:style, Sigra.Branding.css_variables(branding))
+      |> assign(:flash, assigns[:flash] || %{})
 
     ~H"""
     <link phx-track-static rel="stylesheet" href={~p"/assets/sigra_auth.css"} />
@@ -42,6 +43,21 @@ defmodule <%= web_module %>.SigraAuthComponents do
             </div>
             <p class="sigra-auth__product">{@branding.product_name}</p>
           </div>
+
+          <p
+            :if={message = Phoenix.Flash.get(@flash, :info)}
+            class="sigra-auth-notice"
+            role="status"
+          >
+            {message}
+          </p>
+          <p
+            :if={message = Phoenix.Flash.get(@flash, :error)}
+            class="sigra-auth-notice"
+            role="alert"
+          >
+            {message}
+          </p>
 
           {render_slot(@inner_block)}
 

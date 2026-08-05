@@ -12,6 +12,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
+  @auth_components "priv/templates/sigra.install/core/sigra_auth_components.ex"
 
   defp read!(path), do: File.read!(path)
 
@@ -183,6 +184,31 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     refute String.contains?(oauth_controller, "conn.assigns[:sigra_config]"),
            "OAuth controller must not require an unassigned conn config"
+
+    assert Regex.match?(
+             ~r/session_params = %\{\s*state: get_session\(conn, :sigra_oauth_state\)/s,
+             oauth_controller
+           ),
+           "OAuth callback must restore the Sigra state as Assent's :state session value"
+
+    assert_contains!(
+      oauth_controller,
+      "code_verifier: get_session(conn, :sigra_oauth_code_verifier)",
+      "OAuth callback Assent session"
+    )
+  end
+
+  test "generated auth shell renders controller flash messages after redirects" do
+    auth_components = read!(@auth_components)
+
+    for marker <- [
+          "Phoenix.Flash.get(@flash, :info)",
+          "Phoenix.Flash.get(@flash, :error)",
+          "role=\"status\"",
+          "role=\"alert\""
+        ] do
+      assert_contains!(auth_components, marker, "generated auth flash surface")
+    end
   end
 
   test "Generated Auth Runtime Proof has a dispatchable isolated workflow with only its prerequisite guard" do
