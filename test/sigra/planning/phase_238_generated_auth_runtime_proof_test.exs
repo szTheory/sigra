@@ -55,6 +55,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "OidcDoubleController, :discovery",
           "OidcDoubleController, :authorize",
           "OidcDoubleController, :token",
+          "require Logger",
           "@callback_url \"http://127.0.0.1:${PORT}/auth/google/callback\"",
           ":crypto.mac(:hmac, :sha256, @client_secret, signing_input)",
           "--project=generated-auth",

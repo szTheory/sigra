@@ -85,6 +85,7 @@ write_oidc_double() {
   cat > "lib/${APP_NAME}_web/controllers/oidc_double_controller.ex" <<EOF
 defmodule ${web_module}.OidcDoubleController do
   use ${web_module}, :controller
+  require Logger
 
   @issuer "http://127.0.0.1:${PORT}/oidc"
   @callback_url "http://127.0.0.1:${PORT}/auth/google/callback"
