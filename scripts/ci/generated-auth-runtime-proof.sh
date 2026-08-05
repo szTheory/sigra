@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Retained fresh-host acceptance proof for generated Google OAuth routes.
-# It intentionally accepts only --probe-oauth: later plans may add explicit,
-# allowlisted specs without broadening this credential-free B2C contract.
+# Retained fresh-host acceptance proof for generated B2C email and Google OAuth
+# routes. Only explicitly allowlisted specs run against this credential-free
+# B2C contract.
 set -euo pipefail
 
 CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,6 +17,7 @@ APP_DIR="${TMP_ROOT}/${APP_NAME}"
 SERVER_PID=""
 PORT=""
 SERVER_LOG="${APP_DIR}/server.log"
+SPEC_FILE=""
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -193,7 +194,7 @@ assert_locked_contract() {
   ! rg -q 'userinfo|jwks_uri|nonce:' "lib/${APP_NAME}_web/controllers/oidc_double_controller.ex" || fail "double grew an excluded OIDC dependency"
 }
 
-boot_and_run_probe() {
+boot_and_run_spec() {
   PORT="${SIGRA_GENERATED_AUTH_PROOF_PORT:-$(find_free_port)}"
   [[ "${PORT}" =~ ^[0-9]+$ ]] || fail "proof port must be numeric"
   cd "${TMP_ROOT}"
@@ -220,12 +221,19 @@ boot_and_run_probe() {
     sleep 1
   done
   curl -sf "http://127.0.0.1:${PORT}/" >/dev/null || { cat "${SERVER_LOG}"; fail "generated host did not become ready"; }
-  SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test tests/generated-auth-oauth-probe.spec.ts --project=chromium --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
+  SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test "${SPEC_FILE}" --project=chromium --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
   rg -q 'oidc-double authorize accepted generated state and PKCE' "${SERVER_LOG}" || fail "authorization double did not receive generated state/PKCE"
   rg -q 'oidc-double token accepted matching PKCE verifier' "${SERVER_LOG}" || fail "token double did not receive matching PKCE verifier"
 }
 
-[[ $# -eq 1 && "$1" == "--probe-oauth" ]] || { echo "Usage: $0 --probe-oauth" >&2; exit 64; }
+case "$*" in
+  "--probe-oauth") SPEC_FILE="tests/generated-auth-oauth-probe.spec.ts" ;;
+  "--spec generated-auth") SPEC_FILE="tests/generated-auth.spec.ts" ;;
+  *)
+    echo "Usage: $0 --probe-oauth | --spec generated-auth" >&2
+    exit 64
+    ;;
+esac
 echo "==> generated-auth-runtime-proof: using ${SIGRA_REPO}"
-boot_and_run_probe
+boot_and_run_spec
 echo "==> generated-auth-runtime-proof: success"
