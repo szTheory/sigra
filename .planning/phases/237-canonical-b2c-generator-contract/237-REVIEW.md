@@ -1,6 +1,6 @@
 ---
 phase: 237-canonical-b2c-generator-contract
-reviewed: 2026-08-05T02:06:58Z
+reviewed: 2026-08-05T02:18:02Z
 depth: standard
 files_reviewed: 2
 files_reviewed_list:
@@ -16,14 +16,14 @@ status: clean
 
 # Phase 237: Code Review Report
 
-**Reviewed:** 2026-08-05T02:06:58Z
+**Reviewed:** 2026-08-05T02:18:02Z
 **Depth:** standard
 **Files Reviewed:** 2
 **Status:** clean
 
 ## Summary
 
-The smoke script now allocates a unique `mktemp -d` root, marks it readonly, and bounds both root and per-leg cleanup to generated paths. The B2C Alpha contract retains the email/password login routes and `Auth.authenticate_user`, plus magic-link request and verification handlers. It also continues to assert Google OAuth output and the absence of admin, organization, and passkey output.
+Both `assert_match` and `assert_no_match` route through the shared `find_matches` helper. Its ripgrep fallback uses `grep -E`, and all assertion expressions use portable ERE syntax, including `[[:space:]]` rather than `\s`. The fixture source-lock protects the two helper invocations, fallback command, and corrected whitespace expression. The retained B2C password, magic-link, OAuth, and negative contracts remain intact.
 
 All reviewed files meet quality standards. No issues found.
 
@@ -33,6 +33,6 @@ No findings.
 
 ---
 
-_Reviewed: 2026-08-05T02:06:58Z_
+_Reviewed: 2026-08-05T02:18:02Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
