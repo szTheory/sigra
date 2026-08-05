@@ -1,35 +1,37 @@
 {
   "schema_version": 1,
-  "status": "blocked",
-  "head_sha": "85b94ff503dd3513847b4ae20bd87ca6b1a7bdc8",
+  "status": "passed",
+  "head_sha": "368c910b14356c4a3d8d57412b9f0e0a33cb5df8",
   "workflow": {
     "database_id": 259268962,
-    "name": "CI",
-    "path": ".github/workflows/ci.yml"
+    "name": "Generated auth runtime proof",
+    "path": ".github/workflows/generated-auth-runtime-proof.yml"
   },
   "run": {
-    "id": 31021611104,
-    "url": "https://github.com/szTheory/sigra/actions/runs/31021611104",
+    "id": 31048923253,
+    "url": "https://github.com/szTheory/sigra/actions/runs/31048923253",
     "event": "workflow_dispatch",
-    "ref": "ci/phase-238-generated-auth-evidence-85b94ff5",
-    "created_at": "2026-08-05T15:42:01Z",
-    "updated_at": "2026-08-05T16:05:44Z",
-    "conclusion": "failure"
+    "ref": "gsd/238-generated-auth-runtime-proof-evidence",
+    "created_at": "2026-08-05T21:30:29Z",
+    "updated_at": "2026-08-05T21:33:34Z",
+    "conclusion": "success"
   },
   "job": {
-    "database_id": 92359472633,
+    "database_id": 92451264152,
     "id": "generated_auth_runtime_proof",
     "name": "Generated auth runtime proof",
-    "url": "https://github.com/szTheory/sigra/actions/runs/31021611104/job/92359472633",
-    "started_at": "2026-08-05T15:42:09Z",
-    "completed_at": "2026-08-05T15:44:17Z",
-    "conclusion": "failure"
+    "url": "https://github.com/szTheory/sigra/actions/runs/31048923253/job/92451264152",
+    "started_at": "2026-08-05T21:30:40Z",
+    "completed_at": "2026-08-05T21:33:34Z",
+    "conclusion": "success"
   },
   "harness_command": "GITHUB_WORKSPACE=\"$PWD\" scripts/ci/generated-auth-runtime-proof.sh --all",
-  "blocker": {
-    "code": "focused_probe_entry_point_relative_path",
-    "message": "The harness changes into the temporary generated host and then checks relative $0, so it cannot locate its own --probe-oauth entry point.",
-    "retry_policy": "The one permitted corrected-SHA retry was consumed after repairing the executable bit; no additional run was dispatched.",
-    "requirements_remain_open": ["AUTH-01", "AUTH-02", "AUTH-03"]
-  }
+  "rate_limit_preflight": {"core_remaining": 4576, "reset": 1785965715},
+  "previous_attempts": [
+    {"run_id": 31045952617, "conclusion": "failure", "blocker": "magic-link delivery and OAuth collision flash"},
+    {"run_id": 31047216832, "conclusion": "failure", "blocker": "OAuth identity schema and reset root render"},
+    {"run_id": 31047828096, "conclusion": "failure", "blocker": "reset token transport hash"},
+    {"run_id": 31048230676, "conclusion": "failure", "blocker": "password-only reset handoff"},
+    {"run_id": 31048573953, "conclusion": "failure", "blocker": "browser/server OAuth request boundary assertion"}
+  ]
 }
