@@ -11,6 +11,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
   @session_live "priv/templates/sigra.install/core/session_live.ex"
+  @core_feature "lib/sigra/install/features/core.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
@@ -318,6 +319,23 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       session_live,
       "redirect(socket, to: ~p\"/users/log_in\")",
       "current-session logout redirect"
+    )
+  end
+
+  test "generated authenticated LiveViews mount the current scope" do
+    core_feature = read!(@core_feature)
+
+    assert_contains!(
+      core_feature,
+      ~S(live_session :require_authenticated,
+          on_mount: [{#{web_module}.UserAuth, :ensure_authenticated}] do),
+      "authenticated LiveView session"
+    )
+
+    assert_contains!(
+      core_feature,
+      "live \"/sessions\", Auth.SessionLive, :index",
+      "session-management route inside authenticated LiveView session"
     )
   end
 

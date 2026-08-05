@@ -452,6 +452,17 @@ defmodule Sigra.Install.Features.Core do
         ""
       end
 
+    authenticated_live_routes =
+      if live? do
+        """
+        live_session :require_authenticated,
+          on_mount: [{#{web_module}.UserAuth, :ensure_authenticated}] do
+        #{session_management_routes}#{account_lifecycle_routes}    end
+        """
+      else
+        ""
+      end
+
     content = """
       # Sigra authentication
 
@@ -501,7 +512,7 @@ defmodule Sigra.Install.Features.Core do
         pipe_through [:browser, :require_authenticated]
 
         delete "/log_out", SessionController, :delete
-    #{session_management_routes}#{sudo_routes}#{account_lifecycle_routes}
+    #{sudo_routes}#{authenticated_live_routes}
       end
 
       scope "/users", #{web_module} do
