@@ -91,6 +91,16 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     end
   end
 
+  test "Generated Auth Runtime Proof retains its contract lookup after entering the disposable host" do
+    harness = read!(@harness)
+
+    assert Regex.match?(
+             ~r/assert_locked_contract\(\)\s*\{[\s\S]*?CI_DIR\}\/generated-auth-runtime-proof\\\.sh/m,
+             harness
+           ),
+           "assert_locked_contract must read the retained harness through CI_DIR after boot_and_run_spec changes into APP_DIR"
+  end
+
   test "Generated Auth Runtime Proof CI lane is non-skipping, PostgreSQL-backed, and diagnostic" do
     workflow = read!(@workflow)
 
