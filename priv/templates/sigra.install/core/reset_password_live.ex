@@ -12,7 +12,7 @@ defmodule <%= web_module %>.ResetPasswordLive do
   use <%= web_module %>, :live_view
   import <%= web_module %>.SigraAuthComponents
 
-  def render(%{live_action: :new} = assigns) do
+  def render(%{live_action: live_action} = assigns) when live_action in [nil, :new] do
     ~H"""
     <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">

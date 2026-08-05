@@ -57,6 +57,11 @@ defmodule Sigra.Config do
       required: true,
       doc: "The Ecto schema module for users."
     ],
+    identity_schema: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc: "The generated UserIdentity Ecto schema module used by OAuth providers."
+    ],
     otp_app: [
       type: :atom,
       doc: "The OTP application name. Used for config.exs convenience layer."
@@ -963,6 +968,7 @@ defmodule Sigra.Config do
   @type t :: %__MODULE__{
           repo: module(),
           user_schema: module(),
+          identity_schema: module() | nil,
           otp_app: atom() | nil,
           secret_key_base: String.t() | nil,
           scope_module: module() | nil,
@@ -998,6 +1004,7 @@ defmodule Sigra.Config do
   defstruct [
     :repo,
     :user_schema,
+    :identity_schema,
     :otp_app,
     :secret_key_base,
     :scope_module,

@@ -584,6 +584,7 @@ defmodule <%= context_module %> do
     Sigra.Config.new!(
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
+      identity_schema: <%= context_module %>.UserIdentity,
       scope_module: <%= context_module %>.Scope,
 <%= if organizations?, do: "      organizations_module: #{app_module}.Organizations,", else: "" %>
       branding: [

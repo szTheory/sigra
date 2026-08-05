@@ -12,6 +12,17 @@ defmodule Sigra.ConfigTest do
       assert config.user_schema == MyApp.User
     end
 
+    test "accepts the optional OAuth identity schema" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          identity_schema: MyApp.Accounts.UserIdentity
+        )
+
+      assert config.identity_schema == MyApp.Accounts.UserIdentity
+    end
+
     test "raises when :repo is missing" do
       assert_raise NimbleOptions.ValidationError, ~r/:repo/, fn ->
         Config.new!(user_schema: MyApp.User)

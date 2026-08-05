@@ -189,6 +189,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
   test "generated anonymous confirmation and OAuth routes resolve their runtime dependencies" do
     confirmation_live = read!(@confirmation_live)
+    auth_template = read!(@auth_template)
     oauth_controller = read!(@oauth_controller)
 
     refute String.contains?(confirmation_live, "_user = socket.assigns.current_scope.user"),
@@ -201,6 +202,12 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     )
 
     assert_contains!(oauth_controller, "config = Auth.sigra_config()", "OAuth controller")
+
+    assert_contains!(
+      auth_template,
+      "identity_schema: <%= context_module %>.UserIdentity",
+      "generated OAuth identity schema config"
+    )
 
     refute String.contains?(oauth_controller, "conn.assigns[:sigra_config]"),
            "OAuth controller must not require an unassigned conn config"
@@ -248,7 +255,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     reset_password_live = read!(@reset_password_live)
 
     for marker <- [
-          "case socket.assigns.live_action do\n      nil ->",
+          "def render(%{live_action: live_action} = assigns) when live_action in [nil, :new] do",
           "deliver_user_reset_password_instructions(\n      email,",
           "&url(socket, ~p\"/users/reset-password/\#{&1}\")"
         ] do
