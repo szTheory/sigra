@@ -102,8 +102,7 @@ export async function extractAuthLink(
 ): Promise<string> {
   let selectedHref: string | null = null;
 
-  await expect
-    .poll(
+  await expect.poll(
       async () => {
         try {
           selectedHref = newestMatchingLink(await readMailbox(page), recipient, kind);
@@ -117,8 +116,7 @@ export async function extractAuthLink(
         intervals: [250, 500, 1_000],
         timeout: 30_000,
       },
-    )
-    .toBe(true);
+  ).toBe(true);
 
   if (!selectedHref) {
     throw new Error(`No ${linkKinds[kind]} email found for ${recipient}`);
