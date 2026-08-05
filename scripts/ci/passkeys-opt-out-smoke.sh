@@ -58,6 +58,30 @@ assert_file_present() {
   fi
 }
 
+assert_glob_missing() {
+  local pattern="$1"
+  local matches
+
+  matches=$(compgen -G "${pattern}" || true)
+  if [[ -n "${matches}" ]]; then
+    echo "FAIL: expected no files matching: ${pattern}"
+    printf '%s\n' "${matches}"
+    exit 1
+  fi
+}
+
+assert_match() {
+  local pattern="$1"
+  local path="$2"
+
+  if ! rg -n "${pattern}" "${path}" >/dev/null 2>&1; then
+    echo "FAIL: expected match for pattern ${pattern} in ${path}"
+    echo "Diagnostic matches:"
+    rg -n 'Sigra OAuth|GOOGLE_CLIENT|OAuthController|Vault' "${path}" || true
+    exit 1
+  fi
+}
+
 patch_mix_exs() {
   export SIGRA_REPO
   elixir -e '
@@ -137,16 +161,44 @@ run_leg() {
     MIX_ENV=dev mix sigra.gen.oauth --providers google
 
     assert_file_present "lib/${label}/accounts/user_identity.ex"
-    assert_file_present "lib/${label}_web/controllers/oauth_controller.ex"
-    assert_file_present "lib/${label}_web/controllers/oauth_buttons.html.heex"
     assert_file_present "lib/${label}/vault.ex"
-    assert_no_match '/admin' "lib/${label}_web/router.ex"
-    assert_no_match '/organizations' "lib/${label}_web/router.ex"
-    assert_no_match 'passkey' "config/config.exs"
-    grep -q '# Sigra OAuth' "lib/${label}_web/router.ex" || {
-      echo "FAIL: expected generated Google OAuth routes"
+    assert_file_present "lib/${label}/encrypted/binary.ex"
+    assert_file_present "lib/${label}_web/controllers/oauth_controller.ex"
+    assert_file_present "lib/${label}_web/controllers/oauth_html.ex"
+    assert_file_present "lib/${label}_web/controllers/oauth_buttons.html.heex"
+    assert_glob_missing "priv/repo/migrations/*_create_platform_admin_grants.exs"
+    assert_glob_missing "priv/repo/migrations/*_create_organizations.exs"
+    assert_glob_missing "priv/repo/migrations/*_create_user_passkeys.exs"
+    if ! compgen -G "priv/repo/migrations/*_create_user_identities.exs" >/dev/null; then
+      echo "FAIL: expected OAuth identity migration"
       exit 1
-    }
+    fi
+
+    router="lib/${label}_web/router.ex"
+    config="config/config.exs"
+    application="lib/${label}/application.ex"
+
+    assert_match '# Sigra OAuth' "${router}"
+    assert_match 'get "/:provider", OAuthController, :request' "${router}"
+    assert_match 'get "/:provider/callback", OAuthController, :callback' "${router}"
+    assert_match '# Sigra OAuth providers' "${config}"
+    assert_match 'GOOGLE_CLIENT_ID' "${config}"
+    assert_match 'GOOGLE_CLIENT_SECRET' "${config}"
+    assert_match 'Vault' "${application}"
+
+    assert_file_missing "lib/${label}_web/components/admin_shell.ex"
+    assert_file_missing "lib/${label}/sigra_admin_access.ex"
+    assert_file_missing "priv/static/assets/sigra_admin.css"
+    assert_file_missing "priv/static/images/sigra-logo-primary.svg"
+    assert_file_missing "lib/${label}/accounts/organization.ex"
+    assert_file_missing "lib/${label}/organizations.ex"
+    assert_file_missing "lib/${label}/accounts/user_passkey.ex"
+    assert_no_match '# Sigra admin' "${router}"
+    assert_no_match '/admin' "lib/${label}_web/router.ex"
+    assert_no_match '# Sigra organizations' "${router}"
+    assert_no_match '/organizations' "lib/${label}_web/router.ex"
+    assert_no_match '# Sigra passkeys' "${router}"
+    assert_no_match 'passkey' "config/config.exs"
   fi
 
   echo "==> passkeys-opt-out: compiling and building assets"
