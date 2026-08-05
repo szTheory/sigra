@@ -18,6 +18,7 @@ SERVER_PID=""
 PORT=""
 SERVER_LOG="${APP_DIR}/server.log"
 declare -a SPEC_FILES=()
+ARTIFACT_DIR="${GENERATED_AUTH_RUNTIME_PROOF_ARTIFACT_DIR:-}"
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -28,6 +29,15 @@ export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 
 cleanup() {
+  if [[ -n "${ARTIFACT_DIR}" ]]; then
+    mkdir -p "${ARTIFACT_DIR}"
+    if [[ -f "${SERVER_LOG}" ]]; then
+      cp "${SERVER_LOG}" "${ARTIFACT_DIR}/server.log"
+    else
+      echo "generated-auth runtime proof did not produce ${SERVER_LOG}" > "${ARTIFACT_DIR}/server-log-missing.txt"
+    fi
+  fi
+
   if [[ -n "${SERVER_PID}" ]]; then
     kill "${SERVER_PID}" 2>/dev/null || true
     wait "${SERVER_PID}" 2>/dev/null || true

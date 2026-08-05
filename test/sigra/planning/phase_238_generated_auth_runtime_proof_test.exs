@@ -6,6 +6,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @mailbox "test/example/priv/playwright/fixtures/mailbox.ts"
   @journey "test/example/priv/playwright/tests/generated-auth.spec.ts"
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
+  @workflow ".github/workflows/ci.yml"
 
   defp read!(path), do: File.read!(path)
 
@@ -55,7 +56,8 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "OidcDoubleController, :authorize",
           "OidcDoubleController, :token",
           "--project=generated-auth",
-          "--retries=0"
+          "--retries=0",
+          "\"--all\") SPEC_FILES=(\"tests/generated-auth.spec.ts\" \"tests/generated-auth-oauth-probe.spec.ts\")"
         ] do
       assert_contains!(harness, marker, "fresh-host OAuth harness")
     end
@@ -87,5 +89,47 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
         ] do
       assert_contains!(oauth_probe, marker, "OAuth probe")
     end
+  end
+
+  test "Generated Auth Runtime Proof CI lane is non-skipping, PostgreSQL-backed, and diagnostic" do
+    workflow = read!(@workflow)
+
+    job =
+      case Regex.run(~r/^  generated_auth_runtime_proof:\s*$([\s\S]*?)(?=^  [a-zA-Z0-9_-]+:\s*$|\z)/m, workflow) do
+        [_, block] -> block
+        _ -> flunk("generated_auth_runtime_proof job block not found")
+      end
+
+    for marker <- [
+          "name: Generated auth runtime proof",
+          "needs: release_ref_guard",
+          "timeout-minutes: 25",
+          "image: postgres:15",
+          "version-type: strict",
+          "node-version: '20'",
+          "cache-dependency-path: 'test/example/priv/playwright/package-lock.json'",
+          "mix archive.install --force hex phx_new 1.8.8",
+          "npm ci",
+          "npx playwright install --with-deps chromium",
+          "GITHUB_WORKSPACE=\"$PWD\" scripts/ci/generated-auth-runtime-proof.sh --all",
+          "GENERATED_AUTH_RUNTIME_PROOF_ARTIFACT_DIR",
+          "playwright-report/",
+          "test-results/",
+          "generated-auth-runtime-proof/",
+          "retention-days: 14",
+          "retention-days: 7",
+          "if-no-files-found: warn"
+        ] do
+      assert_contains!(job, marker, "generated-auth CI job")
+    end
+
+    refute Regex.match?(~r/^    if:\s*/m, job),
+           "generated-auth runtime proof must run on every CI event, not skip pull requests"
+
+    refute String.contains?(job, "GOOGLE_CLIENT_ID"),
+           "generated-auth runtime proof must not inject provider credentials"
+
+    refute String.contains?(job, "GOOGLE_CLIENT_SECRET"),
+           "generated-auth runtime proof must not inject provider credentials"
   end
 end
