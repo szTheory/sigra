@@ -136,8 +136,14 @@ defmodule ${web_module}.OidcDoubleController do
 
   defp id_token do
     now = System.system_time(:second)
-    Assent.JWTAdapter.sign(%{"iss" => @issuer, "sub" => @subject, "aud" => @client_id, "exp" => now + 300, "iat" => now, "email" => @email, "email_verified" => true, "name" => "OIDC Proof User"}, "HS256", @client_secret)
+    header = jwt_part(%{"alg" => "HS256", "typ" => "JWT"})
+    payload = jwt_part(%{"iss" => @issuer, "sub" => @subject, "aud" => @client_id, "exp" => now + 300, "iat" => now, "email" => @email, "email_verified" => true, "name" => "OIDC Proof User"})
+    signing_input = header <> "." <> payload
+    signature = :crypto.mac(:hmac, :sha256, @client_secret, signing_input) |> Base.url_encode64(padding: false)
+    {:ok, signing_input <> "." <> signature}
   end
+
+  defp jwt_part(claims), do: claims |> Jason.encode!() |> Base.url_encode64(padding: false)
 
   defp loopback_callback(@callback_url), do: {:ok, @callback_url}
 
