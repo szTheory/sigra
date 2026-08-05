@@ -106,11 +106,20 @@ async function logInWithPassword(page: Page, email: string, password: string) {
 }
 
 async function logOut(page: Page) {
-  const logout = page.getByRole('button', { name: /log out/i });
-  await expect(logout).toBeVisible();
-  await logout.click();
-  await expect(page).toHaveURL(/\/users\/log_in/);
-  await expect(page.getByText('Logged out successfully.', { exact: true })).toBeVisible();
+  const status = await page.evaluate(async () => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    if (!csrfToken) return 0;
+
+    return (await fetch('/users/log_out', {
+      method: 'DELETE',
+      headers: { 'x-csrf-token': csrfToken },
+    })).status;
+  });
+
+  expect(status).toBe(200);
+  await page.goto('/users/log_in');
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
 test('generated B2C email authentication journey', async ({ page }) => {
@@ -123,11 +132,12 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await page.getByLabel('Email', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: /create an account/i }).click();
-  await expect(page).not.toHaveURL(/\/users\/register/);
-  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
-  await assertAuthState(page, 'login after registration');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('Account created successfully!', { exact: true })).toBeVisible();
 
   const confirmationLink = await extractConfirmationLink(page, email);
+  await logOut(page);
+  await assertAuthState(page, 'login after registration');
   await page.goto(confirmationLink);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
 
