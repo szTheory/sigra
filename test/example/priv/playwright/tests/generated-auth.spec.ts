@@ -161,7 +161,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
 
   const magicLink = await extractMagicLink(page, email);
   await page.goto(magicLink);
-  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
+  await expect(page.getByText('Welcome!', { exact: true })).toBeVisible();
   await logOut(page);
 
   await page.goto('/users/reset-password');

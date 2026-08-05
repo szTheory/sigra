@@ -60,6 +60,7 @@ defmodule <%= web_module %>.OAuthController do
       {:ok, provider_atom} ->
         session_params = %{
           sigra_state: get_session(conn, :sigra_oauth_state),
+          state: get_session(conn, :sigra_oauth_state),
           code_verifier: get_session(conn, :sigra_oauth_code_verifier)
         }
 

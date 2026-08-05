@@ -211,6 +211,12 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     assert_contains!(
       oauth_controller,
+      "state: get_session(conn, :sigra_oauth_state)",
+      "OAuth callback Assent session state"
+    )
+
+    assert_contains!(
+      oauth_controller,
       "code_verifier: get_session(conn, :sigra_oauth_code_verifier)",
       "OAuth callback Assent session"
     )
