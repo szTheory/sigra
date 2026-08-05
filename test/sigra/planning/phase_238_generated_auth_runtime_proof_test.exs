@@ -125,6 +125,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     for marker <- [
           "name: Generated auth runtime proof",
           "workflow_dispatch:",
+          "phase-238-generated-auth-proof-*",
           "release_ref_guard:",
           "EVIDENCE_REF: ${{ inputs.evidence_ref }}",
           "GITHUB_REF_NAME: ${{ github.ref_name }}"
