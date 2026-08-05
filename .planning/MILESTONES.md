@@ -1,5 +1,17 @@
 # Milestones
 
+## v1.38 BRAND-V2 Roadmap (Backfilled: 2026-08-05)
+
+**Note:** Synthesized from archive snapshot by `$gsd-health --backfill`. Original completion date unknown.
+
+---
+
+## v1.32 Roadmap: Sigra (Backfilled: 2026-08-05)
+
+**Note:** Synthesized from archive snapshot by `$gsd-health --backfill`. Original completion date unknown.
+
+---
+
 ## v1.47 CI-EFFICIENCY (Shipped: 2026-08-04)
 
 **Phases completed:** 7 phases, 76 plans, 93 tasks

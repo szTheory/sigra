@@ -20,6 +20,62 @@
 - [ ] **Phase 239: Hosted Session Interop** — Prove the SIGRA-to-Crosswake backend-session adapter, personal-account scope, return evidence boundary, and fail-closed replay. **Requirements:** XW-01, XW-02.
 - [ ] **Phase 240: Alpha Operations Rehearsal** — Provider-neutral email/OAuth preflight and no-secrets launch gate. **Requirements:** OPS-01, OPS-02.
 
+## Phase Details
+
+### Phase 237: Canonical B2C Generator Contract
+
+**Goal:** Prove a fresh Phoenix host can generate the canonical personal-account B2C profile with Google OAuth while excluding admin, organizations, and passkeys.
+
+**Depends on:** None
+
+**Requirements:** B2C-01, B2C-02, B2C-03
+
+**Success Criteria:**
+
+1. The canonical no-admin/no-organizations/no-passkeys host installs, migrates, builds assets, compiles with warnings as errors, and boots.
+2. Google OAuth generation emits its required routes, controller, identity, vault, and migration artifacts.
+3. Generated output contains no admin, organization, or passkey surfaces.
+
+### Phase 238: Generated Auth Runtime Proof
+
+**Goal:** Establish deterministic browser and accessibility proof for the generated B2C email and Google authentication journeys without provider credentials.
+
+**Depends on:** Phase 237
+
+**Requirements:** AUTH-01, AUTH-02, AUTH-03
+
+**Success Criteria:**
+
+1. Browser coverage proves registration, confirmation, password sign-in and logout, magic-link request/verification, and password-reset completion in a generated B2C host.
+2. A deterministic provider double proves Google OAuth start, callback, and account-link collision behavior without CI credentials.
+3. Every rendered B2C auth state passes Axe plus stable label/control and duplicate-ID checks.
+
+### Phase 239: Hosted Session Interop
+
+**Goal:** Prove the fail-closed SIGRA-to-Crosswake backend-session boundary for personal accounts.
+
+**Depends on:** Phase 238
+
+**Requirements:** XW-01, XW-02
+
+**Success Criteria:**
+
+1. A backend-validated personal-account session can project to `crosswake_sigra` without creating organization scope or exposing credentials or tokens.
+2. Missing, expired, revoked, or account-switched state fails closed, and return data alone cannot grant access.
+
+### Phase 240: Alpha Operations Rehearsal
+
+**Goal:** Deliver a provider-neutral, no-secrets launch-readiness gate for the canonical B2C profile.
+
+**Depends on:** Phase 239
+
+**Requirements:** OPS-01, OPS-02
+
+**Success Criteria:**
+
+1. The alpha recipe specifies host-origin, secure-session, Google redirect, Cloak, rate-limit, and transactional-email rehearsal requirements.
+2. CI proves the canonical profile and contract tests use no secrets, while real Google, email, and iPhone proof remains explicitly a host launch gate.
+
 ### Explicitly Deferred
 
 Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authority, billing, and physical-device/product-host evidence are outside this library milestone. A real iPhone and production provider rehearsal remains a host launch gate once the adopter application exists.

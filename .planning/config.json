@@ -33,7 +33,8 @@
       "semver_or_public_api_break",
       "security_model_vs_owasp_doc",
       "generator_or_host_contract_output"
-    ]
+    ],
+    "ai_integration_phase": true
   },
   "sigra_defaults": {
     "audit_atomicity_doc": ".planning/AUDIT-ATOMICITY-DEFAULTS.md",
