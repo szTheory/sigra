@@ -191,8 +191,8 @@ defmodule <%= web_module %>.ResetPasswordLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, dgettext("sigra", "Your password has been reset."))
-         |> assign(trigger_submit: true)}
+         |> put_flash(:info, dgettext("sigra", "Password reset successfully!"))
+         |> redirect(to: ~p"/users/log_in")}
 
       {:error, changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}

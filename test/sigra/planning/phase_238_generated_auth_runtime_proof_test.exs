@@ -258,7 +258,9 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     for marker <- [
           "def render(%{live_action: live_action} = assigns) when live_action in [nil, :new] do",
           "deliver_user_reset_password_instructions(\n      email,",
-          "&url(socket, ~p\"/users/reset-password/\#{&1}\")"
+          "&url(socket, ~p\"/users/reset-password/\#{&1}\")",
+          "put_flash(:info, dgettext(\"sigra\", \"Password reset successfully!\"))",
+          "redirect(to: ~p\"/users/log_in\")"
         ] do
       assert_contains!(reset_password_live, marker, "generated reset-password request")
     end
