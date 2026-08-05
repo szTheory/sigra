@@ -191,7 +191,7 @@ run_leg() {
   assert_file_missing "assets/js/passkey_browser.js"
   assert_no_match '@simplewebauthn/browser' "assets/package.json"
   assert_no_match '\{:wax_, "~> 0\.7"\}' "mix.exs"
-  assert_no_match '^[[:space:]]*passkeys:\s*\[' "config/config.exs"
+  assert_no_match '^[[:space:]]*passkeys:[[:space:]]*\[' "config/config.exs"
   assert_no_match '/users/log_in/passkey' "lib/${label}_web/router.ex"
   assert_no_match '/users/settings/mfa/passkeys' "lib/${label}_web/router.ex"
   assert_no_match '/users/mfa/passkey' "lib/${label}_web/router.ex"
