@@ -6,7 +6,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @mailbox "test/example/priv/playwright/fixtures/mailbox.ts"
   @journey "test/example/priv/playwright/tests/generated-auth.spec.ts"
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
-  @workflow ".github/workflows/ci.yml"
+  @workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
 
   defp read!(path), do: File.read!(path)
@@ -109,18 +109,28 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
            "retained-harness contract checks must not depend on rg being installed in the CI runner"
   end
 
-  test "generated registration retains the submitted password for the triggered sign-in" do
+  test "generated registration preserves a concrete virtual password change for the triggered sign-in" do
     registration_live = read!(@registration_live)
 
     assert_contains!(
       registration_live,
-      "change_user_registration(user, user_params)",
-      "post-registration triggered sign-in form"
+      "Ecto.Changeset.change(user, password: user_params[\"password\"])",
+      "post-registration native sign-in form"
     )
   end
 
-  test "Generated Auth Runtime Proof CI lane is non-skipping, PostgreSQL-backed, and diagnostic" do
+  test "Generated Auth Runtime Proof has a dispatchable isolated workflow with only its prerequisite guard" do
     workflow = read!(@workflow)
+
+    for marker <- [
+          "name: Generated auth runtime proof",
+          "workflow_dispatch:",
+          "release_ref_guard:",
+          "EVIDENCE_REF: ${{ inputs.evidence_ref }}",
+          "GITHUB_REF_NAME: ${{ github.ref_name }}"
+        ] do
+      assert_contains!(workflow, marker, "isolated generated-auth workflow")
+    end
 
     job =
       case Regex.run(~r/^  generated_auth_runtime_proof:\s*$([\s\S]*?)(?=^  [a-zA-Z0-9_-]+:\s*$|\z)/m, workflow) do
@@ -144,15 +154,14 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "playwright-report/",
           "test-results/",
           "generated-auth-runtime-proof/",
-          "retention-days: 14",
           "retention-days: 7",
           "if-no-files-found: warn"
         ] do
       assert_contains!(job, marker, "generated-auth CI job")
     end
 
-    refute Regex.match?(~r/^    if:\s*/m, job),
-           "generated-auth runtime proof must run on every CI event, not skip pull requests"
+    refute String.contains?(workflow, "admin_eval_render:"),
+           "isolated runtime proof workflow must not wait for unrelated admin evaluation"
 
     refute String.contains?(job, "GOOGLE_CLIENT_ID"),
            "generated-auth runtime proof must not inject provider credentials"

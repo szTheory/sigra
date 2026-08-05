@@ -130,11 +130,11 @@ defmodule <%= web_module %>.RegistrationLive do
           {:error, :already_confirmed} -> :ok
         end
 
-        # Preserve the submitted virtual password for the triggered sign-in POST.
-        # `register_user/1` intentionally clears it after hashing, but the
-        # session controller authenticates the freshly created user from this
-        # form immediately after the LiveView event completes.
-        changeset = <%= context_module %>.change_user_registration(user, user_params)
+        # The native post triggered below must retain a concrete virtual password
+        # change. Re-running the registration changeset is insufficient here:
+        # the generated form can otherwise patch back to an empty required
+        # password field and the browser refuses to submit it.
+        changeset = Ecto.Changeset.change(user, password: user_params["password"])
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, :email_taken} ->

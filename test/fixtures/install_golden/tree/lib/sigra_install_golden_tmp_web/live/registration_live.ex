@@ -128,7 +128,11 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
           {:error, :already_confirmed} -> :ok
         end
 
-        changeset = SigraInstallGoldenTmp.Accounts.change_user_registration(user)
+        # The native post triggered below must retain a concrete virtual password
+        # change. Re-running the registration changeset is insufficient here:
+        # the generated form can otherwise patch back to an empty required
+        # password field and the browser refuses to submit it.
+        changeset = Ecto.Changeset.change(user, password: user_params["password"])
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, :email_taken} ->

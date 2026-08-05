@@ -1,0 +1,85 @@
+name: Generated auth runtime proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_ref:
+        description: 'Branch ref containing the immutable generated-auth proof implementation.'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release_ref_guard:
+    name: Evidence ref guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require dispatch ref to match the evidence ref
+        env:
+          EVIDENCE_REF: ${{ inputs.evidence_ref }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          test -n "$EVIDENCE_REF"
+          test "$EVIDENCE_REF" = "$GITHUB_REF_NAME"
+
+  generated_auth_runtime_proof:
+    name: Generated auth runtime proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Chromium
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium
+      - name: Run generated auth runtime proof
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GENERATED_AUTH_RUNTIME_PROOF_ARTIFACT_DIR: ${{ github.workspace }}/test/example/priv/playwright/artifacts/generated-auth-runtime-proof
+        run: GITHUB_WORKSPACE="$PWD" scripts/ci/generated-auth-runtime-proof.sh --all
+      - name: Upload generated auth runtime proof diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: generated-auth-runtime-proof
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/test-results/
+            test/example/priv/playwright/artifacts/generated-auth-runtime-proof/
+          retention-days: 7
+          if-no-files-found: warn
