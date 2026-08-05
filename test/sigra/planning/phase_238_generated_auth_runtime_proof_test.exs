@@ -115,7 +115,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "registration",
           "magic-link sent",
           "reset token form",
+          "stale reset token",
           "Google collision login",
+          "getByRole('button', { name: 'Log out' })",
+          "users/settings",
           "new AxeBuilder({ page })",
           ".include('main.sigra-auth')",
           "labels: []",
@@ -132,6 +135,35 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
         ] do
       assert_contains!(oauth_probe, marker, "OAuth probe")
     end
+
+    for marker <- [
+          "const normalized_email = Sigra.Email.normalize(email)",
+          "request_magic_link(normalized_email, magic_link_url_fun)",
+          "Sigra.Auth.request_password_reset(Repo, normalized_email,",
+          "get_user_by_email(normalized_email)"
+        ] do
+      assert_contains!(auth_template, marker, "generated normalized email delivery")
+    end
+
+    reset_password_live = read!(@reset_password_live)
+
+    for marker <- [
+          "reset_user_password(socket.assigns.token, password_params)",
+          "{:error, :token_invalid}",
+          "{:error, :token_expired}",
+          "{:error, %Ecto.Changeset{} = changeset}"
+        ] do
+      assert_contains!(reset_password_live, marker, "generated reset-token revalidation")
+    end
+
+    refute Regex.match?(~r/async function logOut\(page: Page\) \{[\s\S]*?clearCookies\(\)/, journey),
+           "logout proof must not clear cookies"
+
+    refute String.contains?(journey, "page.waitForTimeout"),
+           "browser journey must not use timing sleeps"
+
+    refute Regex.match?(~r/\b(?:setTimeout|setInterval)\s*\(/, journey),
+           "browser journey must not use JavaScript timers"
   end
 
   test "Generated Auth Runtime Proof retains its contract lookup after entering the disposable host" do

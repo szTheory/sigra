@@ -121,6 +121,15 @@ defmodule Sigra.Install.GeneratorResetTest do
       assert template =~ "Reset link expired"
     end
 
+    test "revalidates the saved signed token and fails closed after mount", %{raw: template} do
+      assert template =~ "reset_user_password(socket.assigns.token, password_params)"
+      assert template =~ "{:error, :token_invalid}"
+      assert template =~ "{:error, :token_expired}"
+      assert template =~ "assign(socket, token_invalid?: true, form: nil)"
+      assert template =~ "{:error, %Ecto.Changeset{} = changeset}"
+      refute template =~ "reset_user_password(socket.assigns.user, password_params)"
+    end
+
     test "uses dgettext for i18n", %{raw: template} do
       assert template =~ ~s(dgettext("sigra")
     end
