@@ -36,7 +36,19 @@ defmodule <%= web_module %>.RegistrationLive do
 
         <%% # Add custom fields here (e.g., :name, :company) %>
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-        <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
+        <.input
+          field={f[:password]}
+          type="password"
+          label="Password"
+          autocomplete="new-password"
+          required={!@trigger_submit}
+        />
+        <input
+          :if={@trigger_submit}
+          type="hidden"
+          name={f[:password].name}
+          value={f[:password].value}
+        />
 
 <%= if passkeys? do %>
         <label

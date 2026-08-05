@@ -118,6 +118,9 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "Ecto.Changeset.change(user, password: user_params[\"password\"])",
       "post-registration native sign-in form"
     )
+
+    assert_contains!(registration_live, "required={!@trigger_submit}", "native sign-in password control")
+    assert_contains!(registration_live, ":if={@trigger_submit}", "native sign-in password handoff")
   end
 
   test "generated base audit migration supports the logged-in runtime handoff without organizations" do
