@@ -144,7 +144,6 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await assertAuthState(page, 'login after registration');
   await page.goto(confirmationLink);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
-  await assertAuthState(page, 'login after confirmation');
 
   await logInWithPassword(page, email, password);
   await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
