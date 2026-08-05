@@ -106,20 +106,7 @@ async function logInWithPassword(page: Page, email: string, password: string) {
 }
 
 async function logOut(page: Page) {
-  const status = await page.evaluate(async () => {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-    if (!csrfToken) return 0;
-
-    return (await fetch('/users/log_out', {
-      method: 'DELETE',
-      headers: { 'x-csrf-token': csrfToken },
-      redirect: 'manual',
-    })).status;
-  });
-
-  expect(status).toBe(302);
-  await page.goto('/users/log_in');
+  await page.getByRole('link', { name: /log out/i }).click();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
