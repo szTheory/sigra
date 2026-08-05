@@ -13,6 +13,23 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
   @auth_components "priv/templates/sigra.install/core/sigra_auth_components.ex"
+  @auth_flash_views [
+    "priv/templates/sigra.install/core/confirmation_html.ex",
+    "priv/templates/sigra.install/core/confirmation_live.ex",
+    "priv/templates/sigra.install/core/login_html.ex",
+    "priv/templates/sigra.install/core/mfa_challenge_html.ex",
+    "priv/templates/sigra.install/core/mfa_challenge_live.ex",
+    "priv/templates/sigra.install/core/mfa_settings_html.ex",
+    "priv/templates/sigra.install/core/mfa_settings_live.ex",
+    "priv/templates/sigra.install/core/reactivation_live.ex",
+    "priv/templates/sigra.install/core/registration_html.ex",
+    "priv/templates/sigra.install/core/registration_live.ex",
+    "priv/templates/sigra.install/core/reset_password_html.ex",
+    "priv/templates/sigra.install/core/reset_password_live.ex",
+    "priv/templates/sigra.install/core/session_live.ex",
+    "priv/templates/sigra.install/core/settings_live.ex",
+    "priv/templates/sigra.install/core/sudo_html.ex"
+  ]
 
   defp read!(path), do: File.read!(path)
 
@@ -208,6 +225,14 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "role=\"alert\""
         ] do
       assert_contains!(auth_components, marker, "generated auth flash surface")
+    end
+
+    for path <- @auth_flash_views do
+      assert_contains!(
+        read!(path),
+        "<.sigra_auth_page flash={@flash}>",
+        "generated auth flash forwarding in #{path}"
+      )
     end
   end
 
