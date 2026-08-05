@@ -248,15 +248,15 @@ Source: [VERIFIED: test module, smoke script, and `mix.exs` alias].
 |---|-------|---------|---------------|
 | A1 | No additional package is required beyond the locked generated-host `cloak_ecto` dependency. | Package Legitimacy Audit | A newly discovered generator prerequisite would need its own provenance and host installation proof. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which exact B2C assertions are currently missing?**
    - What we know: the source shows incomplete admin/organization negative coverage and shallow OAuth-positive coverage. [VERIFIED: current smoke/test]
-   - Recommendation: implement the stable sentinel matrix in both existing artifacts; no product decision is outstanding.
+   - **RESOLVED:** Use the feature-owned sentinel matrix in both existing artifacts to close the assertion gap; no product decision is outstanding.
 
 2. **Can the full smoke run locally now?**
    - What we know: PostgreSQL did not respond at the configured local endpoint. [VERIFIED: `pg_isready` probe]
-   - Recommendation: use CI’s PostgreSQL service or bring up the local DB; do not weaken the migration/boot gate.
+   - **RESOLVED:** When local PostgreSQL is unavailable, require CI PostgreSQL smoke evidence from the exact implementation commit; do not weaken the migration/boot gate.
 
 ## Environment Availability
 
