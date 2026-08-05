@@ -9,6 +9,8 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
+  @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
+  @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
 
   defp read!(path), do: File.read!(path)
 
@@ -153,6 +155,25 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "add :effective_user_id, :binary_id, null: true",
       "credential-free generated host audit schema"
     )
+  end
+
+  test "generated anonymous confirmation and OAuth routes resolve their runtime dependencies" do
+    confirmation_live = read!(@confirmation_live)
+    oauth_controller = read!(@oauth_controller)
+
+    refute String.contains?(confirmation_live, "_user = socket.assigns.current_scope.user"),
+           "email confirmation links must work without an authenticated current_scope"
+
+    assert_contains!(
+      oauth_controller,
+      "alias <%= context_module %>, as: Auth",
+      "OAuth controller"
+    )
+
+    assert_contains!(oauth_controller, "config = Auth.sigra_config()", "OAuth controller")
+
+    refute String.contains?(oauth_controller, "conn.assigns[:sigra_config]"),
+           "OAuth controller must not require an unassigned conn config"
   end
 
   test "Generated Auth Runtime Proof has a dispatchable isolated workflow with only its prerequisite guard" do

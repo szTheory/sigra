@@ -13,6 +13,8 @@ defmodule <%= web_module %>.OAuthController do
 
   use <%= web_module %>, :controller
 
+  alias <%= context_module %>, as: Auth
+
   @doc """
   Initiates OAuth flow by redirecting to the provider's authorization URL.
 
@@ -20,7 +22,7 @@ defmodule <%= web_module %>.OAuthController do
   verification on callback.
   """
   def request(conn, %{"provider" => provider}) do
-    config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
+    config = Auth.sigra_config()
 
     case validate_provider(config, provider) do
       {:ok, provider_atom} ->
@@ -52,7 +54,7 @@ defmodule <%= web_module %>.OAuthController do
   and routes to the appropriate account action.
   """
   def callback(conn, %{"provider" => provider} = params) do
-    config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
+    config = Auth.sigra_config()
 
     case validate_provider(config, provider) do
       {:ok, provider_atom} ->

@@ -146,11 +146,12 @@ defmodule Sigra.Templates.InstallerDriftTest do
       ]
     },
     %{
-      id: "fix #9 — confirmation_live unused var prefixed _user",
+      id: "fix #9 — confirmation_live token confirmation is anonymous-safe",
       template: "priv/templates/sigra.install/core/confirmation_live.ex",
       example: "test/example/lib/example_web/live/confirmation_live.ex",
-      must_have: [
-        {"handle_params assigns _user", ~r/_user = socket\.assigns\.current_scope\.user/,
+      must_not: [
+        {"token confirmation does not require current_scope",
+         ~r/_user = socket\.assigns\.current_scope\.user/,
          ~r/_user = socket\.assigns\.current_scope\.user/}
       ]
     },

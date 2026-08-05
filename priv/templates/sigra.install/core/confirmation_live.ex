@@ -97,8 +97,6 @@ defmodule <%= web_module %>.ConfirmationLive do
   end
 
   def handle_params(%{"token" => token}, _uri, socket) do
-    _user = socket.assigns.current_scope.user
-
     case Auth.confirm_user(token) do
       {:ok, _user} ->
         {:noreply,
