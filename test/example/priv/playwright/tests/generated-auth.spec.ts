@@ -114,10 +114,11 @@ async function logOut(page: Page) {
     return (await fetch('/users/log_out', {
       method: 'DELETE',
       headers: { 'x-csrf-token': csrfToken },
+      redirect: 'manual',
     })).status;
   });
 
-  expect(status).toBe(200);
+  expect(status).toBe(302);
   await page.goto('/users/log_in');
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
