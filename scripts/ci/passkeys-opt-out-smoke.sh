@@ -25,6 +25,7 @@ SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_PARENT="${TMPDIR:-/tmp}"
 TMP_ROOT="$(mktemp -d "${TMP_PARENT%/}/sigra-passkeys-opt-out.XXXXXX")"
 readonly TMP_ROOT
+SERVER_PID=""
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -43,6 +44,19 @@ cleanup_tmp_root() {
   [[ -d "${TMP_ROOT}" ]] && rm -rf -- "${TMP_ROOT}"
 }
 
+cleanup_server() {
+  if [[ -n "${SERVER_PID}" ]]; then
+    kill "${SERVER_PID}" 2>/dev/null || true
+    wait "${SERVER_PID}" 2>/dev/null || true
+    SERVER_PID=""
+  fi
+}
+
+cleanup() {
+  cleanup_server
+  cleanup_tmp_root
+}
+
 cleanup_leg_dir() {
   local app_dir="$1"
 
@@ -59,7 +73,7 @@ cleanup_leg_dir() {
   esac
 }
 
-trap cleanup_tmp_root EXIT
+trap cleanup EXIT
 
 assert_file_missing() {
   local path="$1"
@@ -267,15 +281,12 @@ run_leg() {
   local port="${!env_name:-$(find_free_port)}"
   local server_log="${app_dir}/server.log"
   PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server > "${server_log}" 2>&1 &
-  local server_pid=$!
-  trap 'kill ${server_pid} 2>/dev/null || true' RETURN
+  SERVER_PID=$!
 
   for i in $(seq 1 30); do
     if curl -sf "http://127.0.0.1:${port}/" > /dev/null; then
       echo "==> passkeys-opt-out: ${label} responded at http://127.0.0.1:${port}/ after ${i}s"
-      kill "${server_pid}" 2>/dev/null || true
-      wait "${server_pid}" 2>/dev/null || true
-      trap - RETURN
+      cleanup_server
       return 0
     fi
 
