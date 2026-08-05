@@ -7,6 +7,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @journey "test/example/priv/playwright/tests/generated-auth.spec.ts"
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
   @workflow ".github/workflows/generated-auth-runtime-proof.yml"
+  @auth_template "priv/templates/sigra.install/core/auth.ex"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
@@ -52,6 +53,13 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     mailbox = read!(@mailbox)
     journey = read!(@journey)
     oauth_probe = read!(@oauth_probe)
+    auth_template = read!(@auth_template)
+
+    assert_contains!(
+      auth_template,
+      "secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base)",
+      "generated Auth configuration"
+    )
 
     for marker <- [
           "base_url: \"http://127.0.0.1:${PORT}/oidc\"",

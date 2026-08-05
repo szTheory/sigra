@@ -565,6 +565,7 @@ defmodule <%= context_module %> do
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
       ],
+      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
       lockout: [
         threshold: 5,
         duration: 900
