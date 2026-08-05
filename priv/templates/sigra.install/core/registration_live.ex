@@ -37,11 +37,12 @@ defmodule <%= web_module %>.RegistrationLive do
         <%% # Add custom fields here (e.g., :name, :company) %>
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
         <.input
+          :if={!@trigger_submit}
           field={f[:password]}
           type="password"
           label="Password"
           autocomplete="new-password"
-          required={!@trigger_submit}
+          required
         />
         <input
           :if={@trigger_submit}

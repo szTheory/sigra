@@ -119,7 +119,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "post-registration native sign-in form"
     )
 
-    assert_contains!(registration_live, "required={!@trigger_submit}", "native sign-in password control")
+    assert_contains!(registration_live, ":if={!@trigger_submit}", "native sign-in password control")
     assert_contains!(registration_live, ":if={@trigger_submit}", "native sign-in password handoff")
   end
 
