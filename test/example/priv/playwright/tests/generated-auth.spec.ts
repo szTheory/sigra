@@ -10,8 +10,75 @@ test.describe.configure({ mode: 'serial' });
 
 const collisionEmail = 'oauth-collision@example.test';
 
-async function assertAuthState(_page: Page, stateName: string) {
-  throw new Error(`auth accessibility gate has not been implemented for ${stateName}`);
+async function assertAuthState(page: Page, stateName: string) {
+  const authRoot = page.locator('main.sigra-auth');
+  await expect(authRoot, `${stateName}: expected one visible auth root`).toHaveCount(1);
+  await expect(authRoot, `${stateName}: auth root is not visible`).toBeVisible();
+
+  const { violations } = await new AxeBuilder({ page })
+    .include('main.sigra-auth')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(
+    violations,
+    `${stateName}: scoped Axe violations: ${JSON.stringify(violations).slice(0, 2000)}`,
+  ).toHaveLength(0);
+
+  const diagnostics = await authRoot.evaluate((root) => {
+    const formControlSelector = 'input:not([type="hidden"]), select, textarea, button';
+    const describe = (element: Element) => {
+      const id = element.getAttribute('id') ?? '';
+      const label = element.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      return `${element.tagName.toLowerCase()}#${id || '(no-id)'}:${label || '(no-text)'}`;
+    };
+    const ariaLabelledByResolves = (element: Element) => {
+      const labelledBy = element.getAttribute('aria-labelledby')?.trim();
+      if (!labelledBy) return false;
+
+      return labelledBy.split(/\s+/).every((id) => root.querySelectorAll(`#${CSS.escape(id)}`).length === 1);
+    };
+    const hasAccessibleName = (element: Element) => {
+      if (element.getAttribute('aria-label')?.trim() || ariaLabelledByResolves(element)) {
+        return true;
+      }
+
+      if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+        return element.labels !== null && element.labels.length > 0;
+      }
+
+      if (element instanceof HTMLButtonElement) {
+        return Boolean(element.textContent?.trim() || element.getAttribute('title')?.trim());
+      }
+
+      return false;
+    };
+    const labels = Array.from(root.querySelectorAll('label[for]'))
+      .map((label) => {
+        const targetId = label.htmlFor.trim();
+        const targets = targetId ? root.querySelectorAll(`#${CSS.escape(targetId)}`) : [];
+        const target = targets.length === 1 ? targets[0] : null;
+        return !targetId || !target?.matches(formControlSelector)
+          ? `${describe(label)} -> #${targetId || '(empty)'} (${targets.length} matches)`
+          : null;
+      })
+      .filter((diagnostic): diagnostic is string => diagnostic !== null)
+      .sort();
+    const unlabeledControls = Array.from(root.querySelectorAll(formControlSelector))
+      .filter((control) => !hasAccessibleName(control))
+      .map(describe)
+      .sort();
+    const ids = Array.from(root.querySelectorAll('[id]'))
+      .map((element) => element.id.trim())
+      .filter(Boolean);
+    const duplicateIds = [...new Set(ids.filter((id) => ids.filter((candidate) => candidate === id).length > 1))].sort();
+
+    return { labels, unlabeledControls, duplicateIds };
+  });
+  expect(diagnostics, `${stateName}: auth DOM invariants failed`).toEqual({
+    labels: [],
+    unlabeledControls: [],
+    duplicateIds: [],
+  });
 }
 
 const waitForLiveViewReady = async (page: Page) => {
