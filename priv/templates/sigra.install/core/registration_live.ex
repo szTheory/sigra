@@ -130,7 +130,11 @@ defmodule <%= web_module %>.RegistrationLive do
           {:error, :already_confirmed} -> :ok
         end
 
-        changeset = <%= context_module %>.change_user_registration(user)
+        # Preserve the submitted virtual password for the triggered sign-in POST.
+        # `register_user/1` intentionally clears it after hashing, but the
+        # session controller authenticates the freshly created user from this
+        # form immediately after the LiveView event completes.
+        changeset = <%= context_module %>.change_user_registration(user, user_params)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, :email_taken} ->

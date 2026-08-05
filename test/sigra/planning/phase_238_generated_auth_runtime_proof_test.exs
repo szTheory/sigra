@@ -7,6 +7,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @journey "test/example/priv/playwright/tests/generated-auth.spec.ts"
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
   @workflow ".github/workflows/ci.yml"
+  @registration_live "priv/templates/sigra.install/core/registration_live.ex"
 
   defp read!(path), do: File.read!(path)
 
@@ -106,6 +107,16 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     assert_contains!(harness, "grep -Eq", "portable retained-harness contract checks")
     refute String.contains?(harness, "rg -q"),
            "retained-harness contract checks must not depend on rg being installed in the CI runner"
+  end
+
+  test "generated registration retains the submitted password for the triggered sign-in" do
+    registration_live = read!(@registration_live)
+
+    assert_contains!(
+      registration_live,
+      "change_user_registration(user, user_params)",
+      "post-registration triggered sign-in form"
+    )
   end
 
   test "Generated Auth Runtime Proof CI lane is non-skipping, PostgreSQL-backed, and diagnostic" do
