@@ -87,7 +87,7 @@ defmodule ${web_module}.OidcDoubleController do
   use ${web_module}, :controller
 
   @issuer "http://127.0.0.1:${PORT}/oidc"
-  @callback "http://127.0.0.1:${PORT}/auth/google/callback"
+  @callback_url "http://127.0.0.1:${PORT}/auth/google/callback"
   @client_id "sigra-oauth-proof-client"
   @client_secret "sigra-oauth-proof-secret"
   @subject "sigra-oauth-proof-subject"
@@ -139,7 +139,7 @@ defmodule ${web_module}.OidcDoubleController do
     Assent.JWTAdapter.sign(%{"iss" => @issuer, "sub" => @subject, "aud" => @client_id, "exp" => now + 300, "iat" => now, "email" => @email, "email_verified" => true, "name" => "OIDC Proof User"}, "HS256", @client_secret)
   end
 
-  defp loopback_callback(@callback), do: {:ok, @callback}
+  defp loopback_callback(@callback_url), do: {:ok, @callback_url}
 
   defp loopback_callback(_), do: :error
 end
