@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 2
+open_count: 3
 waived_count: 0
 fixed_count: 0
-total_count: 2
-last_updated: 2026-08-02T01:35:01.099Z
+total_count: 3
+last_updated: 2026-08-05T14:57:01.781Z
 ---
 
 # Broken Windows Ledger
@@ -17,6 +17,7 @@ last_updated: 2026-08-02T01:35:01.099Z
 |----|-------|------|------|------|-------------|--------|--------|-------------|-------------|
 | 1 | 234 | unrun-verify | test/sigra/install/golden_diff_test.exs | 54 | Golden/idempotency verifier exits 1: generated config/dev.exs differs from committed fixture | open |  | 2026-08-02T01:35:01.034Z |  |
 | 2 | 234 | deviation | .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-EVIDENCE.json |  | Dependabot job-log evidence remains failed because authenticated browser capture is unavailable | open |  | 2026-08-02T01:35:01.099Z |  |
+| 3 | 238 | unrun-verify | scripts/ci/generated-auth-runtime-proof.sh |  | Exact --probe-oauth runtime verification requires CI PostgreSQL and Chromium | open |  | 2026-08-05T14:57:01.781Z |  |
 
 ````json
 [
@@ -42,6 +43,18 @@ last_updated: 2026-08-02T01:35:01.099Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-02T01:35:01.099Z",
+    "resolved_at": null
+  },
+  {
+    "id": 3,
+    "kind": "unrun-verify",
+    "phase": "238",
+    "file": "scripts/ci/generated-auth-runtime-proof.sh",
+    "line": null,
+    "description": "Exact --probe-oauth runtime verification requires CI PostgreSQL and Chromium",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-05T14:57:01.781Z",
     "resolved_at": null
   }
 ]
