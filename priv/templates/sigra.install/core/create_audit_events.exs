@@ -14,6 +14,7 @@ defmodule <%= repo_module %>.Migrations.CreateAuditEvents do
       add :outcome, :string, null: false, size: 32
       add :actor_id, :binary_id, null: true
       add :actor_type, :string, null: false, size: 64, default: "user"
+      add :effective_user_id, :binary_id, null: true
       add :target_id, :binary_id, null: true
       add :target_type, :string, null: true, size: 64
       add :ip_address, :string, null: true, size: 64

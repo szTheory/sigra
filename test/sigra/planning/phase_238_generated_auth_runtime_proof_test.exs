@@ -8,6 +8,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
   @workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
+  @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
 
   defp read!(path), do: File.read!(path)
 
@@ -116,6 +117,16 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       registration_live,
       "Ecto.Changeset.change(user, password: user_params[\"password\"])",
       "post-registration native sign-in form"
+    )
+  end
+
+  test "generated base audit migration supports the logged-in runtime handoff without organizations" do
+    audit_migration = read!(@audit_migration)
+
+    assert_contains!(
+      audit_migration,
+      "add :effective_user_id, :binary_id, null: true",
+      "credential-free generated host audit schema"
     )
   end
 
