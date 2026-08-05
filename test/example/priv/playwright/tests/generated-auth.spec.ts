@@ -144,9 +144,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await assertAuthState(page, 'login after registration');
   await page.goto(confirmationLink);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
-
-  await logOut(page);
-  await assertAuthState(page, 'logged-out login');
+  await assertAuthState(page, 'login after confirmation');
 
   await logInWithPassword(page, email, password);
   await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
@@ -199,8 +197,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await assertAuthState(staleResetPage, 'stale reset token');
   await staleResetPage.close();
 
-  await logOut(page);
-  await assertAuthState(page, 'logged-out login');
+  await assertAuthState(page, 'logged-out login after reset');
 
   await logInWithPassword(page, email, password);
   await expect(page.getByText('Invalid email or password', { exact: true })).toBeVisible();
