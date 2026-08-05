@@ -95,7 +95,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     harness = read!(@harness)
 
     assert Regex.match?(
-             ~r/assert_locked_contract\(\)\s*\{[\s\S]*?CI_DIR\}\/generated-auth-runtime-proof\\\.sh/m,
+             ~r/assert_locked_contract\(\)\s*\{[\s\S]*?\$\{CI_DIR\}\/generated-auth-runtime-proof\.sh/m,
              harness
            ),
            "assert_locked_contract must read the retained harness through CI_DIR after boot_and_run_spec changes into APP_DIR"
