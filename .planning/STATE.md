@@ -4,16 +4,16 @@ milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 238
 current_phase_name: generated-auth-runtime-proof
-status: executing
-stopped_at: Phase 238 context gathered (assumptions mode)
-last_updated: "2026-08-05T14:58:26.118Z"
+status: blocked
+stopped_at: "Phase 238 blocked: exact-SHA CI harness self-reference failure"
+last_updated: "2026-08-05T16:09:39Z"
 last_activity: 2026-08-05
-last_activity_desc: Phase 238 execution started
+last_activity_desc: "Phase 238 runtime proof blocked after two exact-SHA CI failures"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 2
+  completed_plans: 5
   percent: 25
 ---
 
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 238 (generated-auth-runtime-proof) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 238
-Last activity: 2026-08-05 — Phase 238 execution started
+Phase: 238 (generated-auth-runtime-proof) — BLOCKED
+Plan: 5 of 5 (evidence blocked)
+Status: Repair `scripts/ci/generated-auth-runtime-proof.sh` self-reference, then rerun exact-SHA CI proof
+Last activity: 2026-08-05 — verifier confirmed 0/3 runtime truths after two red direct CI runs
 
 ## Accumulated Context
 
