@@ -59,6 +59,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "client_secret: \"sigra-oauth-proof-secret\"",
           "id_token_signed_response_alg: \"HS256\"",
           "code_verifier: true",
+          "{:assent,",
           "OidcDoubleController, :discovery",
           "OidcDoubleController, :authorize",
           "OidcDoubleController, :token",

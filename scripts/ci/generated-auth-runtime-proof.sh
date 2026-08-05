@@ -65,7 +65,7 @@ patch_mix_exs() {
   '
 }
 
-add_cloak_ecto() {
+add_proof_dependencies() {
   elixir -e '
     path = "mix.exs"
     content = File.read!(path)
@@ -73,6 +73,11 @@ add_cloak_ecto() {
     String.contains?(content, anchor) || raise "missing Sigra path dependency anchor"
     unless String.contains?(content, "{:cloak_ecto,") do
       File.write!(path, String.replace(content, anchor, anchor <> "      {:cloak_ecto, \"~> 1.3\"},\n", global: false))
+    end
+
+    content = File.read!(path)
+    unless String.contains?(content, "{:assent,") do
+      File.write!(path, String.replace(content, anchor, anchor <> "      {:assent, \"~> 0.3\"},\n", global: false))
     end
   '
 }
@@ -220,7 +225,7 @@ boot_and_run_spec() {
   patch_mix_exs
   mix deps.get
   MIX_ENV=dev mix sigra.install Accounts User users --no-admin --no-organizations --no-passkeys --yes
-  add_cloak_ecto
+  add_proof_dependencies
   mix deps.get
   MIX_ENV=dev mix sigra.gen.oauth --providers google
   write_oidc_double

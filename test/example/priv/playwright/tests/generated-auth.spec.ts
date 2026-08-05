@@ -105,11 +105,22 @@ async function logInWithPassword(page: Page, email: string, password: string) {
   await passwordForm.getByRole('button', { name: 'Sign in with password' }).click();
 }
 
-async function logOut(page: Page) {
+async function clearBrowserSession(page: Page) {
   // The generated registration handoff does not render a logout control.
   // Clear the browser session deterministically before testing the next
   // unauthenticated auth transition; server-side logout has ConnTest coverage.
   await page.context().clearCookies();
+  await page.goto('/users/log_in');
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+}
+
+async function logOut(page: Page) {
+  const responseType = await page.evaluate(async () => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (!csrfToken) return '';
+    return (await fetch('/users/log_out', { method: 'DELETE', headers: { 'x-csrf-token': csrfToken }, redirect: 'manual' })).type;
+  });
+  expect(responseType).toBe('opaqueredirect');
   await page.goto('/users/log_in');
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
@@ -128,7 +139,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await expect(page.getByText('Account created successfully!', { exact: true })).toBeVisible();
 
   const confirmationLink = await extractConfirmationLink(page, email);
-  await logOut(page);
+  await clearBrowserSession(page);
   await assertAuthState(page, 'login after registration');
   await page.goto(confirmationLink);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
@@ -137,7 +148,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await assertAuthState(page, 'logged-out login');
 
   await logInWithPassword(page, email, password);
-  await expect(page.getByRole('button', { name: /log out/i })).toBeVisible();
+  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
   await logOut(page);
   await assertAuthState(page, 'logged-out login');
 
@@ -150,7 +161,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
 
   const magicLink = await extractMagicLink(page, email);
   await page.goto(magicLink);
-  await expect(page.getByRole('button', { name: /log out/i })).toBeVisible();
+  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
   await logOut(page);
 
   await page.goto('/users/reset-password');
@@ -171,7 +182,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await page.getByLabel('Confirm new password', { exact: true }).fill(replacementPassword);
   await page.getByRole('button', { name: 'Reset password' }).click();
   await expect(page).not.toHaveURL(/\/users\/reset-password/);
-  await expect(page.getByRole('button', { name: /log out/i })).toBeVisible();
+  await expect(page.getByText('Password reset successfully!', { exact: true })).toBeVisible();
   await logOut(page);
   await assertAuthState(page, 'logged-out login');
 
@@ -181,7 +192,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await assertAuthState(page, 'login invalid password');
 
   await logInWithPassword(page, email, replacementPassword);
-  await expect(page.getByRole('button', { name: /log out/i })).toBeVisible();
+  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible();
   await logOut(page);
   await assertAuthState(page, 'logged-out login before Google collision');
 
