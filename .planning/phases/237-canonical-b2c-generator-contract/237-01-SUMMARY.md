@@ -59,11 +59,13 @@ status: complete
 - Extended the authoritative assets-enabled smoke with OAuth file, migration, route, configuration, and Vault-supervision assertions.
 - Added feature-owned B2C absence checks for admin, organizations, and passkeys across routes, files, migrations, assets, dependencies, and configuration.
 - Made the fixture generate Google OAuth only after idempotently adding direct `cloak_ecto`, then compile the emitted host with warnings as errors and source-lock the smoke lifecycle.
+- Retained explicit B2C password and magic-link route/controller assertions so opt-out coverage proves core sign-in remains available.
 
 ## Task Commits
 
 1. **Task 1: Prove the complete B2C host lifecycle in the authoritative fresh-Phoenix smoke** — `2ff867b8` (feat)
 2. **Task 2: Lock the B2C generated-tree contract in the fast fixture suite** — `3ded1d6a` (test)
+3. **WR-01 remediation: retain B2C core login coverage** — `4fe7dd35` (fix)
 
 ## Files Created/Modified
 
@@ -77,7 +79,15 @@ status: complete
 
 ## Deviations from Plan
 
-None - plan implementation followed the specified two existing harnesses.
+### Auto-fixed Issues
+
+**1. [Rule 2 - Missing critical functionality] Retained-core B2C login contract**
+- **Found during:** Post-plan code review (WR-01)
+- **Issue:** The opt-out contract proved OAuth and disabled-feature boundaries but did not prove that password and magic-link sign-in remain generated.
+- **Fix:** Added B2C-only route assertions for login/password/magic-link, SessionController assertions for password authentication and magic-link issuance/verification, and matching fixture source locks.
+- **Files modified:** `scripts/ci/passkeys-opt-out-smoke.sh`, `test/sigra/install/generator_passkeys_opt_out_test.exs`
+- **Verification:** formatter, Elixir parser, shell syntax, fixed-string source checks, and diff checks passed.
+- **Committed in:** `4fe7dd35`
 
 ## Issues Encountered
 
@@ -94,5 +104,5 @@ The commit pair is ready for the existing CI PostgreSQL service lane. Do not clo
 
 ## Self-Check: PASSED
 
-- Both modified source files exist and their task commits are present in git history.
-- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, source-stage checks, and `git diff --check` passed.
+- Both modified source files exist and all task/remediation commits are present in git history.
+- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core source checks, and `git diff --check` passed.
