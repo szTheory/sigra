@@ -265,7 +265,8 @@ run_leg() {
   echo "==> passkeys-opt-out: booting app and checking root responds"
   local env_name="SIGRA_PASSKEYS_${label^^}_PORT"
   local port="${!env_name:-$(find_free_port)}"
-  PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server > "/tmp/${label}-server.log" 2>&1 &
+  local server_log="${app_dir}/server.log"
+  PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server > "${server_log}" 2>&1 &
   local server_pid=$!
   trap 'kill ${server_pid} 2>/dev/null || true' RETURN
 
@@ -280,7 +281,7 @@ run_leg() {
 
     if [[ "${i}" -eq 30 ]]; then
       echo "FAIL: ${label} did not boot within 30 seconds"
-      cat "/tmp/${label}-server.log"
+      cat "${server_log}"
       exit 1
     fi
 
