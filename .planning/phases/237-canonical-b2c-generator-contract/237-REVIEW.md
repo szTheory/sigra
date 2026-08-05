@@ -1,6 +1,6 @@
 ---
 phase: 237-canonical-b2c-generator-contract
-reviewed: 2026-08-05T02:50:25Z
+reviewed: 2026-08-05T03:02:53Z
 depth: standard
 files_reviewed: 2
 files_reviewed_list:
@@ -16,14 +16,14 @@ status: issues_found
 
 # Phase 237: Code Review Report
 
-**Reviewed:** 2026-08-05T02:50:25Z
+**Reviewed:** 2026-08-05T03:02:53Z
 **Depth:** standard
 **Files Reviewed:** 2
 **Status:** issues_found
 
 ## Summary
 
-The B2C generator assertions and fixture source locks are coherent, and the focused source-lock test passes. However, the authoritative smoke does not preserve its required isolated, bounded server lifecycle when a boot check fails: it uses a predictable shared `/tmp` log and bypasses its only server cleanup trap on failure. This leaves the B2C-01/T-237-04 lifecycle proof unreliable and can expose a local file-clobber primitive.
+The B2C generator assertions and fixture source locks are coherent. However, the authoritative smoke does not preserve its required isolated, bounded server lifecycle when a boot check fails: it uses a predictable shared `/tmp` log and bypasses its only server cleanup trap on failure. This leaves the B2C-01/T-237-04 lifecycle proof unreliable and can expose a local file-clobber primitive.
 
 ## Narrative Findings (AI reviewer)
 
@@ -53,6 +53,6 @@ The B2C generator assertions and fixture source locks are coherent, and the focu
 
 ---
 
-_Reviewed: 2026-08-05T02:50:25Z_
+_Reviewed: 2026-08-05T03:02:53Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
