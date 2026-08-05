@@ -28,6 +28,8 @@
   "harness_command": "GITHUB_WORKSPACE=\"$PWD\" scripts/ci/generated-auth-runtime-proof.sh --all",
   "rate_limit_preflight": {"core_remaining": 4576, "reset": 1785965715},
   "previous_attempts": [
+    {"run_id": 31019501361, "conclusion": "failure", "blocker": "committed harness was non-executable before execution"},
+    {"run_id": 31021611104, "conclusion": "failure", "blocker": "retained harness used relative $0 after entering the generated host"},
     {"run_id": 31045952617, "conclusion": "failure", "blocker": "magic-link delivery and OAuth collision flash"},
     {"run_id": 31047216832, "conclusion": "failure", "blocker": "OAuth identity schema and reset root render"},
     {"run_id": 31047828096, "conclusion": "failure", "blocker": "reset token transport hash"},
