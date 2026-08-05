@@ -187,14 +187,20 @@ defmodule <%= web_module %>.ResetPasswordLive do
   end
 
   def handle_event("reset", %{"user" => password_params}, socket) do
-    case <%= context_module %>.reset_user_password(socket.assigns.user, password_params) do
+    case <%= context_module %>.reset_user_password(socket.assigns.token, password_params) do
       {:ok, _user} ->
         {:noreply,
          socket
          |> put_flash(:info, dgettext("sigra", "Password reset successfully!"))
          |> redirect(to: ~p"/users/log_in")}
 
-      {:error, changeset} ->
+      {:error, :token_invalid} ->
+        {:noreply, assign(socket, token_invalid?: true, form: nil)}
+
+      {:error, :token_expired} ->
+        {:noreply, assign(socket, token_invalid?: true, form: nil)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
   end

@@ -10,6 +10,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @auth_template "priv/templates/sigra.install/core/auth.ex"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
+  @settings_live "priv/templates/sigra.install/core/settings_live.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
@@ -117,7 +118,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "reset token form",
           "stale reset token",
           "Google collision login",
-          "getByRole('button', { name: 'Log out' })",
+          "getByRole('link', { name: 'Log out' })",
           "users/settings",
           "new AxeBuilder({ page })",
           ".include('main.sigra-auth')",
@@ -137,7 +138,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     end
 
     for marker <- [
-          "const normalized_email = Sigra.Email.normalize(email)",
+          "normalized_email = Sigra.Email.normalize(email)",
           "request_magic_link(normalized_email, magic_link_url_fun)",
           "Sigra.Auth.request_password_reset(Repo, normalized_email,",
           "get_user_by_email(normalized_email)"
@@ -156,7 +157,10 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       assert_contains!(reset_password_live, marker, "generated reset-token revalidation")
     end
 
-    refute Regex.match?(~r/async function logOut\(page: Page\) \{[\s\S]*?clearCookies\(\)/, journey),
+    refute Regex.match?(
+             ~r/async function logOut\(page: Page\) \{[\s\S]*?clearCookies\(\)/,
+             journey
+           ),
            "logout proof must not clear cookies"
 
     refute String.contains?(journey, "page.waitForTimeout"),
@@ -302,6 +306,14 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "{raw_token, _hashed_raw_bytes} = Token.generate_hashed_token()\n        hashed_token = Token.hash_token(raw_token)\n        signed = Plug.Crypto.sign(secret_key_base, \"sigra-reset-token\", raw_token)",
       "reset-password token transport contract"
     )
+  end
+
+  test "generated settings exposes a browser-visible DELETE logout control" do
+    settings_live = read!(@settings_live)
+
+    assert_contains!(settings_live, "href={~p\"/users/log_out\"}", "generated logout control")
+    assert_contains!(settings_live, "method=\"delete\"", "generated logout control")
+    assert_contains!(settings_live, ">Log out</.link>", "generated logout control")
   end
 
   test "generated auth shell renders controller flash messages after redirects" do

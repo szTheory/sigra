@@ -149,9 +149,11 @@ defmodule <%= context_module %> do
   """
   def deliver_user_magic_link_instructions(email, magic_link_url_fun)
       when is_binary(email) and is_function(magic_link_url_fun, 1) do
-    case request_magic_link(email, magic_link_url_fun) do
+    normalized_email = Sigra.Email.normalize(email)
+
+    case request_magic_link(normalized_email, magic_link_url_fun) do
       {:ok, {_raw_token, url}} ->
-        user = get_user_by_email(email)
+        user = get_user_by_email(normalized_email)
 
         if user do
           email_struct = <%= context_module %>.Emails.magic_link_email(user, url)
@@ -457,18 +459,17 @@ defmodule <%= context_module %> do
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
-    user = get_user_by_email(email)
+    normalized_email = Sigra.Email.normalize(email)
+    user = get_user_by_email(normalized_email)
 <%= if organizations?, do: "    auth_policy = user && #{app_module}.Organizations.local_auth_policy_for(user)", else: "    auth_policy = nil" %>
 
-    case Sigra.Auth.request_password_reset(Repo, email,
+    case Sigra.Auth.request_password_reset(Repo, normalized_email,
            user_schema: <%= schema_alias %>,
            user_token_schema: UserToken,
            secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
          ) do
       {:ok, {signed_token, url}} ->
-        user = get_user_by_email(email)
-
         if user do
           email_struct = <%= context_module %>.Emails.reset_password_email(user, url)
 

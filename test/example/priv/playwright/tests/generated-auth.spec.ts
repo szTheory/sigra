@@ -115,18 +115,19 @@ async function clearBrowserSession(page: Page) {
 }
 
 async function logOut(page: Page) {
-  const responseType = await page.evaluate(async () => {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    if (!csrfToken) return '';
-    return (await fetch('/users/log_out', { method: 'DELETE', headers: { 'x-csrf-token': csrfToken }, redirect: 'manual' })).type;
-  });
-  expect(responseType).toBe('opaqueredirect');
-  await page.goto('/users/log_in');
+  await page.goto('/users/settings');
+  const logOutControl = page.getByRole('link', { name: 'Log out' });
+  await expect(logOutControl).toHaveAttribute('href', '/users/log_out');
+  await expect(logOutControl).toHaveAttribute('data-method', 'delete');
+  await logOutControl.click();
+  await page.goto('/users/settings');
+  await expect(page).toHaveURL(/\/users\/log_in/);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
 test('generated B2C email authentication journey', async ({ page }) => {
   const email = journeyEmail;
+  const caseVariedEmail = 'Generated-Auth-Journey@Example.Test';
   const password = 'GeneratedAuthPassword123!';
 
   await page.goto('/users/register');
@@ -154,7 +155,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
 
   const magicLinkForm = page.locator('#magic_link_form');
   await assertAuthState(page, 'login magic-link request');
-  await magicLinkForm.getByLabel('Email for sign-in link', { exact: true }).fill(email);
+  await magicLinkForm.getByLabel('Email for sign-in link', { exact: true }).fill(caseVariedEmail);
   await magicLinkForm.getByRole('button', { name: 'Email me a sign-in link' }).click();
   await expect(page.getByText(/If your email is registered/i)).toBeVisible();
   await assertAuthState(page, 'magic-link sent');
@@ -167,7 +168,7 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await page.goto('/users/reset-password');
   await waitForLiveViewReady(page);
   await assertAuthState(page, 'reset request');
-  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Email', { exact: true }).fill(caseVariedEmail);
   await page.getByRole('button', { name: 'Send reset instructions' }).click();
   await expect(page).toHaveURL(/\/users\/log_in/);
   await assertAuthState(page, 'reset sent login');
@@ -177,12 +178,27 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await waitForLiveViewReady(page);
   await assertAuthState(page, 'reset token form');
 
+  const staleResetPage = await page.context().newPage();
+  await staleResetPage.goto(resetLink);
+  await waitForLiveViewReady(staleResetPage);
+  await assertAuthState(staleResetPage, 'stale reset token form');
+
   const replacementPassword = 'GeneratedAuthReplacementPassword123!';
   await page.getByLabel('New password', { exact: true }).fill(replacementPassword);
   await page.getByLabel('Confirm new password', { exact: true }).fill(replacementPassword);
   await page.getByRole('button', { name: 'Reset password' }).click();
   await expect(page).not.toHaveURL(/\/users\/reset-password/);
   await expect(page.getByText('Password reset successfully!', { exact: true })).toBeVisible();
+
+  const staleReplacementPassword = 'GeneratedAuthStaleReplacementPassword123!';
+  await staleResetPage.getByLabel('New password', { exact: true }).fill(staleReplacementPassword);
+  await staleResetPage.getByLabel('Confirm new password', { exact: true }).fill(staleReplacementPassword);
+  await staleResetPage.getByRole('button', { name: 'Reset password' }).click();
+  await expect(staleResetPage.getByRole('heading', { name: 'Reset link expired' })).toBeVisible();
+  await expect(staleResetPage.getByRole('link', { name: 'Request new reset email' })).toBeVisible();
+  await assertAuthState(staleResetPage, 'stale reset token');
+  await staleResetPage.close();
+
   await logOut(page);
   await assertAuthState(page, 'logged-out login');
 

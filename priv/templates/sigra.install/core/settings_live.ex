@@ -63,6 +63,12 @@ defmodule <%= web_module %>.SettingsLive do
         <:subtitle>Manage your email, password, and account.</:subtitle>
       </.header>
 
+      <.link
+        href={~p"/users/log_out"}
+        method="delete"
+        class="sigra-auth-action sigra-auth-action--ghost"
+      >Log out</.link>
+
       <%%= # Force password change banner (D-58) %>
       <div
         :if={@force_password_change?}
