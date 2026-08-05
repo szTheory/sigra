@@ -66,6 +66,7 @@ status: complete
 1. **Task 1: Prove the complete B2C host lifecycle in the authoritative fresh-Phoenix smoke** — `2ff867b8` (feat)
 2. **Task 2: Lock the B2C generated-tree contract in the fast fixture suite** — `3ded1d6a` (test)
 3. **WR-01 remediation: retain B2C core login coverage** — `4fe7dd35` (fix)
+4. **CR-01 remediation: isolate smoke temporary files** — `a3645956` (fix)
 
 ## Files Created/Modified
 
@@ -89,6 +90,14 @@ status: complete
 - **Verification:** formatter, Elixir parser, shell syntax, fixed-string source checks, and diff checks passed.
 - **Committed in:** `4fe7dd35`
 
+**2. [Rule 2 - Security] Invocation-owned smoke temporary directory**
+- **Found during:** Final code review (CR-01)
+- **Issue:** The smoke accepted an environment-controlled `TMP_ROOT` and recursively removed it without proving it was an isolated harness directory.
+- **Fix:** The harness now creates an invocation-owned `mktemp -d` root, removes it through an EXIT trap only after a fixed-prefix check, and limits per-leg deletion to the three fixed generated app paths.
+- **Files modified:** `scripts/ci/passkeys-opt-out-smoke.sh`
+- **Verification:** shell syntax, cleanup source checks, and diff checks passed.
+- **Committed in:** `a3645956`
+
 ## Issues Encountered
 
 - Local PostgreSQL is unavailable (`pg_isready` returned no response). The full `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` lifecycle was not run locally and is **BLOCKED**, not passed. Exact-commit CI job `passkeys_opt_out_smoke` must supply the required PostgreSQL evidence.
@@ -105,4 +114,4 @@ The commit pair is ready for the existing CI PostgreSQL service lane. Do not clo
 ## Self-Check: PASSED
 
 - Both modified source files exist and all task/remediation commits are present in git history.
-- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core source checks, and `git diff --check` passed.
+- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core and cleanup source checks, and `git diff --check` passed.
