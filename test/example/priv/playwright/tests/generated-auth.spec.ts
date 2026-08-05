@@ -8,7 +8,7 @@ import {
 
 test.describe.configure({ mode: 'serial' });
 
-const collisionEmail = 'oauth-collision@example.test';
+const journeyEmail = 'generated-auth-journey@example.test';
 
 async function assertAuthState(page: Page, stateName: string) {
   const authRoot = page.locator('main.sigra-auth');
@@ -114,7 +114,7 @@ async function logOut(page: Page) {
 }
 
 test('generated B2C email authentication journey', async ({ page }) => {
-  const email = collisionEmail;
+  const email = journeyEmail;
   const password = 'GeneratedAuthPassword123!';
 
   await page.goto('/users/register');
