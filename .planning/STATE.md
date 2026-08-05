@@ -6,13 +6,13 @@ current_phase: 238
 current_phase_name: generated-auth-runtime-proof
 status: blocked
 stopped_at: "Phase 238 blocked: exact-SHA CI harness self-reference failure"
-last_updated: "2026-08-05T16:09:39Z"
+last_updated: "2026-08-05T16:26:15.400Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 238 runtime proof blocked after two exact-SHA CI failures"
+last_activity_desc: verifier confirmed 0/3 runtime truths after two red direct CI runs
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 6
+  total_plans: 7
   completed_plans: 5
   percent: 25
 ---
