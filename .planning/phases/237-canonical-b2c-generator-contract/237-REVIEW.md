@@ -1,6 +1,6 @@
 ---
 phase: 237-canonical-b2c-generator-contract
-reviewed: 2026-08-05T02:18:02Z
+reviewed: 2026-08-05T02:33:00Z
 depth: standard
 files_reviewed: 2
 files_reviewed_list:
@@ -16,14 +16,14 @@ status: clean
 
 # Phase 237: Code Review Report
 
-**Reviewed:** 2026-08-05T02:18:02Z
+**Reviewed:** 2026-08-05T02:33:00Z
 **Depth:** standard
 **Files Reviewed:** 2
 **Status:** clean
 
 ## Summary
 
-Both `assert_match` and `assert_no_match` route through the shared `find_matches` helper. Its ripgrep fallback uses `grep -E`, and all assertion expressions use portable ERE syntax, including `[[:space:]]` rather than `\s`. The fixture source-lock protects the two helper invocations, fallback command, and corrected whitespace expression. The retained B2C password, magic-link, OAuth, and negative contracts remain intact.
+The fixture source-lock now pins the exact generated `SessionController` path and all five retained-core smoke assertions: password authentication, magic-link request and verification, and both magic-link handler predicates. Portable matching uses a shared `grep -E` fallback with POSIX ERE expressions, and temporary cleanup remains limited to the invocation-owned root and allowlisted leg paths.
 
 All reviewed files meet quality standards. No issues found.
 
@@ -33,6 +33,6 @@ No findings.
 
 ---
 
-_Reviewed: 2026-08-05T02:18:02Z_
+_Reviewed: 2026-08-05T02:33:00Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
