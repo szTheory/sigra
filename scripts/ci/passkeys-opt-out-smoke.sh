@@ -74,9 +74,9 @@ assert_no_match() {
   local pattern="$1"
   local path="$2"
 
-  if rg -n "${pattern}" "${path}" >/dev/null 2>&1; then
+  if find_matches "${pattern}" "${path}" >/dev/null 2>&1; then
     echo "FAIL: unexpected match for pattern ${pattern} in ${path}"
-    rg -n "${pattern}" "${path}" || true
+    find_matches "${pattern}" "${path}" || true
     exit 1
   fi
 }
@@ -106,11 +106,22 @@ assert_match() {
   local pattern="$1"
   local path="$2"
 
-  if ! rg -n "${pattern}" "${path}" >/dev/null 2>&1; then
+  if ! find_matches "${pattern}" "${path}" >/dev/null 2>&1; then
     echo "FAIL: expected match for pattern ${pattern} in ${path}"
     echo "Diagnostic matches:"
-    rg -n 'Sigra OAuth|GOOGLE_CLIENT|OAuthController|Vault' "${path}" || true
+    find_matches 'Sigra OAuth|GOOGLE_CLIENT|OAuthController|Vault|SessionController|magic_link' "${path}" || true
     exit 1
+  fi
+}
+
+find_matches() {
+  local pattern="$1"
+  local path="$2"
+
+  if command -v rg >/dev/null 2>&1; then
+    rg -n -- "${pattern}" "${path}"
+  else
+    grep -En -- "${pattern}" "${path}"
   fi
 }
 

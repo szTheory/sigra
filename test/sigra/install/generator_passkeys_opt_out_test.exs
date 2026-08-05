@@ -192,6 +192,8 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "Auth.request_magic_link"
       assert source =~ "def magic_link\\(conn, %\\{\\\"token\\\" => token\\}\\)"
       assert source =~ "Auth.verify_magic_link"
+      assert source =~ "find_matches"
+      assert source =~ "grep -En --"
       assert source =~ "oauth_controller.ex"
       assert source =~ "oauth_html.ex"
       assert source =~ "oauth_buttons.html.heex"
