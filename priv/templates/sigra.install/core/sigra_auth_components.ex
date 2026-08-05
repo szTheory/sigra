@@ -11,6 +11,7 @@ defmodule <%= web_module %>.SigraAuthComponents do
 
   attr :branding, :map, default: nil
   attr :class, :any, default: nil
+  attr :flash, :map, default: %{}
   attr :rest, :global
   slot :inner_block, required: true
 
