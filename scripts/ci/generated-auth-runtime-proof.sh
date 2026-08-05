@@ -196,7 +196,7 @@ EOF
 }
 
 assert_locked_contract() {
-  rg -q -- '--probe-oauth' "${CI_DIR}/generated-auth-runtime-proof.sh" || fail "focused probe entry point missing"
+  grep -q -- '--probe-oauth' "${CI_DIR}/generated-auth-runtime-proof.sh" || fail "focused probe entry point missing"
   rg -q 'base_url: "http://127\.0\.0\.1:' "config/config.exs" || fail "Google base_url is not loopback"
   rg -q 'id_token_signed_response_alg: "HS256"' "config/config.exs" || fail "HS256 contract missing"
   rg -q 'code_verifier: true' "config/config.exs" || fail "PKCE contract missing"
