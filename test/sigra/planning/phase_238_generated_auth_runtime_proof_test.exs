@@ -10,7 +10,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @auth_template "priv/templates/sigra.install/core/auth.ex"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
-  @settings_live "priv/templates/sigra.install/core/settings_live.ex"
+  @session_live "priv/templates/sigra.install/core/session_live.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
@@ -118,8 +118,8 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "reset token form",
           "stale reset token",
           "Google collision login",
-          "getByRole('link', { name: 'Log out' })",
-          "users/settings",
+          "getByRole('button', { name: 'Log out this device' })",
+          "users/sessions",
           "new AxeBuilder({ page })",
           ".include('main.sigra-auth')",
           "labels: []",
@@ -308,12 +308,17 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     )
   end
 
-  test "generated settings exposes a browser-visible DELETE logout control" do
-    settings_live = read!(@settings_live)
+  test "generated sessions exposes the current-session revocation control" do
+    session_live = read!(@session_live)
 
-    assert_contains!(settings_live, "href={~p\"/users/log_out\"}", "generated logout control")
-    assert_contains!(settings_live, "method=\"delete\"", "generated logout control")
-    assert_contains!(settings_live, ">Log out</.link>", "generated logout control")
+    assert_contains!(session_live, "phx-click=\"revoke_current\"", "current-session revocation")
+    assert_contains!(session_live, "Log out this device", "current-session accessible name")
+
+    assert_contains!(
+      session_live,
+      "redirect(socket, to: ~p\"/users/log_in\")",
+      "current-session logout redirect"
+    )
   end
 
   test "generated auth shell renders controller flash messages after redirects" do

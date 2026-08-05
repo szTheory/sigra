@@ -71,7 +71,7 @@ defmodule <%= web_module %>.Auth.SessionLive do
                 data-confirm="This is your current session. Revoking it will log you out. Continue?"
                 class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
-                Revoke session
+                Log out this device
               </.sigra_auth_button>
             <%% else %>
               <.sigra_auth_button

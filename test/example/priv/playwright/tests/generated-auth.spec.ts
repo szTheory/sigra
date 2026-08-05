@@ -115,11 +115,13 @@ async function clearBrowserSession(page: Page) {
 }
 
 async function logOut(page: Page) {
-  await page.goto('/users/settings');
-  const logOutControl = page.getByRole('link', { name: 'Log out' });
-  await expect(logOutControl).toHaveAttribute('href', '/users/log_out');
-  await expect(logOutControl).toHaveAttribute('data-method', 'delete');
+  await page.goto('/users/sessions');
+  await waitForLiveViewReady(page);
+  const logOutControl = page.getByRole('button', { name: 'Log out this device' });
+  await page.once('dialog', (dialog) => dialog.accept());
   await logOutControl.click();
+  await expect(page).toHaveURL(/\/users\/log_in/);
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   await page.goto('/users/settings');
   await expect(page).toHaveURL(/\/users\/log_in/);
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
