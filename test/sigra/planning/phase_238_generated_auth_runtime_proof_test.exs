@@ -9,6 +9,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @auth_template "priv/templates/sigra.install/core/auth.ex"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
+  @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
   @audit_migration "priv/templates/sigra.install/core/create_audit_events.exs"
   @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @oauth_controller "priv/templates/sigra.gen.oauth/oauth_controller.ex"
@@ -93,6 +94,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "require Logger",
           "@callback_url \"http://127.0.0.1:${PORT}/auth/google/callback\"",
           ":crypto.mac(:hmac, :sha256, @client_secret, signing_input)",
+          ":crypto.hash(:sha256, verifier)",
           "--project=generated-auth",
           "--retries=0",
           "\"--all\") SPEC_FILES=(\"tests/generated-auth.spec.ts\" \"tests/generated-auth-oauth-probe.spec.ts\")"
@@ -240,6 +242,18 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "Auth.deliver_user_magic_link_instructions(email, url_fun)",
       "generated magic-link controller delivery"
     )
+  end
+
+  test "generated reset-password requests accept their route action and deliver by email" do
+    reset_password_live = read!(@reset_password_live)
+
+    for marker <- [
+          "case socket.assigns.live_action do\n      nil ->",
+          "deliver_user_reset_password_instructions(\n      email,",
+          "&url(socket, ~p\"/users/reset-password/\#{&1}\")"
+        ] do
+      assert_contains!(reset_password_live, marker, "generated reset-password request")
+    end
   end
 
   test "generated auth shell renders controller flash messages after redirects" do

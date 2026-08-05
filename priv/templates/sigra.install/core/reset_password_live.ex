@@ -131,6 +131,9 @@ defmodule <%= web_module %>.ResetPasswordLive do
       |> assign(email_form: to_form(%{"email" => ""}, as: "user"))
 
     case socket.assigns.live_action do
+      nil ->
+        {:ok, socket}
+
       :new ->
         {:ok, socket}
 
@@ -153,12 +156,10 @@ defmodule <%= web_module %>.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    if user = <%= context_module %>.get_user_by_email(email) do
-      <%= context_module %>.deliver_user_reset_password_instructions(
-        user,
-        &url(socket, ~p"/users/reset-password/#{&1}")
-      )
-    end
+    <%= context_module %>.deliver_user_reset_password_instructions(
+      email,
+      &url(socket, ~p"/users/reset-password/#{&1}")
+    )
 
     {:noreply,
      socket

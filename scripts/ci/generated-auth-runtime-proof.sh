@@ -131,7 +131,7 @@ defmodule ${web_module}.OidcDoubleController do
          @client_secret <- params["client_secret"],
          challenge when is_binary(challenge) <- :persistent_term.get(@proof_key, nil),
          verifier when is_binary(verifier) and byte_size(verifier) > 20 <- params["code_verifier"],
-         ^challenge <- verifier |> :crypto.hash(:sha256) |> Base.url_encode64(padding: false),
+         ^challenge <- :crypto.hash(:sha256, verifier) |> Base.url_encode64(padding: false),
          {:ok, id_token} <- id_token() do
       Logger.info("oidc-double token accepted matching PKCE verifier and returned HS256 ID token")
       json(conn, %{"access_token" => "sigra-oauth-proof-access", "token_type" => "Bearer", "id_token" => id_token})
