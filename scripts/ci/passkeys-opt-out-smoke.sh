@@ -22,12 +22,44 @@ _ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_ci_here}/lib/free-port.sh"
 
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
-TMP_ROOT="${TMP_ROOT:-/tmp/sigra-passkeys-opt-out}"
+TMP_PARENT="${TMPDIR:-/tmp}"
+TMP_ROOT="$(mktemp -d "${TMP_PARENT%/}/sigra-passkeys-opt-out.XXXXXX")"
+readonly TMP_ROOT
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
+
+cleanup_tmp_root() {
+  case "${TMP_ROOT}" in
+    "${TMP_PARENT%/}"/sigra-passkeys-opt-out.*) ;;
+    *)
+      echo "FAIL: refusing to remove unexpected temporary root: ${TMP_ROOT}" >&2
+      return 1
+      ;;
+  esac
+
+  [[ -d "${TMP_ROOT}" ]] && rm -rf -- "${TMP_ROOT}"
+}
+
+cleanup_leg_dir() {
+  local app_dir="$1"
+
+  case "${app_dir}" in
+    "${TMP_ROOT}"/sigra_no_passkeys | \
+    "${TMP_ROOT}"/sigra_no_organizations_no_passkeys | \
+    "${TMP_ROOT}"/sigra_b2c_alpha)
+      rm -rf -- "${app_dir}"
+      ;;
+    *)
+      echo "FAIL: refusing to remove unexpected leg directory: ${app_dir}" >&2
+      exit 1
+      ;;
+  esac
+}
+
+trap cleanup_tmp_root EXIT
 
 assert_file_missing() {
   local path="$1"
@@ -123,8 +155,7 @@ run_leg() {
 
   echo "==> passkeys-opt-out: leg=${label} flags=${flags}"
 
-  rm -rf "${app_dir}"
-  mkdir -p "${TMP_ROOT}"
+  cleanup_leg_dir "${app_dir}"
   cd "${TMP_ROOT}"
 
   mix phx.new "${label}" \
@@ -247,8 +278,6 @@ run_leg() {
 }
 
 echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"
-rm -rf "${TMP_ROOT}"
-mkdir -p "${TMP_ROOT}"
 
 run_leg "--no-passkeys" "sigra_no_passkeys"
 run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
