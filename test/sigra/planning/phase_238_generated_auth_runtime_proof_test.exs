@@ -253,6 +253,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
   test "generated reset-password requests accept their route action and deliver by email" do
     reset_password_live = read!(@reset_password_live)
+    auth = read!("lib/sigra/auth.ex")
 
     for marker <- [
           "def render(%{live_action: live_action} = assigns) when live_action in [nil, :new] do",
@@ -261,6 +262,12 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
         ] do
       assert_contains!(reset_password_live, marker, "generated reset-password request")
     end
+
+    assert_contains!(
+      auth,
+      "{raw_token, _hashed_raw_bytes} = Token.generate_hashed_token()\n        hashed_token = Token.hash_token(raw_token)\n        signed = Plug.Crypto.sign(secret_key_base, \"sigra-reset-token\", raw_token)",
+      "reset-password token transport contract"
+    )
   end
 
   test "generated auth shell renders controller flash messages after redirects" do

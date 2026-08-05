@@ -1098,7 +1098,10 @@ defmodule Sigra.Auth do
         {:ok, :sent}
 
       true ->
-        {raw_token, hashed_token} = Token.generate_hashed_token()
+        # The signed URL transports the URL-safe token string, so persist the
+        # hash of that value for the verifier to look up after HMAC validation.
+        {raw_token, _hashed_raw_bytes} = Token.generate_hashed_token()
+        hashed_token = Token.hash_token(raw_token)
         signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
         encoded_token = Base.url_encode64(signed, padding: false)
 
