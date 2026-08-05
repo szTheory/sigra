@@ -69,6 +69,7 @@ status: complete
 4. **CR-01 remediation: isolate smoke temporary files** — `a3645956` (fix)
 5. **CI remediation: portable retained-core matcher** — `7d6ac87f` (fix)
 6. **CR remediation: POSIX portable smoke regexes** — `e52ccf8b` (fix)
+7. **Source-lock remediation: robust Cloak dependency assertion** — `c9f41cc2` (test)
 
 ## Files Created/Modified
 
@@ -116,6 +117,14 @@ status: complete
 - **Verification:** formatter, Elixir parser, shell syntax, POSIX character-class probe, source-lock static checks, and diff checks passed.
 - **Committed in:** `e52ccf8b`
 
+**5. [Rule 1 - Bug] Escape-independent Cloak source lock**
+- **Found during:** Scoped ExUnit execution
+- **Issue:** The source lock expected an unescaped Elixir dependency literal even though the shell's embedded Elixir source represents its quotes with escapes.
+- **Fix:** Replaced the brittle literal with a regex that accepts either quote representation while pinning `cloak_ecto ~> 1.3`, plus the explicit anchored `String.replace` insertion path.
+- **Files modified:** `test/sigra/install/generator_passkeys_opt_out_test.exs`
+- **Verification:** scoped test was invoked but remained blocked by the existing unavailable test PostgreSQL endpoint; formatter, parser, shell syntax, direct source-lock probe, and diff checks passed.
+- **Committed in:** `c9f41cc2`
+
 ## Issues Encountered
 
 - Local PostgreSQL is unavailable (`pg_isready` returned no response). The full `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` lifecycle was not run locally and is **BLOCKED**, not passed. Exact-commit CI job `passkeys_opt_out_smoke` must supply the required PostgreSQL evidence.
@@ -132,4 +141,4 @@ The commit pair is ready for the existing CI PostgreSQL service lane. Do not clo
 ## Self-Check: PASSED
 
 - Both modified source files exist and all task/remediation commits are present in git history.
-- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, retained-core/template agreement, cleanup, portable-matcher and POSIX-regex source checks, and `git diff --check` passed.
+- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs`, `elixir` parsing, `bash -n scripts/ci/passkeys-opt-out-smoke.sh`, direct Cloak source-lock probe, retained-core/template agreement, cleanup, portable-matcher and POSIX-regex source checks, and `git diff --check` passed.
