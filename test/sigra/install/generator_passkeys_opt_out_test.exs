@@ -190,7 +190,15 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "get \"/log_in/:token\", SessionController, :magic_link"
       assert source =~ "session_controller=\"lib/${label}_web/controllers/session_controller.ex\""
       assert source =~ "assert_match 'Auth.authenticate_user' \"${session_controller}\""
+
+      assert source =~
+               ~S|assert_match 'def create\(conn, %\{"_action" => "magic_link"' "${session_controller}"|
+
       assert source =~ "assert_match 'Auth.request_magic_link' \"${session_controller}\""
+
+      assert source =~
+               ~S|assert_match 'def magic_link\(conn, %\{"token" => token\}\)' "${session_controller}"|
+
       assert source =~ "assert_match 'Auth.verify_magic_link' \"${session_controller}\""
       assert source =~ "if find_matches \"${pattern}\" \"${path}\""
       assert source =~ "if ! find_matches \"${pattern}\" \"${path}\""
