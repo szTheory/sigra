@@ -48,8 +48,18 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
         on_exit(fn -> File.rm_rf(Path.dirname(app_dir)) end)
 
         assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, flags)
-        # --warnings-as-errors guards against dead code in opt-out builds, e.g. an
-        # impersonation guard helper whose only caller is passkey-gated (Phase 221).
+
+        if b2c_alpha? do
+          set_dummy_cloak_key!()
+          add_cloak_ecto!(app_dir)
+          assert {:ok, _stdout} = InstallFixture.run_mix(app_dir, ["deps.get"])
+
+          assert {:ok, _stdout} =
+                   InstallFixture.run_mix(app_dir, ["sigra.gen.oauth", "--providers", "google"])
+        end
+
+        # --warnings-as-errors guards the complete emitted host, including OAuth
+        # generation for B2C Alpha, against dead code in opt-out builds.
         assert {:ok, _stdout} =
                  InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
 
@@ -75,6 +85,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
         refute router =~ "/users/log_in/passkey"
         refute router =~ "/users/mfa/passkey"
         refute router =~ "/users/settings/mfa/passkeys"
+        refute router =~ "# Sigra passkeys"
         refute mix_exs =~ "{:wax_, \"~> 0.7\"}"
         refute config_exs =~ "passkeys:"
         refute config_exs =~ "passkey_primary_enabled"
@@ -88,14 +99,61 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
         end
 
         if b2c_alpha? do
+          application = File.read!(Path.join(app_dir, "lib/#{otp_app(app_dir)}/application.ex"))
+
+          assert File.exists?(
+                   Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/user_identity.ex")
+                 )
+
+          assert File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/vault.ex"))
+          assert File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/encrypted/binary.ex"))
+
+          assert File.exists?(
+                   Path.join(
+                     app_dir,
+                     "lib/#{otp_app(app_dir)}_web/controllers/oauth_controller.ex"
+                   )
+                 )
+
+          assert File.exists?(
+                   Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/controllers/oauth_html.ex")
+                 )
+
+          assert File.exists?(
+                   Path.join(
+                     app_dir,
+                     "lib/#{otp_app(app_dir)}_web/controllers/oauth_buttons.html.heex"
+                   )
+                 )
+
+          assert migration_present?(app_dir, "*_create_user_identities.exs")
+          assert router =~ "# Sigra OAuth"
+          assert router =~ "get \"/:provider\", OAuthController, :request"
+          assert router =~ "get \"/:provider/callback\", OAuthController, :callback"
+          assert config_exs =~ "# Sigra OAuth providers"
+          assert config_exs =~ "GOOGLE_CLIENT_ID"
+          assert config_exs =~ "GOOGLE_CLIENT_SECRET"
+          assert application =~ "Vault"
+
+          refute router =~ "# Sigra admin"
           refute router =~ "/admin"
+          refute router =~ "# Sigra organizations"
           refute router =~ "/organizations"
 
           refute File.exists?(
                    Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/components/admin_shell.ex")
                  )
 
-          refute File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/organization.ex"))
+          refute File.exists?(
+                   Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/organization.ex")
+                 )
+
+          refute File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/organizations.ex"))
+          refute File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/sigra_admin_access.ex"))
+          refute File.exists?(Path.join(app_dir, "priv/static/assets/sigra_admin.css"))
+          refute File.exists?(Path.join(app_dir, "priv/static/images/sigra-logo-primary.svg"))
+          refute migration_present?(app_dir, "*_create_platform_admin_grants.exs")
+          refute migration_present?(app_dir, "*_create_organizations.exs")
         end
       end
     end
@@ -114,11 +172,32 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
 
       assert source =~ "--no-admin --no-organizations --no-passkeys"
+      assert source =~ "add_cloak_ecto"
+      assert source =~ "{:cloak_ecto, \"~> 1.3\"}"
       assert source =~ "mix sigra.gen.oauth --providers google"
       assert source =~ "sigra_b2c_alpha"
       assert source =~ "oauth_controller.ex"
+      assert source =~ "oauth_html.ex"
+      assert source =~ "oauth_buttons.html.heex"
+      assert source =~ "create_user_identities.exs"
+      assert source =~ "# Sigra OAuth providers"
+      assert source =~ "GOOGLE_CLIENT_ID"
+      assert source =~ "GOOGLE_CLIENT_SECRET"
+
+      assert source =~
+               "assert_glob_missing \"priv/repo/migrations/*_create_platform_admin_grants.exs\""
+
+      assert source =~ "assert_glob_missing \"priv/repo/migrations/*_create_organizations.exs\""
+      assert source =~ "assert_glob_missing \"priv/repo/migrations/*_create_user_passkeys.exs\""
+      assert source =~ "# Sigra admin"
+      assert source =~ "# Sigra organizations"
+      assert source =~ "# Sigra passkeys"
       assert source =~ "assert_no_match '/admin'"
       assert source =~ "assert_no_match '/organizations'"
+      assert source =~ "mix compile --warnings-as-errors"
+      assert source =~ "mix assets.deploy"
+      assert source =~ "mix ecto.migrate"
+      assert source =~ "curl -sf"
     end
   end
 
@@ -127,6 +206,40 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     |> Path.join("priv/repo/migrations/#{pattern}")
     |> Path.wildcard()
     |> Enum.any?()
+  end
+
+  defp set_dummy_cloak_key! do
+    prior = System.get_env("CLOAK_KEY")
+    System.put_env("CLOAK_KEY", "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=")
+
+    on_exit(fn ->
+      if prior do
+        System.put_env("CLOAK_KEY", prior)
+      else
+        System.delete_env("CLOAK_KEY")
+      end
+    end)
+  end
+
+  defp add_cloak_ecto!(app_dir) do
+    mix_exs = Path.join(app_dir, "mix.exs")
+    content = File.read!(mix_exs)
+
+    unless content =~ "{:cloak_ecto," do
+      patched =
+        Regex.replace(
+          ~r/(      \{:sigra, path: .+\},\n)/,
+          content,
+          "\\1      {:cloak_ecto, \"~> 1.3\"},\n",
+          global: false
+        )
+
+      if patched == content do
+        raise "Failed to add cloak_ecto to #{mix_exs} — Sigra path dependency anchor not found"
+      end
+
+      File.write!(mix_exs, patched)
+    end
   end
 
   defp tree_contains?(app_dir, needle) do
