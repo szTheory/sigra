@@ -29,6 +29,10 @@ const ADMIN_BEHAVIOR_SPECS =
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
 const ADMIN_DESIGN_SPEC = /admin-design\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
+// Generated B2C auth runs against a disposable fresh host, never test/example.
+// Keep both serial proof specs in one desktop Chromium-only project so the
+// harness has one intentional execution target and failure artifacts.
+const GENERATED_AUTH_SPECS = /generated-auth\.spec\.ts|generated-auth-oauth-probe\.spec\.ts/;
 // Phase 189 Plan 03: dedicated modal-interaction spec (PAGE-03 APG gates).
 // Runs on the main `chromium` behavior lane (NOT excluded from it).
 // Excluded from `mobile` (admin behavior stays on chromium per D-01..D-05).
@@ -95,7 +99,14 @@ export default defineConfig({
     // specs so those stay scoped to their partitioned projects.
     {
       name: 'chromium',
-      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_DESIGN_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC, ADMIN_EVAL_SPEC],
+      testIgnore: [
+        ADMIN_CHECKPOINTS_SPEC,
+        ADMIN_DESIGN_SPEC,
+        ADMIN_GENERATED_SPEC,
+        GENERATED_AUTH_SPECS,
+        DEMO_SHOWCASE_SPEC,
+        ADMIN_EVAL_SPEC,
+      ],
       use: { ...devices['Desktop Chrome'] },
     },
     // Mobile coverage for non-admin flows (golden-path, organizations,
@@ -109,6 +120,7 @@ export default defineConfig({
         ADMIN_CHECKPOINTS_SPEC,
         ADMIN_DESIGN_SPEC,
         ADMIN_GENERATED_SPEC,
+        GENERATED_AUTH_SPECS,
         WEBAUTHN_CDP_SPECS,
         DEMO_SHOWCASE_SPEC,
         ADMIN_MODAL_SPEC,
@@ -160,6 +172,17 @@ export default defineConfig({
     {
       name: 'admin-generated',
       testMatch: ADMIN_GENERATED_SPEC,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: checkpointVideo,
+      },
+    },
+    // Generated B2C auth runtime proof: the CI harness points this project at
+    // an isolated fresh host. Retained video produces failure-only evidence
+    // without capturing successful authentication journeys.
+    {
+      name: 'generated-auth',
+      testMatch: GENERATED_AUTH_SPECS,
       use: {
         ...devices['Desktop Chrome'],
         video: checkpointVideo,

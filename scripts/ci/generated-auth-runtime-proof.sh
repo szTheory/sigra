@@ -17,7 +17,7 @@ APP_DIR="${TMP_ROOT}/${APP_NAME}"
 SERVER_PID=""
 PORT=""
 SERVER_LOG="${APP_DIR}/server.log"
-SPEC_FILE=""
+declare -a SPEC_FILES=()
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -221,16 +221,17 @@ boot_and_run_spec() {
     sleep 1
   done
   curl -sf "http://127.0.0.1:${PORT}/" >/dev/null || { cat "${SERVER_LOG}"; fail "generated host did not become ready"; }
-  SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test "${SPEC_FILE}" --project=chromium --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
+  SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test "${SPEC_FILES[@]}" --project=generated-auth --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
   rg -q 'oidc-double authorize accepted generated state and PKCE' "${SERVER_LOG}" || fail "authorization double did not receive generated state/PKCE"
   rg -q 'oidc-double token accepted matching PKCE verifier' "${SERVER_LOG}" || fail "token double did not receive matching PKCE verifier"
 }
 
 case "$*" in
-  "--probe-oauth") SPEC_FILE="tests/generated-auth-oauth-probe.spec.ts" ;;
-  "--spec generated-auth") SPEC_FILE="tests/generated-auth.spec.ts" ;;
+  "--probe-oauth") SPEC_FILES=("tests/generated-auth-oauth-probe.spec.ts") ;;
+  "--spec generated-auth") SPEC_FILES=("tests/generated-auth.spec.ts") ;;
+  "--all") SPEC_FILES=("tests/generated-auth.spec.ts" "tests/generated-auth-oauth-probe.spec.ts") ;;
   *)
-    echo "Usage: $0 --probe-oauth | --spec generated-auth" >&2
+    echo "Usage: $0 --probe-oauth | --spec generated-auth | --all" >&2
     exit 64
     ;;
 esac

@@ -35,7 +35,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
              "#{project} must ignore generated-auth specs so it cannot run them against test/example"
     end
 
-    refute Regex.match?(~r/name: 'admin-generated'[\s\S]*?GENERATED_AUTH_SPECS/m, config),
+    assert Regex.match?(~r/name: 'admin-generated'[\s\S]*?testMatch: ADMIN_GENERATED_SPEC/m, config),
            "admin-generated must remain a separate admin parity partition"
   end
 
@@ -51,9 +51,9 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
           "client_secret: \"sigra-oauth-proof-secret\"",
           "id_token_signed_response_alg: \"HS256\"",
           "code_verifier: true",
-          "get \"/.well-known/openid-configuration\"",
-          "get \"/authorize\"",
-          "post \"/token\"",
+          "OidcDoubleController, :discovery",
+          "OidcDoubleController, :authorize",
+          "OidcDoubleController, :token",
           "--project=generated-auth",
           "--retries=0"
         ] do
