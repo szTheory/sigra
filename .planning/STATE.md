@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 238
 current_phase_name: generated-auth-runtime-proof
 status: executing
-stopped_at: Completed 238-06-PLAN.md
-last_updated: "2026-08-05T21:35:08.556Z"
+stopped_at: Completed 238-07-PLAN.md
+last_updated: "2026-08-06T00:01:19.563Z"
 last_activity: 2026-08-05
 last_activity_desc: Phase 238 execution resumed (wave continue)
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 50
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 238 (generated-auth-runtime-proof) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-08-05 — Phase 238 execution resumed (wave continue)
 
@@ -425,6 +425,8 @@ Last activity: 2026-08-05 — Phase 238 execution resumed (wave continue)
 - [Phase ?]: Committed execution ranges use rev-list plus per-commit diff-tree, not endpoint-tree differences.
 - [Phase ?]: Plan 07 ends at immutable completion commit 287065751e2ed44d39d112801a06503de740e45d.
 - [Phase ?]: Dedicated workflow-dispatch receipt at exact SHA is the runtime proof source.
+- [Phase ?]: Use /users/sessions current-session revocation (Log out this device) as the browser logout proof.
+- [Phase ?]: Generated authenticated LiveViews must use UserAuth ensure_authenticated on_mount to receive current_scope.
 
 ### Pending Todos
 
@@ -571,8 +573,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-05T21:35:08.547Z
-Stopped at: Completed 238-06-PLAN.md
+Last session: 2026-08-06T00:01:19.556Z
+Stopped at: Completed 238-07-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -744,6 +746,7 @@ Resume file: None
 | Phase 236-closeout-evidence-reconciliation P05 | 17min | 2 tasks | 6 files |
 | Phase 236 P08 | 5m | 1 tasks | 1 files |
 | Phase 238-generated-auth-runtime-proof P06 | 0 | 1 tasks | 8 files |
+| Phase 238 P07 | 15m | 2 tasks | 6 files |
 
 ## Deferred Items
 

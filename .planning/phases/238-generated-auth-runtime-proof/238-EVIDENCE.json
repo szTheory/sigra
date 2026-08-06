@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "head_sha": "368c910b14356c4a3d8d57412b9f0e0a33cb5df8",
+  "head_sha": "f485afb81560c9aa28fbf438ea68bdf36386dacd",
   "workflow": {
-    "database_id": 259268962,
+    "database_id": 328072752,
     "name": "Generated auth runtime proof",
     "path": ".github/workflows/generated-auth-runtime-proof.yml"
   },
   "run": {
-    "id": 31048923253,
-    "url": "https://github.com/szTheory/sigra/actions/runs/31048923253",
+    "id": 31058020315,
+    "url": "https://github.com/szTheory/sigra/actions/runs/31058020315",
     "event": "workflow_dispatch",
     "ref": "gsd/238-generated-auth-runtime-proof-evidence",
-    "created_at": "2026-08-05T21:30:29Z",
-    "updated_at": "2026-08-05T21:33:34Z",
+    "created_at": "2026-08-05T23:55:49Z",
+    "updated_at": "2026-08-05T23:58:52Z",
     "conclusion": "success"
   },
   "job": {
-    "database_id": 92451264152,
+    "database_id": 92479701884,
     "id": "generated_auth_runtime_proof",
     "name": "Generated auth runtime proof",
-    "url": "https://github.com/szTheory/sigra/actions/runs/31048923253/job/92451264152",
-    "started_at": "2026-08-05T21:30:40Z",
-    "completed_at": "2026-08-05T21:33:34Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/31058020315/job/92479701884",
+    "started_at": "2026-08-05T23:55:59Z",
+    "completed_at": "2026-08-05T23:58:51Z",
     "conclusion": "success"
   },
   "harness_command": "GITHUB_WORKSPACE=\"$PWD\" scripts/ci/generated-auth-runtime-proof.sh --all",
-  "rate_limit_preflight": {"core_remaining": 4576, "reset": 1785965715},
+  "rate_limit_preflight": {"core_remaining": 4968, "reset": 1785977009},
   "previous_attempts": [
     {"run_id": 31019501361, "conclusion": "failure", "blocker": "committed harness was non-executable before execution"},
     {"run_id": 31021611104, "conclusion": "failure", "blocker": "retained harness used relative $0 after entering the generated host"},
@@ -34,6 +34,8 @@
     {"run_id": 31047216832, "conclusion": "failure", "blocker": "OAuth identity schema and reset root render"},
     {"run_id": 31047828096, "conclusion": "failure", "blocker": "reset token transport hash"},
     {"run_id": 31048230676, "conclusion": "failure", "blocker": "password-only reset handoff"},
-    {"run_id": 31048573953, "conclusion": "failure", "blocker": "browser/server OAuth request boundary assertion"}
+    {"run_id": 31048573953, "conclusion": "failure", "blocker": "browser/server OAuth request boundary assertion"},
+    {"run_id": 31048923253, "head_sha": "368c910b14356c4a3d8d57412b9f0e0a33cb5df8", "job_id": 92451264152, "conclusion": "success", "reason": "Superseded after adversarial review required post-run source corrections."},
+    {"run_id": 31057664970, "head_sha": "a2259fef5a208fd37e6e66d265350560a8cd4ca2", "job_id": 92478609059, "conclusion": "failure", "blocker": "generated session LiveView lacked UserAuth on_mount and crashed before current-session revocation"}
   ]
 }
