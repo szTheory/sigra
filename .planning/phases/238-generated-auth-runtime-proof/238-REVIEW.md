@@ -1,92 +1,61 @@
 ---
 phase: 238-generated-auth-runtime-proof
-reviewed: 2026-08-05T21:45:30Z
+reviewed: 2026-08-05T20:10:00Z
 depth: standard
-files_reviewed: 13
+files_reviewed: 9
 files_reviewed_list:
+  - lib/sigra/install/features/core.ex
   - lib/sigra/auth.ex
-  - lib/sigra/config.ex
-  - priv/templates/sigra.gen.oauth/oauth_controller.ex
   - priv/templates/sigra.install/core/auth.ex
   - priv/templates/sigra.install/core/reset_password_live.ex
-  - priv/templates/sigra.install/core/session_controller.ex
-  - scripts/ci/generated-auth-runtime-proof.sh
-  - test/example/priv/playwright/fixtures/mailbox.ts
-  - test/example/priv/playwright/playwright.config.ts
+  - priv/templates/sigra.install/core/session_live.ex
+  - priv/templates/sigra.install/core/settings_live.ex
   - test/example/priv/playwright/tests/generated-auth.spec.ts
-  - test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts
-  - test/sigra/config_test.exs
+  - test/sigra/install/generator_reset_test.exs
   - test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs
 findings:
-  critical: 1
-  warning: 2
+  critical: 2
+  warning: 0
   info: 0
-  total: 3
+  total: 2
 status: issues_found
 ---
 
 # Phase 238: Code Review Report
 
-**Reviewed:** 2026-08-05T21:45:30Z
+**Reviewed:** 2026-08-05T20:10:00Z
 **Depth:** standard
-**Files Reviewed:** 13
+**Files Reviewed:** 9
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the Phase 238 generated-host OAuth, password-reset, email-delivery, Playwright, and retained-CI changes in context with their template callers. The reset browser journey reports success while taking a documented legacy reset path that does not revalidate the signed reset token; this is a release blocker. The runtime proof also leaves two realistic regressions unobserved: email normalization can create undelivered credentials, and logout is not actually asserted.
+The three prior review items are resolved in the generated flow: reset submission revalidates the mounted signed token, both magic-link and reset delivery use the normalized address for lookup and issuance, and the browser logout path now uses the current-session control then proves denial at an authenticated route.
+
+Two security defects remain in the session invalidation paths. Password reset only deletes rows from the legacy `user_tokens` table while generated sessions live in `user_sessions`, so an attacker with a reset link cannot evict a stolen existing browser session. The new current-session revocation event also accepts a client-provided session identifier without constraining the delete to the authenticated user.
+
+Focused source-contract tests passed (37 tests), the shell harness parses, the two allowlisted Playwright tests resolve under the generated-auth project, and `git diff --check` is clean. The proposed raw-template formatter command cannot run because EEx templates are not standalone Elixir source; that does not validate or invalidate either finding.
+
+## Narrative Findings (AI reviewer)
 
 ## Critical Issues
 
-### CR-01: Reset completion bypasses signed-token verification
+### CR-01: Password reset does not revoke canonical browser sessions
 
-**File:** `priv/templates/sigra.install/core/reset_password_live.ex:190`
+**File:** `/Users/jon/projects/sigra/lib/sigra/auth.ex:1207`
+**Issue:** The signed reset path removes only the supplied `user_token_schema` rows. Generated applications store browser sessions in the separate canonical `user_sessions` table (configured in `priv/templates/sigra.install/core/auth.ex:596-599`), and the reset call at `priv/templates/sigra.install/core/auth.ex:547-554` supplies no session-store deletion. Consequently, a valid password-reset completion leaves every pre-existing browser session usable, despite the generated API documentation promising that sessions are invalidated. The new two-page test only proves reset-token consumption; it has no independently authenticated session that could expose this regression.
 
-**Issue:** The LiveView resolves a user from the signed token at mount (line 143), but submits `socket.assigns.user` to the legacy `reset_user_password/2` clause. That overload in `auth.ex:564-572` is explicitly test-only and bypasses HMAC validation, token expiry, reset-token lookup, audit, and telemetry. A LiveView mounted before a token expires or is invalidated can still change the password afterwards. The Phase 238 journey exercises this bypass and therefore does not prove the promised signed reset-token completion path.
+**Fix:** In the reset transaction, delete the target user's rows from the configured session store (and broadcast any LiveView disconnects) atomically with the password update and token deletion. Pass the generated session-store configuration to `Sigra.Auth.reset_password/4`, then add a browser regression with a second, already-authenticated context that is denied after the reset.
 
-**Fix:** Submit the saved signed token and handle invalid/expired results, rather than the user struct.
+### CR-02: Session-revocation event lacks an ownership constraint
 
-```elixir
-case Accounts.reset_user_password(socket.assigns.token, password_params) do
-  {:ok, _user} ->
-    {:noreply,
-     socket
-     |> put_flash(:info, dgettext("sigra", "Password reset successfully!"))
-     |> redirect(to: ~p"/users/log_in")}
+**File:** `/Users/jon/projects/sigra/priv/templates/sigra.install/core/session_live.ex:111-115`
+**Issue:** Both revocation events decode the client-controlled `phx-value-token` and call `Auth.revoke_session/1`. That wrapper forwards no `user_id` to `Sigra.Auth.revoke_session/3` (`priv/templates/sigra.install/core/auth.ex:619-621`). The library explicitly deletes any supplied session when `user_id` is absent and only enforces ownership when it is present (`lib/sigra/auth.ex:1502-1521`). A signed-in user who obtains another user's hashed session identifier can therefore cause a cross-account logout by altering the LiveView event payload.
 
-  {:error, :token_invalid} ->
-    {:noreply, assign(socket, token_invalid?: true, form: nil)}
-
-  {:error, :token_expired} ->
-    {:noreply, assign(socket, token_invalid?: true, form: nil)}
-
-  {:error, %Ecto.Changeset{} = changeset} ->
-    {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
-end
-```
-
-Add a deterministic regression test that mounts with a valid token, invalidates or expires it before the `reset` event, and proves the event cannot update the password.
-
-## Warnings
-
-### WR-01: Normalized requests can mint a token without delivering its email
-
-**File:** `priv/templates/sigra.install/core/auth.ex:152-165`
-
-**Issue:** `request_magic_link/2` normalizes its email in `Sigra.Auth`, but the new delivery wrapper subsequently calls `get_user_by_email(email)` with the original input. The same raw-lookup pattern appears in reset delivery at lines 460 and 470. For a caller that supplies whitespace or a Unicode-normalization variant, the library can find the normalized account and persist a token, while the raw `Repo.get_by` returns `nil`; no mail is delivered. This creates unusable credentials and makes request behavior inconsistent with authentication.
-
-**Fix:** Normalize once at the generated-context boundary and use the normalized value for both lookup and the Sigra request, ideally returning the resolved user/token together from the core operation to avoid a second query.
-
-### WR-02: Logout proof accepts a redirect without proving session invalidation
-
-**File:** `test/example/priv/playwright/tests/generated-auth.spec.ts:117-125`
-
-**Issue:** `logOut` only asserts that a manual `fetch` receives an `opaqueredirect`, then navigates to the login page. Any redirect response satisfies that assertion even if the server fails to revoke the session; a login page can still render for an authenticated client. Subsequent steps can therefore pass with a live session, so this does not meet the phase's deterministic generated logout claim.
-
-**Fix:** Exercise the generated logout control/form and verify a protected authenticated route redirects after it, or assert the session cookie/token is absent and a request requiring authentication receives the anonymous response. Keep this as a browser assertion rather than relying on separate ConnTest coverage.
+**Fix:** Change the generated wrapper to accept the authenticated user (or user ID) and call `Sigra.Auth.revoke_session(sigra_config(), hashed_token, user_id: user.id)`; invoke it in both handlers with `socket.assigns.current_scope.user`. Add a regression that submits a foreign session hash and asserts it remains present.
 
 ---
 
-_Reviewed: 2026-08-05T21:45:30Z_
+_Reviewed: 2026-08-05T20:10:00Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
