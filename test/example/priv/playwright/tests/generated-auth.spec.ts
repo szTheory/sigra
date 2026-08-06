@@ -127,7 +127,7 @@ async function logOut(page: Page) {
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
-test('generated B2C email authentication journey', async ({ page }) => {
+test('generated B2C email authentication journey', async ({ page, browser }) => {
   const email = journeyEmail;
   const caseVariedEmail = 'Generated-Auth-Journey@Example.Test';
   const password = 'GeneratedAuthPassword123!';
