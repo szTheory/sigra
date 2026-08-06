@@ -1018,6 +1018,7 @@ defmodule Sigra.AuthTest do
       |> expect(:get!, fn TestUser, 1 -> user end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
+        assert :delete_all_sessions in Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         updated_user = %{user | hashed_password: "new_argon2_hash"}
         {:ok, %{reset_password: updated_user}}
       end)
@@ -1031,11 +1032,57 @@ defmodule Sigra.AuthTest do
           secret_key_base: @secret_key_base,
           user_token_schema: TestUserToken,
           user_schema: TestUser,
-          changeset_fn: changeset_fn
+          changeset_fn: changeset_fn,
+          session_schema: Sigra.Test.UserSession
         )
 
       assert {:ok, updated_user} = result
       assert updated_user.hashed_password == "new_argon2_hash"
+    end
+
+    test "broadcasts configured canonical session disconnects only after reset commits" do
+      user = %TestUser{id: 1, email: "user@example.com", hashed_password: "old_hash"}
+      {raw_bytes, hashed} = Sigra.Token.generate_hashed_token()
+      signed_token = Plug.Crypto.sign(@secret_key_base, "sigra-reset-token", raw_bytes)
+      encoded_token = Base.url_encode64(signed_token, padding: false)
+
+      token_record = %TestUserToken{
+        id: 1,
+        token: hashed,
+        context: "reset_password",
+        sent_to: "user@example.com",
+        user_id: user.id,
+        inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      pubsub = :reset_password_test_pubsub
+      start_supervised!({Phoenix.PubSub, name: pubsub})
+      Phoenix.PubSub.subscribe(pubsub, "users_sessions:#{Base.url_encode64("session-hash")}")
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] ->
+        token_record
+      end)
+      |> expect(:get!, fn TestUser, 1 -> user end)
+      |> expect(:transaction, fn multi ->
+        assert :delete_all_sessions in Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        {:ok, %{reset_password: user, delete_all_sessions: ["session-hash"]}}
+      end)
+
+      assert {:ok, ^user} =
+               Auth.reset_password(
+                 Sigra.MockRepo,
+                 encoded_token,
+                 %{"password" => "new_secure_password"},
+                 secret_key_base: @secret_key_base,
+                 user_token_schema: TestUserToken,
+                 user_schema: TestUser,
+                 changeset_fn: fn _user, _attrs -> Ecto.Changeset.change(user) end,
+                 session_schema: Sigra.Test.UserSession,
+                 pubsub: pubsub
+               )
+
+      assert_receive :disconnect
     end
 
     test "with expired token returns {:error, :token_expired}" do
@@ -1312,6 +1359,16 @@ defmodule Sigra.AuthTest do
       result = Auth.revoke_session(@session_config, "specific-hash")
 
       assert :ok = result
+    end
+
+    test "keeps a foreign session when public revocation receives another user's id" do
+      foreign_token = "foreign-session-hash"
+      foreign_session = build_session(%{hashed_token: foreign_token, user_id: 1})
+
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn ^foreign_token, _opts -> {:ok, foreign_session} end)
+
+      assert :ok = Auth.revoke_session(@session_config, foreign_token, user_id: 2)
     end
   end
 

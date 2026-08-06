@@ -1165,6 +1165,10 @@ defmodule Sigra.Auth do
   - `:user_schema` - Required. The Ecto schema module for users.
   - `:changeset_fn` - Required. Function `(user, attrs -> Ecto.Changeset.t())`.
   - `:reset_ttl` - Token TTL in seconds. Default: `3600` (1 hour).
+  - `:session_schema` - Optional canonical session schema. When configured, all
+    sessions for the reset user are deleted atomically with the password tokens.
+  - `:pubsub` - Optional Phoenix.PubSub module used to disconnect the revoked
+    LiveView sessions after a successful transaction.
   """
   @doc since: "0.3.0"
   @spec reset_password(module(), String.t(), map(), keyword()) ::
@@ -1175,6 +1179,8 @@ defmodule Sigra.Auth do
     user_schema = Keyword.fetch!(opts, :user_schema)
     changeset_fn = Keyword.fetch!(opts, :changeset_fn)
     ttl = Keyword.get(opts, :reset_ttl, 60 * 60)
+    session_schema = Keyword.get(opts, :session_schema)
+    pubsub = Keyword.get(opts, :pubsub)
 
     # Decode base64, then verify HMAC
     with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
@@ -1216,6 +1222,31 @@ defmodule Sigra.Auth do
                   {:ok, :deleted}
                 end)
 
+              multi =
+                if session_schema do
+                  Multi.run(multi, :delete_all_sessions, fn transaction_repo, _changes ->
+                    import Ecto.Query
+
+                    query =
+                      from(session in session_schema,
+                        where: session.user_id == ^token_record.user_id,
+                        select: session.hashed_token
+                      )
+
+                    hashed_tokens = transaction_repo.all(query)
+
+                    transaction_repo.delete_all(
+                      from(session in session_schema,
+                        where: session.user_id == ^token_record.user_id
+                      )
+                    )
+
+                    {:ok, hashed_tokens}
+                  end)
+                else
+                  multi
+                end
+
               # D-26: atomic audit row for password_reset_complete
               audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
@@ -1235,6 +1266,16 @@ defmodule Sigra.Auth do
 
               case repo.transaction(multi) do
                 {:ok, %{reset_password: user} = changes} ->
+                  if pubsub do
+                    for hashed_token <- Map.get(changes, :delete_all_sessions, []) do
+                      Phoenix.PubSub.broadcast(
+                        pubsub,
+                        "users_sessions:#{Base.url_encode64(hashed_token)}",
+                        :disconnect
+                      )
+                    end
+                  end
+
                   Audit.emit_telemetry_from_changes(changes)
                   Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: user.id})
                   {:ok, user}

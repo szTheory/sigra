@@ -550,6 +550,8 @@ defmodule <%= context_module %> do
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
+      session_schema: <%= context_module %>.UserSession,
+      pubsub: <%= web_module %>.PubSub,
       reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
     )
   end
@@ -617,8 +619,8 @@ defmodule <%= context_module %> do
   end
 
   @doc "Revoke a specific session by its hashed token."
-  def revoke_session(hashed_token) do
-    Sigra.Auth.revoke_session(sigra_config(), hashed_token)
+  def revoke_session(user, hashed_token) do
+    Sigra.Auth.revoke_session(sigra_config(), hashed_token, user_id: user.id)
   end
 
   @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."

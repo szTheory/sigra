@@ -177,6 +177,11 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await waitForLiveViewReady(page);
   await assertAuthState(page, 'reset token form');
 
+  const existingSessionContext = await browser.newContext();
+  const existingSessionPage = await existingSessionContext.newPage();
+  await logInWithPassword(existingSessionPage, email, password);
+  await expect(existingSessionPage.getByText('Welcome back!', { exact: true })).toBeVisible();
+
   const staleResetPage = await page.context().newPage();
   await staleResetPage.goto(resetLink);
   await waitForLiveViewReady(staleResetPage);
@@ -188,6 +193,11 @@ test('generated B2C email authentication journey', async ({ page }) => {
   await page.getByRole('button', { name: 'Reset password' }).click();
   await expect(page).not.toHaveURL(/\/users\/reset-password/);
   await expect(page.getByText('Password reset successfully!', { exact: true })).toBeVisible();
+
+  await existingSessionPage.goto('/users/settings');
+  await expect(existingSessionPage).toHaveURL(/\/users\/log_in/);
+  await expect(existingSessionPage.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+  await existingSessionContext.close();
 
   const staleReplacementPassword = 'GeneratedAuthStaleReplacementPassword123!';
   await staleResetPage.getByLabel('New password', { exact: true }).fill(staleReplacementPassword);

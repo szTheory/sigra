@@ -8,6 +8,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
   @oauth_probe "test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts"
   @workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @auth_template "priv/templates/sigra.install/core/auth.ex"
+  @user_auth_template "priv/templates/sigra.install/core/user_auth.ex"
   @registration_live "priv/templates/sigra.install/core/registration_live.ex"
   @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
   @session_live "priv/templates/sigra.install/core/session_live.ex"
@@ -309,8 +310,27 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
     )
   end
 
+  test "generated reset wiring revokes canonical sessions using the persisted socket identity" do
+    auth_template = read!(@auth_template)
+    user_auth_template = read!(@user_auth_template)
+
+    for marker <- [
+          "session_schema: <%= context_module %>.UserSession",
+          "pubsub: <%= web_module %>.PubSub"
+        ] do
+      assert_contains!(auth_template, marker, "generated reset session invalidation")
+    end
+
+    assert_contains!(
+      user_auth_template,
+      "users_sessions:\#{Base.url_encode64(Sigra.Token.hash_token(token))}",
+      "generated persisted session socket identity"
+    )
+  end
+
   test "generated sessions exposes the current-session revocation control" do
     session_live = read!(@session_live)
+    auth_template = read!(@auth_template)
 
     assert_contains!(session_live, "phx-click=\"revoke_current\"", "current-session revocation")
     assert_contains!(session_live, "Log out this device", "current-session accessible name")
@@ -320,6 +340,23 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       "redirect(socket, to: ~p\"/users/log_in\")",
       "current-session logout redirect"
     )
+
+    assert_contains!(
+      auth_template,
+      "Sigra.Auth.revoke_session(sigra_config(), hashed_token, user_id: user.id)",
+      "ownership-constrained generated session revoke wrapper"
+    )
+
+    for event <- ["revoke", "revoke_current"] do
+      assert Regex.match?(
+               ~r/handle_event\("#{event}",[\s\S]*?user = socket\.assigns\.current_scope\.user[\s\S]*?Auth\.revoke_session\(user, hashed_token\)/,
+               session_live
+             ),
+             "#{event} must derive ownership from the authenticated LiveView scope"
+    end
+
+    refute Regex.match?(~r/Auth\.revoke_session\(hashed_token\)/, session_live),
+           "session events must not use an unconstrained token-only revoke"
   end
 
   test "generated authenticated LiveViews mount the current scope" do
