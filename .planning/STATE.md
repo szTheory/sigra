@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 239
 current_phase_name: hosted-session-interop
 status: executing
-stopped_at: Completed 239-01-PLAN.md
-last_updated: "2026-08-09T19:48:46.130Z"
+stopped_at: Completed 239-02-PLAN.md
+last_updated: "2026-08-09T19:55:23.367Z"
 last_activity: 2026-08-08
 last_activity_desc: Phase 239 execution started
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 17
-  completed_plans: 12
+  completed_plans: 13
   percent: 50
 ---
 
@@ -30,8 +30,8 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 239 (hosted-session-interop) — EXECUTING
-Plan: 2 of 7
-Status: Executing Phase 239
+Plan: 3 of 7
+Status: Ready to execute
 Last activity: 2026-08-08 — Phase 239 execution started
 
 ## Accumulated Context
@@ -428,6 +428,8 @@ Last activity: 2026-08-08 — Phase 239 execution started
 - [Phase ?]: Use /users/sessions current-session revocation (Log out this device) as the browser logout proof.
 - [Phase ?]: Generated authenticated LiveViews must use UserAuth ensure_authenticated on_mount to receive current_scope.
 - [Phase ?]: Phase 239 Plan 01: consume Crosswake only from proof fields reconciled to public Hex checksum and peeled immutable Git tag.
+- [Phase ?]: Crosswake remains example-host-only at the proof-validated ~> 0.1.3 release; raw cookies are freshly resolved before every evaluation.
+- [Phase ?]: Phase 239 session bindings are domain-separated HMAC references and a server-row inserted_at microsecond version, never host IDs or credentials.
 
 ### Pending Todos
 
@@ -574,8 +576,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-09T19:48:46.117Z
-Stopped at: Completed 239-01-PLAN.md
+Last session: 2026-08-09T19:55:23.354Z
+Stopped at: Completed 239-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -749,6 +751,7 @@ Resume file: None
 | Phase 238-generated-auth-runtime-proof P06 | 0 | 1 tasks | 8 files |
 | Phase 238 P07 | 15m | 2 tasks | 6 files |
 | Phase 239 P01 | 3m | 1 tasks | 1 files |
+| Phase 239 P02 | 2min | 1 tasks | 5 files |
 
 ## Deferred Items
 

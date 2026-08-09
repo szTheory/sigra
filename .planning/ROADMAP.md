@@ -58,7 +58,7 @@
 
 **Requirements:** XW-01, XW-02
 
-**Plans:** 2/7 plans executed
+**Plans:** 3/7 plans executed
 
 Plans:
 **Wave 1**
@@ -68,7 +68,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 239-02-PLAN.md — Trace one fresh personal SIGRA session through the released Crosswake evaluator.
+- [x] 239-02-PLAN.md — Trace one fresh personal SIGRA session through the released Crosswake evaluator.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
