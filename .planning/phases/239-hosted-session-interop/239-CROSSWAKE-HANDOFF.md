@@ -55,6 +55,6 @@ The Return Receipt is discovery input, not sufficient proof. Before Plan 01 proc
 
 - `schema`: `sigra.phase239.crosswake-release-proof.v1`
 - `repository`, `package`, `version`, `requirement`, `git_tag`, full `git_sha`, `hex_checksum`, `published_at`, and `verified_at`
-- `commands`: the four exact command strings in the documented order, each with a process-derived numeric `exit_status` of `0` and `outcome` of `passed`
+- `commands`: exactly four records, with no missing, extra, duplicate, or reordered entries; their command strings are the documented four in exact order, and every unfiltered record has a process-derived numeric `exit_status` of `0` and `outcome` exactly `passed`
 
 No pass-shaped artifact may be written when metadata conflicts, a test file is absent, the checkout is dirty, or any command fails. Plans 01 and 06 mechanically validate this artifact; maintainer-supplied result text cannot substitute for it.
