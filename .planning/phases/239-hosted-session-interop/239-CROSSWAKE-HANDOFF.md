@@ -28,8 +28,8 @@ From the Crosswake repository root:
 3. Extend the AuthReturn boundary matrix to reject authority-smuggling fields and prove an evidence-only envelope is not evaluator authority.
 4. Run:
    - `mix format --check-formatted packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs`
-   - `mix test packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs`
-   - `mix test packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs`
+   - `cd packages/crosswake_sigra && mix test test/crosswake/companions/sigra/contracts_test.exs`
+   - `cd packages/crosswake_sigra && mix test test/crosswake/proof/phase57_auth_return_boundaries_test.exs`
    - `cd packages/crosswake_sigra && mix test`
 5. Bump to the next available backward-compatible release, update the changelog, create an immutable tag, publish to Hex, and record the Hex checksum.
 
