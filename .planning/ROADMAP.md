@@ -58,9 +58,10 @@
 
 **Requirements:** XW-01, XW-02
 
-**Plans:** 6 plans
+**Plans:** 7 plans
 
 Plans:
+- [ ] 239-00-PLAN.md — Reproduce the public Crosswake successor tests at its immutable release SHA and record machine-readable proof.
 - [ ] 239-01-PLAN.md — Verify the independently published Crosswake successor and its immutable release provenance.
 - [ ] 239-02-PLAN.md — Trace one fresh personal SIGRA session through the released Crosswake evaluator.
 - [ ] 239-03-PLAN.md — Expand fail-closed currentness, revocation, and expiry behavior.

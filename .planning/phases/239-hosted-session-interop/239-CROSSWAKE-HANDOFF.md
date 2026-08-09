@@ -49,3 +49,12 @@ The SIGRA executor must receive all fields below before changing `test/example/m
 
 The executor records these values in `239-CROSSWAKE-RELEASE.json`, verifies them against Hex/GitHub without printing credentials, and stops if any field is absent or inconsistent.
 
+## Machine-Readable Release Proof
+
+The Return Receipt is discovery input, not sufficient proof. Before Plan 01 proceeds, Wave 0 must use a clean checkout at the public tag, reconcile the peeled full SHA and Hex version/checksum, execute all four commands under `Required Crosswake Proof`, and generate `.planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE-PROOF.json` with:
+
+- `schema`: `sigra.phase239.crosswake-release-proof.v1`
+- `repository`, `package`, `version`, `requirement`, `git_tag`, full `git_sha`, `hex_checksum`, `published_at`, and `verified_at`
+- `commands`: the four exact command strings in the documented order, each with a process-derived numeric `exit_status` of `0` and `outcome` of `passed`
+
+No pass-shaped artifact may be written when metadata conflicts, a test file is absent, the checkout is dirty, or any command fails. Plans 01 and 06 mechanically validate this artifact; maintainer-supplied result text cannot substitute for it.
