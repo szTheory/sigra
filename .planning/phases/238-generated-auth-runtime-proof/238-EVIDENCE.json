@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "head_sha": "e06d68a0f46263d37afa2d201c59ec460c8a60e4",
+  "head_sha": "2450b7e63199641170fb5f6e579001299a09a4ae",
   "workflow": {
     "database_id": 328072752,
     "name": "Generated auth runtime proof",
     "path": ".github/workflows/generated-auth-runtime-proof.yml"
   },
   "run": {
-    "id": 31287052180,
-    "url": "https://github.com/szTheory/sigra/actions/runs/31287052180",
+    "id": 31287691391,
+    "url": "https://github.com/szTheory/sigra/actions/runs/31287691391",
     "event": "workflow_dispatch",
     "ref": "gsd/238-generated-auth-runtime-proof-evidence",
-    "created_at": "2026-08-09T00:51:09Z",
-    "updated_at": "2026-08-09T00:54:23Z",
+    "created_at": "2026-08-09T01:09:21Z",
+    "updated_at": "2026-08-09T01:18:55Z",
     "conclusion": "success"
   },
   "job": {
-    "database_id": 93177695136,
+    "database_id": 93179989452,
     "id": "generated_auth_runtime_proof",
     "name": "Generated auth runtime proof",
-    "url": "https://github.com/szTheory/sigra/actions/runs/31287052180/job/93177695136",
-    "started_at": "2026-08-09T00:51:24Z",
-    "completed_at": "2026-08-09T00:54:22Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/31287691391/job/93179989452",
+    "started_at": "2026-08-09T01:16:08Z",
+    "completed_at": "2026-08-09T01:18:54Z",
     "conclusion": "success"
   },
   "harness_command": "GITHUB_WORKSPACE=\"$PWD\" scripts/ci/generated-auth-runtime-proof.sh --all",
-  "rate_limit_preflight": {"core_remaining": 4953, "reset": 1786239744},
+  "rate_limit_preflight": {"core_remaining": 4682, "reset": 1786239744},
   "previous_attempts": [
     {"run_id": 31019501361, "conclusion": "failure", "blocker": "committed harness was non-executable before execution"},
     {"run_id": 31021611104, "conclusion": "failure", "blocker": "retained harness used relative $0 after entering the generated host"},
@@ -38,6 +38,7 @@
     {"run_id": 31048923253, "head_sha": "368c910b14356c4a3d8d57412b9f0e0a33cb5df8", "job_id": 92451264152, "conclusion": "success", "reason": "Superseded after adversarial review required post-run source corrections."},
     {"run_id": 31057664970, "head_sha": "a2259fef5a208fd37e6e66d265350560a8cd4ca2", "job_id": 92478609059, "conclusion": "failure", "blocker": "generated session LiveView lacked UserAuth on_mount and crashed before current-session revocation"},
     {"run_id": 31058020315, "head_sha": "f485afb81560c9aa28fbf438ea68bdf36386dacd", "job_id": 92479701884, "conclusion": "success", "reason": "Superseded after final session-security review corrections."},
-    {"run_id": 31286905514, "head_sha": "16d09f179098ccb3240b07762a48cb9325becb0b", "job_id": 93177286182, "conclusion": "failure", "blocker": "Generated reset wiring targeted WebModule.PubSub; the post-commit disconnect broadcast crashed because that registry is not started."}
+    {"run_id": 31286905514, "head_sha": "16d09f179098ccb3240b07762a48cb9325becb0b", "job_id": 93177286182, "conclusion": "failure", "blocker": "Generated reset wiring targeted WebModule.PubSub; the post-commit disconnect broadcast crashed because that registry is not started."},
+    {"run_id": 31287052180, "head_sha": "e06d68a0f46263d37afa2d201c59ec460c8a60e4", "job_id": 93177695136, "conclusion": "success", "reason": "Superseded by the verifier-required rendered browser session-revocation correction."}
   ]
 }
