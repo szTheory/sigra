@@ -316,7 +316,7 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     for marker <- [
           "session_schema: <%= context_module %>.UserSession",
-          "pubsub: <%= web_module %>.PubSub"
+          "pubsub: <%= app_module %>.PubSub"
         ] do
       assert_contains!(auth_template, marker, "generated reset session invalidation")
     end

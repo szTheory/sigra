@@ -551,7 +551,7 @@ defmodule <%= context_module %> do
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
       session_schema: <%= context_module %>.UserSession,
-      pubsub: <%= web_module %>.PubSub,
+      pubsub: <%= app_module %>.PubSub,
       reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
     )
   end
