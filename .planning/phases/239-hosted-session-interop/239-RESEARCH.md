@@ -318,21 +318,23 @@ The final error tuple above should match the release’s established validator s
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
 | A1 | The generated-host/integration proof should consume a newly released Hex successor rather than a Git path dependency. | Standard Stack / Package Legitimacy | Planning could choose the wrong release handoff or test topology. |
-| A2 | The host session’s version source/helper name is not established in this repository and must be selected during implementation. | Architecture Patterns | An incomplete binding could fail to detect stale replay. |
-| A3 | A personal `AuthReturn.AttemptRecord` needs nullable `org_id` only if Phase 239 uses that record in the personal replay path. | Architecture Patterns | A latent contract mismatch could appear after implementation. |
+| A2 | The host derives its private `session_version` from the server-owned session row’s `inserted_at` at microsecond precision. | Architecture Patterns | A lossy or client-owned derivation could fail to detect stale replay. |
+| A3 | Phase 239 proves the hosted-return boundary with the public evidence/navigation envelope and does not persist an `AuthReturn.AttemptRecord`. | Architecture Patterns | Unused persistence would widen the authority surface and introduce an unnecessary personal-org contract change. |
 | A4 | The illustrative contract error tuple may differ from the final shared validator’s exact API. | Code Examples | Tests could overfit an uncommitted error-name choice. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What is the canonical durable source of `session_version` in the SIGRA generated host?**
    - What we know: Crosswake checks a supplied integer `expected_session_version`, while SIGRA’s current `Session` struct exposes no version field. [VERIFIED: codebase grep]
-   - What's unclear: Whether version is derived from session identity/lifecycle, added to host persistence, or supplied by an existing Crosswake host record.
-   - Recommendation: Resolve before implementation; use a server-owned monotonic/value-stable source and add an explicit changed-version denial test. Do not substitute a client-provided integer. [ASSUMED]
+   - Resolution: Derive the private, non-negative `session_version` from the freshly resolved server-owned session row’s `inserted_at` at microsecond precision. The value remains stable for that row’s lifecycle and is never accepted from callback, envelope, or other client-controlled input.
+   - Rationale: Row insertion time is already durable host state, distinguishes replacement session rows without adding persistence solely for this adapter, and preserves SIGRA as the authority source. Keeping the derivation private avoids publishing timestamp encoding as a companion contract.
+   - Deterministic test expectation: A fixed database session row produces the same version on repeated projections; a server-owned expected version with an exact match proceeds; a changed expected version denies before lane/context construction or evaluator invocation. Tests use fixed row timestamps and no sleeps.
 
 2. **Does the B2C adapter actually create a Crosswake `AuthReturn.AttemptRecord`?**
    - What we know: its current server-owned record requires a nonblank org and bindings; the public envelope excludes authority data. [CITED: https://github.com/szTheory/crosswake/blob/e3d6cbfa4ab8ce6b8c4eb761afc05ea650f75c9c/packages/crosswake_sigra/lib/crosswake/companions/sigra/auth_return.ex]
-   - What's unclear: whether this phase needs full hosted-return persistence or only proof of the envelope boundary.
-   - Recommendation: Keep the envelope-only proof in scope. If an attempt record is exercised, extend its org rule consistently and prove it; otherwise do not add unused persistence. [ASSUMED]
+   - Resolution: The Phase 239 B2C adapter uses only the released public hosted-return envelope for evidence/navigation proof. It does not create or persist `AuthReturn.AttemptRecord`; therefore this phase does not change that record’s organization validation unless the released execution path actually exercises it.
+   - Rationale: D-05 requires evidence to remain separate from authority, and envelope-only handling proves that boundary without introducing unused persistence or another server-owned authority record.
+   - Deterministic test expectation: Approved envelope fields can be returned as evidence but cannot select a session, alter expected session/subject/version bindings, populate lane/context/evaluator options, or admit a route without a freshly resolved valid host session. Forbidden authority, organization, token, credential, provider, and OAuth fields are rejected through the public constructor, and invalid or absent host state denies before evaluator invocation.
 
 ## Environment Availability
 
@@ -425,7 +427,7 @@ The final error tuple above should match the release’s established validator s
 
 **Confidence breakdown:**
 - Standard stack: MEDIUM — current companion source and current local SIGRA seams were inspected; the successor release does not yet exist.
-- Architecture: MEDIUM — host/evaluator responsibility split is directly evidenced, but exact adapter location and session-version source remain open.
+- Architecture: MEDIUM — host/evaluator responsibility split is directly evidenced; the plans resolve the example-host adapter location, microsecond session-row insertion-time version derivation, and envelope-only return proof, while the successor release remains external.
 - Pitfalls: MEDIUM — derived from code paths and missing capability boundary, with deterministic tests identified.
 
 **Research date:** 2026-08-08
