@@ -58,13 +58,13 @@
 
 **Requirements:** XW-01, XW-02
 
-**Plans:** 7 plans
+**Plans:** 2/7 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 239-00-PLAN.md — Reproduce the public Crosswake successor tests at its immutable release SHA and record machine-readable proof.
-- [ ] 239-01-PLAN.md — Verify the independently published Crosswake successor and its immutable release provenance.
+- [x] 239-00-PLAN.md — Reproduce the public Crosswake successor tests at its immutable release SHA and record machine-readable proof.
+- [x] 239-01-PLAN.md — Verify the independently published Crosswake successor and its immutable release provenance.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

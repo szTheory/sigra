@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 239
-current_phase_name: Hosted Session Interop
+current_phase_name: hosted-session-interop
 status: executing
-stopped_at: Phase 239 context gathered (assumptions mode)
-last_updated: "2026-08-09T02:25:06.789Z"
+stopped_at: Completed 239-01-PLAN.md
+last_updated: "2026-08-09T19:48:46.130Z"
 last_activity: 2026-08-08
-last_activity_desc: Phase 238 complete, transitioned to Phase 239
+last_activity_desc: Phase 239 execution started
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 17
-  completed_plans: 10
+  completed_plans: 12
   percent: 50
 ---
 
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 238 — generated-auth-runtime-proof
+**Current focus:** Phase 239 — hosted-session-interop
 
 ## Current Position
 
-Phase: 239 — Hosted Session Interop
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-08 — Phase 238 complete, transitioned to Phase 239
+Phase: 239 (hosted-session-interop) — EXECUTING
+Plan: 2 of 7
+Status: Executing Phase 239
+Last activity: 2026-08-08 — Phase 239 execution started
 
 ## Accumulated Context
 
@@ -427,6 +427,7 @@ Last activity: 2026-08-08 — Phase 238 complete, transitioned to Phase 239
 - [Phase ?]: Dedicated workflow-dispatch receipt at exact SHA is the runtime proof source.
 - [Phase ?]: Use /users/sessions current-session revocation (Log out this device) as the browser logout proof.
 - [Phase ?]: Generated authenticated LiveViews must use UserAuth ensure_authenticated on_mount to receive current_scope.
+- [Phase ?]: Phase 239 Plan 01: consume Crosswake only from proof fields reconciled to public Hex checksum and peeled immutable Git tag.
 
 ### Pending Todos
 
@@ -573,9 +574,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-09T01:40:52.315Z
-Stopped at: Phase 239 context gathered (assumptions mode)
-Resume file: .planning/phases/239-hosted-session-interop/239-CONTEXT.md
+Last session: 2026-08-09T19:48:46.117Z
+Stopped at: Completed 239-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -747,6 +748,7 @@ Resume file: .planning/phases/239-hosted-session-interop/239-CONTEXT.md
 | Phase 236 P08 | 5m | 1 tasks | 1 files |
 | Phase 238-generated-auth-runtime-proof P06 | 0 | 1 tasks | 8 files |
 | Phase 238 P07 | 15m | 2 tasks | 6 files |
+| Phase 239 P01 | 3m | 1 tasks | 1 files |
 
 ## Deferred Items
 
