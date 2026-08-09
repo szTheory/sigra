@@ -61,12 +61,29 @@
 **Plans:** 7 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 239-00-PLAN.md — Reproduce the public Crosswake successor tests at its immutable release SHA and record machine-readable proof.
 - [ ] 239-01-PLAN.md — Verify the independently published Crosswake successor and its immutable release provenance.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 239-02-PLAN.md — Trace one fresh personal SIGRA session through the released Crosswake evaluator.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 239-03-PLAN.md — Expand fail-closed currentness, revocation, and expiry behavior.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 239-04-PLAN.md — Bind replay to session, subject, and version and deny account switching.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 239-05-PLAN.md — Keep hosted-return data evidence-only and align the B2C recipe.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 239-06-PLAN.md — Seal the phase with bounded exact-SHA automated evidence.
 
 **Success Criteria:**
