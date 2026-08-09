@@ -133,6 +133,9 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
 
     for marker <- [
           "generated /auth/google preserves signed state and PKCE",
+          "users/sessions",
+          "Log out this device",
+          "users/settings",
           "code_challenge_method",
           "An account with this email exists. Log in to link your google account."
         ] do

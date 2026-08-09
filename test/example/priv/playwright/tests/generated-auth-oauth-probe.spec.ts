@@ -8,11 +8,15 @@ async function waitForLiveViewReady(page: Page) {
 }
 
 async function logOut(page: Page) {
-  // The generated registration handoff does not render a logout control.
-  // Clear the browser session deterministically before testing the next
-  // unauthenticated auth transition; server-side logout has ConnTest coverage.
-  await page.context().clearCookies();
-  await page.goto("/users/log_in");
+  await page.goto("/users/sessions");
+  await waitForLiveViewReady(page);
+  const logOutControl = page.getByRole("button", { name: "Log out this device" });
+  await page.once("dialog", (dialog) => dialog.accept());
+  await logOutControl.click();
+  await expect(page).toHaveURL(/\/users\/log_in/);
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await page.goto("/users/settings");
+  await expect(page).toHaveURL(/\/users\/log_in/);
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 }
 

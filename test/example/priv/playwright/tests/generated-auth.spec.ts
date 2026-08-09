@@ -105,15 +105,6 @@ async function logInWithPassword(page: Page, email: string, password: string) {
   await passwordForm.getByRole('button', { name: 'Sign in with password' }).click();
 }
 
-async function clearBrowserSession(page: Page) {
-  // The generated registration handoff does not render a logout control.
-  // Clear the browser session deterministically before testing the next
-  // unauthenticated auth transition; server-side logout has ConnTest coverage.
-  await page.context().clearCookies();
-  await page.goto('/users/log_in');
-  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
-}
-
 async function logOut(page: Page) {
   await page.goto('/users/sessions');
   await waitForLiveViewReady(page);
@@ -142,7 +133,7 @@ test('generated B2C email authentication journey', async ({ page, browser }) => 
   await expect(page.getByText('Account created successfully!', { exact: true })).toBeVisible();
 
   const confirmationLink = await extractConfirmationLink(page, email);
-  await clearBrowserSession(page);
+  await logOut(page);
   await assertAuthState(page, 'login after registration');
   await page.goto(confirmationLink);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
