@@ -58,6 +58,16 @@
 
 **Requirements:** XW-01, XW-02
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 239-01-PLAN.md — Verify the independently published Crosswake successor and its immutable release provenance.
+- [ ] 239-02-PLAN.md — Trace one fresh personal SIGRA session through the released Crosswake evaluator.
+- [ ] 239-03-PLAN.md — Expand fail-closed currentness, revocation, and expiry behavior.
+- [ ] 239-04-PLAN.md — Bind replay to session, subject, and version and deny account switching.
+- [ ] 239-05-PLAN.md — Keep hosted-return data evidence-only and align the B2C recipe.
+- [ ] 239-06-PLAN.md — Seal the phase with bounded exact-SHA automated evidence.
+
 **Success Criteria:**
 
 1. A backend-validated personal-account session can project to `crosswake_sigra` without creating organization scope or exposing credentials or tokens.
