@@ -159,17 +159,21 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       assert_contains!(reset_password_live, marker, "generated reset-token revalidation")
     end
 
-    refute Regex.match?(
-             ~r/async function logOut\(page: Page\) \{[\s\S]*?clearCookies\(\)/,
-             journey
-           ),
-           "logout proof must not clear cookies"
+    for {source, name} <- [{journey, "complete generated-auth journey"}, {oauth_probe, "OAuth probe"}] do
+      refute Regex.match?(~r/\b(?:clearCookies|addCookies|storageState)\s*\(/, source),
+             "#{name} must not mutate browser cookie or storage state"
 
-    refute String.contains?(journey, "page.waitForTimeout"),
-           "browser journey must not use timing sleeps"
+      refute Regex.match?(~r/\b(?:localStorage|sessionStorage)\s*\.\s*(?:clear|setItem|removeItem)\s*\(/, source),
+             "#{name} must not mutate browser Web Storage"
+    end
 
-    refute Regex.match?(~r/\b(?:setTimeout|setInterval)\s*\(/, journey),
-           "browser journey must not use JavaScript timers"
+    for {source, name} <- [{journey, "complete generated-auth journey"}, {oauth_probe, "OAuth probe"}] do
+      refute String.contains?(source, "page.waitForTimeout"),
+             "#{name} must not use timing sleeps"
+
+      refute Regex.match?(~r/\b(?:setTimeout|setInterval)\s*\(/, source),
+             "#{name} must not use JavaScript timers"
+    end
   end
 
   test "Generated Auth Runtime Proof retains its contract lookup after entering the disposable host" do
