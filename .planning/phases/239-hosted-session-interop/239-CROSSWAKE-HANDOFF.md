@@ -27,7 +27,7 @@ From the Crosswake repository root:
 2. Implement one shared validator and preserve lane-to-context derivation of `org_id: nil`.
 3. Extend the AuthReturn boundary matrix to reject authority-smuggling fields and prove an evidence-only envelope is not evaluator authority.
 4. Run:
-   - `cd packages/crosswake_sigra && mix format --check-formatted`
+   - `mix format --check-formatted packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs`
    - `mix test packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs`
    - `mix test packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs`
    - `cd packages/crosswake_sigra && mix test`
