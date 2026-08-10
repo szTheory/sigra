@@ -1,10 +1,19 @@
 # Deployment
 
-This recipe covers what changes when you move Sigra from `dev` to `prod`: required environment variables, cookie and session configuration, Oban setup for background jobs, rate limit tuning, and platform-specific notes for Fly.io and Gigalixir.
+This guide explains deployment mechanics: required environment variables,
+cookie and session configuration, Oban setup for background jobs, rate-limit
+tuning, and platform-specific notes for Fly.io and Gigalixir. It is not a B2C
+launch checklist. For the canonical three-tier B2C readiness decision and
+redacted staging receipt, start with [B2C Alpha readiness](b2c-alpha.html).
+Its source lives in `b2c-alpha.md`.
 
-## Production checklist (read first)
+## Production mechanics (read first)
 
-Use this as a **pre-flight verification** list for your own public HTTPS deployment. It highlights common misconfigurations; it is **not** regulatory sign-off or a promise about your threat model.
+Use this as a mechanics reference for your own public HTTPS deployment. It
+highlights common misconfigurations; it is **not** regulatory sign-off, a B2C
+readiness decision, or a promise about your threat model. The authoritative
+launch tiers, owners, expected results, claim boundaries, and recovery steps
+live in [B2C Alpha readiness](b2c-alpha.html).
 
 | Check | Why | Knob / where |
 |-------|-----|----------------|

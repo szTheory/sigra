@@ -130,4 +130,32 @@ defmodule Sigra.Planning.Phase240AlphaOperationsRehearsalTest do
     assert String.contains?(deployment, "b2c-alpha.md"),
            "detailed deployment mechanics must point back to the canonical B2C checklist"
   end
+
+  test "the receipt schema is outcome-only and cannot become a secret or payload record" do
+    receipt =
+      read!(@recipe)
+      |> String.split("## Redacted staging receipt", parts: 2)
+      |> List.last()
+      |> String.split("## Detailed mechanics", parts: 2)
+      |> List.first()
+
+    for field <- [
+          "Outcome:",
+          "Timestamp:",
+          "Environment:",
+          "Configuration fingerprint:",
+          "Operator sign-off:"
+        ] do
+      assert String.contains?(receipt, field), "receipt is missing #{inspect(field)}"
+    end
+
+    refute Regex.match?(
+             ~r/^\s*(?:Secret|Credential|Token URL|Mail body|Provider payload|Request body):/m,
+             receipt
+           ),
+           "receipt schema must not invite sensitive values or payloads"
+
+    assert String.contains?(receipt, "must exclude secret values")
+    assert String.contains?(receipt, "not a repository-pass marker")
+  end
 end
