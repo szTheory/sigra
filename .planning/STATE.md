@@ -2,13 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 240
-current_phase_name: alpha-operations-rehearsal
 status: planning
-stopped_at: Phase 239 verified; ready to plan Phase 240
-last_updated: "2026-08-10T00:47:50.520Z"
-last_activity: 2026-08-08
-last_activity_desc: Phase 239 execution started
+stopped_at: Phase 240 context gathered (assumptions mode)
+last_updated: "2026-08-10T21:12:26.865Z"
+last_activity: 2026-08-10 — Phase 239 verified complete
 progress:
   total_phases: 4
   completed_phases: 3
@@ -579,9 +576,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-10T00:47:50.508Z
-Stopped at: Completed 239-06-PLAN.md
-Resume file: None
+Last session: 2026-08-10T21:12:26.859Z
+Stopped at: Phase 240 context gathered (assumptions mode)
+Resume file: .planning/phases/240-alpha-operations-rehearsal/240-CONTEXT.md
 
 ## Operator Next Steps
 
