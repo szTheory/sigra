@@ -140,8 +140,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
       user_token_schema: UserToken,
       url_fun: url_fun,
       rate_limiter: Sigra.RateLimiters.Hammer,
-      max_requests: Application.get_env(:sigra, :magic_link_rate_limit, 3),
-      window_ms: Application.get_env(:sigra, :magic_link_rate_limit_window, 60_000)
+      max_requests: runtime_positive_integer(:magic_link_rate_limit, 3),
+      window_ms: runtime_positive_integer(:magic_link_rate_limit_window, 60_000)
     )
   end
 
@@ -472,8 +472,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
            secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun,
            rate_limiter: Sigra.RateLimiters.Hammer,
-           max_requests: Application.get_env(:sigra, :reset_rate_limit, 3),
-           window_ms: Application.get_env(:sigra, :reset_rate_limit_window, 60_000),
+           max_requests: runtime_positive_integer(:reset_rate_limit, 3),
+           window_ms: runtime_positive_integer(:reset_rate_limit_window, 60_000),
            enterprise_auth_policy: SigraInstallGoldenTmp.Organizations
          ) do
       {:ok, {signed_token, url}} ->
@@ -1155,6 +1155,15 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   # -- Private helpers --
+
+  # Runtime environment values are untrusted deployment input. Keep malformed
+  # mail-request limits from reaching Hammer, whose error recovery fails open.
+  defp runtime_positive_integer(key, default) do
+    case Application.get_env(:sigra, key, default) do
+      value when is_integer(value) and value > 0 -> value
+      _ -> default
+    end
+  end
 
   defp default_auth_export_opts do
     [
