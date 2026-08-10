@@ -1,56 +1,51 @@
 ---
 phase: 240-alpha-operations-rehearsal
-fixed_at: 2026-08-10T18:31:34-04:00
+fixed_at: 2026-08-10T18:37:50-04:00
 review_path: .planning/phases/240-alpha-operations-rehearsal/240-REVIEW.md
-iteration: 1
-findings_in_scope: 4
-fixed: 4
+iteration: 2
+findings_in_scope: 1
+fixed: 1
 skipped: 0
 status: all_fixed
 ---
 
 # Phase 240: Code Review Fix Report
 
+**Fixed at:** 2026-08-10T18:37:50-04:00
+**Source review:** `.planning/phases/240-alpha-operations-rehearsal/240-REVIEW.md`
+**Iteration:** 2
+
+## Summary
+
+- Findings in scope: 1
+- Fixed: 1
+- Skipped: 0
+
 ## Fixed Issues
 
-### CR-01: Generated routers compile
+### WR-04: Context runtime overrides can silently disable mail-request throttling
 
-Generated route limiters are named Phoenix pipelines, and each protected route
-is in a separate scope with that pipeline in `pipe_through`. The fresh
-generator lane explicitly exercises `--no-live`; the retained runtime lane
-compiles the LiveView output.
+**Files modified:** `priv/templates/sigra.install/core/auth.ex`, `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex`, `test/sigra/install/generated_rate_limit_context_test.exs`
+**Commit:** `d6f1a16f`
 
-### WR-01: Runtime route overrides are effective
-
-`Sigra.Plug.RateLimit` now reads explicitly named generated limit/window keys
-for each request. The focused plug test proves the configured values reach the
-limiter without a timer or sleep.
-
-### WR-02: Context mail request limits are configurable
-
-Generated magic-link and password-reset context calls now read distinct
-runtime keys. The B2C readiness recipe lists every route and context key.
-
-### WR-03: Both no-secrets lanes clear inherited Google credentials
-
-The fresh-generator harness now unsets `GOOGLE_CLIENT_ID` and
-`GOOGLE_CLIENT_SECRET` before any Mix command; the no-secrets contract checks
-both independent harnesses.
-
-## Commit
-
-- `a0dd0bc1` — `fix(240): repair generated rate limit release blockers`
+**Applied fix:** Both generated context mail-request flows now resolve their
+limit and window settings through one private positive-integer helper. Zero,
+negative, and non-integer runtime overrides fall back to generated defaults
+before either call reaches Hammer. The generated-context contract covers those
+invalid values, and the golden rendered host records the same behavior.
 
 ## Verification
 
-- PASS — focused ExUnit: rate-limit plug, generated route/context contracts,
-  no-secrets contract, and Phase 240 operations contract (38 tests).
+- PASS — `MIX_ENV=test mix test test/sigra/install/generated_rate_limit_context_test.exs test/sigra/install/generated_rate_limit_contract_test.exs test/sigra/plug/rate_limit_test.exs` (28 tests, 0 failures).
 - PASS — `MIX_ENV=test mix sigra.fixture.rebless_golden --check`.
-- PASS — `bash -n` for both generated-host harnesses.
-- PASS — the generated LiveView runtime host completed
-  `mix compile --warnings-as-errors` and advanced through asset build to DB
-  setup. The fresh-generator harness is now the explicit `--no-live` compile
-  lane.
+- PASS — `git diff --check`.
 
-The focused ExUnit process logs unavailable local PostgreSQL connection noise;
-these source and plug contracts passed without database access.
+The focused ExUnit process emitted expected local PostgreSQL connection-refused
+noise because no local database is running; all selected source and plug
+contracts completed successfully.
+
+---
+
+_Fixed: 2026-08-10T18:37:50-04:00_
+_Fixer: the agent (gsd-code-fixer)_
+_Iteration: 2_
