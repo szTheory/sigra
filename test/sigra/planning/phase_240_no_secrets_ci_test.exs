@@ -13,6 +13,11 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
     assert String.contains?(source, marker), "#{context} is missing #{inspect(marker)}"
   end
 
+  defp workflow_job!(workflow, job) do
+    [_, region] = Regex.run(~r/^  #{job}:\n([\s\S]*?)(?=^  [a-zA-Z0-9_\-]+:|\z)/m, workflow)
+    region
+  end
+
   defp assert_no_secret_injection!(source, context) do
     refute Regex.match?(~r/\$\{\{\s*secrets\./i, source),
            "#{context} must not inject GitHub secrets"
@@ -30,7 +35,11 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
     generator = read!(@generator_harness)
     runtime = read!(@runtime_harness)
 
-    assert_contains!(ci, "passkeys-opt-out-smoke.sh", "fresh-generator workflow lane")
+    generator_job = workflow_job!(ci, "passkeys_opt_out_smoke")
+    runtime_job = workflow_job!(ci, "generated_auth_runtime_proof")
+    ci_gate = workflow_job!(ci, "ci-gate")
+
+    assert_contains!(generator_job, "passkeys-opt-out-smoke.sh", "fresh-generator workflow lane")
 
     assert_contains!(
       runtime_workflow,
@@ -41,8 +50,14 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
     assert_contains!(generator, "sigra_b2c_alpha", "fresh canonical B2C harness")
     assert_contains!(runtime, "--project=generated-auth", "rendered runtime harness")
 
-    refute String.contains?(ci, "generated-auth-runtime-proof.sh"),
-           "the rendered runtime lane must not be merged into the legacy aggregate"
+    refute String.contains?(generator_job, "generated-auth-runtime-proof.sh"),
+           "the fresh-generator lane must not substitute the rendered-runtime proof"
+
+    refute String.contains?(runtime_job, "passkeys-opt-out-smoke.sh"),
+           "the rendered-runtime lane must not substitute the fresh-generator proof"
+
+    refute String.contains?(ci_gate, "generated_auth_runtime_proof"),
+           "the rendered runtime lane must remain outside the legacy skip-tolerant aggregate"
   end
 
   test "workflow and harness regions never inject secrets and unset inherited Google values first" do
@@ -51,8 +66,12 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
     generator = read!(@generator_harness)
     runtime = read!(@runtime_harness)
 
+    generator_job = workflow_job!(ci, "passkeys_opt_out_smoke")
+    runtime_job = workflow_job!(ci, "generated_auth_runtime_proof")
+
     for {source, context} <- [
-          {ci, "fresh-generator workflow"},
+          {generator_job, "fresh-generator workflow"},
+          {runtime_job, "rendered-runtime CI workflow"},
           {runtime_workflow, "rendered-runtime workflow"},
           {generator, "fresh-generator harness"},
           {runtime, "rendered-runtime harness"}
@@ -80,6 +99,14 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
              "#{context} must label #{inspect(marker)} as a disposable fixture"
     end
 
+    for allowed_claim <- [
+          "generator shape, compile, boot",
+          "local OIDC state/PKCE/callback",
+          "rendered B2C behavior"
+        ] do
+      assert_contains!(generator <> runtime, allowed_claim, "bounded local-proof claim")
+    end
+
     for forbidden_claim <- [
           "Google Console success",
           "mail provider success",
@@ -101,5 +128,30 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
 
     refute Regex.match?(~r/\b(?:detector|scan|passed|green)\b/i, coverage),
            "COVERAGE.md must not claim detector-backed status"
+  end
+
+  test "proof sources retain deterministic local boundaries without browser state mutation or waivers" do
+    runtime = read!(@runtime_harness)
+
+    for source <- [
+          runtime,
+          read!("test/example/priv/playwright/tests/generated-auth.spec.ts"),
+          read!("test/example/priv/playwright/tests/generated-auth-oauth-probe.spec.ts")
+        ] do
+      refute Regex.match?(~r/\b(?:clearCookies|addCookies|storageState)\s*\(/, source),
+             "proof sources must not mutate browser cookies or storage state"
+
+      refute Regex.match?(
+               ~r/\b(?:localStorage|sessionStorage)\s*\.\s*(?:clear|setItem|removeItem)\s*\(/,
+               source
+             ),
+             "proof sources must not mutate browser Web Storage"
+
+      refute Regex.match?(~r/\b(?:waitForTimeout|sleep)\b/, source),
+             "proof sources must not contain fixed sleeps"
+
+      refute Regex.match?(~r/--retries=(?:[1-9]\d*)/, source),
+             "proof sources must not use retry-based waivers"
+    end
   end
 end
