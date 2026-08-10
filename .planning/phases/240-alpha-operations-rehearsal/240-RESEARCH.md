@@ -261,17 +261,16 @@ Source: [CITED: https://phoenix.hexdocs.pm/Phoenix.Endpoint.html] [CITED: https:
 |---|-------|---------|---------------|
 | A1 | No exact production rate-limit bounds are locked; choose conservative explicit generated defaults and document host override. | Architecture Patterns | Bounds may not fit a particular host’s traffic or abuse model. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which generated flows receive route-only vs. context-level limits?**
-   - What we know: Controller login/magic-link is a real POST; registration/reset request are LiveView events. [VERIFIED: codebase `priv/templates/sigra.install/core/{session_controller,registration_live,reset_password_live}.ex`]
-   - What's unclear: Exact per-flow default bounds and whether registration needs an additional context limiter API.
-   - Recommendation: Plan one design task that enumerates every B2C sensitive flow and maps it to a route prefix, context key, or both before changing templates. [ASSUMED]
+1. **Which generated flows receive route-only vs. context-level limits? — RESOLVED**
+   - Selected mapping: Plan 01's tracer protects the canonical `POST /users/log_in` controller boundary with an IP-derived route key and proves its generic `429`/`Retry-After` response. Plan 02 expands route limiting to each mutating controller route emitted by Core—login and sudo in the default LiveView output, plus the registration, confirmation/resend, password-reset, and MFA controller variants when `--no-live` emits them—using stable action-specific prefixes so one route cannot consume another route's allowance. Safe GET/HEAD token-consumption and form-render routes remain outside the plug. [VERIFIED: codebase `lib/sigra/install/features/core.ex`, `lib/sigra/plug/rate_limit.ex`]
+   - Selected context mapping: repeatable anonymous mail requests that do not have their own controller boundary remain context-owned. Generated `request_magic_link/2` and `deliver_user_reset_password_instructions/2` pass `Sigra.RateLimiters.Hammer` plus explicit integer max/window options to the existing normalized-email keys `magic_link:<email>` and `sigra:reset:<email>`. The magic-link submit therefore receives both the route-IP defense and an independent email-context defense; the reset-request LiveView receives the email-context defense. Existing confirmation-code and MFA attempt controls remain their owning mechanisms rather than being relabeled as route-plug proof. [VERIFIED: codebase `lib/sigra/auth.ex`, `priv/templates/sigra.install/core/{auth,session_controller,reset_password_live,confirmation_live,mfa_challenge_live}.ex`]
+   - Default bounds remain host-overridable and are selected in Plans 01-02 under the agent's discretion; the contracts pin the chosen integers at N-1/N/N+1 and prove cross-prefix/key independence. This resolution is the exact flow map implemented by Plans 01-02.
 
-2. **How should the generated-host proof configure low deterministic limits?**
-   - What we know: Existing tests use Mox for the plug and existing smoke creates a disposable B2C host. [VERIFIED: codebase `test/sigra/plug/rate_limit_test.exs`, `scripts/ci/passkeys-opt-out-smoke.sh`]
-   - What's unclear: Whether the leanest proof is a generated-host ExUnit file created by the smoke or an extension to the rendered runtime harness.
-   - Recommendation: Prefer a short generated-host ExUnit request proof plus source contracts; do not expand Playwright unless actual browser behavior changes. [ASSUMED]
+2. **How should the generated-host proof configure low deterministic limits? — RESOLVED**
+   - Selected design: Wave 0 Plan 05 creates focused library-side source/render contracts plus a short generated-host ExUnit request probe that `scripts/ci/passkeys-opt-out-smoke.sh` copies or renders into the disposable `sigra_b2c_alpha` host. The probe overrides the generated integer limit/window in test configuration before the endpoint starts, sends a bounded synchronous sequence to the protected POST route, and asserts allow through N followed immediately by N+1 `429` and integer `Retry-After`. [VERIFIED: codebase `test/sigra/plug/rate_limit_test.exs`, `scripts/ci/passkeys-opt-out-smoke.sh`]
+   - The proof never advances a clock, waits for expiry, calls `sleep`, or uses Playwright. It proves a single window by exhausting it; independent prefixes/keys are exercised in the focused ExUnit context contract. The rendered-runtime Playwright lane remains unchanged because Phase 240 adds enforcement and evidence contracts, not browser interaction behavior. This is the no-sleep proof consumed by Plans 01-02 and protected by Plan 04's source contract.
 
 ## Environment Availability
 
@@ -313,9 +312,12 @@ Source: [CITED: https://phoenix.hexdocs.pm/Phoenix.Endpoint.html] [CITED: https:
 
 ### Wave 0 Gaps
 
-- [ ] `test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` — recipe/claim vocabulary, generated limiter ownership, workflow/script negative credential assertions.
-- [ ] Disposable generated-host request test/probe — bounded exhaustion and distinct prefixes without sleeps or waiting for a window.
-- [ ] Contract coverage that classifies the fixed Cloak/OIDC values as fixtures and rejects live Google, mail, deployment, and GitHub-secret injection.
+Wave 0 Plan `240-05` owns all four artifacts before implementation begins:
+
+- [ ] `test/sigra/install/generated_rate_limit_contract_test.exs` — generated ownership, threshold, Retry-After precision, idempotency, and the bounded disposable-host tracer contract.
+- [ ] `test/sigra/install/generated_rate_limit_context_test.exs` — resolved route/context flow map, distinct prefixes/keys, and generic context outcomes.
+- [ ] `test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` — recipe tiers, literal tuple, host-only gates, redaction, and Doctor claim boundary.
+- [ ] `test/sigra/planning/phase_240_no_secrets_ci_test.exs` — separate lane topology, disposable Cloak/OIDC fixture classification, inherited-Google unsetting, negative credential/claim assertions, and the local-only `COVERAGE.md` declaration.
 
 ## Security Domain
 
