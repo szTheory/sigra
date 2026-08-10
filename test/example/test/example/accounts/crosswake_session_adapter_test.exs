@@ -447,6 +447,25 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
     refute_receive :crosswake_evaluator_called
   end
 
+  @tag :crosswake_return_evidence
+  test "the B2C recipe names the released companion and evidence-only host contract" do
+    recipe =
+      __DIR__
+      |> Path.join("../../../../../guides/recipes/b2c-alpha.md")
+      |> Path.expand()
+      |> File.read!()
+
+    assert recipe =~ "`crosswake_sigra` `~> 0.1.3`"
+    assert recipe =~ "`org_id: nil`"
+    assert recipe =~ "opaque `session_ref`, `subject_ref`, and session version"
+    assert recipe =~ "current SIGRA session and user"
+    assert recipe =~ "cannot select a session"
+    assert recipe =~ "`evidence` result field"
+
+    assert recipe =~
+             "cd test/example && mix test test/example/accounts/crosswake_session_adapter_test.exs"
+  end
+
   defp protected_route do
     Types.new_route_entry(
       id: "crosswake-tracer",

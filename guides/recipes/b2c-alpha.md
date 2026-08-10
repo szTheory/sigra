@@ -37,13 +37,28 @@ matches the intended public host:
 
 ## Crosswake hosted-session boundary
 
-When the host uses `crosswake_sigra`, project a validated SIGRA session into
-the companion's `SessionAuthorityLane`. For this profile use `org_id: nil`: it
-means a personal account, not a fabricated organization. Keep `session_ref`
-and `subject_ref` opaque and server-owned. Crosswake can use the projection to
-admit a route or replay, but it must deny missing, expired, revoked, or
-account-switched sessions. OAuth callback data remains evidence for the
-server-owned session attempt; it never becomes shell authority.
+When the host uses the released `crosswake_sigra` `~> 0.1.3` companion,
+project a freshly validated SIGRA session into its `SessionAuthorityLane`. For
+this profile use `org_id: nil`: it means a personal account, not a fabricated
+organization. Keep opaque `session_ref`, `subject_ref`, and session version
+server-owned; do not send a raw session credential, stored digest, provider
+payload, or OAuth credential to Crosswake.
+
+Every projection and replay repeats canonical database resolution of the
+current SIGRA session and user, validates currentness/time, and compares the
+server-owned binding before it constructs Crosswake facts. Missing, revoked,
+expired, mismatched, or account-switched state denies. A released
+`AuthReturn` envelope can carry approved hosted-return evidence/navigation, but
+it cannot select a session, replace fresh host resolution, grant authority, or
+admit a route on its own. The adapter returns that approved evidence only in
+its `evidence` result field; it never merges it into the lane, context,
+evaluator options, or route decision.
+
+The executable host contract is covered by:
+
+```bash
+cd test/example && mix test test/example/accounts/crosswake_session_adapter_test.exs
+```
 
 For the broader deployment checklist, see [Deployment](deployment.md).
 
