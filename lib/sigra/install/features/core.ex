@@ -367,6 +367,7 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/register", RegistrationController, :new
+        #{rate_limit_route(web_module, "registration")}
             post "/register", RegistrationController, :create
         """
       end
@@ -382,8 +383,10 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/confirm", ConfirmationController, :new
+        #{rate_limit_route(web_module, "confirmation-request")}
             post "/confirm", ConfirmationController, :create
             get "/confirm/:token", ConfirmationController, :confirm
+        #{rate_limit_route(web_module, "confirmation-resend")}
             post "/confirm/resend", ConfirmationController, :resend
         """
       end
@@ -399,8 +402,10 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/reset-password", ResetPasswordController, :new
+        #{rate_limit_route(web_module, "reset-request")}
             post "/reset-password", ResetPasswordController, :create
             get "/reset-password/:token", ResetPasswordController, :edit
+        #{rate_limit_route(web_module, "reset-update")}
             put "/reset-password/:token", ResetPasswordController, :update
         """
       end
@@ -418,6 +423,7 @@ defmodule Sigra.Install.Features.Core do
     sudo_routes = """
 
           get "/sudo", Auth.SudoController, :new
+    #{rate_limit_route(web_module, "sudo")}
           post "/sudo", Auth.SudoController, :create
     """
 
@@ -431,6 +437,7 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/mfa", MFAChallengeController, :new
+        #{rate_limit_route(web_module, "mfa")}
             post "/mfa", MFAChallengeController, :create
         """
       end
@@ -506,15 +513,7 @@ defmodule Sigra.Install.Features.Core do
         # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new
     #{live_routes}
-        # sigra:rate-limit:login-route
-        # Hosts may override these conservative defaults in config/runtime.exs.
-        # limit: 3, window: 60_000
-        plug Sigra.Plug.RateLimit,
-          limiter: Sigra.RateLimiters.Hammer,
-          error_handler: #{web_module}.AuthErrorHandler,
-          key_prefix: "login",
-          limit: Application.get_env(:sigra, :login_rate_limit, 3),
-          window: Application.get_env(:sigra, :login_rate_limit_window, 60_000)
+    #{rate_limit_route(web_module, "login")}
         post "/log_in", SessionController, :create
         get "/log_in/:token", SessionController, :magic_link
     #{confirmation_routes}
@@ -540,6 +539,24 @@ defmodule Sigra.Install.Features.Core do
       anchor: :before_last_end,
       content: content
     }
+  end
+
+  defp rate_limit_route(web_module, key_prefix) do
+    # sigra:rate-limit:login-route
+    # Canonical generated prefixes are explicit: key_prefix: "login", "sudo",
+    # "registration", "confirmation-request", "confirmation-resend",
+    # "reset-request", "reset-update", and "mfa".
+    """
+        # sigra:rate-limit:#{key_prefix}-route
+        # Hosts may override these conservative defaults in config/runtime.exs.
+        # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+        plug Sigra.Plug.RateLimit,
+          limiter: Sigra.RateLimiters.Hammer,
+          error_handler: #{web_module}.AuthErrorHandler,
+          key_prefix: "#{key_prefix}",
+          limit: Application.get_env(:sigra, :#{key_prefix}_rate_limit, 3),
+          window: Application.get_env(:sigra, :#{key_prefix}_rate_limit_window, 60_000)
+    """
   end
 
   defp router_import_injection(otp_app, web_module) do

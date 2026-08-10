@@ -138,7 +138,10 @@ defmodule <%= context_module %> do
     SigraAuth.request_magic_link(Repo, email,
       user_schema: <%= schema_alias %>,
       user_token_schema: UserToken,
-      url_fun: url_fun
+      url_fun: url_fun,
+      rate_limiter: Sigra.RateLimiters.Hammer,
+      max_requests: 3,
+      window_ms: 60_000
     )
   end
 
@@ -467,7 +470,10 @@ defmodule <%= context_module %> do
            user_schema: <%= schema_alias %>,
            user_token_schema: UserToken,
            secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
-           url_fun: reset_password_url_fun<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
+           url_fun: reset_password_url_fun,
+           rate_limiter: Sigra.RateLimiters.Hammer,
+           max_requests: 3,
+           window_ms: 60_000<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
          ) do
       {:ok, {signed_token, url}} ->
         if user do
