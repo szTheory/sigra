@@ -4,6 +4,7 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
   import Example.AccountsFixtures
 
   alias Crosswake.Companions.Sigra.Contracts
+  alias Crosswake.Companions.Sigra.AuthReturn
   alias Crosswake.Manifest.Types
   alias Example.Accounts.CrosswakeSessionAdapter
   alias Example.Accounts.CrosswakeSessionAdapter.ExpectedBinding
@@ -292,6 +293,106 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
     end
   end
 
+  @tag :crosswake_return_evidence
+  test "approved hosted-return evidence cannot admit a route without a current session" do
+    as_of = iso8601!("2026-08-09T12:01:00.000000Z")
+
+    assert {:deny, %{status: :deny, reason: :session_unavailable}} =
+             CrosswakeSessionAdapter.evaluate_return(
+               "not-a-cookie",
+               as_of,
+               protected_route(),
+               %ExpectedBinding{session_ref: "session", subject_ref: "subject", session_version: 1},
+               valid_return_envelope(),
+               evaluator: notifying_evaluator(self())
+             )
+
+    refute_receive :crosswake_evaluator_called
+  end
+
+  @tag :crosswake_return_evidence
+  test "valid hosted-return evidence preserves host authority and evaluator inputs" do
+    as_of = iso8601!("2026-08-09T12:01:00.000000Z")
+    user = user_fixture()
+
+    {raw_token, _session} =
+      session_with_raw_token(user, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, binding} = CrosswakeSessionAdapter.expected_binding(raw_token, as_of)
+    route = protected_route()
+
+    assert {:allow, result} =
+             CrosswakeSessionAdapter.evaluate_return(
+               raw_token,
+               as_of,
+               route,
+               binding,
+               valid_return_envelope(),
+               evaluator: capturing_evaluator(self())
+             )
+
+    assert_receive {:crosswake_evaluator_called, ^route, _context,
+                    [expected_session_version: session_version]}
+
+    assert session_version == binding.session_version
+    assert result.session_ref == binding.session_ref
+    assert result.subject_ref == binding.subject_ref
+    assert result.session_version == binding.session_version
+    assert result.org_id == nil
+    assert %AuthReturn.Envelope{return_ref: "return_ref"} = result.evidence
+    refute Map.has_key?(result, :route_id)
+  end
+
+  @tag :crosswake_return_evidence
+  test "released AuthReturn rejects every authority or credential smuggling field" do
+    for field <- [
+          :session_ref,
+          :subject_ref,
+          :org_id,
+          :authority_state,
+          :access_granted,
+          :grant_access,
+          :access_token,
+          :stored_digest,
+          :provider_payload,
+          :authorization_code
+        ] do
+      assert {:error, errors} = AuthReturn.new_envelope(Map.put(valid_return_envelope(), field, "smuggled"))
+
+      assert Enum.any?(errors, fn
+               {:auth_return_envelope, {^field, rejection}}
+               when rejection in [:forbidden, :unsupported_claim] ->
+                 true
+
+               _ ->
+                 false
+             end)
+    end
+  end
+
+  @tag :crosswake_return_evidence
+  test "invalid return evidence denies before host evaluation" do
+    as_of = iso8601!("2026-08-09T12:01:00.000000Z")
+    user = user_fixture()
+
+    {raw_token, _session} =
+      session_with_raw_token(user, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, binding} = CrosswakeSessionAdapter.expected_binding(raw_token, as_of)
+
+    assert {:deny, %{status: :deny, reason: :invalid_return_evidence}} =
+             CrosswakeSessionAdapter.evaluate_return(
+               raw_token,
+               as_of,
+               protected_route(),
+               binding,
+               Map.put(valid_return_envelope(), :session_ref, "smuggled"),
+               evaluator: notifying_evaluator(self())
+             )
+
+    refute_receive :crosswake_evaluator_called
+  end
+
   defp protected_route do
     Types.new_route_entry(
       id: "crosswake-tracer",
@@ -316,6 +417,32 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
       absolute_expires_at: "2026-08-10T12:00:00Z",
       session_version: 1,
       as_of: "2026-08-09T12:01:00Z"
+    }
+  end
+
+  defp valid_return_envelope do
+    %{
+      typ: "sigra.auth_return",
+      return_ref: "return_ref",
+      version: "1",
+      issuer: "example",
+      audience: "example",
+      kind: :oauth,
+      route_id: "crosswake-tracer",
+      return_route_id: "crosswake-return",
+      transport: :http_callback,
+      issued_at: "2026-08-09T12:00:00Z",
+      expires_at: "2026-08-09T12:05:00Z",
+      replay_posture: :server_record_required,
+      link_verification: :not_applicable,
+      validation_posture: %{"state" => "matched"},
+      evidence: %{
+        provider_kind: :google,
+        state: :matched,
+        pkce: :verified,
+        redirect: :verified,
+        replay: :not_seen
+      }
     }
   end
 
@@ -358,6 +485,13 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
   defp notifying_evaluator(test_pid) do
     fn _route, _context, _opts ->
       send(test_pid, :crosswake_evaluator_called)
+      {:allow, %{}}
+    end
+  end
+
+  defp capturing_evaluator(test_pid) do
+    fn route, context, opts ->
+      send(test_pid, {:crosswake_evaluator_called, route, context, opts})
       {:allow, %{}}
     end
   end
