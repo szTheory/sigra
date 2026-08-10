@@ -27,7 +27,8 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
 
     assert proof["schema"] == "sigra.phase239.crosswake-release-proof.v1"
 
-    for key <- ~w(repository package version requirement git_tag git_sha hex_checksum published_at verified_at) do
+    for key <-
+          ~w(repository package version requirement git_tag git_sha hex_checksum published_at verified_at) do
       assert is_binary(proof[key]) and proof[key] != "", "proof is missing #{key}"
       assert proof[key] == release[key], "release coordinate #{key} drifted"
     end
@@ -56,7 +57,7 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
     adapter_test = read!(@adapter_test)
 
     for marker <- [
-          "fetch_session_and_user(raw_token)",
+          "Accounts.get_user_and_session_by_token(raw_token)",
           "org_id: nil",
           "session_ref:",
           "subject_ref:",
@@ -104,9 +105,17 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
 
     assert coverage =~ "`detected: false`"
     assert coverage =~ "Re-run trigger:"
-    assert coverage =~ "Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication"
 
-    for forbidden <- ["default-org", "personal-org", "stored_digest", "provider_payload", "oauth_credential"] do
+    assert coverage =~
+             "Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication"
+
+    for forbidden <- [
+          "default-org",
+          "personal-org",
+          "stored_digest",
+          "provider_payload",
+          "oauth_credential"
+        ] do
       refute adapter =~ forbidden, "adapter must not introduce #{forbidden}"
     end
 
@@ -123,7 +132,7 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
           "mix test test/example/accounts/crosswake_session_adapter_test.exs",
           "perl -e",
           "write_evidence",
-          "git rev-parse HEAD"
+          "git -C \"${ROOT_DIR}\" rev-parse HEAD"
         ] do
       assert runner =~ marker, "runner is missing #{inspect(marker)}"
     end
