@@ -58,7 +58,7 @@
 
 **Requirements:** XW-01, XW-02
 
-**Plans:** 5/7 plans executed
+**Plans:** 7/7 plans executed
 
 Plans:
 **Wave 1**
@@ -80,11 +80,11 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 239-05-PLAN.md — Keep hosted-return data evidence-only and align the B2C recipe.
+- [x] 239-05-PLAN.md — Keep hosted-return data evidence-only and align the B2C recipe.
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 239-06-PLAN.md — Seal the phase with bounded exact-SHA automated evidence.
+- [x] 239-06-PLAN.md — Seal the phase with bounded exact-SHA automated evidence.
 
 **Success Criteria:**
 
