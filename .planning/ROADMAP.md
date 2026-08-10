@@ -99,6 +99,14 @@ Plans:
 
 **Requirements:** OPS-01, OPS-02
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 240-01-PLAN.md — Trace explicit generated Hammer ownership through one bounded B2C POST path.
+- [ ] 240-02-PLAN.md — Expand independent route/context limiting and seal generated golden parity.
+- [ ] 240-03-PLAN.md — Publish and contract-test the three-tier provider-neutral launch checklist.
+- [ ] 240-04-PLAN.md — Enforce separate credential-free CI lanes and truthful evidence claims.
+
 **Success Criteria:**
 
 1. The alpha recipe specifies host-origin, secure-session, Google redirect, Cloak, rate-limit, and transactional-email rehearsal requirements.

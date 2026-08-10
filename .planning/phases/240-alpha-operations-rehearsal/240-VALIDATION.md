@@ -2,7 +2,7 @@
 phase: 240
 slug: alpha-operations-rehearsal
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-10
 ---
@@ -38,9 +38,11 @@ created: 2026-08-10
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 240-01-01 | 01 | 1 | OPS-01 | T-240-01 | Generated B2C host owns an explicit rate limiter; sensitive controller and LiveView paths are bounded without enumeration leakage. | source contract + generated-host request | `mix test test/sigra/plug/rate_limit_test.exs test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` | ❌ W0 | ⬜ pending |
-| 240-02-01 | 02 | 2 | OPS-01 | T-240-02 | Recipe declares three evidence tiers, host tuple, redaction boundary, and staging-only provider/device proof. | source contract | `mix test test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` | ❌ W0 | ⬜ pending |
-| 240-03-01 | 03 | 2 | OPS-02 | T-240-03 | Fresh generator and loopback-OIDC runtime lanes use no live credentials and reject inherited Google variables. | source contract + script proof | `mix test test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs` | ❌ W0 | ⬜ pending |
+| 240-01-01 | 01 | 1 | OPS-01 | T-240-01 | Fresh B2C output owns Hammer end to end and one real POST path denies N+1 with generic 429/Retry-After. | generated source contract + fresh-host bounded request | `mix test test/sigra/install/generated_rate_limit_contract_test.exs test/sigra/plug/rate_limit_test.exs && scripts/ci/passkeys-opt-out-smoke.sh` | ❌ W0 | ⬜ pending |
+| 240-02-01 | 02 | 2 | OPS-01 | T-240-05 | Controller-IP and LiveView/context mail limits use independent keys and preserve non-enumerating outcomes. | generated source/context contract | `mix test test/sigra/install/generated_rate_limit_context_test.exs test/sigra/install/generated_rate_limit_contract_test.exs` | ❌ W0 | ⬜ pending |
+| 240-02-02 | 02 | 2 | OPS-01 | T-240-08 | Generated limiter output remains exact and idempotent. | installer golden + idempotency | `mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs` | ✅ | ⬜ pending |
+| 240-03-01 | 03 | 2 | OPS-01, OPS-02 | T-240-09 | Recipe declares three evidence tiers, literal host tuple, redaction boundary, and staging-only provider/device proof. | documentation source contract | `mix test test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs && mix docs --warnings-as-errors` | ❌ W0 | ⬜ pending |
+| 240-04-01 | 04 | 2 | OPS-02 | T-240-13 | Fresh generator and loopback-OIDC runtime lanes remain independent, use no live credentials, and reject inherited Google variables. | CI source contract + script syntax | `mix test test/sigra/planning/phase_240_no_secrets_ci_test.exs test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs && bash -n scripts/ci/passkeys-opt-out-smoke.sh scripts/ci/generated-auth-runtime-proof.sh` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,9 +50,10 @@ created: 2026-08-10
 
 ## Wave 0 Requirements
 
-- [ ] `test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` — recipe/claim vocabulary, generated limiter ownership, and negative credential assertions.
-- [ ] Disposable generated-host request test or probe — bounded exhaustion and distinct limiter prefixes without sleeps or rate-window waits.
-- [ ] Contract coverage that marks fixed Cloak/OIDC values as fixtures and rejects live Google, mail, deployment, and GitHub-secret injection.
+- [ ] `test/sigra/install/generated_rate_limit_contract_test.exs` — generated ownership, threshold, Retry-After precision, and fresh-host tracer contract.
+- [ ] `test/sigra/install/generated_rate_limit_context_test.exs` — complete flow map, independent prefixes/keys, and non-enumerating context outcomes.
+- [ ] `test/sigra/planning/phase_240_alpha_operations_rehearsal_test.exs` — recipe tiers, literal tuple, host-only gates, redaction, and Doctor claim boundary.
+- [ ] `test/sigra/planning/phase_240_no_secrets_ci_test.exs` — separate lane topology, disposable fixture labels, inherited Google unsetting, and negative credential/claim assertions.
 
 ---
 
