@@ -109,8 +109,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 240-02-PLAN.md — Expand independent route/context limiting and seal generated golden parity.
-- [ ] 240-03-PLAN.md — Publish and contract-test the three-tier provider-neutral launch checklist.
+- [x] 240-02-PLAN.md — Expand independent route/context limiting and seal generated golden parity.
+- [x] 240-03-PLAN.md — Publish and contract-test the three-tier provider-neutral launch checklist.
 - [ ] 240-04-PLAN.md — Enforce separate credential-free CI lanes and truthful evidence claims.
 
 **Success Criteria:**

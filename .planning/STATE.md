@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 240
 current_phase_name: alpha-operations-rehearsal
 status: executing
-stopped_at: Completed 240-01-PLAN.md
-last_updated: "2026-08-10T21:59:18.254Z"
+stopped_at: Completed 240-alpha-operations-rehearsal-03-PLAN.md
+last_updated: "2026-08-10T22:14:08.795Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 240 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 21
   percent: 75
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 240 (alpha-operations-rehearsal) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-08-10 — Phase 240 execution started
 
@@ -434,6 +434,8 @@ Last activity: 2026-08-10 — Phase 240 execution started
 - [Phase ?]: Final interop receipt preserves unresolved fallback rows and flagged-unverified prohibitions rather than claiming them verified.
 - [Phase ?]: Hosted session interop proof requires configured PostgreSQL and writes exact-SHA evidence only after bounded green commands.
 - [Phase ?]: Generated B2C login uses an explicit host-owned Hammer limiter with runtime-configurable bounds; fresh-host proof injects a limit of two and exhausts it without delay.
+- [Phase 240-alpha-operations-rehearsal]: b2c-alpha.md is the sole B2C readiness checklist; deployment.md is a linked mechanics reference.
+- [Phase 240-alpha-operations-rehearsal]: Repository CI proves generated local behavior only; provider, mail, proxy, and physical-device outcomes require redacted host evidence.
 
 ### Pending Todos
 
@@ -580,8 +582,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-10T21:59:18.242Z
-Stopped at: Completed 240-01-PLAN.md
+Last session: 2026-08-10T22:14:08.786Z
+Stopped at: Completed 240-alpha-operations-rehearsal-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -759,6 +761,7 @@ Resume file: None
 | Phase 239 P04 | 6min | 2 tasks | 2 files |
 | Phase 239 P06 | 3m | 2 tasks | 3 files |
 | Phase 240 P01 | 8min | 1 tasks | 6 files |
+| Phase 240-alpha-operations-rehearsal P03 | 5min | 1 tasks | 3 files |
 
 ## Deferred Items
 
