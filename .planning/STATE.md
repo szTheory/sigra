@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 240
 current_phase_name: alpha-operations-rehearsal
 status: executing
-stopped_at: Phase 240 context gathered (assumptions mode)
-last_updated: "2026-08-10T21:47:11.676Z"
+stopped_at: Completed 240-01-PLAN.md
+last_updated: "2026-08-10T21:59:18.254Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 239 verified complete
+last_activity_desc: Phase 240 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 19
   percent: 75
 ---
 
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 240 (alpha-operations-rehearsal) — PLANNING
-Plan: Not yet planned
+Phase: 240 (alpha-operations-rehearsal) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-08-10 — Phase 239 verified complete
+Last activity: 2026-08-10 — Phase 240 execution started
 
 ## Accumulated Context
 
@@ -433,6 +433,7 @@ Last activity: 2026-08-10 — Phase 239 verified complete
 - [Phase ?]: Expected Crosswake bindings use a host-owned session/subject/version tuple and reject all replacements before evaluator invocation.
 - [Phase ?]: Final interop receipt preserves unresolved fallback rows and flagged-unverified prohibitions rather than claiming them verified.
 - [Phase ?]: Hosted session interop proof requires configured PostgreSQL and writes exact-SHA evidence only after bounded green commands.
+- [Phase ?]: Generated B2C login uses an explicit host-owned Hammer limiter with runtime-configurable bounds; fresh-host proof injects a limit of two and exhausts it without delay.
 
 ### Pending Todos
 
@@ -579,9 +580,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-10T21:12:26.859Z
-Stopped at: Phase 240 context gathered (assumptions mode)
-Resume file: .planning/phases/240-alpha-operations-rehearsal/240-CONTEXT.md
+Last session: 2026-08-10T21:59:18.242Z
+Stopped at: Completed 240-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -757,6 +758,7 @@ Resume file: .planning/phases/240-alpha-operations-rehearsal/240-CONTEXT.md
 | Phase 239 P02 | 2min | 1 tasks | 5 files |
 | Phase 239 P04 | 6min | 2 tasks | 2 files |
 | Phase 239 P06 | 3m | 2 tasks | 3 files |
+| Phase 240 P01 | 8min | 1 tasks | 6 files |
 
 ## Deferred Items
 

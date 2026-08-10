@@ -99,13 +99,13 @@ Plans:
 
 **Requirements:** OPS-01, OPS-02
 
-**Plans:** 5 plans
+**Plans:** 2/5 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 240-05-PLAN.md — Create all four executable Nyquist Wave 0 contract artifacts before Plans 01-04.
-- [ ] 240-01-PLAN.md — Trace explicit generated Hammer ownership through one bounded B2C POST path.
+- [x] 240-05-PLAN.md — Create all four executable Nyquist Wave 0 contract artifacts before Plans 01-04.
+- [x] 240-01-PLAN.md — Trace explicit generated Hammer ownership through one bounded B2C POST path.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
