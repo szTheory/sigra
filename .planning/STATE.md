@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 239
-current_phase_name: hosted-session-interop
-status: executing
-stopped_at: Completed 239-06-PLAN.md
+current_phase: 240
+current_phase_name: alpha-operations-rehearsal
+status: planning
+stopped_at: Phase 239 verified; ready to plan Phase 240
 last_updated: "2026-08-10T00:47:50.520Z"
 last_activity: 2026-08-08
 last_activity_desc: Phase 239 execution started
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 239 — hosted-session-interop
+**Current focus:** Phase 240 — alpha-operations-rehearsal
 
 ## Current Position
 
-Phase: 239 (hosted-session-interop) — EXECUTING
-Plan: 5 of 7
-Status: Ready to execute
-Last activity: 2026-08-08 — Phase 239 execution started
+Phase: 240 (alpha-operations-rehearsal) — PLANNING
+Plan: Not yet planned
+Status: Ready to plan
+Last activity: 2026-08-10 — Phase 239 verified complete
 
 ## Accumulated Context
 
