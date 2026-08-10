@@ -24,7 +24,7 @@
 ### Operations
 
 - [x] **OPS-01**: A provider-neutral alpha recipe specifies host origin, secure session, Google redirect, Cloak, rate-limit, and transactional-email rehearsal requirements.
-- [ ] **OPS-02**: A no-secrets CI gate protects the canonical profile and its contract tests; real Google/email/iPhone proof is named as a host launch gate, not claimed by library CI.
+- [x] **OPS-02**: A no-secrets CI gate protects the canonical profile and its contract tests; real Google/email/iPhone proof is named as a host launch gate, not claimed by library CI.
 
 ## Traceability
 
