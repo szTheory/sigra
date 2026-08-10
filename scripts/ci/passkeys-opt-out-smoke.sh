@@ -33,6 +33,8 @@ export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
 # This fixed CLOAK_KEY is a disposable fixture for local generated hosts, never deployment credentials.
 # This proof claims only generator shape, compile, boot; it does not prove host staging.
+# Fresh generation must never inherit a developer or runner's provider credentials.
+unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 
 cleanup_tmp_root() {
   case "${TMP_ROOT}" in
@@ -371,6 +373,6 @@ echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"
 
 run_leg "--no-passkeys" "sigra_no_passkeys"
 run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
-run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
+run_leg "--no-admin --no-organizations --no-passkeys --no-live" "sigra_b2c_alpha"
 
 echo "==> passkeys-opt-out: success"

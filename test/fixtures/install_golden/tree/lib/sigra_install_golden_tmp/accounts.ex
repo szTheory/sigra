@@ -140,8 +140,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
       user_token_schema: UserToken,
       url_fun: url_fun,
       rate_limiter: Sigra.RateLimiters.Hammer,
-      max_requests: 3,
-      window_ms: 60_000
+      max_requests: Application.get_env(:sigra, :magic_link_rate_limit, 3),
+      window_ms: Application.get_env(:sigra, :magic_link_rate_limit_window, 60_000)
     )
   end
 
@@ -472,8 +472,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
            secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun,
            rate_limiter: Sigra.RateLimiters.Hammer,
-           max_requests: 3,
-           window_ms: 60_000,
+           max_requests: Application.get_env(:sigra, :reset_rate_limit, 3),
+           window_ms: Application.get_env(:sigra, :reset_rate_limit_window, 60_000),
            enterprise_auth_policy: SigraInstallGoldenTmp.Organizations
          ) do
       {:ok, {signed_token, url}} ->

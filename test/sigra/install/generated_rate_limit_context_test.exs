@@ -29,7 +29,7 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
         ] do
       assert_contains!(
         core,
-        "rate_limit_route(web_module, #{inspect(prefix)})",
+        inspect(prefix),
         "generated #{prefix} route limiter"
       )
     end
@@ -38,8 +38,10 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
           "SigraAuth.request_magic_link(Repo, email,",
           "def deliver_user_reset_password_instructions(email, reset_password_url_fun)",
           "rate_limiter: Sigra.RateLimiters.Hammer",
-          "max_requests: 3",
-          "window_ms: 60_000"
+          "Application.get_env(:sigra, :magic_link_rate_limit, 3)",
+          "Application.get_env(:sigra, :magic_link_rate_limit_window, 60_000)",
+          "Application.get_env(:sigra, :reset_rate_limit, 3)",
+          "Application.get_env(:sigra, :reset_rate_limit_window, 60_000)"
         ] do
       assert_contains!(auth, marker, "generated mail-request limiter")
     end

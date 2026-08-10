@@ -20,7 +20,8 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
           "rate_limit.ex",
           "hammer_module: \#{app_module}.RateLimit",
           "Sigra.RateLimiters.Hammer",
-          "key_prefix: \"login\""
+          "rate_limit_pipelines(web_module)",
+          "rate_limited_scopes(web_module, live?)"
         ] do
       assert_contains!(core, marker, "generated Core ownership")
     end
@@ -61,6 +62,24 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
            "the bounded limiter probe must never wait for a rate window"
   end
 
+  test "generated-host compile lanes cover both LiveView and controller router output" do
+    core = read!(@core_feature)
+    smoke = read!(@smoke)
+    runtime = read!("scripts/ci/generated-auth-runtime-proof.sh")
+
+    assert_contains!(core, "pipeline :\#{pipeline}", "generated rate-limit pipeline")
+    assert_contains!(core, "limit_config_key", "request-time rate-limit configuration")
+    assert_contains!(core, "window_config_key", "request-time rate-limit configuration")
+    assert_contains!(smoke, "--no-live", "controller-router generated-host compile lane")
+    assert_contains!(smoke, "mix compile --warnings-as-errors", "controller-router compilation")
+    assert_contains!(runtime, "mix sigra.install", "LiveView generated-host lane")
+
+    refute String.contains?(runtime, "--no-live"),
+           "LiveView compile lane must retain LiveView output"
+
+    assert_contains!(runtime, "mix compile --warnings-as-errors", "LiveView router compilation")
+  end
+
   test "reapplying generated ownership is protected by unique idempotency markers" do
     core = read!(@core_feature)
 
@@ -69,7 +88,7 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
           "sigra:rate-limit:file",
           "sigra:rate-limit:application",
           "sigra:rate-limit:config",
-          "sigra:rate-limit:login-route"
+          "sigra:rate-limit:\#{key_prefix}-route"
         ] do
       assert_contains!(core, marker, "generated rate-limit idempotency")
     end

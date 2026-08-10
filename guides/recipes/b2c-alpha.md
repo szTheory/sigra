@@ -135,8 +135,19 @@ than the repository or receipt.
 **Owner:** Host operator.
 
 **Action:** Select and configure the host mailer, then set the generated
-limiter's request ceilings and millisecond windows for launch traffic. Preserve
-the generated defaults unless an explicit host policy replaces them.
+limiter's request ceilings and millisecond windows for launch traffic. Each key
+is read at request time, so place the following values in `config/runtime.exs`
+when the release's policy differs from the conservative `3` per `60_000ms`
+default: `:login_rate_limit`, `:login_rate_limit_window`,
+`:sudo_rate_limit`, `:sudo_rate_limit_window`, `:registration_rate_limit`,
+`:registration_rate_limit_window`, `:confirmation_request_rate_limit`,
+`:confirmation_request_rate_limit_window`, `:confirmation_resend_rate_limit`,
+`:confirmation_resend_rate_limit_window`, `:reset_request_rate_limit`,
+`:reset_request_rate_limit_window`, `:reset_update_rate_limit`,
+`:reset_update_rate_limit_window`, `:mfa_rate_limit`, `:mfa_rate_limit_window`,
+`:magic_link_rate_limit`, `:magic_link_rate_limit_window`, `:reset_rate_limit`,
+and `:reset_rate_limit_window`. Preserve the generated defaults unless an
+explicit host policy replaces them.
 
 **Expected result:** The host can boot with its selected mailer and explicit
 rate-limit configuration; the configuration fingerprint is ready to record

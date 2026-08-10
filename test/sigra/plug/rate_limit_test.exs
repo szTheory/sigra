@@ -191,6 +191,36 @@ defmodule Sigra.Plug.RateLimitTest do
       |> RateLimit.call(opts)
     end
 
+    test "reads explicit generated runtime overrides for every request" do
+      Application.put_env(:sigra, :test_rate_limit, 2)
+      Application.put_env(:sigra, :test_rate_limit_window, 1_234)
+
+      on_exit(fn ->
+        Application.delete_env(:sigra, :test_rate_limit)
+        Application.delete_env(:sigra, :test_rate_limit_window)
+      end)
+
+      opts =
+        RateLimit.init(
+          @default_opts ++
+            [
+              limit: 3,
+              window: 60_000,
+              limit_config_key: :test_rate_limit,
+              window_config_key: :test_rate_limit_window
+            ]
+        )
+
+      expect(Sigra.MockRateLimiter, :check_rate, fn _key, limit, window ->
+        assert limit == 2
+        assert window == 1_234
+        {:allow, 1}
+      end)
+
+      conn(:post, "/login")
+      |> RateLimit.call(opts)
+    end
+
     test "emits [:sigra, :security, :rate_limited] telemetry on deny" do
       opts = RateLimit.init(@default_opts)
 

@@ -367,8 +367,6 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/register", RegistrationController, :new
-        #{rate_limit_route(web_module, "registration")}
-            post "/register", RegistrationController, :create
         """
       end
 
@@ -383,11 +381,7 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/confirm", ConfirmationController, :new
-        #{rate_limit_route(web_module, "confirmation-request")}
-            post "/confirm", ConfirmationController, :create
             get "/confirm/:token", ConfirmationController, :confirm
-        #{rate_limit_route(web_module, "confirmation-resend")}
-            post "/confirm/resend", ConfirmationController, :resend
         """
       end
 
@@ -402,11 +396,7 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/reset-password", ResetPasswordController, :new
-        #{rate_limit_route(web_module, "reset-request")}
-            post "/reset-password", ResetPasswordController, :create
             get "/reset-password/:token", ResetPasswordController, :edit
-        #{rate_limit_route(web_module, "reset-update")}
-            put "/reset-password/:token", ResetPasswordController, :update
         """
       end
 
@@ -423,8 +413,6 @@ defmodule Sigra.Install.Features.Core do
     sudo_routes = """
 
           get "/sudo", Auth.SudoController, :new
-    #{rate_limit_route(web_module, "sudo")}
-          post "/sudo", Auth.SudoController, :create
     """
 
     mfa_challenge_routes =
@@ -437,8 +425,6 @@ defmodule Sigra.Install.Features.Core do
         """
 
             get "/mfa", MFAChallengeController, :new
-        #{rate_limit_route(web_module, "mfa")}
-            post "/mfa", MFAChallengeController, :create
         """
       end
 
@@ -501,6 +487,8 @@ defmodule Sigra.Install.Features.Core do
           roles: [:owner]
       end
 
+    #{rate_limit_pipelines(web_module)}
+
       # MFA challenge (accessible with mfa_pending sessions, D-24)
       scope "/users", #{web_module} do
         pipe_through [:browser]
@@ -513,8 +501,6 @@ defmodule Sigra.Install.Features.Core do
         # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new
     #{live_routes}
-    #{rate_limit_route(web_module, "login")}
-        post "/log_in", SessionController, :create
         get "/log_in/:token", SessionController, :magic_link
     #{confirmation_routes}
     #{reset_routes}
@@ -531,6 +517,8 @@ defmodule Sigra.Install.Features.Core do
         pipe_through [:browser, :require_authenticated, :require_sudo]
     #{mfa_settings_routes}
       end
+
+    #{rate_limited_scopes(web_module, live?)}
     """
 
     %Injection{
@@ -541,23 +529,84 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
-  defp rate_limit_route(web_module, key_prefix) do
-    # sigra:rate-limit:login-route
-    # Canonical generated prefixes are explicit: key_prefix: "login", "sudo",
-    # "registration", "confirmation-request", "confirmation-resend",
-    # "reset-request", "reset-update", and "mfa".
-    """
-        # sigra:rate-limit:#{key_prefix}-route
-        # Hosts may override these conservative defaults in config/runtime.exs.
-        # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+  defp rate_limit_pipelines(web_module) do
+    for key_prefix <- rate_limit_keys(), into: "" do
+      pipeline = rate_limit_pipeline_name(key_prefix)
+      config_prefix = String.replace(key_prefix, "-", "_")
+
+      """
+
+      # sigra:rate-limit:#{key_prefix}-route
+      # Hosts may override these conservative defaults in config/runtime.exs.
+      # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+      pipeline :#{pipeline} do
         plug Sigra.Plug.RateLimit,
           limiter: Sigra.RateLimiters.Hammer,
           error_handler: #{web_module}.AuthErrorHandler,
           key_prefix: "#{key_prefix}",
-          limit: Application.get_env(:sigra, :#{key_prefix}_rate_limit, 3),
-          window: Application.get_env(:sigra, :#{key_prefix}_rate_limit_window, 60_000)
-    """
+          limit: 3,
+          window: 60_000,
+          limit_config_key: :#{config_prefix}_rate_limit,
+          window_config_key: :#{config_prefix}_rate_limit_window
+      end
+      """
+    end
   end
+
+  defp rate_limited_scopes(web_module, live?) do
+    routes = [
+      {"login", [:browser, :redirect_if_user_is_authenticated],
+       "post \"/log_in\", SessionController, :create"},
+      {"sudo", [:browser, :require_authenticated], "post \"/sudo\", Auth.SudoController, :create"}
+    ]
+
+    routes =
+      if live? do
+        routes
+      else
+        routes ++
+          [
+            {"registration", [:browser, :redirect_if_user_is_authenticated],
+             "post \"/register\", RegistrationController, :create"},
+            {"confirmation-request", [:browser, :redirect_if_user_is_authenticated],
+             "post \"/confirm\", ConfirmationController, :create"},
+            {"confirmation-resend", [:browser, :redirect_if_user_is_authenticated],
+             "post \"/confirm/resend\", ConfirmationController, :resend"},
+            {"reset-request", [:browser, :redirect_if_user_is_authenticated],
+             "post \"/reset-password\", ResetPasswordController, :create"},
+            {"reset-update", [:browser, :redirect_if_user_is_authenticated],
+             "put \"/reset-password/:token\", ResetPasswordController, :update"},
+            {"mfa", [:browser], "post \"/mfa\", MFAChallengeController, :create"}
+          ]
+      end
+
+    for {key_prefix, pipelines, route} <- routes, into: "" do
+      """
+
+      scope "/users", #{web_module} do
+        pipe_through #{inspect(pipelines ++ [String.to_atom(rate_limit_pipeline_name(key_prefix))])}
+
+        #{route}
+      end
+      """
+    end
+  end
+
+  defp rate_limit_keys do
+    [
+      "login",
+      "sudo",
+      "registration",
+      "confirmation-request",
+      "confirmation-resend",
+      "reset-request",
+      "reset-update",
+      "mfa"
+    ]
+  end
+
+  defp rate_limit_pipeline_name(key_prefix),
+    do: "rate_limit_#{String.replace(key_prefix, "-", "_")}"
 
   defp router_import_injection(otp_app, web_module) do
     %Injection{

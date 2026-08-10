@@ -13,6 +13,10 @@ defmodule Sigra.Plug.RateLimit do
     * `:limit` - Maximum requests within window. Default: `10`.
     * `:window` - Window size in milliseconds. Default: `60_000` (1 minute).
     * `:key_prefix` - Prefix for rate limit key. Default: `"sigra"`.
+    * `:limit_config_key` - Optional `:sigra` application-env key whose
+      positive-integer value overrides `:limit` for each request.
+    * `:window_config_key` - Optional `:sigra` application-env key whose
+      positive-integer value overrides `:window` for each request.
     * `:error_handler` - Module implementing `Sigra.Plug.ErrorHandler`. Required.
     * `:limiter` - Module implementing `Sigra.RateLimiter`. If `nil`,
       resolved at call time: uses Hammer if loaded, otherwise Noop with warning.
@@ -48,6 +52,8 @@ defmodule Sigra.Plug.RateLimit do
       limit: Keyword.get(opts, :limit, 10),
       window: Keyword.get(opts, :window, 60_000),
       key_prefix: Keyword.get(opts, :key_prefix, "sigra"),
+      limit_config_key: Keyword.get(opts, :limit_config_key),
+      window_config_key: Keyword.get(opts, :window_config_key),
       error_handler: Keyword.fetch!(opts, :error_handler),
       limiter: Keyword.get(opts, :limiter)
     }
@@ -58,10 +64,12 @@ defmodule Sigra.Plug.RateLimit do
 
   def call(conn, opts) do
     limiter = resolve_limiter(opts.limiter)
+    limit = runtime_positive_integer(opts.limit_config_key, opts.limit)
+    window = runtime_positive_integer(opts.window_config_key, opts.window)
     ip = conn.remote_ip |> :inet.ntoa() |> to_string()
     key = "#{opts.key_prefix}:ip:#{ip}"
 
-    case limiter.check_rate(key, opts.limit, opts.window) do
+    case limiter.check_rate(key, limit, window) do
       {:allow, _count} ->
         conn
 
@@ -95,4 +103,13 @@ defmodule Sigra.Plug.RateLimit do
   end
 
   defp resolve_limiter(module), do: module
+
+  defp runtime_positive_integer(nil, default), do: default
+
+  defp runtime_positive_integer(key, default) do
+    case Application.get_env(:sigra, key, default) do
+      value when is_integer(value) and value > 0 -> value
+      _ -> default
+    end
+  end
 end

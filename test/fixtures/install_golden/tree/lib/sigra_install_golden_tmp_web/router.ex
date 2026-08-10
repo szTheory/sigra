@@ -71,6 +71,120 @@ defmodule SigraInstallGoldenTmpWeb.Router do
       roles: [:owner]
   end
 
+
+# sigra:rate-limit:login-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_login do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "login",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :login_rate_limit,
+    window_config_key: :login_rate_limit_window
+end
+
+# sigra:rate-limit:sudo-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_sudo do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "sudo",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :sudo_rate_limit,
+    window_config_key: :sudo_rate_limit_window
+end
+
+# sigra:rate-limit:registration-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_registration do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "registration",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :registration_rate_limit,
+    window_config_key: :registration_rate_limit_window
+end
+
+# sigra:rate-limit:confirmation-request-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_confirmation_request do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "confirmation-request",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :confirmation_request_rate_limit,
+    window_config_key: :confirmation_request_rate_limit_window
+end
+
+# sigra:rate-limit:confirmation-resend-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_confirmation_resend do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "confirmation-resend",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :confirmation_resend_rate_limit,
+    window_config_key: :confirmation_resend_rate_limit_window
+end
+
+# sigra:rate-limit:reset-request-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_reset_request do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "reset-request",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :reset_request_rate_limit,
+    window_config_key: :reset_request_rate_limit_window
+end
+
+# sigra:rate-limit:reset-update-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_reset_update do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "reset-update",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :reset_update_rate_limit,
+    window_config_key: :reset_update_rate_limit_window
+end
+
+# sigra:rate-limit:mfa-route
+# Hosts may override these conservative defaults in config/runtime.exs.
+# limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+pipeline :rate_limit_mfa do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+    key_prefix: "mfa",
+    limit: 3,
+    window: 60_000,
+    limit_config_key: :mfa_rate_limit,
+    window_config_key: :mfa_rate_limit_window
+end
+
+
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser]
@@ -87,17 +201,6 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     live "/register", RegistrationLive
 
-    # sigra:rate-limit:login-route
-    # Hosts may override these conservative defaults in config/runtime.exs.
-    # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
-    plug Sigra.Plug.RateLimit,
-      limiter: Sigra.RateLimiters.Hammer,
-      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
-      key_prefix: "login",
-      limit: Application.get_env(:sigra, :login_rate_limit, 3),
-      window: Application.get_env(:sigra, :login_rate_limit_window, 60_000)
-
-    post "/log_in", SessionController, :create
     get "/log_in/:token", SessionController, :magic_link
 
     live "/confirm", ConfirmationLive
@@ -115,17 +218,6 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     delete "/log_out", SessionController, :delete
 
       get "/sudo", Auth.SudoController, :new
-    # sigra:rate-limit:sudo-route
-    # Hosts may override these conservative defaults in config/runtime.exs.
-    # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
-    plug Sigra.Plug.RateLimit,
-      limiter: Sigra.RateLimiters.Hammer,
-      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
-      key_prefix: "sudo",
-      limit: Application.get_env(:sigra, :sudo_rate_limit, 3),
-      window: Application.get_env(:sigra, :sudo_rate_limit_window, 60_000)
-
-      post "/sudo", Auth.SudoController, :create
 live_session :require_authenticated,
   on_mount: [{SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated}] do
 
@@ -143,6 +235,20 @@ live_session :require_authenticated,
     live "/settings/mfa", MFASettingsLive
 
   end
+
+
+scope "/users", SigraInstallGoldenTmpWeb do
+  pipe_through [:browser, :redirect_if_user_is_authenticated, :rate_limit_login]
+
+  post "/log_in", SessionController, :create
+end
+
+scope "/users", SigraInstallGoldenTmpWeb do
+  pipe_through [:browser, :require_authenticated, :rate_limit_sudo]
+
+  post "/sudo", Auth.SudoController, :create
+end
+
 
 
   # Phase 17 D-06: single unscoped InvitationAcceptLive at

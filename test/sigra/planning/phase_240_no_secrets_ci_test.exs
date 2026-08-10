@@ -92,6 +92,12 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
              runtime
            ),
            "rendered-runtime harness must unset inherited Google credentials before boot"
+
+    assert Regex.match?(
+             ~r/unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET[\s\S]*?run_leg\(\)/,
+             generator
+           ),
+           "fresh-generator harness must unset inherited Google credentials before generation"
   end
 
   test "fixed values are named disposable fixtures and local-only proof claims stay bounded" do
