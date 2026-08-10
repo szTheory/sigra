@@ -139,6 +139,19 @@ defmodule Sigra.Plug.RateLimitTest do
       assert retry_after == "31"
     end
 
+    for {milliseconds, seconds} <- [{1_000, "1"}, {1_001, "2"}, {30_500, "31"}] do
+      test "rounds #{milliseconds}ms Retry-After to #{seconds} seconds" do
+        opts = RateLimit.init(@default_opts)
+
+        expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
+          {:deny, unquote(milliseconds)}
+        end)
+
+        response = conn(:post, "/login") |> RateLimit.call(opts)
+        assert [unquote(seconds)] = Plug.Conn.get_resp_header(response, "retry-after")
+      end
+    end
+
     test "calls error_handler.auth_error(:rate_limited, retry_after: N) on deny" do
       opts = RateLimit.init(@default_opts)
 

@@ -173,6 +173,63 @@ add_cloak_ecto() {
   '
 }
 
+install_generated_rate_limit_probe() {
+  # This probe lives only in the disposable B2C host. It exercises the real
+  # generated POST route synchronously: attempt N + 1 is denied in the same
+  # limiter window, with no clock manipulation or delay.
+  # Retry-After ceiling boundaries remain library-covered: 1_000ms -> 1,
+  # 1_001ms -> 2, and 30_500ms -> 31.
+  cat > "test/generated_rate_limit_probe_test.exs" <<'EOF'
+defmodule SigraB2cAlpha.GeneratedRateLimitProbeTest do
+  use SigraB2cAlphaWeb.ConnCase, async: false
+
+  @limit 2
+
+  test "generated login limiter allows N attempts then denies attempt N + 1", %{conn: conn} do
+    conn = get(conn, "/users/log_in")
+    csrf_token = csrf_token(conn.resp_body)
+
+    Enum.reduce(1..@limit, conn, fn _attempt, request_conn ->
+      response =
+        request_conn
+        |> recycle()
+        |> post("/users/log_in", login_params(csrf_token))
+
+      assert response.status in [302, 303]
+      response
+    end)
+    |> recycle()
+    |> post("/users/log_in", login_params(csrf_token))
+    |> then(fn response ->
+      assert response.status == 429
+      assert response.resp_body == "Too many requests. Please try again later."
+      assert [retry_after] = Plug.Conn.get_resp_header(response, "retry-after")
+      assert {seconds, ""} = Integer.parse(retry_after)
+      assert seconds > 0
+    end)
+  end
+
+  defp login_params(csrf_token) do
+    %{
+      "_csrf_token" => csrf_token,
+      "user" => %{"email" => "missing@example.test", "password" => "not-a-password"}
+    }
+  end
+
+  defp csrf_token(body) do
+    [_, token] = Regex.run(~r/name="_csrf_token"[^>]*value="([^"]+)"/, body)
+    token
+  end
+end
+EOF
+
+  cat >> "config/test.exs" <<'EOF'
+
+# Generated rate-limit probe: inject a bounded integer test limit before boot.
+config :sigra, login_rate_limit: 2, login_rate_limit_window: 60_000
+EOF
+}
+
 run_leg() {
   local flags="$1"
   local label="$2"
@@ -265,6 +322,19 @@ run_leg() {
     assert_no_match '/organizations' "lib/${label}_web/router.ex"
     assert_no_match '# Sigra passkeys' "${router}"
     assert_no_match 'passkey' "config/config.exs"
+
+    assert_file_present "lib/${label}/rate_limit.ex"
+    assert_match '\{:hammer, "~> 7\.4"\}' "mix.exs"
+    assert_match 'SigraB2cAlpha.RateLimit' "${application}"
+    assert_match 'hammer_module: SigraB2cAlpha.RateLimit' "${config}"
+    assert_match 'Sigra.Plug.RateLimit' "${router}"
+    assert_match 'limiter: Sigra.RateLimiters.Hammer' "${router}"
+
+    echo "==> passkeys-opt-out: exercising bounded generated B2C login limiter"
+    install_generated_rate_limit_probe
+    MIX_ENV=test mix ecto.create
+    MIX_ENV=test mix ecto.migrate
+    MIX_ENV=test mix test test/generated_rate_limit_probe_test.exs
   fi
 
   echo "==> passkeys-opt-out: compiling and building assets"
@@ -296,7 +366,7 @@ run_leg() {
       exit 1
     fi
 
-    sleep 1
+    perl -e 'select undef, undef, undef, 1'
   done
 }
 

@@ -114,13 +114,15 @@ defmodule Sigra.Install.Features.Core do
 
     base =
       [
+        hammer_dependency_injection(),
         router_import_injection(otp_app_str, web_module),
         browser_pipeline_injection(otp_app_str, web_module),
         router_injection(otp_app_str, web_module, live?),
-        config_injection(otp_app_str, context_module, schema_alias, repo_module),
+        config_injection(otp_app_str, context_module, schema_alias, repo_module, app_module),
         test_config_injection(),
         conn_case_injection(web_module),
-        vault_injection(binding, app_module)
+        vault_injection(binding, app_module),
+        rate_limit_application_injection(binding, app_module)
       ]
 
     base
@@ -193,6 +195,8 @@ defmodule Sigra.Install.Features.Core do
         # Plug + error handler
         {:eex, "core/user_auth.ex", Path.join(["lib", web, "user_auth.ex"])},
         {:eex, "core/error_handler.ex", Path.join(["lib", web, "auth_error_handler.ex"])},
+        # sigra:rate-limit:file
+        {:eex, "core/rate_limit.ex", Path.join(["lib", otp_app, "rate_limit.ex"])},
 
         # Session controller (always — Phase 10.1.1 B9/D-12)
         {:eex, "core/session_controller.ex",
@@ -502,6 +506,15 @@ defmodule Sigra.Install.Features.Core do
         # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new
     #{live_routes}
+        # sigra:rate-limit:login-route
+        # Hosts may override these conservative defaults in config/runtime.exs.
+        # limit: 3, window: 60_000
+        plug Sigra.Plug.RateLimit,
+          limiter: Sigra.RateLimiters.Hammer,
+          error_handler: #{web_module}.AuthErrorHandler,
+          key_prefix: "login",
+          limit: Application.get_env(:sigra, :login_rate_limit, 3),
+          window: Application.get_env(:sigra, :login_rate_limit_window, 60_000)
         post "/log_in", SessionController, :create
         get "/log_in/:token", SessionController, :magic_link
     #{confirmation_routes}
@@ -538,6 +551,16 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
+  defp hammer_dependency_injection do
+    %Injection{
+      target: "mix.exs",
+      # sigra:rate-limit:dependency
+      marker: ~s({:hammer, "~> 7.4"}),
+      anchor: :mix_deps,
+      content: ~s({:hammer, "~> 7.4"})
+    }
+  end
+
   defp browser_pipeline_injection(otp_app, _web_module) do
     %Injection{
       target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
@@ -547,7 +570,7 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
-  defp config_injection(otp_app, context_module, schema_alias, repo_module) do
+  defp config_injection(otp_app, context_module, schema_alias, repo_module, app_module) do
     content = """
 
     # Sigra authentication
@@ -579,7 +602,9 @@ defmodule Sigra.Install.Features.Core do
       repo: #{repo_module},
       user_schema: #{context_module}.#{schema_alias},
       email_module: #{context_module}.Emails,
-      mailer: #{context_module}.Mailer
+      mailer: #{context_module}.Mailer,
+      # sigra:rate-limit:config
+      hammer_module: #{app_module}.RateLimit
     """
 
     %Injection{
@@ -624,6 +649,18 @@ defmodule Sigra.Install.Features.Core do
         content: app_module
       }
     end
+  end
+
+  defp rate_limit_application_injection(binding, app_module) do
+    # The generated child is inserted as `{#{app_module}.RateLimit, []}` before
+    # `{#{web_module}.Endpoint, []}` by Injector's :rate_limit_child seam.
+    %Injection{
+      target: Path.join(["lib", otp_app_str(binding), "application.ex"]),
+      # sigra:rate-limit:application
+      marker: "#{app_module}.RateLimit",
+      anchor: :rate_limit_child,
+      content: app_module
+    }
   end
 
   defp api_injections(otp_app, web_module, jwt?) do
@@ -768,15 +805,9 @@ defmodule Sigra.Install.Features.Core do
 
       3. Review the generated configuration in config/config.exs
 
-      4. (Optional) Set up rate limiting with Hammer:
-
-             # In your application.ex children list:
-             {MyApp.RateLimit, clean_period: :timer.minutes(1)}
-
-             # Create lib/my_app/rate_limit.ex:
-             defmodule MyApp.RateLimit do
-               use Hammer, backend: :ets
-             end
+      4. Rate limiting is generated with Hammer for sensitive authentication POSTs.
+         Review the generated `:login_rate_limit` and `:login_rate_limit_window`
+         defaults in config/runtime.exs for your host's traffic and abuse model.
 
     #{live_line}#{passkeys_line}
     #{api_line}#{jwt_line}

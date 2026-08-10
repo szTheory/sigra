@@ -599,6 +599,21 @@ defmodule Sigra.Install.Injector do
     end
   end
 
+  defp apply_anchor(:rate_limit_child, content, app_module) do
+    rate_limit_module = "#{app_module}.RateLimit"
+
+    if String.contains?(content, rate_limit_module) do
+      content
+    else
+      Regex.replace(
+        ~r/^(\s*)(#{Regex.escape(app_module)}Web\.Endpoint,?)$/m,
+        content,
+        "\\1{#{rate_limit_module}, []},\n\\1\\2",
+        global: false
+      )
+    end
+  end
+
   defp apply_anchor(:app_js_passkeys, content, payload) do
     case inject_app_js_passkeys(content, payload) do
       {:ok, new_content} -> new_content

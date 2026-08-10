@@ -146,6 +146,7 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/auth.ex" in sources
       assert "core/user_auth.ex" in sources
       assert "core/error_handler.ex" in sources
+      assert "core/rate_limit.ex" in sources
       assert "core/session_controller.ex" in sources
       assert "core/auth_fixtures.ex" in sources
       assert "core/conn_case_helpers.ex" in sources
@@ -206,12 +207,12 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 41 files" do
+    test "default (live=true, api=false, jwt=false) returns exactly 42 files" do
       # Includes default live UI, the non-api core set, auth/email branding
       # assets, and inlined non-api migrations. api_token migration is
       # --api-only; audit_events_org_columns moved to the Organizations
       # feature in Phase 24.1 (was previously in Core's files/1).
-      assert length(Core.files(@binding)) == 41
+      assert length(Core.files(@binding)) == 42
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -231,9 +232,9 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 35 files" do
+    test "--no-live returns exactly 36 files" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 35
+      assert length(Core.files(binding)) == 36
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do
@@ -446,7 +447,9 @@ defmodule Sigra.Install.Features.CoreTest do
         :elixir_config,
         :append_eof,
         :conn_case_helpers,
-        :vault_child
+        :vault_child,
+        :mix_deps,
+        :rate_limit_child
       ]
 
       anchors = @binding |> Core.injections() |> Enum.map(& &1.anchor) |> Enum.uniq()
