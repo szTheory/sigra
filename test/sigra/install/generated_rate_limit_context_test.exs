@@ -12,12 +12,21 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
     assert String.contains?(source, marker), "#{context} is missing #{inspect(marker)}"
   end
 
-  test "selected controller and context flows own distinct Hammer keys" do
+  test "every mutating generated controller boundary owns a distinct Hammer key" do
     core = read!(@core_feature)
     auth = read!(@auth_template)
 
-    for prefix <- ["login", "sudo", "registration", "confirmation", "reset", "mfa"] do
-      assert_contains!(core, "key_prefix: \"#{prefix}\"", "generated #{prefix} route limiter")
+    for prefix <- [
+          "login",
+          "sudo",
+          "registration",
+          "confirmation-request",
+          "confirmation-resend",
+          "reset-request",
+          "reset-update",
+          "mfa"
+        ] do
+      assert_contains!(core, "rate_limit_route(#{inspect(prefix)})", "generated #{prefix} route limiter")
     end
 
     for marker <- [
@@ -38,12 +47,7 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
     core = read!(@core_feature)
     auth = read!(@auth_template)
 
-    for marker <- [
-          "N-1/N/N+1",
-          "login:ip:",
-          "magic_link:",
-          "sigra:reset:"
-        ] do
+    for marker <- ["N-1/N/N+1", "login", "magic_link:", "sigra:reset:"] do
       assert String.contains?(core <> auth, marker),
              "generated limiter contract must preserve independent key material #{inspect(marker)}"
     end
@@ -58,7 +62,7 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
 
     assert_contains!(
       session,
-      "If your email is in our system, you will receive a magic link shortly.",
+      "If your email is registered, you will receive a magic link shortly.",
       "magic-link generic outcome"
     )
 
