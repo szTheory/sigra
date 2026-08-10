@@ -31,6 +31,8 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
+# This fixed CLOAK_KEY is a disposable fixture for local generated hosts, never deployment credentials.
+# This proof claims only generator shape, compile, boot; it does not prove host staging.
 
 cleanup_tmp_root() {
   case "${TMP_ROOT}" in
@@ -353,21 +355,16 @@ run_leg() {
   PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server > "${server_log}" 2>&1 &
   SERVER_PID=$!
 
-  for i in $(seq 1 30); do
-    if curl -sf "http://127.0.0.1:${port}/" > /dev/null; then
-      echo "==> passkeys-opt-out: ${label} responded at http://127.0.0.1:${port}/ after ${i}s"
-      cleanup_server
-      return 0
-    fi
+  if curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 0 \
+      "http://127.0.0.1:${port}/" > /dev/null; then
+    echo "==> passkeys-opt-out: ${label} responded at http://127.0.0.1:${port}/"
+    cleanup_server
+    return 0
+  fi
 
-    if [[ "${i}" -eq 30 ]]; then
-      echo "FAIL: ${label} did not boot within 30 seconds"
-      cat "${server_log}"
-      exit 1
-    fi
-
-    perl -e 'select undef, undef, undef, 1'
-  done
+  echo "FAIL: ${label} did not become ready"
+  cat "${server_log}"
+  exit 1
 }
 
 echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"

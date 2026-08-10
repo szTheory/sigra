@@ -50,6 +50,14 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
     assert_contains!(generator, "sigra_b2c_alpha", "fresh canonical B2C harness")
     assert_contains!(runtime, "--project=generated-auth", "rendered runtime harness")
 
+    for source <- [generator_job, runtime_job, runtime_workflow] do
+      assert_contains!(
+        source,
+        "No host staging success is claimed",
+        "credential-free workflow boundary"
+      )
+    end
+
     refute String.contains?(generator_job, "generated-auth-runtime-proof.sh"),
            "the fresh-generator lane must not substitute the rendered-runtime proof"
 

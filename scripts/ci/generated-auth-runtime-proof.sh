@@ -24,6 +24,8 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
+# This fixed CLOAK_KEY is a disposable fixture for the local generated host, never deployment credentials.
+# This proof claims only local OIDC state/PKCE/callback and rendered B2C behavior.
 # Proof inputs are constants below. Inherited provider credentials must never
 # become a substitute for the local OIDC double.
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
@@ -96,6 +98,7 @@ defmodule ${web_module}.OidcDoubleController do
   @callback_url "http://127.0.0.1:${PORT}/auth/google/callback"
   @client_id "sigra-oauth-proof-client"
   @client_secret "sigra-oauth-proof-secret"
+  # This fixed local OIDC client secret is a disposable fixture, never a deployment credential.
   @subject "sigra-oauth-proof-subject"
   @email "oauth-collision@example.test"
   @proof_key {__MODULE__, :pkce_challenge}
@@ -168,6 +171,7 @@ config :${APP_NAME}, :sigra,
         base_url: "http://127.0.0.1:${PORT}/oidc",
         client_id: "sigra-oauth-proof-client",
         client_secret: "sigra-oauth-proof-secret",
+        # This fixed local OIDC client secret is a disposable fixture, never a deployment credential.
         redirect_uri: "${callback}",
         id_token_signed_response_alg: "HS256",
         code_verifier: true
@@ -237,12 +241,8 @@ boot_and_run_spec() {
   MIX_ENV=dev mix ecto.migrate
   PHX_SERVER=true MIX_ENV=dev PORT="${PORT}" mix phx.server >"${SERVER_LOG}" 2>&1 &
   SERVER_PID=$!
-  for _ in $(seq 1 30); do
-    curl -sf "http://127.0.0.1:${PORT}/" >/dev/null && break
-    [[ -d "/proc/${SERVER_PID}" || "$(uname)" == "Darwin" ]] || { cat "${SERVER_LOG}"; fail "server exited before readiness"; }
-    sleep 1
-  done
-  curl -sf "http://127.0.0.1:${PORT}/" >/dev/null || { cat "${SERVER_LOG}"; fail "generated host did not become ready"; }
+  curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 0 \
+    "http://127.0.0.1:${PORT}/" >/dev/null || { cat "${SERVER_LOG}"; fail "generated host did not become ready"; }
   SIGRA_EXAMPLE_URL="http://127.0.0.1:${PORT}" node "${SIGRA_REPO}/test/example/priv/playwright/node_modules/@playwright/test/cli.js" test "${SPEC_FILES[@]}" --project=generated-auth --retries=0 --config "${SIGRA_REPO}/test/example/priv/playwright/playwright.config.ts"
   grep -q 'oidc-double authorize accepted generated state and PKCE' "${SERVER_LOG}" || fail "authorization double did not receive generated state/PKCE"
   grep -q 'oidc-double token accepted matching PKCE verifier' "${SERVER_LOG}" || fail "token double did not receive matching PKCE verifier"

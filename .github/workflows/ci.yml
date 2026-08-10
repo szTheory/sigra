@@ -1026,6 +1026,7 @@ jobs:
 
   passkeys_opt_out_smoke:
     name: Passkeys opt-out smoke
+    # No host staging success is claimed: this is the independent fresh-generator lane only.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: github.event_name != 'pull_request'
@@ -1532,6 +1533,7 @@ jobs:
   # honest-skip and terminal-ratification contract changes.
   generated_auth_runtime_proof:
     name: Generated auth runtime proof
+    # No host staging success is claimed: this is the independent loopback-runtime lane only.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: release_ref_guard

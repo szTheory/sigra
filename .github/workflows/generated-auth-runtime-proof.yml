@@ -28,6 +28,7 @@ jobs:
 
   generated_auth_runtime_proof:
     name: Generated auth runtime proof
+    # No host staging success is claimed: this dispatch proves only the local loopback runtime.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: release_ref_guard
