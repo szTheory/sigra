@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 240
+current_phase: 240.1
 status: completed
 stopped_at: Completed 240-04-PLAN.md
-last_updated: "2026-08-10T23:22:18.410Z"
+last_updated: "2026-08-10T23:48:04.521Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 240 complete
+last_activity_desc: Phase 240.1 complete
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
   total_plans: 22
   completed_plans: 22
-  percent: 100
+  percent: 80
 current_phase_name: Alpha Operations Rehearsal
 ---
 
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 240
-Plan: Not started
+Phase: 240.1
+Plan: Complete
 Status: All phases complete
-Last activity: 2026-08-10 — Phase 240 complete
+Last activity: 2026-08-10 — Phase 240.1 complete
 
 ## Accumulated Context
 
@@ -461,6 +461,7 @@ Last activity: 2026-08-10 — Phase 240 complete
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 - v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
 - Phase 236 added: Closeout Evidence Reconciliation
+- Phase 240.1 inserted after Phase 240: Repair canonical B2C OAuth recipe handoff (URGENT)
 
 ## Quick Tasks Completed
 

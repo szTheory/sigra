@@ -11,6 +11,20 @@ Start a canonical B2C host with:
 ```bash
 mix sigra.install --yes Accounts User users \
   --no-admin --no-organizations --no-passkeys
+```
+
+OAuth token storage is deliberately host-owned. Before generating the Google
+flow, add the required direct dependency to the host application's `deps/0` in
+`mix.exs`:
+
+```elixir
+{:cloak_ecto, "~> 1.3"}
+```
+
+Then fetch it and generate OAuth:
+
+```bash
+mix deps.get
 mix sigra.gen.oauth --providers google
 ```
 

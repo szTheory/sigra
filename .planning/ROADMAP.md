@@ -121,3 +121,14 @@ Plans:
 ### Explicitly Deferred
 
 Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authority, billing, and physical-device/product-host evidence are outside this library milestone. A real iPhone and production provider rehearsal remains a host launch gate once the adopter application exists.
+
+### Phase 240.1: Repair canonical B2C OAuth recipe handoff (INSERTED)
+
+**Goal:** Make the documented canonical B2C install-to-Google-OAuth sequence executable with the host-owned `cloak_ecto` prerequisite.
+**Requirements**: B2C-02, OPS-01
+**Depends on:** Phase 240
+**Plans:** 0 plans
+
+Plans:
+
+- [x] 240.1-01: Document and lock the host-owned OAuth dependency handoff

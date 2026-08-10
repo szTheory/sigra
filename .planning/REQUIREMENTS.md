@@ -6,9 +6,9 @@
 
 ### Canonical B2C profile
 
-- [ ] **B2C-01**: A fresh Phoenix app can install `--no-admin --no-organizations --no-passkeys`, migrate, build assets, compile with warnings as errors, and boot.
-- [ ] **B2C-02**: That exact app can generate Google OAuth and contains its required routes, controller, identity, vault, and migration artifacts.
-- [ ] **B2C-03**: The profile emits no admin, organization, or passkey routes/assets/configuration.
+- [x] **B2C-01**: A fresh Phoenix app can install `--no-admin --no-organizations --no-passkeys`, migrate, build assets, compile with warnings as errors, and boot.
+- [x] **B2C-02**: That exact app can generate Google OAuth and contains its required routes, controller, identity, vault, and migration artifacts.
+- [x] **B2C-03**: The profile emits no admin, organization, or passkey routes/assets/configuration.
 
 ### Auth journey proof
 

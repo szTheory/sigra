@@ -13,7 +13,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       flags: ["--no-organizations", "--no-passkeys"]
     },
     %{
-      label: "B2C Alpha profile omits admin, organizations, and passkeys",
+      label: "B2C Alpha public OAuth setup omits admin, organizations, and passkeys",
       flags: ["--no-admin", "--no-organizations", "--no-passkeys"],
       b2c_alpha?: true
     }
@@ -49,8 +49,14 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
         assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, flags)
 
+        # The installer owns generated host dependencies (including Hammer), so
+        # refresh them before compiling every fresh host variant.
+        assert {:ok, _stdout} = InstallFixture.run_mix(app_dir, ["deps.get"])
+
         if b2c_alpha? do
           set_dummy_cloak_key!()
+          # This is the host-owned prerequisite documented in b2c-alpha.md:
+          # add direct cloak_ecto, refresh dependencies, then generate OAuth.
           add_cloak_ecto!(app_dir)
           assert {:ok, _stdout} = InstallFixture.run_mix(app_dir, ["deps.get"])
 
@@ -225,7 +231,26 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "mix compile --warnings-as-errors"
       assert source =~ "mix assets.deploy"
       assert source =~ "mix ecto.migrate"
-      assert source =~ "curl -sf"
+      assert source =~ "curl --fail --silent --show-error"
+    end
+
+    test "B2C Alpha recipe documents the executable host-owned OAuth prerequisite" do
+      recipe = File.read!("guides/recipes/b2c-alpha.md")
+
+      assert Regex.match?(
+               ~r/mix sigra\.install --yes Accounts User users\s+\\?\s*--no-admin --no-organizations --no-passkeys/m,
+               recipe
+             )
+
+      assert recipe =~ "{:cloak_ecto, \"~> 1.3\"}"
+      assert recipe =~ "mix deps.get"
+      assert recipe =~ "mix sigra.gen.oauth --providers google"
+
+      assert order_in(recipe, [
+               "{:cloak_ecto, \"~> 1.3\"}",
+               "mix deps.get",
+               "mix sigra.gen.oauth --providers google"
+             ])
     end
   end
 
@@ -268,6 +293,17 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
       File.write!(mix_exs, patched)
     end
+  end
+
+  defp order_in(source, markers) do
+    markers
+    |> Enum.reduce_while(-1, fn marker, previous_index ->
+      case :binary.match(source, marker) do
+        {index, _length} when index > previous_index -> {:cont, index}
+        _ -> {:halt, :out_of_order}
+      end
+    end)
+    |> is_integer()
   end
 
   defp tree_contains?(app_dir, needle) do
