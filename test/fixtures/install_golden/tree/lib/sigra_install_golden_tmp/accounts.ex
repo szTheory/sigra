@@ -138,8 +138,43 @@ defmodule SigraInstallGoldenTmp.Accounts do
     SigraAuth.request_magic_link(Repo, email,
       user_schema: User,
       user_token_schema: UserToken,
-      url_fun: url_fun
+      url_fun: url_fun,
+      rate_limiter: Sigra.RateLimiters.Hammer,
+      max_requests: 3,
+      window_ms: 60_000
     )
+  end
+
+  @doc """
+  Delivers a magic-link email when the supplied address belongs to a user.
+
+  Returns the same enumeration-safe result as `request_magic_link/2`.
+  """
+  def deliver_user_magic_link_instructions(email, magic_link_url_fun)
+      when is_binary(email) and is_function(magic_link_url_fun, 1) do
+    normalized_email = Sigra.Email.normalize(email)
+
+    case request_magic_link(normalized_email, magic_link_url_fun) do
+      {:ok, {_raw_token, url}} ->
+        user = get_user_by_email(normalized_email)
+
+        if user do
+          email_struct = SigraInstallGoldenTmp.Accounts.Emails.magic_link_email(user, url)
+
+          Sigra.Delivery.deliver(:magic_link, %{
+            user_id: user.id,
+            to: user.email,
+            subject: email_struct.subject,
+            body: %{html: email_struct.html_body, text: email_struct.text_body},
+            url: url
+          }, delivery_opts())
+        end
+
+        {:ok, :sent}
+
+      result ->
+        result
+    end
   end
 
   @doc """
@@ -427,19 +462,21 @@ defmodule SigraInstallGoldenTmp.Accounts do
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
-    user = get_user_by_email(email)
+    normalized_email = Sigra.Email.normalize(email)
+    user = get_user_by_email(normalized_email)
     auth_policy = user && SigraInstallGoldenTmp.Organizations.local_auth_policy_for(user)
 
-    case Sigra.Auth.request_password_reset(Repo, email,
+    case Sigra.Auth.request_password_reset(Repo, normalized_email,
            user_schema: User,
            user_token_schema: UserToken,
            secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun,
+           rate_limiter: Sigra.RateLimiters.Hammer,
+           max_requests: 3,
+           window_ms: 60_000,
            enterprise_auth_policy: SigraInstallGoldenTmp.Organizations
          ) do
       {:ok, {signed_token, url}} ->
-        user = get_user_by_email(email)
-
         if user do
           email_struct = SigraInstallGoldenTmp.Accounts.Emails.reset_password_email(user, url)
 
@@ -520,6 +557,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
       user_token_schema: UserToken,
       user_schema: User,
       changeset_fn: &User.password_changeset/2,
+      session_schema: SigraInstallGoldenTmp.Accounts.UserSession,
+      pubsub: SigraInstallGoldenTmp.PubSub,
       reset_ttl: 3600,
       enterprise_auth_policy: SigraInstallGoldenTmp.Organizations
     )
@@ -556,6 +595,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
     Sigra.Config.new!(
       repo: SigraInstallGoldenTmp.Repo,
       user_schema: User,
+      identity_schema: SigraInstallGoldenTmp.Accounts.UserIdentity,
       scope_module: SigraInstallGoldenTmp.Accounts.Scope,
       organizations_module: SigraInstallGoldenTmp.Organizations,
       branding: [
@@ -567,6 +607,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
         store: Sigra.SessionStores.Ecto,
         session_schema: SigraInstallGoldenTmp.Accounts.UserSession
       ],
+      secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
       lockout: [
         threshold: 5,
         duration: 900
@@ -586,8 +627,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   @doc "Revoke a specific session by its hashed token."
-  def revoke_session(hashed_token) do
-    Sigra.Auth.revoke_session(sigra_config(), hashed_token)
+  def revoke_session(user, hashed_token) do
+    Sigra.Auth.revoke_session(sigra_config(), hashed_token, user_id: user.id)
   end
 
   @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."

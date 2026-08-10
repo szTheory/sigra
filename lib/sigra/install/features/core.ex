@@ -574,7 +574,7 @@ defmodule Sigra.Install.Features.Core do
       # sigra:rate-limit:dependency
       marker: ~s({:hammer, "~> 7.4"}),
       anchor: :mix_deps,
-      content: ~s({:hammer, "~> 7.4"})
+      content: ~s({:hammer, "~> 7.4"},)
     }
   end
 

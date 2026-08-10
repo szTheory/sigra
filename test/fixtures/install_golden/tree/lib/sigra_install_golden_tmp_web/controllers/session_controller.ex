@@ -37,7 +37,7 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
   def create(conn, %{"_action" => "magic_link", "user" => %{"email" => email}}) do
     url_fun = fn token -> url(conn, ~p"/users/log_in/#{token}") end
 
-    case Auth.request_magic_link(email, url_fun) do
+    case Auth.deliver_user_magic_link_instructions(email, url_fun) do
       {:ok, _} -> :ok
       {:error, :rate_limited} -> :ok
     end

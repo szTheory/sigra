@@ -17,7 +17,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <%= case @live_action do %>
         <% :new -> %>

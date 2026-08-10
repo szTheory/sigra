@@ -30,7 +30,7 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Active Sessions
@@ -71,7 +71,7 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
                 data-confirm="This is your current session. Revoking it will log you out. Continue?"
                 class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
-                Revoke session
+                Log out this device
               </.sigra_auth_button>
             <% else %>
               <.sigra_auth_button
@@ -102,15 +102,17 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
   def handle_event("revoke", %{"token" => encoded_token}, socket) do
     hashed_token = Base.url_decode64!(encoded_token)
-    Auth.revoke_session(hashed_token)
+    user = socket.assigns.current_scope.user
+    Auth.revoke_session(user, hashed_token)
 
-    sessions = Auth.list_sessions(socket.assigns.current_scope.user)
+    sessions = Auth.list_sessions(user)
     {:noreply, socket |> put_flash(:info, "Session revoked.") |> assign(sessions: sessions)}
   end
 
   def handle_event("revoke_current", %{"token" => encoded_token}, socket) do
     hashed_token = Base.url_decode64!(encoded_token)
-    Auth.revoke_session(hashed_token)
+    user = socket.assigns.current_scope.user
+    Auth.revoke_session(user, hashed_token)
 
     {:noreply, redirect(socket, to: ~p"/users/log_in")}
   end

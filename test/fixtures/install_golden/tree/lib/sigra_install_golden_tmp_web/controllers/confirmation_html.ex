@@ -14,7 +14,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
 
   def new(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Confirm your email")}
@@ -54,7 +54,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
 
   def already_confirmed(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Email already confirmed")}
@@ -75,7 +75,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
 
   def expired(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Confirmation link expired")}

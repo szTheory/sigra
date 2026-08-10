@@ -12,9 +12,9 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   use SigraInstallGoldenTmpWeb, :live_view
   import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
-  def render(%{live_action: :new} = assigns) do
+  def render(%{live_action: live_action} = assigns) when live_action in [nil, :new] do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
@@ -48,7 +48,7 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
 
   def render(%{live_action: :edit} = assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
         {dgettext("sigra", "Reset your password")}
@@ -131,6 +131,9 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
       |> assign(email_form: to_form(%{"email" => ""}, as: "user"))
 
     case socket.assigns.live_action do
+      nil ->
+        {:ok, socket}
+
       :new ->
         {:ok, socket}
 
@@ -153,12 +156,10 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    if user = SigraInstallGoldenTmp.Accounts.get_user_by_email(email) do
-      SigraInstallGoldenTmp.Accounts.deliver_user_reset_password_instructions(
-        user,
-        &url(socket, ~p"/users/reset-password/#{&1}")
-      )
-    end
+    SigraInstallGoldenTmp.Accounts.deliver_user_reset_password_instructions(
+      email,
+      &url(socket, ~p"/users/reset-password/#{&1}")
+    )
 
     {:noreply,
      socket
@@ -186,14 +187,20 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   end
 
   def handle_event("reset", %{"user" => password_params}, socket) do
-    case SigraInstallGoldenTmp.Accounts.reset_user_password(socket.assigns.user, password_params) do
+    case SigraInstallGoldenTmp.Accounts.reset_user_password(socket.assigns.token, password_params) do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, dgettext("sigra", "Your password has been reset."))
-         |> assign(trigger_submit: true)}
+         |> put_flash(:info, dgettext("sigra", "Password reset successfully!"))
+         |> redirect(to: ~p"/users/log_in")}
 
-      {:error, changeset} ->
+      {:error, :token_invalid} ->
+        {:noreply, assign(socket, token_invalid?: true, form: nil)}
+
+      {:error, :token_expired} ->
+        {:noreply, assign(socket, token_invalid?: true, form: nil)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
   end

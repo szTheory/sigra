@@ -76,7 +76,9 @@ config :sigra,
   repo: SigraInstallGoldenTmp.Repo,
   user_schema: SigraInstallGoldenTmp.Accounts.User,
   email_module: SigraInstallGoldenTmp.Accounts.Emails,
-  mailer: SigraInstallGoldenTmp.Accounts.Mailer
+  mailer: SigraInstallGoldenTmp.Accounts.Mailer,
+  # sigra:rate-limit:config
+  hammer_module: SigraInstallGoldenTmp.RateLimit
 
 
 # Sigra passkeys

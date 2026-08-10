@@ -87,6 +87,16 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     live "/register", RegistrationLive
 
+    # sigra:rate-limit:login-route
+    # Hosts may override these conservative defaults in config/runtime.exs.
+    # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+    plug Sigra.Plug.RateLimit,
+      limiter: Sigra.RateLimiters.Hammer,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      key_prefix: "login",
+      limit: Application.get_env(:sigra, :login_rate_limit, 3),
+      window: Application.get_env(:sigra, :login_rate_limit_window, 60_000)
+
     post "/log_in", SessionController, :create
     get "/log_in/:token", SessionController, :magic_link
 
@@ -104,13 +114,26 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     delete "/log_out", SessionController, :delete
 
-    live "/sessions", Auth.SessionLive, :index
-
       get "/sudo", Auth.SudoController, :new
+    # sigra:rate-limit:sudo-route
+    # Hosts may override these conservative defaults in config/runtime.exs.
+    # limit: 3, window: 60_000; generated evidence proves N-1/N/N+1 without waits.
+    plug Sigra.Plug.RateLimit,
+      limiter: Sigra.RateLimiters.Hammer,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      key_prefix: "sudo",
+      limit: Application.get_env(:sigra, :sudo_rate_limit, 3),
+      window: Application.get_env(:sigra, :sudo_rate_limit_window, 60_000)
+
       post "/sudo", Auth.SudoController, :create
+live_session :require_authenticated,
+  on_mount: [{SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated}] do
+
+    live "/sessions", Auth.SessionLive, :index
 
     live "/settings", SettingsLive, :edit
     live "/reactivation", ReactivationLive
+    end
 
   end
 

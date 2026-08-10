@@ -56,12 +56,18 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.sigra_auth_page>
+    <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
         Account Settings
         <:subtitle>Manage your email, password, and account.</:subtitle>
       </.header>
+
+      <.link
+        href={~p"/users/log_out"}
+        method="delete"
+        class="sigra-auth-action sigra-auth-action--ghost"
+      >Log out</.link>
 
       <%= # Force password change banner (D-58) %>
       <div
