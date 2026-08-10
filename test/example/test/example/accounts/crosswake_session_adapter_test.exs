@@ -302,7 +302,11 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
                "not-a-cookie",
                as_of,
                protected_route(),
-               %ExpectedBinding{session_ref: "session", subject_ref: "subject", session_version: 1},
+               %ExpectedBinding{
+                 session_ref: "session",
+                 subject_ref: "subject",
+                 session_version: 1
+               },
                valid_return_envelope(),
                evaluator: notifying_evaluator(self())
              )
@@ -335,7 +339,8 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
     {switched_token, _switched_session} =
       session_with_raw_token(switched_user, %{inserted_at: as_of, last_active_at: as_of})
 
-    assert {:ok, original_binding} = CrosswakeSessionAdapter.expected_binding(original_token, as_of)
+    assert {:ok, original_binding} =
+             CrosswakeSessionAdapter.expected_binding(original_token, as_of)
 
     for {raw_token, binding, expected_reason} <- [
           {expired_token,
@@ -405,7 +410,8 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
           :provider_payload,
           :authorization_code
         ] do
-      assert {:error, errors} = AuthReturn.new_envelope(Map.put(valid_return_envelope(), field, "smuggled"))
+      assert {:error, errors} =
+               AuthReturn.new_envelope(Map.put(valid_return_envelope(), field, "smuggled"))
 
       assert Enum.any?(errors, fn
                {:auth_return_envelope, {^field, rejection}}

@@ -9,6 +9,7 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
 
   alias Crosswake.Companions.Sigra.Contracts
   alias Crosswake.Companions.Sigra.Evaluator
+  alias Crosswake.Companions.Sigra.AuthReturn
   alias Crosswake.Manifest.Types.RouteEntry
   alias Example.Accounts
 
@@ -106,6 +107,48 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
 
   def evaluate(_raw_token, _as_of, _route, _expected_binding, _opts),
     do: deny(:session_unavailable)
+
+  @doc """
+  Evaluates a hosted return after validating its released evidence envelope.
+
+  Return evidence is parsed before host authority, but it never supplies or
+  changes the session binding, projected lane, route, or evaluator options.
+  Only a fresh host session can reach the evaluator; approved evidence is
+  returned separately for host navigation or audit handling.
+  """
+  @spec evaluate_return(
+          binary(),
+          DateTime.t(),
+          RouteEntry.t(),
+          ExpectedBinding.t(),
+          map() | keyword()
+        ) :: result()
+  def evaluate_return(raw_token, as_of, route, expected_binding, return_input) do
+    evaluate_return(raw_token, as_of, route, expected_binding, return_input, [])
+  end
+
+  @doc false
+  @spec evaluate_return(
+          binary(),
+          DateTime.t(),
+          RouteEntry.t(),
+          ExpectedBinding.t(),
+          map() | keyword(),
+          keyword()
+        ) :: result()
+  def evaluate_return(raw_token, as_of, route, expected_binding, return_input, opts)
+      when is_list(opts) do
+    with {:ok, evidence} <- AuthReturn.new_envelope(return_input),
+         {:allow, result} <- evaluate(raw_token, as_of, route, expected_binding, opts) do
+      {:allow, Map.put(result, :evidence, evidence)}
+    else
+      {:deny, _reason} = denial -> denial
+      {:error, _invalid_evidence} -> deny(:invalid_return_evidence)
+    end
+  end
+
+  def evaluate_return(_raw_token, _as_of, _route, _expected_binding, _return_input, _opts),
+    do: deny(:invalid_return_evidence)
 
   defp new_lane(binding, session, as_of) do
     session_config = Accounts.sigra_config().session
