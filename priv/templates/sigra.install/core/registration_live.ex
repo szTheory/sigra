@@ -160,6 +160,14 @@ defmodule <%= web_module %>.RegistrationLive do
          |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
          |> assign_form(changeset)}
 
+      {:error, :rate_limited} ->
+        changeset = <%= context_module %>.change_user_registration(%<%= schema_alias %>{})
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
+         |> assign_form(changeset)}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end

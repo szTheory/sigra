@@ -390,6 +390,9 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
          socket
          |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
 
+      {:error, :rate_limited} ->
+        {:noreply, put_flash(socket, :error, "Too many attempts. Please try again shortly.")}
+
       {:error, :not_enrolled} ->
         {:noreply,
          socket
@@ -423,6 +426,9 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+
+      {:error, :rate_limited} ->
+        {:noreply, put_flash(socket, :error, "Too many attempts. Please try again shortly.")}
 
       {:error, :not_enrolled} ->
         {:noreply,

@@ -102,6 +102,11 @@ defmodule Sigra.Test.InstallFixture do
       raise "mix sigra.install failed (status #{install_status}):\n#{install_out}"
     end
 
+    # The installer may add host dependencies (for example the generated
+    # Hammer limiter). Fetch them before callers exercise a second Mix task;
+    # otherwise Mix refuses to load the task before idempotency can be tested.
+    mix_deps_get_noninteractive!(app_dir)
+
     {:ok,
      %{
        app_dir: app_dir,

@@ -5,7 +5,10 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
   @auth_template "priv/templates/sigra.install/core/auth.ex"
   @sigra_auth "lib/sigra/auth.ex"
   @session_controller "priv/templates/sigra.install/core/session_controller.ex"
+  @registration_live "priv/templates/sigra.install/core/registration_live.ex"
+  @confirmation_live "priv/templates/sigra.install/core/confirmation_live.ex"
   @reset_password_live "priv/templates/sigra.install/core/reset_password_live.ex"
+  @mfa_challenge_live "priv/templates/sigra.install/core/mfa_challenge_live.ex"
 
   defp read!(path), do: File.read!(path)
 
@@ -114,5 +117,36 @@ defmodule Sigra.Install.GeneratedRateLimitContextTest do
 
     refute String.contains?(session <> reset, "RateLimiters.Hammer"),
            "generated outward mail-request copy must not expose limiter implementation"
+  end
+
+  test "canonical LiveView operations use explicit generated context limits" do
+    auth = read!(@auth_template)
+    registration = read!(@registration_live)
+    confirmation = read!(@confirmation_live)
+    reset = read!(@reset_password_live)
+    mfa = read!(@mfa_challenge_live)
+
+    for marker <- [
+          "defp sensitive_rate_limit(prefix, subject)",
+          "Sigra.RateLimiters.Hammer.check_rate",
+          ":registration",
+          ":confirmation_resend",
+          ":reset_update",
+          ":mfa"
+        ] do
+      assert_contains!(auth, marker, "generated LiveView context limiter")
+    end
+
+    assert_contains!(registration, "register_user(user_params)", "registration context boundary")
+
+    assert_contains!(
+      confirmation,
+      "resend_user_confirmation_instructions",
+      "confirmation resend context boundary"
+    )
+
+    assert_contains!(reset, "reset_user_password", "reset context boundary")
+    assert_contains!(mfa, "Auth.mfa_verify(user, code)", "MFA context boundary")
+    assert_contains!(mfa, "{:error, :rate_limited}", "MFA rate-limit outcome")
   end
 end

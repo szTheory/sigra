@@ -96,10 +96,11 @@ defmodule <%= context_module %> do
 
   """
   def register_user(attrs, opts \\ []) do
-    changeset_fn = fn a -> <%= schema_alias %>.registration_changeset(%<%= schema_alias %>{}, a) end
-    confirmation_url_fun = Keyword.get(opts, :confirmation_url_fun)
+    with :ok <- sensitive_rate_limit(:registration, Map.get(attrs, "email")) do
+      changeset_fn = fn a -> <%= schema_alias %>.registration_changeset(%<%= schema_alias %>{}, a) end
+      confirmation_url_fun = Keyword.get(opts, :confirmation_url_fun)
 
-    case SigraAuth.register(Repo, attrs, changeset_fn: changeset_fn) do
+      case SigraAuth.register(Repo, attrs, changeset_fn: changeset_fn) do
       {:ok, user} ->
         # CONF-01: Auto-send confirmation email on registration
         if confirmation_url_fun do
@@ -109,7 +110,8 @@ defmodule <%= context_module %> do
         {:ok, user}
 
       {:error, :email_taken} -> {:error, :email_taken}
-      {:error, changeset} -> {:error, changeset}
+        {:error, changeset} -> {:error, changeset}
+      end
     end
   end
 
@@ -420,6 +422,14 @@ defmodule <%= context_module %> do
     end
   end
 
+  @doc "Resends confirmation instructions through the generated LiveView limiter boundary."
+  def resend_user_confirmation_instructions(%<%= schema_alias %>{} = user, confirmation_url_fun)
+      when is_function(confirmation_url_fun, 1) do
+    with :ok <- sensitive_rate_limit(:confirmation_resend, user.id) do
+      deliver_user_confirmation_instructions(user, confirmation_url_fun)
+    end
+  end
+
   @doc """
   Confirms a user by HMAC-signed link token.
 
@@ -551,7 +561,8 @@ defmodule <%= context_module %> do
 
   """
   def reset_user_password(signed_token, attrs) when is_binary(signed_token) do
-    Sigra.Auth.reset_password(Repo, signed_token, attrs,
+    with :ok <- sensitive_rate_limit(:reset_update, signed_token) do
+      Sigra.Auth.reset_password(Repo, signed_token, attrs,
       secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
@@ -559,7 +570,8 @@ defmodule <%= context_module %> do
       session_schema: <%= context_module %>.UserSession,
       pubsub: <%= app_module %>.PubSub,
       reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
-    )
+      )
+    end
   end
 
   # Legacy API accepting a user struct. Test-only helper — bypasses the
@@ -708,31 +720,38 @@ defmodule <%= context_module %> do
 
   @doc "Confirm MFA enrollment with a TOTP code. Creates credential and backup codes."
   def mfa_confirm_enrollment(user, raw_secret, code, opts \\ []) do
-    Sigra.MFA.confirm_enrollment(sigra_config(), user, raw_secret, code,
+    with :ok <- sensitive_rate_limit(:mfa, user.id) do
+      Sigra.MFA.confirm_enrollment(sigra_config(), user, raw_secret, code,
       Keyword.merge([
         mfa_credential_schema: UserMFACredential,
         backup_code_schema: UserBackupCode
-      ], opts))
+        ], opts))
+    end
   end
 
   @doc "Verify a TOTP code for MFA challenge."
   def mfa_verify(user, code, opts \\ []) do
-    Sigra.MFA.verify(sigra_config(), user, code,
-      Keyword.merge([mfa_credential_schema: UserMFACredential], opts))
+    with :ok <- sensitive_rate_limit(:mfa, user.id) do
+      Sigra.MFA.verify(sigra_config(), user, code,
+        Keyword.merge([mfa_credential_schema: UserMFACredential], opts))
+    end
   end
 
   @doc "Verify a backup code for MFA challenge."
   def mfa_verify_backup(user, code, opts \\ []) do
-    Sigra.MFA.verify_backup(sigra_config(), user, code,
+    with :ok <- sensitive_rate_limit(:mfa, user.id) do
+      Sigra.MFA.verify_backup(sigra_config(), user, code,
       Keyword.merge([
         mfa_credential_schema: UserMFACredential,
         backup_code_schema: UserBackupCode
-      ], opts))
+        ], opts))
+    end
   end
 
   @doc "Disable MFA for a user. Requires valid TOTP or backup code."
   def mfa_disable(user, code, opts \\ []) do
-    with :ok <- forbid_sensitive_operation(opts, user, "mfa.disable") do
+    with :ok <- sensitive_rate_limit(:mfa, user.id),
+         :ok <- forbid_sensitive_operation(opts, user, "mfa.disable") do
       Sigra.MFA.disable(sigra_config(), user, code,
         Keyword.merge([
           mfa_credential_schema: UserMFACredential,
@@ -747,7 +766,8 @@ defmodule <%= context_module %> do
   Requires `{:totp, code}` — backup codes **cannot** authorize rotation.
   """
   def mfa_regenerate_backup_codes(user, {:totp, _} = verification, opts \\ []) do
-    with :ok <- forbid_sensitive_operation(opts, user, "mfa.regenerate_backup_codes") do
+    with :ok <- sensitive_rate_limit(:mfa, user.id),
+         :ok <- forbid_sensitive_operation(opts, user, "mfa.regenerate_backup_codes") do
       Sigra.MFA.regenerate_backup_codes(sigra_config(), user, verification,
         Keyword.merge([
           mfa_credential_schema: UserMFACredential,
@@ -1159,6 +1179,22 @@ defmodule <%= context_module %> do
 
   # Runtime environment values are untrusted deployment input. Keep malformed
   # mail-request limits from reaching Hammer, whose error recovery fails open.
+  # LiveView events bypass router POST pipelines, so these generated context
+  # boundaries own their own deterministic Hammer keys.
+  defp sensitive_rate_limit(prefix, subject)
+       when prefix in [:registration, :confirmation_resend, :reset_update, :mfa] do
+    key = "sigra:#{prefix}:#{Sigra.Email.normalize(to_string(subject || ""))}"
+
+    case Sigra.RateLimiters.Hammer.check_rate(
+           key,
+           runtime_positive_integer(:"#{prefix}_rate_limit", 3),
+           runtime_positive_integer(:"#{prefix}_rate_limit_window", 60_000)
+         ) do
+      {:allow, _count} -> :ok
+      {:deny, _retry_after_ms} -> {:error, :rate_limited}
+    end
+  end
+
   defp runtime_positive_integer(key, default) do
     case Application.get_env(:sigra, key, default) do
       value when is_integer(value) and value > 0 -> value

@@ -158,6 +158,14 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
          |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
          |> assign_form(changeset)}
 
+      {:error, :rate_limited} ->
+        changeset = SigraInstallGoldenTmp.Accounts.change_user_registration(%User{})
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
+         |> assign_form(changeset)}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end

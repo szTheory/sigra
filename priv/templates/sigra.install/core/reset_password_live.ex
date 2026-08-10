@@ -200,6 +200,11 @@ defmodule <%= web_module %>.ResetPasswordLive do
       {:error, :token_expired} ->
         {:noreply, assign(socket, token_invalid?: true, form: nil)}
 
+      {:error, :rate_limited} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, dgettext("sigra", "Please try again shortly."))}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end

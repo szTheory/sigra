@@ -145,7 +145,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
   def handle_event("resend", _params, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
+    case Auth.resend_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
       {:ok, _} ->
         {:noreply, put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
 
@@ -154,6 +154,10 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
          socket
          |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
          |> redirect(to: ~p"/")}
+
+      {:error, :rate_limited} ->
+        {:noreply,
+         put_flash(socket, :info, dgettext("sigra", "If your email can receive messages, a confirmation email will arrive shortly."))}
     end
   end
 
