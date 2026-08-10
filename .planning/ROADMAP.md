@@ -18,7 +18,7 @@
 - [x] **Phase 237: Canonical B2C Generator Contract** — Fresh Phoenix profile with admin, organizations, and passkeys disabled; Google OAuth generation, migration, compilation, and boot proof. **Requirements:** B2C-01, B2C-02, B2C-03. (completed 2026-08-04)
 - [x] **Phase 238: Generated Auth Runtime Proof** — Deterministic browser and accessibility coverage for the B2C email and Google journeys. **Requirements:** AUTH-01, AUTH-02, AUTH-03. (completed 2026-08-08)
 - [ ] **Phase 239: Hosted Session Interop** — Prove the SIGRA-to-Crosswake backend-session adapter, personal-account scope, return evidence boundary, and fail-closed replay. **Requirements:** XW-01, XW-02.
-- [ ] **Phase 240: Alpha Operations Rehearsal** — Provider-neutral email/OAuth preflight and no-secrets launch gate. **Requirements:** OPS-01, OPS-02.
+- [x] **Phase 240: Alpha Operations Rehearsal** — Provider-neutral email/OAuth preflight and no-secrets launch gate. **Requirements:** OPS-01, OPS-02. (completed 2026-08-10)
 
 ## Phase Details
 
@@ -99,7 +99,7 @@ Plans:
 
 **Requirements:** OPS-01, OPS-02
 
-**Plans:** 5/5 plans executed
+**Plans:** 5/5 plans complete
 
 Plans:
 **Wave 1**
