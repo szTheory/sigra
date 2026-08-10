@@ -6,6 +6,7 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
   alias Crosswake.Companions.Sigra.Contracts
   alias Crosswake.Manifest.Types
   alias Example.Accounts.CrosswakeSessionAdapter
+  alias Example.Accounts.CrosswakeSessionAdapter.ExpectedBinding
   alias Example.Repo
 
   @tag :crosswake_tracer
@@ -221,6 +222,76 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
     assert_denied_without_evaluator(boundary_token, as_of, boundary_binding)
   end
 
+  @tag :crosswake_binding
+  test "only a complete host-owned binding can reach the evaluator" do
+    as_of = iso8601!("2026-08-09T12:01:00.000000Z")
+    user = user_fixture()
+
+    {raw_token, _session} =
+      session_with_raw_token(user, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, %ExpectedBinding{} = binding} =
+             CrosswakeSessionAdapter.expected_binding(raw_token, as_of)
+
+    assert {:allow, _result} =
+             CrosswakeSessionAdapter.evaluate(
+               raw_token,
+               as_of,
+               protected_route(),
+               binding,
+               evaluator: notifying_evaluator(self())
+             )
+
+    assert_receive :crosswake_evaluator_called
+
+    for invalid_binding <- [
+          %ExpectedBinding{binding | session_ref: "other-session"},
+          %ExpectedBinding{binding | subject_ref: "other-subject"},
+          %ExpectedBinding{binding | session_version: binding.session_version + 1},
+          Map.from_struct(binding),
+          %{}
+        ] do
+      assert_binding_denied_without_evaluator(raw_token, as_of, invalid_binding)
+    end
+  end
+
+  @tag :crosswake_account_switch
+  test "a valid replacement account or session cannot replace the continuation binding" do
+    as_of = iso8601!("2026-08-09T12:01:00.000000Z")
+    account_a = user_fixture()
+    account_b = user_fixture()
+
+    {a_token, _a_session} =
+      session_with_raw_token(account_a, %{inserted_at: as_of, last_active_at: as_of})
+
+    {a_second_token, _a_second_session} =
+      session_with_raw_token(account_a, %{inserted_at: as_of, last_active_at: as_of})
+
+    {b_token, _b_session} =
+      session_with_raw_token(account_b, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, binding_a} = CrosswakeSessionAdapter.expected_binding(a_token, as_of)
+    assert {:ok, binding_b} = CrosswakeSessionAdapter.expected_binding(b_token, as_of)
+
+    for replacement_token <- [b_token, a_second_token] do
+      assert {:deny, denial} =
+               CrosswakeSessionAdapter.evaluate(
+                 replacement_token,
+                 as_of,
+                 protected_route(),
+                 binding_a,
+                 evaluator: notifying_evaluator(self())
+               )
+
+      assert denial == %{status: :deny, reason: :binding_mismatch}
+      refute inspect(denial) =~ binding_a.session_ref
+      refute inspect(denial) =~ binding_a.subject_ref
+      refute inspect(denial) =~ binding_b.session_ref
+      refute inspect(denial) =~ binding_b.subject_ref
+      refute_receive :crosswake_evaluator_called
+    end
+  end
+
   defp protected_route do
     Types.new_route_entry(
       id: "crosswake-tracer",
@@ -260,6 +331,19 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
 
   defp assert_denied_without_evaluator(raw_token, as_of, binding) do
     assert {:deny, %{status: :deny, reason: :session_unavailable}} =
+             CrosswakeSessionAdapter.evaluate(
+               raw_token,
+               as_of,
+               protected_route(),
+               binding,
+               evaluator: notifying_evaluator(self())
+             )
+
+    refute_receive :crosswake_evaluator_called
+  end
+
+  defp assert_binding_denied_without_evaluator(raw_token, as_of, binding) do
+    assert {:deny, %{status: :deny, reason: :binding_mismatch}} =
              CrosswakeSessionAdapter.evaluate(
                raw_token,
                as_of,
