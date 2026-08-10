@@ -1,0 +1,109 @@
+{
+  "schema": "sigra.phase239.hosted-session-interop-evidence.v1",
+  "sigra_git_sha": "78a86f75338730792f7d156fc91819023e57d15d",
+  "captured_at": "2026-08-10T00:46:41Z",
+  "wave_0_proof": {
+    "schema": "sigra.phase239.crosswake-release-proof.v1",
+    "sha256": "4c12808426d29e6871e165198bcaede2205d32213f2505e9917ad3e475a3fcff",
+    "commands": [
+      {
+        "command": "mix format --check-formatted packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs",
+        "exit_status": 0,
+        "outcome": "passed"
+      },
+      {
+        "command": "cd packages/crosswake_sigra && mix test test/crosswake/companions/sigra/contracts_test.exs",
+        "exit_status": 0,
+        "outcome": "passed"
+      },
+      {
+        "command": "cd packages/crosswake_sigra && mix test test/crosswake/proof/phase57_auth_return_boundaries_test.exs",
+        "exit_status": 0,
+        "outcome": "passed"
+      },
+      {
+        "command": "cd packages/crosswake_sigra && mix test",
+        "exit_status": 0,
+        "outcome": "passed"
+      }
+    ]
+  },
+  "crosswake_release": {
+    "repository": "https://github.com/szTheory/crosswake.git",
+    "package": "crosswake_sigra",
+    "version": "0.1.3",
+    "requirement": "~> 0.1.3",
+    "git_tag": "crosswake_sigra-v0.1.3",
+    "git_sha": "70edb8077894fd09d4376591782b511c9d8be664",
+    "hex_checksum": "0c6243fe06de93dea7ae59a856a4290f9d6ac2ddfe27e2dd509a7585681feb8b"
+  },
+  "local_commands": [
+    {
+      "command": "MIX_ENV=test mix format --check-formatted test/sigra/planning/phase_239_hosted_session_interop_test.exs",
+      "exit_status": 0
+    },
+    {
+      "command": "MIX_ENV=test mix test test/sigra/planning/phase_239_hosted_session_interop_test.exs",
+      "exit_status": 0
+    },
+    {
+      "command": "cd test/example && mix test test/example/accounts/crosswake_session_adapter_test.exs",
+      "exit_status": 0
+    }
+  ],
+  "test_categories": {
+    "fast_source_release_scope_contract": "passed",
+    "complete_database_backed_adapter_suite": "passed"
+  },
+  "requirements": {
+    "XW-01": "proved by personal nil-org projection, opaque references, recipe, and smuggling denial matrix",
+    "XW-02": "proved by fresh lookup, expiry/currentness, binding/account-switch, and evidence-only denial matrix"
+  },
+  "decisions": {
+    "D-01": "personal org_id is nil; blank organization scope is denied",
+    "D-02": "opaque host-owned references and fact-only lane do not expose credentials",
+    "D-03": "fresh SIGRA session and user resolution precedes each evaluation",
+    "D-04": "server-owned session/subject/version binding denies replay drift and account switches",
+    "D-05": "AuthReturn is evidence/navigation only and cannot select authority",
+    "D-06": "deterministic contract/evaluator matrix covers allow and denial boundaries"
+  },
+  "unresolved_assumptions": [
+    {
+      "requirement_id": "XW-01",
+      "category": "unclassified",
+      "status": "unresolved",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-02",
+      "category": "unclassified",
+      "status": "unresolved",
+      "flagged": true
+    }
+  ],
+  "flagged_unverified_prohibitions": [
+    {
+      "requirement_id": "XW-01",
+      "category": "authority-integrity",
+      "status": "unverified",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-01",
+      "category": "secret-boundary",
+      "status": "unverified",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-02",
+      "category": "authority-smuggling",
+      "status": "unverified",
+      "flagged": true
+    }
+  ],
+  "api_detector": {
+    "detected": false,
+    "reason": "crosswake_sigra is an in-process Elixir dependency; no Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication is introduced",
+    "rerun_trigger": "introducing a Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication"
+  }
+}
