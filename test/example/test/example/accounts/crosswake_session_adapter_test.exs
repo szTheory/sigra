@@ -311,6 +311,54 @@ defmodule Example.Accounts.CrosswakeSessionAdapterTest do
   end
 
   @tag :crosswake_return_evidence
+  test "approved hosted-return evidence cannot revive expired, revoked, or switched host state" do
+    as_of = iso8601!("2026-08-09T12:30:00.000000Z")
+    user = user_fixture()
+
+    {expired_token, _expired_session} =
+      session_with_raw_token(user, %{
+        inserted_at: as_of,
+        last_active_at: DateTime.add(as_of, -1_800, :second)
+      })
+
+    {revoked_token, revoked_session} =
+      session_with_raw_token(user, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, revoked_binding} = CrosswakeSessionAdapter.expected_binding(revoked_token, as_of)
+    Repo.delete!(revoked_session)
+
+    switched_user = user_fixture()
+
+    {original_token, _original_session} =
+      session_with_raw_token(user, %{inserted_at: as_of, last_active_at: as_of})
+
+    {switched_token, _switched_session} =
+      session_with_raw_token(switched_user, %{inserted_at: as_of, last_active_at: as_of})
+
+    assert {:ok, original_binding} = CrosswakeSessionAdapter.expected_binding(original_token, as_of)
+
+    for {raw_token, binding, expected_reason} <- [
+          {expired_token,
+           %ExpectedBinding{session_ref: "expired", subject_ref: "expired", session_version: 1},
+           :session_unavailable},
+          {revoked_token, revoked_binding, :session_unavailable},
+          {switched_token, original_binding, :binding_mismatch}
+        ] do
+      assert {:deny, %{status: :deny, reason: ^expected_reason}} =
+               CrosswakeSessionAdapter.evaluate_return(
+                 raw_token,
+                 as_of,
+                 protected_route(),
+                 binding,
+                 valid_return_envelope(),
+                 evaluator: notifying_evaluator(self())
+               )
+
+      refute_receive :crosswake_evaluator_called
+    end
+  end
+
+  @tag :crosswake_return_evidence
   test "valid hosted-return evidence preserves host authority and evaluator inputs" do
     as_of = iso8601!("2026-08-09T12:01:00.000000Z")
     user = user_fixture()
