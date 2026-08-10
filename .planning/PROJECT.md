@@ -19,6 +19,13 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**Phase 240 alpha operations rehearsal complete (2026-08-10).** The canonical
+B2C profile now has generated, bounded Hammer limits across controller and
+LiveView-sensitive flows, a provider-neutral operator checklist, and two
+credential-free CI proof lanes. Verification passed 26/26 must-haves; local
+PostgreSQL-backed smoke execution remains CI-bound and is not claimed as a
+local pass.
+
 **Phase 238 generated auth runtime proof complete (2026-08-08).** The exact
 `--no-admin --no-organizations --no-passkeys` fresh-host lifecycle now has
 PostgreSQL-backed Google OAuth generation, rendered email-auth journey, scoped
