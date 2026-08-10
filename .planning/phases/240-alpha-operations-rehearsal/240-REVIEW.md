@@ -1,6 +1,6 @@
 ---
 phase: 240-alpha-operations-rehearsal
-reviewed: 2026-08-10T22:36:00Z
+reviewed: 2026-08-10T22:38:47Z
 depth: deep
 files_reviewed: 15
 files_reviewed_list:
@@ -21,39 +21,35 @@ files_reviewed_list:
   - test/fixtures/install_golden/tree/config/config.exs
 findings:
   critical: 0
-  warning: 1
+  warning: 0
   info: 0
-  total: 1
-status: issues_found
+  total: 0
+status: clean
 ---
 
-# Phase 240: Code Review Re-review Report
+# Phase 240: Final Code Review Report
 
-**Reviewed:** 2026-08-10T22:36:00Z
+**Reviewed:** 2026-08-10T22:38:47Z
 **Depth:** deep
 **Files Reviewed:** 15
-**Status:** issues_found
+**Status:** clean
 
 ## Summary
 
-The original generated-router compile defect is resolved: generated rate limiters are valid Phoenix pipelines and protected routes use those pipelines through separate scopes. Route-level values now resolve per request, both credential-free harnesses clear inherited Google credentials before any Mix invocation, and the LiveView and `--no-live` lanes each compile their generated host.
+Final closure review confirms that all prior findings are resolved: **CR-01, WR-01, WR-02, WR-03, and WR-04**.
 
-Original finding disposition: **CR-01 resolved; WR-01 resolved; WR-02 resolved; WR-03 resolved.** One follow-on warning remains in the newly configurable context mail-request limits.
+For WR-04, both generated mail-request paths resolve `:magic_link_rate_limit`, `:magic_link_rate_limit_window`, `:reset_rate_limit`, and `:reset_rate_limit_window` through `runtime_positive_integer/2` before invoking Hammer. The helper accepts only positive integers and falls back to the generated defaults for zero, negative, and non-integer values, preventing malformed configuration from reaching Hammer's fail-open rescue path. The rendered golden context contains the same resolver and call sites.
+
+`test/sigra/install/generated_rate_limit_context_test.exs` asserts the generated helper contract and covers `0`, `-1`, and string overrides for both request limits and windows. Focused generated rate-limit context and contract tests passed (8 tests, 0 failures). `git diff --check` also passed.
+
+All reviewed files meet the applicable correctness, security, and maintainability requirements. No remaining issues found.
 
 ## Narrative Findings (AI reviewer)
 
-## Warnings
-
-### WR-04: Context runtime overrides can silently disable mail-request throttling
-
-**File:** `priv/templates/sigra.install/core/auth.ex:143-144,475-476`
-
-**Issue:** Magic-link and reset values are passed directly from `Application.get_env/3` to `Sigra.RateLimiters.Hammer`. Unlike route values, which use `runtime_positive_integer/2` in `lib/sigra/plug/rate_limit.ex:67-68,107-113`, the context values accept zero, negatives, strings, or other malformed runtime configuration. Hammer raises for invalid scale/limit values and `Sigra.RateLimiters.Hammer.check_rate/3` rescues every exception as `{:allow, 0}` (`lib/sigra/rate_limiters/hammer.ex:31-38`). A configuration typo therefore silently fails open and removes throttling from magic-link or password-reset requests.
-
-**Fix:** Resolve these two option pairs through a shared positive-integer runtime-config helper, falling back to the generated defaults before calling `SigraAuth.request_magic_link/3` and `Sigra.Auth.request_password_reset/3`. Add generated-context tests for `0`, negative, and non-integer overrides to prove that each falls back rather than reaching Hammer.
+No unresolved findings.
 
 ---
 
-_Reviewed: 2026-08-10T22:36:00Z_
+_Reviewed: 2026-08-10T22:38:47Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: deep_
