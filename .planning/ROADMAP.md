@@ -58,7 +58,7 @@
 
 **Requirements:** XW-01, XW-02
 
-**Plans:** 3/7 plans executed
+**Plans:** 5/7 plans executed
 
 Plans:
 **Wave 1**
@@ -72,11 +72,11 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 239-03-PLAN.md — Expand fail-closed currentness, revocation, and expiry behavior.
+- [x] 239-03-PLAN.md — Expand fail-closed currentness, revocation, and expiry behavior.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 239-04-PLAN.md — Bind replay to session, subject, and version and deny account switching.
+- [x] 239-04-PLAN.md — Bind replay to session, subject, and version and deny account switching.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
