@@ -84,6 +84,72 @@ add_proof_dependencies() {
   '
 }
 
+install_generated_liveview_rate_limit_probe() {
+  # This disposable generated-host test uses a real LiveView event. Two
+  # registration submissions consume the generated context limiter and the
+  # third is denied in the same window without timer manipulation or delay.
+  # The final Hammer check proves those rendered events reached the
+  # generated limiter rather than merely rendering the generic duplicate-email
+  # branch.
+  cat > "test/generated_liveview_rate_limit_probe_test.exs" <<'EOF'
+defmodule SigraB2cAuthProof.GeneratedLiveviewRateLimitProbeTest do
+  use SigraB2cAuthProofWeb.ConnCase, async: false
+
+  import Phoenix.LiveViewTest
+
+  @limit 2
+  @window 60_000
+  @email "liveview-rate-limit@example.test"
+  @generic_outcome "If this email is available, your account has been created. Please check your email."
+
+  test "generated registration LiveView allows N events then gives a generic N + 1 denial", %{conn: conn} do
+    for attempt <- 1..@limit do
+      {:ok, view, _html} = live(recycle(conn), "/users/register")
+
+      html =
+        view
+        |> form("#registration_form", user: registration_params())
+        |> render_submit()
+
+      if attempt == 1 do
+        assert html =~ ~s(phx-trigger-action="true")
+      else
+        assert html =~ @generic_outcome
+      end
+    end
+
+    {:ok, view, _html} = live(recycle(conn), "/users/register")
+
+    denied_html =
+      view
+      |> form("#registration_form", user: registration_params())
+      |> render_submit()
+
+    assert denied_html =~ @generic_outcome
+
+    assert {:deny, retry_after_ms} =
+             Sigra.RateLimiters.Hammer.check_rate(
+               "sigra:registration:" <> @email,
+               @limit,
+               @window
+             )
+
+    assert retry_after_ms > 0
+  end
+
+  defp registration_params do
+    %{"email" => @email, "password" => "a generated-host proof password"}
+  end
+end
+EOF
+
+  cat >> config/test.exs <<'EOF'
+
+# Generated LiveView limiter probe: deterministic bound before test app boot.
+config :sigra, registration_rate_limit: 2, registration_rate_limit_window: 60_000
+EOF
+}
+
 write_oidc_double() {
   local web_module="SigraB2cAuthProofWeb"
   local callback="http://127.0.0.1:${PORT}/auth/google/callback"
@@ -229,11 +295,18 @@ boot_and_run_spec() {
   patch_mix_exs
   mix deps.get
   MIX_ENV=dev mix sigra.install Accounts User users --no-admin --no-organizations --no-passkeys --yes
+  # Installation injects Hammer into this fresh host. Resolve it before this
+  # script writes its own proof dependencies or compiles generated code.
+  MIX_ENV=dev mix deps.get
   add_proof_dependencies
   mix deps.get
+  install_generated_liveview_rate_limit_probe
   MIX_ENV=dev mix sigra.gen.oauth --providers google
   write_oidc_double
   assert_locked_contract
+  MIX_ENV=test mix ecto.create
+  MIX_ENV=test mix ecto.migrate
+  MIX_ENV=test mix test test/generated_liveview_rate_limit_probe_test.exs
   MIX_ENV=dev mix compile --warnings-as-errors
   MIX_ENV=dev mix assets.deploy
   MIX_ENV=dev mix ecto.drop || true

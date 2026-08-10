@@ -80,6 +80,50 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     assert_contains!(runtime, "mix compile --warnings-as-errors", "LiveView router compilation")
   end
 
+  test "fresh-host smoke refreshes generated dependencies before probing or compiling" do
+    smoke = read!(@smoke)
+    install = "MIX_ENV=dev mix sigra.install Accounts User users ${flags} --yes"
+    refresh = "MIX_ENV=dev mix deps.get"
+    probe = "install_generated_rate_limit_probe"
+    compile = "MIX_ENV=dev mix compile --warnings-as-errors"
+
+    {install_at, _} = :binary.match(smoke, install)
+    after_install_at = install_at + byte_size(install)
+    after_install = binary_part(smoke, after_install_at, byte_size(smoke) - after_install_at)
+    {refresh_relative_at, _} = :binary.match(after_install, refresh)
+    {probe_relative_at, _} = :binary.match(after_install, "\n    " <> probe <> "\n")
+    {compile_relative_at, _} = :binary.match(after_install, compile)
+
+    refresh_at = after_install_at + refresh_relative_at
+    probe_at = after_install_at + probe_relative_at
+    compile_at = after_install_at + compile_relative_at
+
+    assert install_at && refresh_at && probe_at && compile_at,
+           "fresh-host smoke must retain its install, dependency refresh, probe, and compile lifecycle"
+
+    assert install_at < refresh_at and refresh_at < probe_at and refresh_at < compile_at,
+           "dependencies injected by sigra.install must be fetched before the probe and compilation"
+  end
+
+  test "credential-free generated LiveView host proves bounded registration exhaustion" do
+    runtime = read!("scripts/ci/generated-auth-runtime-proof.sh")
+
+    for marker <- [
+          "install_generated_liveview_rate_limit_probe",
+          "generated_liveview_rate_limit_probe_test.exs",
+          "Phoenix.LiveViewTest",
+          "render_submit()",
+          "N + 1 denial",
+          "Sigra.RateLimiters.Hammer.check_rate",
+          "MIX_ENV=test mix test test/generated_liveview_rate_limit_probe_test.exs"
+        ] do
+      assert_contains!(runtime, marker, "generated LiveView exhaustion proof")
+    end
+
+    refute Regex.match?(~r/\bsleep\b|waitForTimeout|Process\.sleep/, runtime),
+           "the generated LiveView limiter proof must not wait for a rate window"
+  end
+
   test "reapplying generated ownership is protected by unique idempotency markers" do
     core = read!(@core_feature)
 

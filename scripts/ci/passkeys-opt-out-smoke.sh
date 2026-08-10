@@ -261,6 +261,12 @@ run_leg() {
   # shellcheck disable=SC2086 # flags are fixed literals supplied below.
   MIX_ENV=dev mix sigra.install Accounts User users ${flags} --yes
 
+  # `mix sigra.install` may inject dependencies into the fresh host (for
+  # example Hammer for generated rate limiting). Refresh after installation,
+  # before any generated-host assertion, probe, or compilation can load them.
+  echo "==> passkeys-opt-out: fetching dependencies injected by sigra.install"
+  MIX_ENV=dev mix deps.get
+
   echo "==> passkeys-opt-out: asserting omitted passkey assets, deps, config, and routes"
   assert_file_missing "assets/js/passkey_hooks.js"
   assert_file_missing "assets/js/passkey_browser.js"
@@ -276,6 +282,9 @@ run_leg() {
     add_cloak_ecto
     mix deps.get
     MIX_ENV=dev mix sigra.gen.oauth --providers google
+    # OAuth generation may add a provider dependency as well. Keep every
+    # generated dependency checked before the request probe and compilation.
+    MIX_ENV=dev mix deps.get
 
     assert_file_present "lib/${label}/accounts/user_identity.ex"
     assert_file_present "lib/${label}/vault.ex"
