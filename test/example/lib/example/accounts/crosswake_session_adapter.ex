@@ -29,15 +29,20 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   A continuation may retain this opaque binding, but `evaluate/4` always
   resolves the cookie again and compares it to the newly derived binding.
   """
-  @spec expected_binding(binary()) :: {:ok, map()} | {:error, :session_unavailable}
-  def expected_binding(raw_token) when is_binary(raw_token) do
-    case Accounts.get_user_and_session_by_token(raw_token) do
-      {user, session} -> {:ok, binding(user, session)}
-      nil -> {:error, :session_unavailable}
+  @spec expected_binding(binary(), DateTime.t()) :: {:ok, map()} | {:error, :session_unavailable}
+  def expected_binding(raw_token, as_of \\ DateTime.utc_now())
+
+  def expected_binding(raw_token, as_of)
+      when is_binary(raw_token) and is_struct(as_of, DateTime) do
+    with {user, session} <- Accounts.get_user_and_session_by_token(raw_token),
+         :ok <- validate_current_session(session, as_of) do
+      {:ok, binding(user, session)}
+    else
+      _ -> {:error, :session_unavailable}
     end
   end
 
-  def expected_binding(_raw_token), do: {:error, :session_unavailable}
+  def expected_binding(_raw_token, _as_of), do: {:error, :session_unavailable}
 
   @doc """
   Freshly resolves and validates `raw_token`, then evaluates `route` using
@@ -47,6 +52,13 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), map()) :: result()
   def evaluate(raw_token, %DateTime{} = as_of, %RouteEntry{} = route, expected_binding)
       when is_binary(raw_token) and is_map(expected_binding) do
+    evaluate(raw_token, as_of, route, expected_binding, [])
+  end
+
+  @doc false
+  @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), map(), keyword()) :: result()
+  def evaluate(raw_token, %DateTime{} = as_of, %RouteEntry{} = route, expected_binding, opts)
+      when is_binary(raw_token) and is_map(expected_binding) and is_list(opts) do
     with {user, session} <- Accounts.get_user_and_session_by_token(raw_token),
          :ok <- validate_current_session(session, as_of),
          current_binding <- binding(user, session),
@@ -54,7 +66,7 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
          {:ok, lane} <- new_lane(current_binding, session, as_of),
          {:ok, context} <- Contracts.new_auth_context(%{session_authority_lane: lane}),
          evaluator_result <-
-           Evaluator.evaluate_route_auth(route, context,
+           evaluator(opts).(route, context,
              expected_session_version: current_binding.session_version
            ) do
       format_evaluator_result(evaluator_result, current_binding)
@@ -66,7 +78,8 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
     end
   end
 
-  def evaluate(_raw_token, _as_of, _route, _expected_binding), do: deny(:session_unavailable)
+  def evaluate(_raw_token, _as_of, _route, _expected_binding, _opts),
+    do: deny(:session_unavailable)
 
   defp new_lane(binding, session, as_of) do
     session_config = Accounts.sigra_config().session
@@ -131,6 +144,10 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   end
 
   defp format_evaluator_result({:deny, finding}, _binding), do: deny(finding.code)
+
+  defp evaluator(opts) do
+    Keyword.get(opts, :evaluator, &Evaluator.evaluate_route_auth/3)
+  end
 
   defp deny(reason), do: {:deny, %{status: :deny, reason: reason}}
 
