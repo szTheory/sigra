@@ -12,6 +12,19 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   alias Crosswake.Manifest.Types.RouteEntry
   alias Example.Accounts
 
+  defmodule ExpectedBinding do
+    @moduledoc false
+
+    @enforce_keys [:session_ref, :subject_ref, :session_version]
+    defstruct [:session_ref, :subject_ref, :session_version]
+
+    @type t :: %__MODULE__{
+            session_ref: String.t(),
+            subject_ref: String.t(),
+            session_version: non_neg_integer()
+          }
+  end
+
   @type result ::
           {:allow,
            %{
@@ -29,7 +42,8 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   A continuation may retain this opaque binding, but `evaluate/4` always
   resolves the cookie again and compares it to the newly derived binding.
   """
-  @spec expected_binding(binary(), DateTime.t()) :: {:ok, map()} | {:error, :session_unavailable}
+  @spec expected_binding(binary(), DateTime.t()) ::
+          {:ok, ExpectedBinding.t()} | {:error, :session_unavailable}
   def expected_binding(raw_token, as_of \\ DateTime.utc_now())
 
   def expected_binding(raw_token, as_of)
@@ -49,16 +63,28 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   only fact-only Crosswake contracts. `expected_binding` must originate from
   the host; it is checked against this call's newly resolved session.
   """
-  @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), map()) :: result()
-  def evaluate(raw_token, %DateTime{} = as_of, %RouteEntry{} = route, expected_binding)
-      when is_binary(raw_token) and is_map(expected_binding) do
+  @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), ExpectedBinding.t()) :: result()
+  def evaluate(
+        raw_token,
+        %DateTime{} = as_of,
+        %RouteEntry{} = route,
+        expected_binding
+      )
+      when is_binary(raw_token) do
     evaluate(raw_token, as_of, route, expected_binding, [])
   end
 
   @doc false
-  @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), map(), keyword()) :: result()
-  def evaluate(raw_token, %DateTime{} = as_of, %RouteEntry{} = route, expected_binding, opts)
-      when is_binary(raw_token) and is_map(expected_binding) and is_list(opts) do
+  @spec evaluate(binary(), DateTime.t(), RouteEntry.t(), ExpectedBinding.t(), keyword()) ::
+          result()
+  def evaluate(
+        raw_token,
+        %DateTime{} = as_of,
+        %RouteEntry{} = route,
+        expected_binding,
+        opts
+      )
+      when is_binary(raw_token) and is_list(opts) do
     with {user, session} <- Accounts.get_user_and_session_by_token(raw_token),
          :ok <- validate_current_session(session, as_of),
          current_binding <- binding(user, session),
@@ -124,20 +150,31 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
   end
 
   defp binding(user, session) do
-    %{
+    %ExpectedBinding{
       session_ref: opaque_ref("sigra-crosswake/session", session.id),
       subject_ref: opaque_ref("sigra-crosswake/subject", user.id),
       session_version: session_version(session.inserted_at)
     }
   end
 
-  defp match_binding(expected, current) do
-    if Map.take(expected, [:session_ref, :subject_ref, :session_version]) == current do
+  defp match_binding(%ExpectedBinding{} = expected, %ExpectedBinding{} = current) do
+    session_ref_matches? = secure_ref_equal?(expected.session_ref, current.session_ref)
+    subject_ref_matches? = secure_ref_equal?(expected.subject_ref, current.subject_ref)
+    version_matches? = expected.session_version == current.session_version
+
+    if session_ref_matches? and subject_ref_matches? and version_matches? do
       :ok
     else
       {:error, :binding_mismatch}
     end
   end
+
+  defp match_binding(_expected, _current), do: {:error, :binding_mismatch}
+
+  defp secure_ref_equal?(left, right) when is_binary(left) and is_binary(right),
+    do: Plug.Crypto.secure_compare(left, right)
+
+  defp secure_ref_equal?(_left, _right), do: false
 
   defp format_evaluator_result({:allow, _result}, binding) do
     {:allow, Map.merge(%{status: :allow, org_id: nil}, binding)}
