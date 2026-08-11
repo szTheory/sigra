@@ -20,7 +20,7 @@ config :example, Example.Repo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :example, ExampleWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4002],
+  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT", "4002"))],
   # Test-only deterministic key base -- NEVER reused in prod. See T-10-03.
   secret_key_base: "test-only-key-base-" <> String.duplicate("a", 64),
   server: false
