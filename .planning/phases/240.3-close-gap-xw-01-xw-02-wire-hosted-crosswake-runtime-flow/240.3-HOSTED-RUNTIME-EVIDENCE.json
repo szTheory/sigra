@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1",
-  "sigra_git_sha": "8e7dd887841767be2221caa58aaf8a928e44b5d1",
-  "captured_at": "2026-08-11T17:46:55Z",
+  "sigra_git_sha": "5ade83f957fbbe81e97e9e181b21a374b4939d0d",
+  "captured_at": "2026-08-11T19:01:05Z",
   "crosswake_release": {
     "repository": "https://github.com/szTheory/crosswake.git",
     "package": "crosswake_sigra",
