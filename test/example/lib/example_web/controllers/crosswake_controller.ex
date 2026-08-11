@@ -24,6 +24,8 @@ defmodule ExampleWeb.CrosswakeController do
   end
 
   def return(conn, params) do
+    conn = put_resp_header(conn, "referrer-policy", "no-referrer")
+
     case scalar_return_input(params) do
       {:ok, %{"continuation" => handle} = input} ->
         complete_return(conn, handle, Map.delete(input, "continuation"))
