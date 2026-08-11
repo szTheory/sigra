@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 240.2
-status: completed
-stopped_at: Completed 240.2-01-PLAN.md
-last_updated: "2026-08-11T03:17:28.713Z"
+current_phase: 240.3
+status: planning
+stopped_at: Phase 240.3 context gathered (assumptions mode)
+last_updated: "2026-08-11T15:34:58.900Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 240.2 complete
 progress:
-  total_phases: 6
+  total_phases: 8
   completed_phases: 6
   total_plans: 24
   completed_plans: 24
-  percent: 100
-current_phase_name: close-gap-ops-01-add-controller-mode-generated-host-compile-
+  percent: 75
+current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 ---
 
 # Project State
@@ -25,13 +25,13 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 240.2 — close-gap-ops-01-add-controller-mode-generated-host-compile-
+**Current focus:** Phase 240.3 — close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 
 ## Current Position
 
-Phase: 240.2
+Phase: 240.3
 Plan: Not started
-Status: All phases complete
+Status: Ready for planning
 Last activity: 2026-08-10 — Phase 240.2 complete
 
 ## Accumulated Context
@@ -464,6 +464,8 @@ Last activity: 2026-08-10 — Phase 240.2 complete
 - Phase 236 added: Closeout Evidence Reconciliation
 - Phase 240.1 inserted after Phase 240: Repair canonical B2C OAuth recipe handoff (URGENT)
 - Phase 240.2 inserted after Phase 240: Close gap: OPS-01 — add controller-mode generated-host compile proof (URGENT)
+- Phase 240.3 inserted after Phase 240: Close gap: XW-01/XW-02 — wire hosted Crosswake runtime flow (URGENT)
+- Phase 241 added: Close gap: OPS-01 — repair controller MFA settings rendering
 
 ## Quick Tasks Completed
 
@@ -587,9 +589,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T03:08:39.003Z
-Stopped at: Completed 240.2-01-PLAN.md
-Resume file: None
+Last session: 2026-08-11T15:34:58.882Z
+Stopped at: Phase 240.3 context gathered (assumptions mode)
+Resume file: .planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-CONTEXT.md
 
 ## Operator Next Steps
 

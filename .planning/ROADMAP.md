@@ -122,6 +122,34 @@ Plans:
 
 Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authority, billing, and physical-device/product-host evidence are outside this library milestone. A real iPhone and production provider rehearsal remains a host launch gate once the adopter application exists.
 
+### Phase 240.3: Close gap: XW-01/XW-02 — wire hosted Crosswake runtime flow (INSERTED)
+
+**Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
+**Requirements:** XW-01, XW-02
+**Depends on:** Phase 240
+**Plans:** 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 240.3-01-PLAN.md — Trace one authenticated host start/return through the existing adapter and a digest-only Ecto continuation.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 240.3-02-PLAN.md — Harden one-time claim, expiry, replay/race isolation, cleanup, and persisted-field redaction.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 240.3-03-PLAN.md — Prove the complete real-router switch, smuggling, recovery, evaluator non-invocation, and telemetry matrix.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 240.3-04-PLAN.md — Drive one deterministic real-cookie-jar browser journey and prove clean final navigation.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 240.3-05-PLAN.md — Guard the copyable contract and emit receipt-last exact-SHA runtime evidence.
+
 ### Phase 240.1: Repair canonical B2C OAuth recipe handoff (INSERTED)
 
 **Goal:** Make the documented canonical B2C install-to-Google-OAuth sequence executable with the host-owned `cloak_ecto` prerequisite.
@@ -143,3 +171,14 @@ Plans:
 Plans:
 
 - [x] 240.2-01-PLAN.md — Add and contract-lock the controller-mode generated-host compile/boot tracer.
+
+### Phase 241: Close gap: OPS-01 — repair controller MFA settings rendering
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 240
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run $gsd-plan-phase 241 to break down)
