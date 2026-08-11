@@ -120,14 +120,20 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
 
     assert_contains!(
       smoke,
-      "hostname: System.get_env(\"PGHOST\", \"localhost\")",
+      "hostname: System.get_env(\\\"PGHOST\\\", \\\"localhost\\\")",
       "generated-host database hostname override"
     )
 
     assert_contains!(
       smoke,
-      "port: String.to_integer(System.get_env(\"PGPORT\", \"5432\"))",
+      "port: String.to_integer(System.get_env(\\\"PGPORT\\\", \\\"5432\\\"))",
       "generated-host database port override"
+    )
+
+    assert_contains!(
+      smoke,
+      "for path <- [\"config/dev.exs\", \"config/test.exs\"]",
+      "generated-host dev and test database endpoint isolation"
     )
   end
 
