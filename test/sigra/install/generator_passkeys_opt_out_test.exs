@@ -190,6 +190,9 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
       refute source =~
                "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_alpha\""
+
+      assert source =~
+               "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_controller\""
     end
 
     test "fresh-host smoke asserts the emitted B2C retained-core and Google OAuth contract" do
