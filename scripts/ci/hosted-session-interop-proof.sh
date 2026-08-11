@@ -71,17 +71,19 @@ browser_only() {
   trap cleanup_browser_server EXIT
 
   cd "${ROOT_DIR}/test/example"
-  # The example endpoint reads PORT at compile time. Compile with the selected
+  # The example endpoint reads PORT and cookie policy at compile time. The only
+  # HTTP cookie exception is this deterministic MIX_ENV=test loopback harness.
+  # Compile with the selected
   # port before migrating so Phoenix's runtime compile-env guard stays intact.
-  run_bounded "compile example host for browser port" env MIX_ENV=dev PORT="${port}" mix compile --force
-  run_bounded "migrate example development schema" env MIX_ENV=dev PORT="${port}" mix ecto.migrate --quiet
+  run_bounded "compile example host for browser port" env MIX_ENV=test PORT="${port}" mix compile --force
+  run_bounded "migrate example test schema" env MIX_ENV=test PORT="${port}" mix ecto.migrate --quiet
   # The seed helper prints demo credentials for interactive use. The browser
   # proof needs its fixture rows but must not emit those values into CI logs.
   if ! run_bounded "seed deterministic browser persona" \
-    env MIX_ENV=dev PORT="${port}" mix run priv/repo/seeds.exs >/dev/null 2>&1; then
+    env MIX_ENV=test PORT="${port}" mix run priv/repo/seeds.exs >/dev/null 2>&1; then
     fail "could not seed deterministic browser persona"
   fi
-  PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server >"${SERVER_LOG}" 2>&1 &
+  PHX_SERVER=true MIX_ENV=test PORT="${port}" mix phx.server >"${SERVER_LOG}" 2>&1 &
   SERVER_PID=$!
 
   if ! curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 0 \

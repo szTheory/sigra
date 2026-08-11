@@ -1,5 +1,8 @@
 import Config
 
+# The deterministic browser proof runs loopback HTTP under MIX_ENV=test only.
+config :example, :crosswake_session_secure, false
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

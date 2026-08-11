@@ -1,13 +1,17 @@
 defmodule ExampleWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :example
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
+  @crosswake_session_secure Application.compile_env!(:example, :crosswake_session_secure)
+
+  # The host session carries continuation-bound Crosswake transport, so it is
+  # both signed and encrypted. Secure is fail-closed outside test configuration.
   @session_options [
     store: :cookie,
     key: "_example_key",
     signing_salt: "byPEl4ST",
+    encryption_salt: "GJsw9WQP",
+    http_only: true,
+    secure: @crosswake_session_secure,
     same_site: "Lax"
   ]
 
