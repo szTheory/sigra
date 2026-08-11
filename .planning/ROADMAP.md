@@ -127,7 +127,7 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans executed
 
 Plans:
 **Wave 1**
@@ -156,7 +156,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 240.3-07-PLAN.md — Bind the full proof to a clean exact SHA and regenerate receipt-last evidence.
+- [x] 240.3-07-PLAN.md — Bind the full proof to a clean exact SHA and regenerate receipt-last evidence.
 
 ### Phase 240.1: Repair canonical B2C OAuth recipe handoff (INSERTED)
 
