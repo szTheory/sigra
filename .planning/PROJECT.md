@@ -19,6 +19,15 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**Phase 240.3 hosted Crosswake runtime flow complete (2026-08-11).** The
+personal-session adapter is now reachable through the example host with a
+digest-only, one-time continuation; encrypted, HttpOnly, SameSite=Lax,
+Secure-by-default verifier transport; fail-closed evaluator handling; and a
+safe browser return. Verification passed 15/15 must-haves, backed by a
+receipt-last exact-SHA proof whose seven bounded commands include the real
+Chromium cookie-jar journey and deterministic enforcement of all three
+Crosswake authority/secret prohibitions. Phase 241 is next.
+
 **Phase 240.2 controller generated-host proof complete (2026-08-10).** The
 credential-free B2C smoke now exercises a distinct `--no-live` controller host
 through dependency refresh, warning-free compilation, assets, migrations, boot,
