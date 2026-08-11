@@ -127,7 +127,7 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 Plans:
 **Wave 1**
@@ -152,7 +152,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 240.3-06-PLAN.md — Suppress callback Referer disclosure and prove the next `/app` request carries no Referer header.
+- [x] 240.3-06-PLAN.md — Suppress callback Referer disclosure and prove the next `/app` request carries no Referer header.
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

@@ -5,16 +5,16 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
 current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 status: executing
-stopped_at: Completed 240.3-05-PLAN.md
-last_updated: "2026-08-11T18:18:50.587Z"
+stopped_at: Completed 240.3-06-PLAN.md
+last_updated: "2026-08-11T18:25:20.817Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 6
   total_plans: 31
-  completed_plans: 29
-  percent: 88
+  completed_plans: 30
+  percent: 75
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 240.3 execution started
 
@@ -450,6 +450,8 @@ Last activity: 2026-08-11 — Phase 240.3 execution started
 - [Phase ?]: Browser runner compiles with its selected PORT before migration and suppresses credential-printing seed output.
 - [Phase ?]: Phase 240.3 uses a distinct receipt-last evidence file bound to one clean committed SHA; Phase 239 receipts remain immutable.
 - [Phase ?]: Hosted Crosswake proof remains an in-process example-host claim; provider, deployment, network-service, and device evidence are explicit non-claims.
+- [Phase ?]: Crosswake return/2 applies no-referrer before validation so all callback redirects protect the next navigation.
+- [Phase ?]: The hosted Chromium proof asserts the actual /app document request has no Referer header.
 
 ### Pending Todos
 
@@ -600,8 +602,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T17:48:20.126Z
-Stopped at: Completed 240.3-05-PLAN.md
+Last session: 2026-08-11T18:25:20.806Z
+Stopped at: Completed 240.3-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -787,6 +789,7 @@ Resume file: None
 | Phase 240.3 P03 | 14min | 1 tasks | 2 files |
 | Phase 240.3 P04 | 20min | 1 tasks | 3 files |
 | Phase 240.3 P05 | 14m | 2 tasks | 6 files |
+| Phase 240.3 P06 | 1m | 1 tasks | 3 files |
 
 ## Deferred Items
 
