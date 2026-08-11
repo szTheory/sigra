@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
 current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
-status: executing
-stopped_at: Completed 240.3-04-PLAN.md
-last_updated: "2026-08-11T17:32:41.179Z"
+status: verifying
+stopped_at: Completed 240.3-05-PLAN.md
+last_updated: "2026-08-11T17:48:20.137Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 29
-  completed_plans: 28
-  percent: 75
+  completed_plans: 29
+  percent: 88
 ---
 
 # Project State
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-11 — Phase 240.3 execution started
 
 ## Accumulated Context
@@ -448,6 +448,8 @@ Last activity: 2026-08-11 — Phase 240.3 execution started
 - [Phase ?]: Continuation telemetry emits only correlation_ref, outcome, and reason metadata.
 - [Phase ?]: Hosted Crosswake browser proof observes the server-generated return in one real cookie jar and never reconstructs or retains correlation values.
 - [Phase ?]: Browser runner compiles with its selected PORT before migration and suppresses credential-printing seed output.
+- [Phase ?]: Phase 240.3 uses a distinct receipt-last evidence file bound to one clean committed SHA; Phase 239 receipts remain immutable.
+- [Phase ?]: Hosted Crosswake proof remains an in-process example-host claim; provider, deployment, network-service, and device evidence are explicit non-claims.
 
 ### Pending Todos
 
@@ -598,8 +600,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T17:32:41.164Z
-Stopped at: Completed 240.3-04-PLAN.md
+Last session: 2026-08-11T17:48:20.126Z
+Stopped at: Completed 240.3-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -784,6 +786,7 @@ Resume file: None
 | Phase 240.3 P02 | 22min | 1 tasks | 4 files |
 | Phase 240.3 P03 | 14min | 1 tasks | 2 files |
 | Phase 240.3 P04 | 20min | 1 tasks | 3 files |
+| Phase 240.3 P05 | 14m | 2 tasks | 6 files |
 
 ## Deferred Items
 

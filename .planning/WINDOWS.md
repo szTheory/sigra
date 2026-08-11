@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 6
+open_count: 8
 waived_count: 0
 fixed_count: 0
-total_count: 6
-last_updated: 2026-08-10T22:14:21.001Z
+total_count: 8
+last_updated: 2026-08-11T17:48:03.211Z
 ---
 
 # Broken Windows Ledger
@@ -21,6 +21,8 @@ last_updated: 2026-08-10T22:14:21.001Z
 | 4 | 240 | deviation | lib/sigra/install/injector.ex |  | Added a generated rate-limit child injection anchor required to place the Hammer process before Endpoint. | open |  | 2026-08-10T21:59:33.048Z |  |
 | 5 | 240 | deviation | test/sigra/install/features/core_test.exs |  | Updated Core invariant counts and supported anchors for the generated rate-limit output. | open |  | 2026-08-10T21:59:33.113Z |  |
 | 6 | 240 | deviation | guides/recipes/deployment.md |  | Documentation link target corrected from source .md reference to rendered HTML link for warnings-as-errors docs build. | open |  | 2026-08-10T22:14:21.001Z |  |
+| 7 | 240.3 | deviation | scripts/ci/hosted-session-interop-proof.sh |  | First receipt attempt reached all proof layers but did not write evidence because the scoped-path guard was inside the Python heredoc; corrected before an explicitly approved fresh attempt. | open |  | 2026-08-11T17:48:03.145Z |  |
+| 8 | 240.3 | unrun-verify | test/example/lib/example_web/live/settings_live.ex | 133 | Example mix precommit remains blocked by the pre-existing /dev/mailbox verified-route warning under warnings-as-errors. | open |  | 2026-08-11T17:48:03.211Z |  |
 
 ````json
 [
@@ -94,6 +96,30 @@ last_updated: 2026-08-10T22:14:21.001Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-10T22:14:21.001Z",
+    "resolved_at": null
+  },
+  {
+    "id": 7,
+    "kind": "deviation",
+    "phase": "240.3",
+    "file": "scripts/ci/hosted-session-interop-proof.sh",
+    "line": null,
+    "description": "First receipt attempt reached all proof layers but did not write evidence because the scoped-path guard was inside the Python heredoc; corrected before an explicitly approved fresh attempt.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-11T17:48:03.145Z",
+    "resolved_at": null
+  },
+  {
+    "id": 8,
+    "kind": "unrun-verify",
+    "phase": "240.3",
+    "file": "test/example/lib/example_web/live/settings_live.ex",
+    "line": 133,
+    "description": "Example mix precommit remains blocked by the pre-existing /dev/mailbox verified-route warning under warnings-as-errors.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-11T17:48:03.211Z",
     "resolved_at": null
   }
 ]
