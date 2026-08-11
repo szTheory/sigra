@@ -44,6 +44,10 @@ const WEBAUTHN_CDP_SPECS =
 // Evaluator-facing demo showcase spec — runs in its own partition so it does
 // not interfere with the behavior-truth lanes (chromium, mobile).
 const DEMO_SHOWCASE_SPEC = /demo-showcase\.spec\.ts/;
+// Hosted Crosswake runtime proof owns one real browser cookie jar journey.
+// Keep it out of the broad Chromium lane so the focused proof is the only
+// place where the continuation return is exercised in a browser.
+const CROSSWAKE_HOSTED_RUNTIME_SPEC = /crosswake-hosted-runtime\.spec\.ts/;
 // Phase 216 Plan 06: admin eval harness (render matrix + probes + bundles).
 // Three projects: admin-eval (Desktop Chrome DPR1, hard-gate), admin-eval-mobile
 // (iPhone 13, warn-only), admin-eval-dark (colorScheme:'dark', warn-only).
@@ -105,6 +109,7 @@ export default defineConfig({
         ADMIN_GENERATED_SPEC,
         GENERATED_AUTH_SPECS,
         DEMO_SHOWCASE_SPEC,
+        CROSSWAKE_HOSTED_RUNTIME_SPEC,
         ADMIN_EVAL_SPEC,
       ],
       use: { ...devices['Desktop Chrome'] },
@@ -187,6 +192,14 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: checkpointVideo,
       },
+    },
+    // The continuation proof is intentionally one Chromium spec. It inherits
+    // the serial, one-worker, zero-retry settings above and does not retain
+    // success artifacts that could contain transient correlation values.
+    {
+      name: 'crosswake-hosted-runtime',
+      testMatch: CROSSWAKE_HOSTED_RUNTIME_SPEC,
+      use: { ...devices['Desktop Chrome'] },
     },
     // Evaluator-facing demo showcase lane: exercises seeded personas and
     // captures four committed PNG baselines for evaluator-facing screenshots.
