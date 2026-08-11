@@ -138,7 +138,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
           assert router =~ "get \"/log_in/:token\", SessionController, :magic_link"
           assert session_controller =~ "Auth.authenticate_user"
           assert session_controller =~ "def create(conn, %{\"_action\" => \"magic_link\""
-          assert session_controller =~ "Auth.request_magic_link"
+          assert session_controller =~ "Auth.deliver_user_magic_link_instructions"
           assert session_controller =~ "def magic_link(conn, %{\"token\" => token})"
           assert session_controller =~ "Auth.verify_magic_link"
           assert router =~ "# Sigra OAuth"
@@ -185,7 +185,12 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     test "fresh-host smoke locks the B2C Alpha retained-core and Google OAuth contract" do
       source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
 
-      assert source =~ "--no-admin --no-organizations --no-passkeys"
+      assert source =~
+               "run_leg \"--no-admin --no-organizations --no-passkeys\" \"sigra_b2c_alpha\""
+
+      refute source =~
+               "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_alpha\""
+
       assert source =~ "add_cloak_ecto"
       assert Regex.match?(~r/\{:cloak_ecto,\s*\\?"~> 1\.3\\?"/, source)
       assert source =~ "String.replace(content, anchor, anchor <>"
@@ -200,7 +205,8 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~
                ~S|assert_match 'def create\(conn, %\{"_action" => "magic_link"' "${session_controller}"|
 
-      assert source =~ "assert_match 'Auth.request_magic_link' \"${session_controller}\""
+      assert source =~
+               "assert_match 'Auth.deliver_user_magic_link_instructions' \"${session_controller}\""
 
       assert source =~
                ~S|assert_match 'def magic_link\(conn, %\{"token" => token\}\)' "${session_controller}"|
