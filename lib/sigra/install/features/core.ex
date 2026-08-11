@@ -314,8 +314,12 @@ defmodule Sigra.Install.Features.Core do
       {:eex, "core/login_html.ex", Path.join(["lib", web, "controllers", "session_html.ex"])},
       {:eex, "core/registration_html.ex",
        Path.join(["lib", web, "controllers", "registration_html.ex"])},
+      {:eex, "core/registration_controller.ex",
+       Path.join(["lib", web, "controllers", "registration_controller.ex"])},
       {:eex, "core/mfa_settings_html.ex",
-       Path.join(["lib", web, "controllers", "mfa_settings_html.ex"])}
+       Path.join(["lib", web, "controllers", "mfa_settings_html.ex"])},
+      {:eex, "core/settings_controller.ex",
+       Path.join(["lib", web, "controllers", "settings_controller.ex"])}
     ]
   end
 
@@ -435,7 +439,17 @@ defmodule Sigra.Install.Features.Core do
             live "/settings/mfa", MFASettingsLive
         """
       else
-        ""
+        """
+
+            get "/settings/mfa", SettingsController, :mfa
+            get "/settings/mfa/disable", SettingsController, :disable
+            get "/settings/mfa/regenerate", SettingsController, :regenerate
+            post "/settings/mfa/revoke-trust", SettingsController, :revoke_trust
+            post "/settings/mfa/disable", SettingsController, :disable
+            get "/settings/mfa/enroll", SettingsController, :enroll
+            post "/settings/mfa/confirm", SettingsController, :confirm
+            post "/settings/mfa/complete", SettingsController, :complete
+        """
       end
 
     account_lifecycle_routes =
@@ -457,7 +471,10 @@ defmodule Sigra.Install.Features.Core do
         #{session_management_routes}#{account_lifecycle_routes}    end
         """
       else
-        ""
+        """
+        get "/settings", SettingsController, :edit
+        get "/reactivation", SettingsController, :reactivation
+        """
       end
 
     content = """

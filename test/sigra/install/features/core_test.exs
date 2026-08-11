@@ -229,12 +229,14 @@ defmodule Sigra.Install.Features.CoreTest do
       # Controller-mode UI templates present
       assert "core/login_html.ex" in sources
       assert "core/registration_html.ex" in sources
+      assert "core/registration_controller.ex" in sources
       assert "core/mfa_settings_html.ex" in sources
+      assert "core/settings_controller.ex" in sources
     end
 
-    test "--no-live returns exactly 36 files" do
+    test "--no-live returns exactly 38 files" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 36
+      assert length(Core.files(binding)) == 38
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do

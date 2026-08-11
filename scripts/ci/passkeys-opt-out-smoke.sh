@@ -67,7 +67,8 @@ cleanup_leg_dir() {
   case "${app_dir}" in
     "${TMP_ROOT}"/sigra_no_passkeys | \
     "${TMP_ROOT}"/sigra_no_organizations_no_passkeys | \
-    "${TMP_ROOT}"/sigra_b2c_alpha)
+    "${TMP_ROOT}"/sigra_b2c_alpha | \
+    "${TMP_ROOT}"/sigra_b2c_controller)
       rm -rf -- "${app_dir}"
       ;;
     *)
@@ -157,6 +158,28 @@ patch_mix_exs() {
     end
 
     File.write!(path, new_content)
+  '
+}
+
+patch_database_configs() {
+  elixir -e '
+    for path <- ["config/dev.exs", "config/test.exs"] do
+      content = File.read!(path)
+      anchor = "  hostname: \"localhost\",\n"
+
+      replacement =
+        "  hostname: System.get_env(\"PGHOST\", \"localhost\"),\n" <>
+          "  port: String.to_integer(System.get_env(\"PGPORT\", \"5432\")),\n"
+
+      new_content = String.replace(content, anchor, replacement, global: false)
+
+      if new_content == content do
+        IO.puts(:stderr, "FAIL: expected Phoenix database hostname anchor in #{path}")
+        System.halt(1)
+      end
+
+      File.write!(path, new_content)
+    end
   '
 }
 
@@ -253,6 +276,8 @@ run_leg() {
 
   echo "==> passkeys-opt-out: patching mix.exs with local Sigra path dep"
   patch_mix_exs
+  echo "==> passkeys-opt-out: routing generated database to supplied local Postgres"
+  patch_database_configs
 
   echo "==> passkeys-opt-out: fetching deps"
   mix deps.get
@@ -345,6 +370,7 @@ run_leg() {
 
     echo "==> passkeys-opt-out: exercising bounded generated B2C login limiter"
     install_generated_rate_limit_probe
+    MIX_ENV=test mix ecto.drop || true
     MIX_ENV=test mix ecto.create
     MIX_ENV=test mix ecto.migrate
     MIX_ENV=test mix test test/generated_rate_limit_probe_test.exs
@@ -383,5 +409,6 @@ echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"
 run_leg "--no-passkeys" "sigra_no_passkeys"
 run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
 run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
+run_leg "--no-admin --no-organizations --no-passkeys --no-live" "sigra_b2c_controller"
 
 echo "==> passkeys-opt-out: success"
