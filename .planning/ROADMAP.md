@@ -194,11 +194,11 @@ Plans:
 
 ### Phase 241: Close gap: OPS-01 — repair controller MFA settings rendering
 
-**Goal:** [To be planned]
+**Goal:** Make a fresh generated `--no-live` host render the authenticated, sudo-protected MFA settings GET through its emitted `MFASettingsHTML` module, with deterministic route evidence and no LiveView or mutation expansion.
 **Requirements**: TBD
 **Depends on:** Phase 240
-**Plans:** 0 plans
+**Plans:** 1 plan
 
 Plans:
 
-- [ ] TBD (run $gsd-plan-phase 241 to break down)
+- [ ] 241-01-PLAN.md — Repair and prove the protected controller MFA settings render path, then contract-lock its session and lane boundaries.
