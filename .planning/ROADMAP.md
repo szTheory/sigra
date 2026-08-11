@@ -197,7 +197,7 @@ Plans:
 **Goal:** Make a fresh generated `--no-live` host render the authenticated, sudo-protected MFA settings GET through its emitted `MFASettingsHTML` module, with deterministic route evidence and no LiveView or mutation expansion.
 **Requirements**: TBD
 **Depends on:** Phase 240
-**Plans:** 1/1 plans executed
+**Plans:** 1/1 plans complete
 
 Plans:
 
