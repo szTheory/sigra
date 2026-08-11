@@ -45,32 +45,38 @@ defmodule Example.Accounts.CrosswakeContinuations do
       when is_binary(handle) and is_binary(raw_token) and is_map(return_input) and is_list(opts) do
     evaluator_opts = evaluator_opts(opts)
 
-    with {:ok, continuation} <- claim(handle, as_of),
-         :ok <- validate_correlation(continuation, return_input),
-         {:ok, envelope} <- auth_return(continuation),
-         result <-
-           CrosswakeSessionAdapter.evaluate_return(
-             raw_token,
-             as_of,
-             route(),
-             expected_binding(continuation),
-             envelope,
-             evaluator_opts
-           ) do
-      record_outcome(continuation, result)
-      result
-    else
-      {:error, reason} -> {:deny, %{status: :deny, reason: reason}}
+    case claim(handle, as_of) do
+      {:ok, continuation} ->
+        result = complete_claimed(continuation, raw_token, return_input, as_of, evaluator_opts)
+        record_outcome(continuation, result)
+        result
+
+      {:error, reason} ->
+        {:deny, %{status: :deny, reason: reason}}
     end
   end
 
   def complete(_handle, _raw_token, _return_input, _as_of, _opts),
     do: {:deny, %{status: :deny, reason: :invalid_or_expired_handle}}
 
-  def cleanup_expired(as_of \\ DateTime.utc_now()) do
-    from(c in CrosswakeContinuation, where: c.expires_at <= ^as_of and is_nil(c.consumed_at))
-    |> Repo.update_all(set: [consumed_at: as_of, outcome: "denied", reason: "expired"])
+  def cleanup_expired(as_of \\ DateTime.utc_now(), opts \\ [])
+
+  def cleanup_expired(%DateTime{} = as_of, opts) when is_list(opts) do
+    limit = opts |> Keyword.get(:limit, 500) |> min(500) |> max(1)
+
+    terminal_ids =
+      from(c in CrosswakeContinuation,
+        where: c.expires_at <= ^as_of or not is_nil(c.consumed_at),
+        order_by: [asc: c.expires_at, asc: c.id],
+        limit: ^limit,
+        select: c.id
+      )
+
+    from(c in CrosswakeContinuation, where: c.id in subquery(terminal_ids))
+    |> Repo.delete_all()
   end
+
+  def cleanup_expired(_as_of, _opts), do: {0, nil}
 
   def destination, do: @destination
 
@@ -94,8 +100,8 @@ defmodule Example.Accounts.CrosswakeContinuations do
       audit_correlation_ref: random_value()
     }
 
-    case %CrosswakeContinuation{}
-         |> CrosswakeContinuation.issue_changeset(attrs)
+    case attrs
+         |> CrosswakeContinuation.issue_changeset()
          |> Repo.insert() do
       {:ok, _record} -> {:ok, %{handle: handle, state: state, pkce_verifier: pkce_verifier}}
       {:error, changeset} -> {:error, changeset}
@@ -108,14 +114,12 @@ defmodule Example.Accounts.CrosswakeContinuations do
     claim_query =
       from(c in CrosswakeContinuation,
         where:
-          c.handle_digest == ^handle_digest and is_nil(c.consumed_at) and c.expires_at > ^as_of
+          c.handle_digest == ^handle_digest and is_nil(c.consumed_at) and c.expires_at > ^as_of,
+        select: c
       )
 
     case Repo.update_all(claim_query, set: [consumed_at: as_of]) do
-      {1, _} ->
-        continuation =
-          Repo.one!(from(c in CrosswakeContinuation, where: c.handle_digest == ^handle_digest))
-
+      {1, [continuation]} ->
         {:ok, continuation}
 
       _ ->
@@ -129,14 +133,28 @@ defmodule Example.Accounts.CrosswakeContinuations do
          secure_digest_match?(continuation.pkce_challenge_digest, pkce_challenge(verifier)) do
       :ok
     else
-      record_outcome(continuation, {:deny, %{reason: :oauth_state_or_pkce_failure}})
       {:error, :oauth_state_or_pkce_failure}
     end
   end
 
-  defp validate_correlation(continuation, _input) do
-    record_outcome(continuation, {:deny, %{reason: :oauth_state_or_pkce_failure}})
+  defp validate_correlation(_continuation, _input) do
     {:error, :oauth_state_or_pkce_failure}
+  end
+
+  defp complete_claimed(continuation, raw_token, return_input, as_of, evaluator_opts) do
+    with :ok <- validate_correlation(continuation, return_input),
+         {:ok, envelope} <- auth_return(continuation) do
+      CrosswakeSessionAdapter.evaluate_return(
+        raw_token,
+        as_of,
+        route(),
+        expected_binding(continuation),
+        envelope,
+        evaluator_opts
+      )
+    else
+      {:error, reason} -> {:deny, %{status: :deny, reason: normalize_reason(reason)}}
+    end
   end
 
   defp auth_return(continuation) do
@@ -194,6 +212,18 @@ defmodule Example.Accounts.CrosswakeContinuations do
   defp record_outcome(continuation, {:deny, %{reason: reason}}) do
     continuation |> CrosswakeContinuation.outcome_changeset("denied", reason) |> Repo.update()
   end
+
+  defp normalize_reason(reason)
+       when reason in [
+              :oauth_state_or_pkce_failure,
+              :invalid_return_evidence,
+              :session_unavailable,
+              :binding_mismatch,
+              :route_denied
+            ],
+       do: reason
+
+  defp normalize_reason(_reason), do: :route_denied
 
   defp random_value, do: :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
   defp digest(value), do: :crypto.hash(:sha256, value)

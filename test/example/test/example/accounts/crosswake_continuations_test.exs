@@ -15,7 +15,10 @@ defmodule Example.Accounts.CrosswakeContinuationsTest do
 
     assert {:ok, issued} = CrosswakeContinuations.issue(raw_token, @as_of)
 
-    record = Repo.one!(from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(issued.handle)))
+    record =
+      Repo.one!(
+        from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(issued.handle))
+      )
 
     assert Map.keys(record) |> Enum.sort() ==
              [
@@ -129,7 +132,12 @@ defmodule Example.Accounts.CrosswakeContinuationsTest do
     assert_receive :crosswake_evaluator_called
 
     assert {:deny, %{reason: :invalid_or_expired_handle}} =
-             CrosswakeContinuations.complete(issued.handle, raw_token, correlation(issued), @as_of)
+             CrosswakeContinuations.complete(
+               issued.handle,
+               raw_token,
+               correlation(issued),
+               @as_of
+             )
 
     assert {:ok, racing} = CrosswakeContinuations.issue(raw_token, @as_of)
     parent = self()
@@ -202,25 +210,29 @@ defmodule Example.Accounts.CrosswakeContinuationsTest do
     {raw_token, _session, _user} = session_with_raw_token(@as_of)
 
     old_records =
-      for seconds <- 1..501 do
+      for _ <- 1..501 do
         assert {:ok, issued} =
-                 CrosswakeContinuations.issue(raw_token, DateTime.add(@as_of, -seconds, :second))
+                 CrosswakeContinuations.issue(raw_token, @as_of, ttl_seconds: 1)
 
         issued
       end
 
     assert {:ok, live} = CrosswakeContinuations.issue(raw_token, @as_of, ttl_seconds: 60)
-    assert {500, nil} = CrosswakeContinuations.cleanup_expired(@as_of, limit: 500)
+    cleanup_as_of = DateTime.add(@as_of, 2, :second)
+    assert {500, nil} = CrosswakeContinuations.cleanup_expired(cleanup_as_of, limit: 500)
 
     assert Repo.aggregate(CrosswakeContinuation, :count) == 2
-    assert Repo.exists?(from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(live.handle)))
+
+    assert Repo.exists?(
+             from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(live.handle))
+           )
 
     assert {:allow, _} =
              CrosswakeContinuations.complete(
                live.handle,
                raw_token,
                correlation(live),
-               @as_of,
+               cleanup_as_of,
                evaluator: notifying_evaluator(self())
              )
 
@@ -243,8 +255,11 @@ defmodule Example.Accounts.CrosswakeContinuationsTest do
     {raw_token, session, user}
   end
 
-  defp correlation(issued), do: %{"state" => issued.state, "pkce_verifier" => issued.pkce_verifier}
-  defp by_handle!(handle), do: Repo.one!(from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(handle)))
+  defp correlation(issued),
+    do: %{"state" => issued.state, "pkce_verifier" => issued.pkce_verifier}
+
+  defp by_handle!(handle),
+    do: Repo.one!(from(c in CrosswakeContinuation, where: c.handle_digest == ^digest(handle)))
 
   defp assert_terminal(handle, outcome, reason) do
     record = by_handle!(handle)

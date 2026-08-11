@@ -18,31 +18,33 @@ defmodule Example.Accounts.CrosswakeContinuation do
     field :session_version, :integer
     field :route_id, :string
     field :return_route_id, :string
-    field :issued_at, :utc_datetime
-    field :expires_at, :utc_datetime
-    field :consumed_at, :utc_datetime
+    field :issued_at, :utc_datetime_usec
+    field :expires_at, :utc_datetime_usec
+    field :consumed_at, :utc_datetime_usec
     field :outcome, :string
     field :reason, :string
     field :audit_correlation_ref, :string
     timestamps(type: :utc_datetime)
   end
 
-  def issue_changeset(continuation, attrs) do
-    continuation
-    |> cast(attrs, [
-      :handle_digest,
-      :state_digest,
-      :pkce_challenge_digest,
-      :return_ref,
-      :session_ref,
-      :subject_ref,
-      :session_version,
-      :route_id,
-      :return_route_id,
-      :issued_at,
-      :expires_at,
-      :audit_correlation_ref
-    ])
+  @issue_fields [
+    :handle_digest,
+    :state_digest,
+    :pkce_challenge_digest,
+    :return_ref,
+    :session_ref,
+    :subject_ref,
+    :session_version,
+    :route_id,
+    :return_route_id,
+    :issued_at,
+    :expires_at,
+    :audit_correlation_ref
+  ]
+
+  def issue_changeset(attrs) when is_map(attrs) do
+    %__MODULE__{}
+    |> change(Map.take(attrs, @issue_fields))
     |> validate_required([
       :handle_digest,
       :state_digest,
@@ -57,10 +59,31 @@ defmodule Example.Accounts.CrosswakeContinuation do
       :expires_at,
       :audit_correlation_ref
     ])
+    |> validate_change(:handle_digest, &validate_digest/2)
+    |> validate_change(:state_digest, &validate_digest/2)
+    |> validate_change(:pkce_challenge_digest, &validate_digest/2)
+    |> validate_number(:session_version, greater_than: 0)
     |> unique_constraint(:handle_digest)
   end
 
   def outcome_changeset(continuation, outcome, reason) do
-    change(continuation, outcome: outcome, reason: to_string(reason))
+    change(continuation, outcome: outcome, reason: stable_reason(reason))
   end
+
+  defp validate_digest(_field, value) when is_binary(value) and byte_size(value) == 32, do: []
+  defp validate_digest(field, _value), do: [{field, "must be a SHA-256 digest"}]
+
+  defp stable_reason(reason)
+       when reason in [
+              :allowed,
+              :invalid_or_expired_handle,
+              :oauth_state_or_pkce_failure,
+              :invalid_return_evidence,
+              :session_unavailable,
+              :binding_mismatch,
+              :route_denied
+            ],
+       do: Atom.to_string(reason)
+
+  defp stable_reason(_reason), do: "route_denied"
 end
