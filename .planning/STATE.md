@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
 current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 status: executing
-stopped_at: Completed 240.3-03-PLAN.md
-last_updated: "2026-08-11T17:06:59.323Z"
+stopped_at: Completed 240.3-04-PLAN.md
+last_updated: "2026-08-11T17:32:41.179Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 29
-  completed_plans: 27
+  completed_plans: 28
   percent: 75
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 240.3 execution started
 
@@ -446,6 +446,8 @@ Last activity: 2026-08-11 — Phase 240.3 execution started
 - [Phase ?]: Crosswake continuation lifecycle timestamps retain microsecond precision for exact expiry boundaries.
 - [Phase ?]: Only session-unavailable returns redirect to sign-in; every other terminal return restarts at the fixed local root.
 - [Phase ?]: Continuation telemetry emits only correlation_ref, outcome, and reason metadata.
+- [Phase ?]: Hosted Crosswake browser proof observes the server-generated return in one real cookie jar and never reconstructs or retains correlation values.
+- [Phase ?]: Browser runner compiles with its selected PORT before migration and suppresses credential-printing seed output.
 
 ### Pending Todos
 
@@ -596,8 +598,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T17:06:59.308Z
-Stopped at: Completed 240.3-03-PLAN.md
+Last session: 2026-08-11T17:32:41.164Z
+Stopped at: Completed 240.3-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -781,6 +783,7 @@ Resume file: None
 | Phase 240.3 P01 | 18m | 1 tasks | 7 files |
 | Phase 240.3 P02 | 22min | 1 tasks | 4 files |
 | Phase 240.3 P03 | 14min | 1 tasks | 2 files |
+| Phase 240.3 P04 | 20min | 1 tasks | 3 files |
 
 ## Deferred Items
 

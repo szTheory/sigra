@@ -127,7 +127,7 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 **Wave 1**
@@ -144,7 +144,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 240.3-04-PLAN.md — Drive one deterministic real-cookie-jar browser journey and prove clean final navigation.
+- [x] 240.3-04-PLAN.md — Drive one deterministic real-cookie-jar browser journey and prove clean final navigation.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
