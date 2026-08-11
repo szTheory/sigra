@@ -39,8 +39,8 @@ created: 2026-08-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 237-01-01 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-01 / — | Fresh host contains required OAuth artifacts and omits disabled feature residue | ExUnit fixture contract | `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs` | ✅ | ❌ red — exact-profile and retained-core source locks expose smoke drift |
-| 237-01-02 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-02 / — | Assets-enabled PostgreSQL host compiles, migrates, builds assets, and boots while enforcing the B2C contract | shell integration smoke | `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` | ✅ | ❌ red — implementation correction required before CI rerun |
+| 237-01-01 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-01 / — | Fresh host contains required OAuth artifacts and omits disabled feature residue | ExUnit fixture contract | `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs` | ✅ | ✅ green — 7 tests, 0 failures at `85fd0ac0` |
+| 237-01-02 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-02 / — | Assets-enabled PostgreSQL host compiles, migrates, builds assets, and boots while enforcing the B2C contract | shell integration smoke | `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` | ✅ | ❌ red — generated audit migrations conflict before the B2C leg |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -59,8 +59,7 @@ No phase behavior is accepted through manual-only verification. The following au
 
 | Requirement | Escalated gap | Required correction |
 | --- | --- | --- |
-| B2C-01 | The authoritative B2C smoke invokes an extra `--no-live` flag, while the phase contract and verification define the exact three-flag profile. | Remove `--no-live` from the `sigra_b2c_alpha` `run_leg` call in `scripts/ci/passkeys-opt-out-smoke.sh`. |
-| B2C-01, B2C-02 | The smoke source assertion still expects obsolete `Auth.request_magic_link`; the generated controller uses `Auth.deliver_user_magic_link_instructions`. | Update the smoke assertion to the current generated public helper. |
+| B2C-01, B2C-02 | The authoritative smoke fails during the first generated-host migration because both audit-event templates add `effective_user_id`; the canonical B2C leg therefore never reaches migration or boot. | Resolve ownership of the duplicated audit-event columns between `create_audit_events.exs` and `alter_audit_events_add_org_columns.exs`, then rerun the full PostgreSQL smoke. |
 
 The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailable; this is an environment constraint, not a manual acceptance step. The 2026-08-10 audit could not connect to `127.0.0.1:53988` and therefore does not claim a current database-backed pass.
 
@@ -75,7 +74,7 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - [x] Feedback latency < 60s for the fixture test
 - [ ] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** partial — automated coverage exists, but two smoke implementation corrections remain red
+**Approval:** partial — automated coverage exists and the fast contract is green, but the PostgreSQL lifecycle is blocked by a generated migration conflict
 
 ---
 
@@ -151,3 +150,19 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - B2C-01/B2C-02 remain unmet: the smoke asserts `Auth.request_magic_link` rather than the generated `Auth.deliver_user_magic_link_instructions` helper.
 - These are implementation defects in the read-only smoke harness. No test assertion was weakened and no implementation file was changed.
 - The focused ExUnit run logged refused connections to `127.0.0.1:53988`; no PostgreSQL-backed lifecycle evidence is claimed.
+
+## Validation Audit 2026-08-10 (migration-lifecycle retry)
+
+| Metric | Count |
+| --- | ---: |
+| Gaps found | 1 |
+| Resolved | 0 |
+| Escalated | 1 |
+
+### Retry Evidence
+
+- `env -u PGPORT PGHOST=localhost PGUSER=postgres PGPASSWORD=postgres psql -d postgres -Atqc 'select 1'` returned `1`; the authoritative smoke environment has a reachable PostgreSQL service.
+- `bash -n scripts/ci/passkeys-opt-out-smoke.sh` passed.
+- The authoritative command `env -u PGPORT PGHOST=localhost PGUSER=postgres PGPASSWORD=postgres GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` is red at `85fd0ac0eb4dffae276ec4c1cbe50a4cf329c8b1`: generated-host `ecto.migrate` fails with PostgreSQL `42701 duplicate_column` when `alter_audit_events_add_org_columns` adds `effective_user_id` after `create_audit_events` already creates it.
+- The failure occurs before the canonical B2C leg can complete, so B2C-01/B2C-02 cannot be credited with PostgreSQL migration/boot evidence. The existing shell smoke remains the minimal behavioral integration test; no weaker fixture assertion can close this gap.
+- Source inspection corroborates the observed database failure: `priv/templates/sigra.install/core/create_audit_events.exs` and `priv/templates/sigra.install/core/alter_audit_events_add_org_columns.exs` both own `effective_user_id`. These implementation templates are read-only to the validation auditor.
