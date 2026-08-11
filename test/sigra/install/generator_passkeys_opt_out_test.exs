@@ -182,7 +182,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
       assert source =~ "opt out"
     end
 
-    test "fresh-host smoke locks the B2C Alpha retained-core and Google OAuth contract" do
+    test "fresh-host smoke invokes the exact canonical B2C Alpha profile" do
       source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
 
       assert source =~
@@ -190,6 +190,10 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
       refute source =~
                "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_alpha\""
+    end
+
+    test "fresh-host smoke asserts the emitted B2C retained-core and Google OAuth contract" do
+      source = File.read!("scripts/ci/passkeys-opt-out-smoke.sh")
 
       assert source =~ "add_cloak_ecto"
       assert Regex.match?(~r/\{:cloak_ecto,\s*\\?"~> 1\.3\\?"/, source)
