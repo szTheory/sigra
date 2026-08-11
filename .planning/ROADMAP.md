@@ -127,7 +127,7 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 7/10 plans executed
+**Plans:** 9/10 plans executed
 
 Plans:
 **Wave 1**
@@ -160,11 +160,11 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 240.3-08-PLAN.md — Remove the raw PKCE verifier from every GET callback surface with an encrypted, continuation-bound HttpOnly host session transport.
+- [x] 240.3-08-PLAN.md — Remove the raw PKCE verifier from every GET callback surface with an encrypted, continuation-bound HttpOnly host session transport.
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 240.3-09-PLAN.md — Convert the three mechanically checkable Crosswake prohibitions into fail-first deterministic enforcement.
+- [x] 240.3-09-PLAN.md — Convert the three mechanically checkable Crosswake prohibitions into fail-first deterministic enforcement.
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
