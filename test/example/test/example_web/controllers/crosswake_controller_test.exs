@@ -36,6 +36,20 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert_return_allowed(start_conn, return_location, params)
   end
 
+  test "example host session configuration is signed, encrypted, HttpOnly, SameSite=Lax, and secure outside test" do
+    config = File.read!(Path.expand("../../../config/config.exs", __DIR__))
+    test_config = File.read!(Path.expand("../../../config/test.exs", __DIR__))
+    endpoint = File.read!(Path.expand("../../../lib/example_web/endpoint.ex", __DIR__))
+
+    assert config =~ "config :example, :crosswake_session_secure, true"
+    assert test_config =~ "config :example, :crosswake_session_secure, false"
+    assert endpoint =~ "Application.compile_env!(:example, :crosswake_session_secure)"
+    assert endpoint =~ "encryption_salt:"
+    assert endpoint =~ "http_only: true"
+    assert endpoint =~ "same_site: \"Lax\""
+    assert endpoint =~ "secure: @crosswake_session_secure"
+  end
+
   test "local AuthReturn rejects missing or mismatched state and PKCE before evaluation", %{conn: conn} do
     user = user_fixture()
 

@@ -14,6 +14,13 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
   await passwordForm.getByRole('button', { name: 'Log in' }).click();
   await expect(page).not.toHaveURL(/\/users\/log_in/);
 
+  const sessionCookie = (await page.context().cookies()).find((cookie) => cookie.name === '_example_key');
+  expect(sessionCookie).toBeDefined();
+  expect(sessionCookie?.httpOnly).toBe(true);
+  expect(sessionCookie?.sameSite).toBe('Lax');
+  // The proof runner deliberately uses MIX_ENV=test over loopback HTTP.
+  expect(sessionCookie?.secure).toBe(false);
+
   const returnRequest = page.waitForRequest((request) => {
     const url = new URL(request.url());
     return request.method() === 'GET' && url.pathname === '/crosswake/return';
