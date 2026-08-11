@@ -115,6 +115,22 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
            "dependencies injected by sigra.install must be fetched before the probe and compilation"
   end
 
+  test "fresh-host smoke routes generated databases to the supplied local Postgres endpoint" do
+    smoke = read!(@smoke)
+
+    assert_contains!(
+      smoke,
+      "hostname: System.get_env(\"PGHOST\", \"localhost\")",
+      "generated-host database hostname override"
+    )
+
+    assert_contains!(
+      smoke,
+      "port: String.to_integer(System.get_env(\"PGPORT\", \"5432\"))",
+      "generated-host database port override"
+    )
+  end
+
   test "credential-free generated LiveView host proves bounded registration exhaustion" do
     runtime = read!("scripts/ci/generated-auth-runtime-proof.sh")
 
