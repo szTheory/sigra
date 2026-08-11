@@ -277,3 +277,40 @@ The executable host contract is covered by:
 ```bash
 cd test/example && mix test test/example/accounts/crosswake_session_adapter_test.exs
 ```
+
+### Copyable example-host start and return
+
+**Owner:** the adopting Phoenix host. This is example-host composition around
+the already-present in-process `crosswake_sigra` dependency; it is not a new
+Sigra public abstraction, generated integration, or external API/service.
+
+1. An authenticated browser sends `POST /crosswake/start` with the normal
+   host CSRF protection. The host resolves the current personal SIGRA session,
+   issues a short-lived one-time continuation, and stores only its digest plus
+   the server-owned binding. Its local `303` carries a generated continuation
+   handle with host-generated state and PKCE return transport; it does not
+   carry a credential, session ID, route choice, or destination.
+2. The browser follows the fixed `GET /crosswake/return` route. The host claims
+   the continuation before evaluation, re-resolves the session and user, and
+   assembles the released `AuthReturn` envelope on the server from the
+   continuation-bound state and PKCE values. Callback input cannot select or
+   reconstruct authority, policy, a session, a route, or navigation.
+3. On success the host issues the fixed `303 /app` navigation. The browser sees
+   only the normal local recovery: **Start**, **Return**, **Continue**, or
+   **Try again**. Missing, expired, replayed, revoked, or switched state never
+   becomes a portable token or an alternate route.
+
+Run the focused local proof after the host's configured PostgreSQL environment
+is available:
+
+```bash
+scripts/ci/hosted-session-interop-proof.sh
+```
+
+The repository proof establishes the in-process example-host runtime, its
+schema-first continuation/adapter/controller/browser checks, and one exact
+committed Sigra SHA. It does **not** establish real Google authorization,
+email delivery, deployed HTTPS/proxy behavior, a Crosswake network service,
+or iPhone/native launch behavior. Those remain host-owned staging and device
+rehearsals; do not add generated integration instructions or copy correlation
+values into an external system.
