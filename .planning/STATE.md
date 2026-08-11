@@ -21,7 +21,7 @@ current_phase_name: close-gap-ops-01-repair-controller-mfa-settings-rendering
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-31)
+See: `.planning/PROJECT.md` (updated 2026-08-11)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 241
-Plan: Not started
+Plan: 1 of 1 complete
 Status: All phases complete
 Last activity: 2026-08-11 — Phase 241 complete
 
