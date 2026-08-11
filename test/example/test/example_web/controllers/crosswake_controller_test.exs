@@ -31,7 +31,8 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     {start_conn, return_location, params} = start_return(conn, user)
 
     assert start_conn.status == 303
-    assert Map.keys(params) |> Enum.sort() == ["continuation", "pkce_verifier", "state"]
+    assert Map.keys(params) |> Enum.sort() == ["continuation", "state"]
+    refute Map.has_key?(params, "pkce_verifier")
 
     assert_return_allowed(start_conn, return_location, params)
   end
@@ -55,8 +56,8 @@ defmodule ExampleWeb.CrosswakeControllerTest do
 
     for invalid_params <- [
           %{},
-          %{"continuation" => "missing", "state" => "state", "pkce_verifier" => "verifier"},
-          %{"continuation" => ["list"], "state" => "state", "pkce_verifier" => "verifier"}
+          %{"continuation" => "missing", "state" => "state"},
+          %{"continuation" => ["list"], "state" => "state"}
         ] do
       conn = conn |> log_in_user(user) |> get(~p"/crosswake/return", invalid_params)
       assert_restarted(conn)
@@ -179,7 +180,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert_restarted(replay)
 
     for invalid_params <- [
-          %{"continuation" => "invalid", "state" => "state", "pkce_verifier" => "verifier"},
+          %{"continuation" => "invalid", "state" => "state"},
           Map.put(params, "state", [params["state"], "duplicate"]),
           Map.put(params, "continuation", [params["continuation"], "duplicate"])
         ] do
@@ -236,7 +237,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
 
     refute return_conn.request_path =~ params["continuation"]
     refute return_conn.request_path =~ params["state"]
-    refute return_conn.request_path =~ params["pkce_verifier"]
+    refute return_conn.request_path =~ "pkce_verifier"
 
     return_conn
   end
