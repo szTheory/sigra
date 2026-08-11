@@ -94,5 +94,8 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - Updated the retained-core source lock to require the current generated magic-link helper.
 - `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs` passed.
 - `bash -n scripts/ci/passkeys-opt-out-smoke.sh` passed.
+- Split the smoke source lock into two focused behavioral checks, so each independent implementation drift is reported even when the first one fails.
+- `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:185` failed: the B2C `run_leg` call includes `--no-live`, rather than the required exact three flags.
+- `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:195` failed: the smoke checks obsolete `Auth.request_magic_link`, rather than `Auth.deliver_user_magic_link_instructions` emitted by the generated controller.
 - The focused/full ExUnit target remains red because the new guards expose both smoke drifts; PostgreSQL connection attempts also failed at `127.0.0.1:53988`.
-- Test guard commit: `f9238f2c`.
+- Test guard commits: `f9238f2c`, `33b966f3`.
