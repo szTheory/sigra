@@ -132,6 +132,7 @@ payload = {
         {"command": "cd test/example && mix test test/example/accounts/crosswake_continuations_test.exs", "exit_status": 0, "outcome": "passed"},
         {"command": "cd test/example && mix test test/example_web/controllers/crosswake_controller_test.exs --include example_app", "exit_status": 0, "outcome": "passed"},
         {"command": "scripts/ci/hosted-session-interop-proof.sh --browser-only", "exit_status": 0, "outcome": "passed"},
+        {"command": "node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && ! GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs", "exit_status": 0, "outcome": "passed"},
         {"command": "MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs", "exit_status": 0, "outcome": "passed"},
     ],
     "test_categories": {
@@ -140,6 +141,7 @@ payload = {
         "continuation_security_suite": "passed",
         "router_security_suite": "passed",
         "browser_cookie_jar_suite": "passed",
+        "crosswake_prohibition_real_bad_clean_enforcement": "passed",
         "phase240_3_recipe_source_contract": "passed",
     },
     "requirements": {
@@ -169,10 +171,49 @@ payload = {
         {"requirement_id": "XW-01", "category": "unclassified", "status": "unresolved", "flagged": True},
         {"requirement_id": "XW-02", "category": "unclassified", "status": "unresolved", "flagged": True},
     ],
-    "flagged_unverified_prohibitions": [
-        {"requirement_id": "XW-01", "category": "authority-integrity", "status": "unverified", "flagged": True},
-        {"requirement_id": "XW-01", "category": "secret-boundary", "status": "unverified", "flagged": True},
-        {"requirement_id": "XW-02", "category": "authority-smuggling", "status": "unverified", "flagged": True},
+    "prohibitions": [
+        {
+            "requirement_id": "XW-01",
+            "category": "authority-integrity",
+            "status": "resolved",
+            "verification": "test",
+            "statement": "MUST NOT manufacture organization authority for a personal SIGRA session.",
+            "check_kind": "node-test",
+            "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+            "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+            "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+            "repository_passed": True,
+            "fail_first_passed": True,
+            "clean_control_passed": True,
+        },
+        {
+            "requirement_id": "XW-01",
+            "category": "secret-boundary",
+            "status": "resolved",
+            "verification": "test",
+            "statement": "MUST NOT expose the PKCE verifier in the callback URL, browser history, logs, or observable request metadata.",
+            "check_kind": "node-test",
+            "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+            "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+            "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+            "repository_passed": True,
+            "fail_first_passed": True,
+            "clean_control_passed": True,
+        },
+        {
+            "requirement_id": "XW-02",
+            "category": "authority-smuggling",
+            "status": "resolved",
+            "verification": "test",
+            "statement": "MUST NOT let callback data select or reconstruct the session, subject, policy route, grant decision, or navigation destination.",
+            "check_kind": "node-test",
+            "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+            "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+            "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+            "repository_passed": True,
+            "fail_first_passed": True,
+            "clean_control_passed": True,
+        },
     ],
     "api_detector": {
         "detected": False,
@@ -210,6 +251,7 @@ main() {
   run_bounded "continuation security suite" bash -lc "cd '${ROOT_DIR}/test/example' && mix test test/example/accounts/crosswake_continuations_test.exs"
   run_bounded "controller security suite" bash -lc "cd '${ROOT_DIR}/test/example' && mix test test/example_web/controllers/crosswake_controller_test.exs --include example_app"
   run_bounded "browser cookie-jar proof" "${ROOT_DIR}/scripts/ci/hosted-session-interop-proof.sh" --browser-only
+  run_bounded "Crosswake prohibition real/bad/clean enforcement" bash -lc "node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && ! GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
   run_bounded "phase 240.3 recipe/source contract" env MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs
 
   assert_same_clean_worktree_sha "${ROOT_DIR}" "${EVIDENCE_RELATIVE_PATH}" "${TESTED_SIGRA_SHA}" ||

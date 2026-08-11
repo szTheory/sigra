@@ -23,6 +23,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   @prohibition_bad_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json"
   @prohibition_clean_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json"
   @plan ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-09-PLAN.md"
+  @prohibition_command "node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && ! GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
 
   @ordered_commands [
     "cd test/example && MIX_ENV=test mix ecto.migrate --quiet",
@@ -30,6 +31,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
     "cd test/example && mix test test/example/accounts/crosswake_continuations_test.exs",
     "cd test/example && mix test test/example_web/controllers/crosswake_controller_test.exs --include example_app",
     "scripts/ci/hosted-session-interop-proof.sh --browser-only",
+    @prohibition_command,
     "MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs"
   ]
 
@@ -40,6 +42,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
     "run_bounded \"continuation security suite\"",
     "run_bounded \"controller security suite\"",
     "run_bounded \"browser cookie-jar proof\"",
+    "run_bounded \"Crosswake prohibition real/bad/clean enforcement\"",
     "run_bounded \"phase 240.3 recipe/source contract\""
   ]
 
@@ -289,6 +292,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
           "continuation security suite",
           "controller security suite",
           "browser cookie-jar proof",
+          "Crosswake prohibition real/bad/clean enforcement",
           "phase 240.3 recipe/source contract",
           "bind_clean_worktree_sha",
           "assert_same_clean_worktree_sha",
@@ -313,6 +317,19 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
     assert index!(main_runner, "assert_same_clean_worktree_sha") <
              index!(main_runner, "write_evidence\n")
 
+    assert index!(main_runner, "run_bounded \"browser cookie-jar proof\"") <
+             index!(main_runner, "run_bounded \"Crosswake prohibition real/bad/clean enforcement\"")
+
+    assert index!(main_runner, "run_bounded \"Crosswake prohibition real/bad/clean enforcement\"") <
+             index!(main_runner, "run_bounded \"phase 240.3 recipe/source contract\"")
+
+    assert runner =~ "node --test #{@prohibition_guard}"
+    assert runner =~ "GSD_PROHIB_SUBJECT=#{@prohibition_bad_fixture}"
+    assert runner =~ "GSD_PROHIB_SUBJECT=#{@prohibition_clean_fixture}"
+    assert runner =~ "! GSD_PROHIB_SUBJECT=#{@prohibition_bad_fixture}"
+    assert runner =~ "\"prohibitions\": ["
+    refute runner =~ "flagged_unverified_prohibitions"
+
     refute Regex.match?(~r/\b(?:sleep|manual[ _-]?uat)\b/i, runner)
   end
 
@@ -332,7 +349,12 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
                  ~w(repository package version requirement git_tag git_sha hex_checksum)
                )
 
-      assert Enum.map(receipt["local_commands"], & &1["command"]) == @ordered_commands
+      expected_commands =
+        if Map.has_key?(receipt, "prohibitions"),
+          do: @ordered_commands,
+          else: List.delete(@ordered_commands, @prohibition_command)
+
+      assert Enum.map(receipt["local_commands"], & &1["command"]) == expected_commands
 
       assert Enum.all?(receipt["local_commands"], fn command ->
                command["exit_status"] == 0 and command["outcome"] == "passed"
@@ -343,7 +365,27 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
                "XW-02"
              ]
 
-      assert length(receipt["flagged_unverified_prohibitions"]) == 3
+      if Map.has_key?(receipt, "prohibitions") do
+        assert Enum.map(receipt["prohibitions"], & &1["category"]) == [
+                 "authority-integrity",
+                 "secret-boundary",
+                 "authority-smuggling"
+               ]
+
+        for prohibition <- receipt["prohibitions"] do
+          assert prohibition["status"] == "resolved"
+          assert prohibition["verification"] == "test"
+          assert prohibition["check_kind"] == "node-test"
+          assert prohibition["check_target"] == @prohibition_guard
+          assert prohibition["check_violation_fixture"] == @prohibition_bad_fixture
+          assert prohibition["check_clean_fixture"] == @prohibition_clean_fixture
+          assert prohibition["repository_passed"] == true
+          assert prohibition["fail_first_passed"] == true
+          assert prohibition["clean_control_passed"] == true
+        end
+
+        refute Map.has_key?(receipt, "flagged_unverified_prohibitions")
+      end
       assert receipt["api_detector"]["detected"] == false
 
       rendered = Jason.encode!(receipt)
