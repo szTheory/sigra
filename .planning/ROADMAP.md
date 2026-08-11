@@ -132,3 +132,14 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 Plans:
 
 - [x] 240.1-01: Document and lock the host-owned OAuth dependency handoff
+
+### Phase 240.2: Close gap: OPS-01 — add controller-mode generated-host compile proof (INSERTED)
+
+**Goal:** Close the OPS-01 controller-limiter integration gap with a distinct credential-free fresh `--no-live` B2C host that compiles warning-free, migrates, boots, and passes bounded readiness while the canonical LiveView lane remains unchanged.
+**Requirements**: TBD
+**Depends on:** Phase 240
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 240.2-01-PLAN.md — Add and contract-lock the controller-mode generated-host compile/boot tracer.
