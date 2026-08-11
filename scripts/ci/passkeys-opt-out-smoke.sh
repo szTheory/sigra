@@ -36,6 +36,16 @@ export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
 # Fresh generation must never inherit a developer or runner's provider credentials.
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 
+SIGRA_PASSKEYS_OPT_OUT_LEG="${SIGRA_PASSKEYS_OPT_OUT_LEG:-all}"
+
+case "${SIGRA_PASSKEYS_OPT_OUT_LEG}" in
+  all | sigra_no_passkeys | sigra_no_organizations_no_passkeys | sigra_b2c_alpha | sigra_b2c_controller) ;;
+  *)
+    echo "FAIL: SIGRA_PASSKEYS_OPT_OUT_LEG must be all, sigra_no_passkeys, sigra_no_organizations_no_passkeys, sigra_b2c_alpha, or sigra_b2c_controller" >&2
+    exit 1
+    ;;
+esac
+
 cleanup_tmp_root() {
   case "${TMP_ROOT}" in
     "${TMP_PARENT%/}"/sigra-passkeys-opt-out.*) ;;
@@ -257,6 +267,38 @@ config :sigra, login_rate_limit: 2, login_rate_limit_window: 60_000
 EOF
 }
 
+install_generated_mfa_settings_route_probe() {
+  # This probe lives only in the disposable controller-mode host. It exercises
+  # the real protected GET using the exact persisted session token on the test
+  # connection, so authentication or sudo redirects cannot count as success.
+  cat > "test/generated_mfa_settings_route_probe_test.exs" <<'EOF'
+defmodule SigraB2cController.GeneratedMFASettingsRouteProbeTest do
+  use SigraB2cControllerWeb.ConnCase, async: false
+
+  import SigraB2cController.AccountsFixtures
+
+  alias SigraB2cController.Accounts
+  alias SigraB2cController.Accounts.UserSession
+  alias SigraB2cController.Repo
+
+  test "renders MFA settings after authentication and fresh sudo", %{conn: conn} do
+    user = user_fixture()
+    conn = log_in_user(conn, user)
+    token = Plug.Conn.get_session(conn, :user_token)
+    {^user, session} = Accounts.get_user_and_session_by_token(token)
+
+    UserSession
+    |> Repo.get_by!(hashed_token: session.hashed_token)
+    |> Ecto.Changeset.change(sudo_at: DateTime.utc_now())
+    |> Repo.update!()
+
+    html = conn |> get(~p"/users/settings/mfa") |> html_response(200)
+    assert html =~ "Two-Factor Authentication"
+  end
+end
+EOF
+}
+
 run_leg() {
   local flags="$1"
   local label="$2"
@@ -376,6 +418,15 @@ run_leg() {
     MIX_ENV=test mix test test/generated_rate_limit_probe_test.exs
   fi
 
+  if [[ "${label}" == "sigra_b2c_controller" ]]; then
+    echo "==> passkeys-opt-out: exercising generated controller MFA settings route"
+    install_generated_mfa_settings_route_probe
+    MIX_ENV=test mix ecto.drop || true
+    MIX_ENV=test mix ecto.create
+    MIX_ENV=test mix ecto.migrate
+    MIX_ENV=test mix test test/generated_mfa_settings_route_probe_test.exs
+  fi
+
   echo "==> passkeys-opt-out: compiling and building assets"
   MIX_ENV=dev mix compile --warnings-as-errors
   MIX_ENV=dev mix assets.deploy
@@ -406,9 +457,20 @@ run_leg() {
 
 echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"
 
-run_leg "--no-passkeys" "sigra_no_passkeys"
-run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
-run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
-run_leg "--no-admin --no-organizations --no-passkeys --no-live" "sigra_b2c_controller"
+if [[ "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "all" || "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "sigra_no_passkeys" ]]; then
+  run_leg "--no-passkeys" "sigra_no_passkeys"
+fi
+
+if [[ "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "all" || "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "sigra_no_organizations_no_passkeys" ]]; then
+  run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
+fi
+
+if [[ "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "all" || "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "sigra_b2c_alpha" ]]; then
+  run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
+fi
+
+if [[ "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "all" || "${SIGRA_PASSKEYS_OPT_OUT_LEG}" == "sigra_b2c_controller" ]]; then
+  run_leg "--no-admin --no-organizations --no-passkeys --no-live" "sigra_b2c_controller"
+fi
 
 echo "==> passkeys-opt-out: success"
