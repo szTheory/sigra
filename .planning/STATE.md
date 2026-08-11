@@ -4,16 +4,16 @@ milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
 current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
-status: planned
-stopped_at: Planned 240.3-10-PLAN.md
-last_updated: "2026-08-11T19:30:00.000Z"
+status: executing
+stopped_at: Completed 240.3-08-PLAN.md
+last_updated: "2026-08-11T21:20:13.068Z"
 last_activity: 2026-08-11
-last_activity_desc: Phase 240.3 gap-closure planning completed
+last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 34
-  completed_plans: 30
+  completed_plans: 31
   percent: 75
 ---
 
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — PLANNED
-Plan: 7 of 10
+Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
-Last activity: 2026-08-11 — Phase 240.3 gap-closure planning completed
+Last activity: 2026-08-11 — Phase 240.3 execution started
 
 ## Accumulated Context
 
@@ -452,6 +452,8 @@ Last activity: 2026-08-11 — Phase 240.3 gap-closure planning completed
 - [Phase ?]: Hosted Crosswake proof remains an in-process example-host claim; provider, deployment, network-service, and device evidence are explicit non-claims.
 - [Phase ?]: Crosswake return/2 applies no-referrer before validation so all callback redirects protect the next navigation.
 - [Phase ?]: The hosted Chromium proof asserts the actual /app document request has no Referer header.
+- [Phase ?]: Store PKCE verifier only in a continuation-bound signed and encrypted host session entry; callback URLs carry continuation and state only.
+- [Phase ?]: Secure cookies default to true outside MIX_ENV=test; the deterministic loopback browser harness is the sole Secure=false exception.
 
 ### Pending Todos
 
@@ -602,8 +604,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T18:25:20.806Z
-Stopped at: Completed 240.3-06-PLAN.md
+Last session: 2026-08-11T21:20:13.053Z
+Stopped at: Completed 240.3-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -790,6 +792,7 @@ Resume file: None
 | Phase 240.3 P04 | 20min | 1 tasks | 3 files |
 | Phase 240.3 P05 | 14m | 2 tasks | 6 files |
 | Phase 240.3 P06 | 1m | 1 tasks | 3 files |
+| Phase 240.3 P08 | 18m | 2 tasks | 8 files |
 
 ## Deferred Items
 

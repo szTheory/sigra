@@ -18,8 +18,8 @@
 
 ### Crosswake interop
 
-- [ ] **XW-01**: A backend-validated SIGRA personal-account session can project to `crosswake_sigra` without inventing an organization or exposing credentials/tokens.
-- [ ] **XW-02**: Missing, expired, revoked, or account-switched session state fails closed for Crosswake replay; return data alone never grants access.
+- [x] **XW-01**: A backend-validated SIGRA personal-account session can project to `crosswake_sigra` without inventing an organization or exposing credentials/tokens.
+- [x] **XW-02**: Missing, expired, revoked, or account-switched session state fails closed for Crosswake replay; return data alone never grants access.
 
 ### Operations
 
