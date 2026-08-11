@@ -1,0 +1,116 @@
+{
+  "schema": "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1",
+  "sigra_git_sha": "8e7dd887841767be2221caa58aaf8a928e44b5d1",
+  "captured_at": "2026-08-11T17:46:55Z",
+  "crosswake_release": {
+    "repository": "https://github.com/szTheory/crosswake.git",
+    "package": "crosswake_sigra",
+    "version": "0.1.3",
+    "requirement": "~> 0.1.3",
+    "git_tag": "crosswake_sigra-v0.1.3",
+    "git_sha": "70edb8077894fd09d4376591782b511c9d8be664",
+    "hex_checksum": "0c6243fe06de93dea7ae59a856a4290f9d6ac2ddfe27e2dd509a7585681feb8b"
+  },
+  "local_commands": [
+    {
+      "command": "cd test/example && MIX_ENV=test mix ecto.migrate --quiet",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
+      "command": "cd test/example && mix test test/example/accounts/crosswake_session_adapter_test.exs",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
+      "command": "cd test/example && mix test test/example/accounts/crosswake_continuations_test.exs",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
+      "command": "cd test/example && mix test test/example_web/controllers/crosswake_controller_test.exs --include example_app",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
+      "command": "scripts/ci/hosted-session-interop-proof.sh --browser-only",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
+      "command": "MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs",
+      "exit_status": 0,
+      "outcome": "passed"
+    }
+  ],
+  "test_categories": {
+    "historical_release_scope_contract": "passed",
+    "database_backed_adapter_suite": "passed",
+    "continuation_security_suite": "passed",
+    "router_security_suite": "passed",
+    "browser_cookie_jar_suite": "passed",
+    "phase240_3_recipe_source_contract": "passed"
+  },
+  "requirements": {
+    "XW-01": "proved by personal nil-org projection, opaque references, recipe, and smuggling denial matrix",
+    "XW-02": "proved by fresh lookup, expiry/currentness, binding/account-switch, and evidence-only denial matrix"
+  },
+  "decisions": {
+    "D-01": "example-host composition reuses the already-present in-process dependency",
+    "D-02": "thin controllers delegate to explicit host context operations",
+    "D-03": "authenticated POST start and browser-only return keep authority server-side",
+    "D-04": "short-lived one-time continuations bind the departure session",
+    "D-05": "only digests and narrow server-owned fields are persisted",
+    "D-06": "atomic claim precedes evidence, binding, and evaluator work",
+    "D-07": "return evidence cannot replace session resolution or authority",
+    "D-08": "the host fixes the Crosswake route and final local destination",
+    "D-09": "the completed return uses a 303 navigation without sensitive URL material",
+    "D-10": "terminal failures use generic restart or sign-in recovery",
+    "D-11": "logs, telemetry, and this receipt retain redacted outcome-only material",
+    "D-12": "adapter and continuation denial matrices both run before evidence",
+    "D-13": "the focused controller suite exercises the real router boundary",
+    "D-14": "the serial browser project exercises one real cookie-jar journey",
+    "D-15": "this bounded runner applies schemas and writes its receipt last",
+    "D-16": "the recipe is host-owned and distinguishes local proof from deployment evidence",
+    "D-17": "no public Sigra abstraction, generator output, or external service is added"
+  },
+  "unresolved_assumptions": [
+    {
+      "requirement_id": "XW-01",
+      "category": "unclassified",
+      "status": "unresolved",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-02",
+      "category": "unclassified",
+      "status": "unresolved",
+      "flagged": true
+    }
+  ],
+  "flagged_unverified_prohibitions": [
+    {
+      "requirement_id": "XW-01",
+      "category": "authority-integrity",
+      "status": "unverified",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-01",
+      "category": "secret-boundary",
+      "status": "unverified",
+      "flagged": true
+    },
+    {
+      "requirement_id": "XW-02",
+      "category": "authority-smuggling",
+      "status": "unverified",
+      "flagged": true
+    }
+  ],
+  "api_detector": {
+    "detected": false,
+    "reason": "crosswake_sigra is an in-process Elixir dependency; no Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication is introduced",
+    "rerun_trigger": "introducing a Crosswake network endpoint, SDK client, webhook, hosted API, or remote authentication"
+  }
+}
