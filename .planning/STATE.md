@@ -5,8 +5,8 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 241
 current_phase_name: "Close gap: OPS-01 — repair controller MFA settings rendering"
 status: planning
-stopped_at: Completed 240.3-10-PLAN.md
-last_updated: "2026-08-11T21:49:17.615Z"
+stopped_at: Phase 241 context gathered (assumptions mode)
+last_updated: "2026-08-11T21:58:56.056Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 240.3 complete, transitioned to Phase 241
 progress:
@@ -608,9 +608,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T21:39:14.371Z
-Stopped at: Completed 240.3-10-PLAN.md
-Resume file: None
+Last session: 2026-08-11T21:58:56.039Z
+Stopped at: Phase 241 context gathered (assumptions mode)
+Resume file: .planning/phases/241-close-gap-ops-01-repair-controller-mfa-settings-rendering/241-CONTEXT.md
 
 ## Operator Next Steps
 
