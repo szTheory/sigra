@@ -70,7 +70,17 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     assert_contains!(core, "pipeline :\#{pipeline}", "generated rate-limit pipeline")
     assert_contains!(core, "limit_config_key", "request-time rate-limit configuration")
     assert_contains!(core, "window_config_key", "request-time rate-limit configuration")
-    assert_contains!(smoke, "--no-live", "controller-router generated-host compile lane")
+    assert_contains!(
+      smoke,
+      "run_leg \"--no-admin --no-organizations --no-passkeys\" \"sigra_b2c_alpha\"",
+      "canonical LiveView B2C generated-host compile lane"
+    )
+
+    assert_contains!(
+      smoke,
+      "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_controller\"",
+      "controller-router generated-host compile lane"
+    )
     assert_contains!(smoke, "mix compile --warnings-as-errors", "controller-router compilation")
     assert_contains!(runtime, "mix sigra.install", "LiveView generated-host lane")
 
