@@ -10,6 +10,7 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
   @adapter "test/example/lib/example/accounts/crosswake_session_adapter.ex"
   @adapter_test "test/example/test/example/accounts/crosswake_session_adapter_test.exs"
   @runner "scripts/ci/hosted-session-interop-proof.sh"
+  @exact_sha_worktree "scripts/ci/lib/exact-sha-worktree.sh"
 
   @commands [
     "mix format --check-formatted packages/crosswake_sigra/test/crosswake/companions/sigra/contracts_test.exs packages/crosswake_sigra/test/crosswake/proof/phase57_auth_return_boundaries_test.exs",
@@ -125,6 +126,7 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
 
   test "proof runner is bounded, failure-propagating, and writes receipt last" do
     runner = read!(@runner)
+    exact_sha_worktree = read!(@exact_sha_worktree)
 
     for marker <- [
           "set -euo pipefail",
@@ -132,10 +134,13 @@ defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
           "mix test test/example/accounts/crosswake_session_adapter_test.exs",
           "perl -e",
           "write_evidence",
-          "git -C \"${ROOT_DIR}\" rev-parse HEAD"
+          "source \"${ROOT_DIR}/scripts/ci/lib/exact-sha-worktree.sh\"",
+          "TESTED_SIGRA_SHA=\"$(bind_clean_worktree_sha"
         ] do
       assert runner =~ marker, "runner is missing #{inspect(marker)}"
     end
+
+    assert exact_sha_worktree =~ "git -C \"${root}\" rev-parse --verify HEAD^{commit}"
 
     refute Regex.match?(~r/\b(?:sleep|watch|manual[ _-]?uat)\b/i, runner)
   end
