@@ -5,16 +5,16 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
 current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 status: executing
-stopped_at: Completed 240.3-09-PLAN.md
-last_updated: "2026-08-11T21:27:04.201Z"
+stopped_at: Completed 240.3-10-PLAN.md
+last_updated: "2026-08-11T21:39:14.389Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 34
-  completed_plans: 33
-  percent: 75
+  completed_plans: 34
+  percent: 88
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 240.3 execution started
 
@@ -456,6 +456,8 @@ Last activity: 2026-08-11 — Phase 240.3 execution started
 - [Phase ?]: Secure cookies default to true outside MIX_ENV=test; the deterministic loopback browser harness is the sole Secure=false exception.
 - [Phase ?]: Crosswake authority, secret-boundary, and authority-smuggling prohibitions share one non-vacuous node:test guard with fail-first and clean-control fixtures.
 - [Phase ?]: XW-01/XW-02 edge assumptions remain unresolved because mechanical prohibition evidence does not replace owner classification.
+- [Phase ?]: Exact-SHA Crosswake receipts run the browser and real/bad/clean prohibition gate before receipt-last sealing.
+- [Phase ?]: Mechanical Crosswake prohibitions are resolved/test; spec-less XW-01/XW-02 edge assumptions remain unresolved without owner approval.
 
 ### Pending Todos
 
@@ -606,8 +608,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T21:27:04.185Z
-Stopped at: Completed 240.3-09-PLAN.md
+Last session: 2026-08-11T21:39:14.371Z
+Stopped at: Completed 240.3-10-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -796,6 +798,7 @@ Resume file: None
 | Phase 240.3 P06 | 1m | 1 tasks | 3 files |
 | Phase 240.3 P08 | 18m | 2 tasks | 8 files |
 | Phase 240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow P09 | 8m | 1 tasks | 4 files |
+| Phase 240.3 P10 | 11m | 2 tasks | 3 files |
 
 ## Deferred Items
 
