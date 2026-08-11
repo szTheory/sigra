@@ -14,6 +14,8 @@
 #
 # Local reproduction:
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/passkeys-opt-out-smoke.sh
+# Focused controller-MFA route probe:
+#   SIGRA_PASSKEYS_OPT_OUT_LEG=sigra_b2c_controller GITHUB_WORKSPACE="$(pwd)" scripts/ci/passkeys-opt-out-smoke.sh
 
 set -euo pipefail
 
