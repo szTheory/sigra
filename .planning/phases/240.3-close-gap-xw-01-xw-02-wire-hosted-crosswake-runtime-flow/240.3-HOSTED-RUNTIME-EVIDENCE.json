@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1",
-  "sigra_git_sha": "5ade83f957fbbe81e97e9e181b21a374b4939d0d",
-  "captured_at": "2026-08-11T19:01:05Z",
+  "sigra_git_sha": "e3e8544104d5083ea6adb8508477a0116844b35c",
+  "captured_at": "2026-08-11T21:37:22Z",
   "crosswake_release": {
     "repository": "https://github.com/szTheory/crosswake.git",
     "package": "crosswake_sigra",
@@ -38,6 +38,11 @@
       "outcome": "passed"
     },
     {
+      "command": "node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && ! GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+      "exit_status": 0,
+      "outcome": "passed"
+    },
+    {
       "command": "MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs",
       "exit_status": 0,
       "outcome": "passed"
@@ -49,6 +54,7 @@
     "continuation_security_suite": "passed",
     "router_security_suite": "passed",
     "browser_cookie_jar_suite": "passed",
+    "crosswake_prohibition_real_bad_clean_enforcement": "passed",
     "phase240_3_recipe_source_contract": "passed"
   },
   "requirements": {
@@ -88,24 +94,48 @@
       "flagged": true
     }
   ],
-  "flagged_unverified_prohibitions": [
+  "prohibitions": [
     {
       "requirement_id": "XW-01",
       "category": "authority-integrity",
-      "status": "unverified",
-      "flagged": true
+      "status": "resolved",
+      "verification": "test",
+      "statement": "MUST NOT manufacture organization authority for a personal SIGRA session.",
+      "check_kind": "node-test",
+      "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+      "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+      "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+      "repository_passed": true,
+      "fail_first_passed": true,
+      "clean_control_passed": true
     },
     {
       "requirement_id": "XW-01",
       "category": "secret-boundary",
-      "status": "unverified",
-      "flagged": true
+      "status": "resolved",
+      "verification": "test",
+      "statement": "MUST NOT expose the PKCE verifier in the callback URL, browser history, logs, or observable request metadata.",
+      "check_kind": "node-test",
+      "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+      "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+      "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+      "repository_passed": true,
+      "fail_first_passed": true,
+      "clean_control_passed": true
     },
     {
       "requirement_id": "XW-02",
       "category": "authority-smuggling",
-      "status": "unverified",
-      "flagged": true
+      "status": "resolved",
+      "verification": "test",
+      "statement": "MUST NOT let callback data select or reconstruct the session, subject, policy route, grant decision, or navigation destination.",
+      "check_kind": "node-test",
+      "check_target": "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+      "check_violation_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+      "check_clean_fixture": "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+      "repository_passed": true,
+      "fail_first_passed": true,
+      "clean_control_passed": true
     }
   ],
   "api_detector": {
