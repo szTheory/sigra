@@ -17,7 +17,9 @@ defmodule <%= web_module %>.SettingsController do
   def mfa(conn, _params) do
     status = Auth.mfa_status(conn.assigns.current_scope.user)
 
-    render(conn, :mfa_settings,
+    conn
+    |> put_view(html: <%= web_module %>.MFASettingsHTML)
+    |> render(:mfa_settings,
       mfa_enabled: status.enabled,
       backup_remaining: status.backup_codes_remaining,
       enrollment_step: nil,
