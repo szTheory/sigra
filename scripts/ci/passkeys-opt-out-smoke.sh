@@ -310,7 +310,7 @@ run_leg() {
     assert_match 'get "/log_in/:token", SessionController, :magic_link' "${router}"
     assert_match 'Auth.authenticate_user' "${session_controller}"
     assert_match 'def create\(conn, %\{"_action" => "magic_link"' "${session_controller}"
-    assert_match 'Auth.request_magic_link' "${session_controller}"
+    assert_match 'Auth.deliver_user_magic_link_instructions' "${session_controller}"
     assert_match 'def magic_link\(conn, %\{"token" => token\}\)' "${session_controller}"
     assert_match 'Auth.verify_magic_link' "${session_controller}"
 
@@ -382,6 +382,6 @@ echo "==> passkeys-opt-out: using Sigra repo at ${SIGRA_REPO}"
 
 run_leg "--no-passkeys" "sigra_no_passkeys"
 run_leg "--no-organizations --no-passkeys" "sigra_no_organizations_no_passkeys"
-run_leg "--no-admin --no-organizations --no-passkeys --no-live" "sigra_b2c_alpha"
+run_leg "--no-admin --no-organizations --no-passkeys" "sigra_b2c_alpha"
 
 echo "==> passkeys-opt-out: success"
