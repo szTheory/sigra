@@ -19,6 +19,13 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**Phase 241 controller MFA settings rendering repair complete (2026-08-11).**
+Fresh generated `--no-live` hosts now route the authenticated, sudo-protected
+MFA settings GET through the emitted `MFASettingsHTML` module. Verification
+passed 4/4 must-haves with focused source contracts, a real generated-host
+route probe, and the complete four-leg credential-free smoke; controller
+mutations, LiveView, passkeys, dependencies, and admin UI remain unchanged.
+
 **Phase 240.3 hosted Crosswake runtime flow complete (2026-08-11).** The
 personal-session adapter is now reachable through the example host with a
 digest-only, one-time continuation; encrypted, HttpOnly, SameSite=Lax,
@@ -26,7 +33,7 @@ Secure-by-default verifier transport; fail-closed evaluator handling; and a
 safe browser return. Verification passed 15/15 must-haves, backed by a
 receipt-last exact-SHA proof whose seven bounded commands include the real
 Chromium cookie-jar journey and deterministic enforcement of all three
-Crosswake authority/secret prohibitions. Phase 241 is next.
+Crosswake authority/secret prohibitions.
 
 **Phase 240.2 controller generated-host proof complete (2026-08-10).** The
 credential-free B2C smoke now exercises a distinct `--no-live` controller host
@@ -1171,3 +1178,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-04 — Phase **236 Closeout Evidence Reconciliation** complete (8/8 plans; verifier 10/10, status passed). The reconciled audit and lifecycle evidence are verified, and the committed-range scope fence now fails closed for restored and merge-resolution-only forbidden paths. Milestone v1.47 CI-EFFICIENCY is 7/7 phases and 76/76 plans complete.*
 
 *Last updated: 2026-08-10 — Phase **240.2 Controller Generated-Host Compile Proof** complete (1/1 plan; verifier 6/6, status passed). The canonical smoke now proves a distinct credential-free `--no-live` B2C host through warning-free compile, migration, boot, and bounded readiness without changing the LiveView proof lane.*
+
+*Last updated: 2026-08-11 — Phase **241 Controller MFA Settings Rendering Repair** complete (1/1 plan; verifier 4/4, status passed). Fresh generated controller-mode hosts now render the protected MFA settings GET through their emitted `MFASettingsHTML` module, with deterministic route evidence and no LiveView or mutation expansion.*
