@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 240.1
-status: completed
-stopped_at: Completed 240-04-PLAN.md
-last_updated: "2026-08-10T23:48:04.521Z"
-last_activity: 2026-08-10
-last_activity_desc: Phase 240.1 complete
+status: planning
+stopped_at: Phase 240.2 context gathered (assumptions mode)
+last_updated: "2026-08-11T02:00:58.165Z"
+last_activity: 2026-08-10 — Phase 240.1 complete
 progress:
-  total_phases: 5
-  completed_phases: 4
-  total_plans: 22
-  completed_plans: 22
-  percent: 80
-current_phase_name: Alpha Operations Rehearsal
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 23
+  completed_plans: 23
+  percent: 83
 ---
 
 # Project State
@@ -25,13 +22,13 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 240 — alpha-operations-rehearsal
+**Current focus:** Phase 240.2 — Close gap: OPS-01 — add controller-mode generated-host compile proof
 
 ## Current Position
 
-Phase: 240.1
-Plan: Complete
-Status: All phases complete
+Phase: 240.2
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-08-10 — Phase 240.1 complete
 
 ## Accumulated Context
@@ -462,6 +459,7 @@ Last activity: 2026-08-10 — Phase 240.1 complete
 - v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
 - Phase 236 added: Closeout Evidence Reconciliation
 - Phase 240.1 inserted after Phase 240: Repair canonical B2C OAuth recipe handoff (URGENT)
+- Phase 240.2 inserted after Phase 240: Close gap: OPS-01 — add controller-mode generated-host compile proof (URGENT)
 
 ## Quick Tasks Completed
 
@@ -585,9 +583,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-10T22:19:37.978Z
-Stopped at: Completed 240-04-PLAN.md
-Resume file: None
+Last session: 2026-08-11T02:00:58.160Z
+Stopped at: Phase 240.2 context gathered (assumptions mode)
+Resume file: .planning/phases/240.2-close-gap-ops-01-add-controller-mode-generated-host-compile-/240.2-CONTEXT.md
 
 ## Operator Next Steps
 
