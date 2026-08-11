@@ -99,3 +99,19 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:195` failed: the smoke checks obsolete `Auth.request_magic_link`, rather than `Auth.deliver_user_magic_link_instructions` emitted by the generated controller.
 - The focused/full ExUnit target remains red because the new guards expose both smoke drifts; PostgreSQL connection attempts also failed at `127.0.0.1:53988`.
 - Test guard commits: `f9238f2c`, `33b966f3`.
+
+## Validation Audit 2026-08-10 (retry)
+
+| Metric | Count |
+| --- | ---: |
+| Gaps found | 2 |
+| Resolved | 0 |
+| Escalated | 2 |
+
+### Retry Evidence
+
+- The `gsd-nyquist-auditor` independently reproduced both focused source-lock failures and returned `## ESCALATE`; the gaps require smoke implementation changes, which the test-only auditor is forbidden to make.
+- `bash -n scripts/ci/passkeys-opt-out-smoke.sh` passed.
+- `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:185 test/sigra/install/generator_passkeys_opt_out_test.exs:195` completed with `2 tests, 2 failures`, confirming both implementation drifts remain observable.
+- B2C-03 remains covered by the existing generated-host negative sentinels; no redundant validation test was added.
+- No PostgreSQL-backed lifecycle pass is claimed. The local test endpoint `127.0.0.1:53988` remained unavailable during the focused run.
