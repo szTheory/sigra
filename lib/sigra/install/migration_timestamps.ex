@@ -44,9 +44,43 @@ defmodule Sigra.Install.MigrationTimestamps do
     result
   end
 
+  @doc false
+  @spec next_available(Path.t(), DateTime.t()) :: String.t()
+  def next_available(migrations_dir, now \\ DateTime.utc_now())
+      when is_binary(migrations_dir) and is_struct(now, DateTime) do
+    current_version =
+      now
+      |> Calendar.strftime("%Y%m%d%H%M%S")
+      |> String.to_integer()
+
+    highest_existing =
+      migrations_dir
+      |> existing_versions()
+      |> Enum.max(fn -> 0 end)
+
+    max(current_version, highest_existing + 1)
+    |> Integer.to_string()
+    |> String.pad_leading(14, "0")
+  end
+
   defp format_timestamp(%DateTime{} = base, offset_seconds) do
     base
     |> DateTime.add(offset_seconds, :second)
     |> Calendar.strftime("%Y%m%d%H%M%S")
+  end
+
+  defp existing_versions(migrations_dir) do
+    if File.dir?(migrations_dir) do
+      migrations_dir
+      |> File.ls!()
+      |> Enum.flat_map(fn filename ->
+        case Regex.run(~r/^(\d{14})_/, filename) do
+          [_, version] -> [String.to_integer(version)]
+          _ -> []
+        end
+      end)
+    else
+      []
+    end
   end
 end

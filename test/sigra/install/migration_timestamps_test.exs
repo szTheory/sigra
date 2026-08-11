@@ -71,4 +71,31 @@ defmodule Sigra.Install.MigrationTimestampsTest do
   test "empty feature list yields empty map" do
     assert MigrationTimestamps.allocate([], @base) == %{}
   end
+
+  test "next_available advances past the highest existing migration version" do
+    migrations_dir =
+      System.tmp_dir!()
+      |> Path.join("sigra_migration_timestamp_#{System.unique_integer([:positive])}")
+
+    File.mkdir_p!(migrations_dir)
+    on_exit(fn -> File.rm_rf!(migrations_dir) end)
+
+    File.write!(Path.join(migrations_dir, "20260411120005_create_audit_events.exs"), "")
+    File.write!(Path.join(migrations_dir, "not_a_migration.exs"), "")
+
+    assert MigrationTimestamps.next_available(migrations_dir, @base) == "20260411120006"
+  end
+
+  test "next_available uses the current timestamp when it is newer" do
+    migrations_dir =
+      System.tmp_dir!()
+      |> Path.join("sigra_migration_timestamp_#{System.unique_integer([:positive])}")
+
+    File.mkdir_p!(migrations_dir)
+    on_exit(fn -> File.rm_rf!(migrations_dir) end)
+
+    File.write!(Path.join(migrations_dir, "20260410120000_old.exs"), "")
+
+    assert MigrationTimestamps.next_available(migrations_dir, @base) == "20260411120000"
+  end
 end

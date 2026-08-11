@@ -58,6 +58,19 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                 "alter_audit_events_add_org_columns.exs"}
              ] = slots
     end
+
+    test "organization audit migration does not duplicate core-owned effective user column" do
+      core_template =
+        File.read!("priv/templates/sigra.install/core/create_audit_events.exs")
+
+      organization_template =
+        File.read!("priv/templates/sigra.install/core/alter_audit_events_add_org_columns.exs")
+
+      assert core_template =~ "add :effective_user_id, :binary_id"
+      assert organization_template =~ "add :organization_id"
+      refute organization_template =~ "add :effective_user_id"
+      refute organization_template =~ "remove :effective_user_id"
+    end
   end
 
   describe "files/1" do

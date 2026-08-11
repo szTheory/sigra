@@ -38,6 +38,8 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
 
   use Mix.Task
 
+  alias Sigra.Install.MigrationTimestamps
+
   @switches [
     providers: :string,
     live: :boolean,
@@ -96,8 +98,10 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     context_underscore = Macro.underscore(context_name)
 
     # Check for existing migration
+    migrations_dir = Path.join(["priv", "repo", "migrations"])
+
     existing_migration =
-      Path.join(["priv", "repo", "migrations"])
+      migrations_dir
       |> File.ls()
       |> case do
         {:ok, files} -> Enum.find(files, &String.contains?(&1, "create_user_identities"))
@@ -106,9 +110,12 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
 
     migration_path =
       if existing_migration do
-        Path.join(["priv", "repo", "migrations", existing_migration])
+        Path.join(migrations_dir, existing_migration)
       else
-        Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_user_identities.exs"])
+        Path.join(
+          migrations_dir,
+          "#{MigrationTimestamps.next_available(migrations_dir)}_create_user_identities.exs"
+        )
       end
 
     # Core files (always generated)
@@ -344,14 +351,6 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
         Mix.shell().info([:yellow, "* already injected ", :reset, path])
     end
   end
-
-  defp timestamp do
-    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
-    "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
-  end
-
-  defp pad(i) when i < 10, do: <<?0, ?0 + i>>
-  defp pad(i), do: to_string(i)
 
   defp print_instructions(opts, binding) do
     otp_app = binding[:otp_app]
