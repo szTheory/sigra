@@ -114,8 +114,13 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
       assert status != 0
       File.rm!(Path.join(root, evidence <> ".bak"))
 
-      {_, 0} = System.cmd("git", ["-C", root, "add", "-A"] , stderr_to_stdout: true)
-      {_, 0} = System.cmd("git", ["-C", root, "commit", "--quiet", "-m", "advance fixture"], stderr_to_stdout: true)
+      {_, 0} = System.cmd("git", ["-C", root, "restore", evidence], stderr_to_stdout: true)
+      {_, 0} = System.cmd("git", ["-C", root, "rm", "--cached", "--quiet", evidence], stderr_to_stdout: true)
+      File.rm!(Path.join(root, evidence))
+      {_, 0} = System.cmd("git", ["-C", root, "commit", "--quiet", "-m", "remove receipt fixture"], stderr_to_stdout: true)
+      File.write!(Path.join(root, evidence), "new receipt\n")
+      {_, 0} = helper_command("bind_clean_worktree_sha", root, evidence)
+
       {_, status} = helper_command("assert_same_clean_worktree_sha", root, evidence, sha)
       assert status != 0
     end)

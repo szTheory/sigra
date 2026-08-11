@@ -7,6 +7,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=scripts/ci/lib/free-port.sh
 source "${ROOT_DIR}/scripts/ci/lib/free-port.sh"
+# shellcheck source=scripts/ci/lib/exact-sha-worktree.sh
+source "${ROOT_DIR}/scripts/ci/lib/exact-sha-worktree.sh"
 PROOF_PATH="${ROOT_DIR}/.planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE-PROOF.json"
 RELEASE_PATH="${ROOT_DIR}/.planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
 EVIDENCE_PATH="${ROOT_DIR}/.planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-HOSTED-RUNTIME-EVIDENCE.json"
@@ -14,6 +16,8 @@ DB_ENV_PATH="${ROOT_DIR}/tmp/db.env"
 TIMEOUT_SECONDS="${SIGRA_INTEROP_TIMEOUT_SECONDS:-300}"
 SERVER_PID=""
 SERVER_LOG=""
+EVIDENCE_RELATIVE_PATH=".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-HOSTED-RUNTIME-EVIDENCE.json"
+TESTED_SIGRA_SHA=""
 
 fail() {
   printf 'hosted-session interop proof: %s\n' "$*" >&2
@@ -99,11 +103,10 @@ browser_only() {
 }
 
 write_evidence() {
-  local sigra_sha captured_at
-  sigra_sha="$(git -C "${ROOT_DIR}" rev-parse HEAD)"
+  local captured_at
   captured_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
-  SIGRA_SHA="${sigra_sha}" CAPTURED_AT="${captured_at}" \
+  SIGRA_SHA="${TESTED_SIGRA_SHA}" CAPTURED_AT="${captured_at}" \
     ROOT_DIR="${ROOT_DIR}" EVIDENCE_PATH="${EVIDENCE_PATH}" python3 - <<'PY'
 import json
 import os
@@ -180,31 +183,6 @@ Path(os.environ["EVIDENCE_PATH"]).write_text(json.dumps(payload, indent=2) + "\n
 PY
 }
 
-verify_scoped_paths_are_committed() {
-  local scoped_paths=(
-    "guides/recipes/b2c-alpha.md"
-    "scripts/ci/hosted-session-interop-proof.sh"
-    "test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs"
-    ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/COVERAGE.md"
-    "test/example/priv/repo/migrations/20260811170000_create_crosswake_continuations.exs"
-    "test/example/lib/example/accounts/crosswake_continuation.ex"
-    "test/example/lib/example/accounts/crosswake_continuations.ex"
-    "test/example/lib/example_web/controllers/crosswake_controller.ex"
-    "test/example/lib/example_web/router.ex"
-    "test/example/test/example/accounts/crosswake_continuations_test.exs"
-    "test/example/test/example_web/controllers/crosswake_controller_test.exs"
-    "test/example/priv/playwright/tests/crosswake-hosted-runtime.spec.ts"
-    "test/example/priv/playwright/playwright.config.ts"
-  )
-
-  git -C "${ROOT_DIR}" diff --quiet HEAD -- "${scoped_paths[@]}" ||
-    fail "scoped Phase 240.3 paths must be committed before writing evidence"
-
-  if git -C "${ROOT_DIR}" ls-files --others --exclude-standard -- "${scoped_paths[@]}" | grep -q .; then
-    fail "scoped Phase 240.3 paths must not be untracked before writing evidence"
-  fi
-}
-
 main() {
   cd "${ROOT_DIR}"
 
@@ -221,6 +199,9 @@ main() {
   # shellcheck disable=SC1090
   source "${DB_ENV_PATH}"
 
+  TESTED_SIGRA_SHA="$(bind_clean_worktree_sha "${ROOT_DIR}" "${EVIDENCE_RELATIVE_PATH}")" ||
+    fail "worktree must be clean before proof execution"
+
   run_bounded "apply example test schema" bash -lc "cd '${ROOT_DIR}/test/example' && MIX_ENV=test mix ecto.migrate --quiet"
   run_bounded "validate immutable Crosswake release proof" env MIX_ENV=test mix test test/sigra/planning/phase_239_hosted_session_interop_test.exs
   run_bounded "complete database-backed adapter suite" bash -lc "cd '${ROOT_DIR}/test/example' && mix test test/example/accounts/crosswake_session_adapter_test.exs"
@@ -229,7 +210,8 @@ main() {
   run_bounded "browser cookie-jar proof" "${ROOT_DIR}/scripts/ci/hosted-session-interop-proof.sh" --browser-only
   run_bounded "phase 240.3 recipe/source contract" env MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs
 
-  verify_scoped_paths_are_committed
+  assert_same_clean_worktree_sha "${ROOT_DIR}" "${EVIDENCE_RELATIVE_PATH}" "${TESTED_SIGRA_SHA}" ||
+    fail "worktree or HEAD changed during proof execution"
   write_evidence
   printf 'hosted-session interop proof: passed\n'
 }
