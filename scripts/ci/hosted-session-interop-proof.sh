@@ -80,7 +80,7 @@ browser_only() {
   # The seed helper prints demo credentials for interactive use. The browser
   # proof needs its fixture rows but must not emit those values into CI logs.
   if ! run_bounded "seed deterministic browser persona" \
-    env MIX_ENV=test PORT="${port}" mix run priv/repo/seeds.exs >/dev/null 2>&1; then
+    env MIX_ENV=test SIGRA_BROWSER_PROOF=true PORT="${port}" mix run priv/repo/seeds.exs >/dev/null 2>&1; then
     fail "could not seed deterministic browser persona"
   fi
   PHX_SERVER=true MIX_ENV=test PORT="${port}" mix phx.server >"${SERVER_LOG}" 2>&1 &

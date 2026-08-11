@@ -59,7 +59,9 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
   const appNavigation = await appRequest;
   expect(appNavigation.headers()['referer']).toBeUndefined();
 
-  const sentinels = ['continuation', 'state', 'pkce_verifier'].map((key) => {
+  expect([...returnUrl.searchParams.keys()].sort()).toEqual(['continuation', 'state']);
+
+  const sentinels = ['continuation', 'state'].map((key) => {
     const value = returnUrl.searchParams.get(key);
     if (!value) throw new Error(`missing ${key} from local return`);
     return value;
@@ -75,6 +77,9 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
   const finalUrl = page.url();
   const finalContent = await page.locator('body').textContent();
 
+  expect(returnUrl.toString()).not.toContain('pkce_verifier');
+  expect(finalUrl).not.toContain('pkce_verifier');
+
   for (const sentinel of [
     ...sentinels,
     'return_ref',
@@ -82,6 +87,7 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
     'route',
     'destination',
     'binding',
+    'pkce_verifier',
     'token',
     'database identifier',
   ]) {

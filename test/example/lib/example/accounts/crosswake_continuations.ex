@@ -103,8 +103,17 @@ defmodule Example.Accounts.CrosswakeContinuations do
     case attrs
          |> CrosswakeContinuation.issue_changeset()
          |> Repo.insert() do
-      {:ok, _record} -> {:ok, %{handle: handle, state: state, pkce_verifier: pkce_verifier}}
-      {:error, changeset} -> {:error, changeset}
+      {:ok, record} ->
+        {:ok,
+         %{
+           handle: handle,
+           state: state,
+           pkce_verifier: pkce_verifier,
+           expires_at: record.expires_at
+         }}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 

@@ -13,9 +13,9 @@
 # D-03: Two-layer defense against CI fixture contamination.
 # Layer 1 (this guard): raises immediately in MIX_ENV=test, before any DB access.
 # Layer 2: the `test` mix alias in mix.exs never calls this file.
-if Mix.env() == :test do
+if Mix.env() == :test and System.get_env("SIGRA_BROWSER_PROOF") != "true" do
   raise "seeds.exs must not run in MIX_ENV=test — it would contaminate the " <>
-          "sandboxed CI fixture DB. Run with MIX_ENV=dev."
+          "sandboxed CI fixture DB. Run with MIX_ENV=dev or the bounded browser proof."
 end
 
 Example.Demo.Seeds.run()

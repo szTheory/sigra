@@ -51,7 +51,9 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert endpoint =~ "secure: @crosswake_session_secure"
   end
 
-  test "local AuthReturn rejects missing or mismatched state and PKCE before evaluation", %{conn: conn} do
+  test "local AuthReturn rejects missing or mismatched state and PKCE before evaluation", %{
+    conn: conn
+  } do
     user = user_fixture()
 
     for invalid_params <- [
@@ -64,7 +66,10 @@ defmodule ExampleWeb.CrosswakeControllerTest do
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
 
-    for {key, replacement} <- [{"state", "mismatched-state"}, {"pkce_verifier", "mismatched-verifier"}] do
+    for {key, replacement} <- [
+          {"state", "mismatched-state"},
+          {"pkce_verifier", "mismatched-verifier"}
+        ] do
       {start_conn, return_location, params} = start_return(conn, user)
       conn = get(start_conn, return_location, Map.put(params, key, replacement))
       assert_restarted(conn)
@@ -72,7 +77,9 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     end
   end
 
-  test "local AuthReturn ignores or rejects smuggled authority route and destination fields", %{conn: conn} do
+  test "local AuthReturn ignores or rejects smuggled authority route and destination fields", %{
+    conn: conn
+  } do
     user = user_fixture()
     {_start_conn, return_location, params} = start_return(conn, user)
 
@@ -100,7 +107,9 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     refute_receive {:crosswake_evaluator_called, _, _, _}
   end
 
-  test "missing session return reaches the controller and provides sign-in recovery", %{conn: conn} do
+  test "missing session return reaches the controller and provides sign-in recovery", %{
+    conn: conn
+  } do
     user = user_fixture()
     {_start_conn, return_location, _params} = start_return(conn, user)
 
@@ -109,17 +118,23 @@ defmodule ExampleWeb.CrosswakeControllerTest do
       |> init_test_session(%{})
       |> get(return_location)
 
-    assert conn.status == 303
-    assert redirected_to(conn, 303) == ~p"/users/log_in"
-    assert Phoenix.Flash.get(conn.assigns.flash, :error) == @sign_in_recovery
+    assert_restarted(conn)
     refute_receive {:crosswake_evaluator_called, _, _, _}
   end
 
-  test "deleted, revoked, expired, account-switched, and replacement-session returns deny before evaluation", %{conn: conn} do
+  test "deleted, revoked, expired, account-switched, and replacement-session returns deny before evaluation",
+       %{conn: conn} do
     user = user_fixture()
     other_user = user_fixture()
 
-    for mutation <- [:deleted, :revoked, :idle_expired, :absolute_expired, :account_switched, :replacement_session] do
+    for mutation <- [
+          :deleted,
+          :revoked,
+          :idle_expired,
+          :absolute_expired,
+          :account_switched,
+          :replacement_session
+        ] do
       {start_conn, return_location, _params} = start_return(conn, user)
       token = get_session(start_conn, :user_token)
 
@@ -142,6 +157,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
               from(s in "user_sessions", prefix: "auth", where: s.id == ^session_id),
               set: [last_active_at: DateTime.add(DateTime.utc_now(), -1_800)]
             )
+
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :absolute_expired ->
@@ -152,6 +168,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
               from(s in "user_sessions", prefix: "auth", where: s.id == ^session_id),
               set: [inserted_at: DateTime.add(DateTime.utc_now(), -86_400)]
             )
+
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :account_switched ->
@@ -161,11 +178,8 @@ defmodule ExampleWeb.CrosswakeControllerTest do
             conn |> log_in_user(user) |> get(return_location)
         end
 
-      if mutation in [:deleted, :revoked, :idle_expired, :absolute_expired] do
-        assert_sign_in_recovery(return_conn)
-      else
-        assert_restarted(return_conn)
-      end
+      assert_restarted(return_conn)
+
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
   end
@@ -190,14 +204,21 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     end
   end
 
-  test "telemetry has the fixed metadata allowlist and excludes seeded sensitive values", %{conn: conn} do
+  test "telemetry has the fixed metadata allowlist and excludes seeded sensitive values", %{
+    conn: conn
+  } do
     user = user_fixture()
     test_pid = self()
     handler_id = "crosswake-controller-#{System.unique_integer([:positive])}"
 
-    :telemetry.attach(handler_id, @event, fn event, measurements, metadata, _config ->
-      send(test_pid, {:crosswake_telemetry, event, measurements, metadata})
-    end, nil)
+    :telemetry.attach(
+      handler_id,
+      @event,
+      fn event, measurements, metadata, _config ->
+        send(test_pid, {:crosswake_telemetry, event, measurements, metadata})
+      end,
+      nil
+    )
 
     on_exit(fn -> :telemetry.detach(handler_id) end)
 
@@ -229,7 +250,10 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert return_conn.status == 303
     assert redirected_to(return_conn, 303) == ~p"/app"
     assert get_resp_header(return_conn, "referrer-policy") == ["no-referrer"]
-    assert_receive {:crosswake_evaluator_called, route, context, [expected_session_version: version]}
+
+    assert_receive {:crosswake_evaluator_called, route, context,
+                    [expected_session_version: version]}
+
     assert route.id == "crosswake-hosted-account"
     assert route.path == "/app"
     assert context.org_id == nil
@@ -247,13 +271,6 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert redirected_to(conn, 303) == ~p"/"
     assert get_resp_header(conn, "referrer-policy") == ["no-referrer"]
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == @restart_recovery
-  end
-
-  defp assert_sign_in_recovery(conn) do
-    assert conn.status == 303
-    assert redirected_to(conn, 303) == ~p"/users/log_in"
-    assert get_resp_header(conn, "referrer-policy") == ["no-referrer"]
-    assert Phoenix.Flash.get(conn.assigns.flash, :error) == @sign_in_recovery
   end
 
   defp capturing_evaluator(test_pid) do

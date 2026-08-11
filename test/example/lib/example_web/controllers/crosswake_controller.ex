@@ -3,15 +3,17 @@ defmodule ExampleWeb.CrosswakeController do
 
   alias Example.Accounts.CrosswakeContinuations
 
-  @allowed_return_keys ["continuation", "state", "pkce_verifier"]
+  @allowed_return_keys ["continuation", "state"]
+  @transport_key :crosswake_pkce
 
   def start(conn, _params) do
     case CrosswakeContinuations.issue(get_session(conn, :user_token), DateTime.utc_now()) do
       {:ok, values} ->
+        conn = store_transport(conn, values)
+
         query = %{
           "continuation" => values.handle,
-          "state" => values.state,
-          "pkce_verifier" => values.pkce_verifier
+          "state" => values.state
         }
 
         conn
@@ -27,8 +29,8 @@ defmodule ExampleWeb.CrosswakeController do
     conn = put_resp_header(conn, "referrer-policy", "no-referrer")
 
     case scalar_return_input(params) do
-      {:ok, %{"continuation" => handle} = input} ->
-        complete_return(conn, handle, Map.delete(input, "continuation"))
+      {:ok, %{"continuation" => handle, "state" => state}} ->
+        complete_return(conn, handle, state)
 
       {:error, _reason} ->
         deny(conn, :invalid_return_evidence)
@@ -46,10 +48,33 @@ defmodule ExampleWeb.CrosswakeController do
     end
   end
 
-  defp complete_return(conn, handle, input) do
+  defp complete_return(conn, handle, state) do
+    now = DateTime.utc_now()
+    {conn, transport} = take_transport(conn, handle, now)
+
+    case transport do
+      %{handle: bound_handle, verifier: verifier, expires_at: %DateTime{} = expires_at}
+      when is_binary(verifier) ->
+        if secure_match?(handle, bound_handle) and DateTime.compare(now, expires_at) == :lt do
+          complete_with_transport(conn, handle, state, verifier, now)
+        else
+          deny(conn, :invalid_return_evidence)
+        end
+
+      _ ->
+        deny(conn, :invalid_return_evidence)
+    end
+  end
+
+  defp complete_with_transport(conn, handle, state, verifier, now) do
     case get_session(conn, :user_token) do
       token when is_binary(token) ->
-        case CrosswakeContinuations.complete(handle, token, input, DateTime.utc_now()) do
+        case CrosswakeContinuations.complete(
+               handle,
+               token,
+               %{"state" => state, "pkce_verifier" => verifier},
+               now
+             ) do
           {:allow, _result} -> allow(conn)
           {:deny, %{reason: reason}} -> deny(conn, reason)
         end
@@ -58,6 +83,51 @@ defmodule ExampleWeb.CrosswakeController do
         deny(conn, :session_unavailable)
     end
   end
+
+  defp store_transport(conn, %{handle: handle, pkce_verifier: verifier, expires_at: expires_at}) do
+    entries = session_entries(conn)
+
+    put_session(
+      conn,
+      @transport_key,
+      Map.put(entries, handle, %{handle: handle, verifier: verifier, expires_at: expires_at})
+    )
+  end
+
+  defp take_transport(conn, handle, now) do
+    case get_session(conn, @transport_key) do
+      entries when is_map(entries) ->
+        entries = prune_expired(entries, now)
+        {transport, entries} = Map.pop(entries, handle)
+        {put_session(conn, @transport_key, entries), transport}
+
+      _ ->
+        {delete_session(conn, @transport_key), nil}
+    end
+  end
+
+  defp session_entries(conn) do
+    case get_session(conn, @transport_key) do
+      entries when is_map(entries) -> entries
+      _ -> %{}
+    end
+  end
+
+  defp prune_expired(entries, now) do
+    Enum.reduce(entries, %{}, fn
+      {handle, %{expires_at: %DateTime{} = expires_at} = entry}, kept
+      when is_binary(handle) ->
+        if DateTime.compare(now, expires_at) == :lt, do: Map.put(kept, handle, entry), else: kept
+
+      _, kept ->
+        kept
+    end)
+  end
+
+  defp secure_match?(left, right) when is_binary(left) and is_binary(right),
+    do: byte_size(left) == byte_size(right) and Plug.Crypto.secure_compare(left, right)
+
+  defp secure_match?(_, _), do: false
 
   defp allow(conn) do
     telemetry(:allow, :allowed)
@@ -69,7 +139,12 @@ defmodule ExampleWeb.CrosswakeController do
 
   defp deny(conn, :session_unavailable) do
     telemetry(:deny, :session_unavailable)
-    recovery(conn, "/users/log_in", "Your sign-in session is no longer available. Please sign in again.")
+
+    recovery(
+      conn,
+      "/users/log_in",
+      "Your sign-in session is no longer available. Please sign in again."
+    )
   end
 
   defp deny(conn, reason) do
