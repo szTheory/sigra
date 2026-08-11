@@ -127,7 +127,7 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 2/5 plans executed
+**Plans:** 3/5 plans executed
 
 Plans:
 **Wave 1**
@@ -140,7 +140,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 240.3-03-PLAN.md — Prove the complete real-router switch, smuggling, recovery, evaluator non-invocation, and telemetry matrix.
+- [x] 240.3-03-PLAN.md — Prove the complete real-router switch, smuggling, recovery, evaluator non-invocation, and telemetry matrix.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
