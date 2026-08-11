@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.3
-status: planning
-stopped_at: Phase 240.3 context gathered (assumptions mode)
-last_updated: "2026-08-11T15:34:58.900Z"
-last_activity: 2026-08-10
-last_activity_desc: Phase 240.2 complete
+current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
+status: executing
+stopped_at: Completed 240.3-01-PLAN.md
+last_updated: "2026-08-11T16:53:28.603Z"
+last_activity: 2026-08-11
+last_activity_desc: Phase 240.3 execution started
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 24
-  completed_plans: 24
+  total_plans: 29
+  completed_plans: 25
   percent: 75
-current_phase_name: close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 240.3
-Plan: Not started
-Status: Ready for planning
-Last activity: 2026-08-10 — Phase 240.2 complete
+Phase: 240.3 (close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-08-11 — Phase 240.3 execution started
 
 ## Accumulated Context
 
@@ -439,6 +439,9 @@ Last activity: 2026-08-10 — Phase 240.2 complete
 - [Phase ?]: Repository CI claims only generator shape/compile/boot, local OIDC state/PKCE/callback, and rendered B2C behavior; host staging remains unclaimed.
 - [Phase ?]: CLOAK_KEY and loopback OIDC client values are explicit disposable fixtures, never deployment credentials.
 - [Phase ?]: Controller B2C proof retains warnings-as-errors and uses the shared fresh-host lifecycle.
+- [Phase ?]: Persist only SHA-256 continuation correlation digests and opaque adapter binding values; never retain a session credential or raw callback value.
+- [Phase ?]: Keep the fixed Crosswake route and /app destination inside the host context, not callback input.
+- [Phase ?]: Use a 303 start/return flow with CrosswakeSessionAdapter as the sole authority and evaluator seam.
 
 ### Pending Todos
 
@@ -589,9 +592,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T15:34:58.882Z
-Stopped at: Phase 240.3 context gathered (assumptions mode)
-Resume file: .planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-CONTEXT.md
+Last session: 2026-08-11T16:53:28.588Z
+Stopped at: Completed 240.3-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -771,6 +774,7 @@ Resume file: .planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-
 | Phase 240-alpha-operations-rehearsal P03 | 5min | 1 tasks | 3 files |
 | Phase 240-alpha-operations-rehearsal P04 | 7min | 1 tasks | 5 files |
 | Phase 240.2 P01 | 55m | 2 tasks | 6 files |
+| Phase 240.3 P01 | 18m | 1 tasks | 7 files |
 
 ## Deferred Items
 

@@ -127,12 +127,12 @@ Admin/operator UI, organizations, passkeys, MFA, native/deep-link token authorit
 **Goal:** Make the already-proven personal-session Crosswake adapter reachable through a deterministic example-host request/session, one-time continuation, evaluator, and safe response flow without widening Sigra core or generated-host scope.
 **Requirements:** XW-01, XW-02
 **Depends on:** Phase 240
-**Plans:** 5 plans
+**Plans:** 1/5 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 240.3-01-PLAN.md — Trace one authenticated host start/return through the existing adapter and a digest-only Ecto continuation.
+- [x] 240.3-01-PLAN.md — Trace one authenticated host start/return through the existing adapter and a digest-only Ecto continuation.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
