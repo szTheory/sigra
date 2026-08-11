@@ -4,6 +4,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   @coverage ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/COVERAGE.md"
   @recipe "guides/recipes/b2c-alpha.md"
   @runner "scripts/ci/hosted-session-interop-proof.sh"
+  @worktree_helper "scripts/ci/lib/exact-sha-worktree.sh"
   @evidence ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-HOSTED-RUNTIME-EVIDENCE.json"
   @release ".planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
   @root_mix "mix.exs"
@@ -41,6 +42,84 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   defp read!(path), do: File.read!(path)
   defp decode!(path), do: path |> read!() |> Jason.decode!()
   defp index!(source, marker), do: source |> :binary.match(marker) |> elem(0)
+
+  defp with_disposable_repository(fun) do
+    root = Path.join(System.tmp_dir!(), "sigra-phase-240-3-#{System.unique_integer([:positive])}")
+    evidence = @evidence
+
+    try do
+      File.mkdir_p!(Path.dirname(Path.join(root, evidence)))
+      File.write!(Path.join(root, "runtime.txt"), "clean\n")
+      File.write!(Path.join(root, evidence), "receipt\n")
+
+      for {command, args} <- [
+            {"git", ["init", "--quiet", root]},
+            {"git", ["-C", root, "config", "user.email", "phase2403@example.test"]},
+            {"git", ["-C", root, "config", "user.name", "Phase 240.3"]},
+            {"git", ["-C", root, "add", "runtime.txt", evidence]},
+            {"git", ["-C", root, "commit", "--quiet", "-m", "fixture"]}
+          ] do
+        {_, 0} = System.cmd(command, args, stderr_to_stdout: true)
+      end
+
+      fun.(root, evidence)
+    after
+      File.rm_rf(root)
+    end
+  end
+
+  defp helper_command(function, root, evidence, expected_sha \\ nil) do
+    args =
+      [
+        "-c",
+        "source \"$1\"; #{function} \"$2\" \"$3\"${4:+ \"$4\"}",
+        "bash",
+        @worktree_helper,
+        root,
+        evidence
+      ] ++ if(expected_sha, do: [expected_sha], else: [])
+
+    System.cmd("bash", args, stderr_to_stdout: true)
+  end
+
+  test "exact SHA worktree guard accepts only a clean tree plus the one receipt path" do
+    with_disposable_repository(fn root, evidence ->
+      {head, 0} = System.cmd("git", ["-C", root, "rev-parse", "HEAD"], stderr_to_stdout: true)
+      sha = String.trim(head)
+
+      {output, 0} = helper_command("bind_clean_worktree_sha", root, evidence)
+      assert String.trim(output) == sha
+
+      File.write!(Path.join(root, "runtime.txt"), "unstaged\n")
+      {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
+      assert status != 0
+
+      {_, 0} = System.cmd("git", ["-C", root, "add", "runtime.txt"], stderr_to_stdout: true)
+      {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
+      assert status != 0
+
+      {_, 0} = System.cmd("git", ["-C", root, "restore", "--staged", "runtime.txt"], stderr_to_stdout: true)
+      {_, 0} = System.cmd("git", ["-C", root, "restore", "runtime.txt"], stderr_to_stdout: true)
+      File.write!(Path.join(root, "untracked.txt"), "dirty\n")
+      {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
+      assert status != 0
+      File.rm!(Path.join(root, "untracked.txt"))
+
+      File.write!(Path.join(root, evidence), "rewritten receipt\n")
+      {_, 0} = helper_command("bind_clean_worktree_sha", root, evidence)
+      {_, 0} = helper_command("assert_same_clean_worktree_sha", root, evidence, sha)
+
+      File.write!(Path.join(root, evidence <> ".bak"), "lookalike\n")
+      {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
+      assert status != 0
+      File.rm!(Path.join(root, evidence <> ".bak"))
+
+      {_, 0} = System.cmd("git", ["-C", root, "add", "-A"] , stderr_to_stdout: true)
+      {_, 0} = System.cmd("git", ["-C", root, "commit", "--quiet", "-m", "advance fixture"], stderr_to_stdout: true)
+      {_, status} = helper_command("assert_same_clean_worktree_sha", root, evidence, sha)
+      assert status != 0
+    end)
+  end
 
   test "runtime paths, route ownership, and released AuthReturn boundary stay host-owned" do
     for path <- [
@@ -176,20 +255,27 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
           "controller security suite",
           "browser cookie-jar proof",
           "phase 240.3 recipe/source contract",
-          "verify_scoped_paths_are_committed",
+          "bind_clean_worktree_sha",
+          "assert_same_clean_worktree_sha",
           "write_evidence",
           "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1"
         ] do
       assert runner =~ marker, "runner is missing #{inspect(marker)}"
     end
 
-    assert runner =~ "PY\n}\n\nverify_scoped_paths_are_committed() {"
+    assert runner =~ "PY\n}\n"
     assert runner =~ "Path(os.environ[\"EVIDENCE_PATH\"]).write_text"
+    assert runner =~ "SIGRA_SHA=\"${TESTED_SIGRA_SHA}\""
+    refute runner =~ "verify_scoped_paths_are_committed()"
+    refute runner =~ "sigra_sha=\"$(git -C \"${ROOT_DIR}\" rev-parse HEAD)\""
 
     positions = Enum.map(@main_ordered_markers, &index!(main_runner, &1))
     assert positions == Enum.sort(positions), "runner commands are not ordered"
 
-    assert index!(main_runner, "verify_scoped_paths_are_committed") <
+    assert index!(main_runner, "TESTED_SIGRA_SHA=\"$(bind_clean_worktree_sha") <
+             index!(main_runner, "run_bounded \"apply example test schema\"")
+
+    assert index!(main_runner, "assert_same_clean_worktree_sha") <
              index!(main_runner, "write_evidence\n")
 
     refute Regex.match?(~r/\b(?:sleep|manual[ _-]?uat)\b/i, runner)
