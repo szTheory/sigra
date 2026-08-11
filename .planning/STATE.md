@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 241
-current_phase_name: "Close gap: OPS-01 — repair controller MFA settings rendering"
-status: executing
-stopped_at: Phase 241 context gathered (assumptions mode)
-last_updated: "2026-08-11T22:23:42.870Z"
+current_phase_name: close-gap-ops-01-repair-controller-mfa-settings-rendering
+status: verifying
+stopped_at: Completed 241-01-PLAN.md
+last_updated: "2026-08-11T22:46:57.469Z"
 last_activity: 2026-08-11
-last_activity_desc: Phase 240.3 complete, transitioned to Phase 241
+last_activity_desc: Phase 241 execution started
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 35
-  completed_plans: 34
-  percent: 88
+  completed_plans: 35
+  percent: 100
 ---
 
 # Project State
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 240.3 — close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow
+**Current focus:** Phase 241 — close-gap-ops-01-repair-controller-mfa-settings-rendering
 
 ## Current Position
 
-Phase: 241 — Close gap: OPS-01 — repair controller MFA settings rendering
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-11 — Phase 240.3 complete, transitioned to Phase 241
+Phase: 241 (close-gap-ops-01-repair-controller-mfa-settings-rendering) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-08-11 — Phase 241 execution started
 
 ## Accumulated Context
 
@@ -458,6 +458,8 @@ Last activity: 2026-08-11 — Phase 240.3 complete, transitioned to Phase 241
 - [Phase ?]: XW-01/XW-02 edge assumptions remain unresolved because mechanical prohibition evidence does not replace owner classification.
 - [Phase ?]: Exact-SHA Crosswake receipts run the browser and real/bad/clean prohibition gate before receipt-last sealing.
 - [Phase ?]: Mechanical Crosswake prohibitions are resolved/test; spec-less XW-01/XW-02 edge assumptions remain unresolved without owner approval.
+- [Phase ?]: SettingsController.mfa/2 explicitly selects MFASettingsHTML with put_view/2 before rendering.
+- [Phase ?]: Controller MFA proof freshens the persisted session identified by the logged-in connection token and requires 200 HTML.
 
 ### Pending Todos
 
@@ -608,9 +610,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T21:58:56.039Z
-Stopped at: Phase 241 context gathered (assumptions mode)
-Resume file: .planning/phases/241-close-gap-ops-01-repair-controller-mfa-settings-rendering/241-CONTEXT.md
+Last session: 2026-08-11T22:46:57.458Z
+Stopped at: Completed 241-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -799,6 +801,7 @@ Resume file: .planning/phases/241-close-gap-ops-01-repair-controller-mfa-setting
 | Phase 240.3 P08 | 18m | 2 tasks | 8 files |
 | Phase 240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow P09 | 8m | 1 tasks | 4 files |
 | Phase 240.3 P10 | 11m | 2 tasks | 3 files |
+| Phase 241 P01 | 9min | 2 tasks | 3 files |
 
 ## Deferred Items
 
