@@ -32,6 +32,7 @@ defmodule ExampleWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/crosswake/return", CrosswakeController, :return
 
     # Phase 17 D-06: single unscoped InvitationAcceptLive at
     # /invitations/:token/accept. This route MUST remain outside any
@@ -126,6 +127,7 @@ defmodule ExampleWeb.Router do
     pipe_through [:browser, :require_authenticated]
 
     delete "/impersonation", Admin.ImpersonationController, :delete
+    post "/crosswake/start", CrosswakeController, :start
 
     # Tasklane authenticated account home — the post-login landing for every
     # persona (see `signed_in_path/1`). A thin host-app hub that routes into
