@@ -3,17 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
 current_phase: 240.2
-status: executing
-stopped_at: Phase 240.2 context gathered (assumptions mode)
-last_updated: "2026-08-11T02:22:54.198Z"
+current_phase_name: close-gap-ops-01-add-controller-mode-generated-host-compile-
+status: verifying
+stopped_at: Completed 240.2-01-PLAN.md
+last_updated: "2026-08-11T03:08:39.029Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 240.1 complete
+last_activity_desc: Phase 240.2 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 24
-  completed_plans: 23
-  percent: 83
+  completed_plans: 24
+  percent: 100
 ---
 
 # Project State
@@ -24,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 240.2 — Close gap: OPS-01 — add controller-mode generated-host compile proof
+**Current focus:** Phase 240.2 — close-gap-ops-01-add-controller-mode-generated-host-compile-
 
 ## Current Position
 
-Phase: 240.2
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-10 — Phase 240.1 complete
+Phase: 240.2 (close-gap-ops-01-add-controller-mode-generated-host-compile-) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-08-10 — Phase 240.2 execution started
 
 ## Accumulated Context
 
@@ -437,6 +438,7 @@ Last activity: 2026-08-10 — Phase 240.1 complete
 - [Phase 240-alpha-operations-rehearsal]: Repository CI proves generated local behavior only; provider, mail, proxy, and physical-device outcomes require redacted host evidence.
 - [Phase ?]: Repository CI claims only generator shape/compile/boot, local OIDC state/PKCE/callback, and rendered B2C behavior; host staging remains unclaimed.
 - [Phase ?]: CLOAK_KEY and loopback OIDC client values are explicit disposable fixtures, never deployment credentials.
+- [Phase ?]: Controller B2C proof retains warnings-as-errors and uses the shared fresh-host lifecycle.
 
 ### Pending Todos
 
@@ -585,9 +587,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T02:00:58.160Z
-Stopped at: Phase 240.2 context gathered (assumptions mode)
-Resume file: .planning/phases/240.2-close-gap-ops-01-add-controller-mode-generated-host-compile-/240.2-CONTEXT.md
+Last session: 2026-08-11T03:08:39.003Z
+Stopped at: Completed 240.2-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -766,6 +768,7 @@ Resume file: .planning/phases/240.2-close-gap-ops-01-add-controller-mode-generat
 | Phase 240 P01 | 8min | 1 tasks | 6 files |
 | Phase 240-alpha-operations-rehearsal P03 | 5min | 1 tasks | 3 files |
 | Phase 240-alpha-operations-rehearsal P04 | 7min | 1 tasks | 5 files |
+| Phase 240.2 P01 | 55m | 2 tasks | 6 files |
 
 ## Deferred Items
 
