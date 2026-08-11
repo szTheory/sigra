@@ -2,9 +2,9 @@
 phase: 237
 slug: canonical-b2c-generator-contract
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-status: draft
+status: validated
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-08-04
 ---
 
@@ -39,8 +39,8 @@ created: 2026-08-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 237-01-01 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-01 / — | Fresh host contains required OAuth artifacts and omits disabled feature residue | ExUnit fixture contract | `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs` | ✅ | ⬜ pending |
-| 237-01-02 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-02 / — | Assets-enabled PostgreSQL host compiles, migrates, builds assets, and boots while enforcing the B2C contract | shell integration smoke | `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` | ✅ | ⬜ pending |
+| 237-01-01 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-01 / — | Fresh host contains required OAuth artifacts and omits disabled feature residue | ExUnit fixture contract | `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs` | ✅ | ❌ red — exact-profile and retained-core source locks expose smoke drift |
+| 237-01-02 | 01 | 1 | B2C-01, B2C-02, B2C-03 | T-237-02 / — | Assets-enabled PostgreSQL host compiles, migrates, builds assets, and boots while enforcing the B2C contract | shell integration smoke | `GITHUB_WORKSPACE="$PWD" scripts/ci/passkeys-opt-out-smoke.sh` | ✅ | ❌ red — implementation correction required before CI rerun |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -55,17 +55,44 @@ created: 2026-08-04
 
 ## Manual-Only Verifications
 
-All phase behaviors have automated verification. The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailable; this is an environment constraint, not a manual acceptance step.
+No phase behavior is accepted through manual-only verification. The following automated gaps are escalated because validation tests may not modify the smoke implementation:
+
+| Requirement | Escalated gap | Required correction |
+| --- | --- | --- |
+| B2C-01 | The authoritative B2C smoke invokes an extra `--no-live` flag, while the phase contract and verification define the exact three-flag profile. | Remove `--no-live` from the `sigra_b2c_alpha` `run_leg` call in `scripts/ci/passkeys-opt-out-smoke.sh`. |
+| B2C-01, B2C-02 | The smoke source assertion still expects obsolete `Auth.request_magic_link`; the generated controller uses `Auth.deliver_user_magic_link_instructions`. | Update the smoke assertion to the current generated public helper. |
+
+The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailable; this is an environment constraint, not a manual acceptance step. The 2026-08-10 audit could not connect to `127.0.0.1:53988` and therefore does not claim a current database-backed pass.
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify
 - [x] Wave 0 covers all referenced requirements
 - [x] No watch-mode flags
 - [x] Feedback latency < 60s for the fixture test
 - [ ] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** partial — automated coverage exists, but two smoke implementation corrections remain red
+
+---
+
+## Validation Audit 2026-08-10
+
+| Metric | Count |
+| --- | ---: |
+| Gaps found | 2 |
+| Resolved | 0 |
+| Escalated | 2 |
+
+### Audit Evidence
+
+- Corrected the fixture expectation to the generated `Auth.deliver_user_magic_link_instructions` public helper.
+- Added an exact source lock for the canonical three-flag B2C smoke invocation and an explicit rejection of `--no-live`.
+- Updated the retained-core source lock to require the current generated magic-link helper.
+- `mix format --check-formatted test/sigra/install/generator_passkeys_opt_out_test.exs` passed.
+- `bash -n scripts/ci/passkeys-opt-out-smoke.sh` passed.
+- The focused/full ExUnit target remains red because the new guards expose both smoke drifts; PostgreSQL connection attempts also failed at `127.0.0.1:53988`.
+- Test guard commit: `f9238f2c`.
