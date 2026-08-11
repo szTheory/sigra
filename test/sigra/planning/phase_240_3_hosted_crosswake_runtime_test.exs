@@ -19,6 +19,10 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   @controller_test "test/example/test/example_web/controllers/crosswake_controller_test.exs"
   @browser_test "test/example/priv/playwright/tests/crosswake-hosted-runtime.spec.ts"
   @playwright_config "test/example/priv/playwright/playwright.config.ts"
+  @prohibition_guard "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
+  @prohibition_bad_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json"
+  @prohibition_clean_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json"
+  @plan ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-09-PLAN.md"
 
   @ordered_commands [
     "cd test/example && MIX_ENV=test mix ecto.migrate --quiet",
@@ -200,6 +204,32 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
     assert playwright_config =~ "name: 'crosswake-hosted-runtime'"
     assert playwright_config =~ "workers: 1"
     assert playwright_config =~ "retries: 0"
+  end
+
+  test "XW prohibition enforcement remains wired to its fail-first guard and fixtures" do
+    for path <- [@prohibition_guard, @prohibition_bad_fixture, @prohibition_clean_fixture] do
+      assert File.regular?(path), "missing prohibition enforcement artifact #{path}"
+    end
+
+    plan = read!(@plan)
+
+    for marker <- [
+          "check_kind: node-test",
+          "check_target: scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs",
+          "check_violation_fixture: test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json",
+          "check_clean_fixture: test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json",
+          "authority-integrity",
+          "secret-boundary",
+          "authority-smuggling"
+        ] do
+      assert plan =~ marker, "plan is missing prohibition descriptor #{inspect(marker)}"
+    end
+
+    guard = read!(@prohibition_guard)
+    assert guard =~ "GSD_PROHIB_SUBJECT"
+    assert guard =~ "authority-integrity"
+    assert guard =~ "secret-boundary"
+    assert guard =~ "authority-smuggling"
   end
 
   test "recipe and coverage preserve the exact host and no-external-API contract" do
