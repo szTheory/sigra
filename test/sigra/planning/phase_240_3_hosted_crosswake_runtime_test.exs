@@ -183,6 +183,9 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
       assert runner =~ marker, "runner is missing #{inspect(marker)}"
     end
 
+    assert runner =~ "PY\n}\n\nverify_scoped_paths_are_committed() {"
+    assert runner =~ "Path(os.environ[\"EVIDENCE_PATH\"]).write_text"
+
     positions = Enum.map(@main_ordered_markers, &index!(main_runner, &1))
     assert positions == Enum.sort(positions), "runner commands are not ordered"
 

@@ -176,6 +176,10 @@ payload = {
     },
 }
 
+Path(os.environ["EVIDENCE_PATH"]).write_text(json.dumps(payload, indent=2) + "\n")
+PY
+}
+
 verify_scoped_paths_are_committed() {
   local scoped_paths=(
     "guides/recipes/b2c-alpha.md"
@@ -199,10 +203,6 @@ verify_scoped_paths_are_committed() {
   if git -C "${ROOT_DIR}" ls-files --others --exclude-standard -- "${scoped_paths[@]}" | grep -q .; then
     fail "scoped Phase 240.3 paths must not be untracked before writing evidence"
   fi
-}
-
-Path(os.environ["EVIDENCE_PATH"]).write_text(json.dumps(payload, indent=2) + "\n")
-PY
 }
 
 main() {
