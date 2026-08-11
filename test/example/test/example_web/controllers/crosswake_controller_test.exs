@@ -213,6 +213,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
 
     assert return_conn.status == 303
     assert redirected_to(return_conn, 303) == ~p"/app"
+    assert get_resp_header(return_conn, "referrer-policy") == ["no-referrer"]
     assert_receive {:crosswake_evaluator_called, route, context, [expected_session_version: version]}
     assert route.id == "crosswake-hosted-account"
     assert route.path == "/app"
@@ -229,12 +230,14 @@ defmodule ExampleWeb.CrosswakeControllerTest do
   defp assert_restarted(conn) do
     assert conn.status == 303
     assert redirected_to(conn, 303) == ~p"/"
+    assert get_resp_header(conn, "referrer-policy") == ["no-referrer"]
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == @restart_recovery
   end
 
   defp assert_sign_in_recovery(conn) do
     assert conn.status == 303
     assert redirected_to(conn, 303) == ~p"/users/log_in"
+    assert get_resp_header(conn, "referrer-policy") == ["no-referrer"]
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == @sign_in_recovery
   end
 

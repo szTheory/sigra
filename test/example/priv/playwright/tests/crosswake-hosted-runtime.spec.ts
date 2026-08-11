@@ -18,6 +18,14 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
     const url = new URL(request.url());
     return request.method() === 'GET' && url.pathname === '/crosswake/return';
   });
+  const appRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url());
+    return (
+      request.method() === 'GET' &&
+      request.resourceType() === 'document' &&
+      url.pathname === '/app'
+    );
+  });
 
   await page.evaluate(() => {
     const csrfToken = document
@@ -41,6 +49,9 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
   });
 
   const returnUrl = new URL((await returnRequest).url());
+  const appNavigation = await appRequest;
+  expect(appNavigation.headers()['referer']).toBeUndefined();
+
   const sentinels = ['continuation', 'state', 'pkce_verifier'].map((key) => {
     const value = returnUrl.searchParams.get(key);
     if (!value) throw new Error(`missing ${key} from local return`);
