@@ -115,3 +115,22 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:185 test/sigra/install/generator_passkeys_opt_out_test.exs:195` completed with `2 tests, 2 failures`, confirming both implementation drifts remain observable.
 - B2C-03 remains covered by the existing generated-host negative sentinels; no redundant validation test was added.
 - No PostgreSQL-backed lifecycle pass is claimed. The local test endpoint `127.0.0.1:53988` remained unavailable during the focused run.
+
+## Validation Audit 2026-08-10 (second retry)
+
+| Metric | Count |
+| --- | ---: |
+| Gaps found | 2 |
+| Resolved | 0 |
+| Escalated | 2 |
+
+### Second Retry Evidence
+
+- After the user selected **Fix all gaps**, the typed `gsd-nyquist-auditor` independently reproduced both focused source-lock failures and returned `## ESCALATE` because resolving them requires changes to the read-only smoke implementation.
+- `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:185 test/sigra/install/generator_passkeys_opt_out_test.exs:195` completed with `2 tests, 2 failures`.
+- B2C-01 remains red because the smoke invokes `sigra_b2c_alpha` with the extra `--no-live` flag instead of the exact canonical three-flag profile.
+- B2C-01/B2C-02 remain red because the smoke asserts obsolete `Auth.request_magic_link` instead of generated `Auth.deliver_user_magic_link_instructions` behavior.
+- `bash -n scripts/ci/passkeys-opt-out-smoke.sh` and formatting checks passed; these structural checks do not resolve the behavioral failures.
+- B2C-03 remains covered by the existing generated-host negative sentinels; no redundant test was added.
+- No PostgreSQL-backed lifecycle pass is claimed. The local test endpoint `127.0.0.1:53988` remained unavailable.
+- Auditor changed no files and preserved the unrelated `.planning/v1.48-MILESTONE-AUDIT.md` worktree modification.
