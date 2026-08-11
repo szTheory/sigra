@@ -2,8 +2,10 @@ defmodule ExampleWeb.CrosswakeControllerTest do
   use ExampleWeb.ConnCase, async: false
 
   import Example.AccountsFixtures
+  import Ecto.Query
 
   alias Example.Accounts
+  alias Example.Repo
 
   @moduletag :example_app
   @event [:example, :crosswake, :continuation]
@@ -42,15 +44,14 @@ defmodule ExampleWeb.CrosswakeControllerTest do
           %{"continuation" => "missing", "state" => "state", "pkce_verifier" => "verifier"},
           %{"continuation" => ["list"], "state" => "state", "pkce_verifier" => "verifier"}
         ] do
-      conn = get(conn, ~p"/crosswake/return", invalid_params)
+      conn = conn |> log_in_user(user) |> get(~p"/crosswake/return", invalid_params)
       assert_restarted(conn)
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
 
-    {_start_conn, return_location, params} = start_return(conn, user)
-
     for {key, replacement} <- [{"state", "mismatched-state"}, {"pkce_verifier", "mismatched-verifier"}] do
-      conn = get(conn, return_location, Map.put(params, key, replacement))
+      {start_conn, return_location, params} = start_return(conn, user)
+      conn = get(start_conn, return_location, Map.put(params, key, replacement))
       assert_restarted(conn)
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
@@ -104,8 +105,8 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     other_user = user_fixture()
 
     for mutation <- [:deleted, :revoked, :idle_expired, :absolute_expired, :account_switched, :replacement_session] do
-      {_start_conn, return_location, _params} = start_return(conn, user)
-      token = Accounts.generate_user_session_token(user)
+      {start_conn, return_location, _params} = start_return(conn, user)
+      token = get_session(start_conn, :user_token)
 
       return_conn =
         case mutation do
@@ -114,15 +115,28 @@ defmodule ExampleWeb.CrosswakeControllerTest do
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :revoked ->
-            {:ok, session} = Accounts.get_user_and_session_by_token(token)
+            {_session_user, session} = Accounts.get_user_and_session_by_token(token)
             Accounts.revoke_session(session.hashed_token)
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :idle_expired ->
-            # A newly issued token is a different session and is therefore still fail-closed.
+            {_session_user, session} = Accounts.get_user_and_session_by_token(token)
+            session_id = Ecto.UUID.dump!(session.id)
+
+            Repo.update_all(
+              from(s in "user_sessions", prefix: "auth", where: s.id == ^session_id),
+              set: [last_active_at: DateTime.add(DateTime.utc_now(), -1_800)]
+            )
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :absolute_expired ->
+            {_session_user, session} = Accounts.get_user_and_session_by_token(token)
+            session_id = Ecto.UUID.dump!(session.id)
+
+            Repo.update_all(
+              from(s in "user_sessions", prefix: "auth", where: s.id == ^session_id),
+              set: [inserted_at: DateTime.add(DateTime.utc_now(), -86_400)]
+            )
             conn |> init_test_session(%{user_token: token}) |> get(return_location)
 
           :account_switched ->
@@ -132,7 +146,11 @@ defmodule ExampleWeb.CrosswakeControllerTest do
             conn |> log_in_user(user) |> get(return_location)
         end
 
-      assert_restarted(return_conn)
+      if mutation in [:deleted, :revoked, :idle_expired, :absolute_expired] do
+        assert_sign_in_recovery(return_conn)
+      else
+        assert_restarted(return_conn)
+      end
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
   end
@@ -151,7 +169,7 @@ defmodule ExampleWeb.CrosswakeControllerTest do
           Map.put(params, "state", [params["state"], "duplicate"]),
           Map.put(params, "continuation", [params["continuation"], "duplicate"])
         ] do
-      conn = get(conn, ~p"/crosswake/return", invalid_params)
+      conn = conn |> log_in_user(user) |> get(~p"/crosswake/return", invalid_params)
       assert_restarted(conn)
       refute_receive {:crosswake_evaluator_called, _, _, _}
     end
@@ -212,6 +230,12 @@ defmodule ExampleWeb.CrosswakeControllerTest do
     assert conn.status == 303
     assert redirected_to(conn, 303) == ~p"/"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == @restart_recovery
+  end
+
+  defp assert_sign_in_recovery(conn) do
+    assert conn.status == 303
+    assert redirected_to(conn, 303) == ~p"/users/log_in"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == @sign_in_recovery
   end
 
   defp capturing_evaluator(test_pid) do

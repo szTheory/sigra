@@ -19,24 +19,17 @@ defmodule ExampleWeb.CrosswakeController do
         |> redirect(to: "/crosswake/return?" <> URI.encode_query(query))
 
       {:error, _reason} ->
-        recovery(conn, "Your sign-in session is no longer available. Please sign in again.")
+        deny(conn, :session_unavailable)
     end
   end
 
   def return(conn, params) do
-    with {:ok, %{"continuation" => handle} = input} <- scalar_return_input(params),
-         {:allow, _result} <-
-           CrosswakeContinuations.complete(
-             handle,
-             get_session(conn, :user_token),
-             Map.delete(input, "continuation"),
-             DateTime.utc_now()
-           ) do
-      conn
-      |> put_status(:see_other)
-      |> redirect(to: CrosswakeContinuations.destination())
-    else
-      _ -> recovery(conn, "We couldn't complete that return. Please try again.")
+    case scalar_return_input(params) do
+      {:ok, %{"continuation" => handle} = input} ->
+        complete_return(conn, handle, Map.delete(input, "continuation"))
+
+      {:error, _reason} ->
+        deny(conn, :invalid_return_evidence)
     end
   end
 
@@ -51,10 +44,49 @@ defmodule ExampleWeb.CrosswakeController do
     end
   end
 
-  defp recovery(conn, message) do
+  defp complete_return(conn, handle, input) do
+    case get_session(conn, :user_token) do
+      token when is_binary(token) ->
+        case CrosswakeContinuations.complete(handle, token, input, DateTime.utc_now()) do
+          {:allow, _result} -> allow(conn)
+          {:deny, %{reason: reason}} -> deny(conn, reason)
+        end
+
+      _ ->
+        deny(conn, :session_unavailable)
+    end
+  end
+
+  defp allow(conn) do
+    telemetry(:allow, :allowed)
+
+    conn
+    |> put_status(:see_other)
+    |> redirect(to: CrosswakeContinuations.destination())
+  end
+
+  defp deny(conn, :session_unavailable) do
+    telemetry(:deny, :session_unavailable)
+    recovery(conn, "/users/log_in", "Your sign-in session is no longer available. Please sign in again.")
+  end
+
+  defp deny(conn, reason) do
+    telemetry(:deny, reason)
+    recovery(conn, "/", "We couldn't complete that return. Please try again.")
+  end
+
+  defp recovery(conn, destination, message) do
     conn
     |> put_flash(:error, message)
     |> put_status(:see_other)
-    |> redirect(to: "/users/log_in")
+    |> redirect(to: destination)
+  end
+
+  defp telemetry(outcome, reason) do
+    :telemetry.execute(
+      [:example, :crosswake, :continuation],
+      %{count: 1},
+      %{correlation_ref: nil, outcome: outcome, reason: reason}
+    )
   end
 end
