@@ -68,9 +68,6 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
   });
 
   await expect(page).toHaveURL(/\/app$/);
-  await page.waitForSelector('[data-phx-session].phx-connected', {
-    state: 'attached',
-  });
   await expect(page.locator('[data-testid="app-account-home"]')).toBeVisible();
   await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
 
