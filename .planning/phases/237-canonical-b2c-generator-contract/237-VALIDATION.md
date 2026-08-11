@@ -134,3 +134,20 @@ The PostgreSQL smoke must run in CI when a local PostgreSQL service is unavailab
 - B2C-03 remains covered by the existing generated-host negative sentinels; no redundant test was added.
 - No PostgreSQL-backed lifecycle pass is claimed. The local test endpoint `127.0.0.1:53988` remained unavailable.
 - Auditor changed no files and preserved the unrelated `.planning/v1.48-MILESTONE-AUDIT.md` worktree modification.
+
+## Validation Audit 2026-08-10 (third retry)
+
+| Metric | Count |
+| --- | ---: |
+| Gaps found | 2 |
+| Resolved | 0 |
+| Escalated | 2 |
+
+### Retry Evidence
+
+- `bash -n scripts/ci/passkeys-opt-out-smoke.sh` passed.
+- `MIX_ENV=test mix test test/sigra/install/generator_passkeys_opt_out_test.exs:185 test/sigra/install/generator_passkeys_opt_out_test.exs:195` completed with `2 tests, 2 failures`.
+- B2C-01 remains unmet: the B2C `run_leg` invocation contains `--no-live` instead of the exact three canonical flags.
+- B2C-01/B2C-02 remain unmet: the smoke asserts `Auth.request_magic_link` rather than the generated `Auth.deliver_user_magic_link_instructions` helper.
+- These are implementation defects in the read-only smoke harness. No test assertion was weakened and no implementation file was changed.
+- The focused ExUnit run logged refused connections to `127.0.0.1:53988`; no PostgreSQL-backed lifecycle evidence is claimed.
