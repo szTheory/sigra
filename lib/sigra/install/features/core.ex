@@ -771,19 +771,19 @@ defmodule Sigra.Install.Features.Core do
       # Sigra API token management
       @impersonation_denial_message "You can't manage API tokens while impersonating."
 
-      def create_api_token(user, attrs, opts \\ []) do
+      def create_api_token(user, attrs, opts \\\\ []) do
         with :ok <- forbid_api_token_operation(user, "api_token.create", opts) do
           Sigra.Auth.create_api_token(sigra_config(), user, attrs)
         end
       end
 
-      def revoke_api_token(user, token_id, opts \\ []) do
+      def revoke_api_token(user, token_id, opts \\\\ []) do
         with :ok <- forbid_api_token_operation(user, "api_token.revoke", opts) do
           Sigra.Auth.revoke_api_token_for_user(sigra_config(), user, token_id)
         end
       end
 
-      def list_api_tokens(user, opts \\ []) do
+      def list_api_tokens(user, opts \\\\ []) do
         Sigra.Auth.list_api_tokens(sigra_config(), user.id, opts)
       end
 
