@@ -134,6 +134,10 @@ defmodule Sigra.APITokenTest do
     %{id: 42}
   end
 
+  defp other_user do
+    %{id: 43}
+  end
+
   describe "create/3" do
     test "returns {:ok, raw_key, token} with prefix prepended" do
       cfg = config()
@@ -168,12 +172,23 @@ defmodule Sigra.APITokenTest do
       assert token.hashed_token == expected_hash
     end
 
-    test "returns {:error, :scopes_required} when scopes is empty" do
+    test "accepts empty scopes through the library boundary" do
       cfg = config()
       user = mock_user()
 
-      assert {:error, :scopes_required} =
+      assert {:ok, _raw_key, token} =
                APIToken.create(cfg, user, %{name: "No Scopes", scopes: []})
+
+      assert token.scopes == []
+    end
+
+    test "accepts one configured scope through the library boundary" do
+      cfg = config()
+
+      assert {:ok, _raw_key, token} =
+               APIToken.create(cfg, mock_user(), %{name: "One Scope", scopes: ["profile:read"]})
+
+      assert token.scopes == ["profile:read"]
     end
 
     test "validates scopes against registry, rejects unregistered" do
@@ -182,6 +197,19 @@ defmodule Sigra.APITokenTest do
 
       assert {:error, {:unregistered_scopes, ["fake:scope"]}} =
                APIToken.create(cfg, user, %{name: "Bad Scopes", scopes: ["fake:scope"]})
+    end
+
+    test "rejects malformed and duplicate scopes before persistence" do
+      cfg = config()
+
+      assert {:error, {:invalid_format, ["not-a-scope"]}} =
+               APIToken.create(cfg, mock_user(), %{name: "Malformed", scopes: ["not-a-scope"]})
+
+      assert {:error, {:duplicate_scopes, ["profile:read"]}} =
+               APIToken.create(cfg, mock_user(), %{
+                 name: "Duplicate",
+                 scopes: ["profile:read", "profile:read"]
+               })
     end
 
     test "validates name is required" do
@@ -293,6 +321,36 @@ defmodule Sigra.APITokenTest do
       send(self(), {:mock_get_by_result, mock_token})
 
       assert {:error, :token_expired} = APIToken.verify(cfg, "my_app_sk_test")
+    end
+  end
+
+  describe "revoke_for_user/3" do
+    test "revokes an active token only for its owner" do
+      cfg = config()
+      token = %MockAPITokenSchema{id: 9, user_id: mock_user().id, revoked_at: nil}
+      send(self(), {:mock_get_by_result, token})
+
+      assert {:ok, revoked} = APIToken.revoke_for_user(cfg, mock_user(), token.id)
+      assert revoked.revoked_at != nil
+      assert_received {:repo_get_by, [id: 9, user_id: 42, revoked_at: nil]}
+    end
+
+    test "returns the same bounded result for absent, foreign, and already-revoked tokens" do
+      cfg = config()
+
+      assert {:error, :not_found} = APIToken.revoke_for_user(cfg, mock_user(), 100)
+      assert_received {:repo_get_by, [id: 100, user_id: 42, revoked_at: nil]}
+
+      assert {:error, :not_found} = APIToken.revoke_for_user(cfg, other_user(), 101)
+      assert_received {:repo_get_by, [id: 101, user_id: 43, revoked_at: nil]}
+
+      assert {:error, :not_found} = APIToken.revoke_for_user(cfg, mock_user(), 102)
+      assert_received {:repo_get_by, [id: 102, user_id: 42, revoked_at: nil]}
+    end
+
+    test "exposes only an owner-required self-management facade" do
+      assert function_exported?(Sigra.Auth, :revoke_api_token_for_user, 3)
+      refute function_exported?(Sigra.Auth, :revoke_api_token_for_user, 2)
     end
   end
 
