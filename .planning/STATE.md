@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 244
 current_phase_name: PAT and Advanced JWT Truth Repair
 status: executing
-stopped_at: Completed 244-04-PLAN.md
-last_updated: "2026-08-12T23:13:45.890Z"
+stopped_at: Completed 244-05-PLAN.md
+last_updated: "2026-08-12T23:34:28.969Z"
 last_activity: 2026-08-12
 last_activity_desc: Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 244 of 249 (PAT and Advanced JWT Truth Repair)
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-08-12 — Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 
-Progress: ░░░░░░░░░░ [████████░░] 82%
+Progress: ░░░░░░░░░░ [█████████░] 91%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: ░░░░░░░░░░ [████████░░] 82%
 | Phase 244-pat-and-advanced-jwt-truth-repair P02 | 6min | 1 tasks | 3 files |
 | Phase 244 P03 | 50min | 2 tasks | 6 files |
 | Phase 244 P04 | 3min | 1 tasks | 5 files |
+| Phase 244 P05 | 16min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Progress: ░░░░░░░░░░ [████████░░] 82%
 - [Phase ?]: PAT browser lifecycle proof uses real generated router gates and owner row-set invariants.
 - [Phase ?]: JWT verification uses the configured Joken signer and RequiredClaims before protected typ inspection.
 - [Phase ?]: Configured audiences match exact scalar or non-empty string-array recipients; optional nbf stays temporal only.
+- [Phase ?]: Generated JWT router options resolve host config at request time to avoid compile-time endpoint access.
+- [Phase ?]: JWT-only hosts install Joken and issue tokens through Sigra.JWT.generate_tokens/4 with generated UserToken storage.
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T23:13:45.885Z
-Stopped at: Completed 244-04-PLAN.md
+Last session: 2026-08-12T23:34:28.963Z
+Stopped at: Completed 244-05-PLAN.md
 Resume file: None
