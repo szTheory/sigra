@@ -208,7 +208,7 @@ Plans:
 **Goal:** Authenticated example-host users can initiate the existing Crosswake flow from a rendered, accessible `/app` control and complete the unchanged secure return journey.
 **Requirements**: XW-01, XW-02
 **Depends on:** Phase 241
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 
