@@ -58,7 +58,7 @@ defmodule Sigra.Install.Features.Core do
     opts = Keyword.get(binding, :opts, [])
 
     live? = Keyword.get(opts, :live, true)
-    api? = Keyword.get(opts, :api, false) || Keyword.get(opts, :jwt, false)
+    api? = Keyword.get(opts, :api, false)
     jwt? = Keyword.get(opts, :jwt, false)
 
     base_files(binding) ++
@@ -126,7 +126,8 @@ defmodule Sigra.Install.Features.Core do
       ]
 
     base
-    |> Kernel.++(if api?, do: api_injections(otp_app_str, web_module, jwt?), else: [])
+    |> Kernel.++(if api?, do: api_injections(otp_app_str, web_module), else: [])
+    |> Kernel.++(if jwt?, do: jwt_injections(otp_app_str, web_module), else: [])
     |> Enum.reject(&is_nil/1)
   end
 
@@ -344,11 +345,10 @@ defmodule Sigra.Install.Features.Core do
 
   defp jwt_files(binding, true) do
     otp_app = otp_app_str(binding)
-    web = "#{otp_app}_web"
+    ctx = context_underscore(binding)
 
     [
-      {:eex, "core/token_controller.ex",
-       Path.join(["lib", web, "controllers", "token_controller.ex"])}
+      {:eex, "core/auth_jwt.ex", Path.join(["lib", otp_app, ctx, "auth", "jwt.ex"])}
     ]
   end
 
@@ -746,11 +746,11 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
-  defp api_injections(otp_app, web_module, jwt?) do
+  defp api_injections(otp_app, web_module) do
     api_router_content = """
       # Sigra API
       pipeline :api_authenticated do
-        plug Sigra.Plug.FetchBearer
+        plug Sigra.Plug.FetchAPIToken
         plug Sigra.Plug.RequireAuthenticated,
           error_handler: #{web_module}.AuthErrorHandler
       end
@@ -764,11 +764,6 @@ defmodule Sigra.Install.Features.Core do
         delete "/tokens", APITokenController, :delete_all
       end
 
-      # # Mixed-mode pipeline (uncomment if you need endpoints that accept both session and bearer auth)
-      # pipeline :api_or_browser do
-      #   plug Sigra.Plug.FetchBearer
-      #   plug Sigra.Plug.FetchSession
-      # end
     """
 
     api_config_content = """
@@ -781,13 +776,6 @@ defmodule Sigra.Install.Features.Core do
         default_scopes: ["read"]
       ]
     """
-
-    jwt_config_tail =
-      if jwt? do
-        "\n  jwt: [\n    algorithm: \"HS256\",\n    access_ttl: 900,\n    refresh_ttl: 2_592_000\n  ]\n"
-      else
-        ""
-      end
 
     router_target = Path.join(["lib", "#{otp_app}_web", "router.ex"])
     config_target = Path.join(["config", "config.exs"])
@@ -803,35 +791,50 @@ defmodule Sigra.Install.Features.Core do
         target: config_target,
         marker: "api_token:",
         anchor: :elixir_config,
-        content: api_config_content <> jwt_config_tail
+        content: api_config_content
       }
     ]
 
-    if jwt? do
-      jwt_router_content = """
-        # Sigra JWT
-        scope "/api/auth", #{web_module} do
-          pipe_through :api
+    api_list
+  end
 
-          post "/token", TokenController, :create
-          post "/token/refresh", TokenController, :refresh
-          post "/token/mfa", TokenController, :mfa
-          delete "/token", TokenController, :revoke
-        end
-      """
+  defp jwt_injections(otp_app, web_module) do
+    jwt_router_content = """
+      # Sigra JWT
+      # Host policy calls the generated Auth.JWT.create_jwt_tokens/1 delegate;
+      # no password, MFA, or request-scoped issuance route is generated.
+      pipeline :jwt_authenticated do
+        plug Sigra.Plug.FetchJWT
+        plug Sigra.Plug.RequireAuthenticated,
+          error_handler: #{web_module}.AuthErrorHandler
+      end
+    """
 
-      api_list ++
-        [
-          %Injection{
-            target: router_target,
-            marker: "# Sigra JWT",
-            anchor: :before_last_end,
-            content: jwt_router_content
-          }
-        ]
-    else
-      api_list
-    end
+    jwt_config_content = """
+
+    # Sigra JWT configuration
+    config :#{otp_app}, :sigra_api,
+      jwt: [
+        algorithm: "HS256",
+        access_ttl: 900,
+        refresh_ttl: 2_592_000
+      ]
+    """
+
+    [
+      %Injection{
+        target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+        marker: "# Sigra JWT",
+        anchor: :before_last_end,
+        content: jwt_router_content
+      },
+      %Injection{
+        target: Path.join(["config", "config.exs"]),
+        marker: "jwt:",
+        anchor: :elixir_config,
+        content: jwt_config_content
+      }
+    ]
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -851,7 +854,7 @@ defmodule Sigra.Install.Features.Core do
       end
 
     api_line =
-      if Keyword.get(opts, :api, false) || Keyword.get(opts, :jwt, false) do
+      if Keyword.get(opts, :api, false) do
         "  API token endpoints were generated at /api/tokens.\n  Add the functions from auth_api_token.ex to your Auth context.\n"
       else
         ""
@@ -859,7 +862,7 @@ defmodule Sigra.Install.Features.Core do
 
     jwt_line =
       if Keyword.get(opts, :jwt, false) do
-        "  JWT authentication endpoints were generated at /api/auth/token.\n"
+        "  JWT host-policy delegate was generated at Auth.JWT; select scopes in host code before calling it.\n"
       else
         ""
       end
@@ -1007,7 +1010,7 @@ defmodule Sigra.Install.Features.Core do
 
   defp api_enabled?(binding) do
     opts = Keyword.get(binding, :opts, [])
-    Keyword.get(opts, :api, false) || Keyword.get(opts, :jwt, false)
+    Keyword.get(opts, :api, false)
   end
 
   defp jwt_enabled?(binding) do

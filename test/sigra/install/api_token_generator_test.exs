@@ -222,7 +222,10 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       content = render_template("auth_jwt.ex")
 
       assert content =~ "def create_jwt_tokens(user)"
-      assert content =~ "Sigra.Auth.create_jwt_tokens(sigra_config(), user, jwt_scopes_for(user))"
+
+      assert content =~
+               "Sigra.Auth.generate_jwt_tokens(sigra_config(), user, jwt_scopes_for(user))"
+
       assert content =~ "def refresh_jwt(raw_refresh_token)"
       assert content =~ "def revoke_jwt_refresh(raw_refresh_token)"
     end

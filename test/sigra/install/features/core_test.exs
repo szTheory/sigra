@@ -275,9 +275,26 @@ defmodule Sigra.Install.Features.CoreTest do
     test "API and JWT option matrix has disjoint artifact groups" do
       matrix = [
         {false, false, [], []},
-        {true, false, ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex"], ["core/auth_jwt.ex"]},
-        {false, true, ["core/auth_jwt.ex"], ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex", "core/token_controller.ex"]},
-        {true, true, ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex", "core/auth_jwt.ex"], ["core/token_controller.ex"]}
+        {true, false,
+         [
+           "core/api_token_migration.exs",
+           "core/user_api_token.ex",
+           "core/api_token_controller.ex"
+         ], ["core/auth_jwt.ex"]},
+        {false, true, ["core/auth_jwt.ex"],
+         [
+           "core/api_token_migration.exs",
+           "core/user_api_token.ex",
+           "core/api_token_controller.ex",
+           "core/token_controller.ex"
+         ]},
+        {true, true,
+         [
+           "core/api_token_migration.exs",
+           "core/user_api_token.ex",
+           "core/api_token_controller.ex",
+           "core/auth_jwt.ex"
+         ], ["core/token_controller.ex"]}
       ]
 
       Enum.each(matrix, fn {api?, jwt?, expected, absent} ->
@@ -389,7 +406,8 @@ defmodule Sigra.Install.Features.CoreTest do
       # feature owns emission of this migration so the hard FK to the
       # organizations table lands AFTER that table is created and is
       # omitted entirely under --no-organizations.
-      orphans = ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex token_controller.ex alter_audit_events_add_org_columns.exs)
+      orphans =
+        ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex token_controller.ex alter_audit_events_add_org_columns.exs)
 
       on_disk =
         "priv/templates/sigra.install/core"
