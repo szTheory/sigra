@@ -17,6 +17,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   @router "test/example/lib/example_web/router.ex"
   @continuation_test "test/example/test/example/accounts/crosswake_continuations_test.exs"
   @controller_test "test/example/test/example_web/controllers/crosswake_controller_test.exs"
+  @app_live "test/example/lib/example_web/live/app_live.ex"
   @browser_test "test/example/priv/playwright/tests/crosswake-hosted-runtime.spec.ts"
   @playwright_config "test/example/priv/playwright/playwright.config.ts"
   @prohibition_guard "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
@@ -182,6 +183,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   test "continuation, controller, browser, and serial project guards name the real security matrix" do
     continuation_test = read!(@continuation_test)
     controller_test = read!(@controller_test)
+    app_live = read!(@app_live)
     browser_test = read!(@browser_test)
     playwright_config = read!(@playwright_config)
 
@@ -202,8 +204,33 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
       assert controller_test =~ marker, "controller test is missing #{inspect(marker)}"
     end
 
+    for marker <- [
+          "data-testid=\"app-crosswake-start\"",
+          "action={~p\"/crosswake/start\"}",
+          "method=\"post\"",
+          "class=\"vt-panel\"",
+          "class=\"vt-kicker\"",
+          "class=\"vt-panel__title\"",
+          "class=\"vt-copy\"",
+          "class=\"vt-btn vt-btn--primary\"",
+          "type=\"submit\"",
+          "Continue to Crosswake"
+        ] do
+      assert app_live =~ marker, "app account hub is missing #{inspect(marker)}"
+    end
+
+    refute Regex.match?(~r/phx-(?:submit|click|change)\s*=/, app_live),
+             "Crosswake start must remain an ordinary controller POST"
+
     assert browser_test =~ "hosted Crosswake local return preserves the real cookie jar"
     assert browser_test =~ "page.waitForRequest"
+    assert browser_test =~ "page.getByRole('button', { name: 'Continue to Crosswake' }).click()"
+    assert browser_test =~ "expect([...returnUrl.searchParams.keys()].sort()).toEqual(['continuation', 'state']);"
+    assert browser_test =~ "expect(appNavigation.headers()['referer']).toBeUndefined();"
+    assert browser_test =~ "await expect(page).toHaveURL(/\\/app$/);"
+    assert browser_test =~ "pkce_verifier"
+    refute browser_test =~ "page.evaluate"
+    refute browser_test =~ "document.createElement"
     assert playwright_config =~ "name: 'crosswake-hosted-runtime'"
     assert playwright_config =~ "workers: 1"
     assert playwright_config =~ "retries: 0"
