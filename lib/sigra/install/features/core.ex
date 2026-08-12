@@ -126,7 +126,9 @@ defmodule Sigra.Install.Features.Core do
       ]
 
     base
-    |> Kernel.++(if api?, do: api_injections(otp_app_str, web_module), else: [])
+    |> Kernel.++(
+      if api?, do: api_injections(otp_app_str, context_underscore(binding), web_module), else: []
+    )
     |> Kernel.++(if jwt?, do: jwt_injections(otp_app_str, web_module), else: [])
     |> Enum.reject(&is_nil/1)
   end
@@ -746,7 +748,7 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
-  defp api_injections(otp_app, web_module) do
+  defp api_injections(otp_app, context_underscore, web_module) do
     api_router_content = """
       # Sigra API
       pipeline :api_authenticated do
@@ -755,15 +757,57 @@ defmodule Sigra.Install.Features.Core do
           error_handler: #{web_module}.AuthErrorHandler
       end
 
-      scope "/api", #{web_module} do
-        pipe_through [:api, :api_authenticated]
+      scope "/users", #{web_module} do
+        pipe_through [:browser, :require_authenticated, :require_sudo]
 
-        get "/tokens", APITokenController, :index
-        post "/tokens", APITokenController, :create
-        delete "/tokens/:id", APITokenController, :delete
-        delete "/tokens", APITokenController, :delete_all
+        get "/api-tokens", APITokenController, :index
+        post "/api-tokens", APITokenController, :create
+        delete "/api-tokens/:id", APITokenController, :delete
       end
 
+    """
+
+    api_auth_content = """
+      # Sigra API token management
+      @impersonation_denial_message "You can't manage API tokens while impersonating."
+
+      def create_api_token(user, attrs, opts \\ []) do
+        with :ok <- forbid_api_token_operation(user, "api_token.create", opts) do
+          Sigra.Auth.create_api_token(sigra_config(), user, attrs)
+        end
+      end
+
+      def revoke_api_token(user, token_id, opts \\ []) do
+        with :ok <- forbid_api_token_operation(user, "api_token.revoke", opts) do
+          Sigra.Auth.revoke_api_token_for_user(sigra_config(), user, token_id)
+        end
+      end
+
+      def list_api_tokens(user, opts \\ []) do
+        Sigra.Auth.list_api_tokens(sigra_config(), user.id, opts)
+      end
+
+      def list_api_scopes, do: Sigra.Auth.list_api_scopes(sigra_config())
+
+      defp forbid_api_token_operation(user, operation, opts) do
+        case Keyword.get(opts, :scope) do
+          %{impersonating_from: impersonator} = scope when not is_nil(impersonator) ->
+            Sigra.Audit.log_safe("admin.impersonation.denied", scope,
+              Sigra.Auth.audit_opts_from_config(sigra_config())
+              |> Keyword.merge(
+                actor_id: impersonator.id,
+                target_id: user.id,
+                outcome: "failure",
+                metadata: %{operation: operation}
+              )
+            )
+
+            {:error, :impersonation_forbidden, @impersonation_denial_message}
+
+          _ ->
+            :ok
+        end
+      end
     """
 
     api_config_content = """
@@ -786,6 +830,12 @@ defmodule Sigra.Install.Features.Core do
         marker: "# Sigra API",
         anchor: :before_last_end,
         content: api_router_content
+      },
+      %Injection{
+        target: Path.join(["lib", otp_app, "#{context_underscore}.ex"]),
+        marker: "# Sigra API token management",
+        anchor: :before_last_end,
+        content: api_auth_content
       },
       %Injection{
         target: config_target,

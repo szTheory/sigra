@@ -11,10 +11,10 @@
     end
   end
 
-  @doc "Revokes a specific API token by ID."
-  def revoke_api_token(token_id, opts \\ []) do
-    with :ok <- forbid_api_token_operation(nil, "api_token.revoke", opts) do
-      Sigra.Auth.revoke_api_token(sigra_config(), token_id)
+  @doc "Revokes a specific API token owned by the current user."
+  def revoke_api_token(user, token_id, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, "api_token.revoke", opts) do
+      Sigra.Auth.revoke_api_token_for_user(sigra_config(), user, token_id)
     end
   end
 
@@ -26,8 +26,8 @@
   end
 
   @doc "Lists active API tokens for a user (paginated)."
-  def list_api_tokens(user_id, opts \\ []) do
-    Sigra.Auth.list_api_tokens(sigra_config(), user_id, opts)
+  def list_api_tokens(user, opts \\ []) do
+    Sigra.Auth.list_api_tokens(sigra_config(), user.id, opts)
   end
 
   @doc "Returns available API token scopes."

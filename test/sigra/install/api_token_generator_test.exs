@@ -162,6 +162,26 @@ defmodule Sigra.Install.APITokenGeneratorTest do
   end
 
   describe "api_token_controller.ex template" do
+    test "derives every PAT management owner from current_scope and never request parameters" do
+      content = render_template("api_token_controller.ex")
+
+      assert content =~ "owner = current_scope.user"
+      assert content =~ "Auth.list_api_tokens(owner, opts)"
+      assert content =~ "Auth.create_api_token(owner, attrs, scope: current_scope)"
+      assert content =~ "Auth.revoke_api_token(owner, id, scope: current_scope)"
+      refute content =~ "params[\"user_id\"]"
+      refute content =~ "token_params[\"user_id\"]"
+    end
+
+    test "advertises server-configured scopes and returns the raw PAT only from create" do
+      content = render_template("api_token_controller.ex")
+      index_section = content |> String.split(~s(@doc "Creates), parts: 2) |> hd()
+
+      assert content =~ "available_scopes: Auth.list_api_scopes()"
+      assert content =~ "raw_key: raw_key"
+      refute index_section =~ "raw_key"
+    end
+
     test "defines index action" do
       content = render_template("api_token_controller.ex")
       assert content =~ "def index(conn, params)"
@@ -187,22 +207,12 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert content =~ "Auth.revoke_api_token"
     end
 
-    test "delegates to Auth.revoke_all_api_tokens" do
-      content = render_template("api_token_controller.ex")
-      assert content =~ "Auth.revoke_all_api_tokens"
-    end
-
     test "returns raw_key only in create response (D-10, T-07-19)" do
       content = render_template("api_token_controller.ex")
       # raw_key in create
       assert content =~ "raw_key: raw_key"
       # token_json does NOT include raw_key
       refute Regex.match?(~r/defp token_json.*raw_key/s, content)
-    end
-
-    test "contains delete_all action" do
-      content = render_template("api_token_controller.ex")
-      assert content =~ "def delete_all(conn, _params)"
     end
 
     test "contains pagination support" do
@@ -275,7 +285,7 @@ defmodule Sigra.Install.APITokenGeneratorTest do
 
     test "defines revoke_api_token function" do
       content = render_api_auth_template()
-      assert content =~ "def revoke_api_token(token_id, opts \\\\ [])"
+      assert content =~ "def revoke_api_token(user, token_id, opts \\\\ [])"
     end
 
     test "defines revoke_all_api_tokens function" do
@@ -285,7 +295,7 @@ defmodule Sigra.Install.APITokenGeneratorTest do
 
     test "defines list_api_tokens function" do
       content = render_api_auth_template()
-      assert content =~ "def list_api_tokens(user_id, opts \\\\ [])"
+      assert content =~ "def list_api_tokens(user, opts \\\\ [])"
     end
 
     test "defines list_api_scopes function" do
@@ -296,8 +306,16 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     test "delegates to Sigra.Auth" do
       content = render_api_auth_template()
       assert content =~ "Sigra.Auth.create_api_token(sigra_config()"
-      assert content =~ "Sigra.Auth.revoke_api_token(sigra_config()"
+      assert content =~ "Sigra.Auth.revoke_api_token_for_user(sigra_config()"
       assert content =~ "Sigra.Auth.list_api_tokens(sigra_config()"
+    end
+
+    test "uses the owner-required self-management revoke facade" do
+      content = render_api_auth_template()
+
+      assert content =~ "def revoke_api_token(user, token_id, opts \\\\ [])"
+      assert content =~ "Sigra.Auth.revoke_api_token_for_user(sigra_config(), user, token_id)"
+      refute content =~ "Sigra.Auth.revoke_api_token(sigra_config(), token_id)"
     end
   end
 
@@ -461,6 +479,20 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       source = File.read!(@features_core_path)
       assert source =~ "# Sigra API"
       assert source =~ "APITokenController"
+    end
+
+    test "Features.Core places PAT management only behind browser, authenticated, and sudo gates" do
+      source = File.read!(@features_core_path)
+
+      assert Regex.match?(
+               ~r/# Sigra API[\s\S]*?scope "\/users", #\{web_module\} do[\s\S]*?pipe_through \[:browser, :require_authenticated, :require_sudo\][\s\S]*?get "\/api-tokens", APITokenController, :index[\s\S]*?post "\/api-tokens", APITokenController, :create[\s\S]*?delete "\/api-tokens\/:id", APITokenController, :delete/m,
+               source
+             )
+
+      refute Regex.match?(
+               ~r/pipe_through \[:api, :api_authenticated\][\s\S]*?APITokenController/m,
+               source
+             )
     end
 
     test "Features.Core has JWT router injection content without a password exchange route" do
