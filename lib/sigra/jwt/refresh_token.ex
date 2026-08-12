@@ -145,6 +145,41 @@ defmodule Sigra.JWT.RefreshToken do
   end
 
   @doc false
+  @spec build_locked_classify_multi(Ecto.Multi.t(), Sigra.Config.t(), String.t(), keyword()) ::
+          Ecto.Multi.t()
+  def build_locked_classify_multi(%Multi{} = multi, config, raw_token, opts) do
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    refresh_ttl = Keyword.get(config.jwt, :refresh_ttl, 30 * 24 * 60 * 60)
+
+    Multi.run(multi, :jwt_refresh_classification, fn repo, _changes ->
+      with {:ok, hashed} <- digest_raw_token(raw_token),
+           token_record when not is_nil(token_record) <-
+             repo.one(
+               from(t in user_token_schema,
+                 where: t.token == ^hashed and t.context == "api_refresh",
+                 lock: "FOR UPDATE"
+               )
+             ) do
+        metadata = decode_metadata(token_record.sent_to)
+
+        cond do
+          metadata["superseded_at"] != nil ->
+            {:ok, {:reuse, token_record, metadata}}
+
+          token_expired?(token_record, refresh_ttl) ->
+            {:error, :token_expired}
+
+          true ->
+            {:ok, {:rotate, token_record, metadata}}
+        end
+      else
+        :error -> {:error, :invalid_token}
+        nil -> {:error, :invalid_token}
+      end
+    end)
+  end
+
+  @doc false
   def build_rotate_persist_multi(%Multi{} = multi, token_record, metadata, _config, opts)
       when is_map(metadata) do
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
@@ -318,6 +353,13 @@ defmodule Sigra.JWT.RefreshToken do
 
     {:ok, record} = config.repo.insert(token_struct)
     {raw_token, record}
+  end
+
+  defp digest_raw_token(raw_token) do
+    case Base.url_decode64(raw_token, padding: false) do
+      {:ok, decoded} -> {:ok, Token.hash_token(decoded)}
+      :error -> :error
+    end
   end
 
   defp refresh_token_insert_tuple(user, scopes, family_id, user_token_schema) do

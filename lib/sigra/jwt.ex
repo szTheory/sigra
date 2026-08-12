@@ -178,11 +178,7 @@ defmodule Sigra.JWT do
     Signer.ensure_joken!()
 
     Telemetry.span([:sigra, :jwt, :refresh], %{}, fn ->
-      if jwt_audit_schema_set?(config) do
-        refresh_with_audit_co_fate(config, raw_refresh_token, opts)
-      else
-        refresh_without_audit_co_fate(config, raw_refresh_token, opts)
-      end
+      refresh_with_locked_lifecycle(config, raw_refresh_token, opts)
     end)
   end
 
@@ -220,130 +216,106 @@ defmodule Sigra.JWT do
     Keyword.get(Map.get(config, :audit, []), :audit_schema) != nil
   end
 
-  defp refresh_without_audit_co_fate(config, raw_refresh_token, opts) do
-    case RefreshToken.rotate_with_reuse_meta(config, raw_refresh_token, opts) do
-      {:ok, new_raw, new_record, scopes} ->
-        finalize_refresh_response(config, new_record, scopes, new_raw)
+  defp refresh_with_locked_lifecycle(config, raw_refresh_token, opts) do
+    multi =
+      Multi.new()
+      |> RefreshToken.build_locked_classify_multi(config, raw_refresh_token, opts)
+      |> Multi.merge(fn %{jwt_refresh_classification: {action, token_record, metadata}} ->
+        Process.put({__MODULE__, :refresh_lifecycle_action}, action)
 
-      {:error, :reuse_detected, %{user_id: user_id, family_id: family_id}} ->
-        Telemetry.event(
-          [:sigra, :jwt, :refresh_reuse_detected],
-          %{count: 1},
-          %{user_id: user_id, family_id: family_id}
+        action
+        |> build_refresh_mutation_multi(config, token_record, metadata, opts)
+        |> append_refresh_audit(config, token_record.user_id, action)
+      end)
+
+    try do
+      case config.repo.transaction(multi) do
+        {:ok, %{jwt_refresh_classification: {:rotate, _token, _metadata}} = changes} ->
+          Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh])
+          {new_raw, new_record, scopes} = changes.jwt_refresh_new_token
+          finalize_refresh_response(config, new_record, scopes, new_raw)
+
+        {:ok, %{jwt_refresh_classification: {:reuse, token_record, metadata}} = changes} ->
+          Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh_reuse])
+          emit_reuse_detected(token_record.user_id, metadata["family_id"])
+          {:error, :reuse_detected}
+
+        {:error, :jwt_refresh_classification, reason, _changes}
+        when reason in [:invalid_token, :token_expired] ->
+          {:error, reason}
+
+        {:error, step, _reason, changes} ->
+          emit_refresh_abort(changes, nil, step)
+          {:error, :jwt_refresh_aborted}
+      end
+    rescue
+      e ->
+        emit_refresh_abort(
+          %{},
+          e,
+          Process.get({__MODULE__, :refresh_lifecycle_action})
         )
 
-        {:error, :reuse_detected}
-
-      {:error, reason} ->
-        {:error, reason}
+        {:error, :jwt_refresh_aborted}
+    after
+      Process.delete({__MODULE__, :refresh_lifecycle_action})
     end
   end
 
-  defp refresh_with_audit_co_fate(config, raw_refresh_token, opts) do
-    case RefreshToken.classify_refresh_token(config, raw_refresh_token, opts) do
-      {:error, reason} ->
-        {:error, reason}
+  defp build_refresh_mutation_multi(:rotate, config, token_record, metadata, opts) do
+    RefreshToken.build_rotate_persist_multi(Multi.new(), token_record, metadata, config, opts)
+  end
 
-      {:ok, :reuse, token_record, metadata} ->
-        user_id = token_record.user_id
-        family_id = metadata["family_id"]
-        reuse_audit_opts = APIToken.jwt_refresh_audit_multi_opts(config, user_id, :reuse)
+  defp build_refresh_mutation_multi(:reuse, config, _token_record, metadata, opts) do
+    RefreshToken.build_revoke_family_multi(Multi.new(), config, metadata["family_id"], opts)
+  end
 
-        multi =
-          Multi.new()
-          |> RefreshToken.build_revoke_family_multi(config, family_id, opts)
-          |> APIToken.append_api_token_jwt_audit_to_multi(
-            "api.jwt_refresh_reuse",
-            reuse_audit_opts
-          )
-
-        try do
-          case config.repo.transaction(multi) do
-            {:ok, changes} ->
-              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh_reuse])
-
-              Telemetry.event(
-                [:sigra, :jwt, :refresh_reuse_detected],
-                %{count: 1},
-                %{user_id: user_id, family_id: family_id}
-              )
-
-              {:error, :reuse_detected}
-
-            {:error, _step, _reason, _changes} ->
-              :telemetry.execute(
-                [:sigra, :audit, :log_safe_error],
-                %{count: 1},
-                %{action: "api.jwt_refresh_reuse", reason: :database_error}
-              )
-
-              {:error, :jwt_refresh_aborted}
-          end
-        rescue
-          e ->
-            reason =
-              if match?(%Ecto.ConstraintError{}, e),
-                do: :constraint_violation,
-                else: :database_error
-
-            :telemetry.execute(
-              [:sigra, :audit, :log_safe_error],
-              %{count: 1},
-              %{action: "api.jwt_refresh_reuse", reason: reason}
-            )
-
-            {:error, :jwt_refresh_aborted}
+  defp append_refresh_audit(multi, config, user_id, action) do
+    if jwt_audit_schema_set?(config) do
+      {audit_action, audit_kind} =
+        case action do
+          :rotate -> {"api.jwt_refresh", :refresh}
+          :reuse -> {"api.jwt_refresh_reuse", :reuse}
         end
 
-      {:ok, :rotate, token_record, metadata} ->
-        user_id = token_record.user_id
-        refresh_audit_opts = APIToken.jwt_refresh_audit_multi_opts(config, user_id, :refresh)
-
-        multi =
-          Multi.new()
-          |> RefreshToken.build_rotate_persist_multi(
-            token_record,
-            metadata,
-            config,
-            opts
-          )
-          |> APIToken.append_api_token_jwt_audit_to_multi(
-            "api.jwt_refresh",
-            refresh_audit_opts
-          )
-
-        try do
-          case config.repo.transaction(multi) do
-            {:ok, changes} ->
-              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh])
-              {new_raw, new_record, scopes} = changes.jwt_refresh_new_token
-              finalize_refresh_response(config, new_record, scopes, new_raw)
-
-            {:error, _step, _reason, _changes} ->
-              :telemetry.execute(
-                [:sigra, :audit, :log_safe_error],
-                %{count: 1},
-                %{action: "api.jwt_refresh", reason: :database_error}
-              )
-
-              {:error, :jwt_refresh_aborted}
-          end
-        rescue
-          e ->
-            reason =
-              if match?(%Ecto.ConstraintError{}, e),
-                do: :constraint_violation,
-                else: :database_error
-
-            :telemetry.execute(
-              [:sigra, :audit, :log_safe_error],
-              %{count: 1},
-              %{action: "api.jwt_refresh", reason: reason}
-            )
-
-            {:error, :jwt_refresh_aborted}
-        end
+      APIToken.append_api_token_jwt_audit_to_multi(
+        multi,
+        audit_action,
+        APIToken.jwt_refresh_audit_multi_opts(config, user_id, audit_kind)
+      )
+    else
+      multi
     end
+  end
+
+  defp emit_reuse_detected(user_id, family_id) do
+    Telemetry.event(
+      [:sigra, :jwt, :refresh_reuse_detected],
+      %{count: 1},
+      %{user_id: user_id, family_id: family_id}
+    )
+  end
+
+  defp emit_refresh_abort(changes, exception, failed_step) do
+    action =
+      case {failed_step, changes[:jwt_refresh_classification]} do
+        {:audit_api_token_jwt_refresh_reuse, _} -> "api.jwt_refresh_reuse"
+        {:jwt_reuse_revoke_family, _} -> "api.jwt_refresh_reuse"
+        {:reuse, _} -> "api.jwt_refresh_reuse"
+        {_, {:reuse, _, _}} -> "api.jwt_refresh_reuse"
+        _ -> "api.jwt_refresh"
+      end
+
+    reason =
+      if match?(%Ecto.ConstraintError{}, exception),
+        do: :constraint_violation,
+        else: :database_error
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: action, reason: reason}
+    )
   end
 
   defp finalize_refresh_response(config, new_record, scopes, new_raw) do
