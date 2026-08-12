@@ -48,6 +48,22 @@ defmodule Sigra.Plug.RequireScopesTest do
       end
 
       assert_raise KeyError, fn -> RequireScopes.init(scopes: ["profile:read"]) end
+
+      assert RequireScopes.init(
+               scopes: ["profile:read"],
+               error_handler: TestErrorHandler,
+               match: :any
+             )[
+               :match
+             ] == :any
+
+      assert_raise ArgumentError, ~r/:match must be :all or :any/, fn ->
+        RequireScopes.init(
+          scopes: ["profile:read"],
+          error_handler: TestErrorHandler,
+          match: :either
+        )
+      end
     end
   end
 

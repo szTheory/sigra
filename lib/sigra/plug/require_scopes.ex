@@ -35,7 +35,8 @@ defmodule Sigra.Plug.RequireScopes do
   @doc """
   Initialize the plug with the given options.
 
-  Validates that `:scopes` is a non-empty list and `:error_handler` is present.
+  Validates that `:scopes` is a non-empty list, `:error_handler` is present,
+  and `:match` is either `:all` or `:any`.
   """
   @doc since: "0.7.0"
   @impl Plug
@@ -47,7 +48,13 @@ defmodule Sigra.Plug.RequireScopes do
     end
 
     _ = Keyword.fetch!(opts, :error_handler)
-    opts
+    match = Keyword.get(opts, :match, :all)
+
+    unless match in [:all, :any] do
+      raise ArgumentError, "RequireScopes :match must be :all or :any"
+    end
+
+    Keyword.put(opts, :match, match)
   end
 
   @doc """
