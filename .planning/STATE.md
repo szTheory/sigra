@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 244
 current_phase_name: PAT and Advanced JWT Truth Repair
-status: executing
-stopped_at: Completed 244-05-PLAN.md
-last_updated: "2026-08-12T23:34:28.969Z"
+status: verifying
+stopped_at: Completed 244-06-PLAN.md
+last_updated: "2026-08-12T23:48:58.765Z"
 last_activity: 2026-08-12
 last_activity_desc: Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 current_plan: 2
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 Phase: 244 of 249 (PAT and Advanced JWT Truth Repair)
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-12 — Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 
-Progress: ░░░░░░░░░░ [█████████░] 91%
+Progress: ░░░░░░░░░░ [██████████] 100%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: ░░░░░░░░░░ [█████████░] 91%
 | Phase 244 P03 | 50min | 2 tasks | 6 files |
 | Phase 244 P04 | 3min | 1 tasks | 5 files |
 | Phase 244 P05 | 16min | 1 tasks | 5 files |
+| Phase 244 P06 | 12min | 1 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Progress: ░░░░░░░░░░ [█████████░] 91%
 - [Phase ?]: Configured audiences match exact scalar or non-empty string-array recipients; optional nbf stays temporal only.
 - [Phase ?]: Generated JWT router options resolve host config at request time to avoid compile-time endpoint access.
 - [Phase ?]: JWT-only hosts install Joken and issue tokens through Sigra.JWT.generate_tokens/4 with generated UserToken storage.
+- [Phase ?]: JWT refresh classification, rotation/reuse revoke, replacement insertion, and optional audit now share one FOR UPDATE transaction; replacement credentials return only after commit.
+- [Phase ?]: JWT-only installation remains API-schema-free and documents only host-policy Auth.JWT issuance.
 
 ### Pending Todos
 
@@ -106,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T23:34:28.963Z
-Stopped at: Completed 244-05-PLAN.md
+Last session: 2026-08-12T23:48:58.759Z
+Stopped at: Completed 244-06-PLAN.md
 Resume file: None

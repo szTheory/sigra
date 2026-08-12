@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 13
+open_count: 14
 waived_count: 0
 fixed_count: 0
-total_count: 13
-last_updated: 2026-08-12T19:55:26.902Z
+total_count: 14
+last_updated: 2026-08-12T23:48:58.301Z
 ---
 
 # Broken Windows Ledger
@@ -28,6 +28,7 @@ last_updated: 2026-08-12T19:55:26.902Z
 | 11 | 243 | unrun-verify | .planning/phases/243-credential-boundary-and-pipeline-foundation/243-02-SUMMARY.md |  | Full MIX_ENV=test mix ci phase gate was not run because local PostgreSQL is unavailable. | open |  | 2026-08-12T19:42:07.759Z |  |
 | 12 | 243 | unrun-verify | test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs |  | Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation. | open |  | 2026-08-12T19:55:26.807Z |  |
 | 13 | 243 | unrun-verify | test/sigra/install/generated_rate_limit_contract_test.exs |  | Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation. | open |  | 2026-08-12T19:55:26.902Z |  |
+| 14 | 244 | unrun-verify | .planning/phases/244-pat-and-advanced-jwt-truth-repair/244-06-SUMMARY.md |  | mix ci remains blocked by six historical Phase 235/236/239 planning-artifact assertions outside Plan 244-06 | open |  | 2026-08-12T23:48:58.301Z |  |
 
 ````json
 [
@@ -185,6 +186,18 @@ last_updated: 2026-08-12T19:55:26.902Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-12T19:55:26.902Z",
+    "resolved_at": null
+  },
+  {
+    "id": 14,
+    "kind": "unrun-verify",
+    "phase": "244",
+    "file": ".planning/phases/244-pat-and-advanced-jwt-truth-repair/244-06-SUMMARY.md",
+    "line": null,
+    "description": "mix ci remains blocked by six historical Phase 235/236/239 planning-artifact assertions outside Plan 244-06",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-12T23:48:58.301Z",
     "resolved_at": null
   }
 ]
