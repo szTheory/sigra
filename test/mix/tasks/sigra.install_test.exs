@@ -188,6 +188,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert String.contains?(content, "def get_user_by_email_and_password(")
       assert String.contains?(content, "def generate_user_session_token(")
       assert String.contains?(content, "def get_user_by_session_token(")
+      refute String.contains?(content, "api_token_schema: MyApp.Accounts.UserAPIToken")
       assert String.contains?(content, "def delete_user_session_token(")
     end
 

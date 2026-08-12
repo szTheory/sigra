@@ -134,7 +134,7 @@ defmodule Mix.Tasks.Sigra.Install do
       repo_module: inspect(repo_module),
       binary_id: Keyword.get(opts, :binary_id, true),
       live: opts[:live],
-      api: opts[:api] || opts[:jwt] || false,
+      api: opts[:api] || false,
       jwt: opts[:jwt] || false,
       organizations?: Keyword.get(opts, :organizations, true),
       passkeys?: Keyword.get(opts, :passkeys, true),

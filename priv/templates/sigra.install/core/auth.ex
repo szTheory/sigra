@@ -617,7 +617,7 @@ defmodule <%= context_module %> do
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
       ],
-<%= if api do %>
+<%= if Keyword.get(binding(), :api, false) do %>
       api_token: [
         api_token_schema: <%= context_module %>.UserAPIToken
       ],
