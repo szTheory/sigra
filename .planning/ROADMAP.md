@@ -30,7 +30,14 @@
   1. An adopter can consult one normative contract to identify whether Sigra, Lockspire, Crosswake, or the host owns each listed identity, session, delegation, runtime, authorization, media, lease, and replay concern.
   2. A host can explicitly select cookie-session, app-session, PAT, or JWT authentication and receives the normal current-user Scope for each supported selection.
   3. Credential metadata remains distinct from the current-user Scope, and an incompatible credential/scope combination is rejected rather than accepted ambiguously.
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 243-01-PLAN.md — Trace PAT authentication through live-user Scope construction and trusted scope enforcement.
+- [ ] 243-02-PLAN.md — Add explicit JWT authentication and the fail-closed app-session Plug foundation.
+- [ ] 243-03-PLAN.md — Load full browser-session users with struct and legacy Scope compatibility.
+- [ ] 243-04-PLAN.md — Convert FetchBearer into a deprecated deterministic compatibility dispatcher.
+- [ ] 243-05-PLAN.md — Ratify and machine-lock the ownership and explicit-pipeline documentation contract.
 
 ### Phase 244: PAT and Advanced JWT Truth Repair
 **Goal**: Adopters can independently generate and safely use the PAT and advanced JWT capabilities Sigra presents.
@@ -101,7 +108,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 243. Credential Boundary and Pipeline Foundation | 0/TBD | Not started | - |
+| 243. Credential Boundary and Pipeline Foundation | 0/5 | Not started | - |
 | 244. PAT and Advanced JWT Truth Repair | 0/TBD | Not started | - |
 | 245. Opaque App-Session Core | 0/TBD | Not started | - |
 | 246. Hosted and Direct Login Ceremonies | 0/TBD | Not started | - |
