@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 10
+open_count: 11
 waived_count: 0
 fixed_count: 0
-total_count: 10
-last_updated: 2026-08-12T15:18:32.959Z
+total_count: 11
+last_updated: 2026-08-12T19:42:07.759Z
 ---
 
 # Broken Windows Ledger
@@ -25,6 +25,7 @@ last_updated: 2026-08-12T15:18:32.959Z
 | 8 | 240.3 | unrun-verify | test/example/lib/example_web/live/settings_live.ex | 133 | Example mix precommit remains blocked by the pre-existing /dev/mailbox verified-route warning under warnings-as-errors. | open |  | 2026-08-11T17:48:03.211Z |  |
 | 9 | 242 | deviation | test/example/accounts/crosswake_continuations_test.exs | 224 | Pre-existing residual terminal continuation rows prevent the aggregate cleanup-count assertion from passing in the shared local test database. | open |  | 2026-08-12T03:03:08.571Z |  |
 | 10 | 242 | deviation | scripts/db/up.sh |  | Restored the repository-managed isolated local test database before the focused Crosswake verification.  | open |  | 2026-08-12T15:18:32.959Z |  |
+| 11 | 243 | unrun-verify | .planning/phases/243-credential-boundary-and-pipeline-foundation/243-02-SUMMARY.md |  | Full MIX_ENV=test mix ci phase gate was not run because local PostgreSQL is unavailable. | open |  | 2026-08-12T19:42:07.759Z |  |
 
 ````json
 [
@@ -146,6 +147,18 @@ last_updated: 2026-08-12T15:18:32.959Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-12T15:18:32.959Z",
+    "resolved_at": null
+  },
+  {
+    "id": 11,
+    "kind": "unrun-verify",
+    "phase": "243",
+    "file": ".planning/phases/243-credential-boundary-and-pipeline-foundation/243-02-SUMMARY.md",
+    "line": null,
+    "description": "Full MIX_ENV=test mix ci phase gate was not run because local PostgreSQL is unavailable.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-12T19:42:07.759Z",
     "resolved_at": null
   }
 ]
