@@ -76,4 +76,11 @@ defmodule Sigra.CredentialBoundaryDocsTest do
     assert String.contains?(api, "{:ok, raw, token} ->")
     refute String.contains?(api, "{:ok, %{raw_token: raw, token: token}} ->")
   end
+
+  test "JWT reuse example relies on refresh-family revocation" do
+    api = read(@api_path)
+
+    assert String.contains?(api, "has already revoked the reused token family")
+    refute String.contains?(api, "Sigra.Auth.revoke_all_api_tokens(config, user)")
+  end
 end

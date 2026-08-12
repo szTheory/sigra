@@ -243,15 +243,14 @@ JWT is opt-in for stateless scenarios (cross-service auth, mobile apps that want
 
       {:error, :reuse_detected} ->
         # Attempted reuse of an already-rotated refresh token → possible theft
-        # Revoke the whole family and force re-login
-        Sigra.Auth.revoke_all_api_tokens(config, user)
+        # Sigra.Auth.refresh_jwt/2 has already revoked the reused token family.
         send_resp(conn, 401, "Reuse detected")
 
       {:error, reason} ->
         send_resp(conn, 401, inspect(reason))
     end
 
-**Reuse detection** is critical: if someone steals a refresh token and the legitimate user rotates it, the next attempted use of the stolen token triggers `:reuse_detected` and the whole family is revoked.
+**Reuse detection** is critical: if someone steals a refresh token and the legitimate user rotates it, the next attempted use of the stolen token triggers `:reuse_detected`. `Sigra.Auth.refresh_jwt/2` has already revoked the whole token family before returning that error. Resolve the user explicitly before taking any additional, application-specific action.
 
 ## Compatibility migration
 
