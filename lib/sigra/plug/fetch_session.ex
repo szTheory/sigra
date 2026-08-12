@@ -50,6 +50,8 @@ defmodule Sigra.Plug.FetchSession do
   @doc since: "0.4.0"
   @impl Plug
   def init(opts) do
+    _ = Keyword.fetch!(opts, :config)
+    _ = Keyword.fetch!(opts, :scope_module)
     user_cookie_opts = Keyword.get(opts, :cookie_opts, [])
     merged_cookie_opts = Keyword.merge(@default_cookie_opts, user_cookie_opts)
     Keyword.put(opts, :cookie_opts, merged_cookie_opts)

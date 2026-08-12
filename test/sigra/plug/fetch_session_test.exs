@@ -75,6 +75,11 @@ defmodule Sigra.Plug.FetchSessionTest do
       opts = FetchSession.init(@default_opts ++ [cookie_opts: [secure: false]])
       assert opts[:cookie_opts][:secure] == false
     end
+
+    test "requires config and scope_module during router initialization" do
+      assert_raise KeyError, fn -> FetchSession.init(scope_module: MockScopeModule) end
+      assert_raise KeyError, fn -> FetchSession.init(config: @default_config) end
+    end
   end
 
   describe "call/2 — session fetch and scope assignment" do
