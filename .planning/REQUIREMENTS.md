@@ -8,7 +8,7 @@
 ### Product and Credential Boundaries
 
 - [ ] **BOUND-01**: A Phoenix adopter can determine from one normative contract whether Sigra, Lockspire, Crosswake, or the host owns each identity, session, delegation, runtime, authorization, media, lease, and replay concern.
-- [ ] **API-01**: A host can select explicit cookie-session, app-session, personal-access-token, or JWT authentication pipelines that load the normal current user Scope while keeping credential metadata separate and failing closed for incompatible scope checks.
+- [x] **API-01**: A host can select explicit cookie-session, app-session, personal-access-token, or JWT authentication pipelines that load the normal current user Scope while keeping credential metadata separate and failing closed for incompatible scope checks.
 
 ### Personal Access Tokens and JWT
 
@@ -66,7 +66,7 @@
 | Requirement | Phase | Status |
 |---|---:|---|
 | BOUND-01 | Phase 243 | Pending |
-| API-01 | Phase 243 | Pending |
+| API-01 | Phase 243 | Complete |
 | PAT-01 | Phase 244 | Pending |
 | PAT-02 | Phase 244 | Pending |
 | JWT-01 | Phase 244 | Pending |
@@ -86,6 +86,7 @@
 | EVID-01 | Phase 249 | Pending |
 
 **Coverage:**
+
 - v1.49 requirements: 19 total
 - Mapped to phases: 19
 - Unmapped: 0 ✓

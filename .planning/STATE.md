@@ -2,15 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
-status: planning
-last_updated: "2026-08-12T17:51:22.945Z"
+current_phase: 243
+current_phase_name: Credential Boundary and Pipeline Foundation
+current_plan: 2
+status: in_progress
+stopped_at: Completed 243-01-PLAN.md
+last_updated: "2026-08-12T19:37:15.655Z"
 last_activity: 2026-08-12
+last_activity_desc: v1.49 roadmap created with 19/19 requirements mapped.
 progress:
-  total_phases: 7
+  total_phases: 1
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 5
+  completed_plans: 1
 ---
 
 # Project State
@@ -26,24 +30,30 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 243 of 249 (Credential Boundary and Pipeline Foundation)
-Plan: —
-Status: Ready to plan
-Last activity: 2026-08-12 — v1.49 roadmap created with 19/19 requirements mapped.
+Plan: 02 of 05
+Status: In progress
+Last activity: 2026-08-12 — Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ░░░░░░░░░░ [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: —
+
+- Total plans completed: 1
+- Average duration: 4min
+- Total execution time: 4min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 243–249 | 0 | — | — |
+| 243–249 | 1 | 4min | 4min |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 243-credential-boundary-and-pipeline-foundation P01 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -54,6 +64,8 @@ Progress: ░░░░░░░░░░ 0%
 - Native login is system-browser PKCE by default. Direct password/MFA login is separately opt-in; no generated password-to-JWT endpoint or client-selected authority.
 - The language-learning twin is intentionally bounded: account-isolated, lease-limited media and replay proof, not a generic offline framework or published SDK.
 - Platform claims must identify their evidence class (contract, emulator, or physical device) and fail closed when required proof is absent.
+- [Phase ?]: Explicit PAT verification reloads the live user and stores only bounded private credential facts.
+- [Phase ?]: RequireScopes authorizes only verified PAT/JWT metadata, never Scope-shaped fields or session identity.
 
 ### Pending Todos
 
@@ -71,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12
-Stopped at: Roadmap complete; Phase 243 is ready for planning.
+Last session: 2026-08-12T19:37:15.647Z
+Stopped at: Completed 243-01-PLAN.md
 Resume file: None
