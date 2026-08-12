@@ -152,7 +152,7 @@ test/sigra/planning/
 </.form>
 ```
 
-The `action` is the key regular-HTTP contract and the non-GET action-bearing form receives Phoenix's CSRF token; the exact accessible wording and placement remain discretionary. [CITED: https://phoenix-live-view.hexdocs.pm/Phoenix.Component.html]
+The `action` is the key regular-HTTP contract and the non-GET action-bearing form receives Phoenix's CSRF token. The selected fourth quick-action placement and exact `Continue to Crosswake` label are resolved below. [CITED: https://phoenix-live-view.hexdocs.pm/Phoenix.Component.html]
 
 ### Pattern 2: Pre-register navigation observers, then click the visible control
 
@@ -274,14 +274,13 @@ Sources: [Phoenix.Component documentation](https://phoenix-live-view.hexdocs.pm/
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | A fourth quick-action panel is the smallest and most coherent placement for the named Crosswake control. | Open Questions | Low — planner may instead choose a dedicated Tasklane panel without affecting protocol or test contracts. |
+| A1 | A fourth quick-action panel is the selected placement for the named Crosswake control. | Open Questions (RESOLVED) | Resolved — implement the fourth panel with the exact `Continue to Crosswake` label. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact visible label and placement**
+1. **RESOLVED — exact visible label and placement**
    - What we know: the button must be obvious, accessible, and Tasklane-consistent; the account hub already has a three-item quick-actions grid. [VERIFIED: 242-CONTEXT.md; VERIFIED: codebase grep]
-   - What's unclear: whether maintaining a symmetrical grid is preferred to a dedicated Crosswake action panel.
-   - Recommendation: add it as a fourth quick-action panel with a unique `Continue to Crosswake` button; this is the smallest visible extension and keeps the affordance on the primary account action surface. [ASSUMED]
+   - Resolution: add it as the fourth quick-action panel with the exact visible and accessible button label `Continue to Crosswake`; this keeps the affordance on the primary account action surface. [RESOLVED]
 
 ## Environment Availability
 
