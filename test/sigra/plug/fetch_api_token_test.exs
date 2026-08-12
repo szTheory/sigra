@@ -25,7 +25,16 @@ defmodule Sigra.Plug.FetchAPITokenTest do
 
   test "a valid PAT loads its current user into a normal Scope and stores exact trusted facts" do
     raw_token = "test_app_sk_secret"
-    token = %{id: "pat-1", user_id: "user-1", scopes: ["profile:read"], revoked_at: nil, expires_at: nil}
+
+    token = %{
+      id: "pat-1",
+      user_id: "user-1",
+      scopes: ["profile:read"],
+      revoked_at: nil,
+      expires_at: nil,
+      last_used_at: nil
+    }
+
     user = %Sigra.TestUser{id: "user-1"}
 
     expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> token end)
@@ -53,7 +62,12 @@ defmodule Sigra.Plug.FetchAPITokenTest do
   test "missing, malformed, invalid, and deleted-user PATs assign nil without credential facts" do
     for authorization <- [nil, "Basic nope"] do
       conn = conn(:get, "/api/resource")
-      conn = if authorization, do: Plug.Conn.put_req_header(conn, "authorization", authorization), else: conn
+
+      conn =
+        if authorization,
+          do: Plug.Conn.put_req_header(conn, "authorization", authorization),
+          else: conn
+
       result = FetchAPIToken.call(conn, opts())
       assert result.assigns.current_scope == nil
       refute Map.has_key?(result.private, :sigra_auth)
@@ -62,7 +76,14 @@ defmodule Sigra.Plug.FetchAPITokenTest do
     expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> nil end)
 
     expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash ->
-      %{id: "pat-2", user_id: "gone", scopes: [], revoked_at: nil, expires_at: nil}
+      %{
+        id: "pat-2",
+        user_id: "gone",
+        scopes: [],
+        revoked_at: nil,
+        expires_at: nil,
+        last_used_at: nil
+      }
     end)
 
     expect(Sigra.MockRepo, :get, fn Sigra.TestUser, "gone" -> nil end)
