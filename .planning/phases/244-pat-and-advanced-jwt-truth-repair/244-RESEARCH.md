@@ -301,18 +301,14 @@ Return the same not-found outcome for another user’s ID; do not disclose owner
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | A new dedicated browser PAT controller/template is preferable to adapting the existing JSON controller. | File Map | Low — discretionary presentation/module boundary; security routing and ownership are locked. |
-| A2 | The replacement access JWT should be signed after refresh persistence commits. | Pattern 3 | Medium — avoids returning credentials on transaction failure, but planner should select the exact error/atomicity posture for signer failure. |
+| A1 | Adapt the existing generated PAT controller and bounded response conventions, while moving it to the browser/authenticated/sudo route boundary. | File Map | RESOLVED by Plan 03 — avoids a second presentation surface while real-router integration proves the security boundary. |
+| A2 | Sign the replacement access JWT only after refresh persistence commits. | Pattern 3 | RESOLVED by Plan 06 — transaction failure returns no access or refresh replacement credential. |
 
-## Open Questions
+## Resolved Questions
 
-1. **Which generated PAT presentation should be emitted?**
-   - What we know: the current template is JSON/bearer CRUD, but locked decisions require browser/session/CSRF/sudo operations. [VERIFIED: `api_token_controller.ex`, locked D-03]
-   - Recommendation: use a conventional controller + HTML/LiveView only if existing generator conventions make it low-risk; preserve deterministic browser tests and design-system constraints if UI is added. [ASSUMED]
+1. **RESOLVED — generated PAT presentation:** Plan 03 keeps the existing conventional generated `APITokenController` and bounded response conventions, moves its list/create/revoke routes onto the browser + authenticated + `RequireSudo` pipeline, and proves the real generated endpoint/router/controller behavior with CSRF and unchanged-row rejection checks. No LiveView or new admin UI is introduced. [DECIDED: Plan 03; locked D-03/D-04/D-05]
 
-2. **Where should accepted JWT audiences be normalized?**
-   - What we know: D-09 permits config-validation or setup-time normalization but requires malformed config to fail before serving. [VERIFIED: locked context]
-   - Recommendation: validate non-empty `:audiences` as a list of non-empty unique binaries in `Sigra.Config.new!/1`, then consume the normalized list in JWT code. [ASSUMED]
+2. **RESOLVED — accepted JWT audience normalization:** Plan 04 validates and normalizes a non-empty list of non-empty unique audience binaries in `Sigra.Config.new!/1`, so malformed configuration fails before traffic is served; JWT issuance and verification consume that normalized list. [DECIDED: Plan 04; locked D-09]
 
 ## Environment Availability
 
