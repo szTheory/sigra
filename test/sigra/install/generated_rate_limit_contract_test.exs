@@ -72,6 +72,7 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     assert_contains!(core, "pipeline :\#{pipeline}", "generated rate-limit pipeline")
     assert_contains!(core, "limit_config_key", "request-time rate-limit configuration")
     assert_contains!(core, "window_config_key", "request-time rate-limit configuration")
+
     assert_contains!(
       smoke,
       "run_leg \"--no-admin --no-organizations --no-passkeys\" \"sigra_b2c_alpha\"",
@@ -83,6 +84,7 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
       "run_leg \"--no-admin --no-organizations --no-passkeys --no-live\" \"sigra_b2c_controller\"",
       "controller-router generated-host compile lane"
     )
+
     assert_contains!(smoke, "mix compile --warnings-as-errors", "controller-router compilation")
     assert_contains!(runtime, "mix sigra.install", "LiveView generated-host lane")
 
@@ -183,6 +185,7 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     {branch_at, _} = :binary.match(smoke, controller_branch)
     controller_branch_source = binary_part(smoke, branch_at, byte_size(smoke) - branch_at)
     {migration_at, _} = :binary.match(controller_branch_source, "MIX_ENV=test mix ecto.migrate")
+
     {probe_at, _} =
       :binary.match(
         controller_branch_source,
@@ -192,7 +195,11 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     assert branch_at && migration_at && probe_at && migration_at < probe_at,
            "the controller probe must remain after the generated test migration in its controller-only branch"
 
-    assert_contains!(smoke, "SIGRA_PASSKEYS_OPT_OUT_LEG=\"${SIGRA_PASSKEYS_OPT_OUT_LEG:-all}\"", "focused-leg default")
+    assert_contains!(
+      smoke,
+      "SIGRA_PASSKEYS_OPT_OUT_LEG=\"${SIGRA_PASSKEYS_OPT_OUT_LEG:-all}\"",
+      "focused-leg default"
+    )
 
     for label <- [
           "all",
@@ -216,7 +223,11 @@ defmodule Sigra.Install.GeneratedRateLimitContractTest do
     end
 
     for action <- ["disable", "regenerate", "revoke_trust", "enroll", "confirm", "complete"] do
-      assert_contains!(controller, "def #{action}(conn, _params), do: unavailable(conn)", "controller MFA mutation deferral")
+      assert_contains!(
+        controller,
+        "def #{action}(conn, _params), do: unavailable(conn)",
+        "controller MFA mutation deferral"
+      )
     end
 
     refute Regex.match?(~r/\bsleep\b|waitForTimeout|Process\.sleep/, smoke),

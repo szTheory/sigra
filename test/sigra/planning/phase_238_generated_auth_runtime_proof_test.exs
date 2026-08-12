@@ -162,15 +162,24 @@ defmodule Sigra.Planning.Phase238GeneratedAuthRuntimeProofTest do
       assert_contains!(reset_password_live, marker, "generated reset-token revalidation")
     end
 
-    for {source, name} <- [{journey, "complete generated-auth journey"}, {oauth_probe, "OAuth probe"}] do
+    for {source, name} <- [
+          {journey, "complete generated-auth journey"},
+          {oauth_probe, "OAuth probe"}
+        ] do
       refute Regex.match?(~r/\b(?:clearCookies|addCookies|storageState)\s*\(/, source),
              "#{name} must not mutate browser cookie or storage state"
 
-      refute Regex.match?(~r/\b(?:localStorage|sessionStorage)\s*\.\s*(?:clear|setItem|removeItem)\s*\(/, source),
+      refute Regex.match?(
+               ~r/\b(?:localStorage|sessionStorage)\s*\.\s*(?:clear|setItem|removeItem)\s*\(/,
+               source
+             ),
              "#{name} must not mutate browser Web Storage"
     end
 
-    for {source, name} <- [{journey, "complete generated-auth journey"}, {oauth_probe, "OAuth probe"}] do
+    for {source, name} <- [
+          {journey, "complete generated-auth journey"},
+          {oauth_probe, "OAuth probe"}
+        ] do
       refute String.contains?(source, "page.waitForTimeout"),
              "#{name} must not use timing sleeps"
 
