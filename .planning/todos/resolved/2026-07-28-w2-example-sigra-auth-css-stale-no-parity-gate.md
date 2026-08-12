@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 238 and current installer parity contracts
 title: Example sigra_auth.css never received the v1.46 stylesheet, and no parity gate exists
 area: auth-ui
 severity: medium

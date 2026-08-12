@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 231
 title: "generated_admin_playwright_smoke is skipped on every real PR by a stale head_ref gate, and ci-gate counts skipped as pass — so generated-host parity is verified on no PR at all while the gate reports green"
 area: ci
 files:

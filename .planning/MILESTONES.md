@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.48 B2C-ALPHA-READINESS (Shipped: 2026-08-12)
+
+**Phases completed:** 9 phases, 38 plans, 34 tasks
+
+**Delivered:** A credential-free, mechanically proven canonical B2C Phoenix profile with Google OAuth, complete email-auth browser/accessibility journeys, generated rate limiting, controller-host coverage, and fail-closed Crosswake session interop.
+
+**Closeout:** `verified_closeout` — 10/10 requirements, 9/9 phase verifications, 4/4 critical flows, and a zero-item open-artifact audit after reconciliation.
+
+**Key accomplishments:**
+
+- Canonical `--no-admin --no-organizations --no-passkeys` generation now proves install, assets, migration, warning-free compile, boot, Google OAuth output, and disabled-feature absence.
+- A fresh generated-host browser suite proves registration, confirmation, password sign-in/logout, magic links, reset completion, Google collision behavior, accessibility, semantic DOM integrity, and active-session revocation without external credentials.
+- Generated hosts now own explicit Hammer rate limits and have separate LiveView and controller-mode compile/boot/render proof.
+- The personal SIGRA-to-Crosswake boundary freshly resolves canonical session authority and fails closed on expiry, revocation, replay, subject switching, or authority smuggling.
+- One-time digest-addressed continuations, encrypted HttpOnly verifier transport, no-referrer callback policy, and a real cookie-jar Chromium journey prove the hosted return flow.
+- A provider-neutral launch checklist keeps real Google, transactional-email, and physical-iPhone evidence as adopter-host gates rather than overstating library CI.
+
+---
+
 ## v1.38 BRAND-V2 Roadmap (Backfilled: 2026-08-05)
 
 **Note:** Synthesized from archive snapshot by `$gsd-health --backfill`. Original completion date unknown.

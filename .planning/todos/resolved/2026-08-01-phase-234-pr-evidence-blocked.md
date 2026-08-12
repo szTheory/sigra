@@ -1,6 +1,8 @@
 ---
 title: "Phase 234 PR parity receipt blocked by failed aggregate and GitHub API rate limit"
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 236
 severity: high
 phase: 234
 created: 2026-08-01

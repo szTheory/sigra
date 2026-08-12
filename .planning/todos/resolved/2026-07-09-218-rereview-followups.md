@@ -1,5 +1,8 @@
 ---
 created: 2026-07-09
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 221
 source: 218-REVIEW.md (gap-closure re-review)
 resolves_phase: 221
 severity: warning

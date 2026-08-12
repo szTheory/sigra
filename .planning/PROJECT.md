@@ -8,16 +8,22 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.48 B2C-ALPHA-READINESS
+## Latest Shipped Milestone: v1.48 B2C-ALPHA-READINESS
 
-**Goal:** Make the canonical single-user Phoenix authentication profile trustworthy for a first B2C adopter, including Google OAuth, hosted iPhone session return, and fail-closed Crosswake interop.
+**Shipped:** 2026-08-12 — 9 phases, 38 plans, 34 tasks; 10/10 requirements and all phase verifications passed.
 
-**Target features:**
+**Delivered:**
 - Fresh-host proof for `--no-admin --no-organizations --no-passkeys` plus Google OAuth.
 - Rendered generated-auth browser and accessibility proof for the selected email and OAuth journeys.
 - Personal-account SIGRA-to-Crosswake session contract and a provider-neutral launch rehearsal.
 
+## Next Milestone Goals
+
+Planning next milestone. Re-rank the deferred ledger against adopter demand and security/trust impact before promoting work. The strongest candidates are the passkey-primary duplicate-ID/label composition, the remaining generated-host/admin-audit proof gaps, and operator-owned Hex `1.20.0` retirement; none is implicitly committed to scope.
+
 ## Current State
+
+**Milestone v1.48 B2C-ALPHA-READINESS shipped and archived (2026-08-12).** The canonical `--no-admin --no-organizations --no-passkeys` Phoenix host now has credential-free generated-host, Google OAuth, full email-auth browser, accessibility, rate-limit, controller-mode, and fail-closed Crosswake runtime proof. All 10 requirements and all nine phase verifications passed. Non-blocking controller/passkey and continuation-cleanup work remains in the deferred ledger rather than being claimed as delivered.
 
 **Phase 242 rendered Crosswake start control complete (2026-08-12).**
 Authenticated example-host users can now initiate the existing Crosswake flow
@@ -1187,3 +1193,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-10 — Phase **240.2 Controller Generated-Host Compile Proof** complete (1/1 plan; verifier 6/6, status passed). The canonical smoke now proves a distinct credential-free `--no-live` B2C host through warning-free compile, migration, boot, and bounded readiness without changing the LiveView proof lane.*
 
 *Last updated: 2026-08-11 — Phase **241 Controller MFA Settings Rendering Repair** complete (1/1 plan; verifier 4/4, status passed). Fresh generated controller-mode hosts now render the protected MFA settings GET through their emitted `MFASettingsHTML` module, with deterministic route evidence and no LiveView or mutation expansion.*
+
+*Last updated: 2026-08-12 after v1.48 B2C-ALPHA-READINESS milestone — shipped and archived with 10/10 requirements, 9/9 phase verifications, and a zero-item open-artifact audit. Fresh requirements will be defined by `$gsd-new-milestone`; phases continue after 242.*

@@ -1,6 +1,8 @@
 ---
 created: 2026-06-20T20:30:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 232
 title: Make Playwright way faster — per-shard DB isolation to unlock true parallelism
 area: ci
 files:

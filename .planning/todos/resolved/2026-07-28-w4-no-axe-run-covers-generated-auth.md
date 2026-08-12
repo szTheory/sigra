@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 238
 title: No axe accessibility run touches any sigra-auth-* surface
 area: auth-ui
 severity: medium

@@ -1,6 +1,8 @@
 ---
 created: 2026-07-10T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 221 Plan 04
 resolves_phase: 223
 title: Publish v1.2.0/v1.3.0 to Hex — one-time break of the upgrade-smoke chicken-and-egg (self-heals)
 area: release

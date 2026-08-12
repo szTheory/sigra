@@ -1,7 +1,12 @@
+---
+status: addressed_with_residual
+resolved: 2026-08-12
+resolution: "Audit executed and remediation delivered in Phases 230-235; FAST-01's measured miss remains in the deferred ledger."
+---
+
 # SEED-005 — CI/CD Pipeline Performance Audit (reduce ~17–30 min PR wall-clock)
 
-**Status:** OPEN — future milestone candidate. Filed 2026-06-18 during the v1.39
-DS-COHERENCE + Docker DX ship (PR #54).
+**Status:** ADDRESSED WITH RESIDUAL — the audit and remediation sequence were completed; the measured FAST-01 miss remains separately tracked.
 **Priority:** Medium-High — pure DX / PR-feedback latency, **not** a correctness bug. CI is
 green and trustworthy; it is just slow. Schedule as a "Maintenance / trust (CI / DX)" lane
 milestone, not a hotfix.

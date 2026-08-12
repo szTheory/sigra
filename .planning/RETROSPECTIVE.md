@@ -1013,6 +1013,49 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 ---
 
+## Milestone: v1.48 — B2C-ALPHA-READINESS
+
+**Shipped:** 2026-08-12
+**Phases:** 9 | **Plans:** 38 | **Tasks:** 34
+
+### What Was Built
+
+- A fresh canonical `--no-admin --no-organizations --no-passkeys` host that installs, migrates, builds, compiles warning-free, boots, and adds Google OAuth without disabled-feature residue.
+- Credential-free rendered registration, confirmation, password, magic-link, reset, Google-collision, accessibility, and session-revocation proof.
+- A fail-closed personal-account Crosswake boundary with one-time digest-addressed continuations, encrypted verifier transport, fresh session binding, and a role-driven Chromium return journey.
+- Generated Hammer rate limiting, controller-mode compile/render proof, and a provider-neutral launch checklist separating CI evidence from adopter-host Google/email/iPhone gates.
+
+### What Worked
+
+- Gap-closure phases retained the original requirement IDs, so every repair remained traceable to the same milestone contract.
+- Exact-SHA, receipt-last browser/runtime evidence prevented successful source checks from being mistaken for a proven hosted journey.
+- The milestone audit cleanly separated complete scoped requirements from non-blocking controller/passkey and production-operations debt.
+
+### What Was Inefficient
+
+- Open-artifact scanning treated a resolved knowledge-base index, missing summaries for already-shipped quick tasks, dormant seeds, and unrelated historical backlog as active closeout work.
+- Historical Phase 234/236 planning tests encode old live-file assumptions and fail once later milestones replace requirements or carry an intentionally dirty planning worktree.
+- The CLI accomplishment collector included intermediate and stale one-liners, requiring manual curation at archive time.
+
+### Patterns Established
+
+- Keep generated-host provider proof credential-free with deterministic local doubles; reserve real provider/device claims for adopter-host launch evidence.
+- Keep continuation authority server-side, one-time, digest-addressed, and bound to freshly resolved canonical session facts.
+- Reconcile stale planning artifacts by distinguishing delivered, deferred, and false-positive states rather than widening milestone scope.
+
+### Key Lessons
+
+- Archive gates need terminal metadata for knowledge bases and abandoned quick tasks, not directory-shape inference alone.
+- A passing milestone can carry explicit operational debt without weakening requirement or flow claims when the boundary is documented and machine-verified.
+
+### Cost Observations
+
+- Model mix: not instrumented.
+- Sessions: not instrumented.
+- Notable: the largest cost was repeated fresh-host/runtime proof; shared deterministic harnesses made that evidence reusable across closure phases.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process evolution

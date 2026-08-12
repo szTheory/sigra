@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 231 Plan 03
 title: "HARD-02's loud-failure signal never worked — notify-failure-issue.sh died because the release-lane-rot GitHub label did not exist, so zero tracking issues were ever created"
 area: release
 files:

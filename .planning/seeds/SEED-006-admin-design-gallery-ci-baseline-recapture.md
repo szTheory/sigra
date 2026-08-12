@@ -1,7 +1,12 @@
+---
+status: resolved
+resolved: 2026-08-12
+resolution: "Phase 197 delivered deterministic fonts, CI-native recapture, and a restored hard gallery gate; Phase 234 reconfirmed the receipt."
+---
+
 # SEED-006 — Re-gate the admin-design gallery: deterministic CI fonts + in-CI baseline recapture
 
-**Status:** OPEN (follow-up). Filed 2026-06-19 on the v1.39 ship (PR #54), immediately
-after demoting the gallery step to non-blocking.
+**Status:** RESOLVED. Phase 197 delivered the corrected remediation and Phase 234 reconfirmed the current gallery receipt.
 **Priority:** Medium — restores a real visual gate that is currently `continue-on-error`.
 Not a correctness bug in shipped library code; it is test-infra/baseline drift.
 

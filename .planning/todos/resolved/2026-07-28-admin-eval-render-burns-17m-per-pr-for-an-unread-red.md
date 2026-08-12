@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 230
 title: "admin_eval_render burns ~17m on every PR to produce a red artifact that nothing reads, and its first-phase failure means the harness guards b1-b6 have never executed in CI"
 area: ci
 files:

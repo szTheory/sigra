@@ -1,6 +1,12 @@
+---
+status: resolved
+resolved: 2026-08-12
+resolution: "CI and generated-host proof now pin and pass phx_new 1.8.8 under warnings-as-errors."
+---
+
 # SEED-004 — Forward-compat with phx.new ≥ 1.8.8 `<.button>` (type attr dropped)
 
-**Status:** OPEN (follow-up). Filed 2026-06-13 on v1.38-brand-v2 / PR #52.
+**Status:** RESOLVED. The generated-host and install/golden lanes now use `phx_new 1.8.8` and compile under warnings-as-errors.
 **Priority:** Medium — real DX bug for new adopters on latest Phoenix, but worked around for CI.
 
 ## Problem

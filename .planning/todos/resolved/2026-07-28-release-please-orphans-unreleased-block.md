@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: quick task 260728-glj
 title: Release Please orphans the hand-written `## Unreleased` block at every release — notes ship inside a released Hex package still labelled "Unreleased"
 area: release
 files:

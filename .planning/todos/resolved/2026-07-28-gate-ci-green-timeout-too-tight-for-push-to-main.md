@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-08-12
+resolved_by: Phase 231
 title: "gate-ci-green's 30-minute polling ceiling is shorter than the push-to-main CI run it waits for, so it times out on a green release and blocks the automated Hex publish"
 area: release
 files:
