@@ -554,7 +554,7 @@ defmodule Sigra.Install.Features.CoreTest do
       markers = Enum.map(injections, & &1.marker)
 
       assert "# Sigra JWT" in markers
-      assert "jwt:" in markers
+      assert "# Sigra JWT configuration" in markers
       refute "# Sigra API" in markers
       refute "api_token:" in markers
     end
