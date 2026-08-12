@@ -128,7 +128,7 @@ On the settings page, a user clicks "Create API token," names it, and picks scop
       config = MyApp.Auth.sigra_config()
 
       case Sigra.Auth.create_api_token(config, user, %{name: name, scopes: scopes}) do
-        {:ok, %{raw_token: raw, token: token}} ->
+        {:ok, raw, token} ->
           {:noreply, assign(socket, raw_token: raw, token: token, step: :show_raw)}
 
         {:error, changeset} ->

@@ -69,4 +69,11 @@ defmodule Sigra.CredentialBoundaryDocsTest do
       assert String.contains?(lockspire, marker), "Lockspire recipe missing #{inspect(marker)}"
     end
   end
+
+  test "API-token creation example matches the public success tuple" do
+    api = read(@api_path)
+
+    assert String.contains?(api, "{:ok, raw, token} ->")
+    refute String.contains?(api, "{:ok, %{raw_token: raw, token: token}} ->")
+  end
 end
