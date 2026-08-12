@@ -125,7 +125,12 @@ defmodule ExampleWeb.AppLive do
             <p class="vt-kicker">Crosswake</p>
             <h2 class="vt-panel__title">Continue to Crosswake</h2>
             <p class="vt-copy">Continue securely with your Tasklane account.</p>
-            <.form for={%{}} action={~p"/crosswake/start"} method="post" data-testid="app-crosswake-start">
+            <.form
+              for={%{}}
+              action={~p"/crosswake/start"}
+              method="post"
+              data-testid="app-crosswake-start"
+            >
               <button type="submit" class="vt-btn vt-btn--primary">Continue to Crosswake</button>
             </.form>
           </div>

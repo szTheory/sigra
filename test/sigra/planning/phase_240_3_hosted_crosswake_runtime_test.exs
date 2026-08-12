@@ -106,7 +106,11 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
       {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
       assert status != 0
 
-      {_, 0} = System.cmd("git", ["-C", root, "restore", "--staged", "runtime.txt"], stderr_to_stdout: true)
+      {_, 0} =
+        System.cmd("git", ["-C", root, "restore", "--staged", "runtime.txt"],
+          stderr_to_stdout: true
+        )
+
       {_, 0} = System.cmd("git", ["-C", root, "restore", "runtime.txt"], stderr_to_stdout: true)
       File.write!(Path.join(root, "untracked.txt"), "dirty\n")
       {_, status} = helper_command("bind_clean_worktree_sha", root, evidence)
@@ -123,9 +127,19 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
       File.rm!(Path.join(root, evidence <> ".bak"))
 
       {_, 0} = System.cmd("git", ["-C", root, "restore", evidence], stderr_to_stdout: true)
-      {_, 0} = System.cmd("git", ["-C", root, "rm", "--cached", "--quiet", evidence], stderr_to_stdout: true)
+
+      {_, 0} =
+        System.cmd("git", ["-C", root, "rm", "--cached", "--quiet", evidence],
+          stderr_to_stdout: true
+        )
+
       File.rm!(Path.join(root, evidence))
-      {_, 0} = System.cmd("git", ["-C", root, "commit", "--quiet", "-m", "remove receipt fixture"], stderr_to_stdout: true)
+
+      {_, 0} =
+        System.cmd("git", ["-C", root, "commit", "--quiet", "-m", "remove receipt fixture"],
+          stderr_to_stdout: true
+        )
+
       File.write!(Path.join(root, evidence), "new receipt\n")
       {_, 0} = helper_command("bind_clean_worktree_sha", root, evidence)
 
@@ -220,12 +234,15 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
     end
 
     refute Regex.match?(~r/phx-(?:submit|click|change)\s*=/, app_live),
-             "Crosswake start must remain an ordinary controller POST"
+           "Crosswake start must remain an ordinary controller POST"
 
     assert browser_test =~ "hosted Crosswake local return preserves the real cookie jar"
     assert browser_test =~ "page.waitForRequest"
     assert browser_test =~ "page.getByRole('button', { name: 'Continue to Crosswake' }).click()"
-    assert browser_test =~ "expect([...returnUrl.searchParams.keys()].sort()).toEqual(['continuation', 'state']);"
+
+    assert browser_test =~
+             "expect([...returnUrl.searchParams.keys()].sort()).toEqual(['continuation', 'state']);"
+
     assert browser_test =~ "expect(appNavigation.headers()['referer']).toBeUndefined();"
     assert browser_test =~ "await expect(page).toHaveURL(/\\/app$/);"
     assert browser_test =~ "pkce_verifier"
@@ -345,7 +362,10 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
              index!(main_runner, "write_evidence\n")
 
     assert index!(main_runner, "run_bounded \"browser cookie-jar proof\"") <
-             index!(main_runner, "run_bounded \"Crosswake prohibition real/bad/clean enforcement\"")
+             index!(
+               main_runner,
+               "run_bounded \"Crosswake prohibition real/bad/clean enforcement\""
+             )
 
     assert index!(main_runner, "run_bounded \"Crosswake prohibition real/bad/clean enforcement\"") <
              index!(main_runner, "run_bounded \"phase 240.3 recipe/source contract\"")
@@ -413,6 +433,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
 
         refute Map.has_key?(receipt, "flagged_unverified_prohibitions")
       end
+
       assert receipt["api_detector"]["detected"] == false
 
       rendered = Jason.encode!(receipt)

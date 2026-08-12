@@ -44,8 +44,13 @@ defmodule ExampleWeb.AppLiveTest do
 
       assert crosswake_form =~
                ~r/<input(?=[^>]*name="_csrf_token")(?=[^>]*type="hidden")[^>]*>/s
-      assert crosswake_form =~ ~r/<button[^>]*type="submit"[^>]*>\s*Continue to Crosswake\s*<\/button>/s
-      refute crosswake_form =~ ~r/\b(?:continuation|state|pkce|verifier|binding|session|identity|route|destination|evaluator|navigation)\b/i
+
+      assert crosswake_form =~
+               ~r/<button[^>]*type="submit"[^>]*>\s*Continue to Crosswake\s*<\/button>/s
+
+      refute crosswake_form =~
+               ~r/\b(?:continuation|state|pkce|verifier|binding|session|identity|route|destination|evaluator|navigation)\b/i
+
       refute crosswake_form =~ "phx-"
     end
 
