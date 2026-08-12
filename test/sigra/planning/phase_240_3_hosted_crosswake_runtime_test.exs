@@ -381,66 +381,64 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   end
 
   test "receipt keeps exact SHA, immutable coordinates, unresolved rows, and redacted allowlists" do
-    unless File.exists?(@evidence), do: :ok
+    assert File.regular?(@evidence), "missing hosted Crosswake runtime evidence: #{@evidence}"
 
-    if File.exists?(@evidence) do
-      receipt = decode!(@evidence)
-      release = decode!(@release)
+    receipt = decode!(@evidence)
+    release = decode!(@release)
 
-      assert receipt["schema"] == "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1"
-      assert Regex.match?(~r/\A[0-9a-f]{40}\z/, receipt["sigra_git_sha"])
+    assert receipt["schema"] == "sigra.phase240_3.hosted-crosswake-runtime-evidence.v1"
+    assert Regex.match?(~r/\A[0-9a-f]{40}\z/, receipt["sigra_git_sha"])
 
-      assert receipt["crosswake_release"] ==
-               Map.take(
-                 release,
-                 ~w(repository package version requirement git_tag git_sha hex_checksum)
-               )
+    assert receipt["crosswake_release"] ==
+             Map.take(
+               release,
+               ~w(repository package version requirement git_tag git_sha hex_checksum)
+             )
 
-      expected_commands =
-        if Map.has_key?(receipt, "prohibitions"),
-          do: @ordered_commands,
-          else: List.delete(@ordered_commands, @prohibition_command)
+    expected_commands =
+      if Map.has_key?(receipt, "prohibitions"),
+        do: @ordered_commands,
+        else: List.delete(@ordered_commands, @prohibition_command)
 
-      assert Enum.map(receipt["local_commands"], & &1["command"]) == expected_commands
+    assert Enum.map(receipt["local_commands"], & &1["command"]) == expected_commands
 
-      assert Enum.all?(receipt["local_commands"], fn command ->
-               command["exit_status"] == 0 and command["outcome"] == "passed"
-             end)
+    assert Enum.all?(receipt["local_commands"], fn command ->
+             command["exit_status"] == 0 and command["outcome"] == "passed"
+           end)
 
-      assert Enum.map(receipt["unresolved_assumptions"], & &1["requirement_id"]) == [
-               "XW-01",
-               "XW-02"
+    assert Enum.map(receipt["unresolved_assumptions"], & &1["requirement_id"]) == [
+             "XW-01",
+             "XW-02"
+           ]
+
+    if Map.has_key?(receipt, "prohibitions") do
+      assert Enum.map(receipt["prohibitions"], & &1["category"]) == [
+               "authority-integrity",
+               "secret-boundary",
+               "authority-smuggling"
              ]
 
-      if Map.has_key?(receipt, "prohibitions") do
-        assert Enum.map(receipt["prohibitions"], & &1["category"]) == [
-                 "authority-integrity",
-                 "secret-boundary",
-                 "authority-smuggling"
-               ]
-
-        for prohibition <- receipt["prohibitions"] do
-          assert prohibition["status"] == "resolved"
-          assert prohibition["verification"] == "test"
-          assert prohibition["check_kind"] == "node-test"
-          assert prohibition["check_target"] == @prohibition_guard
-          assert prohibition["check_violation_fixture"] == @prohibition_bad_fixture
-          assert prohibition["check_clean_fixture"] == @prohibition_clean_fixture
-          assert prohibition["repository_passed"] == true
-          assert prohibition["fail_first_passed"] == true
-          assert prohibition["clean_control_passed"] == true
-        end
-
-        refute Map.has_key?(receipt, "flagged_unverified_prohibitions")
+      for prohibition <- receipt["prohibitions"] do
+        assert prohibition["status"] == "resolved"
+        assert prohibition["verification"] == "test"
+        assert prohibition["check_kind"] == "node-test"
+        assert prohibition["check_target"] == @prohibition_guard
+        assert prohibition["check_violation_fixture"] == @prohibition_bad_fixture
+        assert prohibition["check_clean_fixture"] == @prohibition_clean_fixture
+        assert prohibition["repository_passed"] == true
+        assert prohibition["fail_first_passed"] == true
+        assert prohibition["clean_control_passed"] == true
       end
 
-      assert receipt["api_detector"]["detected"] == false
+      refute Map.has_key?(receipt, "flagged_unverified_prohibitions")
+    end
 
-      rendered = Jason.encode!(receipt)
+    assert receipt["api_detector"]["detected"] == false
 
-      for forbidden <- ["token", "secret", "password", "credential", "session_ref", "subject_ref"] do
-        refute rendered =~ "\"#{forbidden}\"", "receipt must not expose #{forbidden}"
-      end
+    rendered = Jason.encode!(receipt)
+
+    for forbidden <- ["token", "secret", "password", "credential", "session_ref", "subject_ref"] do
+      refute rendered =~ "\"#{forbidden}\"", "receipt must not expose #{forbidden}"
     end
   end
 end
