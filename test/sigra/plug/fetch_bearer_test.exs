@@ -37,7 +37,8 @@ defmodule Sigra.Plug.FetchBearerTest do
     )
   end
 
-  defp opts(overrides \\ []), do: FetchBearer.init(config: config(overrides), scope_module: TestScope)
+  defp opts(overrides \\ []),
+    do: FetchBearer.init(config: config(overrides), scope_module: TestScope)
 
   defp jwt_for(user, config) do
     {:ok, %{access_token: jwt}} = JWT.generate_tokens(config, user, ["profile:read"])
@@ -46,6 +47,7 @@ defmodule Sigra.Plug.FetchBearerTest do
 
   test "configured prefix dispatches to FetchAPIToken before enabled JWT detection" do
     raw_token = "eyJ_prefers_configured_pat"
+
     token = %{
       id: "pat-1",
       user_id: "user-1",
@@ -54,6 +56,7 @@ defmodule Sigra.Plug.FetchBearerTest do
       expires_at: nil,
       last_used_at: nil
     }
+
     user = %Sigra.TestUser{id: "user-1"}
     options = opts(api_token: [prefix: "eyJ_", api_token_schema: Sigra.TestAPIToken])
 
@@ -115,6 +118,7 @@ defmodule Sigra.Plug.FetchBearerTest do
       expires_at: nil,
       last_used_at: nil
     }
+
     user = %Sigra.TestUser{id: "user-2"}
 
     expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> token end)
