@@ -217,11 +217,12 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
       assert out =~ "auth_api_token.ex"
     end
 
-    test "--jwt adds JWT endpoint instructions" do
+    test "--jwt documents host-policy issuance without a password endpoint" do
       binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: true)
       out = binding |> Core.post_instructions(Report.new()) |> render()
 
-      assert out =~ "/api/auth/token"
+      assert out =~ "JWT host-policy delegate was generated at Auth.JWT"
+      refute out =~ "/api/auth/token"
     end
   end
 end
