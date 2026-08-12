@@ -55,13 +55,13 @@ Plans:
   3. A fresh `--jwt` host can independently issue and validate advanced JWT access tokens only when their required configured claims and optional not-before claim are valid.
   4. A host can issue server-scoped JWTs and atomically rotate or revoke refresh-token families without a generated password-to-JWT endpoint or request-selected scopes.
 
-**Plans**: 2/6 plans executed
+**Plans**: 3/6 plans executed
 
 Plans:
 
 - [x] 244-01-PLAN.md — Split API/JWT generator contracts and lock four-combination idempotent emission.
 - [x] 244-02-PLAN.md — Enforce owner-bound PAT revocation and server-side scope allowlists.
-- [ ] 244-03-PLAN.md — Deliver browser/CSRF/sudo PAT management and prove a fresh API-only host.
+- [x] 244-03-PLAN.md — Deliver browser/CSRF/sudo PAT management and prove a fresh API-only host.
 - [ ] 244-04-PLAN.md — Enforce the complete advanced-JWT signer, header, and registered-claim contract.
 - [ ] 244-05-PLAN.md — Prove host-policy JWT issuance in an independent fresh JWT-only host.
 - [ ] 244-06-PLAN.md — Serialize refresh rotation/reuse in one audit-on/off transaction with concurrency proof.
@@ -140,7 +140,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
-| 244. PAT and Advanced JWT Truth Repair | 2/6 | In Progress|  |
+| 244. PAT and Advanced JWT Truth Repair | 3/6 | In Progress|  |
 | 245. Opaque App-Session Core | 0/TBD | Not started | - |
 | 246. Hosted and Direct Login Ceremonies | 0/TBD | Not started | - |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
