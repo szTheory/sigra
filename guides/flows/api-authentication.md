@@ -178,13 +178,21 @@ Tokens can be limited to specific scopes (e.g. `read:projects`, `write:projects`
 
 Enforce scopes per-route:
 
-    def create(conn, params) do
-      with :ok <- Sigra.APIToken.require_scope(conn, "write:projects") do
-        # ... do the thing
-      end
+    pipeline :api_write_projects do
+      plug Sigra.Plug.RequireScopes,
+        scopes: ["write:projects"],
+        error_handler: MyAppWeb.AuthErrorHandler
     end
 
-`require_scope/2` returns `:ok` or halts the conn with a 403 + `assert_scope_denied/1`-compatible body.
+    scope "/api", MyAppWeb do
+      pipe_through [:api, :api_write_projects]
+
+      post "/projects", ProjectController, :create
+    end
+
+`RequireScopes` reads only Sigra's verified `conn.private[:sigra_auth]` facts and
+halts with the host error handler's 403 response when a credential lacks the
+required scope.
 
 ### Revocation
 

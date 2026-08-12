@@ -38,6 +38,7 @@ defmodule Sigra.CredentialBoundaryDocsTest do
           "Sigra.Plug.FetchAppSession",
           "Sigra.Plug.FetchAPIToken",
           "Sigra.Plug.FetchJWT",
+          "Sigra.Plug.RequireScopes",
           "first successful normal Scope wins",
           "conn.private[:sigra_auth]",
           "Only PAT and JWT carry delegated scopes",
@@ -49,6 +50,7 @@ defmodule Sigra.CredentialBoundaryDocsTest do
     primary = api |> String.split("## Compatibility migration", parts: 2) |> hd()
     refute String.contains?(primary, "FetchBearer")
     refute String.contains?(primary, "detects the `Authorization: Bearer` header")
+    refute String.contains?(primary, "Sigra.APIToken.require_scope")
   end
 
   test "Lockspire receives normal Scope identity without Sigra credentials" do
