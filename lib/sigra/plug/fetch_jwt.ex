@@ -32,6 +32,14 @@ defmodule Sigra.Plug.FetchJWT do
     config = Keyword.fetch!(opts, :config)
     scope_module = Keyword.fetch!(opts, :scope_module)
 
+    if Keyword.get(config.jwt, :enabled, false) do
+      fetch_enabled_jwt(conn, config, scope_module)
+    else
+      Plug.Conn.assign(conn, :current_scope, nil)
+    end
+  end
+
+  defp fetch_enabled_jwt(conn, config, scope_module) do
     with {:ok, raw_jwt} <- extract_bearer_jwt(conn),
          {:ok, claims} <- Sigra.JWT.verify_access(config, raw_jwt),
          subject when is_binary(subject) and subject != "" <- claims["sub"],

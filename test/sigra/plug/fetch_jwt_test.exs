@@ -14,20 +14,21 @@ defmodule Sigra.Plug.FetchJWTTest do
 
   @secret_key_base String.duplicate("j", 64)
 
-  defp config do
+  defp config(overrides \\ []) do
     Sigra.Config.new!(
       repo: Sigra.MockRepo,
       user_schema: Sigra.TestUser,
       otp_app: :test_app,
       secret_key_base: @secret_key_base,
-      jwt: [
-        enabled: true,
-        algorithm: "HS256",
-        issuer: "test_issuer",
-        access_ttl: 900,
-        refresh: false,
-        verify_epoch: false
-      ]
+      jwt:
+        Keyword.get(overrides, :jwt,
+          enabled: true,
+          algorithm: "HS256",
+          issuer: "test_issuer",
+          access_ttl: 900,
+          refresh: false,
+          verify_epoch: false
+        )
     )
   end
 
@@ -86,6 +87,25 @@ defmodule Sigra.Plug.FetchJWTTest do
       conn(:get, "/api/resource")
       |> Plug.Conn.put_req_header("authorization", "Bearer " <> jwt)
       |> FetchJWT.call(opts())
+
+    assert result.assigns.current_scope == nil
+    refute Map.has_key?(result.private, :sigra_auth)
+  end
+
+  test "a correctly signed JWT is rejected when JWT support is disabled" do
+    user = %Sigra.TestUser{id: 42}
+    jwt = jwt_for(user)
+
+    disabled_opts =
+      FetchJWT.init(
+        config: config(jwt: [enabled: false, algorithm: "HS256", issuer: "test_issuer"]),
+        scope_module: TestScope
+      )
+
+    result =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer " <> jwt)
+      |> FetchJWT.call(disabled_opts)
 
     assert result.assigns.current_scope == nil
     refute Map.has_key?(result.private, :sigra_auth)
