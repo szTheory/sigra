@@ -1,0 +1,1 @@
+No external API integration: Phase 244 repairs Sigra's own Phoenix generator, PAT, JWT, and database transaction contracts; Joken is an existing in-process dependency, not an external API, SDK, or service integration.
