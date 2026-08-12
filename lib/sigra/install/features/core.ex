@@ -917,7 +917,7 @@ defmodule Sigra.Install.Features.Core do
 
     api_line =
       if Keyword.get(opts, :api, false) do
-        "  API token endpoints were generated at /api/tokens.\n  Add the functions from auth_api_token.ex to your Auth context.\n"
+        "  Browser API token management routes were generated at /users/api-tokens.\n  Add the functions from auth_api_token.ex to your Auth context.\n"
       else
         ""
       end
