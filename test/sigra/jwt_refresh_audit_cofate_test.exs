@@ -160,6 +160,14 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
     n
   end
 
+  defp active_family_tokens(repo, family_id) do
+    count_where(
+      repo,
+      "jwt_refresh_cofate_user_tokens",
+      "sent_to::jsonb ->> 'family_id' = '#{family_id}' AND sent_to::jsonb ->> 'superseded_at' IS NULL"
+    )
+  end
+
   defp insert_user!(repo) do
     {:ok, u} = repo.insert(%CofateUser{email: "jwt-cofate@example.com"})
     u
@@ -189,6 +197,35 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
 
     assert {:ok, _} = JWT.refresh(cfg, raw_refresh, opts)
     assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 0
+  end
+
+  test "audit off persistence rejection aborts without returning replacement credentials", %{repo: repo} do
+    user = insert_user!(repo)
+    cfg = sigra_config_no_audit(repo)
+    opts = token_opts()
+    {raw_refresh, _} = RefreshToken.create(cfg, user, ["profile:read"], opts)
+    before_tokens = count(repo, "jwt_refresh_cofate_user_tokens")
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE jwt_refresh_cofate_user_tokens
+      ADD CONSTRAINT jwt_refresh_cofate_no_replacement CHECK (context <> 'api_refresh') NOT VALID
+      """,
+      []
+    )
+
+    try do
+      assert {:error, :jwt_refresh_aborted} = JWT.refresh(cfg, raw_refresh, opts)
+      assert count(repo, "jwt_refresh_cofate_user_tokens") == before_tokens
+      assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE jwt_refresh_cofate_user_tokens DROP CONSTRAINT IF EXISTS jwt_refresh_cofate_no_replacement",
+        []
+      )
+    end
   end
 
   test "happy path fault injection: audit CHECK rejects api.jwt_refresh → jwt_refresh_aborted, no partial rotation",
@@ -303,6 +340,50 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
         "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS jwt_refresh_cofate_reuse_guard",
         []
       )
+    end
+  end
+
+  test "two barrier-coordinated callers serialize rotation and consumed-token reuse in both audit modes",
+       %{repo: repo} do
+    parent = self()
+
+    for {mode, config} <- [audit_on: sigra_config(repo), audit_off: sigra_config_no_audit(repo)] do
+      user = insert_user!(repo)
+      opts = token_opts()
+      {raw_refresh, original} = RefreshToken.create(config, user, ["profile:read"], opts)
+      family_id = original.sent_to |> Jason.decode!() |> Map.fetch!("family_id")
+
+      callers =
+        for _ <- 1..2 do
+          Task.async(fn ->
+            Ecto.Adapters.SQL.Sandbox.allow(repo, parent, self())
+            send(parent, {:refresh_caller_ready, self()})
+
+            receive do
+              :refresh_go -> JWT.refresh(config, raw_refresh, opts)
+            end
+          end)
+        end
+
+      for _ <- callers do
+        assert_receive {:refresh_caller_ready, caller}
+        send(caller, :refresh_go)
+      end
+
+      results = Enum.map(callers, &Task.await(&1, 5_000))
+
+      assert Enum.count(results, &match?({:ok, _}, &1)) == 1
+      assert Enum.count(results, &match?({:error, :reuse_detected}, &1)) == 1
+      assert count_where(repo, "jwt_refresh_cofate_user_tokens", "user_id = '#{user.id}'") == 2
+      assert active_family_tokens(repo, family_id) == 0
+
+      expected_audits = if mode == :audit_on, do: 2, else: 0
+
+      assert count_where(
+               repo,
+               "audit_events",
+               "actor_id = '#{user.id}' AND action IN ('api.jwt_refresh', 'api.jwt_refresh_reuse')"
+             ) == expected_audits
     end
   end
 end
