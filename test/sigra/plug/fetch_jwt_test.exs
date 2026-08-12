@@ -68,11 +68,12 @@ defmodule Sigra.Plug.FetchJWTTest do
     for authorization <- [nil, "Basic nope", "Bearer not.a.valid.jwt"] do
       conn = conn(:get, "/api/resource")
 
-      result =
+      request_conn =
         if authorization,
           do: Plug.Conn.put_req_header(conn, "authorization", authorization),
           else: conn
-        |> FetchJWT.call(opts())
+
+      result = FetchJWT.call(request_conn, opts())
 
       assert result.assigns.current_scope == nil
       refute Map.has_key?(result.private, :sigra_auth)
