@@ -91,7 +91,17 @@ defmodule Sigra.APITokenTest do
       end
     end
 
-    def update(changeset) do
+    def one(_query) do
+      send(self(), :repo_one)
+
+      receive do
+        {:mock_one_result, result} -> result
+      after
+        0 -> nil
+      end
+    end
+
+    def update(changeset, _opts \\ []) do
       {:ok, Ecto.Changeset.apply_changes(changeset)}
     end
 
@@ -328,27 +338,28 @@ defmodule Sigra.APITokenTest do
     test "revokes an active token only for its owner" do
       cfg = config()
       token = %MockAPITokenSchema{id: 9, user_id: mock_user().id, revoked_at: nil}
-      send(self(), {:mock_get_by_result, token})
+      send(self(), {:mock_one_result, token})
 
       assert {:ok, revoked} = APIToken.revoke_for_user(cfg, mock_user(), token.id)
       assert revoked.revoked_at != nil
-      assert_received {:repo_get_by, [id: 9, user_id: 42, revoked_at: nil]}
+      assert_received :repo_one
     end
 
     test "returns the same bounded result for absent, foreign, and already-revoked tokens" do
       cfg = config()
 
       assert {:error, :not_found} = APIToken.revoke_for_user(cfg, mock_user(), 100)
-      assert_received {:repo_get_by, [id: 100, user_id: 42, revoked_at: nil]}
+      assert_received :repo_one
 
       assert {:error, :not_found} = APIToken.revoke_for_user(cfg, other_user(), 101)
-      assert_received {:repo_get_by, [id: 101, user_id: 43, revoked_at: nil]}
+      assert_received :repo_one
 
       assert {:error, :not_found} = APIToken.revoke_for_user(cfg, mock_user(), 102)
-      assert_received {:repo_get_by, [id: 102, user_id: 42, revoked_at: nil]}
+      assert_received :repo_one
     end
 
     test "exposes only an owner-required self-management facade" do
+      assert Code.ensure_loaded?(Sigra.Auth)
       assert function_exported?(Sigra.Auth, :revoke_api_token_for_user, 3)
       refute function_exported?(Sigra.Auth, :revoke_api_token_for_user, 2)
     end
@@ -410,6 +421,92 @@ defmodule Sigra.APITokenTest do
 
       assert decoded_at == now
       assert decoded_id == 42
+    end
+  end
+end
+
+if Code.ensure_loaded?(Postgrex) do
+  defmodule Sigra.APITokenOwnershipDatabaseTest do
+    use Sigra.Test.PostgresCase, async: false
+
+    alias Sigra.APIToken
+
+    defmodule ApiTokenRow do
+      use Ecto.Schema
+
+      schema "user_api_tokens" do
+        field :user_id, :binary_id
+        field :hashed_token, :binary
+        field :prefix, :string
+        field :name, :string
+        field :scopes, {:array, :string}
+        field :expires_at, :utc_datetime
+        field :revoked_at, :utc_datetime
+        field :last_used_at, :utc_datetime
+        timestamps()
+      end
+
+      def changeset(struct, attrs) do
+        struct
+        |> Ecto.Changeset.cast(attrs, [
+          :user_id,
+          :hashed_token,
+          :prefix,
+          :name,
+          :scopes,
+          :expires_at
+        ])
+        |> Ecto.Changeset.validate_required([:user_id, :hashed_token, :prefix, :name, :scopes])
+      end
+    end
+
+    setup_all do
+      Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
+        Ecto.Adapters.SQL.query!(
+          repo,
+          """
+          CREATE TABLE IF NOT EXISTS user_api_tokens (
+            id bigserial PRIMARY KEY,
+            user_id uuid NOT NULL,
+            hashed_token bytea NOT NULL,
+            prefix text NOT NULL,
+            name text NOT NULL,
+            scopes character varying(255)[] NOT NULL,
+            expires_at timestamp,
+            revoked_at timestamp,
+            last_used_at timestamp,
+            inserted_at timestamp NOT NULL DEFAULT now(),
+            updated_at timestamp NOT NULL DEFAULT now()
+          )
+          """,
+          []
+        )
+      end)
+
+      :ok
+    end
+
+    test "owner-constrained revoke leaves foreign and terminal rows untouched", %{repo: repo} do
+      owner = %{id: Ecto.UUID.generate()}
+      foreign_owner = %{id: Ecto.UUID.generate()}
+
+      config =
+        Sigra.Config.new!(
+          repo: repo,
+          user_schema: MyApp.User,
+          otp_app: :my_app,
+          api_token: [api_token_schema: ApiTokenRow]
+        )
+
+      assert {:ok, _raw, token} =
+               APIToken.create(config, owner, %{name: "database-owned", scopes: ["profile:read"]})
+
+      assert {:error, :not_found} = APIToken.revoke_for_user(config, foreign_owner, token.id)
+      assert is_nil(repo.get(ApiTokenRow, token.id).revoked_at)
+
+      assert {:ok, _revoked} = APIToken.revoke_for_user(config, owner, token.id)
+      assert {:error, :not_found} = APIToken.revoke_for_user(config, owner, token.id)
+      assert repo.get(ApiTokenRow, token.id).revoked_at != nil
     end
   end
 end

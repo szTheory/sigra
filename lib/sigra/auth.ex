@@ -2227,6 +2227,19 @@ defmodule Sigra.Auth do
   end
 
   @doc """
+  Revokes one active API token owned by the supplied user.
+
+  This is the self-management facade for browser/session callers; it never
+  accepts an owner identifier separate from the authenticated owner object.
+  """
+  @doc since: "1.4.0"
+  @spec revoke_api_token_for_user(Sigra.Config.t(), struct(), term()) ::
+          {:ok, struct()} | {:error, :not_found}
+  def revoke_api_token_for_user(config, user, token_id) do
+    Sigra.APIToken.revoke_for_user(config, user, token_id)
+  end
+
+  @doc """
   Revokes all active API tokens for a user.
   """
   @doc since: "0.7.0"

@@ -86,7 +86,7 @@ defmodule Sigra.APIToken do
 
     with :ok <- validate_prefix(prefix),
          :ok <- validate_name(attrs),
-         :ok <- ScopeRegistry.validate_scopes(config, Map.get(attrs, :scopes, [])),
+         :ok <- validate_requested_scopes(config, Map.get(attrs, :scopes, [])),
          :ok <- validate_expiry(api_token_opts, attrs) do
       Telemetry.span([:sigra, :api_token, :create], %{user_id: user.id}, fn ->
         do_create(config, user, attrs, prefix)
@@ -479,44 +479,33 @@ defmodule Sigra.APIToken do
         {:error, :not_found}
 
       token ->
-        user_id = Map.get(token, :user_id)
-        scope = Sigra.Scope.from_config(config, %{id: user_id})
+        revoke_existing_token(config, token, token_id)
+    end
+  end
 
-        merged_scope_fields =
-          Keyword.merge(api_token_scope_fields(scope), actor_id: user_id, target_id: user_id)
+  @doc """
+  Revokes one active API token owned by `user`.
 
-        audit_opts =
-          api_token_audit_opts(config)
-          |> Keyword.merge(merged_scope_fields)
-          |> Keyword.merge(metadata: %{token_id: to_string(token_id)})
+  The owner and token ID are matched in the persistence lookup, so absent,
+  foreign, and already-revoked tokens all return `{:error, :not_found}` without
+  revealing ownership or writing another audit event.
+  """
+  @doc since: "1.4.0"
+  @spec revoke_for_user(Sigra.Config.t(), map(), term()) ::
+          {:ok, map()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
+  def revoke_for_user(config, user, token_id) do
+    import Ecto.Query
 
-        changeset =
-          Ecto.Changeset.change(token,
-            revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
-          )
+    schema = Keyword.fetch!(config.api_token, :api_token_schema)
 
-        multi =
-          Multi.new()
-          |> Multi.update(:token, changeset)
-          |> Audit.log_multi_safe("api.token_revoke", audit_opts)
+    query =
+      from(token in schema,
+        where: token.id == ^token_id and token.user_id == ^user.id and is_nil(token.revoked_at)
+      )
 
-        case config.repo.transaction(multi) do
-          {:ok, %{token: updated} = changes} ->
-            Audit.emit_telemetry_from_changes(changes)
-
-            Telemetry.event([:sigra, :api_token, :revoke, :stop], %{}, %{
-              token_id: token_id
-            })
-
-            {:ok, updated}
-
-          {:error, :token, %Ecto.Changeset{} = cs, _} ->
-            {:error, cs}
-
-          {:error, failed, reason, _} ->
-            raise "unexpected Ecto.Multi failure from Sigra.APIToken.revoke/2: " <>
-                    "#{inspect(failed)} => #{inspect(reason)}"
-        end
+    case config.repo.one(query) do
+      nil -> {:error, :not_found}
+      token -> revoke_existing_token(config, token, token_id)
     end
   end
 
@@ -803,6 +792,68 @@ defmodule Sigra.APIToken do
   end
 
   defp validate_name(_), do: {:error, :name_required}
+
+  defp validate_requested_scopes(_config, []), do: :ok
+
+  defp validate_requested_scopes(config, scopes) when is_list(scopes) do
+    case duplicate_scopes(scopes) do
+      [] -> ScopeRegistry.validate_scopes(config, scopes)
+      duplicates -> {:error, {:duplicate_scopes, duplicates}}
+    end
+  end
+
+  defp validate_requested_scopes(_config, _scopes), do: {:error, :invalid_scopes}
+
+  defp duplicate_scopes(scopes) do
+    {_, duplicates} =
+      Enum.reduce(scopes, {MapSet.new(), []}, fn scope, {seen, duplicates} ->
+        if MapSet.member?(seen, scope) do
+          {seen, [scope | duplicates]}
+        else
+          {MapSet.put(seen, scope), duplicates}
+        end
+      end)
+
+    Enum.reverse(duplicates)
+  end
+
+  defp revoke_existing_token(config, token, token_id) do
+    user_id = Map.get(token, :user_id)
+    scope = Sigra.Scope.from_config(config, %{id: user_id})
+
+    merged_scope_fields =
+      Keyword.merge(api_token_scope_fields(scope), actor_id: user_id, target_id: user_id)
+
+    audit_opts =
+      api_token_audit_opts(config)
+      |> Keyword.merge(merged_scope_fields)
+      |> Keyword.merge(metadata: %{token_id: to_string(token_id)})
+
+    changeset =
+      Ecto.Changeset.change(token,
+        revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      )
+
+    multi =
+      Multi.new()
+      |> Multi.update(:token, changeset)
+      |> Audit.log_multi_safe("api.token_revoke", audit_opts)
+
+    case config.repo.transaction(multi) do
+      {:ok, %{token: updated} = changes} ->
+        Audit.emit_telemetry_from_changes(changes)
+
+        Telemetry.event([:sigra, :api_token, :revoke, :stop], %{}, %{token_id: token_id})
+        {:ok, updated}
+
+      {:error, :token, %Ecto.Changeset{} = cs, _} ->
+        {:error, cs}
+
+      {:error, failed, reason, _} ->
+        raise "unexpected Ecto.Multi failure from Sigra.APIToken.revoke/2: " <>
+                "#{inspect(failed)} => #{inspect(reason)}"
+    end
+  end
 
   defp validate_expiry(api_token_opts, attrs) do
     require_expiry = Keyword.get(api_token_opts, :require_expiry, false)
