@@ -19,6 +19,13 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**Phase 242 rendered Crosswake start control complete (2026-08-12).**
+Authenticated example-host users can now initiate the existing Crosswake flow
+from a rendered, accessible native POST control on `/app` and complete the
+unchanged secure return journey. Verification passed 10/10 must-haves with
+scoped formatter checks, focused LiveView and source contracts, the 28-test
+security matrix, P14 fail-first controls, and a one-worker Chromium journey.
+
 **Phase 241 controller MFA settings rendering repair complete (2026-08-11).**
 Fresh generated `--no-live` hosts now route the authenticated, sudo-protected
 MFA settings GET through the emitted `MFASettingsHTML` module. Verification
