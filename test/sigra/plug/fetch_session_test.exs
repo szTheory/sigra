@@ -11,6 +11,13 @@ defmodule Sigra.Plug.FetchSessionTest do
     def new(user), do: %{user_id: user.id}
   end
 
+  defmodule StructScopeModule do
+    defstruct user: nil,
+              active_organization: nil,
+              membership: nil,
+              impersonating_from: nil
+  end
+
   @default_config %Sigra.Config{
     repo: Sigra.MockRepo,
     user_schema: :unused,
@@ -48,6 +55,13 @@ defmodule Sigra.Plug.FetchSessionTest do
     %{id: 1, email: "user@example.com"}
   end
 
+  defp expect_user(user \\ build_user()) do
+    expected_id = user.id
+
+    Sigra.MockRepo
+    |> expect(:get, fn :unused, ^expected_id -> user end)
+  end
+
   describe "init/1" do
     test "sets default cookie options including http_only, same_site, and secure" do
       opts = FetchSession.init(@default_opts)
@@ -66,9 +80,12 @@ defmodule Sigra.Plug.FetchSessionTest do
   describe "call/2 — session fetch and scope assignment" do
     test "reads session token from Plug session and fetches via SessionStore" do
       session = build_session()
+      user = build_user()
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn "valid-hashed-token", _opts -> {:ok, session} end)
+
+      expect_user(user)
 
       opts = FetchSession.init(@default_opts)
 
@@ -77,14 +94,17 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "valid-hashed-token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user_id: user.id}
     end
 
     test "assigns current_scope when session found and valid" do
       session = build_session()
+      user = build_user()
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
+      expect_user(user)
 
       opts = FetchSession.init(@default_opts)
 
@@ -93,7 +113,48 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "some-token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user_id: user.id}
+    end
+
+    test "builds a generated struct Scope from the exact loaded user" do
+      session = build_session()
+      user = build_user()
+
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
+      expect_user(user)
+
+      opts = FetchSession.init(@default_opts ++ [scope_module: StructScopeModule])
+
+      conn =
+        conn(:get, "/")
+        |> init_test_session(%{user_token: "some-token"})
+        |> FetchSession.call(opts)
+
+      assert %StructScopeModule{user: ^user} = conn.assigns[:current_scope]
+      refute Map.has_key?(conn.private, :sigra_auth)
+    end
+
+    test "assigns nil without authenticated private state when the session user was deleted" do
+      session = build_session()
+
+      Sigra.MockSessionStore
+      |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
+      Sigra.MockRepo
+      |> expect(:get, fn :unused, 1 -> nil end)
+
+      opts = FetchSession.init(@default_opts)
+
+      conn =
+        conn(:get, "/")
+        |> init_test_session(%{user_token: "deleted-user-token"})
+        |> FetchSession.call(opts)
+
+      assert conn.assigns[:current_scope] == nil
+      refute Map.has_key?(conn.private, :sigra_session)
+      refute Map.has_key?(conn.private, :sigra_auth)
     end
 
     test "assigns nil when no token in session" do
@@ -174,6 +235,8 @@ defmodule Sigra.Plug.FetchSessionTest do
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
       |> expect(:update_activity, fn _token, _meta, _opts -> :ok end)
 
+      expect_user()
+
       opts = FetchSession.init(@default_opts)
 
       conn =
@@ -214,6 +277,8 @@ defmodule Sigra.Plug.FetchSessionTest do
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
       |> expect(:update_activity, fn _token, _meta, _opts -> :ok end)
 
+      expect_user()
+
       opts = FetchSession.init(@default_opts)
 
       conn =
@@ -231,6 +296,8 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
+      expect_user()
 
       # No update_activity expectation — Mox will fail if called
 
@@ -252,6 +319,8 @@ defmodule Sigra.Plug.FetchSessionTest do
       Sigra.MockSessionStore
       |> expect(:fetch, fn "remember-hashed-token", _opts -> {:ok, session} end)
 
+      expect_user()
+
       # Use a config with a remember_me_cookie name
       opts = FetchSession.init(@default_opts ++ [remember_me_cookie: "_test_remember_me"])
 
@@ -272,6 +341,8 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
+      expect_user()
 
       opts = FetchSession.init(@default_opts)
 
