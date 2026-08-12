@@ -199,7 +199,9 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
     assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 0
   end
 
-  test "audit off persistence rejection aborts without returning replacement credentials", %{repo: repo} do
+  test "audit off persistence rejection aborts without returning replacement credentials", %{
+    repo: repo
+  } do
     user = insert_user!(repo)
     cfg = sigra_config_no_audit(repo)
     opts = token_opts()
