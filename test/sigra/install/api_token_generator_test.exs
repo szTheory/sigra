@@ -265,6 +265,15 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       refute content =~ "params"
       refute content =~ "scopes)"
     end
+
+    test "loads the generated strict JWT policy for host-only issuance and verification" do
+      content = render_template("auth_jwt.ex", jwt: true)
+
+      assert content =~ "def sigra_config do"
+      assert content =~ "Application.fetch_env!(:my_app, :sigra_api)"
+      assert content =~ "Keyword.fetch!(:jwt)"
+      refute content =~ "def sigra_config do\n    MyApp.Auth.sigra_config()"
+    end
   end
 
   describe "api_token_created_email.ex template" do
@@ -516,7 +525,12 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       source = File.read!(@features_core_path)
       assert source =~ "# Sigra JWT"
       assert source =~ "Sigra.Plug.FetchJWT"
+      assert source =~ "enabled: true"
+      assert source =~ "typ: \"JWT\""
+      assert source =~ "issuer:"
+      assert source =~ "audience:"
       refute source =~ "post \"/token\", TokenController, :create"
+      refute source =~ "FetchBearer"
     end
 
     test "Features.Core generates API pipeline with FetchAPIToken" do

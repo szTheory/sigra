@@ -65,6 +65,78 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
     refute config =~ "jwt:"
   end
 
+  @tag :phase_244_jwt
+  test "fresh JWT-only host installs twice, migrates, compiles, and issues a strict host-scoped JWT" do
+    require_postgres!()
+    require_phx_new!()
+
+    root = File.cwd!()
+    tmp = Path.join(System.tmp_dir!(), "sigra-phase-244-#{System.unique_integer([:positive])}")
+    app = Path.join(tmp, "sigra_phase_244_jwt")
+    database = "sigra_phase_244_jwt_#{Base.encode16(:crypto.strong_rand_bytes(8), case: :lower)}"
+
+    assert Regex.match?(~r/^sigra_phase_244_jwt_[0-9a-f]{16}$/, database),
+           "generated database name must remain a bounded PostgreSQL identifier"
+
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    run!(root, "mix", [
+      "phx.new",
+      app,
+      "--no-install",
+      "--no-dashboard",
+      "--database",
+      "postgres",
+      "--module",
+      "SigraPhase244Jwt",
+      "--app",
+      "sigra_phase_244_jwt"
+    ])
+
+    patch_mix!(app, root)
+    patch_test_repo_config!(app, database)
+    run!(app, "mix", ["deps.get"])
+
+    for _ <- 1..2 do
+      run!(app, "mix", [
+        "sigra.install",
+        "Accounts",
+        "User",
+        "users",
+        "--jwt",
+        "--no-live",
+        "--no-organizations"
+      ])
+    end
+
+    run!(app, "mix", ["ecto.create"])
+    assert_database_ready!(database)
+    run!(app, "mix", ["ecto.migrate"])
+    run!(app, "mix", ["compile"])
+    write_jwt_smoke!(app)
+    run!(app, "mix", ["test", "test/jwt_runtime_smoke_test.exs"])
+
+    router = File.read!(Path.join(app, "lib/sigra_phase_244_jwt_web/router.ex"))
+    config = File.read!(Path.join(app, "config/config.exs"))
+    jwt_delegate = File.read!(Path.join(app, "lib/sigra_phase_244_jwt/accounts/auth/jwt.ex"))
+
+    assert router =~ "Sigra.Plug.FetchJWT"
+    refute router =~ "FetchAPIToken"
+    refute router =~ "FetchBearer"
+    refute router =~ "TokenController"
+    refute router =~ "post \"/token\""
+    assert config =~ "enabled: true"
+    assert config =~ "typ: \"JWT\""
+    assert config =~ "issuer: \"sigra_phase_244_jwt\""
+    assert config =~ "audience: [\"sigra_phase_244_jwt_api\"]"
+    refute config =~ "api_token:"
+    refute File.exists?(Path.join(app, "lib/sigra_phase_244_jwt/accounts/user_api_token.ex"))
+    refute File.exists?(Path.join(app, "lib/sigra_phase_244_jwt_web/controllers/api_token_controller.ex"))
+    refute jwt_delegate =~ "password"
+    refute jwt_delegate =~ "conn"
+    refute jwt_delegate =~ "params"
+  end
+
   defp require_postgres! do
     case System.cmd("psql", ["-Atqc", "SELECT 1"], stderr_to_stdout: true, env: postgres_env()) do
       {"1\n", 0} -> :ok
@@ -274,6 +346,66 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
       defp stale_sudo(conn, session) do
         Repo.update_all(from(s in SigraPhase244Api.Accounts.UserSession, where: s.id == ^session.id), set: [sudo_at: DateTime.add(DateTime.utc_now(), -3_601, :second)])
         conn
+      end
+    end
+    """)
+  end
+
+  defp write_jwt_smoke!(app) do
+    File.write!(Path.join(app, "test/jwt_runtime_smoke_test.exs"), """
+    defmodule SigraPhase244Jwt.JWTRuntimeSmokeTest do
+      use SigraPhase244Jwt.DataCase, async: false
+
+      import Phoenix.ConnTest
+      import SigraPhase244Jwt.AccountsFixtures
+
+      alias SigraPhase244Jwt.Accounts
+
+      test "host-policy delegate issues one scope and FetchJWT enforces configured claims" do
+        user = user_fixture()
+        {:ok, %{access_token: access_token}} = Accounts.JWT.create_jwt_tokens(user)
+        config = Accounts.JWT.sigra_config()
+
+        assert Keyword.get(config.jwt, :enabled)
+        assert Keyword.get(config.jwt, :algorithm) == "HS256"
+        assert Keyword.get(config.jwt, :typ) == "JWT"
+        assert Keyword.get(config.jwt, :issuer) == "sigra_phase_244_jwt"
+        assert Keyword.get(config.jwt, :audience) == ["sigra_phase_244_jwt_api"]
+
+        conn = Plug.Test.conn(:get, "/") |> Plug.Conn.put_req_header("authorization", "Bearer " <> access_token)
+        conn = Sigra.Plug.FetchJWT.call(conn, config: config, scope_module: Accounts.Scope)
+
+        assert conn.assigns.current_scope.user.id == user.id
+        assert conn.private[:sigra_auth].credential_kind == :jwt
+        assert conn.private[:sigra_auth].scopes == ["read"]
+
+        for {claim, value} <- [{"typ", "wrong"}, {"iss", "wrong"}, {"aud", "wrong"}, {"nbf", DateTime.utc_now() |> DateTime.add(60, :second) |> DateTime.to_unix()}] do
+          forged = resign(access_token, config, claim, value)
+          rejected = Plug.Test.conn(:get, "/") |> Plug.Conn.put_req_header("authorization", "Bearer " <> forged)
+          rejected = Sigra.Plug.FetchJWT.call(rejected, config: config, scope_module: Accounts.Scope)
+          assert rejected.assigns.current_scope == nil
+        end
+
+        for audience <- ["sigra_phase_244_jwt_api", ["wrong", "sigra_phase_244_jwt_api"]] do
+          accepted = resign(access_token, config, "aud", audience)
+          accepted_conn = Plug.Test.conn(:get, "/") |> Plug.Conn.put_req_header("authorization", "Bearer " <> accepted)
+          accepted_conn = Sigra.Plug.FetchJWT.call(accepted_conn, config: config, scope_module: Accounts.Scope)
+          assert accepted_conn.assigns.current_scope.user.id == user.id
+        end
+      end
+
+      defp resign(token, config, "typ", typ) do
+        {:ok, claims} = Sigra.JWT.verify_access(config, token)
+        signer = Sigra.JWT.configured_signer(config)
+        {:ok, resigned, _} = Joken.generate_and_sign(%{"typ" => typ}, claims, signer)
+        resigned
+      end
+
+      defp resign(token, config, claim, value) do
+        {:ok, claims} = Sigra.JWT.verify_access(config, token)
+        signer = Sigra.JWT.configured_signer(config)
+        {:ok, resigned, _} = Joken.generate_and_sign(%{}, Map.put(claims, claim, value), signer)
+        resigned
       end
     end
     """)
