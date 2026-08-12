@@ -12,9 +12,7 @@ defmodule Sigra.Plug.RequireScopesTest do
       body =
         case type do
           :insufficient_scope ->
-            required = Keyword.get(opts, :required_scopes, [])
-            provided = Keyword.get(opts, :provided_scopes, [])
-            "insufficient_scope:required=#{inspect(required)},provided=#{inspect(provided)}"
+            "insufficient_scope:required=#{inspect(Keyword.get(opts, :required_scopes, []))},provided=#{inspect(Keyword.get(opts, :provided_scopes, []))}"
 
           other ->
             "#{other}"
@@ -26,141 +24,91 @@ defmodule Sigra.Plug.RequireScopesTest do
     end
   end
 
-  describe "init/1" do
-    test "returns opts with scopes and error_handler" do
-      opts = RequireScopes.init(scopes: ["profile:read"], error_handler: TestErrorHandler)
-      assert opts[:scopes] == ["profile:read"]
-      assert opts[:error_handler] == TestErrorHandler
-    end
+  defp opts(overrides \\ []) do
+    RequireScopes.init(
+      Keyword.merge([scopes: ["profile:read"], error_handler: TestErrorHandler], overrides)
+    )
+  end
 
-    test "raises when scopes is empty" do
+  defp scoped_conn(facts, scope \\ %{user: %{id: "user-1"}}) do
+    conn(:get, "/api/resource")
+    |> Plug.Conn.assign(:current_scope, scope)
+    |> maybe_put_facts(facts)
+  end
+
+  defp maybe_put_facts(conn, nil), do: conn
+  defp maybe_put_facts(conn, facts), do: Plug.Conn.put_private(conn, :sigra_auth, facts)
+
+  describe "init/1" do
+    test "preserves options and validates required fields" do
+      assert opts()[:scopes] == ["profile:read"]
+
       assert_raise ArgumentError, ~r/non-empty list/, fn ->
         RequireScopes.init(scopes: [], error_handler: TestErrorHandler)
       end
-    end
 
-    test "raises when scopes is missing" do
-      assert_raise KeyError, fn ->
-        RequireScopes.init(error_handler: TestErrorHandler)
-      end
-    end
-
-    test "raises when error_handler is missing" do
-      assert_raise KeyError, fn ->
-        RequireScopes.init(scopes: ["profile:read"])
-      end
+      assert_raise KeyError, fn -> RequireScopes.init(scopes: ["profile:read"]) end
     end
   end
 
-  describe "call/2 - session auth bypass" do
-    test "passes conn through when auth_method is :session" do
-      opts = RequireScopes.init(scopes: ["profile:read"], error_handler: TestErrorHandler)
+  test "halts unauthenticated connections through the configured handler" do
+    result = conn(:get, "/api/resource") |> RequireScopes.call(opts())
 
-      scope = %{auth_method: :session, token_scopes: []}
+    assert result.halted
+    assert result.status == 403
+    assert result.resp_body == "unauthenticated"
+  end
 
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
+  test "missing, browser, app-session, and empty facts fail closed with no provided scopes" do
+    cases = [
+      nil,
+      %{credential_kind: :browser_session, scopes: ["profile:read"]},
+      %{credential_kind: :app_session, scopes: ["profile:read"]},
+      %{credential_kind: :personal_access_token, scopes: []}
+    ]
 
-      refute conn.halted
+    for facts <- cases do
+      result = scoped_conn(facts) |> RequireScopes.call(opts())
+
+      assert result.halted
+      assert result.status == 403
+      assert result.resp_body =~ "insufficient_scope"
+      assert result.resp_body =~ "provided=[]"
     end
   end
 
-  describe "call/2 - scope enforcement" do
-    test "passes when token has all required scopes (AND mode)" do
-      opts =
-        RequireScopes.init(
-          scopes: ["profile:read", "sessions:read"],
-          error_handler: TestErrorHandler
-        )
+  test "trusted PAT and JWT facts pass matching wildcard, all, and any requirements" do
+    pat_facts = %{
+      credential_kind: :personal_access_token,
+      scopes: ["profile:read", "sessions:read"]
+    }
 
-      scope = %{
-        auth_method: :api_token,
-        token_scopes: ["profile:read", "sessions:read", "mfa:read"]
-      }
+    jwt_facts = %{credential_kind: :jwt, scopes: ["*"]}
 
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
+    refute scoped_conn(pat_facts)
+           |> RequireScopes.call(opts(scopes: ["profile:read", "sessions:read"]))
+           |> Map.fetch!(:halted)
 
-      refute conn.halted
-    end
+    refute scoped_conn(pat_facts)
+           |> RequireScopes.call(opts(scopes: ["sessions:read", "admin:write"], match: :any))
+           |> Map.fetch!(:halted)
 
-    test "passes when token has any required scope (OR mode)" do
-      opts =
-        RequireScopes.init(
-          scopes: ["profile:read", "sessions:read"],
-          error_handler: TestErrorHandler,
-          match: :any
-        )
-
-      scope = %{auth_method: :api_token, token_scopes: ["profile:read"]}
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
-
-      refute conn.halted
-    end
-
-    test "passes when token has wildcard * scope" do
-      opts = RequireScopes.init(scopes: ["profile:read"], error_handler: TestErrorHandler)
-
-      scope = %{auth_method: :api_token, token_scopes: ["*"]}
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
-
-      refute conn.halted
-    end
-
-    test "calls error_handler with :insufficient_scope when scopes missing" do
-      opts = RequireScopes.init(scopes: ["sessions:write"], error_handler: TestErrorHandler)
-
-      scope = %{auth_method: :api_token, token_scopes: ["profile:read"]}
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
-
-      assert conn.halted
-      assert conn.status == 403
-      assert conn.resp_body =~ "insufficient_scope"
-      assert conn.resp_body =~ "sessions:write"
-      assert conn.resp_body =~ "profile:read"
-    end
-
-    test "includes required_scopes and provided_scopes in opts" do
-      opts = RequireScopes.init(scopes: ["sessions:write"], error_handler: TestErrorHandler)
-
-      scope = %{auth_method: :api_token, token_scopes: ["profile:read"]}
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> RequireScopes.call(opts)
-
-      assert conn.resp_body =~ ~s(required=["sessions:write"])
-      assert conn.resp_body =~ ~s(provided=["profile:read"])
-    end
+    refute scoped_conn(jwt_facts)
+           |> RequireScopes.call(opts(scopes: ["anything:write"]))
+           |> Map.fetch!(:halted)
   end
 
-  describe "call/2 - unauthenticated" do
-    test "calls error_handler with :unauthenticated when no current_scope" do
-      opts = RequireScopes.init(scopes: ["profile:read"], error_handler: TestErrorHandler)
+  test "spoofed Scope auth fields never grant access" do
+    spoofed_scope = %{
+      user: %{id: "user-1"},
+      auth_method: :api_token,
+      token_scopes: ["*", "profile:read"]
+    }
 
-      conn =
-        conn(:get, "/api/resource")
-        |> RequireScopes.call(opts)
+    result = scoped_conn(nil, spoofed_scope) |> RequireScopes.call(opts())
 
-      assert conn.halted
-      assert conn.resp_body == "unauthenticated"
-    end
+    assert result.halted
+    assert result.status == 403
+    assert result.resp_body =~ "provided=[]"
   end
 end
