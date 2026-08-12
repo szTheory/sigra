@@ -129,7 +129,7 @@ defmodule Sigra.Install.Features.Core do
     |> Kernel.++(
       if api?, do: api_injections(otp_app_str, context_underscore(binding), web_module), else: []
     )
-    |> Kernel.++(if jwt?, do: jwt_injections(otp_app_str, web_module), else: [])
+    |> Kernel.++(if jwt?, do: jwt_injections(otp_app_str, context_module, web_module), else: [])
     |> Enum.reject(&is_nil/1)
   end
 
@@ -848,13 +848,15 @@ defmodule Sigra.Install.Features.Core do
     api_list
   end
 
-  defp jwt_injections(otp_app, web_module) do
+  defp jwt_injections(otp_app, context_module, web_module) do
     jwt_router_content = """
       # Sigra JWT
       # Host policy calls the generated Auth.JWT.create_jwt_tokens/1 delegate;
       # no password, MFA, or request-scoped issuance route is generated.
       pipeline :jwt_authenticated do
-        plug Sigra.Plug.FetchJWT
+        plug Sigra.Plug.FetchJWT,
+          config: &#{context_module}.JWT.sigra_config/0,
+          scope_module: #{context_module}.Scope
         plug Sigra.Plug.RequireAuthenticated,
           error_handler: #{web_module}.AuthErrorHandler
       end
@@ -865,13 +867,23 @@ defmodule Sigra.Install.Features.Core do
     # Sigra JWT configuration
     config :#{otp_app}, :sigra_api,
       jwt: [
+        enabled: true,
         algorithm: "HS256",
+        typ: "JWT",
+        issuer: "#{otp_app}",
+        audience: ["#{otp_app}_api"],
         access_ttl: 900,
         refresh_ttl: 2_592_000
       ]
     """
 
     [
+      %Injection{
+        target: "mix.exs",
+        marker: ~s({:joken, "~> 2.6"}),
+        anchor: :mix_deps,
+        content: ~s({:joken, "~> 2.6"},)
+      },
       %Injection{
         target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
         marker: "# Sigra JWT",
@@ -880,7 +892,7 @@ defmodule Sigra.Install.Features.Core do
       },
       %Injection{
         target: Path.join(["config", "config.exs"]),
-        marker: "jwt:",
+        marker: "# Sigra JWT configuration",
         anchor: :elixir_config,
         content: jwt_config_content
       }

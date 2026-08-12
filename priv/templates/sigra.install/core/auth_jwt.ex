@@ -9,7 +9,9 @@ defmodule <%= context_module %>.JWT do
 
   @doc "Issues access and refresh JWTs using server-owned scope policy."
   def create_jwt_tokens(user) do
-    Sigra.Auth.generate_jwt_tokens(sigra_config(), user, jwt_scopes_for(user))
+    Sigra.JWT.generate_tokens(sigra_config(), user, jwt_scopes_for(user),
+      user_token_schema: <%= context_module %>.UserToken
+    )
   end
 
   @doc "Rotates a JWT refresh credential."
@@ -26,7 +28,19 @@ defmodule <%= context_module %>.JWT do
   # It is intentionally not selected by an HTTP request.
   defp jwt_scopes_for(_user), do: ["read"]
 
-  defp sigra_config do
-    <%= context_module %>.sigra_config()
+  @doc false
+  def sigra_config do
+    base_config = <%= context_module %>.sigra_config()
+    jwt = [
+      enabled: true,
+      algorithm: "HS256",
+      typ: "JWT",
+      issuer: "<%= otp_app %>",
+      audience: ["<%= otp_app %>_api"],
+      access_ttl: 900,
+      refresh_ttl: 2_592_000
+    ]
+
+    %{base_config | jwt: jwt}
   end
 end

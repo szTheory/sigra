@@ -250,8 +250,8 @@ defmodule Sigra.Install.APITokenGeneratorTest do
 
       assert content =~ "def create_jwt_tokens(user)"
 
-      assert content =~
-               "Sigra.Auth.generate_jwt_tokens(sigra_config(), user, jwt_scopes_for(user))"
+      assert content =~ "Sigra.JWT.generate_tokens(sigra_config(), user, jwt_scopes_for(user),"
+      assert content =~ "user_token_schema: MyApp.Auth.UserToken"
 
       assert content =~ "def refresh_jwt(raw_refresh_token)"
       assert content =~ "def revoke_jwt_refresh(raw_refresh_token)"
@@ -270,9 +270,11 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       content = render_template("auth_jwt.ex", jwt: true)
 
       assert content =~ "def sigra_config do"
-      assert content =~ "Application.fetch_env!(:my_app, :sigra_api)"
-      assert content =~ "Keyword.fetch!(:jwt)"
-      refute content =~ "def sigra_config do\n    MyApp.Auth.sigra_config()"
+      assert content =~ "enabled: true"
+      assert content =~ "typ: \"JWT\""
+      assert content =~ "issuer: \"my_app\""
+      assert content =~ "audience: [\"my_app_api\"]"
+      refute content =~ "def sigra_config do\n    MyApp.Auth.sigra_config()\n  end"
     end
   end
 
@@ -529,6 +531,7 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert source =~ "typ: \"JWT\""
       assert source =~ "issuer:"
       assert source =~ "audience:"
+      assert source =~ "{:joken, \"~> 2.6\"}"
       refute source =~ "post \"/token\", TokenController, :create"
       refute source =~ "FetchBearer"
     end

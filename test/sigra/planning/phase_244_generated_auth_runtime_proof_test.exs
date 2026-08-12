@@ -94,10 +94,10 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
     ])
 
     patch_mix!(app, root)
-    patch_test_repo_config!(app, database)
+    patch_test_repo_config!(app, database, "sigra_phase_244_jwt")
     run!(app, "mix", ["deps.get"])
 
-    for _ <- 1..2 do
+    for install_attempt <- 1..2 do
       run!(app, "mix", [
         "sigra.install",
         "Accounts",
@@ -107,7 +107,15 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
         "--no-live",
         "--no-organizations"
       ])
+
+      if install_attempt == 1, do: run!(app, "mix", ["deps.get"])
     end
+
+    run!(app, "mix", ["deps.get"])
+
+    generated_config = File.read!(Path.join(app, "config/config.exs"))
+    assert generated_config =~ "config :sigra_phase_244_jwt, :sigra_api"
+    assert generated_config =~ "enabled: true"
 
     run!(app, "mix", ["ecto.create"])
     assert_database_ready!(database)
@@ -131,7 +139,11 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
     assert config =~ "audience: [\"sigra_phase_244_jwt_api\"]"
     refute config =~ "api_token:"
     refute File.exists?(Path.join(app, "lib/sigra_phase_244_jwt/accounts/user_api_token.ex"))
-    refute File.exists?(Path.join(app, "lib/sigra_phase_244_jwt_web/controllers/api_token_controller.ex"))
+
+    refute File.exists?(
+             Path.join(app, "lib/sigra_phase_244_jwt_web/controllers/api_token_controller.ex")
+           )
+
     refute jwt_delegate =~ "password"
     refute jwt_delegate =~ "conn"
     refute jwt_delegate =~ "params"
@@ -192,13 +204,13 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
     File.write!(path, patched)
   end
 
-  defp patch_test_repo_config!(app, database) do
+  defp patch_test_repo_config!(app, database, app_name \\ "sigra_phase_244_api") do
     path = Path.join(app, "config/test.exs")
     source = File.read!(path)
 
     {with_database, database_changes} =
       Regex.replace(
-        ~r/database: "sigra_phase_244_api_test#\{System\.get_env\("MIX_TEST_PARTITION"\)\}",/,
+        ~r/database: "#{Regex.escape(app_name)}_test#\{System\.get_env\("MIX_TEST_PARTITION"\)\}",/,
         source,
         "database: #{inspect(database)},"
       )
@@ -396,16 +408,21 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
 
       defp resign(token, config, "typ", typ) do
         {:ok, claims} = Sigra.JWT.verify_access(config, token)
-        signer = Sigra.JWT.configured_signer(config)
+        signer = configured_signer(config, typ)
         {:ok, resigned, _} = Joken.generate_and_sign(%{"typ" => typ}, claims, signer)
         resigned
       end
 
       defp resign(token, config, claim, value) do
         {:ok, claims} = Sigra.JWT.verify_access(config, token)
-        signer = Sigra.JWT.configured_signer(config)
+        signer = configured_signer(config, Keyword.fetch!(config.jwt, :typ))
         {:ok, resigned, _} = Joken.generate_and_sign(%{}, Map.put(claims, claim, value), signer)
         resigned
+      end
+
+      defp configured_signer(config, typ) do
+        signer = Sigra.JWT.Signer.create_signer(config)
+        %{signer | jws: JOSE.JWS.from_map(%{"alg" => signer.alg, "typ" => typ})}
       end
     end
     """)

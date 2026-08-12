@@ -29,7 +29,7 @@ defmodule Sigra.Plug.FetchJWT do
   end
 
   defp fetch(conn, opts) do
-    config = Keyword.fetch!(opts, :config)
+    config = opts |> Keyword.fetch!(:config) |> resolve_config()
     scope_module = Keyword.fetch!(opts, :scope_module)
 
     if Keyword.get(config.jwt, :enabled, false) do
@@ -64,4 +64,7 @@ defmodule Sigra.Plug.FetchJWT do
 
   defp verified_scopes(%{"scopes" => scopes}) when is_list(scopes), do: scopes
   defp verified_scopes(_claims), do: []
+
+  defp resolve_config(config) when is_function(config, 0), do: config.()
+  defp resolve_config(config), do: config
 end
