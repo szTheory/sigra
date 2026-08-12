@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 244
 current_phase_name: PAT and Advanced JWT Truth Repair
 status: planning
-stopped_at: Phase 244 context gathered (assumptions mode)
-last_updated: "2026-08-12T21:00:26.604Z"
+stopped_at: Completed 244-01-PLAN.md
+last_updated: "2026-08-12T21:56:50.113Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 243 complete, transitioned to Phase 244
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 11
+  completed_plans: 6
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 244 of 249 (PAT and Advanced JWT Truth Repair)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-12 — Phase 243 complete, transitioned to Phase 244
+Plan: 2 of 6
+Status: In progress
+Last activity: 2026-08-12 — Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 
-Progress: ░░░░░░░░░░ [██████████] 100%
+Progress: ░░░░░░░░░░ [██████░░░░] 55%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 243-credential-boundary-and-pipeline-foundation P03 | 4min | 1 tasks | 3 files |
 | Phase 243 P04 | 6min | 1 tasks | 2 files |
 | Phase 243 P05 | 3min | 1 tasks | 4 files |
+| Phase 244 P01 | 2min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase 243]: Generated Scope structs use Sigra.Scope.build/3 while only non-struct scopes use legacy new/1.
 - [Phase 243]: FetchBearer is deprecated compatibility-only dispatch; primary documentation selects explicit credential-kind pipelines.
 - [Phase 243]: The normative four-owner contract assigns first-party auth to Sigra, delegation to Lockspire, projected runtime facts to Crosswake, and authorization/media/lease/replay policy to the host.
+- [Phase 244]: API selection emits only PAT artifacts and FetchAPIToken; JWT selection emits only JWT artifacts and FetchJWT.
+- [Phase 244]: Generated JWT issuance is host policy through Auth.JWT, never a password/MFA exchange or request-selected scopes.
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T21:00:26.599Z
-Stopped at: Phase 244 context gathered (assumptions mode)
-Resume file: .planning/phases/244-pat-and-advanced-jwt-truth-repair/244-CONTEXT.md
+Last session: 2026-08-12T21:56:50.107Z
+Stopped at: Completed 244-01-PLAN.md
+Resume file: None

@@ -12,10 +12,10 @@
 
 ### Personal Access Tokens and JWT
 
-- [ ] **PAT-01**: A fresh host generated with `--api` receives all schemas, migrations, configuration, Auth delegates, routes, and plugs required to create and authenticate with personal access tokens.
+- [x] **PAT-01**: A fresh host generated with `--api` receives all schemas, migrations, configuration, Auth delegates, routes, and plugs required to create and authenticate with personal access tokens.
 - [ ] **PAT-02**: An authenticated user can list, create, and revoke only their own personal access tokens through CSRF-protected, recent-authenticated management operations with server-validated scopes.
-- [ ] **JWT-01**: A fresh host generated with `--jwt` receives an independently runnable advanced JWT configuration whose access tokens require the configured algorithm, type, issuer, audience, subject, issued-at, expiry, and identifier claims and validate not-before when present.
-- [ ] **JWT-02**: A host can issue server-scoped JWTs and atomically rotate/revoke opaque refresh-token families without exposing a generated password-to-JWT endpoint or accepting request-selected scopes.
+- [x] **JWT-01**: A fresh host generated with `--jwt` receives an independently runnable advanced JWT configuration whose access tokens require the configured algorithm, type, issuer, audience, subject, issued-at, expiry, and identifier claims and validate not-before when present.
+- [x] **JWT-02**: A host can issue server-scoped JWTs and atomically rotate/revoke opaque refresh-token families without exposing a generated password-to-JWT endpoint or accepting request-selected scopes.
 
 ### First-Party App Sessions
 
@@ -67,10 +67,10 @@
 |---|---:|---|
 | BOUND-01 | Phase 243 | Complete |
 | API-01 | Phase 243 | Complete |
-| PAT-01 | Phase 244 | Pending |
+| PAT-01 | Phase 244 | Complete |
 | PAT-02 | Phase 244 | Pending |
-| JWT-01 | Phase 244 | Pending |
-| JWT-02 | Phase 244 | Pending |
+| JWT-01 | Phase 244 | Complete |
+| JWT-02 | Phase 244 | Complete |
 | APP-01 | Phase 246 | Pending |
 | APP-02 | Phase 246 | Pending |
 | APP-03 | Phase 246 | Pending |
