@@ -4,17 +4,17 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 243
 current_phase_name: Credential Boundary and Pipeline Foundation
-current_plan: 2
-status: in_progress
-stopped_at: Completed 243-01-PLAN.md
-last_updated: "2026-08-12T19:37:15.655Z"
+status: executing
+stopped_at: Completed 243-02-PLAN.md
+last_updated: "2026-08-12T19:41:54.406Z"
 last_activity: 2026-08-12
-last_activity_desc: v1.49 roadmap created with 19/19 requirements mapped.
+last_activity_desc: Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
+  completed_plans: 2
+current_plan: 2
 ---
 
 # Project State
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 243 of 249 (Credential Boundary and Pipeline Foundation)
-Plan: 02 of 05
-Status: In progress
+Plan: 3 of 05
+Status: Ready to execute
 Last activity: 2026-08-12 — Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 
-Progress: ░░░░░░░░░░ [██░░░░░░░░] 20%
+Progress: ░░░░░░░░░░ [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: ░░░░░░░░░░ [██░░░░░░░░] 20%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 243-credential-boundary-and-pipeline-foundation P01 | 4min | 2 tasks | 5 files |
+| Phase 243 P02 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Progress: ░░░░░░░░░░ [██░░░░░░░░] 20%
 - Platform claims must identify their evidence class (contract, emulator, or physical device) and fail closed when required proof is absent.
 - [Phase ?]: Explicit PAT verification reloads the live user and stores only bounded private credential facts.
 - [Phase ?]: RequireScopes authorizes only verified PAT/JWT metadata, never Scope-shaped fields or session identity.
+- [Phase ?]: FetchJWT verifies only JWTs, reloads the live user, and projects bounded private facts.
+- [Phase ?]: FetchAppSession remains a fail-closed public pipeline seam until Phase 245 adds verifier and storage.
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:37:15.647Z
-Stopped at: Completed 243-01-PLAN.md
+Last session: 2026-08-12T19:41:54.399Z
+Stopped at: Completed 243-02-PLAN.md
 Resume file: None
