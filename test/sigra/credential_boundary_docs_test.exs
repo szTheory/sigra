@@ -83,4 +83,12 @@ defmodule Sigra.CredentialBoundaryDocsTest do
     assert String.contains?(api, "has already revoked the reused token family")
     refute String.contains?(api, "Sigra.Auth.revoke_all_api_tokens(config, user)")
   end
+
+  test "API-token cleanup guidance uses the API-token retention API" do
+    api = read(@api_path)
+
+    assert String.contains?(api, "cleanup_revoked_api_tokens(config)")
+    assert String.contains?(api, "api_token[:cleanup_retention]")
+    refute String.contains?(api, "cleanup_expired_tokens/2")
+  end
 end

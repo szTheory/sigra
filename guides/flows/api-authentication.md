@@ -214,7 +214,11 @@ Tokens can have an optional `expires_at`:
       expires_at: DateTime.add(DateTime.utc_now(), 90, :day)
     })
 
-A nightly Oban job (`Sigra.Workers.TokenCleanup`) deletes expired rows — see `cleanup_expired_tokens/2` in that module if you need to run it inline.
+Revoked and expired API-token rows are retained for 90 days by default (configure
+`api_token[:cleanup_retention]`) before cleanup. Schedule cleanup from the host
+when that retention window is desired:
+
+    Sigra.Workers.TokenCleanup.cleanup_revoked_api_tokens(config)
 
 ## JWT
 
