@@ -121,6 +121,14 @@ defmodule ExampleWeb.AppLive do
             <h2 class="vt-panel__title">Two-factor &amp; passkeys</h2>
             <p class="vt-copy">Manage TOTP and passkeys (re-auth required).</p>
           </a>
+          <div class="vt-panel">
+            <p class="vt-kicker">Crosswake</p>
+            <h2 class="vt-panel__title">Continue to Crosswake</h2>
+            <p class="vt-copy">Continue securely with your Tasklane account.</p>
+            <.form for={%{}} action={~p"/crosswake/start"} method="post" data-testid="app-crosswake-start">
+              <button type="submit" class="vt-btn vt-btn--primary">Continue to Crosswake</button>
+            </.form>
+          </div>
         </div>
 
         <div

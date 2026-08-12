@@ -34,26 +34,8 @@ test('hosted Crosswake local return preserves the real cookie jar and clears cor
     );
   });
 
-  await page.evaluate(() => {
-    const csrfToken = document
-      .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
-      ?.content;
-
-    if (!csrfToken) throw new Error('missing rendered CSRF token');
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/crosswake/start';
-
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = '_csrf_token';
-    csrfInput.value = csrfToken;
-    form.append(csrfInput);
-
-    document.body.append(form);
-    form.submit();
-  });
+  await expect(page.getByRole('button', { name: 'Continue to Crosswake' })).toBeVisible();
+  await page.getByRole('button', { name: 'Continue to Crosswake' }).click();
 
   const returnUrl = new URL((await returnRequest).url());
   const appNavigation = await appRequest;

@@ -34,6 +34,8 @@ defmodule ExampleWeb.AppLiveTest do
 
       {:ok, _lv, html} = live(conn, ~p"/app")
 
+      assert 1 == Regex.scan(~r/data-testid="app-crosswake-start"/, html) |> length()
+
       assert [crosswake_form] =
                Regex.run(
                  ~r/<form(?=[^>]*data-testid="app-crosswake-start")(?=[^>]*action="\/crosswake\/start")(?=[^>]*method="post")[^>]*>.*?<\/form>/s,
@@ -44,7 +46,7 @@ defmodule ExampleWeb.AppLiveTest do
                ~r/<input(?=[^>]*name="_csrf_token")(?=[^>]*type="hidden")[^>]*>/s
       assert crosswake_form =~ ~r/<button[^>]*type="submit"[^>]*>\s*Continue to Crosswake\s*<\/button>/s
       refute crosswake_form =~ ~r/\b(?:continuation|state|pkce|verifier|binding|session|identity|route|destination|evaluator|navigation)\b/i
-      refute crosswake_form =~ "phx-submit"
+      refute crosswake_form =~ "phx-"
     end
 
     test "shows the Sigra Admin card for a platform admin", %{conn: conn} do
