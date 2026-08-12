@@ -173,7 +173,7 @@ Tokens can be limited to specific scopes (e.g. `read:projects`, `write:projects`
 
     config :my_app, MyApp.Auth.Config,
       api_token: [
-        scopes: ["read:projects", "write:projects", "admin"]
+        custom_scopes: ["read:projects", "write:projects", "admin"]
       ]
 
 Enforce scopes per-route:

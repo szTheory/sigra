@@ -51,6 +51,8 @@ defmodule Sigra.CredentialBoundaryDocsTest do
     refute String.contains?(primary, "FetchBearer")
     refute String.contains?(primary, "detects the `Authorization: Bearer` header")
     refute String.contains?(primary, "Sigra.APIToken.require_scope")
+    refute String.contains?(api, "api_token: [\n        scopes:")
+    assert String.contains?(api, "api_token: [\n        custom_scopes:")
   end
 
   test "Lockspire receives normal Scope identity without Sigra credentials" do
