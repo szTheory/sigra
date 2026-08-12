@@ -1,215 +1,157 @@
 defmodule Sigra.Plug.FetchBearerTest do
   use ExUnit.Case, async: true
+
+  import Mox
   import Plug.Test
 
+  alias Sigra.JWT
   alias Sigra.Plug.FetchBearer
-
-  # -- Test scope module --
 
   defmodule TestScope do
     @moduledoc false
-    def new(data), do: data
+    defstruct [:user, :active_organization, :membership, :impersonating_from]
   end
 
-  # -- Test helpers --
+  @secret_key_base String.duplicate("b", 64)
 
-  defp test_config(overrides \\ []) do
-    %Sigra.Config{
-      repo: Sigra.TestRepo,
+  defp config(overrides \\ []) do
+    Sigra.Config.new!(
+      repo: Sigra.MockRepo,
       user_schema: Sigra.TestUser,
       otp_app: :test_app,
-      secret_key_base: String.duplicate("a", 64),
+      secret_key_base: @secret_key_base,
       api_token:
         Keyword.get(overrides, :api_token,
           prefix: "test_app_sk_",
           api_token_schema: Sigra.TestAPIToken
         ),
-      jwt: Keyword.get(overrides, :jwt, enabled: false)
-    }
-  end
-
-  defp default_opts(config_overrides \\ []) do
-    [config: test_config(config_overrides), scope_module: TestScope]
-  end
-
-  describe "init/1" do
-    test "passes options through" do
-      result = FetchBearer.init(default_opts())
-      assert Keyword.has_key?(result, :config)
-      assert Keyword.has_key?(result, :scope_module)
-    end
-  end
-
-  describe "call/2 skip behavior" do
-    test "skips if current_scope already assigned (D-53)" do
-      existing_scope = %{id: 1, auth_method: :session}
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer some_token")
-        |> Plug.Conn.assign(:current_scope, existing_scope)
-
-      result = FetchBearer.call(conn, FetchBearer.init(default_opts()))
-
-      # Should remain unchanged -- plug skips entirely
-      assert result.assigns.current_scope == existing_scope
-    end
-  end
-
-  describe "call/2 no token" do
-    test "assigns nil when no Authorization header" do
-      conn =
-        conn(:get, "/api/resource")
-        |> FetchBearer.call(FetchBearer.init(default_opts()))
-
-      assert conn.assigns[:current_scope] == nil
-    end
-
-    test "assigns nil when Authorization header is not Bearer format" do
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Basic dXNlcjpwYXNz")
-        |> FetchBearer.call(FetchBearer.init(default_opts()))
-
-      assert conn.assigns[:current_scope] == nil
-    end
-  end
-
-  describe "call/2 auto-detection routing" do
-    test "token with configured prefix routes to opaque path" do
-      # Token starts with "test_app_sk_" prefix -> opaque path
-      # Will call Sigra.APIToken.verify which needs a real repo
-      # We verify it takes the opaque path by the error it raises
-      opts = FetchBearer.init(default_opts())
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer test_app_sk_abc123def456")
-
-      # APIToken.verify will try to use the repo -- this confirms opaque path taken
-      assert_raise UndefinedFunctionError, ~r/Sigra\.TestRepo/, fn ->
-        FetchBearer.call(conn, opts)
-      end
-    end
-
-    test "token starting with eyJ and JWT enabled routes to JWT path" do
-      jwt_opts = default_opts(jwt: [enabled: true])
-      opts = FetchBearer.init(jwt_opts)
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.payload.sig")
-
-      # JWT path taken: Joken is loaded, invalid JWT returns {:error, :invalid_token}
-      # which results in nil scope (NOT an UndefinedFunctionError from the repo,
-      # which would happen if the opaque path were taken instead)
-      result = FetchBearer.call(conn, opts)
-      assert result.assigns.current_scope == nil
-    end
-
-    test "token starting with eyJ but JWT disabled falls to opaque path" do
-      opts = FetchBearer.init(default_opts(jwt: [enabled: false]))
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.test.sig")
-
-      # JWT disabled -> falls through to opaque path -> APIToken.verify -> repo error
-      assert_raise UndefinedFunctionError, ~r/Sigra\.TestRepo/, fn ->
-        FetchBearer.call(conn, opts)
-      end
-    end
-
-    test "prefix match checked FIRST before eyJ check (D-38)" do
-      # Token starts with prefix AND would match eyJ check -- prefix wins
-      jwt_opts =
-        default_opts(
-          jwt: [enabled: true],
-          api_token: [prefix: "test_app_sk_", api_token_schema: Sigra.TestAPIToken]
+      jwt:
+        Keyword.get(overrides, :jwt,
+          enabled: true,
+          algorithm: "HS256",
+          issuer: "test_issuer",
+          access_ttl: 900,
+          refresh: false,
+          verify_epoch: false
         )
-
-      opts = FetchBearer.init(jwt_opts)
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer test_app_sk_eyJsomething")
-
-      # Should go through opaque path (prefix match), NOT JWT path
-      # The error will be from APIToken.verify (repo), not JWT
-      assert_raise UndefinedFunctionError, ~r/Sigra\.TestRepo/, fn ->
-        FetchBearer.call(conn, opts)
-      end
-    end
-
-    test "token without any prefix falls to default opaque path" do
-      opts = FetchBearer.init(default_opts())
-
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer random_unknown_token")
-
-      # Default fallback -> opaque -> APIToken.verify -> repo error
-      assert_raise UndefinedFunctionError, ~r/Sigra\.TestRepo/, fn ->
-        FetchBearer.call(conn, opts)
-      end
-    end
+    )
   end
 
-  describe "call/2 prefix derivation" do
-    test "derives prefix from otp_app when no explicit prefix" do
-      config = %Sigra.Config{
-        repo: Sigra.TestRepo,
-        user_schema: Sigra.TestUser,
-        otp_app: :my_app,
-        secret_key_base: String.duplicate("a", 64),
-        api_token: [api_token_schema: Sigra.TestAPIToken],
-        jwt: [enabled: false]
-      }
+  defp opts(overrides \\ []), do: FetchBearer.init(config: config(overrides), scope_module: TestScope)
 
-      opts = FetchBearer.init(config: config, scope_module: TestScope)
-
-      # Token with derived prefix "my_app_sk_" should route to opaque
-      conn =
-        conn(:get, "/api/resource")
-        |> Plug.Conn.put_req_header("authorization", "Bearer my_app_sk_token123")
-
-      assert_raise UndefinedFunctionError, ~r/Sigra\.TestRepo/, fn ->
-        FetchBearer.call(conn, opts)
-      end
-    end
+  defp jwt_for(user, config) do
+    {:ok, %{access_token: jwt}} = JWT.generate_tokens(config, user, ["profile:read"])
+    jwt
   end
 
-  describe "behaviour" do
-    test "implements Plug behaviour" do
-      Code.ensure_loaded!(FetchBearer)
-      assert function_exported?(FetchBearer, :init, 1)
-      assert function_exported?(FetchBearer, :call, 2)
-    end
+  test "configured prefix dispatches to FetchAPIToken before enabled JWT detection" do
+    raw_token = "eyJ_prefers_configured_pat"
+    token = %{
+      id: "pat-1",
+      user_id: "user-1",
+      scopes: ["profile:read"],
+      revoked_at: nil,
+      expires_at: nil,
+      last_used_at: nil
+    }
+    user = %Sigra.TestUser{id: "user-1"}
+    options = opts(api_token: [prefix: "eyJ_", api_token_schema: Sigra.TestAPIToken])
+
+    expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> token end)
+    expect(Sigra.MockRepo, :get, fn Sigra.TestUser, "user-1" -> user end)
+
+    conn =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer " <> raw_token)
+      |> FetchBearer.call(options)
+
+    assert %TestScope{user: ^user} = conn.assigns.current_scope
+
+    assert conn.private[:sigra_auth] == %{
+             credential_kind: :personal_access_token,
+             credential_id: "pat-1",
+             scopes: ["profile:read"],
+             auth_method: :api_token,
+             assurance: []
+           }
+
+    refute inspect(conn.assigns) =~ raw_token
+    refute inspect(conn.private[:sigra_auth]) =~ raw_token
   end
 
-  describe "module contents" do
-    test "contains required auto-detection patterns" do
-      source = File.read!("lib/sigra/plug/fetch_bearer.ex")
+  test "enabled eyJ bearer dispatches to FetchJWT and preserves its bounded facts" do
+    config = config()
+    user = %Sigra.TestUser{id: 42}
+    jwt = jwt_for(user, config)
 
-      # D-53: skip check
-      assert source =~ "conn.assigns[:current_scope]"
+    expect(Sigra.MockRepo, :get, fn Sigra.TestUser, "42" -> user end)
 
-      # D-38: eyJ detection
-      assert source =~ ~s|String.starts_with?(raw_token, "eyJ")|
+    conn =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer " <> jwt)
+      |> FetchBearer.call(FetchBearer.init(config: config, scope_module: TestScope))
 
-      # Delegates to both verification modules
-      assert source =~ "Sigra.APIToken.verify"
-      assert source =~ "Sigra.JWT.verify_access"
+    assert %TestScope{user: ^user} = conn.assigns.current_scope
 
-      # Assigns auth_method for both paths
-      assert source =~ "auth_method: :api_token"
-      assert source =~ "auth_method: :jwt"
+    assert conn.private[:sigra_auth] == %{
+             credential_kind: :jwt,
+             credential_id: conn.private[:sigra_auth].credential_id,
+             scopes: ["profile:read"],
+             auth_method: :jwt,
+             assurance: []
+           }
 
-      # Token scopes assigned
-      assert source =~ "token_scopes:"
+    assert is_binary(conn.private[:sigra_auth].credential_id)
+    refute inspect(conn.assigns) =~ jwt
+    refute inspect(conn.private[:sigra_auth]) =~ jwt
+  end
 
-      # Config-based option
-      assert source =~ ":config"
-    end
+  test "opaque default retains PAT dispatch and authentication failures have no facts" do
+    token = %{
+      id: "pat-2",
+      user_id: "user-2",
+      scopes: [],
+      revoked_at: nil,
+      expires_at: nil,
+      last_used_at: nil
+    }
+    user = %Sigra.TestUser{id: "user-2"}
+
+    expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> token end)
+    expect(Sigra.MockRepo, :get, fn Sigra.TestUser, "user-2" -> user end)
+
+    successful =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer opaque_legacy_token")
+      |> FetchBearer.call(opts())
+
+    assert %TestScope{user: ^user} = successful.assigns.current_scope
+    assert successful.private[:sigra_auth].credential_kind == :personal_access_token
+
+    failed = FetchBearer.call(conn(:get, "/api/resource"), opts())
+    assert failed.assigns.current_scope == nil
+    refute Map.has_key?(failed.private, :sigra_auth)
+  end
+
+  test "an existing Scope skips every compatibility branch" do
+    existing_scope = %TestScope{user: %Sigra.TestUser{id: "user-1"}}
+
+    result =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer eyJ.not.a.jwt")
+      |> Plug.Conn.assign(:current_scope, existing_scope)
+      |> FetchBearer.call(opts())
+
+    assert result.assigns.current_scope == existing_scope
+    refute Map.has_key?(result.private, :sigra_auth)
+  end
+
+  test "documents FetchBearer as deprecated compatibility-only migration surface" do
+    source = File.read!("lib/sigra/plug/fetch_bearer.ex")
+
+    assert source =~ "@deprecated"
+    assert source =~ "FetchAPIToken"
+    assert source =~ "FetchJWT"
+    assert source =~ "compatibility"
   end
 end
