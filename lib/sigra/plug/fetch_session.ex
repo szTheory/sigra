@@ -21,7 +21,8 @@ defmodule Sigra.Plug.FetchSession do
 
     * `:config` - A `%Sigra.Config{}` struct (contains session store, timeouts, etc.).
     * `:scope_module` - Module used to construct the scope from the user.
-      Must export `new/1`.
+      Generated struct scopes use canonical construction; existing legacy scopes
+      may export `new/1`.
     * `:cookie_opts` - Override default cookie security options.
     * `:remember_me_cookie` - Name of the remember-me cookie. Default: `nil` (disabled).
 
@@ -77,20 +78,28 @@ defmodule Sigra.Plug.FetchSession do
 
     case fetch_and_validate_session(token, session_store, session_config, store_opts) do
       {:ok, session} ->
-        maybe_update_activity(session, session_store, session_config, store_opts)
-        scope = scope_module.new(%{id: session.user_id})
+        case config.repo.get(config.user_schema, session.user_id) do
+          nil ->
+            Plug.Conn.assign(conn, :current_scope, nil)
 
-        conn =
-          conn
-          |> Plug.Conn.assign(:current_scope, scope)
-          |> Plug.Conn.put_private(:sigra_session, session)
+          user ->
+            maybe_update_activity(session, session_store, session_config, store_opts)
 
-        # Propagate mfa_pending state into the Plug session so LiveView
-        # mounts (which only receive the serialized session map) can detect it.
-        if session.type == :mfa_pending do
-          Plug.Conn.put_session(conn, :mfa_pending, true)
-        else
-          Plug.Conn.delete_session(conn, :mfa_pending)
+            conn =
+              conn
+              |> Plug.Conn.assign(
+                :current_scope,
+                Sigra.Plug.CredentialAuth.build_scope(scope_module, user)
+              )
+              |> Plug.Conn.put_private(:sigra_session, session)
+
+            # Propagate mfa_pending state into the Plug session so LiveView
+            # mounts (which only receive the serialized session map) can detect it.
+            if session.type == :mfa_pending do
+              Plug.Conn.put_session(conn, :mfa_pending, true)
+            else
+              Plug.Conn.delete_session(conn, :mfa_pending)
+            end
         end
 
       :skip ->

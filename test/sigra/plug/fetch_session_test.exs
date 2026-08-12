@@ -8,7 +8,7 @@ defmodule Sigra.Plug.FetchSessionTest do
   setup :verify_on_exit!
 
   defmodule MockScopeModule do
-    def new(user), do: %{user_id: user.id}
+    def new(user), do: %{user: user}
   end
 
   defmodule StructScopeModule do
@@ -94,7 +94,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "valid-hashed-token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: user.id}
+      assert conn.assigns[:current_scope] == %{user: user}
     end
 
     test "assigns current_scope when session found and valid" do
@@ -113,7 +113,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "some-token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: user.id}
+      assert conn.assigns[:current_scope] == %{user: user}
     end
 
     test "builds a generated struct Scope from the exact loaded user" do
@@ -125,7 +125,7 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       expect_user(user)
 
-      opts = FetchSession.init(@default_opts ++ [scope_module: StructScopeModule])
+      opts = FetchSession.init(Keyword.put(@default_opts, :scope_module, StructScopeModule))
 
       conn =
         conn(:get, "/")
@@ -244,7 +244,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user: build_user()}
     end
 
     test "remember-me sessions use remember_me_max_age as absolute timeout" do
@@ -286,7 +286,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user: build_user()}
     end
 
     test "does NOT call update_activity when threshold not yet reached" do
@@ -308,7 +308,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> init_test_session(%{user_token: "token"})
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user: build_user()}
     end
   end
 
@@ -331,7 +331,7 @@ defmodule Sigra.Plug.FetchSessionTest do
         |> Plug.Conn.fetch_cookies()
         |> FetchSession.call(opts)
 
-      assert conn.assigns[:current_scope] == %{user_id: 1}
+      assert conn.assigns[:current_scope] == %{user: build_user()}
     end
   end
 

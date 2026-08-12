@@ -19,10 +19,16 @@ defmodule Sigra.Plug.CredentialAuth do
 
   @spec build_scope(module(), struct() | map()) :: struct() | map()
   def build_scope(scope_module, user) do
-    if function_exported?(scope_module, :__struct__, 0) do
+    if struct_scope_module?(scope_module) do
       Sigra.Scope.build(scope_module, user, [])
     else
       scope_module.new(user)
     end
+  end
+
+  defp struct_scope_module?(scope_module) do
+    is_map(scope_module.__struct__())
+  rescue
+    UndefinedFunctionError -> false
   end
 end
