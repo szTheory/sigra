@@ -202,3 +202,14 @@ Plans:
 Plans:
 
 - [x] 241-01-PLAN.md — Repair and prove the protected controller MFA settings render path, then contract-lock its session and lane boundaries.
+
+### Phase 242: Close gap: XW-01/XW-02 — add rendered Crosswake start control
+
+**Goal:** Authenticated example-host users can initiate the existing Crosswake flow from a rendered, accessible `/app` control and complete the unchanged secure return journey.
+**Requirements**: XW-01, XW-02
+**Depends on:** Phase 241
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 242-01-PLAN.md — Render a native Crosswake start control and prove the full role-driven hosted return journey.
