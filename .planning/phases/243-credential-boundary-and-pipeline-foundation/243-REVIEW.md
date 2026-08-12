@@ -1,6 +1,6 @@
 ---
 phase: 243-credential-boundary-and-pipeline-foundation
-reviewed: 2026-08-12T20:31:00Z
+reviewed: 2026-08-12T20:36:30Z
 depth: standard
 files_reviewed: 17
 files_reviewed_list:
@@ -22,8 +22,8 @@ files_reviewed_list:
   - test/sigra/plug/fetch_session_test.exs
   - test/sigra/plug/require_scopes_test.exs
 findings:
-  critical: 1
-  warning: 1
+  critical: 0
+  warning: 2
   info: 0
   total: 2
 status: issues_found
@@ -31,51 +31,58 @@ status: issues_found
 
 # Phase 243: Code Review Report
 
-**Reviewed:** 2026-08-12T20:31:00Z
+**Reviewed:** 2026-08-12T20:36:30Z
 **Depth:** standard
 **Files Reviewed:** 17
 **Status:** issues_found
 
 ## Summary
 
-The explicit credential pipelines correctly avoid placing raw credentials in the Scope or trusted-facts map, and the browser-session path reloads the user. However, the direct JWT pipeline ignores the configuration switch that is documented as disabling JWT support, so a route that installs it can authenticate otherwise-disabled JWTs. The API guide also retains a code sample for an API that does not exist.
+Re-reviewed the exact original scope after fixes `83ac6faf` and `fc707254`. CR-01 is resolved: `FetchJWT` now fails closed when JWT support is disabled, with a regression test using a correctly signed token. WR-01 is resolved: the guide now uses `Sigra.Plug.RequireScopes` rather than the nonexistent `Sigra.APIToken.require_scope/2` API.
 
-Focused Phase 243 tests passed (42 tests, 0 failures); the test bootstrap emitted its known local PostgreSQL connection-refused noise.
+The focused Phase 243 suite passes (40 tests, 0 failures). The test bootstrap emits known local PostgreSQL connection-refused noise. Two warning-level defects remain: session authentication violates the documented ordered-pipeline contract, and the guide gives an invalid API-token scopes configuration key.
 
-## Critical Issues
+## Narrative Findings (AI reviewer)
 
-### CR-01: Disabled JWT support still authenticates through the explicit pipeline
+## Warnings
 
-**File:** `lib/sigra/plug/fetch_jwt.ex:35-44`
+### WR-01: FetchSession clobbers an earlier successful credential pipeline
 
-**Issue:** `FetchJWT` calls `Sigra.JWT.verify_access/2` without checking `config.jwt[:enabled]`. `verify_access/2` itself verifies a signed token regardless of that flag (`lib/sigra/jwt.ex:127-149`); only token generation checks it. Consequently, adding `FetchJWT` to a router while `jwt: [enabled: false]` still accepts valid JWTs signed with the configured key, contradicting the documented opt-in setting and allowing a disabled credential type to authenticate and authorize requests.
+**File:** `lib/sigra/plug/fetch_session.ex:63-107`
 
-**Fix:** Fail closed before verification when JWT is not enabled, and add a regression test that presents a correctly signed JWT to a disabled-JWT config and asserts a nil Scope with no `:sigra_auth` facts.
+**Issue:** Unlike `FetchAPIToken`, `FetchJWT`, `FetchAppSession`, and `FetchBearer`, `FetchSession.call/2` never returns an existing `:current_scope` unchanged. In an intentionally ordered mixed pipeline, a valid PAT/JWT authenticated by an earlier plug is overwritten by the browser-session result: a missing or invalid cookie sets the Scope to `nil`, while a valid cookie silently changes the authenticated principal. This violates the guide's explicit "first successful normal Scope wins" contract and makes the documented host-selected ordering nonfunctional whenever `FetchSession` appears after another credential plug.
+
+**Fix:** Short-circuit before reading the session, matching the other explicit plugs, and add tests for both a pre-existing Scope with no session token and a pre-existing Scope with a valid session token (assert no store or repo interaction).
 
 ```elixir
-defp fetch(conn, opts) do
-  config = Keyword.fetch!(opts, :config)
-
-  if Keyword.get(config.jwt, :enabled, false) do
-    fetch_enabled_jwt(conn, opts, config)
+def call(conn, opts) do
+  if conn.assigns[:current_scope] do
+    conn
   else
-    Plug.Conn.assign(conn, :current_scope, nil)
+    fetch_session(conn, opts)
   end
 end
 ```
 
-## Warnings
+Move the current body into `fetch_session/2` unchanged.
 
-### WR-01: API guide calls a nonexistent scope-enforcement API
+### WR-02: API-token scope configuration example cannot be validated
 
-**File:** `guides/flows/api-authentication.md:179-187`
+**File:** `guides/flows/api-authentication.md:172-177`
 
-**Issue:** The guide instructs users to call `Sigra.APIToken.require_scope/2`, but there is no such function in `lib/` or the test suite. Following the documented route-level authorization example therefore raises `UndefinedFunctionError`; it also bypasses the newly introduced `RequireScopes` trusted-facts boundary described earlier in the same guide.
+**Issue:** The guide configures `api_token: [scopes: [...]]`, but `Sigra.Config` defines the supported key as `:custom_scopes` (`lib/sigra/config.ex:762-818`). A host that copies the documented example gets a `NimbleOptions` unknown-option validation error instead of configuring available token scopes.
 
-**Fix:** Replace the controller example with router-level `Sigra.Plug.RequireScopes` configuration (including the host error handler), or implement and document a real API that delegates to the same trusted-facts check. Add an assertion to `CredentialBoundaryDocsTest` that the primary guide names `RequireScopes` and does not reference `APIToken.require_scope`.
+**Fix:** Use the actual configuration key and add a docs assertion that rejects the obsolete `api_token: [scopes:` example.
+
+```elixir
+config :my_app, MyApp.Auth.Config,
+  api_token: [
+    custom_scopes: ["read:projects", "write:projects", "admin"]
+  ]
+```
 
 ---
 
-_Reviewed: 2026-08-12T20:31:00Z_
+_Reviewed: 2026-08-12T20:36:30Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
