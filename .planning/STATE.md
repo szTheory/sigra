@@ -2,16 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-status: completed
-stopped_at: Phase 242 context gathered (assumptions mode)
-last_updated: "2026-08-12T02:28:28.444Z"
-last_activity: 2026-08-11 — Phase 241 complete
+current_phase: 242
+current_phase_name: close-gap-xw-01-xw-02-add-rendered-crosswake-start-control
+status: verifying
+stopped_at: Completed 242-01-PLAN.md
+last_updated: "2026-08-12T03:03:09.326Z"
+last_activity: 2026-08-11
+last_activity_desc: Phase 242 execution started
 progress:
   total_phases: 9
-  completed_phases: 8
-  total_plans: 35
-  completed_plans: 35
-  percent: 89
+  completed_phases: 9
+  total_plans: 36
+  completed_plans: 36
+  percent: 100
 ---
 
 # Project State
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-08-11)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 241 — close-gap-ops-01-repair-controller-mfa-settings-rendering
+**Current focus:** Phase 242 — close-gap-xw-01-xw-02-add-rendered-crosswake-start-control
 
 ## Current Position
 
-Phase: 241
-Plan: 1 of 1 complete
-Status: All phases complete
-Last activity: 2026-08-11 — Phase 241 complete
+Phase: 242 (close-gap-xw-01-xw-02-add-rendered-crosswake-start-control) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-08-11 — Phase 242 execution started
 
 ## Accumulated Context
 
@@ -457,6 +460,8 @@ Last activity: 2026-08-11 — Phase 241 complete
 - [Phase ?]: Mechanical Crosswake prohibitions are resolved/test; spec-less XW-01/XW-02 edge assumptions remain unresolved without owner approval.
 - [Phase ?]: SettingsController.mfa/2 explicitly selects MFASettingsHTML with put_view/2 before rendering.
 - [Phase ?]: Controller MFA proof freshens the persisted session identified by the logged-in connection token and requires 200 HTML.
+- [Phase ?]: Crosswake initiation remains a native CSRF-protected POST in the existing authenticated Tasklane account hub.
+- [Phase ?]: The browser proof clicks the rendered Crosswake control while continuation, session, evaluator, and navigation authority remain server-owned.
 
 ### Pending Todos
 
@@ -608,9 +613,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-12T02:28:28.437Z
-Stopped at: Phase 242 context gathered (assumptions mode)
-Resume file: .planning/phases/242-close-gap-xw-01-xw-02-add-rendered-crosswake-start-control/242-CONTEXT.md
+Last session: 2026-08-12T03:03:09.307Z
+Stopped at: Completed 242-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -800,6 +805,7 @@ Resume file: .planning/phases/242-close-gap-xw-01-xw-02-add-rendered-crosswake-s
 | Phase 240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow P09 | 8m | 1 tasks | 4 files |
 | Phase 240.3 P10 | 11m | 2 tasks | 3 files |
 | Phase 241 P01 | 9min | 2 tasks | 3 files |
+| Phase 242 P01 | 12m | 2 tasks | 4 files |
 
 ## Deferred Items
 
