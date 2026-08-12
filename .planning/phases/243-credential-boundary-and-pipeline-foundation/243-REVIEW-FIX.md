@@ -1,8 +1,8 @@
 ---
 phase: 243
-fixed_at: 2026-08-12T20:33:58Z
+fixed_at: 2026-08-12T20:39:32Z
 review_path: .planning/phases/243-credential-boundary-and-pipeline-foundation/243-REVIEW.md
-iteration: 1
+iteration: 2
 findings_in_scope: 2
 fixed: 2
 skipped: 0
@@ -11,9 +11,9 @@ status: all_fixed
 
 # Phase 243: Code Review Fix Report
 
-**Fixed at:** 2026-08-12T20:33:58Z
+**Fixed at:** 2026-08-12T20:39:32Z
 **Source review:** `.planning/phases/243-credential-boundary-and-pipeline-foundation/243-REVIEW.md`
-**Iteration:** 1
+**Iteration:** 2
 
 **Summary:**
 
@@ -23,21 +23,21 @@ status: all_fixed
 
 ## Fixed Issues
 
-### CR-01: Disabled JWT support still authenticates through the explicit pipeline
+### WR-01: FetchSession clobbers an earlier successful credential pipeline
 
 **Status:** fixed: requires human verification
-**Files modified:** `lib/sigra/plug/fetch_jwt.ex`, `test/sigra/plug/fetch_jwt_test.exs`
-**Commit:** 83ac6faf
-**Applied fix:** The explicit JWT plug now fails closed when `config.jwt[:enabled]` is false. A regression test supplies a valid signed token to disabled configuration and asserts that no Scope or credential facts are assigned.
+**Files modified:** `lib/sigra/plug/fetch_session.ex`, `test/sigra/plug/fetch_session_test.exs`
+**Commit:** 08d77ec9
+**Applied fix:** `FetchSession` now returns an existing normal Scope before consulting the Plug session, session store, or repository. Regression tests cover both an empty session and a present valid-token-shaped session without mock expectations, proving neither collaborator is invoked.
 
-### WR-01: API guide calls a nonexistent scope-enforcement API
+### WR-02: API-token scope configuration example cannot be validated
 
 **Files modified:** `guides/flows/api-authentication.md`, `test/sigra/credential_boundary_docs_test.exs`
-**Commit:** fc707254
-**Applied fix:** Replaced the nonexistent controller API with a route-level `Sigra.Plug.RequireScopes` example using the host error handler, and added documentation assertions for the supported plug and the removal of the invalid API reference.
+**Commit:** 7864b0a9
+**Applied fix:** Replaced the invalid `api_token.scopes` example with the supported `api_token.custom_scopes` key and added assertions rejecting the obsolete key while requiring the valid one.
 
 ---
 
-_Fixed: 2026-08-12T20:33:58Z_
+_Fixed: 2026-08-12T20:39:32Z_
 _Fixer: the agent (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 2_
