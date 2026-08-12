@@ -19,7 +19,17 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Next Milestone Goals
 
-Planning next milestone. Re-rank the deferred ledger against adopter demand and security/trust impact before promoting work. The strongest candidates are the passkey-primary duplicate-ID/label composition, the remaining generated-host/admin-audit proof gaps, and operator-owned Hex `1.20.0` retirement; none is implicitly committed to scope.
+## Current Milestone: v1.49 FIRST-PARTY-CLIENT-READINESS
+
+**Goal:** Make Sigra's first-party authentication contract trustworthy across Phoenix browser/PWA, iOS, Android, and Crosswake by repairing bearer/JWT truth, adding opaque app sessions, and proving the boundary with a language-learning digital twin.
+
+**Target features:**
+- Explicit, independent browser-session, personal-access-token, advanced-JWT, and opaque app-session contracts.
+- Hosted system-browser login plus separately opted-in direct password/MFA login for first-party native clients.
+- A PWA/iOS/Android/Crosswake digital twin proving bounded offline media, account isolation, revocation, and exactly-once replay.
+- Electron contract coverage without packaging a desktop client.
+
+After this vertical slice, further SDK packaging, additional platform runtimes, or generalized offline behavior require concrete adopter evidence.
 
 ## Current State
 
@@ -652,6 +662,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Active — v1.49 FIRST-PARTY-CLIENT-READINESS
+- [ ] Define and enforce the Sigra/Lockspire/Crosswake/host ownership boundary for first-party authentication.
+- [ ] Repair generated personal-access-token and advanced-JWT installations so their documented contracts work and fail closed.
+- [ ] Add opt-in opaque app sessions with hosted PKCE login, rotating refresh credentials, revocation, and optional direct password/MFA login.
+- [ ] Prove PWA, physical-iPhone, Android-emulator, Crosswake, and Electron-contract behavior through a bounded language-learning digital twin.
 
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.

@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.48
-milestone_name: B2C-ALPHA-READINESS
-status: Awaiting next milestone
-stopped_at: Completed 242-03-PLAN.md
-last_updated: "2026-08-12T16:59:33.907Z"
+milestone: v1.49
+milestone_name: FIRST-PARTY-CLIENT-READINESS
+status: planning
+last_updated: "2026-08-12T17:51:22.945Z"
 last_activity: 2026-08-12
-last_activity_desc: Milestone v1.48 completed and archived
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 38
-  completed_plans: 38
-  percent: 100
-current_phase: 242
-current_phase_name: close-gap-xw-01-xw-02-add-rendered-crosswake-start-control
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +25,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 ## Current Position
 
-Phase: Milestone v1.48 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-12 — Milestone v1.48 completed and archived
+Status: Defining requirements
+Last activity: 2026-08-12 — Milestone v1.49 started
 
 ## Accumulated Context
 
