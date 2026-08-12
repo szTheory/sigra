@@ -1,9 +1,10 @@
 defmodule Sigra.Plug.RequireScopes do
   @moduledoc """
-  Route-level scope enforcement plug for API token authentication.
+  Route-level scope enforcement plug for explicitly scoped credentials.
 
-  Checks that the current connection's scope (from `conn.assigns.current_scope`)
-  has the required scopes. Session-authenticated users bypass scope checks entirely.
+  Checks server-produced credential facts in `conn.private[:sigra_auth]` after
+  identity has been established in `conn.assigns.current_scope`. It never uses
+  authorization-shaped fields from a host Scope.
 
   ## Options
 
@@ -24,11 +25,9 @@ defmodule Sigra.Plug.RequireScopes do
         error_handler: MyAppWeb.AuthErrorHandler,
         match: :any
 
-  ## Session Bypass
-
-  When `auth_method` is `:session`, the plug passes the connection through
-  without checking scopes. This enables a unified pipeline where browser
-  sessions and API tokens share the same routes.
+  Browser and app-session credentials establish identity but do not receive a
+  scope bypass. Only verified personal access tokens and JWTs can authorize
+  scoped routes.
   """
 
   @behaviour Plug
@@ -61,6 +60,7 @@ defmodule Sigra.Plug.RequireScopes do
     match_mode = Keyword.get(opts, :match, :all)
     error_handler = Keyword.fetch!(opts, :error_handler)
     scope = conn.assigns[:current_scope]
+    provided_scopes = trusted_scopes(conn.private[:sigra_auth])
 
     cond do
       is_nil(scope) ->
@@ -68,22 +68,18 @@ defmodule Sigra.Plug.RequireScopes do
         |> error_handler.auth_error(:unauthenticated, opts)
         |> Plug.Conn.halt()
 
-      # Session users bypass scope checks (D-21)
-      scope_auth_method(scope) == :session ->
-        conn
-
       # Wildcard passes all
-      scope_has_wildcard?(scope) ->
+      "*" in provided_scopes ->
         conn
 
-      has_required_scopes?(scope, required, match_mode) ->
+      has_required_scopes?(provided_scopes, required, match_mode) ->
         conn
 
       true ->
         error_opts =
           Keyword.merge(opts,
             required_scopes: required,
-            provided_scopes: scope_token_scopes(scope)
+            provided_scopes: provided_scopes
           )
 
         conn
@@ -92,21 +88,17 @@ defmodule Sigra.Plug.RequireScopes do
     end
   end
 
-  defp scope_auth_method(scope), do: Map.get(scope, :auth_method)
+  defp trusted_scopes(%{credential_kind: kind, scopes: scopes})
+       when kind in [:personal_access_token, :jwt] and is_list(scopes),
+       do: scopes
 
-  defp scope_token_scopes(scope), do: Map.get(scope, :token_scopes, [])
+  defp trusted_scopes(_facts), do: []
 
-  defp scope_has_wildcard?(scope) do
-    "*" in scope_token_scopes(scope)
+  defp has_required_scopes?(provided_scopes, required, :all) do
+    MapSet.subset?(MapSet.new(required), MapSet.new(provided_scopes))
   end
 
-  defp has_required_scopes?(scope, required, :all) do
-    token_scopes = MapSet.new(scope_token_scopes(scope))
-    MapSet.subset?(MapSet.new(required), token_scopes)
-  end
-
-  defp has_required_scopes?(scope, required, :any) do
-    token_scopes = scope_token_scopes(scope)
-    Enum.any?(required, &(&1 in token_scopes))
+  defp has_required_scopes?(provided_scopes, required, :any) do
+    Enum.any?(required, &(&1 in provided_scopes))
   end
 end
