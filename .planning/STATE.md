@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 244
 current_phase_name: PAT and Advanced JWT Truth Repair
-status: planning
-stopped_at: Completed 244-01-PLAN.md
-last_updated: "2026-08-12T21:56:50.113Z"
+status: executing
+stopped_at: Completed 244-02-PLAN.md
+last_updated: "2026-08-12T22:04:33.714Z"
 last_activity: 2026-08-12
-last_activity_desc: Phase 243 complete, transitioned to Phase 244
+last_activity_desc: Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 11
-  completed_plans: 6
+  completed_plans: 7
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 244 of 249 (PAT and Advanced JWT Truth Repair)
-Plan: 2 of 6
-Status: In progress
+Plan: 3 of 6
+Status: Ready to execute
 Last activity: 2026-08-12 — Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 
-Progress: ░░░░░░░░░░ [██████░░░░] 55%
+Progress: ░░░░░░░░░░ [██████░░░░] 64%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: ░░░░░░░░░░ [██████░░░░] 55%
 | Phase 243 P04 | 6min | 1 tasks | 2 files |
 | Phase 243 P05 | 3min | 1 tasks | 4 files |
 | Phase 244 P01 | 2min | 1 tasks | 4 files |
+| Phase 244-pat-and-advanced-jwt-truth-repair P02 | 6min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Progress: ░░░░░░░░░░ [██████░░░░] 55%
 - [Phase 243]: The normative four-owner contract assigns first-party auth to Sigra, delegation to Lockspire, projected runtime facts to Crosswake, and authorization/media/lease/replay policy to the host.
 - [Phase 244]: API selection emits only PAT artifacts and FetchAPIToken; JWT selection emits only JWT artifacts and FetchJWT.
 - [Phase 244]: Generated JWT issuance is host policy through Auth.JWT, never a password/MFA exchange or request-selected scopes.
+- [Phase ?]: Self-service PAT revocation requires the owner and normalizes foreign, missing, and revoked token outcomes.
+- [Phase ?]: Empty PAT scope sets are allowed; non-empty selections are duplicate-checked and registry-validated in the library.
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T21:56:50.107Z
-Stopped at: Completed 244-01-PLAN.md
+Last session: 2026-08-12T22:04:33.707Z
+Stopped at: Completed 244-02-PLAN.md
 Resume file: None
