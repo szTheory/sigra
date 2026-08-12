@@ -168,6 +168,32 @@ defmodule Sigra.Plug.FetchSessionTest do
       assert conn.assigns[:current_scope] == nil
     end
 
+    test "preserves an earlier scope when no session token is present" do
+      opts = FetchSession.init(@default_opts)
+      existing_scope = %{user: %{id: 42}}
+
+      conn =
+        conn(:get, "/")
+        |> init_test_session(%{})
+        |> Plug.Conn.assign(:current_scope, existing_scope)
+        |> FetchSession.call(opts)
+
+      assert conn.assigns[:current_scope] == existing_scope
+    end
+
+    test "preserves an earlier scope without fetching a valid session token" do
+      opts = FetchSession.init(@default_opts)
+      existing_scope = %{user: %{id: 42}}
+
+      conn =
+        conn(:get, "/")
+        |> init_test_session(%{user_token: "valid-hashed-token"})
+        |> Plug.Conn.assign(:current_scope, existing_scope)
+        |> FetchSession.call(opts)
+
+      assert conn.assigns[:current_scope] == existing_scope
+    end
+
     test "assigns nil when session store returns error" do
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:error, :not_found} end)

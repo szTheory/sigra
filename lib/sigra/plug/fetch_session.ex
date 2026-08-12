@@ -61,6 +61,14 @@ defmodule Sigra.Plug.FetchSession do
   @doc since: "0.4.0"
   @impl Plug
   def call(conn, opts) do
+    if conn.assigns[:current_scope] do
+      conn
+    else
+      fetch_session(conn, opts)
+    end
+  end
+
+  defp fetch_session(conn, opts) do
     config = Keyword.fetch!(opts, :config)
     scope_module = Keyword.fetch!(opts, :scope_module)
     session_config = config.session
