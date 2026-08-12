@@ -1,0 +1,302 @@
+defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
+  use ExUnit.Case, async: false
+
+  @moduletag :phase_244_api
+  test "fresh API-only host installs twice, migrates, compiles, and authenticates a PAT" do
+    require_postgres!()
+    require_phx_new!()
+
+    root = File.cwd!()
+    tmp = Path.join(System.tmp_dir!(), "sigra-phase-244-#{System.unique_integer([:positive])}")
+    app = Path.join(tmp, "sigra_phase_244_api")
+    database = "sigra_phase_244_api_#{Base.encode16(:crypto.strong_rand_bytes(8), case: :lower)}"
+
+    assert Regex.match?(~r/^sigra_phase_244_api_[0-9a-f]{16}$/, database),
+           "generated database name must remain a bounded PostgreSQL identifier"
+
+    on_exit(fn -> File.rm_rf!(tmp) end)
+
+    run!(root, "mix", [
+      "phx.new",
+      app,
+      "--no-install",
+      "--no-dashboard",
+      "--database",
+      "postgres",
+      "--module",
+      "SigraPhase244Api",
+      "--app",
+      "sigra_phase_244_api"
+    ])
+
+    patch_mix!(app, root)
+    patch_test_repo_config!(app, database)
+    run!(app, "mix", ["deps.get"])
+
+    for _ <- 1..2 do
+      run!(app, "mix", [
+        "sigra.install",
+        "Accounts",
+        "User",
+        "users",
+        "--api",
+        "--no-live",
+        "--no-organizations"
+      ])
+    end
+
+    run!(app, "mix", ["ecto.create"])
+    assert_database_ready!(database)
+    run!(app, "mix", ["ecto.migrate"])
+    run!(app, "mix", ["compile"])
+    write_smoke!(app)
+    run!(app, "mix", ["test", "test/pat_runtime_smoke_test.exs"])
+
+    router = File.read!(Path.join(app, "lib/sigra_phase_244_api_web/router.ex"))
+    config = File.read!(Path.join(app, "config/config.exs"))
+
+    assert router =~ "Sigra.Plug.FetchAPIToken"
+    assert router =~ "pipe_through [:browser, :require_authenticated, :require_sudo]"
+
+    refute router =~
+             "pipe_through [:api, :api_authenticated]\n\n        get \"/tokens\", APITokenController"
+
+    refute router =~ "FetchJWT"
+    refute config =~ "jwt:"
+  end
+
+  defp require_postgres! do
+    case System.cmd("psql", ["-Atqc", "SELECT 1"], stderr_to_stdout: true, env: postgres_env()) do
+      {"1\n", 0} -> :ok
+      {output, _} -> flunk("PostgreSQL precondition failed: #{String.trim(output)}")
+    end
+  end
+
+  defp assert_database_ready!(database) do
+    readiness_args = ["-d", database, "-t", "5"]
+
+    case System.cmd("pg_isready", readiness_args, stderr_to_stdout: true, env: postgres_env()) do
+      {_output, 0} ->
+        :ok
+
+      {output, _} ->
+        flunk("generated PostgreSQL database #{database} was not ready: #{String.trim(output)}")
+    end
+
+    case System.cmd("psql", ["-d", database, "-Atqc", "SELECT 1"],
+           stderr_to_stdout: true,
+           env: postgres_env()
+         ) do
+      {"1\n", 0} ->
+        :ok
+
+      {output, _} ->
+        flunk(
+          "generated PostgreSQL database #{database} was not queryable: #{String.trim(output)}"
+        )
+    end
+  end
+
+  defp require_phx_new! do
+    case System.cmd("mix", ["phx.new", "--version"], stderr_to_stdout: true) do
+      {_output, 0} -> :ok
+      {output, _} -> flunk("phx_new precondition failed: #{String.trim(output)}")
+    end
+  end
+
+  defp patch_mix!(app, root) do
+    path = Path.join(app, "mix.exs")
+    source = File.read!(path)
+    anchor = "      {:phoenix,"
+
+    patched =
+      String.replace(
+        source,
+        anchor,
+        "      {:sigra, path: #{inspect(root)}},\n      {:hammer, \"~> 7.3\"},\n" <> anchor,
+        global: false
+      )
+
+    File.write!(path, patched)
+  end
+
+  defp patch_test_repo_config!(app, database) do
+    path = Path.join(app, "config/test.exs")
+    source = File.read!(path)
+
+    {with_database, database_changes} =
+      Regex.replace(
+        ~r/database: "sigra_phase_244_api_test#\{System\.get_env\("MIX_TEST_PARTITION"\)\}",/,
+        source,
+        "database: #{inspect(database)},"
+      )
+      |> then(&{&1, if(&1 == source, do: 0, else: 1)})
+
+    assert database_changes == 1,
+           "generated test Repo config did not expose Phoenix's partitioned database anchor"
+
+    {with_hostname, hostname_changes} =
+      String.replace(
+        with_database,
+        "hostname: \"localhost\",",
+        "hostname: System.fetch_env!(\"PGHOST\"),"
+      )
+      |> then(&{&1, if(&1 == with_database, do: 0, else: 1)})
+
+    assert hostname_changes == 1, "generated test Repo config did not expose the hostname anchor"
+
+    {patched, port_changes} =
+      String.replace(
+        with_hostname,
+        "pool: Ecto.Adapters.SQL.Sandbox",
+        "port: String.to_integer(System.fetch_env!(\"PGPORT\")),\n  pool: Ecto.Adapters.SQL.Sandbox"
+      )
+      |> then(&{&1, if(&1 == with_hostname, do: 0, else: 1)})
+
+    assert port_changes == 1, "generated test Repo config did not expose the pool anchor"
+
+    File.write!(path, patched)
+  end
+
+  defp write_smoke!(app) do
+    File.write!(Path.join(app, "test/pat_runtime_smoke_test.exs"), """
+    defmodule SigraPhase244Api.PATRuntimeSmokeTest do
+      use SigraPhase244ApiWeb.ConnCase, async: false
+
+      import Phoenix.ConnTest
+      import Ecto.Query
+      import SigraPhase244Api.AccountsFixtures
+      import SigraPhase244ApiWeb.ConnCaseHelpers, only: [log_in_user: 2]
+
+      alias SigraPhase244Api.{Accounts, Repo}
+
+      setup %{conn: conn} do
+        owner = user_fixture()
+        other =
+          valid_user_attributes()
+          |> then(&SigraPhase244Api.Accounts.User.registration_changeset(%SigraPhase244Api.Accounts.User{}, &1))
+          |> Repo.insert!()
+
+        conn = log_in_user(conn, owner)
+        raw_token = Plug.Conn.get_session(conn, :user_token)
+        {^owner, session} = Accounts.get_user_and_session_by_token(raw_token)
+        :ok = Accounts.confirm_sudo(session.hashed_token)
+        {^owner, refreshed_session} = Accounts.get_user_and_session_by_token(raw_token)
+        assert %DateTime{} = refreshed_session.sudo_at
+        assert DateTime.diff(DateTime.utc_now(), refreshed_session.sudo_at, :second) <= 1
+        %{conn: conn, owner: owner, other: other, session: refreshed_session}
+      end
+
+      test \"a generated PAT authenticates through FetchAPIToken\", %{owner: user} do
+        config = SigraPhase244Api.Accounts.sigra_config()
+        {:ok, raw, _token} = Sigra.Auth.create_api_token(config, user, %{name: \"proof\", scopes: [\"profile:read\"]})
+
+        conn = Plug.Test.conn(:get, \"/\") |> Plug.Conn.put_req_header(\"authorization\", \"Bearer \" <> raw)
+        conn = Sigra.Plug.FetchAPIToken.call(conn, config: config, scope_module: Accounts.Scope)
+
+        assert conn.assigns.current_scope.user.id == user.id
+        assert conn.private[:sigra_auth].credential_kind == :personal_access_token
+      end
+
+      test "real browser routes require authenticated fresh-sudo CSRF requests and preserve PAT rows on every rejected mutation", %{conn: conn, owner: owner, other: other, session: session} do
+        fresh = get(conn, ~p\"/users/api-tokens\")
+        assert response(fresh, 200)
+        csrf = Plug.CSRFProtection.get_csrf_token()
+
+        created =
+          fresh
+          |> recycle()
+          |> put_req_header("x-csrf-token", csrf)
+          |> post(~p\"/users/api-tokens\", %{"token" => %{"name" => "owner", "scopes" => ["profile:read"]}})
+
+        assert response(created, 201) =~ "raw_key"
+        [token] = owner_tokens(owner)
+
+        listed = created |> recycle() |> get(~p\"/users/api-tokens\")
+        assert response(listed, 200) =~ token.id
+
+        revoked = listed |> recycle() |> put_req_header("x-csrf-token", csrf) |> delete(~p\"/users/api-tokens/\#{token.id}\")
+        assert response(revoked, 200)
+
+        for {method, path, params} <- [
+              {:post, ~p\"/users/api-tokens\", %{"token" => %{"name" => "denied", "scopes" => ["profile:read"]}}},
+              {:delete, ~p\"/users/api-tokens/\#{token.id}\", %{}}
+            ] do
+          before_rows = owner_rows(owner)
+          denied = request_with_csrf(build_conn(), method, path, params)
+          assert denied.halted
+          assert owner_rows(owner) == before_rows
+        end
+
+        for csrf_value <- [nil, "invalid"] do
+          before_rows = owner_rows(owner)
+          denied = request_with_csrf(recycle(conn), :post, ~p\"/users/api-tokens\", %{"token" => %{"name" => "csrf", "scopes" => ["profile:read"]}}, csrf_value)
+          assert denied.halted
+          assert owner_rows(owner) == before_rows
+        end
+
+        stale = stale_sudo(recycle(conn), session)
+
+        for {method, path, params} <- [
+              {:post, ~p\"/users/api-tokens\", %{"token" => %{"name" => "stale", "scopes" => ["profile:read"]}}},
+              {:delete, ~p\"/users/api-tokens/\#{token.id}\", %{}}
+            ] do
+          before_rows = owner_rows(owner)
+          denied = request_with_csrf(stale, method, path, params, csrf)
+          assert denied.halted
+          assert owner_rows(owner) == before_rows
+        end
+
+        {:ok, _raw, foreign} = Sigra.Auth.create_api_token(Accounts.sigra_config(), other, %{name: "foreign", scopes: ["profile:read"]})
+        foreign_conn = log_in_user(build_conn(), owner)
+        foreign_raw_token = Plug.Conn.get_session(foreign_conn, :user_token)
+        {^owner, foreign_session} = Accounts.get_user_and_session_by_token(foreign_raw_token)
+        :ok = Accounts.confirm_sudo(foreign_session.hashed_token)
+        foreign_ready = get(foreign_conn, ~p"/users/api-tokens")
+        assert response(foreign_ready, 200)
+        foreign_csrf = Plug.CSRFProtection.get_csrf_token()
+        before_rows = owner_rows(owner)
+        foreign_attempt = recycle(foreign_ready) |> put_req_header("x-csrf-token", foreign_csrf) |> delete(~p\"/users/api-tokens/\#{foreign.id}\")
+        assert response(foreign_attempt, 404)
+        assert owner_rows(owner) == before_rows
+      end
+
+      defp request_with_csrf(conn, :post, path, params), do: post(conn, path, params)
+      defp request_with_csrf(conn, :delete, path, _params), do: delete(conn, path)
+      defp request_with_csrf(conn, :post, path, params, nil), do: post(conn, path, params)
+      defp request_with_csrf(conn, :post, path, params, csrf), do: conn |> put_req_header("x-csrf-token", csrf) |> post(path, params)
+      defp request_with_csrf(conn, :delete, path, _params, nil), do: delete(conn, path)
+      defp request_with_csrf(conn, :delete, path, _params, csrf), do: conn |> put_req_header("x-csrf-token", csrf) |> delete(path)
+
+      defp owner_tokens(user), do: Sigra.Auth.list_api_tokens(Accounts.sigra_config(), user.id) |> elem(0)
+      defp owner_rows(user), do: owner_tokens(user) |> Enum.map(&{&1.id, &1.revoked_at})
+
+      defp stale_sudo(conn, session) do
+        Repo.update_all(from(s in SigraPhase244Api.Accounts.UserSession, where: s.id == ^session.id), set: [sudo_at: DateTime.add(DateTime.utc_now(), -3_601, :second)])
+        conn
+      end
+    end
+    """)
+  end
+
+  defp run!(cwd, command, args) do
+    {output, status} =
+      System.cmd(command, args,
+        cd: cwd,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "test"}, {"CLOAK_KEY", disposable_cloak_key()} | postgres_env()]
+      )
+
+    assert status == 0, "#{command} #{Enum.join(args, " ")} failed:\n#{output}"
+  end
+
+  defp postgres_env do
+    for key <- ~w(PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE),
+        value = System.get_env(key),
+        is_binary(value),
+        do: {key, value}
+  end
+
+  # Matches the canonical fresh-host proof fixture. This is never a deployment secret.
+  defp disposable_cloak_key, do: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
+end

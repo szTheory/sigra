@@ -159,6 +159,14 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert content =~ "@moduledoc"
       assert content =~ "API tokens"
     end
+
+    test "implements the library-required creation changeset" do
+      content = render_template("user_api_token.ex")
+
+      assert content =~ "def changeset(token, attrs)"
+      assert content =~ "Ecto.Changeset.cast"
+      assert content =~ "Ecto.Changeset.validate_required"
+    end
   end
 
   describe "api_token_controller.ex template" do
@@ -224,6 +232,15 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     test "contains changeset_errors helper" do
       content = render_template("api_token_controller.ex")
       assert content =~ "defp changeset_errors(changeset)"
+    end
+  end
+
+  describe "generated Auth API configuration" do
+    test "binds the generated UserAPIToken schema into Sigra.Config" do
+      content = render_template("auth.ex")
+
+      assert content =~ "api_token: ["
+      assert content =~ "api_token_schema: MyApp.Auth.UserAPIToken"
     end
   end
 

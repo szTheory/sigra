@@ -617,6 +617,11 @@ defmodule <%= context_module %> do
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
       ],
+<%= if api do %>
+      api_token: [
+        api_token_schema: <%= context_module %>.UserAPIToken
+      ],
+<% end %>
       secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
       lockout: [
         threshold: 5,

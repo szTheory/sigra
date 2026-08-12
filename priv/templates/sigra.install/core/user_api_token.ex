@@ -35,4 +35,18 @@ defmodule <%= context_module %>.UserAPIToken do
 
     belongs_to :user, <%= context_module %>.<%= schema_alias %>
   end
+
+  @doc false
+  def changeset(token, attrs) do
+    token
+    |> Ecto.Changeset.cast(attrs, [
+      :user_id,
+      :hashed_token,
+      :prefix,
+      :name,
+      :scopes,
+      :expires_at
+    ])
+    |> Ecto.Changeset.validate_required([:user_id, :hashed_token, :prefix, :name])
+  end
 end
