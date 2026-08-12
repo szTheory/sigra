@@ -2,19 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: B2C-ALPHA-READINESS
-current_phase: 241
 status: completed
-stopped_at: Completed 241-01-PLAN.md
-last_updated: "2026-08-11T22:53:22.793Z"
-last_activity: 2026-08-11
-last_activity_desc: Phase 241 complete
+stopped_at: Phase 242 context gathered (assumptions mode)
+last_updated: "2026-08-12T02:28:28.444Z"
+last_activity: 2026-08-11 — Phase 241 complete
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 8
   total_plans: 35
   completed_plans: 35
-  percent: 100
-current_phase_name: close-gap-ops-01-repair-controller-mfa-settings-rendering
+  percent: 89
 ---
 
 # Project State
@@ -476,6 +473,7 @@ Last activity: 2026-08-11 — Phase 241 complete
 
 ### Roadmap Evolution
 
+- Phase 242 added: Close gap: XW-01/XW-02 — add rendered Crosswake start control
 - Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
 - Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
@@ -610,9 +608,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-11T22:46:57.458Z
-Stopped at: Completed 241-01-PLAN.md
-Resume file: None
+Last session: 2026-08-12T02:28:28.437Z
+Stopped at: Phase 242 context gathered (assumptions mode)
+Resume file: .planning/phases/242-close-gap-xw-01-xw-02-add-rendered-crosswake-start-control/242-CONTEXT.md
 
 ## Operator Next Steps
 
