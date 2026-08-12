@@ -1,6 +1,9 @@
 # API Authentication
 
-Sigra supports two API authentication strategies: **bearer tokens** (database-backed, human-readable prefix, revocable) and **JWT** (stateless, scoped, refreshable). Both work with the same `fetch_current_scope/2` plug — Sigra detects the `Authorization: Bearer` header and routes through the API path automatically.
+Sigra uses explicit credential-kind pipelines. Select the pipeline that matches
+the route's credential contract instead of asking one plug to infer a credential
+type from a header. Cookie sessions establish browser identity; personal access
+tokens (PATs) and JWTs can also carry delegated scopes.
 
 ## What Sigra gives you
 
@@ -14,6 +17,103 @@ Sigra supports two API authentication strategies: **bearer tokens** (database-ba
 - **`Sigra.Auth.revoke_jwt_refresh/2`** — revokes a refresh token.
 - **`MyAppWeb.APITokenController`** — generated controller for create/revoke/list.
 - **`MyAppWeb.UserAuth`** — dual-mode plug that handles both session and bearer auth.
+
+## Select an explicit pipeline
+
+Every successful pipeline assigns the host's normal current-user Scope. The
+first successful normal Scope wins, so a later pipeline must leave an existing
+authenticated Scope unchanged. Credential metadata is separate from the Scope
+in `conn.private[:sigra_auth]`; it contains bounded verifier-produced facts and
+never the raw credential. Only PAT and JWT carry delegated scopes. Browser and
+app sessions identify a user but do not authorize scoped routes.
+
+| Route contract | Public plug | Notes |
+|----------------|-------------|-------|
+| Browser cookie session | `Sigra.Plug.FetchSession` | Uses the configured session store and reloads the current user. |
+| Opaque first-party app session | `Sigra.Plug.FetchAppSession` | Public selection seam; it is fail closed until Phase 245 supplies verifier and storage. |
+| Personal access token | `Sigra.Plug.FetchAPIToken` | Verifies one Bearer PAT and records trusted, bounded PAT facts. |
+| JWT access token | `Sigra.Plug.FetchJWT` | Verifies one Bearer JWT and records trusted, bounded JWT facts. |
+
+All explicit plugs use the same host-selected options:
+
+```elixir
+config = MyApp.Auth.sigra_config()
+
+plug Sigra.Plug.FetchAPIToken,
+  config: config,
+  scope_module: MyApp.Auth.Scope
+```
+
+### Cookie-session pipeline
+
+```elixir
+pipeline :browser do
+  plug :accepts, ["html"]
+  plug :fetch_session
+  plug Sigra.Plug.FetchSession,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+end
+```
+
+### App-session pipeline
+
+```elixir
+pipeline :first_party_app do
+  plug :accepts, ["json"]
+  plug Sigra.Plug.FetchAppSession,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+end
+```
+
+Do not treat the app-session selection seam as storage, an endpoint, or a
+fallback to another credential kind. It authenticates nothing until Phase 245.
+
+### PAT and JWT pipelines
+
+```elixir
+pipeline :api_pat do
+  plug :accepts, ["json"]
+  plug Sigra.Plug.FetchAPIToken,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+end
+
+pipeline :api_jwt do
+  plug :accepts, ["json"]
+  plug Sigra.Plug.FetchJWT,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+end
+```
+
+Use `Sigra.Plug.RequireScopes` after a PAT or JWT pipeline when a route needs
+delegated authorization. It reads only trusted server-produced
+`conn.private[:sigra_auth]` facts, never Scope-shaped host fields or
+client-derived scope data.
+
+### Mixed ordered pipeline
+
+If a host intentionally supports several credential kinds on one route, order
+the explicit plugs in host policy order. The first successful normal Scope wins;
+the route still owns which credential kinds it accepts.
+
+```elixir
+pipeline :mixed_first_party do
+  plug Sigra.Plug.FetchSession,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+
+  plug Sigra.Plug.FetchAPIToken,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+
+  plug Sigra.Plug.FetchJWT,
+    config: MyApp.Auth.sigra_config(),
+    scope_module: MyApp.Auth.Scope
+end
+```
 
 ## Bearer tokens
 
@@ -45,11 +145,13 @@ Clients send the token in the `Authorization` header:
     curl https://myapp.com/api/me \
       -H "Authorization: Bearer sigra_sk_abcd1234efgh5678..."
 
-In your router, the API pipeline uses the same `UserAuth` plug:
+In your router, choose the PAT pipeline explicitly:
 
     pipeline :api do
       plug :accepts, ["json"]
-      plug MyAppWeb.UserAuth, :fetch_api_user
+      plug Sigra.Plug.FetchAPIToken,
+        config: MyApp.Auth.sigra_config(),
+        scope_module: MyApp.Auth.Scope
       plug MyAppWeb.UserAuth, :require_authenticated_api_user
     end
 
@@ -60,7 +162,10 @@ In your router, the API pipeline uses the same `UserAuth` plug:
       resources "/projects", ProjectController
     end
 
-`fetch_api_user` reads the `Authorization` header, hashes the token, looks it up in `user_api_tokens` (rejecting revoked or expired rows), and assigns `:current_scope` to the conn. If no header or an invalid token, `require_authenticated_api_user` returns 401.
+`FetchAPIToken` reads one `Authorization: Bearer` PAT, verifies it against
+`user_api_tokens` (rejecting revoked or expired rows), reloads the current user,
+and assigns the normal current-user Scope. If no header or an invalid token,
+`require_authenticated_api_user` returns 401.
 
 ### Scopes
 
@@ -140,18 +245,13 @@ JWT is opt-in for stateless scenarios (cross-service auth, mobile apps that want
 
 **Reuse detection** is critical: if someone steals a refresh token and the legitimate user rotates it, the next attempted use of the stolen token triggers `:reuse_detected` and the whole family is revoked.
 
-## Dual-mode auth
+## Compatibility migration
 
-`UserAuth` detects whether a request is session-based (browser) or bearer-based (API) and dispatches accordingly. This means the same controller can serve both:
-
-    pipeline :maybe_auth do
-      plug MyAppWeb.UserAuth, :fetch_current_scope  # reads either session or bearer
-    end
-
-    scope "/api", MyAppWeb do
-      pipe_through [:api, :maybe_auth]
-      # Handlers can check conn.assigns.current_scope regardless of origin
-    end
+`Sigra.Plug.FetchBearer` is a deprecated compatibility dispatcher for installed
+routers that relied on legacy token-shape detection. Do not use it in new
+pipelines. Migrate each route to `Sigra.Plug.FetchAPIToken` or
+`Sigra.Plug.FetchJWT` (and `Sigra.Plug.FetchSession` where browser identity is
+intended), so the host owns credential selection explicitly.
 
 ## Testing
 

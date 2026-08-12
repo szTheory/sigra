@@ -32,6 +32,25 @@ Sigra's `1.0.0` contract follows the package and generator posture in `mix.exs`:
 | Generated-host-owned | Schemas, migrations, contexts, routes, LiveViews, templates, mailer modules, generated UI customization, deployment controls, product policy, authorization rules, and host business logic emitted into your application. |
 | Shared seams | Mail delivery, Oban/background work, OAuth providers, audit forwarding, optional companion libraries, webhook side effects, and host policy hooks. Sigra provides structured seams; the host decides how to wire and operate them. |
 
+## Normative Credential-Boundary Responsibility Matrix
+
+This matrix is normative for credential-boundary work. A system may consume only
+the facts assigned to it here; a host must not turn a consumer into another
+credential holder or authentication authority.
+
+| Concern | Owner | Contract |
+|---------|-------|----------|
+| First-party identity and credentials | **Sigra** | Sigra owns first-party identity, credentials, inbound provider ceremonies, assurance, and revocation. Raw credentials never move into host Scope, assigns, logs, telemetry, Lockspire, or Crosswake. |
+| Browser and app sessions | **Sigra** | Sigra owns browser sessions and app sessions. The app-session public pipeline is deliberately fail closed until its verifier and storage contract are delivered. |
+| OAuth/OIDC delegation | **Lockspire** | Lockspire owns OAuth/OIDC authorization-server delegation for registered external clients: client registry, consent, authorization codes, delegated tokens, discovery, JWKS, and token exchange. |
+| Route/runtime and offline-island policy | **Crosswake** | Crosswake owns route/runtime and offline-island policy. It consumes backend-projected facts only; it never holds Sigra credentials or becomes authentication authority. |
+| Product authorization and account-to-Scope mapping | **Phoenix host** | The Phoenix host owns product authorization and account-to-Scope mapping. A normal Scope identifies the current user; it is not client-derived delegated authorization. |
+| Media/CDN/cache/lease policy | **Phoenix host** | The Phoenix host owns media/CDN/cache/lease policy, including what media is reachable, cached, or leased. |
+| Replay decisions | **Phoenix host** | The Phoenix host owns replay decisions and the product consequences of accepting or rejecting replayed work. |
+
+For the concrete credential-kind router pipelines that apply this ownership
+boundary, see [API Authentication](../flows/api-authentication.html).
+
 ## SemVer And Deprecation Policy
 
 For `1.x`, documented public library APIs and documented generated contracts are stable under SemVer. Security-sensitive fixes and compatible additions should arrive through normal dependency updates.

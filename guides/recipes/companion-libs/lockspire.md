@@ -13,6 +13,14 @@ Validated against: `lockspire ~> 1.2` (`def616d`) as of 2026-05-29
 | End-user authentication | **Sigra** | Sessions, passwords, MFA, passkeys, social login; issues session cookies and populates `current_scope` |
 | OAuth/OIDC authorization server | **Lockspire** | Authorization codes, token issuance, client registry, consent for third-party apps calling your API |
 
+## Credential and delegation boundary
+
+Sigra authenticates first-party users and constructs the host's normal
+current-user Scope. Lockspire owns OAuth/OIDC delegation for registered external clients; it is not a holder of Sigra credentials or a replacement authentication authority. The AccountResolver receives only the authenticated normal current-user Scope facts it needs to identify an account and never receives Sigra credentials, raw tokens, or `conn.private[:sigra_auth]` data.
+
+Crosswake receives projected facts only when the host integrates its runtime;
+it never receives credentials or becomes authentication authority. The Phoenix host owns product authorization and replay policy, including account-to-Scope mapping, client-registration configuration, and any media, cache, or lease policy. Lockspire delegation does not grant Crosswake or an external client authority over those host decisions.
+
 This is a **concrete recipe** — it shows the `mix.exs` entry, the install command, and the
 AccountResolver callbacks you must implement. For the architecture-level framing of why you
 would run both roles in one Phoenix host, see the
