@@ -208,7 +208,7 @@ Plans:
 **Goal:** Authenticated example-host users can initiate the existing Crosswake flow from a rendered, accessible `/app` control and complete the unchanged secure return journey.
 **Requirements**: XW-01, XW-02
 **Depends on:** Phase 241
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 
@@ -222,4 +222,4 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 242-03-PLAN.md — Canonically format the three submitted Crosswake artifacts and rerun both scoped formatter gates plus affected contracts.
+- [x] 242-03-PLAN.md — Canonically format the three submitted Crosswake artifacts and rerun both scoped formatter gates plus affected contracts.

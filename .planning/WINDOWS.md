@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 9
+open_count: 10
 waived_count: 0
 fixed_count: 0
-total_count: 9
-last_updated: 2026-08-12T03:03:08.571Z
+total_count: 10
+last_updated: 2026-08-12T15:18:32.959Z
 ---
 
 # Broken Windows Ledger
@@ -24,6 +24,7 @@ last_updated: 2026-08-12T03:03:08.571Z
 | 7 | 240.3 | deviation | scripts/ci/hosted-session-interop-proof.sh |  | First receipt attempt reached all proof layers but did not write evidence because the scoped-path guard was inside the Python heredoc; corrected before an explicitly approved fresh attempt. | open |  | 2026-08-11T17:48:03.145Z |  |
 | 8 | 240.3 | unrun-verify | test/example/lib/example_web/live/settings_live.ex | 133 | Example mix precommit remains blocked by the pre-existing /dev/mailbox verified-route warning under warnings-as-errors. | open |  | 2026-08-11T17:48:03.211Z |  |
 | 9 | 242 | deviation | test/example/accounts/crosswake_continuations_test.exs | 224 | Pre-existing residual terminal continuation rows prevent the aggregate cleanup-count assertion from passing in the shared local test database. | open |  | 2026-08-12T03:03:08.571Z |  |
+| 10 | 242 | deviation | scripts/db/up.sh |  | Restored the repository-managed isolated local test database before the focused Crosswake verification.  | open |  | 2026-08-12T15:18:32.959Z |  |
 
 ````json
 [
@@ -133,6 +134,18 @@ last_updated: 2026-08-12T03:03:08.571Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-12T03:03:08.571Z",
+    "resolved_at": null
+  },
+  {
+    "id": 10,
+    "kind": "deviation",
+    "phase": "242",
+    "file": "scripts/db/up.sh",
+    "line": null,
+    "description": "Restored the repository-managed isolated local test database before the focused Crosswake verification. ",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-12T15:18:32.959Z",
     "resolved_at": null
   }
 ]
