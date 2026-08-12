@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 11
+open_count: 13
 waived_count: 0
 fixed_count: 0
-total_count: 11
-last_updated: 2026-08-12T19:42:07.759Z
+total_count: 13
+last_updated: 2026-08-12T19:55:26.902Z
 ---
 
 # Broken Windows Ledger
@@ -26,6 +26,8 @@ last_updated: 2026-08-12T19:42:07.759Z
 | 9 | 242 | deviation | test/example/accounts/crosswake_continuations_test.exs | 224 | Pre-existing residual terminal continuation rows prevent the aggregate cleanup-count assertion from passing in the shared local test database. | open |  | 2026-08-12T03:03:08.571Z |  |
 | 10 | 242 | deviation | scripts/db/up.sh |  | Restored the repository-managed isolated local test database before the focused Crosswake verification.  | open |  | 2026-08-12T15:18:32.959Z |  |
 | 11 | 243 | unrun-verify | .planning/phases/243-credential-boundary-and-pipeline-foundation/243-02-SUMMARY.md |  | Full MIX_ENV=test mix ci phase gate was not run because local PostgreSQL is unavailable. | open |  | 2026-08-12T19:42:07.759Z |  |
+| 12 | 243 | unrun-verify | test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs |  | Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation. | open |  | 2026-08-12T19:55:26.807Z |  |
+| 13 | 243 | unrun-verify | test/sigra/install/generated_rate_limit_contract_test.exs |  | Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation. | open |  | 2026-08-12T19:55:26.902Z |  |
 
 ````json
 [
@@ -159,6 +161,30 @@ last_updated: 2026-08-12T19:42:07.759Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-12T19:42:07.759Z",
+    "resolved_at": null
+  },
+  {
+    "id": 12,
+    "kind": "unrun-verify",
+    "phase": "243",
+    "file": "test/sigra/planning/phase_238_generated_auth_runtime_proof_test.exs",
+    "line": null,
+    "description": "Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-12T19:55:26.807Z",
+    "resolved_at": null
+  },
+  {
+    "id": 13,
+    "kind": "unrun-verify",
+    "phase": "243",
+    "file": "test/sigra/install/generated_rate_limit_contract_test.exs",
+    "line": null,
+    "description": "Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-12T19:55:26.902Z",
     "resolved_at": null
   }
 ]

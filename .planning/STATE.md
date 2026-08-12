@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 243
 current_phase_name: Credential Boundary and Pipeline Foundation
-status: executing
-stopped_at: Completed 243-04-PLAN.md
-last_updated: "2026-08-12T19:51:23.224Z"
+status: verifying
+stopped_at: Completed 243-05-PLAN.md
+last_updated: "2026-08-12T19:55:42.258Z"
 last_activity: 2026-08-12
 last_activity_desc: Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 current_plan: 2
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 Phase: 243 of 249 (Credential Boundary and Pipeline Foundation)
 Plan: 5 of 05
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-12 — Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 
-Progress: ░░░░░░░░░░ [████████░░] 80%
+Progress: ░░░░░░░░░░ [██████████] 100%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: ░░░░░░░░░░ [████████░░] 80%
 | Phase 243 P02 | 8min | 2 tasks | 4 files |
 | Phase 243-credential-boundary-and-pipeline-foundation P03 | 4min | 1 tasks | 3 files |
 | Phase 243 P04 | 6min | 1 tasks | 2 files |
+| Phase 243 P05 | 3min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Progress: ░░░░░░░░░░ [████████░░] 80%
 - [Phase ?]: Generated Scope structs use Sigra.Scope.build/3 while only non-struct scopes use legacy new/1.
 - [Phase ?]: FetchBearer preserves only legacy prefix/JWT/default dispatch and delegates to explicit credential-kind plugs.
 - [Phase ?]: FetchBearer.init/1 and call/2 are deprecated with explicit FetchAPIToken/FetchJWT migration guidance.
+- [Phase ?]: Published normative four-owner credential-boundary contract with Sigra first-party auth, Lockspire delegation, Crosswake projected facts, and host policy ownership.
+- [Phase ?]: Primary API documentation selects explicit FetchSession, FetchAppSession, FetchAPIToken, and FetchJWT pipelines; FetchBearer is migration-only.
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:51:23.217Z
-Stopped at: Completed 243-04-PLAN.md
+Last session: 2026-08-12T19:55:42.250Z
+Stopped at: Completed 243-05-PLAN.md
 Resume file: None
