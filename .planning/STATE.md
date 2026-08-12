@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 243
 current_phase_name: Credential Boundary and Pipeline Foundation
 status: executing
-stopped_at: Completed 243-02-PLAN.md
-last_updated: "2026-08-12T19:41:54.406Z"
+stopped_at: Completed 243-03-PLAN.md
+last_updated: "2026-08-12T19:47:04.911Z"
 last_activity: 2026-08-12
 last_activity_desc: Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 243 of 249 (Credential Boundary and Pipeline Foundation)
-Plan: 3 of 05
+Plan: 4 of 05
 Status: Ready to execute
 Last activity: 2026-08-12 — Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
 
-Progress: ░░░░░░░░░░ [████░░░░░░] 40%
+Progress: ░░░░░░░░░░ [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: ░░░░░░░░░░ [████░░░░░░] 40%
 |------|----------|-------|-------|
 | Phase 243-credential-boundary-and-pipeline-foundation P01 | 4min | 2 tasks | 5 files |
 | Phase 243 P02 | 8min | 2 tasks | 4 files |
+| Phase 243-credential-boundary-and-pipeline-foundation P03 | 4min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Progress: ░░░░░░░░░░ [████░░░░░░] 40%
 - [Phase ?]: RequireScopes authorizes only verified PAT/JWT metadata, never Scope-shaped fields or session identity.
 - [Phase ?]: FetchJWT verifies only JWTs, reloads the live user, and projects bounded private facts.
 - [Phase ?]: FetchAppSession remains a fail-closed public pipeline seam until Phase 245 adds verifier and storage.
+- [Phase ?]: FetchSession reloads config.user_schema before building identity-only browser Scope state.
+- [Phase ?]: Generated Scope structs use Sigra.Scope.build/3 while only non-struct scopes use legacy new/1.
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:41:54.399Z
-Stopped at: Completed 243-02-PLAN.md
+Last session: 2026-08-12T19:47:04.904Z
+Stopped at: Completed 243-03-PLAN.md
 Resume file: None
