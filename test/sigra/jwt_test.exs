@@ -431,13 +431,15 @@ defmodule Sigra.JWTTest do
 
       {:ok, initial} = JWT.generate_tokens(cfg, user, ["read:users"], token_opts())
 
-      # Set up mocks for rotate: get_by (find old token), update! (supersede), insert (new token), get! (user for claims)
+      # The locked lifecycle returns persistence values only after its transaction succeeds.
       old_metadata =
         Jason.encode!(%{family_id: "fam-1", scopes: ["read:users"], superseded_at: nil})
 
       Sigra.MockRepo
-      |> expect(:get_by, fn Sigra.TestUserToken, [token: _, context: "api_refresh"] ->
-        %Sigra.TestUserToken{
+      |> expect(:transaction, fn multi ->
+        assert Keyword.has_key?(Ecto.Multi.to_list(multi), :jwt_refresh_classification)
+
+        old_record = %Sigra.TestUserToken{
           id: 1,
           user_id: 42,
           token: "hashed",
@@ -445,12 +447,14 @@ defmodule Sigra.JWTTest do
           sent_to: old_metadata,
           inserted_at: DateTime.utc_now()
         }
-      end)
-      |> expect(:update!, fn changeset ->
-        Ecto.Changeset.apply_changes(changeset)
-      end)
-      |> expect(:insert, fn struct ->
-        {:ok, Map.merge(struct, %{id: 2, inserted_at: DateTime.utc_now()})}
+
+        new_record = %{old_record | id: 2, token: "new-hashed"}
+
+        {:ok,
+         %{
+           jwt_refresh_classification: {:rotate, old_record, Jason.decode!(old_metadata)},
+           jwt_refresh_new_token: {"new-refresh-token", new_record, ["read:users"]}
+         }}
       end)
       |> expect(:get!, fn Sigra.TestUser, 42 ->
         %{id: 42, token_epoch: 0, email: "user@example.com"}
@@ -474,8 +478,10 @@ defmodule Sigra.JWTTest do
         })
 
       Sigra.MockRepo
-      |> expect(:get_by, fn Sigra.TestUserToken, [token: _, context: "api_refresh"] ->
-        %Sigra.TestUserToken{
+      |> expect(:transaction, fn multi ->
+        assert Keyword.has_key?(Ecto.Multi.to_list(multi), :jwt_refresh_classification)
+
+        token_record = %Sigra.TestUserToken{
           id: 1,
           user_id: 42,
           token: "hashed",
@@ -483,9 +489,13 @@ defmodule Sigra.JWTTest do
           sent_to: superseded_metadata,
           inserted_at: DateTime.utc_now()
         }
+
+        {:ok,
+         %{
+           jwt_refresh_classification: {:reuse, token_record, Jason.decode!(superseded_metadata)},
+           jwt_reuse_revoke_family: 0
+         }}
       end)
-      # revoke_family calls: all (find family tokens)
-      |> expect(:all, fn _query -> [] end)
 
       assert {:error, :reuse_detected} = JWT.refresh(cfg, "some-token", token_opts())
     end
