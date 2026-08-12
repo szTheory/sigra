@@ -208,7 +208,7 @@ Plans:
 **Goal:** Authenticated example-host users can initiate the existing Crosswake flow from a rendered, accessible `/app` control and complete the unchanged secure return journey.
 **Requirements**: XW-01, XW-02
 **Depends on:** Phase 241
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans executed
 
 Plans:
 
@@ -218,4 +218,4 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 242-02-PLAN.md — Isolate continuation cleanup evidence and rerun the complete Crosswake security matrix.
+- [x] 242-02-PLAN.md — Isolate continuation cleanup evidence and rerun the complete Crosswake security matrix.

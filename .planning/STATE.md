@@ -5,15 +5,15 @@ milestone_name: B2C-ALPHA-READINESS
 current_phase: 242
 current_phase_name: close-gap-xw-01-xw-02-add-rendered-crosswake-start-control
 status: executing
-stopped_at: Completed 242-01-PLAN.md
-last_updated: "2026-08-12T03:32:53.117Z"
-last_activity: 2026-08-11
+stopped_at: Completed 242-02-PLAN.md
+last_updated: "2026-08-12T13:48:24.766Z"
+last_activity: 2026-08-12
 last_activity_desc: Phase 242 execution started
 progress:
   total_phases: 9
   completed_phases: 9
   total_plans: 37
-  completed_plans: 36
+  completed_plans: 37
   percent: 100
 ---
 
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-08-11)
 ## Current Position
 
 Phase: 242 (close-gap-xw-01-xw-02-add-rendered-crosswake-start-control) — EXECUTING
-Plan: 1 of 2
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-08-11 — Phase 242 execution started
+Last activity: 2026-08-12 — Phase 242 execution started
 
 ## Accumulated Context
 
@@ -462,6 +462,7 @@ Last activity: 2026-08-11 — Phase 242 execution started
 - [Phase ?]: Controller MFA proof freshens the persisted session identified by the logged-in connection token and requires 200 HTML.
 - [Phase ?]: Crosswake initiation remains a native CSRF-protected POST in the existing authenticated Tasklane account hub.
 - [Phase ?]: The browser proof clicks the rendered Crosswake control while continuation, session, evaluator, and navigation authority remain server-owned.
+- [Phase ?]: Clear only transaction-visible continuation rows after ConnCase sandbox checkout; retain the exact two-row cleanup proof.
 
 ### Pending Todos
 
@@ -613,8 +614,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-12T03:03:09.307Z
-Stopped at: Completed 242-01-PLAN.md
+Last session: 2026-08-12T13:48:24.750Z
+Stopped at: Completed 242-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -806,6 +807,7 @@ Resume file: None
 | Phase 240.3 P10 | 11m | 2 tasks | 3 files |
 | Phase 241 P01 | 9min | 2 tasks | 3 files |
 | Phase 242 P01 | 12m | 2 tasks | 4 files |
+| Phase 242 P02 | 5m | 1 tasks | 1 files |
 
 ## Deferred Items
 
