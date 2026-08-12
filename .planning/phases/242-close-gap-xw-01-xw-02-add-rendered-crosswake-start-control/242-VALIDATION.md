@@ -1,7 +1,7 @@
 ---
 phase: 242
 slug: close-gap-xw-01-xw-02-add-rendered-crosswake-start-control
-status: ready
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-08-11
@@ -40,15 +40,17 @@ created: 2026-08-11
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 242-01-01 | 01 | 1 | XW-01 | T-242-01 | Native POST form includes CSRF mechanics and no protocol-authority inputs | LiveView unit | `cd test/example && mix test test/example_web/live/app_live_test.exs` | ✅ | ⬜ pending |
-| 242-01-02 | 01 | 1 | XW-01, XW-02 | T-242-02 / T-242-03 | Source contract locks the rendered edge, role click, callback/security markers, and serial browser configuration | ExUnit source contract | `MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs` | ✅ | ⬜ pending |
+| 242-01-01 | 01 | 1 | XW-01 | T-242-01 | Native POST form includes CSRF mechanics and no protocol-authority inputs | LiveView unit | `cd test/example && mix test test/example_web/live/app_live_test.exs` | ✅ | ✅ green |
+| 242-01-02 | 01 | 1 | XW-01, XW-02 | T-242-02 / T-242-03 | Source contract locks the rendered edge, role click, callback/security markers, and serial browser configuration | ExUnit source contract | `MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs` | ✅ | ✅ green |
+| 242-02-01 | 02 | 2 | XW-01, XW-02 | T-242-02 / T-242-04 | Sandbox-local cleanup baseline preserves bounded cleanup and the complete fail-closed matrix | ExUnit integration + Node prohibition controls | Final security command from Test Infrastructure | ✅ | ✅ green |
+| 242-03-01 | 03 | 3 | XW-01, XW-02 | T-242-04 | Scoped formatter gates preserve the rendered and source-contract semantics | Formatter + focused ExUnit | `MIX_ENV=test mix format --check-formatted test/example/lib/example_web/live/app_live.ex test/example/test/example_web/live/app_live_test.exs test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs && MIX_ENV=test mix test test/sigra/planning/phase_240_3_hosted_crosswake_runtime_test.exs` | ✅ | ✅ green |
 
 ### Wave/Final Integration Gates
 
 | Gate | Requirements | Secure Behavior | Automated Command | Status |
 |------|--------------|-----------------|-------------------|--------|
-| Role-driven browser journey | XW-01, XW-02 | Real cookie jar preserves exact callback keys, no Referer, fixed `/app`, and non-disclosure | `scripts/ci/hosted-session-interop-proof.sh --browser-only` | ⬜ pending |
-| Established fail-closed matrix | XW-02 | Adapter, continuation, controller, and P14 real/bad/clean suites deny missing, expired, revoked, account-switched, replayed, and smuggled state before authority is granted | Final security command from Test Infrastructure | ⬜ pending |
+| Role-driven browser journey | XW-01, XW-02 | Real cookie jar preserves exact callback keys, no Referer, fixed `/app`, and non-disclosure | `scripts/ci/hosted-session-interop-proof.sh --browser-only` | ✅ green |
+| Established fail-closed matrix | XW-02 | Adapter, continuation, controller, and P14 real/bad/clean suites deny missing, expired, revoked, account-switched, replayed, and smuggled state before authority is granted | Final security command from Test Infrastructure | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -81,4 +83,16 @@ All phase behaviors have automated verification.
 - [x] Commit-time feedback is bounded by one focused ExUnit file; slower browser/security gates run once per wave/final boundary
 - [x] `nyquist_compliant: true` and `wave_0_complete: true` are set truthfully in frontmatter
 
-**Approval:** ready for execution; test results remain pending until the tasks run
+**Approval:** validated after execution; all automated requirements and integration gates are green
+
+---
+
+## Validation Audit 2026-08-12
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Phase 242's XW-01 and XW-02 coverage was rerun successfully. The audit also reconciled the task map with gap-closure Plans 02 and 03 and replaced stale pending statuses with current green evidence. No new test files were required.
