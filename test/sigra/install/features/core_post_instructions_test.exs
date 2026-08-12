@@ -209,11 +209,12 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
       assert out =~ "LiveView pages were NOT generated"
     end
 
-    test "--api adds API token endpoint instructions" do
+    test "--api directs adopters to browser PAT management" do
       binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: false)
       out = binding |> Core.post_instructions(Report.new()) |> render()
 
-      assert out =~ "/api/tokens"
+      assert out =~ "/users/api-tokens"
+      refute out =~ "/api/tokens"
       assert out =~ "auth_api_token.ex"
     end
 

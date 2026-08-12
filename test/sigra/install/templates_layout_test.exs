@@ -22,6 +22,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     auth_api_token.ex
     auth_fixtures.ex
     auth_hooks.ex
+    auth_jwt.ex
     auth_mailer.ex
     confirmation_controller.ex
     confirmation_html.ex
@@ -42,6 +43,8 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     mfa_settings_live.ex
     migration.exs
     reactivation_live.ex
+    rate_limit.ex
+    registration_controller.ex
     registration_html.ex
     registration_live.ex
     reset_password_controller.ex
@@ -51,6 +54,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     session_controller.ex
     session_live.ex
     settings_live.ex
+    settings_controller.ex
     sigra_auth.css
     sigra_auth_components.ex
     sudo_controller.ex
@@ -71,7 +75,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
 
   test "templates have been relocated under core/ subdirectory" do
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 52
+    assert length(core_files) == 56
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

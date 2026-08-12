@@ -83,9 +83,9 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 52 templates" do
+    test "contains exactly 56 templates" do
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 52
+      assert length(files) == 56
     end
 
     test "core auth export defaults do not reference optional feature schemas" do
