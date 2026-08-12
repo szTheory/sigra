@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
-current_phase: 243
-current_phase_name: Credential Boundary and Pipeline Foundation
-status: verifying
+current_phase: 244
+current_phase_name: PAT and Advanced JWT Truth Repair
+status: planning
 stopped_at: Completed 243-05-PLAN.md
-last_updated: "2026-08-12T19:55:42.258Z"
+last_updated: "2026-08-12T20:52:16.715Z"
 last_activity: 2026-08-12
-last_activity_desc: Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
+last_activity_desc: Phase 243 complete, transitioned to Phase 244
 progress:
   total_phases: 1
   completed_phases: 1
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 243 — Credential Boundary and Pipeline Foundation
+**Current focus:** Phase 244 — PAT and Advanced JWT Truth Repair
 
 ## Current Position
 
-Phase: 243 of 249 (Credential Boundary and Pipeline Foundation)
-Plan: 5 of 05
-Status: Phase complete — ready for verification
-Last activity: 2026-08-12 — Plan 243-01 completed; explicit PAT pipeline and trusted scope boundary committed.
+Phase: 244 of 249 (PAT and Advanced JWT Truth Repair)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-12 — Phase 243 complete, transitioned to Phase 244
 
 Progress: ░░░░░░░░░░ [██████████] 100%
 
@@ -40,7 +40,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 1
+- Total plans completed: 6
 - Average duration: 4min
 - Total execution time: 4min
 
@@ -49,6 +49,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 243–249 | 1 | 4min | 4min |
+| 243 | 5 | - | - |
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
@@ -68,16 +69,12 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - Native login is system-browser PKCE by default. Direct password/MFA login is separately opt-in; no generated password-to-JWT endpoint or client-selected authority.
 - The language-learning twin is intentionally bounded: account-isolated, lease-limited media and replay proof, not a generic offline framework or published SDK.
 - Platform claims must identify their evidence class (contract, emulator, or physical device) and fail closed when required proof is absent.
-- [Phase ?]: Explicit PAT verification reloads the live user and stores only bounded private credential facts.
-- [Phase ?]: RequireScopes authorizes only verified PAT/JWT metadata, never Scope-shaped fields or session identity.
-- [Phase ?]: FetchJWT verifies only JWTs, reloads the live user, and projects bounded private facts.
-- [Phase ?]: FetchAppSession remains a fail-closed public pipeline seam until Phase 245 adds verifier and storage.
-- [Phase ?]: FetchSession reloads config.user_schema before building identity-only browser Scope state.
-- [Phase ?]: Generated Scope structs use Sigra.Scope.build/3 while only non-struct scopes use legacy new/1.
-- [Phase ?]: FetchBearer preserves only legacy prefix/JWT/default dispatch and delegates to explicit credential-kind plugs.
-- [Phase ?]: FetchBearer.init/1 and call/2 are deprecated with explicit FetchAPIToken/FetchJWT migration guidance.
-- [Phase ?]: Published normative four-owner credential-boundary contract with Sigra first-party auth, Lockspire delegation, Crosswake projected facts, and host policy ownership.
-- [Phase ?]: Primary API documentation selects explicit FetchSession, FetchAppSession, FetchAPIToken, and FetchJWT pipelines; FetchBearer is migration-only.
+- [Phase 243]: Explicit PAT/JWT verification reloads the live user and stores only bounded private credential facts.
+- [Phase 243]: RequireScopes authorizes only verified PAT/JWT metadata, never Scope-shaped fields or session identity.
+- [Phase 243]: FetchAppSession remains a fail-closed public pipeline seam until Phase 245 adds verifier and storage.
+- [Phase 243]: Generated Scope structs use Sigra.Scope.build/3 while only non-struct scopes use legacy new/1.
+- [Phase 243]: FetchBearer is deprecated compatibility-only dispatch; primary documentation selects explicit credential-kind pipelines.
+- [Phase 243]: The normative four-owner contract assigns first-party auth to Sigra, delegation to Lockspire, projected runtime facts to Crosswake, and authorization/media/lease/replay policy to the host.
 
 ### Pending Todos
 
@@ -95,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T19:55:42.250Z
-Stopped at: Completed 243-05-PLAN.md
+Last session: 2026-08-12T20:55:00Z
+Stopped at: Phase 243 complete; ready to discuss and plan Phase 244
 Resume file: None
