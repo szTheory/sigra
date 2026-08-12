@@ -10,6 +10,12 @@ defmodule Example.Accounts.CrosswakeContinuationsTest do
 
   @as_of ~U[2026-08-11 18:00:00.000000Z]
 
+  setup do
+    {_, nil} = Repo.delete_all(CrosswakeContinuation)
+    assert Repo.aggregate(CrosswakeContinuation, :count) == 0
+    :ok
+  end
+
   test "issues a digest-only continuation with no canonical identifiers or evidence" do
     {raw_token, session, user} = session_with_raw_token(@as_of)
 
