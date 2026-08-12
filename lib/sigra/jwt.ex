@@ -51,7 +51,7 @@ defmodule Sigra.JWT do
 
   alias Ecto.Multi
   alias Sigra.{APIToken, Audit}
-  alias Sigra.JWT.{RefreshToken, Signer}
+  alias Sigra.JWT.{RefreshToken, Signer, Validator}
   alias Sigra.Telemetry
 
   @doc """
@@ -83,7 +83,7 @@ defmodule Sigra.JWT do
     end
 
     Telemetry.span([:sigra, :jwt, :generate], %{user_id: user.id}, fn ->
-      signer = Signer.create_signer(config)
+      signer = configured_signer(config)
       access_ttl = Keyword.get(jwt_config, :access_ttl, 900)
       now = DateTime.utc_now() |> DateTime.to_unix()
 
@@ -111,36 +111,31 @@ defmodule Sigra.JWT do
   @doc """
   Verifies a JWT access token.
 
-  Checks signature validity, expiration, and (if enabled) the epoch claim
-  against the user's current `token_epoch` value.
+  Checks the configured signer, protected type, registered claims, audience,
+  optional not-before time, and (if enabled) the epoch claim against the user's
+  current `token_epoch` value.
 
   Returns `{:ok, claims}` on success.
 
   ## Error Returns
 
   - `{:error, :invalid_token}` - Signature invalid or token malformed
-  - `{:error, :token_expired}` - Token has expired
   - `{:error, :epoch_mismatch}` - User's token_epoch doesn't match claim
   """
   @spec verify_access(Sigra.Config.t(), String.t()) ::
-          {:ok, map()} | {:error, :invalid_token | :token_expired | :epoch_mismatch}
+          {:ok, map()} | {:error, :invalid_token | :epoch_mismatch}
   def verify_access(config, jwt_string) do
     Signer.ensure_joken!()
 
     Telemetry.span([:sigra, :jwt, :verify], %{}, fn ->
       signer = Signer.create_signer(config)
 
-      case Joken.verify(jwt_string, signer) do
+      case Validator.verify_and_validate(jwt_string, signer, config) do
         {:ok, claims} ->
-          cond do
-            claims_expired?(claims) ->
-              {:error, :token_expired}
-
-            Keyword.get(config.jwt, :verify_epoch, true) ->
-              verify_epoch(config, claims)
-
-            true ->
-              {:ok, claims}
+          if Keyword.get(config.jwt, :verify_epoch, true) do
+            verify_epoch(config, claims)
+          else
+            {:ok, claims}
           end
 
         {:error, _reason} ->
@@ -352,7 +347,7 @@ defmodule Sigra.JWT do
   end
 
   defp finalize_refresh_response(config, new_record, scopes, new_raw) do
-    signer = Signer.create_signer(config)
+    signer = configured_signer(config)
     jwt_config = config.jwt
     access_ttl = Keyword.get(jwt_config, :access_ttl, 900)
     now = DateTime.utc_now() |> DateTime.to_unix()
@@ -377,6 +372,7 @@ defmodule Sigra.JWT do
       "exp" => now + access_ttl,
       "jti" => Ecto.UUID.generate(),
       "iss" => Keyword.get(jwt_config, :issuer) || to_string(config.otp_app),
+      "aud" => Keyword.fetch!(jwt_config, :audience),
       "scopes" => scopes,
       "epoch" => Map.get(user, :token_epoch, 0)
     }
@@ -387,15 +383,14 @@ defmodule Sigra.JWT do
 
       builder when is_atom(builder) ->
         extra = builder.extra_claims(user)
-        Map.merge(base_claims, extra)
+        Map.merge(extra, base_claims)
     end
   end
 
-  defp claims_expired?(claims) do
-    case claims["exp"] do
-      nil -> false
-      exp -> DateTime.utc_now() |> DateTime.to_unix() > exp
-    end
+  defp configured_signer(config) do
+    signer = Signer.create_signer(config)
+    typ = Keyword.fetch!(config.jwt, :typ)
+    %{signer | jws: JOSE.JWS.from_map(%{"alg" => signer.alg, "typ" => typ})}
   end
 
   defp verify_epoch(config, claims) do

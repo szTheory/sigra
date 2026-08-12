@@ -28,6 +28,11 @@ defmodule Sigra.JWTTest do
       ]
     ]
 
+    overrides =
+      Keyword.update(overrides, :jwt, base[:jwt], fn jwt ->
+        Keyword.merge(base[:jwt], jwt)
+      end)
+
     Sigra.Config.new!(Keyword.merge(base, overrides))
   end
 
@@ -137,7 +142,7 @@ defmodule Sigra.JWTTest do
 
   describe "advanced access-token contract" do
     test "issues configured protected type and registered claims before verifying a valid token" do
-      cfg = config(jwt: [enabled: true, refresh: false])
+      cfg = config(jwt: [enabled: true, refresh: false, typ: "sigra-access+jwt"])
       user = test_user()
 
       {:ok, tokens} = JWT.generate_tokens(cfg, user, ["read:users"], token_opts())
@@ -152,6 +157,9 @@ defmodule Sigra.JWTTest do
       assert is_integer(claims["iat"])
       assert is_integer(claims["exp"])
       assert is_binary(claims["jti"])
+
+      assert {:ok, %{"typ" => "sigra-access+jwt"}} =
+               tokens.access_token |> JOSE.JWS.peek_protected() |> Jason.decode()
     end
 
     test "checks a configured signer before accepting a protected typ" do
@@ -162,10 +170,13 @@ defmodule Sigra.JWTTest do
 
     test "rejects a validly signed token with wrong or missing protected typ" do
       assert {:error, :invalid_token} =
-               JWT.verify_access(config(), signed_token(%{}, signer_headers: %{"typ" => "not-jwt"}))
+               JWT.verify_access(
+                 config(),
+                 signed_token(%{}, signer_headers: %{"typ" => "not-jwt"})
+               )
 
       assert {:error, :invalid_token} =
-               JWT.verify_access(config(), signed_token(%{}, signer_headers: %{}))
+               JWT.verify_access(config(), signed_token(%{}, missing_typ: true))
     end
 
     for {claim, invalid_values} <- [
@@ -178,8 +189,13 @@ defmodule Sigra.JWTTest do
       test "rejects missing or malformed #{claim}" do
         unquote(invalid_values)
         |> Enum.each(fn value ->
-          claims = if is_nil(value), do: Map.delete(valid_claims(), unquote(claim)), else: Map.put(valid_claims(), unquote(claim), value)
-          assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(claims))
+          claims =
+            if is_nil(value),
+              do: Map.delete(valid_claims(), unquote(claim)),
+              else: Map.put(valid_claims(), unquote(claim), value)
+
+          assert {:error, :invalid_token} =
+                   JWT.verify_access(config(), signed_token(%{}, claims: claims))
         end)
       end
     end
@@ -195,15 +211,19 @@ defmodule Sigra.JWTTest do
 
     test "rejects missing, empty, malformed, or case-different audiences" do
       for audience <- [nil, "", [], [""], ["sigra-api", 7], "SIGRA-API", ["other"]] do
-        claims = if is_nil(audience), do: Map.delete(valid_claims(), "aud"), else: %{"aud" => audience}
-        assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(claims))
+        claims =
+          if is_nil(audience), do: Map.delete(valid_claims(), "aud"), else: %{"aud" => audience}
+
+        assert {:error, :invalid_token} =
+                 JWT.verify_access(config(), signed_token(%{}, claims: claims))
       end
     end
 
     test "enforces optional nbf without making it an identity claim" do
       now = DateTime.utc_now() |> DateTime.to_unix()
 
-      assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(%{"nbf" => now + 60}))
+      assert {:error, :invalid_token} =
+               JWT.verify_access(config(), signed_token(%{"nbf" => now + 60}))
 
       for nbf <- [now, now - 60] do
         Sigra.MockRepo
@@ -218,7 +238,8 @@ defmodule Sigra.JWTTest do
         @behaviour Sigra.JWT.ClaimsBuilder
 
         @impl true
-        def extra_claims(_user), do: %{"sub" => "attacker", "aud" => "attacker", "scopes" => ["admin"]}
+        def extra_claims(_user),
+          do: %{"sub" => "attacker", "aud" => "attacker", "scopes" => ["admin"]}
       end
 
       cfg = config(jwt: [enabled: true, refresh: false, claims_builder: ReservedClaimsBuilder])
@@ -373,10 +394,19 @@ defmodule Sigra.JWTTest do
   end
 
   defp signed_token(overrides, opts \\ []) do
-    claims = Map.merge(valid_claims(), overrides)
+    claims = Keyword.get(opts, :claims, Map.merge(valid_claims(), overrides))
     algorithm = Keyword.get(opts, :algorithm, "HS256")
     headers = Keyword.get(opts, :signer_headers, %{"typ" => "JWT"})
-    {:ok, jwt, _} = Joken.generate_and_sign(%{}, claims, configured_signer(algorithm, headers))
+    signer = configured_signer(algorithm, headers)
+
+    signer =
+      if Keyword.get(opts, :missing_typ, false) do
+        %{signer | jws: JOSE.JWS.from_map(%{"alg" => algorithm})}
+      else
+        signer
+      end
+
+    {:ok, jwt, _} = Joken.generate_and_sign(%{}, claims, signer)
     jwt
   end
 
