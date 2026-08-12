@@ -53,6 +53,20 @@ defmodule Sigra.JWT.SignerTest do
     end
   end
 
+  describe "JWT protected type and audience configuration" do
+    test "rejects empty or malformed configured type and audiences during Config.new!/1" do
+      for jwt <- [
+            [enabled: true, typ: "", audience: ["sigra-api"]],
+            [enabled: true, typ: 7, audience: ["sigra-api"]],
+            [enabled: true, typ: "JWT", audience: []],
+            [enabled: true, typ: "JWT", audience: ["sigra-api", "sigra-api"]],
+            [enabled: true, typ: "JWT", audience: ["sigra-api", 7]]
+          ] do
+        assert_raise NimbleOptions.ValidationError, fn -> config(jwt: jwt) end
+      end
+    end
+  end
+
   describe "create_signer/1 with RS256" do
     test "returns a Joken.Signer struct with PEM key" do
       # Generate an RSA key for testing

@@ -19,6 +19,8 @@ defmodule Sigra.JWTTest do
         enabled: true,
         algorithm: "HS256",
         issuer: "test_issuer",
+        audience: ["sigra-api", "sigra-web"],
+        typ: "JWT",
         access_ttl: 900,
         refresh_ttl: 30 * 24 * 60 * 60,
         refresh: true,
@@ -133,6 +135,102 @@ defmodule Sigra.JWTTest do
     end
   end
 
+  describe "advanced access-token contract" do
+    test "issues configured protected type and registered claims before verifying a valid token" do
+      cfg = config(jwt: [enabled: true, refresh: false])
+      user = test_user()
+
+      {:ok, tokens} = JWT.generate_tokens(cfg, user, ["read:users"], token_opts())
+
+      Sigra.MockRepo
+      |> expect(:get, fn Sigra.TestUser, "42" -> %{id: 42, token_epoch: 0} end)
+
+      assert {:ok, claims} = JWT.verify_access(cfg, tokens.access_token)
+      assert claims["iss"] == "test_issuer"
+      assert claims["aud"] == ["sigra-api", "sigra-web"]
+      assert claims["sub"] == "42"
+      assert is_integer(claims["iat"])
+      assert is_integer(claims["exp"])
+      assert is_binary(claims["jti"])
+    end
+
+    test "checks a configured signer before accepting a protected typ" do
+      token = signed_token(%{}, signer_headers: %{"typ" => "JWT"}, algorithm: "HS384")
+
+      assert {:error, :invalid_token} = JWT.verify_access(config(), token)
+    end
+
+    test "rejects a validly signed token with wrong or missing protected typ" do
+      assert {:error, :invalid_token} =
+               JWT.verify_access(config(), signed_token(%{}, signer_headers: %{"typ" => "not-jwt"}))
+
+      assert {:error, :invalid_token} =
+               JWT.verify_access(config(), signed_token(%{}, signer_headers: %{}))
+    end
+
+    for {claim, invalid_values} <- [
+          {"iss", [nil, "", 7, "wrong-issuer"]},
+          {"sub", [nil, "", 7]},
+          {"iat", [nil, "", "now"]},
+          {"exp", [nil, "", "later", DateTime.utc_now() |> DateTime.to_unix() |> Kernel.-(1)]},
+          {"jti", [nil, "", 7]}
+        ] do
+      test "rejects missing or malformed #{claim}" do
+        unquote(invalid_values)
+        |> Enum.each(fn value ->
+          claims = if is_nil(value), do: Map.delete(valid_claims(), unquote(claim)), else: Map.put(valid_claims(), unquote(claim), value)
+          assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(claims))
+        end)
+      end
+    end
+
+    test "accepts scalar and non-empty string-array audiences with exact configured recipients" do
+      for audience <- ["sigra-api", ["other", "sigra-web"]] do
+        Sigra.MockRepo
+        |> expect(:get, fn Sigra.TestUser, "42" -> %{id: 42, token_epoch: 0} end)
+
+        assert {:ok, _} = JWT.verify_access(config(), signed_token(%{"aud" => audience}))
+      end
+    end
+
+    test "rejects missing, empty, malformed, or case-different audiences" do
+      for audience <- [nil, "", [], [""], ["sigra-api", 7], "SIGRA-API", ["other"]] do
+        claims = if is_nil(audience), do: Map.delete(valid_claims(), "aud"), else: %{"aud" => audience}
+        assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(claims))
+      end
+    end
+
+    test "enforces optional nbf without making it an identity claim" do
+      now = DateTime.utc_now() |> DateTime.to_unix()
+
+      assert {:error, :invalid_token} = JWT.verify_access(config(), signed_token(%{"nbf" => now + 60}))
+
+      for nbf <- [now, now - 60] do
+        Sigra.MockRepo
+        |> expect(:get, fn Sigra.TestUser, "42" -> %{id: 42, token_epoch: 0} end)
+
+        assert {:ok, _} = JWT.verify_access(config(), signed_token(%{"nbf" => nbf}))
+      end
+    end
+
+    test "prevents custom claims from overwriting server-owned fields" do
+      defmodule ReservedClaimsBuilder do
+        @behaviour Sigra.JWT.ClaimsBuilder
+
+        @impl true
+        def extra_claims(_user), do: %{"sub" => "attacker", "aud" => "attacker", "scopes" => ["admin"]}
+      end
+
+      cfg = config(jwt: [enabled: true, refresh: false, claims_builder: ReservedClaimsBuilder])
+      {:ok, tokens} = JWT.generate_tokens(cfg, test_user(), ["read:users"], token_opts())
+      {:ok, claims} = Joken.verify(tokens.access_token, configured_signer())
+
+      assert claims["sub"] == "42"
+      assert claims["aud"] == ["sigra-api", "sigra-web"]
+      assert claims["scopes"] == ["read:users"]
+    end
+  end
+
   describe "verify_access/2" do
     test "returns {:ok, claims} for valid token" do
       user = test_user()
@@ -173,10 +271,10 @@ defmodule Sigra.JWTTest do
         )
 
       now = DateTime.utc_now() |> DateTime.to_unix()
-      claims = %{"sub" => "42", "iat" => now - 2000, "exp" => now - 1000, "epoch" => 0}
+      claims = valid_claims() |> Map.put("iat", now - 2000) |> Map.put("exp", now - 1000)
       {:ok, jwt, _} = Joken.generate_and_sign(%{}, claims, signer)
 
-      assert {:error, :token_expired} = JWT.verify_access(config(), jwt)
+      assert {:error, :invalid_token} = JWT.verify_access(config(), jwt)
     end
 
     test "returns {:error, :invalid_token} for tampered token" do
@@ -257,6 +355,37 @@ defmodule Sigra.JWTTest do
 
       assert {:error, :invalid_token} = JWT.verify_access(cfg, tokens.access_token)
     end
+  end
+
+  defp valid_claims do
+    now = DateTime.utc_now() |> DateTime.to_unix()
+
+    %{
+      "iss" => "test_issuer",
+      "aud" => ["sigra-api", "sigra-web"],
+      "sub" => "42",
+      "iat" => now,
+      "exp" => now + 900,
+      "jti" => Ecto.UUID.generate(),
+      "scopes" => ["read:users"],
+      "epoch" => 0
+    }
+  end
+
+  defp signed_token(overrides, opts \\ []) do
+    claims = Map.merge(valid_claims(), overrides)
+    algorithm = Keyword.get(opts, :algorithm, "HS256")
+    headers = Keyword.get(opts, :signer_headers, %{"typ" => "JWT"})
+    {:ok, jwt, _} = Joken.generate_and_sign(%{}, claims, configured_signer(algorithm, headers))
+    jwt
+  end
+
+  defp configured_signer(algorithm \\ "HS256", headers \\ %{}) do
+    Joken.Signer.create(
+      algorithm,
+      :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key"),
+      headers
+    )
   end
 
   describe "refresh/2" do
