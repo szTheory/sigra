@@ -37,8 +37,8 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert File.exists?(Path.join(@template_dir, "api_token_controller.ex"))
     end
 
-    test "token_controller.ex template exists" do
-      assert File.exists?(Path.join(@template_dir, "token_controller.ex"))
+    test "auth_jwt.ex template exists" do
+      assert File.exists?(Path.join(@template_dir, "auth_jwt.ex"))
     end
 
     test "api_token_created_email.ex template exists" do
@@ -217,43 +217,23 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     end
   end
 
-  describe "token_controller.ex template" do
-    test "defines create action with email/password" do
-      content = render_template("token_controller.ex")
-      assert content =~ "def create(conn, %{\"email\" => email, \"password\" => password}"
+  describe "auth_jwt.ex template" do
+    test "exposes host-policy issuance and refresh delegates" do
+      content = render_template("auth_jwt.ex")
+
+      assert content =~ "def create_jwt_tokens(user)"
+      assert content =~ "Sigra.Auth.create_jwt_tokens(sigra_config(), user, jwt_scopes_for(user))"
+      assert content =~ "def refresh_jwt(raw_refresh_token)"
+      assert content =~ "def revoke_jwt_refresh(raw_refresh_token)"
     end
 
-    test "handles MFA required response (D-47)" do
-      content = render_template("token_controller.ex")
-      assert content =~ "mfa_required: true"
-      assert content =~ "mfa_token"
-    end
+    test "does not expose a password exchange or request-selected scopes" do
+      content = render_template("auth_jwt.ex")
 
-    test "defines refresh action" do
-      content = render_template("token_controller.ex")
-      assert content =~ "def refresh(conn, %{\"refresh_token\" => refresh_token})"
-    end
-
-    test "handles reuse detection" do
-      content = render_template("token_controller.ex")
-      assert content =~ ":reuse_detected"
-      assert content =~ "token theft detected"
-    end
-
-    test "defines MFA action" do
-      content = render_template("token_controller.ex")
-      assert content =~ "def mfa(conn, %{\"mfa_token\" => mfa_token, \"code\" => code}"
-    end
-
-    test "defines revoke action" do
-      content = render_template("token_controller.ex")
-      assert content =~ "def revoke(conn, %{\"refresh_token\" => refresh_token})"
-    end
-
-    test "always returns success on revoke (prevent info leakage)" do
-      content = render_template("token_controller.ex")
-      # revoke always returns ok
-      assert content =~ ~r/def revoke.*json\(conn, %\{ok: true\}\)/s
+      refute content =~ "password"
+      refute content =~ "conn"
+      refute content =~ "params"
+      refute content =~ "scopes)"
     end
   end
 
@@ -469,9 +449,9 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert source =~ ~s("core/api_token_controller.ex")
     end
 
-    test "Features.Core includes token_controller in jwt file list" do
+    test "Features.Core includes auth_jwt in jwt file list" do
       source = File.read!(@features_core_path)
-      assert source =~ ~s("core/token_controller.ex")
+      assert source =~ ~s("core/auth_jwt.ex")
     end
 
     test "Features.Core has API router injection content" do
@@ -480,15 +460,17 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       assert source =~ "APITokenController"
     end
 
-    test "Features.Core has JWT router injection content" do
+    test "Features.Core has JWT router injection content without a password exchange route" do
       source = File.read!(@features_core_path)
       assert source =~ "# Sigra JWT"
-      assert source =~ "TokenController"
+      assert source =~ "Sigra.Plug.FetchJWT"
+      refute source =~ "post \"/token\", TokenController, :create"
     end
 
-    test "Features.Core generates API pipeline with FetchBearer" do
+    test "Features.Core generates API pipeline with FetchAPIToken" do
       source = File.read!(@features_core_path)
-      assert source =~ "Sigra.Plug.FetchBearer"
+      assert source =~ "Sigra.Plug.FetchAPIToken"
+      refute source =~ "Sigra.Plug.FetchBearer"
     end
 
     test "Features.Core generates API pipeline with RequireAuthenticated" do

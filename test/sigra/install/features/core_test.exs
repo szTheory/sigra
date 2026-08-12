@@ -261,14 +261,35 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "core/token_controller.ex" in sources
     end
 
-    test "--jwt implies --api and includes jwt token controller" do
+    test "--jwt emits only its host-policy delegate, not PAT artifacts" do
       binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: true)
       sources = binding |> Core.files() |> Enum.map(fn {:eex, src, _} -> src end)
 
-      # The monolith treats --jwt as implying --api
-      assert "core/api_token_controller.ex" in sources
-      assert "core/user_api_token.ex" in sources
-      assert "core/token_controller.ex" in sources
+      refute "core/api_token_migration.exs" in sources
+      refute "core/api_token_controller.ex" in sources
+      refute "core/user_api_token.ex" in sources
+      refute "core/token_controller.ex" in sources
+      assert "core/auth_jwt.ex" in sources
+    end
+
+    test "API and JWT option matrix has disjoint artifact groups" do
+      matrix = [
+        {false, false, [], []},
+        {true, false, ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex"], ["core/auth_jwt.ex"]},
+        {false, true, ["core/auth_jwt.ex"], ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex", "core/token_controller.ex"]},
+        {true, true, ["core/api_token_migration.exs", "core/user_api_token.ex", "core/api_token_controller.ex", "core/auth_jwt.ex"], ["core/token_controller.ex"]}
+      ]
+
+      Enum.each(matrix, fn {api?, jwt?, expected, absent} ->
+        sources =
+          @binding
+          |> Keyword.put(:opts, live: true, api: api?, jwt: jwt?)
+          |> Core.files()
+          |> Enum.map(fn {:eex, source, _target} -> source end)
+
+        assert Enum.all?(expected, &(&1 in sources))
+        assert Enum.all?(absent, &(&1 not in sources))
+      end)
     end
 
     test "file targets are binding-interpolated project-relative paths" do
@@ -368,8 +389,7 @@ defmodule Sigra.Install.Features.CoreTest do
       # feature owns emission of this migration so the hard FK to the
       # organizations table lands AFTER that table is created and is
       # omitted entirely under --no-organizations.
-      orphans =
-        ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex alter_audit_events_add_org_columns.exs)
+      orphans = ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex token_controller.ex alter_audit_events_add_org_columns.exs)
 
       on_disk =
         "priv/templates/sigra.install/core"
@@ -510,13 +530,37 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "# Sigra JWT" in markers
     end
 
-    test "--jwt adds jwt-router injection in addition to api-router" do
+    test "--jwt adds only JWT router and configuration injections" do
       binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: true)
       injections = Core.injections(binding)
       markers = Enum.map(injections, & &1.marker)
 
-      assert "# Sigra API" in markers
       assert "# Sigra JWT" in markers
+      assert "jwt:" in markers
+      refute "# Sigra API" in markers
+      refute "api_token:" in markers
+    end
+
+    test "API and JWT injections use explicit independent verifier pipelines" do
+      api_injections =
+        @binding
+        |> Keyword.put(:opts, live: true, api: true, jwt: false)
+        |> Core.injections()
+
+      jwt_injections =
+        @binding
+        |> Keyword.put(:opts, live: true, api: false, jwt: true)
+        |> Core.injections()
+
+      api_content = api_injections |> Enum.map(& &1.content) |> Enum.join("\n")
+      jwt_content = jwt_injections |> Enum.map(& &1.content) |> Enum.join("\n")
+
+      assert api_content =~ "Sigra.Plug.FetchAPIToken"
+      refute api_content =~ "Sigra.Plug.FetchBearer"
+      refute api_content =~ "Sigra.Plug.FetchJWT"
+      assert jwt_content =~ "Sigra.Plug.FetchJWT"
+      refute jwt_content =~ "Sigra.Plug.FetchBearer"
+      refute jwt_content =~ "TokenController"
     end
 
     test "router injection content contains the mandatory plug pipeline + routes" do
