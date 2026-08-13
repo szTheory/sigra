@@ -93,6 +93,21 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "installer-added dependencies must be fetched before the idempotent installer reruns Mix"
   end
 
+  test "generated-host server launch captures its PID inside the application cwd" do
+    harness = read!(@harness)
+
+    assert harness =~
+             "(\n    cd \"$APP_DIR\"\n    PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &\n    SERVER_PID=$!\n  )",
+           "the server process and PID capture must share the generated host cwd"
+
+    refute harness =~
+             "(cd \"$APP_DIR\" && PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 & echo $! > server.pid)",
+           "backgrounding the cd-and-server list writes server.pid outside APP_DIR"
+
+    refute harness =~ "cat \"${APP_DIR}/server.pid\"",
+           "read the PID from the launch shell instead of relying on a misplaced pid file"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
