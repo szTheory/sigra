@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-05-PLAN.md
-last_updated: "2026-08-13T02:30:39.340Z"
+stopped_at: Completed 246-08-PLAN.md
+last_updated: "2026-08-13T02:37:51.429Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 30
-  completed_plans: 27
+  completed_plans: 28
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [█████████░] 90%
+Progress: ░░░░░░░░░░ [█████████░] 93%
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: ░░░░░░░░░░ [█████████░] 90%
 | Phase 246 P07 | 5min | 3 tasks | 8 files |
 | Phase 246 P04 | 15m | 2 tasks | 4 files |
 | Phase 246 P05 | 18m | 2 tasks | 4 files |
+| Phase 246 P08 | 6m | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,8 @@ Progress: ░░░░░░░░░░ [█████████░] 90%
 - [Phase ?]: Direct MFA stores only a decoded-token digest and trusted binding facts, then consumes and issues in one transaction.
 - [Phase ?]: Direct MFA completion persists bounded audit facts in the same transaction as challenge consumption and app-session issuance.
 - [Phase ?]: Direct-MFA audit telemetry emits only after the outer transaction commits.
+- [Phase ?]: Hosted browser state persists only as a bounded signed continuation handle through normal session renewal.
+- [Phase ?]: Approval and cancellation are separate CSRF-protected POST decisions in the existing sigra-auth shell.
 
 ### Pending Todos
 
@@ -156,6 +159,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T02:30:39.333Z
-Stopped at: Completed 246-05-PLAN.md
+Last session: 2026-08-13T02:37:51.422Z
+Stopped at: Completed 246-08-PLAN.md
 Resume file: None
