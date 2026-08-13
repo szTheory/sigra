@@ -443,8 +443,10 @@ prove_host() {
   run "$APP_DIR" mix ecto.migrate
   run "$APP_DIR" mix compile --warnings-as-errors
   (cd "$APP_DIR" && assert_inventory "$mode")
-  (cd "$APP_DIR" && PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 & echo $! > server.pid)
-  SERVER_PID="$(cat "${APP_DIR}/server.pid")"
+  pushd "$APP_DIR" >/dev/null
+  PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
+  SERVER_PID=$!
+  popd >/dev/null
   wait_for_http
   # The hosted tracer stays on generated routes: an authenticated cookie jar,
   # CSRF-protected explicit approval, literal callback capture, then JSON exchange.

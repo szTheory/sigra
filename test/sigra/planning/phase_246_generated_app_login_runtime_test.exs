@@ -97,7 +97,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     harness = read!(@harness)
 
     assert harness =~
-             "(\n    cd \"$APP_DIR\"\n    PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &\n    SERVER_PID=$!\n  )",
+             "pushd \"$APP_DIR\" >/dev/null\n  PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &\n  SERVER_PID=$!\n  popd >/dev/null",
            "the server process and PID capture must share the generated host cwd"
 
     refute harness =~
