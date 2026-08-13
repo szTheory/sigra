@@ -1,0 +1,50 @@
+name: Generated app-login runtime proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generated_app_login_runtime_proof:
+    name: Generated app-login runtime proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Install Hex and Phoenix generator
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra dependencies
+        run: mix deps.get
+      - name: Run clean generated-host proof
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GENERATED_APP_LOGIN_RUNTIME_PROOF_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/generated-app-login-runtime-proof
+        run: scripts/ci/generated-app-login-runtime-proof.sh --all
+      - name: Upload generated app-login diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: generated-app-login-runtime-proof
+          path: artifacts/generated-app-login-runtime-proof/
+          retention-days: 7
+          if-no-files-found: warn
