@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
-current_phase_name: Hosted and Direct Login Ceremonies
-status: planning
-stopped_at: Completed 246-02-PLAN.md
-last_updated: "2026-08-13T01:58:49.669Z"
+current_phase_name: hosted-and-direct-login-ceremonies
+status: executing
+stopped_at: Completed 246-03-PLAN.md
+last_updated: "2026-08-13T02:09:01.587Z"
 last_activity: 2026-08-12
-last_activity_desc: Phase 245 complete, transitioned to Phase 246
+last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 30
-  completed_plans: 23
+  completed_plans: 24
 current_plan: 2
 ---
 
@@ -25,16 +25,16 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 245 — Opaque App-Session Core
+**Current focus:** Phase 246 — hosted-and-direct-login-ceremonies
 
 ## Current Position
 
-Phase: 246 of 249 (Hosted and Direct Login Ceremonies)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-12 — Phase 245 complete, transitioned to Phase 246
+Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
+Last activity: 2026-08-12 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [████████░░] 77%
+Progress: ░░░░░░░░░░ [████████░░] 80%
 
 ## Performance Metrics
 
@@ -79,6 +79,7 @@ Progress: ░░░░░░░░░░ [████████░░] 77%
 | Phase 246-hosted-and-direct-login-ceremonies P06 | 4min | 1 tasks | 4 files |
 | Phase 246 P01 | 13min | 1 tasks | 5 files |
 | Phase 246-hosted-and-direct-login-ceremonies P02 | 16min | 1 tasks | 6 files |
+| Phase 246 P03 | 13min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,8 @@ Progress: ░░░░░░░░░░ [████████░░] 77%
 - [Phase ?]: Raw access and refresh material remains only in Ecto.Multi changes until the outer transaction commits.
 - [Phase ?]: Hosted codes retain only the S256 challenge digest, never a PKCE verifier.
 - [Phase ?]: Every authenticated browser must explicitly approve before code persistence.
+- [Phase ?]: Hosted-code concurrency proof asserts the result multiset and persisted state, never a winner identity.
+- [Phase ?]: Hosted exchange audit records only action, attempt ID, profile ID, and family ID in the issuance transaction.
 
 ### Pending Todos
 
@@ -144,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:58:49.662Z
-Stopped at: Completed 246-02-PLAN.md
+Last session: 2026-08-13T02:09:01.580Z
+Stopped at: Completed 246-03-PLAN.md
 Resume file: None
