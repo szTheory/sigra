@@ -100,7 +100,7 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert family =~ "belongs_to :user, MyApp.Accounts.User"
 
       assert token =~ "defmodule MyApp.Accounts.UserAppSessionToken"
-      assert token =~ "field :kind, :string"
+      assert token =~ "field :kind, Ecto.Enum, values: [:access, :refresh]"
       assert token =~ "field :digest, :binary"
       assert token =~ "field :expires_at, :utc_datetime_usec"
       assert token =~ "field :consumed_at, :utc_datetime_usec"
@@ -115,7 +115,10 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert migration =~ "add :digest, :binary, null: false"
       assert migration =~ "create unique_index(:user_app_session_tokens, [:digest], @prefix_opts)"
       assert migration =~ "create index(:user_app_session_families, [:user_id, :revoked_at]"
-      assert migration =~ "create index(:user_app_session_tokens, [:family_id, :kind, :consumed_at]"
+
+      assert migration =~
+               "create index(:user_app_session_tokens, [:family_id, :kind, :consumed_at]"
+
       assert migration =~ "on_delete: :delete_all"
       assert migration =~ "@auth_prefix \"auth\""
       refute migration =~ "access_token"
