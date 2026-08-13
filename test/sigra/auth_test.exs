@@ -1022,18 +1022,25 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] -> token_record end)
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] ->
+        token_record
+      end)
       |> expect(:get!, fn TestUser, 1 -> user end)
       |> expect(:transaction, fn multi ->
         names = Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         assert :app_session_revoke_all in names
+
         assert Enum.find_index(names, &(&1 == :app_session_revoke_all)) <
                  Enum.find_index(names, &(&1 == :audit))
+
         {:ok, %{reset_password: user, app_session_revoke_all: %{count: 1}}}
       end)
 
       assert {:ok, ^user} =
-               Auth.reset_password(Sigra.MockRepo, encoded_token, %{"password" => "new_secure_password"},
+               Auth.reset_password(
+                 Sigra.MockRepo,
+                 encoded_token,
+                 %{"password" => "new_secure_password"},
                  secret_key_base: @secret_key_base,
                  user_token_schema: TestUserToken,
                  user_schema: TestUser,

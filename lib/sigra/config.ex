@@ -1133,17 +1133,23 @@ defmodule Sigra.Config do
       unknown != [] ->
         {:error, "contains unsupported options"}
 
-      not Enum.all?([:family_schema, :token_schema], &(is_nil(normalized[&1]) or is_atom(normalized[&1]))) ->
+      not Enum.all?(
+        [:family_schema, :token_schema],
+        &(is_nil(normalized[&1]) or is_atom(normalized[&1]))
+      ) ->
         {:error, "schema options must be modules or nil"}
 
       is_nil(normalized[:family_schema]) != is_nil(normalized[:token_schema]) ->
         {:error, "family_schema and token_schema must be configured together"}
 
-      not Enum.all?([:access_ttl, :refresh_idle_ttl, :absolute_ttl], &(is_integer(normalized[&1]) and normalized[&1] > 0)) ->
+      not Enum.all?(
+        [:access_ttl, :refresh_idle_ttl, :absolute_ttl],
+        &(is_integer(normalized[&1]) and normalized[&1] > 0)
+      ) ->
         {:error, "TTL values must be positive integers"}
 
       not (normalized[:access_ttl] < normalized[:refresh_idle_ttl] and
-             normalized[:refresh_idle_ttl] <= normalized[:absolute_ttl]) ->
+               normalized[:refresh_idle_ttl] <= normalized[:absolute_ttl]) ->
         {:error, "requires access_ttl < refresh_idle_ttl <= absolute_ttl"}
 
       true ->
