@@ -3,7 +3,9 @@ defmodule Sigra.AppLoginTest do
 
   alias Sigra.AppLogin
   alias Sigra.AppSession
+  alias Sigra.AppLogin.PKCE
   alias Sigra.Test.AppLoginSchemas.Attempt
+  alias Sigra.Test.AppLoginSchemas.Challenge
   alias Sigra.Test.AppSessionSchemas.{Family, Token, User}
   alias Sigra.Test.AuditEvent
 
@@ -58,7 +60,7 @@ defmodule Sigra.AppLoginTest do
     user: user
   } do
     code = "hosted-code"
-    verifier = "verifier"
+    verifier = String.duplicate("v", 43)
     profile = profile()
     callback = "com.sigra.app:/login"
     attempt = insert_attempt(repo, user, code, verifier, profile, callback)
@@ -76,6 +78,76 @@ defmodule Sigra.AppLoginTest do
              AppSession.authenticate(config, access)
 
     assert user_id == user.id
+  end
+
+  test "starts, explicitly approves, and exchanges one S256-bound hosted ceremony", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    verifier = String.duplicate("v", 43)
+    challenge = PKCE.challenge(verifier)
+    started_at = ~U[2026-08-13 00:00:00Z]
+
+    assert {:ok, %{continuation: continuation, approval_required: true}} =
+             AppLogin.start_hosted(
+               config,
+               %{
+                 "profile_id" => "ios-primary",
+                 "callback" => "com.sigra.app:/login",
+                 "state" => "native-state-123",
+                 "code_challenge" => challenge,
+                 "code_challenge_method" => "S256"
+               },
+               now: started_at
+             )
+
+    assert {:ok, %{code: code, callback: "com.sigra.app:/login", state: "native-state-123"}} =
+             AppLogin.approve_hosted(config, continuation, user, :approve, now: started_at)
+
+    attempt = repo.one!(Attempt)
+    assert DateTime.to_unix(attempt.expires_at) == DateTime.to_unix(started_at) + 60
+    assert attempt.verifier_digest == Sigra.Token.hash_token(challenge)
+    refute attempt.verifier_digest == Sigra.Token.hash_token(verifier)
+
+    assert {:ok, %{access_token: access, refresh_token: refresh}} =
+             AppLogin.exchange_hosted(config, code, verifier, profile(), "com.sigra.app:/login")
+
+    assert is_binary(access) and is_binary(refresh)
+  end
+
+  test "rejects non-exact hosted start input and never issues a code", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    verifier = String.duplicate("v", 43)
+
+    valid = %{
+      "profile_id" => "ios-primary",
+      "callback" => "com.sigra.app:/login",
+      "state" => "native-state-123",
+      "code_challenge" => PKCE.challenge(verifier),
+      "code_challenge_method" => "S256"
+    }
+
+    for invalid <- [
+          Map.put(valid, "callback", "com.sigra.app:/login?next=https://evil.example"),
+          Map.put(valid, "code_challenge_method", "plain"),
+          Map.put(valid, "state", ""),
+          Map.put(valid, "profile_id", ["ios-primary"]),
+          Map.put(valid, "extra", "value")
+        ] do
+      assert {:error, :invalid_request} = AppLogin.start_hosted(config, invalid)
+    end
+
+    assert {:ok, %{continuation: continuation}} = AppLogin.start_hosted(config, valid)
+    assert {:ok, :cancelled} = AppLogin.approve_hosted(config, continuation, user, :cancel)
+
+    assert {:error, :invalid_continuation} =
+             AppLogin.approve_hosted(config, continuation <> "tampered", user, :approve)
+
+    assert 0 = repo.aggregate(Attempt, :count)
   end
 
   test "returns one bounded invalid-code result without issuing for terminal bindings", %{
@@ -103,7 +175,7 @@ defmodule Sigra.AppLoginTest do
             {code, verifier, supplied_profile, supplied_callback}
         end
 
-      insert_attempt(repo, user, code, "verifier", profile, callback, attrs)
+      insert_attempt(repo, user, code, String.duplicate("v", 43), profile, callback, attrs)
 
       assert {:error, :invalid_code} =
                AppLogin.exchange_hosted(
@@ -125,7 +197,7 @@ defmodule Sigra.AppLoginTest do
     user: user
   } do
     code = "audit-rollback-code"
-    verifier = "verifier"
+    verifier = String.duplicate("v", 43)
     profile = profile()
     callback = "com.sigra.app:/login"
     attempt = insert_attempt(repo, user, code, verifier, profile, callback)
@@ -161,7 +233,7 @@ defmodule Sigra.AppLoginTest do
     user: user
   } do
     code = "session-rollback-code"
-    verifier = "verifier"
+    verifier = String.duplicate("v", 43)
     profile = %{profile() | client_ref: "blocked-client"}
     callback = "com.sigra.app:/login"
     attempt = insert_attempt(repo, user, code, verifier, profile, callback)
@@ -191,12 +263,26 @@ defmodule Sigra.AppLoginTest do
       repo: repo,
       user_schema: User,
       audit: if(Keyword.get(opts, :audit?, false), do: [audit_schema: AuditEvent], else: []),
-      app_session: [family_schema: Family, token_schema: Token]
+      app_session: [
+        family_schema: Family,
+        token_schema: Token,
+        app_login_code_schema: Attempt,
+        app_login_challenge_schema: Challenge,
+        first_party_profiles: [
+          %{
+            id: "ios-primary",
+            client_ref: "ios-primary",
+            callback_uris: ["com.sigra.app:/login"],
+            direct_login: :browser_required
+          }
+        ]
+      ],
+      secret_key_base: String.duplicate("a", 64)
     )
   end
 
   defp profile do
-    %{id: "ios-primary", client_ref: "ios-primary", attempt_schema: Attempt}
+    %{id: "ios-primary", client_ref: "ios-primary"}
   end
 
   defp insert_attempt(repo, user, code, verifier, profile, callback, attrs \\ []) do
@@ -205,7 +291,7 @@ defmodule Sigra.AppLoginTest do
     attempt =
       struct!(Attempt, %{
         digest: Sigra.Token.hash_token(code),
-        verifier_digest: Sigra.Token.hash_token(verifier),
+        verifier_digest: verifier |> Sigra.AppLogin.PKCE.challenge() |> Sigra.Token.hash_token(),
         profile_id: profile.id,
         callback: callback,
         user_id: user.id,

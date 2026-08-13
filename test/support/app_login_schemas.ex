@@ -17,4 +17,14 @@ defmodule Sigra.Test.AppLoginSchemas do
       timestamps(type: :utc_datetime_usec)
     end
   end
+
+  defmodule Challenge do
+    use Ecto.Schema
+
+    @primary_key {:id, :binary_id, autogenerate: true}
+    schema "sigra_app_login_challenges" do
+      field :digest, :binary
+      timestamps(type: :utc_datetime_usec)
+    end
+  end
 end

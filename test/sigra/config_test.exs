@@ -4,6 +4,86 @@ defmodule Sigra.ConfigTest do
   alias Sigra.Config
 
   describe "new!/1" do
+    test "accepts a finite static first-party profile registry with paired ceremony schemas" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          app_session: [
+            family_schema: MyApp.AppFamily,
+            token_schema: MyApp.AppToken,
+            app_login_code_schema: MyApp.AppLoginCode,
+            app_login_challenge_schema: MyApp.AppLoginChallenge,
+            first_party_profiles: [
+              %{
+                id: "ios-primary",
+                client_ref: "ios-primary",
+                callback_uris: ["com.sigra.app:/login", "http://127.0.0.1:49152/callback"],
+                direct_login: :browser_required
+              }
+            ]
+          ]
+        )
+
+      assert [profile] = config.app_session[:first_party_profiles]
+      assert profile.id == "ios-primary"
+      assert profile.callback_uris == ["com.sigra.app:/login", "http://127.0.0.1:49152/callback"]
+    end
+
+    test "rejects dynamic or malformed first-party profiles" do
+      base = [
+        family_schema: MyApp.AppFamily,
+        token_schema: MyApp.AppToken,
+        app_login_code_schema: MyApp.AppLoginCode,
+        app_login_challenge_schema: MyApp.AppLoginChallenge
+      ]
+
+      for profiles <- [
+            [],
+            [
+              %{
+                id: "ios",
+                client_ref: "ios",
+                callback_uris: ["com.sigra.app:/login"],
+                direct_login: :plain
+              }
+            ],
+            [
+              %{
+                id: "ios",
+                client_ref: "ios",
+                callback_uris: ["com.sigra.app:/login"],
+                direct_login: :browser_required,
+                secret: "nope"
+              }
+            ],
+            [
+              %{
+                id: "ios",
+                client_ref: "ios",
+                callback_uris: ["com.sigra.app:/login"],
+                direct_login: :browser_required
+              },
+              %{
+                id: "ios",
+                client_ref: "ios-2",
+                callback_uris: ["com.sigra.app:/other"],
+                direct_login: :password_allowed
+              }
+            ]
+          ] do
+        assert_raise NimbleOptions.ValidationError,
+                     ~r/first-party profiles|first_party_profiles/,
+                     fn ->
+                       Config.new!(
+                         repo: MyApp.Repo,
+                         user_schema: MyApp.User,
+                         app_session: base ++ [first_party_profiles: profiles]
+                       )
+                     end
+      end
+    end
+
     test "creates config with required options" do
       config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
 
