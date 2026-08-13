@@ -24,6 +24,8 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
     "app_sessions/app_sessions_migration.exs"
   ]
 
+  @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install", "app_sessions"])
+
   describe "feature selection" do
     test "is enabled only when app sessions are selected" do
       assert AppSessions.enabled?(app_sessions: true)
@@ -84,5 +86,53 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
                ceremony: "20260812120002"
              }
     end
+  end
+
+  describe "rendered app-session persistence" do
+    test "renders paired Phase 245 family and token schemas" do
+      family = render_template("user_app_session_family.ex")
+      token = render_template("user_app_session_token.ex")
+
+      assert family =~ "defmodule MyApp.Accounts.UserAppSessionFamily"
+      assert family =~ "field :client_ref, :string"
+      assert family =~ "field :absolute_expires_at, :utc_datetime_usec"
+      assert family =~ "field :revoked_at, :utc_datetime_usec"
+      assert family =~ "belongs_to :user, MyApp.Accounts.User"
+
+      assert token =~ "defmodule MyApp.Accounts.UserAppSessionToken"
+      assert token =~ "field :kind, :string"
+      assert token =~ "field :digest, :binary"
+      assert token =~ "field :expires_at, :utc_datetime_usec"
+      assert token =~ "field :consumed_at, :utc_datetime_usec"
+      assert token =~ "belongs_to :family, MyApp.Accounts.UserAppSessionFamily"
+    end
+
+    test "renders digest-only family and token migration inventory with auth prefix" do
+      migration = render_template("app_sessions_migration.exs", auth_prefix: "auth")
+
+      assert migration =~ "create table(:user_app_session_families"
+      assert migration =~ "create table(:user_app_session_tokens"
+      assert migration =~ "add :digest, :binary, null: false"
+      assert migration =~ "create unique_index(:user_app_session_tokens, [:digest], @prefix_opts)"
+      assert migration =~ "create index(:user_app_session_families, [:user_id, :revoked_at]"
+      assert migration =~ "create index(:user_app_session_tokens, [:family_id, :kind, :consumed_at]"
+      assert migration =~ "on_delete: :delete_all"
+      assert migration =~ "@auth_prefix \"auth\""
+      refute migration =~ "access_token"
+      refute migration =~ "refresh_token"
+    end
+
+    test "does not select persistence files when app sessions are disabled" do
+      assert [] = AppSessions.files(Keyword.put(@binding, :opts, app_sessions: false))
+    end
+  end
+
+  defp render_template(name, overrides \\ []) do
+    binding =
+      @binding
+      |> Keyword.merge(auth_prefix: nil, migration_timestamps: %{ceremony: "20260812120002"})
+      |> Keyword.merge(overrides)
+
+    EEx.eval_file(Path.join(@template_dir, name), binding)
   end
 end
