@@ -18,6 +18,12 @@ HOSTED_REPLAY_REJECTED=false
 DIRECT_REPLAY_REJECTED=false
 HOSTED_FETCH_APP_SESSION=false
 DIRECT_FETCH_APP_SESSION=false
+CONTROLLER_MFA_SESSION_UPGRADED=false
+LIVEVIEW_MFA_SESSION_UPGRADED=false
+APPROVAL_REPLAY_REJECTED=false
+DIRECT_BACKUP_CODE_SUCCEEDED=false
+BROWSER_REQUIRED_BEFORE_AUTHENTICATION=false
+FETCH_APP_SESSION_EQUIVALENT=false
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -112,6 +118,7 @@ prove_fetch_app_session() {
   grep -Fq '"scopes":[]' "$body"
   grep -Fq '"assurance":[]' "$body"
   ! grep -Eq '"(access_token|refresh_token|digest|callback|state|challenge|client_ref|email|password)"' "$body"
+  printf '%s\n' '{"credential_kind":"app_session","auth_method":"app_session","scopes":[],"assurance":[]}' > "${TMP_ROOT}/${label}-fetch-app-session-shape.json"
 }
 
 assert_one_family() {
@@ -176,7 +183,17 @@ seed_confirmed_user() {
     alias SigraAppLoginProof.Repo
 
     {:ok, user} = Accounts.register_user(%{"email" => "hosted-proof@example.test", "password" => "HostedProofPassword123!"})
-    user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+
+    %{backup_codes: [backup_code]} =
+      Sigra.Testing.setup_totp(user,
+        config: Accounts.sigra_config(),
+        mfa_credential_schema: Accounts.UserMFACredential,
+        backup_code_schema: Accounts.UserBackupCode,
+        backup_code_count: 1
+      )
+
+    File.write!("hosted-backup-code", backup_code)
   '
 }
 
@@ -249,9 +266,19 @@ prove_direct_mfa_ceremony() {
   '
 
   prove_direct_replay "$challenge" "$backup_code" "$access_token" "$family_id"
+  local families_before_browser_required
+  families_before_browser_required="$(run "$APP_DIR" mix run -e 'IO.write(SigraAppLoginProof.Repo.aggregate(SigraAppLoginProof.Accounts.UserAppSessionFamily, :count, :id))')"
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d '{"profile_id":"ios-primary","email":"not-a-real-user@example.test","password":"not-a-password"}' \
+    -o "${APP_DIR}/direct-browser-required.json" -w '%{http_code}' "$base/api/app-login/direct")"
+  [[ "$status" == "403" ]]
+  grep -Fxq '{"error":"browser_required"}' "${APP_DIR}/direct-browser-required.json"
+  [[ "$(run "$APP_DIR" mix run -e 'IO.write(SigraAppLoginProof.Repo.aggregate(SigraAppLoginProof.Accounts.UserAppSessionFamily, :count, :id))')" == "$families_before_browser_required" ]]
   DIRECT_SUCCESS=true
   DIRECT_REPLAY_REJECTED=true
   DIRECT_FETCH_APP_SESSION=true
+  DIRECT_BACKUP_CODE_SUCCEEDED=true
+  BROWSER_REQUIRED_BEFORE_AUTHENTICATION=true
 }
 
 prove_hosted_ceremony() {
@@ -261,7 +288,7 @@ prove_hosted_ceremony() {
   local approval_page="${APP_DIR}/hosted-approval.html"
   local approval_headers="${APP_DIR}/hosted-approval.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
-  local login_csrf approval_csrf verifier challenge callback code state status access_token family_id
+  local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token family_id backup_code
 
   seed_confirmed_user
   curl --fail --silent --show-error --cookie-jar "$cookie_jar" -o "$login_page" "$base/users/log_in"
@@ -272,6 +299,16 @@ prove_hosted_ceremony() {
     --data-urlencode "user[email]=hosted-proof@example.test" \
     --data-urlencode "user[password]=HostedProofPassword123!" \
     -o /dev/null -D /dev/null "$base/users/log_in"
+  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" -o "${APP_DIR}/hosted-mfa.html" "$base/users/mfa"
+  mfa_csrf="$(csrf_token "${APP_DIR}/hosted-mfa.html")"
+  backup_code="$(<"${APP_DIR}/hosted-backup-code")"
+  [[ -n "$mfa_csrf" && -n "$backup_code" ]]
+  status="$(curl --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" \
+    --data-urlencode "_csrf_token=$mfa_csrf" \
+    --data-urlencode 'mfa[method]=backup' \
+    --data-urlencode "mfa[code]=$backup_code" \
+    -o /dev/null -D /dev/null -w '%{http_code}' "$base/users/mfa")"
+  [[ "$status" =~ ^30[23]$ ]]
 
   verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
   challenge="$(printf '%s' "$verifier" | openssl dgst -binary -sha256 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
@@ -285,12 +322,17 @@ prove_hosted_ceremony() {
   grep -Fq 'data-testid="app-login-approval"' "$approval_page"
   approval_csrf="$(csrf_token "$approval_page")"
   [[ -n "$approval_csrf" ]]
-  status="$(curl --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" \
+  cp "$cookie_jar" "${APP_DIR}/hosted-approval-cookie-jar.txt"
+  status="$(curl --silent --show-error --cookie "${APP_DIR}/hosted-approval-cookie-jar.txt" \
     --data-urlencode "_csrf_token=$approval_csrf" \
     -D "$approval_headers" -o /dev/null -w '%{http_code}' "$base/users/app-login/approve")"
   [[ "$status" =~ ^30[23]$ ]]
   callback="$(awk 'tolower($1) == "location:" {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}' "$approval_headers")"
   [[ "$callback" == 'http://127.0.0.1:49152/callback?code='*'&state=hosted-runtime-state' ]]
+  status="$(curl --silent --show-error --cookie "${APP_DIR}/hosted-approval-cookie-jar.txt" \
+    --data-urlencode "_csrf_token=$approval_csrf" \
+    -o "${APP_DIR}/hosted-approval-replay.html" -w '%{http_code}' "$base/users/app-login/approve")"
+  [[ "$status" == "400" ]]
   code="$(printf '%s' "$callback" | sed -nE 's|.*[?&]code=([^&]+).*|\1|p')"
   state="$(printf '%s' "$callback" | sed -nE 's|.*[?&]state=([^&]+).*|\1|p')"
   [[ -n "$code" && "$state" == 'hosted-runtime-state' ]]
@@ -314,6 +356,8 @@ prove_hosted_ceremony() {
   HOSTED_SUCCESS=true
   HOSTED_REPLAY_REJECTED=true
   HOSTED_FETCH_APP_SESSION=true
+  CONTROLLER_MFA_SESSION_UPGRADED=true
+  APPROVAL_REPLAY_REJECTED=true
 }
 
 patch_host() {
@@ -344,23 +388,35 @@ assert_inventory() {
 }
 
 write_receipt_last() {
-  local app_login_sha fetch_app_session_sha controller_sha facade_sha router_sha script_sha receipt_tmp receipt
+  local app_login_sha fetch_app_session_sha controller_sha attempt_schema_sha migration_sha facade_sha router_sha mfa_controller_sha mfa_live_sha script_sha workflow_sha source_test_sha evidence_test_sha mfa_upgrade_test_sha concurrency_test_sha receipt_tmp receipt
 
   [[ "$HOSTED_SUCCESS" == true && "$DIRECT_SUCCESS" == true ]]
   [[ "$HOSTED_REPLAY_REJECTED" == true && "$DIRECT_REPLAY_REJECTED" == true ]]
   [[ "$HOSTED_FETCH_APP_SESSION" == true && "$DIRECT_FETCH_APP_SESSION" == true ]]
+  [[ "$CONTROLLER_MFA_SESSION_UPGRADED" == true && "$LIVEVIEW_MFA_SESSION_UPGRADED" == true ]]
+  [[ "$APPROVAL_REPLAY_REJECTED" == true && "$DIRECT_BACKUP_CODE_SUCCEEDED" == true ]]
+  [[ "$BROWSER_REQUIRED_BEFORE_AUTHENTICATION" == true && "$FETCH_APP_SESSION_EQUIVALENT" == true ]]
 
   app_login_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/app_login.ex" | awk '{print $1}')"
   fetch_app_session_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/plug/fetch_app_session.ex" | awk '{print $1}')"
   controller_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_login_controller.ex" | awk '{print $1}')"
+  attempt_schema_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex" | awk '{print $1}')"
+  migration_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_sessions_migration.exs" | awk '{print $1}')"
   facade_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/auth_app_sessions.ex" | awk '{print $1}')"
   router_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/router_injection.ex" | awk '{print $1}')"
+  mfa_controller_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/core/mfa_challenge_controller.ex" | awk '{print $1}')"
+  mfa_live_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/core/mfa_challenge_live.ex" | awk '{print $1}')"
   script_sha="$(sha256sum "${SIGRA_REPO}/scripts/ci/generated-app-login-runtime-proof.sh" | awk '{print $1}')"
+  workflow_sha="$(sha256sum "${SIGRA_REPO}/.github/workflows/generated-app-login-runtime-proof.yml" | awk '{print $1}')"
+  source_test_sha="$(sha256sum "${SIGRA_REPO}/test/sigra/planning/phase_246_generated_app_login_runtime_test.exs" | awk '{print $1}')"
+  evidence_test_sha="$(sha256sum "${SIGRA_REPO}/test/sigra/planning/phase_246_runtime_evidence_contract_test.exs" | awk '{print $1}')"
+  mfa_upgrade_test_sha="$(sha256sum "${SIGRA_REPO}/test/sigra/install/app_sessions_mfa_session_upgrade_test.exs" | awk '{print $1}')"
+  concurrency_test_sha="$(sha256sum "${SIGRA_REPO}/test/sigra/app_login/concurrency_test.exs" | awk '{print $1}')"
   receipt_tmp="${APP_DIR}/runtime-proof.json.tmp"
   receipt="${APP_DIR}/runtime-proof.json"
 
   # receipt-last: every transition must pass before this final atomic publish.
-  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v2\",\"status\":\"passed\",\"hosted_success\":true,\"direct_success\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"hosted_fetch_app_session\":true,\"direct_fetch_app_session\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"runtime_script\":\"${script_sha}\"}}" > "$receipt_tmp"
+  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v3\",\"status\":\"passed\",\"controller_mfa_session_upgraded\":true,\"liveview_mfa_session_upgraded\":true,\"approval_replay_rejected\":true,\"direct_backup_code_succeeded\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"fetch_app_session_equivalent\":true,\"browser_required_before_authentication\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"app_login_attempt_schema\":\"${attempt_schema_sha}\",\"app_sessions_migration\":\"${migration_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"mfa_challenge_controller\":\"${mfa_controller_sha}\",\"mfa_challenge_live\":\"${mfa_live_sha}\",\"runtime_script\":\"${script_sha}\",\"workflow\":\"${workflow_sha}\",\"runtime_source_contract_test\":\"${source_test_sha}\",\"runtime_evidence_contract_test\":\"${evidence_test_sha}\",\"mfa_session_upgrade_test\":\"${mfa_upgrade_test_sha}\",\"approval_concurrency_test\":\"${concurrency_test_sha}\"}}" > "$receipt_tmp"
   mv "$receipt_tmp" "$receipt"
 }
 
@@ -400,7 +456,15 @@ prove_host() {
 case "${1:---all}" in
   --hosted) prove_host hosted ;;
   --direct) prove_host direct ;;
-  --all) prove_host hosted; prove_host direct; write_receipt_last ;;
+  --all)
+    prove_host hosted
+    prove_host direct
+    run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/install/app_sessions_mfa_session_upgrade_test.exs test/sigra/app_login/concurrency_test.exs --trace
+    LIVEVIEW_MFA_SESSION_UPGRADED=true
+    cmp "${TMP_ROOT}/hosted-fetch-app-session-shape.json" "${TMP_ROOT}/direct-fetch-app-session-shape.json"
+    FETCH_APP_SESSION_EQUIVALENT=true
+    write_receipt_last
+    ;;
   *) echo "Usage: $0 [--hosted|--direct|--all]" >&2; exit 64 ;;
 esac
 

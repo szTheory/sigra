@@ -89,12 +89,15 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     for marker <- [
           "sigra.generated-app-login-runtime-proof/v3",
-          "HOSTED_SUCCESS",
-          "DIRECT_SUCCESS",
+          "sigra.generated-app-login-runtime-proof/v3",
+          "CONTROLLER_MFA_SESSION_UPGRADED",
+          "LIVEVIEW_MFA_SESSION_UPGRADED",
+          "APPROVAL_REPLAY_REJECTED",
+          "DIRECT_BACKUP_CODE_SUCCEEDED",
           "HOSTED_REPLAY_REJECTED",
           "DIRECT_REPLAY_REJECTED",
-          "HOSTED_FETCH_APP_SESSION",
-          "DIRECT_FETCH_APP_SESSION",
+          "FETCH_APP_SESSION_EQUIVALENT",
+          "BROWSER_REQUIRED_BEFORE_AUTHENTICATION",
           "CONTROLLER_MFA_SESSION_UPGRADED",
           "LIVEVIEW_MFA_SESSION_UPGRADED",
           "APPROVAL_REPLAY_REJECTED",
@@ -104,6 +107,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "phase_246_runtime_evidence_contract_test.exs",
           "lib/sigra/app_login.ex",
           "priv/templates/sigra.install/app_sessions/router_injection.ex",
+          "priv/templates/sigra.install/core/mfa_challenge_live.ex",
+          "phase_246_runtime_evidence_contract_test.exs",
           "runtime-proof.json.tmp",
           "mv \"$receipt_tmp\" \"$receipt\"",
           "write_receipt_last"
@@ -112,7 +117,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
 
     assert workflow =~ "Validate generated app-login runtime receipt"
-    assert workflow =~ "sigra.generated-app-login-runtime-proof/v2"
+    assert workflow =~ "sigra.generated-app-login-runtime-proof/v3"
     assert workflow =~ "runtime-proof.json"
   end
 end

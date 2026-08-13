@@ -50,14 +50,16 @@ jobs:
           receipt_path = Path("artifacts/generated-app-login-runtime-proof/runtime-proof.json")
           receipt = json.loads(receipt_path.read_text())
           required = {
-              "schema": "sigra.generated-app-login-runtime-proof/v2",
+              "schema": "sigra.generated-app-login-runtime-proof/v3",
               "status": "passed",
-              "hosted_success": True,
-              "direct_success": True,
+              "controller_mfa_session_upgraded": True,
+              "liveview_mfa_session_upgraded": True,
+              "approval_replay_rejected": True,
+              "direct_backup_code_succeeded": True,
               "hosted_replay_rejected": True,
               "direct_replay_rejected": True,
-              "hosted_fetch_app_session": True,
-              "direct_fetch_app_session": True,
+              "fetch_app_session_equivalent": True,
+              "browser_required_before_authentication": True,
           }
           for key, expected in required.items():
               assert receipt.get(key) == expected, f"receipt {key!r} must be {expected!r}"
@@ -66,9 +68,18 @@ jobs:
               "app_login": "lib/sigra/app_login.ex",
               "fetch_app_session": "lib/sigra/plug/fetch_app_session.ex",
               "app_login_controller": "priv/templates/sigra.install/app_sessions/app_login_controller.ex",
+              "app_login_attempt_schema": "priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex",
+              "app_sessions_migration": "priv/templates/sigra.install/app_sessions/app_sessions_migration.exs",
               "auth_app_sessions": "priv/templates/sigra.install/app_sessions/auth_app_sessions.ex",
               "router_injection": "priv/templates/sigra.install/app_sessions/router_injection.ex",
+              "mfa_challenge_controller": "priv/templates/sigra.install/core/mfa_challenge_controller.ex",
+              "mfa_challenge_live": "priv/templates/sigra.install/core/mfa_challenge_live.ex",
               "runtime_script": "scripts/ci/generated-app-login-runtime-proof.sh",
+              "workflow": ".github/workflows/generated-app-login-runtime-proof.yml",
+              "runtime_source_contract_test": "test/sigra/planning/phase_246_generated_app_login_runtime_test.exs",
+              "runtime_evidence_contract_test": "test/sigra/planning/phase_246_runtime_evidence_contract_test.exs",
+              "mfa_session_upgrade_test": "test/sigra/install/app_sessions_mfa_session_upgrade_test.exs",
+              "approval_concurrency_test": "test/sigra/app_login/concurrency_test.exs",
           }
           assert set(receipt.get("sources", {})) == set(source_paths), "receipt source bindings changed"
           for key, path in source_paths.items():
