@@ -157,6 +157,52 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
     end
   end
 
+  describe "static profiles and ceremony facade" do
+    test "renders finite public profiles and host configuration without secrets" do
+      profiles = render_template("first_party_apps.ex")
+      facade = render_template("auth_app_sessions.ex", opts: [app_sessions: true])
+
+      assert profiles =~ "defmodule MyApp.Accounts.FirstPartyApps"
+      assert profiles =~ ~s(id: "ios-primary")
+      assert profiles =~ ~s(client_ref: "ios-primary")
+      assert profiles =~ ~s("com.sigra.app:/login")
+      assert profiles =~ ":browser_required"
+      assert profiles =~ ":password_allowed"
+      refute profiles =~ "secret"
+      refute profiles =~ "register"
+
+      assert facade =~ "defmodule MyApp.Accounts.Auth.AppSessions"
+      assert facade =~ "family_schema: MyApp.Accounts.UserAppSessionFamily"
+      assert facade =~ "token_schema: MyApp.Accounts.UserAppSessionToken"
+      assert facade =~ "app_login_code_schema: MyApp.Accounts.UserAppLoginAttempt"
+      assert facade =~ "app_login_challenge_schema: MyApp.Accounts.UserAppLoginAttempt"
+      assert facade =~ "Sigra.AppLogin.start_hosted"
+      assert facade =~ "Sigra.AppLogin.approve_hosted"
+      assert facade =~ "Sigra.AppLogin.exchange_hosted"
+      assert facade =~ "Sigra.AppSession.refresh"
+      assert facade =~ "Sigra.AppSession.revoke_family_for_user"
+      refute facade =~ "authenticate_user"
+      refute facade =~ "mfa_verify"
+    end
+
+    test "emits direct password and MFA adapters only behind the password-login flag" do
+      direct =
+        render_template("auth_app_sessions.ex",
+          opts: [app_sessions: true, app_password_login: true]
+        )
+
+      hosted = render_template("auth_app_sessions.ex", opts: [app_sessions: true])
+
+      assert direct =~ "MyApp.Accounts.authenticate_user"
+      assert direct =~ "MyApp.Accounts.mfa_verify"
+      assert direct =~ "MyApp.Accounts.mfa_verify_backup"
+      assert direct =~ "Sigra.AppLogin.start_direct"
+      assert direct =~ "Sigra.AppLogin.complete_direct_mfa"
+      refute hosted =~ "start_direct"
+      refute hosted =~ "complete_direct_mfa"
+    end
+  end
+
   defp render_template(name, overrides \\ []) do
     binding =
       @binding
