@@ -142,6 +142,18 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
       ])
   end
 
+  test "generated-host fixtures persist confirmation timestamps with second precision" do
+    harness = read!(@harness)
+
+    confirmation = "confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)"
+
+    assert :binary.matches(harness, confirmation) |> length() == 2,
+           "both hosted and direct fixtures must satisfy generated :utc_datetime precision"
+
+    refute harness =~ "confirmed_at: DateTime.utc_now())",
+           "fixture confirmation timestamps must not retain microseconds"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
