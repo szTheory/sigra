@@ -43,7 +43,7 @@ defmodule <%= context_module %>.Auth.AppSessions do
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  @doc false
   def start_direct(profile_id, email, password) do
     Sigra.AppLogin.start_direct(sigra_config(), profile_id, email, password,
-      authenticate_user: &<%= context_module %>.authenticate_user/2,
+      authenticate_user: &authenticate_direct_user/2,
       mfa_verify: &<%= context_module %>.mfa_verify/2,
       mfa_verify_backup: &<%= context_module %>.mfa_verify_backup/2
     )
@@ -56,5 +56,14 @@ defmodule <%= context_module %>.Auth.AppSessions do
       mfa_verify: &<%= context_module %>.mfa_verify/2,
       mfa_verify_backup: &<%= context_module %>.mfa_verify_backup/2
     )
+  end
+
+  defp authenticate_direct_user(email, password) do
+    with {:ok, user} <- <%= context_module %>.authenticate_user(email, password) do
+      case <%= context_module %>.mfa_status(user) do
+        %{enabled: true} -> {:ok, user, %{mfa_required: true}}
+        _ -> {:ok, user}
+      end
+    end
   end
 <% end %>end

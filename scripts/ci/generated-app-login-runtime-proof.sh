@@ -64,6 +64,77 @@ seed_confirmed_user() {
   '
 }
 
+seed_direct_mfa_user() {
+  # This uses only generated-host schemas and the shipped Sigra MFA helper;
+  # the one plaintext backup code remains in the disposable host directory.
+  run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    {:ok, user} = Accounts.register_user(%{"email" => "direct-proof@example.test", "password" => "DirectProofPassword123!"})
+    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+
+    %{backup_codes: [backup_code]} =
+      Sigra.Testing.setup_totp(user,
+        config: Accounts.sigra_config(),
+        mfa_credential_schema: Accounts.UserMFACredential,
+        backup_code_schema: Accounts.UserBackupCode,
+        backup_code_count: 1
+      )
+
+    File.write!("direct-backup-code", backup_code)
+  '
+}
+
+prove_direct_mfa_ceremony() {
+  local base="http://127.0.0.1:${PORT}"
+  local direct_body="${APP_DIR}/direct-start.json"
+  local mfa_body="${APP_DIR}/direct-mfa.json"
+  local invalid_body="${APP_DIR}/direct-invalid-factor.json"
+  local challenge backup_code status
+
+  seed_direct_mfa_user
+  backup_code="$(<"${APP_DIR}/direct-backup-code")"
+  [[ -n "$backup_code" ]]
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d '{"profile_id":"android-primary","email":"direct-proof@example.test","password":"DirectProofPassword123!"}' \
+    -o "$direct_body" -w '%{http_code}' "$base/api/app-login/direct")"
+  [[ "$status" =~ ^2[0-9][0-9]$ ]]
+  challenge="$(sed -nE 's/.*"mfa_challenge":"([^"]+)".*/\1/p' "$direct_body")"
+  [[ -n "$challenge" ]]
+  ! grep -Eq '"(access_token|refresh_token|family_id)":' "$direct_body"
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"challenge\":\"$challenge\",\"code\":\"$backup_code\",\"factor\":\"backup_code\"}" \
+    -o "$mfa_body" -w '%{http_code}' "$base/api/app-login/direct/mfa")"
+  [[ "$status" =~ ^2[0-9][0-9]$ ]]
+  grep -Eq '"access_token":"[^"]+"' "$mfa_body"
+  grep -Eq '"refresh_token":"[^"]+"' "$mfa_body"
+  grep -Eq '"family_id":"[^"]+"' "$mfa_body"
+
+  DIRECT_CHALLENGE="$challenge" DIRECT_BACKUP_CODE="$backup_code" run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    challenge = System.fetch_env!("DIRECT_CHALLENGE")
+    backup_code = System.fetch_env!("DIRECT_BACKUP_CODE")
+    attempt = Repo.one!(Accounts.UserAppLoginAttempt)
+    backup = Repo.one!(Accounts.UserBackupCode)
+
+    if is_nil(attempt.consumed_at), do: raise("direct-mfa challenge was not consumed")
+    if is_nil(backup.used_at), do: raise("backup code was not consumed")
+    if attempt.digest == challenge, do: raise("raw challenge persisted in ceremony row")
+    if backup.hashed_code == backup_code, do: raise("raw backup code persisted")
+  '
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"challenge\":\"$challenge\",\"code\":\"$backup_code\",\"factor\":\"unknown\"}" \
+    -o "$invalid_body" -w '%{http_code}' "$base/api/app-login/direct/mfa")"
+  [[ "$status" == "401" ]]
+  grep -Fxq '{"error":"invalid_credentials"}' "$invalid_body"
+}
+
 prove_hosted_ceremony() {
   local base="http://127.0.0.1:${PORT}"
   local cookie_jar="${APP_DIR}/hosted-cookie-jar.txt"
@@ -179,6 +250,7 @@ prove_host() {
   # The hosted tracer stays on generated routes: an authenticated cookie jar,
   # CSRF-protected explicit approval, literal callback capture, then JSON exchange.
   [[ "$mode" != hosted ]] || prove_hosted_ceremony
+  [[ "$mode" != direct ]] || prove_direct_mfa_ceremony
   curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/exchange" | grep -Eq '400|429'
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
