@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-12-PLAN.md
-last_updated: "2026-08-13T04:20:53.970Z"
+stopped_at: Completed 246-13-PLAN.md
+last_updated: "2026-08-13T04:28:26.900Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 33
-  completed_plans: 32
+  completed_plans: 33
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 3 of 13
+Plan: 4 of 13
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [██████████] 97%
+Progress: ░░░░░░░░░░ [██████████] 100%
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Progress: ░░░░░░░░░░ [██████████] 97%
 | Phase 246 P10 | 12m | 2 tasks | 6 files |
 | Phase 246 P11 | 12m | 2 tasks | 7 files |
 | Phase 246-hosted-and-direct-login-ceremonies P12 | 20m | 2 tasks | 7 files |
+| Phase 246 P13 | 18m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,8 @@ Progress: ░░░░░░░░░░ [██████████] 97%
 - [Phase ?]: Hosted approval persists :hosted_code and only completed standard or remember-me sessions may approve.
 - [Phase ?]: Generated direct MFA decodes only literal totp and backup_code selectors before fixed callback forwarding.
 - [Phase ?]: Generated direct login derives MFA-required state from host MFA status without changing browser authentication normalization.
+- [Phase ?]: Generated-host runtime proof authenticates both hosted and direct credentials through a temporary FetchAppSession route and proves replay rejection without duplicate families.
+- [Phase ?]: Generated runtime proof receipt v2 is atomically written last with per-transition booleans and exact source SHA-256 bindings, which CI validates before upload.
 
 ### Pending Todos
 
@@ -170,6 +173,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T04:20:53.960Z
-Stopped at: Completed 246-12-PLAN.md
+Last session: 2026-08-13T04:28:26.888Z
+Stopped at: Completed 246-13-PLAN.md
 Resume file: None
