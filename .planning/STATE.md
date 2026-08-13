@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 245
 current_phase_name: Opaque App-Session Core
 status: executing
-stopped_at: Completed 245-04-PLAN.md
-last_updated: "2026-08-13T00:49:03.901Z"
+stopped_at: Completed 245-05-PLAN.md
+last_updated: "2026-08-13T00:55:49.218Z"
 last_activity: 2026-08-13
 last_activity_desc: Completed 245-01 opaque app-session tracer
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 19
-  completed_plans: 16
+  completed_plans: 17
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 245 of 249 (Opaque App-Session Core)
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-13 — Completed 245-01 opaque app-session tracer
 
-Progress: ░░░░░░░░░░ [████████░░] 84%
+Progress: ░░░░░░░░░░ [█████████░] 89%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: ░░░░░░░░░░ [████████░░] 84%
 | Phase 245-opaque-app-session-core P02 | 10min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P03 | 5min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P04 | 17min | 2 tasks | 4 files |
+| Phase 245-opaque-app-session-core P05 | 4min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ Progress: ░░░░░░░░░░ [████████░░] 84%
 - [Phase ?]: Consumed refresh reuse revokes the indexed family and all credential rows before returning :reuse_detected.
 - [Phase ?]: App-session refresh audit is an optional step in the same lifecycle Multi, with bounded family/action metadata and post-commit telemetry only.
 - [Phase ?]: App-session concurrent refresh proof uses real PostgreSQL locks and explicit barriers; one caller rotates and the second revokes the family for reuse.
+- [Phase ?]: App-session family selectors are bound to the trusted owner ID in a locked active-family lookup, normalizing foreign, absent, and terminal selectors.
+- [Phase ?]: append_revoke_all_multi/4 performs lifecycle mutation only so security-event callers compose their existing audit in the same outer transaction.
 
 ### Pending Todos
 
@@ -125,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T00:49:03.891Z
-Stopped at: Completed 245-04-PLAN.md
+Last session: 2026-08-13T00:55:49.199Z
+Stopped at: Completed 245-05-PLAN.md
 Resume file: None
