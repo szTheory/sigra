@@ -33,7 +33,7 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
 
     assert controller =~ "UserAuth.put_user_session_token(conn, upgraded_session.token)"
     assert controller =~ "delete_session(:mfa_pending)"
-    assert controller =~ ~s(~p"/app-login/continue")
+    assert controller =~ ~s(~p"/users/app-login/continue")
   end
 
   @tag :controller
