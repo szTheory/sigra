@@ -994,6 +994,55 @@ defmodule Sigra.AuthTest do
   end
 
   describe "reset_password/4" do
+    test "appends configured app-session revocation before the reset audit" do
+      user = %TestUser{id: 1, email: "user@example.com", hashed_password: "old_hash"}
+      {raw_bytes, hashed} = Sigra.Token.generate_hashed_token()
+      signed_token = Plug.Crypto.sign(@secret_key_base, "sigra-reset-token", raw_bytes)
+      encoded_token = Base.url_encode64(signed_token, padding: false)
+
+      token_record = %TestUserToken{
+        id: 1,
+        token: hashed,
+        context: "reset_password",
+        sent_to: user.email,
+        user_id: user.id,
+        inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      app_session_config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        app_session: [
+          family_schema: Sigra.Test.AppSessionSchemas.Family,
+          token_schema: Sigra.Test.AppSessionSchemas.Token,
+          access_ttl: 900,
+          refresh_idle_ttl: 2_592_000,
+          absolute_ttl: 7_776_000
+        ]
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] -> token_record end)
+      |> expect(:get!, fn TestUser, 1 -> user end)
+      |> expect(:transaction, fn multi ->
+        names = Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        assert :app_session_revoke_all in names
+        assert Enum.find_index(names, &(&1 == :app_session_revoke_all)) <
+                 Enum.find_index(names, &(&1 == :audit))
+        {:ok, %{reset_password: user, app_session_revoke_all: %{count: 1}}}
+      end)
+
+      assert {:ok, ^user} =
+               Auth.reset_password(Sigra.MockRepo, encoded_token, %{"password" => "new_secure_password"},
+                 secret_key_base: @secret_key_base,
+                 user_token_schema: TestUserToken,
+                 user_schema: TestUser,
+                 changeset_fn: fn _user, _attrs -> Ecto.Changeset.change(user) end,
+                 app_session_config: app_session_config,
+                 audit_schema: Sigra.Test.AuditEvent
+               )
+    end
+
     test "with valid token changes password and deletes all tokens" do
       user = %TestUser{id: 1, email: "user@example.com", hashed_password: "old_hash"}
 
@@ -1261,6 +1310,32 @@ defmodule Sigra.AuthTest do
   end
 
   describe "delete_all_sessions/3" do
+    test "returns an error when configured app-session revocation fails" do
+      session = build_session()
+
+      config = %{
+        @session_config
+        | app_session: [
+            family_schema: Sigra.Test.AppSessionSchemas.Family,
+            token_schema: Sigra.Test.AppSessionSchemas.Token,
+            access_ttl: 900,
+            refresh_idle_ttl: 2_592_000,
+            absolute_ttl: 7_776_000
+          ]
+      }
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session] end)
+      |> expect(:delete_all_for_user, fn 1, _opts -> {1, nil} end)
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn %Ecto.Multi{} ->
+        {:error, :app_session_revoke_all, :database_error, %{}}
+      end)
+
+      assert {:error, :app_session_revoke_aborted} = Auth.delete_all_sessions(config, 1)
+    end
+
     test "deletes all sessions, returns count, broadcasts PubSub disconnect" do
       ref =
         :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :revoke_all, :stop]])
