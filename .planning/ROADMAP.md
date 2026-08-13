@@ -106,7 +106,7 @@ Plans:
   3. A host that opts into direct password login receives uniform login failures and an opaque MFA challenge that expires within five minutes.
   4. Successful hosted or direct login creates the same app-session contract, while a host policy requiring browser login returns `browser_required`.
 
-**Plans**: 4/10 plans executed
+**Plans**: 5/10 plans executed
 
 Plans:
 
@@ -116,7 +116,7 @@ Plans:
 - [ ] 246-04-PLAN.md — Implement policy-gated direct password login and opaque five-minute MFA challenges.
 - [ ] 246-05-PLAN.md — Prove direct-login uniformity, replay, locking, concurrency, and rollback behavior.
 - [x] 246-06-PLAN.md — Add the independent app-session/password-login generator option matrix.
-- [ ] 246-07-PLAN.md — Generate host schemas, migration, static profiles, config, and issuance delegates.
+- [x] 246-07-PLAN.md — Generate host schemas, migration, static profiles, config, and issuance delegates.
 - [ ] 246-08-PLAN.md — Generate real hosted/direct routes, continuation transport, and explicit approval UI.
 - [ ] 246-09-PLAN.md — Preserve hosted continuation through controller and LiveView login/MFA branches.
 - [ ] 246-10-PLAN.md — Prove fresh-host install/rerun/runtime parity and lock scope/ownership documentation.
@@ -169,7 +169,7 @@ Plans:
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
-| 246. Hosted and Direct Login Ceremonies | 4/10 | In Progress|  |
+| 246. Hosted and Direct Login Ceremonies | 5/10 | In Progress|  |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
