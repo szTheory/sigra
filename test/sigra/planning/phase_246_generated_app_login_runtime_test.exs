@@ -23,12 +23,17 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "receipt-last",
           "sha256sum",
           "curl --fail --silent --show-error",
+          "app-login/approve",
+          "api/app-login/exchange",
+          "cookie-jar",
+          "hosted_code",
           "pg_isready"
         ] do
       assert harness =~ marker, "fresh-host harness missing #{inspect(marker)}"
     end
 
-    refute Regex.match?(~r/\bsleep\b/, harness), "proof must use bounded readiness rather than sleeps"
+    refute Regex.match?(~r/\bsleep\b/, harness),
+           "proof must use bounded readiness rather than sleeps"
   end
 
   test "workflow is a credential-free PostgreSQL evidence lane" do

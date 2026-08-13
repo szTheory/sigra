@@ -16,6 +16,7 @@ defmodule Sigra.AppLoginTest do
         """
         CREATE TABLE IF NOT EXISTS sigra_app_login_attempts (
           id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+          kind varchar(255) NOT NULL,
           digest bytea NOT NULL UNIQUE,
           verifier_digest bytea NOT NULL,
           profile_id varchar(255) NOT NULL,
@@ -28,6 +29,12 @@ defmodule Sigra.AppLoginTest do
           updated_at timestamp NOT NULL DEFAULT now()
         )
         """,
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS kind varchar(255) NOT NULL DEFAULT 'hosted_code'",
         []
       )
 
@@ -106,6 +113,7 @@ defmodule Sigra.AppLoginTest do
              AppLogin.approve_hosted(config, continuation, user, :approve, now: started_at)
 
     attempt = repo.one!(Attempt)
+    assert attempt.kind == :hosted_code
     assert DateTime.to_unix(attempt.expires_at) == DateTime.to_unix(started_at) + 60
     assert attempt.verifier_digest == Sigra.Token.hash_token(challenge)
     assert Sigra.AppLogin.PKCE.challenge(verifier) == challenge

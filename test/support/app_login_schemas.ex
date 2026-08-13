@@ -6,6 +6,7 @@ defmodule Sigra.Test.AppLoginSchemas do
 
     @primary_key {:id, :binary_id, autogenerate: true}
     schema "sigra_app_login_attempts" do
+      field :kind, Ecto.Enum, values: [:hosted_code, :direct_mfa]
       field :digest, :binary
       field :verifier_digest, :binary
       field :profile_id, :string
