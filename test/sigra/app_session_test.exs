@@ -230,6 +230,26 @@ defmodule Sigra.AppSessionTest do
     assert tokens_for_family(repo, second_family_id) == second_before
   end
 
+  test "owner-bound family revoke immediately denies its access and refresh without leaking foreign selectors",
+       %{repo: repo, config: config, user: user} do
+    {:ok, other_user} = repo.insert(%User{email: "other-app-session@example.com"})
+
+    assert {:ok, %{access_token: access, refresh_token: refresh, family_id: family_id}} =
+             AppSession.issue(config, user, "ios-owned", [])
+
+    assert {:ok, %{access_token: other_access, family_id: other_family_id}} =
+             AppSession.issue(config, other_user, "ios-other", [])
+
+    assert {:error, :not_found} = Sigra.Auth.revoke_app_session(config, user, other_family_id)
+    assert {:ok, %{family_id: ^other_family_id}} = AppSession.authenticate(config, other_access)
+
+    assert {:ok, %{id: ^family_id}} = Sigra.Auth.revoke_app_session(config, user, family_id)
+    assert {:error, :invalid_token} = AppSession.authenticate(config, access)
+    assert {:error, :invalid_token} = AppSession.refresh(config, refresh)
+    assert Enum.all?(tokens_for_family(repo, family_id), &(not is_nil(&1.revoked_at)))
+    assert {:error, :not_found} = Sigra.Auth.revoke_app_session(config, user, family_id)
+  end
+
   defp config(repo) do
     Sigra.Config.new!(
       repo: repo,
