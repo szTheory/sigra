@@ -32,23 +32,41 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       refute AppSessions.enabled?(jwt: true)
     end
 
-    test "the API, JWT, and app-session artifact groups are independent" do
-      for app_sessions? <- [false, true], api? <- [false, true], jwt? <- [false, true] do
+    test "the complete option matrix keeps API, JWT, and app-session artifacts independent" do
+      for app_sessions? <- [false, true],
+          app_password_login? <- [false, true],
+          api? <- [false, true],
+          jwt? <- [false, true] do
         sources =
           @binding
           |> Keyword.put(:opts,
             app_sessions: app_sessions?,
-            app_password_login: false,
+            app_password_login: app_password_login?,
             api: api?,
             jwt: jwt?
           )
           |> AppSessions.files()
           |> Enum.map(fn {:eex, source, _target} -> source end)
 
-        assert Enum.all?(@app_sources, &((&1 in sources) == app_sessions?))
+        assert Enum.all?(@app_sources, &(&1 in sources == app_sessions?))
         refute Enum.any?(sources, &String.starts_with?(&1, "core/api_token"))
         refute "core/auth_jwt.ex" in sources
       end
+    end
+
+    test "direct password login adds no artifact group before its templates are registered" do
+      direct_sources =
+        @binding
+        |> Keyword.put(:opts,
+          app_sessions: true,
+          app_password_login: true,
+          api: false,
+          jwt: false
+        )
+        |> AppSessions.files()
+        |> Enum.map(fn {:eex, source, _target} -> source end)
+
+      assert direct_sources == @app_sources
     end
   end
 

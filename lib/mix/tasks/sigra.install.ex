@@ -20,8 +20,10 @@ defmodule Mix.Tasks.Sigra.Install do
     * `--organizations` / `--no-organizations` — Generate organizations scaffolding (default: true)
     * `--binary-id` / `--no-binary-id` — UUID vs bigint PKs (default: true)
     * `--table` — Override the table name
-    * `--api` — Generate API token controller (implied by `--jwt`)
+    * `--api` — Generate API token controller
     * `--jwt` — Generate JWT token controller
+    * `--app-sessions` — Generate first-party app-session ownership scaffolding
+    * `--app-password-login` — Generate direct password-login support (requires `--app-sessions`)
     * `--admin` / `--no-admin` — Generate admin scaffolding (default: true)
     * `--passkeys` / `--no-passkeys` — Generate passkey scaffolding (default: true)
     * `--auth-prefix` — Postgres schema for Sigra-owned auth tables (default: "auth"; use "public" for default-schema placement)
@@ -42,6 +44,7 @@ defmodule Mix.Tasks.Sigra.Install do
 
   @features [
     Sigra.Install.Features.Core,
+    Sigra.Install.Features.AppSessions,
     Sigra.Install.Features.Organizations,
     Sigra.Install.Features.Passkeys,
     Sigra.Install.Features.Admin
@@ -53,6 +56,8 @@ defmodule Mix.Tasks.Sigra.Install do
     table: :string,
     api: :boolean,
     jwt: :boolean,
+    app_sessions: :boolean,
+    app_password_login: :boolean,
     organizations: :boolean,
     passkeys: :boolean,
     admin: :boolean,
@@ -63,6 +68,8 @@ defmodule Mix.Tasks.Sigra.Install do
     live: true,
     api: false,
     jwt: false,
+    app_sessions: false,
+    app_password_login: false,
     binary_id: true,
     organizations: true,
     passkeys: true,
@@ -73,6 +80,10 @@ defmodule Mix.Tasks.Sigra.Install do
   def run(args) do
     {opts, parsed, _} = OptionParser.parse(args, switches: @switches)
     opts = Keyword.merge(@default_opts, opts)
+
+    if opts[:app_password_login] and not opts[:app_sessions] do
+      Mix.raise("--app-password-login requires --app-sessions.")
+    end
 
     case parsed do
       [context_name, schema_name, table_name] ->
@@ -136,6 +147,8 @@ defmodule Mix.Tasks.Sigra.Install do
       live: opts[:live],
       api: opts[:api] || false,
       jwt: opts[:jwt] || false,
+      app_sessions: opts[:app_sessions] || false,
+      app_password_login: opts[:app_password_login] || false,
       organizations?: Keyword.get(opts, :organizations, true),
       passkeys?: Keyword.get(opts, :passkeys, true),
       admin?: Keyword.get(opts, :admin, true),
