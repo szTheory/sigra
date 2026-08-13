@@ -5,14 +5,14 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-13-PLAN.md
-last_updated: "2026-08-13T04:28:26.900Z"
+stopped_at: Completed 246-14-PLAN.md
+last_updated: "2026-08-13T15:34:05.916Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 4
-  total_plans: 33
+  completed_phases: 3
+  total_plans: 37
   completed_plans: 33
 current_plan: 2
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 4 of 13
+Plan: 2 of 17
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [██████████] 100%
+Progress: ░░░░░░░░░░ [█████████░] 89%
 
 ## Performance Metrics
 
@@ -89,6 +89,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 246 P11 | 12m | 2 tasks | 7 files |
 | Phase 246-hosted-and-direct-login-ceremonies P12 | 20m | 2 tasks | 7 files |
 | Phase 246 P13 | 18m | 2 tasks | 3 files |
+| Phase 246-hosted-and-direct-login-ceremonies P14 | 14m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase ?]: Generated direct login derives MFA-required state from host MFA status without changing browser authentication normalization.
 - [Phase ?]: Generated-host runtime proof authenticates both hosted and direct credentials through a temporary FetchAppSession route and proves replay rejection without duplicate families.
 - [Phase ?]: Generated runtime proof receipt v2 is atomically written last with per-transition booleans and exact source SHA-256 bindings, which CI validates before upload.
+- [Phase ?]: Selected LiveView MFA factor forms POST through the existing CSRF-protected controller seam so persisted session rotation remains server-authoritative.
 
 ### Pending Todos
 
@@ -173,6 +175,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T04:28:26.888Z
-Stopped at: Completed 246-13-PLAN.md
+Last session: 2026-08-13T15:34:05.909Z
+Stopped at: Completed 246-14-PLAN.md
 Resume file: None

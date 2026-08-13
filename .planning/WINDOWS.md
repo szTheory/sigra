@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 16
+open_count: 17
 waived_count: 0
 fixed_count: 0
-total_count: 16
-last_updated: 2026-08-13T01:46:15.081Z
+total_count: 17
+last_updated: 2026-08-13T15:34:54.990Z
 ---
 
 # Broken Windows Ledger
@@ -31,6 +31,7 @@ last_updated: 2026-08-13T01:46:15.081Z
 | 14 | 244 | unrun-verify | .planning/phases/244-pat-and-advanced-jwt-truth-repair/244-06-SUMMARY.md |  | mix ci remains blocked by six historical Phase 235/236/239 planning-artifact assertions outside Plan 244-06 | open |  | 2026-08-12T23:48:58.301Z |  |
 | 15 | 245 | deviation | lib/sigra/app_session.ex |  | Normalized public revoke audit-constraint failures to a bounded aborted result after rollback. | open |  | 2026-08-13T00:55:47.944Z |  |
 | 16 | 246 | deviation | .planning/STATE.md |  | state.advance-plan could not parse the pre-existing plan-position fields | open |  | 2026-08-13T01:46:15.081Z |  |
+| 17 | 246 | unrun-verify | test/sigra/install/app_sessions_mfa_session_upgrade_test.exs |  | PostgreSQL-backed generated-host MFA transition evidence remains unrun because 127.0.0.1:53988 refused connections. | open |  | 2026-08-13T15:34:54.990Z |  |
 
 ````json
 [
@@ -224,6 +225,18 @@ last_updated: 2026-08-13T01:46:15.081Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-13T01:46:15.081Z",
+    "resolved_at": null
+  },
+  {
+    "id": 17,
+    "kind": "unrun-verify",
+    "phase": "246",
+    "file": "test/sigra/install/app_sessions_mfa_session_upgrade_test.exs",
+    "line": null,
+    "description": "PostgreSQL-backed generated-host MFA transition evidence remains unrun because 127.0.0.1:53988 refused connections.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-13T15:34:54.990Z",
     "resolved_at": null
   }
 ]
