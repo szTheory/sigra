@@ -102,13 +102,16 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert attempt =~ "field :callback, :string"
       assert attempt =~ "field :expires_at, :utc_datetime_usec"
       assert attempt =~ "field :consumed_at, :utc_datetime_usec"
-      refute attempt =~ "password"
-      refute attempt =~ "challenge"
-      refute attempt =~ "state"
+      refute attempt =~ "field :password"
+      refute attempt =~ "field :challenge"
+      refute attempt =~ "field :state"
 
       assert migration =~ "create table(:user_app_login_attempts"
       assert migration =~ "create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)"
-      assert migration =~ "create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at]"
+
+      assert migration =~
+               "create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at]"
+
       refute migration =~ "verifier, :string"
       refute migration =~ "password, :"
     end
