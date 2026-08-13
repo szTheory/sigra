@@ -88,13 +88,20 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     workflow = read!(@workflow)
 
     for marker <- [
-          "sigra.generated-app-login-runtime-proof/v2",
+          "sigra.generated-app-login-runtime-proof/v3",
           "HOSTED_SUCCESS",
           "DIRECT_SUCCESS",
           "HOSTED_REPLAY_REJECTED",
           "DIRECT_REPLAY_REJECTED",
           "HOSTED_FETCH_APP_SESSION",
           "DIRECT_FETCH_APP_SESSION",
+          "CONTROLLER_MFA_SESSION_UPGRADED",
+          "LIVEVIEW_MFA_SESSION_UPGRADED",
+          "APPROVAL_REPLAY_REJECTED",
+          "DIRECT_BACKUP_CODE_SUCCEEDED",
+          "BROWSER_REQUIRED_BEFORE_AUTHENTICATION",
+          "FETCH_APP_SESSION_EQUIVALENT",
+          "phase_246_runtime_evidence_contract_test.exs",
           "lib/sigra/app_login.ex",
           "priv/templates/sigra.install/app_sessions/router_injection.ex",
           "runtime-proof.json.tmp",
