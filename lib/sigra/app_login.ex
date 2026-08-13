@@ -15,12 +15,13 @@ defmodule Sigra.AppLogin do
   @continuation_purpose "sigra-app-login-hosted-v1"
   @continuation_ttl 300
   @code_ttl 60
+  @mfa_challenge_ttl 300
   @direct_failure :invalid_credentials
 
   @doc """
   Starts the host-owned direct password ceremony for a static first-party
-  profile. This is deliberately not an OAuth password grant: callers cannot
-  select authority, scopes, or a client reference.
+  profile. This is deliberately not an OAuth password grant: server-owned
+  profile policy selects the credential recipient.
 
   The host supplies password verification as a callback so its existing account
   confirmation and lockout policy remains authoritative. Every verifier and
@@ -118,6 +119,29 @@ defmodule Sigra.AppLogin do
     end
   end
 
+  @doc """
+  Completes a direct MFA challenge with a host-owned factor verifier.
+
+  The raw challenge is accepted only as a lookup key; its digest and trusted
+  profile/user/client binding are the only persisted ceremony facts.
+  """
+  @spec complete_direct_mfa(Sigra.Config.t(), String.t(), String.t(), keyword()) ::
+          {:ok, map()} | {:error, :invalid_credentials}
+  def complete_direct_mfa(config, challenge, code, opts \\ []) do
+    multi =
+      Multi.new()
+      |> Attempt.build_locked_direct_mfa_multi(config, challenge, code, opts)
+
+    try do
+      case config.repo.transaction(multi) do
+        {:ok, %{app_session_issue: credentials}} -> {:ok, credentials}
+        _ -> {:error, @direct_failure}
+      end
+    rescue
+      _exception -> {:error, @direct_failure}
+    end
+  end
+
   defp hosted_request(config, params) when is_map(params) do
     with true <-
            Enum.sort(Map.keys(params)) == [
@@ -187,6 +211,13 @@ defmodule Sigra.AppLogin do
           {:error, @direct_failure}
         end
 
+      {:ok, user, %{mfa_required: true}} ->
+        if direct_user?(user) do
+          create_direct_mfa_challenge(config, profile, user, opts)
+        else
+          {:error, @direct_failure}
+        end
+
       _ ->
         {:error, @direct_failure}
     end
@@ -200,6 +231,29 @@ defmodule Sigra.AppLogin do
       {:ok, credentials} -> {:ok, credentials}
       _ -> {:error, @direct_failure}
     end
+  end
+
+  defp create_direct_mfa_challenge(config, profile, user, opts) do
+    with schema when is_atom(schema) <- config.app_session[:app_login_challenge_schema],
+         {challenge, digest} <- Token.generate_hashed_token(),
+         now <- now(opts),
+         {:ok, _challenge} <-
+           config.repo.insert(
+             struct!(schema, %{
+               kind: :direct_mfa,
+               digest: digest,
+               profile_id: profile.id,
+               user_id: user.id,
+               client_ref: profile.client_ref,
+               expires_at: DateTime.add(now, @mfa_challenge_ttl, :second)
+             })
+           ) do
+      {:ok, %{mfa_challenge: challenge}}
+    else
+      _ -> {:error, @direct_failure}
+    end
+  rescue
+    _exception -> {:error, @direct_failure}
   end
 
   defp direct_user?(user), do: is_map(user) and not is_nil(Map.get(user, :id))

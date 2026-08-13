@@ -96,7 +96,7 @@ defmodule Sigra.AppLoginDirectTest do
     assert is_binary(challenge)
     assert Map.keys(%{mfa_challenge: challenge}) == [:mfa_challenge]
     persisted = repo.one!(Challenge)
-    assert persisted.digest == Sigra.Token.hash_token(challenge)
+    assert persisted.digest == challenge_digest(challenge)
     refute persisted.digest == challenge
     assert persisted.profile_id == "android-primary"
     assert persisted.user_id == user.id
@@ -124,7 +124,7 @@ defmodule Sigra.AppLoginDirectTest do
                AppLogin.complete_direct_mfa(config, challenge, "correct-factor", opts)
 
       assert %{consumed_at: consumed_at} =
-               repo.get_by!(Challenge, digest: Sigra.Token.hash_token(challenge))
+               repo.get_by!(Challenge, digest: challenge_digest(challenge))
 
       assert not is_nil(consumed_at)
       assert {:ok, %{family_id: ^family_id}} = AppSession.authenticate(config, access)
@@ -150,7 +150,7 @@ defmodule Sigra.AppLoginDirectTest do
              AppLogin.complete_direct_mfa(config, challenge, "wrong-factor", mfa_verify: verify)
 
     assert %{consumed_at: nil} =
-             repo.get_by!(Challenge, digest: Sigra.Token.hash_token(challenge))
+             repo.get_by!(Challenge, digest: challenge_digest(challenge))
 
     assert 0 = repo.aggregate(Family, :count)
 
@@ -191,5 +191,10 @@ defmodule Sigra.AppLoginDirectTest do
         ]
       ]
     )
+  end
+
+  defp challenge_digest(challenge) do
+    {:ok, decoded} = Base.url_decode64(challenge, padding: false)
+    Sigra.Token.hash_token(decoded)
   end
 end

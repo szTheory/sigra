@@ -62,6 +62,44 @@ defmodule Sigra.AppLogin.Attempt do
     end
   end
 
+  @spec build_locked_direct_mfa_multi(
+          Ecto.Multi.t(),
+          Sigra.Config.t(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: Ecto.Multi.t()
+  def build_locked_direct_mfa_multi(%Multi{} = multi, config, challenge, code, opts)
+      when is_binary(challenge) and is_binary(code) and is_list(opts) do
+    with schema when is_atom(schema) <- config.app_session[:app_login_challenge_schema],
+         {:ok, digest} <- opaque_digest(challenge) do
+      multi
+      |> Multi.run(:direct_mfa_challenge, fn repo, _changes ->
+        lock_valid_direct_challenge(repo, schema, digest, opts)
+      end)
+      |> Multi.run(:direct_mfa_user, fn repo, %{direct_mfa_challenge: challenge_row} ->
+        case repo.get(config.user_schema, challenge_row.user_id) do
+          nil -> {:error, :invalid_credentials}
+          user -> {:ok, user}
+        end
+      end)
+      |> Multi.run(:direct_mfa_factor, fn _repo, %{direct_mfa_user: user} ->
+        verify_direct_factor(user, code, opts)
+      end)
+      |> Multi.update(:direct_mfa_consume, fn %{direct_mfa_challenge: challenge_row} ->
+        Ecto.Changeset.change(challenge_row, consumed_at: now())
+      end)
+      |> Multi.merge(fn %{direct_mfa_challenge: challenge_row, direct_mfa_user: user} ->
+        AppSession.build_issue_multi(Multi.new(), config, user, challenge_row.client_ref)
+      end)
+    else
+      _ -> Multi.error(multi, :direct_mfa_challenge, :invalid_credentials)
+    end
+  end
+
+  def build_locked_direct_mfa_multi(%Multi{} = multi, _config, _challenge, _code, _opts),
+    do: Multi.error(multi, :direct_mfa_challenge, :invalid_credentials)
+
   defp lock_valid_attempt(
          repo,
          attempt_schema,
@@ -93,6 +131,66 @@ defmodule Sigra.AppLogin.Attempt do
       attempt.profile_id == profile_id and attempt.client_ref == client_ref and
       attempt.callback == callback and
       Plug.Crypto.secure_compare(attempt.verifier_digest, challenge_digest)
+  end
+
+  defp lock_valid_direct_challenge(repo, schema, digest, opts) do
+    challenge =
+      repo.one(
+        from(challenge in schema,
+          where: challenge.digest == ^digest,
+          lock: "FOR UPDATE"
+        )
+      )
+
+    if valid_direct_challenge?(challenge, Keyword.get(opts, :profile_id)) do
+      {:ok, challenge}
+    else
+      {:error, :invalid_credentials}
+    end
+  end
+
+  defp valid_direct_challenge?(nil, _profile_id), do: false
+
+  defp valid_direct_challenge?(challenge, nil) do
+    challenge.kind == :direct_mfa and is_nil(challenge.consumed_at) and
+      DateTime.compare(now(), challenge.expires_at) == :lt
+  end
+
+  defp valid_direct_challenge?(challenge, profile_id) when is_binary(profile_id) do
+    valid_direct_challenge?(challenge, nil) and challenge.profile_id == profile_id
+  end
+
+  defp valid_direct_challenge?(_challenge, _profile_id), do: false
+
+  defp verify_direct_factor(user, code, opts) do
+    callback =
+      case Keyword.get(opts, :factor, :totp) do
+        :totp -> Keyword.get(opts, :mfa_verify)
+        :backup_code -> Keyword.get(opts, :mfa_verify_backup)
+        _ -> nil
+      end
+
+    if is_function(callback, 2) do
+      try do
+        case callback.(user, code) do
+          {:ok, _result} -> {:ok, :verified}
+          _ -> {:error, :invalid_credentials}
+        end
+      rescue
+        _exception -> {:error, :invalid_credentials}
+      catch
+        _kind, _value -> {:error, :invalid_credentials}
+      end
+    else
+      {:error, :invalid_credentials}
+    end
+  end
+
+  defp opaque_digest(challenge) do
+    case Base.url_decode64(challenge, padding: false) do
+      {:ok, decoded} -> {:ok, Token.hash_token(decoded)}
+      :error -> :error
+    end
   end
 
   defp profile_binding(%{id: id, client_ref: client_ref})
