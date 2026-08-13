@@ -125,6 +125,37 @@ defmodule Sigra.AppLoginTest do
     assert is_binary(access) and is_binary(refresh)
   end
 
+  test "approves a signed hosted continuation only once", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    verifier = String.duplicate("v", 43)
+    started_at = now()
+
+    assert {:ok, %{continuation: continuation, approval_required: true}} =
+             AppLogin.start_hosted(
+               config,
+               %{
+                 "profile_id" => "ios-primary",
+                 "callback" => "com.sigra.app:/login",
+                 "state" => "native-state-123",
+                 "code_challenge" => PKCE.challenge(verifier),
+                 "code_challenge_method" => "S256"
+               },
+               now: started_at
+             )
+
+    assert {:ok, %{code: code}} =
+             AppLogin.approve_hosted(config, continuation, user, :approve, now: started_at)
+
+    assert {:error, :invalid_continuation} =
+             AppLogin.approve_hosted(config, continuation, user, :approve, now: started_at)
+
+    assert 1 = repo.aggregate(Attempt, :count)
+    assert is_binary(code)
+  end
+
   test "rejects non-exact hosted start input and never issues a code", %{
     repo: repo,
     config: config,
