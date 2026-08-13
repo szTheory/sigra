@@ -272,6 +272,38 @@ defmodule Sigra.Account.DeletionTest do
 
       assert result == {:error, :already_scheduled}
     end
+
+    test "adds app-session revocation to the same schedule Multi only when host schemas are configured" do
+      user = build_user()
+
+      config =
+        Sigra.Config.new!(
+          repo: Sigra.MockRepo,
+          user_schema: Sigra.TestUser,
+          app_session: [family_schema: Sigra.TestUser, token_schema: Sigra.TestUserToken]
+        )
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        steps = Multi.to_list(multi) |> Enum.map(&elem(&1, 0))
+        assert steps == [:user, :tokens, :app_session_revoke_all]
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: DateTime.utc_now(),
+               scheduled_deletion_at: DateTime.utc_now()
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      assert {:ok, _updated_user, _scheduled_at} =
+               Deletion.schedule(Sigra.MockRepo, user, base_opts(config: config))
+    end
   end
 
   # --- cancel/3 ---
