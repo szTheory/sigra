@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-07-PLAN.md
-last_updated: "2026-08-13T02:15:41.178Z"
+stopped_at: Completed 246-04-PLAN.md
+last_updated: "2026-08-13T02:23:54.340Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 30
-  completed_plans: 25
+  completed_plans: 26
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [████████░░] 83%
+Progress: ░░░░░░░░░░ [█████████░] 87%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: ░░░░░░░░░░ [████████░░] 83%
 | Phase 246-hosted-and-direct-login-ceremonies P02 | 16min | 1 tasks | 6 files |
 | Phase 246 P03 | 13min | 2 tasks | 2 files |
 | Phase 246 P07 | 5min | 3 tasks | 8 files |
+| Phase 246 P04 | 15m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,8 @@ Progress: ░░░░░░░░░░ [████████░░] 83%
 - [Phase ?]: Hosted exchange audit records only action, attempt ID, profile ID, and family ID in the issuance transaction.
 - [Phase ?]: Generated app-session state uses one host-owned migration with binary IDs, auth-prefix support, cascading FKs, unique digests, and lifecycle indexes.
 - [Phase ?]: First-party profiles remain finite module data with literal callback strings; direct adapters are emitted only when app-password-login is selected.
+- [Phase ?]: Direct password login evaluates static browser-required policy before invoking host password verification.
+- [Phase ?]: Direct MFA stores only a decoded-token digest and trusted binding facts, then consumes and issues in one transaction.
 
 ### Pending Todos
 
@@ -150,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T02:15:41.170Z
-Stopped at: Completed 246-07-PLAN.md
+Last session: 2026-08-13T02:23:54.333Z
+Stopped at: Completed 246-04-PLAN.md
 Resume file: None
