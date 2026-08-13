@@ -22,7 +22,7 @@
 - [ ] **APP-01**: An adopter can independently opt into `--app-sessions` and the separately gated `--app-password-login`; `--api`, `--jwt`, and app-session generation do not imply one another.
 - [ ] **APP-02**: A registered first-party app can authenticate through Sigra's existing hosted browser ceremonies using PKCE S256, state, an exact callback allowlist, explicit user continuation, a 60-second one-time code, and single-use exchange.
 - [ ] **APP-03**: A host that opts into direct password login can authenticate a first-party app with uniform failures and an opaque five-minute MFA challenge, producing the same app session as hosted login or returning `browser_required` when host policy requires it.
-- [ ] **APP-04**: A first-party app receives opaque digest-only credentials with 15-minute access, 30-day refresh-idle, and 90-day absolute defaults; refresh is atomic, rotates every use, and revokes the session family on consumed-token reuse.
+- [x] **APP-04**: A first-party app receives opaque digest-only credentials with 15-minute access, 30-day refresh-idle, and 90-day absolute defaults; refresh is atomic, rotates every use, and revokes the session family on consumed-token reuse.
 - [ ] **APP-05**: A user or security event can revoke one app session or all applicable sessions, and password reset, account deletion, sign-out-all, explicit device revocation, and refresh reuse take effect on subsequent authentication.
 
 ### Language-Learning Digital Twin
@@ -74,7 +74,7 @@
 | APP-01 | Phase 246 | Pending |
 | APP-02 | Phase 246 | Pending |
 | APP-03 | Phase 246 | Pending |
-| APP-04 | Phase 245 | Pending |
+| APP-04 | Phase 245 | Complete |
 | APP-05 | Phase 245 | Pending |
 | TWIN-01 | Phase 247 | Pending |
 | OFF-01 | Phase 247 | Pending |

@@ -80,10 +80,11 @@ Plans:
   3. A user can revoke one app session or all applicable sessions, and the revoked credentials fail on their next authentication attempt.
   4. Password reset, account deletion, sign-out-all, explicit device revocation, and refresh reuse each invalidate applicable app sessions on subsequent authentication.
 
-**Plans**: 7 plans
+**Plans**: 1/7 plans executed
 
 Plans:
-- [ ] 245-01-PLAN.md — Trace digest-only issuance and authentication through representative host schemas.
+
+- [x] 245-01-PLAN.md — Trace digest-only issuance and authentication through representative host schemas.
 - [ ] 245-02-PLAN.md — Activate the explicit FetchAppSession Scope/private-facts boundary.
 - [ ] 245-03-PLAN.md — Implement locked every-use refresh rotation and reuse-family revocation.
 - [ ] 245-04-PLAN.md — Prove audit co-fate, rollback, and deterministic concurrent refresh.
@@ -152,7 +153,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
-| 245. Opaque App-Session Core | 0/TBD | Not started | - |
+| 245. Opaque App-Session Core | 1/7 | In Progress|  |
 | 246. Hosted and Direct Login Ceremonies | 0/TBD | Not started | - |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
