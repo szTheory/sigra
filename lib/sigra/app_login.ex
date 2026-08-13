@@ -134,8 +134,12 @@ defmodule Sigra.AppLogin do
 
     try do
       case config.repo.transaction(multi) do
-        {:ok, %{app_session_issue: credentials}} -> {:ok, credentials}
-        _ -> {:error, @direct_failure}
+        {:ok, %{app_session_issue: credentials} = changes} ->
+          Audit.emit_telemetry_from_changes(changes, [:audit_direct_mfa_complete])
+          {:ok, credentials}
+
+        _ ->
+          {:error, @direct_failure}
       end
     rescue
       _exception -> {:error, @direct_failure}
