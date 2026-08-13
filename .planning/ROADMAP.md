@@ -80,7 +80,16 @@ Plans:
   3. A user can revoke one app session or all applicable sessions, and the revoked credentials fail on their next authentication attempt.
   4. Password reset, account deletion, sign-out-all, explicit device revocation, and refresh reuse each invalidate applicable app sessions on subsequent authentication.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+- [ ] 245-01-PLAN.md — Trace digest-only issuance and authentication through representative host schemas.
+- [ ] 245-02-PLAN.md — Activate the explicit FetchAppSession Scope/private-facts boundary.
+- [ ] 245-03-PLAN.md — Implement locked every-use refresh rotation and reuse-family revocation.
+- [ ] 245-04-PLAN.md — Prove audit co-fate, rollback, and deterministic concurrent refresh.
+- [ ] 245-05-PLAN.md — Add owner-constrained one/all app-session revocation facades.
+- [ ] 245-06-PLAN.md — Integrate password reset and sign-out-all invalidation.
+- [ ] 245-07-PLAN.md — Integrate account-deletion invalidation transactionally.
 
 ### Phase 246: Hosted and Direct Login Ceremonies
 
