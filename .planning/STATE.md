@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 245
 current_phase_name: Opaque App-Session Core
-status: executing
-stopped_at: Completed 245-06-PLAN.md
-last_updated: "2026-08-13T01:02:31.784Z"
+status: verifying
+stopped_at: Completed 245-07-PLAN.md
+last_updated: "2026-08-13T01:03:27.342Z"
 last_activity: 2026-08-13
 last_activity_desc: Completed 245-01 opaque app-session tracer
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
 current_plan: 2
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 Phase: 245 of 249 (Opaque App-Session Core)
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-13 — Completed 245-01 opaque app-session tracer
 
-Progress: ░░░░░░░░░░ [██████████] 95%
+Progress: ░░░░░░░░░░ [██████████] 100%
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: ░░░░░░░░░░ [██████████] 95%
 | Phase 245-opaque-app-session-core P04 | 17min | 2 tasks | 4 files |
 | Phase 245-opaque-app-session-core P05 | 4min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P06 | 25min | 2 tasks | 3 files |
+| Phase 245 P07 | 5min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,7 @@ Progress: ░░░░░░░░░░ [██████████] 95%
 - [Phase ?]: App-session family selectors are bound to the trusted owner ID in a locked active-family lookup, normalizing foreign, absent, and terminal selectors.
 - [Phase ?]: append_revoke_all_multi/4 performs lifecycle mutation only so security-event callers compose their existing audit in the same outer transaction.
 - [Phase ?]: Password reset composes configured app-session revoke-all in its existing Ecto.Multi before audit; sign-out-all fails closed before browser deletion.
+- [Phase ?]: Account deletion scheduling appends configured app-session revocation to its existing transaction before hooks.
 
 ### Pending Todos
 
@@ -130,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:02:31.775Z
-Stopped at: Completed 245-06-PLAN.md
+Last session: 2026-08-13T01:03:27.333Z
+Stopped at: Completed 245-07-PLAN.md
 Resume file: None
