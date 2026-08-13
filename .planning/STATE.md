@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 245
 current_phase_name: Opaque App-Session Core
 status: executing
-stopped_at: Completed 245-01-PLAN.md
-last_updated: "2026-08-13T00:37:56.125Z"
-last_activity: 2026-08-12
-last_activity_desc: Phase 244 complete, transitioned to Phase 245
+stopped_at: Completed 245-02-PLAN.md
+last_updated: "2026-08-13T00:43:14.434Z"
+last_activity: 2026-08-13
+last_activity_desc: Completed 245-01 opaque app-session tracer
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 19
-  completed_plans: 13
+  completed_plans: 15
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 245 of 249 (Opaque App-Session Core)
-Plan: 2 of 7
-Status: In progress
+Plan: 3 of 7
+Status: Ready to execute
 Last activity: 2026-08-13 — Completed 245-01 opaque app-session tracer
 
-Progress: ░░░░░░░░░░ [███████░░░] 68%
+Progress: ░░░░░░░░░░ [████████░░] 79%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: ░░░░░░░░░░ [███████░░░] 68%
 | Phase 244 P06 | 12min | 1 tasks | 10 files |
 | Phase 244-pat-and-advanced-jwt-truth-repair P07 | 3min | 1 tasks | 4 files |
 | Phase 245-opaque-app-session-core P01 | 14min | 1 tasks | 4 files |
+| Phase 245-opaque-app-session-core P02 | 10min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Progress: ░░░░░░░░░░ [███████░░░] 68%
 - [Phase ?]: PAT post-install guidance names the generated browser/sudo management route /users/api-tokens.
 - [Phase 245]: App sessions use dedicated family and typed token rows rather than JWT metadata storage.
 - [Phase 245]: App-session configuration requires paired host schemas and access_ttl < refresh_idle_ttl <= absolute_ttl.
+- [Phase ?]: FetchAppSession accepts exactly one Bearer transport and invokes only Sigra.AppSession.authenticate/2.
+- [Phase ?]: App-session facts expose only kind, credential ID, family ID, empty scopes, method, and assurance; client references and credential material remain excluded.
 
 ### Pending Todos
 
@@ -116,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T00:37:56.118Z
-Stopped at: Completed 245-01-PLAN.md
+Last session: 2026-08-13T00:43:14.423Z
+Stopped at: Completed 245-02-PLAN.md
 Resume file: None
