@@ -33,6 +33,15 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 244 PAT and Advanced JWT Truth Repair complete (2026-08-12).**
+Sigra now generates independently runnable `--api` and `--jwt` hosts. The PAT
+surface is browser/CSRF/sudo gated for management, owner constrained, and
+server-scope validated. Advanced JWTs use host-policy issuance, strict
+algorithm/type/issuer/audience/registered-claim validation, and one locked,
+transactional opaque-refresh lifecycle for audit-on and audit-off modes.
+Fresh-host and PostgreSQL concurrency proofs passed; Phase 245 (Opaque
+App-Session Core) is next.
+
 **Milestone v1.48 B2C-ALPHA-READINESS shipped and archived (2026-08-12).** The canonical `--no-admin --no-organizations --no-passkeys` Phoenix host now has credential-free generated-host, Google OAuth, full email-auth browser, accessibility, rate-limit, controller-mode, and fail-closed Crosswake runtime proof. All 10 requirements and all nine phase verifications passed. Non-blocking controller/passkey and continuation-cleanup work remains in the deferred ledger rather than being claimed as delivered.
 
 **Phase 242 rendered Crosswake start control complete (2026-08-12).**
@@ -664,10 +673,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 ## Requirements
 
 ### Active — v1.49 FIRST-PARTY-CLIENT-READINESS
-- [ ] Define and enforce the Sigra/Lockspire/Crosswake/host ownership boundary for first-party authentication.
-- [ ] Repair generated personal-access-token and advanced-JWT installations so their documented contracts work and fail closed.
 - [ ] Add opt-in opaque app sessions with hosted PKCE login, rotating refresh credentials, revocation, and optional direct password/MFA login.
 - [ ] Prove PWA, physical-iPhone, Android-emulator, Crosswake, and Electron-contract behavior through a bounded language-learning digital twin.
+
+### Validated — Phases 243–244
+- ✓ **BOUND-01, API-01** — Sigra/Lockspire/Crosswake/host ownership and explicit credential-kind pipelines validated in Phase 243.
+- ✓ **PAT-01, PAT-02, JWT-01, JWT-02** — independent generated PAT/JWT hosts, owner-bound browser PAT management, strict server-policy JWT verification, and locked transactional opaque refresh rotation validated in Phase 244.
 
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.
