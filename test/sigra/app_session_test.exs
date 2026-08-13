@@ -126,11 +126,119 @@ defmodule Sigra.AppSessionTest do
     assert {:error, :app_session_not_configured} = AppSession.authenticate(missing_schemas, "opaque")
   end
 
+  test "refresh rotates one family without sliding its absolute deadline", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    assert {:ok, %{access_token: access, refresh_token: refresh, family_id: family_id}} =
+             AppSession.issue(config, user, "ios-primary", [])
+
+    family = repo.get!(Family, family_id)
+    original_tokens = tokens_for_family(repo, family_id)
+    original_access = Enum.find(original_tokens, &(&1.kind == :access))
+    original_refresh = Enum.find(original_tokens, &(&1.kind == :refresh))
+
+    assert {:ok, %{access_token: new_access, refresh_token: new_refresh, family_id: ^family_id}} =
+             AppSession.refresh(config, refresh)
+
+    refute new_access in [access, refresh]
+    refute new_refresh in [access, refresh, new_access]
+    assert repo.get!(Family, family_id).absolute_expires_at == family.absolute_expires_at
+
+    assert %{consumed_at: consumed_at} = repo.get!(Token, original_refresh.id)
+    assert not is_nil(consumed_at)
+    assert %{superseded_at: superseded_at} = repo.get!(Token, original_access.id)
+    assert not is_nil(superseded_at)
+
+    tokens = tokens_for_family(repo, family_id)
+    assert Enum.count(tokens) == 4
+    assert Enum.count(tokens, &(&1.kind == :access and is_nil(&1.superseded_at))) == 1
+    assert Enum.count(tokens, &(&1.kind == :refresh and is_nil(&1.consumed_at))) == 1
+
+    replacement_refresh = Enum.find(tokens, &(&1.kind == :refresh and is_nil(&1.consumed_at)))
+    assert replacement_refresh.expires_at == family.absolute_expires_at
+    assert {:error, :invalid_token} = AppSession.authenticate(config, access)
+    assert {:ok, %{family_id: ^family_id}} = AppSession.authenticate(config, new_access)
+  end
+
+  test "refresh rejects idle and absolute expiry without replacement credentials", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    assert {:ok, %{refresh_token: idle_refresh, family_id: idle_family_id}} =
+             AppSession.issue(config, user, "ios-idle", [])
+
+    idle_token = refresh_token_for_family(repo, idle_family_id)
+    repo.update!(Ecto.Changeset.change(idle_token, expires_at: past()))
+
+    assert {:error, :token_expired} = AppSession.refresh(config, idle_refresh)
+    assert Enum.count(tokens_for_family(repo, idle_family_id)) == 2
+
+    assert {:ok, %{refresh_token: absolute_refresh, family_id: absolute_family_id}} =
+             AppSession.issue(config, user, "ios-absolute", [])
+
+    absolute_family = repo.get!(Family, absolute_family_id)
+    repo.update!(Ecto.Changeset.change(absolute_family, absolute_expires_at: past()))
+
+    assert {:error, :token_expired} = AppSession.refresh(config, absolute_refresh)
+    assert Enum.count(tokens_for_family(repo, absolute_family_id)) == 2
+  end
+
+  test "refresh reuse revokes only the consumed refresh family before returning", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    assert {:ok, %{refresh_token: refresh, family_id: family_id}} =
+             AppSession.issue(config, user, "ios-primary", [])
+
+    assert {:ok, %{access_token: replacement_access}} = AppSession.refresh(config, refresh)
+    assert {:error, :reuse_detected} = AppSession.refresh(config, refresh)
+
+    assert not is_nil(repo.get!(Family, family_id).revoked_at)
+    assert Enum.all?(tokens_for_family(repo, family_id), &(not is_nil(&1.revoked_at)))
+    assert {:error, :invalid_token} = AppSession.authenticate(config, replacement_access)
+  end
+
+  test "refresh rejects malformed and wrong-kind inputs without cross-family mutation", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    assert {:ok, %{access_token: access, family_id: first_family_id}} =
+             AppSession.issue(config, user, "ios-first", [])
+
+    assert {:ok, %{family_id: second_family_id}} =
+             AppSession.issue(config, user, "ios-second", [])
+
+    first_before = tokens_for_family(repo, first_family_id)
+    second_before = tokens_for_family(repo, second_family_id)
+    assert {:error, :invalid_token} = AppSession.refresh(config, "malformed")
+    assert {:error, :invalid_token} = AppSession.refresh(config, access)
+
+    assert tokens_for_family(repo, first_family_id) == first_before
+    assert tokens_for_family(repo, second_family_id) == second_before
+  end
+
   defp config(repo) do
     Sigra.Config.new!(
       repo: repo,
       user_schema: User,
       app_session: [family_schema: Family, token_schema: Token]
     )
+  end
+
+  defp tokens_for_family(repo, family_id) do
+    repo.all(Ecto.Query.from(t in Token, where: t.family_id == ^family_id, order_by: t.id))
+  end
+
+  defp refresh_token_for_family(repo, family_id) do
+    repo.one!(Ecto.Query.from(t in Token, where: t.family_id == ^family_id and t.kind == :refresh))
+  end
+
+  defp past do
+    DateTime.utc_now() |> DateTime.add(-1, :second) |> DateTime.truncate(:microsecond)
   end
 end
