@@ -87,7 +87,7 @@ defmodule Sigra.AppLoginTest do
   } do
     verifier = String.duplicate("v", 43)
     challenge = PKCE.challenge(verifier)
-    started_at = ~U[2026-08-13 00:00:00Z]
+    started_at = now()
 
     assert {:ok, %{continuation: continuation, approval_required: true}} =
              AppLogin.start_hosted(
@@ -108,6 +108,7 @@ defmodule Sigra.AppLoginTest do
     attempt = repo.one!(Attempt)
     assert DateTime.to_unix(attempt.expires_at) == DateTime.to_unix(started_at) + 60
     assert attempt.verifier_digest == Sigra.Token.hash_token(challenge)
+    assert Sigra.AppLogin.PKCE.challenge(verifier) == challenge
     refute attempt.verifier_digest == Sigra.Token.hash_token(verifier)
 
     assert {:ok, %{access_token: access, refresh_token: refresh}} =
