@@ -33,6 +33,15 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 245 Opaque App-Session Core complete (2026-08-12).** First-party
+clients can now receive digest-only opaque access/refresh credentials with
+15-minute access, 30-day refresh-idle, and 90-day absolute defaults. Refresh
+uses a locked single transaction, rotates every use, revokes the family on
+reuse, and returns no replacement after rollback. Owner one/all revocation,
+password reset, sign-out-all, and account deletion invalidate applicable app
+sessions on their next authentication. Phase 246 now owns opt-in generation
+and hosted/direct login ceremonies.
+
 **Phase 244 PAT and Advanced JWT Truth Repair complete (2026-08-12).**
 Sigra now generates independently runnable `--api` and `--jwt` hosts. The PAT
 surface is browser/CSRF/sudo gated for management, owner constrained, and
@@ -679,6 +688,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 ### Validated — Phases 243–244
 - ✓ **BOUND-01, API-01** — Sigra/Lockspire/Crosswake/host ownership and explicit credential-kind pipelines validated in Phase 243.
 - ✓ **PAT-01, PAT-02, JWT-01, JWT-02** — independent generated PAT/JWT hosts, owner-bound browser PAT management, strict server-policy JWT verification, and locked transactional opaque refresh rotation validated in Phase 244.
+- ✓ **APP-04, APP-05** — digest-only opaque app-session credentials, locked rotation/reuse revocation, explicit one/all revocation, and password-reset/sign-out-all/account-deletion invalidation validated in Phase 245.
 
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.

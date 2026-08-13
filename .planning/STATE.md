@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
-current_phase: 245
-current_phase_name: Opaque App-Session Core
-status: verifying
+current_phase: 246
+current_phase_name: Hosted and Direct Login Ceremonies
+status: planning
 stopped_at: Completed 245-08-PLAN.md
-last_updated: "2026-08-13T01:14:24.710Z"
-last_activity: 2026-08-13
-last_activity_desc: Completed 245-01 opaque app-session tracer
+last_updated: "2026-08-13T01:16:54.052Z"
+last_activity: 2026-08-12
+last_activity_desc: Phase 245 complete, transitioned to Phase 246
 progress:
   total_phases: 3
   completed_phases: 3
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 ## Current Position
 
-Phase: 245 of 249 (Opaque App-Session Core)
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-08-13 — Completed 245-01 opaque app-session tracer
+Phase: 246 of 249 (Hosted and Direct Login Ceremonies)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-12 — Phase 245 complete, transitioned to Phase 246
 
 Progress: ░░░░░░░░░░ [██████████] 100%
 
@@ -40,7 +40,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 13
+- Total plans completed: 21
 - Average duration: 4min
 - Total execution time: 4min
 
@@ -51,6 +51,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | 243–249 | 1 | 4min | 4min |
 | 243 | 5 | - | - |
 | 244 | 7 | - | - |
+| 245 | 8 | - | - |
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
