@@ -41,7 +41,7 @@ credential holder or authentication authority.
 | Concern | Owner | Contract |
 |---------|-------|----------|
 | First-party identity and credentials | **Sigra** | Sigra owns first-party identity, credentials, inbound provider ceremonies, assurance, and revocation. Raw credentials never move into host Scope, assigns, logs, telemetry, Lockspire, or Crosswake. |
-| Browser and app sessions | **Sigra** | Sigra owns browser sessions and app sessions. The app-session public pipeline is deliberately fail closed until its verifier and storage contract are delivered. |
+| Browser and app sessions | **Sigra** | Sigra owns browser and opaque first-party app sessions. Hosted first-party login is system-browser PKCE with exact callbacks and explicit approval; separately opted-in direct password/MFA login issues the same app session. Neither ceremony is OAuth/OIDC delegation. |
 | OAuth/OIDC delegation | **Lockspire** | Lockspire owns OAuth/OIDC authorization-server delegation for registered external clients: client registry, consent, authorization codes, delegated tokens, discovery, JWKS, and token exchange. |
 | Route/runtime and offline-island policy | **Crosswake** | Crosswake owns route/runtime and offline-island policy. It consumes backend-projected facts only; it never holds Sigra credentials or becomes authentication authority. |
 | Product authorization and account-to-Scope mapping | **Phoenix host** | The Phoenix host owns product authorization and account-to-Scope mapping. A normal Scope identifies the current user; it is not client-derived delegated authorization. |

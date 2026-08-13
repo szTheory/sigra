@@ -68,7 +68,32 @@ end
 ```
 
 Do not treat the app-session selection seam as storage, an endpoint, or a
-fallback to another credential kind. It authenticates nothing until Phase 245.
+fallback to another credential kind. A successful app-session access credential
+is verified only by `FetchAppSession`; it is not a PAT or JWT and carries no
+delegated scopes.
+
+## First-party app login ceremonies
+
+`--app-sessions` installs the opaque first-party app-session lifecycle without
+selecting `--api`, `--jwt`, or direct password login. The default ceremony is
+hosted system-browser login: a static, host-owned public profile supplies an
+exact callback allowlist, caller state, and a PKCE S256 challenge. The browser
+session must explicitly approve before Sigra creates a one-time, 60-second
+code; the app exchanges it with the original verifier and receives the Phase
+245 opaque access/refresh session pair.
+
+`--app-password-login` is a separate, explicit host-policy opt-in layered on
+app sessions. It is not an OAuth password grant and never lets a client choose
+authority or scopes. Direct password and MFA failures are intentionally
+uniform; a host policy that requires the browser returns `browser_required`.
+The five-minute MFA challenge and hosted code are digest-only, one-use rows,
+and both successful paths issue the identical `Sigra.AppSession` family.
+
+These first-party routes are not an OAuth/OIDC authorization server. Sigra does
+not provide dynamic registration, wildcard callbacks, client secrets, consent,
+discovery, JWKS, or delegated token exchange. Lockspire remains the owner of
+registered external-client OAuth/OIDC delegation. Crosswake may consume projected facts
+but never credentials or authentication authority. This scope does not ship a native SDK, PWA/offline or media runtime, Electron runtime, or admin UI.
 
 ### PAT and JWT pipelines
 

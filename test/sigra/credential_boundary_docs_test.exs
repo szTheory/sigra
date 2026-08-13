@@ -91,4 +91,42 @@ defmodule Sigra.CredentialBoundaryDocsTest do
     assert String.contains?(api, "api_token[:cleanup_retention]")
     refute String.contains?(api, "cleanup_expired_tokens/2")
   end
+
+  test "first-party app ceremony guidance preserves option and ownership fences" do
+    api = read(@api_path)
+    contract = read(@contract_path)
+
+    for marker <- [
+          "--app-sessions",
+          "--app-password-login",
+          "hosted system-browser login",
+          "PKCE S256",
+          "exact callback allowlist",
+          "one-time, 60-second",
+          "five-minute MFA challenge",
+          "FetchAppSession",
+          "not an OAuth password grant",
+          "browser_required",
+          "Lockspire remains the owner",
+          "Crosswake may consume projected facts",
+          "native SDK, PWA/offline or media runtime, Electron runtime, or admin UI"
+        ] do
+      assert String.contains?(api, marker), "first-party guide missing #{inspect(marker)}"
+    end
+
+    for forbidden <- [
+          "dynamic registration",
+          "wildcard callbacks",
+          "client secrets",
+          "consent",
+          "discovery",
+          "JWKS",
+          "delegated token exchange"
+        ] do
+      assert String.contains?(api, forbidden), "scope fence missing #{inspect(forbidden)}"
+    end
+
+    assert String.contains?(contract, "Hosted first-party login is system-browser PKCE")
+    assert String.contains?(contract, "Neither ceremony is OAuth/OIDC delegation")
+  end
 end
