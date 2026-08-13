@@ -73,7 +73,13 @@ All values use the existing `sigra-auth-*` token layer, which is downstream of `
 | Accent (10%) | `--sigra-auth-accent` (light fallback `#c2410c`; dark text-on-soft uses `#fdba74`) | Primary approve button, focused link/control treatment, and Rail Accent identity only |
 | Destructive | `--sigra-auth-risk` (light `#b42318`; dark `#f8a39c`) | Error/flash treatment only; never cancellation or primary action |
 
-Accent reserved for: the “Approve and continue” button, focus ring, existing auth-shell brand mark/identity, and selected auth controls. “Cancel” is an outlined/secondary full-width action using the existing `sigra-auth-action--secondary` treatment; cancellation is an explicit denial, not a destructive-account action.
+Accent reserved for: the “Approve and continue” button, focus ring, existing auth-shell brand mark/identity, and selected auth controls. “Decline app sign-in” is an outlined/secondary full-width action using the existing `sigra-auth-action--secondary` treatment; declining is an explicit denial, not a destructive-account action.
+
+---
+
+## Visual Hierarchy
+
+The primary screen focal point is the signed-in app decision. Read the centered auth panel in this fixed order: page title (`Continue to {static profile name}`) establishes orientation; `Approve app sign-in` is the decision anchor; the one-sentence explanation establishes the consequence; `Approve and continue` is the sole accent primary action; and `Decline app sign-in` follows as the visually quieter secondary action. Do not add competing cards, status illustrations, badges, or other calls to action.
 
 ---
 
@@ -86,11 +92,11 @@ Accent reserved for: the “Approve and continue” button, focus ring, existing
 | Decision heading | `Approve app sign-in` |
 | Decision explanation | `This will continue your signed-in browser session to {static profile name}.` |
 | Primary CTA | `Approve and continue` |
-| Secondary CTA | `Cancel` |
+| Secondary CTA | `Decline app sign-in` |
 | Empty state heading | Not applicable — this is a single signed continuation decision, not a collection or data view. Missing, expired, or tampered continuation is an invalid request, not an empty state. |
 | Empty state body | Not applicable; do not expose profile/callback or authentication facts. |
 | Error state | `Invalid app login request.` Return HTTP 400 with no profile, account, callback, code, state, PKCE, MFA, or policy detail. The client must start a new hosted attempt. |
-| Destructive confirmation | None. Cancel immediately consumes the bounded continuation and returns to normal sign-in; no modal, typed confirmation, or extra confirmation page. |
+| Destructive confirmation | None. Decline app sign-in immediately consumes the bounded continuation and returns to normal sign-in; no modal, typed confirmation, or extra confirmation page. |
 
 Direct endpoint contract: `browser_required` is the sole policy-specific JSON response. All other direct password/MFA failures return `invalid_credentials`; neither response has a rendered browser page or user-facing account/profile explanation.
 
@@ -100,9 +106,9 @@ Direct endpoint contract: `browser_required` is the sole policy-specific JSON re
 
 - Render the approval surface only after a valid signed continuation exists and the browser user is authenticated. An unauthenticated start redirects through the normal browser login/MFA branches and resumes at this page only; it never redirects to the callback or issues credentials before approval.
 - Use a semantic `h1` page title and an `h2` inside `<section aria-labelledby="app-login-decision-title">`. Do not use ARIA roles to simulate buttons or headings.
-- Provide two separate CSRF-protected `POST` forms. Submit controls retain native button semantics and visible labels. Keep stable hooks: `app-login-approval`, `app-login-decision-controls`, `app-login-approve`, and `app-login-cancel`.
+- Provide two separate CSRF-protected `POST` forms. Submit controls retain native button semantics and visible labels. Keep stable hooks: `app-login-approval`, `app-login-decision-controls`, `app-login-approve`, and `app-login-decline`.
 - On approve, submit once, consume the continuation, and redirect only to the exact registered callback with the opaque code and original state. Set `Referrer-Policy: no-referrer`. No visual success screen, flash, code, callback, or credential display is allowed.
-- On cancel, submit once, consume the continuation, and return to the bounded normal sign-in route. Do not present a confirmation dialog, callback redirect, credential, or account-specific explanation.
+- On decline, submit once, consume the continuation, and return to the bounded normal sign-in route. Do not present a confirmation dialog, callback redirect, credential, or account-specific explanation.
 - Native navigation is the loading treatment. Do not add a spinner, skeleton, optimistic success, countdown, or LiveView loading animation; the state change must remain explicit and server-authoritative. Focus follows the browser navigation destination.
 - Preserve native focus-visible styling and the existing 44px targets. Pointer hover may use existing color/transform transition only; honor `prefers-reduced-motion` and never use `transition: all`.
 
@@ -115,8 +121,8 @@ Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved.
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
 | empty | Approval decision form | ✅ covered | A missing, expired, or tampered continuation is not rendered as an empty decision; it returns the documented generic invalid-request response without leaked facts. |
-| loading | Approve and cancel forms | ✅ covered | Native POST/redirect is the in-flight treatment. No progress animation is permitted because the server must atomically consume and issue before redirecting. |
-| error | Hosted start, continuation, approve, cancel | ✅ covered | Malformed, expired, tampered, or consumed state produces `Invalid app login request.` with HTTP 400 and no sensitive context. |
+| loading | Approve and decline forms | ✅ covered | Native POST/redirect is the in-flight treatment. No progress animation is permitted because the server must atomically consume and issue before redirecting. |
+| error | Hosted start, continuation, approve, decline | ✅ covered | Malformed, expired, tampered, or consumed state produces `Invalid app login request.` with HTTP 400 and no sensitive context. |
 | partial | Approval decision form | ✅ covered | The only rendered dynamic datum is the validated static profile name. The decision is never partially populated with callback, state, PKCE, credential, or account data. |
 | long-text | Page title, explanation, button labels | ✅ covered | Static profile names wrap anywhere within the constrained auth flow; fixed action labels remain fully visible and buttons are full width. |
 
@@ -135,8 +141,8 @@ Direct JSON response bodies are protocol data, not UI elements. Collection/popul
 
 ## Deterministic Verification Contract
 
-- Rendered-template tests assert the existing semantic section, explicit action labels, and stable `data-testid` hooks; use roles and these hooks, not broad text-only selectors.
-- Browser automation waits for normal HTTP/LiveView readiness and asserts the approve/cancel POST destinations; do not use sleeps.
+- Rendered-template tests assert the declared heading order, the explicit `Approve and continue` and `Decline app sign-in` action labels, and stable `data-testid` hooks; use roles and these hooks, not broad text-only selectors.
+- Browser automation waits for normal HTTP/LiveView readiness and asserts the approve/decline POST destinations; do not use sleeps.
 - Exercise Light, Dark, and System auth-shell modes, including visible focus and no broken Rail Accent asset references.
 - Assert that rendered approval markup contains no `sg-` admin classes and that response/HTML sources do not contain raw code, verifier, state, callback, password, challenge, or app credentials beyond the callback redirect protocol boundary.
 
