@@ -271,19 +271,16 @@ assert Enum.count(results, &match?({:error, :reuse_detected}, &1)) == 1
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | The concrete public option/module names may be `Sigra.AppSession` and `app_session` config. Exact naming is discretionary; the lifecycle invariants are not. [ASSUMED] | Architecture Patterns | Planner must reserve a small API-naming decision before locking generated facade calls. |
+| A1 | Phase 245 uses the library names `Sigra.AppSession` and `app_session` with `family_schema`/`token_schema` callbacks; Phase 246 alone chooses emitted host schema/module names. [RESOLVED] | Architecture Patterns | No naming ambiguity remains in Phase 245 and no generated-host name is prematurely locked. |
+| A2 | Issuance requires a non-empty, server-selected `client_ref` bounded to 255 bytes and stores it only on the family row. [RESOLVED] | Architecture Patterns | Phase 246 must select it after authentication rather than accept it as client authority. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **What exact host schema names should Phase 246 generate?**
-   - What we know: Phase 245 should take host-provided family/token schema modules and must not introduce installer flags. [VERIFIED: phase scope and generator ownership]
-   - What's unclear: The future generated module/migration naming convention is not locked.
-   - Recommendation: Keep Phase 245’s schema callback contract explicit and test-local; Phase 246 chooses emitted names while satisfying it. [VERIFIED: Phase 246 boundary]
+1. **Generated host schema/module names — resolved as Phase 246-owned.**
+   - Phase 245 fixes only the library-facing config callbacks `family_schema` and `token_schema` and proves them with test-local representative modules. Phase 246 chooses the emitted host module and migration names when it adds `--app-sessions`; those names are not a Phase 245 public contract. [RESOLVED: phase boundary, Phase 246 ownership]
 
-2. **Which server-selected app reference belongs in a family row?**
-   - What we know: First-party app registration/configuration is host-owned and Phase 246 owns ceremonies. [VERIFIED: `243-CONTEXT.md`; `ROADMAP.md`]
-   - What's unclear: Whether a pre-registered app identifier is needed in the Phase 245 issuance API.
-   - Recommendation: Require a bounded, server-selected `client_ref` input to issuance but never treat request input as authoritative or log a stable raw device identifier. [ASSUMED]
+2. **Server-selected app reference — resolved as a Phase 245 issuance choice.**
+   - `Sigra.AppSession.issue/4` requires a non-empty server-selected `client_ref` string bounded to 255 bytes and stores it on the family row for lifecycle/operator context. It is never accepted as client authority and is excluded from token rows, Scope, private credential facts, audit metadata, and logs. Phase 246 decides how a completed hosted/direct ceremony selects that value. [RESOLVED: locked bounded-reference decision plus planner discretion]
 
 ## Environment Availability
 
