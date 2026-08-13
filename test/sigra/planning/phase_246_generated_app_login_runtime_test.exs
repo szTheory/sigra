@@ -96,7 +96,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host server launch captures its PID inside the application cwd" do
     harness = read!(@harness)
 
-    assert harness =~ "pushd \"$APP_DIR\" >/dev/null\n  CLOAK_KEY=",
+    assert harness =~ "pushd \"$APP_DIR\" >/dev/null\n  PORT=",
            "the server process must start from the generated host cwd"
 
     assert harness =~ "SERVER_PID=$!\n  popd >/dev/null",
@@ -116,9 +116,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "CLOAK_KEY=\"$(openssl rand -base64 32)\"",
            "the disposable generated host must receive an ephemeral Vault key"
 
-    assert harness =~
-             "CLOAK_KEY=\"$CLOAK_KEY\" PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &",
-           "the generated Phoenix process must inherit the ephemeral Vault key"
+    assert harness =~ "export CLOAK_KEY\n  pushd \"$APP_DIR\" >/dev/null",
+           "the generated Phoenix process must inherit the exported ephemeral Vault key"
 
     assert harness =~ "kill -0 \"$SERVER_PID\"",
            "readiness must immediately detect a server process that already exited"

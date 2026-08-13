@@ -450,8 +450,9 @@ prove_host() {
   run "$APP_DIR" mix compile --warnings-as-errors
   (cd "$APP_DIR" && assert_inventory "$mode")
   CLOAK_KEY="$(openssl rand -base64 32)"
+  export CLOAK_KEY
   pushd "$APP_DIR" >/dev/null
-  CLOAK_KEY="$CLOAK_KEY" PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
+  PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
   SERVER_PID=$!
   popd >/dev/null
   wait_for_http
@@ -462,6 +463,7 @@ prove_host() {
   curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/exchange" | grep -Eq '400|429'
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
+  unset CLOAK_KEY
   run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs test/sigra/app_login_direct_test.exs test/sigra/app_login_direct_fault_test.exs test/sigra/app_login/concurrency_test.exs test/sigra/plug/fetch_app_session_test.exs --trace
 }
 
