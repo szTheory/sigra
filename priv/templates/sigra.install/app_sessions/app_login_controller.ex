@@ -77,9 +77,11 @@ defmodule <%= web_module %>.AppLoginController do
 
   def direct(conn, _params), do: json(conn |> put_status(:unauthorized), %{error: "invalid_credentials"})
 
-  def complete_direct_mfa(conn, %{"challenge" => challenge, "code" => code} = params) do
-    with ["challenge", "code"] <- Enum.sort(Map.keys(params)),
-         {:ok, result} <- AppSessions.complete_direct_mfa(challenge, code) do
+  def complete_direct_mfa(conn, %{"challenge" => challenge, "code" => code, "factor" => factor} = params) do
+    with ["challenge", "code", "factor"] <- Enum.sort(Map.keys(params)),
+         true <- Enum.all?([challenge, code, factor], &is_binary/1),
+         {:ok, trusted_factor} <- direct_mfa_factor(factor),
+         {:ok, result} <- AppSessions.complete_direct_mfa(challenge, code, trusted_factor) do
       json(conn, result)
     else
       _ -> json(conn |> put_status(:unauthorized), %{error: "invalid_credentials"})
@@ -87,6 +89,10 @@ defmodule <%= web_module %>.AppLoginController do
   end
 
   def complete_direct_mfa(conn, _params), do: json(conn |> put_status(:unauthorized), %{error: "invalid_credentials"})
+
+  defp direct_mfa_factor("totp"), do: {:ok, :totp}
+  defp direct_mfa_factor("backup_code"), do: {:ok, :backup_code}
+  defp direct_mfa_factor(_), do: :error
 <% end %>
   defp require_authenticated_browser(conn, _opts) do
     case browser_assurance(conn) do

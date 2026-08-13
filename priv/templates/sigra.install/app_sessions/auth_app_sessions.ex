@@ -50,8 +50,9 @@ defmodule <%= context_module %>.Auth.AppSessions do
   end
 
   @doc false
-  def complete_direct_mfa(challenge, code) do
+  def complete_direct_mfa(challenge, code, factor) do
     Sigra.AppLogin.complete_direct_mfa(sigra_config(), challenge, code,
+      factor: factor,
       mfa_verify: &<%= context_module %>.mfa_verify/2,
       mfa_verify_backup: &<%= context_module %>.mfa_verify_backup/2
     )
