@@ -51,7 +51,11 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
     end
 
     create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)
-    create unique_index(:user_app_login_attempts, [:approval_digest], @prefix_opts)
+    create unique_index(
+             :user_app_login_attempts,
+             [:approval_digest],
+             Keyword.merge(@prefix_opts, name: :user_app_login_attempts_approval_digest_index)
+           )
     create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at], @prefix_opts)
     create index(:user_app_login_attempts, [:user_id, :profile_id, :consumed_at], @prefix_opts)
   end
@@ -106,7 +110,9 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
     end
 
     create unique_index(:user_app_login_attempts, [:digest])
-    create unique_index(:user_app_login_attempts, [:approval_digest])
+    create unique_index(:user_app_login_attempts, [:approval_digest],
+             name: :user_app_login_attempts_approval_digest_index
+           )
     create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at])
     create index(:user_app_login_attempts, [:user_id, :profile_id, :consumed_at])
   end

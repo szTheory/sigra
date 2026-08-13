@@ -100,6 +100,7 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       attempt = render_template("user_app_login_attempt.ex")
       migration = render_template("app_sessions_migration.exs")
       prefixed_migration = render_template("app_sessions_migration.exs", auth_prefix: "auth")
+      unprefixed_migration = render_template("app_sessions_migration.exs", adapter: :sqlite)
 
       assert attempt =~ "defmodule MyApp.Accounts.UserAppLoginAttempt"
       assert attempt =~ "field :kind, Ecto.Enum, values: [:hosted_code, :direct_mfa]"
@@ -121,11 +122,13 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert migration =~ "create table(:user_app_login_attempts"
       assert migration =~ "create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)"
 
-      assert migration =~
-               "create unique_index(:user_app_login_attempts, [:approval_digest], name: :user_app_login_attempts_approval_digest_index)"
+      assert migration =~ "name: :user_app_login_attempts_approval_digest_index"
+      assert prefixed_migration =~ "name: :user_app_login_attempts_approval_digest_index"
 
-      assert prefixed_migration =~
-               "create unique_index(:user_app_login_attempts, [:approval_digest], Keyword.merge(@prefix_opts, name: :user_app_login_attempts_approval_digest_index))"
+      assert unprefixed_migration =~ "name: :user_app_login_attempts_approval_digest_index"
+      assert {:ok, _} = Code.string_to_quoted(migration)
+      assert {:ok, _} = Code.string_to_quoted(prefixed_migration)
+      assert {:ok, _} = Code.string_to_quoted(unprefixed_migration)
 
       assert migration =~
                "create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at]"
