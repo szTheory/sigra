@@ -10,6 +10,7 @@ defmodule Sigra.AppSession do
   import Ecto.Query
 
   alias Ecto.Multi
+  alias Sigra.Audit
   alias Sigra.AppSession.RefreshToken
   alias Sigra.Token
 
@@ -91,36 +92,80 @@ defmodule Sigra.AppSession do
         Multi.new()
         |> RefreshToken.build_locked_classify_multi(config, raw_refresh_token)
         |> Multi.merge(fn %{app_session_refresh_classification: {action, token, family}} ->
-          case action do
-            :rotate -> RefreshToken.build_rotate_persist_multi(Multi.new(), config, token, family)
-            :reuse -> RefreshToken.build_revoke_family_multi(Multi.new(), config, family)
-          end
+          action
+          |> build_refresh_mutation_multi(config, token, family)
+          |> append_refresh_audit(config, family, action)
         end)
 
-      case config.repo.transaction(multi) do
-        {:ok,
-         %{
-           app_session_refresh_classification: {:rotate, _token, family},
-           app_session_refresh_rotate: replacement
-         }} ->
+      try do
+        case config.repo.transaction(multi) do
           {:ok,
            %{
-             access_token: replacement.access_token,
-             refresh_token: replacement.refresh_token,
-             family_id: family.id,
-             expires_in: settings_access_ttl(config)
-           }}
+             app_session_refresh_classification: {:rotate, _token, family},
+             app_session_refresh_rotate: replacement
+           } = changes} ->
+            Audit.emit_telemetry_from_changes(changes, [:audit_app_session_refresh])
 
-        {:ok, %{app_session_refresh_classification: {:reuse, _token, _family}}} ->
-          {:error, :reuse_detected}
+            {:ok,
+             %{
+               access_token: replacement.access_token,
+               refresh_token: replacement.refresh_token,
+               family_id: family.id,
+               expires_in: settings_access_ttl(config)
+             }}
 
-        {:error, :app_session_refresh_classification, reason, _changes}
-        when reason in [:invalid_token, :token_expired] ->
-          {:error, reason}
+          {:ok, %{app_session_refresh_classification: {:reuse, _token, _family}} = changes} ->
+            Audit.emit_telemetry_from_changes(changes, [:audit_app_session_refresh_reuse])
+            {:error, :reuse_detected}
 
-        {:error, _step, _reason, _changes} ->
-          {:error, :app_session_refresh_aborted}
+          {:error, :app_session_refresh_classification, reason, _changes}
+          when reason in [:invalid_token, :token_expired] ->
+            {:error, reason}
+
+          {:error, _step, _reason, _changes} ->
+            {:error, :app_session_refresh_aborted}
+        end
+      rescue
+        _exception -> {:error, :app_session_refresh_aborted}
       end
+    end
+  end
+
+  defp build_refresh_mutation_multi(:rotate, config, token, family) do
+    RefreshToken.build_rotate_persist_multi(Multi.new(), config, token, family)
+  end
+
+  defp build_refresh_mutation_multi(:reuse, config, _token, family) do
+    RefreshToken.build_revoke_family_multi(Multi.new(), config, family)
+  end
+
+  defp append_refresh_audit(multi, config, family, action) do
+    case Keyword.get(Map.get(config, :audit, []), :audit_schema) do
+      nil ->
+        multi
+
+      audit_schema ->
+        {audit_action, audit_step, outcome} =
+          case action do
+            :rotate -> {"session.app_refresh", :audit_app_session_refresh, "success"}
+            :reuse -> {"session.app_refresh_reuse", :audit_app_session_refresh_reuse, "failure"}
+          end
+
+        Audit.log_multi_safe(
+          multi,
+          audit_action,
+          repo: config.repo,
+          audit_schema: audit_schema,
+          actor_id: family.user_id,
+          target_id: family.user_id,
+          outcome: outcome,
+          metadata: %{
+            family_id: family.id,
+            kind: "app_session",
+            lifecycle: Atom.to_string(action)
+          },
+          audit_multi_step: audit_step
+        )
     end
   end
 
