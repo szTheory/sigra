@@ -25,6 +25,11 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "curl --fail --silent --show-error",
           "app-login/approve",
           "api/app-login/exchange",
+          "prove_direct_mfa_ceremony",
+          "api/app-login/direct/mfa",
+          "backup_code",
+          "direct-mfa challenge was not consumed",
+          "backup code was not consumed",
           "cookie-jar",
           "hosted_code",
           "pg_isready"
