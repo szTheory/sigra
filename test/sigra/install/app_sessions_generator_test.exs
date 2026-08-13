@@ -21,6 +21,7 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
   @app_sources [
     "app_sessions/user_app_session_family.ex",
     "app_sessions/user_app_session_token.ex",
+    "app_sessions/user_app_login_attempt.ex",
     "app_sessions/app_sessions_migration.exs"
   ]
 
@@ -89,6 +90,29 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
   end
 
   describe "rendered app-session persistence" do
+    test "renders digest-only hosted-code and direct-MFA attempt storage" do
+      attempt = render_template("user_app_login_attempt.ex")
+      migration = render_template("app_sessions_migration.exs")
+
+      assert attempt =~ "defmodule MyApp.Accounts.UserAppLoginAttempt"
+      assert attempt =~ "field :kind, Ecto.Enum, values: [:hosted_code, :direct_mfa]"
+      assert attempt =~ "field :digest, :binary"
+      assert attempt =~ "field :verifier_digest, :binary"
+      assert attempt =~ "field :profile_id, :string"
+      assert attempt =~ "field :callback, :string"
+      assert attempt =~ "field :expires_at, :utc_datetime_usec"
+      assert attempt =~ "field :consumed_at, :utc_datetime_usec"
+      refute attempt =~ "password"
+      refute attempt =~ "challenge"
+      refute attempt =~ "state"
+
+      assert migration =~ "create table(:user_app_login_attempts"
+      assert migration =~ "create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)"
+      assert migration =~ "create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at]"
+      refute migration =~ "verifier, :string"
+      refute migration =~ "password, :"
+    end
+
     test "renders paired Phase 245 family and token schemas" do
       family = render_template("user_app_session_family.ex")
       token = render_template("user_app_session_token.ex")
