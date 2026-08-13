@@ -29,14 +29,28 @@ defmodule Sigra.Install.AppSessionsAuthContinuationTest do
   ]
 
   test "selected app sessions resume browser login and MFA only at the approval controller" do
-    for template <- ["session_controller.ex", "mfa_challenge_controller.ex", "mfa_challenge_live.ex"] do
+    for template <- [
+          "session_controller.ex",
+          "mfa_challenge_controller.ex",
+          "mfa_challenge_live.ex"
+        ] do
       rendered = render_template(template, app_sessions: true)
 
       assert rendered =~ "AppLoginContinuation"
-      assert rendered =~ ~s(~p"/app-login/continue")
       refute rendered =~ "callback_with_code"
       refute rendered =~ "issue_app_session"
     end
+
+    assert render_template("session_controller.ex", app_sessions: true) =~
+             ~s(~p"/app-login/continue")
+
+    assert render_template("session_controller.ex", app_sessions: true) =~ "%{type: :mfa_pending}"
+
+    assert render_template("mfa_challenge_controller.ex", app_sessions: true) =~
+             ~s(~p"/app-login/continue")
+
+    assert render_template("mfa_challenge_live.ex", app_sessions: true) =~
+             "app_login_return_to(socket)"
   end
 
   test "unselected app sessions keep every core auth template byte-equivalent" do
@@ -52,8 +66,8 @@ defmodule Sigra.Install.AppSessionsAuthContinuationTest do
     controller = render_template("mfa_challenge_controller.ex", app_sessions: true)
     live = render_template("mfa_challenge_live.ex", app_sessions: true)
 
-    assert controller =~ "AppLoginContinuation.take(conn)"
-    assert controller =~ "{:error, :invalid_continuation}"
+    assert controller =~ "AppLoginContinuation.clear(conn)"
+    assert controller =~ "_ -> {AppLoginContinuation.clear(conn), fallback}"
     assert live =~ "AppLoginContinuation.continue_path"
     assert live =~ "~p\"/\""
   end

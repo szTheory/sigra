@@ -12,6 +12,9 @@ defmodule <%= web_module %>.MFAChallengeController do
   use <%= web_module %>, :controller
 
   alias <%= context_module %>, as: Auth
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  alias <%= web_module %>.AppLoginContinuation
+<% end %>
 
   def new(conn, _params) do
     scope = conn.assigns[:current_scope]
@@ -46,6 +49,9 @@ defmodule <%= web_module %>.MFAChallengeController do
     case result do
       {:ok, _} ->
         return_to = get_session(conn, :mfa_return_to) || ~p"/"
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        {conn, return_to} = app_login_return_to(conn, return_to)
+<% end %>
 
         conn
         |> delete_session(:mfa_pending)
@@ -94,6 +100,15 @@ defmodule <%= web_module %>.MFAChallengeController do
         "***"
     end
   end
+
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  defp app_login_return_to(conn, fallback) do
+    case AppLoginContinuation.fetch(conn) do
+      {:ok, _continuation, _profile_id} -> {conn, ~p"/app-login/continue"}
+      _ -> {AppLoginContinuation.clear(conn), fallback}
+    end
+  end
+<% end %>
 
   defp maybe_set_trust_cookie(conn, user, true) do
     config = Auth.sigra_config()

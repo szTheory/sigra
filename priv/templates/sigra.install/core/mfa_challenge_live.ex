@@ -13,6 +13,9 @@ defmodule <%= web_module %>.MFAChallengeLive do
   import <%= web_module %>.SigraAuthComponents
 
   alias <%= context_module %>, as: Auth
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  alias <%= web_module %>.AppLoginContinuation
+<% end %>
 
   def mount(_params, session, socket) do
     mfa_pending = session["mfa_pending"]
@@ -40,6 +43,9 @@ defmodule <%= web_module %>.MFAChallengeLive do
          passkey_status: :idle,
          passkey_notice: nil,
          active_method: if(passkey_count > 0, do: "passkey", else: "totp"),
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+         app_login_continuation: session["sigra_app_login_continuation"],
+<% end %>
          masked_email: masked_email,
          totp_form: to_form(%{"code" => "", "trust" => "false"}, as: "mfa"),
          backup_form: to_form(%{"code" => ""}, as: "mfa"),
@@ -375,7 +381,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+         |> redirect(to: app_login_return_to(socket))}
+<% else %>
          |> redirect(to: ~p"/")}
+<% end %>
 
       {:error, :invalid_code, remaining} ->
         form = to_form(%{"code" => "", "trust" => to_string(trust)}, as: "mfa")
@@ -412,7 +422,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+         |> redirect(to: app_login_return_to(socket))}
+<% else %>
          |> redirect(to: ~p"/")}
+<% end %>
 
       {:error, :invalid_backup_code, remaining} ->
         form = to_form(%{"code" => ""}, as: "mfa")
@@ -454,6 +468,16 @@ defmodule <%= web_module %>.MFAChallengeLive do
         "***"
     end
   end
+
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  defp app_login_return_to(socket) do
+    AppLoginContinuation.continue_path(
+      socket.endpoint,
+      socket.assigns.app_login_continuation,
+      ~p"/"
+    )
+  end
+<% end %>
 
 <%= if passkeys? do %>
   defp passkey_recovery_bucket(payload) when is_map(payload) do

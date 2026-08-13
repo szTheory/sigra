@@ -27,6 +27,17 @@ defmodule <%= web_module %>.AppLoginContinuation do
     {delete_session(conn, @session_key), result}
   end
 
+  def clear(conn), do: delete_session(conn, @session_key)
+
+  def continue_path(endpoint, handle, fallback) when is_binary(handle) do
+    case Phoenix.Token.verify(endpoint, @purpose, handle, max_age: @max_age) do
+      {:ok, %{continuation: continuation}} when is_binary(continuation) -> "/app-login/continue"
+      _ -> fallback
+    end
+  end
+
+  def continue_path(_endpoint, _handle, fallback), do: fallback
+
   def preserve(conn), do: get_session(conn, @session_key)
 
   def restore(conn, handle) when is_binary(handle), do: put_session(conn, @session_key, handle)

@@ -87,8 +87,15 @@ defmodule <%= web_module %>.UserAuth do
   writing the token, matching `log_in_user/3`'s fixation protection.
   """
   def put_user_session_token(conn, token) when is_binary(token) do
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+    app_login_continuation = <%= web_module %>.AppLoginContinuation.preserve(conn)
+<% end %>
+
     conn
     |> renew_session()
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+    |> <%= web_module %>.AppLoginContinuation.restore(app_login_continuation)
+<% end %>
     |> put_token_in_session(token)
   end
 

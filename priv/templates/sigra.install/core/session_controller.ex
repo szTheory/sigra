@@ -3,6 +3,9 @@ defmodule <%= web_module %>.SessionController do
 
   alias <%= context_module %>, as: Auth
   alias <%= web_module %>.UserAuth
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  alias <%= web_module %>.AppLoginContinuation
+<% end %>
 
   @impersonation_denial_message "You can't change account security settings while impersonating."
 
@@ -81,6 +84,9 @@ defmodule <%= web_module %>.SessionController do
         conn
         |> put_flash(:info, info)
         |> UserAuth.log_in_user(user, user_params)
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        |> maybe_redirect_to_app_login_approval()
+<% end %>
 <%= if organizations? do %>
       {:error, :sso_required, %{organization_slug: slug}}
       when is_binary(slug) and slug != "" ->
@@ -105,6 +111,9 @@ defmodule <%= web_module %>.SessionController do
         conn
         |> put_flash(:info, "Welcome!")
         |> UserAuth.log_in_user(user)
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        |> maybe_redirect_to_app_login_approval()
+<% end %>
 
       {:error, _} ->
         conn
@@ -211,6 +220,9 @@ defmodule <%= web_module %>.SessionController do
       conn
       |> put_flash(:info, "Welcome back!")
       |> UserAuth.log_in_user(user, %{})
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+      |> maybe_redirect_to_app_login_approval()
+<% end %>
     else
       {:error, :email_not_confirmed} ->
         passkey_login_failed(conn, email)
@@ -232,6 +244,9 @@ defmodule <%= web_module %>.SessionController do
       conn
       |> put_flash(:info, "Welcome back!")
       |> UserAuth.log_in_user(user, %{})
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+      |> maybe_redirect_to_app_login_approval()
+<% end %>
     else
       {:error, :email_not_confirmed} -> passkey_login_failed(conn, nil)
       _ -> passkey_login_failed(conn, nil)
@@ -264,6 +279,9 @@ defmodule <%= web_module %>.SessionController do
       |> delete_session(:mfa_remember_me)
       |> put_flash(:info, "Two-factor authentication verified.")
       |> redirect(to: return_to)
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+      |> maybe_redirect_to_app_login_approval()
+<% end %>
     else
       _ ->
         conn
@@ -406,6 +424,16 @@ defmodule <%= web_module %>.SessionController do
     |> maybe_put_passkey_email(email)
     |> redirect(to: ~p"/users/log_in")
   end
+
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  defp maybe_redirect_to_app_login_approval(conn) do
+    case {conn.private[:sigra_session], AppLoginContinuation.fetch(conn)} do
+      {%{type: :mfa_pending}, _} -> conn
+      {_, {:ok, _continuation, _profile_id}} -> redirect(conn, to: ~p"/app-login/continue")
+      _ -> AppLoginContinuation.clear(conn)
+    end
+  end
+<% end %>
 
   defp maybe_put_passkey_email(conn, email) when is_binary(email) do
     put_flash(conn, :email, String.slice(to_string(email), 0, 160))
