@@ -63,6 +63,18 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the protected generated route must be installed, not merely mentioned"
   end
 
+  test "proof router defers app-session config until the endpoint is running" do
+    harness = read!(@harness)
+
+    assert harness =~
+             "config: &SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config/0",
+           "router compilation must retain a config function instead of reading Endpoint ETS"
+
+    refute harness =~
+             "config: SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config(),",
+           "router compilation must not call sigra_config before Endpoint startup"
+  end
+
   test "generated-host proof refreshes dependencies after installer mutations" do
     harness = read!(@harness)
 
