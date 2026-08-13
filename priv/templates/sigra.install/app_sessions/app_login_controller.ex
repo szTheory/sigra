@@ -12,10 +12,11 @@ defmodule <%= web_module %>.AppLoginController do
         profile_id = params["profile_id"]
         conn = AppLoginContinuation.put(conn, continuation, profile_id)
 
-        if current_user(conn) do
-          render(conn, :approve, profile_name: profile_id)
-        else
-          redirect(conn, to: ~p"/users/log_in")
+        case browser_assurance(conn) do
+          :completed -> render(conn, :approve, profile_name: profile_id)
+          :mfa_pending -> redirect(conn, to: ~p"/users/mfa")
+          :unauthenticated -> redirect(conn, to: ~p"/users/log_in")
+          :invalid -> invalid_request(conn)
         end
 
       _ -> invalid_request(conn)
@@ -88,7 +89,21 @@ defmodule <%= web_module %>.AppLoginController do
   def complete_direct_mfa(conn, _params), do: json(conn |> put_status(:unauthorized), %{error: "invalid_credentials"})
 <% end %>
   defp require_authenticated_browser(conn, _opts) do
-    if current_user(conn), do: conn, else: conn |> redirect(to: ~p"/users/log_in") |> halt()
+    case browser_assurance(conn) do
+      :completed -> conn
+      :mfa_pending -> conn |> redirect(to: ~p"/users/mfa") |> halt()
+      :unauthenticated -> conn |> redirect(to: ~p"/users/log_in") |> halt()
+      :invalid -> conn |> invalid_request() |> halt()
+    end
+  end
+
+  defp browser_assurance(conn) do
+    case {current_user(conn), conn.private[:sigra_session]} do
+      {%{id: id}, %{type: type}} when not is_nil(id) and type in [:standard, :remember_me] -> :completed
+      {%{id: id}, %{type: :mfa_pending}} when not is_nil(id) -> :mfa_pending
+      {nil, _} -> :unauthenticated
+      _ -> :invalid
+    end
   end
 
   defp current_user(conn), do: get_in(conn.assigns, [:current_scope, :user])
