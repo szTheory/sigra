@@ -58,13 +58,32 @@ defmodule Sigra.AppLoginAuditCofateTest do
         repo,
         """
         CREATE TABLE IF NOT EXISTS sigra_app_login_attempts (
-          id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), digest bytea NOT NULL UNIQUE,
+          id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), kind varchar(255) NOT NULL DEFAULT 'hosted_code',
+          digest bytea NOT NULL UNIQUE, approval_digest bytea UNIQUE,
           verifier_digest bytea NOT NULL, profile_id varchar(255) NOT NULL, callback text NOT NULL,
           user_id uuid NOT NULL REFERENCES sigra_app_session_users(id), client_ref varchar(255) NOT NULL,
           expires_at timestamp NOT NULL, consumed_at timestamp,
           inserted_at timestamp NOT NULL DEFAULT now(), updated_at timestamp NOT NULL DEFAULT now()
         )
         """,
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS kind varchar(255) NOT NULL DEFAULT 'hosted_code'",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS approval_digest bytea",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "CREATE UNIQUE INDEX IF NOT EXISTS sigra_app_login_attempts_approval_digest_index ON sigra_app_login_attempts (approval_digest)",
         []
       )
 
@@ -236,10 +255,67 @@ defmodule Sigra.AppLoginAuditCofateTest do
     assert repo.aggregate(Token, :count) == 2
   end
 
+  test "failed hosted approval persistence leaves its continuation retryable", %{repo: repo} do
+    {:ok, user} = repo.insert(%User{email: "hosted-approval-fault@example.com"})
+    verifier = String.duplicate("v", 43)
+    profile = profile()
+    now = now()
+
+    assert {:ok, %{continuation: continuation}} =
+             AppLogin.start_hosted(
+               config(repo, false),
+               %{
+                 "profile_id" => profile.id,
+                 "callback" => "com.sigra.app:/login",
+                 "state" => "approval-fault-state",
+                 "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+                 "code_challenge_method" => "S256"
+               },
+               now: now
+             )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_login_attempts DROP CONSTRAINT IF EXISTS sigra_hosted_approval_failure",
+      []
+    )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_login_attempts ADD CONSTRAINT sigra_hosted_approval_failure CHECK (callback <> 'com.sigra.app:/login')",
+      []
+    )
+
+    try do
+      assert {:error, :invalid_continuation} =
+               AppLogin.approve_hosted(config(repo, false), continuation, user, :approve,
+                 now: now
+               )
+
+      assert 0 = repo.aggregate(Attempt, :count)
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts DROP CONSTRAINT IF EXISTS sigra_hosted_approval_failure",
+        []
+      )
+    end
+
+    assert {:ok, %{code: code}} =
+             AppLogin.approve_hosted(config(repo, false), continuation, user, :approve, now: now)
+
+    assert is_binary(code)
+    assert 1 = repo.aggregate(Attempt, :count)
+
+    assert {:error, :invalid_continuation} =
+             AppLogin.approve_hosted(config(repo, false), continuation, user, :approve, now: now)
+  end
+
   defp config(repo, audit?, profiles \\ [profile()]) do
     Sigra.Config.new!(
       repo: repo,
       user_schema: User,
+      secret_key_base: String.duplicate("a", 64),
       audit: if(audit?, do: [audit_schema: AuditEvent], else: []),
       app_session: [
         family_schema: Family,
