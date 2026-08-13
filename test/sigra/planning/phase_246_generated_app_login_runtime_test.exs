@@ -66,16 +66,19 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host proof refreshes dependencies after installer mutations" do
     harness = read!(@harness)
 
-    first_install =
-      :binary.match(harness, ~s(run "$APP_DIR" mix sigra.install Accounts User users))
+    install = ~s(run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}")
+    refresh = ~s(run "$APP_DIR" mix deps.get)
+    installs = :binary.matches(harness, install)
+    refreshes = :binary.matches(harness, refresh)
 
-    assert first_install != :nomatch, "fresh host must run the installer"
+    assert length(installs) == 2, "fresh host must verify an idempotent second installation"
 
-    {install_offset, _} = first_install
-    after_install = binary_part(harness, install_offset, byte_size(harness) - install_offset)
+    [{first_install, _}, {second_install, _}] = installs
 
-    assert String.contains?(after_install, "run \"$APP_DIR\" mix deps.get"),
-           "installer-added dependencies must be fetched before later Mix invocations"
+    assert Enum.any?(refreshes, fn {refresh_offset, _} ->
+             first_install < refresh_offset and refresh_offset < second_install
+           end),
+           "installer-added dependencies must be fetched before the idempotent installer reruns Mix"
   end
 
   test "workflow is a credential-free PostgreSQL evidence lane" do
