@@ -295,6 +295,12 @@ end
    - What's unclear: exact LiveView/controller handling for carrying signed continuation through every login/MFA branch.
    - Recommendation: centralize a bounded signed continuation and add controller-mode + LiveView tests proving login, MFA, cancel, expiry, and re-entry preserve or reject it deterministically.
 
+## Planning Resolutions
+
+1. **Callback forms:** Phase 246 accepts only literal callback strings present in a static first-party profile. Loopback callbacks are supported only when the exact scheme, host, port, and path are registered; there is no variable-port exception, URI normalization, prefix matching, or wildcard matching.
+2. **Hosted continuation:** Generate one signed, expiring continuation seam backed by the browser session and a server-side digest row. Both LiveView and controller login/MFA branches preserve the same bounded handle and return to one controller-based explicit approve/cancel route. Approval creates the 60-second code; cancel and invalid/expired continuation create no code and reveal no app-session credential.
+3. **Profile storage:** Static first-party profiles are generated as host-owned Elixir configuration/module data, while authorization-code and direct-MFA ceremony state use generated host-owned PostgreSQL schemas. This preserves server-owned lookup without introducing dynamic registration or an operator UI.
+
 ## Environment Availability
 
 | Dependency | Required By | Available | Version | Fallback |
