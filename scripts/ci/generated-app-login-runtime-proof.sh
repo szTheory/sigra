@@ -47,6 +47,76 @@ wait_for_http() {
   done
 }
 
+csrf_token() {
+  local page="$1"
+  sed -nE 's/.*name="_csrf_token" value="([^"]+)".*/\1/p' "$page" | head -n 1
+}
+
+seed_confirmed_user() {
+  # The disposable host owns this deterministic fixture identity. Browser
+  # authentication still happens through the generated login route and cookie jar.
+  run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    {:ok, user} = Accounts.register_user(%{"email" => "hosted-proof@example.test", "password" => "HostedProofPassword123!"})
+    user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+  '
+}
+
+prove_hosted_ceremony() {
+  local base="http://127.0.0.1:${PORT}"
+  local cookie_jar="${APP_DIR}/hosted-cookie-jar.txt"
+  local login_page="${APP_DIR}/hosted-login.html"
+  local approval_page="${APP_DIR}/hosted-approval.html"
+  local approval_headers="${APP_DIR}/hosted-approval.headers"
+  local exchange_body="${APP_DIR}/hosted-exchange.json"
+  local login_csrf approval_csrf verifier challenge callback code state status
+
+  seed_confirmed_user
+  curl --fail --silent --show-error --cookie-jar "$cookie_jar" -o "$login_page" "$base/users/log_in"
+  login_csrf="$(csrf_token "$login_page")"
+  [[ -n "$login_csrf" ]]
+  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" \
+    --data-urlencode "_csrf_token=$login_csrf" \
+    --data-urlencode "user[email]=hosted-proof@example.test" \
+    --data-urlencode "user[password]=HostedProofPassword123!" \
+    -o /dev/null -D /dev/null "$base/users/log_in"
+
+  verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
+  challenge="$(printf '%s' "$verifier" | openssl dgst -binary -sha256 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
+  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" --get \
+    --data-urlencode 'profile_id=ios-primary' \
+    --data-urlencode 'callback=http://127.0.0.1:49152/callback' \
+    --data-urlencode 'state=hosted-runtime-state' \
+    --data-urlencode "code_challenge=$challenge" \
+    --data-urlencode 'code_challenge_method=S256' \
+    -o "$approval_page" "$base/users/app-login"
+  grep -Fq 'data-testid="app-login-approval"' "$approval_page"
+  approval_csrf="$(csrf_token "$approval_page")"
+  [[ -n "$approval_csrf" ]]
+  status="$(curl --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" \
+    --data-urlencode "_csrf_token=$approval_csrf" \
+    -D "$approval_headers" -o /dev/null -w '%{http_code}' "$base/users/app-login/approve")"
+  [[ "$status" =~ ^30[23]$ ]]
+  callback="$(awk 'tolower($1) == "location:" {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}' "$approval_headers")"
+  [[ "$callback" == 'http://127.0.0.1:49152/callback?code='*'&state=hosted-runtime-state' ]]
+  code="$(printf '%s' "$callback" | sed -nE 's|.*[?&]code=([^&]+).*|\1|p')"
+  state="$(printf '%s' "$callback" | sed -nE 's|.*[?&]state=([^&]+).*|\1|p')"
+  [[ -n "$code" && "$state" == 'hosted-runtime-state' ]]
+  run "$APP_DIR" mix run -e '
+    attempt = SigraAppLoginProof.Repo.one!(SigraAppLoginProof.Accounts.UserAppLoginAttempt)
+    unless attempt.kind == :hosted_code, do: raise("hosted attempt kind was not persisted")
+  '
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"code\":\"$code\",\"code_verifier\":\"$verifier\",\"profile_id\":\"ios-primary\",\"callback\":\"http://127.0.0.1:49152/callback\"}" \
+    -o "$exchange_body" -w '%{http_code}' "$base/api/app-login/exchange")"
+  [[ "$status" =~ ^2[0-9][0-9]$ ]]
+  grep -Eq '"access_token":"[^"]+"' "$exchange_body"
+  grep -Eq '"refresh_token":"[^"]+"' "$exchange_body"
+  grep -Eq '"family_id":"[^"]+"' "$exchange_body"
+}
+
 patch_host() {
   local database="$1"
   (
@@ -106,10 +176,9 @@ prove_host() {
   (cd "$APP_DIR" && PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 & echo $! > server.pid)
   SERVER_PID="$(cat "${APP_DIR}/server.pid")"
   wait_for_http
-  # Real generated public routes are exercised over HTTP. Invalid protocol
-  # inputs must fail closed; ceremony state transitions are separately covered
-  # by app_login, direct, fault, and concurrency tests invoked below.
-  curl --silent --show-error -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PORT}/users/app-login" | grep -Eq '400|429'
+  # The hosted tracer stays on generated routes: an authenticated cookie jar,
+  # CSRF-protected explicit approval, literal callback capture, then JSON exchange.
+  [[ "$mode" != hosted ]] || prove_hosted_ceremony
   curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/exchange" | grep -Eq '400|429'
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""

@@ -80,6 +80,7 @@ defmodule Sigra.AppLogin do
          {:ok, _} <-
            config.repo.insert(
              struct!(schema, %{
+               kind: :hosted_code,
                digest: Token.hash_token(code),
                verifier_digest: Token.hash_token(payload["challenge"]),
                profile_id: profile.id,
