@@ -188,7 +188,7 @@ seed_confirmed_user() {
     alias SigraAppLoginProof.Repo
 
     {:ok, user} = Accounts.register_user(%{"email" => "hosted-proof@example.test", "password" => "HostedProofPassword123!"})
-    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)) |> Repo.update!()
 
     %{backup_codes: [backup_code]} =
       Sigra.Testing.setup_totp(user,
@@ -210,7 +210,7 @@ seed_direct_mfa_user() {
     alias SigraAppLoginProof.Repo
 
     {:ok, user} = Accounts.register_user(%{"email" => "direct-proof@example.test", "password" => "DirectProofPassword123!"})
-    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now()) |> Repo.update!()
+    user = user |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)) |> Repo.update!()
 
     %{backup_codes: [backup_code]} =
       Sigra.Testing.setup_totp(user,
