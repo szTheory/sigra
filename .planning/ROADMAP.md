@@ -106,20 +106,54 @@ Plans:
   3. A host that opts into direct password login receives uniform login failures and an opaque MFA challenge that expires within five minutes.
   4. Successful hosted or direct login creates the same app-session contract, while a host policy requiring browser login returns `browser_required`.
 
-**Plans**: 10/10 plans executed
+**Plans**: 10/13 plans executed
 
 Plans:
+**Wave 1**
 
 - [x] 246-01-PLAN.md — Trace atomic hosted code exchange into Phase 245 app-session issuance.
-- [x] 246-02-PLAN.md — Validate static profiles, exact callbacks, state, PKCE S256, and explicit continuation.
-- [x] 246-03-PLAN.md — Prove hosted exchange locking, replay, expiry, audit co-fate, concurrency, and faults.
-- [x] 246-04-PLAN.md — Implement policy-gated direct password login and opaque five-minute MFA challenges.
-- [x] 246-05-PLAN.md — Prove direct-login uniformity, replay, locking, concurrency, and rollback behavior.
 - [x] 246-06-PLAN.md — Add the independent app-session/password-login generator option matrix.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 246-02-PLAN.md — Validate static profiles, exact callbacks, state, PKCE S256, and explicit continuation.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 246-03-PLAN.md — Prove hosted exchange locking, replay, expiry, audit co-fate, concurrency, and faults.
 - [x] 246-07-PLAN.md — Generate host schemas, migration, static profiles, config, and issuance delegates.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 246-04-PLAN.md — Implement policy-gated direct password login and opaque five-minute MFA challenges.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 246-05-PLAN.md — Prove direct-login uniformity, replay, locking, concurrency, and rollback behavior.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [x] 246-08-PLAN.md — Generate real hosted/direct routes, continuation transport, and explicit approval UI.
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [x] 246-09-PLAN.md — Preserve hosted continuation through controller and LiveView login/MFA branches.
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [x] 246-10-PLAN.md — Prove fresh-host install/rerun/runtime parity and lock scope/ownership documentation.
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 246-11-PLAN.md — Repair typed hosted approval and require completed browser assurance through a fresh-host tracer.
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 246-12-PLAN.md — Carry an allowlisted direct-MFA factor and prove generated backup-code success.
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
+- [ ] 246-13-PLAN.md — Prove replay rejection and FetchAppSession authentication for both generated ceremonies.
 
 ### Phase 247: Language-Learning Digital Twin
 
@@ -169,7 +203,7 @@ Plans:
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
-| 246. Hosted and Direct Login Ceremonies | 10/10 | In Progress|  |
+| 246. Hosted and Direct Login Ceremonies | 10/13 | In Progress|  |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |

@@ -53,6 +53,12 @@ created: 2026-08-12
 | 246-09-01 | 09 | 7 | APP-02/03 | shared continuation through LiveView/controller MFA | focused continuation + existing MFA generator suites |
 | 246-10-01 | 10 | 8 | APP-02 | fresh-host hosted real-route + FetchAppSession proof | planning contract + runtime script |
 | 246-10-02 | 10 | 8 | APP-01/03 | direct parity, generator isolation, ownership fences | complete focused phase gate |
+| 246-11-01 | 11 | 9 | APP-02 | typed hosted attempt; generated start, explicit approval, and single-use exchange | `source tmp/db.env && MIX_ENV=test mix test test/sigra/app_login_test.exs test/sigra/planning/phase_246_generated_app_login_runtime_test.exs --trace && bash scripts/ci/generated-app-login-runtime-proof.sh --hosted` |
+| 246-11-02 | 11 | 9 | APP-02 | completed browser assurance only; MFA-pending preserves signed continuation and cannot approve | `MIX_ENV=test mix test test/sigra/install/app_sessions_routes_test.exs test/sigra/install/app_sessions_auth_continuation_test.exs --trace` |
+| 246-12-01 | 12 | 10 | APP-03 | fixed TOTP/backup-code allowlist; malformed selectors retain uniform denial without dynamic atoms | `source tmp/db.env && MIX_ENV=test mix test test/sigra/install/app_sessions_routes_test.exs test/sigra/install/app_sessions_generator_test.exs test/sigra/app_login_direct_test.exs test/sigra/app_login_direct_fault_test.exs --trace` |
+| 246-12-02 | 12 | 10 | APP-03 | generated backup-code MFA consumes code/challenge once; unknown selector issues no family | `MIX_ENV=test mix test test/sigra/planning/phase_246_generated_app_login_runtime_test.exs --trace && bash scripts/ci/generated-app-login-runtime-proof.sh --direct` |
+| 246-13-01 | 13 | 11 | APP-02/03 | both generated credentials authenticate through FetchAppSession; HTTP replays reject without duplicate families | `source tmp/db.env && MIX_ENV=test mix test test/sigra/planning/phase_246_generated_app_login_runtime_test.exs test/sigra/plug/fetch_app_session_test.exs --trace && bash scripts/ci/generated-app-login-runtime-proof.sh --all` |
+| 246-13-02 | 13 | 11 | APP-02/03 | receipt-last per-transition evidence is source-bound, CI-validated, and absent on failure | `MIX_ENV=test mix test test/sigra/planning/phase_246_generated_app_login_runtime_test.exs --trace && bash -n scripts/ci/generated-app-login-runtime-proof.sh` |
 
 ## Required Evidence Matrix
 
@@ -74,6 +80,9 @@ created: 2026-08-12
 - [ ] Plan 08 creates rendered-route contracts before app-route implementation.
 - [ ] Plan 09 creates focused continuation contracts before modifying shared login/MFA templates.
 - [ ] Plan 10 creates the fresh-host source/evidence contract before the runtime script/workflow.
+- [ ] Plan 11 starts with hosted persistence/runtime and assurance-continuation regressions before repairing the generated hosted path.
+- [ ] Plan 12 starts with factor-transport and generated backup-code runtime regressions before changing templates or harness behavior.
+- [ ] Plan 13 starts with generated protected-route/replay and receipt-schema regressions before changing the runtime harness or workflow assertions.
 
 ## Sign-Off
 
