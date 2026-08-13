@@ -2249,6 +2249,26 @@ defmodule Sigra.Auth do
   end
 
   @doc """
+  Revokes one active app-session family owned by the authenticated user.
+  """
+  @doc since: "1.4.0"
+  @spec revoke_app_session(Sigra.Config.t(), struct(), term()) ::
+          {:ok, struct()} | {:error, term()}
+  def revoke_app_session(config, user, family_id) do
+    Sigra.AppSession.revoke_family_for_user(config, user, family_id)
+  end
+
+  @doc """
+  Revokes every active app-session family owned by the authenticated user.
+  """
+  @doc since: "1.4.0"
+  @spec revoke_all_app_sessions(Sigra.Config.t(), struct()) ::
+          {:ok, non_neg_integer()} | {:error, term()}
+  def revoke_all_app_sessions(config, user) do
+    Sigra.AppSession.revoke_all_for_user(config, user)
+  end
+
+  @doc """
   Lists active API tokens for a user with cursor pagination.
   """
   @doc since: "0.7.0"

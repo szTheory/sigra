@@ -131,6 +131,92 @@ defmodule Sigra.AppSession do
     end
   end
 
+  @doc """
+  Revokes one active app-session family owned by `user`.
+
+  The family selector is bound to the trusted owner in the locked lookup, so
+  foreign, missing, and already-revoked families are indistinguishable.
+  """
+  @spec revoke_family_for_user(Sigra.Config.t(), struct(), term()) ::
+          {:ok, map()}
+          | {:error, :not_found | :app_session_not_configured | :app_session_revoke_aborted}
+  def revoke_family_for_user(config, user, family_id) do
+    with {:ok, settings} <- settings(config) do
+      multi =
+        Multi.new()
+        |> Multi.run(:app_session_revoke_family, fn repo, _changes ->
+          revoke_owned_family(repo, settings, user.id, family_id)
+        end)
+        |> append_revoke_family_audit(config, user.id)
+
+      try do
+        case config.repo.transaction(multi) do
+          {:ok, %{app_session_revoke_family: family} = changes} ->
+            Audit.emit_telemetry_from_changes(changes, [:audit_app_session_revoke])
+            {:ok, family}
+
+          {:error, :app_session_revoke_family, :not_found, _changes} ->
+            {:error, :not_found}
+
+          {:error, _step, _reason, _changes} ->
+            {:error, :app_session_revoke_aborted}
+        end
+      rescue
+        _exception -> {:error, :app_session_revoke_aborted}
+      end
+    end
+  end
+
+  @doc """
+  Revokes every active app-session family owned by `user`.
+
+  Returns the number of active families changed. The update and optional audit
+  share one transaction; audit telemetry is emitted only after commit.
+  """
+  @spec revoke_all_for_user(Sigra.Config.t(), struct()) ::
+          {:ok, non_neg_integer()}
+          | {:error, :app_session_not_configured | :app_session_revoke_aborted}
+  def revoke_all_for_user(config, user) do
+    with {:ok, _settings} <- settings(config) do
+      multi =
+        Multi.new()
+        |> append_revoke_all_multi(config, user, [])
+        |> append_revoke_all_audit(config, user.id)
+
+      try do
+        case config.repo.transaction(multi) do
+          {:ok, %{app_session_revoke_all: %{count: count}} = changes} ->
+            Audit.emit_telemetry_from_changes(changes, [:audit_app_session_revoke_all])
+            {:ok, count}
+
+          {:error, _step, _reason, _changes} ->
+            {:error, :app_session_revoke_aborted}
+        end
+      rescue
+        _exception -> {:error, :app_session_revoke_aborted}
+      end
+    end
+  end
+
+  @doc """
+  Appends user-wide app-session revocation to an existing `Ecto.Multi`.
+
+  This schema-agnostic primitive uses the transaction repo and does not start
+  its own transaction. Callers that need an audit row compose their own outer
+  audit event in the same Multi.
+  """
+  @spec append_revoke_all_multi(Ecto.Multi.t(), Sigra.Config.t(), struct(), keyword()) ::
+          Ecto.Multi.t()
+  def append_revoke_all_multi(%Multi{} = multi, config, user, opts \\ []) when is_list(opts) do
+    step = Keyword.get(opts, :step, :app_session_revoke_all)
+
+    Multi.run(multi, step, fn repo, _changes ->
+      with {:ok, settings} <- settings(config) do
+        revoke_all_owned_families(repo, settings, user.id)
+      end
+    end)
+  end
+
   defp build_refresh_mutation_multi(:rotate, config, token, family) do
     RefreshToken.build_rotate_persist_multi(Multi.new(), config, token, family)
   end
@@ -167,6 +253,107 @@ defmodule Sigra.AppSession do
           audit_multi_step: audit_step
         )
     end
+  end
+
+  defp revoke_owned_family(repo, settings, user_id, family_id) do
+    family =
+      repo.one(
+        from(family in settings.family_schema,
+          where:
+            family.id == ^family_id and family.user_id == ^user_id and is_nil(family.revoked_at),
+          lock: "FOR UPDATE"
+        )
+      )
+
+    case family do
+      nil ->
+        {:error, :not_found}
+
+      family ->
+        now = now()
+
+        with {:ok, revoked_family} <- repo.update(Ecto.Changeset.change(family, revoked_at: now)),
+             {_, _} <-
+               repo.update_all(
+                 from(token in settings.token_schema,
+                   where: token.family_id == ^family.id and is_nil(token.revoked_at)
+                 ),
+                 set: [revoked_at: now]
+               ) do
+          {:ok, revoked_family}
+        end
+    end
+  end
+
+  defp revoke_all_owned_families(repo, settings, user_id) do
+    now = now()
+
+    family_ids =
+      repo.all(
+        from(family in settings.family_schema,
+          where: family.user_id == ^user_id and is_nil(family.revoked_at),
+          select: family.id,
+          lock: "FOR UPDATE"
+        )
+      )
+
+    {count, _} =
+      repo.update_all(
+        from(family in settings.family_schema,
+          where: family.id in ^family_ids and is_nil(family.revoked_at)
+        ),
+        set: [revoked_at: now]
+      )
+
+    if family_ids != [] do
+      repo.update_all(
+        from(token in settings.token_schema,
+          where: token.family_id in ^family_ids and is_nil(token.revoked_at)
+        ),
+        set: [revoked_at: now]
+      )
+    end
+
+    {:ok, %{count: count, family_ids: family_ids}}
+  end
+
+  defp append_revoke_family_audit(multi, config, user_id) do
+    Audit.log_multi_safe(
+      multi,
+      "session.app_revoke",
+      revoke_audit_opts(config, user_id, :audit_app_session_revoke, fn changes ->
+        %{
+          family_id: changes.app_session_revoke_family.id,
+          kind: "app_session",
+          lifecycle: "revoke"
+        }
+      end)
+    )
+  end
+
+  defp append_revoke_all_audit(multi, config, user_id) do
+    Audit.log_multi_safe(
+      multi,
+      "session.app_revoke_all",
+      revoke_audit_opts(config, user_id, :audit_app_session_revoke_all, fn changes ->
+        %{
+          count: changes.app_session_revoke_all.count,
+          kind: "app_session",
+          lifecycle: "revoke_all"
+        }
+      end)
+    )
+  end
+
+  defp revoke_audit_opts(config, user_id, audit_multi_step, metadata_resolver) do
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(Map.get(config, :audit, []), :audit_schema),
+      actor_id: user_id,
+      target_id: user_id,
+      metadata_resolver: metadata_resolver,
+      audit_multi_step: audit_multi_step
+    ]
   end
 
   defp insert_tokens(repo, settings, family_id, access_digest, refresh_digest, now) do
@@ -212,6 +399,8 @@ defmodule Sigra.AppSession do
   end
 
   defp settings_access_ttl(%{app_session: app_session}), do: app_session[:access_ttl]
+
+  defp now, do: DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
   defp settings(%{app_session: app_session}) do
     with family_schema when is_atom(family_schema) <- app_session[:family_schema],

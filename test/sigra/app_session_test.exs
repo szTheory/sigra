@@ -3,6 +3,7 @@ defmodule Sigra.AppSessionTest do
 
   alias Sigra.AppSession
   alias Sigra.Test.AppSessionSchemas.{Family, Token, User}
+  alias Sigra.Test.AuditEvent
 
   setup_all do
     Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
@@ -71,6 +72,20 @@ defmodule Sigra.AppSessionTest do
       Ecto.Adapters.SQL.query!(
         repo,
         "CREATE INDEX IF NOT EXISTS sigra_app_session_tokens_family_kind_idx ON sigra_app_session_tokens (family_id, kind)",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        """
+        CREATE TABLE IF NOT EXISTS audit_events (
+          id uuid PRIMARY KEY, occurred_at timestamp NOT NULL DEFAULT now(), action varchar(255) NOT NULL,
+          outcome varchar(32) NOT NULL DEFAULT 'success', actor_id uuid, actor_type varchar(64) NOT NULL DEFAULT 'user',
+          target_id uuid, target_type varchar(64), ip_address varchar(64), user_agent varchar(512),
+          metadata jsonb NOT NULL DEFAULT '{}'::jsonb, organization_id uuid, effective_user_id uuid,
+          inserted_at timestamp NOT NULL DEFAULT now()
+        )
+        """,
         []
       )
     end)
@@ -231,7 +246,8 @@ defmodule Sigra.AppSessionTest do
   end
 
   test "owner-bound family revoke immediately denies its access and refresh without leaking foreign selectors",
-       %{repo: repo, config: config, user: user} do
+       %{repo: repo, user: user} do
+    config = config(repo, audit?: true)
     {:ok, other_user} = repo.insert(%User{email: "other-app-session@example.com"})
 
     assert {:ok, %{access_token: access, refresh_token: refresh, family_id: family_id}} =
@@ -248,12 +264,129 @@ defmodule Sigra.AppSessionTest do
     assert {:error, :invalid_token} = AppSession.refresh(config, refresh)
     assert Enum.all?(tokens_for_family(repo, family_id), &(not is_nil(&1.revoked_at)))
     assert {:error, :not_found} = Sigra.Auth.revoke_app_session(config, user, family_id)
+
+    assert [
+             %{
+               metadata: %{
+                 "family_id" => ^family_id,
+                 "kind" => "app_session",
+                 "lifecycle" => "revoke"
+               }
+             }
+           ] =
+             repo.all(
+               Ecto.Query.from(e in AuditEvent,
+                 where: e.actor_id == ^user.id and e.action == "session.app_revoke"
+               )
+             )
   end
 
-  defp config(repo) do
+  test "all-app revoke is owner-scoped, audit-atomic, and immediately denies every credential", %{
+    repo: repo,
+    user: user
+  } do
+    config = config(repo, audit?: true)
+    {:ok, other_user} = repo.insert(%User{email: "all-other-app-session@example.com"})
+
+    assert {:ok, %{access_token: first_access, refresh_token: first_refresh}} =
+             AppSession.issue(config, user, "ios-first", [])
+
+    assert {:ok, %{access_token: second_access, refresh_token: second_refresh}} =
+             AppSession.issue(config, user, "ios-second", [])
+
+    assert {:ok,
+            %{
+              access_token: other_access,
+              refresh_token: other_refresh,
+              family_id: other_family_id
+            }} =
+             AppSession.issue(config, other_user, "ios-other", [])
+
+    assert {:ok, 2} = Sigra.Auth.revoke_all_app_sessions(config, user)
+    assert {:ok, 0} = Sigra.Auth.revoke_all_app_sessions(config, user)
+
+    for credential <- [first_access, second_access] do
+      assert {:error, :invalid_token} = AppSession.authenticate(config, credential)
+    end
+
+    for credential <- [first_refresh, second_refresh] do
+      assert {:error, :invalid_token} = AppSession.refresh(config, credential)
+    end
+
+    assert {:ok, %{family_id: ^other_family_id}} = AppSession.authenticate(config, other_access)
+    assert {:ok, _} = AppSession.refresh(config, other_refresh)
+
+    events =
+      repo.all(
+        Ecto.Query.from(e in AuditEvent,
+          where: e.actor_id == ^user.id and e.action == "session.app_revoke_all",
+          order_by: [asc: e.inserted_at]
+        )
+      )
+
+    assert [
+             %{metadata: %{"count" => 2, "kind" => "app_session", "lifecycle" => "revoke_all"}},
+             %{metadata: %{"count" => 0, "kind" => "app_session", "lifecycle" => "revoke_all"}}
+           ] = events
+  end
+
+  test "revoke-all audit constraint failure rolls back family and token state", %{
+    repo: repo,
+    user: user
+  } do
+    config = config(repo, audit?: true)
+
+    assert {:ok, %{access_token: access, refresh_token: refresh, family_id: family_id}} =
+             AppSession.issue(config, user, "audit-rollback", [])
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE audit_events ADD CONSTRAINT app_session_no_revoke_all_audit CHECK (action <> 'session.app_revoke_all')",
+      []
+    )
+
+    try do
+      assert {:error, :app_session_revoke_aborted} = AppSession.revoke_all_for_user(config, user)
+      assert is_nil(repo.get!(Family, family_id).revoked_at)
+      assert Enum.all?(tokens_for_family(repo, family_id), &is_nil(&1.revoked_at))
+      assert {:ok, %{family_id: ^family_id}} = AppSession.authenticate(config, access)
+      assert {:ok, _} = AppSession.refresh(config, refresh)
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS app_session_no_revoke_all_audit",
+        []
+      )
+    end
+  end
+
+  test "revoke-all Multi builder composes into a caller-owned transaction", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    assert {:ok, %{access_token: access, family_id: family_id}} =
+             AppSession.issue(config, user, "security-event", [])
+
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.run(:security_event, fn _repo, _changes -> {:ok, :prepared} end)
+      |> AppSession.append_revoke_all_multi(config, user, step: :security_event_app_revoke_all)
+
+    assert {:ok,
+            %{
+              security_event: :prepared,
+              security_event_app_revoke_all: %{count: 1, family_ids: [^family_id]}
+            }} = repo.transaction(multi)
+
+    assert {:error, :invalid_token} = AppSession.authenticate(config, access)
+  end
+
+  defp config(repo, opts \\ []) do
     Sigra.Config.new!(
       repo: repo,
       user_schema: User,
+      audit: if(Keyword.get(opts, :audit?, false), do: [audit_schema: AuditEvent], else: []),
       app_session: [family_schema: Family, token_schema: Token]
     )
   end
