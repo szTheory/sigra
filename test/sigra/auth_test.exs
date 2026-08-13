@@ -1311,8 +1311,6 @@ defmodule Sigra.AuthTest do
 
   describe "delete_all_sessions/3" do
     test "returns an error when configured app-session revocation fails" do
-      session = build_session()
-
       config = %{
         @session_config
         | app_session: [
@@ -1323,10 +1321,6 @@ defmodule Sigra.AuthTest do
             absolute_ttl: 7_776_000
           ]
       }
-
-      Sigra.MockSessionStore
-      |> expect(:list_by_user, fn 1, _opts -> [session] end)
-      |> expect(:delete_all_for_user, fn 1, _opts -> {1, nil} end)
 
       Sigra.MockRepo
       |> expect(:transaction, fn %Ecto.Multi{} ->

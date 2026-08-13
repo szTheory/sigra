@@ -1169,6 +1169,8 @@ defmodule Sigra.Auth do
     sessions for the reset user are deleted atomically with the password tokens.
   - `:pubsub` - Optional Phoenix.PubSub module used to disconnect the revoked
     LiveView sessions after a successful transaction.
+  - `:app_session_config` - Optional validated `Sigra.Config` used to revoke
+    configured opaque app-session families in the reset transaction.
   """
   @doc since: "0.3.0"
   @spec reset_password(module(), String.t(), map(), keyword()) ::
@@ -1181,6 +1183,7 @@ defmodule Sigra.Auth do
     ttl = Keyword.get(opts, :reset_ttl, 60 * 60)
     session_schema = Keyword.get(opts, :session_schema)
     pubsub = Keyword.get(opts, :pubsub)
+    app_session_config = Keyword.get(opts, :app_session_config)
 
     # Decode base64, then verify HMAC
     with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
@@ -1246,6 +1249,8 @@ defmodule Sigra.Auth do
                 else
                   multi
                 end
+
+              multi = append_reset_app_session_revocation(multi, app_session_config, user)
 
               # D-26: atomic audit row for password_reset_complete
               audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
@@ -1598,8 +1603,16 @@ defmodule Sigra.Auth do
   - `:pubsub` - Phoenix.PubSub module name for LiveView disconnect broadcasts.
   """
   @doc since: "0.4.0"
-  @spec delete_all_sessions(Sigra.Config.t(), term(), keyword()) :: {non_neg_integer(), nil}
+  @spec delete_all_sessions(Sigra.Config.t(), term(), keyword()) ::
+          {non_neg_integer(), nil} | {:error, :app_session_revoke_aborted}
   def delete_all_sessions(config, user_id, opts \\ []) do
+    case revoke_configured_app_sessions(config, user_id) do
+      :ok -> delete_browser_sessions(config, user_id, opts)
+      {:error, _reason} = error -> error
+    end
+  end
+
+  defp delete_browser_sessions(config, user_id, opts) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
     # Get all sessions BEFORE deleting (need tokens for PubSub broadcast)
@@ -1843,6 +1856,36 @@ defmodule Sigra.Auth do
   end
 
   # -- Private helpers --
+
+  defp append_reset_app_session_revocation(multi, nil, _user), do: multi
+
+  defp append_reset_app_session_revocation(multi, app_session_config, user) do
+    if configured_app_sessions?(app_session_config) do
+      Sigra.AppSession.append_revoke_all_multi(multi, app_session_config, user,
+        step: :app_session_revoke_all
+      )
+    else
+      multi
+    end
+  end
+
+  defp revoke_configured_app_sessions(config, user_id) do
+    if configured_app_sessions?(config) do
+      case Sigra.AppSession.revoke_all_for_user(config, %{id: user_id}) do
+        {:ok, _count} -> :ok
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      :ok
+    end
+  end
+
+  defp configured_app_sessions?(%{app_session: app_session}) when is_list(app_session) do
+    not is_nil(app_session[:family_schema]) and not is_nil(app_session[:token_schema]) and
+      is_atom(app_session[:family_schema]) and is_atom(app_session[:token_schema])
+  end
+
+  defp configured_app_sessions?(_config), do: false
 
   defp session_store_and_opts(config, opts) do
     session_config = config.session
