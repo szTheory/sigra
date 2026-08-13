@@ -96,6 +96,24 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
         []
       )
 
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS kind varchar(255) NOT NULL DEFAULT 'hosted_code'",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS approval_digest bytea",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "CREATE UNIQUE INDEX IF NOT EXISTS sigra_app_login_attempts_approval_digest_index ON sigra_app_login_attempts (approval_digest)",
+        []
+      )
+
       :ok
     end)
   end
@@ -135,6 +153,72 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
     assert not is_nil(consumed_at)
     assert repo.aggregate(Family, :count) == 1
     assert repo.aggregate(Token, :count) == 2
+  end
+
+  test "two barrier-released callers approve one signed hosted continuation", %{repo: repo} do
+    parent = self()
+    config = config(repo)
+    verifier = String.duplicate("v", 43)
+    family_count_before = repo.aggregate(Family, :count)
+    token_count_before = repo.aggregate(Token, :count)
+    {:ok, user} = repo.insert(%User{email: "hosted-approval-concurrency@example.com"})
+
+    assert {:ok, %{continuation: continuation}} =
+             AppLogin.start_hosted(config, %{
+               "profile_id" => "ios-primary",
+               "callback" => "com.sigra.app:/login",
+               "state" => "hosted-approval-state",
+               "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+               "code_challenge_method" => "S256"
+             })
+
+    callers =
+      for _ <- 1..2 do
+        Task.async(fn ->
+          Ecto.Adapters.SQL.Sandbox.allow(repo, parent, self())
+          send(parent, {:hosted_approval_ready, self()})
+
+          receive do
+            :go -> AppLogin.approve_hosted(config, continuation, user, :approve)
+          end
+        end)
+      end
+
+    for _ <- callers do
+      assert_receive {:hosted_approval_ready, caller}
+      send(caller, :go)
+    end
+
+    results = Enum.map(callers, &Task.await(&1, 5_000))
+
+    assert Enum.count(results, &match?({:ok, _}, &1)) == 1
+    assert Enum.count(results, &match?({:error, :invalid_continuation}, &1)) == 1
+
+    assert {:ok, %{code: code}} = Enum.find(results, &match?({:ok, _}, &1))
+    assert [%Attempt{approval_digest: approval_digest, kind: :hosted_code}] = repo.all(Attempt)
+    assert is_binary(approval_digest)
+
+    assert {:ok, %{family_id: family_id}} =
+             AppLogin.exchange_hosted(
+               config,
+               code,
+               verifier,
+               %{id: "ios-primary", client_ref: "ios-primary"},
+               "com.sigra.app:/login"
+             )
+
+    assert family_id
+    assert repo.aggregate(Family, :count) == family_count_before + 1
+    assert repo.aggregate(Token, :count) == token_count_before + 2
+
+    assert {:error, :invalid_code} =
+             AppLogin.exchange_hosted(
+               config,
+               code,
+               verifier,
+               %{id: "ios-primary", client_ref: "ios-primary"},
+               "com.sigra.app:/login"
+             )
   end
 
   test "two ready/go callers consume one direct MFA challenge in either audit mode", %{repo: repo} do
@@ -205,6 +289,7 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
     Sigra.Config.new!(
       repo: repo,
       user_schema: User,
+      secret_key_base: String.duplicate("a", 64),
       audit: if(audit?, do: [audit_schema: AuditEvent], else: []),
       app_session: [
         family_schema: Family,
