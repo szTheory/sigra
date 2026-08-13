@@ -61,6 +61,22 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert router =~ "# Sigra app login"
   end
 
+  test "renders an explicit accessible approval decision in the auth shell" do
+    html = render_template("app_login_html.ex")
+    approval = File.read!(Path.join(@template_dir, "app_login_approve.html.heex"))
+
+    assert html =~ "SigraAuthComponents"
+    assert html =~ "embed_templates \"app_login_html/*\""
+    assert approval =~ "<.sigra_auth_page"
+    assert approval =~ "data-testid=\"app-login-approval\""
+    assert approval =~ "aria-labelledby=\"app-login-decision-title\""
+    assert approval =~ "Approve and continue"
+    assert approval =~ "Cancel"
+    assert approval =~ "data-testid=\"app-login-approve\""
+    assert approval =~ "data-testid=\"app-login-cancel\""
+    refute approval =~ "sg-"
+  end
+
   defp render_template(name) do
     EEx.eval_file(Path.join(@template_dir, name), @binding)
   end

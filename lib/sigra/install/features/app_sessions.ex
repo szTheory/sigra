@@ -33,6 +33,16 @@ defmodule Sigra.Install.Features.AppSessions do
          Path.join(["lib", otp_app, context, "auth", "app_sessions.ex"])},
         {:eex, "app_sessions/app_login_controller.ex",
          Path.join(["lib", "#{otp_app}_web", "controllers", "app_login_controller.ex"])},
+        {:eex, "app_sessions/app_login_html.ex",
+         Path.join(["lib", "#{otp_app}_web", "controllers", "app_login_html.ex"])},
+        {:eex, "app_sessions/app_login_approve.html.heex",
+         Path.join([
+           "lib",
+           "#{otp_app}_web",
+           "controllers",
+           "app_login_html",
+           "approve.html.heex"
+         ])},
         {:eex, "app_sessions/app_login_continuation.ex",
          Path.join(["lib", "#{otp_app}_web", "app_login_continuation.ex"])},
         {:eex, "app_sessions/app_sessions_migration.exs",
