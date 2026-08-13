@@ -49,7 +49,7 @@ wait_for_http() {
 
 patch_host() {
   local database="$1"
-  perl -0pi -e 's/(\{:\phoenix,)/{:sigra, path: "'"${SIGRA_REPO//\//\\/}"'"},\n      $1/' mix.exs
+  perl -0pi -e 's/(\{:\s*phoenix,)/{:sigra, path: "'"${SIGRA_REPO//\//\\/}"'"},\n      $1/' mix.exs
   perl -0pi -e 's/database: "sigra_app_login_proof_test#\{System\.get_env\("MIX_TEST_PARTITION"\)\}",/database: "'"${database}"'",/' config/test.exs
   perl -0pi -e 's/hostname: "localhost",/hostname: System.fetch_env!("PGHOST"),/' config/test.exs
   perl -0pi -e 's/pool: Ecto\.Adapters\.SQL\.Sandbox/port: String.to_integer(System.fetch_env!("PGPORT")),\n  pool: Ecto.Adapters.SQL.Sandbox/' config/test.exs
@@ -88,6 +88,8 @@ prove_host() {
   run "$SIGRA_REPO" mix phx.new "$APP_DIR" --no-install --no-dashboard --database postgres --module SigraAppLoginProof --app "$APP_NAME"
   patch_host "$database"
   run "$APP_DIR" mix deps.get
+  # Compile the path dependency before asking Mix to discover its installer task.
+  run "$APP_DIR" mix deps.compile sigra
   local flags=(--app-sessions --no-live --no-organizations)
   [[ "$mode" == direct ]] && flags+=(--app-password-login)
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
