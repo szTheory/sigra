@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 15
+open_count: 16
 waived_count: 0
 fixed_count: 0
-total_count: 15
-last_updated: 2026-08-13T00:55:47.944Z
+total_count: 16
+last_updated: 2026-08-13T01:46:15.081Z
 ---
 
 # Broken Windows Ledger
@@ -30,6 +30,7 @@ last_updated: 2026-08-13T00:55:47.944Z
 | 13 | 243 | unrun-verify | test/sigra/install/generated_rate_limit_contract_test.exs |  | Full MIX_ENV=test mix ci halted before tests on pre-existing mix format violation. | open |  | 2026-08-12T19:55:26.902Z |  |
 | 14 | 244 | unrun-verify | .planning/phases/244-pat-and-advanced-jwt-truth-repair/244-06-SUMMARY.md |  | mix ci remains blocked by six historical Phase 235/236/239 planning-artifact assertions outside Plan 244-06 | open |  | 2026-08-12T23:48:58.301Z |  |
 | 15 | 245 | deviation | lib/sigra/app_session.ex |  | Normalized public revoke audit-constraint failures to a bounded aborted result after rollback. | open |  | 2026-08-13T00:55:47.944Z |  |
+| 16 | 246 | deviation | .planning/STATE.md |  | state.advance-plan could not parse the pre-existing plan-position fields | open |  | 2026-08-13T01:46:15.081Z |  |
 
 ````json
 [
@@ -211,6 +212,18 @@ last_updated: 2026-08-13T00:55:47.944Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-13T00:55:47.944Z",
+    "resolved_at": null
+  },
+  {
+    "id": 16,
+    "kind": "deviation",
+    "phase": "246",
+    "file": ".planning/STATE.md",
+    "line": null,
+    "description": "state.advance-plan could not parse the pre-existing plan-position fields",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-13T01:46:15.081Z",
     "resolved_at": null
   }
 ]

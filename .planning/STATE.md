@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: Hosted and Direct Login Ceremonies
 status: planning
-stopped_at: Completed 245-08-PLAN.md
-last_updated: "2026-08-13T01:16:54.052Z"
+stopped_at: Completed 246-06-PLAN.md
+last_updated: "2026-08-13T01:45:56.726Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 245 complete, transitioned to Phase 246
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 30
+  completed_plans: 21
 current_plan: 2
 ---
 
@@ -34,7 +34,7 @@ Plan: Not started
 Status: Ready to plan
 Last activity: 2026-08-12 — Phase 245 complete, transitioned to Phase 246
 
-Progress: ░░░░░░░░░░ [██████████] 100%
+Progress: ░░░░░░░░░░ [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 245-opaque-app-session-core P06 | 25min | 2 tasks | 3 files |
 | Phase 245 P07 | 5min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P08 | 4min | 1 tasks | 3 files |
+| Phase 246-hosted-and-direct-login-ceremonies P06 | 4min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,8 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase ?]: Password reset composes configured app-session revoke-all in its existing Ecto.Multi before audit; sign-out-all fails closed before browser deletion.
 - [Phase ?]: Account deletion scheduling appends configured app-session revocation to its existing transaction before hooks.
 - [Phase ?]: [Phase 245]: Formatter-only closure is supported by exact formatter, diff-check, and focused APP-04/APP-05 evidence; unrelated full-suite CI failures remain non-green baseline diagnostics.
+- [Phase ?]: App sessions, direct password login, API, and JWT remain independent installer selections; direct password login requires explicit app-session selection.
+- [Phase ?]: App-session migration timestamps are Runner-owned and allocated in family, token, and ceremony order.
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:14:24.701Z
-Stopped at: Completed 245-08-PLAN.md
+Last session: 2026-08-13T01:45:56.719Z
+Stopped at: Completed 246-06-PLAN.md
 Resume file: None
