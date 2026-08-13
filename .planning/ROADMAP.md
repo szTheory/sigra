@@ -106,7 +106,7 @@ Plans:
   3. A host that opts into direct password login receives uniform login failures and an opaque MFA challenge that expires within five minutes.
   4. Successful hosted or direct login creates the same app-session contract, while a host policy requiring browser login returns `browser_required`.
 
-**Plans**: 10/13 plans executed
+**Plans**: 11/13 plans executed
 
 Plans:
 **Wave 1**
@@ -145,7 +145,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 246-11-PLAN.md — Repair typed hosted approval and require completed browser assurance through a fresh-host tracer.
+- [x] 246-11-PLAN.md — Repair typed hosted approval and require completed browser assurance through a fresh-host tracer.
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
@@ -203,7 +203,7 @@ Plans:
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
-| 246. Hosted and Direct Login Ceremonies | 10/13 | In Progress|  |
+| 246. Hosted and Direct Login Ceremonies | 11/13 | In Progress|  |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |

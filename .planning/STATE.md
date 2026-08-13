@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-10-PLAN.md
-last_updated: "2026-08-13T02:51:36.152Z"
-last_activity: 2026-08-12
+stopped_at: Completed 246-11-PLAN.md
+last_updated: "2026-08-13T04:12:37.038Z"
+last_activity: 2026-08-13
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 4
-  total_plans: 30
-  completed_plans: 30
+  completed_phases: 3
+  total_plans: 33
+  completed_plans: 31
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 8 of 10
+Plan: 2 of 13
 Status: Ready to execute
-Last activity: 2026-08-12 — Phase 246 execution started
+Last activity: 2026-08-13 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [██████████] 100%
+Progress: ░░░░░░░░░░ [█████████░] 94%
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 246 P08 | 6m | 2 tasks | 9 files |
 | Phase 246 P09 | 6m | 1 tasks | 6 files |
 | Phase 246 P10 | 12m | 2 tasks | 6 files |
+| Phase 246 P11 | 12m | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase ?]: MFA-pending sessions retain the signed continuation until successful verification; invalid handles clear to ordinary auth.
 - [Phase ?]: Fresh-host app-login evidence uses a disposable Phoenix host, bounded HTTP readiness, and a receipt-last SHA contract.
 - [Phase ?]: Hosted and separately opted-in direct login issue the same FetchAppSession-verified opaque session; neither changes OAuth/OIDC ownership.
+- [Phase ?]: Hosted approval persists :hosted_code and only completed standard or remember-me sessions may approve.
 
 ### Pending Todos
 
@@ -165,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T02:51:36.145Z
-Stopped at: Completed 246-10-PLAN.md
+Last session: 2026-08-13T04:12:37.019Z
+Stopped at: Completed 246-11-PLAN.md
 Resume file: None
