@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "0a6ae5bdb4c87bdb37de1f814d913baf0f2ee553",
+  "run_id": 31726081241,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31726081241",
+  "created_at": "2026-08-13T17:30:52Z",
+  "updated_at": "2026-08-13T17:32:49Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-13T17:32:49Z",
+  "diagnostic": "The deferred FetchAppSession configuration compiled. The generated host then failed its warnings-as-errors compile because app-login continuation routes were injected without the expected route helper path shape.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
