@@ -127,6 +127,22 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "readiness failures must point to the retained, credential-free server diagnostic"
   end
 
+  test "generated-host launch explicitly exports and clears its ephemeral Vault key" do
+    harness = read!(@harness)
+
+    assert harness =~ "export CLOAK_KEY",
+           "the generated server must inherit the ephemeral key across launcher boundaries"
+
+    assert harness =~ "unset CLOAK_KEY",
+           "the ephemeral key must be cleared after the generated server stops"
+
+    {_, 0} =
+      System.cmd("bash", [
+        "-c",
+        "set -euo pipefail; CLOAK_KEY=$(openssl rand -base64 32); export CLOAK_KEY; bash -c 'test -n \"$CLOAK_KEY\"'; unset CLOAK_KEY"
+      ])
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
