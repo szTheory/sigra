@@ -92,6 +92,7 @@ defmodule Sigra.AppLogin.Attempt do
       |> Multi.merge(fn %{direct_mfa_challenge: challenge_row, direct_mfa_user: user} ->
         AppSession.build_issue_multi(Multi.new(), config, user, challenge_row.client_ref)
       end)
+      |> append_direct_mfa_audit(config)
     else
       _ -> Multi.error(multi, :direct_mfa_challenge, :invalid_credentials)
     end
@@ -215,6 +216,25 @@ defmodule Sigra.AppLogin.Attempt do
         }
       end,
       audit_multi_step: :audit_app_login_exchange
+    )
+  end
+
+  defp append_direct_mfa_audit(multi, config) do
+    Audit.log_multi_safe(
+      multi,
+      "session.app_login_direct_mfa",
+      repo: config.repo,
+      audit_schema: Keyword.get(Map.get(config, :audit, []), :audit_schema),
+      actor_resolver: fn changes -> changes.direct_mfa_challenge.user_id end,
+      target_resolver: fn changes -> changes.direct_mfa_challenge.user_id end,
+      metadata_resolver: fn changes ->
+        %{
+          challenge_id: changes.direct_mfa_challenge.id,
+          profile_id: changes.direct_mfa_challenge.profile_id,
+          family_id: changes.app_session_family.id
+        }
+      end,
+      audit_multi_step: :audit_direct_mfa_complete
     )
   end
 

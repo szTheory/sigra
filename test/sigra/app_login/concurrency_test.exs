@@ -141,6 +141,8 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
     parent = self()
 
     for {mode, config} <- [audit_on: config(repo, true), audit_off: config(repo, false)] do
+      family_count_before = repo.aggregate(Family, :count)
+      token_count_before = repo.aggregate(Token, :count)
       {:ok, user} = repo.insert(%User{email: "direct-mfa-concurrency-#{mode}@example.com"})
 
       {:ok, %{mfa_challenge: challenge}} =
@@ -182,8 +184,8 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
                repo.get_by!(Challenge, digest: challenge_digest(challenge))
 
       assert not is_nil(consumed_at)
-      assert repo.aggregate(Family, :count) == 1
-      assert repo.aggregate(Token, :count) == 2
+      assert repo.aggregate(Family, :count) == family_count_before + 1
+      assert repo.aggregate(Token, :count) == token_count_before + 2
       assert {:ok, %{family_id: ^family_id}} = Sigra.AppSession.authenticate(config, access)
       assert {:ok, %{family_id: ^family_id}} = Sigra.AppSession.refresh(config, refresh)
 
