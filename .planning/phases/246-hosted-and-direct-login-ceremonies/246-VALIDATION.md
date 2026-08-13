@@ -45,14 +45,14 @@ created: 2026-08-12
 | 246-05-01 | 05 | 5 | APP-03 | two-caller MFA serialization | combined concurrency suite |
 | 246-05-02 | 05 | 5 | APP-03 | exact public failure equality and fault rollback | direct fault suite |
 | 246-06-01 | 06 | 1 | APP-01 | complete independent option matrix | installer/app generator/Core tests |
-| 246-07-01 | 07 | 2 | APP-01/02/03 | Phase 245 schemas/migration render | app generator test |
-| 246-07-02 | 07 | 2 | APP-02/03 | digest-only attempt schema/indexes | app generator test |
-| 246-07-03 | 07 | 2 | APP-01/02/03 | static profiles/delegates and direct gating | generator + Core isolation tests |
+| 246-07-01 | 07 | 3 | APP-01/02/03 | Phase 245 schemas/migration render | app generator test |
+| 246-07-02 | 07 | 3 | APP-02/03 | digest-only attempt schema/indexes | app generator test |
+| 246-07-03 | 07 | 3 | APP-01/02/03 | static profiles/delegates and direct gating | generator + Core isolation tests |
 | 246-08-01 | 08 | 6 | APP-02/03 | real routes, strict inputs, no-referrer, rate limits | generated route test |
 | 246-08-02 | 08 | 6 | APP-02 | explicit accessible approve/cancel | generated route render test |
-| 246-08-03 | 08 | 6 | APP-02/03 | shared continuation through LiveView/controller MFA | route + existing MFA generator suites |
-| 246-09-01 | 09 | 7 | APP-02 | fresh-host hosted real-route + FetchAppSession proof | planning contract + runtime script |
-| 246-09-02 | 09 | 7 | APP-01/03 | direct parity, generator isolation, ownership fences | complete focused phase gate |
+| 246-09-01 | 09 | 7 | APP-02/03 | shared continuation through LiveView/controller MFA | focused continuation + existing MFA generator suites |
+| 246-10-01 | 10 | 8 | APP-02 | fresh-host hosted real-route + FetchAppSession proof | planning contract + runtime script |
+| 246-10-02 | 10 | 8 | APP-01/03 | direct parity, generator isolation, ownership fences | complete focused phase gate |
 
 ## Required Evidence Matrix
 
@@ -71,8 +71,9 @@ created: 2026-08-12
 - [ ] Plan 04 creates direct state-machine tests before direct implementation.
 - [ ] Plan 05 creates direct fault/uniformity assertions before hardening changes.
 - [ ] Plan 06 creates the exhaustive generator matrix before registering emitted artifacts.
-- [ ] Plan 08 creates rendered-route contracts before modifying shared login/MFA templates.
-- [ ] Plan 09 creates the fresh-host source/evidence contract before the runtime script/workflow.
+- [ ] Plan 08 creates rendered-route contracts before app-route implementation.
+- [ ] Plan 09 creates focused continuation contracts before modifying shared login/MFA templates.
+- [ ] Plan 10 creates the fresh-host source/evidence contract before the runtime script/workflow.
 
 ## Sign-Off
 

@@ -106,7 +106,7 @@ Plans:
   3. A host that opts into direct password login receives uniform login failures and an opaque MFA challenge that expires within five minutes.
   4. Successful hosted or direct login creates the same app-session contract, while a host policy requiring browser login returns `browser_required`.
 
-**Plans**: 9 plans
+**Plans**: 10 plans
 
 Plans:
 - [ ] 246-01-PLAN.md — Trace atomic hosted code exchange into Phase 245 app-session issuance.
@@ -116,8 +116,9 @@ Plans:
 - [ ] 246-05-PLAN.md — Prove direct-login uniformity, replay, locking, concurrency, and rollback behavior.
 - [ ] 246-06-PLAN.md — Add the independent app-session/password-login generator option matrix.
 - [ ] 246-07-PLAN.md — Generate host schemas, migration, static profiles, config, and issuance delegates.
-- [ ] 246-08-PLAN.md — Generate real hosted/direct routes and shared continuation UI for both auth modes.
-- [ ] 246-09-PLAN.md — Prove fresh-host install/rerun/runtime parity and lock scope/ownership documentation.
+- [ ] 246-08-PLAN.md — Generate real hosted/direct routes, continuation transport, and explicit approval UI.
+- [ ] 246-09-PLAN.md — Preserve hosted continuation through controller and LiveView login/MFA branches.
+- [ ] 246-10-PLAN.md — Prove fresh-host install/rerun/runtime parity and lock scope/ownership documentation.
 
 ### Phase 247: Language-Learning Digital Twin
 
