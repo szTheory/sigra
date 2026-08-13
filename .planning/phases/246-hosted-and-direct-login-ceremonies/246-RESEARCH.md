@@ -283,17 +283,19 @@ end
 | A1 | Phase 246 can add a dedicated installer feature rather than extending `Core`; the exact location is implementation discretion. | Recommended Project Structure | Medium—planner must first confirm existing feature-runner additive semantics and preserve golden output for no-flag installs. [ASSUMED] |
 | A2 | The generated first-party profile is suitable as a static Elixir module/configuration rather than database administration UI. | Architecture Patterns | Medium—must be decided by the planner from generator conventions; dynamic registration is out of scope regardless. [ASSUMED] |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which static callback forms are supported in this first release?**
    - What we know: exact callback matching is locked; RFC 8252 discusses claimed HTTPS, private-use schemes, and loopback forms.
    - What's unclear: whether Phase 246 should emit only claimed HTTPS/custom scheme profiles or also implement localhost port exception.
    - Recommendation: default to literal exact strings only; treat localhost variable-port support as an explicit later decision/test set, not silent URI normalization.
+   - **RESOLVED — Planning Resolution 1:** Phase 246 accepts only literal callback strings from the static profile. A loopback callback is valid only when its exact scheme, host, port, and path are registered; variable ports, normalization, prefixes, and wildcards are excluded.
 
 2. **How does a hosted browser continuation resume after existing browser MFA?**
    - What we know: the generated host has browser session and `mfa_pending` flows, and the requirement mandates explicit continuation.
    - What's unclear: exact LiveView/controller handling for carrying signed continuation through every login/MFA branch.
    - Recommendation: centralize a bounded signed continuation and add controller-mode + LiveView tests proving login, MFA, cancel, expiry, and re-entry preserve or reject it deterministically.
+   - **RESOLVED — Planning Resolution 2:** One signed, expiring, browser-session-backed handle crosses login and MFA, then returns both LiveView and controller branches to one controller approve/cancel route; approval alone creates the 60-second code, while cancellation or an invalid/expired handle creates none.
 
 ## Planning Resolutions
 
