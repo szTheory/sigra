@@ -125,7 +125,7 @@ defmodule <%= web_module %>.MFAChallengeController do
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
   defp app_login_return_to(conn, fallback) do
     case AppLoginContinuation.fetch(conn) do
-      {:ok, _continuation, _profile_id} -> {conn, ~p"/app-login/continue"}
+      {:ok, _continuation, _profile_id} -> {conn, ~p"/users/app-login/continue"}
       _ -> {AppLoginContinuation.clear(conn), fallback}
     end
   end

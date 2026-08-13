@@ -31,7 +31,7 @@ defmodule <%= web_module %>.AppLoginContinuation do
 
   def continue_path(endpoint, handle, fallback) when is_binary(handle) do
     case Phoenix.Token.verify(endpoint, @purpose, handle, max_age: @max_age) do
-      {:ok, %{continuation: continuation}} when is_binary(continuation) -> "/app-login/continue"
+      {:ok, %{continuation: continuation}} when is_binary(continuation) -> "/users/app-login/continue"
       _ -> fallback
     end
   end

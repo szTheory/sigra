@@ -56,6 +56,7 @@ defmodule Sigra.Install.AppSessionsAuthContinuationTest do
   test "all continuation callers match the generated users-scoped approval route" do
     session_controller = render_template("session_controller.ex", app_sessions: true)
     mfa_controller = render_template("mfa_challenge_controller.ex", app_sessions: true)
+
     continuation =
       File.read!(
         Path.join([

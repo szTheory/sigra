@@ -429,7 +429,7 @@ defmodule <%= web_module %>.SessionController do
   defp maybe_redirect_to_app_login_approval(conn) do
     case {conn.private[:sigra_session], AppLoginContinuation.fetch(conn)} do
       {%{type: :mfa_pending}, _} -> conn
-      {_, {:ok, _continuation, _profile_id}} -> redirect(conn, to: ~p"/app-login/continue")
+      {_, {:ok, _continuation, _profile_id}} -> redirect(conn, to: ~p"/users/app-login/continue")
       _ -> AppLoginContinuation.clear(conn)
     end
   end
