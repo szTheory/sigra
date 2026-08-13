@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 245
 current_phase_name: Opaque App-Session Core
 status: verifying
-stopped_at: Completed 245-07-PLAN.md
-last_updated: "2026-08-13T01:03:27.342Z"
+stopped_at: Completed 245-08-PLAN.md
+last_updated: "2026-08-13T01:14:24.710Z"
 last_activity: 2026-08-13
 last_activity_desc: Completed 245-01 opaque app-session tracer
 progress:
   total_phases: 3
   completed_phases: 3
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 20
+  completed_plans: 20
 current_plan: 2
 ---
 
@@ -74,6 +74,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 245-opaque-app-session-core P05 | 4min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P06 | 25min | 2 tasks | 3 files |
 | Phase 245 P07 | 5min | 1 tasks | 3 files |
+| Phase 245-opaque-app-session-core P08 | 4min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase ?]: append_revoke_all_multi/4 performs lifecycle mutation only so security-event callers compose their existing audit in the same outer transaction.
 - [Phase ?]: Password reset composes configured app-session revoke-all in its existing Ecto.Multi before audit; sign-out-all fails closed before browser deletion.
 - [Phase ?]: Account deletion scheduling appends configured app-session revocation to its existing transaction before hooks.
+- [Phase ?]: [Phase 245]: Formatter-only closure is supported by exact formatter, diff-check, and focused APP-04/APP-05 evidence; unrelated full-suite CI failures remain non-green baseline diagnostics.
 
 ### Pending Todos
 
@@ -132,6 +134,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:03:27.333Z
-Stopped at: Completed 245-07-PLAN.md
+Last session: 2026-08-13T01:14:24.701Z
+Stopped at: Completed 245-08-PLAN.md
 Resume file: None
