@@ -15,6 +15,32 @@ defmodule Sigra.AppLogin do
   @continuation_purpose "sigra-app-login-hosted-v1"
   @continuation_ttl 300
   @code_ttl 60
+  @direct_failure :invalid_credentials
+
+  @doc """
+  Starts the host-owned direct password ceremony for a static first-party
+  profile. This is deliberately not an OAuth password grant: callers cannot
+  select authority, scopes, or a client reference.
+
+  The host supplies password verification as a callback so its existing account
+  confirmation and lockout policy remains authoritative. Every verifier and
+  account denial is collapsed into the same public result.
+  """
+  @spec start_direct(Sigra.Config.t(), String.t(), String.t(), String.t(), keyword()) ::
+          {:ok, map()} | {:error, :browser_required | :invalid_credentials}
+  def start_direct(config, profile_id, email, password, opts \\ []) do
+    with {:ok, profile} <- first_party_profile(config, profile_id) do
+      case profile.direct_login do
+        :browser_required ->
+          {:error, :browser_required}
+
+        :password_allowed ->
+          authenticate_direct(config, profile, email, password, opts)
+      end
+    else
+      _ -> {:error, @direct_failure}
+    end
+  end
 
   def start_hosted(config, params, opts \\ []) do
     now = now(opts)
@@ -150,6 +176,49 @@ defmodule Sigra.AppLogin do
   end
 
   defp first_party_profile(_, _), do: {:error, :invalid_request}
+
+  defp authenticate_direct(config, profile, email, password, opts)
+       when is_binary(email) and is_binary(password) do
+    case direct_callback(opts, :authenticate_user, [email, password]) do
+      {:ok, user} ->
+        if direct_user?(user) do
+          issue_direct_session(config, user, profile.client_ref)
+        else
+          {:error, @direct_failure}
+        end
+
+      _ ->
+        {:error, @direct_failure}
+    end
+  end
+
+  defp authenticate_direct(_config, _profile, _email, _password, _opts),
+    do: {:error, @direct_failure}
+
+  defp issue_direct_session(config, user, client_ref) do
+    case Sigra.AppSession.issue(config, user, client_ref) do
+      {:ok, credentials} -> {:ok, credentials}
+      _ -> {:error, @direct_failure}
+    end
+  end
+
+  defp direct_user?(user), do: is_map(user) and not is_nil(Map.get(user, :id))
+
+  defp direct_callback(opts, name, args) do
+    case Keyword.get(opts, name) do
+      callback when is_function(callback, length(args)) ->
+        try do
+          apply(callback, args)
+        rescue
+          _exception -> {:error, :callback_failed}
+        catch
+          _kind, _value -> {:error, :callback_failed}
+        end
+
+      _ ->
+        {:error, :callback_missing}
+    end
+  end
 
   defp now(opts) do
     now = Keyword.get(opts, :now, DateTime.utc_now())
