@@ -13,7 +13,7 @@
 ## Phases
 
 - [x] **Phase 243: Credential Boundary and Pipeline Foundation** - Define credential ownership and explicit, fail-closed authentication pipelines. (completed 2026-08-12)
-- [ ] **Phase 244: PAT and Advanced JWT Truth Repair** - Make independently generated PAT and advanced JWT contracts complete and trustworthy.
+- [x] **Phase 244: PAT and Advanced JWT Truth Repair** - Make independently generated PAT and advanced JWT contracts complete and trustworthy. (completed 2026-08-12)
 - [ ] **Phase 245: Opaque App-Session Core** - Deliver rotating opaque app sessions with durable revocation semantics.
 - [ ] **Phase 246: Hosted and Direct Login Ceremonies** - Let explicitly opted-in first-party apps obtain the same secure app session through hosted or policy-gated direct login.
 - [ ] **Phase 247: Language-Learning Digital Twin** - Prove the bounded PWA lesson, verified media, and account-isolated offline behavior.
@@ -142,7 +142,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
-| 244. PAT and Advanced JWT Truth Repair | 7/7 | In Progress|  |
+| 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 0/TBD | Not started | - |
 | 246. Hosted and Direct Login Ceremonies | 0/TBD | Not started | - |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
