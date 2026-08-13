@@ -10,6 +10,7 @@ defmodule Sigra.AppSession do
   import Ecto.Query
 
   alias Ecto.Multi
+  alias Sigra.AppSession.RefreshToken
   alias Sigra.Token
 
   @type result ::
@@ -68,6 +69,61 @@ defmodule Sigra.AppSession do
     end
   end
 
+  @doc """
+  Rotates an opaque app-session refresh credential.
+
+  The presented refresh row is locked and classified before the transaction
+  consumes it, supersedes the active access credential, and appends a new
+  access/refresh pair. Reuse revokes the entire family before the bounded
+  error becomes observable.
+  """
+  @spec refresh(Sigra.Config.t(), String.t()) ::
+          {:ok, map()}
+          | {:error,
+             :app_session_not_configured
+             | :invalid_token
+             | :token_expired
+             | :reuse_detected
+             | :app_session_refresh_aborted}
+  def refresh(config, raw_refresh_token) do
+    with {:ok, _settings} <- settings(config) do
+      multi =
+        Multi.new()
+        |> RefreshToken.build_locked_classify_multi(config, raw_refresh_token)
+        |> Multi.merge(fn %{app_session_refresh_classification: {action, token, family}} ->
+          case action do
+            :rotate -> RefreshToken.build_rotate_persist_multi(Multi.new(), config, token, family)
+            :reuse -> RefreshToken.build_revoke_family_multi(Multi.new(), config, family)
+          end
+        end)
+
+      case config.repo.transaction(multi) do
+        {:ok,
+         %{
+           app_session_refresh_classification: {:rotate, _token, family},
+           app_session_refresh_rotate: replacement
+         }} ->
+          {:ok,
+           %{
+             access_token: replacement.access_token,
+             refresh_token: replacement.refresh_token,
+             family_id: family.id,
+             expires_in: settings_access_ttl(config)
+           }}
+
+        {:ok, %{app_session_refresh_classification: {:reuse, _token, _family}}} ->
+          {:error, :reuse_detected}
+
+        {:error, :app_session_refresh_classification, reason, _changes}
+        when reason in [:invalid_token, :token_expired] ->
+          {:error, reason}
+
+        {:error, _step, _reason, _changes} ->
+          {:error, :app_session_refresh_aborted}
+      end
+    end
+  end
+
   defp insert_tokens(repo, settings, family_id, access_digest, refresh_digest, now) do
     access =
       struct!(settings.token_schema, %{
@@ -110,12 +166,15 @@ defmodule Sigra.AppSession do
       DateTime.compare(now, family.absolute_expires_at) == :lt
   end
 
+  defp settings_access_ttl(%{app_session: app_session}), do: app_session[:access_ttl]
+
   defp settings(%{app_session: app_session}) do
     with family_schema when is_atom(family_schema) <- app_session[:family_schema],
          token_schema when is_atom(token_schema) <- app_session[:token_schema],
          true <- Code.ensure_loaded?(family_schema) and Code.ensure_loaded?(token_schema),
-         true <- app_session[:access_ttl] < app_session[:refresh_idle_ttl] and
-                   app_session[:refresh_idle_ttl] <= app_session[:absolute_ttl] do
+         true <-
+           app_session[:access_ttl] < app_session[:refresh_idle_ttl] and
+             app_session[:refresh_idle_ttl] <= app_session[:absolute_ttl] do
       {:ok,
        %{
          family_schema: family_schema,

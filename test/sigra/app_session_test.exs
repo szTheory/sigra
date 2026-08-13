@@ -83,11 +83,12 @@ defmodule Sigra.AppSessionTest do
     %{config: config(repo), user: user}
   end
 
-  test "issues digest-only opaque credentials and authenticates access without sliding the family", %{
-    repo: repo,
-    config: config,
-    user: user
-  } do
+  test "issues digest-only opaque credentials and authenticates access without sliding the family",
+       %{
+         repo: repo,
+         config: config,
+         user: user
+       } do
     assert config.app_session[:access_ttl] == 900
     assert config.app_session[:refresh_idle_ttl] == 2_592_000
     assert config.app_session[:absolute_ttl] == 7_776_000
@@ -109,6 +110,7 @@ defmodule Sigra.AppSessionTest do
     refute inspect(tokens) =~ access
     refute inspect(tokens) =~ refresh
     refute inspect(tokens) =~ "ios-primary"
+
     assert DateTime.diff(family.absolute_expires_at, family.inserted_at, :second) in 7_775_999..7_776_000
 
     assert {:ok, %{user_id: user_id, family_id: ^family_id, token_id: token_id}} =
@@ -123,7 +125,9 @@ defmodule Sigra.AppSessionTest do
     assert {:error, :invalid_token} = AppSession.authenticate(config, "malformed")
 
     missing_schemas = Sigra.Config.new!(repo: config.repo, user_schema: User)
-    assert {:error, :app_session_not_configured} = AppSession.authenticate(missing_schemas, "opaque")
+
+    assert {:error, :app_session_not_configured} =
+             AppSession.authenticate(missing_schemas, "opaque")
   end
 
   test "refresh rotates one family without sliding its absolute deadline", %{
@@ -134,7 +138,11 @@ defmodule Sigra.AppSessionTest do
     assert {:ok, %{access_token: access, refresh_token: refresh, family_id: family_id}} =
              AppSession.issue(config, user, "ios-primary", [])
 
-    family = repo.get!(Family, family_id)
+    family =
+      repo.get!(Family, family_id)
+      |> Ecto.Changeset.change(absolute_expires_at: DateTime.add(past(), 11, :second))
+      |> repo.update!()
+
     original_tokens = tokens_for_family(repo, family_id)
     original_access = Enum.find(original_tokens, &(&1.kind == :access))
     original_refresh = Enum.find(original_tokens, &(&1.kind == :refresh))
@@ -235,7 +243,9 @@ defmodule Sigra.AppSessionTest do
   end
 
   defp refresh_token_for_family(repo, family_id) do
-    repo.one!(Ecto.Query.from(t in Token, where: t.family_id == ^family_id and t.kind == :refresh))
+    repo.one!(
+      Ecto.Query.from(t in Token, where: t.family_id == ^family_id and t.kind == :refresh)
+    )
   end
 
   defp past do
