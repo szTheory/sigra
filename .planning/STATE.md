@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: Hosted and Direct Login Ceremonies
 status: planning
-stopped_at: Completed 246-06-PLAN.md
-last_updated: "2026-08-13T01:45:56.726Z"
+stopped_at: Completed 246-01-PLAN.md
+last_updated: "2026-08-13T01:48:51.842Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 245 complete, transitioned to Phase 246
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 30
-  completed_plans: 21
+  completed_plans: 22
 current_plan: 2
 ---
 
@@ -34,7 +34,7 @@ Plan: Not started
 Status: Ready to plan
 Last activity: 2026-08-12 — Phase 245 complete, transitioned to Phase 246
 
-Progress: ░░░░░░░░░░ [███████░░░] 70%
+Progress: ░░░░░░░░░░ [███████░░░] 73%
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: ░░░░░░░░░░ [███████░░░] 70%
 | Phase 245 P07 | 5min | 1 tasks | 3 files |
 | Phase 245-opaque-app-session-core P08 | 4min | 1 tasks | 3 files |
 | Phase 246-hosted-and-direct-login-ceremonies P06 | 4min | 1 tasks | 4 files |
+| Phase 246 P01 | 13min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,8 @@ Progress: ░░░░░░░░░░ [███████░░░] 70%
 - [Phase ?]: [Phase 245]: Formatter-only closure is supported by exact formatter, diff-check, and focused APP-04/APP-05 evidence; unrelated full-suite CI failures remain non-green baseline diagnostics.
 - [Phase ?]: App sessions, direct password login, API, and JWT remain independent installer selections; direct password login requires explicit app-session selection.
 - [Phase ?]: App-session migration timestamps are Runner-owned and allocated in family, token, and ceremony order.
+- [Phase ?]: Hosted attempt consumption, optional audit, and Phase 245 issuance execute in one Ecto.Multi transaction.
+- [Phase ?]: Raw access and refresh material remains only in Ecto.Multi changes until the outer transaction commits.
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:45:56.719Z
-Stopped at: Completed 246-06-PLAN.md
+Last session: 2026-08-13T01:48:51.834Z
+Stopped at: Completed 246-01-PLAN.md
 Resume file: None
