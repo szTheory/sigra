@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: Hosted and Direct Login Ceremonies
 status: planning
-stopped_at: Completed 246-01-PLAN.md
-last_updated: "2026-08-13T01:48:51.842Z"
+stopped_at: Completed 246-02-PLAN.md
+last_updated: "2026-08-13T01:58:49.669Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 245 complete, transitioned to Phase 246
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 30
-  completed_plans: 22
+  completed_plans: 23
 current_plan: 2
 ---
 
@@ -34,7 +34,7 @@ Plan: Not started
 Status: Ready to plan
 Last activity: 2026-08-12 — Phase 245 complete, transitioned to Phase 246
 
-Progress: ░░░░░░░░░░ [███████░░░] 73%
+Progress: ░░░░░░░░░░ [████████░░] 77%
 
 ## Performance Metrics
 
@@ -78,6 +78,7 @@ Progress: ░░░░░░░░░░ [███████░░░] 73%
 | Phase 245-opaque-app-session-core P08 | 4min | 1 tasks | 3 files |
 | Phase 246-hosted-and-direct-login-ceremonies P06 | 4min | 1 tasks | 4 files |
 | Phase 246 P01 | 13min | 1 tasks | 5 files |
+| Phase 246-hosted-and-direct-login-ceremonies P02 | 16min | 1 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,8 @@ Progress: ░░░░░░░░░░ [███████░░░] 73%
 - [Phase ?]: App-session migration timestamps are Runner-owned and allocated in family, token, and ceremony order.
 - [Phase ?]: Hosted attempt consumption, optional audit, and Phase 245 issuance execute in one Ecto.Multi transaction.
 - [Phase ?]: Raw access and refresh material remains only in Ecto.Multi changes until the outer transaction commits.
+- [Phase ?]: Hosted codes retain only the S256 challenge digest, never a PKCE verifier.
+- [Phase ?]: Every authenticated browser must explicitly approve before code persistence.
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T01:48:51.834Z
-Stopped at: Completed 246-01-PLAN.md
+Last session: 2026-08-13T01:58:49.662Z
+Stopped at: Completed 246-02-PLAN.md
 Resume file: None
