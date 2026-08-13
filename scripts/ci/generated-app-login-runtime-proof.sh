@@ -433,10 +433,10 @@ prove_host() {
   local flags=(--app-sessions --no-live --no-organizations)
   [[ "$mode" == direct ]] && flags+=(--app-password-login)
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
-  run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
   # The installer may add host-owned dependencies (for example, Hammer). Fetch
-  # them before the next Mix task so the generated-host proof stays causal.
+  # them before the idempotent installer reruns Mix or any later proof task.
   run "$APP_DIR" mix deps.get
+  run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
   install_proof_route
   run "$APP_DIR" mix ecto.create
   pg_isready -h "$PGHOST" -p "$PGPORT" -d "$database" -t 5
