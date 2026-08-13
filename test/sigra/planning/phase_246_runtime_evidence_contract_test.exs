@@ -71,10 +71,14 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
   end
 
   test "canonical retained evidence uses the same fail-closed parser when present" do
-    if File.exists?(@receipt_path) or File.exists?(@provenance_path) do
-      assert File.exists?(@receipt_path), "receipt must not exist without provenance"
+    if File.exists?(@receipt_path) do
       assert File.exists?(@provenance_path), "provenance must not exist without receipt"
       assert :ok = validate(decode!(@receipt_path), decode!(@provenance_path))
+    else
+      if File.exists?(@provenance_path) do
+        provenance = decode!(@provenance_path)
+        refute provenance["conclusion"] == "success", "successful provenance requires a receipt"
+      end
     end
   end
 

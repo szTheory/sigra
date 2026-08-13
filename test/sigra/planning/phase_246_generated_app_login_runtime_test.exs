@@ -65,7 +65,9 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
   test "generated-host proof refreshes dependencies after installer mutations" do
     harness = read!(@harness)
-    first_install = :binary.match(harness, ~s(run "$APP_DIR" mix sigra.install Accounts User users))
+
+    first_install =
+      :binary.match(harness, ~s(run "$APP_DIR" mix sigra.install Accounts User users))
 
     assert first_install != :nomatch, "fresh host must run the installer"
 
