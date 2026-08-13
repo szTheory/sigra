@@ -99,10 +99,12 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
     test "renders digest-only hosted-code and direct-MFA attempt storage" do
       attempt = render_template("user_app_login_attempt.ex")
       migration = render_template("app_sessions_migration.exs")
+      prefixed_migration = render_template("app_sessions_migration.exs", auth_prefix: "auth")
 
       assert attempt =~ "defmodule MyApp.Accounts.UserAppLoginAttempt"
       assert attempt =~ "field :kind, Ecto.Enum, values: [:hosted_code, :direct_mfa]"
       assert attempt =~ "field :digest, :binary"
+      assert attempt =~ "field :approval_digest, :binary"
       assert attempt =~ "field :verifier_digest, :binary"
       assert attempt =~ "field :profile_id, :string"
       assert attempt =~ "field :callback, :string"
@@ -111,9 +113,19 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       refute attempt =~ "field :password"
       refute attempt =~ "field :challenge"
       refute attempt =~ "field :state"
+      refute attempt =~ "field :nonce"
+      refute attempt =~ "field :verifier,"
+      refute attempt =~ "field :secret"
+      refute attempt =~ "field :scope"
 
       assert migration =~ "create table(:user_app_login_attempts"
       assert migration =~ "create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)"
+
+      assert migration =~
+               "create unique_index(:user_app_login_attempts, [:approval_digest], name: :user_app_login_attempts_approval_digest_index)"
+
+      assert prefixed_migration =~
+               "create unique_index(:user_app_login_attempts, [:approval_digest], Keyword.merge(@prefix_opts, name: :user_app_login_attempts_approval_digest_index))"
 
       assert migration =~
                "create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at]"
