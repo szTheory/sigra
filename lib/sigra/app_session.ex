@@ -20,9 +20,26 @@ defmodule Sigra.AppSession do
 
   @spec issue(Sigra.Config.t(), struct(), String.t(), keyword()) :: result()
   def issue(config, user, client_ref, _opts \\ []) do
+    case config.repo.transaction(build_issue_multi(Multi.new(), config, user, client_ref)) do
+      {:ok, %{app_session_issue: credentials}} ->
+        {:ok, credentials}
+
+      {:error, :app_session_issue, reason, _changes}
+      when reason in [:app_session_not_configured, :invalid_client_ref] ->
+        {:error, reason}
+
+      {:error, _, _, _} ->
+        {:error, :invalid_token}
+    end
+  end
+
+  @doc false
+  @spec build_issue_multi(Ecto.Multi.t(), Sigra.Config.t(), struct(), String.t()) ::
+          Ecto.Multi.t()
+  def build_issue_multi(%Multi{} = multi, config, user, client_ref) do
     with {:ok, settings} <- settings(config),
          :ok <- valid_client_ref(client_ref) do
-      now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+      now = now()
       {access_raw, access_digest} = Token.generate_hashed_token()
       {refresh_raw, refresh_digest} = Token.generate_hashed_token()
 
@@ -33,26 +50,22 @@ defmodule Sigra.AppSession do
           absolute_expires_at: DateTime.add(now, settings.absolute_ttl, :second)
         })
 
-      multi =
-        Multi.new()
-        |> Multi.insert(:family, family)
-        |> Multi.run(:tokens, fn repo, %{family: persisted_family} ->
-          insert_tokens(repo, settings, persisted_family.id, access_digest, refresh_digest, now)
-        end)
-
-      case config.repo.transaction(multi) do
-        {:ok, %{family: persisted_family}} ->
-          {:ok,
-           %{
-             access_token: access_raw,
-             refresh_token: refresh_raw,
-             family_id: persisted_family.id,
-             expires_in: settings.access_ttl
-           }}
-
-        {:error, _, _, _} ->
-          {:error, :invalid_token}
-      end
+      multi
+      |> Multi.insert(:app_session_family, family)
+      |> Multi.run(:app_session_tokens, fn repo, %{app_session_family: persisted_family} ->
+        insert_tokens(repo, settings, persisted_family.id, access_digest, refresh_digest, now)
+      end)
+      |> Multi.run(:app_session_issue, fn _repo, %{app_session_family: persisted_family} ->
+        {:ok,
+         %{
+           access_token: access_raw,
+           refresh_token: refresh_raw,
+           family_id: persisted_family.id,
+           expires_in: settings.access_ttl
+         }}
+      end)
+    else
+      {:error, reason} -> Multi.error(multi, :app_session_issue, reason)
     end
   end
 

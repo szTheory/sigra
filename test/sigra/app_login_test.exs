@@ -5,6 +5,7 @@ defmodule Sigra.AppLoginTest do
   alias Sigra.AppSession
   alias Sigra.Test.AppLoginSchemas.Attempt
   alias Sigra.Test.AppSessionSchemas.{Family, Token, User}
+  alias Sigra.Test.AuditEvent
 
   setup_all do
     Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
@@ -23,6 +24,20 @@ defmodule Sigra.AppLoginTest do
           consumed_at timestamp,
           inserted_at timestamp NOT NULL DEFAULT now(),
           updated_at timestamp NOT NULL DEFAULT now()
+        )
+        """,
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        """
+        CREATE TABLE IF NOT EXISTS audit_events (
+          id uuid PRIMARY KEY, occurred_at timestamp NOT NULL DEFAULT now(), action varchar(255) NOT NULL,
+          outcome varchar(32) NOT NULL DEFAULT 'success', actor_id uuid, actor_type varchar(64) NOT NULL DEFAULT 'user',
+          target_id uuid, target_type varchar(64), ip_address varchar(64), user_agent varchar(512),
+          metadata jsonb NOT NULL DEFAULT '{}'::jsonb, organization_id uuid, effective_user_id uuid,
+          inserted_at timestamp NOT NULL DEFAULT now()
         )
         """,
         []
@@ -56,7 +71,10 @@ defmodule Sigra.AppLoginTest do
     assert not is_nil(consumed_at)
     assert [%Family{id: ^family_id}] = repo.all(Ecto.Query.from(f in Family))
     assert 2 = repo.aggregate(Token, :count)
-    assert {:ok, %{family_id: ^family_id, user_id: user_id}} = AppSession.authenticate(config, access)
+
+    assert {:ok, %{family_id: ^family_id, user_id: user_id}} =
+             AppSession.authenticate(config, access)
+
     assert user_id == user.id
   end
 
@@ -69,7 +87,8 @@ defmodule Sigra.AppLoginTest do
     callback = "com.sigra.app:/login"
 
     for {label, attrs, supplied} <- [
-          {:expired, [expires_at: DateTime.add(now(), -1, :second)], {"code-expired", "verifier"}},
+          {:expired, [expires_at: DateTime.add(now(), -1, :second)],
+           {"code-expired", "verifier"}},
           {:consumed, [consumed_at: now()], {"code-consumed", "verifier"}},
           {:profile, [], {"code-profile", "verifier", %{profile | id: "wrong"}, callback}},
           {:callback, [], {"code-callback", "verifier", profile, "com.sigra.app:/wrong"}},
@@ -77,7 +96,9 @@ defmodule Sigra.AppLoginTest do
         ] do
       {code, verifier, supplied_profile, supplied_callback} =
         case supplied do
-          {code, verifier} -> {code, verifier, profile, callback}
+          {code, verifier} ->
+            {code, verifier, profile, callback}
+
           {code, verifier, supplied_profile, supplied_callback} ->
             {code, verifier, supplied_profile, supplied_callback}
         end
@@ -85,7 +106,13 @@ defmodule Sigra.AppLoginTest do
       insert_attempt(repo, user, code, "verifier", profile, callback, attrs)
 
       assert {:error, :invalid_code} =
-               AppLogin.exchange_hosted(config, code, verifier, supplied_profile, supplied_callback),
+               AppLogin.exchange_hosted(
+                 config,
+                 code,
+                 verifier,
+                 supplied_profile,
+                 supplied_callback
+               ),
              "#{label} must normalize to invalid_code"
     end
 
@@ -93,10 +120,47 @@ defmodule Sigra.AppLoginTest do
     assert 0 = repo.aggregate(Token, :count)
   end
 
-  defp config(repo) do
+  test "rolls back consumed hosted code and app-session issuance when optional audit fails", %{
+    repo: repo,
+    user: user
+  } do
+    code = "audit-rollback-code"
+    verifier = "verifier"
+    profile = profile()
+    callback = "com.sigra.app:/login"
+    attempt = insert_attempt(repo, user, code, verifier, profile, callback)
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS sigra_app_login_audit_fail",
+      []
+    )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE audit_events ADD CONSTRAINT sigra_app_login_audit_fail CHECK (action <> 'session.app_login_exchange')",
+      []
+    )
+
+    assert {:error, :invalid_code} =
+             AppLogin.exchange_hosted(
+               config(repo, audit?: true),
+               code,
+               verifier,
+               profile,
+               callback
+             )
+
+    assert %{consumed_at: nil} = repo.get!(Attempt, attempt.id)
+    assert 0 = repo.aggregate(Family, :count)
+    assert 0 = repo.aggregate(Token, :count)
+  end
+
+  defp config(repo, opts \\ []) do
     Sigra.Config.new!(
       repo: repo,
       user_schema: User,
+      audit: if(Keyword.get(opts, :audit?, false), do: [audit_schema: AuditEvent], else: []),
       app_session: [family_schema: Family, token_schema: Token]
     )
   end
