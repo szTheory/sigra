@@ -4,6 +4,12 @@ defmodule Mix.Tasks.Sigra.InstallTest do
   alias Mix.Tasks.Sigra.Install
 
   describe "argument parsing" do
+    test "rejects direct password login unless app sessions are selected" do
+      assert_raise Mix.Error, ~r/--app-password-login requires --app-sessions/, fn ->
+        Install.run(["Accounts", "User", "users", "--app-password-login"])
+      end
+    end
+
     test "raises with no arguments" do
       assert_raise Mix.Error, ~r/Expected.*arguments/i, fn ->
         Install.run([])
