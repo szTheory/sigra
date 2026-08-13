@@ -1,0 +1,96 @@
+name: Generated app-login runtime proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generated_app_login_runtime_proof:
+    name: Generated app-login runtime proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Install Hex and Phoenix generator
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra dependencies
+        run: mix deps.get
+      - name: Run clean generated-host proof
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GENERATED_APP_LOGIN_RUNTIME_PROOF_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/generated-app-login-runtime-proof
+        run: scripts/ci/generated-app-login-runtime-proof.sh --all
+      - name: Validate generated app-login runtime receipt
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          receipt_path = Path("artifacts/generated-app-login-runtime-proof/runtime-proof.json")
+          receipt = json.loads(receipt_path.read_text())
+          required = {
+              "schema": "sigra.generated-app-login-runtime-proof/v3",
+              "status": "passed",
+              "controller_mfa_session_upgraded": True,
+              "liveview_mfa_session_upgraded": True,
+              "approval_replay_rejected": True,
+              "direct_backup_code_succeeded": True,
+              "hosted_replay_rejected": True,
+              "direct_replay_rejected": True,
+              "fetch_app_session_equivalent": True,
+              "browser_required_before_authentication": True,
+          }
+          for key, expected in required.items():
+              assert receipt.get(key) == expected, f"receipt {key!r} must be {expected!r}"
+
+          source_paths = {
+              "app_login": "lib/sigra/app_login.ex",
+              "fetch_app_session": "lib/sigra/plug/fetch_app_session.ex",
+              "app_login_controller": "priv/templates/sigra.install/app_sessions/app_login_controller.ex",
+              "app_login_attempt_schema": "priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex",
+              "app_sessions_migration": "priv/templates/sigra.install/app_sessions/app_sessions_migration.exs",
+              "auth_app_sessions": "priv/templates/sigra.install/app_sessions/auth_app_sessions.ex",
+              "router_injection": "priv/templates/sigra.install/app_sessions/router_injection.ex",
+              "mfa_challenge_controller": "priv/templates/sigra.install/core/mfa_challenge_controller.ex",
+              "mfa_challenge_live": "priv/templates/sigra.install/core/mfa_challenge_live.ex",
+              "runtime_script": "scripts/ci/generated-app-login-runtime-proof.sh",
+              "workflow": ".github/workflows/generated-app-login-runtime-proof.yml",
+              "runtime_source_contract_test": "test/sigra/planning/phase_246_generated_app_login_runtime_test.exs",
+              "runtime_evidence_contract_test": "test/sigra/planning/phase_246_runtime_evidence_contract_test.exs",
+              "mfa_session_upgrade_test": "test/sigra/install/app_sessions_mfa_session_upgrade_test.exs",
+              "approval_concurrency_test": "test/sigra/app_login/concurrency_test.exs",
+          }
+          assert set(receipt.get("sources", {})) == set(source_paths), "receipt source bindings changed"
+          for key, path in source_paths.items():
+              actual = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              assert receipt["sources"][key] == actual, f"receipt SHA mismatch for {path}"
+          PY
+      - name: Upload generated app-login diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: generated-app-login-runtime-proof
+          path: artifacts/generated-app-login-runtime-proof/
+          retention-days: 7
+          if-no-files-found: warn
