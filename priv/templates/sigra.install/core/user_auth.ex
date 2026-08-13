@@ -65,9 +65,15 @@ defmodule <%= web_module %>.UserAuth do
       <%= context_module %>.generate_user_session_token(user, ip: ip, user_agent: user_agent)
 
     user_return_to = get_session(conn, :user_return_to)
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+    app_login_continuation = <%= web_module %>.AppLoginContinuation.preserve(conn)
+<% end %>
 
     conn
     |> renew_session()
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+    |> <%= web_module %>.AppLoginContinuation.restore(app_login_continuation)
+<% end %>
     |> put_token_in_session(token)
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))

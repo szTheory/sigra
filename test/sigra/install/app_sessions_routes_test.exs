@@ -46,7 +46,8 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert router =~ "get \"/app-login\", AppLoginController, :start"
     assert router =~ "post \"/app-login/approve\", AppLoginController, :approve"
     assert router =~ "post \"/app-login/cancel\", AppLoginController, :cancel"
-    assert router =~ "post \"/api/app-login/exchange\", AppLoginController, :exchange"
+    assert router =~ "scope \"/api/app-login\", MyAppWeb do"
+    assert router =~ "post \"/exchange\", AppLoginController, :exchange"
   end
 
   test "registers route and controller templates only with app sessions" do
@@ -56,7 +57,8 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
 
     assert "app_sessions/app_login_controller.ex" in sources
     assert "app_sessions/app_login_continuation.ex" in sources
-    assert "app_sessions/router_injection.ex" in sources
+    assert [%{content: router}] = AppSessions.injections(@binding)
+    assert router =~ "# Sigra app login"
   end
 
   defp render_template(name) do

@@ -24,6 +24,8 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
     "app_sessions/user_app_login_attempt.ex",
     "app_sessions/first_party_apps.ex",
     "app_sessions/auth_app_sessions.ex",
+    "app_sessions/app_login_controller.ex",
+    "app_sessions/app_login_continuation.ex",
     "app_sessions/app_sessions_migration.exs"
   ]
 

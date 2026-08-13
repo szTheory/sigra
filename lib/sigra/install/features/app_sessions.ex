@@ -9,6 +9,8 @@ defmodule Sigra.Install.Features.AppSessions do
 
   @behaviour Sigra.Install.Feature
 
+  alias Sigra.Install.Injection
+
   @impl true
   def enabled?(opts), do: Keyword.get(opts, :app_sessions, false)
 
@@ -29,6 +31,10 @@ defmodule Sigra.Install.Features.AppSessions do
          Path.join(["lib", otp_app, context, "first_party_apps.ex"])},
         {:eex, "app_sessions/auth_app_sessions.ex",
          Path.join(["lib", otp_app, context, "auth", "app_sessions.ex"])},
+        {:eex, "app_sessions/app_login_controller.ex",
+         Path.join(["lib", "#{otp_app}_web", "controllers", "app_login_controller.ex"])},
+        {:eex, "app_sessions/app_login_continuation.ex",
+         Path.join(["lib", "#{otp_app}_web", "app_login_continuation.ex"])},
         {:eex, "app_sessions/app_sessions_migration.exs",
          migration_target(binding, :ceremony, "create_user_app_sessions.exs")}
       ]
@@ -38,7 +44,18 @@ defmodule Sigra.Install.Features.AppSessions do
   end
 
   @impl true
-  def injections(_binding), do: []
+  def injections(binding) do
+    otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
+
+    [
+      %Injection{
+        target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+        marker: "# Sigra app login",
+        anchor: :before_last_end,
+        content: eval_template!("app_sessions/router_injection.ex", binding)
+      }
+    ]
+  end
 
   @impl true
   def migrations(_binding) do
@@ -62,5 +79,16 @@ defmodule Sigra.Install.Features.AppSessions do
       |> Map.get(slot_key, "TIMESTAMP")
 
     Path.join(["priv", "repo", "migrations", "#{timestamp}_#{basename}"])
+  end
+
+  defp eval_template!(relative_path, binding) do
+    relative_path
+    |> read_template!()
+    |> EEx.eval_string(binding, trim: false)
+  end
+
+  defp read_template!(relative_path) do
+    Application.app_dir(:sigra, Path.join(["priv", "templates", "sigra.install", relative_path]))
+    |> File.read!()
   end
 end
