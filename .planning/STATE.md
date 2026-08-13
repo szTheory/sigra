@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 244
 current_phase_name: PAT and Advanced JWT Truth Repair
 status: verifying
-stopped_at: Completed 244-06-PLAN.md
-last_updated: "2026-08-12T23:48:58.765Z"
+stopped_at: Completed 244-07-PLAN.md
+last_updated: "2026-08-13T00:03:23.599Z"
 last_activity: 2026-08-12
 last_activity_desc: Completed Phase 244 Plan 01 independent PAT/JWT generator contracts
 progress:
   total_phases: 2
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
 current_plan: 2
 ---
 
@@ -65,6 +65,7 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 | Phase 244 P04 | 3min | 1 tasks | 5 files |
 | Phase 244 P05 | 16min | 1 tasks | 5 files |
 | Phase 244 P06 | 12min | 1 tasks | 10 files |
+| Phase 244-pat-and-advanced-jwt-truth-repair P07 | 3min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Progress: ░░░░░░░░░░ [██████████] 100%
 - [Phase ?]: JWT-only hosts install Joken and issue tokens through Sigra.JWT.generate_tokens/4 with generated UserToken storage.
 - [Phase ?]: JWT refresh classification, rotation/reuse revoke, replacement insertion, and optional audit now share one FOR UPDATE transaction; replacement credentials return only after commit.
 - [Phase ?]: JWT-only installation remains API-schema-free and documents only host-policy Auth.JWT issuance.
+- [Phase ?]: Phase 244 installer inventory is an exact sorted 56-entry contract including independently shipped JWT and no-LiveView templates.
+- [Phase ?]: PAT post-install guidance names the generated browser/sudo management route /users/api-tokens.
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-12T23:48:58.759Z
-Stopped at: Completed 244-06-PLAN.md
+Last session: 2026-08-13T00:03:23.593Z
+Stopped at: Completed 244-07-PLAN.md
 Resume file: None

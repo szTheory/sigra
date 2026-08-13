@@ -55,9 +55,11 @@ Plans:
   3. A fresh `--jwt` host can independently issue and validate advanced JWT access tokens only when their required configured claims and optional not-before claim are valid.
   4. A host can issue server-scoped JWTs and atomically rotate or revoke refresh-token families without a generated password-to-JWT endpoint or request-selected scopes.
 
-**Plans**: 6/6 plans executed
+**Plans**: 7/7 plans executed
 
 Plans:
+
+- [x] 244-07-PLAN.md
 
 - [x] 244-01-PLAN.md — Split API/JWT generator contracts and lock four-combination idempotent emission.
 - [x] 244-02-PLAN.md — Enforce owner-bound PAT revocation and server-side scope allowlists.
@@ -140,7 +142,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
-| 244. PAT and Advanced JWT Truth Repair | 6/6 | In Progress|  |
+| 244. PAT and Advanced JWT Truth Repair | 7/7 | In Progress|  |
 | 245. Opaque App-Session Core | 0/TBD | Not started | - |
 | 246. Hosted and Direct Login Ceremonies | 0/TBD | Not started | - |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
