@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "b9291028d827875421d407ca730c02ba15496ba5",
+  "run_id": 31737633281,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31737633281",
+  "created_at": "2026-08-13T19:47:50Z",
+  "updated_at": "2026-08-13T19:49:52Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-13T19:49:52Z",
+  "diagnostic": "The generated host compiled, migrated, started, and registered the hosted fixture user. Fixture setup then failed because a generated Ecto :utc_datetime field received a timestamp with microseconds; the harness must truncate that timestamp to seconds before updating the record.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
