@@ -18,7 +18,7 @@ defmodule Sigra.Account.Deletion do
   """
 
   alias Ecto.Multi
-  alias Sigra.{Hooks, Telemetry}
+  alias Sigra.{AppSession, Hooks, Telemetry}
   require Logger
 
   @default_grace_period_days 14
@@ -181,10 +181,10 @@ defmodule Sigra.Account.Deletion do
         get_in(access_config(config), [:deletion, :grace_period_days]) ||
           @default_grace_period_days
 
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      now = DateTime.utc_now()
 
       scheduled_deletion_at =
-        DateTime.add(now, grace_period_days * 86400, :second) |> DateTime.truncate(:second)
+        DateTime.add(now, grace_period_days * 86400, :second)
 
       user_changeset =
         changeset_fn.(user, %{
@@ -198,6 +198,7 @@ defmodule Sigra.Account.Deletion do
         Multi.new()
         |> Multi.update(:user, user_changeset)
         |> Multi.delete_all(:tokens, token_query_fn.(user, :all))
+        |> append_configured_app_session_revocation(config, user)
         |> Hooks.maybe_run_hook(:delete, %{user: user, strategy: get_strategy(config)}, config)
 
       case repo.transaction(multi) do
@@ -216,6 +217,9 @@ defmodule Sigra.Account.Deletion do
 
         {:error, :user, changeset, _} ->
           {:error, changeset}
+
+        {:error, _step, reason, _} ->
+          {:error, reason}
       end
     end)
   end
@@ -396,6 +400,21 @@ defmodule Sigra.Account.Deletion do
   # keyword lists pass through unchanged.
   defp access_config(%_{} = config), do: Map.from_struct(config)
   defp access_config(config), do: config
+
+  defp append_configured_app_session_revocation(multi, config, user) do
+    case get_in(access_config(config), [:app_session]) do
+      settings when is_list(settings) ->
+        if is_atom(Keyword.get(settings, :family_schema)) and
+             is_atom(Keyword.get(settings, :token_schema)) do
+          AppSession.append_revoke_all_multi(multi, config, user, step: :app_session_revoke_all)
+        else
+          multi
+        end
+
+      _ ->
+        multi
+    end
+  end
 
   defp revoke_sessions(user, opts) do
     session_store = Keyword.get(opts, :session_store)
