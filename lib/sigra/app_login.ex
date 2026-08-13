@@ -76,37 +76,41 @@ defmodule Sigra.AppLogin do
   def approve_hosted(config, continuation, user, :approve, opts) do
     now = now(opts)
 
-    with {:ok, profile, payload} <- continuation(config, continuation, now),
-         true <- is_map(user) and not is_nil(Map.get(user, :id)),
-         schema when is_atom(schema) <- config.app_session[:app_login_code_schema],
-         approval_nonce when is_binary(approval_nonce) <- payload["approval_nonce"],
-         {code, _digest} <- Token.generate_hashed_token(),
-         {:ok, _changes} <-
-           config.repo.transaction(
-             Multi.new()
-             |> Multi.insert(
-               :hosted_code,
-               schema
-               |> struct!(%{
-                 kind: :hosted_code,
-                 digest: Token.hash_token(code),
-                 approval_digest: Token.hash_token(approval_nonce),
-                 verifier_digest: Token.hash_token(payload["challenge"]),
-                 profile_id: profile.id,
-                 callback: payload["callback"],
-                 user_id: user.id,
-                 client_ref: profile.client_ref,
-                 expires_at: DateTime.add(now, @code_ttl, :second)
-               })
-               |> Ecto.Changeset.change()
-               |> Ecto.Changeset.unique_constraint(:approval_digest,
-                 name: approval_digest_constraint_name(schema)
+    try do
+      with {:ok, profile, payload} <- continuation(config, continuation, now),
+           true <- is_map(user) and not is_nil(Map.get(user, :id)),
+           schema when is_atom(schema) <- config.app_session[:app_login_code_schema],
+           approval_nonce when is_binary(approval_nonce) <- payload["approval_nonce"],
+           {code, _digest} <- Token.generate_hashed_token(),
+           {:ok, _changes} <-
+             config.repo.transaction(
+               Multi.new()
+               |> Multi.insert(
+                 :hosted_code,
+                 schema
+                 |> struct!(%{
+                   kind: :hosted_code,
+                   digest: Token.hash_token(code),
+                   approval_digest: Token.hash_token(approval_nonce),
+                   verifier_digest: Token.hash_token(payload["challenge"]),
+                   profile_id: profile.id,
+                   callback: payload["callback"],
+                   user_id: user.id,
+                   client_ref: profile.client_ref,
+                   expires_at: DateTime.add(now, @code_ttl, :second)
+                 })
+                 |> Ecto.Changeset.change()
+                 |> Ecto.Changeset.unique_constraint(:approval_digest,
+                   name: approval_digest_constraint_name(schema)
+                 )
                )
-             )
-           ) do
-      {:ok, %{code: code, callback: payload["callback"], state: payload["state"]}}
-    else
-      _ -> {:error, :invalid_continuation}
+             ) do
+        {:ok, %{code: code, callback: payload["callback"], state: payload["state"]}}
+      else
+        _ -> {:error, :invalid_continuation}
+      end
+    rescue
+      _exception -> {:error, :invalid_continuation}
     end
   end
 
