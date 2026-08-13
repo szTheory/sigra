@@ -41,6 +41,28 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "proof must use bounded readiness rather than sleeps"
   end
 
+  test "fresh-host proof authenticates generated credentials and rejects replays over HTTP" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "install_proof_route",
+          "Sigra.Plug.FetchAppSession",
+          "/api/app-login-proof",
+          "prove_fetch_app_session",
+          "prove_hosted_replay",
+          "prove_direct_replay",
+          "hosted credential did not remain valid after replay",
+          "direct credential did not remain valid after replay",
+          "assert_one_family hosted hosted_code",
+          "assert_one_family direct direct_mfa"
+        ] do
+      assert harness =~ marker, "fresh-host harness missing #{inspect(marker)}"
+    end
+
+    refute harness =~ "FetchAppSession' \"$router\" || true",
+           "the protected generated route must be installed, not merely mentioned"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 

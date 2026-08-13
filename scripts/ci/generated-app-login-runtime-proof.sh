@@ -52,6 +52,116 @@ csrf_token() {
   sed -nE 's/.*name="_csrf_token" value="([^"]+)".*/\1/p' "$page" | head -n 1
 }
 
+json_field() {
+  local field="$1"
+  local path="$2"
+  sed -nE "s/.*\"${field}\":\"([^\"]+)\".*/\\1/p" "$path" | head -n 1
+}
+
+install_proof_route() {
+  local router="${APP_DIR}/lib/${APP_NAME}_web/router.ex"
+  local controller="${APP_DIR}/lib/${APP_NAME}_web/controllers/app_login_proof_controller.ex"
+
+  cat > "$controller" <<'EOF'
+defmodule SigraAppLoginProofWeb.AppLoginProofController do
+  use SigraAppLoginProofWeb, :controller
+
+  def show(conn, _params) do
+    scope = conn.assigns.current_scope
+    auth = conn.private[:sigra_auth]
+
+    json(conn, %{
+      scope_user_id: scope.user.id,
+      credential_kind: auth.credential_kind,
+      credential_id: auth.credential_id,
+      family_id: auth.family_id,
+      scopes: auth.scopes,
+      auth_method: auth.auth_method,
+      assurance: auth.assurance
+    })
+  end
+end
+EOF
+
+  perl -0pi -e 's/\nend\s*\z/\n  pipeline :app_session_proof do\n    plug Sigra.Plug.FetchAppSession,\n      config: SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config(),\n      scope_module: SigraAppLoginProof.Accounts.Scope\n  end\n\n  scope "\/api", SigraAppLoginProofWeb do\n    pipe_through [:api, :app_session_proof]\n\n    get "\/app-login-proof", AppLoginProofController, :show\n  end\nend\n/' "$router"
+  grep -Fq 'Sigra.Plug.FetchAppSession' "$router"
+  grep -Fq 'get "/app-login-proof", AppLoginProofController, :show' "$router"
+}
+
+prove_fetch_app_session() {
+  local label="$1"
+  local access_token="$2"
+  local expected_family_id="$3"
+  local body="${APP_DIR}/${label}-fetch-app-session.json"
+  local status
+
+  status="$(curl --silent --show-error -H "authorization: Bearer ${access_token}" \
+    -o "$body" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login-proof")"
+  [[ "$status" == "200" ]]
+  [[ "$(json_field family_id "$body")" == "$expected_family_id" ]]
+  [[ -n "$(json_field scope_user_id "$body")" ]]
+  [[ -n "$(json_field credential_id "$body")" ]]
+  grep -Fq '"credential_kind":"app_session"' "$body"
+  grep -Fq '"auth_method":"app_session"' "$body"
+  grep -Fq '"scopes":[]' "$body"
+  grep -Fq '"assurance":[]' "$body"
+  ! grep -Eq '"(access_token|refresh_token|digest|callback|state|challenge|client_ref|email|password)"' "$body"
+}
+
+assert_one_family() {
+  local label="$1"
+  local expected_kind="$2"
+
+  EXPECTED_KIND="$expected_kind" EXPECTED_LABEL="$label" run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    count = Repo.aggregate(Accounts.UserAppSessionFamily, :count, :id)
+    if count != 1, do: raise("expected exactly one #{System.fetch_env!("EXPECTED_LABEL")} app-session family")
+
+    kind = String.to_existing_atom(System.fetch_env!("EXPECTED_KIND"))
+    attempts = Repo.all(Accounts.UserAppLoginAttempt)
+    if Enum.count(attempts, &(&1.kind == kind)) != 1, do: raise("expected exactly one #{kind} attempt")
+  '
+}
+
+prove_hosted_replay() {
+  local code="$1"
+  local verifier="$2"
+  local access_token="$3"
+  local family_id="$4"
+  local status
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"code\":\"$code\",\"code_verifier\":\"$verifier\",\"profile_id\":\"ios-primary\",\"callback\":\"http://127.0.0.1:49152/callback\"}" \
+    -o "${APP_DIR}/hosted-replay.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/exchange")"
+  [[ "$status" == "400" ]]
+  prove_fetch_app_session hosted "$access_token" "$family_id" || {
+    echo "hosted credential did not remain valid after replay" >&2
+    return 1
+  }
+  assert_one_family hosted hosted_code
+}
+
+prove_direct_replay() {
+  local challenge="$1"
+  local backup_code="$2"
+  local access_token="$3"
+  local family_id="$4"
+  local status
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"challenge\":\"$challenge\",\"code\":\"$backup_code\",\"factor\":\"backup_code\"}" \
+    -o "${APP_DIR}/direct-replay.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/direct/mfa")"
+  [[ "$status" == "401" ]]
+  grep -Fxq '{"error":"invalid_credentials"}' "${APP_DIR}/direct-replay.json"
+  prove_fetch_app_session direct "$access_token" "$family_id" || {
+    echo "direct credential did not remain valid after replay" >&2
+    return 1
+  }
+  assert_one_family direct direct_mfa
+}
+
 seed_confirmed_user() {
   # The disposable host owns this deterministic fixture identity. Browser
   # authentication still happens through the generated login route and cookie jar.
@@ -91,7 +201,7 @@ prove_direct_mfa_ceremony() {
   local direct_body="${APP_DIR}/direct-start.json"
   local mfa_body="${APP_DIR}/direct-mfa.json"
   local invalid_body="${APP_DIR}/direct-invalid-factor.json"
-  local challenge backup_code status
+  local challenge backup_code status access_token family_id
 
   seed_direct_mfa_user
   backup_code="$(<"${APP_DIR}/direct-backup-code")"
@@ -112,6 +222,10 @@ prove_direct_mfa_ceremony() {
   grep -Eq '"access_token":"[^"]+"' "$mfa_body"
   grep -Eq '"refresh_token":"[^"]+"' "$mfa_body"
   grep -Eq '"family_id":"[^"]+"' "$mfa_body"
+  access_token="$(json_field access_token "$mfa_body")"
+  family_id="$(json_field family_id "$mfa_body")"
+  [[ -n "$access_token" && -n "$family_id" ]]
+  prove_fetch_app_session direct "$access_token" "$family_id"
 
   DIRECT_CHALLENGE="$challenge" DIRECT_BACKUP_CODE="$backup_code" run "$APP_DIR" mix run -e '
     alias SigraAppLoginProof.Accounts
@@ -128,11 +242,10 @@ prove_direct_mfa_ceremony() {
     if backup.hashed_code == backup_code, do: raise("raw backup code persisted")
   '
 
-  status="$(curl --silent --show-error -H 'content-type: application/json' \
-    -d "{\"challenge\":\"$challenge\",\"code\":\"$backup_code\",\"factor\":\"unknown\"}" \
-    -o "$invalid_body" -w '%{http_code}' "$base/api/app-login/direct/mfa")"
-  [[ "$status" == "401" ]]
-  grep -Fxq '{"error":"invalid_credentials"}' "$invalid_body"
+  prove_direct_replay "$challenge" "$backup_code" "$access_token" "$family_id"
+  DIRECT_SUCCESS=true
+  DIRECT_REPLAY_REJECTED=true
+  DIRECT_FETCH_APP_SESSION=true
 }
 
 prove_hosted_ceremony() {
@@ -142,7 +255,7 @@ prove_hosted_ceremony() {
   local approval_page="${APP_DIR}/hosted-approval.html"
   local approval_headers="${APP_DIR}/hosted-approval.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
-  local login_csrf approval_csrf verifier challenge callback code state status
+  local login_csrf approval_csrf verifier challenge callback code state status access_token family_id
 
   seed_confirmed_user
   curl --fail --silent --show-error --cookie-jar "$cookie_jar" -o "$login_page" "$base/users/log_in"
@@ -186,6 +299,15 @@ prove_hosted_ceremony() {
   grep -Eq '"access_token":"[^"]+"' "$exchange_body"
   grep -Eq '"refresh_token":"[^"]+"' "$exchange_body"
   grep -Eq '"family_id":"[^"]+"' "$exchange_body"
+  access_token="$(json_field access_token "$exchange_body")"
+  family_id="$(json_field family_id "$exchange_body")"
+  [[ -n "$access_token" && -n "$family_id" ]]
+  prove_fetch_app_session hosted "$access_token" "$family_id"
+
+  prove_hosted_replay "$code" "$verifier" "$access_token" "$family_id"
+  HOSTED_SUCCESS=true
+  HOSTED_REPLAY_REJECTED=true
+  HOSTED_FETCH_APP_SESSION=true
 }
 
 patch_host() {
@@ -205,7 +327,7 @@ assert_inventory() {
   grep -Fq 'AppLoginController' "$router"
   # Generated router must retain the app_login_public rate-limited boundary.
   grep -Fq 'app_login_public' "$router"
-  grep -Fq 'FetchAppSession' "$router" || true # protected-route hosts may wire this in host policy.
+  grep -Fq 'FetchAppSession' "$router"
   if [[ "$mode" == hosted ]]; then
     ! grep -Fq 'post "/direct"' "$router"
   else
@@ -239,6 +361,7 @@ prove_host() {
   [[ "$mode" == direct ]] && flags+=(--app-password-login)
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
+  install_proof_route
   run "$APP_DIR" mix ecto.create
   pg_isready -h "$PGHOST" -p "$PGPORT" -d "$database" -t 5
   run "$APP_DIR" mix ecto.migrate
