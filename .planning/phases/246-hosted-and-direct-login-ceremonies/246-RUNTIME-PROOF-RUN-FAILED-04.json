@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "62f2ba4ebd832b6385fcdf36a4ef5b33f4f25c1b",
+  "run_id": 31725371018,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31725371018",
+  "created_at": "2026-08-13T17:22:24Z",
+  "updated_at": "2026-08-13T17:24:19Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-13T17:24:19Z",
+  "diagnostic": "Dependencies were fetched successfully. The generated router then compiled with a module-level FetchAppSession config call that accessed Endpoint configuration before the endpoint ETS table existed.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
