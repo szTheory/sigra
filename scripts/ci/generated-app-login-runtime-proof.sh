@@ -95,7 +95,7 @@ defmodule SigraAppLoginProofWeb.AppLoginProofController do
 end
 EOF
 
-  perl -0pi -e 's/\nend\s*\z/\n  pipeline :app_session_proof do\n    plug Sigra.Plug.FetchAppSession,\n      config: SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config(),\n      scope_module: SigraAppLoginProof.Accounts.Scope\n  end\n\n  scope "\/api", SigraAppLoginProofWeb do\n    pipe_through [:api, :app_session_proof]\n\n    get "\/app-login-proof", AppLoginProofController, :show\n  end\nend\n/' "$router"
+  perl -0pi -e 's/\nend\s*\z/\n  pipeline :app_session_proof do\n    plug Sigra.Plug.FetchAppSession,\n      config: \&SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config\/0,\n      scope_module: SigraAppLoginProof.Accounts.Scope\n  end\n\n  scope "\/api", SigraAppLoginProofWeb do\n    pipe_through [:api, :app_session_proof]\n\n    get "\/app-login-proof", AppLoginProofController, :show\n  end\nend\n/' "$router"
   grep -Fq 'Sigra.Plug.FetchAppSession' "$router"
   grep -Fq 'get "/app-login-proof", AppLoginProofController, :show' "$router"
 }

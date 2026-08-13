@@ -67,7 +67,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     harness = read!(@harness)
 
     assert harness =~
-             "config: &SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config/0",
+             "config: \\&SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config\\/0",
            "router compilation must retain a config function instead of reading Endpoint ETS"
 
     refute harness =~
