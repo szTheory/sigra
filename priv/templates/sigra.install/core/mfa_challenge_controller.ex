@@ -12,6 +12,7 @@ defmodule <%= web_module %>.MFAChallengeController do
   use <%= web_module %>, :controller
 
   alias <%= context_module %>, as: Auth
+  alias <%= web_module %>.UserAuth
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
   alias <%= web_module %>.AppLoginContinuation
 <% end %>
@@ -39,6 +40,8 @@ defmodule <%= web_module %>.MFAChallengeController do
     code = mfa_params["code"] || ""
     trust = mfa_params["trust"] == "true"
     method = if mfa_params["method"] == "backup", do: :backup, else: :totp
+    remember_me = get_session(conn, :mfa_remember_me) == true
+    old_session = conn.private[:sigra_session]
 
     result =
       case method do
@@ -48,18 +51,26 @@ defmodule <%= web_module %>.MFAChallengeController do
 
     case result do
       {:ok, _} ->
-        return_to = get_session(conn, :mfa_return_to) || ~p"/"
+        case complete_mfa_session(conn, user, old_session, remember_me) do
+          {:ok, conn} ->
+            return_to = get_session(conn, :mfa_return_to) || ~p"/"
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
-        {conn, return_to} = app_login_return_to(conn, return_to)
+            {conn, return_to} = app_login_return_to(conn, return_to)
 <% end %>
 
-        conn
-        |> delete_session(:mfa_pending)
-        |> delete_session(:mfa_return_to)
-        |> delete_session(:mfa_remember_me)
-        |> maybe_set_trust_cookie(user, trust)
-        |> put_flash(:info, "Two-factor authentication verified.")
-        |> redirect(to: return_to)
+            conn
+            |> delete_session(:mfa_pending)
+            |> delete_session(:mfa_return_to)
+            |> delete_session(:mfa_remember_me)
+            |> maybe_set_trust_cookie(user, trust)
+            |> put_flash(:info, "Two-factor authentication verified.")
+            |> redirect(to: return_to)
+
+          {:error, :session_upgrade_failed} ->
+            conn
+            |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")
+            |> redirect(to: ~p"/users/mfa")
+        end
 
       {:error, :invalid_code, remaining} ->
         masked_email = mask_email(user.email)
@@ -87,6 +98,16 @@ defmodule <%= web_module %>.MFAChallengeController do
         |> put_flash(:error, "MFA is not enabled on your account.")
         |> redirect(to: ~p"/users/settings")
         |> halt()
+    end
+  end
+
+  defp complete_mfa_session(conn, user, old_session, remember_me) do
+    with %{type: :mfa_pending} <- old_session,
+         {:ok, %{session: upgraded_session}} <-
+           Auth.complete_mfa_verification(user, old_session, remember_me: remember_me) do
+      {:ok, UserAuth.put_user_session_token(conn, upgraded_session.token)}
+    else
+      _ -> {:error, :session_upgrade_failed}
     end
   end
 

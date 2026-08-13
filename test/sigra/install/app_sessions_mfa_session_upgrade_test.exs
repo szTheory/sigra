@@ -27,8 +27,11 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
 
     assert controller =~ "old_session = conn.private[:sigra_session]"
     assert controller =~ "%{type: :mfa_pending} <- old_session"
-    assert controller =~ "Auth.complete_mfa_verification(user, old_session, remember_me: remember_me)"
-    assert controller =~ "UserAuth.put_user_session_token(upgraded_session.token)"
+
+    assert controller =~
+             "Auth.complete_mfa_verification(user, old_session, remember_me: remember_me)"
+
+    assert controller =~ "UserAuth.put_user_session_token(conn, upgraded_session.token)"
     assert controller =~ "delete_session(:mfa_pending)"
     assert controller =~ ~s(~p"/app-login/continue")
   end
