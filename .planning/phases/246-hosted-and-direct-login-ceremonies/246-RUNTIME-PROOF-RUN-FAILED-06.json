@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "3dddcb597efc1692f54063109750fcb37347c7da",
+  "run_id": 31735054153,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31735054153",
+  "created_at": "2026-08-13T19:17:02Z",
+  "updated_at": "2026-08-13T19:19:00Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-13T19:19:00Z",
+  "diagnostic": "The generated host compiled and migrated successfully. The runtime harness then failed before readiness because the background server launch did not create the expected APP_DIR/server.pid file.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
