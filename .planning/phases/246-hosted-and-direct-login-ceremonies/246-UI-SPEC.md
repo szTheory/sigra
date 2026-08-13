@@ -1,10 +1,11 @@
 ---
 phase: 246
 slug: hosted-and-direct-login-ceremonies
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-08-12
+reviewed_at: 2026-08-12
 ---
 
 # Phase 246 — Hosted and Direct Login Ceremonies UI Design Contract
@@ -116,17 +117,20 @@ Direct endpoint contract: `browser_required` is the sole policy-specific JSON re
 
 ## UI Considerations
 
-Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved.
+Applicable state considerations resolved: 8 covered, 0 backstop, 0 unresolved.
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
-| empty | Approval decision form | ✅ covered | A missing, expired, or tampered continuation is not rendered as an empty decision; it returns the documented generic invalid-request response without leaked facts. |
-| loading | Approve and decline forms | ✅ covered | Native POST/redirect is the in-flight treatment. No progress animation is permitted because the server must atomically consume and issue before redirecting. |
-| error | Hosted start, continuation, approve, decline | ✅ covered | Malformed, expired, tampered, or consumed state produces `Invalid app login request.` with HTTP 400 and no sensitive context. |
-| partial | Approval decision form | ✅ covered | The only rendered dynamic datum is the validated static profile name. The decision is never partially populated with callback, state, PKCE, credential, or account data. |
-| long-text | Page title, explanation, button labels | ✅ covered | Static profile names wrap anywhere within the constrained auth flow; fixed action labels remain fully visible and buttons are full width. |
+| empty | E1 — Approval decision form | ✅ covered | An invalid or missing continuation does not render an empty decision; it returns the generic HTTP 400 invalid-request response without leaked facts. |
+| loading | E1 — Approval decision form | ✅ covered | Native POST/redirect navigation is the only in-flight treatment. No progress animation is permitted because the server must atomically consume and issue before redirecting. |
+| error | E1 — Approval decision form | ✅ covered | Malformed, expired, tampered, or consumed state produces `Invalid app login request.` with HTTP 400 and no sensitive context. |
+| partial | E1 — Approval decision form | ✅ covered | The form renders only after complete continuation validation and never exposes partially populated callback, state, PKCE, credential, or account data. |
+| long-text | E1 — Approval decision form | ✅ covered | Long static profile names wrap within the constrained auth panel. |
+| long-text | E2 — Approve and decline controls | ✅ covered | Fixed action labels remain fully visible and wrap safely within full-width buttons. |
+| overflow | E3 — Static page content | ✅ covered | The title and explanatory copy wrap and reflow within the panel without clipping or horizontal scrolling. |
+| long-text | E3 — Static page content | ✅ covered | Profile names use `overflow-wrap: anywhere`; headings and copy reflow without truncation. |
 
-Direct JSON response bodies are protocol data, not UI elements. Collection/populated/zero-one-many/overflow concerns are dismissed as not applicable; the page has no list, media, navigation collection, or user-entered content.
+Direct JSON response bodies are protocol data, not UI elements. The explicit probe classifications are E1 `form` + `interactive-control`, E2 `interactive-control`, and E3 `static-content`; list, collection, media, and navigation element kinds are not present.
 
 ---
 
@@ -150,11 +154,11 @@ Direct JSON response bodies are protocol data, not UI elements. Collection/popul
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved — 2026-08-12
