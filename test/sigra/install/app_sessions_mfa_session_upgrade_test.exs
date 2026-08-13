@@ -45,6 +45,32 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
     refute controller =~ "Auth.complete_mfa_verification(user, nil"
   end
 
+  @tag :live
+  test "LiveView TOTP and backup completion cross the controller-owned session seam" do
+    live = render_template("mfa_challenge_live.ex", app_sessions: true)
+    controller = render_template("mfa_challenge_controller.ex", app_sessions: true)
+
+    assert live =~ ~s(id="mfa_totp_form")
+    assert live =~ ~s(id="mfa_backup_form")
+    assert live =~ ~s(action={~p"/users/mfa"})
+    assert live =~ ~s(method="post")
+    assert live =~ ~s(name="mfa[method]" value="totp")
+    assert live =~ ~s(name="mfa[method]" value="backup")
+    assert live =~ "Plug.CSRFProtection.get_csrf_token()"
+    assert live =~ "cannot consume a factor without rotating the persisted browser session"
+    refute live =~ "case Auth.mfa_verify(user, code)"
+    assert controller =~ "defp complete_mfa_session(conn, user, old_session, remember_me)"
+  end
+
+  @tag :live
+  test "unselected LiveView MFA keeps its ordinary event destination" do
+    live = render_template("mfa_challenge_live.ex", app_sessions: false)
+
+    assert live =~ "phx-submit=\"verify_totp\""
+    assert live =~ "phx-submit=\"verify_backup\""
+    refute live =~ ~s(action={~p"/users/mfa"})
+  end
+
   defp render_template(name, opts) do
     EEx.eval_file(Path.join(@template_dir, name), Keyword.put(@binding, :opts, opts))
   end

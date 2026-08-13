@@ -212,6 +212,16 @@ defmodule <%= web_module %>.MFAChallengeLive do
         id="panel-totp"
         class="sigra-auth-stack sigra-auth-stack--4"
       >
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        <form
+          id="mfa_totp_form"
+          action={~p"/users/mfa"}
+          method="post"
+          class="sigra-auth-stack sigra-auth-stack--4"
+        >
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="mfa[method]" value="totp" />
+<% else %>
         <.form
           for={@totp_form}
           id="mfa_totp_form"
@@ -219,6 +229,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           phx-submit="verify_totp"
           class="sigra-auth-stack sigra-auth-stack--4"
         >
+<% end %>
           <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
               <label for="mfa_totp_code">
@@ -254,7 +265,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
               Verify
             </.sigra_auth_button>
           </div>
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        </form>
+<% else %>
         </.form>
+<% end %>
       </div>
 
       <%% # Backup Code Content %>
@@ -263,12 +278,23 @@ defmodule <%= web_module %>.MFAChallengeLive do
         id="panel-backup"
         class="sigra-auth-stack sigra-auth-stack--4"
       >
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        <form
+          id="mfa_backup_form"
+          action={~p"/users/mfa"}
+          method="post"
+          class="sigra-auth-stack sigra-auth-stack--4"
+        >
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="mfa[method]" value="backup" />
+<% else %>
         <.form
           for={@backup_form}
           id="mfa_backup_form"
           phx-submit="verify_backup"
           class="sigra-auth-stack sigra-auth-stack--4"
         >
+<% end %>
           <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
               <label for="mfa_backup_code">
@@ -290,7 +316,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
               Verify
             </.sigra_auth_button>
           </div>
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        </form>
+<% else %>
         </.form>
+<% end %>
       </div>
 
       <%% # Remaining attempts hint (D-38) %>
@@ -371,6 +401,16 @@ defmodule <%= web_module %>.MFAChallengeLive do
     {:noreply, assign(socket, totp_form: form)}
   end
 
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+  # App-session MFA must cross the controller's CSRF-protected Plug-session seam.
+  # The rendered forms POST there directly; reject forged LiveView events so they
+  # cannot consume a factor without rotating the persisted browser session.
+  def handle_event(event, _params, socket) when event in ["verify_totp", "verify_backup"] do
+    {:noreply,
+     socket
+     |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")}
+  end
+<% else %>
   def handle_event("verify_totp", %{"mfa" => params}, socket) do
     user = socket.assigns.current_scope.user
     code = params["code"] || ""
@@ -453,6 +493,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
          |> redirect(to: ~p"/users/settings")}
     end
   end
+<% end %>
 
   def handle_info({:auto_verify_totp, code}, socket) do
     handle_event("verify_totp", %{"mfa" => %{"code" => code, "trust" => "false"}}, socket)
