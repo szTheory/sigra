@@ -108,6 +108,23 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "read the PID from the launch shell instead of relying on a misplaced pid file"
   end
 
+  test "generated-host readiness supplies an ephemeral Vault key and fails fast on server exit" do
+    harness = read!(@harness)
+
+    assert harness =~ "CLOAK_KEY=\"$(openssl rand -base64 32)\"",
+           "the disposable generated host must receive an ephemeral Vault key"
+
+    assert harness =~
+             "CLOAK_KEY=\"$CLOAK_KEY\" PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &",
+           "the generated Phoenix process must inherit the ephemeral Vault key"
+
+    assert harness =~ "kill -0 \"$SERVER_PID\"",
+           "readiness must immediately detect a server process that already exited"
+
+    assert harness =~ "generated host process exited before readiness; see ${APP_DIR}/server.log",
+           "readiness failures must point to the retained, credential-free server diagnostic"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
