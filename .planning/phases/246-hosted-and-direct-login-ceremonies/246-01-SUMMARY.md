@@ -95,7 +95,7 @@ status: complete
 
 ## Issues Encountered
 
-None.
+The focused PostgreSQL verification passed (14 tests). A subsequent full `MIX_ENV=test mix test` run reported 21 pre-existing/unrelated failures, including architecture-guide source drift, installer-template drift, and historical planning-contract files. These failures are outside this tracer's declared files and were not modified.
 
 ## User Setup Required
 
