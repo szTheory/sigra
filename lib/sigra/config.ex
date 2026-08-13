@@ -879,6 +879,12 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    app_session: [
+      type: {:custom, Sigra.Config, :validate_app_session, []},
+      default: [],
+      doc:
+        "Opaque first-party app session storage and lifecycle options. Host schemas are supplied here; generators own emitted schema modules and migrations."
+    ],
     deletion: [
       type: :keyword_list,
       default: [],
@@ -1006,6 +1012,7 @@ defmodule Sigra.Config do
           oauth: keyword(),
           api_token: keyword(),
           jwt: keyword(),
+          app_session: keyword(),
           deletion: keyword(),
           hooks: keyword(),
           audit: keyword()
@@ -1042,6 +1049,7 @@ defmodule Sigra.Config do
     oauth: [],
     api_token: [],
     jwt: [],
+    app_session: [],
     deletion: [],
     hooks: [],
     audit: []
@@ -1106,6 +1114,44 @@ defmodule Sigra.Config do
   @spec validate_jwt_typ(term()) :: {:ok, String.t()} | {:error, String.t()}
   def validate_jwt_typ(typ) when is_binary(typ) and byte_size(typ) > 0, do: {:ok, typ}
   def validate_jwt_typ(_), do: {:error, "must be a non-empty string"}
+
+  @doc false
+  @spec validate_app_session(term()) :: {:ok, keyword()} | {:error, String.t()}
+  def validate_app_session(options) when is_list(options) do
+    defaults = [
+      family_schema: nil,
+      token_schema: nil,
+      access_ttl: 900,
+      refresh_idle_ttl: 2_592_000,
+      absolute_ttl: 7_776_000
+    ]
+
+    unknown = Keyword.keys(options) -- Keyword.keys(defaults)
+    normalized = Keyword.merge(defaults, options)
+
+    cond do
+      unknown != [] ->
+        {:error, "contains unsupported options"}
+
+      not Enum.all?([:family_schema, :token_schema], &(is_nil(normalized[&1]) or is_atom(normalized[&1]))) ->
+        {:error, "schema options must be modules or nil"}
+
+      is_nil(normalized[:family_schema]) != is_nil(normalized[:token_schema]) ->
+        {:error, "family_schema and token_schema must be configured together"}
+
+      not Enum.all?([:access_ttl, :refresh_idle_ttl, :absolute_ttl], &(is_integer(normalized[&1]) and normalized[&1] > 0)) ->
+        {:error, "TTL values must be positive integers"}
+
+      not (normalized[:access_ttl] < normalized[:refresh_idle_ttl] and
+             normalized[:refresh_idle_ttl] <= normalized[:absolute_ttl]) ->
+        {:error, "requires access_ttl < refresh_idle_ttl <= absolute_ttl"}
+
+      true ->
+        {:ok, normalized}
+    end
+  end
+
+  def validate_app_session(_), do: {:error, "must be a keyword list"}
 
   @doc false
   # NimbleOptions custom validator for the audit[:forwarders] list (D-06, Phase 131).

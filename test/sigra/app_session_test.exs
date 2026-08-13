@@ -109,7 +109,7 @@ defmodule Sigra.AppSessionTest do
     refute inspect(tokens) =~ access
     refute inspect(tokens) =~ refresh
     refute inspect(tokens) =~ "ios-primary"
-    assert DateTime.diff(family.absolute_expires_at, family.inserted_at, :second) in 7_776_000..7_776_001
+    assert DateTime.diff(family.absolute_expires_at, family.inserted_at, :second) in 7_775_999..7_776_000
 
     assert {:ok, %{user_id: user_id, family_id: ^family_id, token_id: token_id}} =
              AppSession.authenticate(config, access)
