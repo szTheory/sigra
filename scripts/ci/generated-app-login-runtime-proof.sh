@@ -49,6 +49,11 @@ run() { (cd "$1"; shift; "$@"); }
 wait_for_http() {
   local attempt=0
   until curl --fail --silent --show-error "http://127.0.0.1:${PORT}/" >/dev/null; do
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+      echo "generated host process exited before readiness; see ${APP_DIR}/server.log" >&2
+      return 1
+    fi
+
     attempt=$((attempt + 1))
     if (( attempt >= 30 )); then
       echo "generated host did not become ready within 30 bounded probes" >&2
@@ -423,6 +428,7 @@ write_receipt_last() {
 prove_host() {
   local mode="$1"
   local database="sigra_app_login_${mode}_$(openssl rand -hex 6)"
+  local CLOAK_KEY
   rm -rf "$APP_DIR"
   run "$SIGRA_REPO" mix phx.new "$APP_DIR" --no-install --no-dashboard --database postgres --module SigraAppLoginProof --app "$APP_NAME"
   patch_host "$database"
@@ -443,8 +449,9 @@ prove_host() {
   run "$APP_DIR" mix ecto.migrate
   run "$APP_DIR" mix compile --warnings-as-errors
   (cd "$APP_DIR" && assert_inventory "$mode")
+  CLOAK_KEY="$(openssl rand -base64 32)"
   pushd "$APP_DIR" >/dev/null
-  PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
+  CLOAK_KEY="$CLOAK_KEY" PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
   SERVER_PID=$!
   popd >/dev/null
   wait_for_http

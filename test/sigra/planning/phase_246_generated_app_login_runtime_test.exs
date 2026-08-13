@@ -96,8 +96,10 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host server launch captures its PID inside the application cwd" do
     harness = read!(@harness)
 
-    assert harness =~
-             "pushd \"$APP_DIR\" >/dev/null\n  PORT=\"$PORT\" PHX_SERVER=true mix phx.server > server.log 2>&1 &\n  SERVER_PID=$!\n  popd >/dev/null",
+    assert harness =~ "pushd \"$APP_DIR\" >/dev/null\n  CLOAK_KEY=",
+           "the server process must start from the generated host cwd"
+
+    assert harness =~ "SERVER_PID=$!\n  popd >/dev/null",
            "the server process and PID capture must share the generated host cwd"
 
     refute harness =~
