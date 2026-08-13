@@ -18,6 +18,7 @@ defmodule Sigra.AppLoginTest do
           id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
           kind varchar(255) NOT NULL,
           digest bytea NOT NULL UNIQUE,
+          approval_digest bytea UNIQUE,
           verifier_digest bytea NOT NULL,
           profile_id varchar(255) NOT NULL,
           callback text NOT NULL,
@@ -35,6 +36,18 @@ defmodule Sigra.AppLoginTest do
       Ecto.Adapters.SQL.query!(
         repo,
         "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS kind varchar(255) NOT NULL DEFAULT 'hosted_code'",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts ADD COLUMN IF NOT EXISTS approval_digest bytea",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "CREATE UNIQUE INDEX IF NOT EXISTS sigra_app_login_attempts_approval_digest_index ON sigra_app_login_attempts (approval_digest)",
         []
       )
 
@@ -114,6 +127,9 @@ defmodule Sigra.AppLoginTest do
 
     attempt = repo.one!(Attempt)
     assert attempt.kind == :hosted_code
+    assert byte_size(attempt.approval_digest) == 32
+    refute attempt.approval_digest == Sigra.Token.hash_token(code)
+    refute attempt.approval_digest == Sigra.Token.hash_token(challenge)
     assert DateTime.to_unix(attempt.expires_at) == DateTime.to_unix(started_at) + 60
     assert attempt.verifier_digest == Sigra.Token.hash_token(challenge)
     assert Sigra.AppLogin.PKCE.challenge(verifier) == challenge

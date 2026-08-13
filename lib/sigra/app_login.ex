@@ -48,11 +48,14 @@ defmodule Sigra.AppLogin do
 
     with {:ok, profile, callback, state, challenge} <- hosted_request(config, params),
          secret when is_binary(secret) and secret != "" <- config.secret_key_base do
+      {approval_nonce, _approval_digest} = Token.generate_hashed_token()
+
       payload = %{
         "profile_id" => profile.id,
         "callback" => callback,
         "state" => state,
         "challenge" => challenge,
+        "approval_nonce" => approval_nonce,
         "issued_at" => DateTime.to_unix(now)
       }
 
@@ -76,19 +79,30 @@ defmodule Sigra.AppLogin do
     with {:ok, profile, payload} <- continuation(config, continuation, now),
          true <- is_map(user) and not is_nil(Map.get(user, :id)),
          schema when is_atom(schema) <- config.app_session[:app_login_code_schema],
+         approval_nonce when is_binary(approval_nonce) <- payload["approval_nonce"],
          {code, _digest} <- Token.generate_hashed_token(),
-         {:ok, _} <-
-           config.repo.insert(
-             struct!(schema, %{
-               kind: :hosted_code,
-               digest: Token.hash_token(code),
-               verifier_digest: Token.hash_token(payload["challenge"]),
-               profile_id: profile.id,
-               callback: payload["callback"],
-               user_id: user.id,
-               client_ref: profile.client_ref,
-               expires_at: DateTime.add(now, @code_ttl, :second)
-             })
+         {:ok, _changes} <-
+           config.repo.transaction(
+             Multi.new()
+             |> Multi.insert(
+               :hosted_code,
+               schema
+               |> struct!(%{
+                 kind: :hosted_code,
+                 digest: Token.hash_token(code),
+                 approval_digest: Token.hash_token(approval_nonce),
+                 verifier_digest: Token.hash_token(payload["challenge"]),
+                 profile_id: profile.id,
+                 callback: payload["callback"],
+                 user_id: user.id,
+                 client_ref: profile.client_ref,
+                 expires_at: DateTime.add(now, @code_ttl, :second)
+               })
+               |> Ecto.Changeset.change()
+               |> Ecto.Changeset.unique_constraint(:approval_digest,
+                 name: approval_digest_constraint_name(schema)
+               )
+             )
            ) do
       {:ok, %{code: code, callback: payload["callback"], state: payload["state"]}}
     else
@@ -180,11 +194,13 @@ defmodule Sigra.AppLogin do
             "callback" => callback,
             "state" => state,
             "challenge" => challenge,
+            "approval_nonce" => approval_nonce,
             "issued_at" => issued_at
           } = payload} <-
            Token.verify(secret, @continuation_purpose, token, max_age: @continuation_ttl),
          true <-
-           is_binary(callback) and is_binary(state) and state != "" and is_integer(issued_at),
+           is_binary(callback) and is_binary(state) and state != "" and is_binary(approval_nonce) and
+             is_integer(issued_at),
          true <- DateTime.to_unix(now) < issued_at + @continuation_ttl,
          true <- PKCE.valid_challenge?(challenge),
          {:ok, profile} <- first_party_profile(config, id),
@@ -196,6 +212,10 @@ defmodule Sigra.AppLogin do
   end
 
   defp continuation(_, _, _), do: {:error, :invalid_continuation}
+
+  defp approval_digest_constraint_name(schema) do
+    "#{schema.__schema__(:source)}_approval_digest_index"
+  end
 
   defp first_party_profile(config, id) when is_binary(id) do
     case Enum.find(config.app_session[:first_party_profiles] || [], &(&1.id == id)) do

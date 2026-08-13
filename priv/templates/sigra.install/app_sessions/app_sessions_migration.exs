@@ -38,6 +38,7 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
       add :id, :binary_id, primary_key: true
       add :kind, :string, null: false
       add :digest, :binary, null: false
+      add :approval_digest, :binary
       add :verifier_digest, :binary
       add :profile_id, :string, null: false
       add :client_ref, :string, null: false
@@ -50,6 +51,7 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
     end
 
     create unique_index(:user_app_login_attempts, [:digest], @prefix_opts)
+    create unique_index(:user_app_login_attempts, [:approval_digest], @prefix_opts)
     create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at], @prefix_opts)
     create index(:user_app_login_attempts, [:user_id, :profile_id, :consumed_at], @prefix_opts)
   end
@@ -91,6 +93,7 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
       add :id, :binary_id, primary_key: true
       add :kind, :string, null: false
       add :digest, :binary, null: false
+      add :approval_digest, :binary
       add :verifier_digest, :binary
       add :profile_id, :string, null: false
       add :client_ref, :string, null: false
@@ -103,6 +106,7 @@ defmodule <%= repo_module %>.Migrations.CreateUserAppSessions do
     end
 
     create unique_index(:user_app_login_attempts, [:digest])
+    create unique_index(:user_app_login_attempts, [:approval_digest])
     create index(:user_app_login_attempts, [:kind, :expires_at, :consumed_at])
     create index(:user_app_login_attempts, [:user_id, :profile_id, :consumed_at])
   end
