@@ -91,8 +91,9 @@ prove_host() {
   run "$SIGRA_REPO" mix phx.new "$APP_DIR" --no-install --no-dashboard --database postgres --module SigraAppLoginProof --app "$APP_NAME"
   patch_host "$database"
   run "$APP_DIR" mix deps.get
-  # Compile the path dependency before asking Mix to discover its installer task.
-  run "$APP_DIR" mix deps.compile sigra
+  # Compile the complete dependency graph before asking Mix to discover the
+  # installer task; compiling Sigra alone would bypass Phoenix/Ecto ordering.
+  run "$APP_DIR" mix compile
   local flags=(--app-sessions --no-live --no-organizations)
   [[ "$mode" == direct ]] && flags+=(--app-password-login)
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
