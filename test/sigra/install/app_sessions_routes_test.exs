@@ -64,6 +64,26 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert router =~ "# Sigra app login"
   end
 
+  test "renders a fixed direct-MFA factor allowlist and uniform invalid-factor path" do
+    controller =
+      render_template("app_login_controller.ex",
+        opts: [app_sessions: true, app_password_login: true]
+      )
+
+    assert controller =~
+             "def complete_direct_mfa(conn, %{\"challenge\" => challenge, \"code\" => code, \"factor\" => factor} = params)"
+
+    assert controller =~ ~s|with ["challenge", "code", "factor"] <- Enum.sort(Map.keys(params))|
+    assert controller =~ "{:ok, trusted_factor} <- direct_mfa_factor(factor)"
+    assert controller =~ "AppSessions.complete_direct_mfa(challenge, code, trusted_factor)"
+    assert controller =~ ~s|defp direct_mfa_factor("totp"), do: {:ok, :totp}|
+    assert controller =~ ~s|defp direct_mfa_factor("backup_code"), do: {:ok, :backup_code}|
+    assert controller =~ "defp direct_mfa_factor(_), do: :error"
+    assert controller =~ ~s|%{error: "invalid_credentials"}|
+    refute controller =~ "String.to_atom"
+    refute controller =~ "String.to_existing_atom"
+  end
+
   test "renders an explicit accessible approval decision in the auth shell" do
     html = render_template("app_login_html.ex")
     approval = File.read!(Path.join(@template_dir, "app_login_approve.html.heex"))
@@ -80,7 +100,7 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     refute approval =~ "sg-"
   end
 
-  defp render_template(name) do
-    EEx.eval_file(Path.join(@template_dir, name), @binding)
+  defp render_template(name, overrides \\ []) do
+    EEx.eval_file(Path.join(@template_dir, name), Keyword.merge(@binding, overrides))
   end
 end

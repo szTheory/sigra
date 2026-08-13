@@ -204,6 +204,8 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert direct =~ "MyApp.Accounts.mfa_verify_backup"
       assert direct =~ "Sigra.AppLogin.start_direct"
       assert direct =~ "Sigra.AppLogin.complete_direct_mfa"
+      assert direct =~ "def complete_direct_mfa(challenge, code, factor)"
+      assert direct =~ "factor: factor"
       refute hosted =~ "start_direct"
       refute hosted =~ "complete_direct_mfa"
     end
