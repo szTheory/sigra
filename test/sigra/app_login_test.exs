@@ -156,6 +156,36 @@ defmodule Sigra.AppLoginTest do
     assert 0 = repo.aggregate(Token, :count)
   end
 
+  test "rolls back consumed hosted code when app-session persistence fails", %{
+    repo: repo,
+    user: user
+  } do
+    code = "session-rollback-code"
+    verifier = "verifier"
+    profile = %{profile() | client_ref: "blocked-client"}
+    callback = "com.sigra.app:/login"
+    attempt = insert_attempt(repo, user, code, verifier, profile, callback)
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_session_families DROP CONSTRAINT IF EXISTS sigra_app_login_family_fail",
+      []
+    )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_session_families ADD CONSTRAINT sigra_app_login_family_fail CHECK (client_ref <> 'blocked-client')",
+      []
+    )
+
+    assert {:error, :invalid_code} =
+             AppLogin.exchange_hosted(config(repo), code, verifier, profile, callback)
+
+    assert %{consumed_at: nil} = repo.get!(Attempt, attempt.id)
+    assert 0 = repo.aggregate(Family, :count)
+    assert 0 = repo.aggregate(Token, :count)
+  end
+
   defp config(repo, opts \\ []) do
     Sigra.Config.new!(
       repo: repo,
