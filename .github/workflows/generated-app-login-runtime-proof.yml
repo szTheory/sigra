@@ -40,6 +40,41 @@ jobs:
           PGHOST: localhost
           GENERATED_APP_LOGIN_RUNTIME_PROOF_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/generated-app-login-runtime-proof
         run: scripts/ci/generated-app-login-runtime-proof.sh --all
+      - name: Validate generated app-login runtime receipt
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          receipt_path = Path("artifacts/generated-app-login-runtime-proof/runtime-proof.json")
+          receipt = json.loads(receipt_path.read_text())
+          required = {
+              "schema": "sigra.generated-app-login-runtime-proof/v2",
+              "status": "passed",
+              "hosted_success": True,
+              "direct_success": True,
+              "hosted_replay_rejected": True,
+              "direct_replay_rejected": True,
+              "hosted_fetch_app_session": True,
+              "direct_fetch_app_session": True,
+          }
+          for key, expected in required.items():
+              assert receipt.get(key) == expected, f"receipt {key!r} must be {expected!r}"
+
+          source_paths = {
+              "app_login": "lib/sigra/app_login.ex",
+              "fetch_app_session": "lib/sigra/plug/fetch_app_session.ex",
+              "app_login_controller": "priv/templates/sigra.install/app_sessions/app_login_controller.ex",
+              "auth_app_sessions": "priv/templates/sigra.install/app_sessions/auth_app_sessions.ex",
+              "router_injection": "priv/templates/sigra.install/app_sessions/router_injection.ex",
+              "runtime_script": "scripts/ci/generated-app-login-runtime-proof.sh",
+          }
+          assert set(receipt.get("sources", {})) == set(source_paths), "receipt source bindings changed"
+          for key, path in source_paths.items():
+              actual = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              assert receipt["sources"][key] == actual, f"receipt SHA mismatch for {path}"
+          PY
       - name: Upload generated app-login diagnostics
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

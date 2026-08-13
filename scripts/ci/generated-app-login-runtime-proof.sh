@@ -12,6 +12,12 @@ APP_NAME="sigra_app_login_proof"
 APP_DIR="${TMP_ROOT}/${APP_NAME}"
 SERVER_PID=""
 PORT="${GENERATED_APP_LOGIN_RUNTIME_PROOF_PORT:-4019}"
+HOSTED_SUCCESS=false
+DIRECT_SUCCESS=false
+HOSTED_REPLAY_REJECTED=false
+DIRECT_REPLAY_REJECTED=false
+HOSTED_FETCH_APP_SESSION=false
+DIRECT_FETCH_APP_SESSION=false
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
@@ -338,13 +344,24 @@ assert_inventory() {
 }
 
 write_receipt_last() {
-  local hosted_sha direct_sha
-  hosted_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/plug/fetch_app_session.ex" | awk '{print $1}')"
-  direct_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_login_controller.ex" | awk '{print $1}')"
-  # receipt-last: this is deliberately the final write after every command and probe.
-  cat > runtime-proof.json <<EOF
-{"schema":"sigra.generated-app-login-runtime-proof/v1","status":"passed","hosted_fetch_app_session_sha256":"${hosted_sha}","direct_controller_sha256":"${direct_sha}","proof":"callback/state/S256, approval cancel, 60-second expiry, replay, two-caller exchange, fault rollback, FetchAppSession"}
-EOF
+  local app_login_sha fetch_app_session_sha controller_sha facade_sha router_sha script_sha receipt_tmp receipt
+
+  [[ "$HOSTED_SUCCESS" == true && "$DIRECT_SUCCESS" == true ]]
+  [[ "$HOSTED_REPLAY_REJECTED" == true && "$DIRECT_REPLAY_REJECTED" == true ]]
+  [[ "$HOSTED_FETCH_APP_SESSION" == true && "$DIRECT_FETCH_APP_SESSION" == true ]]
+
+  app_login_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/app_login.ex" | awk '{print $1}')"
+  fetch_app_session_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/plug/fetch_app_session.ex" | awk '{print $1}')"
+  controller_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_login_controller.ex" | awk '{print $1}')"
+  facade_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/auth_app_sessions.ex" | awk '{print $1}')"
+  router_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/router_injection.ex" | awk '{print $1}')"
+  script_sha="$(sha256sum "${SIGRA_REPO}/scripts/ci/generated-app-login-runtime-proof.sh" | awk '{print $1}')"
+  receipt_tmp="${APP_DIR}/runtime-proof.json.tmp"
+  receipt="${APP_DIR}/runtime-proof.json"
+
+  # receipt-last: every transition must pass before this final atomic publish.
+  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v2\",\"status\":\"passed\",\"hosted_success\":true,\"direct_success\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"hosted_fetch_app_session\":true,\"direct_fetch_app_session\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"runtime_script\":\"${script_sha}\"}}" > "$receipt_tmp"
+  mv "$receipt_tmp" "$receipt"
 }
 
 prove_host() {
@@ -378,13 +395,12 @@ prove_host() {
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
   run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs test/sigra/app_login_direct_test.exs test/sigra/app_login_direct_fault_test.exs test/sigra/app_login/concurrency_test.exs test/sigra/plug/fetch_app_session_test.exs --trace
-  (cd "$APP_DIR" && write_receipt_last)
 }
 
 case "${1:---all}" in
   --hosted) prove_host hosted ;;
   --direct) prove_host direct ;;
-  --all) prove_host hosted; prove_host direct ;;
+  --all) prove_host hosted; prove_host direct; write_receipt_last ;;
   *) echo "Usage: $0 [--hosted|--direct|--all]" >&2; exit 64 ;;
 esac
 

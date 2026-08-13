@@ -17,9 +17,9 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "ecto.migrate",
           "FetchAppSession",
           "app_login_public",
-          "callback/state/S256",
-          "two-caller exchange",
-          "fault rollback",
+          "code_challenge_method=S256",
+          "app_login/concurrency_test.exs",
+          "app_login_direct_fault_test.exs",
           "receipt-last",
           "sha256sum",
           "curl --fail --silent --show-error",
@@ -81,5 +81,31 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     refute workflow =~ "GOOGLE_CLIENT_SECRET"
     refute workflow =~ "GOOGLE_CLIENT_ID"
+  end
+
+  test "runtime receipt is versioned, causal, source-bound, and parsed before upload" do
+    harness = read!(@harness)
+    workflow = read!(@workflow)
+
+    for marker <- [
+          "sigra.generated-app-login-runtime-proof/v2",
+          "HOSTED_SUCCESS",
+          "DIRECT_SUCCESS",
+          "HOSTED_REPLAY_REJECTED",
+          "DIRECT_REPLAY_REJECTED",
+          "HOSTED_FETCH_APP_SESSION",
+          "DIRECT_FETCH_APP_SESSION",
+          "lib/sigra/app_login.ex",
+          "priv/templates/sigra.install/app_sessions/router_injection.ex",
+          "runtime-proof.json.tmp",
+          "mv \"$receipt_tmp\" \"$receipt\"",
+          "write_receipt_last"
+        ] do
+      assert harness =~ marker, "runtime receipt harness missing #{inspect(marker)}"
+    end
+
+    assert workflow =~ "Validate generated app-login runtime receipt"
+    assert workflow =~ "sigra.generated-app-login-runtime-proof/v2"
+    assert workflow =~ "runtime-proof.json"
   end
 end
