@@ -5,6 +5,7 @@ defmodule Sigra.AppLogin.Attempt do
 
   alias Ecto.Multi
   alias Sigra.Audit
+  alias Sigra.AppLogin.PKCE
   alias Sigra.AppSession
   alias Sigra.Token
 
@@ -24,10 +25,12 @@ defmodule Sigra.AppLogin.Attempt do
         profile,
         callback
       ) do
-    with {:ok, attempt_schema, profile_id, client_ref} <- profile_binding(profile),
-         true <- is_binary(code) and is_binary(verifier) and is_binary(callback) do
+    with {:ok, profile_id, client_ref} <- profile_binding(profile),
+         attempt_schema when is_atom(attempt_schema) <- config.app_session[:app_login_code_schema],
+         true <- is_binary(code) and is_binary(verifier) and is_binary(callback),
+         challenge when is_binary(challenge) <- PKCE.challenge(verifier) do
       code_digest = Token.hash_token(code)
-      verifier_digest = Token.hash_token(verifier)
+      challenge_digest = Token.hash_token(challenge)
 
       multi
       |> Multi.run(:app_login_attempt, fn repo, _changes ->
@@ -35,7 +38,7 @@ defmodule Sigra.AppLogin.Attempt do
           repo,
           attempt_schema,
           code_digest,
-          verifier_digest,
+          challenge_digest,
           profile_id,
           client_ref,
           callback
@@ -63,7 +66,7 @@ defmodule Sigra.AppLogin.Attempt do
          repo,
          attempt_schema,
          code_digest,
-         verifier_digest,
+         challenge_digest,
          profile_id,
          client_ref,
          callback
@@ -76,25 +79,25 @@ defmodule Sigra.AppLogin.Attempt do
         )
       )
 
-    if valid_attempt?(attempt, verifier_digest, profile_id, client_ref, callback) do
+    if valid_attempt?(attempt, challenge_digest, profile_id, client_ref, callback) do
       {:ok, attempt}
     else
       {:error, :invalid_code}
     end
   end
 
-  defp valid_attempt?(nil, _verifier_digest, _profile_id, _client_ref, _callback), do: false
+  defp valid_attempt?(nil, _challenge_digest, _profile_id, _client_ref, _callback), do: false
 
-  defp valid_attempt?(attempt, verifier_digest, profile_id, client_ref, callback) do
+  defp valid_attempt?(attempt, challenge_digest, profile_id, client_ref, callback) do
     is_nil(attempt.consumed_at) and DateTime.compare(now(), attempt.expires_at) == :lt and
       attempt.profile_id == profile_id and attempt.client_ref == client_ref and
       attempt.callback == callback and
-      Plug.Crypto.secure_compare(attempt.verifier_digest, verifier_digest)
+      Plug.Crypto.secure_compare(attempt.verifier_digest, challenge_digest)
   end
 
-  defp profile_binding(%{id: id, client_ref: client_ref, attempt_schema: attempt_schema})
-       when is_binary(id) and is_binary(client_ref) and is_atom(attempt_schema),
-       do: {:ok, attempt_schema, id, client_ref}
+  defp profile_binding(%{id: id, client_ref: client_ref})
+       when is_binary(id) and is_binary(client_ref),
+       do: {:ok, id, client_ref}
 
   defp profile_binding(_), do: {:error, :invalid_code}
 

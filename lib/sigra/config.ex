@@ -1121,6 +1121,9 @@ defmodule Sigra.Config do
     defaults = [
       family_schema: nil,
       token_schema: nil,
+      app_login_code_schema: nil,
+      app_login_challenge_schema: nil,
+      first_party_profiles: [],
       access_ttl: 900,
       refresh_idle_ttl: 2_592_000,
       absolute_ttl: 7_776_000
@@ -1134,13 +1137,25 @@ defmodule Sigra.Config do
         {:error, "contains unsupported options"}
 
       not Enum.all?(
-        [:family_schema, :token_schema],
+        [:family_schema, :token_schema, :app_login_code_schema, :app_login_challenge_schema],
         &(is_nil(normalized[&1]) or is_atom(normalized[&1]))
       ) ->
         {:error, "schema options must be modules or nil"}
 
       is_nil(normalized[:family_schema]) != is_nil(normalized[:token_schema]) ->
         {:error, "family_schema and token_schema must be configured together"}
+
+      is_nil(normalized[:app_login_code_schema]) !=
+          is_nil(normalized[:app_login_challenge_schema]) ->
+        {:error,
+         "app_login_code_schema and app_login_challenge_schema must be configured together"}
+
+      normalized[:app_login_code_schema] &&
+          not valid_first_party_profiles?(normalized[:first_party_profiles]) ->
+        {:error, "first-party profiles must be a finite list of unique static profiles"}
+
+      is_nil(normalized[:app_login_code_schema]) and normalized[:first_party_profiles] != [] ->
+        {:error, "first-party profiles require paired ceremony schemas"}
 
       not Enum.all?(
         [:access_ttl, :refresh_idle_ttl, :absolute_ttl],
@@ -1158,6 +1173,27 @@ defmodule Sigra.Config do
   end
 
   def validate_app_session(_), do: {:error, "must be a keyword list"}
+
+  defp valid_first_party_profiles?(profiles) when is_list(profiles) and profiles != [] do
+    ids = Enum.map(profiles, &Map.get(&1, :id))
+
+    length(ids) == MapSet.size(MapSet.new(ids)) and
+      Enum.all?(profiles, &valid_first_party_profile?/1)
+  end
+
+  defp valid_first_party_profiles?(_), do: false
+
+  defp valid_first_party_profile?(profile) when is_map(profile) do
+    Enum.sort(Map.keys(profile)) == [:callback_uris, :client_ref, :direct_login, :id] and
+      is_binary(profile.id) and profile.id != "" and is_binary(profile.client_ref) and
+      profile.client_ref != "" and
+      is_list(profile.callback_uris) and profile.callback_uris != [] and
+      Enum.all?(profile.callback_uris, &(is_binary(&1) and &1 != "")) and
+      length(profile.callback_uris) == MapSet.size(MapSet.new(profile.callback_uris)) and
+      profile.direct_login in [:browser_required, :password_allowed]
+  end
+
+  defp valid_first_party_profile?(_), do: false
 
   @doc false
   # NimbleOptions custom validator for the audit[:forwarders] list (D-06, Phase 131).
