@@ -4,13 +4,7 @@ defmodule Sigra.Plug.CredentialAuth do
   @spec put_verified_scope(Plug.Conn.t(), module(), struct() | map(), atom(), map()) ::
           Plug.Conn.t()
   def put_verified_scope(conn, scope_module, user, credential_kind, credential) do
-    facts = %{
-      credential_kind: credential_kind,
-      credential_id: Map.fetch!(credential, :id),
-      scopes: Map.fetch!(credential, :scopes),
-      auth_method: Map.fetch!(credential, :auth_method),
-      assurance: Map.fetch!(credential, :assurance)
-    }
+    facts = credential_facts(credential_kind, credential)
 
     conn
     |> Plug.Conn.assign(:current_scope, build_scope(scope_module, user))
@@ -30,5 +24,26 @@ defmodule Sigra.Plug.CredentialAuth do
     is_map(scope_module.__struct__())
   rescue
     UndefinedFunctionError -> false
+  end
+
+  defp credential_facts(:app_session, credential) do
+    %{
+      credential_kind: :app_session,
+      credential_id: Map.fetch!(credential, :id),
+      family_id: Map.fetch!(credential, :family_id),
+      scopes: [],
+      auth_method: Map.fetch!(credential, :auth_method),
+      assurance: Map.fetch!(credential, :assurance)
+    }
+  end
+
+  defp credential_facts(credential_kind, credential) do
+    %{
+      credential_kind: credential_kind,
+      credential_id: Map.fetch!(credential, :id),
+      scopes: Map.fetch!(credential, :scopes),
+      auth_method: Map.fetch!(credential, :auth_method),
+      assurance: Map.fetch!(credential, :assurance)
+    }
   end
 end

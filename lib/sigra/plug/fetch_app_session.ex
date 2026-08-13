@@ -1,14 +1,17 @@
 defmodule Sigra.Plug.FetchAppSession do
   @moduledoc """
-  Explicit app-session pipeline foundation.
+  Explicit opaque app-session authentication plug.
 
-  Phase 243 establishes this public credential-selection seam only. App-session
-  authentication remains fail closed until Phase 245 provides its configured
-  verifier and storage contract. This Plug does not parse credentials, call
-  another credential pipeline, or write credential state.
+  A successful request verifies one access credential through
+  `Sigra.AppSession`, reloads the live host user, and assigns the configured
+  normal Scope. Only bounded server-derived credential facts enter
+  `conn.private[:sigra_auth]`; app sessions never contribute request-selected
+  authorization scopes.
   """
 
   @behaviour Plug
+
+  alias Sigra.Plug.CredentialAuth
 
   @impl Plug
   def init(opts) do
@@ -18,11 +21,37 @@ defmodule Sigra.Plug.FetchAppSession do
   end
 
   @impl Plug
-  def call(conn, _opts) do
+  def call(conn, opts) do
     if conn.assigns[:current_scope] do
       conn
     else
-      Plug.Conn.assign(conn, :current_scope, nil)
+      fetch(conn, opts)
+    end
+  end
+
+  defp fetch(conn, opts) do
+    config = Keyword.fetch!(opts, :config)
+    scope_module = Keyword.fetch!(opts, :scope_module)
+
+    with {:ok, raw_access_token} <- extract_bearer_token(conn),
+         {:ok, session} <- Sigra.AppSession.authenticate(config, raw_access_token),
+         user when not is_nil(user) <- config.repo.get(config.user_schema, session.user_id) do
+      CredentialAuth.put_verified_scope(conn, scope_module, user, :app_session, %{
+        id: session.token_id,
+        family_id: session.family_id,
+        scopes: [],
+        auth_method: :app_session,
+        assurance: []
+      })
+    else
+      _ -> Plug.Conn.assign(conn, :current_scope, nil)
+    end
+  end
+
+  defp extract_bearer_token(conn) do
+    case Plug.Conn.get_req_header(conn, "authorization") do
+      ["Bearer " <> token] when byte_size(token) > 0 -> {:ok, token}
+      _ -> :error
     end
   end
 end

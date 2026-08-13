@@ -1,6 +1,7 @@
 defmodule Sigra.Plug.FetchAppSessionTest do
   use Sigra.Test.PostgresCase, async: false
 
+  import ExUnit.CaptureLog
   import Plug.Test
 
   alias Sigra.AppSession
@@ -84,7 +85,14 @@ defmodule Sigra.Plug.FetchAppSessionTest do
     assert {:ok, %{access_token: access, family_id: family_id}} =
              AppSession.issue(config, user, "ios-primary", [])
 
-    result = call_with_access(config, access)
+    parent = self()
+
+    log =
+      capture_log(fn ->
+        send(parent, {:app_session_result, call_with_access(config, access)})
+      end)
+
+    assert_receive {:app_session_result, result}
 
     assert %Scope{user: %User{id: user_id}} = result.assigns.current_scope
     assert user_id == user.id
@@ -103,13 +111,17 @@ defmodule Sigra.Plug.FetchAppSessionTest do
     refute inspect(result.private) =~ access
     refute inspect(result.assigns) =~ "ios-primary"
     refute inspect(result.private) =~ "ios-primary"
+    refute log =~ access
+    refute log =~ "Bearer " <> access
+    refute log =~ "ios-primary"
   end
 
-  test "missing, malformed, refresh-kind, expired, revoked, and deleted-user credentials fail closed", %{
-    config: config,
-    repo: repo,
-    user: user
-  } do
+  test "missing, malformed, refresh-kind, expired, revoked, and deleted-user credentials fail closed",
+       %{
+         config: config,
+         repo: repo,
+         user: user
+       } do
     for authorization <- [nil, "Basic nope", "Bearer "] do
       result = call_with_authorization(config, authorization)
       assert result.assigns.current_scope == nil
@@ -129,7 +141,10 @@ defmodule Sigra.Plug.FetchAppSessionTest do
 
     {1, _} =
       repo.update_all(
-        Ecto.Query.from(token in Token, where: token.digest == ^Sigra.Token.hash_token(Base.url_decode64!(access, padding: false))),
+        Ecto.Query.from(token in Token,
+          where:
+            token.digest == ^Sigra.Token.hash_token(Base.url_decode64!(access, padding: false))
+        ),
         set: [expires_at: DateTime.add(DateTime.utc_now(), -1, :second)]
       )
 
@@ -147,14 +162,18 @@ defmodule Sigra.Plug.FetchAppSessionTest do
     assert_failed_without_facts(config, access)
     assert_failed_without_facts(config, revoked_access)
 
-    assert {:ok, %{access_token: deleted_access}} = AppSession.issue(config, user, "ios-tertiary", [])
+    assert {:ok, %{access_token: deleted_access}} =
+             AppSession.issue(config, user, "ios-tertiary", [])
+
     repo.delete_all(Token)
     repo.delete_all(Family)
     repo.delete!(user)
     assert_failed_without_facts(config, deleted_access)
   end
 
-  test "returns an existing authenticated Scope unchanged without parsing the header", %{config: config} do
+  test "returns an existing authenticated Scope unchanged without parsing the header", %{
+    config: config
+  } do
     existing_scope = %Scope{user: %{id: "user-1"}}
 
     result =
@@ -179,7 +198,12 @@ defmodule Sigra.Plug.FetchAppSessionTest do
 
   defp call_with_authorization(config, authorization) do
     conn = conn(:get, "/api/resource")
-    conn = if authorization, do: Plug.Conn.put_req_header(conn, "authorization", authorization), else: conn
+
+    conn =
+      if authorization,
+        do: Plug.Conn.put_req_header(conn, "authorization", authorization),
+        else: conn
+
     FetchAppSession.call(conn, FetchAppSession.init(config: config, scope_module: Scope))
   end
 
