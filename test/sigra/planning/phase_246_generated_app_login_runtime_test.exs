@@ -63,6 +63,19 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the protected generated route must be installed, not merely mentioned"
   end
 
+  test "generated-host proof refreshes dependencies after installer mutations" do
+    harness = read!(@harness)
+    first_install = :binary.match(harness, ~s(run "$APP_DIR" mix sigra.install Accounts User users))
+
+    assert first_install != :nomatch, "fresh host must run the installer"
+
+    {install_offset, _} = first_install
+    after_install = binary_part(harness, install_offset, byte_size(harness) - install_offset)
+
+    assert String.contains?(after_install, "run \"$APP_DIR\" mix deps.get"),
+           "installer-added dependencies must be fetched before later Mix invocations"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
