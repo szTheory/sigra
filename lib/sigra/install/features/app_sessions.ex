@@ -25,6 +25,10 @@ defmodule Sigra.Install.Features.AppSessions do
          Path.join(["lib", otp_app, context, "user_app_session_token.ex"])},
         {:eex, "app_sessions/user_app_login_attempt.ex",
          Path.join(["lib", otp_app, context, "user_app_login_attempt.ex"])},
+        {:eex, "app_sessions/first_party_apps.ex",
+         Path.join(["lib", otp_app, context, "first_party_apps.ex"])},
+        {:eex, "app_sessions/auth_app_sessions.ex",
+         Path.join(["lib", otp_app, context, "auth", "app_sessions.ex"])},
         {:eex, "app_sessions/app_sessions_migration.exs",
          migration_target(binding, :ceremony, "create_user_app_sessions.exs")}
       ]
