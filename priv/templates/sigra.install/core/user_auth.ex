@@ -62,7 +62,11 @@ defmodule <%= web_module %>.UserAuth do
     user_agent = conn |> get_req_header("user-agent") |> List.first() || ""
 
     token =
-      <%= context_module %>.generate_user_session_token(user, ip: ip, user_agent: user_agent)
+      <%= context_module %>.generate_user_session_token(user,
+        ip: ip,
+        user_agent: user_agent,
+        type: mfa_session_type(user)
+      )
 
     user_return_to = get_session(conn, :user_return_to)
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
@@ -492,6 +496,13 @@ defmodule <%= web_module %>.UserAuth do
     case <%= context_module %>.mfa_status(user) do
       %{enabled: true} -> put_session(conn, :mfa_pending, true)
       _ -> conn
+    end
+  end
+
+  defp mfa_session_type(user) do
+    case <%= context_module %>.mfa_status(user) do
+      %{enabled: true} -> :mfa_pending
+      _ -> :standard
     end
   end
 
