@@ -243,6 +243,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
   end
 
+  test "generated hosted app-login approval uses the runtime CSRF helper" do
+    approval = read!("priv/templates/sigra.install/app_sessions/app_login_approve.html.heex")
+
+    assert approval =~ "Plug.CSRFProtection.get_csrf_token()"
+    refute approval =~ "Phoenix.Controller.get_csrf_token()"
+  end
+
   test "generated-host proof classifies the MFA HTTP response before extracting its token" do
     harness = read!(@harness)
 
