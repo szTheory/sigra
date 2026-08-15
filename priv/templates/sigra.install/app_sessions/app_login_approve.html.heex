@@ -11,14 +11,14 @@
 
       <div class="sigra-auth-stack sigra-auth-stack--3" data-testid="app-login-decision-controls">
         <form action={~p"/users/app-login/approve"} method="post">
-          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block" data-testid="app-login-approve">
             Approve and continue
           </.sigra_auth_button>
         </form>
 
         <form action={~p"/users/app-login/cancel"} method="post">
-          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block" data-testid="app-login-cancel">
             Cancel
           </.sigra_auth_button>
