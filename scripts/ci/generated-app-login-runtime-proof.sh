@@ -323,6 +323,7 @@ prove_hosted_ceremony() {
     --data-urlencode "user[email]=hosted-proof@example.test" \
     --data-urlencode "user[password]=HostedProofPassword123!" \
     -o /dev/null -D /dev/null "$base/users/log_in"
+  set_stage "hosted_mfa_form"
   curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" -o "${APP_DIR}/hosted-mfa.html" "$base/users/mfa"
   mfa_csrf="$(csrf_token "${APP_DIR}/hosted-mfa.html")"
   backup_code="$(<"${APP_DIR}/hosted-backup-code")"

@@ -75,6 +75,7 @@ defmodule <%= web_module %>.UserAuth do
     |> <%= web_module %>.AppLoginContinuation.restore(app_login_continuation)
 <% end %>
     |> put_token_in_session(token)
+    |> maybe_put_mfa_pending(user)
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
@@ -485,6 +486,13 @@ defmodule <%= web_module %>.UserAuth do
     conn
     |> put_session(:user_token, token)
     |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(Sigra.Token.hash_token(token))}")
+  end
+
+  defp maybe_put_mfa_pending(conn, user) do
+    case <%= context_module %>.mfa_status(user) do
+      %{enabled: true} -> put_session(conn, :mfa_pending, true)
+      _ -> conn
+    end
   end
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do
