@@ -252,6 +252,10 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "hosted-mfa-completion.headers",
           "hosted-mfa-completion.html",
           "diagnostic_prefix=\"mfa completion response\"",
+          "FunctionClauseError",
+          "CaseClauseError",
+          "UndefinedFunctionError",
+          "server_error",
           "mfa_response_diagnostic \"completion\"",
           "^30[23]$"
         ] do
