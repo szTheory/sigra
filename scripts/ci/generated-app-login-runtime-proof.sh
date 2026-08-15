@@ -175,6 +175,8 @@ hosted_app_login_response_diagnostic() {
     body_class="app_login_approval"
   elif grep -Fq 'name="_csrf_token"' "$page"; then
     body_class="csrf_input_only"
+  elif grep -Fq '.AppLoginHTML.header/1' "$page"; then
+    body_class="app_login_header"
   elif grep -Fq 'FunctionClauseError' "$page"; then
     body_class="function_clause"
   elif grep -Fq 'CaseClauseError' "$page"; then
