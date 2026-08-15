@@ -243,9 +243,14 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
              "hosted app-login diagnostics missing #{inspect(marker)}"
     end
 
-    for marker <- ["FunctionClauseError", "CaseClauseError", "UndefinedFunctionError"] do
+    for marker <- [
+          "FunctionClauseError",
+          "CaseClauseError",
+          "UndefinedFunctionError",
+          ".AppLoginHTML.header/1"
+        ] do
       assert app_login_classifier =~ marker,
-             "hosted app-login error classification missing #{inspect(marker)}"
+            "hosted app-login error classification missing #{inspect(marker)}"
     end
   end
 
