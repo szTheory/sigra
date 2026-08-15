@@ -229,6 +229,20 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the generated MFA controller must continue both TOTP and backup-code successes"
   end
 
+  test "generated-host proof classifies the hosted app-login start response" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "hosted-app-login.headers",
+          "hosted app-login response status=",
+          "app_login_approval",
+          "hosted_app_login_response_diagnostic"
+        ] do
+      assert harness =~ marker,
+             "hosted app-login diagnostics missing #{inspect(marker)}"
+    end
+  end
+
   test "generated-host proof classifies the MFA HTTP response before extracting its token" do
     harness = read!(@harness)
 
