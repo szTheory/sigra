@@ -251,7 +251,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     for marker <- [
           "hosted-mfa-completion.headers",
           "hosted-mfa-completion.html",
-          "mfa completion response status=",
+          "diagnostic_prefix=\"mfa completion response\"",
           "mfa_response_diagnostic \"completion\"",
           "^30[23]$"
         ] do

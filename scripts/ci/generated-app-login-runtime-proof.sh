@@ -84,10 +84,11 @@ csrf_token() {
 }
 
 mfa_response_diagnostic() {
-  local status="$1"
-  local headers="$2"
-  local page="$3"
-  local content_type location_class body_class
+  local response_kind="$1"
+  local status="$2"
+  local headers="$3"
+  local page="$4"
+  local content_type location_class body_class diagnostic_prefix
 
   content_type="$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 | tr '[:upper:]' '[:lower:]')"
   case "$content_type" in
@@ -119,8 +120,13 @@ mfa_response_diagnostic() {
     body_class="other"
   fi
 
-  printf 'generated host proof mfa response status=%s redirect=%s content_type=%s body=%s\n' \
-    "$status" "$location_class" "$content_type" "$body_class" >&2
+  case "$response_kind" in
+    completion) diagnostic_prefix="mfa completion response" ;;
+    *) diagnostic_prefix="mfa response" ;;
+  esac
+
+  printf 'generated host proof %s status=%s redirect=%s content_type=%s body=%s\n' \
+    "$diagnostic_prefix" "$status" "$location_class" "$content_type" "$body_class" >&2
   MFA_RESPONSE_BODY="$body_class"
 }
 
@@ -139,7 +145,7 @@ fetch_mfa_form() {
   fi
 
   sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 > "$content_type"
-  mfa_response_diagnostic "$status" "$headers" "$page"
+  mfa_response_diagnostic "form" "$status" "$headers" "$page"
   [[ "$status" == "200" && "$MFA_RESPONSE_BODY" == "mfa_form" ]]
 }
 
@@ -372,6 +378,8 @@ prove_hosted_ceremony() {
   local approval_headers="${APP_DIR}/hosted-approval.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
   local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token family_id backup_code
+  local mfa_completion_headers="${APP_DIR}/hosted-mfa-completion.headers"
+  local mfa_completion_body="${APP_DIR}/hosted-mfa-completion.html"
 
   seed_confirmed_user
   set_stage "hosted_login_form"
@@ -392,7 +400,8 @@ prove_hosted_ceremony() {
     --data-urlencode "_csrf_token=$mfa_csrf" \
     --data-urlencode 'mfa[method]=backup' \
     --data-urlencode "mfa[code]=$backup_code" \
-    -o /dev/null -D /dev/null -w '%{http_code}' "$base/users/mfa")"
+    -D "$mfa_completion_headers" -o "$mfa_completion_body" -w '%{http_code}' "$base/users/mfa")"
+  mfa_response_diagnostic "completion" "$status" "$mfa_completion_headers" "$mfa_completion_body"
   [[ "$status" =~ ^30[23]$ ]]
 
   verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
