@@ -116,7 +116,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "CLOAK_KEY=\"$(openssl rand -base64 32)\"",
            "the disposable generated host must receive an ephemeral Vault key"
 
-    assert harness =~ "export CLOAK_KEY\n  pushd \"$APP_DIR\" >/dev/null",
+    assert harness =~
+             "export CLOAK_KEY\n  set_stage \"${mode}_server_start\"\n  pushd \"$APP_DIR\" >/dev/null",
            "the generated Phoenix process must inherit the exported ephemeral Vault key"
 
     assert harness =~ "kill -0 \"$SERVER_PID\"",

@@ -2,7 +2,7 @@
 # Fresh-host proof for the first-party hosted and direct app-login ceremonies.
 # It intentionally creates a disposable Phoenix host: no repository-private
 # schemas, routes, or credentials are reused as evidence.
-set -euo pipefail
+set -Eeuo pipefail
 
 CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(cd "${CI_DIR}/../.." && pwd)}"
@@ -24,29 +24,43 @@ APPROVAL_REPLAY_REJECTED=false
 DIRECT_BACKUP_CODE_SUCCEEDED=false
 BROWSER_REQUIRED_BEFORE_AUTHENTICATION=false
 FETCH_APP_SESSION_EQUIVALENT=false
+CURRENT_STAGE="bootstrap"
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export PGPORT="${PGPORT:-5432}"
 
+set_stage() { CURRENT_STAGE="$1"; }
+
+failure_diagnostic() {
+  local rc="$1"
+  local line="$2"
+  printf 'generated host proof failed stage=%s line=%s exit=%s\n' "$CURRENT_STAGE" "$line" "$rc" >&2
+}
+
 cleanup() {
   local rc=$?
+  trap - EXIT ERR INT TERM
   if [[ -n "${SERVER_PID}" ]]; then kill "${SERVER_PID}" 2>/dev/null || true; fi
   if [[ -n "${ARTIFACT_DIR}" ]]; then
-    mkdir -p "${ARTIFACT_DIR}"
+    mkdir -p "${ARTIFACT_DIR}" || true
     [[ -f "${APP_DIR}/server.log" ]] && cp "${APP_DIR}/server.log" "${ARTIFACT_DIR}/server.log" || true
     [[ -f "${APP_DIR}/runtime-proof.json" ]] && cp "${APP_DIR}/runtime-proof.json" "${ARTIFACT_DIR}/runtime-proof.json" || true
   fi
-  rm -rf "${TMP_ROOT}"
+  rm -rf "${TMP_ROOT}" || true
   exit "$rc"
 }
-trap cleanup EXIT INT TERM
+trap 'failure_diagnostic "$?" "$LINENO"' ERR
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 require() { command -v "$1" >/dev/null || { echo "missing required command: $1" >&2; exit 69; }; }
 run() { (cd "$1"; shift; "$@"); }
 
 wait_for_http() {
+  set_stage "server_readiness"
   local attempt=0
   until curl --fail --silent --show-error "http://127.0.0.1:${PORT}/" >/dev/null; do
     if ! kill -0 "$SERVER_PID" 2>/dev/null; then
@@ -181,6 +195,7 @@ prove_direct_replay() {
 }
 
 seed_confirmed_user() {
+  set_stage "hosted_fixture_seed"
   # The disposable host owns this deterministic fixture identity. Browser
   # authentication still happens through the generated login route and cookie jar.
   run "$APP_DIR" mix run -e '
@@ -203,6 +218,7 @@ seed_confirmed_user() {
 }
 
 seed_direct_mfa_user() {
+  set_stage "direct_fixture_seed"
   # This uses only generated-host schemas and the shipped Sigra MFA helper;
   # the one plaintext backup code remains in the disposable host directory.
   run "$APP_DIR" mix run -e '
@@ -225,6 +241,7 @@ seed_direct_mfa_user() {
 }
 
 prove_direct_mfa_ceremony() {
+  set_stage "direct_ceremony"
   local base="http://127.0.0.1:${PORT}"
   local direct_body="${APP_DIR}/direct-start.json"
   local mfa_body="${APP_DIR}/direct-mfa.json"
@@ -287,6 +304,7 @@ prove_direct_mfa_ceremony() {
 }
 
 prove_hosted_ceremony() {
+  set_stage "hosted_ceremony"
   local base="http://127.0.0.1:${PORT}"
   local cookie_jar="${APP_DIR}/hosted-cookie-jar.txt"
   local login_page="${APP_DIR}/hosted-login.html"
@@ -429,28 +447,37 @@ prove_host() {
   local mode="$1"
   local database="sigra_app_login_${mode}_$(openssl rand -hex 6)"
   local CLOAK_KEY
+  set_stage "${mode}_host_scaffold"
   rm -rf "$APP_DIR"
   run "$SIGRA_REPO" mix phx.new "$APP_DIR" --no-install --no-dashboard --database postgres --module SigraAppLoginProof --app "$APP_NAME"
   patch_host "$database"
+  set_stage "${mode}_dependency_fetch"
   run "$APP_DIR" mix deps.get
   # Compile the complete dependency graph before asking Mix to discover the
   # installer task; compiling Sigra alone would bypass Phoenix/Ecto ordering.
+  set_stage "${mode}_initial_compile"
   run "$APP_DIR" mix compile
   local flags=(--app-sessions --no-live --no-organizations)
   [[ "$mode" == direct ]] && flags+=(--app-password-login)
+  set_stage "${mode}_installer"
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
   # The installer may add host-owned dependencies (for example, Hammer). Fetch
   # them before the idempotent installer reruns Mix or any later proof task.
+  set_stage "${mode}_installer_dependency_fetch"
   run "$APP_DIR" mix deps.get
+  set_stage "${mode}_installer_idempotency"
   run "$APP_DIR" mix sigra.install Accounts User users "${flags[@]}"
   install_proof_route
+  set_stage "${mode}_database_setup"
   run "$APP_DIR" mix ecto.create
   pg_isready -h "$PGHOST" -p "$PGPORT" -d "$database" -t 5
   run "$APP_DIR" mix ecto.migrate
+  set_stage "${mode}_generated_compile"
   run "$APP_DIR" mix compile --warnings-as-errors
   (cd "$APP_DIR" && assert_inventory "$mode")
   CLOAK_KEY="$(openssl rand -base64 32)"
   export CLOAK_KEY
+  set_stage "${mode}_server_start"
   pushd "$APP_DIR" >/dev/null
   PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
   SERVER_PID=$!
