@@ -183,6 +183,24 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the harness must use an order-independent parser for Phoenix CSRF inputs"
   end
 
+  test "generated-host MFA transition retains the pending-session form contract" do
+    harness = read!(@harness)
+    user_auth = read!("priv/templates/sigra.install/core/user_auth.ex")
+    mfa_live = read!("priv/templates/sigra.install/core/mfa_challenge_live.ex")
+
+    assert mfa_live =~ ~s(mfa_pending = session["mfa_pending"]),
+           "the generated LiveView must only render its MFA form for a pending session"
+
+    assert mfa_live =~ "name=\"_csrf_token\" value={Plug.CSRFProtection.get_csrf_token()}",
+           "the generated MFA form must expose its CSRF token in the initial HTML response"
+
+    assert user_auth =~ "maybe_put_mfa_pending(user)",
+           "password login must persist the pending-MFA flag required by the generated LiveView"
+
+    assert harness =~ ~s(set_stage "hosted_mfa_form"),
+           "the proof must distinguish MFA form parsing from the completed login form"
+  end
+
   test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
     harness = read!(@harness)
 
