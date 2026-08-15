@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "9e3cc42e740da5ecb7705722988e011059b62934",
+  "run_id": 31906155338,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31906155338",
+  "created_at": "2026-08-15T20:14:35Z",
+  "updated_at": "2026-08-15T20:16:31Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-15T20:16:31Z",
+  "diagnostic": "The generated host compiled, migrated, started, confirmed the hosted fixture user at second precision, and inserted its TOTP credential and backup code. The permitted failed-log tail then ended with the harness nonzero exit without a terminal exception, so this run does not identify a further root cause.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
