@@ -83,6 +83,66 @@ csrf_token() {
   perl -0ne 'while (/<input\b(?=[^>]*\bname="_csrf_token")(?=[^>]*\bvalue="([^"]+)")[^>]*>/g) { print "$1\n"; last }' "$page"
 }
 
+mfa_response_diagnostic() {
+  local status="$1"
+  local headers="$2"
+  local page="$3"
+  local content_type location_class body_class
+
+  content_type="$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 | tr '[:upper:]' '[:lower:]')"
+  case "$content_type" in
+    text/html) content_type="html" ;;
+    application/json) content_type="json" ;;
+    "") content_type="missing" ;;
+    *) content_type="other" ;;
+  esac
+
+  location_class="$(
+    sed -nE 's/^[Ll]ocation:[[:space:]]*([^[:space:]]+).*/\1/p' "$headers" | head -n 1 | {
+      read -r location || true
+      case "$location" in
+        /users/mfa*) printf '%s' "users_mfa" ;;
+        /users/log_in*) printf '%s' "users_log_in" ;;
+        "") printf '%s' "none" ;;
+        *) printf '%s' "other" ;;
+      esac
+    }
+  )"
+
+  if grep -Fq 'id="mfa_totp_form"' "$page"; then
+    body_class="mfa_form"
+  elif grep -Fq 'name="_csrf_token"' "$page"; then
+    body_class="csrf_input_only"
+  elif grep -Fq 'name="csrf-token"' "$page"; then
+    body_class="csrf_meta_only"
+  else
+    body_class="other"
+  fi
+
+  printf 'generated host proof mfa response status=%s redirect=%s content_type=%s body=%s\n' \
+    "$status" "$location_class" "$content_type" "$body_class" >&2
+  MFA_RESPONSE_BODY="$body_class"
+}
+
+fetch_mfa_form() {
+  local base="$1"
+  local cookie_jar="$2"
+  local page="$3"
+  local headers="$APP_DIR/hosted-mfa.headers"
+  local content_type="$APP_DIR/hosted-mfa.content-type"
+  local status
+
+  if ! status="$(curl --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" \
+    -D "$headers" -o "$page" -w '%{http_code}' "$base/users/mfa")"; then
+    printf 'generated host proof mfa response status=transport redirect=none content_type=missing body=other\n' >&2
+    return 1
+  fi
+
+  sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 > "$content_type"
+  mfa_response_diagnostic "$status" "$headers" "$page"
+  [[ "$status" == "200" && "$MFA_RESPONSE_BODY" == "mfa_form" ]]
+}
+
 json_field() {
   local field="$1"
   local path="$2"
@@ -324,7 +384,7 @@ prove_hosted_ceremony() {
     --data-urlencode "user[password]=HostedProofPassword123!" \
     -o /dev/null -D /dev/null "$base/users/log_in"
   set_stage "hosted_mfa_form"
-  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" -o "${APP_DIR}/hosted-mfa.html" "$base/users/mfa"
+  fetch_mfa_form "$base" "$cookie_jar" "$APP_DIR/hosted-mfa.html"
   mfa_csrf="$(csrf_token "${APP_DIR}/hosted-mfa.html")"
   backup_code="$(<"${APP_DIR}/hosted-backup-code")"
   [[ -n "$mfa_csrf" && -n "$backup_code" ]]
