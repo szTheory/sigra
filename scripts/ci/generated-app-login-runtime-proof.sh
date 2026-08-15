@@ -157,6 +157,33 @@ fetch_mfa_form() {
   [[ "$status" == "200" && "$MFA_RESPONSE_BODY" == "mfa_form" ]]
 }
 
+hosted_app_login_response_diagnostic() {
+  local status="$1"
+  local headers="$2"
+  local page="$3"
+  local content_type body_class
+
+  content_type="$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 | tr '[:upper:]' '[:lower:]')"
+  case "$content_type" in
+    text/html) content_type="html" ;;
+    application/json) content_type="json" ;;
+    "") content_type="missing" ;;
+    *) content_type="other" ;;
+  esac
+
+  if grep -Fq 'data-testid="app-login-approval"' "$page"; then
+    body_class="app_login_approval"
+  elif grep -Fq 'name="_csrf_token"' "$page"; then
+    body_class="csrf_input_only"
+  else
+    body_class="other"
+  fi
+
+  printf 'generated host proof hosted app-login response status=%s content_type=%s body=%s\n' \
+    "$status" "$content_type" "$body_class" >&2
+  HOSTED_APP_LOGIN_BODY="$body_class"
+}
+
 json_field() {
   local field="$1"
   local path="$2"
@@ -384,6 +411,7 @@ prove_hosted_ceremony() {
   local login_page="${APP_DIR}/hosted-login.html"
   local approval_page="${APP_DIR}/hosted-approval.html"
   local approval_headers="${APP_DIR}/hosted-approval.headers"
+  local app_login_headers="${APP_DIR}/hosted-app-login.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
   local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token family_id backup_code
   local mfa_completion_headers="${APP_DIR}/hosted-mfa-completion.headers"
@@ -414,14 +442,15 @@ prove_hosted_ceremony() {
 
   verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
   challenge="$(printf '%s' "$verifier" | openssl dgst -binary -sha256 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
-  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" --get \
+  status="$(curl --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" --get \
     --data-urlencode 'profile_id=ios-primary' \
     --data-urlencode 'callback=http://127.0.0.1:49152/callback' \
     --data-urlencode 'state=hosted-runtime-state' \
     --data-urlencode "code_challenge=$challenge" \
     --data-urlencode 'code_challenge_method=S256' \
-    -o "$approval_page" "$base/users/app-login"
-  grep -Fq 'data-testid="app-login-approval"' "$approval_page"
+    -D "$app_login_headers" -o "$approval_page" -w '%{http_code}' "$base/users/app-login")"
+  hosted_app_login_response_diagnostic "$status" "$app_login_headers" "$approval_page"
+  [[ "$status" == "200" && "$HOSTED_APP_LOGIN_BODY" == "app_login_approval" ]]
   approval_csrf="$(csrf_token "$approval_page")"
   [[ -n "$approval_csrf" ]]
   cp "$cookie_jar" "${APP_DIR}/hosted-approval-cookie-jar.txt"
