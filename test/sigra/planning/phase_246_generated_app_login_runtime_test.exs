@@ -231,6 +231,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
   test "generated-host proof classifies the hosted app-login start response" do
     harness = read!(@harness)
+    app_login_classifier = harness |> String.split("hosted_app_login_response_diagnostic()", parts: 2) |> List.last()
 
     for marker <- [
           "hosted-app-login.headers",
@@ -240,6 +241,11 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
         ] do
       assert harness =~ marker,
              "hosted app-login diagnostics missing #{inspect(marker)}"
+    end
+
+    for marker <- ["FunctionClauseError", "CaseClauseError", "UndefinedFunctionError"] do
+      assert app_login_classifier =~ marker,
+             "hosted app-login error classification missing #{inspect(marker)}"
     end
   end
 
