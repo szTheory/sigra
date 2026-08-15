@@ -51,26 +51,10 @@ defmodule <%= web_module %>.MFAChallengeController do
 
     case result do
       {:ok, _} ->
-        case complete_mfa_session(conn, user, old_session, remember_me) do
-          {:ok, conn} ->
-            return_to = get_session(conn, :mfa_return_to) || ~p"/"
-<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
-            {conn, return_to} = app_login_return_to(conn, return_to)
-<% end %>
+        finish_mfa_verification(conn, user, old_session, remember_me, trust)
 
-            conn
-            |> delete_session(:mfa_pending)
-            |> delete_session(:mfa_return_to)
-            |> delete_session(:mfa_remember_me)
-            |> maybe_set_trust_cookie(user, trust)
-            |> put_flash(:info, "Two-factor authentication verified.")
-            |> redirect(to: return_to)
-
-          {:error, :session_upgrade_failed} ->
-            conn
-            |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")
-            |> redirect(to: ~p"/users/mfa")
-        end
+      {:ok, _, _} ->
+        finish_mfa_verification(conn, user, old_session, remember_me, trust)
 
       {:error, :invalid_code, remaining} ->
         masked_email = mask_email(user.email)
@@ -98,6 +82,29 @@ defmodule <%= web_module %>.MFAChallengeController do
         |> put_flash(:error, "MFA is not enabled on your account.")
         |> redirect(to: ~p"/users/settings")
         |> halt()
+    end
+  end
+
+  defp finish_mfa_verification(conn, user, old_session, remember_me, trust) do
+    case complete_mfa_session(conn, user, old_session, remember_me) do
+      {:ok, conn} ->
+        return_to = get_session(conn, :mfa_return_to) || ~p"/"
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_sessions, false) do %>
+        {conn, return_to} = app_login_return_to(conn, return_to)
+<% end %>
+
+        conn
+        |> delete_session(:mfa_pending)
+        |> delete_session(:mfa_return_to)
+        |> delete_session(:mfa_remember_me)
+        |> maybe_set_trust_cookie(user, trust)
+        |> put_flash(:info, "Two-factor authentication verified.")
+        |> redirect(to: return_to)
+
+      {:error, :session_upgrade_failed} ->
+        conn
+        |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")
+        |> redirect(to: ~p"/users/mfa")
     end
   end
 
