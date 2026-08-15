@@ -201,6 +201,29 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the proof must distinguish MFA form parsing from the completed login form"
   end
 
+  test "generated-host proof classifies the MFA HTTP response before extracting its token" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "fetch_mfa_form()",
+          "hosted-mfa.headers",
+          "hosted-mfa.content-type",
+          "mfa response status=",
+          "redirect=%s",
+          "users_mfa",
+          "users_log_in",
+          "body=%s",
+          "mfa_form",
+          "csrf_meta_only",
+          "other"
+        ] do
+      assert harness =~ marker, "MFA HTTP response diagnostics missing #{inspect(marker)}"
+    end
+
+    refute harness =~ "location=\\\"$(sed",
+           "MFA diagnostics must classify redirect targets instead of retaining raw locations"
+  end
+
   test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
     harness = read!(@harness)
 
