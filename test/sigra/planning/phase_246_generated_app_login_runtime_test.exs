@@ -155,6 +155,34 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "fixture confirmation timestamps must not retain microseconds"
   end
 
+  test "generated-host proof extracts CSRF tokens from Phoenix hidden inputs regardless of attribute order" do
+    harness = read!(@harness)
+    phoenix_hidden_input = ~s(<input name="_csrf_token" type="hidden" hidden value="csrf-probe">)
+
+    refute harness =~ ~s(name="_csrf_token" value="),
+           "the positional parser that failed in hosted proof must not remain in the harness"
+
+    parser =
+      """
+      while (/<input\\b(?=[^>]*\\bname="_csrf_token")(?=[^>]*\\bvalue="([^"]+)")[^>]*>/g) { print "$1\\n"; last }
+      """
+      |> String.trim()
+
+    {token, 0} =
+      System.cmd("bash", [
+        "-c",
+        ~s(printf %s "$1" | perl -0ne "$2"),
+        "--",
+        phoenix_hidden_input,
+        parser
+      ])
+
+    assert token == "csrf-probe\n"
+
+    assert harness =~ "perl -0ne",
+           "the harness must use an order-independent parser for Phoenix CSRF inputs"
+  end
+
   test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
     harness = read!(@harness)
 
