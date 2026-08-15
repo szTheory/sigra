@@ -116,6 +116,14 @@ mfa_response_diagnostic() {
     body_class="csrf_input_only"
   elif grep -Fq 'name="csrf-token"' "$page"; then
     body_class="csrf_meta_only"
+  elif grep -Fq 'FunctionClauseError' "$page"; then
+    body_class="function_clause"
+  elif grep -Fq 'CaseClauseError' "$page"; then
+    body_class="case_clause"
+  elif grep -Fq 'UndefinedFunctionError' "$page"; then
+    body_class="undefined_function"
+  elif grep -Fq 'Internal Server Error' "$page"; then
+    body_class="server_error"
   else
     body_class="other"
   fi
