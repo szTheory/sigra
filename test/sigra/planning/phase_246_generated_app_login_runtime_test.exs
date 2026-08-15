@@ -222,6 +222,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the generated MFA LiveView must continue to reject every non-pending session"
   end
 
+  test "generated MFA completion accepts the backup verifier success tuple" do
+    controller = read!("priv/templates/sigra.install/core/mfa_challenge_controller.ex")
+
+    assert controller =~ "{:ok, _} ->" and controller =~ "{:ok, _, _} ->",
+           "the generated MFA controller must continue both TOTP and backup-code successes"
+  end
+
   test "generated-host proof classifies the MFA HTTP response before extracting its token" do
     harness = read!(@harness)
 
