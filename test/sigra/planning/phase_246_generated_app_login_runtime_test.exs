@@ -154,6 +154,51 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "fixture confirmation timestamps must not retain microseconds"
   end
 
+  test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "set -Eeuo pipefail",
+          "CURRENT_STAGE=\"bootstrap\"",
+          "set_stage()",
+          "failure_diagnostic()",
+          "trap 'failure_diagnostic \"$?\" \"$LINENO\"' ERR",
+          "trap cleanup EXIT",
+          "trap - EXIT ERR INT TERM"
+        ] do
+      assert harness =~ marker, "failure diagnostics missing #{inspect(marker)}"
+    end
+
+    probe = """
+    set -Eeuo pipefail
+    CURRENT_STAGE="bootstrap"
+    set_stage() { CURRENT_STAGE="$1"; }
+    failure_diagnostic() {
+      local rc="$1"
+      local line="$2"
+      printf 'generated host proof failed stage=%s line=%s exit=%s\\n' "$CURRENT_STAGE" "$line" "$rc" >&2
+    }
+    cleanup() {
+      local rc=$?
+      trap - EXIT ERR INT TERM
+      :
+      exit "$rc"
+    }
+    trap 'failure_diagnostic "$?" "$LINENO"' ERR
+    trap cleanup EXIT
+    set_stage fixture_seed
+    false
+    """
+
+    {output, 1} = System.cmd("bash", ["-c", probe], stderr_to_stdout: true)
+
+    assert output =~ ~r/generated host proof failed stage=fixture_seed line=\d+ exit=1/
+
+    for forbidden <- ["false", "CLOAK_KEY", "password", "token", "cookie", "postgres"] do
+      refute output =~ forbidden, "terminal diagnostics must not expose #{inspect(forbidden)}"
+    end
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
