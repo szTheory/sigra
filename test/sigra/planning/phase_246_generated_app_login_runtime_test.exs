@@ -245,6 +245,21 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "MFA diagnostics must classify redirect targets instead of retaining raw locations"
   end
 
+  test "generated-host proof classifies the MFA completion response before asserting its redirect" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "hosted-mfa-completion.headers",
+          "hosted-mfa-completion.html",
+          "mfa completion response status=",
+          "mfa_response_diagnostic \"completion\"",
+          "^30[23]$"
+        ] do
+      assert harness =~ marker,
+             "MFA completion diagnostics missing #{inspect(marker)}"
+    end
+  end
+
   test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
     harness = read!(@harness)
 
