@@ -80,7 +80,7 @@ wait_for_http() {
 
 csrf_token() {
   local page="$1"
-  sed -nE 's/.*name="_csrf_token" value="([^"]+)".*/\1/p' "$page" | head -n 1
+  perl -0ne 'while (/<input\b(?=[^>]*\bname="_csrf_token")(?=[^>]*\bvalue="([^"]+)")[^>]*>/g) { print "$1\n"; last }' "$page"
 }
 
 json_field() {
@@ -314,6 +314,7 @@ prove_hosted_ceremony() {
   local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token family_id backup_code
 
   seed_confirmed_user
+  set_stage "hosted_login_form"
   curl --fail --silent --show-error --cookie-jar "$cookie_jar" -o "$login_page" "$base/users/log_in"
   login_csrf="$(csrf_token "$login_page")"
   [[ -n "$login_csrf" ]]
