@@ -201,6 +201,27 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the proof must distinguish MFA form parsing from the completed login form"
   end
 
+  test "generated password login creates the persisted MFA-pending session that survives the next request" do
+    user_auth = read!("priv/templates/sigra.install/core/user_auth.ex")
+    fetch_session = read!("lib/sigra/plug/fetch_session.ex")
+    mfa_live = read!("priv/templates/sigra.install/core/mfa_challenge_live.ex")
+
+    assert user_auth =~ "type: mfa_session_type(user)",
+           "password login must mint an MFA-pending persisted session, not only a transient Plug flag"
+
+    assert user_auth =~ "defp mfa_session_type(user)" and
+             user_auth =~ "%{enabled: true} -> :mfa_pending",
+           "the generated helper must select the persisted pending type from MFA enrollment"
+
+    assert fetch_session =~ "if session.type == :mfa_pending do" and
+             fetch_session =~ "Plug.Conn.put_session(conn, :mfa_pending, true)",
+           "the next request must serialize the persisted pending type for the LiveView"
+
+    assert mfa_live =~ ~s(mfa_pending = session["mfa_pending"]) and
+             mfa_live =~ "if mfa_pending != true do",
+           "the generated MFA LiveView must continue to reject every non-pending session"
+  end
+
   test "generated-host proof classifies the MFA HTTP response before extracting its token" do
     harness = read!(@harness)
 
