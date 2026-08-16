@@ -30,8 +30,15 @@ defmodule <%= context_module %>.Auth.AppSessions do
   def approve_hosted(continuation, user, decision),
     do: Sigra.AppLogin.approve_hosted(sigra_config(), continuation, user, decision)
 
-  def exchange_hosted(code, verifier, profile, callback),
-    do: Sigra.AppLogin.exchange_hosted(sigra_config(), code, verifier, profile, callback)
+  def exchange_hosted(code, verifier, profile_id, callback) do
+    case Enum.find(<%= context_module %>.FirstPartyApps.profiles(), &(&1.id == profile_id)) do
+      %{id: _id, client_ref: _client_ref} = profile ->
+        Sigra.AppLogin.exchange_hosted(sigra_config(), code, verifier, profile, callback)
+
+      _ ->
+        {:error, :invalid_code}
+    end
+  end
 
   def refresh(raw_refresh_token), do: Sigra.AppSession.refresh(sigra_config(), raw_refresh_token)
 
