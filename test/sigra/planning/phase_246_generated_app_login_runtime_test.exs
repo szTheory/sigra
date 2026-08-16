@@ -397,9 +397,19 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host proof names post-ceremony contract stages before each run wrapper" do
     harness = read!(@harness)
 
-    assert harness =~ "set_stage \"${mode}_post_ceremony_contracts\""
+    assert harness =~ "set_stage \"${mode}_post_ceremony_${contract}\""
     assert harness =~ "set_stage \"all_cross_ceremony_contracts\""
     assert harness =~ "run \"$SIGRA_REPO\" env MIX_ENV=test mix test"
+  end
+
+  test "generated-host proof assigns every post-ceremony contract a fixed stage" do
+    harness = read!(@harness)
+
+    for contract <- ["app_login", "app_login_direct", "app_login_direct_fault", "app_login_concurrency", "fetch_app_session"] do
+      assert harness =~ "${mode}_post_ceremony_${contract}"
+    end
+
+    refute harness =~ "${mode}_post_ceremony_contracts"
   end
 
   test "generated-host proof attributes replay family assertions before their database run" do
