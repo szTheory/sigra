@@ -5,16 +5,16 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Planned 246-18-PLAN.md and 246-19-PLAN.md gap closure
-last_updated: "2026-08-16T20:44:41Z"
+stopped_at: Completed 246-18-PLAN.md
+last_updated: "2026-08-16T21:01:04.902Z"
 last_activity: 2026-08-16
-last_activity_desc: Planned Phase 246 verification gap closure
+last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 4
+  completed_phases: 3
   total_plans: 39
-  completed_plans: 37
-current_plan: 18
+  completed_plans: 38
+current_plan: 19
 ---
 
 # Project State
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 17 of 19
+Plan: 19 of 19
 Status: Ready to execute
-Last activity: 2026-08-16 — Planned verification gap closure in Plans 246-18 and 246-19
+Last activity: 2026-08-16 — Phase 246 execution started
 
-Progress: █████████░ 89%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -93,6 +93,7 @@ Progress: █████████░ 89%
 | Phase 246 P15 | 12m | 2 tasks | 6 files |
 | Phase 246-hosted-and-direct-login-ceremonies P16 | 12m | 2 tasks | 3 files |
 | Phase 246-hosted-and-direct-login-ceremonies P17 | 10m | 2 tasks | 5 files |
+| Phase 246-hosted-and-direct-login-ceremonies P18 | 12m | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -165,6 +166,7 @@ Progress: █████████░ 89%
 - [Phase ?]: Generated approval-digest indexes use user_app_login_attempts_approval_digest_index so replay normalization stays stable across adapters and prefixes.
 - [Phase ?]: Use typed persisted-family assertions instead of captured Mix output for generated-host policy proof.
 - [Phase ?]: Retain byte-identical redacted CI receipt bound to immutable implementation head 62d22419.
+- [Phase ?]: MFA factor verification accepts only the same persisted :mfa_pending row bound to the current scope user, then passes that row to the existing completion seam.
 
 ### Pending Todos
 
@@ -182,6 +184,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-16T17:28:19.547Z
-Stopped at: Completed 246-17-PLAN.md
+Last session: 2026-08-16T21:01:04.892Z
+Stopped at: Completed 246-18-PLAN.md
 Resume file: None
