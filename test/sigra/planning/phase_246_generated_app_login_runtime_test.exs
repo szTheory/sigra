@@ -422,6 +422,16 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
   end
 
+  test "generated-host proof isolates every fixed app-login scenario" do
+    harness = read!(@harness)
+
+    for line <- [77, 103, 144, 175, 209, 251, 287] do
+      assert harness =~ "${mode}_app_login_scenario_${scenario}"
+      assert harness =~ "app_login_test.exs:${scenario}"
+      assert harness =~ Integer.to_string(line)
+    end
+  end
+
   test "generated-host proof attributes replay family assertions before their database run" do
     harness = read!(@harness)
 

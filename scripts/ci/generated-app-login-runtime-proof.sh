@@ -688,7 +688,12 @@ prove_host() {
   for contract in app_login app_login_direct app_login_direct_fault app_login_concurrency fetch_app_session; do
     set_stage "${mode}_post_ceremony_${contract}"
     case "$contract" in
-      app_login) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs --trace ;;
+      app_login)
+        for scenario in 77 103 144 175 209 251 287; do
+          set_stage "${mode}_app_login_scenario_${scenario}"
+          run "$SIGRA_REPO" env MIX_ENV=test mix test "test/sigra/app_login_test.exs:${scenario}" --trace
+        done
+        ;;
       app_login_direct) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_direct_test.exs --trace ;;
       app_login_direct_fault) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_direct_fault_test.exs --trace ;;
       app_login_concurrency) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login/concurrency_test.exs --trace ;;
