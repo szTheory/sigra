@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
-status: executing
-stopped_at: Completed 246-18-PLAN.md
-last_updated: "2026-08-16T21:01:04.902Z"
+status: verifying
+stopped_at: Completed 246-19-PLAN.md
+last_updated: "2026-08-16T21:07:52.928Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 39
-  completed_plans: 38
+  completed_plans: 39
 current_plan: 19
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
 Plan: 19 of 19
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-16 — Phase 246 execution started
 
-Progress: [██████████] 97%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -94,6 +94,7 @@ Progress: [██████████] 97%
 | Phase 246-hosted-and-direct-login-ceremonies P16 | 12m | 2 tasks | 3 files |
 | Phase 246-hosted-and-direct-login-ceremonies P17 | 10m | 2 tasks | 5 files |
 | Phase 246-hosted-and-direct-login-ceremonies P18 | 12m | 1 tasks | 2 files |
+| Phase 246-hosted-and-direct-login-ceremonies P19 | 18m | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -167,6 +168,8 @@ Progress: [██████████] 97%
 - [Phase ?]: Use typed persisted-family assertions instead of captured Mix output for generated-host policy proof.
 - [Phase ?]: Retain byte-identical redacted CI receipt bound to immutable implementation head 62d22419.
 - [Phase ?]: MFA factor verification accepts only the same persisted :mfa_pending row bound to the current scope user, then passes that row to the existing completion seam.
+- [Phase ?]: Approve and cancel contend on the same nonce-derived approval_digest; the cancel row digest remains domain-separated storage identity only.
+- [Phase ?]: Cancellation is terminal at commit time and clears the generated browser continuation only after its durable claim succeeds.
 
 ### Pending Todos
 
@@ -184,6 +187,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-16T21:01:04.892Z
-Stopped at: Completed 246-18-PLAN.md
+Last session: 2026-08-16T21:07:52.917Z
+Stopped at: Completed 246-19-PLAN.md
 Resume file: None
