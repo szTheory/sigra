@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
-current_phase: 247
-current_phase_name: Language-Learning Digital Twin
+current_phase: 246.1
+current_phase_name: "Close gap: PAT-01 — repair generated PAT authentication pipeline"
 status: planning
-stopped_at: Completed 246-19-PLAN.md
-last_updated: "2026-08-16T21:16:35.740Z"
+stopped_at: Phase 246.1 context gathered (assumptions mode)
+last_updated: "2026-08-16T21:52:30.556Z"
 last_activity: 2026-08-16
-last_activity_desc: Phase 246 complete, transitioned to Phase 247
+last_activity_desc: Phase 246.1 inserted after Phase 246; ready to plan
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
   total_plans: 39
   completed_plans: 39
-current_plan: 19
+current_plan: 0
 ---
 
 # Project State
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246 — hosted-and-direct-login-ceremonies
+**Current focus:** Phase 246.1 — close-gap-pat-01-repair-generated-pat-authentication-pipeline
 
 ## Current Position
 
-Phase: 247 — Language-Learning Digital Twin
+Phase: 246.1 — Close gap: PAT-01 — repair generated PAT authentication pipeline
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-08-16 — Phase 246 complete, transitioned to Phase 247
+Last activity: 2026-08-16 — Phase 246.1 inserted after Phase 246; ready to plan
 
 Progress: [██████████] 100%
 
@@ -180,6 +180,10 @@ None yet.
 
 - Physical-iPhone proof in Phase 248 requires deterministic device automation and redacted evidence; do not overstate emulator or contract evidence as physical-device proof.
 
+### Roadmap Evolution
+
+- Phase 246.1 inserted after Phase 246: Close gap: PAT-01 — repair generated PAT authentication pipeline (URGENT)
+
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
@@ -188,6 +192,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-16T21:07:52.917Z
-Stopped at: Completed 246-19-PLAN.md
-Resume file: None
+Last session: 2026-08-16T21:52:30.545Z
+Stopped at: Phase 246.1 context gathered (assumptions mode)
+Resume file: .planning/phases/246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin/246.1-CONTEXT.md
