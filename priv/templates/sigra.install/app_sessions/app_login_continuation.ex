@@ -27,7 +27,7 @@ defmodule <%= web_module %>.AppLoginContinuation do
 
   def clear(conn), do: delete_session(conn, @session_key)
 
-  def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, fallback)
+  def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, _fallback)
       when is_binary(continuation) and is_binary(profile_id),
       do: "/users/app-login/continue"
 
