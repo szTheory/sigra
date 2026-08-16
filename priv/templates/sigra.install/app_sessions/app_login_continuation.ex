@@ -4,18 +4,16 @@ defmodule <%= web_module %>.AppLoginContinuation do
   import Plug.Conn
 
   @session_key :sigra_app_login_continuation
-  @purpose "sigra-app-login-continuation-v1"
-  @max_age 300
-
-  # The session contains only this signed handle, never ceremony parameters or credentials.
+  # The session holds the existing Sigra-signed ceremony handle and its bounded
+  # public profile label. Phoenix's normal signed/encrypted session protects this
+  # map across session renewal; the ceremony handle remains Sigra's sole signature.
   def put(conn, continuation, profile_id) when is_binary(continuation) and is_binary(profile_id) do
-    put_session(conn, @session_key, Phoenix.Token.sign(conn, @purpose, %{continuation: continuation, profile_id: profile_id}))
+    put_session(conn, @session_key, %{continuation: continuation, profile_id: profile_id})
   end
 
   def fetch(conn) do
-    with handle when is_binary(handle) <- get_session(conn, @session_key),
-         {:ok, %{continuation: continuation, profile_id: profile_id}} <- Phoenix.Token.verify(conn, @purpose, handle, max_age: @max_age),
-         true <- is_binary(continuation) do
+    with %{continuation: continuation, profile_id: profile_id} <- get_session(conn, @session_key),
+         true <- is_binary(continuation) and is_binary(profile_id) do
       {:ok, continuation, profile_id}
     else
       _ -> {:error, :invalid_continuation}
@@ -29,17 +27,17 @@ defmodule <%= web_module %>.AppLoginContinuation do
 
   def clear(conn), do: delete_session(conn, @session_key)
 
-  def continue_path(endpoint, handle, fallback) when is_binary(handle) do
-    case Phoenix.Token.verify(endpoint, @purpose, handle, max_age: @max_age) do
-      {:ok, %{continuation: continuation}} when is_binary(continuation) -> "/users/app-login/continue"
-      _ -> fallback
-    end
-  end
+  def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, fallback)
+      when is_binary(continuation) and is_binary(profile_id),
+      do: "/users/app-login/continue"
 
   def continue_path(_endpoint, _handle, fallback), do: fallback
 
   def preserve(conn), do: get_session(conn, @session_key)
 
-  def restore(conn, handle) when is_binary(handle), do: put_session(conn, @session_key, handle)
+  def restore(conn, %{continuation: continuation, profile_id: profile_id} = handle)
+      when is_binary(continuation) and is_binary(profile_id),
+      do: put_session(conn, @session_key, handle)
+
   def restore(conn, _handle), do: conn
 end

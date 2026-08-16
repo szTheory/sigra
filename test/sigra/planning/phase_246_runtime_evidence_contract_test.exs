@@ -20,6 +20,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     "app_login" => "lib/sigra/app_login.ex",
     "fetch_app_session" => "lib/sigra/plug/fetch_app_session.ex",
     "app_login_controller" => "priv/templates/sigra.install/app_sessions/app_login_controller.ex",
+    "app_login_continuation" => "priv/templates/sigra.install/app_sessions/app_login_continuation.ex",
     "app_login_attempt_schema" =>
       "priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex",
     "app_sessions_migration" =>

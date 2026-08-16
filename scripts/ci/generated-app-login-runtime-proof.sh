@@ -547,7 +547,7 @@ assert_inventory() {
 }
 
 write_receipt_last() {
-  local app_login_sha fetch_app_session_sha controller_sha attempt_schema_sha migration_sha facade_sha router_sha mfa_controller_sha mfa_live_sha script_sha workflow_sha source_test_sha evidence_test_sha mfa_upgrade_test_sha concurrency_test_sha receipt_tmp receipt
+  local app_login_sha fetch_app_session_sha controller_sha continuation_sha attempt_schema_sha migration_sha facade_sha router_sha mfa_controller_sha mfa_live_sha script_sha workflow_sha source_test_sha evidence_test_sha mfa_upgrade_test_sha concurrency_test_sha receipt_tmp receipt
 
   [[ "$HOSTED_SUCCESS" == true && "$DIRECT_SUCCESS" == true ]]
   [[ "$HOSTED_REPLAY_REJECTED" == true && "$DIRECT_REPLAY_REJECTED" == true ]]
@@ -559,6 +559,7 @@ write_receipt_last() {
   app_login_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/app_login.ex" | awk '{print $1}')"
   fetch_app_session_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/plug/fetch_app_session.ex" | awk '{print $1}')"
   controller_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_login_controller.ex" | awk '{print $1}')"
+  continuation_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_login_continuation.ex" | awk '{print $1}')"
   attempt_schema_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex" | awk '{print $1}')"
   migration_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/app_sessions_migration.exs" | awk '{print $1}')"
   facade_sha="$(sha256sum "${SIGRA_REPO}/priv/templates/sigra.install/app_sessions/auth_app_sessions.ex" | awk '{print $1}')"
@@ -575,7 +576,7 @@ write_receipt_last() {
   receipt="${APP_DIR}/runtime-proof.json"
 
   # receipt-last: every transition must pass before this final atomic publish.
-  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v3\",\"status\":\"passed\",\"controller_mfa_session_upgraded\":true,\"liveview_mfa_session_upgraded\":true,\"approval_replay_rejected\":true,\"direct_backup_code_succeeded\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"fetch_app_session_equivalent\":true,\"browser_required_before_authentication\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"app_login_attempt_schema\":\"${attempt_schema_sha}\",\"app_sessions_migration\":\"${migration_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"mfa_challenge_controller\":\"${mfa_controller_sha}\",\"mfa_challenge_live\":\"${mfa_live_sha}\",\"runtime_script\":\"${script_sha}\",\"workflow\":\"${workflow_sha}\",\"runtime_source_contract_test\":\"${source_test_sha}\",\"runtime_evidence_contract_test\":\"${evidence_test_sha}\",\"mfa_session_upgrade_test\":\"${mfa_upgrade_test_sha}\",\"approval_concurrency_test\":\"${concurrency_test_sha}\"}}" > "$receipt_tmp"
+  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v3\",\"status\":\"passed\",\"controller_mfa_session_upgraded\":true,\"liveview_mfa_session_upgraded\":true,\"approval_replay_rejected\":true,\"direct_backup_code_succeeded\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"fetch_app_session_equivalent\":true,\"browser_required_before_authentication\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"app_login_continuation\":\"${continuation_sha}\",\"app_login_attempt_schema\":\"${attempt_schema_sha}\",\"app_sessions_migration\":\"${migration_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"mfa_challenge_controller\":\"${mfa_controller_sha}\",\"mfa_challenge_live\":\"${mfa_live_sha}\",\"runtime_script\":\"${script_sha}\",\"workflow\":\"${workflow_sha}\",\"runtime_source_contract_test\":\"${source_test_sha}\",\"runtime_evidence_contract_test\":\"${evidence_test_sha}\",\"mfa_session_upgrade_test\":\"${mfa_upgrade_test_sha}\",\"approval_concurrency_test\":\"${concurrency_test_sha}\"}}" > "$receipt_tmp"
   mv "$receipt_tmp" "$receipt"
 }
 
