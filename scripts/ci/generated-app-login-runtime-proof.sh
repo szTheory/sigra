@@ -311,7 +311,9 @@ assert_one_family() {
   local label="$1"
   local expected_kind="$2"
 
-  set_stage "${label}_family_count_assertion"
+  set_stage "${label}_family_count_atom_resolution"
+  EXPECTED_KIND="$expected_kind" run "$APP_DIR" mix run -e 'String.to_existing_atom(System.fetch_env!("EXPECTED_KIND"))'
+  set_stage "${label}_family_count_aggregate"
   EXPECTED_KIND="$expected_kind" EXPECTED_LABEL="$label" run "$APP_DIR" mix run -e '
     alias SigraAppLoginProof.Accounts
     alias SigraAppLoginProof.Repo
