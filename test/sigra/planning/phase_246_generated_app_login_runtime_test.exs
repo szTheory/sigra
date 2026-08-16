@@ -422,6 +422,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "env MIX_ENV=test mix ecto.create"
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
+    assert harness =~ "PGDATABASE=sigra_test psql"
     refute harness =~ "DROP EXTENSION"
   end
 
