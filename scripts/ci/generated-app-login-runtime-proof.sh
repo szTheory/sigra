@@ -344,15 +344,10 @@ ensure_root_test_db() {
       other -> raise "could not provision root test database: #{inspect(other)}"
     end
 
-    {:ok, pid} = Sigra.Test.PostgresRepo.start_link(config)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
-
-    try do
-      Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
-    after
-      Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)
-      GenServer.stop(pid)
-    end
+    bootstrap_config = Keyword.put(config, :pool, DBConnection.ConnectionPool)
+    {:ok, pid} = Sigra.Test.PostgresRepo.start_link(bootstrap_config)
+    Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
+    GenServer.stop(pid)
   ' >/dev/null
   ROOT_TEST_DB_READY=true
 }

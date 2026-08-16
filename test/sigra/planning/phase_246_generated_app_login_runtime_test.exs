@@ -432,8 +432,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert root_setup =~ "config = Sigra.Test.PostgresRepo.default_config()"
     assert root_setup =~ "Ecto.Adapters.Postgres.storage_up(config)"
     assert root_setup =~ "{:error, :already_up} -> :ok"
-    assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(config)"
-    assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)"
+    assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(bootstrap_config)"
+    assert root_setup =~ "bootstrap_config = Keyword.put(config, :pool, DBConnection.ConnectionPool)"
     assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
     assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
     refute root_setup =~ "psql"
@@ -442,8 +442,9 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute harness =~ "RESET "
     refute root_setup =~ "mix ecto.create"
     refute root_setup =~ "mix ecto.migrate"
-    assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)"
     assert root_setup =~ "GenServer.stop(pid)"
+    refute root_setup =~ "Sandbox.checkout"
+    refute root_setup =~ "Sandbox.checkin"
 
     root_setup_offset = :binary.match(harness, "ensure_root_test_db()") |> elem(0)
     root_contract_offset = :binary.match(harness, "for contract in app_login") |> elem(0)
