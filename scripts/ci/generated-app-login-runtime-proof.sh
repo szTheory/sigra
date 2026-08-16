@@ -177,6 +177,14 @@ hosted_app_login_response_diagnostic() {
     body_class="csrf_input_only"
   elif grep -Fq '.AppLoginHTML.header/1' "$page"; then
     body_class="app_login_header"
+  elif grep -Fq 'AppLoginContinuation.put/3' "$page"; then
+    body_class="app_login_continuation_put"
+  elif grep -Fq 'Plug.Conn.put_session/3' "$page"; then
+    body_class="plug_put_session"
+  elif grep -Fq 'Phoenix.Token.sign/3' "$page"; then
+    body_class="phoenix_token_sign"
+  elif grep -Fq '.Endpoint.config/1' "$page"; then
+    body_class="endpoint_config"
   elif grep -Fq 'AppLoginContinuation.' "$page"; then
     body_class="app_login_continuation"
   elif grep -Fq 'AppLoginHTML.' "$page"; then
