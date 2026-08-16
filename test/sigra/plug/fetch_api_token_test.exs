@@ -23,6 +23,9 @@ defmodule Sigra.Plug.FetchAPITokenTest do
 
   defp opts, do: FetchAPIToken.init(config: config(), scope_module: TestScope)
 
+  defp runtime_opts,
+    do: FetchAPIToken.init(config: fn -> config() end, scope_module: TestScope)
+
   test "a valid PAT loads its current user into a normal Scope and stores exact trusted facts" do
     raw_token = "test_app_sk_secret"
 
@@ -57,6 +60,31 @@ defmodule Sigra.Plug.FetchAPITokenTest do
 
     refute inspect(conn.assigns) =~ raw_token
     refute inspect(conn.private[:sigra_auth]) =~ raw_token
+  end
+
+  test "a host runtime config function is resolved before PAT verification" do
+    raw_token = "test_app_sk_runtime_secret"
+
+    token = %{
+      id: "pat-runtime",
+      user_id: "user-runtime",
+      scopes: [],
+      revoked_at: nil,
+      expires_at: nil,
+      last_used_at: nil
+    }
+
+    user = %Sigra.TestUser{id: "user-runtime"}
+
+    expect(Sigra.MockRepo, :get_by, fn Sigra.TestAPIToken, hashed_token: _hash -> token end)
+    expect(Sigra.MockRepo, :get, fn Sigra.TestUser, "user-runtime" -> user end)
+
+    result =
+      conn(:get, "/api/resource")
+      |> Plug.Conn.put_req_header("authorization", "Bearer " <> raw_token)
+      |> FetchAPIToken.call(runtime_opts())
+
+    assert %TestScope{user: ^user} = result.assigns.current_scope
   end
 
   test "missing, malformed, invalid, and deleted-user PATs assign nil without credential facts" do

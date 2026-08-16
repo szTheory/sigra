@@ -1,7 +1,7 @@
 defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
   use ExUnit.Case, async: false
 
-  @moduletag :phase_244_api
+  @tag :phase_244_api
   test "fresh API-only host installs twice, migrates, compiles, and authenticates a PAT" do
     require_postgres!()
     require_phx_new!()

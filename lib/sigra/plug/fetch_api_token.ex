@@ -29,7 +29,7 @@ defmodule Sigra.Plug.FetchAPIToken do
   end
 
   defp fetch(conn, opts) do
-    config = Keyword.fetch!(opts, :config)
+    config = opts |> Keyword.fetch!(:config) |> resolve_config()
     scope_module = Keyword.fetch!(opts, :scope_module)
 
     with {:ok, raw_token} <- extract_bearer_token(conn),
@@ -52,4 +52,7 @@ defmodule Sigra.Plug.FetchAPIToken do
       _ -> :error
     end
   end
+
+  defp resolve_config(config) when is_function(config, 0), do: config.()
+  defp resolve_config(config), do: config
 end

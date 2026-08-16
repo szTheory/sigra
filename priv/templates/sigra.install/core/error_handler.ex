@@ -18,6 +18,13 @@ defmodule <%= web_module %>.AuthErrorHandler do
   import Phoenix.Controller
 
   @impl true
+  def auth_error(%{private: %{phoenix_format: "json"}} = conn, :unauthenticated, _opts) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(401, ~s({"error":"unauthenticated"}))
+  end
+
+  @impl true
   def auth_error(conn, :unauthenticated, _opts) do
     conn
     |> put_flash(:error, "You must log in to access this page.")
