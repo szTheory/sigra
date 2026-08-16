@@ -161,7 +161,7 @@ hosted_app_login_response_diagnostic() {
   local status="$1"
   local headers="$2"
   local page="$3"
-  local content_type body_class
+  local content_type body_class undefined_function_signature
 
   content_type="$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 | tr '[:upper:]' '[:lower:]')"
   case "$content_type" in
@@ -207,8 +207,11 @@ hosted_app_login_response_diagnostic() {
     body_class="other"
   fi
 
-  printf 'generated host proof hosted app-login response status=%s content_type=%s body=%s\n' \
-    "$status" "$content_type" "$body_class" >&2
+  undefined_function_signature="$({ sed -nE 's/.*function ([[:alnum:]_.]+\/[[:digit:]]+) is undefined.*/\1/p' "$page" | head -n 1; } || true)"
+  [[ -n "$undefined_function_signature" ]] || undefined_function_signature="none"
+
+  printf 'generated host proof hosted app-login response status=%s content_type=%s body=%s undefined_function_signature=%s\n' \
+    "$status" "$content_type" "$body_class" "$undefined_function_signature" >&2
   HOSTED_APP_LOGIN_BODY="$body_class"
 }
 
