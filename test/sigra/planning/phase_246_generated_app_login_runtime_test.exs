@@ -405,7 +405,6 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host proof attributes replay family assertions before their database run" do
     harness = read!(@harness)
 
-    assert harness =~ "set_stage \"${label}_family_count_atom_resolution\""
     assert harness =~ "set_stage \"${label}_family_count_aggregate\""
     assert harness =~ "EXPECTED_KIND=\"$expected_kind\" EXPECTED_LABEL=\"$label\" run"
   end
@@ -426,6 +425,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     refute harness =~ "family_count family=~s attempt=~s id=",
            "family assertion must not retain identifiers"
+  end
+
+  test "family assertion compares its trusted kind without constructing an atom" do
+    harness = read!(@harness)
+
+    refute harness =~ "String.to_existing_atom(System.fetch_env!(\"EXPECTED_KIND\"))"
+    assert harness =~ "is_atom(attempt.kind) and Atom.to_string(attempt.kind) == expected_kind"
   end
 
   test "workflow is a credential-free PostgreSQL evidence lane" do

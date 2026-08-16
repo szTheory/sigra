@@ -311,17 +311,15 @@ assert_one_family() {
   local label="$1"
   local expected_kind="$2"
 
-  set_stage "${label}_family_count_atom_resolution"
-  EXPECTED_KIND="$expected_kind" run "$APP_DIR" mix run -e 'String.to_existing_atom(System.fetch_env!("EXPECTED_KIND"))'
   set_stage "${label}_family_count_aggregate"
   EXPECTED_KIND="$expected_kind" EXPECTED_LABEL="$label" run "$APP_DIR" mix run -e '
     alias SigraAppLoginProof.Accounts
     alias SigraAppLoginProof.Repo
 
-    kind = String.to_existing_atom(System.fetch_env!("EXPECTED_KIND"))
+    expected_kind = System.fetch_env!("EXPECTED_KIND")
     count = Repo.aggregate(Accounts.UserAppSessionFamily, :count, :id)
     attempts = Repo.all(Accounts.UserAppLoginAttempt)
-    attempt_count = Enum.count(attempts, &(&1.kind == kind))
+    attempt_count = Enum.count(attempts, &(is_atom(attempt.kind) and Atom.to_string(attempt.kind) == expected_kind))
     family_class = case count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
     attempt_class = case attempt_count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
     :ok = IO.puts(:stderr, :io_lib.format("generated host proof family_count family=~s attempt=~s~n", [family_class, attempt_class]))
