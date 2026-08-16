@@ -172,6 +172,40 @@ defmodule Sigra.AppLoginTest do
     assert is_binary(code)
   end
 
+  test "cancelling one copied continuation terminally rejects the retained copy", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    verifier = String.duplicate("v", 43)
+    started_at = now()
+
+    assert {:ok, %{continuation: continuation}} =
+             AppLogin.start_hosted(
+               config,
+               %{
+                 "profile_id" => "ios-primary",
+                 "callback" => "com.sigra.app:/login",
+                 "state" => "copied-cancel-state",
+                 "code_challenge" => PKCE.challenge(verifier),
+                 "code_challenge_method" => "S256"
+               },
+               now: started_at
+             )
+
+    copied_continuation = continuation
+
+    assert {:ok, :cancelled} =
+             AppLogin.approve_hosted(config, continuation, user, :cancel, now: started_at)
+
+    assert {:error, :invalid_continuation} =
+             AppLogin.approve_hosted(config, copied_continuation, user, :approve, now: started_at)
+
+    assert [%Attempt{kind: :hosted_cancel}] = repo.all(Attempt)
+    assert 0 = repo.aggregate(Family, :count)
+    assert 0 = repo.aggregate(Token, :count)
+  end
+
   test "rejects non-exact hosted start input and never issues a code", %{
     repo: repo,
     config: config,
