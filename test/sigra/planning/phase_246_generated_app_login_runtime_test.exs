@@ -394,6 +394,14 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
   end
 
+  test "generated-host proof names post-ceremony contract stages before each run wrapper" do
+    harness = read!(@harness)
+
+    assert harness =~ "set_stage \"${mode}_post_ceremony_contracts\""
+    assert harness =~ "set_stage \"all_cross_ceremony_contracts\""
+    assert harness =~ "run \"$SIGRA_REPO\" env MIX_ENV=test mix test"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
