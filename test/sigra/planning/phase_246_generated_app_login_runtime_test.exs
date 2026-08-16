@@ -412,6 +412,16 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute harness =~ "${mode}_post_ceremony_contracts"
   end
 
+  test "generated-host proof prepares the root test database before root contracts" do
+    harness = read!(@harness)
+
+    assert harness =~ "ensure_root_test_db()"
+    assert harness =~ "root_test_db_create"
+    assert harness =~ "root_test_db_migrate"
+    assert harness =~ "env MIX_ENV=test mix ecto.create"
+    assert harness =~ "env MIX_ENV=test mix ecto.migrate"
+  end
+
   test "generated-host proof attributes replay family assertions before their database run" do
     harness = read!(@harness)
 

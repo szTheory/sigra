@@ -24,6 +24,7 @@ APPROVAL_REPLAY_REJECTED=false
 DIRECT_BACKUP_CODE_SUCCEEDED=false
 BROWSER_REQUIRED_BEFORE_AUTHENTICATION=false
 FETCH_APP_SESSION_EQUIVALENT=false
+ROOT_TEST_DB_READY=false
 CURRENT_STAGE="bootstrap"
 
 export PGUSER="${PGUSER:-postgres}"
@@ -328,6 +329,15 @@ assert_one_family() {
     if count != 1, do: raise("unexpected app-session family count class")
     if attempt_count != 1, do: raise("unexpected app-login attempt count class")
   '
+}
+
+ensure_root_test_db() {
+  [[ "$ROOT_TEST_DB_READY" == true ]] && return 0
+  set_stage "root_test_db_create"
+  run "$SIGRA_REPO" env MIX_ENV=test mix ecto.create
+  set_stage "root_test_db_migrate"
+  run "$SIGRA_REPO" env MIX_ENV=test mix ecto.migrate
+  ROOT_TEST_DB_READY=true
 }
 
 prove_hosted_replay() {
@@ -674,6 +684,7 @@ prove_host() {
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
   unset CLOAK_KEY
+  ensure_root_test_db
   for contract in app_login app_login_direct app_login_direct_fault app_login_concurrency fetch_app_session; do
     set_stage "${mode}_post_ceremony_${contract}"
     case "$contract" in
