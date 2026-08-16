@@ -415,15 +415,16 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     for marker <- [
           "family_class = case count",
           "attempt_class = case attempt_count",
-          "family_count family=%s attempt=%s",
-          "zero -> \"zero\"",
+          "family_count family=~s attempt=~s",
+          "zero when zero <= 0 -> \"zero\"",
           "1 -> \"one\"",
           "_ -> \"many\""
         ] do
       assert harness =~ marker, "family count diagnostic missing #{inspect(marker)}"
     end
 
-    refute harness =~ "family_id=", "family assertion must not retain identifiers"
+    refute harness =~ "family_count family=~s attempt=~s id=",
+           "family assertion must not retain identifiers"
   end
 
   test "workflow is a credential-free PostgreSQL evidence lane" do

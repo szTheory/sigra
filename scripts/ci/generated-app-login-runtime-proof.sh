@@ -316,12 +316,15 @@ assert_one_family() {
     alias SigraAppLoginProof.Accounts
     alias SigraAppLoginProof.Repo
 
-    count = Repo.aggregate(Accounts.UserAppSessionFamily, :count, :id)
-    if count != 1, do: raise("expected exactly one #{System.fetch_env!("EXPECTED_LABEL")} app-session family")
-
     kind = String.to_existing_atom(System.fetch_env!("EXPECTED_KIND"))
+    count = Repo.aggregate(Accounts.UserAppSessionFamily, :count, :id)
     attempts = Repo.all(Accounts.UserAppLoginAttempt)
-    if Enum.count(attempts, &(&1.kind == kind)) != 1, do: raise("expected exactly one #{kind} attempt")
+    attempt_count = Enum.count(attempts, &(&1.kind == kind))
+    family_class = case count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
+    attempt_class = case attempt_count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
+    :ok = IO.puts(:stderr, :io_lib.format("generated host proof family_count family=~s attempt=~s~n", [family_class, attempt_class]))
+    if count != 1, do: raise("unexpected app-session family count class")
+    if attempt_count != 1, do: raise("unexpected app-login attempt count class")
   '
 }
 
