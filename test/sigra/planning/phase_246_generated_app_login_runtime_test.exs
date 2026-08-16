@@ -427,7 +427,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
     assert harness =~ "env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e"
-    assert root_setup =~ "Sigra.Test.PostgresRepo.default_config() |> Keyword.delete(:pool)"
+    assert root_setup =~ "Sigra.Test.PostgresRepo.default_config() |> Keyword.put(:pool, DBConnection.ConnectionPool)"
     assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
     assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
     refute root_setup =~ "psql"

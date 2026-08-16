@@ -341,7 +341,7 @@ ensure_root_test_db() {
   run "$SIGRA_REPO" env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e '
     {:ok, _} =
       Sigra.Test.PostgresRepo.start_link(
-        Sigra.Test.PostgresRepo.default_config() |> Keyword.delete(:pool)
+        Sigra.Test.PostgresRepo.default_config() |> Keyword.put(:pool, DBConnection.ConnectionPool)
       )
     Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
   ' >/dev/null
