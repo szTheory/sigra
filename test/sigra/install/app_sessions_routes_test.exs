@@ -58,6 +58,7 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
 
     assert router =~ "pipeline :app_login_public"
     assert router =~ "key_prefix: \"app_login_public\""
+    assert router =~ "limit: 4"
     assert router =~ "get \"/app-login\", AppLoginController, :start"
     assert router =~ "post \"/app-login/approve\", AppLoginController, :approve"
     assert router =~ "post \"/app-login/cancel\", AppLoginController, :cancel"
