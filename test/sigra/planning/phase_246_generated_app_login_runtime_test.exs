@@ -402,6 +402,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "run \"$SIGRA_REPO\" env MIX_ENV=test mix test"
   end
 
+  test "generated-host proof attributes replay family assertions before their database run" do
+    harness = read!(@harness)
+
+    assert harness =~ "set_stage \"${label}_family_count_assertion\""
+    assert harness =~ "EXPECTED_KIND=\"$expected_kind\" EXPECTED_LABEL=\"$label\" run"
+  end
+
   test "workflow is a credential-free PostgreSQL evidence lane" do
     workflow = read!(@workflow)
 
