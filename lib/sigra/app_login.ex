@@ -71,9 +71,8 @@ defmodule Sigra.AppLogin do
 
   def approve_hosted(config, continuation, user, decision, opts \\ [])
 
-  def approve_hosted(_config, _continuation, _user, :cancel, _opts), do: {:ok, :cancelled}
-
-  def approve_hosted(config, continuation, user, :approve, opts) do
+  def approve_hosted(config, continuation, user, decision, opts)
+      when decision in [:approve, :cancel] do
     now = now(opts)
 
     try do
@@ -81,31 +80,25 @@ defmodule Sigra.AppLogin do
            true <- is_map(user) and not is_nil(Map.get(user, :id)),
            schema when is_atom(schema) <- config.app_session[:app_login_code_schema],
            approval_nonce when is_binary(approval_nonce) <- payload["approval_nonce"],
-           {code, _digest} <- Token.generate_hashed_token(),
+           {:ok, result, attempt} <-
+             hosted_decision_attempt(
+               decision,
+               schema,
+               profile,
+               payload,
+               user,
+               approval_nonce,
+               now
+             ),
            {:ok, _changes} <-
              config.repo.transaction(
                Multi.new()
                |> Multi.insert(
-                 :hosted_code,
-                 schema
-                 |> struct!(%{
-                   kind: :hosted_code,
-                   digest: Token.hash_token(code),
-                   approval_digest: Token.hash_token(approval_nonce),
-                   verifier_digest: Token.hash_token(payload["challenge"]),
-                   profile_id: profile.id,
-                   callback: payload["callback"],
-                   user_id: user.id,
-                   client_ref: profile.client_ref,
-                   expires_at: DateTime.add(now, @code_ttl, :second)
-                 })
-                 |> Ecto.Changeset.change()
-                 |> Ecto.Changeset.unique_constraint(:approval_digest,
-                   name: approval_digest_constraint_name(schema)
-                 )
+                 :hosted_decision,
+                 attempt
                )
              ) do
-        {:ok, %{code: code, callback: payload["callback"], state: payload["state"]}}
+        hosted_decision_result(decision, result, payload)
       else
         _ -> {:error, :invalid_continuation}
       end
@@ -216,6 +209,62 @@ defmodule Sigra.AppLogin do
   end
 
   defp continuation(_, _, _), do: {:error, :invalid_continuation}
+
+  defp hosted_decision_attempt(
+         :approve,
+         schema,
+         profile,
+         payload,
+         user,
+         approval_nonce,
+         now
+       ) do
+    {code, _digest} = Token.generate_hashed_token()
+
+    {:ok, code,
+     hosted_decision_changeset(schema, %{
+       kind: :hosted_code,
+       digest: Token.hash_token(code),
+       approval_digest: Token.hash_token(approval_nonce),
+       verifier_digest: Token.hash_token(payload["challenge"]),
+       profile_id: profile.id,
+       callback: payload["callback"],
+       user_id: user.id,
+       client_ref: profile.client_ref,
+       expires_at: DateTime.add(now, @code_ttl, :second)
+     })}
+  end
+
+  defp hosted_decision_attempt(:cancel, schema, profile, payload, user, approval_nonce, now) do
+    {:ok, :cancelled,
+     hosted_decision_changeset(schema, %{
+       kind: :hosted_cancel,
+       digest: Token.hash_token("hosted_cancel:" <> approval_nonce),
+       approval_digest: Token.hash_token(approval_nonce),
+       verifier_digest: Token.hash_token(payload["challenge"]),
+       profile_id: profile.id,
+       callback: payload["callback"],
+       user_id: user.id,
+       client_ref: profile.client_ref,
+       expires_at: now,
+       consumed_at: now
+     })}
+  end
+
+  defp hosted_decision_changeset(schema, attrs) do
+    schema
+    |> struct!(attrs)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.unique_constraint(:approval_digest,
+      name: approval_digest_constraint_name(schema)
+    )
+  end
+
+  defp hosted_decision_result(:approve, code, payload) do
+    {:ok, %{code: code, callback: payload["callback"], state: payload["state"]}}
+  end
+
+  defp hosted_decision_result(:cancel, :cancelled, _payload), do: {:ok, :cancelled}
 
   defp approval_digest_constraint_name(schema) do
     "#{schema.__schema__(:source)}_approval_digest_index"

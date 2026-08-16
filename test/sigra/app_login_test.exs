@@ -201,7 +201,24 @@ defmodule Sigra.AppLoginTest do
     assert {:error, :invalid_continuation} =
              AppLogin.approve_hosted(config, copied_continuation, user, :approve, now: started_at)
 
-    assert [%Attempt{kind: :hosted_cancel}] = repo.all(Attempt)
+    {:ok, payload} =
+      Sigra.Token.verify(config.secret_key_base, "sigra-app-login-hosted-v1", continuation,
+        max_age: 300
+      )
+
+    assert [
+             %Attempt{
+               kind: :hosted_cancel,
+               approval_digest: approval_digest,
+               digest: cancel_digest,
+               consumed_at: consumed_at
+             }
+           ] = repo.all(Attempt)
+
+    assert approval_digest == Sigra.Token.hash_token(payload["approval_nonce"])
+    assert cancel_digest == Sigra.Token.hash_token("hosted_cancel:" <> payload["approval_nonce"])
+    refute approval_digest == cancel_digest
+    assert not is_nil(consumed_at)
     assert 0 = repo.aggregate(Family, :count)
     assert 0 = repo.aggregate(Token, :count)
   end
@@ -237,7 +254,7 @@ defmodule Sigra.AppLoginTest do
     assert {:error, :invalid_continuation} =
              AppLogin.approve_hosted(config, continuation <> "tampered", user, :approve)
 
-    assert 0 = repo.aggregate(Attempt, :count)
+    assert [%Attempt{kind: :hosted_cancel}] = repo.all(Attempt)
   end
 
   test "returns one bounded invalid-code result without issuing for terminal bindings", %{
