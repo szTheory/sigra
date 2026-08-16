@@ -47,6 +47,21 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "export PGDATABASE=\"${PGDATABASE:-sigra_test}\""
   end
 
+  test "generated-host proof assigns each disposable mode database in both dev and test configs" do
+    harness = read!(@harness)
+
+    [patch_host] =
+      Regex.run(~r/(patch_host\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
+
+    assert patch_host =~ "config/dev.exs"
+    assert patch_host =~ "config/test.exs"
+    assert patch_host =~ "database: \"'\"${database}\"'\""
+
+    patch_offset = :binary.match(harness, "patch_host \"$database\"") |> elem(0)
+    create_offset = :binary.match(harness, "run \"$APP_DIR\" mix ecto.create") |> elem(0)
+    assert patch_offset < create_offset
+  end
+
   test "generated-host proof disables only disposable development asset watchers" do
     harness = read!(@harness)
 

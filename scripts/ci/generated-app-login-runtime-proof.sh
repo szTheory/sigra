@@ -598,6 +598,7 @@ patch_host() {
   (
     cd "$APP_DIR"
     perl -0pi -e 's/(\{:\s*phoenix,)/{:sigra, path: "'"${SIGRA_REPO//\//\\/}"'"},\n      $1/' mix.exs
+    perl -0pi -e 's/database: "sigra_app_login_proof_dev",/database: "'"${database}"'",/' config/dev.exs
     perl -0pi -e 's/database: "sigra_app_login_proof_test#\{System\.get_env\("MIX_TEST_PARTITION"\)\}",/database: "'"${database}"'",/' config/test.exs
     perl -0pi -e 's/hostname: "localhost",/hostname: System.fetch_env!("PGHOST"),/' config/test.exs
     perl -0pi -e 's/pool: Ecto\.Adapters\.SQL\.Sandbox/port: String.to_integer(System.fetch_env!("PGPORT")),\n  pool: Ecto.Adapters.SQL.Sandbox/' config/test.exs
