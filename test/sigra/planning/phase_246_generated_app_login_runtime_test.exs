@@ -265,6 +265,35 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
   end
 
+  test "generated-host proof classifies hosted exchange failures without retaining protocol values" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "hosted_exchange_response_diagnostic()",
+          "hosted exchange response status=",
+          "content_type=%s",
+          "body=%s",
+          "undefined_function_signature=%s",
+          "hosted-exchange.headers"
+        ] do
+      assert harness =~ marker,
+             "hosted exchange diagnostics missing #{inspect(marker)}"
+    end
+
+    exchange_classifier =
+      harness |> String.split("hosted_exchange_response_diagnostic()", parts: 2) |> List.last()
+
+    for marker <- ["UndefinedFunctionError", "FunctionClauseError", "CaseClauseError", "Internal Server Error"] do
+      assert exchange_classifier =~ marker,
+             "hosted exchange error classification missing #{inspect(marker)}"
+    end
+
+    refute exchange_classifier =~ "code_verifier",
+           "hosted exchange diagnostics must not retain a verifier"
+    refute exchange_classifier =~ "access_token",
+           "hosted exchange diagnostics must not retain an access token"
+  end
+
   test "generated hosted app-login approval uses the runtime CSRF helper" do
     approval = read!("priv/templates/sigra.install/app_sessions/app_login_approve.html.heex")
 
