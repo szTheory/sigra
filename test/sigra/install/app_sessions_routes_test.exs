@@ -38,8 +38,17 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     refute controller =~ "access_token"
     refute controller =~ "refresh_token"
 
-    assert continuation =~ "Phoenix.Token.sign"
-    assert continuation =~ "Phoenix.Token.verify"
+    assert continuation =~
+             "put_session(conn, @session_key, %{continuation: continuation, profile_id: profile_id})"
+
+    assert continuation =~
+             "%{continuation: continuation, profile_id: profile_id} <- get_session(conn, @session_key)"
+
+    assert continuation =~
+             "def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, fallback)"
+
+    refute continuation =~ "Phoenix.Token.sign"
+    refute continuation =~ "Phoenix.Token.verify"
     assert continuation =~ "delete_session(conn, @session_key)"
     refute continuation =~ "verifier"
     refute continuation =~ "password"
