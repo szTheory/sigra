@@ -573,7 +573,10 @@ defmodule Sigra.Install.Features.CoreTest do
       api_content = api_injections |> Enum.map(& &1.content) |> Enum.join("\n")
       jwt_content = jwt_injections |> Enum.map(& &1.content) |> Enum.join("\n")
 
-      assert api_content =~ "Sigra.Plug.FetchAPIToken"
+      assert Regex.match?(
+               ~r/plug Sigra\.Plug\.FetchAPIToken,\n\s+config: &MyApp\.Accounts\.sigra_config\/0,\n\s+scope_module: MyApp\.Accounts\.Scope\n\s+plug Sigra\.Plug\.RequireAuthenticated,\n\s+error_handler: MyAppWeb\.AuthErrorHandler/,
+               api_content
+             )
       refute api_content =~ "Sigra.Plug.FetchBearer"
       refute api_content =~ "Sigra.Plug.FetchJWT"
       assert jwt_content =~ "Sigra.Plug.FetchJWT"

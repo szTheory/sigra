@@ -539,6 +539,8 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     test "Features.Core generates API pipeline with FetchAPIToken" do
       source = File.read!(@features_core_path)
       assert source =~ "Sigra.Plug.FetchAPIToken"
+      assert source =~ "config: &\#{context_module}.sigra_config/0"
+      assert source =~ "scope_module: \#{context_module}.Scope"
       refute source =~ "Sigra.Plug.FetchBearer"
     end
 
