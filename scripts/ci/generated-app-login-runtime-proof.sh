@@ -177,6 +177,18 @@ hosted_app_login_response_diagnostic() {
     body_class="csrf_input_only"
   elif grep -Fq '.AppLoginHTML.header/1' "$page"; then
     body_class="app_login_header"
+  elif grep -Fq 'AppLoginContinuation.' "$page"; then
+    body_class="app_login_continuation"
+  elif grep -Fq 'AppLoginHTML.' "$page"; then
+    body_class="app_login_html"
+  elif grep -Fq 'Auth.AppSessions.' "$page"; then
+    body_class="app_sessions_facade"
+  elif grep -Fq 'Sigra.AppLogin.' "$page"; then
+    body_class="sigra_app_login"
+  elif grep -Fq 'Sigra.Branding.' "$page"; then
+    body_class="sigra_branding"
+  elif grep -Fq 'Phoenix.Token.' "$page"; then
+    body_class="phoenix_token"
   elif grep -Fq 'FunctionClauseError' "$page"; then
     body_class="function_clause"
   elif grep -Fq 'CaseClauseError' "$page"; then
