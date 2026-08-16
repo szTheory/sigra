@@ -1,12 +1,1 @@
-{
-  "repository": "szTheory/sigra",
-  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
-  "event": "workflow_dispatch",
-  "dispatch_attempts": 1,
-  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
-  "implementation_head_sha": "fb237604690e58f4753a4a146a45f78d634281e0",
-  "conclusion": "dispatch_failed",
-  "observed_at": "2026-08-13T15:52:01Z",
-  "diagnostic": "GitHub returned HTTP 404: workflow generated-app-login-runtime-proof.yml not found on the default branch.",
-  "coverage_statement": "No runtime receipt was retained. This diagnostic does not prove the immutable implementation head."
-}
+{"repository":"szTheory/sigra","workflow_path":".github/workflows/generated-app-login-runtime-proof.yml","event":"workflow_dispatch","dispatch_attempts":1,"watch_interval_seconds":60,"run_id":31961276529,"run_url":"https://github.com/szTheory/sigra/actions/runs/31961276529","conclusion":"success","head_sha":"62d2241981dad891868beacaf7b0ba5db108dad2","implementation_ref":"gsd/238-generated-auth-runtime-proof-evidence","artifact_name":"generated-app-login-runtime-proof","receipt_sha256":"7b4b4bedae87a6818a8815f2f1ead7621a6b87e9d1694398dfb764d5ae2de333","coverage_statement":"This artifact proves the prior immutable implementation head, not the subsequent evidence-only commit."}
