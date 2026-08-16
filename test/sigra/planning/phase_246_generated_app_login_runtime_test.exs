@@ -476,6 +476,15 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert root_setup_offset < root_contract_offset
   end
 
+  test "canonical root app-session migration preserves UTC microsecond timestamps" do
+    schema = read!("test/support/root_app_session_schema.ex")
+
+    assert schema =~ "timestamps(type: :utc_datetime_usec)"
+    assert schema =~ "add :expires_at, :utc_datetime_usec, null: false"
+    assert schema =~ "add :occurred_at, :utc_datetime_usec, null: false"
+    refute schema =~ ":naive_datetime"
+  end
+
   test "generated-host proof isolates every fixed app-login scenario" do
     harness = read!(@harness)
 

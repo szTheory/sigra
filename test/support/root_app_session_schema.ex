@@ -11,16 +11,16 @@ defmodule Sigra.Test.RootAppSessionSchema do
     create_if_not_exists table(:sigra_app_session_users, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :email, :text, null: false
-      timestamps(type: :naive_datetime)
+      timestamps(type: :utc_datetime_usec)
     end
 
     create_if_not_exists table(:sigra_app_session_families, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :user_id, references(:sigra_app_session_users, type: :binary_id), null: false
       add :client_ref, :string, null: false
-      add :absolute_expires_at, :naive_datetime, null: false
-      add :revoked_at, :naive_datetime
-      timestamps(type: :naive_datetime)
+      add :absolute_expires_at, :utc_datetime_usec, null: false
+      add :revoked_at, :utc_datetime_usec
+      timestamps(type: :utc_datetime_usec)
     end
 
     create_if_not_exists index(:sigra_app_session_families, [:user_id],
@@ -32,11 +32,11 @@ defmodule Sigra.Test.RootAppSessionSchema do
       add :family_id, references(:sigra_app_session_families, type: :binary_id), null: false
       add :kind, :string, size: 16, null: false
       add :digest, :binary, null: false
-      add :expires_at, :naive_datetime, null: false
-      add :consumed_at, :naive_datetime
-      add :superseded_at, :naive_datetime
-      add :revoked_at, :naive_datetime
-      timestamps(type: :naive_datetime)
+      add :expires_at, :utc_datetime_usec, null: false
+      add :consumed_at, :utc_datetime_usec
+      add :superseded_at, :utc_datetime_usec
+      add :revoked_at, :utc_datetime_usec
+      timestamps(type: :utc_datetime_usec)
     end
 
     create_if_not_exists unique_index(:sigra_app_session_tokens, [:digest],
@@ -57,9 +57,9 @@ defmodule Sigra.Test.RootAppSessionSchema do
       add :callback, :text, null: false
       add :user_id, references(:sigra_app_session_users, type: :binary_id), null: false
       add :client_ref, :string, null: false
-      add :expires_at, :naive_datetime, null: false
-      add :consumed_at, :naive_datetime
-      timestamps(type: :naive_datetime)
+      add :expires_at, :utc_datetime_usec, null: false
+      add :consumed_at, :utc_datetime_usec
+      timestamps(type: :utc_datetime_usec)
     end
 
     create_if_not_exists unique_index(:sigra_app_login_attempts, [:digest],
@@ -77,9 +77,9 @@ defmodule Sigra.Test.RootAppSessionSchema do
       add :profile_id, :string, null: false
       add :user_id, references(:sigra_app_session_users, type: :binary_id), null: false
       add :client_ref, :string, null: false
-      add :expires_at, :naive_datetime, null: false
-      add :consumed_at, :naive_datetime
-      timestamps(type: :naive_datetime)
+      add :expires_at, :utc_datetime_usec, null: false
+      add :consumed_at, :utc_datetime_usec
+      timestamps(type: :utc_datetime_usec)
     end
 
     create_if_not_exists unique_index(:sigra_app_login_challenges, [:digest],
@@ -88,7 +88,7 @@ defmodule Sigra.Test.RootAppSessionSchema do
 
     create_if_not_exists table(:audit_events, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :occurred_at, :naive_datetime, null: false
+      add :occurred_at, :utc_datetime_usec, null: false
       add :action, :string, null: false
       add :outcome, :string, size: 32, null: false, default: "success"
       add :actor_id, :binary_id
@@ -100,7 +100,7 @@ defmodule Sigra.Test.RootAppSessionSchema do
       add :metadata, :map, null: false, default: %{}
       add :organization_id, :binary_id
       add :effective_user_id, :binary_id
-      add :inserted_at, :naive_datetime, null: false
+      add :inserted_at, :utc_datetime_usec, null: false
     end
   end
 end
