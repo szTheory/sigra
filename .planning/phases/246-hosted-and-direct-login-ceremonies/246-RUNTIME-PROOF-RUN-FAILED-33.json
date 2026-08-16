@@ -1,0 +1,18 @@
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "implementation_head_sha": "a71dce591b31b11db8d02456bfaa54029a23712c",
+  "run_id": 31918085780,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/31918085780",
+  "created_at": "2026-08-16T00:48:02Z",
+  "updated_at": "2026-08-16T00:50:05Z",
+  "conclusion": "failure",
+  "observed_at": "2026-08-16T00:50:05Z",
+  "diagnostic": "The generated host completed hosted app-login start, exchange, and replay with statuses 200, 200, and 400. A subsequent embedded database assertion failed through the generic run wrapper while retaining a stale hosted MFA-form stage. No compiler output, request values, response bodies, headers, cookies, locations, or runtime credentials were retained.",
+  "coverage_statement": "This failed run does not prove the immutable implementation head.",
+  "artifact_downloaded": false
+}
