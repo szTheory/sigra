@@ -237,7 +237,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "hosted-app-login.headers",
           "hosted app-login response status=",
           "app_login_approval",
-          "hosted_app_login_response_diagnostic"
+          "hosted_app_login_response_diagnostic",
+          "undefined_function_signature"
         ] do
       assert harness =~ marker,
              "hosted app-login diagnostics missing #{inspect(marker)}"
