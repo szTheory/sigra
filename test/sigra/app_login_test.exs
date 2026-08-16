@@ -223,6 +223,56 @@ defmodule Sigra.AppLoginTest do
     assert 0 = repo.aggregate(Token, :count)
   end
 
+  test "failed hosted cancellation persistence leaves its continuation retryable", %{
+    repo: repo,
+    config: config,
+    user: user
+  } do
+    verifier = String.duplicate("v", 43)
+    started_at = now()
+
+    assert {:ok, %{continuation: continuation}} =
+             AppLogin.start_hosted(
+               config,
+               %{
+                 "profile_id" => "ios-primary",
+                 "callback" => "com.sigra.app:/login",
+                 "state" => "cancel-fault-state",
+                 "code_challenge" => PKCE.challenge(verifier),
+                 "code_challenge_method" => "S256"
+               },
+               now: started_at
+             )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_login_attempts DROP CONSTRAINT IF EXISTS sigra_hosted_cancel_failure",
+      []
+    )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      "ALTER TABLE sigra_app_login_attempts ADD CONSTRAINT sigra_hosted_cancel_failure CHECK (kind <> 'hosted_cancel')",
+      []
+    )
+
+    try do
+      assert {:error, :invalid_continuation} =
+               AppLogin.approve_hosted(config, continuation, user, :cancel, now: started_at)
+
+      assert 0 = repo.aggregate(Attempt, :count)
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE sigra_app_login_attempts DROP CONSTRAINT IF EXISTS sigra_hosted_cancel_failure",
+        []
+      )
+    end
+
+    assert {:ok, :cancelled} =
+             AppLogin.approve_hosted(config, continuation, user, :cancel, now: started_at)
+  end
+
   test "rejects non-exact hosted start input and never issues a code", %{
     repo: repo,
     config: config,
