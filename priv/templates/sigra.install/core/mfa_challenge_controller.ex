@@ -36,12 +36,29 @@ defmodule <%= web_module %>.MFAChallengeController do
   end
 
   def create(conn, %{"mfa" => mfa_params}) do
-    user = conn.assigns.current_scope.user
+    case current_mfa_session(conn) do
+      {:ok, user, old_session} ->
+        verify_mfa_factor(conn, mfa_params, user, old_session)
+
+      :error ->
+        mfa_session_upgrade_failed(conn)
+    end
+  end
+
+  defp current_mfa_session(conn) do
+    with %{user: %{id: user_id} = user} <- conn.assigns[:current_scope],
+         %{type: :mfa_pending, user_id: ^user_id} = session <- conn.private[:sigra_session] do
+      {:ok, user, session}
+    else
+      _ -> :error
+    end
+  end
+
+  defp verify_mfa_factor(conn, mfa_params, user, old_session) do
     code = mfa_params["code"] || ""
     trust = mfa_params["trust"] == "true"
     method = if mfa_params["method"] == "backup", do: :backup, else: :totp
     remember_me = get_session(conn, :mfa_remember_me) == true
-    old_session = conn.private[:sigra_session]
 
     result =
       case method do
@@ -102,10 +119,14 @@ defmodule <%= web_module %>.MFAChallengeController do
         |> redirect(to: return_to)
 
       {:error, :session_upgrade_failed} ->
-        conn
-        |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")
-        |> redirect(to: ~p"/users/mfa")
+        mfa_session_upgrade_failed(conn)
     end
+  end
+
+  defp mfa_session_upgrade_failed(conn) do
+    conn
+    |> put_flash(:error, "We couldn't finish MFA verification. Try again or use another way to continue.")
+    |> redirect(to: ~p"/users/mfa")
   end
 
   defp complete_mfa_session(conn, user, old_session, remember_me) do

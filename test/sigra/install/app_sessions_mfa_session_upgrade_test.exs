@@ -24,6 +24,11 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
     passkeys?: true
   ]
 
+  setup_all do
+    compile_fixture_modules()
+    :ok
+  end
+
   @tag :controller
   test "ordinary standard sessions cannot consume a TOTP factor" do
     controller = compiled_controller()
@@ -50,19 +55,46 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
   end
 
   @tag :controller
-  test "a pending session invokes one selected verifier then rotates that exact row to hosted continuation" do
-    controller = compiled_controller()
+  test "missing, malformed, foreign, and terminal session state cannot consume a factor" do
     user = %{id: "user-1", email: "person@example.com"}
-    pending = %{id: "pending", type: :mfa_pending, user_id: user.id}
 
-    conn = request_conn(user, pending)
+    for session <- [
+          nil,
+          %{},
+          %{type: :mfa_pending, user_id: "other-user"},
+          %{type: :standard, user_id: user.id}
+        ] do
+      controller = compiled_controller()
 
-    response =
-      controller.create(conn, %{"mfa" => %{"method" => "backup", "code" => "unused-code"}})
+      _response =
+        controller.create(request_conn(user, session), %{
+          "mfa" => %{"method" => "totp", "code" => "123456"}
+        })
 
-    assert factor_counts() == %{totp: 0, backup: 1, complete: 1, rotate: 1}
-    assert Process.get(:sigra_mfa_upgrade_session) == pending
-    assert response.private[:sigra_test_redirect] == "/users/app-login/continue"
+      assert factor_counts() == %{totp: 0, backup: 0, complete: 0, rotate: 0}
+    end
+  end
+
+  @tag :controller
+  test "a pending session invokes each selected verifier then rotates that exact row to hosted continuation" do
+    user = %{id: "user-1", email: "person@example.com"}
+
+    for {method, expected_counts} <- [
+          {"totp", %{totp: 1, backup: 0, complete: 1, rotate: 1}},
+          {"backup", %{totp: 0, backup: 1, complete: 1, rotate: 1}}
+        ] do
+      controller = compiled_controller()
+      pending = %{id: "pending-#{method}", type: :mfa_pending, user_id: user.id}
+
+      response =
+        controller.create(request_conn(user, pending), %{
+          "mfa" => %{"method" => method, "code" => "valid-#{method}-code"}
+        })
+
+      assert factor_counts() == expected_counts
+      assert Process.get(:sigra_mfa_upgrade_session) == pending
+      assert response.private[:sigra_test_redirect] == "/users/app-login/continue"
+    end
   end
 
   @tag :live
@@ -97,7 +129,6 @@ defmodule Sigra.Install.AppSessionsMFASessionUpgradeTest do
 
   defp compiled_controller do
     reset_factor_counts()
-    compile_fixture_modules()
 
     module =
       Module.concat(MyAppWeb, "MFAChallengeController#{System.unique_integer([:positive])}")
