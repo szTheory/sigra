@@ -274,7 +274,9 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "content_type=%s",
           "body=%s",
           "undefined_function_signature=%s",
-          "hosted-exchange.headers"
+          "hosted-exchange.headers",
+          "hosted-replay.headers",
+          "hosted_exchange_response_diagnostic \"$status\" \"${APP_DIR}/hosted-replay.headers\""
         ] do
       assert harness =~ marker,
              "hosted exchange diagnostics missing #{inspect(marker)}"
