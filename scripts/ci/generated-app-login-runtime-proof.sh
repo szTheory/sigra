@@ -335,7 +335,7 @@ assert_one_family() {
 ensure_root_test_db() {
   [[ "$ROOT_TEST_DB_READY" == true ]] && return 0
   set_stage "root_test_db_uuid_ossp"
-  run "$SIGRA_REPO" env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e '
+  run "$SIGRA_REPO" env MIX_ENV=test mix run --no-start -r test/support/postgres_test_repo.ex -r test/support/root_app_session_schema.ex -e '
     config = Sigra.Test.PostgresRepo.default_config()
 
     case Ecto.Adapters.Postgres.storage_up(config) do
@@ -347,6 +347,12 @@ ensure_root_test_db() {
     bootstrap_config = Keyword.put(config, :pool, DBConnection.ConnectionPool)
     {:ok, pid} = Sigra.Test.PostgresRepo.start_link(bootstrap_config)
     Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
+    Ecto.Migrator.up(
+      Sigra.Test.PostgresRepo,
+      Sigra.Test.RootAppSessionSchema.version(),
+      Sigra.Test.RootAppSessionSchema,
+      log: false
+    )
     GenServer.stop(pid)
   ' >/dev/null
   ROOT_TEST_DB_READY=true
@@ -681,11 +687,11 @@ prove_host() {
   run "$APP_DIR" mix compile --warnings-as-errors
   (cd "$APP_DIR" && assert_inventory "$mode")
   CLOAK_KEY="$(openssl rand -base64 32)"
-  export CLOAK_KEY
-  set_stage "${mode}_server_start"
   # This is a backend-only HTTP proof; disable only the disposable dev endpoint's
   # asset watchers so its transient host never needs frontend binaries.
   run "$APP_DIR" perl -0pi -e 's/watchers: \[.*?\],\n  live_reload:/watchers: [],\n  live_reload:/s' config/dev.exs
+  export CLOAK_KEY
+  set_stage "${mode}_server_start"
   pushd "$APP_DIR" >/dev/null
   PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
   SERVER_PID=$!

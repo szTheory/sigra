@@ -436,7 +436,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "ensure_root_test_db()"
     assert harness =~ "root_test_db_uuid_ossp"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
-    assert harness =~ "env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e"
+    assert harness =~ "env MIX_ENV=test mix run --no-start -r test/support/postgres_test_repo.ex"
     assert root_setup =~ "config = Sigra.Test.PostgresRepo.default_config()"
     assert root_setup =~ "Ecto.Adapters.Postgres.storage_up(config)"
     assert root_setup =~ "{:error, :already_up} -> :ok"
@@ -458,6 +458,22 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     root_contract_offset = :binary.match(harness, "for contract in app_login") |> elem(0)
     assert root_setup_offset < root_contract_offset
     assert harness =~ "ensure_root_test_db\n  for contract in app_login"
+  end
+
+  test "generated-host proof migrates the canonical root app-session schema before root scenarios" do
+    harness = read!(@harness)
+
+    [root_setup] =
+      Regex.run(~r/(ensure_root_test_db\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
+
+    assert root_setup =~ "test/support/root_app_session_schema.ex"
+    assert root_setup =~ "Ecto.Migrator.up("
+    assert root_setup =~ "Sigra.Test.PostgresRepo"
+    assert root_setup =~ "Sigra.Test.RootAppSessionSchema"
+
+    root_setup_offset = :binary.match(harness, "ensure_root_test_db()") |> elem(0)
+    root_contract_offset = :binary.match(harness, "for contract in app_login") |> elem(0)
+    assert root_setup_offset < root_contract_offset
   end
 
   test "generated-host proof isolates every fixed app-login scenario" do
