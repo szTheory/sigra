@@ -178,11 +178,11 @@ Plans:
 **Goal:** A fresh `--api` host authenticates real personal access tokens through its generated explicit PAT pipeline with normal Scope projection and bounded credential facts.
 **Requirements**: TBD
 **Depends on:** Phase 246
-**Plans:** 1 plan
+**Plans:** 1/1 plans executed
 
 Plans:
 
-- [ ] 246.1-01-PLAN.md — Repair generated PAT options and prove real routed fresh-host authentication.
+- [x] 246.1-01-PLAN.md — Repair generated PAT options and prove real routed fresh-host authentication.
 
 ### Phase 247: Language-Learning Digital Twin
 

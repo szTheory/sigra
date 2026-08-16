@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.1
-current_phase_name: "Close gap: PAT-01 — repair generated PAT authentication pipeline"
-status: executing
-stopped_at: Phase 246.1 context gathered (assumptions mode)
-last_updated: "2026-08-16T22:13:36.373Z"
+current_phase_name: close-gap-pat-01-repair-generated-pat-authentication-pipelin
+status: verifying
+stopped_at: Completed 246.1-01-PLAN.md
+last_updated: "2026-08-16T22:36:27.375Z"
 last_activity: 2026-08-16
-last_activity_desc: Phase 246.1 inserted after Phase 246; ready to plan
+last_activity_desc: Phase 246.1 execution started
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 40
-  completed_plans: 39
+  completed_plans: 40
 current_plan: 0
 ---
 
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246.1 — close-gap-pat-01-repair-generated-pat-authentication-pipeline
+**Current focus:** Phase 246.1 — close-gap-pat-01-repair-generated-pat-authentication-pipelin
 
 ## Current Position
 
-Phase: 246.1 — Close gap: PAT-01 — repair generated PAT authentication pipeline
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-16 — Phase 246.1 inserted after Phase 246; ready to plan
+Phase: 246.1 (close-gap-pat-01-repair-generated-pat-authentication-pipelin) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-08-16 — Phase 246.1 execution started
 
 Progress: [██████████] 100%
 
@@ -96,6 +96,7 @@ Progress: [██████████] 100%
 | Phase 246-hosted-and-direct-login-ceremonies P17 | 10m | 2 tasks | 5 files |
 | Phase 246-hosted-and-direct-login-ceremonies P18 | 12m | 1 tasks | 2 files |
 | Phase 246-hosted-and-direct-login-ceremonies P19 | 18m | 2 tasks | 7 files |
+| Phase 246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin P01 | 16min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -171,6 +172,8 @@ Progress: [██████████] 100%
 - [Phase ?]: MFA factor verification accepts only the same persisted :mfa_pending row bound to the current scope user, then passes that row to the existing completion seam.
 - [Phase ?]: Approve and cancel contend on the same nonce-derived approval_digest; the cancel row digest remains domain-separated storage identity only.
 - [Phase ?]: Cancellation is terminal at commit time and clears the generated browser continuation only after its durable claim succeeds.
+- [Phase ?]: Generated PAT configuration is resolved at request time, matching FetchJWT.
+- [Phase ?]: Unauthenticated API requests return JSON 401 while browser redirects retain flash behavior.
 
 ### Pending Todos
 
@@ -192,6 +195,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-16T21:52:30.545Z
-Stopped at: Phase 246.1 context gathered (assumptions mode)
-Resume file: .planning/phases/246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin/246.1-CONTEXT.md
+Last session: 2026-08-16T22:36:27.362Z
+Stopped at: Completed 246.1-01-PLAN.md
+Resume file: None
