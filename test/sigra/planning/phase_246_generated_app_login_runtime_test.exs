@@ -427,13 +427,16 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
     assert harness =~ "env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e"
-    assert root_setup =~ "Sigra.Test.PostgresRepo.default_config() |> Keyword.put(:pool, DBConnection.ConnectionPool)"
+    assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())"
+    assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)"
     assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
     assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
     refute root_setup =~ "psql"
     refute root_setup =~ "IO.puts"
     refute harness =~ "DROP "
     refute harness =~ "RESET "
+    assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)"
+    assert root_setup =~ "GenServer.stop(pid)"
 
     root_setup_offset = :binary.match(harness, "ensure_root_test_db()") |> elem(0)
     root_contract_offset = :binary.match(harness, "for contract in app_login") |> elem(0)

@@ -339,11 +339,15 @@ ensure_root_test_db() {
   run "$SIGRA_REPO" env MIX_ENV=test mix ecto.migrate
   set_stage "root_test_db_uuid_ossp"
   run "$SIGRA_REPO" env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e '
-    {:ok, _} =
-      Sigra.Test.PostgresRepo.start_link(
-        Sigra.Test.PostgresRepo.default_config() |> Keyword.put(:pool, DBConnection.ConnectionPool)
-      )
-    Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
+    {:ok, pid} = Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
+
+    try do
+      Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, ~s(CREATE EXTENSION IF NOT EXISTS "uuid-ossp"), [])
+    after
+      Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)
+      GenServer.stop(pid)
+    end
   ' >/dev/null
   ROOT_TEST_DB_READY=true
 }
