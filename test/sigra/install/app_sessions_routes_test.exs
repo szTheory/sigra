@@ -31,6 +31,11 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert controller =~ "def exchange(conn, params)"
     assert controller =~ "put_resp_header(\"referrer-policy\", \"no-referrer\")"
     assert controller =~ "AppLoginContinuation"
+    assert controller =~ "{:ok, :cancelled} <- AppSessions.approve_hosted(continuation, current_user(conn), :cancel)"
+    assert controller =~ "{conn, _} = AppLoginContinuation.take(conn)"
+    assert controller =~ "defp invalid_request(conn), do: conn |> put_status(:bad_request) |> text(\"Invalid app login request.\")"
+    assert :binary.match(controller, "{:ok, :cancelled} <- AppSessions.approve_hosted") <
+             :binary.match(controller, "{conn, _} = AppLoginContinuation.take(conn)")
     assert controller =~ "defp browser_assurance(conn)"
     assert controller =~ "defp current_user(%{assigns: %{current_scope: %{user: user}}}), do: user"
     assert controller =~ "defp current_user(_), do: nil"

@@ -221,6 +221,84 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
              )
   end
 
+  test "barrier-released approval and cancellation claim one signed continuation", %{repo: repo} do
+    parent = self()
+    config = config(repo)
+    verifier = String.duplicate("v", 43)
+    family_count_before = repo.aggregate(Family, :count)
+    token_count_before = repo.aggregate(Token, :count)
+    {:ok, user} = repo.insert(%User{email: "hosted-decision-concurrency@example.com"})
+
+    assert {:ok, %{continuation: continuation}} =
+             AppLogin.start_hosted(config, %{
+               "profile_id" => "ios-primary",
+               "callback" => "com.sigra.app:/login",
+               "state" => "hosted-decision-state",
+               "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+               "code_challenge_method" => "S256"
+             })
+
+    callers =
+      for decision <- [:approve, :cancel] do
+        Task.async(fn ->
+          Ecto.Adapters.SQL.Sandbox.allow(repo, parent, self())
+          send(parent, {:hosted_decision_ready, self()})
+
+          receive do
+            :go -> {decision, AppLogin.approve_hosted(config, continuation, user, decision)}
+          end
+        end)
+      end
+
+    for _ <- callers do
+      assert_receive {:hosted_decision_ready, caller}
+      send(caller, :go)
+    end
+
+    results = Enum.map(callers, &Task.await(&1, 5_000))
+
+    assert Enum.count(results, fn {_decision, result} -> match?({:ok, _}, result) end) == 1
+
+    assert Enum.count(results, fn {_decision, result} ->
+             match?({:error, :invalid_continuation}, result)
+           end) == 1
+
+    {:ok, payload} =
+      Sigra.Token.verify(config.secret_key_base, "sigra-app-login-hosted-v1", continuation,
+        max_age: 300
+      )
+
+    expected_approval_digest = Sigra.Token.hash_token(payload["approval_nonce"])
+
+    assert [%Attempt{approval_digest: ^expected_approval_digest, kind: kind} = attempt] = repo.all(Attempt)
+
+    case {kind, Enum.find(results, fn {_decision, result} -> match?({:ok, _}, result) end)} do
+      {:hosted_cancel, {:cancel, {:ok, :cancelled}}} ->
+        assert attempt.digest == Sigra.Token.hash_token("hosted_cancel:" <> payload["approval_nonce"])
+        refute attempt.digest == attempt.approval_digest
+        assert not is_nil(attempt.consumed_at)
+        assert repo.aggregate(Family, :count) == family_count_before
+        assert repo.aggregate(Token, :count) == token_count_before
+
+      {:hosted_code, {:approve, {:ok, %{code: code}}}} ->
+        assert {:ok, %{family_id: family_id}} =
+                 AppLogin.exchange_hosted(
+                   config,
+                   code,
+                   verifier,
+                   %{id: "ios-primary", client_ref: "ios-primary"},
+                   "com.sigra.app:/login"
+                 )
+
+        assert family_id
+        assert repo.aggregate(Family, :count) == family_count_before + 1
+        assert repo.aggregate(Token, :count) == token_count_before + 2
+
+      unexpected ->
+        flunk("unexpected terminal decision: #{inspect(unexpected)}")
+    end
+  end
+
   test "two ready/go callers consume one direct MFA challenge in either audit mode", %{repo: repo} do
     parent = self()
 
