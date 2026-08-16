@@ -33,14 +33,23 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 246 Hosted and Direct Login Ceremonies complete (2026-08-16).**
+First-party apps can now obtain the same opaque app-session contract through
+hosted system-browser login or separately opted-in, policy-gated direct
+password/MFA login. Hosted continuations use PKCE S256, exact callback and
+state checks, explicit approval, single-use short-lived codes, and durable
+terminal cancellation. Generated MFA verifies persisted pending-session
+authority before consuming factor state. Phase 247 now owns the bounded
+language-learning digital twin.
+
 **Phase 245 Opaque App-Session Core complete (2026-08-12).** First-party
 clients can now receive digest-only opaque access/refresh credentials with
 15-minute access, 30-day refresh-idle, and 90-day absolute defaults. Refresh
 uses a locked single transaction, rotates every use, revokes the family on
 reuse, and returns no replacement after rollback. Owner one/all revocation,
 password reset, sign-out-all, and account deletion invalidate applicable app
-sessions on their next authentication. Phase 246 now owns opt-in generation
-and hosted/direct login ceremonies.
+sessions on their next authentication. Phase 246 added opt-in generation and
+the hosted/direct login ceremonies over this core.
 
 **Phase 244 PAT and Advanced JWT Truth Repair complete (2026-08-12).**
 Sigra now generates independently runnable `--api` and `--jwt` hosts. The PAT
