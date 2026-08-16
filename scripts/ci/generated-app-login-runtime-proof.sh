@@ -668,6 +668,7 @@ prove_host() {
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
   unset CLOAK_KEY
+  set_stage "${mode}_post_ceremony_contracts"
   run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs test/sigra/app_login_direct_test.exs test/sigra/app_login_direct_fault_test.exs test/sigra/app_login/concurrency_test.exs test/sigra/plug/fetch_app_session_test.exs --trace
 }
 
@@ -677,6 +678,7 @@ case "${1:---all}" in
   --all)
     prove_host hosted
     prove_host direct
+    set_stage "all_cross_ceremony_contracts"
     run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/install/app_sessions_mfa_session_upgrade_test.exs test/sigra/app_login/concurrency_test.exs --trace
     LIVEVIEW_MFA_SESSION_UPGRADED=true
     cmp "${TMP_ROOT}/hosted-fetch-app-session-shape.json" "${TMP_ROOT}/direct-fetch-app-session-shape.json"
