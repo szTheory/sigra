@@ -175,6 +175,7 @@ defmodule Sigra.AppLogin.Attempt do
       try do
         case callback.(user, code) do
           {:ok, _result} -> {:ok, :verified}
+          {:ok, _result, _metadata} -> {:ok, :verified}
           _ -> {:error, :invalid_credentials}
         end
       rescue

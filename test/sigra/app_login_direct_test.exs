@@ -118,7 +118,10 @@ defmodule Sigra.AppLoginDirectTest do
           authenticate_user: fn _email, _password -> {:ok, user, %{mfa_required: true}} end
         )
 
-      opts = [{callback, fn ^user, "correct-factor" -> {:ok, :verified} end}, factor: factor]
+      callback_result = if factor == :backup_code, do: {:ok, :consumed, 0}, else: {:ok, :verified}
+
+      opts =
+        [{callback, fn ^user, "correct-factor" -> callback_result end}, factor: factor]
 
       assert {:ok, %{access_token: access, family_id: family_id}} =
                AppLogin.complete_direct_mfa(config, challenge, "correct-factor", opts)
