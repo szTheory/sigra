@@ -127,7 +127,9 @@ defmodule Sigra.Install.Features.Core do
 
     base
     |> Kernel.++(
-      if api?, do: api_injections(otp_app_str, context_underscore(binding), web_module), else: []
+      if api?,
+        do: api_injections(otp_app_str, context_underscore(binding), context_module, web_module),
+        else: []
     )
     |> Kernel.++(if jwt?, do: jwt_injections(otp_app_str, context_module, web_module), else: [])
     |> Enum.reject(&is_nil/1)
@@ -748,11 +750,13 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
-  defp api_injections(otp_app, context_underscore, web_module) do
+  defp api_injections(otp_app, context_underscore, context_module, web_module) do
     api_router_content = """
       # Sigra API
       pipeline :api_authenticated do
-        plug Sigra.Plug.FetchAPIToken
+        plug Sigra.Plug.FetchAPIToken,
+          config: &#{context_module}.sigra_config/0,
+          scope_module: #{context_module}.Scope
         plug Sigra.Plug.RequireAuthenticated,
           error_handler: #{web_module}.AuthErrorHandler
       end
