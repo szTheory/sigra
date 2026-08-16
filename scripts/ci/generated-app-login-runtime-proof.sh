@@ -683,6 +683,9 @@ prove_host() {
   CLOAK_KEY="$(openssl rand -base64 32)"
   export CLOAK_KEY
   set_stage "${mode}_server_start"
+  # This is a backend-only HTTP proof; disable only the disposable dev endpoint's
+  # asset watchers so its transient host never needs frontend binaries.
+  run "$APP_DIR" perl -0pi -e 's/watchers: \[.*?\],\n  live_reload:/watchers: [],\n  live_reload:/s' config/dev.exs
   pushd "$APP_DIR" >/dev/null
   PORT="$PORT" PHX_SERVER=true mix phx.server > server.log 2>&1 &
   SERVER_PID=$!

@@ -47,6 +47,14 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "export PGDATABASE=\"${PGDATABASE:-sigra_test}\""
   end
 
+  test "generated-host proof disables only disposable development asset watchers" do
+    harness = read!(@harness)
+
+    assert harness =~ "config/dev.exs"
+    assert harness =~ "watchers: [],"
+    refute harness =~ "chmod"
+  end
+
   test "fresh-host proof authenticates generated credentials and rejects replays over HTTP" do
     harness = read!(@harness)
 
