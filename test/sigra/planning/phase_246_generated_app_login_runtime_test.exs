@@ -418,8 +418,11 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "ensure_root_test_db()"
     assert harness =~ "root_test_db_create"
     assert harness =~ "root_test_db_migrate"
+    assert harness =~ "root_test_db_uuid_ossp"
     assert harness =~ "env MIX_ENV=test mix ecto.create"
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
+    assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
+    refute harness =~ "DROP EXTENSION"
   end
 
   test "generated-host proof isolates every fixed app-login scenario" do

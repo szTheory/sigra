@@ -337,6 +337,8 @@ ensure_root_test_db() {
   run "$SIGRA_REPO" env MIX_ENV=test mix ecto.create
   set_stage "root_test_db_migrate"
   run "$SIGRA_REPO" env MIX_ENV=test mix ecto.migrate
+  set_stage "root_test_db_uuid_ossp"
+  psql -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"' >/dev/null
   ROOT_TEST_DB_READY=true
 }
 
