@@ -281,7 +281,11 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
 
     exchange_classifier =
-      harness |> String.split("hosted_exchange_response_diagnostic()", parts: 2) |> List.last()
+      harness
+      |> String.split("hosted_exchange_response_diagnostic()", parts: 2)
+      |> List.last()
+      |> String.split("json_field()", parts: 2)
+      |> List.first()
 
     for marker <- ["UndefinedFunctionError", "FunctionClauseError", "CaseClauseError", "Internal Server Error"] do
       assert exchange_classifier =~ marker,

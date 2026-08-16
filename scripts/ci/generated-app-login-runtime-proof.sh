@@ -215,6 +215,41 @@ hosted_app_login_response_diagnostic() {
   HOSTED_APP_LOGIN_BODY="$body_class"
 }
 
+hosted_exchange_response_diagnostic() {
+  local status="$1"
+  local headers="$2"
+  local page="$3"
+  local content_type body_class undefined_function_signature
+
+  content_type="$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers" | head -n 1 | tr '[:upper:]' '[:lower:]')"
+  case "$content_type" in
+    application/json) content_type="json" ;;
+    text/html) content_type="html" ;;
+    "") content_type="missing" ;;
+    *) content_type="other" ;;
+  esac
+
+  if grep -Fq 'UndefinedFunctionError' "$page"; then
+    body_class="undefined_function"
+  elif grep -Fq 'FunctionClauseError' "$page"; then
+    body_class="function_clause"
+  elif grep -Fq 'CaseClauseError' "$page"; then
+    body_class="case_clause"
+  elif grep -Fq 'Internal Server Error' "$page"; then
+    body_class="server_error"
+  elif grep -Fq '"error"' "$page"; then
+    body_class="error_response"
+  else
+    body_class="other"
+  fi
+
+  undefined_function_signature="$({ sed -nE 's/.*function ([[:alnum:]_.]+\/[[:digit:]]+) is undefined.*/\1/p' "$page" | head -n 1; } || true)"
+  [[ -n "$undefined_function_signature" ]] || undefined_function_signature="none"
+
+  printf 'generated host proof hosted exchange response status=%s content_type=%s body=%s undefined_function_signature=%s\n' \
+    "$status" "$content_type" "$body_class" "$undefined_function_signature" >&2
+}
+
 json_field() {
   local field="$1"
   local path="$2"
@@ -504,7 +539,8 @@ prove_hosted_ceremony() {
   '
   status="$(curl --silent --show-error -H 'content-type: application/json' \
     -d "{\"code\":\"$code\",\"code_verifier\":\"$verifier\",\"profile_id\":\"ios-primary\",\"callback\":\"http://127.0.0.1:49152/callback\"}" \
-    -o "$exchange_body" -w '%{http_code}' "$base/api/app-login/exchange")"
+    -D "$APP_DIR/hosted-exchange.headers" -o "$exchange_body" -w '%{http_code}' "$base/api/app-login/exchange")"
+  hosted_exchange_response_diagnostic "$status" "$APP_DIR/hosted-exchange.headers" "$exchange_body"
   [[ "$status" =~ ^2[0-9][0-9]$ ]]
   grep -Eq '"access_token":"[^"]+"' "$exchange_body"
   grep -Eq '"refresh_token":"[^"]+"' "$exchange_body"
