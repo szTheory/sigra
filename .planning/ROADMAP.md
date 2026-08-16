@@ -15,7 +15,7 @@
 - [x] **Phase 243: Credential Boundary and Pipeline Foundation** - Define credential ownership and explicit, fail-closed authentication pipelines. (completed 2026-08-12)
 - [x] **Phase 244: PAT and Advanced JWT Truth Repair** - Make independently generated PAT and advanced JWT contracts complete and trustworthy. (completed 2026-08-12)
 - [x] **Phase 245: Opaque App-Session Core** - Deliver rotating opaque app sessions with durable revocation semantics. (completed 2026-08-12)
-- [ ] **Phase 246: Hosted and Direct Login Ceremonies** - Let explicitly opted-in first-party apps obtain the same secure app session through hosted or policy-gated direct login.
+- [x] **Phase 246: Hosted and Direct Login Ceremonies** - Let explicitly opted-in first-party apps obtain the same secure app session through hosted or policy-gated direct login. (completed 2026-08-16)
 - [ ] **Phase 247: Language-Learning Digital Twin** - Prove the bounded PWA lesson, verified media, and account-isolated offline behavior.
 - [ ] **Phase 248: Crosswake Native Proof** - Prove the shared contract through released Crosswake packages, a physical iPhone, and Android emulator.
 - [ ] **Phase 249: Desktop Contract and Milestone Closure** - Define the Electron boundary and make support claims evidence-backed and fail-closed.
@@ -221,7 +221,7 @@ Plans:
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
-| 246. Hosted and Direct Login Ceremonies | 19/19 | In Progress|  |
+| 246. Hosted and Direct Login Ceremonies | 19/19 | Complete    | 2026-08-16 |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
