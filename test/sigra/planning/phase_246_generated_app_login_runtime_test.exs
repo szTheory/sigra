@@ -378,6 +378,17 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
   end
 
+  test "generated direct MFA proof emits only a redacted response classification" do
+    harness = read!(@harness)
+
+    assert harness =~ "direct_mfa_response_diagnostic \"$status\" \"$mfa_body\""
+    assert harness =~ "generated host proof direct_mfa status=%s body=%s"
+
+    for forbidden <- ["$challenge", "$backup_code", "direct-proof@example.test"] do
+      refute harness =~ "direct_mfa status=%s body=%s #{forbidden}"
+    end
+  end
+
   test "generated-host proof emits redacted stage diagnostics without replacing failure status" do
     harness = read!(@harness)
 

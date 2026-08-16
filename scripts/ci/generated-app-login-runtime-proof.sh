@@ -140,6 +140,22 @@ mfa_response_diagnostic() {
   MFA_RESPONSE_BODY="$body_class"
 }
 
+direct_mfa_response_diagnostic() {
+  local status="$1"
+  local body="$2"
+  local body_class="other"
+
+  if grep -Fq '"error":"invalid_credentials"' "$body"; then
+    body_class="invalid_credentials"
+  elif grep -Eq '"(access_token|refresh_token|family_id)":"[^"]+"' "$body"; then
+    body_class="credential_contract"
+  elif grep -Fq '"error":"browser_required"' "$body"; then
+    body_class="browser_required"
+  fi
+
+  printf 'generated host proof direct_mfa status=%s body=%s\n' "$status" "$body_class" >&2
+}
+
 fetch_mfa_form() {
   local base="$1"
   local cookie_jar="$2"
@@ -465,6 +481,7 @@ prove_direct_mfa_ceremony() {
   status="$(curl --silent --show-error -H 'content-type: application/json' \
     -d "{\"challenge\":\"$challenge\",\"code\":\"$backup_code\",\"factor\":\"backup_code\"}" \
     -o "$mfa_body" -w '%{http_code}' "$base/api/app-login/direct/mfa")"
+  direct_mfa_response_diagnostic "$status" "$mfa_body"
   [[ "$status" =~ ^2[0-9][0-9]$ ]]
   grep -Eq '"access_token":"[^"]+"' "$mfa_body"
   grep -Eq '"refresh_token":"[^"]+"' "$mfa_body"
