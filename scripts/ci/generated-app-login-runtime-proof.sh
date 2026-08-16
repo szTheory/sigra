@@ -674,8 +674,16 @@ prove_host() {
   [[ "$mode" != direct ]] || curl --silent --show-error -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:${PORT}/api/app-login/direct" | grep -Eq '401|429'
   kill "$SERVER_PID"; SERVER_PID=""
   unset CLOAK_KEY
-  set_stage "${mode}_post_ceremony_contracts"
-  run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs test/sigra/app_login_direct_test.exs test/sigra/app_login_direct_fault_test.exs test/sigra/app_login/concurrency_test.exs test/sigra/plug/fetch_app_session_test.exs --trace
+  for contract in app_login app_login_direct app_login_direct_fault app_login_concurrency fetch_app_session; do
+    set_stage "${mode}_post_ceremony_${contract}"
+    case "$contract" in
+      app_login) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_test.exs --trace ;;
+      app_login_direct) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_direct_test.exs --trace ;;
+      app_login_direct_fault) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login_direct_fault_test.exs --trace ;;
+      app_login_concurrency) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/app_login/concurrency_test.exs --trace ;;
+      fetch_app_session) run "$SIGRA_REPO" env MIX_ENV=test mix test test/sigra/plug/fetch_app_session_test.exs --trace ;;
+    esac
+  done
 }
 
 case "${1:---all}" in
