@@ -48,14 +48,17 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
     run!(app, "mix", ["ecto.create"])
     assert_database_ready!(database)
     run!(app, "mix", ["ecto.migrate"])
-    run!(app, "mix", ["compile"])
     write_smoke!(app)
+    run!(app, "mix", ["compile"])
     run!(app, "mix", ["test", "test/pat_runtime_smoke_test.exs"])
 
     router = File.read!(Path.join(app, "lib/sigra_phase_244_api_web/router.ex"))
     config = File.read!(Path.join(app, "config/config.exs"))
 
     assert router =~ "Sigra.Plug.FetchAPIToken"
+    assert router =~ "config: &SigraPhase244Api.Accounts.sigra_config/0"
+    assert router =~ "scope_module: SigraPhase244Api.Accounts.Scope"
+    assert router =~ "pipe_through [:api, :api_authenticated]"
     assert router =~ "pipe_through [:browser, :require_authenticated, :require_sudo]"
 
     refute router =~
@@ -243,6 +246,8 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
   end
 
   defp write_smoke!(app) do
+    write_pat_probe!(app)
+
     File.write!(Path.join(app, "test/pat_runtime_smoke_test.exs"), """
     defmodule SigraPhase244Api.PATRuntimeSmokeTest do
       use SigraPhase244ApiWeb.ConnCase, async: false
@@ -271,16 +276,35 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
         %{conn: conn, owner: owner, other: other, session: refreshed_session}
       end
 
-      test \"a generated PAT authenticates through FetchAPIToken\", %{owner: user} do
+      test \"a generated PAT authenticates through the emitted API route\", %{conn: conn, owner: user} do
         config = SigraPhase244Api.Accounts.sigra_config()
-        {:ok, raw, _token} = Sigra.Auth.create_api_token(config, user, %{name: \"proof\", scopes: [\"profile:read\"]})
+        {:ok, raw, token} = Sigra.Auth.create_api_token(config, user, %{name: \"proof\", scopes: [\"profile:read\"]})
 
-        conn = Plug.Test.conn(:get, \"/\") |> Plug.Conn.put_req_header(\"authorization\", \"Bearer \" <> raw)
-        conn = Sigra.Plug.FetchAPIToken.call(conn, config: config, scope_module: Accounts.Scope)
+        authenticated = conn |> put_req_header(\"authorization\", \"Bearer \" <> raw) |> get(\"/__sigra_phase_244_pat_probe\")
+        assert response(authenticated, 200)
+        assert %{
+                 \"user_id\" => user_id,
+                 \"credential_kind\" => \"personal_access_token\",
+                 \"credential_id\" => credential_id,
+                 \"scopes\" => [\"profile:read\"],
+                 \"auth_method\" => \"api_token\",
+                 \"assurance\" => []
+               } = json_response(authenticated, 200)
+        assert user_id == user.id
+        assert credential_id == token.id
 
-        assert conn.assigns.current_scope.user.id == user.id
-        assert conn.private[:sigra_auth].credential_kind == :personal_access_token
+        for authorization <- [nil, \"Bearer\", \"Basic ignored\", \"Bearer invalid\"] do
+          rejected = conn |> recycle() |> maybe_authorization(authorization) |> get(\"/__sigra_phase_244_pat_probe\")
+          assert response(rejected, 401)
+        end
+
+        Repo.delete!(user)
+        stale = conn |> recycle() |> put_req_header(\"authorization\", \"Bearer \" <> raw) |> get(\"/__sigra_phase_244_pat_probe\")
+        assert response(stale, 401)
       end
+
+      defp maybe_authorization(conn, nil), do: conn
+      defp maybe_authorization(conn, value), do: put_req_header(conn, \"authorization\", value)
 
       test "real browser routes require authenticated fresh-sudo CSRF requests and preserve PAT rows on every rejected mutation", %{conn: conn, owner: owner, other: other, session: session} do
         fresh = get(conn, ~p\"/users/api-tokens\")
@@ -358,6 +382,45 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
       defp stale_sudo(conn, session) do
         Repo.update_all(from(s in SigraPhase244Api.Accounts.UserSession, where: s.id == ^session.id), set: [sudo_at: DateTime.add(DateTime.utc_now(), -3_601, :second)])
         conn
+      end
+    end
+    """)
+  end
+
+  defp write_pat_probe!(app) do
+    router_path = Path.join(app, "lib/sigra_phase_244_api_web/router.ex")
+    router = File.read!(router_path)
+    anchor = "  # Sigra API\n"
+
+    probe = """
+      scope \"/__sigra_phase_244_pat_probe\", SigraPhase244ApiWeb do
+        pipe_through [:api, :api_authenticated]
+
+        get \"/\", PATRuntimeProbeController, :show
+      end
+
+    """
+
+    patched = String.replace(router, anchor, probe <> anchor, global: false)
+    assert patched != router, "generated router did not expose the Sigra API insertion anchor"
+    assert String.split(patched, probe) |> length() == 2, "generated router probe anchor was replaced more than once"
+    File.write!(router_path, patched)
+
+    File.write!(Path.join(app, "lib/sigra_phase_244_api_web/controllers/pat_runtime_probe_controller.ex"), """
+    defmodule SigraPhase244ApiWeb.PATRuntimeProbeController do
+      use SigraPhase244ApiWeb, :controller
+
+      def show(conn, _params) do
+        auth = conn.private[:sigra_auth]
+
+        json(conn, %{
+          user_id: conn.assigns.current_scope.user.id,
+          credential_kind: Atom.to_string(auth.credential_kind),
+          credential_id: auth.credential_id,
+          scopes: auth.scopes,
+          auth_method: Atom.to_string(auth.auth_method),
+          assurance: auth.assurance
+        })
       end
     end
     """)
