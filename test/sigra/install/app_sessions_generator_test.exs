@@ -200,6 +200,8 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       assert facade =~ "Sigra.AppLogin.start_hosted"
       assert facade =~ "Sigra.AppLogin.approve_hosted"
       assert facade =~ "Sigra.AppLogin.exchange_hosted"
+      assert facade =~ "FirstPartyApps.profiles()"
+      assert facade =~ "Enum.find(&(&1.id == profile_id))"
       assert facade =~ "Sigra.AppSession.refresh"
       assert facade =~ "Sigra.AppSession.revoke_family_for_user"
       refute facade =~ "authenticate_user"
