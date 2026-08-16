@@ -270,11 +270,14 @@ defmodule Sigra.AppLogin.ConcurrencyTest do
 
     expected_approval_digest = Sigra.Token.hash_token(payload["approval_nonce"])
 
-    assert [%Attempt{approval_digest: ^expected_approval_digest, kind: kind} = attempt] = repo.all(Attempt)
+    assert [%Attempt{approval_digest: ^expected_approval_digest, kind: kind} = attempt] =
+             repo.all(Attempt)
 
     case {kind, Enum.find(results, fn {_decision, result} -> match?({:ok, _}, result) end)} do
       {:hosted_cancel, {:cancel, {:ok, :cancelled}}} ->
-        assert attempt.digest == Sigra.Token.hash_token("hosted_cancel:" <> payload["approval_nonce"])
+        assert attempt.digest ==
+                 Sigra.Token.hash_token("hosted_cancel:" <> payload["approval_nonce"])
+
         refute attempt.digest == attempt.approval_digest
         assert not is_nil(attempt.consumed_at)
         assert repo.aggregate(Family, :count) == family_count_before

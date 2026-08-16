@@ -103,7 +103,10 @@ defmodule Sigra.Install.AppSessionsGeneratorTest do
       unprefixed_migration = render_template("app_sessions_migration.exs", adapter: :sqlite)
 
       assert attempt =~ "defmodule MyApp.Accounts.UserAppLoginAttempt"
-      assert attempt =~ "field :kind, Ecto.Enum, values: [:hosted_code, :hosted_cancel, :direct_mfa]"
+
+      assert attempt =~
+               "field :kind, Ecto.Enum, values: [:hosted_code, :hosted_cancel, :direct_mfa]"
+
       assert attempt =~ "field :digest, :binary"
       assert attempt =~ "field :approval_digest, :binary"
       assert attempt =~ "field :verifier_digest, :binary"
