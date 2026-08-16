@@ -41,6 +41,12 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "proof must use bounded readiness rather than sleeps"
   end
 
+  test "generated-host proof targets sigra_test unless its caller supplies a database" do
+    harness = read!(@harness)
+
+    assert harness =~ "export PGDATABASE=\"${PGDATABASE:-sigra_test}\""
+  end
+
   test "fresh-host proof authenticates generated credentials and rejects replays over HTTP" do
     harness = read!(@harness)
 

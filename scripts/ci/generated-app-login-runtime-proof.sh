@@ -31,6 +31,7 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export PGPORT="${PGPORT:-5432}"
+export PGDATABASE="${PGDATABASE:-sigra_test}"
 
 set_stage() { CURRENT_STAGE="$1"; }
 
