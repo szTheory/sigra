@@ -420,14 +420,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
       Regex.run(~r/(ensure_root_test_db\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
 
     assert harness =~ "ensure_root_test_db()"
-    assert harness =~ "root_test_db_create"
-    assert harness =~ "root_test_db_migrate"
     assert harness =~ "root_test_db_uuid_ossp"
-    assert harness =~ "env MIX_ENV=test mix ecto.create"
-    assert harness =~ "env MIX_ENV=test mix ecto.migrate"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
     assert harness =~ "env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e"
-    assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())"
+    assert root_setup =~ "config = Sigra.Test.PostgresRepo.default_config()"
+    assert root_setup =~ "Ecto.Adapters.Postgres.storage_up(config)"
+    assert root_setup =~ "{:error, :already_up} -> :ok"
+    assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(config)"
     assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)"
     assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
     assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
@@ -435,6 +434,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute root_setup =~ "IO.puts"
     refute harness =~ "DROP "
     refute harness =~ "RESET "
+    refute root_setup =~ "mix ecto.create"
+    refute root_setup =~ "mix ecto.migrate"
     assert root_setup =~ "Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)"
     assert root_setup =~ "GenServer.stop(pid)"
 

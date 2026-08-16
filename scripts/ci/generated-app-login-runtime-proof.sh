@@ -333,13 +333,17 @@ assert_one_family() {
 
 ensure_root_test_db() {
   [[ "$ROOT_TEST_DB_READY" == true ]] && return 0
-  set_stage "root_test_db_create"
-  run "$SIGRA_REPO" env MIX_ENV=test mix ecto.create
-  set_stage "root_test_db_migrate"
-  run "$SIGRA_REPO" env MIX_ENV=test mix ecto.migrate
   set_stage "root_test_db_uuid_ossp"
   run "$SIGRA_REPO" env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e '
-    {:ok, pid} = Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())
+    config = Sigra.Test.PostgresRepo.default_config()
+
+    case Ecto.Adapters.Postgres.storage_up(config) do
+      :ok -> :ok
+      {:error, :already_up} -> :ok
+      other -> raise "could not provision root test database: #{inspect(other)}"
+    end
+
+    {:ok, pid} = Sigra.Test.PostgresRepo.start_link(config)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
 
     try do
