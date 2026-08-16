@@ -4,7 +4,7 @@ pipeline :app_login_public do
     limiter: Sigra.RateLimiters.Hammer,
     error_handler: <%= web_module %>.AuthErrorHandler,
     key_prefix: "app_login_public",
-    limit: 3,
+    limit: 4,
     window: 60_000,
     limit_config_key: :app_login_public_rate_limit,
     window_config_key: :app_login_public_rate_limit_window
