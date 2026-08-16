@@ -414,6 +414,10 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
   test "generated-host proof prepares the root test database before root contracts" do
     harness = read!(@harness)
+    postgres_repo = read!("test/support/postgres_test_repo.ex")
+
+    [root_setup] =
+      Regex.run(~r/(ensure_root_test_db\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
 
     assert harness =~ "ensure_root_test_db()"
     assert harness =~ "root_test_db_create"
@@ -422,8 +426,19 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "env MIX_ENV=test mix ecto.create"
     assert harness =~ "env MIX_ENV=test mix ecto.migrate"
     assert harness =~ "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
-    assert harness =~ "PGDATABASE=sigra_test psql"
-    refute harness =~ "DROP EXTENSION"
+    assert harness =~ "env MIX_ENV=test mix run -r test/support/postgres_test_repo.ex -e"
+    assert harness =~ "Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())"
+    assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
+    assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
+    refute root_setup =~ "psql"
+    refute root_setup =~ "IO.puts"
+    refute harness =~ "DROP "
+    refute harness =~ "RESET "
+
+    root_setup_offset = :binary.match(harness, "ensure_root_test_db()") |> elem(0)
+    root_contract_offset = :binary.match(harness, "for contract in app_login") |> elem(0)
+    assert root_setup_offset < root_contract_offset
+    assert harness =~ "ensure_root_test_db\n  for contract in app_login"
   end
 
   test "generated-host proof isolates every fixed app-login scenario" do
