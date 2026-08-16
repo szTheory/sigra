@@ -507,14 +507,16 @@ prove_direct_mfa_ceremony() {
   '
 
   prove_direct_replay "$challenge" "$backup_code" "$access_token" "$family_id"
-  local families_before_browser_required
-  families_before_browser_required="$(run "$APP_DIR" mix run -e 'IO.write(SigraAppLoginProof.Repo.aggregate(SigraAppLoginProof.Accounts.UserAppSessionFamily, :count, :id))')"
   status="$(curl --silent --show-error -H 'content-type: application/json' \
     -d '{"profile_id":"ios-primary","email":"not-a-real-user@example.test","password":"not-a-password"}' \
     -o "${APP_DIR}/direct-browser-required.json" -w '%{http_code}' "$base/api/app-login/direct")"
   [[ "$status" == "403" ]]
   grep -Fxq '{"error":"browser_required"}' "${APP_DIR}/direct-browser-required.json"
-  [[ "$(run "$APP_DIR" mix run -e 'IO.write(SigraAppLoginProof.Repo.aggregate(SigraAppLoginProof.Accounts.UserAppSessionFamily, :count, :id))')" == "$families_before_browser_required" ]]
+  # Do not compare captured `mix run` output: generated-host logger configuration
+  # can emit non-deterministic lines around an otherwise identical aggregate.
+  # The typed assertion verifies that browser-required returned before creating
+  # another family or altering the direct MFA attempt.
+  assert_one_family direct direct_mfa
   DIRECT_SUCCESS=true
   DIRECT_REPLAY_REJECTED=true
   DIRECT_FETCH_APP_SESSION=true

@@ -92,6 +92,14 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the protected generated route must be installed, not merely mentioned"
   end
 
+  test "browser-required proof checks persisted state without comparing command output" do
+    harness = read!(@harness)
+
+    assert harness =~ "grep -Fxq '{\"error\":\"browser_required\"}'"
+    assert harness =~ "assert_one_family direct direct_mfa"
+    refute harness =~ "families_before_browser_required"
+  end
+
   test "proof router defers app-session config until the endpoint is running" do
     harness = read!(@harness)
 
