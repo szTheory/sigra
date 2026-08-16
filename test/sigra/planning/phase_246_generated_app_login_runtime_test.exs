@@ -247,7 +247,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "FunctionClauseError",
           "CaseClauseError",
           "UndefinedFunctionError",
-          ".AppLoginHTML.header/1"
+          ".AppLoginHTML.header/1",
+          "AppLoginContinuation.",
+          "AppLoginHTML.",
+          "Auth.AppSessions.",
+          "Sigra.AppLogin.",
+          "Sigra.Branding.",
+          "Phoenix.Token."
         ] do
       assert app_login_classifier =~ marker,
             "hosted app-login error classification missing #{inspect(marker)}"
