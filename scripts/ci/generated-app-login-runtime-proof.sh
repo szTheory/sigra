@@ -333,7 +333,8 @@ prove_hosted_replay() {
 
   status="$(curl --silent --show-error -H 'content-type: application/json' \
     -d "{\"code\":\"$code\",\"code_verifier\":\"$verifier\",\"profile_id\":\"ios-primary\",\"callback\":\"http://127.0.0.1:49152/callback\"}" \
-    -o "${APP_DIR}/hosted-replay.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/exchange")"
+    -D "${APP_DIR}/hosted-replay.headers" -o "${APP_DIR}/hosted-replay.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/exchange")"
+  hosted_exchange_response_diagnostic "$status" "${APP_DIR}/hosted-replay.headers" "${APP_DIR}/hosted-replay.json"
   [[ "$status" == "400" ]]
   prove_fetch_app_session hosted "$access_token" "$family_id" || {
     echo "hosted credential did not remain valid after replay" >&2
