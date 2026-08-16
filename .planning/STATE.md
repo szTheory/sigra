@@ -4,15 +4,15 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.1
 current_phase_name: "Close gap: PAT-01 — repair generated PAT authentication pipeline"
-status: planning
+status: executing
 stopped_at: Phase 246.1 context gathered (assumptions mode)
-last_updated: "2026-08-16T21:52:30.556Z"
+last_updated: "2026-08-16T22:13:36.373Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246.1 inserted after Phase 246; ready to plan
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 39
+  total_plans: 40
   completed_plans: 39
 current_plan: 0
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 
 Phase: 246.1 — Close gap: PAT-01 — repair generated PAT authentication pipeline
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-08-16 — Phase 246.1 inserted after Phase 246; ready to plan
 
 Progress: [██████████] 100%
