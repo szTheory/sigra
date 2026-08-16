@@ -1,6 +1,6 @@
 ---
 phase: 246-hosted-and-direct-login-ceremonies
-reviewed: 2026-08-16T18:00:00Z
+reviewed: 2026-08-16T21:11:44Z
 depth: standard
 files_reviewed: 34
 files_reviewed_list:
@@ -39,60 +39,38 @@ files_reviewed_list:
   - test/sigra/planning/phase_246_generated_app_login_runtime_test.exs
   - test/support/app_login_schemas.ex
 findings:
-  critical: 1
-  warning: 1
-  info: 0
-  total: 2
+  critical: 0
+  warning: 0
+  info: 1
+  total: 1
 status: issues_found
 ---
 
 # Phase 246: Code Review Report
 
-**Reviewed:** 2026-08-16T18:00:00Z
+**Reviewed:** 2026-08-16T21:11:44Z
 **Depth:** standard
 **Files Reviewed:** 34
 **Status:** issues_found
 
 ## Summary
 
-The hosted and direct ceremony code correctly uses database locking for exchange/MFA consumption and bounds the hosted callback/profile/PKCE inputs. However, the generated controller verifies and consumes MFA factors before it establishes that the request is in the MFA-pending session state. That lets an ordinary authenticated session consume a one-time backup code (or advance a TOTP replay marker) and then fail session upgrade. Cancellation also only deletes the browser-held continuation and does not make the signed continuation unusable.
+Reviewed the hosted/direct app-login ceremony, generated persistence and route templates, MFA handoff, documentation, and runtime-proof automation. No shipping correctness or security defect was proven from the reviewed implementation. One scoped test emits a compiler warning, which makes warning-clean validation noisier and can conceal later warnings.
 
-## Critical Issues
+Focused test execution completed the non-database cases, but database-backed cases could not run because the configured local Postgres endpoint (`127.0.0.1:53988`) refused connections.
 
-### CR-01: MFA endpoint consumes factors outside an MFA-pending session
+## Narrative Findings (AI reviewer)
 
-**File:** `priv/templates/sigra.install/core/mfa_challenge_controller.ex:38-54`
+## Info
 
-**Issue:** `create/2` reads the current user and calls `Auth.mfa_verify/2` or `Auth.mfa_verify_backup/2` before it checks either `:mfa_pending` or that `conn.private[:sigra_session]` has type `:mfa_pending`. `finish_mfa_verification/5` only detects the invalid session afterwards (lines 88-118). A normally authenticated user can submit this CSRF-protected endpoint with a valid backup code: `Sigra.MFA.verify_backup/3` consumes that code, then `complete_mfa_session/4` rejects the standard session and returns an error. The same ordering can consume a valid TOTP step/replay state without completing MFA. This is one-time credential loss and breaks the normal MFA lifecycle.
+### IN-01: Runtime-proof contract test emits an unused-variable compiler warning
 
-**Fix:** Gate the action before calling either factor verifier, and redirect/reject invalid state without performing verification. For example:
-
-```elixir
-def create(conn, %{"mfa" => mfa_params}) do
-  with true <- get_session(conn, :mfa_pending) == true,
-       %{type: :mfa_pending} = old_session <- conn.private[:sigra_session],
-       %{user: user} <- conn.assigns.current_scope do
-    verify_and_finish_mfa(conn, user, old_session, mfa_params)
-  else
-    _ -> conn |> redirect(to: ~p"/users/log_in") |> halt()
-  end
-end
-```
-
-Keep the factor verification and `Auth.complete_mfa_verification/3` in the same valid-state path, and add controller-mode tests for regular-session submissions with valid TOTP and backup codes proving no factor state changes.
-
-## Warnings
-
-### WR-01: Cancelling a hosted ceremony does not invalidate its signed continuation
-
-**File:** `lib/sigra/app_login.ex:72-75`
-
-**Issue:** The `:cancel` clause returns success for any inputs and creates no consumed/revoked state. The controller only removes the continuation from the current Plug session (`app_login_controller.ex:46-51`). Because the continuation itself is a valid stateless signed token until its five-minute TTL, a copied/pre-cancel session cookie can still submit that continuation to `:approve` and obtain a code. This makes cancellation local to one browser cookie rather than terminal for the ceremony.
-
-**Fix:** Persist cancellation/approval state keyed by the signed continuation nonce and atomically mark it terminal for either decision; have approval reject any nonce already marked cancelled or consumed. Add a regression test that cancels, restores the pre-cancel continuation/session handle, and verifies approval is rejected.
+**File:** `test/sigra/planning/phase_246_generated_app_login_runtime_test.exs:456`
+**Issue:** The `for contract <- ...` loop never reads `contract`; its assertion is a literal interpolation string (`"${mode}_post_ceremony_${contract}"`), so compilation emits an unused-variable warning. This was reproduced by the focused test command.
+**Fix:** Either reference the Elixir variable in the expected string, for example `assert harness =~ "${mode}_post_ceremony_#{contract}"`, or replace the loop with one literal assertion if only the literal shell expansion is intended.
 
 ---
 
-_Reviewed: 2026-08-16T18:00:00Z_
+_Reviewed: 2026-08-16T21:11:44Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
