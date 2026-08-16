@@ -45,7 +45,7 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
              "%{continuation: continuation, profile_id: profile_id} <- get_session(conn, @session_key)"
 
     assert continuation =~
-             "def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, fallback)"
+             "def continue_path(_endpoint, %{continuation: continuation, profile_id: profile_id}, _fallback)"
 
     refute continuation =~ "Phoenix.Token.sign"
     refute continuation =~ "Phoenix.Token.verify"
