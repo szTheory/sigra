@@ -13,7 +13,7 @@ defmodule <%= context_module %>.UserAppLoginAttempt do
 <%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
 <% end %>
   schema "user_app_login_attempts" do
-    field :kind, Ecto.Enum, values: [:hosted_code, :direct_mfa]
+    field :kind, Ecto.Enum, values: [:hosted_code, :hosted_cancel, :direct_mfa]
     field :digest, :binary
     field :approval_digest, :binary
     field :verifier_digest, :binary
