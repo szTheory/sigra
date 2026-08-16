@@ -311,6 +311,7 @@ assert_one_family() {
   local label="$1"
   local expected_kind="$2"
 
+  set_stage "${label}_family_count_assertion"
   EXPECTED_KIND="$expected_kind" EXPECTED_LABEL="$label" run "$APP_DIR" mix run -e '
     alias SigraAppLoginProof.Accounts
     alias SigraAppLoginProof.Repo
