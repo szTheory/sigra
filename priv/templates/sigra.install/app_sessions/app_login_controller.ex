@@ -112,7 +112,8 @@ defmodule <%= web_module %>.AppLoginController do
     end
   end
 
-  defp current_user(conn), do: get_in(conn.assigns, [:current_scope, :user])
+  defp current_user(%{assigns: %{current_scope: %{user: user}}}), do: user
+  defp current_user(_), do: nil
   defp callback_with_code(callback, code, state) do
     separator = if String.contains?(callback, "?"), do: "&", else: "?"
     callback <> separator <> URI.encode_query(%{"code" => code, "state" => state})
