@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246
 current_phase_name: hosted-and-direct-login-ceremonies
 status: executing
-stopped_at: Completed 246-16-PLAN.md
-last_updated: "2026-08-13T15:45:55.504Z"
+stopped_at: Completed 246-17-PLAN.md
+last_updated: "2026-08-16T17:28:19.558Z"
 last_activity: 2026-08-13
 last_activity_desc: Phase 246 execution started
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 37
-  completed_plans: 36
+  completed_plans: 37
 current_plan: 2
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-12)
 ## Current Position
 
 Phase: 246 (hosted-and-direct-login-ceremonies) — EXECUTING
-Plan: 4 of 17
+Plan: 5 of 17
 Status: Ready to execute
 Last activity: 2026-08-13 — Phase 246 execution started
 
-Progress: ░░░░░░░░░░ [██████████] 97%
+Progress: ░░░░░░░░░░ [██████████] 100%
 
 ## Performance Metrics
 
@@ -92,6 +92,7 @@ Progress: ░░░░░░░░░░ [██████████] 97%
 | Phase 246-hosted-and-direct-login-ceremonies P14 | 14m | 2 tasks | 3 files |
 | Phase 246 P15 | 12m | 2 tasks | 6 files |
 | Phase 246-hosted-and-direct-login-ceremonies P16 | 12m | 2 tasks | 3 files |
+| Phase 246-hosted-and-direct-login-ceremonies P17 | 10m | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -162,6 +163,8 @@ Progress: ░░░░░░░░░░ [██████████] 97%
 - [Phase ?]: Selected LiveView MFA factor forms POST through the existing CSRF-protected controller seam so persisted session rotation remains server-authoritative.
 - [Phase ?]: Hosted approval continuations carry a signed nonce whose digest is uniquely persisted with the hosted code in one transaction.
 - [Phase ?]: Generated approval-digest indexes use user_app_login_attempts_approval_digest_index so replay normalization stays stable across adapters and prefixes.
+- [Phase ?]: Use typed persisted-family assertions instead of captured Mix output for generated-host policy proof.
+- [Phase ?]: Retain byte-identical redacted CI receipt bound to immutable implementation head 62d22419.
 
 ### Pending Todos
 
@@ -179,6 +182,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-13T15:45:55.496Z
-Stopped at: Completed 246-16-PLAN.md
+Last session: 2026-08-16T17:28:19.547Z
+Stopped at: Completed 246-17-PLAN.md
 Resume file: None

@@ -106,7 +106,7 @@ Plans:
   3. A host that opts into direct password login receives uniform login failures and an opaque MFA challenge that expires within five minutes.
   4. Successful hosted or direct login creates the same app-session contract, while a host policy requiring browser login returns `browser_required`.
 
-**Plans**: 16/17 plans executed
+**Plans**: 17/17 plans executed
 
 Plans:
 **Wave 1**
@@ -166,7 +166,7 @@ Plans:
 
 **Wave 14** *(blocked on Plans 246-14 and 246-16)*
 
-- [ ] 246-17-PLAN.md — Execute and retain exact PostgreSQL CI evidence for the repaired ceremony contract.
+- [x] 246-17-PLAN.md — Execute and retain exact PostgreSQL CI evidence for the repaired ceremony contract.
 
 ### Phase 247: Language-Learning Digital Twin
 
@@ -216,7 +216,7 @@ Plans:
 | 243. Credential Boundary and Pipeline Foundation | 5/5 | Complete    | 2026-08-12 |
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
-| 246. Hosted and Direct Login Ceremonies | 16/17 | In Progress|  |
+| 246. Hosted and Direct Login Ceremonies | 17/17 | In Progress|  |
 | 247. Language-Learning Digital Twin | 0/TBD | Not started | - |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
