@@ -432,6 +432,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     refute harness =~ "String.to_existing_atom(System.fetch_env!(\"EXPECTED_KIND\"))"
     assert harness =~ "is_atom(attempt.kind) and Atom.to_string(attempt.kind) == expected_kind"
+    assert harness =~ "fn attempt ->"
+    refute harness =~ "&(is_atom(attempt.kind)"
   end
 
   test "workflow is a credential-free PostgreSQL evidence lane" do

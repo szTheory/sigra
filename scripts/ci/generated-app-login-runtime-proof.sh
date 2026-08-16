@@ -319,7 +319,9 @@ assert_one_family() {
     expected_kind = System.fetch_env!("EXPECTED_KIND")
     count = Repo.aggregate(Accounts.UserAppSessionFamily, :count, :id)
     attempts = Repo.all(Accounts.UserAppLoginAttempt)
-    attempt_count = Enum.count(attempts, &(is_atom(attempt.kind) and Atom.to_string(attempt.kind) == expected_kind))
+    attempt_count = Enum.count(attempts, fn attempt ->
+      is_atom(attempt.kind) and Atom.to_string(attempt.kind) == expected_kind
+    end)
     family_class = case count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
     attempt_class = case attempt_count do zero when zero <= 0 -> "zero"; 1 -> "one"; _ -> "many" end
     :ok = IO.puts(:stderr, :io_lib.format("generated host proof family_count family=~s attempt=~s~n", [family_class, attempt_class]))
