@@ -21,11 +21,11 @@ current_plan: 0
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-12)
+See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246.1 — close-gap-pat-01-repair-generated-pat-authentication-pipelin
+**Current focus:** Phase 247 — language-learning-digital-twin
 
 ## Current Position
 
