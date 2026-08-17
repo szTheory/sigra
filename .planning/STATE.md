@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
 current_phase_name: close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
-status: executing
-stopped_at: Completed 246.2-01-PLAN.md
-last_updated: "2026-08-17T03:33:51.528Z"
+status: verifying
+stopped_at: Completed 246.2-02-PLAN.md
+last_updated: "2026-08-17T03:45:22.163Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246.2 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 42
-  completed_plans: 41
+  completed_plans: 42
 current_plan: 0
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 Phase: 246.2 (close-gaps-app-04-and-app-05-generated-refresh-and-revocatio) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-16 — Phase 246.2 execution started
 
-Progress: [██████████] 98%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -99,6 +99,7 @@ Progress: [██████████] 98%
 | Phase 246-hosted-and-direct-login-ceremonies P19 | 18m | 2 tasks | 7 files |
 | Phase 246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin P01 | 16min | 2 tasks | 6 files |
 | Phase 246.2 P01 | 4min | 2 tasks | 5 files |
+| Phase 246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio P02 | 7min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -178,6 +179,8 @@ Progress: [██████████] 98%
 - [Phase ?]: Unauthenticated API requests return JSON 401 while browser redirects retain flash behavior.
 - [Phase ?]: Refresh reuses the existing public rate limiter and delegates only to Auth.AppSessions.refresh/1.
 - [Phase ?]: Generated revocation mutations derive owner only from current Scope under browser/sudo/CSRF.
+- [Phase ?]: The final APP-04/APP-05 proof uses scripts/db/up.sh plus tmp/db.env for its isolated dynamic PostgreSQL endpoint.
+- [Phase ?]: The v4 receipt is atomically published only after all generated lifecycle flags pass and source hashes validate.
 
 ### Pending Todos
 
@@ -200,6 +203,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-17T03:33:51.521Z
-Stopped at: Completed 246.2-01-PLAN.md
+Last session: 2026-08-17T03:45:22.154Z
+Stopped at: Completed 246.2-02-PLAN.md
 Resume file: None
