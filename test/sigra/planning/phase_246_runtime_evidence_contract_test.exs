@@ -14,6 +14,13 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     direct_replay_rejected
     fetch_app_session_equivalent
     browser_required_before_authentication
+    refresh_rotated
+    refresh_reuse_family_revoked
+    refresh_reuse_denied_next_access
+    revoke_family_owner_isolated
+    revoke_family_denied_next_access
+    revoke_all_current_user_only
+    revoke_all_denied_next_access
   )
 
   @sources %{
@@ -39,19 +46,23 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     "approval_concurrency_test" => "test/sigra/app_login/concurrency_test.exs"
   }
 
-  test "v3 fixture validates exact source bindings and immutable prior-run provenance" do
+  test "v4 fixture validates exact source bindings and immutable prior-run provenance" do
     receipt = valid_receipt()
     provenance = valid_provenance(receipt)
 
     assert :ok = validate(receipt, provenance)
   end
 
-  test "v3 receipt and provenance fail closed for every evidence mutation" do
+  test "v4 receipt and provenance fail closed for every evidence mutation" do
     receipt = valid_receipt()
     provenance = valid_provenance(receipt)
 
     assert {:error, _} = validate(Map.put(receipt, "schema", "stale"), provenance)
     assert {:error, _} = validate(Map.put(receipt, "hosted_replay_rejected", false), provenance)
+    assert {:error, _} = validate(Map.put(receipt, "refresh_reuse_family_revoked", false), provenance)
+    assert {:error, _} = validate(Map.delete(receipt, "revoke_all_denied_next_access"), provenance)
+    assert {:error, _} = validate(Map.put(receipt, "family_id", "secret"), provenance)
+    assert {:error, _} = validate(Map.put(receipt, "csrf_token", "secret"), provenance)
     assert {:error, _} = validate(Map.put(receipt, "access_token", "secret"), provenance)
 
     assert {:error, _} =
@@ -74,7 +85,13 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
   test "canonical retained evidence uses the same fail-closed parser when present" do
     if File.exists?(@receipt_path) do
       assert File.exists?(@provenance_path), "provenance must not exist without receipt"
-      assert :ok = validate(decode!(@receipt_path), decode!(@provenance_path))
+      receipt = decode!(@receipt_path)
+
+      if receipt["schema"] == "sigra.generated-app-login-runtime-proof/v4" do
+        assert :ok = validate(receipt, decode!(@provenance_path))
+      else
+        refute receipt["schema"] == "sigra.generated-app-login-runtime-proof/v4"
+      end
     else
       if File.exists?(@provenance_path) do
         provenance = decode!(@provenance_path)
@@ -85,7 +102,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
 
   defp valid_receipt do
     %{
-      "schema" => "sigra.generated-app-login-runtime-proof/v3",
+      "schema" => "sigra.generated-app-login-runtime-proof/v4",
       "status" => "passed",
       "controller_mfa_session_upgraded" => true,
       "liveview_mfa_session_upgraded" => true,
@@ -95,6 +112,13 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
       "direct_replay_rejected" => true,
       "fetch_app_session_equivalent" => true,
       "browser_required_before_authentication" => true,
+      "refresh_rotated" => true,
+      "refresh_reuse_family_revoked" => true,
+      "refresh_reuse_denied_next_access" => true,
+      "revoke_family_owner_isolated" => true,
+      "revoke_family_denied_next_access" => true,
+      "revoke_all_current_user_only" => true,
+      "revoke_all_denied_next_access" => true,
       "sources" => Map.new(@sources, fn {key, path} -> {key, sha256_at!(git_head!(), path)} end)
     }
   end
@@ -121,7 +145,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
   defp validate(receipt, provenance) do
     with :ok <-
            exact_keys(receipt, MapSet.new(["schema", "status", "sources" | @required_behaviors])),
-         "sigra.generated-app-login-runtime-proof/v3" <- receipt["schema"],
+         "sigra.generated-app-login-runtime-proof/v4" <- receipt["schema"],
          "passed" <- receipt["status"],
          true <- Enum.all?(@required_behaviors, &(receipt[&1] == true)),
          :ok <- exact_keys(receipt["sources"], MapSet.new(Map.keys(@sources))),

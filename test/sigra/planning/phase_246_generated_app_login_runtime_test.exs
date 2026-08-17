@@ -252,8 +252,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     confirmation = "confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)"
 
-    assert :binary.matches(harness, confirmation) |> length() == 2,
-           "both hosted and direct fixtures must satisfy generated :utc_datetime precision"
+    assert :binary.matches(harness, confirmation) |> length() == 3,
+           "all hosted, direct, and foreign-control fixtures must satisfy generated :utc_datetime precision"
 
     refute harness =~ "confirmed_at: DateTime.utc_now())",
            "fixture confirmation timestamps must not retain microseconds"
@@ -655,8 +655,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     workflow = read!(@workflow)
 
     for marker <- [
-          "sigra.generated-app-login-runtime-proof/v3",
-          "sigra.generated-app-login-runtime-proof/v3",
+          "sigra.generated-app-login-runtime-proof/v4",
+          "sigra.generated-app-login-runtime-proof/v4",
           "CONTROLLER_MFA_SESSION_UPGRADED",
           "LIVEVIEW_MFA_SESSION_UPGRADED",
           "APPROVAL_REPLAY_REJECTED",
@@ -665,6 +665,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "DIRECT_REPLAY_REJECTED",
           "FETCH_APP_SESSION_EQUIVALENT",
           "BROWSER_REQUIRED_BEFORE_AUTHENTICATION",
+          "REFRESH_REUSE_FAMILY_REVOKED",
+          "REVOKE_ALL_DENIED_NEXT_ACCESS",
           "CONTROLLER_MFA_SESSION_UPGRADED",
           "LIVEVIEW_MFA_SESSION_UPGRADED",
           "APPROVAL_REPLAY_REJECTED",
@@ -684,7 +686,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
 
     assert workflow =~ "Validate generated app-login runtime receipt"
-    assert workflow =~ "sigra.generated-app-login-runtime-proof/v3"
+    assert workflow =~ "sigra.generated-app-login-runtime-proof/v4"
     assert workflow =~ "runtime-proof.json"
   end
 end
