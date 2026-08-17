@@ -82,16 +82,19 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     assert {:error, _} = validate(receipt, Map.put(provenance, "conclusion", "failure"))
   end
 
+  @tag :stale_schema_regression
+  test "stale schema canonical-shaped receipt is rejected by the v4 contract" do
+    receipt = Map.put(valid_receipt(), "schema", "sigra.generated-app-login-runtime-proof/v3")
+
+    assert {:error, :invalid_runtime_evidence} = validate(receipt, valid_provenance(receipt))
+  end
+
+  @tag :canonical_retained
   test "canonical retained evidence uses the same fail-closed parser when present" do
     if File.exists?(@receipt_path) do
       assert File.exists?(@provenance_path), "provenance must not exist without receipt"
       receipt = decode!(@receipt_path)
-
-      if receipt["schema"] == "sigra.generated-app-login-runtime-proof/v4" do
-        assert :ok = validate(receipt, decode!(@provenance_path))
-      else
-        refute receipt["schema"] == "sigra.generated-app-login-runtime-proof/v4"
-      end
+      assert :ok = validate(receipt, decode!(@provenance_path))
     else
       if File.exists?(@provenance_path) do
         provenance = decode!(@provenance_path)
