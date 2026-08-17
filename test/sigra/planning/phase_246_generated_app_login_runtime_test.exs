@@ -1,3 +1,7 @@
+defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeRouterSupport do
+  def sigra_config, do: []
+end
+
 defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   use ExUnit.Case, async: true
 
@@ -179,6 +183,67 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute harness =~
              "config: SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config(),",
            "router compilation must not call sigra_config before Endpoint startup"
+  end
+
+  test "generated proof router compiles its local authentication plug at Phoenix arity two" do
+    harness = read!(@harness)
+
+    assert harness =~
+             "defp require_app_session_proof(%{assigns: %{current_scope: %{user: user}}} = conn, _opts)",
+           "the emitted local pipeline plug must accept Phoenix's options argument"
+
+    assert harness =~ "defp require_app_session_proof(conn, _opts) do"
+
+    module =
+      Module.concat([
+        Sigra,
+        Planning,
+        "GeneratedAppLoginProofRouter#{System.unique_integer([:positive])}"
+      ])
+
+    controller = Module.concat(module, AppLoginProofController)
+
+    source = """
+    defmodule #{inspect(controller)} do
+      def init(options), do: options
+      def call(conn, _options), do: conn
+    end
+
+    defmodule #{inspect(module)} do
+      use Phoenix.Router
+
+      pipeline :api do
+        plug :accepts, ["json"]
+      end
+
+      pipeline :app_session_proof do
+        plug Sigra.Plug.FetchAppSession,
+          config: &Sigra.Planning.Phase246GeneratedAppLoginRuntimeRouterSupport.sigra_config/0,
+          scope_module: Sigra.Planning.Phase246GeneratedAppLoginRuntimeRouterSupport
+        plug :require_app_session_proof
+      end
+
+      defp require_app_session_proof(%{assigns: %{current_scope: %{user: user}}} = conn, _opts)
+           when not is_nil(user),
+           do: conn
+
+      defp require_app_session_proof(conn, _opts) do
+        conn
+        |> Plug.Conn.send_resp(:unauthorized, ~s({"error":"unauthenticated"}))
+        |> Plug.Conn.halt()
+      end
+
+      scope "/api" do
+        pipe_through [:api, :app_session_proof]
+
+        get "/app-login-proof", #{inspect(controller)}, :show
+      end
+    end
+    """
+
+    compiled = Code.compile_string(source)
+
+    assert Enum.any?(compiled, fn {compiled_module, _bytecode} -> compiled_module == module end)
   end
 
   test "generated-host proof refreshes dependencies after installer mutations" do

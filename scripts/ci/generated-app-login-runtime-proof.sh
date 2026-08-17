@@ -306,7 +306,7 @@ defmodule SigraAppLoginProofWeb.AppLoginProofController do
 end
 EOF
 
-  perl -0pi -e 's/\nend\s*\z/\n  pipeline :app_session_proof do\n    plug Sigra.Plug.FetchAppSession,\n      config: \&SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config\/0,\n      scope_module: SigraAppLoginProof.Accounts.Scope\n    plug :require_app_session_proof\n  end\n\n  defp require_app_session_proof(%{assigns: %{current_scope: %{user: user}}} = conn) when not is_nil(user), do: conn\n\n  defp require_app_session_proof(conn) do\n    conn\n    |> Plug.Conn.send_resp(:unauthorized, ~s({\"error\":\"unauthenticated\"}))\n    |> Plug.Conn.halt()\n  end\n\n  scope "\/api", SigraAppLoginProofWeb do\n    pipe_through [:api, :app_session_proof]\n\n    get "\/app-login-proof", AppLoginProofController, :show\n  end\nend\n/' "$router"
+  perl -0pi -e 's/\nend\s*\z/\n  pipeline :app_session_proof do\n    plug Sigra.Plug.FetchAppSession,\n      config: \&SigraAppLoginProof.Accounts.Auth.AppSessions.sigra_config\/0,\n      scope_module: SigraAppLoginProof.Accounts.Scope\n    plug :require_app_session_proof\n  end\n\n  defp require_app_session_proof(%{assigns: %{current_scope: %{user: user}}} = conn, _opts) when not is_nil(user), do: conn\n\n  defp require_app_session_proof(conn, _opts) do\n    conn\n    |> Plug.Conn.send_resp(:unauthorized, ~s({\"error\":\"unauthenticated\"}))\n    |> Plug.Conn.halt()\n  end\n\n  scope "\/api", SigraAppLoginProofWeb do\n    pipe_through [:api, :app_session_proof]\n\n    get "\/app-login-proof", AppLoginProofController, :show\n  end\nend\n/' "$router"
   grep -Fq 'Sigra.Plug.FetchAppSession' "$router"
   grep -Fq 'require_app_session_proof' "$router"
   grep -Fq 'get "/app-login-proof", AppLoginProofController, :show' "$router"
