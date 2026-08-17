@@ -4,15 +4,15 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
 current_phase_name: "Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces"
-status: planning
+status: executing
 stopped_at: Phase 246.2 context gathered (assumptions mode)
-last_updated: "2026-08-17T02:56:31.567Z"
+last_updated: "2026-08-17T03:26:11.890Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246.1 complete, transitioned to Phase 247
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 40
+  total_plans: 42
   completed_plans: 40
 current_plan: 0
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 Phase: 246.2 — Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-08-16 — Phase 246.1 complete, transitioned to Phase 247
 
 Progress: [██████████] 100%
