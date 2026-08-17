@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
-current_phase: 247
-current_phase_name: Language-Learning Digital Twin
+current_phase: 246.2
+current_phase_name: "Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces"
 status: planning
-stopped_at: Completed 246.1-01-PLAN.md
-last_updated: "2026-08-17T01:48:15.643Z"
+stopped_at: Phase 246.2 context gathered (assumptions mode)
+last_updated: "2026-08-17T02:56:31.567Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246.1 complete, transitioned to Phase 247
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
   total_plans: 40
   completed_plans: 40
@@ -25,11 +25,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 247 — language-learning-digital-twin
+**Current focus:** Phase 246.2 — close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
 
 ## Current Position
 
-Phase: 247 — Language-Learning Digital Twin
+Phase: 246.2 — Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-08-16 — Phase 246.1 complete, transitioned to Phase 247
@@ -187,6 +187,7 @@ None yet.
 ### Roadmap Evolution
 
 - Phase 246.1 inserted after Phase 246: Close gap: PAT-01 — repair generated PAT authentication pipeline (URGENT)
+- Phase 246.2 inserted after Phase 246: Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces (URGENT)
 
 ## Deferred Items
 
@@ -196,6 +197,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-16T22:36:27.362Z
-Stopped at: Completed 246.1-01-PLAN.md
-Resume file: None
+Last session: 2026-08-17T02:56:31.558Z
+Stopped at: Phase 246.2 context gathered (assumptions mode)
+Resume file: .planning/phases/246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio/246.2-CONTEXT.md
