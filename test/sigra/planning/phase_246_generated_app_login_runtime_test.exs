@@ -92,6 +92,22 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
            "the protected generated route must be installed, not merely mentioned"
   end
 
+  test "fresh-host proof rotates through the emitted public refresh route without retaining credentials" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "prove_refresh_rotation",
+          "/api/app-login/refresh",
+          "replacement access token did not authenticate",
+          "refresh credential authenticated as an access credential",
+          "refresh response was not the exact credential shape"
+        ] do
+      assert harness =~ marker, "fresh-host refresh proof missing #{inspect(marker)}"
+    end
+
+    refute harness =~ "sleep", "refresh proof must use the existing bounded readiness flow"
+  end
+
   test "browser-required proof checks persisted state without comparing command output" do
     harness = read!(@harness)
 

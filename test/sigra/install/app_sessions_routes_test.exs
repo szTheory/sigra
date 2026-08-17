@@ -20,7 +20,7 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
 
   @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install", "app_sessions"])
 
-  test "renders hosted browser and public exchange routes with dedicated rate limits" do
+  test "renders hosted browser and public credential exchange routes with dedicated rate limits" do
     controller = render_template("app_login_controller.ex")
     continuation = render_template("app_login_continuation.ex")
     router = render_template("router_injection.ex")
@@ -56,8 +56,6 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert controller =~ "type in [:standard, :remember_me]"
     assert controller =~ ":mfa_pending -> conn |> redirect(to: ~p\"/users/mfa\") |> halt()"
     refute controller =~ "put_flash"
-    refute controller =~ "access_token"
-    refute controller =~ "refresh_token"
 
     assert continuation =~
              "put_session(conn, @session_key, %{continuation: continuation, profile_id: profile_id})"
@@ -82,6 +80,52 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert router =~ "post \"/app-login/cancel\", AppLoginController, :cancel"
     assert router =~ "scope \"/api/app-login\", MyAppWeb do"
     assert router =~ "post \"/exchange\", AppLoginController, :exchange"
+    assert router =~ "post \"/refresh\", AppLoginController, :refresh"
+  end
+
+  test "renders a strict, bounded public refresh action without ordinary access authentication" do
+    controller = render_template("app_login_controller.ex")
+    router = render_template("router_injection.ex")
+
+    assert controller =~ "def refresh(conn, %{\"refresh_token\" => token} = params)"
+    assert controller =~ "[\"refresh_token\"] <- Map.keys(params)"
+    assert controller =~ "true <- is_binary(token)"
+    assert controller =~ "{:ok, credentials} <- AppSessions.refresh(token)"
+    assert controller =~ "def refresh(conn, _params), do: json(conn |> put_status(:bad_request), %{error: \"invalid_request\"})"
+    assert controller =~ "json(conn |> put_status(:unauthorized), %{error: \"invalid_refresh\"})"
+    refute controller =~ "refresh_token: token"
+    refute controller =~ "FetchAppSession"
+
+    refresh_offset = :binary.match(router, "post \"/refresh\", AppLoginController, :refresh") |> elem(0)
+    public_offset = :binary.match(router, "scope \"/api/app-login\", MyAppWeb do") |> elem(0)
+    users_offset = :binary.match(router, "scope \"/users\", MyAppWeb do") |> elem(0)
+
+    assert public_offset < refresh_offset
+    assert users_offset < public_offset
+    refute router =~ "pipe_through [:api, :app_login_public, :app_session_proof]"
+  end
+
+  test "renders owner-derived browser and sudo app-session revocation mutations" do
+    controller = render_template("app_login_controller.ex")
+    router = render_template("router_injection.ex")
+
+    assert router =~ "pipe_through [:browser, :require_authenticated, :require_sudo]"
+    assert router =~ "post \"/app-sessions/revoke\", AppLoginController, :revoke_family"
+    assert router =~ "post \"/app-sessions/revoke-all\", AppLoginController, :revoke_all"
+
+    assert controller =~ "def revoke_family(conn, %{\"family_id\" => family_id} = params)"
+    assert controller =~ "[\"family_id\"] <- Map.keys(params)"
+    assert controller =~ "true <- is_binary(family_id)"
+    assert controller =~ "owner = conn.assigns.current_scope.user"
+    assert controller =~ "AppSessions.revoke_family(owner, family_id)"
+    assert controller =~ "def revoke_all(conn, %{} = params)"
+    assert controller =~ "[] <- Map.keys(params)"
+    assert controller =~ "AppSessions.revoke_all(owner)"
+    assert controller =~ "%{ok: true}"
+    assert controller =~ "%{error: \"not_found\"}"
+    assert controller =~ "%{error: \"revocation_failed\"}"
+    refute controller =~ "params[\"user_id\"]"
+    refute controller =~ "params[\"owner_id\"]"
   end
 
   test "registers route and controller templates only with app sessions" do
