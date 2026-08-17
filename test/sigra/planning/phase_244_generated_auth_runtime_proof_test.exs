@@ -403,27 +403,33 @@ defmodule Sigra.Planning.Phase244GeneratedAuthRuntimeProofTest do
 
     patched = String.replace(router, anchor, probe <> anchor, global: false)
     assert patched != router, "generated router did not expose the Sigra API insertion anchor"
-    assert String.split(patched, probe) |> length() == 2, "generated router probe anchor was replaced more than once"
+
+    assert String.split(patched, probe) |> length() == 2,
+           "generated router probe anchor was replaced more than once"
+
     File.write!(router_path, patched)
 
-    File.write!(Path.join(app, "lib/sigra_phase_244_api_web/controllers/pat_runtime_probe_controller.ex"), """
-    defmodule SigraPhase244ApiWeb.PATRuntimeProbeController do
-      use SigraPhase244ApiWeb, :controller
+    File.write!(
+      Path.join(app, "lib/sigra_phase_244_api_web/controllers/pat_runtime_probe_controller.ex"),
+      """
+      defmodule SigraPhase244ApiWeb.PATRuntimeProbeController do
+        use SigraPhase244ApiWeb, :controller
 
-      def show(conn, _params) do
-        auth = conn.private[:sigra_auth]
+        def show(conn, _params) do
+          auth = conn.private[:sigra_auth]
 
-        json(conn, %{
-          user_id: conn.assigns.current_scope.user.id,
-          credential_kind: Atom.to_string(auth.credential_kind),
-          credential_id: auth.credential_id,
-          scopes: auth.scopes,
-          auth_method: Atom.to_string(auth.auth_method),
-          assurance: auth.assurance
-        })
+          json(conn, %{
+            user_id: conn.assigns.current_scope.user.id,
+            credential_kind: Atom.to_string(auth.credential_kind),
+            credential_id: auth.credential_id,
+            scopes: auth.scopes,
+            auth_method: Atom.to_string(auth.auth_method),
+            assurance: auth.assurance
+          })
+        end
       end
-    end
-    """)
+      """
+    )
   end
 
   defp write_jwt_smoke!(app) do
