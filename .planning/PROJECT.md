@@ -33,6 +33,13 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 246.1 Generated PAT Pipeline Repair complete (2026-08-16).** Fresh
+`--api` hosts now initialize `FetchAPIToken` with request-time host config and
+the normal Scope module, return fail-closed JSON 401 responses, and authenticate
+a real PAT through a matched generated route. A disposable PostgreSQL host
+proves the routed flow without direct-plug shortcuts or human UAT. Phase 247
+remains the next milestone phase.
+
 **Phase 246 Hosted and Direct Login Ceremonies complete (2026-08-16).**
 First-party apps can now obtain the same opaque app-session contract through
 hosted system-browser login or separately opted-in, policy-gated direct
@@ -694,9 +701,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - [ ] Add opt-in opaque app sessions with hosted PKCE login, rotating refresh credentials, revocation, and optional direct password/MFA login.
 - [ ] Prove PWA, physical-iPhone, Android-emulator, Crosswake, and Electron-contract behavior through a bounded language-learning digital twin.
 
-### Validated — Phases 243–244
-- ✓ **BOUND-01, API-01** — Sigra/Lockspire/Crosswake/host ownership and explicit credential-kind pipelines validated in Phase 243.
-- ✓ **PAT-01, PAT-02, JWT-01, JWT-02** — independent generated PAT/JWT hosts, owner-bound browser PAT management, strict server-policy JWT verification, and locked transactional opaque refresh rotation validated in Phase 244.
+### Validated — Phases 243–246.1
+- ✓ **BOUND-01, API-01** — Sigra/Lockspire/Crosswake/host ownership and explicit credential-kind pipelines validated in Phase 243; API-01's generated PAT-consumer contract was re-verified through a routed fresh-host proof in Phase 246.1.
+- ✓ **PAT-01, PAT-02, JWT-01, JWT-02** — independent generated PAT/JWT hosts, owner-bound browser PAT management, strict server-policy JWT verification, and locked transactional opaque refresh rotation validated in Phase 244; PAT-01's generated pipeline was repaired and re-verified in Phase 246.1.
 - ✓ **APP-04, APP-05** — digest-only opaque app-session credentials, locked rotation/reuse revocation, explicit one/all revocation, and password-reset/sign-out-all/account-deletion invalidation validated in Phase 245.
 
 ### Validated — Phase 233
@@ -1245,3 +1252,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-12 after v1.48 B2C-ALPHA-READINESS milestone — shipped and archived with 10/10 requirements, 9/9 phase verifications, and a zero-item open-artifact audit. Fresh requirements will be defined by `$gsd-new-milestone`; phases continue after 242.*
 
 *Last updated: 2026-08-12 — Phase 243 (Credential Boundary and Pipeline Foundation) complete. BOUND-01 and API-01 validated with explicit cookie/PAT/JWT/app-session pipelines, bounded trusted credential facts, a deprecated compatibility dispatcher, and a machine-checked Sigra/Lockspire/Crosswake/host ownership contract. Phase 244 is next.*
+
+*Last updated: 2026-08-16 — Phase 246.1 (Generated PAT Pipeline Repair) complete. PAT-01 and API-01's PAT-consumer contract were re-verified through a real routed fresh-host PostgreSQL proof; Phase 247 is next.*
