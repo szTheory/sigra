@@ -76,6 +76,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     for marker <- [
           "install_proof_route",
           "Sigra.Plug.FetchAppSession",
+          "require_app_session_proof",
+          "Plug.Conn.send_resp(:unauthorized",
           "/api/app-login-proof",
           "prove_fetch_app_session",
           "prove_hosted_replay",
