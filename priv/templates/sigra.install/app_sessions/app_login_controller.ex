@@ -77,6 +77,37 @@ defmodule <%= web_module %>.AppLoginController do
 
   def refresh(conn, _params), do: json(conn |> put_status(:bad_request), %{error: "invalid_request"})
 
+  def revoke_family(conn, %{"family_id" => family_id} = params) do
+    with ["family_id"] <- Map.keys(params),
+         true <- is_binary(family_id) do
+      owner = conn.assigns.current_scope.user
+
+      case AppSessions.revoke_family(owner, family_id) do
+        {:ok, _family} -> json(conn, %{ok: true})
+        {:error, :not_found} -> json(conn |> put_status(:not_found), %{error: "not_found"})
+        _ -> json(conn |> put_status(:unprocessable_entity), %{error: "revocation_failed"})
+      end
+    else
+      _ -> json(conn |> put_status(:unprocessable_entity), %{error: "revocation_failed"})
+    end
+  end
+
+  def revoke_family(conn, _params),
+    do: json(conn |> put_status(:unprocessable_entity), %{error: "revocation_failed"})
+
+  def revoke_all(conn, %{} = params) do
+    with [] <- Map.keys(params) do
+      owner = conn.assigns.current_scope.user
+
+      case AppSessions.revoke_all(owner) do
+        {:ok, _count} -> json(conn, %{ok: true})
+        _ -> json(conn |> put_status(:unprocessable_entity), %{error: "revocation_failed"})
+      end
+    else
+      _ -> json(conn |> put_status(:unprocessable_entity), %{error: "revocation_failed"})
+    end
+  end
+
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  def direct(conn, %{"profile_id" => profile, "email" => email, "password" => password} = params) do
     with ["email", "password", "profile_id"] <- Enum.sort(Map.keys(params)),
          {:ok, result} <- AppSessions.start_direct(profile, email, password) do

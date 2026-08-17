@@ -19,6 +19,13 @@ scope "/users", <%= web_module %> do
   post "/app-login/cancel", AppLoginController, :cancel
 end
 
+scope "/users", <%= web_module %> do
+  pipe_through [:browser, :require_authenticated, :require_sudo]
+
+  post "/app-sessions/revoke", AppLoginController, :revoke_family
+  post "/app-sessions/revoke-all", AppLoginController, :revoke_all
+end
+
 scope "/api/app-login", <%= web_module %> do
   pipe_through [:api, :app_login_public]
 

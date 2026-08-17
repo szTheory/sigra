@@ -91,12 +91,17 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert controller =~ "[\"refresh_token\"] <- Map.keys(params)"
     assert controller =~ "true <- is_binary(token)"
     assert controller =~ "{:ok, credentials} <- AppSessions.refresh(token)"
-    assert controller =~ "def refresh(conn, _params), do: json(conn |> put_status(:bad_request), %{error: \"invalid_request\"})"
+
+    assert controller =~
+             "def refresh(conn, _params), do: json(conn |> put_status(:bad_request), %{error: \"invalid_request\"})"
+
     assert controller =~ "json(conn |> put_status(:unauthorized), %{error: \"invalid_refresh\"})"
     refute controller =~ "refresh_token: token"
     refute controller =~ "FetchAppSession"
 
-    refresh_offset = :binary.match(router, "post \"/refresh\", AppLoginController, :refresh") |> elem(0)
+    refresh_offset =
+      :binary.match(router, "post \"/refresh\", AppLoginController, :refresh") |> elem(0)
+
     public_offset = :binary.match(router, "scope \"/api/app-login\", MyAppWeb do") |> elem(0)
     users_offset = :binary.match(router, "scope \"/users\", MyAppWeb do") |> elem(0)
 
