@@ -1,0 +1,19 @@
+{
+  "schema": "sigra.generated-app-login-runtime-proof/failure-diagnostic/v1",
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "run_id": 32067532234,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/32067532234",
+  "event": "workflow_dispatch",
+  "head_sha": "07a8595def827bc8ee98c7967f5f399e06678925",
+  "implementation_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "conclusion": "failure",
+  "failed_step": "Run clean generated-host proof",
+  "failure_stage": "refresh_rotation",
+  "failure_reason": "refresh credential authenticated as an access credential",
+  "canonical_evidence_updated": false,
+  "coverage_statement": "This failed run does not provide APP-04 or APP-05 runtime coverage; the pre-dispatch canonical v3 receipt and provenance remain unchanged.",
+  "diagnostic_scope": "Bounded CI metadata and normalized failure classification only; no credential, session, CSRF, request, or database values are retained."
+}
