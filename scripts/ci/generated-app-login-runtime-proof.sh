@@ -325,6 +325,41 @@ prove_fetch_app_session() {
   printf '%s\n' '{"credential_kind":"app_session","auth_method":"app_session","scopes":[],"assurance":[]}' > "${TMP_ROOT}/${label}-fetch-app-session-shape.json"
 }
 
+prove_refresh_rotation() {
+  local original_access_token="$1"
+  local original_refresh_token="$2"
+  local expected_family_id="$3"
+  local response="${APP_DIR}/refresh-rotation.json"
+  local status replacement_access_token replacement_refresh_token replacement_family_id
+
+  set_stage "refresh_rotation"
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"refresh_token\":\"${original_refresh_token}\"}" \
+    -o "$response" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/refresh")"
+  [[ "$status" == "200" ]]
+  [[ "$(grep -oE '\"(access_token|refresh_token|family_id|expires_in)\"' "$response" | sort | uniq -c | wc -l | tr -d ' ')" == "4" ]] || {
+    echo "refresh response was not the exact credential shape" >&2
+    return 1
+  }
+  replacement_access_token="$(json_field access_token "$response")"
+  replacement_refresh_token="$(json_field refresh_token "$response")"
+  replacement_family_id="$(json_field family_id "$response")"
+  [[ -n "$replacement_access_token" && -n "$replacement_refresh_token" && -n "$replacement_family_id" ]]
+  [[ "$replacement_access_token" != "$original_access_token" ]]
+  [[ "$replacement_refresh_token" != "$original_refresh_token" ]]
+  [[ "$replacement_family_id" == "$expected_family_id" ]]
+  prove_fetch_app_session refresh "$replacement_access_token" "$expected_family_id" || {
+    echo "replacement access token did not authenticate" >&2
+    return 1
+  }
+  status="$(curl --silent --show-error -H "authorization: Bearer ${original_refresh_token}" \
+    -o "${APP_DIR}/refresh-as-access.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login-proof")"
+  [[ "$status" == "401" ]] || {
+    echo "refresh credential authenticated as an access credential" >&2
+    return 1
+  }
+}
+
 assert_one_family() {
   local label="$1"
   local expected_kind="$2"
@@ -533,7 +568,7 @@ prove_hosted_ceremony() {
   local approval_headers="${APP_DIR}/hosted-approval.headers"
   local app_login_headers="${APP_DIR}/hosted-app-login.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
-  local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token family_id backup_code
+  local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token refresh_token family_id backup_code
   local mfa_completion_headers="${APP_DIR}/hosted-mfa-completion.headers"
   local mfa_completion_body="${APP_DIR}/hosted-mfa-completion.html"
 
@@ -600,9 +635,11 @@ prove_hosted_ceremony() {
   grep -Eq '"refresh_token":"[^"]+"' "$exchange_body"
   grep -Eq '"family_id":"[^"]+"' "$exchange_body"
   access_token="$(json_field access_token "$exchange_body")"
+  refresh_token="$(json_field refresh_token "$exchange_body")"
   family_id="$(json_field family_id "$exchange_body")"
-  [[ -n "$access_token" && -n "$family_id" ]]
+  [[ -n "$access_token" && -n "$refresh_token" && -n "$family_id" ]]
   prove_fetch_app_session hosted "$access_token" "$family_id"
+  prove_refresh_rotation "$access_token" "$refresh_token" "$family_id"
 
   prove_hosted_replay "$code" "$verifier" "$access_token" "$family_id"
   HOSTED_SUCCESS=true

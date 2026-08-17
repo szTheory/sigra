@@ -23,6 +23,7 @@ scope "/api/app-login", <%= web_module %> do
   pipe_through [:api, :app_login_public]
 
   post "/exchange", AppLoginController, :exchange
+  post "/refresh", AppLoginController, :refresh
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  post "/direct", AppLoginController, :direct
   post "/direct/mfa", AppLoginController, :complete_direct_mfa
 <% end %>end

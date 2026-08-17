@@ -65,6 +65,18 @@ defmodule <%= web_module %>.AppLoginController do
     end
   end
 
+  def refresh(conn, %{"refresh_token" => token} = params) do
+    with ["refresh_token"] <- Map.keys(params),
+         true <- is_binary(token),
+         {:ok, credentials} <- AppSessions.refresh(token) do
+      json(conn, credentials)
+    else
+      _ -> json(conn |> put_status(:unauthorized), %{error: "invalid_refresh"})
+    end
+  end
+
+  def refresh(conn, _params), do: json(conn |> put_status(:bad_request), %{error: "invalid_request"})
+
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  def direct(conn, %{"profile_id" => profile, "email" => email, "password" => password} = params) do
     with ["email", "password", "profile_id"] <- Enum.sort(Map.keys(params)),
          {:ok, result} <- AppSessions.start_direct(profile, email, password) do
