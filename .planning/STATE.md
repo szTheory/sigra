@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
-current_phase_name: "Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces"
+current_phase_name: close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
 status: executing
-stopped_at: Phase 246.2 context gathered (assumptions mode)
-last_updated: "2026-08-17T03:26:11.890Z"
+stopped_at: Completed 246.2-01-PLAN.md
+last_updated: "2026-08-17T03:33:51.528Z"
 last_activity: 2026-08-16
-last_activity_desc: Phase 246.1 complete, transitioned to Phase 247
+last_activity_desc: Phase 246.2 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 42
-  completed_plans: 40
+  completed_plans: 41
 current_plan: 0
 ---
 
@@ -29,12 +29,12 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 ## Current Position
 
-Phase: 246.2 — Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces
-Plan: Not started
+Phase: 246.2 (close-gaps-app-04-and-app-05-generated-refresh-and-revocatio) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-08-16 — Phase 246.1 complete, transitioned to Phase 247
+Last activity: 2026-08-16 — Phase 246.2 execution started
 
-Progress: [██████████] 100%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -98,6 +98,7 @@ Progress: [██████████] 100%
 | Phase 246-hosted-and-direct-login-ceremonies P18 | 12m | 1 tasks | 2 files |
 | Phase 246-hosted-and-direct-login-ceremonies P19 | 18m | 2 tasks | 7 files |
 | Phase 246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin P01 | 16min | 2 tasks | 6 files |
+| Phase 246.2 P01 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -175,6 +176,8 @@ Progress: [██████████] 100%
 - [Phase ?]: Cancellation is terminal at commit time and clears the generated browser continuation only after its durable claim succeeds.
 - [Phase ?]: Generated PAT configuration is resolved at request time, matching FetchJWT.
 - [Phase ?]: Unauthenticated API requests return JSON 401 while browser redirects retain flash behavior.
+- [Phase ?]: Refresh reuses the existing public rate limiter and delegates only to Auth.AppSessions.refresh/1.
+- [Phase ?]: Generated revocation mutations derive owner only from current Scope under browser/sudo/CSRF.
 
 ### Pending Todos
 
@@ -197,6 +200,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-17T02:56:31.558Z
-Stopped at: Phase 246.2 context gathered (assumptions mode)
-Resume file: .planning/phases/246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio/246.2-CONTEXT.md
+Last session: 2026-08-17T03:33:51.521Z
+Stopped at: Completed 246.2-01-PLAN.md
+Resume file: None
