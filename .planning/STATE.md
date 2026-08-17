@@ -4,15 +4,15 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
 current_phase_name: close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
-status: verifying
+status: executing
 stopped_at: Completed 246.2-02-PLAN.md
-last_updated: "2026-08-17T03:45:22.163Z"
+last_updated: "2026-08-17T20:36:09.643Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 246.2 execution started
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 42
+  total_plans: 43
   completed_plans: 42
 current_plan: 0
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 
 Phase: 246.2 (close-gaps-app-04-and-app-05-generated-refresh-and-revocatio) — EXECUTING
 Plan: 2 of 2
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Last activity: 2026-08-16 — Phase 246.2 execution started
 
 Progress: [██████████] 100%
