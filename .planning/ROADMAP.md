@@ -178,7 +178,7 @@ Plans:
 **Goal:** A fresh `--api` host authenticates real personal access tokens through its generated explicit PAT pipeline with normal Scope projection and bounded credential facts.
 **Requirements**: TBD
 **Depends on:** Phase 246
-**Plans:** 1/1 plans executed
+**Plans:** 1/1 plans complete
 
 Plans:
 
