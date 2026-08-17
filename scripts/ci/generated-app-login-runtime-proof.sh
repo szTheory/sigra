@@ -27,6 +27,10 @@ FETCH_APP_SESSION_EQUIVALENT=false
 REFRESH_ROTATED=false
 REFRESH_REUSE_FAMILY_REVOKED=false
 REFRESH_REUSE_DENIED_NEXT_ACCESS=false
+REVOKE_FAMILY_OWNER_ISOLATED=false
+REVOKE_FAMILY_DENIED_NEXT_ACCESS=false
+REVOKE_ALL_CURRENT_USER_ONLY=false
+REVOKE_ALL_DENIED_NEXT_ACCESS=false
 ROOT_TEST_DB_READY=false
 CURRENT_STAGE="bootstrap"
 
@@ -440,6 +444,79 @@ prove_refresh_reuse_revocation() {
   REFRESH_REUSE_DENIED_NEXT_ACCESS=true
 }
 
+prepare_revocation_fixtures() {
+  set_stage "revocation_fixtures"
+  run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    owner = Accounts.get_user_by_email("hosted-proof@example.test")
+    {:ok, foreign} = Accounts.register_user(%{"email" => "foreign-proof@example.test", "password" => "ForeignProofPassword123!"})
+    foreign = foreign |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)) |> Repo.update!()
+    config = Accounts.Auth.AppSessions.sigra_config()
+    {:ok, owned} = Sigra.AppSession.issue(config, owner, "revoke-owned")
+    {:ok, remaining} = Sigra.AppSession.issue(config, owner, "revoke-remaining")
+    {:ok, foreign_control} = Sigra.AppSession.issue(config, foreign, "revoke-foreign")
+    File.write!("revocation-fixtures.json", Jason.encode!(%{
+      owned_access_token: owned.access_token, owned_family_id: owned.family_id,
+      remaining_access_token: remaining.access_token, remaining_family_id: remaining.family_id,
+      foreign_access_token: foreign_control.access_token, foreign_family_id: foreign_control.family_id
+    }))
+  '
+}
+
+prove_revoke_family_owner_isolation() {
+  local base="$1" cookie_jar="$2" csrf="$3"
+  local fixture="${APP_DIR}/revocation-fixtures.json"
+  local foreign_id owned_id foreign_access owned_access remaining_access remaining_id status
+
+  prepare_revocation_fixtures
+  foreign_id="$(json_field foreign_family_id "$fixture")"
+  owned_id="$(json_field owned_family_id "$fixture")"
+  foreign_access="$(json_field foreign_access_token "$fixture")"
+  owned_access="$(json_field owned_access_token "$fixture")"
+  remaining_access="$(json_field remaining_access_token "$fixture")"
+  remaining_id="$(json_field remaining_family_id "$fixture")"
+
+  status="$(curl --silent --show-error -H 'content-type: application/json' -d "{\"family_id\":\"${foreign_id}\"}" -o "${APP_DIR}/revoke-foreign.json" -w '%{http_code}' "$base/users/app-sessions/revoke")"
+  [[ "$status" != "200" ]]
+  status="$(curl --silent --show-error --cookie "$cookie_jar" -H 'content-type: application/json' -d "{\"family_id\":\"${owned_id}\"}" -o "${APP_DIR}/revoke-missing-csrf.json" -w '%{http_code}' "$base/users/app-sessions/revoke")"
+  [[ "$status" != "200" ]]
+  status="$(curl --silent --show-error --cookie "$cookie_jar" -H 'content-type: application/json' -H "x-csrf-token: ${csrf}" -d "{\"family_id\":\"${foreign_id}\"}" -o "${APP_DIR}/revoke-foreign.json" -w '%{http_code}' "$base/users/app-sessions/revoke")"
+  [[ "$status" == "404" ]] && grep -Fxq '{"error":"not_found"}' "${APP_DIR}/revoke-foreign.json"
+  assert_family_state revoke-foreign "$foreign_id" active
+  prove_fetch_app_session revoke-foreign "$foreign_access" "$foreign_id"
+
+  status="$(curl --silent --show-error --cookie "$cookie_jar" -H 'content-type: application/json' -H "x-csrf-token: ${csrf}" -d "{\"family_id\":\"${owned_id}\"}" -o "${APP_DIR}/revoke-owned.json" -w '%{http_code}' "$base/users/app-sessions/revoke")"
+  [[ "$status" == "200" ]] && grep -Fxq '{"ok":true}' "${APP_DIR}/revoke-owned.json"
+  assert_family_state revoke-owned "$owned_id" revoked
+  assert_access_denied revoke-owned "$owned_access"
+  prove_fetch_app_session revoke-remaining "$remaining_access" "$remaining_id"
+  REVOKE_FAMILY_OWNER_ISOLATED=true
+  REVOKE_FAMILY_DENIED_NEXT_ACCESS=true
+  printf '%s\n' 'revoke_family_owner_isolated=true revoke_family_denied_next_access=true' >&2
+}
+
+prove_revoke_all() {
+  local base="$1" cookie_jar="$2" csrf="$3"
+  local fixture="${APP_DIR}/revocation-fixtures.json"
+  local remaining_access remaining_id foreign_access foreign_id status
+
+  remaining_access="$(json_field remaining_access_token "$fixture")"
+  remaining_id="$(json_field remaining_family_id "$fixture")"
+  foreign_access="$(json_field foreign_access_token "$fixture")"
+  foreign_id="$(json_field foreign_family_id "$fixture")"
+  status="$(curl --silent --show-error --cookie "$cookie_jar" -H 'content-type: application/json' -H "x-csrf-token: ${csrf}" -d '{}' -o "${APP_DIR}/revoke-all.json" -w '%{http_code}' "$base/users/app-sessions/revoke-all")"
+  [[ "$status" == "200" ]] && grep -Fxq '{"ok":true}' "${APP_DIR}/revoke-all.json"
+  assert_family_state revoke-remaining "$remaining_id" revoked
+  assert_family_state revoke-foreign "$foreign_id" active
+  assert_access_denied revoke-all "$remaining_access"
+  prove_fetch_app_session revoke-foreign "$foreign_access" "$foreign_id"
+  REVOKE_ALL_CURRENT_USER_ONLY=true
+  REVOKE_ALL_DENIED_NEXT_ACCESS=true
+  printf '%s\n' 'revoke_all_current_user_only=true revoke_all_denied_next_access=true' >&2
+}
+
 assert_one_family() {
   local label="$1"
   local expected_kind="$2"
@@ -648,7 +725,7 @@ prove_hosted_ceremony() {
   local approval_headers="${APP_DIR}/hosted-approval.headers"
   local app_login_headers="${APP_DIR}/hosted-app-login.headers"
   local exchange_body="${APP_DIR}/hosted-exchange.json"
-  local login_csrf mfa_csrf approval_csrf verifier challenge callback code state status access_token refresh_token family_id backup_code
+  local login_csrf mfa_csrf approval_csrf sudo_csrf verifier challenge callback code state status access_token refresh_token family_id backup_code
   local mfa_completion_headers="${APP_DIR}/hosted-mfa-completion.headers"
   local mfa_completion_body="${APP_DIR}/hosted-mfa-completion.html"
 
@@ -674,6 +751,10 @@ prove_hosted_ceremony() {
     -D "$mfa_completion_headers" -o "$mfa_completion_body" -w '%{http_code}' "$base/users/mfa")"
   mfa_response_diagnostic "completion" "$status" "$mfa_completion_headers" "$mfa_completion_body"
   [[ "$status" =~ ^30[23]$ ]]
+  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" -o "${APP_DIR}/hosted-sudo.html" "$base/users/sudo?return_to=/"
+  sudo_csrf="$(csrf_token "${APP_DIR}/hosted-sudo.html")"
+  [[ -n "$sudo_csrf" ]]
+  curl --fail --silent --show-error --cookie "$cookie_jar" --cookie-jar "$cookie_jar" --data-urlencode "_csrf_token=$sudo_csrf" --data-urlencode 'sudo[password]=HostedProofPassword123!' --data-urlencode 'sudo[return_to]=/' -o /dev/null "$base/users/sudo"
 
   verifier="$(openssl rand -base64 48 | tr '+/' '-_' | tr -d '=\n')"
   challenge="$(printf '%s' "$verifier" | openssl dgst -binary -sha256 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
@@ -722,6 +803,8 @@ prove_hosted_ceremony() {
   issue_refresh_control_family
   prove_refresh_rotation "$access_token" "$refresh_token" "$family_id"
   prove_refresh_reuse_revocation "$refresh_token" "$(json_field access_token "${APP_DIR}/refresh-rotation.json")" "$family_id"
+  prove_revoke_family_owner_isolation "$base" "$cookie_jar" "$sudo_csrf"
+  prove_revoke_all "$base" "$cookie_jar" "$sudo_csrf"
 
   prove_hosted_replay "$code" "$verifier" "$access_token" "$family_id"
   HOSTED_SUCCESS=true

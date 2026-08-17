@@ -137,6 +137,28 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute harness =~ "reuse_detected"
   end
 
+  test "browser revocation proof uses CSRF routes, owner isolation, and next-auth checks" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "prove_revoke_family_owner_isolation()",
+          "prove_revoke_all()",
+          "/users/app-sessions/revoke",
+          "/users/app-sessions/revoke-all",
+          "x-csrf-token",
+          "revocation-fixtures.json",
+          "revoke_family_owner_isolated",
+          "revoke_all_current_user_only",
+          "assert_access_denied revoke-owned",
+          "prove_fetch_app_session revoke-foreign"
+        ] do
+      assert harness =~ marker, "browser revocation proof missing #{inspect(marker)}"
+    end
+
+    refute harness =~ "app-sessions/list"
+    refute harness =~ "sleep"
+  end
+
   test "browser-required proof checks persisted state without comparing command output" do
     harness = read!(@harness)
 
