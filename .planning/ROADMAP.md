@@ -184,6 +184,30 @@ Plans:
 
 - [x] 246.1-01-PLAN.md — Repair generated PAT options and prove real routed fresh-host authentication.
 
+### Phase 246.2: Close gaps: APP-04 and APP-05 — generated refresh and revocation surfaces (INSERTED)
+
+**Goal:** A fresh app-session host exposes secure generated HTTP refresh and owner-derived one/all revocation routes whose rotation, replay-family revocation, owner isolation, and next-auth denial are proven by receipt-last PostgreSQL evidence.
+**Requirements**: APP-04, APP-05
+**Depends on:** Phase 246
+**Success Criteria** (what must be TRUE):
+
+  1. A first-party client can rotate a refresh credential through a public rate-limited generated route without browser or access-token authentication and receives only the committed four-field credential response.
+  2. Consumed-refresh replay returns one bounded unauthenticated failure, revokes only its session family, and denies that family's replacement access credential on its next generated-route authentication.
+  3. A recently authenticated browser user can revoke one owned family or all applicable owned families through CSRF-protected JSON mutations whose owner is derived only from current Scope; foreign families remain unchanged.
+  4. A twice-installed disposable PostgreSQL host proves routed rotation, replay, one/all revocation, owner isolation, and next-auth denial before atomically publishing a credential-free, exact-source-bound receipt.
+
+**Plans:** 2 plans
+
+Plans:
+
+**Wave 1**
+
+- [ ] 246.2-01-PLAN.md — Ship generated refresh/revocation routes and prove a real routed refresh tracer.
+
+**Wave 2** *(depends on Plan 246.2-01)*
+
+- [ ] 246.2-02-PLAN.md — Prove refresh replay, owner-safe one/all revocation, and seal v4 receipt-last evidence.
+
 ### Phase 247: Language-Learning Digital Twin
 
 **Goal**: The example PWA demonstrates a bounded, account-safe offline lesson experience without treating cached data as authentication authority.
