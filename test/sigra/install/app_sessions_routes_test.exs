@@ -105,6 +105,29 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     refute router =~ "pipe_through [:api, :app_login_public, :app_session_proof]"
   end
 
+  test "renders owner-derived browser and sudo app-session revocation mutations" do
+    controller = render_template("app_login_controller.ex")
+    router = render_template("router_injection.ex")
+
+    assert router =~ "pipe_through [:browser, :require_authenticated, :require_sudo]"
+    assert router =~ "post \"/app-sessions/revoke\", AppLoginController, :revoke_family"
+    assert router =~ "post \"/app-sessions/revoke-all\", AppLoginController, :revoke_all"
+
+    assert controller =~ "def revoke_family(conn, %{\"family_id\" => family_id} = params)"
+    assert controller =~ "[\"family_id\"] <- Map.keys(params)"
+    assert controller =~ "true <- is_binary(family_id)"
+    assert controller =~ "owner = conn.assigns.current_scope.user"
+    assert controller =~ "AppSessions.revoke_family(owner, family_id)"
+    assert controller =~ "def revoke_all(conn, %{} = params)"
+    assert controller =~ "[] <- Map.keys(params)"
+    assert controller =~ "AppSessions.revoke_all(owner)"
+    assert controller =~ "%{ok: true}"
+    assert controller =~ "%{error: \"not_found\"}"
+    assert controller =~ "%{error: \"revocation_failed\"}"
+    refute controller =~ "params[\"user_id\"]"
+    refute controller =~ "params[\"owner_id\"]"
+  end
+
   test "registers route and controller templates only with app sessions" do
     sources =
       AppSessions.files(@binding)
