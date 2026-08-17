@@ -108,6 +108,35 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     refute harness =~ "sleep", "refresh proof must use the existing bounded readiness flow"
   end
 
+  test "refresh reuse proof follows routed replay with typed state and next-auth denial" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "assert_access_denied()",
+          "prove_refresh_reuse_revocation()",
+          "refresh-reuse.json",
+          "refresh_replay=unauthenticated",
+          "family=revoked",
+          "control_family=active",
+          "next_access=denied",
+          "UserAppSessionFamily",
+          "UserAppSessionToken",
+          "assert_access_denied refresh",
+          "prove_fetch_app_session refresh-control"
+        ] do
+      assert harness =~ marker, "refresh reuse proof missing #{inspect(marker)}"
+    end
+
+    refresh_offset = :binary.match(harness, "prove_refresh_rotation") |> elem(0)
+    reuse_offset = :binary.match(harness, "prove_refresh_reuse_revocation") |> elem(0)
+    deny_offset = :binary.match(harness, "assert_access_denied refresh") |> elem(0)
+
+    assert refresh_offset < reuse_offset and reuse_offset < deny_offset,
+           "refresh proof must rotate, replay, inspect typed state, then deny the next access"
+
+    refute harness =~ "reuse_detected"
+  end
+
   test "browser-required proof checks persisted state without comparing command output" do
     harness = read!(@harness)
 

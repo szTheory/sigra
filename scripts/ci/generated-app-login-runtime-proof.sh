@@ -24,6 +24,9 @@ APPROVAL_REPLAY_REJECTED=false
 DIRECT_BACKUP_CODE_SUCCEEDED=false
 BROWSER_REQUIRED_BEFORE_AUTHENTICATION=false
 FETCH_APP_SESSION_EQUIVALENT=false
+REFRESH_ROTATED=false
+REFRESH_REUSE_FAMILY_REVOKED=false
+REFRESH_REUSE_DENIED_NEXT_ACCESS=false
 ROOT_TEST_DB_READY=false
 CURRENT_STAGE="bootstrap"
 
@@ -325,6 +328,54 @@ prove_fetch_app_session() {
   printf '%s\n' '{"credential_kind":"app_session","auth_method":"app_session","scopes":[],"assurance":[]}' > "${TMP_ROOT}/${label}-fetch-app-session-shape.json"
 }
 
+assert_access_denied() {
+  local label="$1"
+  local access_token="$2"
+  local body="${APP_DIR}/${label}-access-denied.json"
+  local status
+
+  status="$(curl --silent --show-error -H "authorization: Bearer ${access_token}" \
+    -o "$body" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login-proof")"
+  [[ "$status" == "401" ]]
+  ! grep -Eq '"(access_token|refresh_token|family_id|digest|callback|state|challenge|client_ref|email|password)"' "$body"
+}
+
+issue_refresh_control_family() {
+  set_stage "refresh_control_fixture"
+  run "$APP_DIR" mix run -e '
+    alias SigraAppLoginProof.Accounts
+
+    user = Accounts.get_user_by_email("hosted-proof@example.test")
+    {:ok, credentials} = Sigra.AppSession.issue(Accounts.Auth.AppSessions.sigra_config(), user, "refresh-control")
+    File.write!("refresh-control.json", Jason.encode!(credentials))
+  '
+}
+
+assert_family_state() {
+  local label="$1"
+  local family_id="$2"
+  local expected="$3"
+
+  set_stage "${label}_typed_family_state"
+  EXPECTED_FAMILY_ID="$family_id" EXPECTED_STATE="$expected" run "$APP_DIR" mix run -e '
+    import Ecto.Query
+    alias SigraAppLoginProof.Accounts
+    alias SigraAppLoginProof.Repo
+
+    family_id = System.fetch_env!("EXPECTED_FAMILY_ID")
+    expected = System.fetch_env!("EXPECTED_STATE")
+    family = Repo.get!(Accounts.UserAppSessionFamily, family_id)
+    tokens = Repo.all(from token in Accounts.UserAppSessionToken, where: token.family_id == ^family_id)
+
+    case expected do
+      "revoked" ->
+        if is_nil(family.revoked_at) or tokens == [] or Enum.any?(tokens, &is_nil(&1.revoked_at)), do: raise("family not terminal")
+      "active" ->
+        if not is_nil(family.revoked_at) or tokens == [] or Enum.any?(tokens, &(not is_nil(&1.revoked_at))), do: raise("control family not active")
+    end
+  '
+}
+
 prove_refresh_rotation() {
   local original_access_token="$1"
   local original_refresh_token="$2"
@@ -352,12 +403,41 @@ prove_refresh_rotation() {
     echo "replacement access token did not authenticate" >&2
     return 1
   }
+  REFRESH_ROTATED=true
   status="$(curl --silent --show-error -H "authorization: Bearer ${original_refresh_token}" \
     -o "${APP_DIR}/refresh-as-access.json" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login-proof")"
   [[ "$status" == "401" ]] || {
     echo "refresh credential authenticated as an access credential" >&2
     return 1
   }
+}
+
+prove_refresh_reuse_revocation() {
+  local original_refresh_token="$1"
+  local replacement_access_token="$2"
+  local replayed_family_id="$3"
+  local control_body="${APP_DIR}/refresh-control.json"
+  local response="${APP_DIR}/refresh-reuse.json"
+  local status control_access_token control_family_id
+
+  set_stage "refresh_reuse_replay"
+  status="$(curl --silent --show-error -H 'content-type: application/json' \
+    -d "{\"refresh_token\":\"${original_refresh_token}\"}" \
+    -o "$response" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/refresh")"
+  [[ "$status" == "401" ]]
+  grep -Fxq '{"error":"invalid_refresh"}' "$response"
+  printf '%s\n' 'refresh_replay=unauthenticated family=revoked control_family=active next_access=denied' >&2
+
+  assert_family_state refresh-reuse "$replayed_family_id" revoked
+  control_access_token="$(json_field access_token "$control_body")"
+  control_family_id="$(json_field family_id "$control_body")"
+  [[ -n "$control_access_token" && -n "$control_family_id" ]]
+  assert_family_state refresh-control "$control_family_id" active
+  REFRESH_REUSE_FAMILY_REVOKED=true
+
+  assert_access_denied refresh "$replacement_access_token"
+  prove_fetch_app_session refresh-control "$control_access_token" "$control_family_id"
+  REFRESH_REUSE_DENIED_NEXT_ACCESS=true
 }
 
 assert_one_family() {
@@ -639,7 +719,9 @@ prove_hosted_ceremony() {
   family_id="$(json_field family_id "$exchange_body")"
   [[ -n "$access_token" && -n "$refresh_token" && -n "$family_id" ]]
   prove_fetch_app_session hosted "$access_token" "$family_id"
+  issue_refresh_control_family
   prove_refresh_rotation "$access_token" "$refresh_token" "$family_id"
+  prove_refresh_reuse_revocation "$refresh_token" "$(json_field access_token "${APP_DIR}/refresh-rotation.json")" "$family_id"
 
   prove_hosted_replay "$code" "$verifier" "$access_token" "$family_id"
   HOSTED_SUCCESS=true
