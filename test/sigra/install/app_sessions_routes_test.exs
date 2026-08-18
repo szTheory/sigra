@@ -125,6 +125,38 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     refute router =~ "pipe_through [:api, :app_login_public, :app_session_proof]"
   end
 
+  test "renders direct and refresh budgets in exclusive limiter scopes" do
+    router =
+      render_template("router_injection.ex",
+        opts: [app_sessions: true, app_password_login: true]
+      )
+
+    assert router =~ "pipeline :app_login_direct"
+    assert router =~ "key_prefix: \"app_login_direct\""
+    assert router =~ "limit_config_key: :app_login_direct_rate_limit"
+    assert router =~ "window_config_key: :app_login_direct_rate_limit_window"
+
+    [[exchange_scope], [refresh_scope], [direct_scope]] =
+      Regex.scan(~r/scope \"\/api\/app-login\", MyAppWeb do\n(.*?)\nend/s, router,
+        capture: :all_but_first
+      )
+
+    assert exchange_scope =~ "pipe_through [:api, :app_login_public]"
+    assert exchange_scope =~ "post \"/exchange\", AppLoginController, :exchange"
+    refute exchange_scope =~ "post \"/refresh\""
+    refute exchange_scope =~ "post \"/direct\""
+
+    assert refresh_scope =~ "pipe_through [:api, :app_login_refresh]"
+    assert refresh_scope =~ "post \"/refresh\", AppLoginController, :refresh"
+    refute refresh_scope =~ "post \"/direct\""
+    refute refresh_scope =~ "post \"/direct/mfa\""
+
+    assert direct_scope =~ "pipe_through [:api, :app_login_direct]"
+    assert direct_scope =~ "post \"/direct\", AppLoginController, :direct"
+    assert direct_scope =~ "post \"/direct/mfa\", AppLoginController, :complete_direct_mfa"
+    refute direct_scope =~ "post \"/refresh\""
+  end
+
   test "renders owner-derived browser and sudo app-session revocation mutations" do
     controller = render_template("app_login_controller.ex")
     router = render_template("router_injection.ex")
