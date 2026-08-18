@@ -583,7 +583,6 @@ prove_hosted_replay() {
     echo "hosted credential did not remain valid after replay" >&2
     return 1
   }
-  assert_one_family hosted hosted_code
 }
 
 prove_direct_replay() {
@@ -801,6 +800,9 @@ prove_hosted_ceremony() {
   family_id="$(json_field family_id "$exchange_body")"
   [[ -n "$access_token" && -n "$refresh_token" && -n "$family_id" ]]
   prove_fetch_app_session hosted "$access_token" "$family_id"
+  # Establish the hosted ceremony's one-family invariant before deliberately
+  # adding independent refresh-control and revocation fixture families.
+  assert_one_family hosted hosted_code
   issue_refresh_control_family
   prove_refresh_rotation "$access_token" "$refresh_token" "$family_id"
   prove_refresh_reuse_revocation "$refresh_token" "$(json_field access_token "${APP_DIR}/refresh-rotation.json")" "$family_id"

@@ -677,6 +677,24 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "EXPECTED_KIND=\"$expected_kind\" EXPECTED_LABEL=\"$label\" run"
   end
 
+  test "hosted one-family assertion precedes deliberate refresh and revocation fixture families" do
+    harness = read!(@harness)
+
+    hosted_ceremony =
+      harness
+      |> String.split("prove_hosted_ceremony()", parts: 2)
+      |> List.last()
+      |> String.split("patch_host()", parts: 2)
+      |> List.first()
+
+    one_family_offset = :binary.match(hosted_ceremony, "assert_one_family hosted hosted_code") |> elem(0)
+    control_offset = :binary.match(hosted_ceremony, "issue_refresh_control_family") |> elem(0)
+    revocation_offset = :binary.match(hosted_ceremony, "prove_revoke_family_owner_isolation") |> elem(0)
+
+    assert one_family_offset < control_offset and control_offset < revocation_offset,
+           "the one-family aggregate must run before fixture families make a many-family count expected"
+  end
+
   test "family assertion reports only allowlisted count classes" do
     harness = read!(@harness)
 
