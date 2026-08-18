@@ -51,7 +51,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "export PGDATABASE=\"${PGDATABASE:-sigra_test}\""
   end
 
-  test "generated-host proof assigns each disposable mode database in both dev and test configs" do
+  test "generated-host proof directs dev migrations and test config to the disposable PostgreSQL server" do
     harness = read!(@harness)
 
     [patch_host] =
@@ -60,6 +60,11 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert patch_host =~ "config/dev.exs"
     assert patch_host =~ "config/test.exs"
     assert patch_host =~ "database: \"'\"${database}\"'\""
+    assert patch_host =~ "hostname: System.fetch_env!(\"PGHOST\"),/"
+    assert patch_host =~ "port: String.to_integer(System.fetch_env!(\"PGPORT\")),\\n  database:"
+
+    assert :binary.matches(patch_host, "config/dev.exs") |> length() >= 3,
+           "the default dev environment used by ecto.create/migrate must receive database, host, and port"
 
     patch_offset = :binary.match(harness, "patch_host \"$database\"") |> elem(0)
     create_offset = :binary.match(harness, "run \"$APP_DIR\" mix ecto.create") |> elem(0)
