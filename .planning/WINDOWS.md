@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 17
+open_count: 18
 waived_count: 0
 fixed_count: 0
-total_count: 17
-last_updated: 2026-08-13T15:34:54.990Z
+total_count: 18
+last_updated: 2026-08-18T16:16:46.806Z
 ---
 
 # Broken Windows Ledger
@@ -32,6 +32,7 @@ last_updated: 2026-08-13T15:34:54.990Z
 | 15 | 245 | deviation | lib/sigra/app_session.ex |  | Normalized public revoke audit-constraint failures to a bounded aborted result after rollback. | open |  | 2026-08-13T00:55:47.944Z |  |
 | 16 | 246 | deviation | .planning/STATE.md |  | state.advance-plan could not parse the pre-existing plan-position fields | open |  | 2026-08-13T01:46:15.081Z |  |
 | 17 | 246 | unrun-verify | test/sigra/install/app_sessions_mfa_session_upgrade_test.exs |  | PostgreSQL-backed generated-host MFA transition evidence remains unrun because 127.0.0.1:53988 refused connections. | open |  | 2026-08-13T15:34:54.990Z |  |
+| 18 | 246.2 | unrun-verify | priv/templates/sigra.install/app_sessions/router_injection.ex |  | Plan formatter command cannot parse the EEx router template as Elixir; rendered tests, test-file formatter, and diff hygiene passed. | open |  | 2026-08-18T16:16:46.806Z |  |
 
 ````json
 [
@@ -237,6 +238,18 @@ last_updated: 2026-08-13T15:34:54.990Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-13T15:34:54.990Z",
+    "resolved_at": null
+  },
+  {
+    "id": 18,
+    "kind": "unrun-verify",
+    "phase": "246.2",
+    "file": "priv/templates/sigra.install/app_sessions/router_injection.ex",
+    "line": null,
+    "description": "Plan formatter command cannot parse the EEx router template as Elixir; rendered tests, test-file formatter, and diff hygiene passed.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-18T16:16:46.806Z",
     "resolved_at": null
   }
 ]
