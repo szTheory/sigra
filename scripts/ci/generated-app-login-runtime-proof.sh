@@ -27,6 +27,8 @@ FETCH_APP_SESSION_EQUIVALENT=false
 REFRESH_ROTATED=false
 REFRESH_REUSE_FAMILY_REVOKED=false
 REFRESH_REUSE_DENIED_NEXT_ACCESS=false
+DIRECT_BUDGET_EXHAUSTED=false
+DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=false
 REVOKE_FAMILY_OWNER_ISOLATED=false
 REVOKE_FAMILY_DENIED_NEXT_ACCESS=false
 REVOKE_ALL_CURRENT_USER_ONLY=false
@@ -346,11 +348,12 @@ assert_access_denied() {
 }
 
 issue_refresh_control_family() {
+  local email="${1:-hosted-proof@example.test}"
   set_stage "refresh_control_fixture"
-  run "$APP_DIR" mix run -e '
+  CONTROL_EMAIL="$email" run "$APP_DIR" mix run -e '
     alias SigraAppLoginProof.Accounts
 
-    user = Accounts.get_user_by_email("hosted-proof@example.test")
+    user = Accounts.get_user_by_email(System.fetch_env!("CONTROL_EMAIL"))
     {:ok, credentials} = Sigra.AppSession.issue(Accounts.Auth.AppSessions.sigra_config(), user, "refresh-control")
     File.write!("refresh-control.json", Jason.encode!(credentials))
   '
@@ -443,6 +446,34 @@ prove_refresh_reuse_revocation() {
   assert_access_denied refresh "$replacement_access_token"
   prove_fetch_app_session refresh-control "$control_access_token" "$control_family_id"
   REFRESH_REUSE_DENIED_NEXT_ACCESS=true
+}
+
+exhaust_direct_budget_before_refresh_replay() {
+  local base="http://127.0.0.1:${PORT}"
+  local max_attempts=6
+  local attempt=0
+  local endpoint status
+
+  set_stage "direct_budget_exhaustion"
+  while (( attempt < max_attempts )); do
+    if (( attempt % 2 == 0 )); then
+      endpoint="${base}/api/app-login/direct"
+    else
+      endpoint="${base}/api/app-login/direct/mfa"
+    fi
+
+    status="$(curl --silent --show-error -H 'content-type: application/json' \
+      -d '{"invalid":"direct-budget-exhaustion"}' \
+      -o /dev/null -w '%{http_code}' "$endpoint")"
+    if [[ "$status" == "429" ]]; then
+      DIRECT_BUDGET_EXHAUSTED=true
+      return 0
+    fi
+    attempt=$((attempt + 1))
+  done
+
+  echo "direct budget did not reach 429 within ${max_attempts} bounded attempts" >&2
+  return 1
 }
 
 prepare_revocation_fixtures() {
@@ -656,7 +687,7 @@ prove_direct_mfa_ceremony() {
   local direct_body="${APP_DIR}/direct-start.json"
   local mfa_body="${APP_DIR}/direct-mfa.json"
   local invalid_body="${APP_DIR}/direct-invalid-factor.json"
-  local challenge backup_code status access_token family_id
+  local challenge backup_code status access_token refresh_token family_id
 
   seed_direct_mfa_user
   backup_code="$(<"${APP_DIR}/direct-backup-code")"
@@ -679,8 +710,9 @@ prove_direct_mfa_ceremony() {
   grep -Eq '"refresh_token":"[^"]+"' "$mfa_body"
   grep -Eq '"family_id":"[^"]+"' "$mfa_body"
   access_token="$(json_field access_token "$mfa_body")"
+  refresh_token="$(json_field refresh_token "$mfa_body")"
   family_id="$(json_field family_id "$mfa_body")"
-  [[ -n "$access_token" && -n "$family_id" ]]
+  [[ -n "$access_token" && -n "$refresh_token" && -n "$family_id" ]]
   prove_fetch_app_session direct "$access_token" "$family_id"
 
   DIRECT_CHALLENGE="$challenge" DIRECT_BACKUP_CODE="$backup_code" run "$APP_DIR" mix run -e '
@@ -709,6 +741,12 @@ prove_direct_mfa_ceremony() {
   # The typed assertion verifies that browser-required returned before creating
   # another family or altering the direct MFA attempt.
   assert_one_family direct direct_mfa
+  issue_refresh_control_family "direct-proof@example.test"
+  prove_refresh_rotation "$access_token" "$refresh_token" "$family_id"
+  exhaust_direct_budget_before_refresh_replay
+  prove_refresh_reuse_revocation "$refresh_token" "$(json_field access_token "${APP_DIR}/refresh-rotation.json")" "$family_id"
+  [[ "$DIRECT_BUDGET_EXHAUSTED" == true ]]
+  DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=true
   DIRECT_SUCCESS=true
   DIRECT_REPLAY_REJECTED=true
   DIRECT_FETCH_APP_SESSION=true
@@ -867,7 +905,7 @@ write_receipt_last() {
   [[ "$CONTROLLER_MFA_SESSION_UPGRADED" == true && "$LIVEVIEW_MFA_SESSION_UPGRADED" == true ]]
   [[ "$APPROVAL_REPLAY_REJECTED" == true && "$DIRECT_BACKUP_CODE_SUCCEEDED" == true ]]
   [[ "$BROWSER_REQUIRED_BEFORE_AUTHENTICATION" == true && "$FETCH_APP_SESSION_EQUIVALENT" == true ]]
-  [[ "$REFRESH_ROTATED" == true && "$REFRESH_REUSE_FAMILY_REVOKED" == true && "$REFRESH_REUSE_DENIED_NEXT_ACCESS" == true ]]
+  [[ "$REFRESH_ROTATED" == true && "$REFRESH_REUSE_FAMILY_REVOKED" == true && "$REFRESH_REUSE_DENIED_NEXT_ACCESS" == true && "$DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY" == true ]]
   [[ "$REVOKE_FAMILY_OWNER_ISOLATED" == true && "$REVOKE_FAMILY_DENIED_NEXT_ACCESS" == true && "$REVOKE_ALL_CURRENT_USER_ONLY" == true && "$REVOKE_ALL_DENIED_NEXT_ACCESS" == true ]]
 
   app_login_sha="$(sha256sum "${SIGRA_REPO}/lib/sigra/app_login.ex" | awk '{print $1}')"
@@ -890,7 +928,7 @@ write_receipt_last() {
   receipt="${APP_DIR}/runtime-proof.json"
 
   # receipt-last: every transition must pass before this final atomic publish.
-  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v4\",\"status\":\"passed\",\"controller_mfa_session_upgraded\":true,\"liveview_mfa_session_upgraded\":true,\"approval_replay_rejected\":true,\"direct_backup_code_succeeded\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"fetch_app_session_equivalent\":true,\"browser_required_before_authentication\":true,\"refresh_rotated\":true,\"refresh_reuse_family_revoked\":true,\"refresh_reuse_denied_next_access\":true,\"revoke_family_owner_isolated\":true,\"revoke_family_denied_next_access\":true,\"revoke_all_current_user_only\":true,\"revoke_all_denied_next_access\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"app_login_continuation\":\"${continuation_sha}\",\"app_login_attempt_schema\":\"${attempt_schema_sha}\",\"app_sessions_migration\":\"${migration_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"mfa_challenge_controller\":\"${mfa_controller_sha}\",\"mfa_challenge_live\":\"${mfa_live_sha}\",\"runtime_script\":\"${script_sha}\",\"workflow\":\"${workflow_sha}\",\"runtime_source_contract_test\":\"${source_test_sha}\",\"runtime_evidence_contract_test\":\"${evidence_test_sha}\",\"mfa_session_upgrade_test\":\"${mfa_upgrade_test_sha}\",\"approval_concurrency_test\":\"${concurrency_test_sha}\"}}" > "$receipt_tmp"
+  printf '%s\n' "{\"schema\":\"sigra.generated-app-login-runtime-proof/v5\",\"status\":\"passed\",\"controller_mfa_session_upgraded\":true,\"liveview_mfa_session_upgraded\":true,\"approval_replay_rejected\":true,\"direct_backup_code_succeeded\":true,\"hosted_replay_rejected\":true,\"direct_replay_rejected\":true,\"fetch_app_session_equivalent\":true,\"browser_required_before_authentication\":true,\"refresh_rotated\":true,\"refresh_reuse_family_revoked\":true,\"refresh_reuse_denied_next_access\":true,\"direct_budget_exhausted_before_refresh_replay\":true,\"revoke_family_owner_isolated\":true,\"revoke_family_denied_next_access\":true,\"revoke_all_current_user_only\":true,\"revoke_all_denied_next_access\":true,\"sources\":{\"app_login\":\"${app_login_sha}\",\"fetch_app_session\":\"${fetch_app_session_sha}\",\"app_login_controller\":\"${controller_sha}\",\"app_login_continuation\":\"${continuation_sha}\",\"app_login_attempt_schema\":\"${attempt_schema_sha}\",\"app_sessions_migration\":\"${migration_sha}\",\"auth_app_sessions\":\"${facade_sha}\",\"router_injection\":\"${router_sha}\",\"mfa_challenge_controller\":\"${mfa_controller_sha}\",\"mfa_challenge_live\":\"${mfa_live_sha}\",\"runtime_script\":\"${script_sha}\",\"workflow\":\"${workflow_sha}\",\"runtime_source_contract_test\":\"${source_test_sha}\",\"runtime_evidence_contract_test\":\"${evidence_test_sha}\",\"mfa_session_upgrade_test\":\"${mfa_upgrade_test_sha}\",\"approval_concurrency_test\":\"${concurrency_test_sha}\"}}" > "$receipt_tmp"
   mv "$receipt_tmp" "$receipt"
 }
 

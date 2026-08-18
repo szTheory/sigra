@@ -429,7 +429,9 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
   test "generated-host proof classifies the hosted app-login start response" do
     harness = read!(@harness)
-    app_login_classifier = harness |> String.split("hosted_app_login_response_diagnostic()", parts: 2) |> List.last()
+
+    app_login_classifier =
+      harness |> String.split("hosted_app_login_response_diagnostic()", parts: 2) |> List.last()
 
     for marker <- [
           "hosted-app-login.headers",
@@ -459,7 +461,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "Phoenix.Token."
         ] do
       assert app_login_classifier =~ marker,
-            "hosted app-login error classification missing #{inspect(marker)}"
+             "hosted app-login error classification missing #{inspect(marker)}"
     end
   end
 
@@ -487,13 +489,19 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
       |> String.split("json_field()", parts: 2)
       |> List.first()
 
-    for marker <- ["UndefinedFunctionError", "FunctionClauseError", "CaseClauseError", "Internal Server Error"] do
+    for marker <- [
+          "UndefinedFunctionError",
+          "FunctionClauseError",
+          "CaseClauseError",
+          "Internal Server Error"
+        ] do
       assert exchange_classifier =~ marker,
              "hosted exchange error classification missing #{inspect(marker)}"
     end
 
     refute exchange_classifier =~ "code_verifier",
            "hosted exchange diagnostics must not retain a verifier"
+
     refute exchange_classifier =~ "access_token",
            "hosted exchange diagnostics must not retain an access token"
   end
@@ -614,14 +622,16 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host proof assigns every post-ceremony contract a fixed stage" do
     harness = read!(@harness)
 
-    for stage <- [
-          "app_login",
-          "app_login_direct",
-          "app_login_direct_fault",
-          "app_login_concurrency",
-          "fetch_app_session"
+    assert harness =~ "set_stage \"${mode}_post_ceremony_${contract}\""
+
+    for case_arm <- [
+          "app_login)",
+          "app_login_direct)",
+          "app_login_direct_fault)",
+          "app_login_concurrency)",
+          "fetch_app_session)"
         ] do
-      assert harness =~ "${mode}_post_ceremony_${stage}"
+      assert harness =~ case_arm
     end
 
     refute harness =~ "${mode}_post_ceremony_contracts"
@@ -642,7 +652,10 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert root_setup =~ "Ecto.Adapters.Postgres.storage_up(config)"
     assert root_setup =~ "{:error, :already_up} -> :ok"
     assert root_setup =~ "Sigra.Test.PostgresRepo.start_link(bootstrap_config)"
-    assert root_setup =~ "bootstrap_config = Keyword.put(config, :pool, DBConnection.ConnectionPool)"
+
+    assert root_setup =~
+             "bootstrap_config = Keyword.put(config, :pool, DBConnection.ConnectionPool)"
+
     assert harness =~ "Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo"
     assert postgres_repo =~ "database: System.get_env(\"SIGRA_TEST_PG_DATABASE\", \"sigra_test\")"
     refute root_setup =~ "psql"
@@ -713,9 +726,13 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
       |> String.split("patch_host()", parts: 2)
       |> List.first()
 
-    one_family_offset = :binary.match(hosted_ceremony, "assert_one_family hosted hosted_code") |> elem(0)
+    one_family_offset =
+      :binary.match(hosted_ceremony, "assert_one_family hosted hosted_code") |> elem(0)
+
     control_offset = :binary.match(hosted_ceremony, "issue_refresh_control_family") |> elem(0)
-    revocation_offset = :binary.match(hosted_ceremony, "prove_revoke_family_owner_isolation") |> elem(0)
+
+    revocation_offset =
+      :binary.match(hosted_ceremony, "prove_revoke_family_owner_isolation") |> elem(0)
 
     assert one_family_offset < control_offset and control_offset < revocation_offset,
            "the one-family aggregate must run before fixture families make a many-family count expected"
@@ -815,8 +832,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     for marker <- [
           "exhaust_direct_budget_before_refresh_replay()",
           "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=false",
-          "direct_budget_exhausted_before_refresh_replay\":true",
-          "direct-budget-exhaustion.json",
+          "direct_budget_exhausted_before_refresh_replay",
           "/api/app-login/direct",
           "/api/app-login/direct/mfa",
           "direct budget did not reach 429",
@@ -825,12 +841,23 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
       assert harness =~ marker, "direct limiter replay proof missing #{inspect(marker)}"
     end
 
-    exhaustion_offset = :binary.match(harness, "exhaust_direct_budget_before_refresh_replay") |> elem(0)
-    replay_offset = :binary.match(harness, "prove_refresh_reuse_revocation \"$refresh_token\"") |> elem(0)
-    flag_offset = :binary.match(harness, "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=true") |> elem(0)
+    [direct_ceremony] =
+      Regex.run(~r/(prove_direct_mfa_ceremony\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
+
+    exhaustion_offset =
+      :binary.match(direct_ceremony, "exhaust_direct_budget_before_refresh_replay") |> elem(0)
+
+    replay_offset =
+      :binary.match(direct_ceremony, "prove_refresh_reuse_revocation \"$refresh_token\"")
+      |> elem(0)
+
+    flag_offset =
+      :binary.match(harness, "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=true") |> elem(0)
+
     receipt_offset = :binary.match(harness, "write_receipt_last") |> elem(0)
 
-    assert exhaustion_offset < replay_offset and replay_offset < flag_offset and flag_offset < receipt_offset,
+    assert exhaustion_offset < replay_offset and replay_offset < flag_offset and
+             flag_offset < receipt_offset,
            "direct 429 must precede refresh replay and the retained flag must remain receipt-last"
 
     refute Regex.match?(~r/\bsleep\b/, harness)

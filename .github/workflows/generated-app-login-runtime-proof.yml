@@ -50,7 +50,7 @@ jobs:
           receipt_path = Path("artifacts/generated-app-login-runtime-proof/runtime-proof.json")
           receipt = json.loads(receipt_path.read_text())
           required = {
-              "schema": "sigra.generated-app-login-runtime-proof/v4",
+              "schema": "sigra.generated-app-login-runtime-proof/v5",
               "status": "passed",
               "controller_mfa_session_upgraded": True,
               "liveview_mfa_session_upgraded": True,
@@ -63,6 +63,7 @@ jobs:
               "refresh_rotated": True,
               "refresh_reuse_family_revoked": True,
               "refresh_reuse_denied_next_access": True,
+              "direct_budget_exhausted_before_refresh_replay": True,
               "revoke_family_owner_isolated": True,
               "revoke_family_denied_next_access": True,
               "revoke_all_current_user_only": True,
