@@ -33,6 +33,15 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 246.2 Generated Refresh and Revocation Surface Repair complete
+(2026-08-18).** Fresh app-session hosts now expose independently rate-limited
+direct-login and refresh routes plus owner-derived one/all browser revocation.
+Exact-head PostgreSQL run `32173051169` proves rotation, consumed-refresh
+family revocation, owner isolation, and next-auth denial in a receipt-last v5
+artifact with fail-closed provenance identity validation. Phase 247 remains the
+next milestone phase; nine unrelated historical Phase 234–236 evidence-contract
+failures remain recorded as predecessor regression debt.
+
 **Phase 246.1 Generated PAT Pipeline Repair complete (2026-08-16).** Fresh
 `--api` hosts now initialize `FetchAPIToken` with request-time host config and
 the normal Scope module, return fail-closed JSON 401 responses, and authenticate
@@ -698,13 +707,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 ## Requirements
 
 ### Active — v1.49 FIRST-PARTY-CLIENT-READINESS
-- [ ] Add opt-in opaque app sessions with hosted PKCE login, rotating refresh credentials, revocation, and optional direct password/MFA login.
 - [ ] Prove PWA, physical-iPhone, Android-emulator, Crosswake, and Electron-contract behavior through a bounded language-learning digital twin.
 
-### Validated — Phases 243–246.1
+### Validated — Phases 243–246.2
 - ✓ **BOUND-01, API-01** — Sigra/Lockspire/Crosswake/host ownership and explicit credential-kind pipelines validated in Phase 243; API-01's generated PAT-consumer contract was re-verified through a routed fresh-host proof in Phase 246.1.
 - ✓ **PAT-01, PAT-02, JWT-01, JWT-02** — independent generated PAT/JWT hosts, owner-bound browser PAT management, strict server-policy JWT verification, and locked transactional opaque refresh rotation validated in Phase 244; PAT-01's generated pipeline was repaired and re-verified in Phase 246.1.
-- ✓ **APP-04, APP-05** — digest-only opaque app-session credentials, locked rotation/reuse revocation, explicit one/all revocation, and password-reset/sign-out-all/account-deletion invalidation validated in Phase 245.
+- ✓ **APP-01, APP-02, APP-03, APP-04, APP-05** — digest-only opaque app-session credentials, hosted PKCE and opt-in direct password/MFA ceremonies, independently rate-limited generated refresh delivery, locked rotation/reuse-family revocation, owner-derived one/all revocation, and exact-head receipt-last PostgreSQL evidence validated across Phases 245, 246, and 246.2.
 
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.
@@ -1254,3 +1262,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-12 — Phase 243 (Credential Boundary and Pipeline Foundation) complete. BOUND-01 and API-01 validated with explicit cookie/PAT/JWT/app-session pipelines, bounded trusted credential facts, a deprecated compatibility dispatcher, and a machine-checked Sigra/Lockspire/Crosswake/host ownership contract. Phase 244 is next.*
 
 *Last updated: 2026-08-16 — Phase 246.1 (Generated PAT Pipeline Repair) complete. PAT-01 and API-01's PAT-consumer contract were re-verified through a real routed fresh-host PostgreSQL proof; Phase 247 is next.*
+
+*Last updated: 2026-08-18 — Phase 246.2 (Generated Refresh and Revocation Surface Repair) complete. APP-04 and APP-05 passed 8/8 goal verification with exact-head v5 run `32173051169`; Phase 247 is next. Historical Phase 234–236 regression debt remains explicitly tracked and unwaived.*
