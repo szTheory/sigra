@@ -1,12 +1,12 @@
 defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   use ExUnit.Case, async: true
 
-  @coverage ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/COVERAGE.md"
+  @coverage ".planning/milestones/v1.48-phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/COVERAGE.md"
   @recipe "guides/recipes/b2c-alpha.md"
   @runner "scripts/ci/hosted-session-interop-proof.sh"
   @worktree_helper "scripts/ci/lib/exact-sha-worktree.sh"
-  @evidence ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-HOSTED-RUNTIME-EVIDENCE.json"
-  @release ".planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
+  @evidence ".planning/milestones/v1.48-phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-HOSTED-RUNTIME-EVIDENCE.json"
+  @release ".planning/milestones/v1.48-phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
   @root_mix "mix.exs"
   @example_mix "test/example/mix.exs"
   @migration "test/example/priv/repo/migrations/20260811170000_create_crosswake_continuations.exs"
@@ -23,7 +23,7 @@ defmodule Sigra.Planning.Phase2403HostedCrosswakeRuntimeTest do
   @prohibition_guard "scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
   @prohibition_bad_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json"
   @prohibition_clean_fixture "test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json"
-  @plan ".planning/phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-09-PLAN.md"
+  @plan ".planning/milestones/v1.48-phases/240.3-close-gap-xw-01-xw-02-wire-hosted-crosswake-runtime-flow/240.3-09-PLAN.md"
   @prohibition_command "node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && ! GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-bad.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs && GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p14-crosswake-authority-secrets-clean.json node --test scripts/ci/prohibitions/p14-crosswake-authority-secrets.test.mjs"
 
   @ordered_commands [

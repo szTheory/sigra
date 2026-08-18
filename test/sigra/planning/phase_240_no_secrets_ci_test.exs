@@ -5,7 +5,7 @@ defmodule Sigra.Planning.Phase240NoSecretsCiTest do
   @runtime_workflow ".github/workflows/generated-auth-runtime-proof.yml"
   @generator_harness "scripts/ci/passkeys-opt-out-smoke.sh"
   @runtime_harness "scripts/ci/generated-auth-runtime-proof.sh"
-  @coverage ".planning/phases/240-alpha-operations-rehearsal/COVERAGE.md"
+  @coverage ".planning/milestones/v1.48-phases/240-alpha-operations-rehearsal/COVERAGE.md"
 
   defp read!(path), do: File.read!(path)
 

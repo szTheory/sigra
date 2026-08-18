@@ -83,6 +83,7 @@ validates options once and carries the application seam as a struct.
 defstruct [
   :repo,
   :user_schema,
+  :identity_schema,
   :otp_app,
   :secret_key_base,
   :scope_module,

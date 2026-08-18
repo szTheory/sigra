@@ -81,9 +81,10 @@ defmodule Sigra.Install.GeneratorWiringTest do
       assert content =~ "Sigra.Auth.confirm_user(Repo, signed_token,"
     end
 
-    test "contains Sigra.Auth.request_password_reset call" do
+    test "contains the namespaced Sigra.Auth.request_password_reset call with token schema forwarding" do
       content = render_template("auth.ex")
-      assert content =~ "Sigra.Auth.request_password_reset(Repo, email,"
+      assert content =~ "Sigra.Auth.request_password_reset(Repo, normalized_email,"
+      assert content =~ "user_token_schema: UserToken"
     end
 
     test "register_user triggers confirmation email" do
@@ -162,20 +163,20 @@ defmodule Sigra.Install.GeneratorWiringTest do
                           "core.ex"
                         ])
 
-    test "controller routes include confirmation paths" do
+    test "controller route definitions retain confirmation mutation wiring for no-live installs" do
       source = File.read!(@features_core_path)
       assert source =~ ~s(get "/confirm", ConfirmationController, :new)
-      assert source =~ ~s(post "/confirm", ConfirmationController, :create)
       assert source =~ ~s(get "/confirm/:token", ConfirmationController, :confirm)
-      assert source =~ ~s(post "/confirm/resend", ConfirmationController, :resend)
+      assert source =~ ~S("post \"/confirm\", ConfirmationController, :create")
+      assert source =~ ~S("post \"/confirm/resend\", ConfirmationController, :resend")
     end
 
-    test "controller routes include reset password paths" do
+    test "controller route definitions retain reset-password mutation wiring for no-live installs" do
       source = File.read!(@features_core_path)
       assert source =~ ~s(get "/reset-password", ResetPasswordController, :new)
-      assert source =~ ~s(post "/reset-password", ResetPasswordController, :create)
       assert source =~ ~s(get "/reset-password/:token", ResetPasswordController, :edit)
-      assert source =~ ~s(put "/reset-password/:token", ResetPasswordController, :update)
+      assert source =~ ~S("post \"/reset-password\", ResetPasswordController, :create")
+      assert source =~ ~S("put \"/reset-password/:token\", ResetPasswordController, :update")
     end
 
     test "LiveView routes include confirmation paths" do

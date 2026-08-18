@@ -1,9 +1,9 @@
 defmodule Sigra.Planning.Phase239HostedSessionInteropTest do
   use ExUnit.Case, async: true
 
-  @proof ".planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE-PROOF.json"
-  @release ".planning/phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
-  @coverage ".planning/phases/239-hosted-session-interop/COVERAGE.md"
+  @proof ".planning/milestones/v1.48-phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE-PROOF.json"
+  @release ".planning/milestones/v1.48-phases/239-hosted-session-interop/239-CROSSWAKE-RELEASE.json"
+  @coverage ".planning/milestones/v1.48-phases/239-hosted-session-interop/COVERAGE.md"
   @recipe "guides/recipes/b2c-alpha.md"
   @root_mix "mix.exs"
   @example_mix "test/example/mix.exs"

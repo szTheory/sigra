@@ -2,7 +2,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   use ExUnit.Case, async: true
 
   @root Path.expand("../../..", __DIR__)
-  @phase ".planning/phases/235-terminal-ratification-measured-not-read"
+  @phase ".planning/milestones/v1.47-phases/235-terminal-ratification-measured-not-read"
 
   test "uses immutable remediation-cutoff blobs while retaining later two-PR receipt validation" do
     remediation =
@@ -144,11 +144,11 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   end
 
   test "reconciles FAST only and locks the independent GATE-05 protected evidence" do
-    requirements = File.read!(Path.join(@root, ".planning/REQUIREMENTS.md"))
+    requirements = File.read!(Path.join(@root, ".planning/milestones/v1.47-REQUIREMENTS.md"))
 
     residual =
       File.read!(
-        Path.join(@root, ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md")
+        Path.join(@root, ".planning/todos/deferred/2026-08-02-fast-01-terminal-p50-miss.md")
       )
 
     terminal =

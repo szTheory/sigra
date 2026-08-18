@@ -12,6 +12,10 @@ defmodule Sigra.Audit.Forwarders.ThreadlineTest do
   use Sigra.Test.PostgresCase, async: false
   @moduletag :requires_threadline
 
+  unless Code.ensure_loaded?(Sigra.Audit.Forwarders.Threadline) do
+    @moduletag skip: "requires the optional :threadline dependency"
+  end
+
   alias Sigra.Audit.Forwarders.Threadline
   alias Sigra.Test.AuditEvent, as: TestAuditEvent
 

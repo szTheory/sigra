@@ -243,7 +243,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
          ~r/SigraAuth\.request_magic_link\(Repo, email,[\s\S]*?user_token_schema:/,
          ~r/SigraAuth\.request_magic_link\(Repo, email,[\s\S]*?user_token_schema:/},
         {"request_password_reset passes user_token_schema",
-         ~r/Sigra\.Auth\.request_password_reset\(Repo, email,[\s\S]*?user_token_schema:/,
+         ~r/Sigra\.Auth\.request_password_reset\(Repo, normalized_email,[\s\S]*?user_token_schema:/,
          ~r/Sigra\.Auth\.request_password_reset\([\s\S]*?user_token_schema:/}
       ]
     },
