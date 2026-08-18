@@ -196,7 +196,7 @@ Plans:
   3. A recently authenticated browser user can revoke one owned family or all applicable owned families through CSRF-protected JSON mutations whose owner is derived only from current Scope; foreign families remain unchanged.
   4. A twice-installed disposable PostgreSQL host proves routed rotation, replay, one/all revocation, owner isolation, and next-auth denial before atomically publishing a credential-free, exact-source-bound receipt.
 
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans executed
 
 Plans:
 
@@ -226,7 +226,7 @@ Plans:
 
 **Wave 7** *(depends on Plan 246.2-06)*
 
-- [ ] 246.2-07-PLAN.md — Publish fresh exact-head v5 runtime evidence.
+- [x] 246.2-07-PLAN.md — Publish fresh exact-head v5 runtime evidence.
 
 ### Phase 247: Language-Learning Digital Twin
 

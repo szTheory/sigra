@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
 current_phase_name: close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
 status: executing
-stopped_at: Completed 246.2-06-PLAN.md
-last_updated: "2026-08-18T18:46:38.207Z"
+stopped_at: Completed 246.2-07-PLAN.md
+last_updated: "2026-08-18T18:57:24.330Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 246.2 execution started
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 47
-  completed_plans: 46
+  completed_plans: 47
 current_plan: 3
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 ## Current Position
 
 Phase: 246.2 (close-gaps-app-04-and-app-05-generated-refresh-and-revocatio) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 246.2 execution started
 
-Progress: [██████████] 98%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -104,6 +104,7 @@ Progress: [██████████] 98%
 | Phase 246.2 P04 | about 4 minutes | 1 tasks | 2 files |
 | Phase 246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio P05 | 8min | 1 tasks | 3 files |
 | Phase 246.2 P06 | 4min | 1 tasks | 1 files |
+| Phase 246.2 P07 | 9min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -192,6 +193,7 @@ Progress: [██████████] 98%
 - [Phase ?]: Direct limiter proof uses bounded malformed bodies that are never retained.
 - [Phase ?]: Runtime provenance derives the run URL, requires the exact artifact, and binds implementation_ref to immutable head_sha.
 - [Phase ?]: Canonical v4 runtime evidence remains red until Plan 07 publishes fresh v5 exact-head evidence.
+- [Phase ?]: Canonical APP-04/APP-05 evidence retains byte-identical v5 artifact bytes with implementation_ref and head_sha bound to exact run head ce96d537.
 
 ### Pending Todos
 
@@ -214,6 +216,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-18T18:46:38.195Z
-Stopped at: Completed 246.2-06-PLAN.md
+Last session: 2026-08-18T18:57:24.318Z
+Stopped at: Completed 246.2-07-PLAN.md
 Resume file: None
