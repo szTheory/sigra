@@ -5,16 +5,16 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 246.2
 current_phase_name: close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
 status: executing
-stopped_at: Completed 246.2-02-PLAN.md
-last_updated: "2026-08-17T20:36:09.643Z"
-last_activity: 2026-08-16
+stopped_at: Completed 246.2-03-PLAN.md
+last_updated: "2026-08-18T15:35:54.499Z"
+last_activity: 2026-08-17
 last_activity_desc: Phase 246.2 execution started
 progress:
   total_phases: 6
   completed_phases: 6
   total_plans: 43
-  completed_plans: 42
-current_plan: 0
+  completed_plans: 43
+current_plan: 3
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: `.planning/PROJECT.md` (updated 2026-08-16)
 ## Current Position
 
 Phase: 246.2 (close-gaps-app-04-and-app-05-generated-refresh-and-revocatio) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-08-16 — Phase 246.2 execution started
+Plan: 3 of 3
+Status: Phase plans complete; verification pending
+Last activity: 2026-08-18 — Final v4 runtime evidence retained
 
 Progress: [██████████] 100%
 
@@ -100,6 +100,7 @@ Progress: [██████████] 100%
 | Phase 246.1-close-gap-pat-01-repair-generated-pat-authentication-pipelin P01 | 16min | 2 tasks | 6 files |
 | Phase 246.2 P01 | 4min | 2 tasks | 5 files |
 | Phase 246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio P02 | 7min | 3 tasks | 4 files |
+| Phase 246.2 P03 | 15m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -181,6 +182,8 @@ Progress: [██████████] 100%
 - [Phase ?]: Generated revocation mutations derive owner only from current Scope under browser/sudo/CSRF.
 - [Phase ?]: The final APP-04/APP-05 proof uses scripts/db/up.sh plus tmp/db.env for its isolated dynamic PostgreSQL endpoint.
 - [Phase ?]: The v4 receipt is atomically published only after all generated lifecycle flags pass and source hashes validate.
+- [Phase ?]: Canonical runtime evidence accepts only exact v4 receipt/provenance pairs through the same fail-closed validator as fixtures.
+- [Phase ?]: Run 32154454396 is the sole authorized final workflow_dispatch, bound to immutable implementation head 139959b66af452e71d56e5fe1b32285f92909ec6.
 
 ### Pending Todos
 
@@ -203,6 +206,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-17T03:45:22.154Z
-Stopped at: Completed 246.2-02-PLAN.md
+Last session: 2026-08-18T15:35:54.487Z
+Stopped at: Completed 246.2-03-PLAN.md
 Resume file: None
