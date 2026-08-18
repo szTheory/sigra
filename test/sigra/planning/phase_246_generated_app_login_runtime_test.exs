@@ -59,6 +59,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     assert patch_host =~ "config/dev.exs"
     assert patch_host =~ "config/test.exs"
+    assert patch_host =~ ~s(s/\\{:\\s*swoosh,\\s*"~> 1\\.5"\\}/\{:swoosh, "1.27.0"\}/)
     assert patch_host =~ "database: \"'\"${database}\"'\""
     assert patch_host =~ "hostname: System.fetch_env!(\"PGHOST\"),/"
     assert patch_host =~ "port: String.to_integer(System.fetch_env!(\"PGPORT\")),\\n  database:"
