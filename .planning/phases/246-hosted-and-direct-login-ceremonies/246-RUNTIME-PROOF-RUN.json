@@ -1,1 +1,15 @@
-{"repository":"szTheory/sigra","workflow_path":".github/workflows/generated-app-login-runtime-proof.yml","event":"workflow_dispatch","dispatch_attempts":1,"watch_interval_seconds":60,"run_id":32154454396,"run_url":"https://github.com/szTheory/sigra/actions/runs/32154454396","conclusion":"success","head_sha":"139959b66af452e71d56e5fe1b32285f92909ec6","implementation_ref":"gsd/238-generated-auth-runtime-proof-evidence","artifact_name":"generated-app-login-runtime-proof","receipt_sha256":"797172b22f0ab72363375d95120e7b16c326d5ea03c9a4be80b2c68c6a12ced9","coverage_statement":"This artifact proves the prior immutable implementation head, not the subsequent evidence-only commit."}
+{
+  "repository": "szTheory/sigra",
+  "workflow_path": ".github/workflows/generated-app-login-runtime-proof.yml",
+  "event": "workflow_dispatch",
+  "dispatch_attempts": 1,
+  "watch_interval_seconds": 60,
+  "run_id": 32173051169,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/32173051169",
+  "conclusion": "success",
+  "head_sha": "ce96d537b3b1427d9c12ac0899ec9538e53afca6",
+  "implementation_ref": "ce96d537b3b1427d9c12ac0899ec9538e53afca6",
+  "artifact_name": "generated-app-login-runtime-proof",
+  "receipt_sha256": "2124509c175d8d6be8580cd2b25a2beca7d80aa1b1d1475071b43e520bfd20e9",
+  "coverage_statement": "This artifact proves the prior immutable implementation head, not the subsequent evidence-only commit."
+}
