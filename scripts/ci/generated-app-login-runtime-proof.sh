@@ -822,11 +822,12 @@ patch_host() {
   (
     cd "$APP_DIR"
     perl -0pi -e 's/(\{:\s*phoenix,)/{:sigra, path: "'"${SIGRA_REPO//\//\\/}"'"},\n      $1/' mix.exs
-    # Pin the generated host's mailer to a known lock-compatible release. A newly
-    # published Swoosh release can otherwise be selected by the first deps.get
-    # and rejected as an unknown lockfile package during the installer's required
-    # second dependency refresh.
-    perl -0pi -e 's/\{:\s*swoosh,\s*"~> 1\.5"\}/{:swoosh, "1.27.0"}/' mix.exs
+    # Phoenix 1.8.9 generates `{:swoosh, "~> 1.16"}`. Pin it before either
+    # dependency fetch: a fresh range resolution can select Swoosh 1.27.1,
+    # which this runner's Hex lockfile cannot subsequently resolve. The exact
+    # one-match guard makes generator drift a visible proof failure instead of
+    # silently leaving an unsafe declaration in the generated host.
+    perl -0pi -e 'my $matches = s/\{:swoosh, "~> 1\.16"\}/\{:swoosh, "1.27.0"\}/g; die "expected exactly one Phoenix 1.8 Swoosh declaration, found $matches\\n" unless $matches == 1;' mix.exs
     perl -0pi -e 's/database: "sigra_app_login_proof_dev",/database: "'"${database}"'",/' config/dev.exs
     perl -0pi -e 's/hostname: "localhost",/hostname: System.fetch_env!("PGHOST"),/' config/dev.exs
     perl -0pi -e 's/database: "'"${database}"'",/port: String.to_integer(System.fetch_env!("PGPORT")),\n  database: "'"${database}"'",/' config/dev.exs

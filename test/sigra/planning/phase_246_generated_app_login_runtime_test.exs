@@ -51,7 +51,7 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     assert harness =~ "export PGDATABASE=\"${PGDATABASE:-sigra_test}\""
   end
 
-  test "generated-host proof directs dev migrations and test config to the disposable PostgreSQL server" do
+  test "generated-host proof normalizes the current Phoenix mailer declaration and directs its databases to disposable PostgreSQL" do
     harness = read!(@harness)
 
     [patch_host] =
@@ -59,7 +59,10 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
 
     assert patch_host =~ "config/dev.exs"
     assert patch_host =~ "config/test.exs"
-    assert patch_host =~ ~s(s/\\{:\\s*swoosh,\\s*"~> 1\\.5"\\}/\{:swoosh, "1.27.0"\}/)
+    assert patch_host =~ ~S(s/\{:swoosh, "~> 1\.16"\}/)
+    assert patch_host =~ ~S(\{:swoosh, "1.27.0"\})
+    assert patch_host =~ "expected exactly one Phoenix 1.8 Swoosh declaration"
+    assert patch_host =~ "unless $matches == 1"
     assert patch_host =~ "database: \"'\"${database}\"'\""
     assert patch_host =~ "hostname: System.fetch_env!(\"PGHOST\"),/"
     assert patch_host =~ "port: String.to_integer(System.fetch_env!(\"PGPORT\")),\\n  database:"
@@ -70,6 +73,22 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     patch_offset = :binary.match(harness, "patch_host \"$database\"") |> elem(0)
     create_offset = :binary.match(harness, "run \"$APP_DIR\" mix ecto.create") |> elem(0)
     assert patch_offset < create_offset
+  end
+
+  test "generated-host Swoosh normalization is complete before either dependency fetch" do
+    harness = read!(@harness)
+
+    [patch_host] =
+      Regex.run(~r/(patch_host\(\) \{.*?\n\})/s, harness, capture: :all_but_first)
+
+    [first_fetch | _] = :binary.matches(harness, ~s(run "$APP_DIR" mix deps.get))
+    patch_offset = :binary.match(harness, patch_host) |> elem(0)
+
+    assert patch_offset < elem(first_fetch, 0),
+           "the exact Phoenix 1.8 Swoosh declaration must be normalized before Mix writes a lockfile"
+
+    refute patch_host =~ "~> 1.5",
+           "the retired Phoenix 1.7 declaration must not bypass the normalization guard"
   end
 
   test "generated-host proof disables only disposable development asset watchers" do
