@@ -82,6 +82,36 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     assert {:error, _} = validate(receipt, Map.put(provenance, "conclusion", "failure"))
   end
 
+  test "rejects forged provenance run URL" do
+    receipt = valid_receipt()
+    provenance = valid_provenance(receipt)
+
+    assert {:error, :invalid_runtime_evidence} =
+             validate(receipt, Map.put(provenance, "run_url", "https://example.test/run/24617"))
+  end
+
+  test "rejects forged provenance implementation reference" do
+    receipt = valid_receipt()
+    provenance = valid_provenance(receipt)
+
+    assert {:error, :invalid_runtime_evidence} =
+             validate(
+               receipt,
+               Map.put(provenance, "implementation_ref", "forged-branch")
+             )
+  end
+
+  test "rejects forged provenance artifact name" do
+    receipt = valid_receipt()
+    provenance = valid_provenance(receipt)
+
+    assert {:error, :invalid_runtime_evidence} =
+             validate(
+               receipt,
+               Map.put(provenance, "artifact_name", "forged-app-login-runtime-proof")
+             )
+  end
+
   @tag :stale_schema_regression
   test "stale schema canonical-shaped receipt is rejected by the v4 contract" do
     receipt = Map.put(valid_receipt(), "schema", "sigra.generated-app-login-runtime-proof/v3")
