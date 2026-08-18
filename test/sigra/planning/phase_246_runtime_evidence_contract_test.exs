@@ -17,6 +17,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     refresh_rotated
     refresh_reuse_family_revoked
     refresh_reuse_denied_next_access
+    direct_budget_exhausted_before_refresh_replay
     revoke_family_owner_isolated
     revoke_family_denied_next_access
     revoke_all_current_user_only
@@ -27,7 +28,8 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     "app_login" => "lib/sigra/app_login.ex",
     "fetch_app_session" => "lib/sigra/plug/fetch_app_session.ex",
     "app_login_controller" => "priv/templates/sigra.install/app_sessions/app_login_controller.ex",
-    "app_login_continuation" => "priv/templates/sigra.install/app_sessions/app_login_continuation.ex",
+    "app_login_continuation" =>
+      "priv/templates/sigra.install/app_sessions/app_login_continuation.ex",
     "app_login_attempt_schema" =>
       "priv/templates/sigra.install/app_sessions/user_app_login_attempt.ex",
     "app_sessions_migration" =>
@@ -46,21 +48,26 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
     "approval_concurrency_test" => "test/sigra/app_login/concurrency_test.exs"
   }
 
-  test "v4 fixture validates exact source bindings and immutable prior-run provenance" do
+  test "v5 fixture validates exact source bindings and immutable prior-run provenance" do
     receipt = valid_receipt()
     provenance = valid_provenance(receipt)
 
     assert :ok = validate(receipt, provenance)
   end
 
-  test "v4 receipt and provenance fail closed for every evidence mutation" do
+  test "v5 receipt and provenance fail closed for every evidence mutation" do
     receipt = valid_receipt()
     provenance = valid_provenance(receipt)
 
     assert {:error, _} = validate(Map.put(receipt, "schema", "stale"), provenance)
     assert {:error, _} = validate(Map.put(receipt, "hosted_replay_rejected", false), provenance)
-    assert {:error, _} = validate(Map.put(receipt, "refresh_reuse_family_revoked", false), provenance)
-    assert {:error, _} = validate(Map.delete(receipt, "revoke_all_denied_next_access"), provenance)
+
+    assert {:error, _} =
+             validate(Map.put(receipt, "refresh_reuse_family_revoked", false), provenance)
+
+    assert {:error, _} =
+             validate(Map.delete(receipt, "revoke_all_denied_next_access"), provenance)
+
     assert {:error, _} = validate(Map.put(receipt, "family_id", "secret"), provenance)
     assert {:error, _} = validate(Map.put(receipt, "csrf_token", "secret"), provenance)
     assert {:error, _} = validate(Map.put(receipt, "access_token", "secret"), provenance)
@@ -113,8 +120,8 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
   end
 
   @tag :stale_schema_regression
-  test "stale schema canonical-shaped receipt is rejected by the v4 contract" do
-    receipt = Map.put(valid_receipt(), "schema", "sigra.generated-app-login-runtime-proof/v3")
+  test "stale schema canonical-shaped receipt is rejected by the v5 contract" do
+    receipt = Map.put(valid_receipt(), "schema", "sigra.generated-app-login-runtime-proof/v4")
 
     assert {:error, :invalid_runtime_evidence} = validate(receipt, valid_provenance(receipt))
   end
@@ -135,7 +142,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
 
   defp valid_receipt do
     %{
-      "schema" => "sigra.generated-app-login-runtime-proof/v4",
+      "schema" => "sigra.generated-app-login-runtime-proof/v5",
       "status" => "passed",
       "controller_mfa_session_upgraded" => true,
       "liveview_mfa_session_upgraded" => true,
@@ -148,6 +155,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
       "refresh_rotated" => true,
       "refresh_reuse_family_revoked" => true,
       "refresh_reuse_denied_next_access" => true,
+      "direct_budget_exhausted_before_refresh_replay" => true,
       "revoke_family_owner_isolated" => true,
       "revoke_family_denied_next_access" => true,
       "revoke_all_current_user_only" => true,
@@ -167,7 +175,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
       "run_url" => "https://github.com/szTheory/sigra/actions/runs/24617",
       "conclusion" => "success",
       "head_sha" => git_head!(),
-      "implementation_ref" => "gsd/238-generated-auth-runtime-proof-evidence",
+      "implementation_ref" => git_head!(),
       "artifact_name" => "generated-app-login-runtime-proof",
       "receipt_sha256" => sha256_json!(receipt),
       "coverage_statement" =>
@@ -178,7 +186,7 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
   defp validate(receipt, provenance) do
     with :ok <-
            exact_keys(receipt, MapSet.new(["schema", "status", "sources" | @required_behaviors])),
-         "sigra.generated-app-login-runtime-proof/v4" <- receipt["schema"],
+         "sigra.generated-app-login-runtime-proof/v5" <- receipt["schema"],
          "passed" <- receipt["status"],
          true <- Enum.all?(@required_behaviors, &(receipt[&1] == true)),
          :ok <- exact_keys(receipt["sources"], MapSet.new(Map.keys(@sources))),
@@ -204,8 +212,14 @@ defmodule Sigra.Planning.Phase246RuntimeEvidenceContractTest do
          1 <- provenance["dispatch_attempts"],
          60 <- provenance["watch_interval_seconds"],
          run_id when is_integer(run_id) and run_id > 0 <- provenance["run_id"],
+         expected_run_url =
+           "https://github.com/szTheory/sigra/actions/runs/" <> Integer.to_string(run_id),
+         ^expected_run_url <- provenance["run_url"],
          "success" <- provenance["conclusion"],
-         true <- Regex.match?(~r/\A[0-9a-f]{40}\z/, provenance["head_sha"]),
+         head_sha when is_binary(head_sha) <- provenance["head_sha"],
+         true <- Regex.match?(~r/\A[0-9a-f]{40}\z/, head_sha),
+         ^head_sha <- provenance["implementation_ref"],
+         "generated-app-login-runtime-proof" <- provenance["artifact_name"],
          true <- provenance["receipt_sha256"] == sha256_json!(receipt),
          true <-
            String.contains?(
