@@ -104,6 +104,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     for marker <- [
           "prove_refresh_rotation",
           "/api/app-login/refresh",
+          "pipeline :app_login_refresh",
+          "key_prefix: \"app_login_refresh\"",
           "replacement access token did not authenticate",
           "refresh credential authenticated as an access credential",
           "refresh response was not the exact credential shape"

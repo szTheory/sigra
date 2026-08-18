@@ -10,6 +10,20 @@ pipeline :app_login_public do
     window_config_key: :app_login_public_rate_limit_window
 end
 
+# Refresh rotation and replay are a single security ceremony. Keep its bounded
+# budget independent from the hosted approval/exchange ceremony so a consumed
+# refresh credential always reaches the controller and can revoke its family.
+pipeline :app_login_refresh do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: <%= web_module %>.AuthErrorHandler,
+    key_prefix: "app_login_refresh",
+    limit: 4,
+    window: 60_000,
+    limit_config_key: :app_login_refresh_rate_limit,
+    window_config_key: :app_login_refresh_rate_limit_window
+end
+
 scope "/users", <%= web_module %> do
   pipe_through [:browser, :app_login_public]
 
@@ -30,6 +44,11 @@ scope "/api/app-login", <%= web_module %> do
   pipe_through [:api, :app_login_public]
 
   post "/exchange", AppLoginController, :exchange
+end
+
+scope "/api/app-login", <%= web_module %> do
+  pipe_through [:api, :app_login_refresh]
+
   post "/refresh", AppLoginController, :refresh
 <%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  post "/direct", AppLoginController, :direct
   post "/direct/mfa", AppLoginController, :complete_direct_mfa

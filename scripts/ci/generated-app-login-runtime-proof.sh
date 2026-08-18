@@ -833,6 +833,11 @@ assert_inventory() {
   grep -Fq 'AppLoginController' "$router"
   # Generated router must retain the app_login_public rate-limited boundary.
   grep -Fq 'app_login_public' "$router"
+  # Refresh replay must retain its own bounded budget so the second consumed
+  # presentation reaches the emitted controller instead of inheriting prior
+  # hosted approval/exchange traffic from the shared public limiter.
+  grep -Fq 'pipeline :app_login_refresh' "$router"
+  grep -Fq 'key_prefix: "app_login_refresh"' "$router"
   grep -Fq 'FetchAppSession' "$router"
   if [[ "$mode" == hosted ]]; then
     ! grep -Fq 'post "/direct"' "$router"

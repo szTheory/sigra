@@ -99,6 +99,11 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     refute controller =~ "refresh_token: token"
     refute controller =~ "FetchAppSession"
 
+    assert router =~ "pipeline :app_login_refresh"
+    assert router =~ "key_prefix: \"app_login_refresh\""
+    assert router =~ "limit_config_key: :app_login_refresh_rate_limit"
+    assert router =~ "window_config_key: :app_login_refresh_rate_limit_window"
+
     refresh_offset =
       :binary.match(router, "post \"/refresh\", AppLoginController, :refresh") |> elem(0)
 
@@ -107,6 +112,16 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
 
     assert public_offset < refresh_offset
     assert users_offset < public_offset
+    [[exchange_scope], [refresh_scope]] =
+      Regex.scan(~r/scope \"\/api\/app-login\", MyAppWeb do\n(.*?)\nend/s, router,
+        capture: :all_but_first
+      )
+
+    assert exchange_scope =~ "pipe_through [:api, :app_login_public]"
+    assert exchange_scope =~ "post \"/exchange\", AppLoginController, :exchange"
+    refute exchange_scope =~ "post \"/refresh\""
+    assert refresh_scope =~ "pipe_through [:api, :app_login_refresh]"
+    assert refresh_scope =~ "post \"/refresh\", AppLoginController, :refresh"
     refute router =~ "pipe_through [:api, :app_login_public, :app_session_proof]"
   end
 
