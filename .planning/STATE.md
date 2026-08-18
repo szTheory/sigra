@@ -14,18 +14,18 @@ progress:
   completed_phases: 6
   total_plans: 47
   completed_plans: 47
-current_plan: 3
+current_plan: null
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-16)
+See: `.planning/PROJECT.md` (updated 2026-08-18)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246.2 — close-gaps-app-04-and-app-05-generated-refresh-and-revocatio
+**Current focus:** Phase 247 — Language-Learning Digital Twin
 
 ## Current Position
 
