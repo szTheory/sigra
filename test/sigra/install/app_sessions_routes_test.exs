@@ -115,6 +115,7 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
 
     assert public_offset < refresh_offset
     assert users_offset < public_offset
+
     [[exchange_scope], [refresh_scope]] =
       Regex.scan(~r/scope \"\/api\/app-login\", MyAppWeb do\n(.*?)\nend/s, router,
         capture: :all_but_first
