@@ -614,8 +614,14 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
   test "generated-host proof assigns every post-ceremony contract a fixed stage" do
     harness = read!(@harness)
 
-    for contract <- ["app_login", "app_login_direct", "app_login_direct_fault", "app_login_concurrency", "fetch_app_session"] do
-      assert harness =~ "${mode}_post_ceremony_${contract}"
+    for stage <- [
+          "app_login",
+          "app_login_direct",
+          "app_login_direct_fault",
+          "app_login_concurrency",
+          "fetch_app_session"
+        ] do
+      assert harness =~ "${mode}_post_ceremony_${stage}"
     end
 
     refute harness =~ "${mode}_post_ceremony_contracts"
@@ -767,8 +773,8 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     workflow = read!(@workflow)
 
     for marker <- [
-          "sigra.generated-app-login-runtime-proof/v4",
-          "sigra.generated-app-login-runtime-proof/v4",
+          "sigra.generated-app-login-runtime-proof/v5",
+          "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY",
           "CONTROLLER_MFA_SESSION_UPGRADED",
           "LIVEVIEW_MFA_SESSION_UPGRADED",
           "APPROVAL_REPLAY_REJECTED",
@@ -798,7 +804,35 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
     end
 
     assert workflow =~ "Validate generated app-login runtime receipt"
-    assert workflow =~ "sigra.generated-app-login-runtime-proof/v4"
+    assert workflow =~ "sigra.generated-app-login-runtime-proof/v5"
+    assert workflow =~ "direct_budget_exhausted_before_refresh_replay"
     assert workflow =~ "runtime-proof.json"
+  end
+
+  test "direct limiter exhaustion immediately precedes routed refresh replay" do
+    harness = read!(@harness)
+
+    for marker <- [
+          "exhaust_direct_budget_before_refresh_replay()",
+          "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=false",
+          "direct_budget_exhausted_before_refresh_replay\":true",
+          "direct-budget-exhaustion.json",
+          "/api/app-login/direct",
+          "/api/app-login/direct/mfa",
+          "direct budget did not reach 429",
+          "prove_refresh_reuse_revocation"
+        ] do
+      assert harness =~ marker, "direct limiter replay proof missing #{inspect(marker)}"
+    end
+
+    exhaustion_offset = :binary.match(harness, "exhaust_direct_budget_before_refresh_replay") |> elem(0)
+    replay_offset = :binary.match(harness, "prove_refresh_reuse_revocation \"$refresh_token\"") |> elem(0)
+    flag_offset = :binary.match(harness, "DIRECT_BUDGET_EXHAUSTED_BEFORE_REFRESH_REPLAY=true") |> elem(0)
+    receipt_offset = :binary.match(harness, "write_receipt_last") |> elem(0)
+
+    assert exhaustion_offset < replay_offset and replay_offset < flag_offset and flag_offset < receipt_offset,
+           "direct 429 must precede refresh replay and the retained flag must remain receipt-last"
+
+    refute Regex.match?(~r/\bsleep\b/, harness)
   end
 end
