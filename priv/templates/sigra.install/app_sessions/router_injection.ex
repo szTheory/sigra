@@ -24,6 +24,21 @@ pipeline :app_login_refresh do
     window_config_key: :app_login_refresh_rate_limit_window
 end
 
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>
+pipeline :app_login_direct do
+  plug Sigra.Plug.RateLimit,
+    limiter: Sigra.RateLimiters.Hammer,
+    error_handler: <%= web_module %>.AuthErrorHandler,
+    key_prefix: "app_login_direct",
+    limit: 4,
+    window: 60_000,
+    limit_config_key: :app_login_direct_rate_limit,
+    window_config_key: :app_login_direct_rate_limit_window
+end
+
+<% end %>
+
+
 scope "/users", <%= web_module %> do
   pipe_through [:browser, :app_login_public]
 
@@ -50,6 +65,13 @@ scope "/api/app-login", <%= web_module %> do
   pipe_through [:api, :app_login_refresh]
 
   post "/refresh", AppLoginController, :refresh
-<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>  post "/direct", AppLoginController, :direct
+end
+
+<%= if Keyword.get(Keyword.get(binding(), :opts, []), :app_password_login, false) do %>
+scope "/api/app-login", <%= web_module %> do
+  pipe_through [:api, :app_login_direct]
+
+  post "/direct", AppLoginController, :direct
   post "/direct/mfa", AppLoginController, :complete_direct_mfa
-<% end %>end
+end
+<% end %>

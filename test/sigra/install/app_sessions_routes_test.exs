@@ -81,6 +81,9 @@ defmodule Sigra.Install.AppSessionsRoutesTest do
     assert router =~ "scope \"/api/app-login\", MyAppWeb do"
     assert router =~ "post \"/exchange\", AppLoginController, :exchange"
     assert router =~ "post \"/refresh\", AppLoginController, :refresh"
+    refute router =~ "pipeline :app_login_direct"
+    refute router =~ "post \"/direct\", AppLoginController, :direct"
+    refute router =~ "post \"/direct/mfa\", AppLoginController, :complete_direct_mfa"
   end
 
   test "renders a strict, bounded public refresh action without ordinary access authentication" do
