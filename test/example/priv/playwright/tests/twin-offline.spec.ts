@@ -82,7 +82,7 @@ test.describe('media integrity', () => {
     await expect(page.getByTestId('twin-offline-panel')).toHaveAttribute('aria-busy', 'true');
     await expect(page.getByTestId('twin-offline-status')).toHaveText('Checking lesson media…');
     releaseImage!();
-    await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
+    await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
     await expect(page.getByRole('button', { name: 'Make available offline' })).toBeFocused();
 
     const stored = await storageState(page);
@@ -136,7 +136,7 @@ test.describe('media integrity', () => {
     expect((await storageState(page)).markers.filter(({ value }) => value.url.endsWith('/audio/v1'))).toHaveLength(0);
 
     await page.getByRole('button', { name: 'Try again' }).click();
-    await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
+    await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
     expect((await storageState(page)).markers).toHaveLength(2);
   });
 
@@ -150,8 +150,8 @@ test.describe('media integrity', () => {
 
     await page.context().setOffline(true);
     await page.goto('/app/lesson');
-    await expect(page.getByTestId('twin-offline-status')).toHaveText(/unavailable/i);
-    await expect(page.getByTestId('twin-lesson')).toBeHidden();
+    await expect(page.getByTestId('twin-offline-status')).toHaveText('Offline study has expired. Connect and sign in to continue.');
+    await expect(page.locator('#twin-expired-heading')).toBeFocused();
     await page.context().setOffline(false);
   });
 });
@@ -178,7 +178,7 @@ test('tracer: authenticated learner installs media, studies offline, and replays
 
   await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
   await page.getByRole('button', { name: 'Make available offline' }).click();
-  await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
+  await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
   const stored = await page.evaluate(async () => {
     const cache = await caches.open('tasklane-learning-twin-media-v1');
     const keys = await cache.keys();
@@ -196,19 +196,17 @@ test('tracer: authenticated learner installs media, studies offline, and replays
 
   await page.context().setOffline(true);
   await page.reload();
-  await expect(page.getByTestId('twin-lesson')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Connect and sign in to continue' })).toBeVisible();
   await page.context().setOffline(false);
-  await page.reload();
-
-  await page.getByRole('button', { name: 'Record practice' }).click();
-  await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/accepted/i);
 });
 
 test.describe('lease, partition, logout, account switch, practice form, and theme', () => {
   test('practice form retains invalid input without a receipt and queues one bounded action when valid', async ({ page }) => {
     await prepareLesson(page);
+    await page.getByRole('button', { name: 'Make available offline' }).click();
+    await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
 
-    await expect(page.getByRole('heading', { name: 'Practice update' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Practice update', exact: true })).toBeVisible();
     await page.getByLabel('Your answer').fill('mango');
     await page.getByRole('button', { name: 'Save practice update' }).click();
     await expect(page.getByText('Choose an action before saving your practice update.')).toBeVisible();

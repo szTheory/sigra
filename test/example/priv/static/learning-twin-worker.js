@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'tasklane-learning-twin-shell-v1';
+const SHELL_CACHE = 'tasklane-learning-twin-shell-v3';
 const SHELL = ['/learning-twin-offline.html', '/assets/js/learning_twin.js', '/assets/css/app.css'];
 
 self.addEventListener('message', (event) => {
@@ -28,5 +28,5 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(fetch(event.request).catch(async () => (await caches.open(SHELL_CACHE)).match('/learning-twin-offline.html')));
     return;
   }
-  if (SHELL.includes(url.pathname)) event.respondWith(caches.open(SHELL_CACHE).then(async (cache) => (await cache.match(url.pathname)) || fetch(event.request)));
+  if (SHELL.includes(decodeURIComponent(url.pathname))) event.respondWith(caches.open(SHELL_CACHE).then(async (cache) => (await cache.match(event.request, { ignoreSearch: true })) || fetch(event.request)));
 });

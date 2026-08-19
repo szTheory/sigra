@@ -1107,6 +1107,77 @@ a.vt-panel {
   margin-bottom: var(--sg-space-5);
 }
 
+/* Learning twin: account-bound offline practice stays within Tasklane tokens. */
+.vt-twin {
+  min-width: 0;
+}
+
+.vt-twin__media-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.vt-twin__media img,
+.vt-twin__media audio {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.vt-twin__media img {
+  height: auto;
+  border-radius: var(--vt-radius-sm);
+  background: var(--vt-color-panel-alt);
+}
+
+.vt-twin__offline,
+.vt-twin__practice,
+.vt-twin__receipts {
+  display: grid;
+  gap: var(--sg-space-3);
+}
+
+.vt-twin__practice form {
+  display: grid;
+  gap: var(--sg-space-2);
+}
+
+.vt-twin__practice select,
+.vt-twin__practice textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--vt-color-line);
+  border-radius: var(--vt-radius-sm);
+  background: var(--vt-color-panel);
+  color: var(--vt-color-ink);
+  font: inherit;
+  padding: var(--sg-space-2);
+}
+
+.vt-twin__practice textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.vt-twin__practice select:focus-visible,
+.vt-twin__practice textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--vt-focus-ring);
+}
+
+.vt-twin__error {
+  color: var(--vt-color-danger);
+  font-size: var(--sg-text-sm);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+  .vt-twin__media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .vt-persona-row {
   display: grid;
   gap: var(--sg-space-3);

@@ -183,7 +183,10 @@ defmodule Example.LearningTwin do
     identifiers = required -- ["answer"]
 
     if Map.keys(params) |> Enum.sort() == Enum.sort(required) and
-         Enum.all?(identifiers, &bounded_scalar?(Map.get(params, &1), @max_replay_identifier_bytes)) and
+         Enum.all?(
+           identifiers,
+           &bounded_scalar?(Map.get(params, &1), @max_replay_identifier_bytes)
+         ) and
          bounded_answer?(params["answer"]) do
       {:ok, Map.take(params, required)}
     else
@@ -232,7 +235,8 @@ defmodule Example.LearningTwin do
   defp bounded_scalar?(value, max_bytes),
     do: is_binary(value) and byte_size(value) > 0 and byte_size(value) <= max_bytes
 
-  defp bounded_answer?(value), do: is_binary(value) and byte_size(value) <= @max_replay_answer_bytes
+  defp bounded_answer?(value),
+    do: is_binary(value) and byte_size(value) <= @max_replay_answer_bytes
 
   defp active_or_new_lease(user_id, now) do
     case Repo.one(
@@ -354,25 +358,47 @@ defmodule ExampleWeb.LearningTwinLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} user_organizations={[]}>
       <%= if @twin_state == :lesson do %>
-        <section class="vt-page-intro" data-testid="twin-lesson" data-twin-ready="true">
+        <section class="vt-page-intro vt-twin" data-testid="twin-lesson" data-twin-ready="true">
           <p class="vt-kicker">Language practice</p>
           <h1>{@twin.lesson.title}</h1>
           <p>{@twin.lesson.prompt}</p>
-          <img src={Enum.at(@twin.media, 0).url} alt="Market morning fruit stall" />
-          <section>
+          <div class="vt-card-grid vt-twin__media-grid">
+          <section class="vt-panel vt-twin__media">
+          <img width="640" height="360" src={Enum.at(@twin.media, 0).url} alt="Market morning fruit stall" />
+          </section>
+          <section class="vt-panel vt-twin__media">
             <h2>Listen</h2>
             <audio controls src={Enum.at(@twin.media, 1).url}></audio>
             <h2>Transcript</h2>
             <p>{@twin.lesson.transcript}</p>
           </section>
-          <section data-testid="twin-offline-panel" aria-busy="false" aria-live="polite">
+          </div>
+          <section class="vt-panel vt-twin__offline" data-testid="twin-offline-panel" aria-busy="false" aria-live="polite">
             <p data-testid="twin-offline-status">Not available offline</p>
-            <button data-testid="twin-offline-action" type="button">Make available offline</button>
+            <button class="vt-btn vt-btn--primary" data-testid="twin-offline-action" type="button">Make available offline</button>
           </section>
-          <button data-testid="twin-record-practice" type="button">Record practice</button>
-          <p data-testid="twin-replay-receipts"></p>
+          <section class="vt-panel vt-twin__practice" aria-labelledby="twin-practice-heading">
+            <h2 id="twin-practice-heading" class="vt-panel__title">Practice update</h2>
+            <p class="vt-copy">Checkpoint: market morning vocabulary</p>
+            <form data-testid="twin-practice-form" novalidate>
+              <label for="twin-practice-action">Action</label>
+              <select id="twin-practice-action" name="action" data-testid="twin-practice-action">
+                <option value="">Choose an action</option>
+                <option value="answered">Answered checkpoint</option>
+              </select>
+              <label for="twin-practice-answer">Your answer</label>
+              <textarea id="twin-practice-answer" name="answer" required></textarea>
+              <p data-testid="twin-practice-error" class="vt-twin__error" hidden></p>
+              <button class="vt-btn vt-btn--primary" type="submit">Save practice update</button>
+            </form>
+          </section>
+          <section class="vt-panel vt-twin__receipts" aria-labelledby="twin-receipts-heading">
+            <h2 id="twin-receipts-heading" class="vt-panel__title">Practice updates</h2>
+            <p data-testid="twin-replay-receipts">No practice updates yet</p>
+          </section>
+          <button data-testid="twin-record-practice" type="button" hidden>Record practice</button>
         </section>
-        <script defer src="/assets/js/learning_twin.js">
+        <script defer src="/assets/js/learning%5Ftwin.js?v=3">
         </script>
       <% else %>
         <section class="vt-page-intro" data-testid="twin-expired" data-twin-ready="true">
