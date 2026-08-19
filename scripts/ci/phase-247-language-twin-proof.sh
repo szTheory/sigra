@@ -13,8 +13,15 @@ sha256() { shasum -a 256 "$1" | awk '{print $1}'; }
 
 cleanup() {
   local status=$?
-  [[ -n "$SERVER_PID" ]] && kill "$SERVER_PID" 2>/dev/null || true
-  [[ -n "$SERVER_PID" ]] && wait "$SERVER_PID" 2>/dev/null || true
+  trap - EXIT INT TERM
+  if [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null; then
+    kill "$SERVER_PID"
+    wait "$SERVER_PID" 2>/dev/null || true
+  fi
+  if [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null; then
+    printf 'phase-247-language-twin-proof: Phoenix cleanup assertion failed\n' >&2
+    status=1
+  fi
   [[ -n "$SERVER_LOG" ]] && rm -f "$SERVER_LOG"
   exit "$status"
 }
@@ -47,8 +54,8 @@ run_chromium() {
   (
     cd "${ROOT_DIR}/test/example"
     MIX_ENV=test SIGRA_BROWSER_PROOF=true PORT="$port" mix run priv/repo/seeds.exs >/dev/null 2>&1
-    PHX_SERVER=true MIX_ENV=test PORT="$port" mix phx.server >"$SERVER_LOG" 2>&1
-  ) &
+    exec env PHX_SERVER=true MIX_ENV=test PORT="$port" mix phx.server
+  ) >"$SERVER_LOG" 2>&1 &
   SERVER_PID=$!
   curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 0 "http://127.0.0.1:${port}/" >/dev/null || {
     grep -E '^\[error\]|^\*\* \(' "$SERVER_LOG" >&2 || true
