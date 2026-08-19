@@ -4,10 +4,19 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
   import Example.AccountsFixtures
 
   alias Crosswake.Companions.Sigra.AuthReturn
+  alias Crosswake.Offline.Journal
+  alias Crosswake.Offline.Replay
   alias Crosswake.Manifest.Types
   alias Example.Accounts.CrosswakeNativeBridge
   alias Example.Accounts.CrosswakeSessionAdapter
+  alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
+
+  setup do
+    {_, nil} = Repo.delete_all(ReplayReceipt)
+    {_, nil} = Repo.delete_all(Lease)
+    :ok
+  end
 
   @tag :crosswake_native_bridge
   test "projects allowlisted iOS and Android evidence only after fresh host authority" do
@@ -104,6 +113,80 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
     refute_receive :crosswake_evaluator_called
   end
 
+  @tag :crosswake_native_replay
+  test "maps journal identity exactly and leaves terminal status to the host" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_replay", DateTime.add(DateTime.utc_now(), 1, :hour))
+
+    for {name, payload, expected_status} <- [
+          {"accepted", replay_payload("accepted"), :accepted},
+          {"rejected", replay_payload("rejected", %{"answer" => ""}), :rejected},
+          {"conflict", replay_payload("conflict", %{"base_checkpoint" => "stale"}), :conflict}
+        ] do
+      entry = journal_entry(name, payload)
+
+      assert %Replay.Request{} = request = CrosswakeNativeBridge.replay_request(entry)
+      assert request.route_id == entry.route_id
+      assert request.sync_seam == entry.sync_seam
+      assert request.journal_entry_id == entry.id
+      assert request.client_mutation_id == entry.client_mutation_id
+      assert request.idempotency_key == entry.idempotency_key
+      assert request.base_checkpoint == entry.base_checkpoint
+      assert request.payload == entry.payload
+
+      assert %Replay.Outcome{status: ^expected_status} =
+               CrosswakeNativeBridge.replay_outcome(scope, request)
+    end
+  end
+
+  @tag :crosswake_native_replay
+  test "duplicate and account-isolated replay receipts remain host-owned" do
+    user = user_fixture()
+    other_user = user_fixture()
+    scope = %{user: user}
+    other_scope = %{user: other_user}
+    lease_fixture(user, "lt_owner", DateTime.add(DateTime.utc_now(), 1, :hour))
+    lease_fixture(other_user, "lt_other", DateTime.add(DateTime.utc_now(), 1, :hour))
+    request = CrosswakeNativeBridge.replay_request(journal_entry("duplicate", replay_payload("duplicate")))
+
+    assert %Replay.Outcome{status: :accepted} = first =
+             CrosswakeNativeBridge.replay_outcome(scope, request)
+
+    assert %Replay.Outcome{status: :accepted} = second =
+             CrosswakeNativeBridge.replay_outcome(scope, request)
+
+    assert first.authoritative_state == second.authoritative_state
+    assert Repo.aggregate(ReplayReceipt, :count) == 1
+
+    assert %Replay.Outcome{status: :accepted} =
+             CrosswakeNativeBridge.replay_outcome(other_scope, request)
+
+    assert Repo.aggregate(ReplayReceipt, :count) == 2
+  end
+
+  @tag :crosswake_native_replay
+  test "rejects replay payload owner and terminal-status smuggling" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_secure", DateTime.add(DateTime.utc_now(), 1, :hour))
+
+    for smuggled <- [
+          %{"account_partition" => "lt_other"},
+          %{"user_id" => "other-user"},
+          %{"outcome" => "accepted"},
+          %{"status" => "accepted"}
+        ] do
+      request =
+        journal_entry("smuggled", Map.merge(replay_payload("smuggled"), smuggled))
+        |> CrosswakeNativeBridge.replay_request()
+
+      assert {:error, :invalid_replay} = CrosswakeNativeBridge.replay_outcome(scope, request)
+    end
+
+    assert Repo.aggregate(ReplayReceipt, :count) == 0
+  end
+
   defp native_posture(platform, transport, link_verification) do
     %{
       platform: platform,
@@ -138,6 +221,41 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
       })
 
     {raw_token, session}
+  end
+
+  defp journal_entry(name, payload) do
+    Journal.new_entry(
+      id: "journal-#{name}",
+      route_id: "learning-twin-replay",
+      sync_seam: "learning-twin",
+      operation: :replay,
+      payload: payload,
+      client_mutation_id: payload["client_mutation_id"],
+      idempotency_key: payload["idempotency_key"],
+      base_checkpoint: payload["base_checkpoint"]
+    )
+  end
+
+  defp replay_payload(id, overrides \\ %{}) do
+    Map.merge(
+      %{
+        "client_mutation_id" => "mutation-#{id}",
+        "idempotency_key" => "idempotency-#{id}",
+        "base_checkpoint" => "market-morning-v1",
+        "action" => "answer",
+        "answer" => "apples"
+      },
+      overrides
+    )
+  end
+
+  defp lease_fixture(user, partition, expires_at) do
+    Repo.insert!(%Lease{
+      user_id: user.id,
+      account_partition: partition,
+      issued_at: ~U[2026-08-19 12:00:00.000000Z],
+      expires_at: expires_at
+    })
   end
 
   defp capturing_evaluator(pid) do
