@@ -133,12 +133,42 @@ defmodule Sigra.Planning.Phase246GeneratedAppLoginRuntimeTest do
           "key_prefix: \"app_login_refresh\"",
           "replacement access token did not authenticate",
           "refresh credential authenticated as an access credential",
-          "refresh response was not the exact credential shape"
+          "assert_exact_refresh_response_keys \"$response\""
         ] do
       assert harness =~ marker, "fresh-host refresh proof missing #{inspect(marker)}"
     end
 
     refute harness =~ "sleep", "refresh proof must use the existing bounded readiness flow"
+  end
+
+  test "refresh proof decodes the response and rejects unexpected or duplicate top-level keys" do
+    harness = read!(@harness)
+
+    [key_assertion] =
+      Regex.run(
+        ~r/(assert_exact_refresh_response_keys\(\) \{.*?\n\})/s,
+        harness,
+        capture: :all_but_first
+      )
+
+    assert key_assertion =~ "python3 - \"$path\""
+    assert key_assertion =~ "json.load(response, object_pairs_hook=JSONObjectPairs)"
+    assert key_assertion =~ "if not isinstance(pairs, JSONObjectPairs):"
+    assert key_assertion =~ "keys = [key for key, _value in pairs]"
+    assert key_assertion =~ "len(keys) != len(set(keys))"
+
+    assert key_assertion =~
+             "sorted(keys) != allowed",
+           "the parsed response keys must equal the exact allowlist, not merely contain it"
+
+    assert key_assertion =~
+             "allowed = [\"access_token\", \"expires_in\", \"family_id\", \"refresh_token\"]"
+
+    refute key_assertion =~ "grep -oE",
+           "presence-only grep permits unexpected fields and cannot prove the response contract"
+
+    refute key_assertion =~ "print(keys",
+           "credential-response diagnostics must remain bounded and value-free"
   end
 
   test "refresh reuse proof follows routed replay with typed state and next-auth denial" do

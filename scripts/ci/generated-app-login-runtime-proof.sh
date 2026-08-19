@@ -283,6 +283,34 @@ json_field() {
   sed -nE "s/.*\"${field}\":\"([^\"]+)\".*/\\1/p" "$path" | head -n 1
 }
 
+assert_exact_refresh_response_keys() {
+  local path="$1"
+
+  python3 - "$path" <<'PY'
+import json
+import sys
+
+allowed = ["access_token", "expires_in", "family_id", "refresh_token"]
+
+class JSONObjectPairs(list):
+    pass
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as response:
+        pairs = json.load(response, object_pairs_hook=JSONObjectPairs)
+
+    if not isinstance(pairs, JSONObjectPairs):
+        raise ValueError
+
+    keys = [key for key, _value in pairs]
+    if len(keys) != len(set(keys)) or sorted(keys) != allowed:
+        raise ValueError
+except (OSError, ValueError, TypeError, json.JSONDecodeError):
+    print("refresh response keys invalid", file=sys.stderr)
+    sys.exit(1)
+PY
+}
+
 install_proof_route() {
   local router="${APP_DIR}/lib/${APP_NAME}_web/router.ex"
   local controller="${APP_DIR}/lib/${APP_NAME}_web/controllers/app_login_proof_controller.ex"
@@ -396,10 +424,7 @@ prove_refresh_rotation() {
     -d "{\"refresh_token\":\"${original_refresh_token}\"}" \
     -o "$response" -w '%{http_code}' "http://127.0.0.1:${PORT}/api/app-login/refresh")"
   [[ "$status" == "200" ]]
-  [[ "$(grep -oE '\"(access_token|refresh_token|family_id|expires_in)\"' "$response" | sort | uniq -c | wc -l | tr -d ' ')" == "4" ]] || {
-    echo "refresh response was not the exact credential shape" >&2
-    return 1
-  }
+  assert_exact_refresh_response_keys "$response"
   replacement_access_token="$(json_field access_token "$response")"
   replacement_refresh_token="$(json_field refresh_token "$response")"
   replacement_family_id="$(json_field family_id "$response")"
