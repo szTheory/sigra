@@ -4,13 +4,14 @@ defmodule Example.LearningTwinTest do
   import Example.AccountsFixtures
 
   alias Example.LearningTwin
-  alias Example.LearningTwin.Lease
+  alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
 
   @as_of ~U[2026-08-18 12:00:00.123456Z]
 
   setup do
     old_config = Application.get_env(:example, LearningTwin)
+    {_, nil} = Repo.delete_all(ReplayReceipt)
     {_, nil} = Repo.delete_all(Lease)
 
     on_exit(fn ->
@@ -88,6 +89,67 @@ defmodule Example.LearningTwinTest do
              LearningTwin.authorize_partition(scope, "lt_expired", as_of: @as_of)
   end
 
+  test "persists accepted, rejected, and conflict terminal receipts exactly once" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_replay", DateTime.add(DateTime.utc_now(), 1, :hour))
+
+    assert {:ok, accepted} = LearningTwin.replay(scope, replay_params("accepted"), [])
+    assert accepted.outcome == "accepted"
+
+    assert {:ok, rejected} =
+             LearningTwin.replay(scope, replay_params("rejected", %{"answer" => ""}), [])
+
+    assert rejected.outcome == "rejected"
+
+    assert {:ok, conflict} =
+             LearningTwin.replay(scope, replay_params("conflict", %{"base_checkpoint" => "old"}), [])
+
+    assert conflict.outcome == "conflict"
+    assert Repo.aggregate(ReplayReceipt, :count) == 3
+  end
+
+  test "sequential duplicate returns its original terminal receipt without a second application" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_duplicate", DateTime.add(DateTime.utc_now(), 1, :hour))
+    params = replay_params("duplicate")
+
+    assert {:ok, first} = LearningTwin.replay(scope, params, [])
+    assert {:ok, second} = LearningTwin.replay(scope, params, [])
+    assert %{outcome: first.outcome, terminal_at: first.terminal_at} ==
+             %{outcome: second.outcome, terminal_at: second.terminal_at}
+    assert Repo.aggregate(ReplayReceipt, :count) == 1
+  end
+
+  test "two barrier-released duplicate requests return one stored terminal receipt" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_concurrent", DateTime.add(DateTime.utc_now(), 1, :hour))
+    params = replay_params("concurrent")
+    parent = self()
+    barrier = make_ref()
+
+    tasks =
+      for _ <- 1..2 do
+        Task.async(fn ->
+          Ecto.Adapters.SQL.Sandbox.allow(Repo, parent, self())
+          send(parent, {:replay_ready, self(), barrier})
+
+          receive do
+            {:replay_go, ^barrier} -> LearningTwin.replay(scope, params, [])
+          end
+        end)
+      end
+
+    ready_pids = for _ <- 1..2, do: receive_ready(barrier)
+    Enum.each(ready_pids, &send(&1, {:replay_go, barrier}))
+    results = Enum.map(tasks, &Task.await(&1, 10_000))
+
+    assert Enum.all?(results, &match?({:ok, %{outcome: "accepted"}}, &1))
+    assert Repo.aggregate(ReplayReceipt, :count) == 1
+  end
+
   defp lease_fixture(user, partition, expires_at) do
     Repo.insert!(%Lease{
       user_id: user.id,
@@ -95,5 +157,23 @@ defmodule Example.LearningTwinTest do
       issued_at: @as_of,
       expires_at: expires_at
     })
+  end
+
+  defp replay_params(id, overrides \\ %{}) do
+    Map.merge(
+      %{
+        "client_mutation_id" => "mutation-#{id}",
+        "idempotency_key" => "idempotency-#{id}",
+        "base_checkpoint" => "market-morning-v1",
+        "action" => "answer",
+        "answer" => "apples"
+      },
+      overrides
+    )
+  end
+
+  defp receive_ready(barrier) do
+    assert_receive {:replay_ready, pid, ^barrier}
+    pid
   end
 end
