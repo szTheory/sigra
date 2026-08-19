@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: language-learning-digital-twin
 status: executing
-stopped_at: Completed 247-01-PLAN.md
-last_updated: "2026-08-19T02:06:08.123Z"
+stopped_at: Completed 247-02-PLAN.md
+last_updated: "2026-08-19T02:17:24.627Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 247 execution started
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 48
+  completed_plans: 49
 current_plan: null
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 247 (language-learning-digital-twin) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 247 execution started
 
-Progress: [█████████░] 91%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -107,6 +107,7 @@ Progress: [█████████░] 91%
 | Phase 246.2 P06 | 4min | 1 tasks | 1 files |
 | Phase 246.2 P07 | 9min | 1 tasks | 2 files |
 | Phase 247-language-learning-digital-twin P01 | 16min | 1 tasks | 10 files |
+| Phase 247-language-learning-digital-twin P02 | 32min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -198,6 +199,8 @@ Progress: [█████████░] 91%
 - [Phase ?]: Canonical APP-04/APP-05 evidence retains byte-identical v5 artifact bytes with implementation_ref and head_sha bound to exact run head ce96d537.
 - [Phase ?]: Learning twin workers cache only the generic shell; authenticated documents remain network-only.
 - [Phase ?]: Cached lesson activation requires matching partition metadata, an unexpired lease, ready markers, and cached media.
+- [Phase ?]: Cached lesson media requires matching partition/version markers; orphan cache entries never activate offline availability.
+- [Phase ?]: The media failure seam exposes only the one-shot cache-write-failed enum.
 
 ### Pending Todos
 
@@ -220,6 +223,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:06:08.115Z
-Stopped at: Completed 247-01-PLAN.md
+Last session: 2026-08-19T02:17:24.617Z
+Stopped at: Completed 247-02-PLAN.md
 Resume file: None
