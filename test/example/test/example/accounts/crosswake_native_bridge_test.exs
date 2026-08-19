@@ -93,7 +93,11 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
                as_of,
                protected_route(),
                current_binding,
-               Map.put(native_posture(:ios, :verified_https_link, :verified), :access_token, "secret"),
+               Map.put(
+                 native_posture(:ios, :verified_https_link, :verified),
+                 :access_token,
+                 "secret"
+               ),
                evaluator: notifying_evaluator(self())
              )
 

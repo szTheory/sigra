@@ -138,7 +138,7 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
         ) :: result()
   def evaluate_return(raw_token, as_of, route, expected_binding, return_input, opts)
       when is_list(opts) do
-    with {:ok, evidence} <- AuthReturn.new_envelope(return_input),
+    with {:ok, evidence} <- validated_return_envelope(return_input),
          {:allow, result} <- evaluate(raw_token, as_of, route, expected_binding, opts) do
       {:allow, Map.put(result, :evidence, evidence)}
     else
@@ -149,6 +149,15 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
 
   def evaluate_return(_raw_token, _as_of, _route, _expected_binding, _return_input, _opts),
     do: deny(:invalid_return_evidence)
+
+  defp validated_return_envelope(%AuthReturn.Envelope{} = envelope) do
+    case AuthReturn.validate_envelope(envelope) do
+      :ok -> {:ok, envelope}
+      {:error, _errors} = error -> error
+    end
+  end
+
+  defp validated_return_envelope(return_input), do: AuthReturn.new_envelope(return_input)
 
   defp new_lane(binding, session, as_of) do
     session_config = Accounts.sigra_config().session
