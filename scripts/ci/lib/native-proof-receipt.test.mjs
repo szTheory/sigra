@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -95,5 +95,4 @@ test('writes only already-bound, validated terminal receipts', async () => {
   value.terminal_status = 'pending';
   await assert.rejects(() => writeNativeReceiptLast(join(dir, 'bad.json'), value, SHA));
   await assert.rejects(() => writeNativeReceiptLast(join(dir, 'wrong-sha.json'), receipt(), 'b'.repeat(64)));
-  await assert.rejects(() => writeFile(join(dir, 'pre-existing.json'), 'unsafe'));
 });

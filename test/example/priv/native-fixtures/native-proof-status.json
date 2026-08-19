@@ -1,0 +1,16 @@
+{
+  "schema_version": "native-proof-receipt/1",
+  "implementation_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "target_class": "physical_iphone",
+  "target_identity": { "platform": "ios", "model_class": "iPhone", "os_version": "18.0", "physical": true },
+  "toolchain": { "xcode_version": "16.0", "xcode_build": "16A242d" },
+  "browser": { "component": "ASWebAuthenticationSession", "version": "18.0", "mode": "system_external_user_agent" },
+  "callback": { "transport": "custom_scheme", "link_verification": "registered_scheme", "callback_binding": "matched" },
+  "storage": { "present": true, "rotated": true, "recovered_after_relaunch": true, "deleted_after_logout": true, "deleted_after_revocation": true, "read_result": "read_ok", "access_persisted": false },
+  "scenarios": { "hosted_return": true, "image_verified": true, "audio_verified": true, "strict_lease_edge": true, "offline_use": true, "kill_relaunch": true, "account_switch": true, "server_revocation": true, "replay_accepted": true, "replay_rejected": true, "replay_conflict": true },
+  "transport": { "claim": "controlled_transport_failure" },
+  "artifact_hashes": { "app_bundle_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "xctest_bundle_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "diagnostics_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+  "cleanup_status": "complete",
+  "secret_scan_status": "clean",
+  "terminal_status": "complete"
+}
