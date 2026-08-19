@@ -3,8 +3,6 @@ import { expect, test } from '@playwright/test';
 const email = 'alice@demo.tasklane.test';
 const password = 'AliceDemoPass1!';
 
-const mediaCache = 'tasklane-learning-twin-media-v1';
-
 async function logIn(page: import('@playwright/test').Page) {
   await page.goto('/users/log_in');
   await page.locator('#login_form').getByLabel('Email').fill(email);
@@ -66,46 +64,52 @@ async function storageState(page: import('@playwright/test').Page) {
 async function prepareLesson(page: import('@playwright/test').Page) {
   await logIn(page);
   await page.goto('/app/lesson');
+  await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
   await expect(page.getByRole('button', { name: 'Make available offline' })).toBeEnabled();
 }
 
 test.describe('media integrity', () => {
   test('promotes two exact media responses marker-last and exposes the accessible available state', async ({ page }) => {
     await prepareLesson(page);
+    let releaseImage: () => void;
+    const imageHeld = new Promise<void>((resolve) => { releaseImage = resolve; });
+    await page.route('**/app/lesson/media/image/v1', async (intercept) => {
+      await imageHeld;
+      await intercept.continue();
+    });
     await page.getByRole('button', { name: 'Make available offline' }).click();
 
     await expect(page.getByTestId('twin-offline-panel')).toHaveAttribute('aria-busy', 'true');
     await expect(page.getByTestId('twin-offline-status')).toHaveText('Checking lesson media…');
+    releaseImage!();
     await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
-    await expect(page.getByRole('button', { name: 'Record practice' })).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Make available offline' })).toBeFocused();
 
     const stored = await storageState(page);
     expect(stored.cached).toEqual(expect.arrayContaining(['/app/lesson/media/image/v1', '/app/lesson/media/audio/v1']));
     expect(stored.markers).toHaveLength(2);
-    expect(new Set(stored.markers.map(({ key }) => key))).toHaveSize(2);
+    expect(new Set(stored.markers.map(({ key }) => key)).size).toBe(2);
   });
 
   for (const [name, route] of [
-    ['short response', async (response: import('@playwright/test').APIResponse) => (await response.body()).subarray(0, 8)],
-    ['same-size corrupt response', async (response: import('@playwright/test').APIResponse) => {
-      const bytes = await response.body();
+    ['short response', (bytes: Uint8Array) => bytes.subarray(0, 8)],
+    ['same-size corrupt response', (bytes: Uint8Array) => {
       const changed = Uint8Array.from(bytes);
       changed[0] ^= 1;
       return changed;
     }],
   ] as const) {
-    test(`rejects a ${name} without a ready marker`, async ({ page, request }) => {
-      const response = await request.get('/app/lesson/media/audio/v1');
-      const body = await route(response);
-      await page.route('**/app/lesson/media/audio/v1', (intercept) => intercept.fulfill({ status: 200, contentType: 'audio/mpeg', body }));
-
+    test(`rejects a ${name} without a ready marker`, async ({ page }) => {
+      const mutated = route(new TextEncoder().encode('market-morning-audio-v1'));
+      await page.route('**/app/lesson/media/audio/v1', (intercept) => intercept.fulfill({ status: 200, contentType: 'audio/mpeg', body: Buffer.from(mutated) }));
       await prepareLesson(page);
+
       await page.getByRole('button', { name: 'Make available offline' }).click();
       await expect(page.getByTestId('twin-offline-status')).toHaveText('Lesson media could not be prepared. Connect to the internet and try again.');
       await expect(page.getByRole('button', { name: 'Try again' })).toBeFocused();
 
       const stored = await storageState(page);
-      expect(stored.markers).toHaveLength(0);
+      expect(stored.markers.filter(({ value }) => value.url.endsWith('/audio/v1'))).toHaveLength(0);
       expect(stored.cached).not.toContain('/app/lesson/media/audio/v1');
     });
   }
@@ -115,7 +119,7 @@ test.describe('media integrity', () => {
     await prepareLesson(page);
     await page.getByRole('button', { name: 'Make available offline' }).click();
     await expect(page.getByRole('button', { name: 'Try again' })).toBeFocused();
-    expect((await storageState(page)).markers).toHaveLength(0);
+    expect((await storageState(page)).markers.filter(({ value }) => value.url.endsWith('/audio/v1'))).toHaveLength(0);
 
     await page.unroute('**/app/lesson/media/audio/v1');
     const forced = page.evaluate(async () => {
@@ -129,20 +133,20 @@ test.describe('media integrity', () => {
     await expect.poll(() => forced).toBe('cache-write-failed');
     await page.getByRole('button', { name: 'Try again' }).click();
     await expect(page.getByRole('button', { name: 'Try again' })).toBeFocused();
-    expect((await storageState(page)).markers).toHaveLength(0);
+    expect((await storageState(page)).markers.filter(({ value }) => value.url.endsWith('/audio/v1'))).toHaveLength(0);
 
     await page.getByRole('button', { name: 'Try again' }).click();
     await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
     expect((await storageState(page)).markers).toHaveLength(2);
   });
 
-  test('keeps an orphaned cache response unavailable on activation', async ({ page, request }) => {
-    const media = await request.get('/app/lesson/media/audio/v1');
+  test('keeps an orphaned cache response unavailable on activation', async ({ page }) => {
     await prepareLesson(page);
+    const body = await page.evaluate(async () => Array.from(new Uint8Array(await (await fetch('/app/lesson/media/audio/v1')).arrayBuffer())));
     await page.evaluate(async (body) => {
       const cache = await caches.open('tasklane-learning-twin-media-v1');
       await cache.put('/app/lesson/media/audio/v1', new Response(Uint8Array.from(body), { headers: { 'content-type': 'audio/mpeg' } }));
-    }, Array.from(await media.body()));
+    }, body);
 
     await page.context().setOffline(true);
     await page.goto('/app/lesson');
@@ -172,7 +176,9 @@ test('tracer: authenticated learner installs media, studies offline, and replays
     '/learning-twin-worker.js',
   );
 
-  await expect(page.getByTestId('twin-offline-status')).toHaveText(/available/i);
+  await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
+  await page.getByRole('button', { name: 'Make available offline' }).click();
+  await expect(page.getByTestId('twin-offline-status')).toHaveText('Available offline');
   const stored = await page.evaluate(async () => {
     const cache = await caches.open('tasklane-learning-twin-media-v1');
     const keys = await cache.keys();

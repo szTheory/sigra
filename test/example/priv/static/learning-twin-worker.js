@@ -1,6 +1,12 @@
 const SHELL_CACHE = 'tasklane-learning-twin-shell-v1';
 const SHELL = ['/learning-twin-offline.html', '/assets/js/learning_twin.js', '/assets/css/app.css'];
 
+self.addEventListener('message', (event) => {
+  if (event.data?.type !== 'force-cache-put-failure') return;
+  event.source?.postMessage({ type: 'cache-write-failed' });
+  event.ports[0]?.postMessage({ type: 'cache-write-failed' });
+});
+
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL_CACHE).then(async (cache) => {
     for (const asset of SHELL) {

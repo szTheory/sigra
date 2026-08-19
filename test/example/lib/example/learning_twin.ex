@@ -252,8 +252,11 @@ defmodule ExampleWeb.LearningTwinLive do
           <h2>Transcript</h2>
           <p>{@twin.lesson.transcript}</p>
         </section>
-        <p data-testid="twin-offline-status">Preparing offline lesson</p>
-        <button type="button">Record practice</button>
+        <section data-testid="twin-offline-panel" aria-busy="false" aria-live="polite">
+          <p data-testid="twin-offline-status">Not available offline</p>
+          <button data-testid="twin-offline-action" type="button">Make available offline</button>
+        </section>
+        <button data-testid="twin-record-practice" type="button">Record practice</button>
         <p data-testid="twin-replay-receipts"></p>
       </section>
       <script defer src="/assets/js/learning_twin.js">
