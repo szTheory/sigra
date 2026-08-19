@@ -320,12 +320,16 @@ defmodule ExampleWeb.LearningTwinController do
     case LearningTwin.replay(conn.assigns.current_scope, params, []) do
       {:ok, receipt} ->
         json(conn, %{
-          outcome: receipt.outcome,
+          client_mutation_id: receipt.client_mutation_id,
+          status: receipt.outcome,
           terminal_at: DateTime.to_iso8601(receipt.terminal_at)
         })
 
-      {:error, _} ->
-        conn |> put_status(:forbidden) |> json(%{outcome: "rejected"})
+      {:error, :invalid_replay} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "invalid_replay"})
+
+      {:error, :unauthorized_partition} ->
+        conn |> put_status(:forbidden) |> json(%{error: "replay_unavailable"})
     end
   end
 end

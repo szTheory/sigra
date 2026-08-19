@@ -120,6 +120,36 @@ defmodule ExampleWeb.LearningTwinControllerTest do
     assert Repo.aggregate(ReplayReceipt, :count) == 1
   end
 
+  test "replay rejects missing, nested, and oversized input before persistence", %{conn: conn} do
+    user = user_fixture()
+    insert_lease(user, "lt_validation", DateTime.add(DateTime.utc_now(), 1, :hour))
+
+    conn =
+      conn
+      |> log_in_user(user)
+      |> get(~p"/app/lesson")
+
+    csrf_token = Plug.CSRFProtection.get_csrf_token()
+
+    invalid_requests = [
+      Map.delete(replay_params(), "answer"),
+      Map.put(replay_params(), "idempotency_key", ["nested"]),
+      Map.put(replay_params(), "answer", String.duplicate("x", 121))
+    ]
+
+    for params <- invalid_requests do
+      response =
+        conn
+        |> recycle()
+        |> put_req_header("x-csrf-token", csrf_token)
+        |> post(~p"/app/lesson/replay", params)
+
+      assert %{"error" => "invalid_replay"} = json_response(response, 422)
+    end
+
+    assert Repo.aggregate(ReplayReceipt, :count) == 0
+  end
+
   defp insert_lease(user, partition, expires_at) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
