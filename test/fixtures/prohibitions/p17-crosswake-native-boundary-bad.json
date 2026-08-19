@@ -1,0 +1,12 @@
+{
+  "nativeEvidenceMarkerCount": 2,
+  "hostOwnsAuthority": false,
+  "telemetryAllowlistCount": 19,
+  "telemetryRejectsSensitiveFields": false,
+  "receiptValidatorMarkerCount": 4,
+  "receiptIsFailClosed": false,
+  "statusIsPostureOnly": false,
+  "embeddedBrowserFree": false,
+  "directPasswordFree": false,
+  "targetClassOverclaimFree": false
+}
