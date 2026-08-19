@@ -39,12 +39,13 @@ Accessible foreground replay now renders exactly one chronological terminal rece
 1. `dcc1e5ab` — RED replay receipt coverage.
 2. `a49b04ce` — durable receipt reconciliation, semantic UI, and conflict focus recovery.
 3. `b25f909e` — exact-key evidence runner and phase evidence.
+4. `92498b84` — Phoenix proof-process ownership and cleanup assertion.
 
 ## Verification
 
 - Focused ExUnit learning-twin/controller/LiveView suite: PASS (17 tests).
 - JavaScript syntax, Elixir formatting, evidence schema, and diff whitespace checks: PASS.
-- Chromium proof reached and passed media, tracer, form, empty/queued, accepted/duplicate, and rejected receipt cases before the shared PostgreSQL test container returned `FATAL 53300 too_many_connections` during the remaining matrix.
+- Chromium proof retry passed media, tracer, form, accepted/duplicate, and rejected receipt cases. It failed the empty/queued receipt case because the preceding practice-form test leaves its browser context offline; the next case therefore boots into the expected expired-offline page instead of its online receipt fixture.
 
 ## Deviations from Plan
 
@@ -59,6 +60,8 @@ Accessible foreground replay now renders exactly one chronological terminal rece
 ## Blocker
 
 The repository-managed PostgreSQL container is currently saturated by concurrent clients (`FATAL 53300 too_many_connections`). Re-run `scripts/ci/phase-247-language-twin-proof.sh` once the shared test database has capacity; it will atomically replace evidence only after the complete ExUnit/Chromium matrix passes.
+
+The retry also fixed the harness lifecycle: the Phoenix host is now launched with `exec`, tracked by its real process ID, terminated in the trap, and checked with `kill -0` after cleanup. The remaining browser failure is test isolation, not a server-process leak. The retained evidence predates this harness change and must be regenerated only by a green proof run.
 
 ## Self-Check: PASSED
 
