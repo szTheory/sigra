@@ -88,27 +88,42 @@ async function currentActivation(page: import('@playwright/test').Page) {
 }
 
 async function logoutAfterActivationClears(page: import('@playwright/test').Page) {
-  let cleanupChecked = false;
-  let activationAtLogout: unknown;
-  const logoutRoute = async (route: import('@playwright/test').Route) => {
-    if (new URL(route.request().url()).pathname !== '/users/log_out') {
-      await route.continue();
-      return;
-    }
-    const fields = new URLSearchParams(route.request().postData() ?? '');
-    expect(route.request().method()).toBe('POST');
-    expect(fields.get('_method')).toBe('delete');
-    expect(fields.get('_csrf_token')).toBeTruthy();
-    activationAtLogout = await currentActivation(page);
-    cleanupChecked = true;
-    await route.continue();
-  };
-  await page.route('**/*', logoutRoute);
+  await page.evaluate(() => {
+    const nativeSubmit = HTMLFormElement.prototype.submit;
+    let intercepted: HTMLFormElement | undefined;
+    (window as typeof window & { twinLogoutProof?: Record<string, unknown>; releaseTwinLogout?: () => void }).releaseTwinLogout = () => {
+      HTMLFormElement.prototype.submit = nativeSubmit;
+      nativeSubmit.call(intercepted!);
+    };
+    HTMLFormElement.prototype.submit = function() {
+      if (new URL(this.action).pathname !== '/users/log_out') return nativeSubmit.call(this);
+      intercepted = this;
+      const fields = new FormData(this);
+      const dbRequest = indexedDB.open('tasklane-learning-twin');
+      dbRequest.onsuccess = () => {
+        const db = dbRequest.result;
+        const request = db.transaction('current_activation').objectStore('current_activation').get('current');
+        request.onsuccess = () => {
+          (window as typeof window & { twinLogoutProof?: Record<string, unknown> }).twinLogoutProof = {
+            activation: request.result,
+            method: this.method,
+            deleteMethod: fields.get('_method'),
+            csrf: fields.get('_csrf_token'),
+          };
+          db.close();
+        };
+      };
+    };
+  });
   await page.getByTestId('header-log-out').click();
-  await expect.poll(() => cleanupChecked).toBe(true);
-  expect(activationAtLogout).toBeUndefined();
+  await expect.poll(() => page.evaluate(() => Boolean((window as typeof window & { twinLogoutProof?: unknown }).twinLogoutProof))).toBe(true);
+  const proof = await page.evaluate(() => (window as typeof window & { twinLogoutProof: { activation: unknown; method: string; deleteMethod: string; csrf: string } }).twinLogoutProof);
+  expect(proof.activation).toBeUndefined();
+  expect(proof.method.toLowerCase()).toBe('post');
+  expect(proof.deleteMethod).toBe('delete');
+  expect(proof.csrf).toBeTruthy();
+  await page.evaluate(() => (window as typeof window & { releaseTwinLogout: () => void }).releaseTwinLogout());
   await expect(page).toHaveURL(/\/$/);
-  await page.unroute('**/*', logoutRoute);
 }
 
 async function logInAsBob(page: import('@playwright/test').Page) {
