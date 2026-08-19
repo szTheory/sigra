@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: language-learning-digital-twin
 status: executing
-stopped_at: Completed 247-03-PLAN.md
-last_updated: "2026-08-19T02:24:19.080Z"
+stopped_at: Completed 247-04-PLAN.md
+last_updated: "2026-08-19T02:30:35.000Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 247 execution started
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 50
+  completed_plans: 51
 current_plan: null
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 247 (language-learning-digital-twin) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 247 execution started
 
-Progress: [█████████░] 94%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -109,6 +109,7 @@ Progress: [█████████░] 94%
 | Phase 247-language-learning-digital-twin P01 | 16min | 1 tasks | 10 files |
 | Phase 247-language-learning-digital-twin P02 | 32min | 1 tasks | 4 files |
 | Phase 247-language-learning-digital-twin P03 | 14min | 2 tasks | 4 files |
+| Phase 247-language-learning-digital-twin P04 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -204,6 +205,8 @@ Progress: [█████████░] 94%
 - [Phase ?]: The media failure seam exposes only the one-shot cache-write-failed enum.
 - [Phase ?]: Lease validity uses strict microsecond less-than comparison; exact expiry is invalid.
 - [Phase ?]: Learning Twin partition selectors are authorized only after current-Scope lease lookup.
+- [Phase ?]: Replay derives account partition solely from the active current-Scope lease; request parameters cannot select an owner.
+- [Phase ?]: Duplicate replay reloads the stored terminal receipt and exposes only mutation correlation, status, and terminal timestamp.
 
 ### Pending Todos
 
@@ -226,6 +229,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:24:19.071Z
-Stopped at: Completed 247-03-PLAN.md
+Last session: 2026-08-19T02:30:34.991Z
+Stopped at: Completed 247-04-PLAN.md
 Resume file: None
