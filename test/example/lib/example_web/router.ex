@@ -24,6 +24,16 @@ defmodule ExampleWeb.Router do
     plug :fetch_current_scope
   end
 
+  pipeline :lesson_browser do
+    plug :accepts, ["html", "json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {ExampleWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_current_scope
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -54,6 +64,19 @@ defmodule ExampleWeb.Router do
     plug :require_authenticated_user
     plug :check_account_active
     plug :require_mfa
+  end
+
+  scope "/app", ExampleWeb do
+    pipe_through [:lesson_browser, :require_authenticated]
+
+    get "/lesson/bootstrap", LearningTwinController, :bootstrap
+    get "/lesson/media/:kind/:version", LearningTwinController, :media
+    post "/lesson/replay", LearningTwinController, :replay
+
+    live_session :learning_twin_authenticated,
+      on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
+      live "/lesson", LearningTwinLive
+    end
   end
 
   pipeline :require_sudo do

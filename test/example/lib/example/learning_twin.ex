@@ -1,0 +1,264 @@
+defmodule Example.LearningTwin.Lease do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+  @schema_prefix "auth"
+
+  schema "learning_twin_leases" do
+    field :account_partition, :string
+    field :issued_at, :utc_datetime_usec
+    field :expires_at, :utc_datetime_usec
+    belongs_to :user, Example.Accounts.User
+    timestamps(type: :utc_datetime_usec)
+  end
+
+  def changeset(lease, attrs),
+    do:
+      cast(lease, attrs, [:user_id, :account_partition, :issued_at, :expires_at])
+      |> validate_required([:user_id, :account_partition, :issued_at, :expires_at])
+end
+
+defmodule Example.LearningTwin.ReplayReceipt do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+  @schema_prefix "auth"
+
+  schema "learning_twin_replay_receipts" do
+    field :account_partition, :string
+    field :client_mutation_id, :string
+    field :idempotency_key, :string
+    field :base_checkpoint, :string
+    field :outcome, :string
+    field :terminal_at, :utc_datetime_usec
+    belongs_to :user, Example.Accounts.User
+    timestamps(type: :utc_datetime_usec)
+  end
+
+  def changeset(receipt, attrs),
+    do:
+      cast(receipt, attrs, [
+        :user_id,
+        :account_partition,
+        :client_mutation_id,
+        :idempotency_key,
+        :base_checkpoint,
+        :outcome,
+        :terminal_at
+      ])
+      |> validate_required([
+        :user_id,
+        :account_partition,
+        :client_mutation_id,
+        :idempotency_key,
+        :base_checkpoint,
+        :outcome,
+        :terminal_at
+      ])
+      |> unique_constraint([:account_partition, :idempotency_key])
+end
+
+defmodule Example.LearningTwin do
+  import Ecto.Query
+  alias Example.LearningTwin.{Lease, ReplayReceipt}
+  alias Example.Repo
+
+  @image "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 320 180\" role=\"img\" aria-label=\"Market morning fruit stall\"><rect width=\"320\" height=\"180\" fill=\"#f6dfae\"/><circle cx=\"104\" cy=\"96\" r=\"36\" fill=\"#d96b3b\"/><circle cx=\"186\" cy=\"92\" r=\"36\" fill=\"#e7b543\"/><path d=\"M104 60v-18m82 14V38\" stroke=\"#3c7537\" stroke-width=\"8\"/></svg>"
+  @audio "market-morning-audio-v1"
+
+  def bootstrap(%{user: %{id: user_id}}, _opts) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    lease = active_or_new_lease(user_id, now)
+
+    %{
+      partition: lease.account_partition,
+      expires_at: DateTime.to_iso8601(lease.expires_at),
+      lesson: lesson(),
+      media: Enum.map([:image, :audio], &media/1)
+    }
+  end
+
+  def media(:image), do: manifest(:image, @image, "image/svg+xml", "/app/lesson/media/image/v1")
+  def media(:audio), do: manifest(:audio, @audio, "audio/mpeg", "/app/lesson/media/audio/v1")
+  def media("image"), do: media(:image)
+  def media("audio"), do: media(:audio)
+  def media(_), do: nil
+
+  def media_body(:image), do: @image
+  def media_body(:audio), do: @audio
+
+  def replay(%{user: %{id: user_id}}, params, _opts) when is_map(params) do
+    partition = Map.get(params, "account_partition")
+    idempotency_key = Map.get(params, "idempotency_key")
+    mutation_id = Map.get(params, "client_mutation_id")
+    checkpoint = Map.get(params, "base_checkpoint")
+
+    if Enum.all?(
+         [partition, idempotency_key, mutation_id, checkpoint],
+         &(is_binary(&1) and byte_size(&1) > 0)
+       ) do
+      Repo.transaction(fn ->
+        now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+        active? =
+          Repo.exists?(
+            from l in Lease,
+              where:
+                l.user_id == ^user_id and l.account_partition == ^partition and
+                  l.expires_at > ^now
+          )
+
+        if not active?, do: Repo.rollback(:unauthorized_partition)
+
+        attrs = %{
+          user_id: user_id,
+          account_partition: partition,
+          idempotency_key: idempotency_key,
+          client_mutation_id: mutation_id,
+          base_checkpoint: checkpoint,
+          outcome: "accepted",
+          terminal_at: now
+        }
+
+        case Repo.insert(ReplayReceipt.changeset(%ReplayReceipt{}, attrs),
+               on_conflict: :nothing,
+               conflict_target: [:account_partition, :idempotency_key]
+             ) do
+          {:ok, receipt} ->
+            receipt
+
+          {:error, _} ->
+            Repo.one!(
+              from r in ReplayReceipt,
+                where: r.account_partition == ^partition and r.idempotency_key == ^idempotency_key
+            )
+        end
+      end)
+      |> case do
+        {:ok, receipt} -> {:ok, receipt}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      {:error, :invalid_replay}
+    end
+  end
+
+  defp active_or_new_lease(user_id, now) do
+    case Repo.one(
+           from l in Lease,
+             where: l.user_id == ^user_id and l.expires_at > ^now,
+             order_by: [desc: l.expires_at],
+             limit: 1
+         ) do
+      nil ->
+        Repo.insert!(
+          Lease.changeset(%Lease{}, %{
+            user_id: user_id,
+            account_partition:
+              "lt_" <> Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false),
+            issued_at: now,
+            expires_at: DateTime.add(now, lease_ttl(), :second)
+          })
+        )
+
+      lease ->
+        lease
+    end
+  end
+
+  defp lesson,
+    do: %{
+      id: "market-morning-v1",
+      title: "Market morning",
+      prompt: "Name the fruits you can see before you leave the market.",
+      transcript: "Good morning. I would like two apples and one orange, please."
+    }
+
+  defp manifest(kind, body, content_type, url),
+    do: %{
+      kind: Atom.to_string(kind),
+      version: "v1",
+      url: url,
+      byte_size: byte_size(body),
+      sha256: :crypto.hash(:sha256, body) |> Base.encode16(case: :lower),
+      content_type: content_type
+    }
+
+  defp lease_ttl,
+    do:
+      Application.get_env(:example, __MODULE__, [])
+      |> Keyword.get(:offline_lease_ttl_seconds, 604_800)
+end
+
+defmodule ExampleWeb.LearningTwinController do
+  use ExampleWeb, :controller
+  alias Example.LearningTwin
+
+  def bootstrap(conn, _params),
+    do: json(conn, LearningTwin.bootstrap(conn.assigns.current_scope, []))
+
+  def media(conn, %{"kind" => kind, "version" => "v1"}) do
+    case LearningTwin.media(kind) do
+      nil ->
+        send_resp(conn, 404, "not found")
+
+      manifest ->
+        conn
+        |> put_resp_content_type(manifest.content_type)
+        |> put_resp_header("cache-control", "public, max-age=31536000, immutable")
+        |> send_resp(200, LearningTwin.media_body(String.to_existing_atom(kind)))
+    end
+  end
+
+  def media(conn, _), do: send_resp(conn, 404, "not found")
+
+  def replay(conn, params) do
+    case LearningTwin.replay(conn.assigns.current_scope, params, []) do
+      {:ok, receipt} ->
+        json(conn, %{
+          outcome: receipt.outcome,
+          terminal_at: DateTime.to_iso8601(receipt.terminal_at)
+        })
+
+      {:error, _} ->
+        conn |> put_status(:forbidden) |> json(%{outcome: "rejected"})
+    end
+  end
+end
+
+defmodule ExampleWeb.LearningTwinLive do
+  use ExampleWeb, :live_view
+  alias Example.LearningTwin
+  alias ExampleWeb.Layouts
+
+  def mount(_params, _session, socket),
+    do: {:ok, assign(socket, :twin, LearningTwin.bootstrap(socket.assigns.current_scope, []))}
+
+  def render(assigns) do
+    ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_scope} user_organizations={[]}>
+      <section class="vt-page-intro" data-testid="twin-lesson" data-twin-ready="true">
+        <p class="vt-kicker">Language practice</p>
+        <h1>{@twin.lesson.title}</h1>
+        <p>{@twin.lesson.prompt}</p>
+        <img src={Enum.at(@twin.media, 0).url} alt="Market morning fruit stall" />
+        <section>
+          <h2>Listen</h2>
+          <audio controls src={Enum.at(@twin.media, 1).url}></audio>
+          <h2>Transcript</h2>
+          <p>{@twin.lesson.transcript}</p>
+        </section>
+        <p data-testid="twin-offline-status">Preparing offline lesson</p>
+        <button type="button">Record practice</button>
+        <p data-testid="twin-replay-receipts"></p>
+      </section>
+      <script defer src="/assets/js/learning_twin.js">
+      </script>
+    </Layouts.app>
+    """
+  end
+end

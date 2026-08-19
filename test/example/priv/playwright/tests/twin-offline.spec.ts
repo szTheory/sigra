@@ -9,7 +9,6 @@ test('tracer: authenticated learner installs media, studies offline, and replays
   await page.locator('#login_form').getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Log in' }).click();
 
-  const workerReady = page.evaluate(() => navigator.serviceWorker.ready);
   await page.goto('/app/lesson');
   await expect(page.locator('[data-testid="twin-lesson"][data-twin-ready="true"]')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Market morning' })).toBeVisible();
@@ -17,8 +16,9 @@ test('tracer: authenticated learner installs media, studies offline, and replays
   await expect(page.getByText(/transcript/i)).toBeVisible();
   await expect(page.locator('audio[autoplay]')).toHaveCount(0);
 
-  const registration = await workerReady;
-  expect(new URL(registration.scope).pathname).toBe('/app/');
+  const workerScope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
+  expect(new URL(workerScope).pathname).toBe('/app/');
+  await page.reload();
   await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller?.scriptURL ?? '')).toContain(
     '/learning-twin-worker.js',
   );
@@ -43,6 +43,7 @@ test('tracer: authenticated learner installs media, studies offline, and replays
   await page.reload();
   await expect(page.getByTestId('twin-lesson')).toBeVisible();
   await page.context().setOffline(false);
+  await page.reload();
 
   await page.getByRole('button', { name: 'Record practice' }).click();
   await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/accepted/i);
