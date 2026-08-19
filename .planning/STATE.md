@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
-current_phase_name: Language-Learning Digital Twin
+current_phase_name: language-learning-digital-twin
 status: executing
-stopped_at: Phase 247 UI-SPEC approved
-last_updated: "2026-08-19T01:31:12.158Z"
+stopped_at: Completed 247-01-PLAN.md
+last_updated: "2026-08-19T02:06:08.123Z"
 last_activity: 2026-08-18
-last_activity_desc: Phase 246.2 complete, transitioned to Phase 247
+last_activity_desc: Phase 247 execution started
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 47
+  completed_plans: 48
 current_plan: null
 ---
 
@@ -25,16 +25,16 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 247 — Language-Learning Digital Twin
+**Current focus:** Phase 247 — language-learning-digital-twin
 
 ## Current Position
 
-Phase: 247 — Language-Learning Digital Twin
-Plan: Not started
+Phase: 247 (language-learning-digital-twin) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-08-18 — Phase 246.2 complete, transitioned to Phase 247
+Last activity: 2026-08-18 — Phase 247 execution started
 
-Progress: [██████████] 100%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -106,6 +106,7 @@ Progress: [██████████] 100%
 | Phase 246.2-close-gaps-app-04-and-app-05-generated-refresh-and-revocatio P05 | 8min | 1 tasks | 3 files |
 | Phase 246.2 P06 | 4min | 1 tasks | 1 files |
 | Phase 246.2 P07 | 9min | 1 tasks | 2 files |
+| Phase 247-language-learning-digital-twin P01 | 16min | 1 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -195,6 +196,8 @@ Progress: [██████████] 100%
 - [Phase ?]: Runtime provenance derives the run URL, requires the exact artifact, and binds implementation_ref to immutable head_sha.
 - [Phase ?]: Canonical v4 runtime evidence remains red until Plan 07 publishes fresh v5 exact-head evidence.
 - [Phase ?]: Canonical APP-04/APP-05 evidence retains byte-identical v5 artifact bytes with implementation_ref and head_sha bound to exact run head ce96d537.
+- [Phase ?]: Learning twin workers cache only the generic shell; authenticated documents remain network-only.
+- [Phase ?]: Cached lesson activation requires matching partition metadata, an unexpired lease, ready markers, and cached media.
 
 ### Pending Todos
 
@@ -217,6 +220,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T00:54:36.374Z
-Stopped at: Phase 247 UI-SPEC approved
-Resume file: .planning/phases/247-language-learning-digital-twin/247-UI-SPEC.md
+Last session: 2026-08-19T02:06:08.115Z
+Stopped at: Completed 247-01-PLAN.md
+Resume file: None

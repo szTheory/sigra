@@ -27,9 +27,9 @@
 
 ### Language-Learning Digital Twin
 
-- [ ] **TWIN-01**: The example PWA proves an authenticated lesson containing structured data, one image, and one audio asset while retaining Sigra's HttpOnly cookie session and exposing no app credentials to JavaScript or its service worker.
-- [ ] **OFF-01**: The twin installs immutable media only after verifying expected size and SHA-256 and never reports corrupt or incomplete media as available.
-- [ ] **OFF-02**: The twin proves an account-bound, host-configurable seven-day offline lease, account-partitioned cached state and outbox, logout/account-switch isolation, and explicit accepted/rejected/conflict exactly-once replay after backend reauthorization.
+- [x] **TWIN-01**: The example PWA proves an authenticated lesson containing structured data, one image, and one audio asset while retaining Sigra's HttpOnly cookie session and exposing no app credentials to JavaScript or its service worker.
+- [x] **OFF-01**: The twin installs immutable media only after verifying expected size and SHA-256 and never reports corrupt or incomplete media as available.
+- [x] **OFF-02**: The twin proves an account-bound, host-configurable seven-day offline lease, account-partitioned cached state and outbox, logout/account-switch isolation, and explicit accepted/rejected/conflict exactly-once replay after backend reauthorization.
 
 ### Crosswake and Platform Proof
 
@@ -76,9 +76,9 @@
 | APP-03 | Phase 246 | Gaps Found |
 | APP-04 | Phase 245 | Gaps Found |
 | APP-05 | Phase 245 | Gaps Found |
-| TWIN-01 | Phase 247 | Pending |
-| OFF-01 | Phase 247 | Pending |
-| OFF-02 | Phase 247 | Pending |
+| TWIN-01 | Phase 247 | Complete |
+| OFF-01 | Phase 247 | Complete |
+| OFF-02 | Phase 247 | Complete |
 | XW-01 | Phase 248 | Pending |
 | NAT-01 | Phase 248 | Pending |
 | NAT-02 | Phase 248 | Pending |
