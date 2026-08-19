@@ -5,8 +5,8 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: language-learning-digital-twin
 status: executing
-stopped_at: Completed 247-04-PLAN.md
-last_updated: "2026-08-19T02:30:35.000Z"
+stopped_at: Completed 247-05-PLAN.md
+last_updated: "2026-08-19T02:42:44.842Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 247 execution started
 progress:
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 247 (language-learning-digital-twin) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 247 execution started
 
@@ -110,6 +110,7 @@ Progress: [██████████] 96%
 | Phase 247-language-learning-digital-twin P02 | 32min | 1 tasks | 4 files |
 | Phase 247-language-learning-digital-twin P03 | 14min | 2 tasks | 4 files |
 | Phase 247-language-learning-digital-twin P04 | 15min | 2 tasks | 3 files |
+| Phase 247 P05 | 17min | 1 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -207,6 +208,7 @@ Progress: [██████████] 96%
 - [Phase ?]: Learning Twin partition selectors are authorized only after current-Scope lease lookup.
 - [Phase ?]: Replay derives account partition solely from the active current-Scope lease; request parameters cannot select an owner.
 - [Phase ?]: Duplicate replay reloads the stored terminal receipt and exposes only mutation correlation, status, and terminal timestamp.
+- [Phase ?]: Offline practice reads and writes only after a current partition plus strict lease and marker/cache gate succeeds; expiry and account changes clear activation before state use.
 
 ### Pending Todos
 
@@ -229,6 +231,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:30:34.991Z
-Stopped at: Completed 247-04-PLAN.md
+Last session: 2026-08-19T02:42:44.823Z
+Stopped at: Completed 247-05-PLAN.md
 Resume file: None
