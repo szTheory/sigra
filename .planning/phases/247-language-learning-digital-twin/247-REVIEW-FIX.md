@@ -1,59 +1,53 @@
 ---
 phase: 247
-fixed_at: 2026-08-19T03:20:00Z
+fixed_at: 2026-08-19T03:33:06Z
 review_path: /Users/jon/projects/sigra/.planning/phases/247-language-learning-digital-twin/247-REVIEW.md
-iteration: 1
-findings_in_scope: 5
-fixed: 5
-skipped: 0
-status: all_fixed
+iteration: 3
+findings_in_scope: 9
+fixed: 7
+skipped: 2
+status: partial
 ---
 
 # Phase 247: Code Review Fix Report
 
-**Fixed at:** 2026-08-19T03:20:00Z
-**Source review:** `/Users/jon/projects/sigra/.planning/phases/247-language-learning-digital-twin/247-REVIEW.md`
-**Iteration:** 1
+**Fixed at:** 2026-08-19T03:33:06Z
+**Source review:** /Users/jon/projects/sigra/.planning/phases/247-language-learning-digital-twin/247-REVIEW.md
+**Iteration:** 3 (maximum)
 
 **Summary:**
 
-- Findings in scope: 5
-- Fixed: 5
-- Skipped: 0
+- Findings in scope across iterations: 9
+- Fixed: 7
+- Remaining: 2
 
 ## Fixed Issues
 
-### CR-01: Valid offline navigation renders the cached lesson
+### CR-01: BLOCKER — Queued offline practice never replays after reopening online
 
-**Files modified:** `learning_twin.js`, `twin-offline.spec.ts`
-**Commit:** `966c8d70`
-**Applied fix:** The validated cached lesson now renders safe media, practice, and receipt DOM and binds local actions after an offline reload.
+**Files modified:** `test/example/priv/static/assets/js/learning_twin.js`, `test/example/priv/playwright/tests/twin-offline.spec.ts`
+**Commit:** db7ccaa3
+**Status:** fixed: requires human verification
+**Applied fix:** Online boot now drains only the valid current-partition outbox through the existing cookie/CSRF replay route. A single in-flight foreground replay is coalesced, and a browser regression test reopens online without an `online` event and asserts one durable accepted receipt row.
 
-### CR-02: Logout preserves the DELETE boundary
+### CR-02: BLOCKER — The automated proof asserts browser guarantees it does not test
 
-**Files modified:** `learning_twin.js`
-**Commit:** `966c8d70`
-**Applied fix:** Logout clears the activation before submitting a CSRF-protected DELETE form; deletion failures keep the user on-page with an explicit error.
+**Files modified:** `test/example/priv/playwright/tests/twin-offline.spec.ts`, `.planning/phases/247-language-learning-digital-twin/247-EVIDENCE.json`
+**Commit:** b9dc7b9f
+**Applied fix:** Added deterministic Chromium coverage for lease expiry, cleanup failure and CSRF-protected DELETE logout, Bob/Alice partition isolation, Light/Dark/System resolution, and 320px long-copy control geometry/focus. Regenerated the exact-key source-bound evidence after the complete proof passed.
 
-### WR-01: Offline answers are transport-bounded
+## Remaining Issues After Final Re-review
 
-**Files modified:** `learning_twin.js`, `twin-offline.spec.ts`
-**Commit:** `966c8d70`
-**Applied fix:** Only the supported action and answers at most 120 UTF-8 bytes are queued.
+### CR-01: Expired online leases cannot be renewed
 
-### WR-02: Offline shell uses the canonical JavaScript cache URL
+`bootstrap_for_current_scope/2` returns the expired lease error when no partition is requested instead of issuing a replacement lease. A signed-in learner can therefore remain permanently locked out after expiry.
 
-**Files modified:** `learning-twin-offline.html`
-**Commit:** `966c8d70`
-**Applied fix:** The offline shell now requests the literal worker cache key.
+### CR-02: Bootstrap/replay failures bypass logout cleanup
 
-### WR-03: Required browser boundary coverage and ownership
-
-**Files modified:** `twin-offline.spec.ts`, `.github/workflows/ci.yml`, `234-PLAYWRIGHT-INVENTORY.json`, `phase_234_playwright_inventory_contract_test.exs`
-**Commit:** `bc8f2c41`
-**Applied fix:** The offline tracer now asserts usable cached lesson/queue behavior and the Phase 247 spec is registered in the canonical retry-zero non-admin lane.
+The logout cleanup handler is bound only after successful bootstrap and replay. Failure before that point leaves the normal logout control able to navigate without first clearing `current_activation`.
 
 ---
 
+_Fixed: 2026-08-19T03:33:06Z_
 _Fixer: the agent (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 3 (maximum; partial)_

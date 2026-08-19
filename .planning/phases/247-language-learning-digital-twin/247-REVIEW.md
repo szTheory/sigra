@@ -1,9 +1,11 @@
 ---
 phase: 247-language-learning-digital-twin
-reviewed: 2026-08-19T03:07:00Z
+reviewed: 2026-08-19T03:33:06Z
 depth: standard
-files_reviewed: 14
+files_reviewed: 17
 files_reviewed_list:
+  - .github/workflows/ci.yml
+  - .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json
   - scripts/ci/phase-247-language-twin-proof.sh
   - test/example/config/config.exs
   - test/example/lib/example/learning_twin.ex
@@ -18,73 +20,62 @@ files_reviewed_list:
   - test/example/test/example/learning_twin/learning_twin_test.exs
   - test/example/test/example_web/controllers/learning_twin_controller_test.exs
   - test/example/test/example_web/live/learning_twin_live_test.exs
+  - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
 findings:
   critical: 2
-  warning: 3
+  warning: 0
   info: 0
-  total: 5
+  total: 2
 status: issues_found
 ---
 
 # Phase 247: Code Review Report
 
-**Reviewed:** 2026-08-19T03:07:00Z
+**Reviewed:** 2026-08-19T03:33:06Z
 **Depth:** standard
-**Files Reviewed:** 14
+**Files Reviewed:** 17
 **Status:** issues_found
 
 ## Summary
 
-The server-side lease and receipt boundaries are generally constrained to the authenticated scope, but the browser implementation does not deliver the required offline lesson and breaks the existing logout action. The browser suite also omits the specified offline, expiry, logout/account-switch, theme, and small-viewport proof, leaving these high-risk transitions untested.
+The prior fresh-online replay repair is present: boot assigns `currentTwin` before replaying the authenticated current partition, and the expanded Chromium file produces 16 cases (15 declarations, including one two-row parameterized test). The canonical retry-zero lane, inventory entry, and all ten evidence source hashes match the reviewed files.
+
+However, lease expiry cannot recover while connected, and a failed bootstrap/replay leaves logout unprotected even when an offline activation exists. Both conditions can retain account-bound offline data across a logout or permanently lock a learner out of the feature.
 
 ## Narrative Findings (AI reviewer)
 
 ## Critical Issues
 
-### CR-01: BLOCKER — Valid offline navigation cannot render or operate the cached lesson
+### CR-01: An expired lease permanently prevents an online learner from receiving a replacement lease
 
-**File:** `test/example/priv/static/assets/js/learning_twin.js:164-170`
+**File:** `test/example/lib/example/learning_twin.ex:86-101`
+**Issue:** `bootstrap_for_current_scope/2` only calls `active_or_new_lease/2` for `{:error, :unavailable}` (no lease row). Once the user's most recent lease reaches `expires_at`, `active_lease/2` returns `{:error, :expired}` and the final branch returns an error. Consequently, a signed-in user following the advertised “Connect and sign in to continue” recovery path receives a 403 / expired page forever; the normal bootstrap path cannot issue the replacement partition.
+**Fix:** When no partition is requested, treat an expired current lease like an unavailable one and issue a new lease. Preserve the rejection path when an explicit old partition is supplied.
 
-**Issue:** `renderOffline/0` verifies the activation gate but only unhides the empty `data-testid="twin-lesson"` section supplied by the generic shell. It never renders `state.lesson`, media, the practice form, or receipts, and it never binds the form/replay listeners that `boot/0` installs online. Consequently a valid offline `/app/lesson` reload has no usable lesson or ability to queue an offline action, contrary to the phase offline contract.
+```elixir
+{:error, reason} when reason in [:unavailable, :expired] and is_nil(requested_partition) ->
+  {:ok, bootstrap_payload(active_or_new_lease(user_id, now))}
+```
 
-**Fix:** Render the same safe lesson/form/receipt structure from the validated `lesson_state` (prefer a shared DOM template/render helper), bind the local form and replay handlers after the gate succeeds, and retain the generic expired shell only when the gate fails. Add a deterministic reload-offline test that asserts the title, image/audio, form, and one queued action.
+Add a controller or browser test that expires the current lease, reconnects while authenticated, and proves bootstrap returns a different, valid partition.
 
-### CR-02: BLOCKER — Intercepted logout navigates with GET and fails open if pointer deletion fails
+### CR-02: Bootstrap/replay failure bypasses the logout cleanup guard and can retain the prior account activation
 
-**File:** `test/example/priv/static/assets/js/learning_twin.js:226-230`
+**File:** `test/example/priv/static/assets/js/learning_twin.js:276-299`
+**Issue:** The logout capture listener is installed only after successful bootstrap and `await replayQueued()`. A non-OK bootstrap response returns at line 278, and a rejected replay fetch propagates through line 283 to the outer `boot().catch(setUnavailable)` at line 304. In either case the page still has the normal header logout control, but clicks are no longer intercepted to run `clearCurrent()`. A valid `current_activation` and its cached lesson can therefore remain after logout and be exposed to the next user of the browser offline shell. The existing logout test only makes IndexedDB fail after successful boot, so it does not exercise this earlier bypass.
+**Fix:** Bind the logout handler before any fallible bootstrap/replay work, and ensure it is installed exactly once. Keep replay failures local so they leave queued rows for retry rather than aborting boot.
 
-**Issue:** The listener cancels Phoenix's method-aware DELETE link, then calls `window.location.assign('/users/log_out')`. The router exposes only `DELETE /users/log_out` (`router.ex:167`), so this sends an unmatched GET instead of logging the user out. Additionally, `.finally(...)` navigates even when `clearCurrent()` fails, violating the required “delete `current_activation` before navigation” boundary and leaving prior activation metadata available for a later offline reload.
+```javascript
+bindLogoutCleanup();
+const response = await fetch('/app/lesson/bootstrap', { headers: { accept: 'application/json' } });
+// ...
+await replayQueued().catch(() => {});
+```
 
-**Fix:** Do not cancel the native method link until the deletion succeeds, or submit a CSRF-protected DELETE request/form after `await clearCurrent()`. On deletion failure, remain on the page in an explicit safe error state and do not navigate. Cover both the DELETE request and forced IndexedDB-delete failure in the same-context logout/offline test.
-
-## Warnings
-
-### WR-01: WARNING — Client accepts and stores unbounded offline answers
-
-**File:** `test/example/priv/static/assets/js/learning_twin.js:172-187`
-
-**Issue:** Client validation requires only a non-empty trimmed answer, then persists the original unbounded `form.elements.answer.value` into IndexedDB. The server caps answers at 120 bytes, so large offline entries occupy local storage and later fail replay rather than being rejected before persistence. This violates the phase's bounded offline-record contract.
-
-**Fix:** Validate the exact transport schema before `put`, including `action === 'answer'` and `new TextEncoder().encode(answer).byteLength <= 120`; expose an inline validation message and create no outbox row when it fails. Add a browser assertion for an oversized multibyte answer.
-
-### WR-02: WARNING — Offline shell requests a differently encoded JavaScript cache key
-
-**File:** `test/example/priv/static/learning-twin-offline.html:3`
-
-**Issue:** The shell loads `/assets/js/learning%5Ftwin.js`, while the worker installs `/assets/js/learning_twin.js` and later calls `cache.match(event.request)`. The worker identifies the encoded path only for interception, but cache matching uses the original request URL; percent-encoded and literal URL serializations are distinct cache keys. Offline script loading can therefore fall through to a failed network request even when the worker cache was installed.
-
-**Fix:** Use the literal canonical URL in the shell (`/assets/js/learning_twin.js`) or match the canonical decoded shell key (for example `cache.match(decodeURIComponent(url.pathname), {ignoreSearch: true})`). Add a test that confirms the offline shell's JavaScript response is served from the shell cache while offline.
-
-### WR-03: WARNING — Required browser boundary and accessibility matrix is absent
-
-**File:** `test/example/priv/playwright/tests/twin-offline.spec.ts:163-243`
-
-**Issue:** The only purported offline tracer asserts the generic “Connect and sign in” shell (lines 201-205), not the required valid cached lesson. The following describe block tests only form queuing. There are no deterministic cases for lease expiry, logout, account switch, valid offline rendering, Light/Dark/System resolution, or a 320px overflow/control check despite the phase plan requiring all of them. This leaves the defects above and account-isolation regressions undetected.
-
-**Fix:** Add the specified pre-armed worker/controller, direct Cache Storage/IndexedDB inspection, offline reload, expiry, same-context logout/account-switch, theme, and 320px cases. Use the existing stable hooks and role selectors; do not use sleeps.
+Add deterministic tests for both a failed bootstrap and a rejected replay request: click logout, assert DELETE is not submitted until `current_activation` is removed, then sign in as the other account and prove the offline shell cannot render the first account's lesson.
 
 ---
 
-_Reviewed: 2026-08-19T03:07:00Z_
+_Reviewed: 2026-08-19T03:33:06Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
