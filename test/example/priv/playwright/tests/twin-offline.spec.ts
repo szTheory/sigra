@@ -90,7 +90,11 @@ async function currentActivation(page: import('@playwright/test').Page) {
 async function logoutAfterActivationClears(page: import('@playwright/test').Page) {
   let cleanupChecked = false;
   let activationAtLogout: unknown;
-  await page.route('**/users/log_out', async (route) => {
+  const logoutRoute = async (route: import('@playwright/test').Route) => {
+    if (new URL(route.request().url()).pathname !== '/users/log_out') {
+      await route.continue();
+      return;
+    }
     const fields = new URLSearchParams(route.request().postData() ?? '');
     expect(route.request().method()).toBe('POST');
     expect(fields.get('_method')).toBe('delete');
@@ -98,12 +102,13 @@ async function logoutAfterActivationClears(page: import('@playwright/test').Page
     activationAtLogout = await currentActivation(page);
     cleanupChecked = true;
     await route.continue();
-  });
+  };
+  await page.route('**/*', logoutRoute);
   await page.getByTestId('header-log-out').click();
   await expect.poll(() => cleanupChecked).toBe(true);
   expect(activationAtLogout).toBeUndefined();
   await expect(page).toHaveURL(/\/$/);
-  await page.unroute('**/users/log_out');
+  await page.unroute('**/*', logoutRoute);
 }
 
 async function logInAsBob(page: import('@playwright/test').Page) {
