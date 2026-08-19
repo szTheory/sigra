@@ -243,12 +243,22 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 247-01-PLAN.md — Trace one authenticated lesson through verified install, offline study, and accepted replay.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 247-02-PLAN.md — Close every immutable-media corruption, interruption, write-failure, and orphan-cache path.
 - [ ] 247-03-PLAN.md — Enforce exact lease expiry and current-account partition boundaries.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 247-04-PLAN.md — Persist current-Scope-authorized accepted, rejected, and conflict outcomes exactly once.
 - [ ] 247-05-PLAN.md — Prove partition-first offline practice across expiry, logout, account switch, themes, and small viewports.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 247-06-PLAN.md — Reconcile terminal receipt UI and seal complete source-bound automated evidence.
 
 ### Phase 248: Crosswake Native Proof

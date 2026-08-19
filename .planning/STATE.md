@@ -4,15 +4,15 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: Language-Learning Digital Twin
-status: planning
-stopped_at: Phase 247 context gathered (assumptions mode)
-last_updated: "2026-08-19T00:42:34.490Z"
+status: executing
+stopped_at: Phase 247 UI-SPEC approved
+last_updated: "2026-08-19T01:31:12.158Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 246.2 complete, transitioned to Phase 247
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 47
+  total_plans: 53
   completed_plans: 47
 current_plan: null
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 
 Phase: 247 — Language-Learning Digital Twin
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-08-18 — Phase 246.2 complete, transitioned to Phase 247
 
 Progress: [██████████] 100%
@@ -217,6 +217,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T00:42:34.468Z
-Stopped at: Phase 247 context gathered (assumptions mode)
-Resume file: .planning/phases/247-language-learning-digital-twin/247-CONTEXT.md
+Last session: 2026-08-19T00:54:36.374Z
+Stopped at: Phase 247 UI-SPEC approved
+Resume file: .planning/phases/247-language-learning-digital-twin/247-UI-SPEC.md
