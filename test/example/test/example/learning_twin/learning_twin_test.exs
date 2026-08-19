@@ -150,6 +150,23 @@ defmodule Example.LearningTwinTest do
     assert Repo.aggregate(ReplayReceipt, :count) == 1
   end
 
+  test "outer transaction rollback removes terminal receipt and permits a clean retry" do
+    user = user_fixture()
+    scope = %{user: user}
+    lease_fixture(user, "lt_rollback", DateTime.add(DateTime.utc_now(), 1, :hour))
+    params = replay_params("rollback")
+
+    assert {:error, :forced} =
+             Repo.transaction(fn ->
+               assert {:ok, %{outcome: "accepted"}} = LearningTwin.replay(scope, params, [])
+               Repo.rollback(:forced)
+             end)
+
+    assert Repo.aggregate(ReplayReceipt, :count) == 0
+    assert {:ok, %{outcome: "accepted"}} = LearningTwin.replay(scope, params, [])
+    assert Repo.aggregate(ReplayReceipt, :count) == 1
+  end
+
   defp lease_fixture(user, partition, expires_at) do
     Repo.insert!(%Lease{
       user_id: user.id,
