@@ -1331,7 +1331,10 @@ jobs:
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts \
+            --retries=0
+          npx playwright test \
             tests/twin-offline.spec.ts \
+            --project=chromium \
             --retries=0
 
       - name: Run demo showcase

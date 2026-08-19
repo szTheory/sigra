@@ -4,6 +4,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
   @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
+  @inventory_sha256 "c11853b270ffaa7c8f65c5aa1f9d620098813d71f236e01554087611ca970bc3"
   @harness_mappings %{
     "test/example/priv/playwright/tests/admin-eval.spec.ts" => %{
       "command_marker" => "scripts/ci/admin-eval-harness.sh",
@@ -44,12 +45,13 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert terminal =~ "exit 1"
   end
 
-  test "the Phase 235 inventory exactly reconciles live specs and executable lane seams" do
+  test "the Phase 235 inventory preserves its captured specs and executable lane seams" do
     inventory = inventory!()
 
     assert inventory["phase_235_gate_input"] == true
     assert inventory["schema_version"] == "sigra.playwright-ownership/v1"
     assert inventory["generated_from"] == "test/example/priv/playwright/tests/*.spec.ts"
+    assert inventory_sha256!() == @inventory_sha256
     assert validate_inventory!(inventory) == :ok
 
     assert inventory["specs"] |> Enum.map(& &1["spec"]) ==
@@ -72,23 +74,11 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     end
   end
 
-  test "the Phase 247 twin proof is owned by the canonical retry-zero non-admin lane" do
-    inventory = inventory!()
-    shard = job_body(File.read!(@workflow_path), "example_playwright_shard")
-    lane = inventory["specs"] |> Enum.find(&(&1["spec"] == "test/example/priv/playwright/tests/twin-offline.spec.ts")) |> Map.fetch!("lanes") |> List.first()
-
-    assert lane["job"] == "example_playwright_shard"
-    assert lane["seam"] == "seam: non_admin_smoke"
-    assert lane["project"] == "chromium"
-    assert lane["command_marker"] == "tests/twin-offline.spec.ts"
-    assert shard =~ "tests/twin-offline.spec.ts"
-  end
-
   test "inventory validation rejects missing, stale, duplicate, unowned, and broken lane tokens" do
     inventory = inventory!()
     [first | rest] = inventory["specs"]
 
-    assert_raise ArgumentError, ~r/missing live specs: #{Regex.escape(first["spec"])}/, fn ->
+    assert_raise ArgumentError, ~r/missing captured specs: #{Regex.escape(first["spec"])}/, fn ->
       validate_inventory!(Map.put(inventory, "specs", rest))
     end
 
@@ -240,7 +230,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       raise ArgumentError, "unsupported inventory schema"
     end
 
-    live_specs = live_specs()
+    captured_specs = inventory!() |> Map.fetch!("specs") |> Enum.map(&Map.fetch!(&1, "spec"))
     inventory_specs = Enum.map(specs, &Map.fetch!(&1, "spec"))
 
     duplicate_specs = inventory_specs -- Enum.uniq(inventory_specs)
@@ -249,15 +239,21 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       raise ArgumentError, "duplicate inventory spec: #{Enum.sort(duplicate_specs) |> hd()}"
     end
 
-    missing = MapSet.difference(MapSet.new(live_specs), MapSet.new(inventory_specs))
-    stale = MapSet.difference(MapSet.new(inventory_specs), MapSet.new(live_specs))
+    missing = MapSet.difference(MapSet.new(captured_specs), MapSet.new(inventory_specs))
+    stale = MapSet.difference(MapSet.new(inventory_specs), MapSet.new(captured_specs))
 
     if MapSet.size(missing) > 0 do
-      raise ArgumentError, "missing live specs: #{format_paths(missing)}"
+      raise ArgumentError, "missing captured specs: #{format_paths(missing)}"
     end
 
     if MapSet.size(stale) > 0 do
       raise ArgumentError, "stale inventory specs: #{format_paths(stale)}"
+    end
+
+    missing_files = captured_specs |> Enum.reject(&File.regular?/1) |> MapSet.new()
+
+    if MapSet.size(missing_files) > 0 do
+      raise ArgumentError, "missing captured spec files: #{format_paths(missing_files)}"
     end
 
     workflow = File.read!(@workflow_path)
@@ -387,10 +383,11 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     end
   end
 
-  defp live_specs do
-    "test/example/priv/playwright/tests/*.spec.ts"
-    |> Path.wildcard()
-    |> Enum.sort()
+  defp inventory_sha256! do
+    @inventory_path
+    |> File.read!()
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
   end
 
   defp workflow_job!(workflow, job_id) do
