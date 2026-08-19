@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: language-learning-digital-twin
 status: executing
-stopped_at: Completed 247-02-PLAN.md
-last_updated: "2026-08-19T02:17:24.627Z"
+stopped_at: Completed 247-03-PLAN.md
+last_updated: "2026-08-19T02:24:19.080Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 247 execution started
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 49
+  completed_plans: 50
 current_plan: null
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 247 (language-learning-digital-twin) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 247 execution started
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -108,6 +108,7 @@ Progress: [█████████░] 92%
 | Phase 246.2 P07 | 9min | 1 tasks | 2 files |
 | Phase 247-language-learning-digital-twin P01 | 16min | 1 tasks | 10 files |
 | Phase 247-language-learning-digital-twin P02 | 32min | 1 tasks | 4 files |
+| Phase 247-language-learning-digital-twin P03 | 14min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -201,6 +202,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Cached lesson activation requires matching partition metadata, an unexpired lease, ready markers, and cached media.
 - [Phase ?]: Cached lesson media requires matching partition/version markers; orphan cache entries never activate offline availability.
 - [Phase ?]: The media failure seam exposes only the one-shot cache-write-failed enum.
+- [Phase ?]: Lease validity uses strict microsecond less-than comparison; exact expiry is invalid.
+- [Phase ?]: Learning Twin partition selectors are authorized only after current-Scope lease lookup.
 
 ### Pending Todos
 
@@ -223,6 +226,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:17:24.617Z
-Stopped at: Completed 247-02-PLAN.md
+Last session: 2026-08-19T02:24:19.071Z
+Stopped at: Completed 247-03-PLAN.md
 Resume file: None
