@@ -303,6 +303,41 @@ test.describe('replay receipts', () => {
     await expect(receiptPanel.getByTestId('twin-receipt-timestamp')).toHaveText(firstTimestamp!);
   });
 
+  test('an already-online reload replays the current partition once through the authenticated foreground route', async ({ page }) => {
+    await queuePractice(page);
+    let replayCount = 0;
+    await page.route('**/app/lesson/replay', async (route) => {
+      replayCount += 1;
+      await route.continue();
+    });
+
+    await page.context().setOffline(false);
+    await page.reload();
+
+    const receiptPanel = page.getByTestId('twin-replay-receipts');
+    await expect(receiptPanel).toContainText('Practice update accepted.');
+    await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
+    await expect.poll(() => replayCount).toBe(1);
+
+    const outbox = await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('tasklane-learning-twin');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const request = db.transaction('outbox').objectStore('outbox').getAll();
+      const entries = await new Promise<Array<{ status?: string; terminal_at?: string }>>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      return entries;
+    });
+    expect(outbox).toHaveLength(1);
+    expect(outbox[0]).toMatchObject({ status: 'accepted' });
+    expect(outbox[0].terminal_at).toBeTruthy();
+  });
+
   test('a rejected outcome keeps one row with distinct recovery copy', async ({ page }) => {
     const rejected = await queuePractice(page);
     await page.evaluate(async () => {

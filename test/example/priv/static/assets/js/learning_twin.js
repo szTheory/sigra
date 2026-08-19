@@ -4,6 +4,7 @@
   const stores = ['current_activation', 'media_markers', 'lesson_state', 'outbox'];
   let forceCachePutFailure = false;
   let currentTwin = null;
+  let activeReplay = null;
 
   const open = () => new Promise((resolve, reject) => {
     const request = indexedDB.open(DB, 1);
@@ -253,16 +254,20 @@
     await put('outbox', outboxKey(queued.partition, queued.idempotency_key), { ...existing, status: result.status, terminal_at: result.terminal_at });
     return true;
   };
-  const replayQueued = async () => {
-    if (!navigator.onLine || !currentTwin) return;
-    const activation = await get('current_activation', 'current');
-    const state = await completeGate(activation);
-    if (!state || activation.partition !== currentTwin.partition) return;
-    for (const queued of await currentOutbox(activation.partition)) {
-      if (terminalStatuses.has(queued.status)) continue;
-      await replay(queued);
-      await renderReceipts(activation.partition);
-    }
+  const replayQueued = () => {
+    if (activeReplay) return activeReplay;
+    activeReplay = (async () => {
+      if (!navigator.onLine || !currentTwin) return;
+      const activation = await get('current_activation', 'current');
+      const state = await completeGate(activation);
+      if (!state || activation.partition !== currentTwin.partition) return;
+      for (const queued of await currentOutbox(activation.partition)) {
+        if (terminalStatuses.has(queued.status)) continue;
+        await replay(queued);
+        await renderReceipts(activation.partition);
+      }
+    })().finally(() => { activeReplay = null; });
+    return activeReplay;
   };
   const invalidateForAccountChange = async (twin) => {
     const activation = await get('current_activation', 'current');
@@ -275,6 +280,7 @@
     await invalidateForAccountChange(twin);
     currentTwin = twin;
     await renderReceipts(twin.partition);
+    await replayQueued();
     actionButton()?.addEventListener('click', () => prepare(twin));
     bindLessonActions();
     window.addEventListener('online', () => replayQueued().catch(() => {}));
