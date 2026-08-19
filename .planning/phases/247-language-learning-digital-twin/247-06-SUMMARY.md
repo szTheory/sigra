@@ -45,9 +45,9 @@ Accessible foreground replay now renders exactly one chronological terminal rece
 
 ## Verification
 
-- Focused ExUnit learning-twin/controller/LiveView suite: PASS (17 tests).
+- Focused ExUnit learning-twin/controller/LiveView suite: PASS (19 tests).
 - Focused practice-form → empty/queued receipt transition: PASS (2 Chromium tests).
-- Complete phase proof: PASS (17 ExUnit tests and 11 Chromium tests); exact-key evidence was atomically regenerated last.
+- Complete phase proof: PASS (19 ExUnit tests and 18 Chromium tests); exact-key evidence was atomically regenerated last.
 - JavaScript syntax, Elixir formatting, evidence schema, source hashes, diff whitespace, and Phoenix cleanup assertion: PASS.
 
 ## Deviations from Plan
