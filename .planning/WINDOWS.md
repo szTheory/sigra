@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 18
+open_count: 19
 waived_count: 0
 fixed_count: 0
-total_count: 18
-last_updated: 2026-08-18T16:16:46.806Z
+total_count: 19
+last_updated: 2026-08-19T02:06:17.485Z
 ---
 
 # Broken Windows Ledger
@@ -33,6 +33,7 @@ last_updated: 2026-08-18T16:16:46.806Z
 | 16 | 246 | deviation | .planning/STATE.md |  | state.advance-plan could not parse the pre-existing plan-position fields | open |  | 2026-08-13T01:46:15.081Z |  |
 | 17 | 246 | unrun-verify | test/sigra/install/app_sessions_mfa_session_upgrade_test.exs |  | PostgreSQL-backed generated-host MFA transition evidence remains unrun because 127.0.0.1:53988 refused connections. | open |  | 2026-08-13T15:34:54.990Z |  |
 | 18 | 246.2 | unrun-verify | priv/templates/sigra.install/app_sessions/router_injection.ex |  | Plan formatter command cannot parse the EEx router template as Elixir; rendered tests, test-file formatter, and diff hygiene passed. | open |  | 2026-08-18T16:16:46.806Z |  |
+| 19 | 247 | deviation | scripts/db/up.sh |  | Repository-isolated database bootstrap was required before migration verification. | open |  | 2026-08-19T02:06:17.485Z |  |
 
 ````json
 [
@@ -250,6 +251,18 @@ last_updated: 2026-08-18T16:16:46.806Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-18T16:16:46.806Z",
+    "resolved_at": null
+  },
+  {
+    "id": 19,
+    "kind": "deviation",
+    "phase": "247",
+    "file": "scripts/db/up.sh",
+    "line": null,
+    "description": "Repository-isolated database bootstrap was required before migration verification.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-08-19T02:06:17.485Z",
     "resolved_at": null
   }
 ]
