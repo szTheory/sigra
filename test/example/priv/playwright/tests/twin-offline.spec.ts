@@ -213,7 +213,7 @@ test.describe('lease, partition, logout, account switch, practice form, and them
     await expect(page.getByLabel('Your answer')).toHaveValue('mango');
     await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/No practice updates yet/);
 
-    await page.getByLabel('Action').selectOption('answered');
+    await page.getByLabel('Action').selectOption('answer');
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Save practice update' }).click();
     await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/Practice update queued/);
@@ -233,7 +233,7 @@ test.describe('lease, partition, logout, account switch, practice form, and them
       return entries;
     });
     expect(outbox).toHaveLength(1);
-    expect(outbox[0]).toMatchObject({ action: 'answered', answer: 'mango', base_checkpoint: 'market-morning-v1' });
+    expect(outbox[0]).toMatchObject({ action: 'answer', answer: 'mango', base_checkpoint: 'market-morning-v1' });
     expect(JSON.stringify(outbox[0])).not.toMatch(/cookie|token|credential|digest/i);
   });
 });
@@ -243,7 +243,7 @@ test.describe('replay receipts', () => {
     await prepareLesson(page);
     await page.getByRole('button', { name: 'Make available offline' }).click();
     await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
-    await page.getByLabel('Action').selectOption('answered');
+    await page.getByLabel('Action').selectOption('answer');
     await page.getByLabel('Your answer').fill(answer);
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Save practice update' }).click();
@@ -258,7 +258,7 @@ test.describe('replay receipts', () => {
     await expect(receiptPanel).toContainText('Offline updates will be checked when you reconnect.');
 
     await page.getByRole('button', { name: 'Make available offline' }).click();
-    await page.getByLabel('Action').selectOption('answered');
+    await page.getByLabel('Action').selectOption('answer');
     await page.getByLabel('Your answer').fill('mango');
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Save practice update' }).click();
@@ -284,7 +284,7 @@ test.describe('replay receipts', () => {
     await expect(receiptPanel.getByTestId('twin-receipt-timestamp')).toHaveText(firstTimestamp!);
   });
 
-  test('rejected and conflict outcomes keep one row with distinct recovery and local review focus', async ({ page }) => {
+  test('a rejected outcome keeps one row with distinct recovery copy', async ({ page }) => {
     const rejected = await queuePractice(page);
     await page.evaluate(async () => {
       const db = await new Promise<IDBDatabase>((resolve, reject) => {
@@ -300,7 +300,7 @@ test.describe('replay receipts', () => {
         request.onerror = () => reject(request.error);
       });
       const entry = entries.at(-1)!;
-      entry.answer = '';
+      entry.action = 'review';
       store.put(entry, `${entry.partition}:${entry.idempotency_key}`);
       await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
       db.close();
@@ -308,8 +308,10 @@ test.describe('replay receipts', () => {
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await expect(rejected).toContainText('Practice update rejected. Review your answer and try again.');
     await expect(rejected).not.toContainText('Practice update accepted.');
+    await expect(rejected.getByRole('listitem')).toHaveCount(1);
+  });
 
-    await page.reload();
+  test('a conflict preserves learner state and moves review focus locally', async ({ page }) => {
     const conflict = await queuePractice(page);
     await page.evaluate(async () => {
       const db = await new Promise<IDBDatabase>((resolve, reject) => {

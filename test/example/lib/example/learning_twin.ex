@@ -358,7 +358,7 @@ defmodule ExampleWeb.LearningTwinLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} user_organizations={[]}>
       <%= if @twin_state == :lesson do %>
-        <section class="vt-page-intro vt-twin" data-testid="twin-lesson" data-twin-ready="true">
+        <section class="vt-page-intro vt-twin" data-testid="twin-lesson" data-twin-ready="true" tabindex="-1">
           <p class="vt-kicker">Language practice</p>
           <h1>{@twin.lesson.title}</h1>
           <p>{@twin.lesson.prompt}</p>
@@ -384,7 +384,7 @@ defmodule ExampleWeb.LearningTwinLive do
               <label for="twin-practice-action">Action</label>
               <select id="twin-practice-action" name="action" data-testid="twin-practice-action">
                 <option value="">Choose an action</option>
-                <option value="answered">Answered checkpoint</option>
+                <option value="answer">Answered checkpoint</option>
               </select>
               <label for="twin-practice-answer">Your answer</label>
               <textarea id="twin-practice-answer" name="answer" required></textarea>
@@ -394,7 +394,10 @@ defmodule ExampleWeb.LearningTwinLive do
           </section>
           <section class="vt-panel vt-twin__receipts" aria-labelledby="twin-receipts-heading">
             <h2 id="twin-receipts-heading" class="vt-panel__title">Practice updates</h2>
-            <p data-testid="twin-replay-receipts">No practice updates yet</p>
+            <div data-testid="twin-replay-receipts">
+              <h3 class="vt-twin__receipt-empty-title">No practice updates yet</h3>
+              <p>Offline updates will be checked when you reconnect.</p>
+            </div>
           </section>
           <button data-testid="twin-record-practice" type="button" hidden>Record practice</button>
         </section>

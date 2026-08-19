@@ -40,6 +40,69 @@
   const markerKey = (partition, item) => `${partition}:${item.version}:${item.url}`;
   const stateKey = (partition) => `${partition}:lesson`;
   const outboxKey = (partition, idempotencyKey) => `${partition}:${idempotencyKey}`;
+  const receiptCopy = {
+    queued: 'Practice update queued — it will be checked when you reconnect.',
+    accepted: 'Practice update accepted.',
+    rejected: 'Practice update rejected. Review your answer and try again.',
+    conflict: 'Practice update conflicts with the current lesson.'
+  };
+  const terminalStatuses = new Set(['accepted', 'rejected', 'conflict']);
+
+  const currentOutbox = async (partition) => {
+    const entries = await new Promise((resolve, reject) => transaction('outbox', 'readonly', (objectStore) => {
+      const request = objectStore.getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    }));
+    return entries.filter((entry) => entry.partition === partition).sort((left, right) => left.queued_at.localeCompare(right.queued_at));
+  };
+  const receiptTimestamp = (entry) => entry.terminal_at || entry.queued_at;
+  const renderReceipts = async (partition) => {
+    const root = receipts();
+    if (!root || !partition) return;
+    const entries = await currentOutbox(partition);
+    root.replaceChildren();
+    if (!entries.length) {
+      const heading = document.createElement('h3');
+      heading.className = 'vt-twin__receipt-empty-title';
+      heading.textContent = 'No practice updates yet';
+      const body = document.createElement('p');
+      body.textContent = 'Offline updates will be checked when you reconnect.';
+      root.append(heading, body);
+      return;
+    }
+
+    const list = document.createElement('ol');
+    list.className = 'vt-twin__receipt-list';
+    for (const entry of entries) {
+      const state = terminalStatuses.has(entry.status) ? entry.status : 'queued';
+      const row = document.createElement('li');
+      row.className = `vt-twin__receipt vt-twin__receipt--${state}`;
+      const pill = document.createElement('span');
+      pill.className = `vt-status-pill vt-twin__receipt-pill vt-twin__receipt-pill--${state}`;
+      pill.dataset.testid = 'twin-receipt-status';
+      pill.textContent = state[0].toUpperCase() + state.slice(1);
+      const copy = document.createElement('p');
+      copy.className = 'vt-twin__receipt-copy';
+      copy.textContent = receiptCopy[state];
+      const timestamp = document.createElement('time');
+      timestamp.className = 'vt-twin__receipt-timestamp';
+      timestamp.dataset.testid = 'twin-receipt-timestamp';
+      timestamp.dateTime = receiptTimestamp(entry);
+      timestamp.textContent = new Date(receiptTimestamp(entry)).toLocaleString();
+      row.append(pill, copy, timestamp);
+      if (state === 'conflict') {
+        const review = document.createElement('button');
+        review.type = 'button';
+        review.className = 'vt-btn vt-btn--secondary';
+        review.textContent = 'Review lesson';
+        review.addEventListener('click', () => lessonRoot()?.focus());
+        row.append(review);
+      }
+      list.append(row);
+    }
+    root.append(list);
+  };
 
   const replaceWithExpiredState = () => {
     const root = lessonRoot();
@@ -122,11 +185,28 @@
     const idempotencyKey = crypto.randomUUID();
     const queued = { partition: activation.partition, client_mutation_id: crypto.randomUUID(), idempotency_key: idempotencyKey, base_checkpoint: state.lesson.id, action: input.action, answer: input.answer, queued_at: new Date().toISOString() };
     await put('outbox', outboxKey(activation.partition, idempotencyKey), queued);
-    if (receipts()) receipts().textContent = 'Practice update queued — it will be checked when you reconnect.';
+    await renderReceipts(activation.partition);
   };
-  const replay = async (partition) => {
-    const response = await fetch('/app/lesson/replay', { method: 'POST', headers: { 'content-type': 'application/json', 'x-csrf-token': csrf() }, body: JSON.stringify({ account_partition: partition, client_mutation_id: crypto.randomUUID(), idempotency_key: crypto.randomUUID(), base_checkpoint: 'market-morning-v1' }) });
-    if (response.ok && receipts()) receipts().textContent = (await response.json()).status;
+  const replay = async (queued) => {
+    const response = await fetch('/app/lesson/replay', { method: 'POST', headers: { 'content-type': 'application/json', 'x-csrf-token': csrf() }, body: JSON.stringify({ client_mutation_id: queued.client_mutation_id, idempotency_key: queued.idempotency_key, base_checkpoint: queued.base_checkpoint, action: queued.action, answer: queued.answer }) });
+    if (!response.ok) return false;
+    const result = await response.json();
+    if (result.client_mutation_id !== queued.client_mutation_id || !terminalStatuses.has(result.status) || !result.terminal_at) return false;
+    const existing = await get('outbox', outboxKey(queued.partition, queued.idempotency_key));
+    if (!existing || terminalStatuses.has(existing.status)) return true;
+    await put('outbox', outboxKey(queued.partition, queued.idempotency_key), { ...existing, status: result.status, terminal_at: result.terminal_at });
+    return true;
+  };
+  const replayQueued = async () => {
+    if (!navigator.onLine || !currentTwin) return;
+    const activation = await get('current_activation', 'current');
+    const state = await completeGate(activation);
+    if (!state || activation.partition !== currentTwin.partition) return;
+    for (const queued of await currentOutbox(activation.partition)) {
+      if (terminalStatuses.has(queued.status)) continue;
+      await replay(queued);
+      await renderReceipts(activation.partition);
+    }
   };
   const invalidateForAccountChange = async (twin) => {
     const activation = await get('current_activation', 'current');
@@ -138,9 +218,11 @@
     const twin = await response.json();
     await invalidateForAccountChange(twin);
     currentTwin = twin;
+    await renderReceipts(twin.partition);
     actionButton()?.addEventListener('click', () => prepare(twin));
     document.querySelector('[data-testid="twin-practice-form"]')?.addEventListener('submit', (event) => { event.preventDefault(); queuePractice(event.currentTarget).catch(() => clearCurrent()); });
-    document.querySelector('[data-testid="twin-record-practice"]')?.addEventListener('click', () => replay(twin.partition));
+    window.addEventListener('online', () => replayQueued().catch(() => {}));
+    document.querySelector('[data-testid="twin-record-practice"]')?.addEventListener('click', () => replayQueued().catch(() => {}));
     document.addEventListener('click', (event) => {
       const logout = event.target.closest('[data-testid="header-log-out"]');
       if (!logout) return;
