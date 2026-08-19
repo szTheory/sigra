@@ -5,6 +5,7 @@
   let forceCachePutFailure = false;
   let currentTwin = null;
   let activeReplay = null;
+  let logoutCleanupBound = false;
 
   const open = () => new Promise((resolve, reject) => {
     const request = indexedDB.open(DB, 1);
@@ -173,6 +174,22 @@
     currentTwin = null;
     replaceWithExpiredState();
   };
+  const bindLogoutCleanup = () => {
+    if (logoutCleanupBound) return;
+    logoutCleanupBound = true;
+    document.addEventListener('click', (event) => {
+      const logout = event.target.closest('[data-testid="header-log-out"]');
+      if (!logout) return;
+      event.preventDefault();
+      clearCurrent().then(() => {
+        const form = document.createElement('form');
+        form.method = 'post'; form.action = '/users/log_out'; form.hidden = true;
+        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_method', value: 'delete' }));
+        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_csrf_token', value: csrf() || '' }));
+        document.body.append(form); form.submit();
+      }).catch(() => status('Unable to clear offline study data. Please try again before logging out.'));
+    }, true);
+  };
   const setUnavailable = () => {
     setBusy(false);
     status('Lesson media could not be prepared. Connect to the internet and try again.');
@@ -274,28 +291,17 @@
     if (activation && activation.partition !== twin.partition) await clearCurrent();
   };
   const boot = async () => {
+    bindLogoutCleanup();
     const response = await fetch('/app/lesson/bootstrap', { headers: { accept: 'application/json' } });
     if (!response.ok) return setUnavailable();
     const twin = await response.json();
     await invalidateForAccountChange(twin);
     currentTwin = twin;
     await renderReceipts(twin.partition);
-    await replayQueued();
+    await replayQueued().catch(() => {});
     actionButton()?.addEventListener('click', () => prepare(twin));
     bindLessonActions();
     window.addEventListener('online', () => replayQueued().catch(() => {}));
-    document.addEventListener('click', (event) => {
-      const logout = event.target.closest('[data-testid="header-log-out"]');
-      if (!logout) return;
-      event.preventDefault();
-      clearCurrent().then(() => {
-        const form = document.createElement('form');
-        form.method = 'post'; form.action = '/users/log_out'; form.hidden = true;
-        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_method', value: 'delete' }));
-        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_csrf_token', value: csrf() || '' }));
-        document.body.append(form); form.submit();
-      }).catch(() => status('Unable to clear offline study data. Please try again before logging out.'));
-    }, true);
     document.documentElement.dataset.twinRuntimeReady = 'true';
   };
 

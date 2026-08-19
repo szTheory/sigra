@@ -73,6 +73,46 @@ async function prepareLesson(page: import('@playwright/test').Page) {
   await expect(page.getByRole('button', { name: 'Make available offline' })).toBeEnabled();
 }
 
+async function currentActivation(page: import('@playwright/test').Page) {
+  return page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('tasklane-learning-twin');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const request = db.transaction('current_activation').objectStore('current_activation').get('current');
+    const current = await new Promise((resolve, reject) => { request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+    db.close();
+    return current;
+  });
+}
+
+async function logoutAfterActivationClears(page: import('@playwright/test').Page) {
+  let cleanupChecked = false;
+  let activationAtLogout: unknown;
+  await page.route('**/users/log_out', async (route) => {
+    const fields = new URLSearchParams(route.request().postData() ?? '');
+    expect(route.request().method()).toBe('POST');
+    expect(fields.get('_method')).toBe('delete');
+    expect(fields.get('_csrf_token')).toBeTruthy();
+    activationAtLogout = await currentActivation(page);
+    cleanupChecked = true;
+    await route.continue();
+  });
+  await page.getByTestId('header-log-out').click();
+  await expect.poll(() => cleanupChecked).toBe(true);
+  expect(activationAtLogout).toBeUndefined();
+  await expect(page).toHaveURL(/\/$/);
+  await page.unroute('**/users/log_out');
+}
+
+async function logInAsBob(page: import('@playwright/test').Page) {
+  await page.goto('/users/log_in');
+  await page.locator('#login_form').getByLabel('Email').fill('bob@demo.tasklane.test');
+  await page.locator('#login_form').getByLabel('Password').fill('BobDemoPass1!Beta');
+  await page.getByRole('button', { name: 'Log in' }).click();
+}
+
 test.describe('media integrity', () => {
   test('promotes two exact media responses marker-last and exposes the accessible available state', async ({ page }) => {
     await prepareLesson(page);
@@ -255,28 +295,57 @@ test.describe('lease, partition, logout, account switch, practice form, and them
     }));
     await page.getByTestId('header-log-out').click();
     await expect(page).toHaveURL(/\/$/);
-    const currentAfterLogout = await page.evaluate(async () => {
-      const db = await new Promise<IDBDatabase>((resolve, reject) => {
-        const request = indexedDB.open('tasklane-learning-twin');
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-      const request = db.transaction('current_activation').objectStore('current_activation').get('current');
-      const current = await new Promise((resolve, reject) => { request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
-      db.close();
-      return current;
-    });
+    const currentAfterLogout = await currentActivation(page);
     expect(currentAfterLogout).toBeUndefined();
 
-    await page.goto('/users/log_in');
-    await page.locator('#login_form').getByLabel('Email').fill('bob@demo.tasklane.test');
-    await page.locator('#login_form').getByLabel('Password').fill('BobDemoPass1!Beta');
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await logInAsBob(page);
     await page.goto('/app/lesson');
     await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
     await expect(page.getByTestId('twin-replay-receipts')).not.toContainText('alice only');
     await expect(page.getByTestId('twin-replay-receipts')).not.toContainText('Practice update queued');
   });
+
+  for (const [name, failBoot] of [
+    ['failed bootstrap', true],
+    ['rejected replay', false],
+  ] as const) {
+    test(`${name} still binds logout cleanup before account switching`, async ({ page }) => {
+      await prepareLesson(page);
+      await page.getByRole('button', { name: 'Make available offline' }).click();
+
+      if (failBoot) {
+        await page.route('**/app/lesson/bootstrap', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ outcome: 'unavailable' }) }));
+      } else {
+        await page.getByLabel('Action').selectOption('answer');
+        await page.getByLabel('Your answer').fill('alice queued replay');
+        await page.context().setOffline(true);
+        await page.getByRole('button', { name: 'Save practice update' }).click();
+        await page.context().setOffline(false);
+        await page.route('**/app/lesson/replay', (route) => route.abort('failed'));
+      }
+
+      await page.reload();
+
+      if (failBoot) {
+        await expect(page.getByTestId('twin-offline-status')).toHaveText('Lesson media could not be prepared. Connect to the internet and try again.');
+        await page.unroute('**/app/lesson/bootstrap');
+      } else {
+        await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
+        await expect(page.getByTestId('twin-replay-receipts')).toContainText('Practice update queued');
+        await page.unroute('**/app/lesson/replay');
+      }
+
+      await logoutAfterActivationClears(page);
+      expect(await currentActivation(page)).toBeUndefined();
+      await logInAsBob(page);
+      await page.goto('/app/lesson');
+      await expect(page.locator('html')).toHaveAttribute('data-twin-runtime-ready', 'true');
+      await page.context().setOffline(true);
+      await page.reload();
+      await expect(page.getByTestId('twin-offline-status')).toHaveText('Offline study has expired. Connect and sign in to continue.');
+      await expect(page.getByRole('heading', { name: 'Market morning' })).toHaveCount(0);
+    });
+  }
 
   test('practice form retains invalid input without a receipt and queues one bounded action when valid', async ({ page }) => {
     await prepareLesson(page);
