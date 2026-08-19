@@ -4,16 +4,16 @@ milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 247
 current_phase_name: language-learning-digital-twin
-status: executing
-stopped_at: Completed 247-05-PLAN.md
-last_updated: "2026-08-19T02:43:24.789Z"
+status: verifying
+stopped_at: Completed 247-06-PLAN.md
+last_updated: "2026-08-19T03:03:30.499Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 247 execution started
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 53
-  completed_plans: 52
+  completed_plans: 53
 current_plan: null
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 
 Phase: 247 (language-learning-digital-twin) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-18 — Phase 247 execution started
 
-Progress: [██████████] 98%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -111,6 +111,7 @@ Progress: [██████████] 98%
 | Phase 247-language-learning-digital-twin P03 | 14min | 2 tasks | 4 files |
 | Phase 247-language-learning-digital-twin P04 | 15min | 2 tasks | 3 files |
 | Phase 247 P05 | 17min | 1 tasks | 6 files |
+| Phase 247 P06 | 45min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -209,6 +210,7 @@ Progress: [██████████] 98%
 - [Phase ?]: Replay derives account partition solely from the active current-Scope lease; request parameters cannot select an owner.
 - [Phase ?]: Duplicate replay reloads the stored terminal receipt and exposes only mutation correlation, status, and terminal timestamp.
 - [Phase ?]: Offline practice reads and writes only after a current partition plus strict lease and marker/cache gate succeeds; expiry and account changes clear activation before state use.
+- [Phase ?]: Phase 247 replay evidence is atomically written only after complete ExUnit/Chromium proof and source-hash validation.
 
 ### Pending Todos
 
@@ -231,6 +233,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:42:44.823Z
-Stopped at: Completed 247-05-PLAN.md
+Last session: 2026-08-19T03:03:30.486Z
+Stopped at: Completed 247-06-PLAN.md
 Resume file: None

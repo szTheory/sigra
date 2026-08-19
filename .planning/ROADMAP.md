@@ -240,7 +240,7 @@ Plans:
   3. A learner can use a host-configured seven-day offline lease, and cached lesson state and outbox data remain partitioned to that account across logout or account switch.
   4. When the learner reconnects, replay is backend-reauthorized and each queued action is explicitly recorded as accepted, rejected, or conflicted exactly once.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans executed
 
 Plans:
 **Wave 1**
@@ -259,7 +259,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 247-06-PLAN.md — Reconcile terminal receipt UI and seal complete source-bound automated evidence.
+- [x] 247-06-PLAN.md — Reconcile terminal receipt UI and seal complete source-bound automated evidence.
 
 ### Phase 248: Crosswake Native Proof
 
@@ -296,6 +296,6 @@ Plans:
 | 244. PAT and Advanced JWT Truth Repair | 7/7 | Complete    | 2026-08-12 |
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
 | 246. Hosted and Direct Login Ceremonies | 19/19 | Complete    | 2026-08-16 |
-| 247. Language-Learning Digital Twin | 5/6 | In Progress|  |
+| 247. Language-Learning Digital Twin | 6/6 | In Progress|  |
 | 248. Crosswake Native Proof | 0/TBD | Not started | - |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
