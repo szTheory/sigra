@@ -67,6 +67,9 @@ defmodule Example.LearningTwin do
   alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
 
+  @default_lease_ttl_seconds 604_800
+  @max_lease_ttl_seconds 604_800
+
   @image "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 320 180\" role=\"img\" aria-label=\"Market morning fruit stall\"><rect width=\"320\" height=\"180\" fill=\"#f6dfae\"/><circle cx=\"104\" cy=\"96\" r=\"36\" fill=\"#d96b3b\"/><circle cx=\"186\" cy=\"92\" r=\"36\" fill=\"#e7b543\"/><path d=\"M104 60v-18m82 14V38\" stroke=\"#3c7537\" stroke-width=\"8\"/></svg>"
   @audio "market-morning-audio-v1"
 
@@ -82,6 +85,44 @@ defmodule Example.LearningTwin do
     }
   end
 
+  def lease_ttl_seconds do
+    case Application.get_env(:example, __MODULE__, [])
+         |> Keyword.get(:offline_lease_ttl_seconds, @default_lease_ttl_seconds) do
+      ttl when is_integer(ttl) and ttl > 0 and ttl <= @max_lease_ttl_seconds -> {:ok, ttl}
+      _ -> {:error, :invalid_lease_ttl}
+    end
+  end
+
+  def lease_valid?(%Lease{expires_at: %DateTime{} = expires_at}, %DateTime{} = as_of),
+    do: DateTime.compare(as_of, expires_at) == :lt
+
+  def lease_valid?(_, _), do: false
+
+  def active_lease(scope, opts \\ [])
+
+  def active_lease(%{user: %{id: user_id}}, opts) when is_list(opts) do
+    as_of = Keyword.get(opts, :as_of, DateTime.utc_now() |> DateTime.truncate(:microsecond))
+
+    case Repo.one(
+           from l in Lease, where: l.user_id == ^user_id, order_by: [desc: l.expires_at], limit: 1
+         ) do
+      nil -> {:error, :unavailable}
+      lease -> if(lease_valid?(lease, as_of), do: {:ok, lease}, else: {:error, :expired})
+    end
+  end
+
+  def active_lease(_, _), do: {:error, :unavailable}
+
+  def authorize_partition(scope, partition, opts \\ []) when is_list(opts) do
+    with {:ok, lease} <- active_lease(scope, opts),
+         true <- is_binary(partition) and partition == lease.account_partition do
+      {:ok, lease}
+    else
+      false -> {:error, :partition_mismatch}
+      {:error, _reason} = error -> error
+    end
+  end
+
   def media(:image), do: manifest(:image, @image, "image/svg+xml", "/app/lesson/media/image/v1")
   def media(:audio), do: manifest(:audio, @audio, "audio/mpeg", "/app/lesson/media/audio/v1")
   def media("image"), do: media(:image)
@@ -91,7 +132,7 @@ defmodule Example.LearningTwin do
   def media_body(:image), do: @image
   def media_body(:audio), do: @audio
 
-  def replay(%{user: %{id: user_id}}, params, _opts) when is_map(params) do
+  def replay(%{user: %{id: user_id}} = scope, params, _opts) when is_map(params) do
     partition = Map.get(params, "account_partition")
     idempotency_key = Map.get(params, "idempotency_key")
     mutation_id = Map.get(params, "client_mutation_id")
@@ -101,46 +142,43 @@ defmodule Example.LearningTwin do
          [partition, idempotency_key, mutation_id, checkpoint],
          &(is_binary(&1) and byte_size(&1) > 0)
        ) do
-      Repo.transaction(fn ->
-        now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+      now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
-        active? =
-          Repo.exists?(
-            from l in Lease,
-              where:
-                l.user_id == ^user_id and l.account_partition == ^partition and
-                  l.expires_at > ^now
-          )
+      case authorize_partition(scope, partition, as_of: now) do
+        {:ok, _lease} ->
+          Repo.transaction(fn ->
+            attrs = %{
+              user_id: user_id,
+              account_partition: partition,
+              idempotency_key: idempotency_key,
+              client_mutation_id: mutation_id,
+              base_checkpoint: checkpoint,
+              outcome: "accepted",
+              terminal_at: now
+            }
 
-        if not active?, do: Repo.rollback(:unauthorized_partition)
+            case Repo.insert(ReplayReceipt.changeset(%ReplayReceipt{}, attrs),
+                   on_conflict: :nothing,
+                   conflict_target: [:account_partition, :idempotency_key]
+                 ) do
+              {:ok, receipt} ->
+                receipt
 
-        attrs = %{
-          user_id: user_id,
-          account_partition: partition,
-          idempotency_key: idempotency_key,
-          client_mutation_id: mutation_id,
-          base_checkpoint: checkpoint,
-          outcome: "accepted",
-          terminal_at: now
-        }
+              {:error, _} ->
+                Repo.one!(
+                  from r in ReplayReceipt,
+                    where:
+                      r.account_partition == ^partition and r.idempotency_key == ^idempotency_key
+                )
+            end
+          end)
+          |> case do
+            {:ok, receipt} -> {:ok, receipt}
+            {:error, reason} -> {:error, reason}
+          end
 
-        case Repo.insert(ReplayReceipt.changeset(%ReplayReceipt{}, attrs),
-               on_conflict: :nothing,
-               conflict_target: [:account_partition, :idempotency_key]
-             ) do
-          {:ok, receipt} ->
-            receipt
-
-          {:error, _} ->
-            Repo.one!(
-              from r in ReplayReceipt,
-                where: r.account_partition == ^partition and r.idempotency_key == ^idempotency_key
-            )
-        end
-      end)
-      |> case do
-        {:ok, receipt} -> {:ok, receipt}
-        {:error, reason} -> {:error, reason}
+        {:error, _reason} ->
+          {:error, :unauthorized_partition}
       end
     else
       {:error, :invalid_replay}
@@ -161,7 +199,7 @@ defmodule Example.LearningTwin do
             account_partition:
               "lt_" <> Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false),
             issued_at: now,
-            expires_at: DateTime.add(now, lease_ttl(), :second)
+            expires_at: DateTime.add(now, lease_ttl_seconds!(), :second)
           })
         )
 
@@ -188,10 +226,16 @@ defmodule Example.LearningTwin do
       content_type: content_type
     }
 
-  defp lease_ttl,
-    do:
-      Application.get_env(:example, __MODULE__, [])
-      |> Keyword.get(:offline_lease_ttl_seconds, 604_800)
+  defp lease_ttl_seconds! do
+    case lease_ttl_seconds() do
+      {:ok, ttl} ->
+        ttl
+
+      {:error, :invalid_lease_ttl} ->
+        raise ArgumentError,
+              "offline_lease_ttl_seconds must be a positive integer up to #{@max_lease_ttl_seconds}"
+    end
+  end
 end
 
 defmodule ExampleWeb.LearningTwinController do

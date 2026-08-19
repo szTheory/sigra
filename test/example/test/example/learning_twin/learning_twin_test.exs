@@ -42,9 +42,17 @@ defmodule Example.LearningTwinTest do
   test "treats the exact microsecond expiry boundary as invalid" do
     expiry = DateTime.add(@as_of, 1, :second)
 
-    assert LearningTwin.lease_valid?(%Lease{expires_at: expiry}, DateTime.add(expiry, -1, :microsecond))
+    assert LearningTwin.lease_valid?(
+             %Lease{expires_at: expiry},
+             DateTime.add(expiry, -1, :microsecond)
+           )
+
     refute LearningTwin.lease_valid?(%Lease{expires_at: expiry}, expiry)
-    refute LearningTwin.lease_valid?(%Lease{expires_at: expiry}, DateTime.add(expiry, 1, :microsecond))
+
+    refute LearningTwin.lease_valid?(
+             %Lease{expires_at: expiry},
+             DateTime.add(expiry, 1, :microsecond)
+           )
   end
 
   test "binds active lease and partition authorization to the trusted current scope" do
@@ -56,10 +64,17 @@ defmodule Example.LearningTwinTest do
 
     assert {:ok, ^lease} = LearningTwin.active_lease(scope, as_of: @as_of)
     assert {:ok, ^lease} = LearningTwin.authorize_partition(scope, "lt_current", as_of: @as_of)
-    assert {:error, :partition_mismatch} = LearningTwin.authorize_partition(scope, "lt_changed", as_of: @as_of)
-    assert {:error, :partition_mismatch} = LearningTwin.authorize_partition(scope, nil, as_of: @as_of)
+
+    assert {:error, :partition_mismatch} =
+             LearningTwin.authorize_partition(scope, "lt_changed", as_of: @as_of)
+
+    assert {:error, :partition_mismatch} =
+             LearningTwin.authorize_partition(scope, nil, as_of: @as_of)
+
     assert {:error, :unavailable} = LearningTwin.active_lease(other_scope, as_of: @as_of)
-    assert {:error, :unavailable} = LearningTwin.authorize_partition(other_scope, "lt_current", as_of: @as_of)
+
+    assert {:error, :unavailable} =
+             LearningTwin.authorize_partition(other_scope, "lt_current", as_of: @as_of)
   end
 
   test "does not return an expired partition as activatable state" do
@@ -68,7 +83,9 @@ defmodule Example.LearningTwinTest do
     _lease = lease_fixture(user, "lt_expired", @as_of)
 
     assert {:error, :expired} = LearningTwin.active_lease(scope, as_of: @as_of)
-    assert {:error, :expired} = LearningTwin.authorize_partition(scope, "lt_expired", as_of: @as_of)
+
+    assert {:error, :expired} =
+             LearningTwin.authorize_partition(scope, "lt_expired", as_of: @as_of)
   end
 
   defp lease_fixture(user, partition, expires_at) do
