@@ -237,3 +237,104 @@ test.describe('lease, partition, logout, account switch, practice form, and them
     expect(JSON.stringify(outbox[0])).not.toMatch(/cookie|token|credential|digest/i);
   });
 });
+
+test.describe('replay receipts', () => {
+  async function queuePractice(page: import('@playwright/test').Page, answer = 'mango') {
+    await prepareLesson(page);
+    await page.getByRole('button', { name: 'Make available offline' }).click();
+    await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
+    await page.getByLabel('Action').selectOption('answered');
+    await page.getByLabel('Your answer').fill(answer);
+    await page.context().setOffline(true);
+    await page.getByRole('button', { name: 'Save practice update' }).click();
+    await page.context().setOffline(false);
+    return page.getByTestId('twin-replay-receipts');
+  }
+
+  test('renders semantic empty and queued receipt states without internal identifiers', async ({ page }) => {
+    await prepareLesson(page);
+    const receiptPanel = page.getByTestId('twin-replay-receipts');
+    await expect(receiptPanel.getByRole('heading', { name: 'No practice updates yet' })).toBeVisible();
+    await expect(receiptPanel).toContainText('Offline updates will be checked when you reconnect.');
+
+    await page.getByRole('button', { name: 'Make available offline' }).click();
+    await page.getByLabel('Action').selectOption('answered');
+    await page.getByLabel('Your answer').fill('mango');
+    await page.context().setOffline(true);
+    await page.getByRole('button', { name: 'Save practice update' }).click();
+
+    await expect(receiptPanel.getByRole('list')).toBeVisible();
+    await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
+    await expect(receiptPanel).toContainText('Practice update queued — it will be checked when you reconnect.');
+    await expect(receiptPanel).not.toContainText(/client_mutation_id|partition|credential|digest/i);
+    await page.context().setOffline(false);
+  });
+
+  test('reconnect accepts one queued row once and retains the first terminal timestamp on duplicate replay', async ({ page }) => {
+    const receiptPanel = await queuePractice(page);
+    const replay = page.waitForResponse((response) => response.url().includes('/app/lesson/replay') && response.request().method() === 'POST');
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await replay;
+    await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
+    await expect(receiptPanel).toContainText('Practice update accepted.');
+    const firstTimestamp = await receiptPanel.getByTestId('twin-receipt-timestamp').textContent();
+
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
+    await expect(receiptPanel.getByTestId('twin-receipt-timestamp')).toHaveText(firstTimestamp!);
+  });
+
+  test('rejected and conflict outcomes keep one row with distinct recovery and local review focus', async ({ page }) => {
+    const rejected = await queuePractice(page);
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('tasklane-learning-twin');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const tx = db.transaction('outbox', 'readwrite');
+      const store = tx.objectStore('outbox');
+      const entries = await new Promise<Array<{ [key: string]: string }>>((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const entry = entries.at(-1)!;
+      entry.answer = '';
+      store.put(entry, `${entry.partition}:${entry.idempotency_key}`);
+      await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+      db.close();
+    });
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await expect(rejected).toContainText('Practice update rejected. Review your answer and try again.');
+    await expect(rejected).not.toContainText('Practice update accepted.');
+
+    await page.reload();
+    const conflict = await queuePractice(page);
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('tasklane-learning-twin');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const tx = db.transaction('outbox', 'readwrite');
+      const store = tx.objectStore('outbox');
+      const entries = await new Promise<Array<{ [key: string]: string }>>((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const entry = entries.at(-1)!;
+      entry.base_checkpoint = 'stale-checkpoint';
+      store.put(entry, `${entry.partition}:${entry.idempotency_key}`);
+      await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+      db.close();
+    });
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await expect(conflict).toContainText('Practice update conflicts with the current lesson.');
+    await conflict.getByRole('button', { name: 'Review lesson' }).click();
+    await expect(page.getByTestId('twin-lesson')).toBeFocused();
+    await expect(page.getByLabel('Your answer')).toHaveValue('mango');
+    await expect(conflict.getByRole('listitem')).toHaveCount(1);
+  });
+});
