@@ -15,7 +15,7 @@ defmodule ExampleWeb.LearningTwinControllerTest do
     conn = get(conn, ~p"/app/lesson/bootstrap")
 
     assert redirected_to(conn) =~ "/users/log_in"
-    refute response(conn, 200) =~ "lesson"
+    refute conn.resp_body =~ "Market morning"
   end
 
   test "derives bootstrap ownership from current scope and rejects a foreign partition", %{

@@ -77,6 +77,30 @@ defmodule Example.LearningTwin do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
     lease = active_or_new_lease(user_id, now)
 
+    bootstrap_payload(lease)
+  end
+
+  def bootstrap_for_current_scope(%{user: %{id: user_id}} = scope, requested_partition) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    case active_lease(scope, as_of: now) do
+      {:ok, lease} ->
+        case authorize_requested_partition(scope, requested_partition, now) do
+          {:ok, _lease} -> {:ok, bootstrap_payload(lease)}
+          {:error, reason} -> {:error, reason}
+        end
+
+      {:error, :unavailable} when is_nil(requested_partition) ->
+        {:ok, bootstrap_payload(active_or_new_lease(user_id, now))}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def bootstrap_for_current_scope(_, _), do: {:error, :unavailable}
+
+  defp bootstrap_payload(lease) do
     %{
       partition: lease.account_partition,
       expires_at: DateTime.to_iso8601(lease.expires_at),
@@ -122,6 +146,11 @@ defmodule Example.LearningTwin do
       {:error, _reason} = error -> error
     end
   end
+
+  defp authorize_requested_partition(_scope, nil, _as_of), do: {:ok, nil}
+
+  defp authorize_requested_partition(scope, partition, as_of),
+    do: authorize_partition(scope, partition, as_of: as_of)
 
   def media(:image), do: manifest(:image, @image, "image/svg+xml", "/app/lesson/media/image/v1")
   def media(:audio), do: manifest(:audio, @audio, "audio/mpeg", "/app/lesson/media/audio/v1")
@@ -242,8 +271,15 @@ defmodule ExampleWeb.LearningTwinController do
   use ExampleWeb, :controller
   alias Example.LearningTwin
 
-  def bootstrap(conn, _params),
-    do: json(conn, LearningTwin.bootstrap(conn.assigns.current_scope, []))
+  def bootstrap(conn, params) do
+    case LearningTwin.bootstrap_for_current_scope(
+           conn.assigns.current_scope,
+           Map.get(params, "account_partition")
+         ) do
+      {:ok, bootstrap} -> json(conn, bootstrap)
+      {:error, _reason} -> conn |> put_status(:forbidden) |> json(%{outcome: "unavailable"})
+    end
+  end
 
   def media(conn, %{"kind" => kind, "version" => "v1"}) do
     case LearningTwin.media(kind) do
@@ -278,33 +314,54 @@ defmodule ExampleWeb.LearningTwinLive do
   use ExampleWeb, :live_view
   alias Example.LearningTwin
   alias ExampleWeb.Layouts
+  alias Phoenix.LiveView.JS
 
-  def mount(_params, _session, socket),
-    do: {:ok, assign(socket, :twin, LearningTwin.bootstrap(socket.assigns.current_scope, []))}
+  def mount(params, _session, socket) do
+    case LearningTwin.bootstrap_for_current_scope(
+           socket.assigns.current_scope,
+           Map.get(params, "account_partition")
+         ) do
+      {:ok, twin} -> {:ok, socket |> assign(:twin, twin) |> assign(:twin_state, :lesson)}
+      {:error, _reason} -> {:ok, socket |> assign(:twin, nil) |> assign(:twin_state, :expired)}
+    end
+  end
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} user_organizations={[]}>
-      <section class="vt-page-intro" data-testid="twin-lesson" data-twin-ready="true">
-        <p class="vt-kicker">Language practice</p>
-        <h1>{@twin.lesson.title}</h1>
-        <p>{@twin.lesson.prompt}</p>
-        <img src={Enum.at(@twin.media, 0).url} alt="Market morning fruit stall" />
-        <section>
-          <h2>Listen</h2>
-          <audio controls src={Enum.at(@twin.media, 1).url}></audio>
-          <h2>Transcript</h2>
-          <p>{@twin.lesson.transcript}</p>
+      <%= if @twin_state == :lesson do %>
+        <section class="vt-page-intro" data-testid="twin-lesson" data-twin-ready="true">
+          <p class="vt-kicker">Language practice</p>
+          <h1>{@twin.lesson.title}</h1>
+          <p>{@twin.lesson.prompt}</p>
+          <img src={Enum.at(@twin.media, 0).url} alt="Market morning fruit stall" />
+          <section>
+            <h2>Listen</h2>
+            <audio controls src={Enum.at(@twin.media, 1).url}></audio>
+            <h2>Transcript</h2>
+            <p>{@twin.lesson.transcript}</p>
+          </section>
+          <section data-testid="twin-offline-panel" aria-busy="false" aria-live="polite">
+            <p data-testid="twin-offline-status">Not available offline</p>
+            <button data-testid="twin-offline-action" type="button">Make available offline</button>
+          </section>
+          <button data-testid="twin-record-practice" type="button">Record practice</button>
+          <p data-testid="twin-replay-receipts"></p>
         </section>
-        <section data-testid="twin-offline-panel" aria-busy="false" aria-live="polite">
-          <p data-testid="twin-offline-status">Not available offline</p>
-          <button data-testid="twin-offline-action" type="button">Make available offline</button>
+        <script defer src="/assets/js/learning_twin.js">
+        </script>
+      <% else %>
+        <section class="vt-page-intro" data-testid="twin-expired" data-twin-ready="true">
+          <p class="vt-kicker">Language practice</p>
+          <h1
+            id="twin-expired-heading"
+            tabindex="-1"
+            phx-mounted={JS.focus(to: "#twin-expired-heading")}
+          >
+            Offline study has expired. Connect and sign in to continue.
+          </h1>
         </section>
-        <button data-testid="twin-record-practice" type="button">Record practice</button>
-        <p data-testid="twin-replay-receipts"></p>
-      </section>
-      <script defer src="/assets/js/learning_twin.js">
-      </script>
+      <% end %>
     </Layouts.app>
     """
   end
