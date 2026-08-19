@@ -3,6 +3,10 @@ import { expect, test } from '@playwright/test';
 const email = 'alice@demo.tasklane.test';
 const password = 'AliceDemoPass1!';
 
+test.afterEach(async ({ page }) => {
+  await page.context().setOffline(false);
+});
+
 async function logIn(page: import('@playwright/test').Page) {
   await page.goto('/users/log_in');
   await page.locator('#login_form').getByLabel('Email').fill(email);
@@ -258,6 +262,7 @@ test.describe('replay receipts', () => {
     await expect(receiptPanel).toContainText('Offline updates will be checked when you reconnect.');
 
     await page.getByRole('button', { name: 'Make available offline' }).click();
+    await expect(page.getByTestId('twin-offline-status')).toHaveText(/Available offline/);
     await page.getByLabel('Action').selectOption('answer');
     await page.getByLabel('Your answer').fill('mango');
     await page.context().setOffline(true);
