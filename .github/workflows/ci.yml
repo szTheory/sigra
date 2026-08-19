@@ -1331,6 +1331,7 @@ jobs:
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts \
+            tests/twin-offline.spec.ts \
             --retries=0
 
       - name: Run demo showcase

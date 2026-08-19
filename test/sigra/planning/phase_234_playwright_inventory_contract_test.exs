@@ -72,6 +72,18 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     end
   end
 
+  test "the Phase 247 twin proof is owned by the canonical retry-zero non-admin lane" do
+    inventory = inventory!()
+    shard = job_body(File.read!(@workflow_path), "example_playwright_shard")
+    lane = inventory["specs"] |> Enum.find(&(&1["spec"] == "test/example/priv/playwright/tests/twin-offline.spec.ts")) |> Map.fetch!("lanes") |> List.first()
+
+    assert lane["job"] == "example_playwright_shard"
+    assert lane["seam"] == "seam: non_admin_smoke"
+    assert lane["project"] == "chromium"
+    assert lane["command_marker"] == "tests/twin-offline.spec.ts"
+    assert shard =~ "tests/twin-offline.spec.ts"
+  end
+
   test "inventory validation rejects missing, stale, duplicate, unowned, and broken lane tokens" do
     inventory = inventory!()
     [first | rest] = inventory["specs"]
