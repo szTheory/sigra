@@ -69,6 +69,9 @@ defmodule Example.LearningTwin do
 
   @default_lease_ttl_seconds 604_800
   @max_lease_ttl_seconds 604_800
+  @replay_checkpoint "market-morning-v1"
+  @max_replay_identifier_bytes 128
+  @max_replay_answer_bytes 120
 
   @image "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 320 180\" role=\"img\" aria-label=\"Market morning fruit stall\"><rect width=\"320\" height=\"180\" fill=\"#f6dfae\"/><circle cx=\"104\" cy=\"96\" r=\"36\" fill=\"#d96b3b\"/><circle cx=\"186\" cy=\"92\" r=\"36\" fill=\"#e7b543\"/><path d=\"M104 60v-18m82 14V38\" stroke=\"#3c7537\" stroke-width=\"8\"/></svg>"
   @audio "market-morning-audio-v1"
@@ -162,57 +165,74 @@ defmodule Example.LearningTwin do
   def media_body(:audio), do: @audio
 
   def replay(%{user: %{id: user_id}} = scope, params, _opts) when is_map(params) do
-    partition = Map.get(params, "account_partition")
-    idempotency_key = Map.get(params, "idempotency_key")
-    mutation_id = Map.get(params, "client_mutation_id")
-    checkpoint = Map.get(params, "base_checkpoint")
+    with {:ok, normalized} <- normalize_replay(params),
+         {:ok, lease} <- active_lease(scope),
+         {:ok, receipt} <- persist_terminal_receipt(user_id, lease.account_partition, normalized) do
+      {:ok, receipt}
+    else
+      {:error, :invalid_replay} = error -> error
+      {:error, _reason} -> {:error, :unauthorized_partition}
+    end
+  end
 
-    if Enum.all?(
-         [partition, idempotency_key, mutation_id, checkpoint],
-         &(is_binary(&1) and byte_size(&1) > 0)
-       ) do
-      now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+  def replay(_, _, _), do: {:error, :unauthorized_partition}
 
-      case authorize_partition(scope, partition, as_of: now) do
-        {:ok, _lease} ->
-          Repo.transaction(fn ->
-            attrs = %{
-              user_id: user_id,
-              account_partition: partition,
-              idempotency_key: idempotency_key,
-              client_mutation_id: mutation_id,
-              base_checkpoint: checkpoint,
-              outcome: "accepted",
-              terminal_at: now
-            }
+  defp normalize_replay(params) do
+    required = ["client_mutation_id", "idempotency_key", "base_checkpoint", "action", "answer"]
 
-            case Repo.insert(ReplayReceipt.changeset(%ReplayReceipt{}, attrs),
-                   on_conflict: :nothing,
-                   conflict_target: [:account_partition, :idempotency_key]
-                 ) do
-              {:ok, receipt} ->
-                receipt
+    identifiers = required -- ["answer"]
 
-              {:error, _} ->
-                Repo.one!(
-                  from r in ReplayReceipt,
-                    where:
-                      r.account_partition == ^partition and r.idempotency_key == ^idempotency_key
-                )
-            end
-          end)
-          |> case do
-            {:ok, receipt} -> {:ok, receipt}
-            {:error, reason} -> {:error, reason}
-          end
-
-        {:error, _reason} ->
-          {:error, :unauthorized_partition}
-      end
+    if Map.keys(params) |> Enum.sort() == Enum.sort(required) and
+         Enum.all?(identifiers, &bounded_scalar?(Map.get(params, &1), @max_replay_identifier_bytes)) and
+         bounded_answer?(params["answer"]) do
+      {:ok, Map.take(params, required)}
     else
       {:error, :invalid_replay}
     end
   end
+
+  defp persist_terminal_receipt(user_id, partition, params) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    Repo.transaction(fn ->
+      attrs = %{
+        user_id: user_id,
+        account_partition: partition,
+        idempotency_key: params["idempotency_key"],
+        client_mutation_id: params["client_mutation_id"],
+        base_checkpoint: params["base_checkpoint"],
+        outcome: terminal_outcome(params),
+        terminal_at: now
+      }
+
+      case Repo.insert(ReplayReceipt.changeset(%ReplayReceipt{}, attrs),
+             on_conflict: :nothing,
+             conflict_target: [:account_partition, :idempotency_key]
+           ) do
+        {:ok, _receipt} -> stored_replay_receipt!(partition, params["idempotency_key"])
+      end
+    end)
+  end
+
+  defp stored_replay_receipt!(partition, idempotency_key) do
+    Repo.one!(
+      from r in ReplayReceipt,
+        where: r.account_partition == ^partition and r.idempotency_key == ^idempotency_key
+    )
+  end
+
+  defp terminal_outcome(%{"base_checkpoint" => checkpoint}) when checkpoint != @replay_checkpoint,
+    do: "conflict"
+
+  defp terminal_outcome(%{"action" => "answer", "answer" => answer}) when byte_size(answer) > 0,
+    do: "accepted"
+
+  defp terminal_outcome(_), do: "rejected"
+
+  defp bounded_scalar?(value, max_bytes),
+    do: is_binary(value) and byte_size(value) > 0 and byte_size(value) <= max_bytes
+
+  defp bounded_answer?(value), do: is_binary(value) and byte_size(value) <= @max_replay_answer_bytes
 
   defp active_or_new_lease(user_id, now) do
     case Repo.one(
