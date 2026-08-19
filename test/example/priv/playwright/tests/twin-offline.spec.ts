@@ -247,7 +247,7 @@ test.describe('replay receipts', () => {
     await page.getByLabel('Your answer').fill(answer);
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Save practice update' }).click();
-    await page.context().setOffline(false);
+    await expect(page.getByTestId('twin-replay-receipts').getByRole('list')).toBeVisible();
     return page.getByTestId('twin-replay-receipts');
   }
 
@@ -273,12 +273,14 @@ test.describe('replay receipts', () => {
   test('reconnect accepts one queued row once and retains the first terminal timestamp on duplicate replay', async ({ page }) => {
     const receiptPanel = await queuePractice(page);
     const replay = page.waitForResponse((response) => response.url().includes('/app/lesson/replay') && response.request().method() === 'POST');
+    await page.context().setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await replay;
     await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
     await expect(receiptPanel).toContainText('Practice update accepted.');
     const firstTimestamp = await receiptPanel.getByTestId('twin-receipt-timestamp').textContent();
 
+    await page.context().setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await expect(receiptPanel.getByRole('listitem')).toHaveCount(1);
     await expect(receiptPanel.getByTestId('twin-receipt-timestamp')).toHaveText(firstTimestamp!);
@@ -305,6 +307,7 @@ test.describe('replay receipts', () => {
       await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
       db.close();
     });
+    await page.context().setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await expect(rejected).toContainText('Practice update rejected. Review your answer and try again.');
     await expect(rejected).not.toContainText('Practice update accepted.');
