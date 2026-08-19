@@ -200,7 +200,13 @@ test('tracer: authenticated learner installs media, studies offline, and replays
 
   await page.context().setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Connect and sign in to continue' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Market morning' })).toBeVisible();
+  await expect(page.getByRole('img', { name: /market morning/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Practice update', exact: true })).toBeVisible();
+  await page.getByLabel('Action').selectOption('answer');
+  await page.getByLabel('Your answer').fill('mango');
+  await page.getByRole('button', { name: 'Save practice update' }).click();
+  await expect(page.getByTestId('twin-replay-receipts')).toContainText('Practice update queued');
   await page.context().setOffline(false);
 });
 
@@ -218,6 +224,12 @@ test.describe('lease, partition, logout, account switch, practice form, and them
     await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/No practice updates yet/);
 
     await page.getByLabel('Action').selectOption('answer');
+    await page.getByLabel('Your answer').fill('界'.repeat(41));
+    await page.getByRole('button', { name: 'Save practice update' }).click();
+    await expect(page.getByTestId('twin-practice-error')).toHaveText('Your answer must be 120 bytes or fewer.');
+    await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/No practice updates yet/);
+
+    await page.getByLabel('Your answer').fill('mango');
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Save practice update' }).click();
     await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/Practice update queued/);

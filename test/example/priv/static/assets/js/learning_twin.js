@@ -112,6 +112,61 @@
     root.querySelector('#twin-expired-heading')?.focus();
     status(expiredCopy);
   };
+  const append = (parent, tag, options = {}) => {
+    const node = document.createElement(tag);
+    if (options.className) node.className = options.className;
+    if (options.text) node.textContent = options.text;
+    if (options.testid) node.dataset.testid = options.testid;
+    if (options.attrs) Object.entries(options.attrs).forEach(([name, value]) => node.setAttribute(name, value));
+    parent.append(node);
+    return node;
+  };
+  const renderLesson = (state) => {
+    const root = lessonRoot();
+    if (!root) return;
+    const [image, audio] = state.media;
+    root.hidden = false;
+    root.dataset.twinReady = 'true';
+    root.replaceChildren();
+    append(root, 'p', { className: 'vt-kicker', text: 'Language practice' });
+    append(root, 'h1', { text: state.lesson.title });
+    append(root, 'p', { text: state.lesson.prompt });
+    const mediaGrid = append(root, 'div', { className: 'vt-card-grid vt-twin__media-grid' });
+    const imagePanel = append(mediaGrid, 'section', { className: 'vt-panel vt-twin__media' });
+    append(imagePanel, 'img', { attrs: { width: '640', height: '360', src: image.url, alt: 'Market morning fruit stall' } });
+    const audioPanel = append(mediaGrid, 'section', { className: 'vt-panel vt-twin__media' });
+    append(audioPanel, 'h2', { text: 'Listen' });
+    append(audioPanel, 'audio', { attrs: { controls: '', src: audio.url } });
+    append(audioPanel, 'h2', { text: 'Transcript' });
+    append(audioPanel, 'p', { text: state.lesson.transcript });
+    const practice = append(root, 'section', { className: 'vt-panel vt-twin__practice', attrs: { 'aria-labelledby': 'twin-practice-heading' } });
+    append(practice, 'h2', { className: 'vt-panel__title', text: 'Practice update', attrs: { id: 'twin-practice-heading' } });
+    append(practice, 'p', { className: 'vt-copy', text: 'Checkpoint: market morning vocabulary' });
+    const form = append(practice, 'form', { testid: 'twin-practice-form', attrs: { novalidate: '' } });
+    append(form, 'label', { text: 'Action', attrs: { for: 'twin-practice-action' } });
+    const select = append(form, 'select', { testid: 'twin-practice-action', attrs: { id: 'twin-practice-action', name: 'action' } });
+    append(select, 'option', { text: 'Choose an action', attrs: { value: '' } });
+    append(select, 'option', { text: 'Answered checkpoint', attrs: { value: 'answer' } });
+    append(form, 'label', { text: 'Your answer', attrs: { for: 'twin-practice-answer' } });
+    append(form, 'textarea', { attrs: { id: 'twin-practice-answer', name: 'answer', required: '' } });
+    append(form, 'p', { className: 'vt-twin__error', testid: 'twin-practice-error', attrs: { hidden: '' } });
+    append(form, 'button', { className: 'vt-btn vt-btn--primary', text: 'Save practice update', attrs: { type: 'submit' } });
+    const receiptPanel = append(root, 'section', { className: 'vt-panel vt-twin__receipts', attrs: { 'aria-labelledby': 'twin-receipts-heading' } });
+    append(receiptPanel, 'h2', { className: 'vt-panel__title', text: 'Practice updates', attrs: { id: 'twin-receipts-heading' } });
+    append(receiptPanel, 'div', { testid: 'twin-replay-receipts' });
+  };
+  const bindLessonActions = () => {
+    const form = document.querySelector('[data-testid="twin-practice-form"]');
+    if (form && !form.dataset.twinBound) {
+      form.dataset.twinBound = 'true';
+      form.addEventListener('submit', (event) => { event.preventDefault(); queuePractice(event.currentTarget).catch(() => clearCurrent()); });
+    }
+    const replayButton = document.querySelector('[data-testid="twin-record-practice"]');
+    if (replayButton && !replayButton.dataset.twinBound) {
+      replayButton.dataset.twinBound = 'true';
+      replayButton.addEventListener('click', () => replayQueued().catch(() => {}));
+    }
+  };
   const clearCurrent = async () => {
     await remove('current_activation', 'current');
     currentTwin = null;
@@ -165,15 +220,16 @@
     const activation = await get('current_activation', 'current');
     const state = await completeGate(activation);
     if (!state) { await clearCurrent(); return; }
-    const root = lessonRoot();
-    if (root) root.hidden = false;
+    renderLesson(state);
+    bindLessonActions();
+    await renderReceipts(activation.partition);
     status(`Offline study mode — available until ${new Date(activation.expires_at).toLocaleString()}.`);
   };
   const validPractice = (form) => {
     const action = form.elements.action.value;
     const answer = form.elements.answer.value.trim();
     const error = form.querySelector('[data-testid="twin-practice-error"]');
-    const message = !action ? 'Choose an action before saving your practice update.' : !answer ? 'Enter your answer before saving your practice update.' : '';
+    const message = action !== 'answer' ? 'Choose an action before saving your practice update.' : !answer ? 'Enter your answer before saving your practice update.' : new TextEncoder().encode(answer).byteLength > 120 ? 'Your answer must be 120 bytes or fewer.' : '';
     error.hidden = !message; error.textContent = message;
     return message ? null : { action, answer };
   };
@@ -220,14 +276,19 @@
     currentTwin = twin;
     await renderReceipts(twin.partition);
     actionButton()?.addEventListener('click', () => prepare(twin));
-    document.querySelector('[data-testid="twin-practice-form"]')?.addEventListener('submit', (event) => { event.preventDefault(); queuePractice(event.currentTarget).catch(() => clearCurrent()); });
+    bindLessonActions();
     window.addEventListener('online', () => replayQueued().catch(() => {}));
-    document.querySelector('[data-testid="twin-record-practice"]')?.addEventListener('click', () => replayQueued().catch(() => {}));
     document.addEventListener('click', (event) => {
       const logout = event.target.closest('[data-testid="header-log-out"]');
       if (!logout) return;
       event.preventDefault();
-      clearCurrent().finally(() => { window.location.assign('/users/log_out'); });
+      clearCurrent().then(() => {
+        const form = document.createElement('form');
+        form.method = 'post'; form.action = '/users/log_out'; form.hidden = true;
+        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_method', value: 'delete' }));
+        form.append(Object.assign(document.createElement('input'), { type: 'hidden', name: '_csrf_token', value: csrf() || '' }));
+        document.body.append(form); form.submit();
+      }).catch(() => status('Unable to clear offline study data. Please try again before logging out.'));
     }, true);
     document.documentElement.dataset.twinRuntimeReady = 'true';
   };
