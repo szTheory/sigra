@@ -340,6 +340,7 @@ test.describe('replay receipts', () => {
       await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
       db.close();
     });
+    await page.context().setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await expect(conflict).toContainText('Practice update conflicts with the current lesson.');
     await conflict.getByRole('button', { name: 'Review lesson' }).click();
