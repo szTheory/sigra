@@ -37,9 +37,21 @@ status: all_fixed
 
 ## Verification
 
-- Final independent review: clean (0 findings across 17 files).
+- Final independent review: clean (0 findings across 18 files).
 - Focused Phase 247 proof: 19 ExUnit tests and 18 Chromium tests passed.
 - Exact-key source-bound evidence regenerated atomically after the complete proof.
+
+## Integration Reconciliation
+
+- Commit `a6160f66` restored the archived Phase 234 inventory to its pinned
+  `c11853b270ffaa7c8f65c5aa1f9d620098813d71f236e01554087611ca970bc3` digest.
+- Phase 247 now owns its browser lane through a phase-local contract and a separate
+  `--project=chromium --retries=0` CI invocation; it does not mutate the frozen Phase 235 input.
+- The successor-aware Phase 234 contract, Phase 232 economics contract, Phase 247 lane contract,
+  and pinned Phase 235 ownership check all pass.
+- The repository-wide suite completed with 2,792 tests and 12 unrelated failures. No failure names
+  a Phase 247 implementation, proof, lane contract, or requirement; the former Phase 234 inventory
+  failures and Phase 235 checksum cascade are absent.
 
 ---
 
