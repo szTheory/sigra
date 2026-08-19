@@ -272,7 +272,7 @@ Plans:
   2. Automated physical-iPhone evidence proves hosted login, Keychain refresh storage, verified offline lesson/media and audio, seven-day lease boundaries, relaunch persistence, account isolation, revocation, and exactly-once replay.
   3. Automated Android-emulator evidence proves the equivalent hosted login, Keystore-backed refresh storage, verified media, offline/relaunch behavior, account isolation, revocation, and replay outcomes.
 
-**Plans**: 7 plans
+**Plans**: 8 plans
 
 Plans:
 
@@ -284,17 +284,21 @@ Plans:
 
 - [ ] 248-02-PLAN.md — Define shared receipt-last evidence and non-vacuous authority/secret guards.
 
-**Wave 3** *(depends on Plan 248-02; platform plans may run in parallel)*
+**Wave 3** *(depends on Plan 248-02)*
+
+- [ ] 248-08-PLAN.md — Provision and lock the selected physical-iPhone runner contract, exact Android coordinates/browser, and verified Gradle wrapper.
+
+**Wave 4** *(depends on Plan 248-08; platform plans may run in parallel)*
 
 - [ ] 248-03-PLAN.md — Build the host-owned iOS system-browser, Keychain, offline lesson, and XCUITest shell.
 - [ ] 248-05-PLAN.md — Build the pinned Android Auth Tab, Keystore, offline lesson, and instrumentation shell.
 
-**Wave 4** *(each platform proof depends on its Wave 3 shell)*
+**Wave 5** *(each platform proof depends on its Wave 4 shell)*
 
 - [ ] 248-04-PLAN.md — Execute and seal exact physical-iPhone receipt-last evidence.
 - [ ] 248-06-PLAN.md — Execute and seal pinned Android-emulator receipt-last evidence.
 
-**Wave 5** *(depends on Plans 248-04 and 248-06)*
+**Wave 6** *(depends on Plans 248-04 and 248-06)*
 
 - [ ] 248-07-PLAN.md — Converge both native receipts with the host contract in fail-closed CI evidence.
 

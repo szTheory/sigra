@@ -109,7 +109,7 @@ The plan should add two small, separately executable native shells plus a phase-
 | Attached physical iPhone | iOS Simulator / Playwright emulation | Excluded: cannot satisfy NAT-01’s required execution class. [VERIFIED: CONTEXT.md] |
 | Host-owned receipt | Crosswake telemetry alone | Excluded: Crosswake telemetry lacks target identity, artifact completeness, and terminal proof ownership. [VERIFIED: CONTEXT.md] |
 
-**Installation / verification:** Do not add a new Hex dependency: the example already pins both released packages. The Android shell may add official AndroidX dependencies, but the planner must pin Gradle versions/lockfiles and add a human verification checkpoint because the package-legitimacy seam supports only npm/PyPI/crates, not Maven. [VERIFIED: repository source]
+**Installation / verification:** Do not add a new Hex dependency: the example already pins both released packages. The Android shell adds only the official exact AndroidX coordinates listed under “Resolved for planning.” Plan 248-08 validates their Google Maven metadata and locks resolved hashes before build; this satisfies the project’s automation-first rule while preserving the fact that the npm/PyPI/crates legitimacy seam does not cover Maven. [VERIFIED: repository source and AGENTS.md]
 
 ## Package Legitimacy Audit
 
@@ -117,7 +117,7 @@ The plan should add two small, separately executable native shells plus a phase-
 |---------|----------|--------------|-------------|---------|-------------|
 | `crosswake` 0.2.0 | Hex.pm | 2026-07-03 | Installed locked dependency | Existing released package | Reuse; no install task. [VERIFIED: Hex.pm registry] |
 | `crosswake_sigra` 0.1.3 | Hex.pm | 2026-08-09 | Installed locked dependency | Existing released package | Reuse; no install task. [VERIFIED: Hex.pm registry] |
-| `androidx.browser:browser` | Google Maven | Resolve/pin during Wave 0 | AndroidX official artifact | Official docs identify this artifact; Maven legitimacy cannot be checked by the configured seam. | Human-verify exact Gradle coordinate and lock it before use. [CITED: developer.android.com/reference/androidx/browser/auth/AuthTabIntent] |
+| `androidx.browser:browser` 1.9.0 and exact AndroidX Test coordinates | Google Maven | Pinned in Plan 248-08 | AndroidX official artifacts | Official docs identify these exact stable artifacts; the configured npm/PyPI/crates seam is inapplicable. | Validate official Google Maven metadata and lock resolved hashes before use. [CITED: developer.android.com/reference/androidx/browser/auth/AuthTabIntent] |
 
 **Packages removed due to `[SLOP]` verdict:** none — the configured legitimacy seam only accepts npm/PyPI/crates, so it is inapplicable to existing Hex and potential Maven dependencies. [VERIFIED: package-legitimacy seam]
 
@@ -302,17 +302,11 @@ val ciphertext = cipher.doFinal(refreshCredential.toByteArray())
 | A2 | A pinned Android emulator/browser can exercise the selected Auth Tab capability. | Standard Stack | The fallback or a different pinned browser/transport must be used. |
 | A3 | The selected attached-device runner/device lab can expose sufficient physical-target identity without retaining a stable device identifier. | Summary | NAT-01 cannot be completed until a provider and receipt-safe identity method are selected. |
 
-## Open Questions
+## Resolved for planning
 
-1. **Which physical-iPhone runner or device lab will execute NAT-01?**
-   - What we know: local Xcode 26.6 and simulators are installed, but no attached physical destination is visible. [VERIFIED: local environment]
-   - Recommendation: make this a Wave 0 provisioning checkpoint; receipt validation must reject simulator destinations.
-2. **Which callback transport is most mechanically verifiable for each shell?**
-   - What we know: exact HTTPS host/path and custom scheme are both allowed; Android HTTPS requires Digital Asset Links. [CITED: developer.android.com/reference/androidx/browser/auth/AuthTabIntent]
-   - Recommendation: choose one transport per platform in plan task 1 and emit its verification posture in the receipt.
-3. **What exact Android SDK/image/browser/test dependency versions will be pinned?**
-   - What we know: no `adb`, `emulator`, `avdmanager`, or Gradle command is locally available. [VERIFIED: local environment]
-   - Recommendation: provision and lock them before shell implementation; fail the Android lane if version capture is absent.
+1. **Physical-iPhone runner:** NAT-01 selects a repository-managed self-hosted Apple-silicon macOS runner carrying the exact labels `self-hosted`, `macOS`, `ARM64`, and `sigra-ios-physical`, with one directly attached, paired, trusted physical iPhone. Plan 248-08 is a prerequisite provisioning gate: it requires `SIGRA_IOS_DEVICE_UDID` and `SIGRA_IOS_DEVELOPMENT_TEAM`, resolves the UDID through `xcrun xctrace list devices`, rejects simulator/unavailable destinations, and writes only a redacted device class/OS plus a digest-scoped runner binding. No such destination is currently visible locally, so execution remains fail-closed until that runner is actually provisioned. [VERIFIED: local environment and CONTEXT.md D-10]
+2. **Callback transports:** both proof shells use the already selected exact registered custom schemes: iOS `sigra-native-proof://auth/callback` and Android `sigra-native-proof://auth/android`. Each shell performs exact callback and state checks and records `callback_transport: custom_scheme`, `link_verification: registered_scheme`, and `callback_binding: matched`; Android additionally records `browser_mode: auth_tab` or the allowed `custom_tab_fallback`. [VERIFIED: CONTEXT.md D-05 through D-07]
+3. **Android build/test coordinates:** Plan 248-08 locks JDK 17; Gradle 8.13 with distribution SHA-256 `20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78`; AGP 8.13.2; Kotlin 2.2.10; compile/target SDK 36; Build Tools 35.0.0; Command-line Tools 23.0; Platform Tools 37.0.1; stable Emulator 37.1.11; `system-images;android-36;google_apis_playstore;x86_64` revision 7; AVD device `pixel_8`; AndroidX Browser 1.9.0; AndroidX Test runner/core 1.7.0; Espresso 3.7.0; and UI Automator 2.4.0. The selected browser is image-bundled `com.android.chrome`; provisioning must capture its exact installed version and APK SHA-256 into the committed lock before any Gradle build, and fail if the package, version, SHA, or Auth Tab/Custom Tabs capability is absent. This environment-derived browser identity avoids fabricating an unavailable APK while still making the downstream build consume an exact pre-build lock. [VERIFIED: official Android/Gradle release metadata; local toolchain remains unavailable]
 
 ## Environment Availability
 
