@@ -340,6 +340,7 @@ test.describe('lease, partition, logout, account switch, practice form, and them
         await page.getByLabel('Your answer').fill('alice queued replay');
         await page.context().setOffline(true);
         await page.getByRole('button', { name: 'Save practice update' }).click();
+        await expect(page.getByTestId('twin-replay-receipts')).toContainText('Practice update queued');
         await page.context().setOffline(false);
         await page.route('**/app/lesson/replay', (route) => route.abort('failed'));
       }
