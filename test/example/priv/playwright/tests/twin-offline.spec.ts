@@ -203,3 +203,39 @@ test('tracer: authenticated learner installs media, studies offline, and replays
   await page.getByRole('button', { name: 'Record practice' }).click();
   await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/accepted/i);
 });
+
+test.describe('lease, partition, logout, account switch, practice form, and theme', () => {
+  test('practice form retains invalid input without a receipt and queues one bounded action when valid', async ({ page }) => {
+    await prepareLesson(page);
+
+    await expect(page.getByRole('heading', { name: 'Practice update' })).toBeVisible();
+    await page.getByLabel('Your answer').fill('mango');
+    await page.getByRole('button', { name: 'Save practice update' }).click();
+    await expect(page.getByText('Choose an action before saving your practice update.')).toBeVisible();
+    await expect(page.getByLabel('Your answer')).toHaveValue('mango');
+    await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/No practice updates yet/);
+
+    await page.getByLabel('Action').selectOption('answered');
+    await page.context().setOffline(true);
+    await page.getByRole('button', { name: 'Save practice update' }).click();
+    await expect(page.getByTestId('twin-replay-receipts')).toHaveText(/Practice update queued/);
+
+    const outbox = await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('tasklane-learning-twin');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const entries = await new Promise<unknown[]>((resolve, reject) => {
+        const request = db.transaction('outbox').objectStore('outbox').getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      return entries;
+    });
+    expect(outbox).toHaveLength(1);
+    expect(outbox[0]).toMatchObject({ action: 'answered', answer: 'mango', base_checkpoint: 'market-morning-v1' });
+    expect(JSON.stringify(outbox[0])).not.toMatch(/cookie|token|credential|digest/i);
+  });
+});
