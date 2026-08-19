@@ -3,18 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.49
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 248
-current_phase_name: Crosswake Native Proof
+current_phase_name: crosswake-native-proof
 status: executing
-stopped_at: Phase 248 context gathered (assumptions mode)
-last_updated: "2026-08-19T23:47:26.766Z"
+stopped_at: Completed 248-01-PLAN.md
+last_updated: "2026-08-19T23:55:12.296Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 247 complete, transitioned to Phase 248
+last_activity_desc: Phase 248 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 53
-  percent: 78
+  completed_plans: 54
 ---
 
 # Project State
@@ -25,16 +24,16 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 247 — language-learning-digital-twin
+**Current focus:** Phase 248 — crosswake-native-proof
 
 ## Current Position
 
-Phase: 248 — Crosswake Native Proof
-Plan: Not started
+Phase: 248 (crosswake-native-proof) — EXECUTING
+Plan: 2 of 8
 Status: Ready to execute
-Last activity: 2026-08-19 — Phase 247 complete, transitioned to Phase 248
+Last activity: 2026-08-19 — Phase 248 execution started
 
-Progress: [██████████] 100%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -113,6 +112,7 @@ Progress: [██████████] 100%
 | Phase 247-language-learning-digital-twin P04 | 15min | 2 tasks | 3 files |
 | Phase 247 P05 | 17min | 1 tasks | 6 files |
 | Phase 247 P06 | 45min | 2 tasks | 6 files |
+| Phase 248-crosswake-native-proof P01 | 12min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -212,6 +212,8 @@ Progress: [██████████] 100%
 - [Phase ?]: Duplicate replay reloads the stored terminal receipt and exposes only mutation correlation, status, and terminal timestamp.
 - [Phase ?]: Offline practice reads and writes only after a current partition plus strict lease and marker/cache gate succeeds; expiry and account changes clear activation before state use.
 - [Phase ?]: Phase 247 replay evidence is atomically written only after complete ExUnit/Chromium proof and source-hash validation.
+- [Phase ?]: Native callbacks enter Crosswake only as exact allowlisted NativeEvidence after fresh host authority.
+- [Phase ?]: Crosswake replay structures correlation while LearningTwin retains account selection and terminal outcome authority.
 
 ### Pending Todos
 
@@ -234,6 +236,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T19:17:26.262Z
-Stopped at: Phase 248 context gathered (assumptions mode)
-Resume file: .planning/phases/248-crosswake-native-proof/248-CONTEXT.md
+Last session: 2026-08-19T23:55:12.287Z
+Stopped at: Completed 248-01-PLAN.md
+Resume file: None

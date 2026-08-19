@@ -272,13 +272,13 @@ Plans:
   2. Automated physical-iPhone evidence proves hosted login, Keychain refresh storage, verified offline lesson/media and audio, seven-day lease boundaries, relaunch persistence, account isolation, revocation, and exactly-once replay.
   3. Automated Android-emulator evidence proves the equivalent hosted login, Keystore-backed refresh storage, verified media, offline/relaunch behavior, account isolation, revocation, and replay outcomes.
 
-**Plans**: 8 plans
+**Plans**: 1/8 plans executed
 
 Plans:
 
 **Wave 1**
 
-- [ ] 248-01-PLAN.md — Trace released Crosswake native-return and replay vocabulary through fresh host authority.
+- [x] 248-01-PLAN.md — Trace released Crosswake native-return and replay vocabulary through fresh host authority.
 
 **Wave 2** *(depends on Plan 248-01)*
 
@@ -325,5 +325,5 @@ Plans:
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
 | 246. Hosted and Direct Login Ceremonies | 19/19 | Complete    | 2026-08-16 |
 | 247. Language-Learning Digital Twin | 6/6 | Complete    | 2026-08-19 |
-| 248. Crosswake Native Proof | 0/TBD | Not started | - |
+| 248. Crosswake Native Proof | 1/8 | In Progress|  |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
