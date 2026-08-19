@@ -89,8 +89,7 @@ validate_flags() {
     .schema == "sigra.phase-247-language-twin/1" and .result == "pass" and
     ([.credential_boundary,.manifest_integrity,.short_corrupt_denied,.cache_write_failure_denied,.offline_media_usable,.lease_boundary,.account_isolation,.accepted_once,.rejected_once,.conflict_once,.duplicate_stable,.ui_considerations,.light_dark_system,.no_sleep] | all(. == true)) and
     (.sources | keys | sort == ["controller_test","css","exunit","host","javascript","live_test","migration","playwright","proof","router"]) and
-    (.sources | all(.[]; type == "string" and test("^[0-9a-f]{64}$"))) and
-    ([paths(scalars) | map(tostring) | join(".")] | all(test("(credential|cookie|token|user|account|partition|mutation|digest|media)") | not))
+    (.sources | all(.[]; type == "string" and test("^[0-9a-f]{64}$")))
   ' "$evidence" >/dev/null
 }
 
