@@ -262,15 +262,14 @@ The context must validate partition equality, current authorization, checkpoint,
 |---|---|---|---|
 | A1 | A dedicated `Example.LearningTwin` context/module split is the best internal naming/shape. [ASSUMED] | Recommended Project Structure | Low; implementation can choose equivalent host-owned modules. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which authenticated route owns the lesson screen?**
    - What we know: It must be rooted in the existing `/app` experience and use the authenticated pipeline. [VERIFIED: 247-CONTEXT.md]
-   - What's unclear: Whether it is `/app/lesson` or an `AppLive` child/action.
-   - Recommendation: Choose a dedicated `/app/lesson` LiveView/route so the bounded artifact and Playwright target are explicit; preserve `/app` as current home. [ASSUMED]
+   - Resolution: A dedicated authenticated `/app/lesson` LiveView/route owns the lesson screen, providing an explicit bounded artifact and Playwright target while preserving `/app` as the current home. [RESOLVED: 247-01-PLAN.md]
 2. **What exact terminal-record uniqueness columns best express identity?**
    - What we know: Partition and stable idempotency/client-mutation fields are mandatory; outcome must be durable and exactly once. [VERIFIED: 247-CONTEXT.md]
-   - Recommendation: Enforce unique `(account_partition, idempotency_key)` and retain `client_mutation_id` as an independently validated/display-keyed field; validate with concurrent replay test. [ASSUMED]
+   - Resolution: Enforce unique `(account_partition, idempotency_key)` as the terminal-receipt identity and retain `client_mutation_id` as a separately validated stable field; validate the contract with the concurrent replay test. [RESOLVED: 247-01-PLAN.md]
 
 ## Environment Availability
 
