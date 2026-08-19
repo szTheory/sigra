@@ -93,7 +93,7 @@ defmodule Example.LearningTwin do
           {:error, reason} -> {:error, reason}
         end
 
-      {:error, :unavailable} when is_nil(requested_partition) ->
+      {:error, reason} when reason in [:unavailable, :expired] and is_nil(requested_partition) ->
         {:ok, bootstrap_payload(active_or_new_lease(user_id, now))}
 
       {:error, reason} ->

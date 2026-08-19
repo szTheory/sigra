@@ -46,6 +46,37 @@ defmodule ExampleWeb.LearningTwinControllerTest do
     refute response(account_b_response, 403) =~ account_a.id
   end
 
+  test "renews an expired current lease when bootstrap does not request a partition", %{conn: conn} do
+    user = user_fixture()
+    expired_partition = "lt_expired_current"
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    insert_lease(user, expired_partition, DateTime.add(now, -1, :hour))
+
+    response =
+      conn
+      |> log_in_user(user)
+      |> get(~p"/app/lesson/bootstrap")
+
+    assert %{"partition" => renewed_partition, "expires_at" => expires_at} = json_response(response, 200)
+    refute renewed_partition == expired_partition
+    assert {:ok, renewed_expiry, 0} = DateTime.from_iso8601(expires_at)
+    assert DateTime.compare(renewed_expiry, now) == :gt
+  end
+
+  test "rejects an explicit expired partition instead of renewing it", %{conn: conn} do
+    user = user_fixture()
+    expired_partition = "lt_expired_requested"
+    insert_lease(user, expired_partition, DateTime.add(DateTime.utc_now(), -1, :hour))
+
+    response =
+      conn
+      |> log_in_user(user)
+      |> get(~p"/app/lesson/bootstrap?account_partition=#{expired_partition}")
+
+    assert %{"outcome" => "unavailable"} = json_response(response, 403)
+    refute response(response, 403) =~ expired_partition
+  end
+
   test "replay requires the authenticated browser CSRF boundary and derives partition from scope", %{
     conn: conn
   } do
