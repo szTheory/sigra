@@ -33,6 +33,14 @@ After this vertical slice, further SDK packaging, additional platform runtimes, 
 
 ## Current State
 
+**Phase 247 Language-Learning Digital Twin complete (2026-08-19).** The example
+PWA now proves a bounded authenticated lesson with integrity-verified image and
+audio media, a host-configured seven-day offline lease, account-partitioned
+cached state and outbox data, and backend-reauthorized accepted/rejected/conflict
+replay receipts. The credential-free receipt-last proof passed 19 ExUnit and 18
+Chromium cases; independent goal verification passed 34/34 must-haves for
+TWIN-01, OFF-01, and OFF-02. Phase 248 Crosswake Native Proof is next.
+
 **Phase 246.2 Generated Refresh and Revocation Surface Repair complete
 (2026-08-18).** Fresh app-session hosts now expose independently rate-limited
 direct-login and refresh routes plus owner-derived one/all browser revocation.
@@ -1264,3 +1272,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-16 — Phase 246.1 (Generated PAT Pipeline Repair) complete. PAT-01 and API-01's PAT-consumer contract were re-verified through a real routed fresh-host PostgreSQL proof; Phase 247 is next.*
 
 *Last updated: 2026-08-18 — Phase 246.2 (Generated Refresh and Revocation Surface Repair) complete. APP-04 and APP-05 passed 8/8 goal verification with exact-head v5 run `32173051169`; Phase 247 is next. Historical Phase 234–236 regression debt remains explicitly tracked and unwaived.*
+
+*Last updated: 2026-08-19 — Phase 247 (Language-Learning Digital Twin) complete. TWIN-01, OFF-01, and OFF-02 passed 34/34 goal verification with a receipt-last 19-ExUnit/18-Chromium proof; Phase 248 is next.*
