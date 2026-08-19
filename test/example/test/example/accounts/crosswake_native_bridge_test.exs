@@ -148,12 +148,18 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
     other_scope = %{user: other_user}
     lease_fixture(user, "lt_owner", DateTime.add(DateTime.utc_now(), 1, :hour))
     lease_fixture(other_user, "lt_other", DateTime.add(DateTime.utc_now(), 1, :hour))
-    request = CrosswakeNativeBridge.replay_request(journal_entry("duplicate", replay_payload("duplicate")))
 
-    assert %Replay.Outcome{status: :accepted} = first =
+    request =
+      CrosswakeNativeBridge.replay_request(
+        journal_entry("duplicate", replay_payload("duplicate"))
+      )
+
+    assert %Replay.Outcome{status: :accepted} =
+             first =
              CrosswakeNativeBridge.replay_outcome(scope, request)
 
-    assert %Replay.Outcome{status: :accepted} = second =
+    assert %Replay.Outcome{status: :accepted} =
+             second =
              CrosswakeNativeBridge.replay_outcome(scope, request)
 
     assert first.authoritative_state == second.authoritative_state
