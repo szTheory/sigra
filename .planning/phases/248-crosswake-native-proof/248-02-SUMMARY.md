@@ -29,11 +29,10 @@ key-decisions:
 patterns-established:
   - "Receipt-last evidence validates exact recursive allowlists, source binding, cleanup, secret scan, scenarios, and terminal status before publication."
   - "Prohibition guards fail on malformed facts or parser floors instead of treating absence as a clean result."
-requirements-completed: [XW-01, NAT-01, NAT-02]
+requirements-completed: [XW-01]
 coverage:
   - id: D1
     description: Native proof receipts reject incomplete, wrong-target, unclean, secret-shaped, and premature evidence.
-    requirement: NAT-01
     verification:
       - kind: unit
         ref: node --test scripts/ci/lib/native-proof-receipt.test.mjs
@@ -104,7 +103,13 @@ status: complete
 - **Verification:** Real-source, known-bad, and known-clean P17 runs passed in the expected sequence.
 - **Committed in:** `1fc39d23`
 
-**Total deviations:** 1 auto-fixed (Rule 1)
+**2. [AGENTS.md evidence-truth adjustment] Retained NAT-01 and NAT-02 as pending.**
+- **Found during:** Final planning-state update
+- **Issue:** The generic plan requirement updater marked physical-device and emulator evidence complete even though this plan delivers only the shared proof contract.
+- **Fix:** Restored the two requirements to pending; later platform receipt plans must supply their terminal evidence before claiming them.
+- **Files modified:** `.planning/REQUIREMENTS.md`, `248-02-SUMMARY.md`
+
+**Total deviations:** 1 auto-fixed (Rule 1), 1 AGENTS.md evidence-truth adjustment
 
 ## Issues Encountered
 
