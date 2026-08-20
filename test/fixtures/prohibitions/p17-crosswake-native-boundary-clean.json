@@ -1,7 +1,7 @@
 {
   "nativeEvidenceMarkerCount": 2,
   "hostOwnsAuthority": true,
-  "telemetryAllowlistCount": 19,
+  "telemetryAllowlistCount": 18,
   "telemetryRejectsSensitiveFields": true,
   "receiptValidatorMarkerCount": 4,
   "receiptIsFailClosed": true,
