@@ -34,8 +34,8 @@
 ### Crosswake and Platform Proof
 
 - [x] **XW-01**: The example consumes released `crosswake` and `crosswake_sigra` packages and projects Sigra session authority into Crosswake route/replay decisions without passing credentials or making Crosswake an authentication authority.
-- [ ] **NAT-01**: Automated physical-iPhone evidence proves hosted authentication, Keychain refresh storage, verified lesson/media availability, seven-day lease boundaries, offline audio, kill/relaunch persistence, logout/account switch, revocation, and exactly-once replay.
-- [ ] **NAT-02**: Automated Android-emulator evidence proves the equivalent hosted authentication, Keystore-backed refresh storage, verified media, offline/relaunch, account isolation, revocation, and replay behavior.
+- [x] **NAT-01**: Automated physical-iPhone evidence proves hosted authentication, Keychain refresh storage, verified lesson/media availability, seven-day lease boundaries, offline audio, kill/relaunch persistence, logout/account switch, revocation, and exactly-once replay.
+- [x] **NAT-02**: Automated Android-emulator evidence proves the equivalent hosted authentication, Keystore-backed refresh storage, verified media, offline/relaunch, account isolation, revocation, and replay behavior.
 - [ ] **DESK-01**: Contract tests define Electron's system-browser PKCE flow, allowed loopback callback behavior, main-process credential ownership, renderer isolation, and OS-backed `safeStorage` expectations without packaging an Electron application.
 - [ ] **EVID-01**: Maintainers receive redacted machine-readable evidence and support documentation that distinguish contract-tested, emulator-tested, and physical-device-tested claims and fail closed when required proof is absent.
 
@@ -80,8 +80,8 @@
 | OFF-01 | Phase 247 | Complete |
 | OFF-02 | Phase 247 | Complete |
 | XW-01 | Phase 248 | Complete |
-| NAT-01 | Phase 248 | Pending |
-| NAT-02 | Phase 248 | Pending |
+| NAT-01 | Phase 248 | Complete |
+| NAT-02 | Phase 248 | Complete |
 | DESK-01 | Phase 249 | Pending |
 | EVID-01 | Phase 249 | Pending |
 

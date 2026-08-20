@@ -5,15 +5,15 @@ milestone_name: FIRST-PARTY-CLIENT-READINESS
 current_phase: 248
 current_phase_name: crosswake-native-proof
 status: executing
-stopped_at: Completed 248-01-PLAN.md
-last_updated: "2026-08-19T23:55:12.296Z"
+stopped_at: Completed 248-02-PLAN.md
+last_updated: "2026-08-20T00:01:46.480Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 248 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 54
+  completed_plans: 55
 ---
 
 # Project State
@@ -29,11 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 248 (crosswake-native-proof) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 248 execution started
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -113,6 +113,7 @@ Progress: [█████████░] 89%
 | Phase 247 P05 | 17min | 1 tasks | 6 files |
 | Phase 247 P06 | 45min | 2 tasks | 6 files |
 | Phase 248-crosswake-native-proof P01 | 12min | 2 tasks | 3 files |
+| Phase 248 P02 | 16min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -214,6 +215,9 @@ Progress: [█████████░] 89%
 - [Phase ?]: Phase 247 replay evidence is atomically written only after complete ExUnit/Chromium proof and source-hash validation.
 - [Phase ?]: Native callbacks enter Crosswake only as exact allowlisted NativeEvidence after fresh host authority.
 - [Phase ?]: Crosswake replay structures correlation while LearningTwin retains account selection and terminal outcome authority.
+- [Phase ?]: Native evidence accepts only physical_iphone or android_emulator receipts with exact target-specific fields.
+- [Phase ?]: Receipts bind a caller-supplied immutable implementation SHA and publish atomically only after terminal validation.
+- [Phase ?]: The P17 guard derives non-empty repository facts and uses injected bad/clean subjects to prove red/green causation.
 
 ### Pending Todos
 
@@ -236,6 +240,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-19T23:55:12.287Z
-Stopped at: Completed 248-01-PLAN.md
+Last session: 2026-08-20T00:01:46.464Z
+Stopped at: Completed 248-02-PLAN.md
 Resume file: None
