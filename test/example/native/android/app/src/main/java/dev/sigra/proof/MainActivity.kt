@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var readiness: TextView
     private lateinit var callbackStatus: TextView
 
-    private val authTabLauncher = AuthTabIntent.registerActivityResultLauncher(this) { result ->
+    internal val authTabLauncherForProof = AuthTabIntent.registerActivityResultLauncher(this) { result ->
         callbackStatus.text = if (result.resultCode == AuthTabIntent.RESULT_OK && result.resultUri != null) {
             CALLBACK_RETURNED
         } else {
@@ -42,11 +42,11 @@ class MainActivity : ComponentActivity() {
     }
 
     fun launchHostedLogin() {
-        val configuration = HostedAuthConfiguration(BuildConfig.PROOF_HOST_BASE_URL, "android-primary")
+        val configuration = HostedAuthConfiguration(BuildConfig.PROOF_HOST_BASE_URL, "android-native-proof")
         val attempt = HostedAuthSession.authorizationRequest(configuration)
         HostedAuthSession.launchBrowser(
             this,
-            authTabLauncher,
+            authTabLauncherForProof,
             attempt.startUri,
             BrowserMode.fromWire(BuildConfig.LOCKED_BROWSER_MODE),
         )

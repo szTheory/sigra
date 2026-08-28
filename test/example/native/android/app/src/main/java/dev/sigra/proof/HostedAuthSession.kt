@@ -157,6 +157,11 @@ class HostedAuthSession(
         return refreshStore.recoverAfterRelaunch()
     }
 
+    internal fun <T> withMemoryOnlyAccess(block: (ByteArray) -> T): T {
+        val material = accessMaterial ?: throw HostedAuthException.InvalidResponse()
+        return block(material.copyOf())
+    }
+
     fun logout(): StoragePosture {
         accessMaterial = null
         return refreshStore.deleteAfterLogout()
