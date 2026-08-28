@@ -2306,18 +2306,16 @@ jobs:
         run: |
           set -euo pipefail
           cd test/example/native/android
-          sha256sum toolchain.lock.json gradlew gradlew.bat gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties > provisioned-files.sha256
+          files=(toolchain.lock.json gradlew gradlew.bat gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties)
+          sha256sum "${files[@]}" | LC_ALL=C sort > provisioned-files.sha256
+          stat -c '%a %n' "${files[@]}" | LC_ALL=C sort > provisioned-files.mode
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+            -cf native-proof-android-provision.tar "${files[@]}" provisioned-files.sha256 provisioned-files.mode
       - name: Upload Android provisioning evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: native-proof-android-provision-${{ github.sha }}
-          path: |
-            test/example/native/android/toolchain.lock.json
-            test/example/native/android/gradlew
-            test/example/native/android/gradlew.bat
-            test/example/native/android/gradle/wrapper/gradle-wrapper.jar
-            test/example/native/android/gradle/wrapper/gradle-wrapper.properties
-            test/example/native/android/provisioned-files.sha256
+          path: test/example/native/android/native-proof-android-provision.tar
           retention-days: 7
           if-no-files-found: error

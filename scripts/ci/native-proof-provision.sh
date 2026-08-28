@@ -308,32 +308,46 @@ wait_for_android_boot() {
 }
 
 capture_android_browser() {
-  local root="$1" package_path version apk_sha custom_tabs
-  package_path="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n '1s/^package://p' | tr -d '\r')"
-  [[ -n "$package_path" ]] || fail "$RULE_ANDROID_BROWSER"
+  local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest
+  package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort -u)"
+  [[ -n "$package_paths" ]] || fail "$RULE_ANDROID_BROWSER"
   version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
   [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
-  adb -s "$ANDROID_AVD_SERIAL" pull "$package_path" "$root/chrome.apk" >/dev/null || fail "$RULE_ANDROID_BROWSER"
-  apk_sha="$(android_sha256_file "$root/chrome.apk")"
+  manifest="$root/chrome-apks.manifest"
+  while IFS= read -r package_path; do
+    [[ -n "$package_path" ]] || continue
+    adb -s "$ANDROID_AVD_SERIAL" pull "$package_path" "$root/chrome-${index}.apk" >/dev/null || fail "$RULE_ANDROID_BROWSER"
+    printf '%s\t%s\n' "$package_path" "$(android_sha256_file "$root/chrome-${index}.apk")" >>"$manifest"
+    index=$((index + 1))
+  done <<<"$package_paths"
+  [[ "$index" -gt 0 ]] || fail "$RULE_ANDROID_BROWSER"
+  # browser_apk_sha256 is the SHA-256 of this canonical sorted path/hash
+  # manifest, covering every base and split APK without changing the lock schema.
+  apk_sha="$(android_sha256_file "$manifest")"
   [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] || fail "$RULE_ANDROID_BROWSER"
+  auth_tab="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-activity --brief -a android.intent.action.VIEW -c androidx.browser.auth.category.AUTH_TAB -p com.android.chrome 2>/dev/null | tr -d '\r')"
+  [[ -z "$auth_tab" || "$auth_tab" == com.android.chrome/* ]] || fail "$RULE_ANDROID_CAPABILITY"
   custom_tabs="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -p com.android.chrome 2>/dev/null | tr -d '\r')"
-  [[ -n "$custom_tabs" && "$custom_tabs" != 'No service found' ]] || fail "$RULE_ANDROID_CAPABILITY"
-  printf '%s\t%s\n' "$version" "$apk_sha"
+  if [[ -n "$auth_tab" ]]; then printf '%s\t%s\tauth_tab\n' "$version" "$apk_sha"; return; fi
+  [[ "$custom_tabs" == com.android.chrome/* ]] || fail "$RULE_ANDROID_CAPABILITY"
+  printf '%s\t%s\tcustom_tab_fallback\n' "$version" "$apk_sha"
 }
 
 write_android_lock() {
-  local lock="$1" browser_version="$2" browser_sha="$3" wrapper_sha="$4" tmp
+  local lock="$1" browser_version="$2" browser_sha="$3" browser_mode="$4" wrapper_sha="$5" tmp
   mkdir -p "$(dirname "$lock")"
   tmp="$(mktemp "$(dirname "$lock")/.toolchain.lock.XXXXXX")"
-  python3 - "$tmp" "$browser_version" "$browser_sha" "$wrapper_sha" <<'PY'
+  trap 'rm -f "${tmp:-}"' RETURN
+  python3 - "$tmp" "$browser_version" "$browser_sha" "$browser_mode" "$wrapper_sha" <<'PY'
 import json, os, sys
-path, browser_version, browser_sha, wrapper_sha = sys.argv[1:]
-data = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "browser_version": browser_version, "browser_apk_sha256": browser_sha, "browser_mode": "custom_tab_fallback", "gradle": "8.13", "gradle_distribution_sha256": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78", "gradle_wrapper_jar_sha256": wrapper_sha, "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
+path, browser_version, browser_sha, browser_mode, wrapper_sha = sys.argv[1:]
+data = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "browser_version": browser_version, "browser_apk_sha256": browser_sha, "browser_mode": browser_mode, "gradle": "8.13", "gradle_distribution_sha256": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78", "gradle_wrapper_jar_sha256": wrapper_sha, "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
 with open(path, "w", encoding="utf-8") as handle:
     json.dump(data, handle, sort_keys=True, separators=(",", ":")); handle.write("\n")
 os.chmod(path, 0o600)
 PY
   mv -f "$tmp" "$lock"
+  trap - RETURN
 }
 
 validate_android_lock() {
@@ -345,7 +359,14 @@ validate_android_lock() {
 import json, re, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 required = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "gradle": "8.13", "gradle_distribution_sha256": sys.argv[2], "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
-if any(data.get(k) != v for k, v in required.items()) or not re.fullmatch(r"[a-f0-9]{64}", str(data.get("browser_apk_sha256", ""))) or not data.get("browser_version") or data.get("browser_mode") not in {"auth_tab", "custom_tab_fallback"} or not re.fullmatch(r"[a-f0-9]{64}", str(data.get("gradle_wrapper_jar_sha256", ""))): raise SystemExit(1)
+dynamic = {"browser_version", "browser_apk_sha256", "browser_mode", "gradle_wrapper_jar_sha256"}
+if set(data) != set(required) | dynamic: raise SystemExit(1)
+if type(data["schema_version"]) is not int or type(data["system_image_revision"]) is not int or type(data["complete"]) is not bool: raise SystemExit(1)
+if any(data[k] != v for k, v in required.items()): raise SystemExit(1)
+if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){1,4}", data["browser_version"]): raise SystemExit(1)
+if not re.fullmatch(r"[a-f0-9]{64}", data["browser_apk_sha256"]): raise SystemExit(1)
+if data["browser_mode"] not in {"auth_tab", "custom_tab_fallback"}: raise SystemExit(1)
+if not re.fullmatch(r"[a-f0-9]{64}", data["gradle_wrapper_jar_sha256"]): raise SystemExit(1)
 PY
   actual_jar="$(android_sha256_file "$jar")"
   python3 - "$lock" "$actual_jar" <<'PY' || fail "$RULE_ANDROID_WRAPPER"
@@ -372,7 +393,7 @@ PY
 }
 
 validate_android() {
-  local sdk sdkmanager avdmanager emulator project browser version sha wrapper_sha
+  local sdk sdkmanager avdmanager emulator project browser version sha mode wrapper_sha
   require_linux_x86_64; require_jdk_17
   [[ -r /dev/kvm && -w /dev/kvm ]] || fail "$RULE_ANDROID_KVM"
   sdk="${ANDROID_SDK_ROOT:-}"; [[ -n "$sdk" && -d "$sdk" && -w "$sdk" ]] || fail "$RULE_ANDROID_SDK"
@@ -394,9 +415,9 @@ validate_android() {
   install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
   "$emulator" @"$ANDROID_AVD_NAME" -accel on -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
   SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
-  browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; sha="${browser#*$'\t'}"
+  browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; browser="${browser#*$'\t'}"; sha="${browser%%$'\t'*}"; mode="${browser#*$'\t'}"
   project="$(android_project_root)"; generate_gradle_wrapper "$project" "$SIGRA_ANDROID_RUN_ROOT"; wrapper_sha="$(android_sha256_file "$project/gradle/wrapper/gradle-wrapper.jar")"
-  write_android_lock "$(android_lock_path)" "$version" "$sha" "$wrapper_sha"
+  write_android_lock "$(android_lock_path)" "$version" "$sha" "$mode" "$wrapper_sha"
   validate_android_lock
   (cd "$project" && ./gradlew --no-daemon --console=plain --version >/dev/null) || fail "$RULE_ANDROID_GRADLE"
 }

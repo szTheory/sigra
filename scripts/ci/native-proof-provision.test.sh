@@ -100,6 +100,15 @@ PY
 env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
 python3 - "$android_root/toolchain.lock.json" <<'PY'
 import json, sys
+path = sys.argv[1]; data = json.load(open(path, encoding="utf-8")); data["unexpected_stable_identifier"] = "nope"; json.dump(data, open(path, "w", encoding="utf-8"))
+PY
+expect_fail 'NP-ANDROID-LOCK' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+python3 - "$android_root/toolchain.lock.json" <<'PY'
+import json, sys
+path = sys.argv[1]; data = json.load(open(path, encoding="utf-8")); del data["unexpected_stable_identifier"]; json.dump(data, open(path, "w", encoding="utf-8"))
+PY
+python3 - "$android_root/toolchain.lock.json" <<'PY'
+import json, sys
 path = sys.argv[1]; data = json.load(open(path, encoding="utf-8")); data["browser_mode"] = "unknown"; json.dump(data, open(path, "w", encoding="utf-8"))
 PY
 expect_fail 'NP-ANDROID-LOCK' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
@@ -109,5 +118,30 @@ path, wrapper_sha = sys.argv[1:]; data = json.load(open(path, encoding="utf-8"))
 PY
 printf 'tampered\n' >>"$android_root/gradle/wrapper/gradle-wrapper.jar"
 expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+
+artifact="$tmp_root/android-proof.tar"
+python3 - "$artifact" "$android_root" <<'PY'
+import hashlib, pathlib, tarfile, io, sys
+archive, root = map(pathlib.Path, sys.argv[1:])
+files = ["toolchain.lock.json", "gradlew", "gradlew.bat", "gradle/wrapper/gradle-wrapper.jar", "gradle/wrapper/gradle-wrapper.properties"]
+# Use a fresh, untampered wrapper payload to exercise archive validation.
+(root / "gradle/wrapper/gradle-wrapper.jar").write_bytes(b"artifact-wrapper\n")
+payload = {name: (root / name).read_bytes() for name in files}
+sha = "".join(f"{hashlib.sha256(payload[name]).hexdigest()}  {name}\n" for name in sorted(files))
+modes = "".join(f"{(root / name).stat().st_mode & 0o777:o} {name}\n" for name in sorted(files))
+with tarfile.open(archive, "w") as out:
+    for name, content in {**payload, "provisioned-files.sha256": sha.encode(), "provisioned-files.mode": modes.encode()}.items():
+        entry = tarfile.TarInfo(name); entry.size = len(content); entry.mode = (root / name).stat().st_mode & 0o777 if name in payload else 0o644
+        out.addfile(entry, io.BytesIO(content))
+PY
+python3 "$ROOT_DIR/scripts/ci/verify-native-proof-android-artifact.py" "$artifact" "$tmp_root/extracted"
+[[ -x "$tmp_root/extracted/gradlew" ]] || fail "artifact validator lost gradlew executable mode"
+python3 - "$artifact" <<'PY'
+import tarfile, sys
+archive = sys.argv[1]
+with tarfile.open(archive, "a") as out:
+    entry = tarfile.TarInfo("extra.txt"); entry.size = 1; out.addfile(entry, __import__("io").BytesIO(b"x"))
+PY
+expect_fail 'NP-ANDROID-ARTIFACT' python3 "$ROOT_DIR/scripts/ci/verify-native-proof-android-artifact.py" "$artifact" "$tmp_root/rejected"
 
 echo 'native-proof-provision tests: PASS'
