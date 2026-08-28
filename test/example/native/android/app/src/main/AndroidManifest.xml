@@ -5,8 +5,7 @@
     <application
         android:allowBackup="false"
         android:label="Sigra Native Proof"
-        android:supportsRtl="true"
-        android:usesCleartextTraffic="false">
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
