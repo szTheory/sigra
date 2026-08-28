@@ -115,6 +115,16 @@ PY
   event xcode_diagnostics_emitted
 }
 
+redacted_xcresult_diagnostics() {
+  [[ -n "${RESULT_BUNDLE:-}" && -d "$RESULT_BUNDLE" ]] || return
+  local results_json="$RUN_ROOT/test-results.json"
+  xcrun xcresulttool get test-results tests --path "$RESULT_BUNDLE" --compact \
+    >"$results_json" 2>/dev/null || return
+  python3 "$ROOT_DIR/scripts/ci/lib/xcresult-failure-summary.py" "$results_json" \
+    "$DEVICE_UDID" "$DEVELOPMENT_TEAM" "$PROOF_EMAIL" "$PROOF_PASSWORD" >&2 || true
+  event xcresult_diagnostics_emitted
+}
+
 discover_target_once() {
   TARGET_DIAGNOSTIC="arch"
   [[ "$(uname -m)" == arm64 ]] || return 1
@@ -325,6 +335,7 @@ build_and_test() {
     -only-testing:"$UI_TARGET/NativeProofUITests/testLivePhysicalIphoneHostJourney" \
     >"$test_log" 2>&1; then
     redacted_xcode_diagnostics "$test_log"
+    redacted_xcresult_diagnostics
     fail "$RULE_TEST"
   fi
 }

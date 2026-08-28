@@ -85,6 +85,7 @@ case "$*" in
     printf '%s\n' '[{"identifier":"DEVICE-ONLY-TEST","simulator":false,"platform":"com.apple.platform.iphoneos","name":"Test iPhone","modelName":"iPhone","operatingSystemVersion":"26.6.1 (23G83)","available":true}]'
     ;;
   *'devicectl device uninstall app'*) exit 0 ;;
+  *'xcresulttool get test-results tests'*) cat "${FAKE_XCRESULT_SUMMARY:?}" ;;
   *'xcresulttool export attachments'*)
     output=''
     while [[ $# -gt 0 ]]; do
@@ -115,7 +116,13 @@ case "$*" in
     /usr/bin/plutil -create xml1 "$products/fixture.xctestrun"
     /usr/bin/plutil -insert TestConfigurations -json '[{"TestTargets":[{"TestBundlePath":"__TESTROOT__/SigraNativeProofTests.xctest","EnvironmentVariables":{}},{"TestBundlePath":"__TESTROOT__/SigraNativeProofUITests.xctest","EnvironmentVariables":{}}]}]' "$products/fixture.xctestrun"
     ;;
-  *'test-without-building'*) mkdir -p "${SIGRA_IOS_TEST_RESULT_BUNDLE:?}" ;;
+  *'test-without-building'*)
+    mkdir -p "${SIGRA_IOS_TEST_RESULT_BUNDLE:?}"
+    if [[ "${FAKE_TEST_FAIL:-0}" == 1 ]]; then
+      printf '%s\n' 'Testing failed:' >&2
+      exit 65
+    fi
+    ;;
   *) exit 70 ;;
 esac
 EOF
@@ -158,6 +165,7 @@ PY
 done
 
 report="$tmp_root/report.json"
+xcresult_summary="$tmp_root/xcresult-tests.json"
 python3 - "$report" <<'PY'
 import json, sys
 payload = {
@@ -173,11 +181,24 @@ payload = {
 open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
 PY
 
+python3 - "$xcresult_summary" <<'PY'
+import json, sys
+payload = {"testNodes": [{
+  "nodeType": "Test Case", "name": "testLivePhysicalIphoneHostJourney", "result": "Failed",
+  "children": [{
+    "nodeType": "Failure Message",
+    "name": "approval button was not found for native@example.invalid",
+    "details": "device DEVICE-ONLY-TEST team TEAMONLY01 password=ephemeral-not-retained access_token=top-secret-token-value"
+  }]
+}]}
+open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(payload))
+PY
+
 tool_bin="$(dirname "$(command -v node)")"
 base_env=(env -i PATH="$fake_bin:$tool_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDIR="$tmp_root" \
   SIGRA_IOS_PROOF_TEST_MODE=1 SIGRA_IOS_DEVICE_UDID=DEVICE-ONLY-TEST \
   SIGRA_IOS_DEVELOPMENT_TEAM=TEAMONLY01 SIGRA_IOS_RUNNER_LABELS='self-hosted,macOS,ARM64,sigra-ios-physical' \
-  SIGRA_IOS_PROOF_TEST_REPORT="$report" FAKE_REPORT="$report")
+  SIGRA_IOS_PROOF_TEST_REPORT="$report" FAKE_REPORT="$report" FAKE_XCRESULT_SUMMARY="$xcresult_summary")
 
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simulator (26.6.1) (DEVICE-ONLY-TEST)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Other iPhone (26.6.1) (OTHER-DEVICE)' "$SCRIPT"
@@ -196,6 +217,20 @@ done
 [[ "$(tail -1 "$build_events")" == 'xcode_diagnostics_emitted' ]] || fail 'redacted build diagnostics were not emitted'
 [[ -z "$(find "$tmp_root" -maxdepth 1 -type d -name 'sigra-ios-physical.*' -print -quit)" ]] || \
   fail 'failed build left its private run directory behind'
+
+test_events="$tmp_root/test-events"
+set +e
+test_output="$("${base_env[@]}" FAKE_TEST_FAIL=1 SIGRA_IOS_PROOF_TEST_EVENTS="$test_events" "$SCRIPT" 2>&1)"
+test_status=$?
+set -e
+[[ $test_status -ne 0 && "$test_output" == *'NP-IOS-TEST'* ]] || fail 'expected a closed physical test failure'
+[[ "$test_output" == *'approval button was not found'* ]] || fail 'structured xcresult failure was not retained'
+for private in DEVICE-ONLY-TEST TEAMONLY01 ephemeral-not-retained ephemeral@example.invalid top-secret-token-value; do
+  [[ "$test_output" != *"$private"* ]] || fail "xcresult diagnostics retained private value: $private"
+done
+[[ "$(tail -1 "$test_events")" == 'xcresult_diagnostics_emitted' ]] || fail 'structured xcresult diagnostics were not emitted'
+[[ -z "$(find "$tmp_root" -maxdepth 1 -type d -name 'sigra-ios-physical.*' -print -quit)" ]] || \
+  fail 'failed physical test left its private result bundle behind'
 
 receipt="$tmp_root/248-IOS-EVIDENCE.json"
 events="$tmp_root/events"
