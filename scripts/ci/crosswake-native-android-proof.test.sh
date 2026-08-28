@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+RUNNER="${ROOT_DIR}/scripts/ci/crosswake-native-android-proof.sh"
+TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sigra-android-proof-test.XXXXXX")"
+trap 'rm -rf "${TMP_ROOT}"' EXIT
+
+fail() {
+  printf 'android proof runner test: %s\n' "$*" >&2
+  exit 1
+}
+
+expect_failure() {
+  local label="$1"
+  shift
+  if "$@" >"${TMP_ROOT}/${label}.out" 2>"${TMP_ROOT}/${label}.err"; then
+    fail "${label} unexpectedly passed"
+  fi
+}
+
+LOCK="${ROOT_DIR}/test/example/native/android/toolchain.lock.json"
+FACTS="${TMP_ROOT}/facts.json"
+
+python3 - "${LOCK}" "${FACTS}" <<'PY'
+import json, pathlib, sys
+lock = json.loads(pathlib.Path(sys.argv[1]).read_text())
+facts = {
+    "schema_version": 1,
+    "toolchain": {key: lock[key] for key in (
+        "jdk", "cmdline_tools", "platform_tools", "emulator", "sdk_platform",
+        "build_tools", "system_image", "system_image_revision", "gradle", "agp",
+        "kotlin", "androidx_browser", "test_core", "test_runner", "espresso", "uiautomator")},
+    "target": {"platform": "android", "avd_device": lock["avd_device"], "api": "36", "abi": lock["abi"], "emulated": True},
+    "browser": {"component": lock["browser_package"], "version": lock["browser_version"], "apk_sha256": lock["browser_apk_sha256"], "mode": lock["browser_mode"]},
+    "callback": {"transport": "custom_scheme", "link_verification": "registered_scheme", "callback_binding": "matched"},
+    "storage": {"present": True, "rotated": True, "recovered_after_relaunch": True, "deleted_after_logout": True, "deleted_after_revocation": True, "read_result": "key_unavailable", "access_persisted": False},
+    "scenarios": {key: True for key in ("hosted_return", "image_verified", "audio_verified", "strict_lease_edge", "offline_use", "kill_relaunch", "account_switch", "server_revocation", "replay_accepted", "replay_rejected", "replay_conflict")},
+    "transport": {"wifi_disabled": True, "cellular_disabled": True, "emulator_network_disabled": True, "force_stop": True, "cold_start": True},
+    "process": {"before_pid": 101, "after_pid": 202, "force_stop_observed": True},
+    "network": {"cgroup_firewall": True, "proof_host_unreachable": True, "external_sentinel_unreachable": True, "adb_available": True},
+    "cleanup_status": "complete",
+    "secret_scan_status": "clean",
+    "terminal_status": "complete",
+}
+pathlib.Path(sys.argv[2]).write_text(json.dumps(facts, sort_keys=True) + "\n")
+PY
+
+bash "${RUNNER}" --validate-facts "${FACTS}" "${LOCK}"
+
+mutate_and_reject() {
+  local label="$1" mutation="$2"
+  local bad="${TMP_ROOT}/${label}.json"
+  python3 - "${FACTS}" "${bad}" "${mutation}" <<'PY'
+import json, pathlib, sys
+data = json.loads(pathlib.Path(sys.argv[1]).read_text())
+exec(sys.argv[3], {"data": data})
+pathlib.Path(sys.argv[2]).write_text(json.dumps(data) + "\n")
+PY
+  expect_failure "${label}" bash "${RUNNER}" --validate-facts "${bad}" "${LOCK}"
+}
+
+mutate_and_reject version_mismatch 'data["toolchain"]["emulator"] = "mutable"'
+mutate_and_reject residual_transport 'data["network"]["proof_host_unreachable"] = False'
+mutate_and_reject activity_only_restart 'data["process"]["after_pid"] = data["process"]["before_pid"]'
+mutate_and_reject missing_scenario 'del data["scenarios"]["offline_use"]'
+mutate_and_reject storage_omission 'del data["storage"]["deleted_after_revocation"]'
+mutate_and_reject identity_injection 'data["target"]["device_id"] = "device_12345"'
+mutate_and_reject secret_injection 'data["access_token"] = "Bearer retained-secret"'
+
+test ! -e "${TMP_ROOT}/early-receipt.json" || fail "receipt existed before sealing"
+expect_failure early_receipt env SIGRA_ANDROID_PROOF_FAIL_BEFORE_SEAL=1 \
+  bash "${RUNNER}" --seal-facts "${FACTS}" "${LOCK}" "${TMP_ROOT}/early-receipt.json" \
+  0123456789abcdef0123456789abcdef01234567 "${FACTS}" "${FACTS}" "${FACTS}"
+test ! -e "${TMP_ROOT}/early-receipt.json" || fail "receipt was written before the terminal gate"
+
+grep -Fq 'adb_cmd shell am force-stop' "${RUNNER}" || fail "runner must own force-stop"
+grep -Fq 'cgroup' "${RUNNER}" || fail "runner must use a process-scoped network boundary"
+grep -Fq 'proof_host_unreachable' "${RUNNER}" || fail "runner must attest proof-host unreachability"
+if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
+  fail "fixed sleeps are prohibited"
+fi
+
+printf 'android proof runner hermetic contracts: pass\n'
