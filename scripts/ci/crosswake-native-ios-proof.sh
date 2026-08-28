@@ -95,10 +95,12 @@ if len(physical) != 1:
     raise SystemExit(2)
 d = physical[0]
 identifier = d.get("identifier", "")
-version = d.get("operatingSystemVersion", "")
+version_raw = str(d.get("operatingSystemVersion", ""))
 model = d.get("modelName") or d.get("name") or ""
-if not identifier or not re.fullmatch(r"[0-9A-Za-z-]{16,}", identifier) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){1,2}", version) or not re.fullmatch(r"[A-Za-z0-9 ,+_-]{1,80}", model):
+version_match = re.match(r"^([0-9]+(?:\.[0-9]+){1,2})(?:\s+\([^)]+\))?$", version_raw)
+if not identifier or not re.fullmatch(r"[0-9A-Za-z-]{16,}", identifier) or not version_match or not re.fullmatch(r"[A-Za-z0-9 ,+_-]{1,80}", model):
     raise SystemExit(2)
+version = version_match.group(1)
 json.dump({"identifier":identifier,"model_class":model,"os_version":version}, open(output,"w",encoding="utf-8"), separators=(",",":"))
 PY
   DEVICE_UDID="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["identifier"])' "$selected")"

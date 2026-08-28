@@ -39,7 +39,7 @@ cat >"$fake_bin/xcrun" <<'EOF'
 case "$*" in
   *'xctrace list devices'*) printf '%s\n' "${FAKE_XCTRACE:-Test iPhone (26.6.1) (DEVICE-ONLY-TEST)}" ;;
   *'xcdevice list'*)
-    printf '%s\n' '[{"identifier":"DEVICE-ONLY-TEST","simulator":false,"platform":"com.apple.platform.iphoneos","name":"Test iPhone","modelName":"iPhone","operatingSystemVersion":"26.6.1","available":true}]'
+    printf '%s\n' '[{"identifier":"DEVICE-ONLY-TEST","simulator":false,"platform":"com.apple.platform.iphoneos","name":"Test iPhone","modelName":"iPhone","operatingSystemVersion":"26.6.1 (23G83)","available":true}]'
     ;;
   *'devicectl device uninstall app'*) exit 0 ;;
   *'xcresulttool export attachments'*)
