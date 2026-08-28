@@ -424,8 +424,9 @@ validate_android() {
   [[ -x "$sdkmanager" ]] || fail "$RULE_ANDROID_SDK"
   export SIGRA_ANDROID_RUN_ROOT="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sigra-native-proof-android.XXXXXX")"
   chmod 700 "$SIGRA_ANDROID_RUN_ROOT"
-  export ANDROID_USER_HOME="$SIGRA_ANDROID_RUN_ROOT/android-user-home" ANDROID_SDK_HOME="$SIGRA_ANDROID_RUN_ROOT/android-sdk-home" ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" SIGRA_ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd"
-  mkdir -p "$ANDROID_USER_HOME" "$ANDROID_SDK_HOME" "$ANDROID_AVD_HOME"
+  export ANDROID_USER_HOME="$SIGRA_ANDROID_RUN_ROOT/android-user-home" ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" SIGRA_ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_HOME="$sdk" ANDROID_SDK_ROOT="$sdk"
+  unset ANDROID_SDK_HOME
+  mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
