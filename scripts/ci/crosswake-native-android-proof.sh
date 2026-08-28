@@ -23,6 +23,19 @@ SECONDARY_PASSWORD=""
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
 sha256_file() { sha256sum "$1" | awk '{print $1}'; }
 
+redacted_host_diagnostics() {
+  [[ -n "$RUN_ROOT" && -f "$RUN_ROOT/host.log" ]] || return 0
+  python3 - "$RUN_ROOT/host.log" "$PRIMARY_EMAIL" "$PRIMARY_PASSWORD" "$SECONDARY_EMAIL" "$SECONDARY_PASSWORD" <<'PY'
+import pathlib,re,sys
+text=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8",errors="replace")
+for private in sys.argv[2:]:
+    if private: text=text.replace(private,"[REDACTED]")
+allowed=re.compile(r'\[(?:warning|error)\]|\*\* \(|could not|failed|exception|address already|running exampleweb',re.I)
+secret=re.compile(r'access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer\s+\S+',re.I)
+print("\n".join(secret.sub("[REDACTED]",line) for line in text.splitlines() if allowed.search(line))[-12000:],file=sys.stderr)
+PY
+}
+
 validate_facts() {
   python3 - "$1" "$2" <<'PY'
 import json, pathlib, re, sys
@@ -163,7 +176,14 @@ prepare_host() {
   ACCOUNTS_CREATED=1
   (cd "$ROOT_DIR/test/example" && SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" MIX_ENV=test mix phx.server >"$RUN_ROOT/host.log" 2>&1) &
   HOST_PID=$!
-  curl --fail --silent --retry 50 --retry-delay 1 --retry-connrefused "http://127.0.0.1:$PORT/users/log_in" >/dev/null || fail "proof host readiness failed"
+  local deadline=$((SECONDS+90))
+  while (( SECONDS < deadline )); do
+    if ! kill -0 "$HOST_PID" >/dev/null 2>&1; then redacted_host_diagnostics; fail "proof host exited before readiness"; fi
+    if curl --fail --silent --connect-timeout 2 "http://127.0.0.1:$PORT/users/log_in" >/dev/null; then return 0; fi
+    read -r -t 1 _ </dev/null || true
+  done
+  redacted_host_diagnostics
+  fail "proof host readiness failed"
 }
 
 run_instrumentation() {
