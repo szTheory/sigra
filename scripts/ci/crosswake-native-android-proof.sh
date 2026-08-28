@@ -113,6 +113,7 @@ cleanup() {
   if [[ -n "$HOST_PID" ]]; then kill "$HOST_PID" >/dev/null 2>&1 || true; wait "$HOST_PID" 2>/dev/null || true; HOST_PID=""; fi
   if [[ -n "$EMULATOR_PID" ]]; then adb_cmd emu kill >/dev/null 2>&1 || true; wait "$EMULATOR_PID" 2>/dev/null || true; EMULATOR_PID=""; fi
   adb -s "$SERIAL" emu kill >/dev/null 2>&1 || true
+  adb kill-server >/dev/null 2>&1 || true
   avdmanager delete avd -n "$AVD_NAME" >/dev/null 2>&1 || true
   if [[ -n "$CGROUP_PATH" && -d "$CGROUP_PATH" ]]; then sudo rmdir "$CGROUP_PATH" >/dev/null 2>&1 || ok=1; fi
   if [[ "$ACCOUNTS_CREATED" == 1 ]]; then
@@ -123,6 +124,17 @@ cleanup() {
   fi
   [[ -z "$RUN_ROOT" || ! -d "$RUN_ROOT" ]] || rm -rf "$RUN_ROOT" || ok=1
   return "$ok"
+}
+
+provision_private_adb_key() {
+  local key_root="$RUN_ROOT/adb-keys" key="$RUN_ROOT/adb-keys/adbkey"
+  mkdir -p "$key_root"; chmod 700 "$key_root"
+  export ADB_VENDOR_KEYS="$key_root"
+  adb kill-server >/dev/null 2>&1 || true
+  adb keygen "$key" >/dev/null 2>&1 || fail "private ADB key generation failed"
+  [[ -f "$key" && -f "$key.pub" ]] || fail "private ADB keypair is incomplete"
+  chmod 600 "$key"; chmod 644 "$key.pub"
+  adb start-server >/dev/null 2>&1 || fail "private ADB server startup failed"
 }
 
 bounded_wait_boot() {
@@ -281,6 +293,7 @@ main_live() {
   IMPLEMENTATION_SHA="$(bind_clean_worktree_sha "$ROOT_DIR" "$EVIDENCE_RELATIVE_PATH")" || fail "worktree is not exact-source clean"
   prepare_host
   create_private_avd "$cmdline_bin"
+  provision_private_adb_key
   "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot

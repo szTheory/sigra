@@ -79,6 +79,7 @@ grep -Fq 'cgroup' "${RUNNER}" || fail "runner must use a process-scoped network 
 grep -Fq 'proof_host_unreachable' "${RUNNER}" || fail "runner must attest proof-host unreachability"
 grep -Fq -- '--prepare-android-runtime' "${ROOT_DIR}/scripts/ci/native-proof-provision.sh" || fail "runtime provisioning must not boot a duplicate browser"
 grep -Fq 'export ANDROID_HOME="$ANDROID_SDK_ROOT"' "${RUNNER}" || fail "runner must prevent hosted SDK root drift"
+grep -Fq 'export ADB_VENDOR_KEYS="$key_root"' "${RUNNER}" || fail "runner must authorize ADB from a private ephemeral key"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
