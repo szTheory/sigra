@@ -84,6 +84,25 @@ case "$*" in
   *'xcdevice list'*)
     printf '%s\n' '[{"identifier":"DEVICE-ONLY-TEST","simulator":false,"platform":"com.apple.platform.iphoneos","name":"Test iPhone","modelName":"iPhone","operatingSystemVersion":"26.6.1 (23G83)","available":true}]'
     ;;
+  *'devicectl device info lockState'*)
+    output=''
+    while [[ $# -gt 0 ]]; do
+      [[ "$1" == '--json-output' ]] && { output="$2"; break; }
+      shift
+    done
+    locked="${FAKE_DEVICE_LOCKED:-0}"
+    if [[ "${FAKE_LOCK_AFTER_FIRST:-0}" == 1 ]]; then
+      counter="${FAKE_LOCK_COUNTER:?}"
+      allowed_calls="${FAKE_LOCK_ALLOWED_CALLS:-1}"
+      count=0
+      [[ -f "$counter" ]] && count="$(cat "$counter")"
+      count=$((count + 1))
+      printf '%s' "$count" >"$counter"
+      [[ "$count" -gt "$allowed_calls" ]] && locked=1
+    fi
+    if [[ "$locked" == 1 ]]; then required=true; else required=false; fi
+    printf '{"result":{"passcodeRequired":%s,"deviceIdentifier":"DEVICE-ONLY-TEST"}}\n' "$required" >"$output"
+    ;;
   *'devicectl device uninstall app'*) exit 0 ;;
   *'xcresulttool get test-results tests'*) cat "${FAKE_XCRESULT_SUMMARY:?}" ;;
   *'xcresulttool export attachments'*)
@@ -203,6 +222,7 @@ base_env=(env -i PATH="$fake_bin:$tool_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDI
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simulator (26.6.1) (DEVICE-ONLY-TEST)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Other iPhone (26.6.1) (OTHER-DEVICE)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_UNAME=x86_64 "$SCRIPT"
+expect_failure 'NP-IOS-PHYSICAL-TARGET-lock-state' "${base_env[@]}" FAKE_DEVICE_LOCKED=1 "$SCRIPT"
 
 build_events="$tmp_root/build-events"
 set +e
@@ -220,11 +240,14 @@ done
 
 test_events="$tmp_root/test-events"
 set +e
-test_output="$("${base_env[@]}" FAKE_TEST_FAIL=1 SIGRA_IOS_PROOF_TEST_EVENTS="$test_events" "$SCRIPT" 2>&1)"
+test_output="$("${base_env[@]}" FAKE_TEST_FAIL=1 FAKE_LOCK_AFTER_FIRST=1 \
+  FAKE_LOCK_ALLOWED_CALLS=2 FAKE_LOCK_COUNTER="$tmp_root/test-lock-counter" \
+  SIGRA_IOS_PROOF_TEST_EVENTS="$test_events" "$SCRIPT" 2>&1)"
 test_status=$?
 set -e
 [[ $test_status -ne 0 && "$test_output" == *'NP-IOS-TEST'* ]] || fail 'expected a closed physical test failure'
 [[ "$test_output" == *'approval button was not found'* ]] || fail 'structured xcresult failure was not retained'
+[[ "$test_output" == *'device_lock_state=test-failure:locked'* ]] || fail 'test failure did not retain finite lock state'
 for private in DEVICE-ONLY-TEST TEAMONLY01 ephemeral-not-retained ephemeral@example.invalid top-secret-token-value; do
   [[ "$test_output" != *"$private"* ]] || fail "xcresult diagnostics retained private value: $private"
 done

@@ -178,6 +178,37 @@ discover_target() {
   discover_target_once || fail "$RULE_TARGET-$TARGET_DIAGNOSTIC"
 }
 
+capture_device_lock_state() {
+  local stage="$1"
+  local output="$RUN_ROOT/lock-$stage.json"
+  xcrun devicectl device info lockState --device "$DEVICE_UDID" --quiet --timeout 15 \
+    --json-output "$output" >/dev/null 2>&1 || return 1
+  python3 - "$output" <<'PY'
+import json, sys
+required = json.load(open(sys.argv[1], encoding="utf-8")).get("result", {}).get("passcodeRequired")
+if required is True:
+    print("locked")
+elif required is False:
+    print("unlocked")
+else:
+    raise SystemExit(2)
+PY
+}
+
+require_unlocked_device() {
+  local state
+  state="$(capture_device_lock_state preflight)" || fail "$RULE_TARGET-lock-state-observation"
+  [[ "$state" == unlocked ]] || fail "$RULE_TARGET-lock-state"
+  event device_unlocked
+}
+
+emit_failure_lock_state() {
+  local state
+  state="$(capture_device_lock_state test-failure)" || state=unknown
+  printf 'crosswake native iOS proof: device_lock_state=test-failure:%s\n' "$state" >&2
+  event "device_lock_state_$state"
+}
+
 discover_team() {
   local identities="$RUN_ROOT/signing.txt"
   security find-identity -v -p codesigning >"$identities" 2>/dev/null || fail "$RULE_INPUT"
@@ -330,10 +361,13 @@ build_and_test() {
     SIGRA_NATIVE_PROOF_EMAIL "$PROOF_EMAIL" \
     SIGRA_NATIVE_PROOF_PASSWORD "$PROOF_PASSWORD" || fail "$RULE_BUILD"
 
+  require_unlocked_device
+
   if ! run_bounded 1200 xcodebuild -quiet test-without-building -xctestrun "$XCTESTRUN" \
     -destination "id=$DEVICE_UDID" -resultBundlePath "$RESULT_BUNDLE" -parallel-testing-enabled NO \
     -only-testing:"$UI_TARGET/NativeProofUITests/testLivePhysicalIphoneHostJourney" \
     >"$test_log" 2>&1; then
+    emit_failure_lock_state
     redacted_xcode_diagnostics "$test_log"
     redacted_xcresult_diagnostics
     fail "$RULE_TEST"
@@ -408,7 +442,8 @@ finish_private_cleanup() {
     "$RUN_ROOT/selected-target.json" "$RUN_ROOT/xctrace.txt" "$RUN_ROOT/destinations.txt" \
     "$RUN_ROOT/signing.txt" "$RUN_ROOT/xcode-accounts.plist" "$RUN_ROOT/account-teams.txt" \
     "$RUN_ROOT/profile-facts.tsv" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
-    "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log"
+    "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log" \
+    "$RUN_ROOT/lock-preflight.json" "$RUN_ROOT/lock-test-failure.json"
 
   if [[ -n "$HOST_PID" ]]; then
     kill "$HOST_PID" 2>/dev/null || true
@@ -493,6 +528,7 @@ main() {
     discover_lan_url
   fi
   discover_target
+  require_unlocked_device
   discover_team
   event target_validated
   if [[ "$TEST_MODE" != 1 ]]; then prepare_host; fi
