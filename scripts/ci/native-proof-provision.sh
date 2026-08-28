@@ -354,6 +354,21 @@ provision_private_adb_key() {
   adb start-server >/dev/null 2>&1 || fail "$RULE_ANDROID_EMULATOR"
 }
 
+pull_complete_apk() {
+  local source="$1" destination="$2" partial stderr attempt
+  partial="$destination.partial"; stderr="${SIGRA_ANDROID_RUN_ROOT:-$(dirname "$destination")}/apk-pull.stderr"
+  for attempt in 1 2; do
+    rm -f "$partial" "$stderr"
+    if adb -s "$ANDROID_AVD_SERIAL" pull "$source" "$partial" >/dev/null 2>"$stderr" && [[ -s "$partial" ]] && [[ "$(head -c 2 "$partial")" == PK ]]; then
+      mv -f "$partial" "$destination"
+      return 0
+    fi
+    rm -f "$partial"
+  done
+  rm -f "$stderr"
+  fail "$RULE_ANDROID_BROWSER"
+}
+
 capture_android_browser() {
   local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest package_path basename
   package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)"
@@ -363,7 +378,7 @@ capture_android_browser() {
   manifest="$root/chrome-apks.manifest"
   while IFS= read -r package_path; do
     [[ -n "$package_path" ]] || continue
-    adb -s "$ANDROID_AVD_SERIAL" pull "$package_path" "$root/chrome-${index}.apk" >/dev/null || fail "$RULE_ANDROID_BROWSER"
+    pull_complete_apk "$package_path" "$root/chrome-${index}.apk"
     basename="${package_path##*/}"
     [[ "$basename" =~ ^[A-Za-z0-9._-]+\.apk$ ]] || fail "$RULE_ANDROID_BROWSER"
     # Device installation directories are mutable; retain only stable split names

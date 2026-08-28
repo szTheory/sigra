@@ -154,7 +154,7 @@ if [[ "$args" == *'pm path com.android.chrome'* ]]; then printf '%s\n' 'package:
 elif [[ "$args" == *'dumpsys package com.android.chrome'* ]]; then echo '  versionName=137.0.7151.80';
 elif [[ "$args" == *'query-services'*'AuthTab'* ]]; then printf '%s\n' "${FAKE_AUTH_TAB:-No service found}";
 elif [[ "$args" == *'query-services'* ]]; then printf '%s\n' "${FAKE_CUSTOM_TABS:-com.android.chrome/.CustomTabsService}";
-elif [[ "$args" == *' pull '* ]]; then target="${@: -1}"; printf '%s' "${target##*/}" >"$target";
+elif [[ "$args" == *' pull '* ]]; then target="${@: -1}"; printf 'PK%s' "${target##*/}" >"$target";
 else exit 70; fi
 EOF
 chmod +x "$fake_bin/adb"
