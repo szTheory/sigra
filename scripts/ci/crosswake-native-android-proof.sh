@@ -157,8 +157,8 @@ bounded_wait_boot() {
   [[ "$(adb_cmd get-state 2>/dev/null || true)" == device ]] || { redacted_emulator_diagnostics; fail "emulator did not attach"; }
   deadline=$((SECONDS + 240))
   while (( SECONDS < deadline )); do
-    value="$(adb_cmd shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
-    paths="$(adb_cmd shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p')"
+    value="$(adb_cmd shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
+    paths="$(adb_cmd shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' || true)"
     if [[ "$value" == 1 && -n "$paths" ]]; then stable=$((stable+1)); else stable=0; fi
     [[ "$stable" -ge 3 ]] && return 0
     read -r -t 2 _ </dev/null || true
