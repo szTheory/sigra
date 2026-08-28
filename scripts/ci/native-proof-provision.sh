@@ -198,6 +198,29 @@ PY
   trap - RETURN
 }
 
+validate_ios_lock() {
+  local lock_path="${SIGRA_NATIVE_PROOF_LOCK_PATH:-$LOCK_PATH_DEFAULT}"
+  [[ -f "$lock_path" ]] || fail "$RULE_REDACTION"
+  python3 - "$lock_path" <<'PY' || fail "$RULE_REDACTION"
+import json, re, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+required = {
+ "schema_version": 1, "ios_runner_class": "self_hosted_attached_device",
+ "ios_runner_labels": ["self-hosted", "macOS", "ARM64", "sigra-ios-physical"],
+ "runner_arch": "arm64", "xcode_version": "26.6", "xcode_build": "17F113",
+ "ios_callback": "sigra-native-proof://auth/callback", "android_callback": "sigra-native-proof://auth/android",
+ "callback_transport": "custom_scheme", "complete": True,
+}
+allowed = set(required) | {"ios_device_class", "ios_os_version", "ios_device_binding_digest"}
+if set(data) != allowed or any(data.get(k) != v for k, v in required.items()): raise SystemExit(1)
+if type(data["schema_version"]) is not int or type(data["complete"]) is not bool: raise SystemExit(1)
+if not isinstance(data["ios_device_class"], str) or not re.fullmatch(r"[A-Za-z0-9 _-]{1,80}", data["ios_device_class"]): raise SystemExit(1)
+if not isinstance(data["ios_os_version"], str) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){0,2}", data["ios_os_version"]): raise SystemExit(1)
+if not isinstance(data["ios_device_binding_digest"], str) or not re.fullmatch(r"[a-f0-9]{64}", data["ios_device_binding_digest"]): raise SystemExit(1)
+PY
+  /usr/bin/grep -Eq '"(udid|team|signing|identity|serial|device_id)"' "$lock_path" && fail "$RULE_REDACTION" || true
+}
+
 android_project_root() { printf '%s\n' "${SIGRA_ANDROID_PROJECT_ROOT:-$ANDROID_PROJECT_ROOT_DEFAULT}"; }
 android_lock_path() { printf '%s/toolchain.lock.json\n' "$(android_project_root)"; }
 android_sha256_file() { sha256 <"$1"; }
@@ -526,6 +549,7 @@ validate_android() {
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   case "${1:-}" in
     --validate-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios ;;
+    --validate-ios-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios_lock ;;
     --discover-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; discover_ios ;;
     --validate-android) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android ;;
     --validate-android-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android_lock ;;

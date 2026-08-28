@@ -66,6 +66,21 @@ lock="$tmp_root/native-proof-environment.lock.json"
 [[ -f "$lock" ]] || fail "iOS lock was not written"
 ! rg -q 'DEVICE-ONLY-TEST|TEAMONLY01|VALID-ONLY-TEST|Apple Development' "$lock" || fail "lock retained sensitive identity"
 rg -q '"ios_runner_class":"self_hosted_attached_device"' "$lock" || fail "missing runner lock"
+before_lock="$(shasum -a 256 "$lock" | awk '{print $1}')"
+env -i PATH="$fake_bin:/usr/bin:/bin" HOME="$tmp_root" SIGRA_NATIVE_PROOF_LOCK_PATH="$lock" "$SCRIPT" --validate-ios-lock
+[[ "$before_lock" == "$(shasum -a 256 "$lock" | awk '{print $1}')" ]] || fail "iOS lock validator mutated lock"
+python3 - "$lock" <<'PY'
+import json, sys
+p=sys.argv[1]; d=json.load(open(p)); d['raw_udid']='DEVICE-ONLY-TEST'; json.dump(d, open(p,'w'))
+PY
+expect_fail 'NP-IOS-LOCK-REDACTION' env -i PATH="$fake_bin:/usr/bin:/bin" HOME="$tmp_root" SIGRA_NATIVE_PROOF_LOCK_PATH="$lock" "$SCRIPT" --validate-ios-lock
+"${base_env[@]}" "$SCRIPT" --validate-ios
+python3 - "$lock" <<'PY'
+import json, sys
+p=sys.argv[1]; d=json.load(open(p)); d['ios_os_version']='bad'; json.dump(d, open(p,'w'))
+PY
+expect_fail 'NP-IOS-LOCK-REDACTION' env -i PATH="$fake_bin:/usr/bin:/bin" HOME="$tmp_root" SIGRA_NATIVE_PROOF_LOCK_PATH="$lock" "$SCRIPT" --validate-ios-lock
+"${base_env[@]}" "$SCRIPT" --validate-ios
 discovery="$("${base_env[@]}" SIGRA_IOS_DEVICE_UDID='' SIGRA_IOS_DEVELOPMENT_TEAM='' FAKE_XCTRACE='Test iPhone (18.0) (0123456789ABCDEF01234567)' "$SCRIPT" --discover-ios)"
 [[ "$discovery" == *'"device_candidates":1'* && "$discovery" != *'0123456789ABCDEF01234567'* && "$discovery" != *'TEAMONLY01'* ]] || fail "discovery was not bounded/redacted"
 
