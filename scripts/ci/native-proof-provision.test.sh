@@ -218,4 +218,7 @@ auth_browser="$({ export PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='com.andro
 expect_fail 'NP-ANDROID-BROWSER-CAPABILITY' env PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='malicious.example/.Service' bash -c 'source "$1"; capture_android_browser "$2"' bash "$SCRIPT" "$tmp_root/browser-invalid"
 expect_fail 'NP-ANDROID-BROWSER-CAPABILITY' env PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='priority=0' bash -c 'source "$1"; capture_android_browser "$2"' bash "$SCRIPT" "$tmp_root/browser-metadata"
 
+! rg -n 'adb[[:space:]].*install|pm[[:space:]].*install|cmd package install' "$SCRIPT" || fail 'provisioner mutates browser packages'
+rg -F -- '-wipe-data' "$SCRIPT" >/dev/null && rg -F -- '-no-snapshot-load' "$SCRIPT" >/dev/null && rg -F -- '-no-snapshot-save' "$SCRIPT" >/dev/null || fail 'emulator is not a fresh private AVD'
+
 echo 'native-proof-provision tests: PASS'

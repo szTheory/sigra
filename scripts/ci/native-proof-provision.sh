@@ -403,7 +403,6 @@ capture_android_browser() {
   [[ -n "$package_paths" ]] || fail "$RULE_ANDROID_BROWSER"
   version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
   [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
-  adb -s "$ANDROID_AVD_SERIAL" shell pm list packages -s com.android.chrome 2>/dev/null | tr -d '\r' | grep -Fxq 'package:com.android.chrome' || fail "$RULE_ANDROID_BROWSER"
   manifest="$root/chrome-apks.manifest"
   while IFS= read -r package_path; do
     [[ -n "$package_path" ]] || continue
