@@ -230,21 +230,13 @@ main_live() {
   umask 077
   cd "$ROOT_DIR"
   [[ -n "${ANDROID_SDK_ROOT:-}" && -x "$ANDROID_SDK_ROOT/platform-tools/adb" ]] || fail "ANDROID_SDK_ROOT does not contain the locked platform tools"
-  local cmdline_bin cmdline_version observed_cmdline_version
+  local cmdline_bin cmdline_version source_revision
   cmdline_version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["cmdline_tools"])' "$LOCK")"
   [[ "$cmdline_version" =~ ^[0-9]+\.[0-9]+$ ]] || fail "locked command-line tools version is invalid"
   cmdline_bin="$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/bin"
   [[ -x "$cmdline_bin/avdmanager" && -x "$cmdline_bin/sdkmanager" ]] || fail "locked command-line tools bin is missing"
-  observed_cmdline_version="$($cmdline_bin/sdkmanager --version 2>/dev/null | tr -d '\r' | sed -n 's/^[[:space:]]*\([0-9][0-9.]*\)[[:space:]]*$/\1/p')"
-  python3 - "$cmdline_version" "$observed_cmdline_version" <<'PY' || fail "command-line tools runtime version mismatch"
-import re,sys
-def normalized(value):
-    if not re.fullmatch(r"[0-9]+(?:\.[0-9]+)*", value): raise SystemExit(1)
-    parts=[int(part) for part in value.split(".")]
-    while len(parts)>1 and parts[-1]==0: parts.pop()
-    return parts
-if normalized(sys.argv[1]) != normalized(sys.argv[2]): raise SystemExit(1)
-PY
+  source_revision="$(sed -n 's/^Pkg\.Revision[[:space:]]*=[[:space:]]*//p' "$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/source.properties" 2>/dev/null)"
+  [[ "$source_revision" == "$cmdline_version" ]] || fail "command-line tools package provenance mismatch"
   export PATH="$cmdline_bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
   bash scripts/ci/native-proof-provision.sh --validate-android-lock
   RUN_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sigra-android-live.XXXXXX")"; chmod 700 "$RUN_ROOT"
