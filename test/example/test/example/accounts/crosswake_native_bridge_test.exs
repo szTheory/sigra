@@ -9,6 +9,7 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
   alias Crosswake.Manifest.Types
   alias Example.Accounts.CrosswakeNativeBridge
   alias Example.Accounts.CrosswakeSessionAdapter
+  alias Example.Accounts.Auth.AppSessions
   alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
 
@@ -191,6 +192,61 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
     end
 
     assert Repo.aggregate(ReplayReceipt, :count) == 0
+  end
+
+  @tag :crosswake_native_app_session
+  test "app-session return reloads token family and user and never evaluates stale authority" do
+    as_of = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    user = user_fixture()
+    assert {:ok, original} = Sigra.AppSession.issue(AppSessions.sigra_config(), user, "ios-native-proof")
+
+    assert {:allow, allowed} =
+             CrosswakeNativeBridge.evaluate_app_session_return(
+               original.access_token,
+               as_of,
+               native_posture(:ios, :verified_https_link, :verified),
+               evaluator: notifying_evaluator(self())
+             )
+
+    assert_receive :crosswake_evaluator_called
+    rendered = inspect(allowed)
+    refute rendered =~ original.access_token
+    refute rendered =~ original.refresh_token
+    refute rendered =~ original.family_id
+    refute rendered =~ user.id
+
+    assert {:ok, replacement} = AppSessions.refresh(original.refresh_token)
+
+    assert {:deny, %{reason: :invalid_return_evidence}} =
+             CrosswakeNativeBridge.evaluate_app_session_return(
+               original.access_token,
+               DateTime.utc_now(),
+               native_posture(:ios, :verified_https_link, :verified),
+               evaluator: notifying_evaluator(self())
+             )
+
+    refute_receive :crosswake_evaluator_called
+
+    assert {:allow, _} =
+             CrosswakeNativeBridge.evaluate_app_session_return(
+               replacement.access_token,
+               DateTime.utc_now(),
+               native_posture(:ios, :verified_https_link, :verified),
+               evaluator: notifying_evaluator(self())
+             )
+
+    assert_receive :crosswake_evaluator_called
+    assert {:ok, _} = AppSessions.revoke_family(user, replacement.family_id)
+
+    assert {:deny, %{reason: :invalid_return_evidence}} =
+             CrosswakeNativeBridge.evaluate_app_session_return(
+               replacement.access_token,
+               DateTime.utc_now(),
+               native_posture(:ios, :verified_https_link, :verified),
+               evaluator: notifying_evaluator(self())
+             )
+
+    refute_receive :crosswake_evaluator_called
   end
 
   defp native_posture(platform, transport, link_verification) do
