@@ -230,9 +230,13 @@ main_live() {
   umask 077
   cd "$ROOT_DIR"
   [[ -n "${ANDROID_SDK_ROOT:-}" && -x "$ANDROID_SDK_ROOT/platform-tools/adb" ]] || fail "ANDROID_SDK_ROOT does not contain the locked platform tools"
-  local cmdline_bin
-  cmdline_bin="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -mindepth 2 -maxdepth 2 -type f -name avdmanager -perm -111 -printf '%h\n' | LC_ALL=C sort -u)"
-  [[ -n "$cmdline_bin" && "$(wc -l <<<"$cmdline_bin" | tr -d ' ')" == 1 ]] || fail "locked command-line tools bin is not unique"
+  local cmdline_bin cmdline_version observed_cmdline_version
+  cmdline_version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["cmdline_tools"])' "$LOCK")"
+  [[ "$cmdline_version" =~ ^[0-9]+\.[0-9]+$ ]] || fail "locked command-line tools version is invalid"
+  cmdline_bin="$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/bin"
+  [[ -x "$cmdline_bin/avdmanager" && -x "$cmdline_bin/sdkmanager" ]] || fail "locked command-line tools bin is missing"
+  observed_cmdline_version="$($cmdline_bin/sdkmanager --version | sed -n '1p' | tr -d '\r')"
+  [[ "$observed_cmdline_version" == "$cmdline_version" ]] || fail "command-line tools runtime version mismatch"
   export PATH="$cmdline_bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
   bash scripts/ci/native-proof-provision.sh --validate-android-lock
   RUN_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sigra-android-live.XXXXXX")"; chmod 700 "$RUN_ROOT"
