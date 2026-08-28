@@ -65,7 +65,17 @@ printf '%s\n' "${FAKE_UNAME:-arm64}"
 EOF
 cat >"$fake_bin/security" <<'EOF'
 #!/usr/bin/env bash
-printf '%s\n' '1) REDACTED "Apple Development" (TEAMONLY01)' '     1 valid identities found'
+case "$1" in
+  find-identity) printf '%s\n' '1) REDACTED "Apple Development: Proof User"' '     1 valid identities found' ;;
+  cms) cat "$4" ;;
+  *) exit 70 ;;
+esac
+EOF
+cat >"$fake_bin/defaults" <<'EOF'
+#!/usr/bin/env bash
+[[ "$1" == export && "$2" == com.apple.dt.Xcode && -n "$3" ]] || exit 70
+/usr/bin/plutil -create xml1 "$3"
+/usr/bin/plutil -insert IDEProvisioningTeamByIdentifier -json '{"ACCOUNT":[{"teamID":"TEAMONLY01"}]}' "$3"
 EOF
 cat >"$fake_bin/xcrun" <<'EOF'
 #!/usr/bin/env bash
@@ -93,6 +103,10 @@ case "$*" in
   *'-version'*) printf 'Xcode 26.6\nBuild version 17F113\n' ;;
   *'-showdestinations'*) printf '{ platform:iOS, id:DEVICE-ONLY-TEST, name:Test iPhone }\n' ;;
   *'build-for-testing'*)
+    if [[ "${FAKE_BUILD_FAIL:-0}" == 1 ]]; then
+      printf '%s\n' 'error: No Account for Team "TEAMONLY01" on DEVICE-ONLY-TEST password=ephemeral-not-retained' >&2
+      exit 65
+    fi
     products="${SIGRA_IOS_TEST_DERIVED_DATA:?}/Build/Products"
     mkdir -p "$products/Proof-iphoneos/SigraNativeProof.app" "$products/Proof-iphoneos/SigraNativeProofUITests-Runner.app/PlugIns/SigraNativeProofUITests.xctest"
     printf app >"$products/Proof-iphoneos/SigraNativeProof.app/SigraNativeProof"
@@ -106,6 +120,18 @@ case "$*" in
 esac
 EOF
 chmod +x "$fake_bin"/*
+
+profile_dir="$tmp_root/Library/Developer/Xcode/UserData/Provisioning Profiles"
+mkdir -p "$profile_dir"
+for pair in \
+  "app.mobileprovision:TEAMONLY01.com.sigra.example.nativeproof" \
+  "ui.mobileprovision:TEAMONLY01.com.sigra.example.nativeproof.uitests.xctrunner"; do
+  name="${pair%%:*}"
+  app_id="${pair#*:}"
+  /usr/bin/plutil -create xml1 "$profile_dir/$name"
+  /usr/bin/plutil -insert TeamIdentifier -json '["TEAMONLY01"]' "$profile_dir/$name"
+  /usr/bin/plutil -insert Entitlements -json "{\"application-identifier\":\"$app_id\"}" "$profile_dir/$name"
+done
 
 report="$tmp_root/report.json"
 python3 - "$report" <<'PY'
@@ -132,6 +158,20 @@ base_env=(env -i PATH="$fake_bin:$tool_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDI
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simulator (26.6.1) (DEVICE-ONLY-TEST)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Other iPhone (26.6.1) (OTHER-DEVICE)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_UNAME=x86_64 "$SCRIPT"
+
+build_events="$tmp_root/build-events"
+set +e
+build_output="$("${base_env[@]}" FAKE_BUILD_FAIL=1 SIGRA_IOS_PROOF_TEST_EVENTS="$build_events" "$SCRIPT" 2>&1)"
+build_status=$?
+set -e
+[[ $build_status -ne 0 && "$build_output" == *'NP-IOS-BUILD'* ]] || fail 'expected a closed build failure'
+[[ "$build_output" == *'[REDACTED]'* ]] || fail 'build diagnostics were not retained in redacted form'
+for private in DEVICE-ONLY-TEST TEAMONLY01 ephemeral-not-retained ephemeral@example.invalid; do
+  [[ "$build_output" != *"$private"* ]] || fail "build diagnostics retained private value: $private"
+done
+[[ "$(tail -1 "$build_events")" == 'xcode_diagnostics_emitted' ]] || fail 'redacted build diagnostics were not emitted'
+[[ -z "$(find "$tmp_root" -maxdepth 1 -type d -name 'sigra-ios-physical.*' -print -quit)" ]] || \
+  fail 'failed build left its private run directory behind'
 
 receipt="$tmp_root/248-IOS-EVIDENCE.json"
 events="$tmp_root/events"

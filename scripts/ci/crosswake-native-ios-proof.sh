@@ -93,6 +93,28 @@ redacted_host_runtime_diagnostics() {
     "$log_path" | tail -80 >&2 || true
 }
 
+redacted_xcode_diagnostics() {
+  local log_path="$1"
+  [[ -f "$log_path" ]] || return
+  python3 - "$log_path" "$DEVICE_UDID" "$DEVELOPMENT_TEAM" "$PROOF_EMAIL" "$PROOF_PASSWORD" <<'PY'
+import pathlib, re, sys
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+for private in sys.argv[2:]:
+    if private:
+        text = text.replace(private, "[REDACTED]")
+allowed = re.compile(r"(^|: )(error:|warning:)|CodeSign|Provisioning|Signing|BUILD (FAILED|SUCCEEDED)|Testing failed|xcodebuild:", re.I)
+secret = re.compile(r"access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer\s", re.I)
+lines = []
+for line in text.splitlines():
+    if not allowed.search(line):
+        continue
+    line = secret.sub("[REDACTED]", line)
+    lines.append(line)
+print("\n".join(lines[-120:]), file=sys.stderr)
+PY
+  event xcode_diagnostics_emitted
+}
+
 discover_target_once() {
   TARGET_DIAGNOSTIC="arch"
   [[ "$(uname -m)" == arm64 ]] || return 1
@@ -149,14 +171,61 @@ discover_target() {
 discover_team() {
   local identities="$RUN_ROOT/signing.txt"
   security find-identity -v -p codesigning >"$identities" 2>/dev/null || fail "$RULE_INPUT"
-  local candidates
-  candidates="$(grep -Eo '\([A-Z0-9]{10}\)' "$identities" | tr -d '()' | sort -u || true)"
+  grep -q '"Apple Development:' "$identities" || fail "$RULE_INPUT"
+  local account_dump="$RUN_ROOT/xcode-accounts.plist" account_teams="$RUN_ROOT/account-teams.txt"
+  local decoded_dir="$RUN_ROOT/decoded-profiles" profile_facts="$RUN_ROOT/profile-facts.tsv"
+  mkdir -p "$decoded_dir"
+  : >"$profile_facts"
+  defaults export com.apple.dt.Xcode "$account_dump" >/dev/null 2>&1 || fail "$RULE_INPUT"
+  python3 - "$account_dump" "$account_teams" <<'PY' || fail "$RULE_INPUT"
+import plistlib, re, sys
+root = plistlib.load(open(sys.argv[1], "rb"))
+teams = set()
+for entries in root.get("IDEProvisioningTeamByIdentifier", {}).values():
+    for entry in entries:
+        team = str(entry.get("teamID", ""))
+        if re.fullmatch(r"[A-Z0-9]{10}", team):
+            teams.add(team)
+open(sys.argv[2], "w", encoding="utf-8").write("".join(f"{team}\n" for team in sorted(teams)))
+PY
+  local profile_index=0 decoded
+  while IFS= read -r profile; do
+    profile_index=$((profile_index + 1))
+    decoded="$decoded_dir/$profile_index.plist"
+    security cms -D -i "$profile" >"$decoded" 2>/dev/null || continue
+    python3 - "$decoded" >>"$profile_facts" <<'PY' || fail "$RULE_INPUT"
+import plistlib, re, sys
+profile = plistlib.load(open(sys.argv[1], "rb"))
+teams = profile.get("TeamIdentifier") or []
+app_id = str((profile.get("Entitlements") or {}).get("application-identifier", ""))
+for team in teams:
+    if re.fullmatch(r"[A-Z0-9]{10}", str(team)) and app_id:
+        print(f"{team}\t{app_id}")
+PY
+  done < <(find "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles" \
+    "$HOME/Library/MobileDevice/Provisioning Profiles" -type f -name '*.mobileprovision' -print 2>/dev/null)
+  local viable
+  viable="$(python3 - "$account_teams" "$profile_facts" <<'PY'
+import sys
+accounts = {line.strip() for line in open(sys.argv[1], encoding="utf-8") if line.strip()}
+coverage = {team: {"app": False, "ui": False} for team in accounts}
+for line in open(sys.argv[2], encoding="utf-8"):
+    team, app_id = line.rstrip("\n").split("\t", 1)
+    if team not in coverage:
+        continue
+    wildcard = app_id == f"{team}.*"
+    coverage[team]["app"] |= wildcard or app_id == f"{team}.com.sigra.example.nativeproof"
+    coverage[team]["ui"] |= wildcard or app_id == f"{team}.com.sigra.example.nativeproof.uitests.xctrunner"
+for team in sorted(team for team, flags in coverage.items() if all(flags.values())):
+    print(team)
+PY
+)"
   if [[ -n "${SIGRA_IOS_DEVELOPMENT_TEAM:-}" ]]; then
     DEVELOPMENT_TEAM="$SIGRA_IOS_DEVELOPMENT_TEAM"
-    grep -Fxq "$DEVELOPMENT_TEAM" <<<"$candidates" || fail "$RULE_INPUT"
+    grep -Fxq "$DEVELOPMENT_TEAM" <<<"$viable" || fail "$RULE_INPUT"
   else
-    [[ "$(wc -l <<<"$candidates" | tr -d ' ')" == 1 && -n "$candidates" ]] || fail "$RULE_INPUT"
-    DEVELOPMENT_TEAM="$candidates"
+    [[ "$(wc -l <<<"$viable" | tr -d ' ')" == 1 && -n "$viable" ]] || fail "$RULE_INPUT"
+    DEVELOPMENT_TEAM="$viable"
   fi
   [[ "$DEVELOPMENT_TEAM" =~ ^[A-Z0-9]{10}$ ]] || fail "$RULE_INPUT"
 }
@@ -234,12 +303,16 @@ build_and_test() {
   export SIGRA_IOS_TEST_DERIVED_DATA="$DERIVED_DATA"
   export SIGRA_IOS_TEST_RESULT_BUNDLE="$RESULT_BUNDLE"
   local build_log="$RUN_ROOT/build.log" test_log="$RUN_ROOT/test.log"
-  run_bounded 1200 xcodebuild -quiet -project "$PROJECT" -scheme "$SCHEME" -configuration Proof \
+  if ! run_bounded 1200 xcodebuild -quiet -project "$PROJECT" -scheme "$SCHEME" -configuration Proof \
     -destination "id=$DEVICE_UDID" -derivedDataPath "$DERIVED_DATA" -parallel-testing-enabled NO \
     -only-testing:"$UI_TARGET/NativeProofUITests/testLivePhysicalIphoneHostJourney" \
-    -allowProvisioningUpdates CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES \
-    CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" build-for-testing \
-    >"$build_log" 2>&1 || fail "$RULE_BUILD"
+    -allowProvisioningUpdates -allowProvisioningDeviceRegistration \
+    CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES CODE_SIGN_STYLE=Automatic \
+    CODE_SIGN_IDENTITY="Apple Development" DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" build-for-testing \
+    >"$build_log" 2>&1; then
+    redacted_xcode_diagnostics "$build_log"
+    fail "$RULE_BUILD"
+  fi
 
   xctestruns=()
   while IFS= read -r candidate; do xctestruns+=("$candidate"); done < <(
@@ -252,10 +325,13 @@ build_and_test() {
   plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_EMAIL" "$PROOF_EMAIL"
   plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_PASSWORD" "$PROOF_PASSWORD"
 
-  run_bounded 1200 xcodebuild -quiet test-without-building -xctestrun "$XCTESTRUN" \
+  if ! run_bounded 1200 xcodebuild -quiet test-without-building -xctestrun "$XCTESTRUN" \
     -destination "id=$DEVICE_UDID" -resultBundlePath "$RESULT_BUNDLE" -parallel-testing-enabled NO \
     -only-testing:"$UI_TARGET/NativeProofUITests/testLivePhysicalIphoneHostJourney" \
-    >"$test_log" 2>&1 || fail "$RULE_TEST"
+    >"$test_log" 2>&1; then
+    redacted_xcode_diagnostics "$test_log"
+    fail "$RULE_TEST"
+  fi
 }
 
 extract_report() {
@@ -321,10 +397,11 @@ finish_private_cleanup() {
   chmod 600 "$approved_report"
   REPORT_PATH="$approved_report"
 
-  rm -rf "$DERIVED_DATA" "$RESULT_BUNDLE" "$RUN_ROOT/Attachments"
+  rm -rf "$DERIVED_DATA" "$RESULT_BUNDLE" "$RUN_ROOT/Attachments" "$RUN_ROOT/decoded-profiles"
   rm -f "$RUN_ROOT/build.log" "$RUN_ROOT/test.log" "$RUN_ROOT/devices.json" \
     "$RUN_ROOT/selected-target.json" "$RUN_ROOT/xctrace.txt" "$RUN_ROOT/destinations.txt" \
-    "$RUN_ROOT/signing.txt" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
+    "$RUN_ROOT/signing.txt" "$RUN_ROOT/xcode-accounts.plist" "$RUN_ROOT/account-teams.txt" \
+    "$RUN_ROOT/profile-facts.tsv" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
     "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log"
 
   if [[ -n "$HOST_PID" ]]; then
