@@ -6,6 +6,7 @@ defmodule ExampleWeb.NativeProofControllerTest do
   alias Example.Accounts.Auth.AppSessions
   alias Example.Accounts.FirstPartyApps
   alias Example.Accounts.UserAppSessionFamily
+  alias Example.Accounts.UserAppLoginAttempt
   alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
 
@@ -103,6 +104,100 @@ defmodule ExampleWeb.NativeProofControllerTest do
 
     assert {:ok, %{family_id: family_id}} = Sigra.AppSession.authenticate(AppSessions.sigra_config(), sibling.access_token)
     assert family_id == sibling.family_id
+  end
+
+  test "hosted PKCE ceremony exchanges once, rotates, and rejects callback, verifier, and replay" do
+    user = user_fixture()
+    verifier = String.duplicate("v", 43)
+    callback = "sigra-native-proof://auth/callback"
+    state = "native-state-248"
+
+    params = %{
+      "profile_id" => "ios-native-proof",
+      "callback" => callback,
+      "state" => state,
+      "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+      "code_challenge_method" => "S256"
+    }
+
+    assert {:error, :invalid_request} =
+             AppSessions.start_hosted(Map.put(params, "callback", "sigra-native-proof://auth/android"))
+
+    assert {:ok, %{continuation: continuation, approval_required: true}} =
+             AppSessions.start_hosted(params)
+
+    assert {:ok, %{code: code, callback: ^callback, state: ^state}} =
+             AppSessions.approve_hosted(continuation, user, :approve)
+
+    assert {:error, :invalid_continuation} =
+             AppSessions.approve_hosted(continuation, user, :approve)
+
+    assert {:error, :invalid_code} =
+             AppSessions.exchange_hosted(code, String.duplicate("x", 43), "ios-native-proof", callback)
+
+    assert {:ok, credentials} =
+             AppSessions.exchange_hosted(code, verifier, "ios-native-proof", callback)
+
+    assert {:error, :invalid_code} =
+             AppSessions.exchange_hosted(code, verifier, "ios-native-proof", callback)
+
+    assert {:ok, replacement} = AppSessions.refresh(credentials.refresh_token)
+    assert replacement.family_id == credentials.family_id
+    assert {:ok, %{family_id: family_id}} =
+             Sigra.AppSession.authenticate(AppSessions.sigra_config(), replacement.access_token)
+    assert family_id == credentials.family_id
+    assert Repo.aggregate(UserAppLoginAttempt, :count) == 1
+  end
+
+  test "native return uses server-selected route and exposes no identity or credential", %{conn: conn} do
+    user = user_fixture()
+    assert {:ok, credentials} = Sigra.AppSession.issue(AppSessions.sigra_config(), user, "android-native-proof")
+
+    response =
+      conn
+      |> bearer(credentials.access_token)
+      |> post("/api/native-proof/return", %{
+        "platform" => "android",
+        "transport" => "custom_scheme",
+        "link_verification" => "not_applicable",
+        "callback_binding" => "matched",
+        "replay" => "not_seen",
+        "native_assertion_ref" => "android-proof-run"
+      })
+
+    assert %{"status" => "allow", "session_version" => version} = json_response(response, 200)
+    assert is_integer(version)
+    assert Map.keys(json_response(response, 200)) |> Enum.sort() == ["session_version", "status"]
+    refute response.resp_body =~ user.id
+    refute response.resp_body =~ credentials.access_token
+    refute response.resp_body =~ credentials.family_id
+
+    smuggled =
+      conn
+      |> bearer(credentials.access_token)
+      |> post("/api/native-proof/return", %{
+        "platform" => "android",
+        "transport" => "custom_scheme",
+        "link_verification" => "not_applicable",
+        "callback_binding" => "matched",
+        "replay" => "not_seen",
+        "native_assertion_ref" => "android-proof-run",
+        "route_id" => "client-selected",
+        "outcome" => "accepted"
+      })
+
+    assert %{"status" => "deny"} = json_response(smuggled, 403)
+  end
+
+  test "router exposes no direct-password app-login endpoint" do
+    router = File.read!(Path.expand("../../../lib/example_web/router.ex", __DIR__))
+    profiles = File.read!(Path.expand("../../../lib/example/accounts/first_party_apps.ex", __DIR__))
+
+    refute router =~ "/api/app-login/direct"
+    refute router =~ "complete_direct_mfa"
+    refute profiles =~ ":password_allowed"
+    assert router =~ "Sigra.Plug.FetchAppSession"
+    assert router =~ "credential_kind: :app_session"
   end
 
   defp bearer(conn, access_token), do: put_req_header(conn, "authorization", "Bearer " <> access_token)
