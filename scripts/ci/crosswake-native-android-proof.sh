@@ -263,7 +263,13 @@ run_instrumentation() {
     sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
     fail "instrumentation phase failed: $method"
   }
-  grep -Eq '^OK \([1-9][0-9]* test' "$output" || fail "instrumentation result missing: $method"
+  if ! grep -Eq '^INSTRUMENTATION_STATUS: numtests=1\r?$' "$output" ||
+     ! grep -Eq '^INSTRUMENTATION_STATUS_CODE: 0\r?$' "$output" ||
+     ! grep -Eq '^INSTRUMENTATION_CODE: -1\r?$' "$output" ||
+     grep -Eqi 'FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_STATUS_CODE: -[0-9]+' "$output"; then
+    sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
+    fail "instrumentation protocol did not prove success: $method"
+  fi
 }
 
 install_private_credentials() {
