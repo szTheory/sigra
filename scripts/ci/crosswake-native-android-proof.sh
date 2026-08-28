@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ANDROID_PROJECT="$ROOT_DIR/test/example/native/android"
@@ -19,8 +19,15 @@ PRIMARY_EMAIL=""
 PRIMARY_PASSWORD=""
 SECONDARY_EMAIL=""
 SECONDARY_PASSWORD=""
+CURRENT_STAGE="initialization"
 
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
+unexpected_error() {
+  local status=$? line="${BASH_LINENO[0]:-unknown}"
+  trap - ERR
+  fail "unexpected command failure: stage=$CURRENT_STAGE line=$line status=$status"
+}
+trap unexpected_error ERR
 sha256_file() { sha256sum "$1" | awk '{print $1}'; }
 
 redacted_host_diagnostics() {
@@ -285,27 +292,38 @@ main_live() {
   source_revision="$(sed -n 's/^Pkg\.Revision[[:space:]]*=[[:space:]]*//p' "$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/source.properties" 2>/dev/null)"
   [[ "$source_revision" == "$cmdline_version" ]] || fail "command-line tools package provenance mismatch"
   export PATH="$cmdline_bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
+  CURRENT_STAGE="lock-validation"
   bash scripts/ci/native-proof-provision.sh --validate-android-lock
   RUN_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sigra-android-live.XXXXXX")"; chmod 700 "$RUN_ROOT"
   trap 'cleanup || true' EXIT HUP INT TERM
   # shellcheck disable=SC1091
   source "$ROOT_DIR/scripts/ci/lib/exact-sha-worktree.sh"
   IMPLEMENTATION_SHA="$(bind_clean_worktree_sha "$ROOT_DIR" "$EVIDENCE_RELATIVE_PATH")" || fail "worktree is not exact-source clean"
+  CURRENT_STAGE="host-setup"
   prepare_host
+  CURRENT_STAGE="avd-create"
   create_private_avd "$cmdline_bin"
+  CURRENT_STAGE="adb-key"
   provision_private_adb_key
+  CURRENT_STAGE="emulator-boot"
   "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot
+  CURRENT_STAGE="browser-capture"
   capture_browser_manifest
+  CURRENT_STAGE="android-build"
   (cd "$ANDROID_PROJECT" && ./gradlew --no-daemon --console=plain -PsigraNativeProofHostBaseUrl="http://10.0.2.2:$PORT" assembleDebug assembleDebugAndroidTest)
   APP_APK="$ANDROID_PROJECT/app/build/outputs/apk/debug/app-debug.apk"
   TEST_APK="$ANDROID_PROJECT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  CURRENT_STAGE="app-install"
   adb_cmd install -r "$APP_APK" >/dev/null; adb_cmd install -r "$TEST_APK" >/dev/null
+  CURRENT_STAGE="credential-injection"
   install_private_credentials
+  CURRENT_STAGE="hosted-instrumentation"
   run_instrumentation hostedOnlinePhase
   BEFORE_PID="$(adb_cmd shell pidof dev.sigra.proof | tr -d '\r' | awk '{print $1}')"; [[ "$BEFORE_PID" =~ ^[0-9]+$ ]] || fail "pre-stop process missing"
   apply_emulator_firewall
+  CURRENT_STAGE="offline-instrumentation"
   run_instrumentation offlinePhase
   remove_firewall
   adb_cmd shell svc wifi enable; adb_cmd shell svc data enable
@@ -315,8 +333,10 @@ main_live() {
   local deadline=$((SECONDS+30)); AFTER_PID=""
   while (( SECONDS < deadline )); do AFTER_PID="$(adb_cmd shell pidof dev.sigra.proof | tr -d '\r' | awk '{print $1}')"; [[ "$AFTER_PID" =~ ^[0-9]+$ ]] && break; read -r -t 1 _ </dev/null || true; done
   [[ "$AFTER_PID" =~ ^[0-9]+$ && "$AFTER_PID" != "$BEFORE_PID" ]] || fail "cold-start PID evidence invalid"
+  CURRENT_STAGE="relaunch-instrumentation"
   run_instrumentation relaunchPhase
   adb_cmd shell pm clear com.android.chrome >/dev/null
+  CURRENT_STAGE="replay-instrumentation"
   run_instrumentation accountReplayAndRevocationPhase
   REPORT="$RUN_ROOT/report.json"
   adb_cmd shell run-as dev.sigra.proof cat files/proof-live-report.json >"$REPORT"
@@ -340,6 +360,7 @@ PY
   cp "$DIAGNOSTICS" "$seal_root/diagnostics.txt"
   cleanup || fail "private cleanup incomplete"
   RUN_ROOT="$seal_root"
+  CURRENT_STAGE="receipt-seal"
   assert_same_clean_worktree_sha "$ROOT_DIR" "$EVIDENCE_RELATIVE_PATH" "$IMPLEMENTATION_SHA" || fail "source changed during proof"
   seal_facts "$RUN_ROOT/facts.json" "$LOCK" "$EVIDENCE_PATH" "$IMPLEMENTATION_SHA" "$RUN_ROOT/app.apk" "$RUN_ROOT/test.apk" "$RUN_ROOT/diagnostics.txt"
   node "$ROOT_DIR/scripts/ci/lib/native-proof-receipt.mjs" --validate "$EVIDENCE_PATH" --target android_emulator

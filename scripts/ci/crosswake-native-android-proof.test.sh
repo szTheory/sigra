@@ -80,6 +80,7 @@ grep -Fq 'proof_host_unreachable' "${RUNNER}" || fail "runner must attest proof-
 grep -Fq -- '--prepare-android-runtime' "${ROOT_DIR}/scripts/ci/native-proof-provision.sh" || fail "runtime provisioning must not boot a duplicate browser"
 grep -Fq 'export ANDROID_HOME="$ANDROID_SDK_ROOT"' "${RUNNER}" || fail "runner must prevent hosted SDK root drift"
 grep -Fq 'export ADB_VENDOR_KEYS="$key_root"' "${RUNNER}" || fail "runner must authorize ADB from a private ephemeral key"
+grep -Fq 'unexpected command failure: stage=$CURRENT_STAGE' "${RUNNER}" || fail "runner must retain secret-safe stage diagnostics"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
