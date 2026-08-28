@@ -77,6 +77,7 @@ test ! -e "${TMP_ROOT}/early-receipt.json" || fail "receipt was written before t
 grep -Fq 'adb_cmd shell am force-stop' "${RUNNER}" || fail "runner must own force-stop"
 grep -Fq 'cgroup' "${RUNNER}" || fail "runner must use a process-scoped network boundary"
 grep -Fq 'proof_host_unreachable' "${RUNNER}" || fail "runner must attest proof-host unreachability"
+grep -Fq -- '--prepare-android-runtime' "${ROOT_DIR}/scripts/ci/native-proof-provision.sh" || fail "runtime provisioning must not boot a duplicate browser"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi

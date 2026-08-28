@@ -74,7 +74,8 @@ jobs:
           test -r /dev/kvm && test -w /dev/kvm
           mkdir -p "$ANDROID_SDK_ROOT"
           export SIGRA_ANDROID_SDKMANAGER="${ANDROID_HOME:?ANDROID_HOME is required}/cmdline-tools/latest/bin/sdkmanager"
-          bash scripts/ci/native-proof-provision.sh --validate-android
+          bash scripts/ci/native-proof-provision.sh --prepare-android-runtime
+          bash scripts/ci/native-proof-provision.sh --validate-android-lock
       - name: Write exact-byte manifest
         run: |
           set -euo pipefail

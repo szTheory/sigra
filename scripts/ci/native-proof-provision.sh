@@ -550,12 +550,32 @@ validate_android() {
   (cd "$project" && ./gradlew --no-daemon --console=plain --version >/dev/null) || fail "$RULE_ANDROID_GRADLE"
 }
 
+prepare_android_runtime() {
+  local sdk sdkmanager
+  require_linux_x86_64; require_jdk_17
+  [[ -r /dev/kvm && -w /dev/kvm ]] || fail "$RULE_ANDROID_KVM"
+  sdk="${ANDROID_SDK_ROOT:-}"; [[ -n "$sdk" && -d "$sdk" && -w "$sdk" ]] || fail "$RULE_ANDROID_SDK"
+  sdkmanager="${SIGRA_ANDROID_SDKMANAGER:-$sdk/cmdline-tools/latest/bin/sdkmanager}"
+  [[ -x "$sdkmanager" ]] || fail "$RULE_ANDROID_SDK"
+  export SIGRA_ANDROID_RUN_ROOT="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sigra-native-proof-android-prepare.XXXXXX")"
+  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"
+  export ANDROID_USER_HOME="$SIGRA_ANDROID_RUN_ROOT/android-user-home" ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_HOME="$sdk" ANDROID_SDK_ROOT="$sdk"
+  unset ANDROID_SDK_HOME
+  mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
+  trap cleanup_android EXIT
+  install_android_packages "$sdkmanager" "$sdk"
+  install_exact_cmdline_tools "$sdk"
+  install_exact_emulator "$sdk"
+  validate_android_sdk "$sdk"
+}
+
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   case "${1:-}" in
     --validate-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios ;;
     --validate-ios-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios_lock ;;
     --discover-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; discover_ios ;;
     --validate-android) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android ;;
+    --prepare-android-runtime) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; prepare_android_runtime ;;
     --validate-android-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android_lock ;;
     *) fail "$RULE_ARGUMENTS" ;;
   esac
