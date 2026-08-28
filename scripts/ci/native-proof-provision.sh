@@ -251,7 +251,10 @@ install_exact_emulator() {
 
 require_sdk_property() {
   local path="$1" expected="$2"
-  [[ -f "$path" ]] && /usr/bin/grep -Fxq "Pkg.Revision=$expected" "$path" || fail "$RULE_ANDROID_PACKAGE"
+  if [[ ! -f "$path" ]] || ! /usr/bin/grep -Fxq "Pkg.Revision=$expected" "$path"; then
+    printf 'Android package revision mismatch: path=%s expected=%s actual=%s\n' "$path" "$expected" "$(sed -n 's/^Pkg.Revision=//p' "$path" 2>/dev/null | head -n 1)" >&2
+    fail "$RULE_ANDROID_PACKAGE"
+  fi
 }
 
 validate_android_sdk() {
