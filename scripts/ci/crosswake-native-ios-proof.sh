@@ -76,12 +76,15 @@ except subprocess.TimeoutExpired:
 PY
 }
 
-discover_target() {
-  [[ "$(uname -m)" == arm64 ]] || fail "$RULE_TARGET"
+discover_target_once() {
+  TARGET_DIAGNOSTIC="arch"
+  [[ "$(uname -m)" == arm64 ]] || return 1
   local device_json="$RUN_ROOT/devices.json"
-  xcrun xcdevice list >"$device_json" 2>/dev/null || fail "$RULE_TARGET"
+  TARGET_DIAGNOSTIC="xcdevice"
+  xcrun xcdevice list >"$device_json" 2>/dev/null || return 1
   local selected="$RUN_ROOT/selected-target.json"
-  python3 - "$device_json" "$selected" "${SIGRA_IOS_DEVICE_UDID:-}" <<'PY' || fail "$RULE_TARGET"
+  TARGET_DIAGNOSTIC="xcdevice-selection"
+  python3 - "$device_json" "$selected" "${SIGRA_IOS_DEVICE_UDID:-}" <<'PY' || return 1
 import json, re, sys
 source, output, requested = sys.argv[1:]
 devices = json.load(open(source, encoding="utf-8"))
@@ -103,15 +106,25 @@ PY
   OS_VERSION="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["os_version"])' "$selected")"
 
   local trace="$RUN_ROOT/xctrace.txt"
-  xcrun xctrace list devices >"$trace" 2>/dev/null || fail "$RULE_TARGET"
-  python3 - "$trace" "$DEVICE_UDID" <<'PY' || fail "$RULE_TARGET"
+  TARGET_DIAGNOSTIC="xctrace"
+  xcrun xctrace list devices >"$trace" 2>/dev/null || return 1
+  TARGET_DIAGNOSTIC="xctrace-selection"
+  python3 - "$trace" "$DEVICE_UDID" <<'PY' || return 1
 import sys
 lines=[line for line in open(sys.argv[1],encoding="utf-8",errors="replace") if sys.argv[2] in line]
 if len(lines)!=1 or "Simulator" in lines[0] or "iPhone" not in lines[0]: raise SystemExit(2)
 PY
   local destinations="$RUN_ROOT/destinations.txt"
-  xcodebuild -project "$PROJECT" -scheme "$SCHEME" -showdestinations >"$destinations" 2>/dev/null || fail "$RULE_TARGET"
-  [[ "$(grep -F "id:$DEVICE_UDID" "$destinations" | grep -v 'platform:iOS Simulator' | wc -l | tr -d ' ')" == 1 ]] || fail "$RULE_TARGET"
+  TARGET_DIAGNOSTIC="xcode-destinations"
+  xcodebuild -project "$PROJECT" -scheme "$SCHEME" -showdestinations >"$destinations" 2>/dev/null || return 1
+  TARGET_DIAGNOSTIC="xcode-destination-selection"
+  [[ "$(grep -F "id:$DEVICE_UDID" "$destinations" | grep -v 'platform:iOS Simulator' | wc -l | tr -d ' ')" == 1 ]] || return 1
+}
+
+discover_target() {
+  if discover_target_once; then return; fi
+  event "target_observation_retry"
+  discover_target_once || fail "$RULE_TARGET-$TARGET_DIAGNOSTIC"
 }
 
 discover_team() {
