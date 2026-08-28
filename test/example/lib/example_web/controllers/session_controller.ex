@@ -120,6 +120,7 @@ defmodule ExampleWeb.SessionController do
         conn
         |> put_flash(:info, info)
         |> UserAuth.log_in_user(user, user_params)
+        |> maybe_redirect_to_app_login_approval()
 
       {:error, :sso_required, %{organization_slug: slug}}
       when is_binary(slug) and slug != "" ->
@@ -142,6 +143,7 @@ defmodule ExampleWeb.SessionController do
         conn
         |> put_flash(:info, "Welcome!")
         |> UserAuth.log_in_user(user)
+        |> maybe_redirect_to_app_login_approval()
 
       {:error, _} ->
         conn
@@ -317,7 +319,7 @@ defmodule ExampleWeb.SessionController do
   end
 
   def complete_mfa_passkey(conn, %{"passkey" => passkey_params}) do
-    return_to = get_session(conn, :mfa_return_to) || ~p"/app"
+    return_to = app_login_return_to(conn, get_session(conn, :mfa_return_to) || ~p"/app")
     remember_me = get_session(conn, :mfa_remember_me) == true
     user = conn.assigns.current_scope.user
     old_session = conn.private[:sigra_session]
@@ -352,6 +354,21 @@ defmodule ExampleWeb.SessionController do
           "We couldn't finish passkey sign-in. Try again or use another way to continue."
         )
         |> redirect(to: ~p"/users/mfa")
+    end
+  end
+
+  defp maybe_redirect_to_app_login_approval(conn) do
+    case {conn.private[:sigra_session], ExampleWeb.AppLoginContinuation.fetch(conn)} do
+      {%{type: :mfa_pending}, _} -> conn
+      {_, {:ok, _continuation, _profile_id}} -> redirect(conn, to: ~p"/users/app-login/continue")
+      _ -> ExampleWeb.AppLoginContinuation.clear(conn)
+    end
+  end
+
+  defp app_login_return_to(conn, fallback) do
+    case ExampleWeb.AppLoginContinuation.fetch(conn) do
+      {:ok, _continuation, _profile_id} -> ~p"/users/app-login/continue"
+      _ -> fallback
     end
   end
 

@@ -38,6 +38,79 @@ defmodule ExampleWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :app_login_public do
+    plug Sigra.Plug.RateLimit,
+      limiter: Sigra.RateLimiters.Hammer,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      key_prefix: "app_login_public",
+      limit: 4,
+      window: 60_000,
+      limit_config_key: :app_login_public_rate_limit,
+      window_config_key: :app_login_public_rate_limit_window
+  end
+
+  pipeline :app_login_refresh do
+    plug Sigra.Plug.RateLimit,
+      limiter: Sigra.RateLimiters.Hammer,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      key_prefix: "app_login_refresh",
+      limit: 4,
+      window: 60_000,
+      limit_config_key: :app_login_refresh_rate_limit,
+      window_config_key: :app_login_refresh_rate_limit_window
+  end
+
+  pipeline :native_app_session do
+    plug Sigra.Plug.FetchAppSession,
+      config: &Example.Accounts.sigra_config/0,
+      scope_module: Example.Accounts.Scope
+
+    plug :require_native_app_session
+  end
+
+  defp require_native_app_session(conn, _opts) do
+    case {conn.assigns[:current_scope], conn.private[:sigra_auth]} do
+      {%{user: %{id: user_id}}, %{credential_kind: :app_session}}
+      when not is_nil(user_id) ->
+        conn
+
+      _ ->
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(:unauthorized, ~s({"error":"unauthenticated"}))
+        |> Plug.Conn.halt()
+    end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser, :app_login_public]
+
+    get "/app-login", AppLoginController, :start
+    get "/app-login/continue", AppLoginController, :continue
+    post "/app-login/approve", AppLoginController, :approve
+    post "/app-login/cancel", AppLoginController, :cancel
+  end
+
+  scope "/api/app-login", ExampleWeb do
+    pipe_through [:api, :app_login_public]
+    post "/exchange", AppLoginController, :exchange
+  end
+
+  scope "/api/app-login", ExampleWeb do
+    pipe_through [:api, :app_login_refresh]
+    post "/refresh", AppLoginController, :refresh
+  end
+
+  scope "/api/native-proof", ExampleWeb do
+    pipe_through [:api, :native_app_session]
+
+    post "/return", NativeProofController, :return
+    get "/lesson/bootstrap", NativeProofController, :bootstrap
+    get "/lesson/media/:kind/:version", NativeProofController, :media
+    post "/lesson/replay", NativeProofController, :replay
+    post "/logout", NativeProofController, :logout
+  end
+
   scope "/", ExampleWeb do
     pipe_through :browser
 
@@ -180,6 +253,9 @@ defmodule ExampleWeb.Router do
 
   scope "/users", ExampleWeb do
     pipe_through [:browser, :require_authenticated, :require_sudo]
+
+    post "/app-sessions/revoke", AppLoginController, :revoke_family
+    post "/app-sessions/revoke-all", AppLoginController, :revoke_all
 
     live_session :require_authenticated_sudo_mfa,
       on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do

@@ -20,6 +20,15 @@ if System.get_env("PHX_SERVER") do
   config :example, ExampleWeb.Endpoint, server: true
 end
 
+if config_env() in [:dev, :test] and System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1" do
+  config :example, ExampleWeb.Endpoint,
+    http: [
+      ip: {0, 0, 0, 0},
+      port: String.to_integer(System.get_env("SIGRA_NATIVE_PROOF_PORT", "4002"))
+    ],
+    server: true
+end
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

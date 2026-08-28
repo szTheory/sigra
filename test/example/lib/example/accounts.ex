@@ -645,6 +645,16 @@ defmodule Example.Accounts do
         ceremony_rate_limit: [limit: 5, window_ms: 60_000],
         passkey_primary_enabled: true,
         user_passkey_schema: Example.Accounts.UserPasskey
+      ],
+      app_session: [
+        family_schema: Example.Accounts.UserAppSessionFamily,
+        token_schema: Example.Accounts.UserAppSessionToken,
+        app_login_code_schema: Example.Accounts.UserAppLoginAttempt,
+        app_login_challenge_schema: Example.Accounts.UserAppLoginAttempt,
+        first_party_profiles: Example.Accounts.FirstPartyApps.profiles(),
+        access_ttl: 900,
+        refresh_idle_ttl: 2_592_000,
+        absolute_ttl: 7_776_000
       ]
     )
   end

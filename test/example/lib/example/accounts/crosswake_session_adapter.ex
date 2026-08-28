@@ -59,6 +59,36 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
 
   def expected_binding(_raw_token, _as_of), do: {:error, :session_unavailable}
 
+  @doc "Freshly authenticates an opaque app-session access credential and derives its host binding."
+  def expected_app_session_binding(raw_access_token, as_of \\ DateTime.utc_now())
+
+  def expected_app_session_binding(raw_access_token, %DateTime{} = as_of)
+      when is_binary(raw_access_token) do
+    with {:ok, state} <- current_app_session(raw_access_token, as_of) do
+      {:ok, app_session_binding(state)}
+    else
+      _ -> {:error, :session_unavailable}
+    end
+  end
+
+  def expected_app_session_binding(_, _), do: {:error, :session_unavailable}
+
+  @doc "Reauthenticates and reloads app-session rows before projecting bounded Crosswake facts."
+  def evaluate_app_session(raw_access_token, %DateTime{} = as_of, %RouteEntry{} = route, expected_binding, opts \\ [])
+      when is_binary(raw_access_token) and is_list(opts) do
+    with {:ok, state} <- current_app_session(raw_access_token, as_of),
+         current_binding <- app_session_binding(state),
+         :ok <- match_binding(expected_binding, current_binding),
+         {:ok, lane} <- new_app_session_lane(current_binding, state, as_of),
+         {:ok, context} <- Contracts.new_auth_context(%{session_authority_lane: lane}),
+         evaluator_result <- evaluator(opts).(route, context, expected_session_version: current_binding.session_version) do
+      format_evaluator_result(evaluator_result, current_binding)
+    else
+      {:error, :binding_mismatch} -> deny(:binding_mismatch)
+      _ -> deny(:session_unavailable)
+    end
+  end
+
   @doc """
   Freshly resolves and validates `raw_token`, then evaluates `route` using
   only fact-only Crosswake contracts. `expected_binding` must originate from
@@ -181,6 +211,52 @@ defmodule Example.Accounts.CrosswakeSessionAdapter do
       remembered: remembered?(session),
       cached: false
     })
+  end
+
+  defp new_app_session_lane(binding, state, as_of) do
+    Contracts.new_session_authority_lane(%{
+      session_ref: binding.session_ref,
+      subject_ref: binding.subject_ref,
+      org_id: nil,
+      state: :active,
+      assurance_level: :none,
+      authn_methods: [:app_session],
+      authenticated_at: timestamp(state.token.inserted_at),
+      last_seen_at: timestamp(as_of),
+      idle_expires_at: timestamp(state.token.expires_at),
+      absolute_expires_at: timestamp(state.family.absolute_expires_at),
+      session_version: binding.session_version,
+      as_of: timestamp(as_of),
+      remembered: false,
+      cached: false
+    })
+  end
+
+  defp current_app_session(raw_access_token, as_of) do
+    config = Accounts.sigra_config()
+
+    with {:ok, %{user_id: user_id, family_id: family_id, token_id: token_id}} <-
+           Sigra.AppSession.authenticate(config, raw_access_token),
+         user when not is_nil(user) <- config.repo.get(config.user_schema, user_id),
+         token when not is_nil(token) <- config.repo.get(Example.Accounts.UserAppSessionToken, token_id),
+         family when not is_nil(family) <- config.repo.get(Example.Accounts.UserAppSessionFamily, family_id),
+         true <- token.family_id == family.id and family.user_id == user.id,
+         true <- is_nil(token.consumed_at) and is_nil(token.superseded_at) and is_nil(token.revoked_at),
+         true <- is_nil(family.revoked_at),
+         true <- DateTime.compare(as_of, token.expires_at) == :lt,
+         true <- DateTime.compare(as_of, family.absolute_expires_at) == :lt do
+      {:ok, %{user: user, token: token, family: family}}
+    else
+      _ -> {:error, :session_unavailable}
+    end
+  end
+
+  defp app_session_binding(state) do
+    %ExpectedBinding{
+      session_ref: opaque_ref("sigra-crosswake/app-session", state.family.id),
+      subject_ref: opaque_ref("sigra-crosswake/subject", state.user.id),
+      session_version: session_version(state.token.inserted_at)
+    }
   end
 
   defp validate_current_session(session, as_of) do

@@ -65,9 +65,11 @@ defmodule ExampleWeb.UserAuth do
       Example.Accounts.generate_user_session_token(user, ip: ip, user_agent: user_agent)
 
     user_return_to = get_session(conn, :user_return_to)
+    app_login_continuation = ExampleWeb.AppLoginContinuation.preserve(conn)
 
     conn
     |> renew_session()
+    |> ExampleWeb.AppLoginContinuation.restore(app_login_continuation)
     |> put_token_in_session(token)
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
@@ -81,8 +83,11 @@ defmodule ExampleWeb.UserAuth do
   writing the token, matching `log_in_user/3`'s fixation protection.
   """
   def put_user_session_token(conn, token) when is_binary(token) do
+    app_login_continuation = ExampleWeb.AppLoginContinuation.preserve(conn)
+
     conn
     |> renew_session()
+    |> ExampleWeb.AppLoginContinuation.restore(app_login_continuation)
     |> put_token_in_session(token)
   end
 

@@ -1,0 +1,14 @@
+<section data-testid="app-login-approval">
+  <.header>
+    Continue to {@profile_name}
+    <:subtitle>Review this request before continuing to the app.</:subtitle>
+  </.header>
+  <form action={~p"/users/app-login/approve"} method="post">
+    <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+    <.button data-testid="app-login-approve">Approve and continue</.button>
+  </form>
+  <form action={~p"/users/app-login/cancel"} method="post">
+    <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+    <.button data-testid="app-login-cancel">Cancel</.button>
+  </form>
+</section>

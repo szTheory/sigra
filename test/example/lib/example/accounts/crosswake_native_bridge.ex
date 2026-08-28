@@ -10,9 +10,33 @@ defmodule Example.Accounts.CrosswakeNativeBridge do
   alias Crosswake.Offline.Journal.Entry
   alias Crosswake.Offline.Replay
   alias Crosswake.Manifest.Types.RouteEntry
+  alias Crosswake.Manifest.Types
   alias Example.Accounts.CrosswakeSessionAdapter
   alias Example.Accounts.CrosswakeSessionAdapter.ExpectedBinding
   alias Example.LearningTwin
+
+  @native_return_route_id "native-proof-return"
+
+  @doc "Evaluates the fixed native return route through freshly loaded app-session authority."
+  def evaluate_app_session_return(raw_access_token, as_of, posture, opts \\ [])
+
+  def evaluate_app_session_return(raw_access_token, %DateTime{} = as_of, posture, opts)
+      when is_binary(raw_access_token) and is_list(opts) do
+    route = native_return_route()
+
+    with {:ok, binding} <- CrosswakeSessionAdapter.expected_app_session_binding(raw_access_token, as_of),
+         {:ok, evidence} <- native_evidence(posture),
+         {:ok, envelope} <- native_envelope(route, as_of, evidence),
+         {:allow, result} <- CrosswakeSessionAdapter.evaluate_app_session(raw_access_token, as_of, route, binding, opts) do
+      {:allow, Map.put(result, :evidence, envelope)}
+    else
+      {:deny, _} = denial -> denial
+      _ -> {:deny, %{status: :deny, reason: :invalid_return_evidence}}
+    end
+  end
+
+  def evaluate_app_session_return(_, _, _, _),
+    do: {:deny, %{status: :deny, reason: :invalid_return_evidence}}
 
   @native_evidence_keys [
     :platform,
@@ -113,6 +137,17 @@ defmodule Example.Accounts.CrosswakeNativeBridge do
       validation_posture: %{"callback_binding" => Atom.to_string(evidence.callback_binding)},
       evidence: evidence
     })
+  end
+
+  defp native_return_route do
+    Types.new_route_entry(
+      id: @native_return_route_id,
+      path: "/api/native-proof/return",
+      runtime: :phoenix,
+      auth_min_level: :none,
+      requires_recent_auth: nil,
+      auth_posture: :strict_recent
+    )
   end
 
   defp opaque_return_ref(route_id, assertion_ref) do
