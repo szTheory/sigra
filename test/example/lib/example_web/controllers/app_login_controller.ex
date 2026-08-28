@@ -49,7 +49,8 @@ defmodule ExampleWeb.AppLoginController do
   def cancel(conn, %{} = params) do
     with [] <- Map.keys(params) -- ["_csrf_token"],
          {:ok, continuation, _profile_id} <- AppLoginContinuation.fetch(conn),
-         {:ok, :cancelled} <- AppSessions.approve_hosted(continuation, current_user(conn), :cancel) do
+         {:ok, :cancelled} <-
+           AppSessions.approve_hosted(continuation, current_user(conn), :cancel) do
       {conn, _} = AppLoginContinuation.take(conn)
       conn |> put_resp_header("referrer-policy", "no-referrer") |> redirect(to: ~p"/users/log_in")
     else
@@ -58,7 +59,12 @@ defmodule ExampleWeb.AppLoginController do
   end
 
   def exchange(conn, params) do
-    with %{"code" => code, "code_verifier" => verifier, "profile_id" => profile, "callback" => callback} <- params,
+    with %{
+           "code" => code,
+           "code_verifier" => verifier,
+           "profile_id" => profile,
+           "callback" => callback
+         } <- params,
          ["callback", "code", "code_verifier", "profile_id"] <- Enum.sort(Map.keys(params)),
          true <- Enum.all?([code, verifier, profile, callback], &is_binary/1),
          {:ok, credentials} <- AppSessions.exchange_hosted(code, verifier, profile, callback) do
@@ -78,7 +84,8 @@ defmodule ExampleWeb.AppLoginController do
     end
   end
 
-  def refresh(conn, _params), do: conn |> put_status(:bad_request) |> json(%{error: "invalid_request"})
+  def refresh(conn, _params),
+    do: conn |> put_status(:bad_request) |> json(%{error: "invalid_request"})
 
   def revoke_family(conn, %{"family_id" => family_id} = params) do
     with ["family_id"] <- Map.keys(params),
@@ -91,7 +98,8 @@ defmodule ExampleWeb.AppLoginController do
     end
   end
 
-  def revoke_family(conn, _), do: conn |> put_status(:unprocessable_entity) |> json(%{error: "revocation_failed"})
+  def revoke_family(conn, _),
+    do: conn |> put_status(:unprocessable_entity) |> json(%{error: "revocation_failed"})
 
   def revoke_all(conn, %{} = params) do
     with [] <- Map.keys(params), {:ok, _count} <- AppSessions.revoke_all(current_user(conn)) do
@@ -112,10 +120,17 @@ defmodule ExampleWeb.AppLoginController do
 
   defp browser_assurance(conn) do
     case {current_user(conn), conn.private[:sigra_session]} do
-      {%{id: id}, %{type: type}} when not is_nil(id) and type in [:standard, :remember_me] -> :completed
-      {%{id: id}, %{type: :mfa_pending}} when not is_nil(id) -> :mfa_pending
-      {nil, _} -> :unauthenticated
-      _ -> :invalid
+      {%{id: id}, %{type: type}} when not is_nil(id) and type in [:standard, :remember_me] ->
+        :completed
+
+      {%{id: id}, %{type: :mfa_pending}} when not is_nil(id) ->
+        :mfa_pending
+
+      {nil, _} ->
+        :unauthenticated
+
+      _ ->
+        :invalid
     end
   end
 
@@ -127,5 +142,6 @@ defmodule ExampleWeb.AppLoginController do
     callback <> separator <> URI.encode_query(%{"code" => code, "state" => state})
   end
 
-  defp invalid_request(conn), do: conn |> put_status(:bad_request) |> text("Invalid app login request.")
+  defp invalid_request(conn),
+    do: conn |> put_status(:bad_request) |> text("Invalid app login request.")
 end

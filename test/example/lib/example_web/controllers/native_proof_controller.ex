@@ -48,14 +48,16 @@ defmodule ExampleWeb.NativeProofController do
   defp atomize_posture(params) when is_map(params) do
     with true <- Enum.sort(Map.keys(params)) == Enum.sort(@posture_keys),
          {:ok, platform} <- member(params["platform"], %{"ios" => :ios, "android" => :android}),
-         {:ok, transport} <- member(params["transport"], %{
-           "verified_https_link" => :verified_https_link,
-           "custom_scheme" => :custom_scheme
-         }),
-         {:ok, link_verification} <- member(params["link_verification"], %{
-           "verified" => :verified,
-           "not_applicable" => :not_applicable
-         }),
+         {:ok, transport} <-
+           member(params["transport"], %{
+             "verified_https_link" => :verified_https_link,
+             "custom_scheme" => :custom_scheme
+           }),
+         {:ok, link_verification} <-
+           member(params["link_verification"], %{
+             "verified" => :verified,
+             "not_applicable" => :not_applicable
+           }),
          {:ok, callback_binding} <- member(params["callback_binding"], %{"matched" => :matched}),
          {:ok, replay} <- member(params["replay"], %{"not_seen" => :not_seen}),
          assertion_ref when is_binary(assertion_ref) and byte_size(assertion_ref) in 1..128 <-

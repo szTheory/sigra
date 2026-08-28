@@ -198,7 +198,9 @@ defmodule Example.Accounts.CrosswakeNativeBridgeTest do
   test "app-session return reloads token family and user and never evaluates stale authority" do
     as_of = DateTime.utc_now() |> DateTime.truncate(:microsecond)
     user = user_fixture()
-    assert {:ok, original} = Sigra.AppSession.issue(AppSessions.sigra_config(), user, "ios-native-proof")
+
+    assert {:ok, original} =
+             Sigra.AppSession.issue(AppSessions.sigra_config(), user, "ios-native-proof")
 
     assert {:allow, allowed} =
              CrosswakeNativeBridge.evaluate_app_session_return(

@@ -24,10 +24,18 @@ defmodule Example.Accounts.CrosswakeNativeBridge do
       when is_binary(raw_access_token) and is_list(opts) do
     route = native_return_route()
 
-    with {:ok, binding} <- CrosswakeSessionAdapter.expected_app_session_binding(raw_access_token, as_of),
+    with {:ok, binding} <-
+           CrosswakeSessionAdapter.expected_app_session_binding(raw_access_token, as_of),
          {:ok, evidence} <- native_evidence(posture),
          {:ok, envelope} <- native_envelope(route, as_of, evidence),
-         {:allow, result} <- CrosswakeSessionAdapter.evaluate_app_session(raw_access_token, as_of, route, binding, opts) do
+         {:allow, result} <-
+           CrosswakeSessionAdapter.evaluate_app_session(
+             raw_access_token,
+             as_of,
+             route,
+             binding,
+             opts
+           ) do
       {:allow, Map.put(result, :evidence, envelope)}
     else
       {:deny, _} = denial -> denial
