@@ -272,7 +272,7 @@ Plans:
   2. Automated physical-iPhone evidence proves hosted login, Keychain refresh storage, verified offline lesson/media and audio, seven-day lease boundaries, relaunch persistence, account isolation, revocation, and exactly-once replay.
   3. Automated Android-emulator evidence proves the equivalent hosted login, Keystore-backed refresh storage, verified media, offline/relaunch behavior, account isolation, revocation, and replay outcomes.
 
-**Plans**: 4/8 plans executed
+**Plans**: 5/8 plans executed
 
 Plans:
 
@@ -291,7 +291,7 @@ Plans:
 **Wave 4** *(depends on Plan 248-08; platform plans may run in parallel)*
 
 - [x] 248-03-PLAN.md — Build the host-owned iOS system-browser, Keychain, offline lesson, and XCUITest shell.
-- [ ] 248-05-PLAN.md — Build the pinned Android Auth Tab, Keystore, offline lesson, and instrumentation shell.
+- [x] 248-05-PLAN.md — Build the pinned Android Auth Tab, Keystore, offline lesson, and instrumentation shell.
 
 **Wave 5** *(each platform proof depends on its Wave 4 shell)*
 
@@ -325,5 +325,5 @@ Plans:
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
 | 246. Hosted and Direct Login Ceremonies | 19/19 | Complete    | 2026-08-16 |
 | 247. Language-Learning Digital Twin | 6/6 | Complete    | 2026-08-19 |
-| 248. Crosswake Native Proof | 4/8 | In Progress|  |
+| 248. Crosswake Native Proof | 5/8 | In Progress|  |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
