@@ -1,0 +1,21 @@
+[versions]
+agp = "8.13.2"
+kotlin = "2.2.10"
+androidx-browser = "1.9.0"
+androidx-test-core = "1.7.0"
+androidx-test-runner = "1.7.0"
+espresso = "3.7.0"
+uiautomator = "2.4.0"
+junit4 = "4.13.2"
+
+[libraries]
+androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
