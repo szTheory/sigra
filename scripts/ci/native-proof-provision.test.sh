@@ -159,7 +159,7 @@ else exit 70; fi
 EOF
 chmod +x "$fake_bin/adb"
 mkdir -p "$tmp_root/browser" "$tmp_root/browser-auth" "$tmp_root/browser-invalid"
-browser="$({ PATH="$fake_bin:/usr/bin:/bin"; source "$SCRIPT"; capture_android_browser "$tmp_root/browser"; })"
+browser="$({ export PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='No services found'; source "$SCRIPT"; capture_android_browser "$tmp_root/browser"; })"
 [[ "$browser" == *$'\tcustom_tab_fallback' ]] || fail "custom tabs fallback was not recorded"
 auth_browser="$({ export PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='com.android.chrome/.AuthTabService'; source "$SCRIPT"; capture_android_browser "$tmp_root/browser-auth"; })"
 [[ "$auth_browser" == *$'\tauth_tab' ]] || fail "Auth Tab capability was not recorded"

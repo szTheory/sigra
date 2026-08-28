@@ -42,6 +42,7 @@ readonly CMDLINE_TOOLS_ARCHIVE_SHA1='e025545c62a8e64c7559119566a569fb1dec5f60'
 
 fail() { printf '%s\n' "$1" >&2; exit 1; }
 sha256() { /usr/bin/shasum -a 256 | /usr/bin/awk '{print $1}'; }
+redacted_emulator_log() { tail -n 120 "$1" | sed -E 's/(Sending adb public key \[).*/\1REDACTED]/;s/(androidboot\.qemu\.adb\.pubkey=).*/\1REDACTED/'; }
 
 canonical_labels() {
   printf '%s' "$1" | /usr/bin/tr ',' '\n' | /usr/bin/sed '/^$/d' | /usr/bin/sort -u | /usr/bin/paste -sd, -
@@ -293,7 +294,7 @@ cleanup_android() {
     fi
     wait "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
   fi
-  [[ "$status" == 0 || ! -f "$log" ]] || { printf '%s\n' 'Android emulator diagnostic log:' >&2; tail -n 120 "$log" >&2 || true; }
+  [[ "$status" == 0 || ! -f "$log" ]] || { printf '%s\n' 'Android emulator diagnostic log:' >&2; redacted_emulator_log "$log" >&2 || true; }
   if [[ -n "${SIGRA_ANDROID_AVD_HOME:-}" && -x "${SIGRA_ANDROID_AVDMANAGER:-}" ]]; then
     "$SIGRA_ANDROID_AVDMANAGER" delete avd -n "$ANDROID_AVD_NAME" >/dev/null 2>&1 || true
   fi
@@ -317,7 +318,7 @@ query_chrome_services() {
   [[ -n "$output" ]] || output="$(adb -s "$ANDROID_AVD_SERIAL" shell pm "${query[@]}" 2>/dev/null || true)"
   while IFS= read -r line; do
     line="${line//$'\r'/}"
-    case "$line" in ''|'No service found'|'No matching services found'|'null') continue ;; esac
+    case "$line" in ''|'No service found'|'No services found'|'No matching services found'|'null') continue ;; esac
     [[ "$line" == com.android.chrome/* ]] || return 1
     results+="$line"$'\n'
   done <<<"$output"
@@ -328,7 +329,7 @@ wait_for_android_boot() {
   local attempts=90 value=''
   while (( attempts > 0 )); do
     if ! kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
-      [[ ! -f "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" ]] || { printf '%s\n' 'Android emulator exited before boot:' >&2; tail -n 120 "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" >&2 || true; }
+      [[ ! -f "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" ]] || { printf '%s\n' 'Android emulator exited before boot:' >&2; redacted_emulator_log "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" >&2 || true; }
       fail "$RULE_ANDROID_EMULATOR"
     fi
     if ! adb devices | grep -Fxq "$ANDROID_AVD_SERIAL	device"; then sleep 2; attempts=$((attempts - 1)); continue; fi
