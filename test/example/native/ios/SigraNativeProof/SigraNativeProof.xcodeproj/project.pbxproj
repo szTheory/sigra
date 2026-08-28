@@ -1,0 +1,413 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6796105EF4945A34F0192B34 /* SigraNativeProofApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */; };
+		74D9246EA8395697F9F768AC /* NativeContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC8DCE48BFE540F451886 /* NativeContractTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BDC964CCAD9BFE5C0D87CC6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4604974B12D939C88F3C8C2A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B51BE926FDB9FF3670CD2A52;
+			remoteInfo = SigraNativeProof;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0C4BC8DCE48BFE540F451886 /* NativeContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeContractTests.swift; sourceTree = "<group>"; };
+		69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigraNativeProofApp.swift; sourceTree = "<group>"; };
+		990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SigraNativeProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SigraNativeProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1519BE46AAE546AEF8BAF3C5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				0C4BC8DCE48BFE540F451886 /* NativeContractTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		54EDE1B1CCA94F291B725B84 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */,
+				F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9BAA933373ECBFCF564DB7C7 = {
+			isa = PBXGroup;
+			children = (
+				F0E602E499B61F0C6B39A643 /* App */,
+				1519BE46AAE546AEF8BAF3C5 /* Tests */,
+				54EDE1B1CCA94F291B725B84 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F0E602E499B61F0C6B39A643 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		202121CBC028F7682F352B15 /* SigraNativeProofTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32129D025912FE3ABB955526 /* Build configuration list for PBXNativeTarget "SigraNativeProofTests" */;
+			buildPhases = (
+				86B96A36476A4C20BD7125B1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BC82543C45FD1CF2951A457F /* PBXTargetDependency */,
+			);
+			name = SigraNativeProofTests;
+			packageProductDependencies = (
+			);
+			productName = SigraNativeProofTests;
+			productReference = F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB91F55BFB44359635B911FE /* Build configuration list for PBXNativeTarget "SigraNativeProof" */;
+			buildPhases = (
+				AFF2F5C1A5AA823FF8F16DDF /* Generate registered-scheme Info.plist */,
+				800E62C76C8DF27D53239CE7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SigraNativeProof;
+			packageProductDependencies = (
+			);
+			productName = SigraNativeProof;
+			productReference = 990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4604974B12D939C88F3C8C2A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 043FACB933F8EE0676D76C9E /* Build configuration list for PBXProject "SigraNativeProof" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 9BAA933373ECBFCF564DB7C7;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 54EDE1B1CCA94F291B725B84 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */,
+				202121CBC028F7682F352B15 /* SigraNativeProofTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AFF2F5C1A5AA823FF8F16DDF /* Generate registered-scheme Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Generate registered-scheme Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/SigraNativeProof-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\nplist=\"$SCRIPT_OUTPUT_FILE_0\"\n/bin/mkdir -p \"$(/usr/bin/dirname \"$plist\")\"\n/usr/bin/plutil -create xml1 \"$plist\"\n/usr/bin/plutil -insert CFBundleDevelopmentRegion -string en \"$plist\"\n/usr/bin/plutil -insert CFBundleDisplayName -string SigraNativeProof \"$plist\"\n/usr/bin/plutil -insert CFBundleExecutable -string '$(EXECUTABLE_NAME)' \"$plist\"\n/usr/bin/plutil -insert CFBundleIdentifier -string '$(PRODUCT_BUNDLE_IDENTIFIER)' \"$plist\"\n/usr/bin/plutil -insert CFBundleInfoDictionaryVersion -string 6.0 \"$plist\"\n/usr/bin/plutil -insert CFBundleName -string '$(PRODUCT_NAME)' \"$plist\"\n/usr/bin/plutil -insert CFBundlePackageType -string APPL \"$plist\"\n/usr/bin/plutil -insert CFBundleShortVersionString -string 1.0 \"$plist\"\n/usr/bin/plutil -insert CFBundleVersion -string 1 \"$plist\"\n/usr/bin/plutil -insert CFBundleURLTypes -json '[{\"CFBundleTypeRole\":\"Editor\",\"CFBundleURLName\":\"com.sigra.native-proof\",\"CFBundleURLSchemes\":[\"sigra-native-proof\"]}]' \"$plist\"\n/usr/bin/plutil -insert UILaunchScreen -json '{}' \"$plist\"\n/usr/bin/plutil -insert UISupportedInterfaceOrientations -json '[\"UIInterfaceOrientationPortrait\",\"UIInterfaceOrientationLandscapeLeft\",\"UIInterfaceOrientationLandscapeRight\"]' \"$plist\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		800E62C76C8DF27D53239CE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6796105EF4945A34F0192B34 /* SigraNativeProofApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86B96A36476A4C20BD7125B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74D9246EA8395697F9F768AC /* NativeContractTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BC82543C45FD1CF2951A457F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */;
+			targetProxy = BDC964CCAD9BFE5C0D87CC6C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		22A18DF32452C75CC6351775 /* Proof */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Proof;
+		};
+		47374B055FBD4F16497D4C84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/SigraNativeProof-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = NATIVE_PROOF;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4F69D4D32C878F46895A63B4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SigraNativeProof.app/SigraNativeProof";
+			};
+			name = Release;
+		};
+		50856ADBC88E9231D2F025BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B8FDB387BC08E4E8EF095D60 /* Proof */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/SigraNativeProof-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = NATIVE_PROOF;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Proof;
+		};
+		D244C0488EF659093029A00B /* Proof */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SigraNativeProof.app/SigraNativeProof";
+			};
+			name = Proof;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		043FACB933F8EE0676D76C9E /* Build configuration list for PBXProject "SigraNativeProof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22A18DF32452C75CC6351775 /* Proof */,
+				50856ADBC88E9231D2F025BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Proof;
+		};
+		32129D025912FE3ABB955526 /* Build configuration list for PBXNativeTarget "SigraNativeProofTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D244C0488EF659093029A00B /* Proof */,
+				4F69D4D32C878F46895A63B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Proof;
+		};
+		EB91F55BFB44359635B911FE /* Build configuration list for PBXNativeTarget "SigraNativeProof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B8FDB387BC08E4E8EF095D60 /* Proof */,
+				47374B055FBD4F16497D4C84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Proof;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4604974B12D939C88F3C8C2A /* Project object */;
+}
