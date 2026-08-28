@@ -340,6 +340,19 @@ wait_for_android_boot() {
   fail "$RULE_ANDROID_EMULATOR"
 }
 
+provision_private_adb_key() {
+  local key_root key
+  key_root="$SIGRA_ANDROID_RUN_ROOT/adb-keys"
+  key="$key_root/adbkey"
+  mkdir -p "$key_root"; chmod 700 "$key_root"
+  export ADB_VENDOR_KEYS="$key_root"
+  adb kill-server >/dev/null 2>&1 || true
+  adb keygen "$key" >/dev/null 2>&1 || fail "$RULE_ANDROID_EMULATOR"
+  [[ -f "$key" && -f "$key.pub" ]] || fail "$RULE_ANDROID_EMULATOR"
+  chmod 600 "$key"; chmod 644 "$key.pub"
+  adb start-server >/dev/null 2>&1 || fail "$RULE_ANDROID_EMULATOR"
+}
+
 capture_android_browser() {
   local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest package_path basename
   package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)"
@@ -455,6 +468,7 @@ validate_android() {
   set -o pipefail
   [[ -f "$ANDROID_AVD_HOME/$ANDROID_AVD_NAME.ini" && -d "$ANDROID_AVD_HOME/$ANDROID_AVD_NAME.avd" ]] || fail "$RULE_ANDROID_EMULATOR"
   install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
+  provision_private_adb_key
   "$emulator" @"$ANDROID_AVD_NAME" -accel on -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
   SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
   browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; browser="${browser#*$'\t'}"; sha="${browser%%$'\t'*}"; mode="${browser#*$'\t'}"
