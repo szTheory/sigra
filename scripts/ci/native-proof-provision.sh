@@ -442,13 +442,18 @@ PY
 }
 
 generate_gradle_wrapper() {
-  local project root archive unpack
+  local project root archive unpack generator
   project="$1"; root="$2"; archive="$root/gradle-${GRADLE_VERSION}-bin.zip"; unpack="$root/gradle"
   mkdir -p "$project"
   curl --fail --location --retry 2 --retry-all-errors "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "$archive" || fail "$RULE_ANDROID_GRADLE"
   [[ "$(android_sha256_file "$archive")" == "$GRADLE_DISTRIBUTION_SHA256" ]] || fail "$RULE_ANDROID_GRADLE"
   unzip -q "$archive" -d "$unpack" || fail "$RULE_ANDROID_GRADLE"
-  "$unpack/gradle-${GRADLE_VERSION}/bin/gradle" -p "$project" wrapper --gradle-version "$GRADLE_VERSION" --distribution-type bin --no-daemon --console=plain >/dev/null || fail "$RULE_ANDROID_GRADLE"
+  generator="$root/gradle-wrapper-generator"; mkdir -p "$generator"; chmod 700 "$generator"
+  printf "rootProject.name = 'sigra-native-proof-wrapper'\n" >"$generator/settings.gradle"
+  "$unpack/gradle-${GRADLE_VERSION}/bin/gradle" -p "$generator" wrapper --gradle-version "$GRADLE_VERSION" --distribution-type bin --no-daemon --console=plain >/dev/null || fail "$RULE_ANDROID_GRADLE"
+  mkdir -p "$project/gradle/wrapper"
+  cp "$generator/gradlew" "$generator/gradlew.bat" "$project/"
+  cp "$generator/gradle/wrapper/gradle-wrapper.jar" "$generator/gradle/wrapper/gradle-wrapper.properties" "$project/gradle/wrapper/"
   python3 - "$project/gradle/wrapper/gradle-wrapper.properties" "$GRADLE_DISTRIBUTION_SHA256" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); text = p.read_text(encoding="utf-8")
