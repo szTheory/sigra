@@ -36,6 +36,14 @@ print("\n".join(secret.sub("[REDACTED]",line) for line in text.splitlines() if a
 PY
 }
 
+redacted_emulator_diagnostics() {
+  [[ -n "$RUN_ROOT" && -f "$RUN_ROOT/emulator.log" ]] || return 0
+  sed -E \
+    -e 's/(adb public key|androidboot\.qemu\.adb\.pubkey)[=[:space:]].*/\1=[REDACTED]/Ig' \
+    -e 's/(access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer)[^[:space:]]*/[REDACTED]/Ig' \
+    "$RUN_ROOT/emulator.log" | tail -120 >&2
+}
+
 validate_facts() {
   python3 - "$1" "$2" <<'PY'
 import json, pathlib, re, sys
@@ -118,8 +126,17 @@ cleanup() {
 }
 
 bounded_wait_boot() {
-  timeout 180 adb -s "$SERIAL" wait-for-device >/dev/null || fail "emulator did not attach"
-  local deadline=$((SECONDS + 240)) stable=0 value paths
+  local deadline=$((SECONDS + 180)) stable=0 value paths
+  while (( SECONDS < deadline )); do
+    if ! kill -0 "$EMULATOR_PID" >/dev/null 2>&1; then
+      redacted_emulator_diagnostics
+      fail "emulator exited before ADB attachment"
+    fi
+    if [[ "$(adb_cmd get-state 2>/dev/null || true)" == device ]]; then break; fi
+    read -r -t 1 _ </dev/null || true
+  done
+  [[ "$(adb_cmd get-state 2>/dev/null || true)" == device ]] || { redacted_emulator_diagnostics; fail "emulator did not attach"; }
+  deadline=$((SECONDS + 240))
   while (( SECONDS < deadline )); do
     value="$(adb_cmd shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
     paths="$(adb_cmd shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p')"
@@ -127,6 +144,7 @@ bounded_wait_boot() {
     [[ "$stable" -ge 3 ]] && return 0
     read -r -t 2 _ </dev/null || true
   done
+  redacted_emulator_diagnostics
   fail "bounded emulator/browser readiness expired"
 }
 
