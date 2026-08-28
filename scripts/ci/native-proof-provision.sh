@@ -349,7 +349,7 @@ query_chrome_services() {
 }
 
 wait_for_android_boot() {
-  local attempts=90 value='' paths='' version=''
+  local attempts=90 value='' paths='' version='' stable=0
   while (( attempts > 0 )); do
     if ! kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
       [[ ! -f "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" ]] || { printf '%s\n' 'Android emulator exited before boot:' >&2; redacted_emulator_log "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" >&2 || true; }
@@ -360,7 +360,12 @@ wait_for_android_boot() {
     if [[ "$value" == 1 ]]; then
       paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r')"
       version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | head -n 1 | tr -d '\r')"
-      [[ -n "$paths" && -n "$version" ]] && return 0
+      if [[ -n "$paths" && -n "$version" ]]; then
+        stable=$((stable + 1))
+        if [[ "$stable" -ge 3 ]]; then export SIGRA_ANDROID_CHROME_PATHS="$paths" SIGRA_ANDROID_CHROME_VERSION="$version"; return 0; fi
+      else stable=0; fi
+    else
+      stable=0
     fi
     sleep 2
     attempts=$((attempts - 1))
@@ -399,9 +404,9 @@ pull_complete_apk() {
 
 capture_android_browser() {
   local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest package_path basename
-  package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)"
+  package_paths="${SIGRA_ANDROID_CHROME_PATHS:-$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)}"
   [[ -n "$package_paths" ]] || fail "$RULE_ANDROID_BROWSER"
-  version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
+  version="${SIGRA_ANDROID_CHROME_VERSION:-$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')}"
   [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
   manifest="$root/chrome-apks.manifest"
   while IFS= read -r package_path; do
