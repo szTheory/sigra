@@ -21,6 +21,13 @@ EXPECTED = {
 PAYLOAD = EXPECTED - {"provisioned-files.sha256", "provisioned-files.mode"}
 SHA_LINE = re.compile(r"^([a-f0-9]{64})  (.+)$")
 MODE_LINE = re.compile(r"^([0-7]{3,4}) (.+)$")
+EXPECTED_MODES = {
+    "gradlew": 0o755,
+    "toolchain.lock.json": 0o600,
+    "gradlew.bat": 0o644,
+    "gradle/wrapper/gradle-wrapper.jar": 0o644,
+    "gradle/wrapper/gradle-wrapper.properties": 0o644,
+}
 
 
 def fail(message: str) -> None:
@@ -31,6 +38,10 @@ def main() -> None:
     if len(sys.argv) != 3:
         fail("usage: ARCHIVE DESTINATION")
     archive, destination = map(pathlib.Path, sys.argv[1:])
+    if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
+        fail("destination is not a directory")
+    if destination.exists() and any(destination.iterdir()):
+        fail("destination is not empty")
     destination.mkdir(parents=True, exist_ok=True)
     with tarfile.open(archive, "r:") as tf:
         members = tf.getmembers()
@@ -40,7 +51,7 @@ def main() -> None:
         for member in members:
             if member.name.startswith("/") or ".." in pathlib.PurePosixPath(member.name).parts:
                 fail("unsafe archive member")
-            if not member.isfile() or member.issym() or member.islnk():
+            if not member.isfile() or member.issym() or member.islnk() or member.mode & 0o7000:
                 fail("non-regular archive member")
         contents = {member.name: tf.extractfile(member).read() for member in members}
 
@@ -59,13 +70,18 @@ def main() -> None:
         modes[match.group(2)] = int(match.group(1), 8)
     if set(hashes) != PAYLOAD or set(modes) != PAYLOAD:
         fail("manifest does not cover exact payload")
-    if modes["gradlew"] & 0o111 == 0:
-        fail("gradlew is not executable")
+    if modes != EXPECTED_MODES:
+        fail("manifest modes are not exact")
     for name in PAYLOAD:
+        member = next(member for member in members if member.name == name)
+        if member.mode & 0o777 != modes[name]:
+            fail(f"tar mode mismatch for {name}")
         if hashlib.sha256(contents[name]).hexdigest() != hashes[name]:
             fail(f"byte mismatch for {name}")
         target = destination / name
         target.parent.mkdir(parents=True, exist_ok=True)
+        if target.parent.is_symlink() or target.is_symlink():
+            fail("destination path contains symlink")
         target.write_bytes(contents[name])
         os.chmod(target, modes[name])
 

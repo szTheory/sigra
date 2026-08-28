@@ -120,6 +120,7 @@ printf 'tampered\n' >>"$android_root/gradle/wrapper/gradle-wrapper.jar"
 expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
 
 artifact="$tmp_root/android-proof.tar"
+chmod 600 "$android_root/toolchain.lock.json"
 python3 - "$artifact" "$android_root" <<'PY'
 import hashlib, pathlib, tarfile, io, sys
 archive, root = map(pathlib.Path, sys.argv[1:])
@@ -143,5 +144,23 @@ with tarfile.open(archive, "a") as out:
     entry = tarfile.TarInfo("extra.txt"); entry.size = 1; out.addfile(entry, __import__("io").BytesIO(b"x"))
 PY
 expect_fail 'NP-ANDROID-ARTIFACT' python3 "$ROOT_DIR/scripts/ci/verify-native-proof-android-artifact.py" "$artifact" "$tmp_root/rejected"
+
+cat >"$fake_bin/adb" <<'EOF'
+#!/usr/bin/env bash
+args="$*"
+if [[ "$args" == *'pm path com.android.chrome'* ]]; then printf '%s\n' 'package:/mutable/session/base.apk' 'package:/mutable/session/split_config.en.apk';
+elif [[ "$args" == *'dumpsys package com.android.chrome'* ]]; then echo '  versionName=137.0.7151.80';
+elif [[ "$args" == *'resolve-service'*'AuthTab'* ]]; then printf '%s\n' "${FAKE_AUTH_TAB:-No service found}";
+elif [[ "$args" == *'resolve-service'* ]]; then printf '%s\n' "${FAKE_CUSTOM_TABS:-com.android.chrome/.CustomTabsService}";
+elif [[ "$args" == *' pull '* ]]; then target="${@: -1}"; printf '%s' "${target##*/}" >"$target";
+else exit 70; fi
+EOF
+chmod +x "$fake_bin/adb"
+mkdir -p "$tmp_root/browser" "$tmp_root/browser-auth" "$tmp_root/browser-invalid"
+browser="$({ PATH="$fake_bin:/usr/bin:/bin"; source "$SCRIPT"; capture_android_browser "$tmp_root/browser"; })"
+[[ "$browser" == *$'\tcustom_tab_fallback' ]] || fail "custom tabs fallback was not recorded"
+auth_browser="$({ export PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='com.android.chrome/.AuthTabService'; source "$SCRIPT"; capture_android_browser "$tmp_root/browser-auth"; })"
+[[ "$auth_browser" == *$'\tauth_tab' ]] || fail "Auth Tab capability was not recorded"
+expect_fail 'NP-ANDROID-BROWSER-CAPABILITY' env PATH="$fake_bin:/usr/bin:/bin" FAKE_AUTH_TAB='malicious.example/.Service' bash -c 'source "$1"; capture_android_browser "$2"' bash "$SCRIPT" "$tmp_root/browser-invalid"
 
 echo 'native-proof-provision tests: PASS'

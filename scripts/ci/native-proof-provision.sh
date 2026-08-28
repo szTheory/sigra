@@ -282,16 +282,31 @@ validate_android_sdk() {
 }
 
 cleanup_android() {
-  local status=$?
+  local status=$? attempts=10 log="${SIGRA_ANDROID_RUN_ROOT:-}/emulator.log"
   if [[ -n "${SIGRA_ANDROID_EMULATOR_PID:-}" ]] && kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
     adb -s "$ANDROID_AVD_SERIAL" emu kill >/dev/null 2>&1 || true
+    while (( attempts > 0 )) && kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; do sleep 1; attempts=$((attempts - 1)); done
+    if kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
+      kill -TERM "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
+      sleep 1
+      kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 && kill -KILL "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
+    fi
     wait "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
+    [[ "$status" == 0 || ! -f "$log" ]] || tail -n 120 "$log" >&2 || true
   fi
   if [[ -n "${SIGRA_ANDROID_AVD_HOME:-}" && -x "${SIGRA_ANDROID_AVDMANAGER:-}" ]]; then
     "$SIGRA_ANDROID_AVDMANAGER" delete avd -n "$ANDROID_AVD_NAME" >/dev/null 2>&1 || true
   fi
   [[ -z "${SIGRA_ANDROID_RUN_ROOT:-}" ]] || rm -rf "$SIGRA_ANDROID_RUN_ROOT"
   exit "$status"
+}
+
+normalize_android_component() {
+  local value
+  value="$(tr -d '\r' | sed '/^$/d' | tail -n 1)"
+  case "$value" in 'No service found'|'No activity found'|'No matching activity found'|'null') return 0 ;; esac
+  [[ "$value" == com.android.chrome/* ]] || return 1
+  printf '%s\n' "$value"
 }
 
 wait_for_android_boot() {
@@ -308,8 +323,8 @@ wait_for_android_boot() {
 }
 
 capture_android_browser() {
-  local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest
-  package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort -u)"
+  local root="$1" package_paths version apk_sha custom_tabs auth_tab index=0 manifest package_path basename
+  package_paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)"
   [[ -n "$package_paths" ]] || fail "$RULE_ANDROID_BROWSER"
   version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
   [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
@@ -317,7 +332,11 @@ capture_android_browser() {
   while IFS= read -r package_path; do
     [[ -n "$package_path" ]] || continue
     adb -s "$ANDROID_AVD_SERIAL" pull "$package_path" "$root/chrome-${index}.apk" >/dev/null || fail "$RULE_ANDROID_BROWSER"
-    printf '%s\t%s\n' "$package_path" "$(android_sha256_file "$root/chrome-${index}.apk")" >>"$manifest"
+    basename="${package_path##*/}"
+    [[ "$basename" =~ ^[A-Za-z0-9._-]+\.apk$ ]] || fail "$RULE_ANDROID_BROWSER"
+    # Device installation directories are mutable; retain only stable split names
+    # and content hashes. Do not de-duplicate: split multiplicity is evidence.
+    printf '%s\t%s\n' "$basename" "$(android_sha256_file "$root/chrome-${index}.apk")" >>"$manifest"
     index=$((index + 1))
   done <<<"$package_paths"
   [[ "$index" -gt 0 ]] || fail "$RULE_ANDROID_BROWSER"
@@ -325,9 +344,8 @@ capture_android_browser() {
   # manifest, covering every base and split APK without changing the lock schema.
   apk_sha="$(android_sha256_file "$manifest")"
   [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] || fail "$RULE_ANDROID_BROWSER"
-  auth_tab="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-activity --brief -a android.intent.action.VIEW -c androidx.browser.auth.category.AUTH_TAB -p com.android.chrome 2>/dev/null | tr -d '\r')"
-  [[ -z "$auth_tab" || "$auth_tab" == com.android.chrome/* ]] || fail "$RULE_ANDROID_CAPABILITY"
-  custom_tabs="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -p com.android.chrome 2>/dev/null | tr -d '\r')"
+  auth_tab="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -c androidx.browser.auth.category.AuthTab -p com.android.chrome 2>/dev/null | normalize_android_component)" || fail "$RULE_ANDROID_CAPABILITY"
+  custom_tabs="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -p com.android.chrome 2>/dev/null | normalize_android_component)" || fail "$RULE_ANDROID_CAPABILITY"
   if [[ -n "$auth_tab" ]]; then printf '%s\t%s\tauth_tab\n' "$version" "$apk_sha"; return; fi
   [[ "$custom_tabs" == com.android.chrome/* ]] || fail "$RULE_ANDROID_CAPABILITY"
   printf '%s\t%s\tcustom_tab_fallback\n' "$version" "$apk_sha"
@@ -422,10 +440,12 @@ validate_android() {
   (cd "$project" && ./gradlew --no-daemon --console=plain --version >/dev/null) || fail "$RULE_ANDROID_GRADLE"
 }
 
-case "${1:-}" in
-  --validate-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios ;;
-  --discover-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; discover_ios ;;
-  --validate-android) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android ;;
-  --validate-android-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android_lock ;;
-  *) fail "$RULE_ARGUMENTS" ;;
-esac
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  case "${1:-}" in
+    --validate-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios ;;
+    --discover-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; discover_ios ;;
+    --validate-android) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android ;;
+    --validate-android-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android_lock ;;
+    *) fail "$RULE_ARGUMENTS" ;;
+  esac
+fi

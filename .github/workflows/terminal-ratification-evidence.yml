@@ -53,7 +53,9 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/sigra-native-proof-android-sdk
         run: |
           set -euo pipefail
+          sudo udevadm trigger --subsystem-match=misc --action=change || true
           sudo chown runner:docker /dev/kvm
+          sudo chmod u+rw,g+rw /dev/kvm
           test -r /dev/kvm && test -w /dev/kvm
           mkdir -p "$ANDROID_SDK_ROOT"
           export SIGRA_ANDROID_SDKMANAGER="${ANDROID_HOME:?ANDROID_HOME is required}/cmdline-tools/latest/bin/sdkmanager"
@@ -67,6 +69,9 @@ jobs:
           stat -c '%a %n' "${files[@]}" | LC_ALL=C sort > provisioned-files.mode
           tar --sort=name --owner=0 --group=0 --numeric-owner \
             -cf native-proof-android-provision.tar "${files[@]}" provisioned-files.sha256 provisioned-files.mode
+          stage="$(mktemp -d)"
+          python3 ../../../../scripts/ci/verify-native-proof-android-artifact.py native-proof-android-provision.tar "$stage"
+          SIGRA_ANDROID_PROJECT_ROOT="$stage" bash ../../../../scripts/ci/native-proof-provision.sh --validate-android-lock
       - name: Upload Android provisioning evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
