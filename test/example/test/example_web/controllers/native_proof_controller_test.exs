@@ -200,6 +200,61 @@ defmodule ExampleWeb.NativeProofControllerTest do
     assert router =~ "credential_kind: :app_session"
   end
 
+  test "hosted browser start renders explicit approval and controller exchange is one-time", %{conn: conn} do
+    user = user_fixture()
+    verifier = String.duplicate("b", 43)
+
+    approval =
+      conn
+      |> log_in_user(user)
+      |> get("/users/app-login", %{
+        "profile_id" => "ios-native-proof",
+        "callback" => "sigra-native-proof://auth/callback",
+        "state" => "browser-state-248",
+        "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+        "code_challenge_method" => "S256"
+      })
+
+    assert html_response(approval, 200) =~ ~s(data-testid="app-login-approval")
+    csrf_token = Plug.CSRFProtection.get_csrf_token()
+
+    approved =
+      approval
+      |> recycle()
+      |> put_req_header("x-csrf-token", csrf_token)
+      |> post("/users/app-login/approve", %{})
+
+    location = get_resp_header(approved, "location") |> List.first()
+    assert String.starts_with?(location, "sigra-native-proof://auth/callback?")
+    query = location |> URI.parse() |> Map.fetch!(:query) |> URI.decode_query()
+    assert query["state"] == "browser-state-248"
+
+    exchange =
+      conn
+      |> post("/api/app-login/exchange", %{
+        "code" => query["code"],
+        "code_verifier" => verifier,
+        "profile_id" => "ios-native-proof",
+        "callback" => "sigra-native-proof://auth/callback"
+      })
+
+    assert %{"access_token" => access, "refresh_token" => refresh, "family_id" => family_id} =
+             json_response(exchange, 200)
+
+    assert is_binary(access) and is_binary(refresh) and is_binary(family_id)
+
+    replay =
+      conn
+      |> post("/api/app-login/exchange", %{
+        "code" => query["code"],
+        "code_verifier" => verifier,
+        "profile_id" => "ios-native-proof",
+        "callback" => "sigra-native-proof://auth/callback"
+      })
+
+    assert %{"error" => "invalid_request"} = json_response(replay, 400)
+  end
+
   defp bearer(conn, access_token), do: put_req_header(conn, "authorization", "Bearer " <> access_token)
 
   defp replay_params do
