@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPT="${ROOT_DIR}/scripts/ci/native-proof-provision.sh"
+
+fail() { echo "FAIL: $*" >&2; exit 1; }
+expect_fail() {
+  local expected="$1"; shift
+  local output status
+  set +e
+  output="$("$@" 2>&1)"; status=$?
+  set -e
+  [[ $status -ne 0 ]] || fail "expected failure: $*"
+  [[ "$output" == *"$expected"* ]] || fail "expected $expected, got: $output"
+}
+
+tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-native-proof-test.XXXXXX")"
+trap 'rm -rf "$tmp_root"' EXIT
+fake_bin="$tmp_root/bin"
+mkdir -p "$fake_bin"
+
+cat >"$fake_bin/uname" <<'EOF'
+#!/usr/bin/env bash
+echo "${FAKE_ARCH:-arm64}"
+EOF
+cat >"$fake_bin/xcodebuild" <<'EOF'
+#!/usr/bin/env bash
+case "$*" in
+  *-version*) printf 'Xcode 26.6\nBuild version 17F113\n' ;;
+  *-showdestinations*) printf '%s\n' "${FAKE_DESTINATIONS:-platform:iOS,id:DEVICE-ONLY-TEST}" ;;
+  *) exit 70 ;;
+esac
+EOF
+cat >"$fake_bin/xcrun" <<'EOF'
+#!/usr/bin/env bash
+if [[ "$*" == *"xctrace list devices"* ]]; then
+  printf '%s\n' "${FAKE_XCTRACE:-Test iPhone (18.0) (DEVICE-ONLY-TEST)}"
+elif [[ "$*" == *"xcdevice list"* ]]; then
+  printf '%s\n' "${FAKE_XCDEVICE:-DEVICE-ONLY-TEST iPhone iOS connected}"
+else
+  exit 70
+fi
+EOF
+cat >"$fake_bin/security" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "${FAKE_SIGNING:-1) VALID-ONLY-TEST \"Apple Development\" (TEAMONLY01)}"
+EOF
+chmod +x "$fake_bin"/*
+
+base_env=(env -i PATH="$fake_bin:/usr/bin:/bin" HOME="$tmp_root" \
+  SIGRA_IOS_DEVICE_UDID=DEVICE-ONLY-TEST SIGRA_IOS_DEVELOPMENT_TEAM=TEAMONLY01 \
+  SIGRA_NATIVE_PROOF_LOCK_PATH="$tmp_root/native-proof-environment.lock.json")
+
+"${base_env[@]}" "$SCRIPT" --validate-ios
+lock="$tmp_root/native-proof-environment.lock.json"
+[[ -f "$lock" ]] || fail "iOS lock was not written"
+! rg -q 'DEVICE-ONLY-TEST|TEAMONLY01|VALID-ONLY-TEST|Apple Development' "$lock" || fail "lock retained sensitive identity"
+rg -q '"ios_runner_class": "self_hosted_attached_device"' "$lock" || fail "missing runner lock"
+
+expect_fail 'NP-IOS-SIMULATOR' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simulator (18.0) (DEVICE-ONLY-TEST)' "$SCRIPT" --validate-ios
+expect_fail 'NP-IOS-DEVICE-UNAVAILABLE' "${base_env[@]}" FAKE_XCTRACE='' "$SCRIPT" --validate-ios
+expect_fail 'NP-IOS-ARCH' "${base_env[@]}" FAKE_ARCH=x86_64 "$SCRIPT" --validate-ios
+expect_fail 'NP-IOS-RUNNER-LABELS' "${base_env[@]}" SIGRA_IOS_RUNNER_LABELS='self-hosted,macOS,ARM64' "$SCRIPT" --validate-ios
+expect_fail 'NP-IOS-LOCK-REDACTION' "${base_env[@]}" SIGRA_NATIVE_PROOF_LOCK_PATH="$tmp_root/leaky.json" SIGRA_NATIVE_PROOF_TEST_LEAK=DEVICE-ONLY-TEST "$SCRIPT" --validate-ios
+
+echo 'native-proof-provision tests: PASS'
