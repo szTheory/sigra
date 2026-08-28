@@ -151,6 +151,7 @@ cat >"$fake_bin/adb" <<'EOF'
 #!/usr/bin/env bash
 args="$*"
 if [[ "$args" == *'pm path com.android.chrome'* ]]; then printf '%s\n' 'package:/mutable/session/base.apk' 'package:/mutable/session/split_config.en.apk';
+elif [[ "$args" == *'pm list packages -s com.android.chrome'* ]]; then echo 'package:com.android.chrome';
 elif [[ "$args" == *'dumpsys package com.android.chrome'* ]]; then echo '  versionName=137.0.7151.80';
 elif [[ "$args" == *'query-services'*'AuthTab'* ]]; then printf '%s\n' "${FAKE_AUTH_TAB:-No service found}";
 elif [[ "$args" == *'query-services'* ]]; then printf '%s\n' "${FAKE_CUSTOM_TABS:-com.android.chrome/.CustomTabsService}";

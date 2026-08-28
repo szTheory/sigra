@@ -380,6 +380,7 @@ capture_android_browser() {
   [[ -n "$package_paths" ]] || fail "$RULE_ANDROID_BROWSER"
   version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
   [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
+  adb -s "$ANDROID_AVD_SERIAL" shell pm list packages -s com.android.chrome 2>/dev/null | tr -d '\r' | grep -Fxq 'package:com.android.chrome' || fail "$RULE_ANDROID_BROWSER"
   manifest="$root/chrome-apks.manifest"
   while IFS= read -r package_path; do
     [[ -n "$package_path" ]] || continue
@@ -443,7 +444,20 @@ PY
 import json, sys
 raise SystemExit(0 if json.load(open(sys.argv[1], encoding="utf-8"))["gradle_wrapper_jar_sha256"] == sys.argv[2] else 1)
 PY
-  /usr/bin/grep -Fq "distributionUrl=https\\://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" "$properties" && /usr/bin/grep -Fq "distributionSha256Sum=$GRADLE_DISTRIBUTION_SHA256" "$properties" || fail "$RULE_ANDROID_WRAPPER"
+  python3 - "$properties" "$GRADLE_DISTRIBUTION_SHA256" <<'PY' || fail "$RULE_ANDROID_WRAPPER"
+import sys
+values = {}
+for raw in open(sys.argv[1], encoding="utf-8"):
+    line = raw.rstrip("\n")
+    if not line or line.lstrip().startswith(("#", "!")): continue
+    if "=" not in line: raise SystemExit(1)
+    key, value = line.split("=", 1)
+    if key in {"distributionUrl", "distributionSha256Sum"}:
+        if key in values: raise SystemExit(1)
+        values[key] = value
+expected = "https\\://services.gradle.org/distributions/gradle-8.13-bin.zip"
+if values != {"distributionUrl": expected, "distributionSha256Sum": sys.argv[2]}: raise SystemExit(1)
+PY
 }
 
 generate_gradle_wrapper() {
