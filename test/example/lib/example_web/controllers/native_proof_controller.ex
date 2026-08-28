@@ -6,11 +6,12 @@ defmodule ExampleWeb.NativeProofController do
 
   def return(conn, params) do
     with {:ok, access_token} <- bearer(conn),
+         {:ok, posture} <- atomize_posture(params),
          {:allow, result} <-
            CrosswakeNativeBridge.evaluate_app_session_return(
              access_token,
              DateTime.utc_now(),
-             atomize_posture(params)
+             posture
            ) do
       json(conn, %{status: "allow", session_version: result.session_version})
     else
@@ -42,16 +43,37 @@ defmodule ExampleWeb.NativeProofController do
     end
   end
 
-  defp atomize_posture(params) do
-    for key <- ~w(platform transport link_verification callback_binding replay native_assertion_ref),
-        into: %{} do
-      atom_key = String.to_existing_atom(key)
-      value = Map.get(params, key)
-      {atom_key, posture_value(atom_key, value)}
+  @posture_keys ~w(platform transport link_verification callback_binding replay native_assertion_ref)
+
+  defp atomize_posture(params) when is_map(params) do
+    with true <- Enum.sort(Map.keys(params)) == Enum.sort(@posture_keys),
+         {:ok, platform} <- member(params["platform"], %{"ios" => :ios, "android" => :android}),
+         {:ok, transport} <- member(params["transport"], %{
+           "verified_https_link" => :verified_https_link,
+           "custom_scheme" => :custom_scheme
+         }),
+         {:ok, link_verification} <- member(params["link_verification"], %{
+           "verified" => :verified,
+           "not_applicable" => :not_applicable
+         }),
+         {:ok, callback_binding} <- member(params["callback_binding"], %{"matched" => :matched}),
+         {:ok, replay} <- member(params["replay"], %{"not_seen" => :not_seen}),
+         assertion_ref when is_binary(assertion_ref) and byte_size(assertion_ref) in 1..128 <-
+           params["native_assertion_ref"] do
+      {:ok,
+       %{
+         platform: platform,
+         transport: transport,
+         link_verification: link_verification,
+         callback_binding: callback_binding,
+         replay: replay,
+         native_assertion_ref: assertion_ref
+       }}
+    else
+      _ -> {:error, :invalid_posture}
     end
   end
 
-  defp posture_value(:native_assertion_ref, value), do: value
-  defp posture_value(_, value) when is_binary(value), do: String.to_existing_atom(value)
-  defp posture_value(_, value), do: value
+  defp atomize_posture(_), do: {:error, :invalid_posture}
+  defp member(value, allowlist), do: Map.fetch(allowlist, value)
 end

@@ -591,6 +591,7 @@ defmodule Example.Accounts do
     Sigra.Config.new!(
       repo: Example.Repo,
       user_schema: User,
+      secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
       scope_module: Example.Accounts.Scope,
       organizations_module: Example.Organizations,
       branding: [
