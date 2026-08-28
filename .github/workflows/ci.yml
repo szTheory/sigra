@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: ''
+      phase248_android_provision:
+        description: 'Run only the Phase 248 pinned Android provisioning receipt on the selected branch.'
+        required: false
+        type: boolean
+        default: false
   schedule:
     # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
@@ -84,6 +89,10 @@ jobs:
           fi
           if [ -n "${{ github.event.inputs.recapture_branch }}" ]; then
             echo "Recapture dispatch (recapture_branch=${{ github.event.inputs.recapture_branch }}); release-ref guard not applicable."
+            exit 0
+          fi
+          if [ "${{ github.event.inputs.phase248_android_provision }}" = "true" ]; then
+            echo "Phase 248 Android provisioning dispatch; release-ref guard not applicable."
             exit 0
           fi
           case "${GITHUB_REF}" in
@@ -2275,7 +2284,7 @@ jobs:
     name: Native proof Android provisioning (pinned x86_64/KVM)
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.phase248_android_provision)
     permissions:
       contents: read
     steps:
