@@ -80,6 +80,13 @@ class MainActivity : Activity() {
         const val STATUS_PENDING = "pending_external_orchestration"
         val STATUS_HOOKS = listOf(
             "proof.hosted-return",
+            "proof.storage.present",
+            "proof.storage.rotated",
+            "proof.storage.recovered-after-relaunch",
+            "proof.storage.deleted-after-logout",
+            "proof.storage.deleted-after-revocation",
+            "proof.storage.read-result",
+            "proof.storage.access-persisted",
             "proof.image-verified",
             "proof.audio-verified",
             "proof.strict-lease-edge",
