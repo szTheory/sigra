@@ -153,6 +153,22 @@ PY
   rm -f "$RUN_ROOT"/chrome-*.apk
 }
 
+create_private_avd() {
+  local cmdline_bin="$1" exact_emulator="$RUN_ROOT/exact-emulator" bootstrap_emulator="$RUN_ROOT/bootstrap-emulator"
+  export ANDROID_USER_HOME="$RUN_ROOT/android-user-home"
+  export ANDROID_AVD_HOME="$RUN_ROOT/avd"
+  mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
+  mv "$ANDROID_SDK_ROOT/emulator" "$exact_emulator"
+  "$cmdline_bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --install emulator >"$RUN_ROOT/bootstrap-emulator-install.log" 2>&1 || fail "bootstrap emulator metadata install failed"
+  printf 'no\n' | "$cmdline_bin/avdmanager" create avd -n "$AVD_NAME" \
+    -k "system-images;android-36;google_apis_playstore;x86_64" -d pixel_8 \
+    --path "$ANDROID_AVD_HOME/$AVD_NAME.avd" --force >/dev/null || fail "private AVD creation failed"
+  mv "$ANDROID_SDK_ROOT/emulator" "$bootstrap_emulator"
+  mv "$exact_emulator" "$ANDROID_SDK_ROOT/emulator"
+  grep -Fxq 'Pkg.Revision=37.1.11' "$ANDROID_SDK_ROOT/emulator/source.properties" || fail "exact emulator was not restored"
+  [[ "$("$ANDROID_SDK_ROOT/emulator/emulator" -version 2>&1 | sed -n 's/^Android emulator version \([^ ]*\).*/\1/p' | head -1)" == 37.1.11* ]] || fail "exact emulator runtime version mismatch"
+}
+
 prepare_host() {
   PRIMARY_EMAIL="native-a-$(openssl rand -hex 10)@example.invalid"
   SECONDARY_EMAIL="native-b-$(openssl rand -hex 10)@example.invalid"
@@ -245,9 +261,8 @@ main_live() {
   source "$ROOT_DIR/scripts/ci/lib/exact-sha-worktree.sh"
   IMPLEMENTATION_SHA="$(bind_clean_worktree_sha "$ROOT_DIR" "$EVIDENCE_RELATIVE_PATH")" || fail "worktree is not exact-source clean"
   prepare_host
-  avdmanager delete avd -n "$AVD_NAME" >/dev/null 2>&1 || true
-  printf 'no\n' | avdmanager create avd -n "$AVD_NAME" -k "system-images;android-36;google_apis_playstore;x86_64" -d pixel_8 --force >/dev/null
-  emulator @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
+  create_private_avd "$cmdline_bin"
+  "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot
   capture_browser_manifest
