@@ -154,7 +154,7 @@ PY
 }
 
 create_private_avd() {
-  local cmdline_bin="$1" exact_emulator="$RUN_ROOT/exact-emulator" bootstrap_emulator="$RUN_ROOT/bootstrap-emulator" runtime_version
+  local cmdline_bin="$1" exact_emulator="$RUN_ROOT/exact-emulator" bootstrap_emulator="$RUN_ROOT/bootstrap-emulator" runtime_output runtime_version
   export ANDROID_USER_HOME="$RUN_ROOT/android-user-home"
   export ANDROID_AVD_HOME="$RUN_ROOT/avd"
   mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
@@ -166,7 +166,8 @@ create_private_avd() {
   mv "$ANDROID_SDK_ROOT/emulator" "$bootstrap_emulator"
   mv "$exact_emulator" "$ANDROID_SDK_ROOT/emulator"
   grep -Fxq 'Pkg.Revision=37.1.11' "$ANDROID_SDK_ROOT/emulator/source.properties" || fail "exact emulator was not restored"
-  runtime_version="$("$ANDROID_SDK_ROOT/emulator/emulator" -version 2>&1 | sed -n 's/.*Android emulator version \([^[:space:]]*\).*/\1/p' | head -1)"
+  runtime_output="$("$ANDROID_SDK_ROOT/emulator/emulator" -version 2>&1 || true)"
+  runtime_version="$(printf '%s\n' "$runtime_output" | sed -n 's/.*Android emulator version \([^[:space:]]*\).*/\1/p' | sed -n '1p')"
   [[ "$runtime_version" == 37.1.11* ]] || fail "exact emulator runtime version mismatch: observed ${runtime_version:-missing}"
 }
 
