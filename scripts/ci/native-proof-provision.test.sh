@@ -79,9 +79,10 @@ expect_fail 'NP-IOS-LOCK-REDACTION' "${base_env[@]}" SIGRA_NATIVE_PROOF_LOCK_PAT
 android_root="$tmp_root/android"
 mkdir -p "$android_root/gradle/wrapper"
 printf '#!/usr/bin/env sh\nexit 0\n' >"$android_root/gradlew"
-chmod +x "$android_root/gradlew"
+chmod 0755 "$android_root/gradlew"
 printf '@echo off\r\n' >"$android_root/gradlew.bat"
 printf 'generated-wrapper-test-bytes\n' >"$android_root/gradle/wrapper/gradle-wrapper.jar"
+chmod 0644 "$android_root/gradlew.bat" "$android_root/gradle/wrapper/gradle-wrapper.jar"
 wrapper_sha="$(shasum -a 256 "$android_root/gradle/wrapper/gradle-wrapper.jar" | awk '{print $1}')"
 printf '%s\n' \
   'distributionBase=GRADLE_USER_HOME' \
@@ -91,6 +92,7 @@ printf '%s\n' \
   'zipStorePath=wrapper/dists' \
   'distributionSha256Sum=20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78' \
   >"$android_root/gradle/wrapper/gradle-wrapper.properties"
+chmod 0644 "$android_root/gradle/wrapper/gradle-wrapper.properties"
 python3 - "$android_root/toolchain.lock.json" "$wrapper_sha" <<'PY'
 import json, sys
 path, wrapper_sha = sys.argv[1:]

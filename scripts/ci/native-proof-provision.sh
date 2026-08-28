@@ -408,6 +408,8 @@ p = pathlib.Path(sys.argv[1]); text = p.read_text(encoding="utf-8")
 text = "\n".join(line for line in text.splitlines() if not line.startswith("distributionSha256Sum=")) + "\n"
 p.write_text(text + "distributionSha256Sum=" + sys.argv[2] + "\n", encoding="utf-8")
 PY
+  chmod 0755 "$project/gradlew"
+  chmod 0644 "$project/gradlew.bat" "$project/gradle/wrapper/gradle-wrapper.jar" "$project/gradle/wrapper/gradle-wrapper.properties"
 }
 
 validate_android() {
