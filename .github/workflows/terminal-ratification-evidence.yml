@@ -8,13 +8,18 @@ on:
         required: false
         type: boolean
         default: false
+      phase248_android_compile:
+        description: 'Compile and unit-test the Phase 248 Android shell at this exact SHA.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   capture:
-    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision
+    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision && !inputs.phase248_android_compile
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -77,5 +82,97 @@ jobs:
         with:
           name: native-proof-android-provision-${{ github.sha }}
           path: test/example/native/android/native-proof-android-provision.tar
+          retention-days: 7
+          if-no-files-found: error
+
+  phase248_android_compile:
+    if: inputs.phase248_android_compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Validate immutable wrapper and Android coordinates
+        run: |
+          set -euo pipefail
+          bash scripts/ci/native-proof-provision.sh --validate-android-lock
+          python3 - <<'PY'
+          import json, pathlib, re
+          root = pathlib.Path('test/example/native/android')
+          lock = json.loads((root / 'toolchain.lock.json').read_text())
+          catalog = (root / 'gradle/libs.versions.toml').read_text()
+          expected = {
+              'agp': lock['agp'], 'kotlin': lock['kotlin'],
+              'androidx-browser': lock['androidx_browser'],
+              'androidx-test-core': lock['test_core'],
+              'androidx-test-runner': lock['test_runner'],
+              'espresso': lock['espresso'], 'uiautomator': lock['uiautomator'],
+          }
+          actual = dict(re.findall(r'^([a-z0-9-]+) = "([^"]+)"$', catalog, re.M))
+          if any(actual.get(key) != value for key, value in expected.items()):
+              raise SystemExit('version catalog does not match committed toolchain lock')
+          build = (root / 'app/build.gradle.kts').read_text()
+          if 'compileSdk = 36' not in build or 'targetSdk = 36' not in build or 'buildToolsVersion = "35.0.0"' not in build:
+              raise SystemExit('Android SDK coordinates do not match committed toolchain lock')
+          if 'com.android.library' in build or 'maven-publish' in build or 'publishing {' in build:
+              raise SystemExit('Android shell must remain application-only')
+          PY
+      - name: Resolve, compile, and run substantive JVM contracts
+        working-directory: test/example/native/android
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --console=plain dependencies > phase248-dependencies.txt
+          ./gradlew --no-daemon --console=plain assembleDebug assembleDebugAndroidTest testDebugUnitTest
+      - name: Seal bounded compile evidence
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib, xml.etree.ElementTree as ET
+          root = pathlib.Path('test/example/native/android')
+          reports = sorted((root / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
+          if not reports:
+              raise SystemExit('no JVM unit-test result files were produced')
+          tests = failures = errors = skipped = 0
+          for report in reports:
+              suite = ET.parse(report).getroot()
+              tests += int(suite.attrib.get('tests', 0))
+              failures += int(suite.attrib.get('failures', 0))
+              errors += int(suite.attrib.get('errors', 0))
+              skipped += int(suite.attrib.get('skipped', 0))
+          if tests <= 0 or failures or errors or skipped:
+              raise SystemExit('JVM unit-test evidence is incomplete')
+          files = {
+              'app_apk': root / 'app/build/outputs/apk/debug/app-debug.apk',
+              'test_apk': root / 'app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
+              'dependencies': root / 'phase248-dependencies.txt',
+          }
+          if any(not value.is_file() for value in files.values()):
+              raise SystemExit('expected Android compile artifacts are missing')
+          evidence = {
+              'schema_version': 1,
+              'implementation_sha': '${{ github.sha }}',
+              'jvm_tests': tests,
+              'failures': failures,
+              'errors': errors,
+              'skipped': skipped,
+              'artifacts': {key: hashlib.sha256(value.read_bytes()).hexdigest() for key, value in files.items()},
+              'complete': True,
+          }
+          output = root / 'phase248-android-compile-summary.json'
+          output.write_text(json.dumps(evidence, sort_keys=True, separators=(',', ':')) + '\n')
+          PY
+      - name: Upload Android compile evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: native-proof-android-compile-${{ github.sha }}
+          path: |
+            test/example/native/android/phase248-android-compile-summary.json
+            test/example/native/android/phase248-dependencies.txt
+            test/example/native/android/app/build/outputs/apk/debug/app-debug.apk
+            test/example/native/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            test/example/native/android/app/build/test-results/testDebugUnitTest/TEST-*.xml
           retention-days: 7
           if-no-files-found: error
