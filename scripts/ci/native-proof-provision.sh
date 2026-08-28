@@ -423,7 +423,9 @@ validate_android() {
   sdkmanager="${SIGRA_ANDROID_SDKMANAGER:-$sdk/cmdline-tools/latest/bin/sdkmanager}"
   [[ -x "$sdkmanager" ]] || fail "$RULE_ANDROID_SDK"
   export SIGRA_ANDROID_RUN_ROOT="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sigra-native-proof-android.XXXXXX")"
-  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"; export ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_EMULATOR_HOME="$SIGRA_ANDROID_RUN_ROOT/emulator" SIGRA_ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd"
+  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"
+  export ANDROID_USER_HOME="$SIGRA_ANDROID_RUN_ROOT/android-user-home" ANDROID_SDK_HOME="$SIGRA_ANDROID_RUN_ROOT/android-sdk-home" ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" SIGRA_ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd"
+  mkdir -p "$ANDROID_USER_HOME" "$ANDROID_SDK_HOME" "$ANDROID_AVD_HOME"
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
@@ -433,8 +435,9 @@ validate_android() {
   # while that registration exists, then replace the executable directory with
   # the checked 37.1.11 archive before validation or boot.
   set +o pipefail
-  yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
+  yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --path "$ANDROID_AVD_HOME/$ANDROID_AVD_NAME.avd" --force >/dev/null
   set -o pipefail
+  [[ -f "$ANDROID_AVD_HOME/$ANDROID_AVD_NAME.ini" && -d "$ANDROID_AVD_HOME/$ANDROID_AVD_NAME.avd" ]] || fail "$RULE_ANDROID_EMULATOR"
   install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
   "$emulator" @"$ANDROID_AVD_NAME" -accel on -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
   SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
