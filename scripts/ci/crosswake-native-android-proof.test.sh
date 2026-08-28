@@ -82,6 +82,7 @@ grep -Fq 'export ANDROID_HOME="$ANDROID_SDK_ROOT"' "${RUNNER}" || fail "runner m
 grep -Fq 'export ADB_VENDOR_KEYS="$key_root"' "${RUNNER}" || fail "runner must authorize ADB from a private ephemeral key"
 grep -Fq 'unexpected command failure: stage=$CURRENT_STAGE' "${RUNNER}" || fail "runner must retain secret-safe stage diagnostics"
 grep -Fq "pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' || true" "${RUNNER}" || fail "boot readiness probes must tolerate transient package-manager status"
+grep -Fq 'run-as dev.sigra.proof mkdir -p files' "${RUNNER}" || fail "credential injection must initialize app-private storage"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi

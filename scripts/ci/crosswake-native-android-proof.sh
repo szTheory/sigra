@@ -259,6 +259,7 @@ import json,pathlib,sys
 pathlib.Path(sys.argv[1]).write_text(json.dumps({"primary":{"email":sys.argv[2],"password":sys.argv[3]},"secondary":{"email":sys.argv[4],"password":sys.argv[5]}}))
 PY
   chmod 600 "$json"
+  adb_cmd shell run-as dev.sigra.proof mkdir -p files
   adb_cmd shell run-as dev.sigra.proof sh -c 'umask 077; cat > files/proof-credentials.json' <"$json"
   rm -f "$json"
 }
