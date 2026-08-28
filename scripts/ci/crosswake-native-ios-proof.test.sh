@@ -20,6 +20,38 @@ expect_failure() {
 
 [[ -x "$SCRIPT" ]] || fail "physical proof runner is missing or non-executable"
 
+python3 - "$SCRIPT" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+source = source.split("prepare_host() {", 1)[1].split("plist_put() {", 1)[0]
+markers = [
+    "mix deps.get --check-locked",
+    "mix compile --force",
+    "mix ecto.migrate --quiet",
+    "mix run --no-compile --no-deps-check",
+    'curl --fail --silent --show-error --retry 40',
+]
+positions = [source.find(marker) for marker in markers]
+if -1 in positions or positions != sorted(positions):
+    raise SystemExit("clean host bootstrap must fetch locked deps, compile, migrate, seed, and prove readiness in order")
+PY
+
+python3 - "$ROOT_DIR/.github/workflows/terminal-ratification-evidence.yml" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+job = source.split("  phase248_ios_physical:", 1)[1]
+markers = [
+    "Provision isolated proof database",
+    "Validate hermetic physical proof mechanics",
+    "Execute live physical-iPhone proof",
+    "Upload redacted physical-iPhone receipt",
+    "Remove isolated proof database",
+]
+positions = [job.find(marker) for marker in markers]
+if -1 in positions or positions != sorted(positions) or "if: always()" not in job:
+    raise SystemExit("physical workflow must provision, prove, upload, and always remove its isolated database in order")
+PY
+
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-ios-proof-test.XXXXXX")"
 trap 'rm -rf "$tmp_root"' EXIT HUP INT TERM
 chmod 700 "$tmp_root"

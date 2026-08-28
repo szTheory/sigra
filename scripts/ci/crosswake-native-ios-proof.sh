@@ -76,6 +76,23 @@ except subprocess.TimeoutExpired:
 PY
 }
 
+run_host_setup_step() {
+  local label="$1" log_path="$2"
+  shift 2
+  if run_bounded 1200 "$@" >"$log_path" 2>&1; then return; fi
+  printf 'crosswake native iOS proof: host setup failed at %s\n' "$label" >&2
+  sed -E 's/((password|token|secret|authorization|code_verifier)[=:][[:space:]]*)[^[:space:]]+/\1[REDACTED]/Ig' \
+    "$log_path" | tail -80 >&2 || true
+  fail "$RULE_HOST-$label"
+}
+
+redacted_host_runtime_diagnostics() {
+  local log_path="$1"
+  [[ -f "$log_path" ]] || return
+  grep -E '^\[info\] (Running|Access|Sent)|^\[warning\]|^\[error\]|^\*\* \(' \
+    "$log_path" | tail -80 >&2 || true
+}
+
 discover_target_once() {
   TARGET_DIAGNOSTIC="arch"
   [[ "$(uname -m)" == arm64 ]] || return 1
@@ -159,30 +176,47 @@ discover_lan_url() {
 }
 
 prepare_host() {
+  local port="${SIGRA_NATIVE_PROOF_PORT:-4104}"
   PROOF_EMAIL="native-$(openssl rand -hex 12)@example.invalid"
   PROOF_PASSWORD="$(openssl rand -base64 30 | tr -d '\n/=+' | cut -c1-24)Aa1!"
   chmod 700 "$RUN_ROOT"
   (
     cd "$ROOT_DIR/test/example"
-    MIX_ENV=test mix ecto.migrate --quiet >"$RUN_ROOT/migrate.log" 2>&1
-    SIGRA_NATIVE_PROOF_EMAIL="$PROOF_EMAIL" SIGRA_NATIVE_PROOF_PASSWORD="$PROOF_PASSWORD" \
-      MIX_ENV=test mix run --no-compile --no-deps-check -e '
+    run_host_setup_step locked-deps "$RUN_ROOT/deps.log" \
+      env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix deps.get --check-locked
+    run_host_setup_step compile "$RUN_ROOT/compile.log" \
+      env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix compile --force
+    run_host_setup_step migrate "$RUN_ROOT/migrate.log" \
+      env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix ecto.migrate --quiet
+    run_host_setup_step seed "$RUN_ROOT/seed.log" \
+      env SIGRA_NATIVE_PROOF_EMAIL="$PROOF_EMAIL" SIGRA_NATIVE_PROOF_PASSWORD="$PROOF_PASSWORD" \
+      MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix run --no-compile --no-deps-check -e '
         {:ok, _} = Example.Accounts.register_user(%{
           email: System.fetch_env!("SIGRA_NATIVE_PROOF_EMAIL"),
           password: System.fetch_env!("SIGRA_NATIVE_PROOF_PASSWORD")
         })
-      ' >"$RUN_ROOT/seed.log" 2>&1
+      '
   ) || fail "$RULE_HOST"
   ACCOUNT_CREATED=1
   (
     cd "$ROOT_DIR/test/example"
-    SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="${SIGRA_NATIVE_PROOF_PORT:-4104}" \
+    SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
       MIX_ENV=test mix phx.server >"$RUN_ROOT/host.log" 2>&1
   ) &
   HOST_PID=$!
   curl --fail --silent --show-error --retry 40 --retry-delay 1 --retry-connrefused \
-    "http://127.0.0.1:${SIGRA_NATIVE_PROOF_PORT:-4104}/users/log_in" >/dev/null || fail "$RULE_HOST"
-  kill -0 "$HOST_PID" 2>/dev/null || fail "$RULE_HOST"
+    "http://127.0.0.1:$port/users/log_in" >/dev/null || {
+      redacted_host_runtime_diagnostics "$RUN_ROOT/host.log"
+      fail "$RULE_HOST-readiness"
+    }
+  kill -0 "$HOST_PID" 2>/dev/null || {
+    redacted_host_runtime_diagnostics "$RUN_ROOT/host.log"
+    fail "$RULE_HOST-process"
+  }
 }
 
 plist_put() {
@@ -287,7 +321,8 @@ finish_private_cleanup() {
   rm -rf "$DERIVED_DATA" "$RESULT_BUNDLE" "$RUN_ROOT/Attachments"
   rm -f "$RUN_ROOT/build.log" "$RUN_ROOT/test.log" "$RUN_ROOT/devices.json" \
     "$RUN_ROOT/selected-target.json" "$RUN_ROOT/xctrace.txt" "$RUN_ROOT/destinations.txt" \
-    "$RUN_ROOT/signing.txt" "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log"
+    "$RUN_ROOT/signing.txt" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" \
+    "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log"
 
   if [[ -n "$HOST_PID" ]]; then
     kill "$HOST_PID" 2>/dev/null || true

@@ -190,6 +190,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+      - name: Provision isolated proof database
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/db/up.sh >/dev/null
+          source tmp/db.env
+          for name in PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
+            printf '%s=%s\n' "$name" "${!name:?}" >> "$GITHUB_ENV"
+          done
       - name: Validate hermetic physical proof mechanics
         run: bash scripts/ci/crosswake-native-ios-proof.test.sh
       - name: Execute live physical-iPhone proof
@@ -203,3 +212,6 @@ jobs:
           path: .planning/phases/248-crosswake-native-proof/248-IOS-EVIDENCE.json
           retention-days: 7
           if-no-files-found: error
+      - name: Remove isolated proof database
+        if: always()
+        run: bash scripts/db/down.sh --purge
