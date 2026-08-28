@@ -450,7 +450,7 @@ values = {}
 for raw in open(sys.argv[1], encoding="utf-8"):
     line = raw.rstrip("\n")
     if not line or line.lstrip().startswith(("#", "!")): continue
-    if "=" not in line: raise SystemExit(1)
+    if not __import__("re").fullmatch(r"[A-Za-z0-9_.-]+=.*", line): raise SystemExit(1)
     key, value = line.split("=", 1)
     if key in {"distributionUrl", "distributionSha256Sum"}:
         if key in values: raise SystemExit(1)

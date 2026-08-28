@@ -104,6 +104,23 @@ cp "$android_root/gradle/wrapper/gradle-wrapper.properties" "$tmp_root/propertie
 printf '# distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip\n' >"$android_root/gradle/wrapper/gradle-wrapper.properties"
 expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
 cp "$tmp_root/properties.valid" "$android_root/gradle/wrapper/gradle-wrapper.properties"
+
+generator="$tmp_root/generator"; finalized="$tmp_root/finalized"
+mkdir -p "$generator/gradle/wrapper"
+printf '#!/bin/sh\n' >"$generator/gradlew"; printf '@echo off\r\n' >"$generator/gradlew.bat"
+printf 'wrapper-jar-bytes\n' >"$generator/gradle/wrapper/gradle-wrapper.jar"
+printf '%s\n' 'distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip' >"$generator/gradle/wrapper/gradle-wrapper.properties"
+printf 'rootProject.name="private"\n' >"$generator/settings.gradle"
+( umask 077; source "$SCRIPT"; finalize_gradle_wrapper "$generator" "$finalized" )
+expected_files=$'gradle/wrapper/gradle-wrapper.jar\ngradle/wrapper/gradle-wrapper.properties\ngradlew\ngradlew.bat'
+[[ "$(find "$finalized" -type f -print | sed "s#^$finalized/##" | LC_ALL=C sort)" == "$expected_files" ]] || fail 'finalize leaked scaffold files'
+python3 - "$finalized" <<'PY' || fail 'finalize modes incorrect'
+import pathlib, stat, sys
+root = pathlib.Path(sys.argv[1])
+raise SystemExit(0 if [(root / p).stat().st_mode & 0o777 for p in ('gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties')] == [0o755, 0o644, 0o644, 0o644] else 1)
+PY
+[[ "$(shasum -a 256 "$generator/gradle/wrapper/gradle-wrapper.jar" | awk '{print $1}')" == "$(shasum -a 256 "$finalized/gradle/wrapper/gradle-wrapper.jar" | awk '{print $1}')" ]] || fail 'finalize changed jar bytes'
+[[ "$(grep -Fc 'distributionSha256Sum=20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78' "$finalized/gradle/wrapper/gradle-wrapper.properties")" == 1 ]] || fail 'finalize checksum pin incorrect'
 printf 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip\n' >>"$android_root/gradle/wrapper/gradle-wrapper.properties"
 expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
 cp "$tmp_root/properties.valid" "$android_root/gradle/wrapper/gradle-wrapper.properties"
