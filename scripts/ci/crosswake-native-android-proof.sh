@@ -161,11 +161,16 @@ prepare_host() {
   if [[ -n "${GITHUB_ACTIONS:-}" ]]; then printf '::add-mask::%s\n' "$PRIMARY_EMAIL" "$SECONDARY_EMAIL" "$PRIMARY_PASSWORD" "$SECONDARY_PASSWORD"; fi
   (
     cd "$ROOT_DIR/test/example"
-    MIX_ENV=test mix deps.get --check-locked >"$RUN_ROOT/deps.log" 2>&1
-    MIX_ENV=test mix compile --force >"$RUN_ROOT/compile.log" 2>&1
-    MIX_ENV=test mix ecto.create --quiet >"$RUN_ROOT/db.log" 2>&1
-    MIX_ENV=test mix ecto.migrate --quiet >>"$RUN_ROOT/db.log" 2>&1
-    SIGRA_PROOF_EMAIL_1="$PRIMARY_EMAIL" SIGRA_PROOF_EMAIL_2="$SECONDARY_EMAIL" SIGRA_PROOF_PASSWORD_1="$PRIMARY_PASSWORD" SIGRA_PROOF_PASSWORD_2="$SECONDARY_PASSWORD" MIX_ENV=test mix run --no-compile --no-deps-check -e '
+    env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" \
+      mix deps.get --check-locked >"$RUN_ROOT/deps.log" 2>&1
+    env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" \
+      mix compile --force >"$RUN_ROOT/compile.log" 2>&1
+    env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" \
+      mix ecto.create --quiet >"$RUN_ROOT/db.log" 2>&1
+    env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" \
+      mix ecto.migrate --quiet >>"$RUN_ROOT/db.log" 2>&1
+    SIGRA_PROOF_EMAIL_1="$PRIMARY_EMAIL" SIGRA_PROOF_EMAIL_2="$SECONDARY_EMAIL" SIGRA_PROOF_PASSWORD_1="$PRIMARY_PASSWORD" SIGRA_PROOF_PASSWORD_2="$SECONDARY_PASSWORD" \
+      MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" mix run --no-compile --no-deps-check -e '
       alias Example.{Accounts,Repo}; alias Ecto.Changeset
       for {email,password} <- [{System.fetch_env!("SIGRA_PROOF_EMAIL_1"),System.fetch_env!("SIGRA_PROOF_PASSWORD_1")},{System.fetch_env!("SIGRA_PROOF_EMAIL_2"),System.fetch_env!("SIGRA_PROOF_PASSWORD_2")}] do
         {:ok,user}=Accounts.register_user(%{email: email,password: password})
