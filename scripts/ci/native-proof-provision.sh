@@ -312,7 +312,7 @@ normalize_android_component() {
 
 query_chrome_services() {
   local category="${1:-}" output line results=''
-  local -a query=(query-services --brief --user 0 -a android.support.customtabs.action.CustomTabsService -p com.android.chrome)
+  local -a query=(query-services --components --user 0 -a android.support.customtabs.action.CustomTabsService -p com.android.chrome)
   [[ -z "$category" ]] || query+=(-c "$category")
   output="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package "${query[@]}" 2>/dev/null || true)"
   [[ -n "$output" ]] || output="$(adb -s "$ANDROID_AVD_SERIAL" shell pm "${query[@]}" 2>/dev/null || true)"
