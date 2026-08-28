@@ -235,7 +235,7 @@ main_live() {
   [[ "$cmdline_version" =~ ^[0-9]+\.[0-9]+$ ]] || fail "locked command-line tools version is invalid"
   cmdline_bin="$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/bin"
   [[ -x "$cmdline_bin/avdmanager" && -x "$cmdline_bin/sdkmanager" ]] || fail "locked command-line tools bin is missing"
-  observed_cmdline_version="$($cmdline_bin/sdkmanager --version | sed -n '1p' | tr -d '\r')"
+  observed_cmdline_version="$($cmdline_bin/sdkmanager --version | tr -d '\r' | sed -n '/^[0-9][0-9.]*$/p')"
   [[ "$observed_cmdline_version" == "$cmdline_version" ]] || fail "command-line tools runtime version mismatch"
   export PATH="$cmdline_bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
   bash scripts/ci/native-proof-provision.sh --validate-android-lock
