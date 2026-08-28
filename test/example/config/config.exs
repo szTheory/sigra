@@ -138,6 +138,7 @@ config :sigra,
   repo: Example.Repo,
   user_schema: Example.Accounts.User,
   email_module: Example.Accounts.Emails,
-  mailer: Example.Accounts.Mailer
+  mailer: Example.Accounts.Mailer,
+  hammer_module: Example.RateLimit
 
 import_config "#{config_env()}.exs"

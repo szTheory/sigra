@@ -38,6 +38,7 @@ defmodule ExampleWeb.MFAChallengeLive do
          masked_email: masked_email,
          totp_form: to_form(%{"code" => "", "trust" => "false"}, as: "mfa"),
          backup_form: to_form(%{"code" => ""}, as: "mfa"),
+         app_login_continuation: session["sigra_app_login_continuation"],
          page_title: "Two-factor authentication"
        )}
     end
@@ -383,7 +384,7 @@ defmodule ExampleWeb.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
-         |> redirect(to: ~p"/app")}
+         |> redirect(to: app_login_return_to(socket))}
 
       {:error, :invalid_code, remaining} ->
         form = to_form(%{"code" => "", "trust" => to_string(trust)}, as: "mfa")
@@ -417,7 +418,7 @@ defmodule ExampleWeb.MFAChallengeLive do
         {:noreply,
          socket
          |> put_flash(:info, "Two-factor authentication verified.")
-         |> redirect(to: ~p"/app")}
+         |> redirect(to: app_login_return_to(socket))}
 
       {:error, :invalid_backup_code, remaining} ->
         form = to_form(%{"code" => ""}, as: "mfa")
@@ -444,6 +445,17 @@ defmodule ExampleWeb.MFAChallengeLive do
 
   def handle_info({:auto_verify_totp, code}, socket) do
     handle_event("verify_totp", %{"mfa" => %{"code" => code, "trust" => "false"}}, socket)
+  end
+
+  defp app_login_return_to(socket) do
+    case socket.assigns.app_login_continuation do
+      %{continuation: continuation, profile_id: profile_id}
+      when is_binary(continuation) and is_binary(profile_id) ->
+        ~p"/users/app-login/continue"
+
+      _ ->
+        ~p"/app"
+    end
   end
 
   defp mask_email(email) do
