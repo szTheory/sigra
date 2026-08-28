@@ -167,6 +167,20 @@ bounded_wait_boot() {
   fail "bounded emulator/browser readiness expired"
 }
 
+pull_complete_apk() {
+  local remote="$1" destination="$2" partial="$2.partial" stderr="$2.pull.stderr" attempt
+  for attempt in 1 2; do
+    rm -f "$partial" "$stderr"
+    if adb_cmd pull "$remote" "$partial" >/dev/null 2>"$stderr" && [[ -s "$partial" && "$(head -c2 "$partial")" == PK ]]; then
+      mv -f "$partial" "$destination"
+      rm -f "$stderr"
+      return 0
+    fi
+  done
+  rm -f "$partial" "$stderr"
+  fail "complete Chrome APK pull failed after one retry"
+}
+
 capture_browser_manifest() {
   local manifest="$RUN_ROOT/chrome-apks.manifest" index=0 remote base local_apk
   : >"$manifest"
@@ -174,8 +188,7 @@ capture_browser_manifest() {
     [[ -n "$remote" ]] || continue
     base="${remote##*/}"; [[ "$base" =~ ^[A-Za-z0-9._-]+\.apk$ ]] || fail "invalid Chrome split name"
     local_apk="$RUN_ROOT/chrome-$index.apk"
-    adb_cmd pull "$remote" "$local_apk" >/dev/null
-    [[ -s "$local_apk" && "$(head -c2 "$local_apk")" == PK ]] || fail "incomplete Chrome APK pull"
+    pull_complete_apk "$remote" "$local_apk"
     printf '%s\t%s\n' "$base" "$(sha256_file "$local_apk")" >>"$manifest"
     index=$((index+1))
   done < <(adb_cmd shell pm path com.android.chrome | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)

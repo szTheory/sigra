@@ -85,6 +85,8 @@ grep -Fq "pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' || tr
 grep -Fq 'run-as dev.sigra.proof mkdir -p files' "${RUNNER}" || fail "credential injection must initialize app-private storage"
 grep -Fq 'run-as dev.sigra.proof tee files/proof-credentials.json' "${RUNNER}" || fail "credential injection must not depend on nested shell quoting"
 ! grep -Eq 'local method=.*output=.*\$method' "${RUNNER}" || fail "instrumentation output must not expand an unbound local"
+grep -Fq 'for attempt in 1 2' "${RUNNER}" || fail "partial APK pulls must retry exactly once"
+grep -Fq '== PK' "${RUNNER}" || fail "APK pulls must validate ZIP bytes before promotion"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
