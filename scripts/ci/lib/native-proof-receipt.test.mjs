@@ -11,7 +11,8 @@ import {
   writeNativeReceiptLast,
 } from './native-proof-receipt.mjs';
 
-const SHA = 'a'.repeat(64);
+const GIT_SHA = 'a'.repeat(40);
+const SHA256 = 'b'.repeat(64);
 const IOS_TOOLCHAIN = { xcode_version: '16.0', xcode_build: '16A242d' };
 const ANDROID_TOOLCHAIN = {
   jdk: '21.0.4', cmdline_tools: '13.0', platform_tools: '35.0.2', emulator: '35.2.10',
@@ -26,7 +27,7 @@ function scenarios() {
 
 function receipt(targetClass = 'physical_iphone') {
   const shared = {
-    schema_version: 'native-proof-receipt/1', implementation_sha: SHA, target_class: targetClass,
+    schema_version: 'native-proof-receipt/1', implementation_sha: GIT_SHA, target_class: targetClass,
     callback: { transport: 'custom_scheme', link_verification: 'registered_scheme', callback_binding: 'matched' },
     storage: { present: true, rotated: true, recovered_after_relaunch: true, deleted_after_logout: true, deleted_after_revocation: true, read_result: 'read_ok', access_persisted: false },
     scenarios: scenarios(), cleanup_status: 'complete', secret_scan_status: 'clean', terminal_status: 'complete',
@@ -37,15 +38,15 @@ function receipt(targetClass = 'physical_iphone') {
     toolchain: IOS_TOOLCHAIN,
     browser: { component: 'ASWebAuthenticationSession', version: '18.0', mode: 'system_external_user_agent' },
     transport: { claim: 'controlled_transport_failure' },
-    artifact_hashes: { app_bundle_sha256: SHA, xctest_bundle_sha256: SHA, diagnostics_sha256: SHA },
+    artifact_hashes: { app_bundle_sha256: SHA256, xctest_bundle_sha256: SHA256, diagnostics_sha256: SHA256 },
   };
   return {
     ...shared,
     target_identity: { platform: 'android', avd_device: 'pixel_8', api: '35', abi: 'x86_64', emulated: true },
     toolchain: ANDROID_TOOLCHAIN,
-    browser: { component: 'com.android.chrome', version: '128.0', apk_sha256: SHA, mode: 'auth_tab' },
+    browser: { component: 'com.android.chrome', version: '128.0', apk_sha256: SHA256, mode: 'auth_tab' },
     transport: { wifi_disabled: true, cellular_disabled: true, emulator_network_disabled: true, force_stop: true, cold_start: true },
-    artifact_hashes: { app_apk_sha256: SHA, test_apk_sha256: SHA, diagnostics_sha256: SHA },
+    artifact_hashes: { app_apk_sha256: SHA256, test_apk_sha256: SHA256, diagnostics_sha256: SHA256 },
   };
 }
 
@@ -63,6 +64,7 @@ test('allowlists the two truthful native targets and their exact terminal receip
 
 test('rejects missing bindings, target substitutions, incomplete proof, unclean terminal state, and unknown keys', () => {
   invalid((value) => { delete value.implementation_sha; });
+  invalid((value) => { value.implementation_sha = SHA256; });
   invalid((value) => { value.target_identity.physical = false; });
   invalid((value) => { value.transport.claim = 'physical_radio_disabled'; });
   invalid((value) => { value.scenarios.offline_use = false; });
@@ -89,10 +91,11 @@ test('writes only already-bound, validated terminal receipts', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'native-proof-receipt-'));
   const output = join(dir, 'receipt.json');
   const value = receipt();
-  await writeNativeReceiptLast(output, value, SHA);
+  await writeNativeReceiptLast(output, value, GIT_SHA);
   assert.deepEqual(JSON.parse(await readFile(output, 'utf8')), value);
 
   value.terminal_status = 'pending';
-  await assert.rejects(() => writeNativeReceiptLast(join(dir, 'bad.json'), value, SHA));
-  await assert.rejects(() => writeNativeReceiptLast(join(dir, 'wrong-sha.json'), receipt(), 'b'.repeat(64)));
+  await assert.rejects(() => writeNativeReceiptLast(join(dir, 'bad.json'), value, GIT_SHA));
+  await assert.rejects(() => writeNativeReceiptLast(join(dir, 'wrong-sha.json'), receipt(), 'c'.repeat(40)));
+  await assert.rejects(() => writeNativeReceiptLast(join(dir, 'wrong-width.json'), receipt(), SHA256));
 });

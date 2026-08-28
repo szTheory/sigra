@@ -34,6 +34,7 @@ const ANDROID = Object.freeze({
   hashes: ['app_apk_sha256', 'test_apk_sha256', 'diagnostics_sha256'],
 });
 const SHA256 = /^[a-f0-9]{64}$/;
+const GIT_COMMIT_SHA = /^[a-f0-9]{40}$/;
 const SECRET_OR_ID = /(?:access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|pkce|password|bearer\s|\b(?:user|account|device|actor)[_-]?\d{3,}\b)/i;
 
 function fail(message) { throw new TypeError(`invalid native proof receipt: ${message}`); }
@@ -61,6 +62,10 @@ function sha(value, label) {
   if (typeof value !== 'string' || !SHA256.test(value)) fail(`${label} must be a lowercase SHA-256`);
 }
 
+function gitCommitSha(value, label) {
+  if (typeof value !== 'string' || !GIT_COMMIT_SHA.test(value)) fail(`${label} must be a lowercase 40-hex Git commit SHA`);
+}
+
 function boolean(value, label, expected = undefined) {
   if (typeof value !== 'boolean' || (expected !== undefined && value !== expected)) fail(`${label} has an invalid boolean value`);
 }
@@ -73,7 +78,7 @@ function allTrue(value, keys, label) {
 function validateShared(receipt) {
   exactKeys(receipt, TOP_LEVEL_KEYS, 'receipt');
   if (receipt.schema_version !== 'native-proof-receipt/1') fail('schema_version must be native-proof-receipt/1');
-  sha(receipt.implementation_sha, 'implementation_sha');
+  gitCommitSha(receipt.implementation_sha, 'implementation_sha');
   if (!TARGET_CLASSES.includes(receipt.target_class)) fail('target_class is not allowlisted');
   exactKeys(receipt.callback, CALLBACK_KEYS, 'callback');
   if (receipt.callback.transport !== 'custom_scheme' || receipt.callback.link_verification !== 'registered_scheme' || receipt.callback.callback_binding !== 'matched') fail('callback is not exactly verified');
@@ -126,7 +131,7 @@ export function validateNativeReceipt(receipt) {
 
 /** Atomically publish a receipt only after the caller's immutable source SHA is bound and validation succeeds. */
 export async function writeNativeReceiptLast(outputPath, receipt, implementationSha) {
-  sha(implementationSha, 'bound implementation_sha');
+  gitCommitSha(implementationSha, 'bound implementation_sha');
   if (receipt?.implementation_sha !== implementationSha) fail('receipt implementation_sha does not match bound source SHA');
   const valid = validateNativeReceipt(receipt);
   const output = resolve(outputPath);
