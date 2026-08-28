@@ -97,8 +97,18 @@ run_host_setup_step() {
 redacted_host_runtime_diagnostics() {
   local log_path="$1"
   [[ -f "$log_path" ]] || return 0
-  grep -E '^\[info\] (Running|Access|Sent)|^\[warning\]|^\[error\]|^\*\* \(' \
-    "$log_path" | tail -80 >&2 || true
+  python3 - "$log_path" "$PROOF_EMAIL" "$PROOF_PASSWORD" <<'PY'
+import pathlib, re, sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+for private in sys.argv[2:]:
+    if private:
+        text = text.replace(private, "[REDACTED]")
+allowed = re.compile(r"\[(?:warning|error)\]|\[info\]\s+(?:Running|Access|Sent)", re.I)
+secret = re.compile(r"access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer\s", re.I)
+lines = [secret.sub("[REDACTED]", line) for line in text.splitlines() if allowed.search(line)]
+print("\n".join(lines[-80:]), file=sys.stderr)
+PY
 }
 
 redacted_xcode_diagnostics() {

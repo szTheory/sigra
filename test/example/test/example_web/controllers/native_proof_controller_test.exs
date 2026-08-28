@@ -256,6 +256,36 @@ defmodule ExampleWeb.NativeProofControllerTest do
     refute get_session(logged_in, :user_return_to)
   end
 
+  test "password login owns one redirect into the pending app approval", %{conn: conn} do
+    user = user_fixture()
+    password = valid_user_password()
+    verifier = String.duplicate("r", 43)
+
+    login =
+      conn
+      |> get("/users/app-login", %{
+        "profile_id" => "ios-native-proof",
+        "callback" => "sigra-native-proof://auth/callback",
+        "state" => "browser-login-state-248",
+        "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+        "code_challenge_method" => "S256"
+      })
+
+    assert redirected_to(login) == "/users/log_in"
+
+    authenticated =
+      login
+      |> recycle()
+      |> post("/users/log_in", %{
+        "user" => %{"email" => user.email, "password" => password}
+      })
+
+    assert redirected_to(authenticated) == "/users/app-login/continue"
+
+    approval = authenticated |> recycle() |> get("/users/app-login/continue")
+    assert html_response(approval, 200) =~ ~s(data-testid="app-login-approval")
+  end
+
   test "hosted cancellation consumes the continuation without issuing credentials" do
     user = user_fixture()
     verifier = String.duplicate("c", 43)

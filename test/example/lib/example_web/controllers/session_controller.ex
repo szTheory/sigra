@@ -119,8 +119,8 @@ defmodule ExampleWeb.SessionController do
       {:ok, user} ->
         conn
         |> put_flash(:info, info)
+        |> put_app_login_return_to()
         |> UserAuth.log_in_user(user, user_params)
-        |> maybe_redirect_to_app_login_approval()
 
       {:error, :sso_required, %{organization_slug: slug}}
       when is_binary(slug) and slug != "" ->
@@ -142,8 +142,8 @@ defmodule ExampleWeb.SessionController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Welcome!")
+        |> put_app_login_return_to()
         |> UserAuth.log_in_user(user)
-        |> maybe_redirect_to_app_login_approval()
 
       {:error, _} ->
         conn
@@ -357,11 +357,13 @@ defmodule ExampleWeb.SessionController do
     end
   end
 
-  defp maybe_redirect_to_app_login_approval(conn) do
-    case {conn.private[:sigra_session], ExampleWeb.AppLoginContinuation.fetch(conn)} do
-      {%{type: :mfa_pending}, _} -> conn
-      {_, {:ok, _continuation, _profile_id}} -> redirect(conn, to: ~p"/users/app-login/continue")
-      _ -> ExampleWeb.AppLoginContinuation.clear(conn)
+  defp put_app_login_return_to(conn) do
+    case ExampleWeb.AppLoginContinuation.fetch(conn) do
+      {:ok, _continuation, _profile_id} ->
+        put_session(conn, :user_return_to, ~p"/users/app-login/continue")
+
+      _ ->
+        ExampleWeb.AppLoginContinuation.clear(conn)
     end
   end
 
