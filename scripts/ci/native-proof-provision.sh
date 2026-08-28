@@ -292,8 +292,8 @@ cleanup_android() {
       kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 && kill -KILL "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
     fi
     wait "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
-    [[ "$status" == 0 || ! -f "$log" ]] || tail -n 120 "$log" >&2 || true
   fi
+  [[ "$status" == 0 || ! -f "$log" ]] || { printf '%s\n' 'Android emulator diagnostic log:' >&2; tail -n 120 "$log" >&2 || true; }
   if [[ -n "${SIGRA_ANDROID_AVD_HOME:-}" && -x "${SIGRA_ANDROID_AVDMANAGER:-}" ]]; then
     "$SIGRA_ANDROID_AVDMANAGER" delete avd -n "$ANDROID_AVD_NAME" >/dev/null 2>&1 || true
   fi
@@ -312,7 +312,10 @@ normalize_android_component() {
 wait_for_android_boot() {
   local attempts=90 value=''
   while (( attempts > 0 )); do
-    kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || fail "$RULE_ANDROID_EMULATOR"
+    if ! kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
+      [[ ! -f "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" ]] || { printf '%s\n' 'Android emulator exited before boot:' >&2; tail -n 120 "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" >&2 || true; }
+      fail "$RULE_ANDROID_EMULATOR"
+    fi
     if ! adb devices | grep -Fxq "$ANDROID_AVD_SERIAL	device"; then sleep 2; attempts=$((attempts - 1)); continue; fi
     value="$(adb -s "$ANDROID_AVD_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
     [[ "$value" == 1 ]] && return 0
