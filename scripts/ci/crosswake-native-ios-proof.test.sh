@@ -37,6 +37,16 @@ if -1 in positions or positions != sorted(positions):
     raise SystemExit("clean host bootstrap must fetch locked deps, compile, create, migrate, seed, and prove readiness in order")
 PY
 
+python3 - "$SCRIPT" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+main = source.split("main() {", 1)[1]
+cleanup = main.find("uninstall_owned_proof_apps strict")
+build = main.find("build_and_test")
+if cleanup == -1 or build == -1 or cleanup > build:
+    raise SystemExit("owned proof apps must be cleaned before Xcode can install the physical test bundle")
+PY
+
 python3 - "$ROOT_DIR/.github/workflows/terminal-ratification-evidence.yml" <<'PY'
 import pathlib, sys
 source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
@@ -103,7 +113,20 @@ case "$*" in
     if [[ "$locked" == 1 ]]; then required=true; else required=false; fi
     printf '{"result":{"passcodeRequired":%s,"deviceIdentifier":"DEVICE-ONLY-TEST"}}\n' "$required" >"$output"
     ;;
-  *'devicectl device uninstall app'*) exit 0 ;;
+  *'devicectl device info apps'*)
+    output=''
+    bundle=''
+    while [[ $# -gt 0 ]]; do
+      [[ "$1" == '--json-output' ]] && output="$2"
+      [[ "$1" == '--bundle-id' ]] && bundle="$2"
+      shift
+    done
+    printf '{"result":{"apps":[{"bundleIdentifier":"%s"}]}}\n' "$bundle" >"$output"
+    ;;
+  *'devicectl device uninstall app'*)
+    [[ -n "${FAKE_UNINSTALL_EVENTS:-}" ]] && printf '%s\n' "${!#}" >>"$FAKE_UNINSTALL_EVENTS"
+    exit 0
+    ;;
   *'xcresulttool get test-results tests'*) cat "${FAKE_XCRESULT_SUMMARY:?}" ;;
   *'xcresulttool export attachments'*)
     output=''
@@ -214,10 +237,12 @@ open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(payload))
 PY
 
 tool_bin="$(dirname "$(command -v node)")"
+uninstall_events="$tmp_root/uninstall-events"
 base_env=(env -i PATH="$fake_bin:$tool_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDIR="$tmp_root" \
   SIGRA_IOS_PROOF_TEST_MODE=1 SIGRA_IOS_DEVICE_UDID=DEVICE-ONLY-TEST \
   SIGRA_IOS_DEVELOPMENT_TEAM=TEAMONLY01 SIGRA_IOS_RUNNER_LABELS='self-hosted,macOS,ARM64,sigra-ios-physical' \
-  SIGRA_IOS_PROOF_TEST_REPORT="$report" FAKE_REPORT="$report" FAKE_XCRESULT_SUMMARY="$xcresult_summary")
+  SIGRA_IOS_PROOF_TEST_REPORT="$report" FAKE_REPORT="$report" FAKE_XCRESULT_SUMMARY="$xcresult_summary" \
+  FAKE_UNINSTALL_EVENTS="$uninstall_events")
 
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simulator (26.6.1) (DEVICE-ONLY-TEST)' "$SCRIPT"
 expect_failure 'NP-IOS-PHYSICAL-TARGET' "${base_env[@]}" FAKE_XCTRACE='Other iPhone (26.6.1) (OTHER-DEVICE)' "$SCRIPT"
@@ -265,5 +290,16 @@ events="$tmp_root/events"
 node "$ROOT_DIR/scripts/ci/lib/native-proof-receipt.mjs" --validate "$receipt" --target physical_iphone
 ! rg -q 'DEVICE-ONLY-TEST|TEAMONLY01|REDACTED' "$receipt" || fail 'receipt retained a stable identity or signing fact'
 [[ "$(stat -f %Lp "$receipt" 2>/dev/null || stat -c %a "$receipt")" == 600 ]] || fail 'receipt mode is not private'
+
+[[ -s "$uninstall_events" ]] || fail 'proof cleanup did not uninstall any owned app'
+while IFS= read -r bundle_id; do
+  case "$bundle_id" in
+    com.sigra.example.nativeproof|com.sigra.example.nativeproof.uitests.xctrunner|dev.crosswake.prooflane) ;;
+    *) fail "proof cleanup crossed its exact bundle allowlist: $bundle_id" ;;
+  esac
+done <"$uninstall_events"
+for bundle_id in com.sigra.example.nativeproof com.sigra.example.nativeproof.uitests.xctrunner dev.crosswake.prooflane; do
+  grep -Fxq "$bundle_id" "$uninstall_events" || fail "proof cleanup omitted owned bundle: $bundle_id"
+done
 
 printf 'crosswake-native-ios-proof tests: PASS\n'

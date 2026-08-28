@@ -23,6 +23,11 @@ PROOF_PASSWORD=""
 DEVICE_UDID=""
 DEVELOPMENT_TEAM=""
 ACCOUNT_CREATED=0
+PROOF_BUNDLE_IDS=(
+  com.sigra.example.nativeproof
+  com.sigra.example.nativeproof.uitests.xctrunner
+  dev.crosswake.prooflane
+)
 
 fail() { printf 'crosswake native iOS proof: %s\n' "$1" >&2; exit 2; }
 event() { [[ -n "${SIGRA_IOS_PROOF_TEST_EVENTS:-}" ]] && printf '%s\n' "$1" >>"$SIGRA_IOS_PROOF_TEST_EVENTS" || true; }
@@ -44,6 +49,9 @@ cleanup() {
         end
       ' >/dev/null 2>&1
     ) || cleanup_status=1
+  fi
+  if [[ -n "$DEVICE_UDID" && -n "$RUN_ROOT" && -d "$RUN_ROOT" ]]; then
+    uninstall_owned_proof_apps best-effort || cleanup_status=1
   fi
   if [[ -n "$RUN_ROOT" && -d "$RUN_ROOT" ]]; then
     rm -rf "$RUN_ROOT" || cleanup_status=1
@@ -207,6 +215,52 @@ emit_failure_lock_state() {
   state="$(capture_device_lock_state test-failure)" || state=unknown
   printf 'crosswake native iOS proof: device_lock_state=test-failure:%s\n' "$state" >&2
   event "device_lock_state_$state"
+}
+
+proof_bundle_installed() {
+  local inventory="$1" bundle_id="$2"
+  python3 - "$inventory" "$bundle_id" <<'PY'
+import json, sys
+
+result = json.load(open(sys.argv[1], encoding="utf-8")).get("result", {})
+apps = result.get("apps")
+if not isinstance(apps, list) or len(apps) > 1:
+    raise SystemExit(2)
+if not apps:
+    raise SystemExit(1)
+if apps[0].get("bundleIdentifier") != sys.argv[2]:
+    raise SystemExit(2)
+PY
+}
+
+uninstall_owned_proof_apps() {
+  local mode="$1" cleanup_status=0 index=0 inventory bundle_id installed_status
+  [[ -n "$DEVICE_UDID" && -n "$RUN_ROOT" && -d "$RUN_ROOT" ]] || return 0
+  for bundle_id in "${PROOF_BUNDLE_IDS[@]}"; do
+    index=$((index + 1))
+    inventory="$RUN_ROOT/proof-app-$index.json"
+    if ! xcrun devicectl device info apps --device "$DEVICE_UDID" --bundle-id "$bundle_id" \
+      --quiet --timeout 30 --json-output "$inventory" >/dev/null 2>&1; then
+      cleanup_status=1
+      continue
+    fi
+    set +e
+    proof_bundle_installed "$inventory" "$bundle_id"
+    installed_status=$?
+    set -e
+    case "$installed_status" in
+      0)
+        xcrun devicectl device uninstall app --device "$DEVICE_UDID" "$bundle_id" \
+          >/dev/null 2>&1 || cleanup_status=1
+        ;;
+      1) ;;
+      *) cleanup_status=1 ;;
+    esac
+  done
+  if [[ $cleanup_status -ne 0 && "$mode" == strict ]]; then
+    return 1
+  fi
+  return "$cleanup_status"
 }
 
 discover_team() {
@@ -443,7 +497,7 @@ finish_private_cleanup() {
     "$RUN_ROOT/signing.txt" "$RUN_ROOT/xcode-accounts.plist" "$RUN_ROOT/account-teams.txt" \
     "$RUN_ROOT/profile-facts.tsv" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
     "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log" \
-    "$RUN_ROOT/lock-preflight.json" "$RUN_ROOT/lock-test-failure.json"
+    "$RUN_ROOT/lock-preflight.json" "$RUN_ROOT/lock-test-failure.json" "$RUN_ROOT"/proof-app-*.json
 
   if [[ -n "$HOST_PID" ]]; then
     kill "$HOST_PID" 2>/dev/null || true
@@ -464,10 +518,7 @@ finish_private_cleanup() {
 }
 
 uninstall_and_scan() {
-  if [[ "$TEST_MODE" != 1 ]]; then
-    xcrun devicectl device uninstall app --device "$DEVICE_UDID" com.sigra.example.nativeproof \
-      >/dev/null 2>&1 || fail "$RULE_CLEANUP"
-  fi
+  uninstall_owned_proof_apps strict || fail "$RULE_CLEANUP"
   [[ "$REPORT_PATH" != "$EVIDENCE_PATH" ]] || fail "$RULE_REPORT"
   ! grep -aEqi '(access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer[[:space:]])' "$REPORT_PATH" || fail "$RULE_SCAN"
   if [[ -n "$PROOF_EMAIL" ]] && grep -aFq "$PROOF_EMAIL" "$REPORT_PATH"; then fail "$RULE_SCAN"; fi
@@ -529,6 +580,7 @@ main() {
   fi
   discover_target
   require_unlocked_device
+  uninstall_owned_proof_apps strict || fail "$RULE_CLEANUP"
   discover_team
   event target_validated
   if [[ "$TEST_MODE" != 1 ]]; then prepare_host; fi
