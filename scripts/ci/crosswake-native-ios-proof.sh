@@ -188,6 +188,9 @@ prepare_host() {
     run_host_setup_step compile "$RUN_ROOT/compile.log" \
       env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
       mix compile --force
+    run_host_setup_step create-db "$RUN_ROOT/create-db.log" \
+      env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix ecto.create --quiet
     run_host_setup_step migrate "$RUN_ROOT/migrate.log" \
       env MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
       mix ecto.migrate --quiet
@@ -321,7 +324,7 @@ finish_private_cleanup() {
   rm -rf "$DERIVED_DATA" "$RESULT_BUNDLE" "$RUN_ROOT/Attachments"
   rm -f "$RUN_ROOT/build.log" "$RUN_ROOT/test.log" "$RUN_ROOT/devices.json" \
     "$RUN_ROOT/selected-target.json" "$RUN_ROOT/xctrace.txt" "$RUN_ROOT/destinations.txt" \
-    "$RUN_ROOT/signing.txt" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" \
+    "$RUN_ROOT/signing.txt" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
     "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log"
 
   if [[ -n "$HOST_PID" ]]; then

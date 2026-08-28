@@ -196,7 +196,7 @@ jobs:
           set -euo pipefail
           bash scripts/db/up.sh >/dev/null
           source tmp/db.env
-          for name in PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
+          for name in PGHOST PGPORT; do
             printf '%s=%s\n' "$name" "${!name:?}" >> "$GITHUB_ENV"
           done
       - name: Validate hermetic physical proof mechanics

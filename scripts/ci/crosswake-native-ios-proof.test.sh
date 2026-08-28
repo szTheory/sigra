@@ -27,13 +27,14 @@ source = source.split("prepare_host() {", 1)[1].split("plist_put() {", 1)[0]
 markers = [
     "mix deps.get --check-locked",
     "mix compile --force",
+    "mix ecto.create --quiet",
     "mix ecto.migrate --quiet",
     "mix run --no-compile --no-deps-check",
     'curl --fail --silent --show-error --retry 40',
 ]
 positions = [source.find(marker) for marker in markers]
 if -1 in positions or positions != sorted(positions):
-    raise SystemExit("clean host bootstrap must fetch locked deps, compile, migrate, seed, and prove readiness in order")
+    raise SystemExit("clean host bootstrap must fetch locked deps, compile, create, migrate, seed, and prove readiness in order")
 PY
 
 python3 - "$ROOT_DIR/.github/workflows/terminal-ratification-evidence.yml" <<'PY'
