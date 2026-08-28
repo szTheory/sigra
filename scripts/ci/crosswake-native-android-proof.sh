@@ -244,7 +244,8 @@ prepare_host() {
 }
 
 run_instrumentation() {
-  local method="$1" output="$RUN_ROOT/instrumentation-$method.txt"
+  local method="$1" output
+  output="$RUN_ROOT/instrumentation-$method.txt"
   adb_cmd shell am instrument -w -r -e class "dev.sigra.proof.LiveNativeProofInstrumentedTest#$method" dev.sigra.proof.test/androidx.test.runner.AndroidJUnitRunner >"$output" 2>&1 || {
     sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
     fail "instrumentation phase failed: $method"

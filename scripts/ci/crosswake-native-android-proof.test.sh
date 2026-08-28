@@ -84,6 +84,7 @@ grep -Fq 'unexpected command failure: stage=$CURRENT_STAGE' "${RUNNER}" || fail 
 grep -Fq "pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' || true" "${RUNNER}" || fail "boot readiness probes must tolerate transient package-manager status"
 grep -Fq 'run-as dev.sigra.proof mkdir -p files' "${RUNNER}" || fail "credential injection must initialize app-private storage"
 grep -Fq 'run-as dev.sigra.proof tee files/proof-credentials.json' "${RUNNER}" || fail "credential injection must not depend on nested shell quoting"
+! grep -Eq 'local method=.*output=.*\$method' "${RUNNER}" || fail "instrumentation output must not expand an unbound local"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
