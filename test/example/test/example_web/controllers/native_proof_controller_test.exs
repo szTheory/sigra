@@ -7,6 +7,8 @@ defmodule ExampleWeb.NativeProofControllerTest do
   alias Example.Accounts.FirstPartyApps
   alias Example.Accounts.UserAppSessionFamily
   alias Example.Accounts.UserAppLoginAttempt
+  alias ExampleWeb.AppLoginContinuation
+  alias ExampleWeb.UserAuth
   alias Example.LearningTwin.{Lease, ReplayReceipt}
   alias Example.Repo
 
@@ -50,6 +52,12 @@ defmodule ExampleWeb.NativeProofControllerTest do
 
     assert image.status == 200
     assert get_resp_header(image, "content-type") == ["image/svg+xml; charset=utf-8"]
+
+    audio =
+      conn |> bearer(credentials.access_token) |> get("/api/native-proof/lesson/media/audio/v1")
+
+    assert audio.status == 200
+    assert get_resp_header(audio, "content-type") == ["audio/mpeg; charset=utf-8"]
 
     replay =
       conn
@@ -231,6 +239,71 @@ defmodule ExampleWeb.NativeProofControllerTest do
     refute profiles =~ ":password_allowed"
     assert router =~ "Sigra.Plug.FetchAppSession"
     assert router =~ "credential_kind: :app_session"
+  end
+
+  test "browser session renewal preserves only the bounded app-login continuation", %{conn: conn} do
+    user = user_fixture()
+
+    logged_in =
+      conn
+      |> init_test_session(%{})
+      |> AppLoginContinuation.put("signed-continuation", "ios-native-proof")
+      |> UserAuth.log_in_user(user)
+
+    assert {:ok, "signed-continuation", "ios-native-proof"} =
+             AppLoginContinuation.fetch(logged_in)
+
+    refute get_session(logged_in, :user_return_to)
+  end
+
+  test "hosted cancellation consumes the continuation without issuing credentials" do
+    user = user_fixture()
+    verifier = String.duplicate("c", 43)
+
+    assert {:ok, %{continuation: continuation}} =
+             AppSessions.start_hosted(%{
+               "profile_id" => "android-native-proof",
+               "callback" => "sigra-native-proof://auth/android",
+               "state" => "cancel-state-248",
+               "code_challenge" => Sigra.AppLogin.PKCE.challenge(verifier),
+               "code_challenge_method" => "S256"
+             })
+
+    assert {:ok, :cancelled} = AppSessions.approve_hosted(continuation, user, :cancel)
+
+    assert {:error, :invalid_continuation} =
+             AppSessions.approve_hosted(continuation, user, :approve)
+  end
+
+  test "bearer replay exposes each host-owned terminal outcome", %{conn: conn} do
+    user = user_fixture()
+
+    assert {:ok, credentials} =
+             Sigra.AppSession.issue(AppSessions.sigra_config(), user, "ios-native-proof")
+
+    bootstrap =
+      conn |> bearer(credentials.access_token) |> get("/api/native-proof/lesson/bootstrap")
+
+    assert %{"partition" => _partition} = json_response(bootstrap, 200)
+
+    for {suffix, overrides, expected} <- [
+          {"accepted", %{}, "accepted"},
+          {"rejected", %{"answer" => ""}, "rejected"},
+          {"conflict", %{"base_checkpoint" => "stale"}, "conflict"}
+        ] do
+      params =
+        replay_params()
+        |> Map.put("client_mutation_id", "native-#{suffix}")
+        |> Map.put("idempotency_key", "native-idempotency-#{suffix}")
+        |> Map.merge(overrides)
+
+      response =
+        conn
+        |> bearer(credentials.access_token)
+        |> post("/api/native-proof/lesson/replay", params)
+
+      assert %{"status" => ^expected} = json_response(response, 200)
+    end
   end
 
   test "hosted browser start renders explicit approval and controller exchange is one-time", %{
