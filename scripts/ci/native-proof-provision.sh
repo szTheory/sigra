@@ -14,8 +14,25 @@ readonly RULE_DEVICE='NP-IOS-DEVICE-UNAVAILABLE'
 readonly RULE_SIMULATOR='NP-IOS-SIMULATOR'
 readonly RULE_DESTINATION='NP-IOS-DESTINATION'
 readonly RULE_REDACTION='NP-IOS-LOCK-REDACTION'
+readonly RULE_ANDROID_ARCH='NP-ANDROID-ARCH'
+readonly RULE_ANDROID_SDK='NP-ANDROID-SDK'
+readonly RULE_ANDROID_JDK='NP-ANDROID-JDK'
+readonly RULE_ANDROID_PACKAGE='NP-ANDROID-PACKAGE'
+readonly RULE_ANDROID_EMULATOR='NP-ANDROID-EMULATOR'
+readonly RULE_ANDROID_BROWSER='NP-ANDROID-BROWSER'
+readonly RULE_ANDROID_CAPABILITY='NP-ANDROID-BROWSER-CAPABILITY'
+readonly RULE_ANDROID_LOCK='NP-ANDROID-LOCK'
+readonly RULE_ANDROID_WRAPPER='NP-ANDROID-WRAPPER'
+readonly RULE_ANDROID_GRADLE='NP-ANDROID-GRADLE'
 readonly EXPECTED_LABELS='ARM64,macOS,self-hosted,sigra-ios-physical'
 readonly LOCK_PATH_DEFAULT='test/example/native/native-proof-environment.lock.json'
+readonly ANDROID_PROJECT_ROOT_DEFAULT='test/example/native/android'
+readonly GRADLE_VERSION='8.13'
+readonly GRADLE_DISTRIBUTION_SHA256='20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78'
+readonly ANDROID_IMAGE='system-images;android-36;google_apis_playstore;x86_64'
+readonly ANDROID_AVD_NAME='sigraNativeProofPixel8'
+readonly ANDROID_AVD_SERIAL='emulator-5562'
+readonly ANDROID_AVD_PORT='5562'
 
 fail() { printf '%s\n' "$1" >&2; exit 1; }
 sha256() { /usr/bin/shasum -a 256 | /usr/bin/awk '{print $1}'; }
@@ -174,8 +191,181 @@ PY
   trap - RETURN
 }
 
+android_project_root() { printf '%s\n' "${SIGRA_ANDROID_PROJECT_ROOT:-$ANDROID_PROJECT_ROOT_DEFAULT}"; }
+android_lock_path() { printf '%s/toolchain.lock.json\n' "$(android_project_root)"; }
+android_sha256_file() { sha256 <"$1"; }
+
+require_linux_x86_64() {
+  [[ "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ]] || fail "$RULE_ANDROID_ARCH"
+}
+
+require_jdk_17() {
+  local version
+  version="$(java -version 2>&1 | /usr/bin/head -n 1 || true)"
+  [[ "$version" == *'17.'* || "$version" == *'"17"'* ]] || fail "$RULE_ANDROID_JDK"
+}
+
+sdkmanager_is_transient_failure() {
+  /usr/bin/grep -Eqi 'timeout|timed out|connection reset|temporar|429|5[0-9]{2}|unknown archive|zipfile|download.*fail|ssl.*reset' "$1"
+}
+
+install_android_packages() {
+  local sdkmanager="$1" output attempt=1
+  local -a packages=(
+    'cmdline-tools;23.0' 'platform-tools' 'emulator' 'platforms;android-36'
+    'build-tools;35.0.0' "$ANDROID_IMAGE"
+  )
+  # Licenses are accepted only for the explicit stable packages below; no mutable
+  # channel alias is requested by this runner.
+  set +o pipefail
+  yes | "$sdkmanager" --licenses >/dev/null
+  set -o pipefail
+  while :; do
+    output="$(mktemp "${SIGRA_ANDROID_RUN_ROOT}/sdkmanager.XXXXXX")"
+    if "$sdkmanager" --install "${packages[@]}" >"$output" 2>&1; then
+      rm -f "$output"
+      return 0
+    fi
+    if [[ "$attempt" == 1 ]] && sdkmanager_is_transient_failure "$output"; then
+      rm -f "$output"
+      attempt=2
+      continue
+    fi
+    sed -n '1,120p' "$output" >&2
+    rm -f "$output"
+    fail "$RULE_ANDROID_PACKAGE"
+  done
+}
+
+require_sdk_property() {
+  local path="$1" expected="$2"
+  [[ -f "$path" ]] && /usr/bin/grep -Fxq "Pkg.Revision=$expected" "$path" || fail "$RULE_ANDROID_PACKAGE"
+}
+
+validate_android_sdk() {
+  local sdk="$1"
+  require_sdk_property "$sdk/cmdline-tools/23.0/source.properties" '23.0'
+  require_sdk_property "$sdk/platform-tools/source.properties" '37.0.1'
+  require_sdk_property "$sdk/emulator/source.properties" '37.1.11'
+  [[ -d "$sdk/platforms/android-36" && -d "$sdk/build-tools/35.0.0" ]] || fail "$RULE_ANDROID_PACKAGE"
+  require_sdk_property "$sdk/$ANDROID_IMAGE/source.properties" '7'
+}
+
+cleanup_android() {
+  local status=$?
+  if [[ -n "${SIGRA_ANDROID_EMULATOR_PID:-}" ]] && kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
+    adb -s "$ANDROID_AVD_SERIAL" emu kill >/dev/null 2>&1 || true
+    wait "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || true
+  fi
+  if [[ -n "${SIGRA_ANDROID_AVD_HOME:-}" && -x "${SIGRA_ANDROID_AVDMANAGER:-}" ]]; then
+    "$SIGRA_ANDROID_AVDMANAGER" delete avd -n "$ANDROID_AVD_NAME" >/dev/null 2>&1 || true
+  fi
+  [[ -z "${SIGRA_ANDROID_RUN_ROOT:-}" ]] || rm -rf "$SIGRA_ANDROID_RUN_ROOT"
+  exit "$status"
+}
+
+wait_for_android_boot() {
+  local attempts=90 value=''
+  adb -s "$ANDROID_AVD_SERIAL" wait-for-device >/dev/null
+  while (( attempts > 0 )); do
+    value="$(adb -s "$ANDROID_AVD_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
+    [[ "$value" == 1 ]] && return 0
+    sleep 2
+    attempts=$((attempts - 1))
+  done
+  fail "$RULE_ANDROID_EMULATOR"
+}
+
+capture_android_browser() {
+  local root="$1" package_path version apk_sha custom_tabs
+  package_path="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n '1s/^package://p' | tr -d '\r')"
+  [[ -n "$package_path" ]] || fail "$RULE_ANDROID_BROWSER"
+  version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | /usr/bin/head -n 1 | tr -d '\r')"
+  [[ -n "$version" ]] || fail "$RULE_ANDROID_BROWSER"
+  adb -s "$ANDROID_AVD_SERIAL" pull "$package_path" "$root/chrome.apk" >/dev/null || fail "$RULE_ANDROID_BROWSER"
+  apk_sha="$(android_sha256_file "$root/chrome.apk")"
+  [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] || fail "$RULE_ANDROID_BROWSER"
+  custom_tabs="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -p com.android.chrome 2>/dev/null | tr -d '\r')"
+  [[ -n "$custom_tabs" && "$custom_tabs" != 'No service found' ]] || fail "$RULE_ANDROID_CAPABILITY"
+  printf '%s\t%s\n' "$version" "$apk_sha"
+}
+
+write_android_lock() {
+  local lock="$1" browser_version="$2" browser_sha="$3" wrapper_sha="$4" tmp
+  mkdir -p "$(dirname "$lock")"
+  tmp="$(mktemp "$(dirname "$lock")/.toolchain.lock.XXXXXX")"
+  python3 - "$tmp" "$browser_version" "$browser_sha" "$wrapper_sha" <<'PY'
+import json, os, sys
+path, browser_version, browser_sha, wrapper_sha = sys.argv[1:]
+data = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "browser_version": browser_version, "browser_apk_sha256": browser_sha, "browser_mode": "custom_tab_fallback", "gradle": "8.13", "gradle_distribution_sha256": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78", "gradle_wrapper_jar_sha256": wrapper_sha, "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, sort_keys=True, separators=(",", ":")); handle.write("\n")
+os.chmod(path, 0o600)
+PY
+  mv -f "$tmp" "$lock"
+}
+
+validate_android_lock() {
+  local project lock jar properties actual_jar
+  project="$(android_project_root)"; lock="$(android_lock_path)"
+  jar="$project/gradle/wrapper/gradle-wrapper.jar"; properties="$project/gradle/wrapper/gradle-wrapper.properties"
+  [[ -f "$lock" && -f "$jar" && -f "$properties" && -x "$project/gradlew" && -f "$project/gradlew.bat" ]] || fail "$RULE_ANDROID_LOCK"
+  python3 - "$lock" "$GRADLE_DISTRIBUTION_SHA256" <<'PY' || fail "$RULE_ANDROID_LOCK"
+import json, re, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+required = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "gradle": "8.13", "gradle_distribution_sha256": sys.argv[2], "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
+if any(data.get(k) != v for k, v in required.items()) or not re.fullmatch(r"[a-f0-9]{64}", str(data.get("browser_apk_sha256", ""))) or not data.get("browser_version") or data.get("browser_mode") not in {"auth_tab", "custom_tab_fallback"} or not re.fullmatch(r"[a-f0-9]{64}", str(data.get("gradle_wrapper_jar_sha256", ""))): raise SystemExit(1)
+PY
+  actual_jar="$(android_sha256_file "$jar")"
+  python3 - "$lock" "$actual_jar" <<'PY' || fail "$RULE_ANDROID_WRAPPER"
+import json, sys
+raise SystemExit(0 if json.load(open(sys.argv[1], encoding="utf-8"))["gradle_wrapper_jar_sha256"] == sys.argv[2] else 1)
+PY
+  /usr/bin/grep -Fq "distributionUrl=https\\://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" "$properties" && /usr/bin/grep -Fq "distributionSha256Sum=$GRADLE_DISTRIBUTION_SHA256" "$properties" || fail "$RULE_ANDROID_WRAPPER"
+}
+
+generate_gradle_wrapper() {
+  local project="$1" root="$2" archive="$root/gradle-${GRADLE_VERSION}-bin.zip" unpack="$root/gradle"
+  mkdir -p "$project"
+  curl --fail --location --retry 2 --retry-all-errors "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "$archive" || fail "$RULE_ANDROID_GRADLE"
+  [[ "$(android_sha256_file "$archive")" == "$GRADLE_DISTRIBUTION_SHA256" ]] || fail "$RULE_ANDROID_GRADLE"
+  unzip -q "$archive" -d "$unpack" || fail "$RULE_ANDROID_GRADLE"
+  "$unpack/gradle-${GRADLE_VERSION}/bin/gradle" -p "$project" wrapper --gradle-version "$GRADLE_VERSION" --distribution-type bin --no-daemon --console=plain >/dev/null || fail "$RULE_ANDROID_GRADLE"
+  python3 - "$project/gradle/wrapper/gradle-wrapper.properties" "$GRADLE_DISTRIBUTION_SHA256" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1]); text = p.read_text(encoding="utf-8")
+text = "\n".join(line for line in text.splitlines() if not line.startswith("distributionSha256Sum=")) + "\n"
+p.write_text(text + "distributionSha256Sum=" + sys.argv[2] + "\n", encoding="utf-8")
+PY
+}
+
+validate_android() {
+  local sdk sdkmanager avdmanager emulator project browser version sha wrapper_sha
+  require_linux_x86_64; require_jdk_17
+  sdk="${ANDROID_SDK_ROOT:-}"; [[ -n "$sdk" && -d "$sdk" && -w "$sdk" ]] || fail "$RULE_ANDROID_SDK"
+  sdkmanager="${SIGRA_ANDROID_SDKMANAGER:-$sdk/cmdline-tools/latest/bin/sdkmanager}"
+  [[ -x "$sdkmanager" ]] || fail "$RULE_ANDROID_SDK"
+  export SIGRA_ANDROID_RUN_ROOT="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sigra-native-proof-android.XXXXXX")"
+  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"; export ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_EMULATOR_HOME="$SIGRA_ANDROID_RUN_ROOT/emulator"
+  export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
+  avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
+  trap cleanup_android EXIT
+  install_android_packages "$sdkmanager"; validate_android_sdk "$sdk"
+  [[ -x "$avdmanager" && -x "$emulator" ]] || fail "$RULE_ANDROID_SDK"
+  yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
+  "$emulator" @"$ANDROID_AVD_NAME" -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
+  SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
+  browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; sha="${browser#*$'\t'}"
+  project="$(android_project_root)"; generate_gradle_wrapper "$project" "$SIGRA_ANDROID_RUN_ROOT"; wrapper_sha="$(android_sha256_file "$project/gradle/wrapper/gradle-wrapper.jar")"
+  write_android_lock "$(android_lock_path)" "$version" "$sha" "$wrapper_sha"
+  validate_android_lock
+  (cd "$project" && ./gradlew --no-daemon --console=plain --version >/dev/null) || fail "$RULE_ANDROID_GRADLE"
+}
+
 case "${1:-}" in
   --validate-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_ios ;;
   --discover-ios) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; discover_ios ;;
+  --validate-android) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android ;;
+  --validate-android-lock) [[ $# == 1 ]] || fail "$RULE_ARGUMENTS"; validate_android_lock ;;
   *) fail "$RULE_ARGUMENTS" ;;
 esac

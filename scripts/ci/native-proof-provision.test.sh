@@ -76,4 +76,38 @@ expect_fail 'NP-IOS-RUNNER-LABELS' "${base_env[@]}" SIGRA_IOS_RUNNER_LABELS='sel
 expect_fail 'NP-IOS-DESTINATION' "${base_env[@]}" FAKE_CORE_PAIRING=unpaired "$SCRIPT" --validate-ios
 expect_fail 'NP-IOS-LOCK-REDACTION' "${base_env[@]}" SIGRA_NATIVE_PROOF_LOCK_PATH="$tmp_root/leaky.json" SIGRA_NATIVE_PROOF_TEST_LEAK=DEVICE-ONLY-TEST "$SCRIPT" --validate-ios
 
+android_root="$tmp_root/android"
+mkdir -p "$android_root/gradle/wrapper"
+printf '#!/usr/bin/env sh\nexit 0\n' >"$android_root/gradlew"
+chmod +x "$android_root/gradlew"
+printf '@echo off\r\n' >"$android_root/gradlew.bat"
+printf 'generated-wrapper-test-bytes\n' >"$android_root/gradle/wrapper/gradle-wrapper.jar"
+wrapper_sha="$(shasum -a 256 "$android_root/gradle/wrapper/gradle-wrapper.jar" | awk '{print $1}')"
+printf '%s\n' \
+  'distributionBase=GRADLE_USER_HOME' \
+  'distributionPath=wrapper/dists' \
+  'distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip' \
+  'zipStoreBase=GRADLE_USER_HOME' \
+  'zipStorePath=wrapper/dists' \
+  'distributionSha256Sum=20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78' \
+  >"$android_root/gradle/wrapper/gradle-wrapper.properties"
+python3 - "$android_root/toolchain.lock.json" "$wrapper_sha" <<'PY'
+import json, sys
+path, wrapper_sha = sys.argv[1:]
+data = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_tools": "37.0.1", "emulator": "37.1.11", "sdk_platform": "android-36", "build_tools": "35.0.0", "system_image": "system-images;android-36;google_apis_playstore;x86_64", "system_image_revision": 7, "abi": "x86_64", "avd_device": "pixel_8", "browser_package": "com.android.chrome", "browser_version": "137.0.7151.80", "browser_apk_sha256": "a" * 64, "browser_mode": "custom_tab_fallback", "gradle": "8.13", "gradle_distribution_sha256": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78", "gradle_wrapper_jar_sha256": wrapper_sha, "agp": "8.13.2", "kotlin": "2.2.10", "androidx_browser": "1.9.0", "test_core": "1.7.0", "test_runner": "1.7.0", "espresso": "3.7.0", "uiautomator": "2.4.0", "complete": True}
+with open(path, "w", encoding="utf-8") as handle: json.dump(data, handle, sort_keys=True, separators=(",", ":")); handle.write("\n")
+PY
+env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+python3 - "$android_root/toolchain.lock.json" <<'PY'
+import json, sys
+path = sys.argv[1]; data = json.load(open(path, encoding="utf-8")); data["browser_mode"] = "unknown"; json.dump(data, open(path, "w", encoding="utf-8"))
+PY
+expect_fail 'NP-ANDROID-LOCK' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+python3 - "$android_root/toolchain.lock.json" "$wrapper_sha" <<'PY'
+import json, sys
+path, wrapper_sha = sys.argv[1:]; data = json.load(open(path, encoding="utf-8")); data["browser_mode"] = "auth_tab"; data["gradle_wrapper_jar_sha256"] = wrapper_sha; json.dump(data, open(path, "w", encoding="utf-8"))
+PY
+printf 'tampered\n' >>"$android_root/gradle/wrapper/gradle-wrapper.jar"
+expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+
 echo 'native-proof-provision tests: PASS'
