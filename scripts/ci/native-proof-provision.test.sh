@@ -152,8 +152,8 @@ cat >"$fake_bin/adb" <<'EOF'
 args="$*"
 if [[ "$args" == *'pm path com.android.chrome'* ]]; then printf '%s\n' 'package:/mutable/session/base.apk' 'package:/mutable/session/split_config.en.apk';
 elif [[ "$args" == *'dumpsys package com.android.chrome'* ]]; then echo '  versionName=137.0.7151.80';
-elif [[ "$args" == *'resolve-service'*'AuthTab'* ]]; then printf '%s\n' "${FAKE_AUTH_TAB:-No service found}";
-elif [[ "$args" == *'resolve-service'* ]]; then printf '%s\n' "${FAKE_CUSTOM_TABS:-com.android.chrome/.CustomTabsService}";
+elif [[ "$args" == *'query-services'*'AuthTab'* ]]; then printf '%s\n' "${FAKE_AUTH_TAB:-No service found}";
+elif [[ "$args" == *'query-services'* ]]; then printf '%s\n' "${FAKE_CUSTOM_TABS:-com.android.chrome/.CustomTabsService}";
 elif [[ "$args" == *' pull '* ]]; then target="${@: -1}"; printf '%s' "${target##*/}" >"$target";
 else exit 70; fi
 EOF

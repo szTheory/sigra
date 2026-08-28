@@ -309,6 +309,21 @@ normalize_android_component() {
   printf '%s\n' "$value"
 }
 
+query_chrome_services() {
+  local category="${1:-}" output line results=''
+  local -a query=(query-services --brief --user 0 -a android.support.customtabs.action.CustomTabsService -p com.android.chrome)
+  [[ -z "$category" ]] || query+=(-c "$category")
+  output="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package "${query[@]}" 2>/dev/null || true)"
+  [[ -n "$output" ]] || output="$(adb -s "$ANDROID_AVD_SERIAL" shell pm "${query[@]}" 2>/dev/null || true)"
+  while IFS= read -r line; do
+    line="${line//$'\r'/}"
+    case "$line" in ''|'No service found'|'No matching services found'|'null') continue ;; esac
+    [[ "$line" == com.android.chrome/* ]] || return 1
+    results+="$line"$'\n'
+  done <<<"$output"
+  printf '%s' "$results" | LC_ALL=C sort -u
+}
+
 wait_for_android_boot() {
   local attempts=90 value=''
   while (( attempts > 0 )); do
@@ -347,8 +362,8 @@ capture_android_browser() {
   # manifest, covering every base and split APK without changing the lock schema.
   apk_sha="$(android_sha256_file "$manifest")"
   [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] || fail "$RULE_ANDROID_BROWSER"
-  auth_tab="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -c androidx.browser.auth.category.AuthTab -p com.android.chrome 2>/dev/null | normalize_android_component)" || fail "$RULE_ANDROID_CAPABILITY"
-  custom_tabs="$(adb -s "$ANDROID_AVD_SERIAL" shell cmd package resolve-service --brief -a android.support.customtabs.action.CustomTabsService -p com.android.chrome 2>/dev/null | normalize_android_component)" || fail "$RULE_ANDROID_CAPABILITY"
+  auth_tab="$(query_chrome_services androidx.browser.auth.category.AuthTab)" || fail "$RULE_ANDROID_CAPABILITY"
+  custom_tabs="$(query_chrome_services)" || fail "$RULE_ANDROID_CAPABILITY"
   if [[ -n "$auth_tab" ]]; then printf '%s\t%s\tauth_tab\n' "$version" "$apk_sha"; return; fi
   [[ "$custom_tabs" == com.android.chrome/* ]] || fail "$RULE_ANDROID_CAPABILITY"
   printf '%s\t%s\tcustom_tab_fallback\n' "$version" "$apk_sha"
