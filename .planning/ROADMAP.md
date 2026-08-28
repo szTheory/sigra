@@ -272,7 +272,7 @@ Plans:
   2. Automated physical-iPhone evidence proves hosted login, Keychain refresh storage, verified offline lesson/media and audio, seven-day lease boundaries, relaunch persistence, account isolation, revocation, and exactly-once replay.
   3. Automated Android-emulator evidence proves the equivalent hosted login, Keystore-backed refresh storage, verified media, offline/relaunch behavior, account isolation, revocation, and replay outcomes.
 
-**Plans**: 2/8 plans executed
+**Plans**: 3/8 plans executed
 
 Plans:
 
@@ -286,7 +286,7 @@ Plans:
 
 **Wave 3** *(depends on Plan 248-02)*
 
-- [ ] 248-08-PLAN.md — Provision and lock the selected physical-iPhone runner contract, exact Android coordinates/browser, and verified Gradle wrapper.
+- [x] 248-08-PLAN.md — Provision and lock the selected physical-iPhone runner contract, exact Android coordinates/browser, and verified Gradle wrapper.
 
 **Wave 4** *(depends on Plan 248-08; platform plans may run in parallel)*
 
@@ -325,5 +325,5 @@ Plans:
 | 245. Opaque App-Session Core | 8/8 | Complete    | 2026-08-12 |
 | 246. Hosted and Direct Login Ceremonies | 19/19 | Complete    | 2026-08-16 |
 | 247. Language-Learning Digital Twin | 6/6 | Complete    | 2026-08-19 |
-| 248. Crosswake Native Proof | 2/8 | In Progress|  |
+| 248. Crosswake Native Proof | 3/8 | In Progress|  |
 | 249. Desktop Contract and Milestone Closure | 0/TBD | Not started | - |
