@@ -214,7 +214,7 @@ sdkmanager_is_transient_failure() {
 }
 
 install_android_packages() {
-  local sdkmanager="$1" output attempt=1
+  local sdkmanager="$1" sdk="$2" output attempt=1
   local -a packages=(
     'platform-tools' 'platforms;android-36'
     'build-tools;35.0.0' "$ANDROID_IMAGE"
@@ -222,11 +222,11 @@ install_android_packages() {
   # Licenses are accepted only for the explicit stable packages below; no mutable
   # channel alias is requested by this runner.
   set +o pipefail
-  yes | "$sdkmanager" --licenses >/dev/null
+  yes | "$sdkmanager" --sdk_root="$sdk" --licenses >/dev/null
   set -o pipefail
   while :; do
     output="$(mktemp "${SIGRA_ANDROID_RUN_ROOT}/sdkmanager.XXXXXX")"
-    if "$sdkmanager" --install "${packages[@]}" >"$output" 2>&1; then
+    if "$sdkmanager" --sdk_root="$sdk" --install "${packages[@]}" >"$output" 2>&1; then
       rm -f "$output"
       return 0
     fi
@@ -378,7 +378,7 @@ validate_android() {
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
-  install_android_packages "$sdkmanager"; install_exact_cmdline_tools "$sdk"; install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
+  install_android_packages "$sdkmanager" "$sdk"; install_exact_cmdline_tools "$sdk"; install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
   [[ -x "$avdmanager" && -x "$emulator" ]] || fail "$RULE_ANDROID_SDK"
   yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
   "$emulator" @"$ANDROID_AVD_NAME" -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
