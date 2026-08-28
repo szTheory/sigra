@@ -326,7 +326,7 @@ query_chrome_services() {
 }
 
 wait_for_android_boot() {
-  local attempts=90 value=''
+  local attempts=90 value='' paths='' version=''
   while (( attempts > 0 )); do
     if ! kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1; then
       [[ ! -f "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" ]] || { printf '%s\n' 'Android emulator exited before boot:' >&2; redacted_emulator_log "${SIGRA_ANDROID_RUN_ROOT}/emulator.log" >&2 || true; }
@@ -334,10 +334,15 @@ wait_for_android_boot() {
     fi
     if ! adb devices | grep -Fxq "$ANDROID_AVD_SERIAL	device"; then sleep 2; attempts=$((attempts - 1)); continue; fi
     value="$(adb -s "$ANDROID_AVD_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
-    [[ "$value" == 1 ]] && return 0
+    if [[ "$value" == 1 ]]; then
+      paths="$(adb -s "$ANDROID_AVD_SERIAL" shell pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' | tr -d '\r')"
+      version="$(adb -s "$ANDROID_AVD_SERIAL" shell dumpsys package com.android.chrome 2>/dev/null | sed -n 's/^[[:space:]]*versionName=//p' | head -n 1 | tr -d '\r')"
+      [[ -n "$paths" && -n "$version" ]] && return 0
+    fi
     sleep 2
     attempts=$((attempts - 1))
   done
+  if adb devices | grep -Fxq "$ANDROID_AVD_SERIAL	device"; then fail "$RULE_ANDROID_BROWSER"; fi
   fail "$RULE_ANDROID_EMULATOR"
 }
 
