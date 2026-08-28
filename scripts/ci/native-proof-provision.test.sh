@@ -100,6 +100,16 @@ data = {"schema_version": 1, "jdk": "17", "cmdline_tools": "23.0", "platform_too
 with open(path, "w", encoding="utf-8") as handle: json.dump(data, handle, sort_keys=True, separators=(",", ":")); handle.write("\n")
 PY
 env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+cp "$android_root/gradle/wrapper/gradle-wrapper.properties" "$tmp_root/properties.valid"
+printf '# distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip\n' >"$android_root/gradle/wrapper/gradle-wrapper.properties"
+expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+cp "$tmp_root/properties.valid" "$android_root/gradle/wrapper/gradle-wrapper.properties"
+printf 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip\n' >>"$android_root/gradle/wrapper/gradle-wrapper.properties"
+expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+cp "$tmp_root/properties.valid" "$android_root/gradle/wrapper/gradle-wrapper.properties"
+printf 'distributionSha256Sum=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' >>"$android_root/gradle/wrapper/gradle-wrapper.properties"
+expect_fail 'NP-ANDROID-WRAPPER' env SIGRA_ANDROID_PROJECT_ROOT="$android_root" "$SCRIPT" --validate-android-lock
+cp "$tmp_root/properties.valid" "$android_root/gradle/wrapper/gradle-wrapper.properties"
 python3 - "$android_root/toolchain.lock.json" <<'PY'
 import json, sys
 path = sys.argv[1]; data = json.load(open(path, encoding="utf-8")); data["unexpected_stable_identifier"] = "nope"; json.dump(data, open(path, "w", encoding="utf-8"))
