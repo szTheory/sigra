@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      phase248_android_runtime:
+        description: 'Run the bounded Phase 248 live Android-emulator proof at this exact SHA.'
+        required: false
+        type: boolean
+        default: false
       phase248_ios_physical:
         description: 'Run the bounded Phase 248 live physical-iPhone proof at this exact SHA.'
         required: false
@@ -24,7 +29,7 @@ permissions:
 
 jobs:
   capture:
-    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision && !inputs.phase248_android_compile && !inputs.phase248_ios_physical
+    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision && !inputs.phase248_android_compile && !inputs.phase248_android_runtime && !inputs.phase248_ios_physical
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -181,6 +186,59 @@ jobs:
             test/example/native/android/app/build/test-results/testDebugUnitTest/TEST-*.xml
           retention-days: 7
           if-no-files-found: error
+
+  phase248_android_runtime:
+    if: inputs.phase248_android_runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+        with:
+          otp-version: '28.0.2'
+          elixir-version: '1.19.0'
+      - name: Provision isolated proof database
+        run: |
+          set -euo pipefail
+          bash scripts/db/up.sh >/dev/null
+          source tmp/db.env
+          for name in PGHOST PGPORT; do
+            printf '%s=%s\n' "$name" "${!name:?}" >> "$GITHUB_ENV"
+          done
+      - name: Provision and validate locked Android runtime
+        env:
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/sigra-native-proof-android-sdk
+        run: |
+          set -euo pipefail
+          sudo udevadm trigger --subsystem-match=misc --action=change || true
+          sudo chown runner:docker /dev/kvm
+          sudo chmod u+rw,g+rw /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+          mkdir -p "$ANDROID_SDK_ROOT"
+          export SIGRA_ANDROID_SDKMANAGER="${ANDROID_HOME:?ANDROID_HOME is required}/cmdline-tools/latest/bin/sdkmanager"
+          bash scripts/ci/native-proof-provision.sh --validate-android
+      - name: Validate hermetic Android proof mechanics
+        run: bash scripts/ci/crosswake-native-android-proof.test.sh
+      - name: Execute live Android emulator proof
+        env:
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/sigra-native-proof-android-sdk
+        run: bash scripts/ci/crosswake-native-android-proof.sh
+      - name: Upload redacted Android emulator receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: native-proof-android-emulator-${{ github.sha }}
+          path: .planning/phases/248-crosswake-native-proof/248-ANDROID-EVIDENCE.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Remove isolated proof database
+        if: always()
+        run: bash scripts/db/down.sh --purge
 
   phase248_ios_physical:
     if: inputs.phase248_ios_physical
