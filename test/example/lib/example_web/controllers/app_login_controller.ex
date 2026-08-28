@@ -1,5 +1,6 @@
 defmodule ExampleWeb.AppLoginController do
   use ExampleWeb, :controller
+  require Logger
 
   alias Example.Accounts.Auth.AppSessions
   alias ExampleWeb.AppLoginContinuation
@@ -11,8 +12,10 @@ defmodule ExampleWeb.AppLoginController do
       {:ok, %{continuation: continuation}} ->
         profile_id = params["profile_id"]
         conn = AppLoginContinuation.put(conn, continuation, profile_id)
+        assurance = browser_assurance(conn)
+        proof_trace("start_assurance=#{assurance}")
 
-        case browser_assurance(conn) do
+        case assurance do
           :completed -> render(conn, :approve, profile_name: profile_id)
           :mfa_pending -> redirect(conn, to: ~p"/users/mfa")
           :unauthenticated -> redirect(conn, to: ~p"/users/log_in")
@@ -26,8 +29,13 @@ defmodule ExampleWeb.AppLoginController do
 
   def continue(conn, _params) do
     case AppLoginContinuation.fetch(conn) do
-      {:ok, _continuation, profile_id} -> render(conn, :approve, profile_name: profile_id)
-      _ -> invalid_request(conn)
+      {:ok, _continuation, profile_id} ->
+        proof_trace("continue=approval")
+        render(conn, :approve, profile_name: profile_id)
+
+      _ ->
+        proof_trace("continue=invalid")
+        invalid_request(conn)
     end
   end
 
@@ -110,7 +118,10 @@ defmodule ExampleWeb.AppLoginController do
   end
 
   defp require_authenticated_browser(conn, _opts) do
-    case browser_assurance(conn) do
+    assurance = browser_assurance(conn)
+    proof_trace("authenticated_gate=#{assurance}")
+
+    case assurance do
       :completed -> conn
       :mfa_pending -> conn |> redirect(to: ~p"/users/mfa") |> halt()
       :unauthenticated -> conn |> redirect(to: ~p"/users/log_in") |> halt()
@@ -144,4 +155,10 @@ defmodule ExampleWeb.AppLoginController do
 
   defp invalid_request(conn),
     do: conn |> put_status(:bad_request) |> text("Invalid app login request.")
+
+  defp proof_trace(message) do
+    if System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1" do
+      Logger.info("native_physical_proof app_login #{message}")
+    end
+  end
 end

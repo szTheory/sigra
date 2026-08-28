@@ -156,11 +156,28 @@ final class NativeProofUITests: XCTestCase {
         guard let approve else {
             let rejected = app.staticTexts["Invalid email or password"].exists ||
                 browser.staticTexts["Invalid email or password"].exists
-            XCTFail(rejected ? "NP-IOS-BROWSER-LOGIN-REJECTED" : "NP-IOS-BROWSER-APPROVAL")
+            XCTFail(rejected ? "NP-IOS-BROWSER-LOGIN-REJECTED" : classifyPostLoginPage(app: app, browser: browser))
             return false
         }
         approve.tap()
         return true
+    }
+
+    private func classifyPostLoginPage(app: XCUIApplication, browser: XCUIApplication) -> String {
+        let exactLabels = [
+            ("Log in to Tasklane", "NP-IOS-BROWSER-LOGIN-PAGE"),
+            ("Verify it's you", "NP-IOS-BROWSER-MFA-PAGE"),
+            ("Invalid app login request.", "NP-IOS-BROWSER-CONTINUATION-INVALID"),
+            ("Review this request before continuing to the app.", "NP-IOS-BROWSER-APPROVAL-CONTROL-MISSING")
+        ]
+        for (label, rule) in exactLabels where app.staticTexts[label].exists || browser.staticTexts[label].exists {
+            return rule
+        }
+        let welcome = NSPredicate(format: "label BEGINSWITH[c] 'Welcome back'")
+        if app.staticTexts.matching(welcome).firstMatch.exists || browser.staticTexts.matching(welcome).firstMatch.exists {
+            return "NP-IOS-BROWSER-APP-FALLBACK"
+        }
+        return "NP-IOS-BROWSER-APPROVAL"
     }
 
     private func focusAndType(_ text: String, into field: XCUIElement, failureRule: String) -> Bool {

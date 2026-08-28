@@ -104,7 +104,7 @@ text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
 for private in sys.argv[2:]:
     if private:
         text = text.replace(private, "[REDACTED]")
-allowed = re.compile(r"\[(?:warning|error)\]|\[info\]\s+(?:Running|Access|Sent)", re.I)
+allowed = re.compile(r"\[(?:warning|error)\]|\[info\]\s+(?:Running|Access|Sent|native_physical_proof)", re.I)
 secret = re.compile(r"access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer\s", re.I)
 lines = [secret.sub("[REDACTED]", line) for line in text.splitlines() if allowed.search(line)]
 print("\n".join(lines[-80:]), file=sys.stderr)

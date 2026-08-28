@@ -1,5 +1,6 @@
 defmodule ExampleWeb.SessionController do
   use ExampleWeb, :controller
+  require Logger
 
   alias Example.Accounts, as: Auth
   alias ExampleWeb.UserAuth
@@ -360,9 +361,11 @@ defmodule ExampleWeb.SessionController do
   defp put_app_login_return_to(conn) do
     case ExampleWeb.AppLoginContinuation.fetch(conn) do
       {:ok, _continuation, _profile_id} ->
+        proof_trace("session_return=app_login_continue")
         put_session(conn, :user_return_to, ~p"/users/app-login/continue")
 
       _ ->
+        proof_trace("session_return=default")
         ExampleWeb.AppLoginContinuation.clear(conn)
     end
   end
@@ -386,6 +389,12 @@ defmodule ExampleWeb.SessionController do
 
   defp enterprise_discovery_error(_reason),
     do: "We couldn't start enterprise sign-in right now. Please try again."
+
+  defp proof_trace(message) do
+    if System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1" do
+      Logger.info("native_physical_proof #{message}")
+    end
+  end
 
   def delete_passkey(conn, %{"id" => credential_id}) do
     user = conn.assigns.current_scope.user
