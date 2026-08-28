@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { extname, join, relative } from 'node:path';
 
 import { readRepoFile, readSubject } from './_lib.mjs';
 import { validateNativeReceipt } from '../lib/native-proof-receipt.mjs';
@@ -41,6 +42,25 @@ function sensitiveKey(key) {
   return /access_token|actor_id|authorization_code|credential_id|device_id|email|id_token|ip|nonce|org_id|passkey_credential_id|pkce_verifier|provider_payload|raw_return_to|refresh_token|return_to|session_ref|subject_ref|user_agent/.test(key);
 }
 
+const NATIVE_SOURCE_EXTENSIONS = new Set(['.gradle', '.java', '.json', '.kt', '.kts', '.m', '.mm', '.plist', '.properties', '.swift', '.xml']);
+
+function readNativeSourceTree(root) {
+  const files = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile() && NATIVE_SOURCE_EXTENSIONS.has(extname(entry.name))) files.push(path);
+    }
+  };
+  visit(root);
+  const repoOrder = (path) => relative(root, path).split('\\').join('/');
+  return files
+    .sort((left, right) => repoOrder(left) < repoOrder(right) ? -1 : repoOrder(left) > repoOrder(right) ? 1 : 0)
+    .map((path) => readFileSync(path, 'utf8'))
+    .join('\n');
+}
+
 function deriveRepositoryFacts() {
   const bridge = readRepoFile('test/example/lib/example/accounts/crosswake_native_bridge.ex');
   const telemetry = readRepoFile('test/example/deps/crosswake_sigra/lib/crosswake/companions/sigra/telemetry.ex');
@@ -49,7 +69,7 @@ function deriveRepositoryFacts() {
   const metadata = elixirBlock(telemetry, '@metadata_keys');
   const forbidden = elixirBlock(telemetry, '@forbidden_metadata_keys');
   const nativeRoots = ['test/example/native/ios', 'test/example/native/android'].filter(existsSync);
-  const nativeSource = nativeRoots.map((root) => readRepoFile(root)).join('\n');
+  const nativeSource = nativeRoots.map((root) => readNativeSourceTree(root)).join('\n');
   const nativeSurface = `${bridge}\n${receiptSource}\n${nativeSource}`;
 
   let statusValid = false;
