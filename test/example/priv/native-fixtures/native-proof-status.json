@@ -1,6 +1,6 @@
 {
   "schema_version": "native-proof-receipt/1",
-  "implementation_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "implementation_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "target_class": "physical_iphone",
   "target_identity": { "platform": "ios", "model_class": "iPhone", "os_version": "18.0", "physical": true },
   "toolchain": { "xcode_version": "16.0", "xcode_build": "16A242d" },
