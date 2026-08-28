@@ -263,6 +263,8 @@ main_live() {
   umask 077
   cd "$ROOT_DIR"
   [[ -n "${ANDROID_SDK_ROOT:-}" && -x "$ANDROID_SDK_ROOT/platform-tools/adb" ]] || fail "ANDROID_SDK_ROOT does not contain the locked platform tools"
+  export ANDROID_HOME="$ANDROID_SDK_ROOT"
+  unset ANDROID_SDK_HOME
   local cmdline_bin cmdline_version source_revision
   cmdline_version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["cmdline_tools"])' "$LOCK")"
   [[ "$cmdline_version" =~ ^[0-9]+\.[0-9]+$ ]] || fail "locked command-line tools version is invalid"
