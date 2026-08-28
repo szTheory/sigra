@@ -34,7 +34,15 @@ esac
 EOF
 cat >"$fake_bin/xcrun" <<'EOF'
 #!/usr/bin/env bash
-if [[ "$*" == *"xctrace list devices"* ]]; then
+if [[ "$*" == *"devicectl list devices"* ]]; then
+  output_path=''
+  while [[ $# -gt 0 ]]; do
+    if [[ "$1" == '--json-output' ]]; then output_path="$2"; break; fi
+    shift
+  done
+  [[ -n "$output_path" ]] || exit 70
+  printf '{"result":{"devices":[{"identifier":"DEVICE-ONLY-TEST","hardwareProperties":{"platform":"iOS","deviceType":"iPhone","marketingName":"Test iPhone"},"deviceProperties":{"osVersionNumber":"18.0"},"connectionProperties":{"pairingState":"%s"}}]}}\n' "${FAKE_CORE_PAIRING:-paired}" >"$output_path"
+elif [[ "$*" == *"xctrace list devices"* ]]; then
   printf '%s\n' "${FAKE_XCTRACE:-Test iPhone (18.0) (DEVICE-ONLY-TEST)}"
 elif [[ "$*" == *"xcdevice list"* ]]; then
   printf '%s\n' "${FAKE_XCDEVICE:-DEVICE-ONLY-TEST iPhone iOS connected}"
@@ -65,7 +73,7 @@ expect_fail 'NP-IOS-SIMULATOR' "${base_env[@]}" FAKE_XCTRACE='Test iPhone Simula
 expect_fail 'NP-IOS-DEVICE-UNAVAILABLE' "${base_env[@]}" FAKE_XCTRACE='Other iPhone (18.0) (OTHER-DEVICE-ONLY)' "$SCRIPT" --validate-ios
 expect_fail 'NP-IOS-ARCH' "${base_env[@]}" FAKE_ARCH=x86_64 "$SCRIPT" --validate-ios
 expect_fail 'NP-IOS-RUNNER-LABELS' "${base_env[@]}" SIGRA_IOS_RUNNER_LABELS='self-hosted,macOS,ARM64' "$SCRIPT" --validate-ios
-expect_fail 'NP-IOS-DEVICE-UNAVAILABLE' "${base_env[@]}" FAKE_XCDEVICE='unrelated device only' "$SCRIPT" --validate-ios
+expect_fail 'NP-IOS-DESTINATION' "${base_env[@]}" FAKE_CORE_PAIRING=unpaired "$SCRIPT" --validate-ios
 expect_fail 'NP-IOS-LOCK-REDACTION' "${base_env[@]}" SIGRA_NATIVE_PROOF_LOCK_PATH="$tmp_root/leaky.json" SIGRA_NATIVE_PROOF_TEST_LEAK=DEVICE-ONLY-TEST "$SCRIPT" --validate-ios
 
 echo 'native-proof-provision tests: PASS'

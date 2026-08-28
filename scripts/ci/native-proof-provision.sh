@@ -37,7 +37,7 @@ import json, sys
 devices = json.load(open(sys.argv[1], encoding="utf-8"))["result"]["devices"]
 eligible = [d for d in devices if str(d.get("hardwareProperties", {}).get("platform", "")).lower() == "ios" and "simulator" not in str(d.get("hardwareProperties", {}).get("deviceType", "")).lower()]
 if len(eligible) == 1:
-    value = eligible[0].get("identifier") or eligible[0].get("hardwareProperties", {}).get("udid")
+    value = eligible[0].get("hardwareProperties", {}).get("udid") or eligible[0].get("identifier")
     if isinstance(value, str) and value:
         print(value)
 PY
@@ -71,6 +71,53 @@ discover_single_team() {
   printf '%s\n' "$candidates"
 }
 
+selected_physical_device_metadata() {
+  local udid="$1" run_root json_path metadata
+  run_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-native-proof-device.XXXXXX")"
+  chmod 700 "$run_root"
+  json_path="$run_root/devices.json"
+  xcrun devicectl list devices --timeout 15 --json-output "$json_path" >/dev/null 2>&1 || {
+    rmdir "$run_root"
+    return 1
+  }
+  metadata="$(/usr/bin/python3 - "$json_path" "$udid" <<'PY'
+import json, re, sys
+
+path, selected_udid = sys.argv[1:]
+devices = json.load(open(path, encoding="utf-8")).get("result", {}).get("devices", [])
+eligible = []
+selected = None
+for device in devices:
+    hardware = device.get("hardwareProperties", {})
+    platform = str(hardware.get("platform", "")).lower()
+    device_type = str(hardware.get("deviceType", "")).lower()
+    if platform == "ios" and "simulator" not in device_type:
+        eligible.append(device)
+        identifier = str(hardware.get("udid") or device.get("identifier") or "")
+        if identifier == selected_udid:
+            selected = device
+
+if len(eligible) != 1 or selected is None:
+    raise SystemExit(1)
+
+connection = selected.get("connectionProperties", {})
+if str(connection.get("pairingState", "")).lower() != "paired":
+    raise SystemExit(1)
+
+properties = selected.get("deviceProperties", {})
+model = str(selected.get("hardwareProperties", {}).get("marketingName", ""))
+os_version = str(properties.get("osVersionNumber", ""))
+if not model or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){0,2}", os_version):
+    raise SystemExit(1)
+print(f"{model}\t{os_version}")
+PY
+)" || true
+  [[ ! -f "$json_path" ]] || /bin/unlink "$json_path"
+  rmdir "$run_root"
+  [[ -n "$metadata" ]] || return 1
+  printf '%s\n' "$metadata"
+}
+
 discover_ios() {
   local udid team xcode
   udid="$(discover_single_udid || true)"
@@ -86,7 +133,7 @@ discover_ios() {
 
 validate_ios() {
   local udid="${SIGRA_IOS_DEVICE_UDID:-}" team="${SIGRA_IOS_DEVELOPMENT_TEAM:-}"
-  local labels xcode device_line xcdevice destinations model os binding lock_path lock_dir tmp_lock
+  local labels xcode device_line metadata model os binding lock_path lock_dir tmp_lock
   [[ "$(uname -m)" == arm64 ]] || fail "$RULE_ARCH"
   labels="$(canonical_labels "${SIGRA_IOS_RUNNER_LABELS:-}")"
   [[ "$labels" == "$EXPECTED_LABELS" ]] || fail "$RULE_LABELS"
@@ -99,13 +146,12 @@ validate_ios() {
   device_line="$(xcrun xctrace list devices 2>/dev/null | /usr/bin/grep -F "($udid)" | /usr/bin/head -n 1 || true)"
   [[ -n "$device_line" ]] || fail "$RULE_DEVICE"
   [[ "$device_line" != *Simulator* && "$device_line" != *simulator* && "$device_line" != *unavailable* ]] || fail "$RULE_SIMULATOR"
-  xcdevice="$(xcrun xcdevice list 2>/dev/null || true)"
-  [[ "$xcdevice" == *"$udid"* && "$xcdevice" != *"$udid"*Simulator* ]] || fail "$RULE_DEVICE"
-  destinations="$(xcodebuild -showdestinations 2>/dev/null || true)"
-  [[ "$destinations" == *"platform:iOS"* && "$destinations" == *"$udid"* ]] || fail "$RULE_DESTINATION"
-  model="$(printf '%s' "$device_line" | /usr/bin/sed -E 's/[[:space:]]*\([^)]*\)[[:space:]]*\([^)]*\)[[:space:]]*$//' | /usr/bin/sed -E 's/[0-9]+/N/g' | /usr/bin/tr -cd '[:alnum:] _-' | /usr/bin/sed 's/^ *//;s/ *$//' | /usr/bin/cut -c1-80)"
+  metadata="$(selected_physical_device_metadata "$udid" || true)"
+  [[ -n "$metadata" ]] || fail "$RULE_DESTINATION"
+  model="${metadata%%$'\t'*}"
+  os="${metadata#*$'\t'}"
+  model="$(printf '%s' "$model" | /usr/bin/sed -E 's/[0-9]+/N/g' | /usr/bin/tr -cd '[:alnum:] _-' | /usr/bin/sed 's/^ *//;s/ *$//' | /usr/bin/cut -c1-80)"
   [[ -n "$model" ]] || fail "$RULE_DEVICE"
-  os="$(printf '%s' "$device_line" | /usr/bin/grep -Eo '\([0-9]+(\.[0-9]+){0,2}\)' | /usr/bin/head -n 1 | /usr/bin/tr -d '()' || true)"
   [[ "$os" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]] || fail "$RULE_DEVICE"
   binding="$(printf '%s\0%s\0%s' "$udid" "$team" "${GITHUB_RUN_ID:-local}" | sha256)"
   lock_path="${SIGRA_NATIVE_PROOF_LOCK_PATH:-$LOCK_PATH_DEFAULT}"
