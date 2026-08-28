@@ -9,11 +9,19 @@
 /* Begin PBXBuildFile section */
 		298FE0663A5E9B10B2E35B84 /* SecureRefreshStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD43A55F54B09471783EFC5 /* SecureRefreshStore.swift */; };
 		34602B35BD4F06E88D4623CE /* HostedAuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487113704DCBC937DCF02619 /* HostedAuthSession.swift */; };
+		5F0F41913053CB90CE5AB53E /* NativeProofUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0476730C5013FFBBA7FB16 /* NativeProofUITests.swift */; };
 		6796105EF4945A34F0192B34 /* SigraNativeProofApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */; };
 		74D9246EA8395697F9F768AC /* NativeContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC8DCE48BFE540F451886 /* NativeContractTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A9265E9A78C339091FF32443 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4604974B12D939C88F3C8C2A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B51BE926FDB9FF3670CD2A52;
+			remoteInfo = SigraNativeProof;
+		};
 		BDC964CCAD9BFE5C0D87CC6C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4604974B12D939C88F3C8C2A /* Project object */;
@@ -29,6 +37,8 @@
 		69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigraNativeProofApp.swift; sourceTree = "<group>"; };
 		6CD43A55F54B09471783EFC5 /* SecureRefreshStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRefreshStore.swift; sourceTree = "<group>"; };
 		990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SigraNativeProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBBEEDD008437F84C0C0A2A2 /* SigraNativeProofUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SigraNativeProofUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA0476730C5013FFBBA7FB16 /* NativeProofUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProofUITests.swift; sourceTree = "<group>"; };
 		F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SigraNativeProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -46,6 +56,7 @@
 			children = (
 				990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */,
 				F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */,
+				BBBEEDD008437F84C0C0A2A2 /* SigraNativeProofUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,6 +66,7 @@
 			children = (
 				F0E602E499B61F0C6B39A643 /* App */,
 				1519BE46AAE546AEF8BAF3C5 /* Tests */,
+				F9C54140EFB45D67BD3E3F8B /* UITests */,
 				54EDE1B1CCA94F291B725B84 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -67,6 +79,14 @@
 				69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		F9C54140EFB45D67BD3E3F8B /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				CA0476730C5013FFBBA7FB16 /* NativeProofUITests.swift */,
+			);
+			path = UITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -108,6 +128,24 @@
 			productReference = 990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E803E49214FEA9C9386E22D7 /* SigraNativeProofUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F73CDD215B9458BE4C626405 /* Build configuration list for PBXNativeTarget "SigraNativeProofUITests" */;
+			buildPhases = (
+				B44089A9A03E22E3D5196A18 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				69DF1836ED75F2BFCB37D2E0 /* PBXTargetDependency */,
+			);
+			name = SigraNativeProofUITests;
+			packageProductDependencies = (
+			);
+			productName = SigraNativeProofUITests;
+			productReference = BBBEEDD008437F84C0C0A2A2 /* SigraNativeProofUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -117,6 +155,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					E803E49214FEA9C9386E22D7 = {
+						TestTargetID = B51BE926FDB9FF3670CD2A52;
+					};
 				};
 			};
 			buildConfigurationList = 043FACB933F8EE0676D76C9E /* Build configuration list for PBXProject "SigraNativeProof" */;
@@ -135,6 +176,7 @@
 			targets = (
 				B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */,
 				202121CBC028F7682F352B15 /* SigraNativeProofTests */,
+				E803E49214FEA9C9386E22D7 /* SigraNativeProofUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -181,9 +223,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B44089A9A03E22E3D5196A18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F0F41913053CB90CE5AB53E /* NativeProofUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		69DF1836ED75F2BFCB37D2E0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */;
+			targetProxy = A9265E9A78C339091FF32443 /* PBXContainerItemProxy */;
+		};
 		BC82543C45FD1CF2951A457F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B51BE926FDB9FF3670CD2A52 /* SigraNativeProof */;
@@ -350,6 +405,40 @@
 			};
 			name = Release;
 		};
+		5CBDBB7687C56A2EF4153569 /* Proof */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SigraNativeProof;
+			};
+			name = Proof;
+		};
+		A186C9D0990B8DB2235D1D27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sigra.example.nativeproof.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SigraNativeProof;
+			};
+			name = Release;
+		};
 		B8FDB387BC08E4E8EF095D60 /* Proof */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -411,6 +500,15 @@
 			buildConfigurations = (
 				B8FDB387BC08E4E8EF095D60 /* Proof */,
 				47374B055FBD4F16497D4C84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Proof;
+		};
+		F73CDD215B9458BE4C626405 /* Build configuration list for PBXNativeTarget "SigraNativeProofUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5CBDBB7687C56A2EF4153569 /* Proof */,
+				A186C9D0990B8DB2235D1D27 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Proof;

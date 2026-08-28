@@ -1,4 +1,5 @@
 import Security
+import CryptoKit
 import XCTest
 @testable import SigraNativeProof
 
@@ -79,6 +80,110 @@ final class NativeContractTests: XCTestCase {
             "deleted_after_revocation", "read_result", "access_persisted"
         ]))
         XCTAssertEqual(object["access_persisted"] as? Bool, false)
+    }
+
+    func testMediaRequiresExactLengthAndSHAThenRestoresBeforeStrictLeaseExpiry() throws {
+        let root = temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = NativeLessonStore(rootURL: root)
+        let image = Data("verified-image".utf8)
+        let audio = Data("verified-audio".utf8)
+        let expiresAt = Date(timeIntervalSince1970: 1_800_000_000)
+        let lease = NativeLessonLease(partition: "partition-one", expiresAt: expiresAt)
+        let manifests = [
+            NativeMediaManifest(kind: .image, version: "image-v1", byteCount: image.count, sha256: sha256(image)),
+            NativeMediaManifest(kind: .audio, version: "audio-v1", byteCount: audio.count, sha256: sha256(audio))
+        ]
+
+        try store.activate(lease: lease, manifests: manifests, bodies: [.image: image, .audio: audio])
+        XCTAssertTrue(store.isAvailableOffline(partition: lease.partition, asOf: expiresAt.addingTimeInterval(-0.000001)))
+        XCTAssertFalse(store.isAvailableOffline(partition: lease.partition, asOf: expiresAt))
+        XCTAssertTrue(NativeLessonStore(rootURL: root).recover(partition: lease.partition, asOf: expiresAt.addingTimeInterval(-1)))
+        XCTAssertTrue(try store.offlineMediaURL(kind: .audio, partition: lease.partition, asOf: expiresAt.addingTimeInterval(-1)).isFileURL)
+
+        let readyFiles = try FileManager.default.contentsOfDirectory(atPath: root.path)
+        XCTAssertTrue(readyFiles.contains("activation.json"), "activation is the marker-last durable write")
+    }
+
+    func testShortAndCorruptMediaNeverActivate() throws {
+        for mutation in ["short", "corrupt"] {
+            let root = temporaryRoot()
+            defer { try? FileManager.default.removeItem(at: root) }
+            let expected = Data("verified-audio".utf8)
+            let supplied = mutation == "short" ? expected.dropLast() : Data("verified-Audio".utf8)
+            let lease = NativeLessonLease(partition: "partition-integrity", expiresAt: Date(timeIntervalSinceNow: 60))
+            let manifest = NativeMediaManifest(
+                kind: .audio,
+                version: "audio-v1",
+                byteCount: expected.count,
+                sha256: sha256(expected)
+            )
+            XCTAssertThrowsError(try NativeLessonStore(rootURL: root).activate(
+                lease: lease,
+                manifests: [manifest],
+                bodies: [.audio: Data(supplied)]
+            ))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: root.appendingPathComponent("activation.json").path))
+        }
+    }
+
+    func testPartitionSwitchLogoutAndRevocationClearBeforeLocalUse() throws {
+        let root = temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let body = Data("lesson".utf8)
+        let manifest = NativeMediaManifest(kind: .image, version: "v1", byteCount: body.count, sha256: sha256(body))
+        let lease = NativeLessonLease(partition: "partition-first", expiresAt: Date(timeIntervalSinceNow: 60))
+        let store = NativeLessonStore(rootURL: root)
+
+        try store.activate(lease: lease, manifests: [manifest], bodies: [.image: body])
+        try store.switchPartition(to: "partition-second")
+        XCTAssertFalse(store.isAvailableOffline(partition: lease.partition, asOf: Date()))
+
+        try store.activate(lease: lease, manifests: [manifest], bodies: [.image: body])
+        try store.clearForLogout()
+        XCTAssertFalse(store.isAvailableOffline(partition: lease.partition, asOf: Date()))
+
+        try store.activate(lease: lease, manifests: [manifest], bodies: [.image: body])
+        try store.clearForRevocation()
+        XCTAssertFalse(store.isAvailableOffline(partition: lease.partition, asOf: Date()))
+    }
+
+    func testReplayJournalIsCredentialFreeAndHostTerminalOutcomesPersistExactlyOnce() throws {
+        let root = temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let body = Data("lesson".utf8)
+        let manifest = NativeMediaManifest(kind: .image, version: "v1", byteCount: body.count, sha256: sha256(body))
+        let lease = NativeLessonLease(partition: "partition-replay", expiresAt: Date(timeIntervalSinceNow: 60))
+        let store = NativeLessonStore(rootURL: root)
+        try store.activate(lease: lease, manifests: [manifest], bodies: [.image: body])
+
+        for terminal in NativeReplayTerminal.allCases {
+            let suffix = terminal.rawValue
+            let entry = NativeReplayEntry(
+                journalEntryID: "journal-\(suffix)",
+                clientMutationID: "mutation-\(suffix)",
+                idempotencyKey: "idempotency-\(suffix)",
+                baseCheckpoint: "market-morning-v1",
+                action: "answer",
+                answer: "apples"
+            )
+            try store.enqueue(entry, partition: lease.partition, asOf: Date())
+            XCTAssertEqual(try store.reconcile(entry: entry, hostTerminal: terminal), terminal)
+            XCTAssertEqual(try store.reconcile(entry: entry, hostTerminal: terminal), terminal)
+        }
+
+        XCTAssertEqual(store.terminalCount, 3)
+        let journal = try String(contentsOf: store.journalURL, encoding: .utf8)
+        XCTAssertFalse(journal.range(of: "access|refresh|credential|account|user", options: .regularExpression) != nil)
+    }
+
+    private func temporaryRoot() -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent("sigra-native-contract-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    private func sha256(_ data: Data) -> String {
+        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }
 
