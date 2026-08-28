@@ -10,6 +10,7 @@
 		298FE0663A5E9B10B2E35B84 /* SecureRefreshStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD43A55F54B09471783EFC5 /* SecureRefreshStore.swift */; };
 		34602B35BD4F06E88D4623CE /* HostedAuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487113704DCBC937DCF02619 /* HostedAuthSession.swift */; };
 		5F0F41913053CB90CE5AB53E /* NativeProofUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0476730C5013FFBBA7FB16 /* NativeProofUITests.swift */; };
+		5F24804A13053CB90CE5AB53E /* NativeLiveProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA24804A0C5013FFBBA7FB16 /* NativeLiveProof.swift */; };
 		6796105EF4945A34F0192B34 /* SigraNativeProofApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69FA688F82D30EC13C2DE3FE /* SigraNativeProofApp.swift */; };
 		74D9246EA8395697F9F768AC /* NativeContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC8DCE48BFE540F451886 /* NativeContractTests.swift */; };
 		A1A7F0566BE57AC3302A5F6F /* NativeProofStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C0D690C4F6B5C88B38C674 /* NativeProofStatusView.swift */; };
@@ -43,6 +44,7 @@
 		990AB8E08A7B5E745044F1E2 /* SigraNativeProof.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SigraNativeProof.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBBEEDD008437F84C0C0A2A2 /* SigraNativeProofUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SigraNativeProofUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA0476730C5013FFBBA7FB16 /* NativeProofUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProofUITests.swift; sourceTree = "<group>"; };
+		CA24804A0C5013FFBBA7FB16 /* NativeLiveProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeLiveProof.swift; sourceTree = "<group>"; };
 		F432B28AEA2A7DF6AC1347FE /* SigraNativeProofTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SigraNativeProofTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				487113704DCBC937DCF02619 /* HostedAuthSession.swift */,
+				CA24804A0C5013FFBBA7FB16 /* NativeLiveProof.swift */,
 				6F90D6BE336ACF0013F99426 /* NativeLessonStore.swift */,
 				60C0D690C4F6B5C88B38C674 /* NativeProofStatusView.swift */,
 				6CD43A55F54B09471783EFC5 /* SecureRefreshStore.swift */,
@@ -216,6 +219,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34602B35BD4F06E88D4623CE /* HostedAuthSession.swift in Sources */,
+				5F24804A13053CB90CE5AB53E /* NativeLiveProof.swift in Sources */,
 				DDA6B193985A7140F3516007 /* NativeLessonStore.swift in Sources */,
 				A1A7F0566BE57AC3302A5F6F /* NativeProofStatusView.swift in Sources */,
 				298FE0663A5E9B10B2E35B84 /* SecureRefreshStore.swift in Sources */,
@@ -325,7 +329,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/SigraNativeProof-Info.plist";
+				INFOPLIST_FILE = App/PhysicalProofInfo.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

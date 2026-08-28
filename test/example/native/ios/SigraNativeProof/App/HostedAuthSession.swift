@@ -218,6 +218,50 @@ final class HostedAuthSession: NSObject, ASWebAuthenticationPresentationContextP
         }
     }
 
+    func recoverAndRotateRefresh() async throws -> StoragePosture {
+        let recovered = refreshStore.recoverAfterRelaunch()
+        guard recovered.recoveredAfterRelaunch else {
+            throw HostedAuthError.invalidResponse
+        }
+        return try await rotateRefresh()
+    }
+
+    func authorizedRequest(path: String, method: String = "GET", jsonBody: [String: String]? = nil) async throws -> (Data, HTTPURLResponse) {
+        let requestPath = path.split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false)
+        let pathname = String(requestPath[0])
+        guard let accessMaterial,
+              let access = String(data: accessMaterial, encoding: .utf8),
+              !access.isEmpty,
+              pathname.hasPrefix("/api/native-proof/") || pathname == "/api/native-proof" else {
+            throw HostedAuthError.invalidResponse
+        }
+        guard var components = URLComponents(url: configuration.baseURL, resolvingAgainstBaseURL: false),
+              components.scheme == "https" || components.scheme == "http",
+              components.host != nil else {
+            throw HostedAuthError.invalidConfiguration
+        }
+        components.path = pathname
+        components.percentEncodedQuery = requestPath.count == 2 ? String(requestPath[1]) : nil
+        guard let url = components.url else { throw HostedAuthError.invalidConfiguration }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("Bearer \(access)", forHTTPHeaderField: "Authorization")
+        if let jsonBody {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(jsonBody)
+        }
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw HostedAuthError.transportFailure
+        }
+        guard let http = response as? HTTPURLResponse else { throw HostedAuthError.invalidResponse }
+        if http.statusCode == 401 { throw HostedAuthError.serverRevoked }
+        return (data, http)
+    }
+
     func recoverAfterRelaunch() -> StoragePosture {
         accessMaterial = nil
         return refreshStore.recoverAfterRelaunch()

@@ -11,7 +11,7 @@ expect_failure() {
   shift
   local output status
   set +e
-  output="$($@ 2>&1)"
+  output="$("$@" 2>&1)"
   status=$?
   set -e
   [[ $status -ne 0 ]] || fail "expected failure for ${rule}"
@@ -90,7 +90,8 @@ payload = {
 open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
 PY
 
-base_env=(env -i PATH="$fake_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDIR="$tmp_root" \
+tool_bin="$(dirname "$(command -v node)")"
+base_env=(env -i PATH="$fake_bin:$tool_bin:/usr/bin:/bin" HOME="$tmp_root" TMPDIR="$tmp_root" \
   SIGRA_IOS_PROOF_TEST_MODE=1 SIGRA_IOS_DEVICE_UDID=DEVICE-ONLY-TEST \
   SIGRA_IOS_DEVELOPMENT_TEAM=TEAMONLY01 SIGRA_IOS_RUNNER_LABELS='self-hosted,macOS,ARM64,sigra-ios-physical' \
   SIGRA_IOS_PROOF_TEST_REPORT="$report" FAKE_REPORT="$report")

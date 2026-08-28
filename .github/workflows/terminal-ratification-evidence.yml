@@ -13,13 +13,18 @@ on:
         required: false
         type: boolean
         default: false
+      phase248_ios_physical:
+        description: 'Run the bounded Phase 248 live physical-iPhone proof at this exact SHA.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   capture:
-    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision && !inputs.phase248_android_compile
+    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision && !inputs.phase248_android_compile && !inputs.phase248_ios_physical
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -174,5 +179,27 @@ jobs:
             test/example/native/android/app/build/outputs/apk/debug/app-debug.apk
             test/example/native/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             test/example/native/android/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 7
+          if-no-files-found: error
+
+  phase248_ios_physical:
+    if: inputs.phase248_ios_physical
+    runs-on: [self-hosted, macOS, ARM64, sigra-ios-physical]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate hermetic physical proof mechanics
+        run: bash scripts/ci/crosswake-native-ios-proof.test.sh
+      - name: Execute live physical-iPhone proof
+        env:
+          SIGRA_IOS_RUNNER_LABELS: self-hosted,macOS,ARM64,sigra-ios-physical
+        run: bash scripts/ci/crosswake-native-ios-proof.sh
+      - name: Upload redacted physical-iPhone receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: native-proof-ios-physical-${{ github.sha }}
+          path: .planning/phases/248-crosswake-native-proof/248-IOS-EVIDENCE.json
           retention-days: 7
           if-no-files-found: error
