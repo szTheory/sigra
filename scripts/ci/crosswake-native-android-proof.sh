@@ -260,7 +260,8 @@ pathlib.Path(sys.argv[1]).write_text(json.dumps({"primary":{"email":sys.argv[2],
 PY
   chmod 600 "$json"
   adb_cmd shell run-as dev.sigra.proof mkdir -p files
-  adb_cmd shell run-as dev.sigra.proof sh -c 'umask 077; cat > files/proof-credentials.json' <"$json"
+  adb_cmd shell run-as dev.sigra.proof tee files/proof-credentials.json <"$json" >/dev/null
+  adb_cmd shell run-as dev.sigra.proof chmod 600 files/proof-credentials.json
   rm -f "$json"
 }
 
