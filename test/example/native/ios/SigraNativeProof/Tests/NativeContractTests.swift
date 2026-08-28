@@ -51,7 +51,7 @@ final class NativeContractTests: XCTestCase {
         XCTAssertEqual(try store.rotate(to: second).rotated, true)
         XCTAssertEqual(SecureRefreshStore(backend: backend).recoverAfterRelaunch().recoveredAfterRelaunch, true)
         XCTAssertEqual(store.deleteAfterLogout().deletedAfterLogout, true)
-        XCTAssertEqual(store.saveInitial(second).present, true)
+        XCTAssertEqual(try store.saveInitial(second).present, true)
         XCTAssertEqual(store.deleteAfterRevocation().deletedAfterRevocation, true)
 
         for (status, expected) in [
