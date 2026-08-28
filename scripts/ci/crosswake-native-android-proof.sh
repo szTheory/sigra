@@ -230,7 +230,10 @@ main_live() {
   umask 077
   cd "$ROOT_DIR"
   [[ -n "${ANDROID_SDK_ROOT:-}" && -x "$ANDROID_SDK_ROOT/platform-tools/adb" ]] || fail "ANDROID_SDK_ROOT does not contain the locked platform tools"
-  export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
+  local cmdline_bin
+  cmdline_bin="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -mindepth 2 -maxdepth 2 -type f -name avdmanager -perm -111 -printf '%h\n' | LC_ALL=C sort -u)"
+  [[ -n "$cmdline_bin" && "$(wc -l <<<"$cmdline_bin" | tr -d ' ')" == 1 ]] || fail "locked command-line tools bin is not unique"
+  export PATH="$cmdline_bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH"
   bash scripts/ci/native-proof-provision.sh --validate-android-lock
   RUN_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sigra-android-live.XXXXXX")"; chmod 700 "$RUN_ROOT"
   trap 'cleanup || true' EXIT HUP INT TERM
