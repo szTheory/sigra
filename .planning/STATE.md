@@ -4,16 +4,16 @@ milestone: v1.49
 current_phase: 248
 current_phase_name: crosswake-native-proof
 status: executing
-stopped_at: Completed 248-08-PLAN.md
-last_updated: "2026-08-28T18:11:18.947Z"
+stopped_at: Completed 248-03-PLAN.md
+last_updated: "2026-08-28T18:36:38.293Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 248 execution started
-state_head: 6273a1de89309866d7b7c03f14e76541baeaf348
+state_head: 026c8f40866bb4b19e3f6da00c086096cb553ad7
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 61
-  completed_plans: 56
+  completed_plans: 57
 milestone_name: FIRST-PARTY-CLIENT-READINESS
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18)
 ## Current Position
 
 Phase: 248 (crosswake-native-proof) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 248 execution started
 
@@ -116,6 +116,7 @@ Progress: [█████████░] 90%
 | Phase 248-crosswake-native-proof P01 | 12min | 2 tasks | 3 files |
 | Phase 248 P02 | 16min | 2 tasks | 6 files |
 | Phase 248-crosswake-native-proof P08 | 0 | 2 tasks | 8 files |
+| Phase 248-crosswake-native-proof P03 | 30min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -220,6 +221,8 @@ Progress: [█████████░] 90%
 - [Phase ?]: Native evidence accepts only physical_iphone or android_emulator receipts with exact target-specific fields.
 - [Phase ?]: Receipts bind a caller-supplied immutable implementation SHA and publish atomically only after terminal validation.
 - [Phase ?]: The P17 guard derives non-empty repository facts and uses injected bad/clean subjects to prove red/green causation.
+- [Phase 248]: Phase 248 Plan 03: keep the native adapter limited to the existing Phase 246 hosted app-login exchange and refresh contracts; do not invent native revocation authority.
+- [Phase 248]: Phase 248 Plan 03: label simulator and launch-fixture evidence contract_only; NAT-01 stays pending until Plan 04 produces physical-device live-host receipt evidence.
 
 ### Pending Todos
 
@@ -242,6 +245,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-28T18:11:18.559Z
-Stopped at: Completed 248-08-PLAN.md
+Last session: 2026-08-28T18:36:37.870Z
+Stopped at: Completed 248-03-PLAN.md
 Resume file: None
