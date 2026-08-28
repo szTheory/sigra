@@ -22,7 +22,9 @@ final class NativeProofUITests: XCTestCase {
         let start = app.buttons["proof.start-live"]
         XCTAssertTrue(start.waitForExistence(timeout: 10), "NP-IOS-LIVE-START")
         start.tap()
-        completeSystemBrowserCeremony(app: app, email: email, password: password, loginExpected: true)
+        guard completeSystemBrowserCeremony(app: app, email: email, password: password, loginExpected: true) else {
+            return
+        }
         assertAbsentFailure(app)
         XCTAssertTrue(
             app.descendants(matching: .any)["proof.awaiting-relaunch"].waitForExistence(timeout: 30),
@@ -38,7 +40,9 @@ final class NativeProofUITests: XCTestCase {
         XCTAssertTrue(finish.waitForExistence(timeout: 30), "NP-IOS-LIVE-RELAUNCH")
         assertAbsentFailure(app)
         finish.tap()
-        completeSystemBrowserCeremony(app: app, email: email, password: password, loginExpected: false)
+        guard completeSystemBrowserCeremony(app: app, email: email, password: password, loginExpected: false) else {
+            return
+        }
         XCTAssertTrue(
             app.descendants(matching: .any)["proof.live-complete"].waitForExistence(timeout: 30),
             "NP-IOS-LIVE-FINAL-LOGIN"
@@ -92,7 +96,7 @@ final class NativeProofUITests: XCTestCase {
         email: String,
         password: String,
         loginExpected: Bool
-    ) {
+    ) -> Bool {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let continueButton = springboard.buttons["Continue"]
         if continueButton.waitForExistence(timeout: 5) { continueButton.tap() }
@@ -103,30 +107,93 @@ final class NativeProofUITests: XCTestCase {
                 [app.textFields["Email"], browser.textFields["Email"], browser.textFields.firstMatch],
                 timeout: 15
             )
-            XCTAssertNotNil(emailField, "NP-IOS-BROWSER-LOGIN-EMAIL")
-            emailField?.tap()
-            emailField?.typeText(email)
+            guard let emailField else {
+                XCTFail("NP-IOS-BROWSER-LOGIN-EMAIL")
+                return false
+            }
+            guard focusAndType(email, into: emailField, failureRule: "NP-IOS-BROWSER-LOGIN-EMAIL-FOCUS") else {
+                return false
+            }
+            guard emailField.value as? String == email else {
+                XCTFail("NP-IOS-BROWSER-LOGIN-EMAIL-VALUE")
+                return false
+            }
             let passwordField = firstExisting(
                 [app.secureTextFields["Password"], browser.secureTextFields["Password"], browser.secureTextFields.firstMatch],
                 timeout: 10
             )
-            XCTAssertNotNil(passwordField, "NP-IOS-BROWSER-LOGIN-PASSWORD")
-            passwordField?.tap()
-            passwordField?.typeText(password)
+            guard let passwordField else {
+                XCTFail("NP-IOS-BROWSER-LOGIN-PASSWORD")
+                return false
+            }
+            guard advanceFocusAndType(
+                password,
+                from: emailField,
+                into: passwordField,
+                failureRule: "NP-IOS-BROWSER-LOGIN-PASSWORD-FOCUS"
+            ) else {
+                return false
+            }
+            guard (passwordField.value as? String)?.count == password.count else {
+                XCTFail("NP-IOS-BROWSER-LOGIN-PASSWORD-VALUE")
+                return false
+            }
             let login = firstExisting(
                 [app.buttons["Log in"], browser.buttons["Log in"], browser.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Log in'")).firstMatch],
                 timeout: 10
             )
-            XCTAssertNotNil(login, "NP-IOS-BROWSER-LOGIN-SUBMIT")
-            login?.tap()
+            guard let login else {
+                XCTFail("NP-IOS-BROWSER-LOGIN-SUBMIT")
+                return false
+            }
+            login.tap()
         }
 
         let approve = firstExisting(
             [app.buttons["Approve and continue"], browser.buttons["Approve and continue"], browser.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Approve and continue'")).firstMatch],
             timeout: 20
         )
-        XCTAssertNotNil(approve, "NP-IOS-BROWSER-APPROVAL")
-        approve?.tap()
+        guard let approve else {
+            let rejected = app.staticTexts["Invalid email or password"].exists ||
+                browser.staticTexts["Invalid email or password"].exists
+            XCTFail(rejected ? "NP-IOS-BROWSER-LOGIN-REJECTED" : "NP-IOS-BROWSER-APPROVAL")
+            return false
+        }
+        approve.tap()
+        return true
+    }
+
+    private func focusAndType(_ text: String, into field: XCUIElement, failureRule: String) -> Bool {
+        let hasKeyboardFocus = NSPredicate(format: "hasKeyboardFocus == true")
+        field.tap()
+        let initialFocus = XCTNSPredicateExpectation(predicate: hasKeyboardFocus, object: field)
+        if XCTWaiter.wait(for: [initialFocus], timeout: 2) != .completed {
+            field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let fallbackFocus = XCTNSPredicateExpectation(predicate: hasKeyboardFocus, object: field)
+            guard XCTWaiter.wait(for: [fallbackFocus], timeout: 5) == .completed else {
+                XCTFail(failureRule)
+                return false
+            }
+        }
+        field.typeText(text)
+        return true
+    }
+
+    private func advanceFocusAndType(
+        _ text: String,
+        from currentField: XCUIElement,
+        into nextField: XCUIElement,
+        failureRule: String
+    ) -> Bool {
+        currentField.typeKey(.tab, modifierFlags: [])
+        let hasKeyboardFocus = NSPredicate(format: "hasKeyboardFocus == true")
+        let nextFocus = XCTNSPredicateExpectation(predicate: hasKeyboardFocus, object: nextField)
+        guard XCTWaiter.wait(for: [nextFocus], timeout: 5) == .completed else {
+            XCTFail(failureRule)
+            return false
+        }
+        nextField.typeText(text)
+        return true
     }
 
     private func firstExisting(_ candidates: [XCUIElement], timeout: TimeInterval) -> XCUIElement? {

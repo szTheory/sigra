@@ -30,11 +30,12 @@ markers = [
     "mix ecto.create --quiet",
     "mix ecto.migrate --quiet",
     "mix run --no-compile --no-deps-check",
+    "Accounts.authenticate_user",
     'curl --fail --silent --show-error --retry 40',
 ]
 positions = [source.find(marker) for marker in markers]
 if -1 in positions or positions != sorted(positions):
-    raise SystemExit("clean host bootstrap must fetch locked deps, compile, create, migrate, seed, and prove readiness in order")
+    raise SystemExit("clean host bootstrap must fetch locked deps, compile, create, migrate, seed, authenticate, and prove readiness in order")
 PY
 
 python3 - "$SCRIPT" <<'PY'
@@ -45,6 +46,21 @@ cleanup = main.find("uninstall_owned_proof_apps strict")
 build = main.find("build_and_test")
 if cleanup == -1 or build == -1 or cleanup > build:
     raise SystemExit("owned proof apps must be cleaned before Xcode can install the physical test bundle")
+PY
+
+python3 - "$ROOT_DIR/test/example/native/ios/SigraNativeProof/UITests/NativeProofUITests.swift" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+markers = [
+    "hasKeyboardFocus == true",
+    "XCTNSPredicateExpectation",
+    "coordinate(withNormalizedOffset:",
+    "currentField.typeKey(.tab, modifierFlags: [])",
+    'focusAndType(email, into: emailField, failureRule: "NP-IOS-BROWSER-LOGIN-EMAIL-FOCUS")',
+    'failureRule: "NP-IOS-BROWSER-LOGIN-PASSWORD-FOCUS"',
+]
+if any(marker not in source for marker in markers):
+    raise SystemExit("physical browser credentials must acquire and prove keyboard focus without sleeps")
 PY
 
 python3 - "$ROOT_DIR/.github/workflows/terminal-ratification-evidence.yml" <<'PY'

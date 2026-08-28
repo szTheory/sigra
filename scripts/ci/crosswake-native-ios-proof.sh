@@ -96,7 +96,7 @@ run_host_setup_step() {
 
 redacted_host_runtime_diagnostics() {
   local log_path="$1"
-  [[ -f "$log_path" ]] || return
+  [[ -f "$log_path" ]] || return 0
   grep -E '^\[info\] (Running|Access|Sent)|^\[warning\]|^\[error\]|^\*\* \(' \
     "$log_path" | tail -80 >&2 || true
 }
@@ -367,6 +367,18 @@ prepare_host() {
           password: System.fetch_env!("SIGRA_NATIVE_PROOF_PASSWORD")
         })
       '
+    run_host_setup_step authenticate "$RUN_ROOT/authenticate.log" \
+      env SIGRA_NATIVE_PROOF_EMAIL="$PROOF_EMAIL" SIGRA_NATIVE_PROOF_PASSWORD="$PROOF_PASSWORD" \
+      MIX_ENV=test SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$port" PORT="$port" \
+      mix run --no-compile --no-deps-check -e '
+        case Example.Accounts.authenticate_user(
+               System.fetch_env!("SIGRA_NATIVE_PROOF_EMAIL"),
+               System.fetch_env!("SIGRA_NATIVE_PROOF_PASSWORD")
+             ) do
+          {:ok, _user} -> :ok
+          _ -> raise "physical proof account did not authenticate"
+        end
+      '
   ) || fail "$RULE_HOST"
   ACCOUNT_CREATED=1
   (
@@ -422,6 +434,7 @@ build_and_test() {
     -only-testing:"$UI_TARGET/NativeProofUITests/testLivePhysicalIphoneHostJourney" \
     >"$test_log" 2>&1; then
     emit_failure_lock_state
+    redacted_host_runtime_diagnostics "$RUN_ROOT/host.log"
     redacted_xcode_diagnostics "$test_log"
     redacted_xcresult_diagnostics
     fail "$RULE_TEST"
@@ -496,7 +509,7 @@ finish_private_cleanup() {
     "$RUN_ROOT/selected-target.json" "$RUN_ROOT/xctrace.txt" "$RUN_ROOT/destinations.txt" \
     "$RUN_ROOT/signing.txt" "$RUN_ROOT/xcode-accounts.plist" "$RUN_ROOT/account-teams.txt" \
     "$RUN_ROOT/profile-facts.tsv" "$RUN_ROOT/deps.log" "$RUN_ROOT/compile.log" "$RUN_ROOT/create-db.log" \
-    "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/host.log" \
+    "$RUN_ROOT/migrate.log" "$RUN_ROOT/seed.log" "$RUN_ROOT/authenticate.log" "$RUN_ROOT/host.log" \
     "$RUN_ROOT/lock-preflight.json" "$RUN_ROOT/lock-test-failure.json" "$RUN_ROOT"/proof-app-*.json
 
   if [[ -n "$HOST_PID" ]]; then
