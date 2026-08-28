@@ -217,7 +217,7 @@ sdkmanager_is_transient_failure() {
 install_android_packages() {
   local sdkmanager="$1" sdk="$2" output attempt=1
   local -a packages=(
-    'platform-tools' 'platforms;android-36'
+    'platform-tools' 'emulator' 'platforms;android-36'
     'build-tools;35.0.0' "$ANDROID_IMAGE"
   )
   # Licenses are accepted only for the explicit stable packages below; no mutable
@@ -379,9 +379,15 @@ validate_android() {
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
-  install_android_packages "$sdkmanager" "$sdk"; install_exact_cmdline_tools "$sdk"; install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
+  install_android_packages "$sdkmanager" "$sdk"; install_exact_cmdline_tools "$sdk"
   [[ -x "$avdmanager" && -x "$emulator" ]] || fail "$RULE_ANDROID_SDK"
+  # avdmanager requires the SDK-manager package registry entry. Create the AVD
+  # while that registration exists, then replace the executable directory with
+  # the checked 37.1.11 archive before validation or boot.
+  set +o pipefail
   yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
+  set -o pipefail
+  install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
   "$emulator" @"$ANDROID_AVD_NAME" -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
   SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
   browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; sha="${browser#*$'\t'}"
