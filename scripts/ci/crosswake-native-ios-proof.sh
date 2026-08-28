@@ -291,12 +291,6 @@ prepare_host() {
   }
 }
 
-plist_put() {
-  local path="$1" key="$2" value="$3"
-  if plutil -replace "$key" -string "$value" "$path" >/dev/null 2>&1; then return; fi
-  plutil -insert "$key" -string "$value" "$path" >/dev/null || fail "$RULE_BUILD"
-}
-
 build_and_test() {
   DERIVED_DATA="$RUN_ROOT/DerivedData"
   RESULT_BUNDLE="$RUN_ROOT/Result.xcresult"
@@ -320,10 +314,11 @@ build_and_test() {
   )
   [[ "${#xctestruns[@]}" == 1 ]] || fail "$RULE_BUILD"
   XCTESTRUN="${xctestruns[0]}"
-  plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_BASE_URL" "$PROOF_BASE_URL"
-  plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_FAILURE_URL" "$PROOF_FAILURE_URL"
-  plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_EMAIL" "$PROOF_EMAIL"
-  plist_put "$XCTESTRUN" "$UI_TARGET.EnvironmentVariables.SIGRA_NATIVE_PROOF_PASSWORD" "$PROOF_PASSWORD"
+  python3 "$ROOT_DIR/scripts/ci/lib/xctestrun-env.py" "$XCTESTRUN" "$UI_TARGET.xctest" \
+    SIGRA_NATIVE_PROOF_BASE_URL "$PROOF_BASE_URL" \
+    SIGRA_NATIVE_PROOF_FAILURE_URL "$PROOF_FAILURE_URL" \
+    SIGRA_NATIVE_PROOF_EMAIL "$PROOF_EMAIL" \
+    SIGRA_NATIVE_PROOF_PASSWORD "$PROOF_PASSWORD" || fail "$RULE_BUILD"
 
   if ! run_bounded 1200 xcodebuild -quiet test-without-building -xctestrun "$XCTESTRUN" \
     -destination "id=$DEVICE_UDID" -resultBundlePath "$RESULT_BUNDLE" -parallel-testing-enabled NO \

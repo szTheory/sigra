@@ -113,7 +113,7 @@ case "$*" in
     printf test >"$products/Proof-iphoneos/SigraNativeProofUITests-Runner.app/PlugIns/SigraNativeProofUITests.xctest/SigraNativeProofUITests"
     printf diagnostics >"$products/build.log"
     /usr/bin/plutil -create xml1 "$products/fixture.xctestrun"
-    /usr/bin/plutil -insert SigraNativeProofUITests -json '{"EnvironmentVariables":{}}' "$products/fixture.xctestrun"
+    /usr/bin/plutil -insert TestConfigurations -json '[{"TestTargets":[{"TestBundlePath":"__TESTROOT__/SigraNativeProofTests.xctest","EnvironmentVariables":{}},{"TestBundlePath":"__TESTROOT__/SigraNativeProofUITests.xctest","EnvironmentVariables":{}}]}]' "$products/fixture.xctestrun"
     ;;
   *'test-without-building'*) mkdir -p "${SIGRA_IOS_TEST_RESULT_BUNDLE:?}" ;;
   *) exit 70 ;;
@@ -131,6 +131,30 @@ for pair in \
   /usr/bin/plutil -create xml1 "$profile_dir/$name"
   /usr/bin/plutil -insert TeamIdentifier -json '["TEAMONLY01"]' "$profile_dir/$name"
   /usr/bin/plutil -insert Entitlements -json "{\"application-identifier\":\"$app_id\"}" "$profile_dir/$name"
+done
+
+injector="$ROOT_DIR/scripts/ci/lib/xctestrun-env.py"
+for shape in current legacy; do
+  fixture="$tmp_root/$shape.xctestrun"
+  if [[ "$shape" == current ]]; then
+    /usr/bin/plutil -create xml1 "$fixture"
+    /usr/bin/plutil -insert TestConfigurations -json '[{"TestTargets":[{"TestBundlePath":"__TESTROOT__/OtherTests.xctest","EnvironmentVariables":{"UNCHANGED":"yes"}},{"TestBundlePath":"__TESTROOT__/SigraNativeProofUITests.xctest","EnvironmentVariables":{}}]}]' "$fixture"
+  else
+    /usr/bin/plutil -create xml1 "$fixture"
+    /usr/bin/plutil -insert SigraNativeProofUITests -json '{"TestBundlePath":"__TESTROOT__/SigraNativeProofUITests.xctest","EnvironmentVariables":{}}' "$fixture"
+  fi
+  python3 "$injector" "$fixture" SigraNativeProofUITests.xctest PROOF_KEY proof-value
+  python3 - "$fixture" "$shape" <<'PY'
+import plistlib, sys
+root = plistlib.load(open(sys.argv[1], "rb"))
+if sys.argv[2] == "current":
+    targets = root["TestConfigurations"][0]["TestTargets"]
+    assert targets[0]["EnvironmentVariables"] == {"UNCHANGED": "yes"}
+    environment = targets[1]["EnvironmentVariables"]
+else:
+    environment = root["SigraNativeProofUITests"]["EnvironmentVariables"]
+assert environment == {"PROOF_KEY": "proof-value"}
+PY
 done
 
 report="$tmp_root/report.json"
