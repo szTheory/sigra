@@ -25,7 +25,30 @@ canonical_labels() {
 }
 
 discover_single_udid() {
-  local raw candidates count
+  local run_root json_path discovered raw candidates count
+  # CoreDevice exposes a supported script interface only through --json-output.
+  # Keep the raw response in a mode-0700 run root and unlink it before returning.
+  run_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-native-proof-device.XXXXXX")"
+  chmod 700 "$run_root"
+  json_path="$run_root/devices.json"
+  if xcrun devicectl list devices --timeout 15 --json-output "$json_path" >/dev/null 2>&1; then
+    discovered="$(/usr/bin/python3 - "$json_path" <<'PY'
+import json, sys
+devices = json.load(open(sys.argv[1], encoding="utf-8"))["result"]["devices"]
+eligible = [d for d in devices if str(d.get("hardwareProperties", {}).get("platform", "")).lower() == "ios" and "simulator" not in str(d.get("hardwareProperties", {}).get("deviceType", "")).lower()]
+if len(eligible) == 1:
+    value = eligible[0].get("identifier") or eligible[0].get("hardwareProperties", {}).get("udid")
+    if isinstance(value, str) and value:
+        print(value)
+PY
+)"
+  fi
+  [[ ! -f "$json_path" ]] || /bin/unlink "$json_path"
+  rmdir "$run_root"
+  if [[ -n "$discovered" ]]; then
+    printf '%s\n' "$discovered"
+    return 0
+  fi
   raw="$(xcrun xctrace list devices 2>/dev/null || true)"
   candidates="$(printf '%s\n' "$raw" | /usr/bin/awk '
     !/[Ss]imulator/ && !/[Uu]navailable/ {
