@@ -33,6 +33,8 @@ readonly ANDROID_IMAGE='system-images;android-36;google_apis_playstore;x86_64'
 readonly ANDROID_AVD_NAME='sigraNativeProofPixel8'
 readonly ANDROID_AVD_SERIAL='emulator-5562'
 readonly ANDROID_AVD_PORT='5562'
+readonly EMULATOR_ARCHIVE_URL='https://dl.google.com/android/repository/emulator-linux_x64-15917651.zip'
+readonly EMULATOR_ARCHIVE_SHA1='1b1f78891abf8ec268264356e1365c25519e8379'
 
 fail() { printf '%s\n' "$1" >&2; exit 1; }
 sha256() { /usr/bin/shasum -a 256 | /usr/bin/awk '{print $1}'; }
@@ -212,7 +214,7 @@ sdkmanager_is_transient_failure() {
 install_android_packages() {
   local sdkmanager="$1" output attempt=1
   local -a packages=(
-    'cmdline-tools;23.0' 'platform-tools' 'emulator' 'platforms;android-36'
+    'cmdline-tools;23.0' 'platform-tools' 'platforms;android-36'
     'build-tools;35.0.0' "$ANDROID_IMAGE"
   )
   # Licenses are accepted only for the explicit stable packages below; no mutable
@@ -235,6 +237,16 @@ install_android_packages() {
     rm -f "$output"
     fail "$RULE_ANDROID_PACKAGE"
   done
+}
+
+install_exact_emulator() {
+  local sdk="$1" archive="$SIGRA_ANDROID_RUN_ROOT/emulator-37.1.11.zip" unpack="$SIGRA_ANDROID_RUN_ROOT/emulator-unpack"
+  curl --fail --location --retry 2 --retry-all-errors "$EMULATOR_ARCHIVE_URL" -o "$archive" || fail "$RULE_ANDROID_PACKAGE"
+  [[ "$(sha1sum "$archive" | awk '{print $1}')" == "$EMULATOR_ARCHIVE_SHA1" ]] || fail "$RULE_ANDROID_PACKAGE"
+  unzip -q "$archive" -d "$unpack" || fail "$RULE_ANDROID_PACKAGE"
+  [[ -d "$unpack/emulator" ]] || fail "$RULE_ANDROID_PACKAGE"
+  [[ ! -e "$sdk/emulator" ]] || mv "$sdk/emulator" "$SIGRA_ANDROID_RUN_ROOT/sdk-emulator-replaced"
+  mv "$unpack/emulator" "$sdk/emulator"
 }
 
 require_sdk_property() {
@@ -350,7 +362,7 @@ validate_android() {
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
-  install_android_packages "$sdkmanager"; validate_android_sdk "$sdk"
+  install_android_packages "$sdkmanager"; install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
   [[ -x "$avdmanager" && -x "$emulator" ]] || fail "$RULE_ANDROID_SDK"
   yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
   "$emulator" @"$ANDROID_AVD_NAME" -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
