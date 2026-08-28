@@ -30,6 +30,7 @@ readonly ANDROID_PROJECT_ROOT_DEFAULT='test/example/native/android'
 readonly GRADLE_VERSION='8.13'
 readonly GRADLE_DISTRIBUTION_SHA256='20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78'
 readonly ANDROID_IMAGE='system-images;android-36;google_apis_playstore;x86_64'
+readonly ANDROID_IMAGE_DIRECTORY='system-images/android-36/google_apis_playstore/x86_64'
 readonly ANDROID_AVD_NAME='sigraNativeProofPixel8'
 readonly ANDROID_AVD_SERIAL='emulator-5562'
 readonly ANDROID_AVD_PORT='5562'
@@ -276,7 +277,7 @@ validate_android_sdk() {
   require_sdk_property "$sdk/platform-tools/source.properties" '37.0.1'
   require_sdk_property "$sdk/emulator/source.properties" '37.1.11'
   [[ -d "$sdk/platforms/android-36" && -d "$sdk/build-tools/35.0.0" ]] || fail "$RULE_ANDROID_PACKAGE"
-  require_sdk_property "$sdk/$ANDROID_IMAGE/source.properties" '7'
+  require_sdk_property "$sdk/$ANDROID_IMAGE_DIRECTORY/source.properties" '7'
 }
 
 cleanup_android() {
