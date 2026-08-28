@@ -55,6 +55,7 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.activity)
     testImplementation(libs.junit4)
     androidTestImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.core)

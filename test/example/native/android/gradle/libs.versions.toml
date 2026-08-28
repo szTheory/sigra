@@ -2,6 +2,7 @@
 agp = "8.13.2"
 kotlin = "2.2.10"
 androidx-browser = "1.9.0"
+androidx-activity = "1.9.0"
 androidx-test-core = "1.7.0"
 androidx-test-runner = "1.7.0"
 espresso = "3.7.0"
@@ -10,6 +11,7 @@ junit4 = "4.13.2"
 
 [libraries]
 androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
+androidx-activity = { module = "androidx.activity:activity", version.ref = "androidx-activity" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }

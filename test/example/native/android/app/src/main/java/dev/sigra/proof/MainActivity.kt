@@ -1,14 +1,14 @@
 package dev.sigra.proof
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.browser.auth.AuthTabIntent
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private lateinit var readiness: TextView
     private lateinit var callbackStatus: TextView
 
