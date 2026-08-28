@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   capture:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && !inputs.phase248_android_provision
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -53,6 +53,8 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/sigra-native-proof-android-sdk
         run: |
           set -euo pipefail
+          sudo chown runner:docker /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
           mkdir -p "$ANDROID_SDK_ROOT"
           export SIGRA_ANDROID_SDKMANAGER="${ANDROID_HOME:?ANDROID_HOME is required}/cmdline-tools/latest/bin/sdkmanager"
           bash scripts/ci/native-proof-provision.sh --validate-android

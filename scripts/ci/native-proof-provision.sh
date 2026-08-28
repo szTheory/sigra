@@ -24,6 +24,7 @@ readonly RULE_ANDROID_CAPABILITY='NP-ANDROID-BROWSER-CAPABILITY'
 readonly RULE_ANDROID_LOCK='NP-ANDROID-LOCK'
 readonly RULE_ANDROID_WRAPPER='NP-ANDROID-WRAPPER'
 readonly RULE_ANDROID_GRADLE='NP-ANDROID-GRADLE'
+readonly RULE_ANDROID_KVM='NP-ANDROID-KVM'
 readonly EXPECTED_LABELS='ARM64,macOS,self-hosted,sigra-ios-physical'
 readonly LOCK_PATH_DEFAULT='test/example/native/native-proof-environment.lock.json'
 readonly ANDROID_PROJECT_ROOT_DEFAULT='test/example/native/android'
@@ -295,8 +296,9 @@ cleanup_android() {
 
 wait_for_android_boot() {
   local attempts=90 value=''
-  adb -s "$ANDROID_AVD_SERIAL" wait-for-device >/dev/null
   while (( attempts > 0 )); do
+    kill -0 "$SIGRA_ANDROID_EMULATOR_PID" >/dev/null 2>&1 || fail "$RULE_ANDROID_EMULATOR"
+    if ! adb devices | grep -Fxq "$ANDROID_AVD_SERIAL	device"; then sleep 2; attempts=$((attempts - 1)); continue; fi
     value="$(adb -s "$ANDROID_AVD_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
     [[ "$value" == 1 ]] && return 0
     sleep 2
@@ -354,7 +356,8 @@ PY
 }
 
 generate_gradle_wrapper() {
-  local project="$1" root="$2" archive="$root/gradle-${GRADLE_VERSION}-bin.zip" unpack="$root/gradle"
+  local project root archive unpack
+  project="$1"; root="$2"; archive="$root/gradle-${GRADLE_VERSION}-bin.zip"; unpack="$root/gradle"
   mkdir -p "$project"
   curl --fail --location --retry 2 --retry-all-errors "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o "$archive" || fail "$RULE_ANDROID_GRADLE"
   [[ "$(android_sha256_file "$archive")" == "$GRADLE_DISTRIBUTION_SHA256" ]] || fail "$RULE_ANDROID_GRADLE"
@@ -371,11 +374,12 @@ PY
 validate_android() {
   local sdk sdkmanager avdmanager emulator project browser version sha wrapper_sha
   require_linux_x86_64; require_jdk_17
+  [[ -r /dev/kvm && -w /dev/kvm ]] || fail "$RULE_ANDROID_KVM"
   sdk="${ANDROID_SDK_ROOT:-}"; [[ -n "$sdk" && -d "$sdk" && -w "$sdk" ]] || fail "$RULE_ANDROID_SDK"
   sdkmanager="${SIGRA_ANDROID_SDKMANAGER:-$sdk/cmdline-tools/latest/bin/sdkmanager}"
   [[ -x "$sdkmanager" ]] || fail "$RULE_ANDROID_SDK"
   export SIGRA_ANDROID_RUN_ROOT="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/sigra-native-proof-android.XXXXXX")"
-  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"; export ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_EMULATOR_HOME="$SIGRA_ANDROID_RUN_ROOT/emulator"
+  chmod 700 "$SIGRA_ANDROID_RUN_ROOT"; export ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd" ANDROID_EMULATOR_HOME="$SIGRA_ANDROID_RUN_ROOT/emulator" SIGRA_ANDROID_AVD_HOME="$SIGRA_ANDROID_RUN_ROOT/avd"
   export PATH="$sdk/cmdline-tools/23.0/bin:$sdk/platform-tools:$sdk/emulator:$PATH"
   avdmanager="$sdk/cmdline-tools/23.0/bin/avdmanager"; emulator="$sdk/emulator/emulator"; export SIGRA_ANDROID_AVDMANAGER="$avdmanager"
   trap cleanup_android EXIT
@@ -388,7 +392,7 @@ validate_android() {
   yes no | "$avdmanager" create avd -n "$ANDROID_AVD_NAME" -k "$ANDROID_IMAGE" -d pixel_8 --force >/dev/null
   set -o pipefail
   install_exact_emulator "$sdk"; validate_android_sdk "$sdk"
-  "$emulator" @"$ANDROID_AVD_NAME" -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
+  "$emulator" @"$ANDROID_AVD_NAME" -accel on -port "$ANDROID_AVD_PORT" -no-window -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -wipe-data >"$SIGRA_ANDROID_RUN_ROOT/emulator.log" 2>&1 &
   SIGRA_ANDROID_EMULATOR_PID=$!; wait_for_android_boot
   browser="$(capture_android_browser "$SIGRA_ANDROID_RUN_ROOT")"; version="${browser%%$'\t'*}"; sha="${browser#*$'\t'}"
   project="$(android_project_root)"; generate_gradle_wrapper "$project" "$SIGRA_ANDROID_RUN_ROOT"; wrapper_sha="$(android_sha256_file "$project/gradle/wrapper/gradle-wrapper.jar")"
