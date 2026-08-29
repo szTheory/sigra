@@ -23,7 +23,7 @@ end
 if config_env() in [:dev, :test] and System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1" do
   config :example, ExampleWeb.Endpoint,
     http: [
-      ip: {0, 0, 0, 0},
+      ip: {127, 0, 0, 1},
       port: String.to_integer(System.get_env("SIGRA_NATIVE_PROOF_PORT", "4002"))
     ],
     server: true

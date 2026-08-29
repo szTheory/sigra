@@ -20,7 +20,7 @@ config :example, Example.Repo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 native_proof_host? = System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1"
-endpoint_ip = if native_proof_host?, do: {0, 0, 0, 0}, else: {127, 0, 0, 1}
+endpoint_ip = {127, 0, 0, 1}
 endpoint_port =
   if native_proof_host? do
     String.to_integer(System.get_env("SIGRA_NATIVE_PROOF_PORT", "4002"))

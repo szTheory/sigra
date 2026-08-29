@@ -94,9 +94,12 @@ grep -Fq 'waitForHostedLoginFields()' "${ROOT_DIR}/test/example/native/android/a
 grep -Fq 'Use without an account|Accept & continue|No thanks' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "Chrome onboarding actions must be exact and bounded"
 grep -Fq 'proof host is unreachable from the online emulator' "${RUNNER}" || fail "online emulator reachability must be proven before browser automation"
 grep -Fq 'GET /users/log_in HTTP/1.0' "${RUNNER}" || fail "online reachability must require an HTTP response, not a bare TCP timeout"
-grep -Fq 'endpoint_ip = if native_proof_host?, do: {0, 0, 0, 0}' "${ROOT_DIR}/test/example/config/test.exs" || fail "proof-only test endpoint must bind to the emulator-reachable interface"
+grep -Fq 'endpoint_ip = {127, 0, 0, 1}' "${ROOT_DIR}/test/example/config/test.exs" || fail "proof-only test endpoint must remain loopback-confined"
 grep -Fq 'host_response=' "${RUNNER}" || fail "HTTP reachability must not inherit netcat transport status through pipefail"
-grep -Fq 'proof host listener is not emulator-reachable' "${RUNNER}" || fail "host readiness must prove a non-loopback listener"
+grep -Fq 'proof host listener is not loopback-confined' "${RUNNER}" || fail "host readiness must prove a loopback-only listener"
+grep -Fq 'reverse --no-rebind "tcp:$PORT" "tcp:$PORT"' "${RUNNER}" || fail "online host access must use a deterministic ADB reverse"
+grep -Fq 'reverse --remove "tcp:$PORT"' "${RUNNER}" || fail "offline proof must remove the ADB reverse before transport isolation"
+grep -Fq 'sigraNativeProofHostBaseUrl="http://localhost:$PORT"' "${RUNNER}" || fail "the proof app must use the reversed localhost endpoint"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi

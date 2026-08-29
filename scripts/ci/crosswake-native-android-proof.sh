@@ -20,6 +20,7 @@ PRIMARY_PASSWORD=""
 SECONDARY_EMAIL=""
 SECONDARY_PASSWORD=""
 HOST_LISTENER=""
+REVERSE_ACTIVE=0
 CURRENT_STAGE="initialization"
 
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
@@ -118,6 +119,7 @@ remove_firewall() {
 cleanup() {
   local ok=0
   remove_firewall
+  if [[ "$REVERSE_ACTIVE" == 1 ]]; then adb_cmd reverse --remove "tcp:$PORT" >/dev/null 2>&1 || ok=1; REVERSE_ACTIVE=0; fi
   if [[ -n "$HOST_PID" ]]; then kill "$HOST_PID" >/dev/null 2>&1 || true; wait "$HOST_PID" 2>/dev/null || true; HOST_PID=""; fi
   if [[ -n "$EMULATOR_PID" ]]; then adb_cmd emu kill >/dev/null 2>&1 || true; wait "$EMULATOR_PID" 2>/dev/null || true; EMULATOR_PID=""; fi
   adb -s "$SERIAL" emu kill >/dev/null 2>&1 || true
@@ -253,8 +255,8 @@ prepare_host() {
     if curl --fail --silent --connect-timeout 2 "http://127.0.0.1:$PORT/users/log_in" >/dev/null; then
       listener="$(ss -H -ltn "sport = :$PORT" | awk 'NR == 1 {print $4}')"
       case "$listener" in
-        "0.0.0.0:$PORT"|"*:$PORT"|"[::]:$PORT") HOST_LISTENER="$listener"; return 0 ;;
-        *) fail "proof host listener is not emulator-reachable: ${listener:-missing}" ;;
+        "127.0.0.1:$PORT"|"[::1]:$PORT") HOST_LISTENER="$listener"; return 0 ;;
+        *) fail "proof host listener is not loopback-confined: ${listener:-missing}" ;;
       esac
     fi
     read -r -t 1 _ </dev/null || true
@@ -293,6 +295,9 @@ PY
 }
 
 apply_emulator_firewall() {
+  adb_cmd reverse --remove "tcp:$PORT" || fail "proof-host reverse removal failed"
+  REVERSE_ACTIVE=0
+  if adb_cmd reverse --list | grep -Eq "tcp:$PORT[[:space:]]+tcp:$PORT"; then fail "proof-host reverse remained active"; fi
   [[ -f /sys/fs/cgroup/cgroup.controllers ]] || fail "cgroup v2 unavailable"
   CGROUP_PATH="/sys/fs/cgroup/sigra-phase248-${GITHUB_RUN_ID:-local}-$$"
   sudo mkdir "$CGROUP_PATH"
@@ -302,7 +307,7 @@ apply_emulator_firewall() {
   adb_cmd shell svc wifi disable
   adb_cmd shell svc data disable
   adb_cmd shell settings get global wifi_on | grep -Fxq 0 || fail "Wi-Fi remained enabled"
-  if adb_cmd shell toybox nc -w 3 10.0.2.2 "$PORT" </dev/null >/dev/null 2>&1; then fail "proof host remained reachable"; fi
+  if adb_cmd shell toybox nc -w 3 127.0.0.1 "$PORT" </dev/null >/dev/null 2>&1; then fail "proof host remained reachable"; fi
   if adb_cmd shell toybox nc -w 3 1.1.1.1 443 </dev/null >/dev/null 2>&1; then fail "external sentinel remained reachable"; fi
   adb_cmd shell getprop ro.build.version.sdk | grep -Fxq 36 || fail "ADB orchestration unavailable offline"
 }
@@ -338,9 +343,12 @@ main_live() {
   "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot
+  adb_cmd reverse --no-rebind "tcp:$PORT" "tcp:$PORT" || fail "proof-host reverse setup failed"
+  REVERSE_ACTIVE=1
+  adb_cmd reverse --list | grep -Eq "tcp:$PORT[[:space:]]+tcp:$PORT" || fail "proof-host reverse was not registered"
   host_response="$(
-    printf 'GET /users/log_in HTTP/1.0\r\nHost: 10.0.2.2\r\nConnection: close\r\n\r\n' |
-      adb_cmd shell toybox nc -w 5 10.0.2.2 "$PORT" 2>/dev/null || true
+    printf 'GET /users/log_in HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n' |
+      adb_cmd shell toybox nc -w 5 127.0.0.1 "$PORT" 2>/dev/null || true
   )"
   printf '%s\n' "$host_response" | tr -d '\r' | grep -Eq '^HTTP/1\.[01] [23][0-9][0-9] ' || {
     redacted_host_diagnostics
@@ -351,7 +359,7 @@ main_live() {
   CURRENT_STAGE="browser-capture"
   capture_browser_manifest
   CURRENT_STAGE="android-build"
-  (cd "$ANDROID_PROJECT" && ./gradlew --no-daemon --console=plain -PsigraNativeProofHostBaseUrl="http://10.0.2.2:$PORT" assembleDebug assembleDebugAndroidTest)
+  (cd "$ANDROID_PROJECT" && ./gradlew --no-daemon --console=plain -PsigraNativeProofHostBaseUrl="http://localhost:$PORT" assembleDebug assembleDebugAndroidTest)
   APP_APK="$ANDROID_PROJECT/app/build/outputs/apk/debug/app-debug.apk"
   TEST_APK="$ANDROID_PROJECT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   CURRENT_STAGE="app-install"

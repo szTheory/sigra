@@ -22,7 +22,7 @@ android {
     buildTypes {
         debug {
             val proofHost = providers.gradleProperty("sigraNativeProofHostBaseUrl")
-                .orElse("http://10.0.2.2:4102")
+                .orElse("http://localhost:4102")
             buildConfigField("String", "PROOF_HOST_BASE_URL", "\"${proofHost.get()}\"")
             buildConfigField("String", "LOCKED_BROWSER_MODE", "\"custom_tab_fallback\"")
         }

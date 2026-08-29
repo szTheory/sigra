@@ -15,7 +15,7 @@ class NativeProofContractTest {
     @Test
     fun `hosted request binds exact callback and PKCE S256`() {
         val attempt = HostedAuthSession.authorizationRequest(
-            HostedAuthConfiguration("http://10.0.2.2:4102", "android-primary"),
+            HostedAuthConfiguration("http://localhost:4102", "android-primary"),
             state = "expected-state",
             verifier = "v".repeat(43),
         )
