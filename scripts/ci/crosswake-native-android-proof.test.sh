@@ -93,6 +93,7 @@ grep -Fq '<package android:name="com.android.chrome" />' "${ROOT_DIR}/test/examp
 grep -Fq 'waitForHostedLoginFields()' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use bounded onboarding automation"
 grep -Fq 'Use without an account|Accept & continue|No thanks' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "Chrome onboarding actions must be exact and bounded"
 grep -Fq 'proof host is unreachable from the online emulator' "${RUNNER}" || fail "online emulator reachability must be proven before browser automation"
+grep -Fq 'GET /users/log_in HTTP/1.0' "${RUNNER}" || fail "online reachability must require an HTTP response, not a bare TCP timeout"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
