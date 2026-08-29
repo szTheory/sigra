@@ -96,6 +96,7 @@ grep -Fq 'proof host is unreachable from the online emulator' "${RUNNER}" || fai
 grep -Fq 'GET /users/log_in HTTP/1.0' "${RUNNER}" || fail "online reachability must require an HTTP response, not a bare TCP timeout"
 grep -Fq 'endpoint_ip = if native_proof_host?, do: {0, 0, 0, 0}' "${ROOT_DIR}/test/example/config/test.exs" || fail "proof-only test endpoint must bind to the emulator-reachable interface"
 grep -Fq 'host_response=' "${RUNNER}" || fail "HTTP reachability must not inherit netcat transport status through pipefail"
+grep -Fq 'proof host listener is not emulator-reachable' "${RUNNER}" || fail "host readiness must prove a non-loopback listener"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi

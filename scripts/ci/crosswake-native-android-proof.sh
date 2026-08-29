@@ -19,6 +19,7 @@ PRIMARY_EMAIL=""
 PRIMARY_PASSWORD=""
 SECONDARY_EMAIL=""
 SECONDARY_PASSWORD=""
+HOST_LISTENER=""
 CURRENT_STAGE="initialization"
 
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
@@ -246,10 +247,16 @@ prepare_host() {
   ACCOUNTS_CREATED=1
   (cd "$ROOT_DIR/test/example" && SIGRA_NATIVE_PROOF_HOST=1 SIGRA_NATIVE_PROOF_PORT="$PORT" PORT="$PORT" MIX_ENV=test mix phx.server >"$RUN_ROOT/host.log" 2>&1) &
   HOST_PID=$!
-  local deadline=$((SECONDS+90))
+  local deadline=$((SECONDS+90)) listener
   while (( SECONDS < deadline )); do
     if ! kill -0 "$HOST_PID" >/dev/null 2>&1; then redacted_host_diagnostics; fail "proof host exited before readiness"; fi
-    if curl --fail --silent --connect-timeout 2 "http://127.0.0.1:$PORT/users/log_in" >/dev/null; then return 0; fi
+    if curl --fail --silent --connect-timeout 2 "http://127.0.0.1:$PORT/users/log_in" >/dev/null; then
+      listener="$(ss -H -ltn "sport = :$PORT" | awk 'NR == 1 {print $4}')"
+      case "$listener" in
+        "0.0.0.0:$PORT"|"*:$PORT"|"[::]:$PORT") HOST_LISTENER="$listener"; return 0 ;;
+        *) fail "proof host listener is not emulator-reachable: ${listener:-missing}" ;;
+      esac
+    fi
     read -r -t 1 _ </dev/null || true
   done
   redacted_host_diagnostics
@@ -337,6 +344,8 @@ main_live() {
   )"
   printf '%s\n' "$host_response" | tr -d '\r' | grep -Eq '^HTTP/1\.[01] [23][0-9][0-9] ' || {
     redacted_host_diagnostics
+    printf 'proof_host_listener=%s\n' "${HOST_LISTENER:-missing}" >&2
+    adb_cmd shell ip route 2>/dev/null | sed -n '1,8p' >&2 || true
     fail "proof host is unreachable from the online emulator"
   }
   CURRENT_STAGE="browser-capture"
