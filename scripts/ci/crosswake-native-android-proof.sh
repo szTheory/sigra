@@ -331,6 +331,7 @@ main_live() {
   "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot
+  adb_cmd shell toybox nc -w 3 10.0.2.2 "$PORT" </dev/null >/dev/null 2>&1 || fail "proof host is unreachable from the online emulator"
   CURRENT_STAGE="browser-capture"
   capture_browser_manifest
   CURRENT_STAGE="android-build"

@@ -173,17 +173,28 @@ class LiveNativeProofInstrumentedTest {
 
     private fun waitForHostedLoginFields(): List<androidx.test.uiautomator.UiObject2> {
         val deadline = SystemClock.uptimeMillis() + 45_000
-        val onboarding = By.text(Pattern.compile("^(Use without an account|Accept & continue|No thanks)$"))
+        val onboarding = By.text(
+            Pattern.compile(
+                "^(Use without an account|Accept & continue|No thanks|Not now|Don’t allow|Don't allow|Skip|Got it)$",
+                Pattern.CASE_INSENSITIVE,
+            ),
+        )
         while (SystemClock.uptimeMillis() < deadline) {
             val edits = device.findObjects(By.clazz("android.widget.EditText"))
             if (edits.size >= 2) return edits
-            val action = device.wait(Until.findObject(onboarding), 1_000)
+            val action = device.findObject(By.res("com.android.permissioncontroller", "permission_deny_button"))
+                ?: device.wait(Until.findObject(onboarding), 1_000)
             if (action != null) {
                 action.click()
                 instrumentation.waitForIdleSync()
             }
         }
-        error("hosted login fields unavailable in active package ${device.currentPackageName}")
+        val labels = device.findObjects(By.clickable(true))
+            .mapNotNull { it.text?.takeIf(String::isNotBlank) ?: it.contentDescription?.takeIf(String::isNotBlank) }
+            .map { it.replace(Regex("[A-Za-z0-9_-]{20,}"), "[REDACTED]") }
+            .distinct()
+            .take(12)
+        error("hosted login fields unavailable in active package ${device.currentPackageName}; controls=$labels")
     }
 
     private fun clickExact(label: String) {
