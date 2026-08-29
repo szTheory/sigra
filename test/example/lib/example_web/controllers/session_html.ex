@@ -94,7 +94,7 @@ defmodule ExampleWeb.SessionHTML do
             </label>
           </div>
 
-          <.button class="vt-btn vt-btn--primary vt-btn--block">
+          <.button id="login_submit" class="vt-btn vt-btn--primary vt-btn--block">
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>

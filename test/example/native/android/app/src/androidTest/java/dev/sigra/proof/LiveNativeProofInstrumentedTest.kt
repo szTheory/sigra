@@ -157,8 +157,8 @@ class LiveNativeProofInstrumentedTest {
             val edits = waitForHostedLoginFields()
             edits[0].text = email
             edits[1].text = password
-            clickExact("Log in")
-            clickExact("Approve and continue")
+            clickResource("login_submit")
+            clickResource("app-login-approve")
             assertTrue(device.wait(Until.hasObject(By.pkg(context.packageName)), 30_000))
             val deadline = SystemClock.uptimeMillis() + 10_000
             var callback: String? = null
@@ -180,8 +180,9 @@ class LiveNativeProofInstrumentedTest {
             ),
         )
         while (SystemClock.uptimeMillis() < deadline) {
-            val edits = device.findObjects(By.clazz("android.widget.EditText"))
-            if (edits.size >= 2) return edits
+            val email = hostedField("user_email", "Email")
+            val password = hostedField("user_password", "Password")
+            if (email != null && password != null) return listOf(email, password)
             val action = device.findObject(By.res("com.android.permissioncontroller", "permission_deny_button"))
                 ?: device.wait(Until.findObject(onboarding), 1_000)
             if (action != null) {
@@ -197,9 +198,20 @@ class LiveNativeProofInstrumentedTest {
         error("hosted login fields unavailable in active package ${device.currentPackageName}; controls=$labels")
     }
 
-    private fun clickExact(label: String) {
-        val node = device.wait(Until.findObject(By.text(label)), 30_000)
-            ?: error("browser action unavailable: $label")
+    private fun hostedField(resourceId: String, label: String): androidx.test.uiautomator.UiObject2? {
+        val resource = By.res(Pattern.compile("(^|.*/)${Pattern.quote(resourceId)}$"))
+        device.findObject(resource)?.let { return it }
+        device.findObject(By.hint(label))?.let { return it }
+        val labelNode = device.findObject(By.text(label)) ?: return null
+        labelNode.click()
+        instrumentation.waitForIdleSync()
+        return device.findObject(By.focused(true))
+    }
+
+    private fun clickResource(resourceId: String) {
+        val selector = By.res(Pattern.compile("(^|.*/)${Pattern.quote(resourceId)}$"))
+        val node = device.wait(Until.findObject(selector), 30_000)
+            ?: error("browser action unavailable: $resourceId")
         node.click()
         instrumentation.waitForIdleSync()
     }
