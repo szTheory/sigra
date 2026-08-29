@@ -231,13 +231,28 @@ jobs:
         env:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/sigra-native-proof-android-sdk
         run: bash scripts/ci/crosswake-native-android-proof.sh
-      - name: Upload redacted Android emulator receipt
+      - name: Upload redacted Android emulator evidence bundle
+        id: upload-android-runtime
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: native-proof-android-emulator-${{ github.sha }}
-          path: .planning/phases/248-crosswake-native-proof/248-ANDROID-EVIDENCE.json
+          path: tmp/phase248-android-runtime-artifact
           retention-days: 7
           if-no-files-found: error
+      - name: Download Android emulator evidence independently
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: native-proof-android-emulator-${{ github.sha }}
+          path: ${{ runner.temp }}/phase248-android-runtime-download
+      - name: Verify downloaded Android emulator evidence
+        run: |
+          node scripts/ci/lib/native-proof-receipt.mjs --validate \
+            "${RUNNER_TEMP}/phase248-android-runtime-download/248-ANDROID-EVIDENCE.json" \
+            --target android_emulator
+          python3 scripts/ci/verify-native-proof-android-runtime-artifact.py \
+            "${RUNNER_TEMP}/phase248-android-runtime-download" \
+            "${GITHUB_SHA}" \
+            test/example/native/android/toolchain.lock.json
       - name: Remove isolated proof database
         if: always()
         run: bash scripts/db/down.sh --purge

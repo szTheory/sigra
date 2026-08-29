@@ -26,8 +26,8 @@ import org.junit.Test
 /**
  * Live-only proof phases. The host runner invokes each method independently so
  * process death and network removal remain outside the instrumentation process.
- * The retained report contains posture booleans only; credentials are read from
- * an app-private 0600 file and deleted by the terminal phase.
+ * The retained report contains posture booleans only; the host-side semantic
+ * browser driver owns ephemeral credentials and never writes them to the app.
  */
 class LiveNativeProofInstrumentedTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -135,7 +135,6 @@ class LiveNativeProofInstrumentedTest {
             "storage_read_result" to "not_found",
             "server_revocation" to true,
         )
-        File(context.filesDir, "proof-credentials.json").delete()
     }
 
     private fun browserLogin(store: SecureRefreshStore): HostedAuthSession {

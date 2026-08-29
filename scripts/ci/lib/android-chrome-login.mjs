@@ -5,6 +5,8 @@ const email = process.env.SIGRA_BROWSER_EMAIL;
 const password = process.env.SIGRA_BROWSER_PASSWORD;
 const expectedLogins = Number(process.env.SIGRA_BROWSER_LOGIN_COUNT || "1");
 const deadline = Date.now() + 180_000;
+const debugEndpoint = new URL(endpoint);
+let lastDiagnostic = "Chrome endpoint not reached";
 
 if (!email || !password || !Number.isInteger(expectedLogins) || expectedLogins < 1) {
   throw new Error("invalid Chrome login driver configuration");
@@ -16,13 +18,39 @@ async function target() {
   const response = await fetch(`${endpoint}/json`, {signal: AbortSignal.timeout(2_000)});
   if (!response.ok) throw new Error(`Chrome target query failed: ${response.status}`);
   const targets = await response.json();
-  return targets.find((item) => item.type === "page" && /^http:\/\/(?:localhost|127\.0\.0\.1):/.test(item.url));
+  const page = targets.find((item) => {
+    if (item.type !== "page") return false;
+    try {
+      const url = new URL(item.url);
+      return url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname);
+    } catch {
+      return false;
+    }
+  });
+  const summaries = targets.map((item) => {
+    try {
+      const url = new URL(item.url);
+      return `${item.type}:${url.protocol}//${url.host}${url.pathname}`;
+    } catch {
+      return `${item.type}:invalid-url`;
+    }
+  });
+  lastDiagnostic = page ? `target=${summaries.find((value) => value.startsWith("page:"))}` : `targets=${summaries.join(",") || "none"}`;
+  return page;
+}
+
+function pinnedDebuggerUrl(candidate) {
+  const debuggerUrl = new URL(candidate);
+  debuggerUrl.protocol = debugEndpoint.protocol === "https:" ? "wss:" : "ws:";
+  debuggerUrl.hostname = debugEndpoint.hostname;
+  debuggerUrl.port = debugEndpoint.port;
+  return debuggerUrl.toString();
 }
 
 async function evaluate(expression) {
   const page = await target();
   if (!page?.webSocketDebuggerUrl) return undefined;
-  const socket = new WebSocket(page.webSocketDebuggerUrl);
+  const socket = new WebSocket(pinnedDebuggerUrl(page.webSocketDebuggerUrl));
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("Chrome DevTools socket timeout")), 3_000);
     socket.addEventListener("open", () => { clearTimeout(timer); resolve(); }, {once: true});
@@ -48,12 +76,13 @@ async function waitFor(expression, description) {
   while (Date.now() < deadline) {
     try {
       if (await evaluate(expression)) return;
-    } catch {
+    } catch (error) {
       // Navigation replaces the renderer target; bounded polling reacquires it.
+      lastDiagnostic = `error=${error instanceof Error ? error.message : "unknown"}`;
     }
     await pause(250);
   }
-  throw new Error(`bounded Chrome login driver expired at ${description}`);
+  throw new Error(`bounded Chrome login driver expired at ${description}; ${lastDiagnostic}`);
 }
 
 for (let index = 0; index < expectedLogins; index += 1) {

@@ -6,6 +6,7 @@ ANDROID_PROJECT="$ROOT_DIR/test/example/native/android"
 LOCK="$ANDROID_PROJECT/toolchain.lock.json"
 EVIDENCE_RELATIVE_PATH=".planning/phases/248-crosswake-native-proof/248-ANDROID-EVIDENCE.json"
 EVIDENCE_PATH="${SIGRA_ANDROID_EVIDENCE_PATH:-$ROOT_DIR/$EVIDENCE_RELATIVE_PATH}"
+ARTIFACT_DIR="${SIGRA_ANDROID_ARTIFACT_DIR:-$ROOT_DIR/tmp/phase248-android-runtime-artifact}"
 SERIAL="${SIGRA_ANDROID_SERIAL:-emulator-5556}"
 AVD_NAME="sigra_phase248_android"
 PORT="${SIGRA_NATIVE_PROOF_PORT:-4102}"
@@ -300,19 +301,6 @@ run_browser_instrumentation() {
   fi
 }
 
-install_private_credentials() {
-  local json="$RUN_ROOT/credentials.json"
-  python3 - "$json" "$PRIMARY_EMAIL" "$PRIMARY_PASSWORD" "$SECONDARY_EMAIL" "$SECONDARY_PASSWORD" <<'PY'
-import json,pathlib,sys
-pathlib.Path(sys.argv[1]).write_text(json.dumps({"primary":{"email":sys.argv[2],"password":sys.argv[3]},"secondary":{"email":sys.argv[4],"password":sys.argv[5]}}))
-PY
-  chmod 600 "$json"
-  adb_cmd shell run-as dev.sigra.proof mkdir -p files
-  adb_cmd shell run-as dev.sigra.proof tee files/proof-credentials.json <"$json" >/dev/null
-  adb_cmd shell run-as dev.sigra.proof chmod 600 files/proof-credentials.json
-  rm -f "$json"
-}
-
 apply_emulator_firewall() {
   adb_cmd reverse --remove "tcp:$PORT" || fail "proof-host reverse removal failed"
   REVERSE_ACTIVE=0
@@ -373,8 +361,6 @@ main_live() {
   TEST_APK="$ANDROID_PROJECT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   CURRENT_STAGE="app-install"
   adb_cmd install -r "$APP_APK" >/dev/null; adb_cmd install -r "$TEST_APK" >/dev/null
-  CURRENT_STAGE="credential-injection"
-  install_private_credentials
   CURRENT_STAGE="hosted-instrumentation"
   run_browser_instrumentation hostedOnlinePhase "$PRIMARY_EMAIL" "$PRIMARY_PASSWORD" 1
   BEFORE_PID="$(adb_cmd shell pidof dev.sigra.proof | tr -d '\r' | awk '{print $1}')"; [[ "$BEFORE_PID" =~ ^[0-9]+$ ]] || fail "pre-stop process missing"
@@ -424,6 +410,15 @@ PY
   seal_facts "$RUN_ROOT/facts.json" "$LOCK" "$EVIDENCE_PATH" "$IMPLEMENTATION_SHA" "$RUN_ROOT/app.apk" "$RUN_ROOT/test.apk" "$RUN_ROOT/diagnostics.txt"
   node "$ROOT_DIR/scripts/ci/lib/native-proof-receipt.mjs" --validate "$EVIDENCE_PATH" --target android_emulator
   ! grep -aEqi '(access[_ -]?token|refresh[_ -]?token|authorization[_ -]?code|code_verifier|password|Bearer[[:space:]])' "$EVIDENCE_PATH" || fail "secret retained in receipt"
+  CURRENT_STAGE="artifact-bundle"
+  [[ ! -e "$ARTIFACT_DIR" ]] || fail "Android runtime artifact directory already exists"
+  install -d -m 700 "$ARTIFACT_DIR"
+  install -m 600 "$EVIDENCE_PATH" "$ARTIFACT_DIR/248-ANDROID-EVIDENCE.json"
+  install -m 600 "$RUN_ROOT/app.apk" "$ARTIFACT_DIR/app-debug.apk"
+  install -m 600 "$RUN_ROOT/test.apk" "$ARTIFACT_DIR/app-debug-androidTest.apk"
+  install -m 600 "$RUN_ROOT/diagnostics.txt" "$ARTIFACT_DIR/diagnostics.txt"
+  (cd "$ARTIFACT_DIR" && sha256sum 248-ANDROID-EVIDENCE.json app-debug.apk app-debug-androidTest.apk diagnostics.txt | LC_ALL=C sort > artifact.sha256)
+  python3 "$ROOT_DIR/scripts/ci/verify-native-proof-android-runtime-artifact.py" "$ARTIFACT_DIR" "$IMPLEMENTATION_SHA" "$LOCK"
   printf 'crosswake native Android proof: PASS\n'
 }
 

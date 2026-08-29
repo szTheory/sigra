@@ -74,6 +74,20 @@ expect_failure early_receipt env SIGRA_ANDROID_PROOF_FAIL_BEFORE_SEAL=1 \
   0123456789abcdef0123456789abcdef01234567 "${FACTS}" "${FACTS}" "${FACTS}"
 test ! -e "${TMP_ROOT}/early-receipt.json" || fail "receipt was written before the terminal gate"
 
+ARTIFACT_SHA=0123456789abcdef0123456789abcdef01234567
+ARTIFACT_ROOT="${TMP_ROOT}/runtime-artifact"
+mkdir -p "${ARTIFACT_ROOT}"
+bash "${RUNNER}" --seal-facts "${FACTS}" "${LOCK}" "${ARTIFACT_ROOT}/248-ANDROID-EVIDENCE.json" \
+  "${ARTIFACT_SHA}" "${FACTS}" "${FACTS}" "${FACTS}"
+cp "${FACTS}" "${ARTIFACT_ROOT}/app-debug.apk"
+cp "${FACTS}" "${ARTIFACT_ROOT}/app-debug-androidTest.apk"
+cp "${FACTS}" "${ARTIFACT_ROOT}/diagnostics.txt"
+(cd "${ARTIFACT_ROOT}" && sha256sum 248-ANDROID-EVIDENCE.json app-debug.apk app-debug-androidTest.apk diagnostics.txt | LC_ALL=C sort > artifact.sha256)
+python3 "${ROOT_DIR}/scripts/ci/verify-native-proof-android-runtime-artifact.py" "${ARTIFACT_ROOT}" "${ARTIFACT_SHA}" "${LOCK}"
+printf 'tampered\n' >> "${ARTIFACT_ROOT}/app-debug.apk"
+expect_failure tampered_artifact python3 "${ROOT_DIR}/scripts/ci/verify-native-proof-android-runtime-artifact.py" \
+  "${ARTIFACT_ROOT}" "${ARTIFACT_SHA}" "${LOCK}"
+
 grep -Fq 'adb_cmd shell am force-stop' "${RUNNER}" || fail "runner must own force-stop"
 grep -Fq 'cgroup' "${RUNNER}" || fail "runner must use a process-scoped network boundary"
 grep -Fq 'proof_host_unreachable' "${RUNNER}" || fail "runner must attest proof-host unreachability"
@@ -82,8 +96,7 @@ grep -Fq 'export ANDROID_HOME="$ANDROID_SDK_ROOT"' "${RUNNER}" || fail "runner m
 grep -Fq 'export ADB_VENDOR_KEYS="$key_root"' "${RUNNER}" || fail "runner must authorize ADB from a private ephemeral key"
 grep -Fq 'unexpected command failure: stage=$CURRENT_STAGE' "${RUNNER}" || fail "runner must retain secret-safe stage diagnostics"
 grep -Fq "pm path com.android.chrome 2>/dev/null | sed -n 's/^package://p' || true" "${RUNNER}" || fail "boot readiness probes must tolerate transient package-manager status"
-grep -Fq 'run-as dev.sigra.proof mkdir -p files' "${RUNNER}" || fail "credential injection must initialize app-private storage"
-grep -Fq 'run-as dev.sigra.proof tee files/proof-credentials.json' "${RUNNER}" || fail "credential injection must not depend on nested shell quoting"
+! grep -Fq 'proof-credentials.json' "${RUNNER}" || fail "browser credentials must never be written into app-private storage"
 ! grep -Eq 'local method=.*output=.*\$method' "${RUNNER}" || fail "instrumentation output must not expand an unbound local"
 grep -Fq 'for attempt in 1 2' "${RUNNER}" || fail "device-side APK hashing must retry exactly once"
 grep -Fq 'toybox sha256sum "$remote"' "${RUNNER}" || fail "browser identity must hash exact installed APK bytes on-device"
@@ -95,6 +108,8 @@ grep -Fq 'waitForHostedChrome()' "${ROOT_DIR}/test/example/native/android/app/sr
 grep -Fq "document.querySelector('#login_submit')" "${ROOT_DIR}/scripts/ci/lib/android-chrome-login.mjs" || fail "hosted login must use the stable submit hook"
 grep -Fq "document.querySelector('#app-login-approve')" "${ROOT_DIR}/scripts/ci/lib/android-chrome-login.mjs" || fail "hosted approval must use the stable approval hook"
 grep -Fq 'localabstract:chrome_devtools_remote' "${RUNNER}" || fail "semantic browser automation must use the real Chrome target"
+grep -Fq 'debuggerUrl.hostname = debugEndpoint.hostname' "${ROOT_DIR}/scripts/ci/lib/android-chrome-login.mjs" || fail "Chrome WebSocket must reuse the proven IPv4 endpoint"
+grep -Fq 'verify-native-proof-android-runtime-artifact.py' "${RUNNER}" || fail "runtime bundle must be independently rehashed before upload"
 grep -Fq 'id="login_submit"' "${ROOT_DIR}/test/example/lib/example_web/controllers/session_html.ex" || fail "host login must expose the stable submit hook"
 grep -Fq 'id="app-login-approve"' "${ROOT_DIR}/test/example/lib/example_web/controllers/app_login_html/approve.html.heex" || fail "host approval must expose the stable browser hook"
 grep -Fq 'Use without an account|Accept & continue|No thanks' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "Chrome onboarding actions must be exact and bounded"
