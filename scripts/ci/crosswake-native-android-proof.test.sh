@@ -89,6 +89,7 @@ grep -Fq 'for attempt in 1 2' "${RUNNER}" || fail "partial APK pulls must retry 
 grep -Fq '== PK' "${RUNNER}" || fail "APK pulls must validate ZIP bytes before promotion"
 grep -Fq 'INSTRUMENTATION_STATUS_CODE: 0' "${RUNNER}" || fail "instrumentation must use machine-native success protocol"
 grep -Fq 'INSTRUMENTATION_CODE: -1' "${RUNNER}" || fail "instrumentation must require a terminal result"
+grep -Fq '<package android:name="com.android.chrome" />' "${ROOT_DIR}/test/example/native/android/app/src/main/AndroidManifest.xml" || fail "locked Chrome must be visible to PackageManager"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi
