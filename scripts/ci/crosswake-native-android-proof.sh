@@ -21,6 +21,7 @@ SECONDARY_EMAIL=""
 SECONDARY_PASSWORD=""
 HOST_LISTENER=""
 REVERSE_ACTIVE=0
+ACCESSIBILITY_ACTIVE=0
 CURRENT_STAGE="initialization"
 
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
@@ -119,6 +120,11 @@ remove_firewall() {
 cleanup() {
   local ok=0
   remove_firewall
+  if [[ "$ACCESSIBILITY_ACTIVE" == 1 ]]; then
+    adb_cmd shell settings delete secure enabled_accessibility_services >/dev/null 2>&1 || ok=1
+    adb_cmd shell settings put secure accessibility_enabled 0 >/dev/null 2>&1 || ok=1
+    ACCESSIBILITY_ACTIVE=0
+  fi
   if [[ "$REVERSE_ACTIVE" == 1 ]]; then adb_cmd reverse --remove "tcp:$PORT" >/dev/null 2>&1 || ok=1; REVERSE_ACTIVE=0; fi
   if [[ -n "$HOST_PID" ]]; then kill "$HOST_PID" >/dev/null 2>&1 || true; wait "$HOST_PID" 2>/dev/null || true; HOST_PID=""; fi
   if [[ -n "$EMULATOR_PID" ]]; then adb_cmd emu kill >/dev/null 2>&1 || true; wait "$EMULATOR_PID" 2>/dev/null || true; EMULATOR_PID=""; fi
@@ -283,6 +289,19 @@ PY
   rm -f "$json"
 }
 
+enable_proof_accessibility() {
+  local component="dev.sigra.proof.test/dev.sigra.proof.ProofAccessibilityService" deadline
+  adb_cmd shell settings put secure enabled_accessibility_services "$component"
+  adb_cmd shell settings put secure accessibility_enabled 1
+  ACCESSIBILITY_ACTIVE=1
+  deadline=$((SECONDS+15))
+  while (( SECONDS < deadline )); do
+    if adb_cmd shell dumpsys accessibility 2>/dev/null | grep -Fq "$component"; then return 0; fi
+    read -r -t 1 _ </dev/null || true
+  done
+  fail "proof accessibility service did not become active"
+}
+
 apply_emulator_firewall() {
   adb_cmd reverse --remove "tcp:$PORT" || fail "proof-host reverse removal failed"
   REVERSE_ACTIVE=0
@@ -343,6 +362,8 @@ main_live() {
   TEST_APK="$ANDROID_PROJECT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   CURRENT_STAGE="app-install"
   adb_cmd install -r "$APP_APK" >/dev/null; adb_cmd install -r "$TEST_APK" >/dev/null
+  CURRENT_STAGE="accessibility-enable"
+  enable_proof_accessibility
   CURRENT_STAGE="credential-injection"
   install_private_credentials
   CURRENT_STAGE="hosted-instrumentation"

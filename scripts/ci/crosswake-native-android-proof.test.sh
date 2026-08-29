@@ -95,6 +95,8 @@ grep -Fq 'waitForHostedLoginFields()' "${ROOT_DIR}/test/example/native/android/a
 grep -Fq 'hostedField("user_email", "Email")' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use the stable email hook"
 grep -Fq 'hostedField("user_password", "Password")' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use the stable password hook"
 grep -Fq 'setCompressedLayoutHierarchy(false)' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must retain the Chrome HTML accessibility subtree"
+grep -Fq 'ProofAccessibilityService' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/AndroidManifest.xml" || fail "the test APK must activate Chrome renderer accessibility"
+grep -Fq 'enabled_accessibility_services' "${RUNNER}" || fail "the runner must enable and clean the test-only accessibility service"
 grep -Fq 'clickResource("login_submit")' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use the stable submit hook"
 grep -Fq 'id="login_submit"' "${ROOT_DIR}/test/example/lib/example_web/controllers/session_html.ex" || fail "host login must expose the stable submit hook"
 grep -Fq 'id="app-login-approve"' "${ROOT_DIR}/test/example/lib/example_web/controllers/app_login_html/approve.html.heex" || fail "host approval must expose the stable browser hook"
