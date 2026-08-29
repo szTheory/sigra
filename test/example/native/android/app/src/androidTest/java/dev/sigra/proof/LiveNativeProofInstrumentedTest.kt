@@ -39,10 +39,9 @@ class LiveNativeProofInstrumentedTest {
 
     @Test
     fun hostedOnlinePhase() {
-        val credentials = credentials().getJSONObject("primary")
         val store = SecureRefreshStore(context)
         store.deleteAfterLogout()
-        val session = browserLogin(credentials.getString("email"), credentials.getString("password"), store)
+        val session = browserLogin(store)
         report.merge("hosted_return" to true, "storage_present" to session.storagePosture.present)
 
         val client = session.withMemoryOnlyAccess { NativeProofHostClient(BuildConfig.PROOF_HOST_BASE_URL, it) }
@@ -103,9 +102,8 @@ class LiveNativeProofInstrumentedTest {
     @Test
     fun accountReplayAndRevocationPhase() {
         val firstPartition = File(context.filesDir, "proof-partition.txt").readText()
-        val credentials = credentials().getJSONObject("secondary")
         val store = SecureRefreshStore(context)
-        val session = browserLogin(credentials.getString("email"), credentials.getString("password"), store)
+        val session = browserLogin(store)
         val client = session.withMemoryOnlyAccess { NativeProofHostClient(BuildConfig.PROOF_HOST_BASE_URL, it) }
         val secondPartition = client.bootstrap().getString("partition")
         assertNotEquals(firstPartition, secondPartition)
@@ -122,7 +120,7 @@ class LiveNativeProofInstrumentedTest {
         val logoutPosture = session.logout()
         assertTrue(logoutPosture.deletedAfterLogout)
         val revocationStore = SecureRefreshStore(context)
-        val revokedSession = browserLogin(credentials.getString("email"), credentials.getString("password"), revocationStore)
+        val revokedSession = browserLogin(revocationStore)
         val revokedClient = revokedSession.withMemoryOnlyAccess { NativeProofHostClient(BuildConfig.PROOF_HOST_BASE_URL, it) }
         assertTrue(revokedClient.logout())
         assertTrue(revokedSession.rotateRefresh().deletedAfterRevocation)
@@ -140,12 +138,9 @@ class LiveNativeProofInstrumentedTest {
         File(context.filesDir, "proof-credentials.json").delete()
     }
 
-    private fun credentials(): JSONObject = JSONObject(File(context.filesDir, "proof-credentials.json").readText())
-
-    private fun browserLogin(email: String, password: String, store: SecureRefreshStore): HostedAuthSession {
+    private fun browserLogin(store: SecureRefreshStore): HostedAuthSession {
         val attempt = HostedAuthSession.authorizationRequest(configuration)
         val session = HostedAuthSession(configuration, HttpHostedAuthTransport(), store)
-        device.setCompressedLayoutHierarchy(false)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 HostedAuthSession.launchBrowser(
@@ -155,13 +150,9 @@ class LiveNativeProofInstrumentedTest {
                     BrowserMode.fromWire(BuildConfig.LOCKED_BROWSER_MODE),
                 )
             }
-            val edits = waitForHostedLoginFields()
-            edits[0].text = email
-            edits[1].text = password
-            clickResource("login_submit")
-            clickResource("app-login-approve")
+            waitForHostedChrome()
             assertTrue(device.wait(Until.hasObject(By.pkg(context.packageName)), 30_000))
-            val deadline = SystemClock.uptimeMillis() + 10_000
+            val deadline = SystemClock.uptimeMillis() + 90_000
             var callback: String? = null
             while (callback == null && SystemClock.uptimeMillis() < deadline) {
                 scenario.onActivity { callback = it.intent?.dataString }
@@ -172,7 +163,7 @@ class LiveNativeProofInstrumentedTest {
         return session
     }
 
-    private fun waitForHostedLoginFields(): List<androidx.test.uiautomator.UiObject2> {
+    private fun waitForHostedChrome() {
         val deadline = SystemClock.uptimeMillis() + 45_000
         val onboarding = By.text(
             Pattern.compile(
@@ -181,9 +172,9 @@ class LiveNativeProofInstrumentedTest {
             ),
         )
         while (SystemClock.uptimeMillis() < deadline) {
-            val email = hostedField("user_email", "Email")
-            val password = hostedField("user_password", "Password")
-            if (email != null && password != null) return listOf(email, password)
+            if (device.currentPackageName == "com.android.chrome" &&
+                device.findObject(By.text(Pattern.compile("^(?:localhost|127\\.0\\.0\\.1):4102$"))) != null
+            ) return
             val action = device.findObject(By.res("com.android.permissioncontroller", "permission_deny_button"))
                 ?: device.wait(Until.findObject(onboarding), 1_000)
             if (action != null) {
@@ -196,25 +187,7 @@ class LiveNativeProofInstrumentedTest {
             .map { it.replace(Regex("[A-Za-z0-9_-]{20,}"), "[REDACTED]") }
             .distinct()
             .take(12)
-        error("hosted login fields unavailable in active package ${device.currentPackageName}; controls=$labels")
-    }
-
-    private fun hostedField(resourceId: String, label: String): androidx.test.uiautomator.UiObject2? {
-        val resource = By.res(Pattern.compile("(^|.*/)${Pattern.quote(resourceId)}$"))
-        device.findObject(resource)?.let { return it }
-        device.findObject(By.hint(label))?.let { return it }
-        val labelNode = device.findObject(By.text(label)) ?: return null
-        labelNode.click()
-        instrumentation.waitForIdleSync()
-        return device.findObject(By.focused(true))
-    }
-
-    private fun clickResource(resourceId: String) {
-        val selector = By.res(Pattern.compile("(^|.*/)${Pattern.quote(resourceId)}$"))
-        val node = device.wait(Until.findObject(selector), 30_000)
-            ?: error("browser action unavailable: $resourceId")
-        node.click()
-        instrumentation.waitForIdleSync()
+        error("hosted Chrome boundary unavailable in active package ${device.currentPackageName}; controls=$labels")
     }
 }
 

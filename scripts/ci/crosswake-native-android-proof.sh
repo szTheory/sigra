@@ -21,7 +21,7 @@ SECONDARY_EMAIL=""
 SECONDARY_PASSWORD=""
 HOST_LISTENER=""
 REVERSE_ACTIVE=0
-ACCESSIBILITY_ACTIVE=0
+CDP_FORWARD_ACTIVE=0
 CURRENT_STAGE="initialization"
 
 fail() { printf 'crosswake native Android proof: %s\n' "$*" >&2; exit 2; }
@@ -120,11 +120,7 @@ remove_firewall() {
 cleanup() {
   local ok=0
   remove_firewall
-  if [[ "$ACCESSIBILITY_ACTIVE" == 1 ]]; then
-    adb_cmd shell settings delete secure enabled_accessibility_services >/dev/null 2>&1 || ok=1
-    adb_cmd shell settings put secure accessibility_enabled 0 >/dev/null 2>&1 || ok=1
-    ACCESSIBILITY_ACTIVE=0
-  fi
+  if [[ "$CDP_FORWARD_ACTIVE" == 1 ]]; then adb_cmd forward --remove tcp:9222 >/dev/null 2>&1 || ok=1; CDP_FORWARD_ACTIVE=0; fi
   if [[ "$REVERSE_ACTIVE" == 1 ]]; then adb_cmd reverse --remove "tcp:$PORT" >/dev/null 2>&1 || ok=1; REVERSE_ACTIVE=0; fi
   if [[ -n "$HOST_PID" ]]; then kill "$HOST_PID" >/dev/null 2>&1 || true; wait "$HOST_PID" 2>/dev/null || true; HOST_PID=""; fi
   if [[ -n "$EMULATOR_PID" ]]; then adb_cmd emu kill >/dev/null 2>&1 || true; wait "$EMULATOR_PID" 2>/dev/null || true; EMULATOR_PID=""; fi
@@ -276,6 +272,34 @@ run_instrumentation() {
   fi
 }
 
+run_browser_instrumentation() {
+  local method="$1" email="$2" password="$3" login_count="$4" output instrument_pid
+  output="$RUN_ROOT/instrumentation-$method.txt"
+  adb_cmd forward --no-rebind tcp:9222 localabstract:chrome_devtools_remote >/dev/null || fail "Chrome DevTools forwarding failed"
+  CDP_FORWARD_ACTIVE=1
+  adb_cmd shell am instrument -w -r -e class "dev.sigra.proof.LiveNativeProofInstrumentedTest#$method" dev.sigra.proof.test/androidx.test.runner.AndroidJUnitRunner >"$output" 2>&1 &
+  instrument_pid=$!
+  if ! SIGRA_BROWSER_EMAIL="$email" SIGRA_BROWSER_PASSWORD="$password" SIGRA_BROWSER_LOGIN_COUNT="$login_count" \
+    node --experimental-websocket scripts/ci/lib/android-chrome-login.mjs; then
+    wait "$instrument_pid" >/dev/null 2>&1 || true
+    sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
+    fail "semantic Chrome login driver failed: $method"
+  fi
+  if ! wait "$instrument_pid"; then
+    sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
+    fail "instrumentation phase failed: $method"
+  fi
+  adb_cmd forward --remove tcp:9222
+  CDP_FORWARD_ACTIVE=0
+  if ! grep -Eq '^INSTRUMENTATION_STATUS: numtests=1\r?$' "$output" ||
+     ! grep -Eq '^INSTRUMENTATION_STATUS_CODE: 0\r?$' "$output" ||
+     ! grep -Eq '^INSTRUMENTATION_CODE: -1\r?$' "$output" ||
+     grep -Eqi 'FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_STATUS_CODE: -[0-9]+' "$output"; then
+    sed -E 's/(password|token|Bearer)[^[:space:]]*/[REDACTED]/Ig' "$output" | tail -80 >&2
+    fail "instrumentation protocol did not prove success: $method"
+  fi
+}
+
 install_private_credentials() {
   local json="$RUN_ROOT/credentials.json"
   python3 - "$json" "$PRIMARY_EMAIL" "$PRIMARY_PASSWORD" "$SECONDARY_EMAIL" "$SECONDARY_PASSWORD" <<'PY'
@@ -287,19 +311,6 @@ PY
   adb_cmd shell run-as dev.sigra.proof tee files/proof-credentials.json <"$json" >/dev/null
   adb_cmd shell run-as dev.sigra.proof chmod 600 files/proof-credentials.json
   rm -f "$json"
-}
-
-enable_proof_accessibility() {
-  local component="dev.sigra.proof.test/dev.sigra.proof.ProofAccessibilityService" deadline
-  adb_cmd shell settings put secure enabled_accessibility_services "$component"
-  adb_cmd shell settings put secure accessibility_enabled 1
-  ACCESSIBILITY_ACTIVE=1
-  deadline=$((SECONDS+15))
-  while (( SECONDS < deadline )); do
-    if adb_cmd shell dumpsys accessibility 2>/dev/null | grep -Fq "$component"; then return 0; fi
-    read -r -t 1 _ </dev/null || true
-  done
-  fail "proof accessibility service did not become active"
 }
 
 apply_emulator_firewall() {
@@ -362,18 +373,19 @@ main_live() {
   TEST_APK="$ANDROID_PROJECT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   CURRENT_STAGE="app-install"
   adb_cmd install -r "$APP_APK" >/dev/null; adb_cmd install -r "$TEST_APK" >/dev/null
-  CURRENT_STAGE="accessibility-enable"
-  enable_proof_accessibility
   CURRENT_STAGE="credential-injection"
   install_private_credentials
   CURRENT_STAGE="hosted-instrumentation"
-  run_instrumentation hostedOnlinePhase
+  run_browser_instrumentation hostedOnlinePhase "$PRIMARY_EMAIL" "$PRIMARY_PASSWORD" 1
   BEFORE_PID="$(adb_cmd shell pidof dev.sigra.proof | tr -d '\r' | awk '{print $1}')"; [[ "$BEFORE_PID" =~ ^[0-9]+$ ]] || fail "pre-stop process missing"
   apply_emulator_firewall
   CURRENT_STAGE="offline-instrumentation"
   run_instrumentation offlinePhase
   remove_firewall
   adb_cmd shell svc wifi enable; adb_cmd shell svc data enable
+  adb_cmd reverse --no-rebind "tcp:$PORT" "tcp:$PORT" >/dev/null || fail "online proof-host reverse restore failed"
+  REVERSE_ACTIVE=1
+  adb_cmd reverse --list | grep -Eq "tcp:$PORT[[:space:]]+tcp:$PORT" || fail "online proof-host reverse was not restored"
   adb_cmd shell am force-stop dev.sigra.proof
   [[ -z "$(adb_cmd shell pidof dev.sigra.proof | tr -d '\r')" ]] || fail "force-stop did not terminate process"
   adb_cmd shell monkey -p dev.sigra.proof -c android.intent.category.LAUNCHER 1 >/dev/null
@@ -384,7 +396,7 @@ main_live() {
   run_instrumentation relaunchPhase
   adb_cmd shell pm clear com.android.chrome >/dev/null
   CURRENT_STAGE="replay-instrumentation"
-  run_instrumentation accountReplayAndRevocationPhase
+  run_browser_instrumentation accountReplayAndRevocationPhase "$SECONDARY_EMAIL" "$SECONDARY_PASSWORD" 2
   REPORT="$RUN_ROOT/report.json"
   adb_cmd shell run-as dev.sigra.proof cat files/proof-live-report.json >"$REPORT"
   node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$REPORT"
