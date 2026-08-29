@@ -19,11 +19,20 @@ config :example, Example.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
+native_proof_host? = System.get_env("SIGRA_NATIVE_PROOF_HOST") == "1"
+endpoint_ip = if native_proof_host?, do: {0, 0, 0, 0}, else: {127, 0, 0, 1}
+endpoint_port =
+  if native_proof_host? do
+    String.to_integer(System.get_env("SIGRA_NATIVE_PROOF_PORT", "4002"))
+  else
+    String.to_integer(System.get_env("PORT", "4002"))
+  end
+
 config :example, ExampleWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT", "4002"))],
+  http: [ip: endpoint_ip, port: endpoint_port],
   # Test-only deterministic key base -- NEVER reused in prod. See T-10-03.
   secret_key_base: "test-only-key-base-" <> String.duplicate("a", 64),
-  server: false
+  server: native_proof_host?
 
 # Swoosh test adapter captures emails for assert_email_sent/1.
 config :example, Example.Mailer, adapter: Swoosh.Adapters.Test
