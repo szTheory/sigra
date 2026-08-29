@@ -145,6 +145,7 @@ class LiveNativeProofInstrumentedTest {
     private fun browserLogin(email: String, password: String, store: SecureRefreshStore): HostedAuthSession {
         val attempt = HostedAuthSession.authorizationRequest(configuration)
         val session = HostedAuthSession(configuration, HttpHostedAuthTransport(), store)
+        device.setCompressedLayoutHierarchy(false)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 HostedAuthSession.launchBrowser(
