@@ -170,29 +170,19 @@ bounded_wait_boot() {
   fail "bounded emulator/browser readiness expired"
 }
 
-pull_complete_apk() {
-  local remote="$1" destination="$2" partial="$2.partial" stderr="$2.pull.stderr" attempt
-  for attempt in 1 2; do
-    rm -f "$partial" "$stderr"
-    if adb_cmd pull "$remote" "$partial" >/dev/null 2>"$stderr" && [[ -s "$partial" && "$(head -c2 "$partial")" == PK ]]; then
-      mv -f "$partial" "$destination"
-      rm -f "$stderr"
-      return 0
-    fi
-  done
-  rm -f "$partial" "$stderr"
-  fail "complete Chrome APK pull failed after one retry"
-}
-
 capture_browser_manifest() {
-  local manifest="$RUN_ROOT/chrome-apks.manifest" index=0 remote base local_apk
+  local manifest="$RUN_ROOT/chrome-apks.manifest" index=0 remote base apk_sha attempt
   : >"$manifest"
   while IFS= read -r remote; do
     [[ -n "$remote" ]] || continue
     base="${remote##*/}"; [[ "$base" =~ ^[A-Za-z0-9._-]+\.apk$ ]] || fail "invalid Chrome split name"
-    local_apk="$RUN_ROOT/chrome-$index.apk"
-    pull_complete_apk "$remote" "$local_apk"
-    printf '%s\t%s\n' "$base" "$(sha256_file "$local_apk")" >>"$manifest"
+    apk_sha=""
+    for attempt in 1 2; do
+      apk_sha="$(adb_cmd shell toybox sha256sum "$remote" 2>/dev/null | tr -d '\r' | awk 'NR == 1 {print $1}' || true)"
+      [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] && break
+    done
+    [[ "$apk_sha" =~ ^[a-f0-9]{64}$ ]] || fail "device-side Chrome APK hash failed after one retry"
+    printf '%s\t%s\n' "$base" "$apk_sha" >>"$manifest"
     index=$((index+1))
   done < <(adb_cmd shell pm path com.android.chrome | sed -n 's/^package://p' | tr -d '\r' | LC_ALL=C sort)
   [[ "$index" -gt 0 ]] || fail "Chrome APK set missing"
@@ -203,7 +193,6 @@ import json,sys
 l=json.load(open(sys.argv[1]));
 if sys.argv[2]!=l["browser_version"] or sys.argv[3]!=l["browser_apk_sha256"] or l["browser_mode"]!="custom_tab_fallback": raise SystemExit("locked Chrome manifest mismatch")
 PY
-  rm -f "$RUN_ROOT"/chrome-*.apk
 }
 
 create_private_avd() {
