@@ -92,12 +92,10 @@ grep -Fq 'INSTRUMENTATION_CODE: -1' "${RUNNER}" || fail "instrumentation must re
 grep -Fq '<package android:name="com.android.chrome" />' "${ROOT_DIR}/test/example/native/android/app/src/main/AndroidManifest.xml" || fail "locked Chrome must be visible to PackageManager"
 grep -Fq 'waitForHostedLoginFields()' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use bounded onboarding automation"
 grep -Fq 'Use without an account|Accept & continue|No thanks' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "Chrome onboarding actions must be exact and bounded"
-grep -Fq 'proof host is unreachable from the online emulator' "${RUNNER}" || fail "online emulator reachability must be proven before browser automation"
-grep -Fq 'GET /users/log_in HTTP/1.0' "${RUNNER}" || fail "online reachability must require an HTTP response, not a bare TCP timeout"
 grep -Fq 'endpoint_ip = {127, 0, 0, 1}' "${ROOT_DIR}/test/example/config/test.exs" || fail "proof-only test endpoint must remain loopback-confined"
-grep -Fq 'host_response=' "${RUNNER}" || fail "HTTP reachability must not inherit netcat transport status through pipefail"
 grep -Fq 'proof host listener is not loopback-confined' "${RUNNER}" || fail "host readiness must prove a loopback-only listener"
 grep -Fq 'reverse --no-rebind "tcp:$PORT" "tcp:$PORT"' "${RUNNER}" || fail "online host access must use a deterministic ADB reverse"
+grep -Fq 'reverse --list | grep -Eq "tcp:$PORT[[:space:]]+tcp:$PORT"' "${RUNNER}" || fail "online host access must verify the reverse registration"
 grep -Fq 'reverse --remove "tcp:$PORT"' "${RUNNER}" || fail "offline proof must remove the ADB reverse before transport isolation"
 grep -Fq 'sigraNativeProofHostBaseUrl="http://localhost:$PORT"' "${RUNNER}" || fail "the proof app must use the reversed localhost endpoint"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then

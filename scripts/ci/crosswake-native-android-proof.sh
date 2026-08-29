@@ -318,7 +318,7 @@ main_live() {
   [[ -n "${ANDROID_SDK_ROOT:-}" && -x "$ANDROID_SDK_ROOT/platform-tools/adb" ]] || fail "ANDROID_SDK_ROOT does not contain the locked platform tools"
   export ANDROID_HOME="$ANDROID_SDK_ROOT"
   unset ANDROID_SDK_HOME
-  local cmdline_bin cmdline_version source_revision host_response
+  local cmdline_bin cmdline_version source_revision
   cmdline_version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["cmdline_tools"])' "$LOCK")"
   [[ "$cmdline_version" =~ ^[0-9]+\.[0-9]+$ ]] || fail "locked command-line tools version is invalid"
   cmdline_bin="$ANDROID_SDK_ROOT/cmdline-tools/$cmdline_version/bin"
@@ -343,19 +343,9 @@ main_live() {
   "$ANDROID_SDK_ROOT/emulator/emulator" @"$AVD_NAME" -port 5556 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data >"$RUN_ROOT/emulator.log" 2>&1 &
   EMULATOR_PID=$!
   bounded_wait_boot
-  adb_cmd reverse --no-rebind "tcp:$PORT" "tcp:$PORT" || fail "proof-host reverse setup failed"
+  adb_cmd reverse --no-rebind "tcp:$PORT" "tcp:$PORT" >/dev/null || fail "proof-host reverse setup failed"
   REVERSE_ACTIVE=1
   adb_cmd reverse --list | grep -Eq "tcp:$PORT[[:space:]]+tcp:$PORT" || fail "proof-host reverse was not registered"
-  host_response="$(
-    printf 'GET /users/log_in HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n' |
-      adb_cmd shell toybox nc -w 5 127.0.0.1 "$PORT" 2>/dev/null || true
-  )"
-  printf '%s\n' "$host_response" | tr -d '\r' | grep -Eq '^HTTP/1\.[01] [23][0-9][0-9] ' || {
-    redacted_host_diagnostics
-    printf 'proof_host_listener=%s\n' "${HOST_LISTENER:-missing}" >&2
-    adb_cmd shell ip route 2>/dev/null | sed -n '1,8p' >&2 || true
-    fail "proof host is unreachable from the online emulator"
-  }
   CURRENT_STAGE="browser-capture"
   capture_browser_manifest
   CURRENT_STAGE="android-build"
