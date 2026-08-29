@@ -90,6 +90,8 @@ grep -Fq '== PK' "${RUNNER}" || fail "APK pulls must validate ZIP bytes before p
 grep -Fq 'INSTRUMENTATION_STATUS_CODE: 0' "${RUNNER}" || fail "instrumentation must use machine-native success protocol"
 grep -Fq 'INSTRUMENTATION_CODE: -1' "${RUNNER}" || fail "instrumentation must require a terminal result"
 grep -Fq '<package android:name="com.android.chrome" />' "${ROOT_DIR}/test/example/native/android/app/src/main/AndroidManifest.xml" || fail "locked Chrome must be visible to PackageManager"
+grep -Fq 'waitForHostedLoginFields()' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "hosted login must use bounded onboarding automation"
+grep -Fq 'Use without an account|Accept & continue|No thanks' "${ROOT_DIR}/test/example/native/android/app/src/androidTest/java/dev/sigra/proof/LiveNativeProofInstrumentedTest.kt" || fail "Chrome onboarding actions must be exact and bounded"
 if grep -Eq '(^|[^[:alnum:]_])sleep[[:space:]]+[0-9]' "${RUNNER}"; then
   fail "fixed sleeps are prohibited"
 fi

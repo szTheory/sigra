@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.UUID
+import java.util.regex.Pattern
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -153,10 +154,7 @@ class LiveNativeProofInstrumentedTest {
                     BrowserMode.fromWire(BuildConfig.LOCKED_BROWSER_MODE),
                 )
             }
-            handleChromeFirstRunIfPresent()
-            val edits = device.wait(Until.findObjects(By.clazz("android.widget.EditText")), 30_000)
-                ?: error("hosted login fields unavailable")
-            check(edits.size >= 2) { "hosted login did not expose two input fields" }
+            val edits = waitForHostedLoginFields()
             edits[0].text = email
             edits[1].text = password
             clickExact("Log in")
@@ -173,11 +171,19 @@ class LiveNativeProofInstrumentedTest {
         return session
     }
 
-    private fun handleChromeFirstRunIfPresent() {
-        for (label in listOf("Use without an account", "Accept & continue", "No thanks")) {
-            device.findObject(By.text(label))?.click()
-            instrumentation.waitForIdleSync()
+    private fun waitForHostedLoginFields(): List<androidx.test.uiautomator.UiObject2> {
+        val deadline = SystemClock.uptimeMillis() + 45_000
+        val onboarding = By.text(Pattern.compile("^(Use without an account|Accept & continue|No thanks)$"))
+        while (SystemClock.uptimeMillis() < deadline) {
+            val edits = device.findObjects(By.clazz("android.widget.EditText"))
+            if (edits.size >= 2) return edits
+            val action = device.wait(Until.findObject(onboarding), 1_000)
+            if (action != null) {
+                action.click()
+                instrumentation.waitForIdleSync()
+            }
         }
+        error("hosted login fields unavailable in active package ${device.currentPackageName}")
     }
 
     private fun clickExact(label: String) {
