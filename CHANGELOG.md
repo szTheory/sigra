@@ -19,6 +19,8 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
+
 ### Added
 
 - Generated hosts now support independent, default-on `mfa.enabled`, `passkeys.enabled`, and `enterprise.enabled` capability switches. Enterprise/work-email discovery no longer uses organization support itself as the product switch, and OAuth configuration remains independent.
@@ -32,9 +34,6 @@ packaged into the Hex tarball, so the mistake is permanent for that release.
 ### Upgrade notes
 
 - Generated host files remain host-owned and are not overwritten. Existing apps can adopt the new runtime config reads, router pipelines, controller checks, and conditional assigns described in [Upgrading generated hosts for v1.5 auth capability gates](guides/introduction/upgrading-to-v1.5.md). There is no database migration for these switches.
-
-## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
-
 
 ### Features
 
