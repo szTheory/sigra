@@ -111,7 +111,7 @@ None — documentation-only changes with no new network endpoints, auth paths, f
 
 ## Self-Check: PASSED
 
-- `/Users/jon/projects/sigra/guides/reference/admin-persona-jtbd-rubric.md` — FOUND
+- `/workspace/sigra/guides/reference/admin-persona-jtbd-rubric.md` — FOUND
 - Commit `e7895602` — FOUND
 - Commit `d98cd624` — FOUND
 - Monotonic guard: PASS (36 cells checked vs origin/main)

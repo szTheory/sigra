@@ -50,15 +50,15 @@ Note on already-resolved items:
 </objective>
 
 <execution_context>
-@/Users/jon/projects/sigra/.claude/gsd-core/workflows/execute-plan.md
-@/Users/jon/projects/sigra/.claude/gsd-core/templates/summary.md
+@/workspace/sigra/.claude/gsd-core/workflows/execute-plan.md
+@/workspace/sigra/.claude/gsd-core/templates/summary.md
 </execution_context>
 
 <context>
-@/Users/jon/projects/sigra/.planning/PROJECT.md
-@/Users/jon/projects/sigra/.planning/ROADMAP.md
-@/Users/jon/projects/sigra/.planning/STATE.md
-@/Users/jon/projects/sigra/test/sigra/install/features/admin_test.exs
+@/workspace/sigra/.planning/PROJECT.md
+@/workspace/sigra/.planning/ROADMAP.md
+@/workspace/sigra/.planning/STATE.md
+@/workspace/sigra/test/sigra/install/features/admin_test.exs
 </context>
 
 <tasks>
@@ -107,7 +107,7 @@ change — only the binding name changes.
 Do not add a new private function. The existing extract_css_block/2 is sufficient.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check 2>&1 | tail -20</automated>
+    <automated>cd /workspace/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check 2>&1 | tail -20</automated>
   </verify>
   <done>mix test for admin_test.exs passes with 0 failures; the Enum.take(30) pattern is gone; auth_dark_block is bound via extract_css_block/2.</done>
 </task>
@@ -196,7 +196,7 @@ from what is described here, adapt accordingly using the same principle: scope t
 the correct block via the existing extract_css_blocks/2 helper.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check 2>&1 | tail -20</automated>
+    <automated>cd /workspace/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check 2>&1 | tail -20</automated>
   </verify>
   <done>
     mix test for admin_test.exs passes with 0 failures.
@@ -224,7 +224,7 @@ the correct block via the existing extract_css_blocks/2 helper.
 <verification>
 Run the full D-11 describe block:
 
-  cd /Users/jon/projects/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check
+  cd /workspace/sigra && mix test test/sigra/install/features/admin_test.exs --no-deps-check
 
 Expected: all tests pass, 0 failures.
 

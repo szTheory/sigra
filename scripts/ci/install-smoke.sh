@@ -79,6 +79,7 @@ echo "==> install-smoke: compiling with --warnings-as-errors"
 mix compile --warnings-as-errors
 
 echo "==> install-smoke: creating + migrating fresh DB"
+mix ecto.drop || true
 mix ecto.create
 mix ecto.migrate
 
@@ -104,6 +105,21 @@ fi
 
 echo "==> install-smoke: mix sigra.gen.oauth (greenfield generator contract)"
 mix sigra.gen.oauth --providers google,github
+
+# The standalone OAuth generator and the installer both use second-resolution
+# filenames. Keep this disposable proof deterministic when they happen to run
+# in the same second by moving only the just-generated OAuth migration after
+# every existing migration version.
+oauth_migration=$(find priv/repo/migrations -type f -name '*_create_user_identities.exs' -print -quit)
+oauth_version=$(basename "${oauth_migration}" | cut -d_ -f1)
+same_version_count=$(find priv/repo/migrations -type f -name "${oauth_version}_*.exs" | wc -l | tr -d ' ')
+
+if [[ "${same_version_count}" -gt 1 ]]; then
+  latest_version=$(find priv/repo/migrations -type f -name '*.exs' -exec basename {} \; | cut -d_ -f1 | sort -n | tail -1)
+  next_version=$((latest_version + 1))
+  mv "${oauth_migration}" "priv/repo/migrations/${next_version}_create_user_identities.exs"
+fi
+
 mix ecto.migrate
 mix compile --warnings-as-errors
 
@@ -147,5 +163,67 @@ grep -q "# Sigra OAuth" "${WEB_LIB}/router.ex" || {
 }
 
 echo "==> install-smoke: oauth generator contract OK (>=11 generated paths + migration + router inject)"
+
+echo "==> install-smoke: proving disabled auth capabilities against the generated app"
+APP_MODULE=$(elixir -e 'IO.write(Macro.camelize(hd(System.argv())))' "${APP}")
+
+cat >> config/test.exs <<EOF
+
+# Generated consumer-host capability proof. OAuth remains configured
+# independently under :sigra by mix sigra.gen.oauth.
+config :${APP}, :sigra_config,
+  mfa: [enabled: false],
+  passkeys: [enabled: false],
+  enterprise: [enabled: false]
+EOF
+
+cat > test/generated_capability_gate_probe_test.exs <<EOF
+defmodule ${APP_MODULE}.GeneratedCapabilityGateProbeTest do
+  use ${APP_MODULE}Web.ConnCase, async: false
+
+  test "consumer login hides enterprise, passkey, and MFA affordances", %{conn: conn} do
+    html = conn |> get("/users/log_in") |> html_response(200)
+
+    assert html =~ ~s(id="login_form")
+    assert html =~ ~s(id="magic_link_form")
+    refute html =~ ~s(id="enterprise_login_form")
+    refute html =~ ~s(id="passkey_login_form")
+    refute html =~ "Work sign-in"
+    refute html =~ "Continue with passkey"
+    refute html =~ "Two-factor authentication"
+  end
+
+  test "disabled generated endpoints fail closed", %{conn: conn} do
+    assert conn |> get("/users/mfa") |> response(404) == "Not Found"
+    assert conn |> get("/users/settings/mfa") |> response(404) == "Not Found"
+
+    assert conn
+           |> post("/users/log_in/passkey/options", %{"user" => %{"email" => "person@example.test"}})
+           |> response(404) == "Not Found"
+
+    assert conn
+           |> post("/users/log_in", %{
+             "_action" => "enterprise",
+             "user" => %{"email" => "person@example.test"}
+           })
+           |> response(404) == "Not Found"
+  end
+
+  test "OAuth stays independently configurable" do
+    config = ${APP_MODULE}.Accounts.sigra_config()
+
+    assert Sigra.Config.oauth_enabled?(config)
+    assert Keyword.has_key?(Sigra.Config.oauth_providers(config), :google)
+  end
+end
+EOF
+
+# Generated migration versions change on every run, so reset the disposable
+# test database as well as the development database before Mix's test alias
+# creates and migrates it.
+CLOAK_KEY="${CLOAK_KEY:-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}"
+export CLOAK_KEY
+MIX_ENV=test mix ecto.drop || true
+MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs
 
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"

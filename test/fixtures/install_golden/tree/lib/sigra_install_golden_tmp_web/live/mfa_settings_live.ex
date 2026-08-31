@@ -33,6 +33,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
     {:ok,
      assign(socket,
+       mfa_capability_enabled: Auth.mfa_capability_enabled?(),
+       passkeys_enabled: Auth.passkeys_enabled?(),
        mfa_enabled: mfa_status.enabled,
        passkeys: passkeys,
        passkey_count: passkey_count,
@@ -61,6 +63,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     ~H"""
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
+      <%= if @mfa_capability_enabled do %>
       <%= if @mfa_enabled do %>
         <% # Surface 3: MFA Settings Card %>
         <section class="sigra-auth-section">
@@ -242,9 +245,10 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
             </div>
         <% end %>
       <% end %>
+      <% end %>
 
 
-      <%= render_passkeys_section(assigns) %>
+      <%= if @passkeys_enabled, do: render_passkeys_section(assigns) %>
 
       </div>
     </.sigra_auth_page>

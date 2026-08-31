@@ -13,6 +13,11 @@ defmodule Sigra.Config do
         user_schema: MyApp.Accounts.User
       )
 
+  Generated host capabilities use independent, default-on switches under
+  `:mfa`, `:passkeys`, and `:enterprise`. Set a section's `:enabled` value to
+  `false` to hide and close the corresponding generated host surface. OAuth
+  remains independently controlled by `:oauth`.
+
   ## Options
 
   #{NimbleOptions.docs(repo: [type: :atom, required: true, doc: "The Ecto Repo module for database operations."],
@@ -718,6 +723,18 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    enterprise: [
+      type: :keyword_list,
+      default: [],
+      doc: "Enterprise and work-email sign-in discovery options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable enterprise/work-email sign-in discovery. Default: true."
+        ]
+      ]
+    ],
     oauth: [
       type: :keyword_list,
       default: [],
@@ -987,6 +1004,7 @@ defmodule Sigra.Config do
           suspicious_login: keyword(),
           mfa: keyword(),
           passkeys: keyword(),
+          enterprise: keyword(),
           oauth: keyword(),
           api_token: keyword(),
           jwt: keyword(),
@@ -1022,6 +1040,7 @@ defmodule Sigra.Config do
     suspicious_login: [],
     mfa: [],
     passkeys: [],
+    enterprise: [],
     oauth: [],
     api_token: [],
     jwt: [],
@@ -1129,6 +1148,23 @@ defmodule Sigra.Config do
   def validate_forwarders(_other) do
     {:error, "forwarders must be a list"}
   end
+
+  @doc "Returns whether the generated MFA capability is enabled."
+  @doc since: "1.5.0"
+  @spec mfa_enabled?(t()) :: boolean()
+  def mfa_enabled?(%__MODULE__{mfa: mfa}), do: Keyword.get(mfa, :enabled, true)
+
+  @doc "Returns whether the generated passkey capability is enabled."
+  @doc since: "1.5.0"
+  @spec passkeys_enabled?(t()) :: boolean()
+  def passkeys_enabled?(%__MODULE__{passkeys: passkeys}),
+    do: Keyword.get(passkeys, :enabled, true)
+
+  @doc "Returns whether enterprise/work-email sign-in discovery is enabled."
+  @doc since: "1.5.0"
+  @spec enterprise_enabled?(t()) :: boolean()
+  def enterprise_enabled?(%__MODULE__{enterprise: enterprise}),
+    do: Keyword.get(enterprise, :enabled, true)
 
   @doc """
   Returns whether OAuth is enabled AND has at least one configured provider.

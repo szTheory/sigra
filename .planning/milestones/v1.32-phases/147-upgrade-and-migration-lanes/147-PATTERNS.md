@@ -25,7 +25,7 @@
 
 **Analog:** `guides/introduction/upgrading-to-v1.1.md`
 
-**Structure pattern** ([guides/introduction/upgrading-to-v1.1.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.1.md):5):
+**Structure pattern** ([guides/introduction/upgrading-to-v1.1.md](/workspace/sigra/guides/introduction/upgrading-to-v1.1.md):5):
 ```markdown
 ## Before you start
 ## 1. Update the dependency
@@ -38,14 +38,14 @@
 ## Related
 ```
 
-**Command formatting pattern** ([guides/introduction/upgrading-to-v1.1.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.1.md):31):
+**Command formatting pattern** ([guides/introduction/upgrading-to-v1.1.md](/workspace/sigra/guides/introduction/upgrading-to-v1.1.md):31):
 ```markdown
     mix sigra.upgrade --yes
     mix ecto.migrate
     mix compile
 ```
 
-**Truth-boundary language pattern** ([guides/introduction/upgrading-to-v1.1.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.1.md):74):
+**Truth-boundary language pattern** ([guides/introduction/upgrading-to-v1.1.md](/workspace/sigra/guides/introduction/upgrading-to-v1.1.md):74):
 ```markdown
 The guide deliberately does not promise more than the repo proves.
 ```
@@ -54,12 +54,12 @@ The guide deliberately does not promise more than the repo proves.
 
 **Analog:** `guides/introduction/upgrading-to-v1.8.md`
 
-**Maintainer/adopter framing pattern** ([guides/introduction/upgrading-to-v1.8.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.8.md):3):
+**Maintainer/adopter framing pattern** ([guides/introduction/upgrading-to-v1.8.md](/workspace/sigra/guides/introduction/upgrading-to-v1.8.md):3):
 ```markdown
 This page tracks maintainer-facing and adopter-facing expectations...
 ```
 
-**Checklist style pattern** ([guides/introduction/upgrading-to-v1.8.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.8.md):11):
+**Checklist style pattern** ([guides/introduction/upgrading-to-v1.8.md](/workspace/sigra/guides/introduction/upgrading-to-v1.8.md):11):
 ```markdown
 ## Library / host upgrade checklist
 1. ...
@@ -67,7 +67,7 @@ This page tracks maintainer-facing and adopter-facing expectations...
 3. ...
 ```
 
-**Cross-link footer pattern** ([guides/introduction/upgrading-to-v1.8.md](/Users/jon/projects/sigra/guides/introduction/upgrading-to-v1.8.md):19):
+**Cross-link footer pattern** ([guides/introduction/upgrading-to-v1.8.md](/workspace/sigra/guides/introduction/upgrading-to-v1.8.md):19):
 ```markdown
 ## See also
 - ...
@@ -77,13 +77,13 @@ This page tracks maintainer-facing and adopter-facing expectations...
 
 **Analog:** `scripts/ci/install-smoke.sh`
 
-**Script contract pattern** ([scripts/ci/install-smoke.sh](/Users/jon/projects/sigra/scripts/ci/install-smoke.sh):1):
+**Script contract pattern** ([scripts/ci/install-smoke.sh](/workspace/sigra/scripts/ci/install-smoke.sh):1):
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 ```
 
-**Env defaults + reproducibility pattern** ([scripts/ci/install-smoke.sh](/Users/jon/projects/sigra/scripts/ci/install-smoke.sh):20):
+**Env defaults + reproducibility pattern** ([scripts/ci/install-smoke.sh](/workspace/sigra/scripts/ci/install-smoke.sh):20):
 ```bash
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app}"
@@ -92,7 +92,7 @@ export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 ```
 
-**Step logging + failure semantics pattern** ([scripts/ci/install-smoke.sh](/Users/jon/projects/sigra/scripts/ci/install-smoke.sh):57):
+**Step logging + failure semantics pattern** ([scripts/ci/install-smoke.sh](/workspace/sigra/scripts/ci/install-smoke.sh):57):
 ```bash
 echo "==> ...: fetching deps"
 mix deps.get
@@ -105,7 +105,7 @@ mix ecto.migrate
 
 **Analog:** existing smoke jobs (`install_smoke`, `example_http_smoke`)
 
-**Job skeleton pattern** ([.github/workflows/ci.yml](/Users/jon/projects/sigra/.github/workflows/ci.yml):295):
+**Job skeleton pattern** ([.github/workflows/ci.yml](/workspace/sigra/.github/workflows/ci.yml):295):
 ```yaml
 install_smoke:
   name: Install smoke (...)
@@ -116,7 +116,7 @@ install_smoke:
       image: postgres:15
 ```
 
-**Step ordering pattern** ([.github/workflows/ci.yml](/Users/jon/projects/sigra/.github/workflows/ci.yml):329):
+**Step ordering pattern** ([.github/workflows/ci.yml](/workspace/sigra/.github/workflows/ci.yml):329):
 ```yaml
 - name: Install Hex + Rebar
 - name: Install phx_new archive
@@ -124,7 +124,7 @@ install_smoke:
 - name: Run ... smoke harness
 ```
 
-**Smoke env wiring pattern** ([.github/workflows/ci.yml](/Users/jon/projects/sigra/.github/workflows/ci.yml):338):
+**Smoke env wiring pattern** ([.github/workflows/ci.yml](/workspace/sigra/.github/workflows/ci.yml):338):
 ```yaml
 env:
   PGUSER: postgres
@@ -137,7 +137,7 @@ env:
 
 **Analog:** `docs/0` extras and groups patterns
 
-**Extras insertion pattern** ([mix.exs](/Users/jon/projects/sigra/mix.exs):186):
+**Extras insertion pattern** ([mix.exs](/workspace/sigra/mix.exs):186):
 ```elixir
 extras: [
   "guides/introduction/...md",
@@ -147,7 +147,7 @@ extras: [
 ]
 ```
 
-**Grouping pattern** ([mix.exs](/Users/jon/projects/sigra/mix.exs):235):
+**Grouping pattern** ([mix.exs](/workspace/sigra/mix.exs):235):
 ```elixir
 groups_for_extras: [
   Introduction: ~r{guides/introduction/.?},
@@ -160,13 +160,13 @@ groups_for_extras: [
 
 **Analog:** topic-map table + evidence links
 
-**Guide-index table row pattern** ([README.md](/Users/jon/projects/sigra/README.md):141):
+**Guide-index table row pattern** ([README.md](/workspace/sigra/README.md):141):
 ```markdown
 | Topic | Guide |
 | Upgrade notes | [v1.0 → v1.1](...) · [toward v1.7](...) · ... |
 ```
 
-**Evidence section pattern** ([README.md](/Users/jon/projects/sigra/README.md):177):
+**Evidence section pattern** ([README.md](/workspace/sigra/README.md):177):
 ```markdown
 ## Release evidence (maintainers and auditors)
 - [GA evidence and audit posture](docs/ga-evidence.md)
@@ -177,7 +177,7 @@ groups_for_extras: [
 
 **Analog:** “Pages” grouped bullets
 
-**Nested docs index pattern** ([doc/llms.txt](/Users/jon/projects/sigra/doc/llms.txt):13):
+**Nested docs index pattern** ([doc/llms.txt](/workspace/sigra/doc/llms.txt):13):
 ```text
 - Introduction
   - [Installation](installation.md)
@@ -192,14 +192,14 @@ groups_for_extras: [
 
 **Analog:** canonical-source router style
 
-**Canonical routing pattern** ([docs/ga-evidence.md](/Users/jon/projects/sigra/docs/ga-evidence.md):6):
+**Canonical routing pattern** ([docs/ga-evidence.md](/workspace/sigra/docs/ga-evidence.md):6):
 ```markdown
 ## Canonical sources
 - [Release runbook ...](...)
 - [UAT ↔ CI coverage](...)
 ```
 
-**Proof-link policy pattern** ([docs/ga-evidence.md](/Users/jon/projects/sigra/docs/ga-evidence.md):12):
+**Proof-link policy pattern** ([docs/ga-evidence.md](/workspace/sigra/docs/ga-evidence.md):12):
 ```markdown
 ## GitHub-hosted proof links policy
 ... use pinned v<version> links.
@@ -209,12 +209,12 @@ groups_for_extras: [
 
 **Analog:** evidence table + execution-location section
 
-**Coverage table pattern** ([docs/uat-ci-coverage.md](/Users/jon/projects/sigra/docs/uat-ci-coverage.md):5):
+**Coverage table pattern** ([docs/uat-ci-coverage.md](/workspace/sigra/docs/uat-ci-coverage.md):5):
 ```markdown
 | SEED | Topic | CI / automated substitute | Residual ... |
 ```
 
-**Script/job referencing pattern** ([docs/uat-ci-coverage.md](/Users/jon/projects/sigra/docs/uat-ci-coverage.md):77):
+**Script/job referencing pattern** ([docs/uat-ci-coverage.md](/workspace/sigra/docs/uat-ci-coverage.md):77):
 ```markdown
 ## Where to run this
 - GitHub Actions: `.github/workflows/ci.yml` — jobs ...
@@ -223,7 +223,7 @@ groups_for_extras: [
 ## Shared Patterns
 
 ### ExDoc surfacing + grouping
-**Source:** [mix.exs](/Users/jon/projects/sigra/mix.exs):186 and [mix.exs](/Users/jon/projects/sigra/mix.exs):235  
+**Source:** [mix.exs](/workspace/sigra/mix.exs):186 and [mix.exs](/workspace/sigra/mix.exs):235
 **Apply to:** any new `guides/introduction/*` migration/upgrade docs
 ```elixir
 extras: [ ... "guides/introduction/<new>.md", ... ]
@@ -231,14 +231,14 @@ groups_for_extras: [Introduction: ~r{guides/introduction/.?}, ...]
 ```
 
 ### README + AI-index discovery parity
-**Source:** [README.md](/Users/jon/projects/sigra/README.md):141 and [doc/llms.txt](/Users/jon/projects/sigra/doc/llms.txt):13  
+**Source:** [README.md](/workspace/sigra/README.md):141 and [doc/llms.txt](/workspace/sigra/doc/llms.txt):13
 **Apply to:** new upgrade/migration docs
 ```markdown
 README topic-map row + matching llms.txt Introduction/Docs bullet entries
 ```
 
 ### Smoke lane contract
-**Source:** [scripts/ci/install-smoke.sh](/Users/jon/projects/sigra/scripts/ci/install-smoke.sh):14 and [.github/workflows/ci.yml](/Users/jon/projects/sigra/.github/workflows/ci.yml):295  
+**Source:** [scripts/ci/install-smoke.sh](/workspace/sigra/scripts/ci/install-smoke.sh):14 and [.github/workflows/ci.yml](/workspace/sigra/.github/workflows/ci.yml):295
 **Apply to:** `scripts/ci/upgrade-smoke.sh` and its new CI job
 ```bash
 set -euo pipefail
@@ -246,7 +246,7 @@ set -euo pipefail
 ```
 
 ### Evidence routing consistency
-**Source:** [docs/ga-evidence.md](/Users/jon/projects/sigra/docs/ga-evidence.md):6 and [docs/uat-ci-coverage.md](/Users/jon/projects/sigra/docs/uat-ci-coverage.md):77  
+**Source:** [docs/ga-evidence.md](/workspace/sigra/docs/ga-evidence.md):6 and [docs/uat-ci-coverage.md](/workspace/sigra/docs/uat-ci-coverage.md):77
 **Apply to:** any phase-147 docs mentions of the new upgrade lane
 ```markdown
 Use router-style links to canonical pages/jobs; avoid duplicating gate matrices.
@@ -258,7 +258,7 @@ None.
 
 ## Metadata
 
-**Analog search scope:** `guides/introduction`, `scripts/ci`, `.github/workflows`, repo root docs (`README.md`, `mix.exs`, `doc/llms.txt`, `docs/*`)  
-**Files scanned:** 11  
+**Analog search scope:** `guides/introduction`, `scripts/ci`, `.github/workflows`, repo root docs (`README.md`, `mix.exs`, `doc/llms.txt`, `docs/*`)
+**Files scanned:** 11
 **Pattern extraction date:** 2026-05-31
 

@@ -20,7 +20,7 @@ called by `lib/sigra/auth.ex:2305` with `"change:"`):
 2. `where: token.sent_to == user.email` — for change tokens `sent_to` is the NEW email while
    `user.email` is still OLD at confirm time → always false.
 
-Full approved plan: `/Users/jon/.claude/plans/i-got-an-error-eager-hamming.md`.
+Full approved plan: `/Users/developer/.claude/plans/i-got-an-error-eager-hamming.md`.
 
 ## Tasks (atomic commits)
 

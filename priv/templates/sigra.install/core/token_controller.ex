@@ -21,6 +21,8 @@ defmodule <%= web_module %>.TokenController do
 
   alias <%= context_module %>, as: Auth
 
+  plug :require_mfa_capability when action in [:mfa]
+
   @doc """
   Authenticates a user with email and password.
 
@@ -122,6 +124,17 @@ defmodule <%= web_module %>.TokenController do
   end
 
   # -- Private helpers --
+
+  defp require_mfa_capability(conn, _opts) do
+    if Auth.mfa_capability_enabled?() do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> json(%{error: "mfa_unavailable"})
+      |> halt()
+    end
+  end
 
   defp issue_jwt_tokens(conn, user, scopes) do
     config = Auth.sigra_config()

@@ -85,7 +85,7 @@ completed: 2026-06-12
 
 ## Files Created/Modified
 
-- `/Users/jon/projects/sigra/.claude/worktrees/agent-a1d3b51875917e178/brandbook/pressure-test-audit-v2.md` — 14-section brand pressure-test audit v2 with KEEP/TIGHTEN/REWORK verdicts, szTheory suite architecture, and Phase 179–183 action plan (424 lines)
+- `/workspace/sigra/.claude/worktrees/agent-a1d3b51875917e178/brandbook/pressure-test-audit-v2.md` — 14-section brand pressure-test audit v2 with KEEP/TIGHTEN/REWORK verdicts, szTheory suite architecture, and Phase 179–183 action plan (424 lines)
 
 ## Decisions Made
 

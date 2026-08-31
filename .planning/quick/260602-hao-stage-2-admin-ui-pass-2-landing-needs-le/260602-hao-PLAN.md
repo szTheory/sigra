@@ -172,7 +172,7 @@ Keep mount/1, runtime_config!/0 and all aliases untouched. Use `Map.get/3` defen
 (existing pattern). No new assigns, no new queries.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | tail -5</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | tail -5</automated>
     Also: grep -q "What do you need to do?" lib/sigra/admin/live/index_live.ex && grep -q "locked=true" lib/sigra/admin/live/index_live.ex && grep -q "passkeys=true" lib/sigra/admin/live/index_live.ex && grep -q "What Sigra can do" lib/sigra/admin/live/index_live.ex
   </verify>
   <done>
@@ -230,7 +230,7 @@ If `tile/1` and/or `status_label/1` become unused after demoting the metric grid
 runtime_config!/0 and aliases. Use `Map.get/3` defensively. No new assigns or queries.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | tail -5</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | tail -5</automated>
     Also: grep -q "Work inside this organization scope" lib/sigra/admin/live/organization_live.ex && grep -q "?locked=true" lib/sigra/admin/live/organization_live.ex && grep -q "?passkeys=true" lib/sigra/admin/live/organization_live.ex
   </verify>
   <done>
@@ -281,7 +281,7 @@ If Tasks 1–2 ended up needing zero new classes (full reuse), make this task a 
 SUMMARY — that is a valid outcome.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra/test/example && grep -cE '!important' priv/static/assets/css/app.css; git -C /Users/jon/projects/sigra diff --stat test/example/priv/static/assets/css/app.css</automated>
+    <automated>cd /workspace/sigra/test/example && grep -cE '!important' priv/static/assets/css/app.css; git -C /workspace/sigra diff --stat test/example/priv/static/assets/css/app.css</automated>
     Confirm no NEW `!important` was introduced (count unchanged from before this task) and any added classes are referenced by index_live.ex / organization_live.ex (grep the class names in both .ex files).
   </verify>
   <done>
@@ -294,7 +294,7 @@ LiveViews. If full reuse was achievable, no CSS was added and this is recorded a
 </tasks>
 
 <verification>
-Phase-level checks (run from /Users/jon/projects/sigra unless noted):
+Phase-level checks (run from /workspace/sigra unless noted):
 
 1. Compile clean: `mix compile --warnings-as-errors` (catches unused private fns from removed
    tile/1 or status_label/1).

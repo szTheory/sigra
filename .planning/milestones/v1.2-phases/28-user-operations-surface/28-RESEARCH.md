@@ -383,7 +383,7 @@ end
 
 ### Scope-safe admin query
 ```elixir
-# Source: /Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex
+# Source: /workspace/sigra/lib/sigra/admin/authorizer.ex
 def scope_query(queryable, %Scope{} = admin_scope) do
   query = Ecto.Queryable.to_query(queryable)
 
@@ -402,7 +402,7 @@ end
 
 ### Revoke all sessions through the canonical action
 ```elixir
-# Source: /Users/jon/projects/sigra/lib/sigra/auth.ex
+# Source: /workspace/sigra/lib/sigra/auth.ex
 def delete_all_sessions(config, user_id, opts \\ []) do
   sessions = session_store.list_by_user(user_id, store_opts)
   {count, _} = session_store.delete_all_for_user(user_id, delete_opts)
@@ -519,20 +519,20 @@ end
 - `https://hex.pm/api/packages/ecto` - latest Ecto version and publish timestamp
 - `https://hex.pm/api/packages/flop` - latest Flop version and publish timestamp
 - `https://hex.pm/api/packages/flop_phoenix` - latest Flop Phoenix version and publish timestamp
-- `/Users/jon/projects/sigra/lib/sigra/admin/scope.ex` - admin scope contract
-- `/Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex` - scope-safe admin query/action helpers
-- `/Users/jon/projects/sigra/lib/sigra/live_view/admin_scope.ex` - LiveView parity for admin scope
-- `/Users/jon/projects/sigra/lib/sigra/auth.ex` - session list/revoke/revoke-all behavior
-- `/Users/jon/projects/sigra/lib/sigra/session_stores/ecto.ex` - session persistence/query behavior
-- `/Users/jon/projects/sigra/lib/sigra/mfa.ex` - MFA status surface
-- `/Users/jon/projects/sigra/test/example/lib/example/accounts.ex` - example app wrappers for sessions, MFA, passkeys
-- `/Users/jon/projects/sigra/test/example/lib/example/accounts/user.ex` - generated user schema shape
-- `/Users/jon/projects/sigra/test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs` - current indexes and auth schema tables
+- `/workspace/sigra/lib/sigra/admin/scope.ex` - admin scope contract
+- `/workspace/sigra/lib/sigra/admin/authorizer.ex` - scope-safe admin query/action helpers
+- `/workspace/sigra/lib/sigra/live_view/admin_scope.ex` - LiveView parity for admin scope
+- `/workspace/sigra/lib/sigra/auth.ex` - session list/revoke/revoke-all behavior
+- `/workspace/sigra/lib/sigra/session_stores/ecto.ex` - session persistence/query behavior
+- `/workspace/sigra/lib/sigra/mfa.ex` - MFA status surface
+- `/workspace/sigra/test/example/lib/example/accounts.ex` - example app wrappers for sessions, MFA, passkeys
+- `/workspace/sigra/test/example/lib/example/accounts/user.ex` - generated user schema shape
+- `/workspace/sigra/test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs` - current indexes and auth schema tables
 
 ### Secondary (MEDIUM confidence)
 - `https://hexdocs.pm/phoenix/components.html` - Phoenix component guidance aligning with current UI stack
-- `/Users/jon/projects/sigra/test/example/lib/example_web/live/organization_members_live.ex` - existing mobile-aware LiveView list/modal pattern
-- `/Users/jon/projects/sigra/test/example/test/example_web/integration/phase_27_integration_test.exs` - current admin route/scope integration pattern
+- `/workspace/sigra/test/example/lib/example_web/live/organization_members_live.ex` - existing mobile-aware LiveView list/modal pattern
+- `/workspace/sigra/test/example/test/example_web/integration/phase_27_integration_test.exs` - current admin route/scope integration pattern
 
 ### Tertiary (LOW confidence)
 - None

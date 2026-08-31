@@ -1,4 +1,4 @@
-# Sigra v1.3.0 - Table of Contents
+# Sigra v1.4.0 - Table of Contents
 
 > Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.
 
@@ -24,6 +24,8 @@
   - [Upgrading notes — toward v1.10](upgrading-to-v1-10.md)
   - [Upgrading notes — toward v1.11](upgrading-to-v1-11.md)
   - [Upgrading notes — toward v1.12](upgrading-to-v1-12.md)
+  - [Upgrading generated hosts for v1.46 adopter experience](upgrading-to-v1-46.md)
+  - [Upgrading generated hosts for v1.5 auth capability gates](upgrading-to-v1-5.md)
   - [Upgrading to v1.0](upgrading-to-v1-0.md)
   - [Upgrading to v1.1](upgrading-to-v1-1.md)
   - [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.md)

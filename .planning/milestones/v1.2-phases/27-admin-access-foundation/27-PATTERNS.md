@@ -31,7 +31,7 @@
 
 **Analog:** `lib/mix/tasks/sigra.install.ex`
 
-**Feature registration pattern** ([`lib/mix/tasks/sigra.install.ex:37`](/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex#L37), [`lib/mix/tasks/sigra.install.ex:43`](/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex#L43), [`lib/mix/tasks/sigra.install.ex:53`](/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex#L53)):
+**Feature registration pattern** ([`lib/mix/tasks/sigra.install.ex:37`](/workspace/sigra/lib/mix/tasks/sigra.install.ex#L37), [`lib/mix/tasks/sigra.install.ex:43`](/workspace/sigra/lib/mix/tasks/sigra.install.ex#L43), [`lib/mix/tasks/sigra.install.ex:53`](/workspace/sigra/lib/mix/tasks/sigra.install.ex#L53)):
 ```elixir
   @features [
     Sigra.Install.Features.Core,
@@ -53,7 +53,7 @@
   ]
 ```
 
-**Binding hydration pattern** ([`lib/mix/tasks/sigra.install.ex:111`](/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex#L111)):
+**Binding hydration pattern** ([`lib/mix/tasks/sigra.install.ex:111`](/workspace/sigra/lib/mix/tasks/sigra.install.ex#L111)):
 ```elixir
     [
       context_module: inspect(Module.concat([base, context_name])),
@@ -73,7 +73,7 @@ Use this exact additive switch style for `admin: :boolean`, `admin: true`, and `
 
 **Analog:** `lib/sigra/install/features/organizations.ex`
 
-**Feature contract pattern** ([`lib/sigra/install/features/organizations.ex:32`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L32), [`lib/sigra/install/features/organizations.ex:37`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L37)):
+**Feature contract pattern** ([`lib/sigra/install/features/organizations.ex:32`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L32), [`lib/sigra/install/features/organizations.ex:37`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L37)):
 ```elixir
   @behaviour Sigra.Install.Feature
 
@@ -83,7 +83,7 @@ Use this exact additive switch style for `admin: :boolean`, `admin: true`, and `
   def enabled?(opts), do: Keyword.get(opts, :organizations, true)
 ```
 
-**Files/injections/migrations split** ([`lib/sigra/install/features/organizations.ex:40`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L40), [`lib/sigra/install/features/organizations.ex:148`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L148), [`lib/sigra/install/features/organizations.ex:165`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L165)):
+**Files/injections/migrations split** ([`lib/sigra/install/features/organizations.ex:40`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L40), [`lib/sigra/install/features/organizations.ex:148`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L148), [`lib/sigra/install/features/organizations.ex:165`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L165)):
 ```elixir
   def files(binding) do
     ...
@@ -108,7 +108,7 @@ Use this exact additive switch style for `admin: :boolean`, `admin: true`, and `
   end
 ```
 
-**Template-eval injection helper** ([`lib/sigra/install/features/organizations.ex:225`](/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex#L225)):
+**Template-eval injection helper** ([`lib/sigra/install/features/organizations.ex:225`](/workspace/sigra/lib/sigra/install/features/organizations.ex#L225)):
 ```elixir
   defp router_injection(otp_app, binding) do
     content = eval_template!("organizations/router_injection.ex", binding)
@@ -130,7 +130,7 @@ Copy this module shape directly for `Features.Admin`; keep all admin-owned files
 
 **Analogs:** `priv/templates/sigra.install/organizations/router_injection.ex`, `test/example/lib/example_web/router.ex`
 
-**Router scope + pipeline pattern** ([`priv/templates/sigra.install/organizations/router_injection.ex:15`](/Users/jon/projects/sigra/priv/templates/sigra.install/organizations/router_injection.ex#L15), [`test/example/lib/example_web/router.ex:150`](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L150)):
+**Router scope + pipeline pattern** ([`priv/templates/sigra.install/organizations/router_injection.ex:15`](/workspace/sigra/priv/templates/sigra.install/organizations/router_injection.ex#L15), [`test/example/lib/example_web/router.ex:150`](/workspace/sigra/test/example/lib/example_web/router.ex#L150)):
 ```elixir
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug,
@@ -144,7 +144,7 @@ Copy this module shape directly for `Features.Admin`; keep all admin-owned files
   end
 ```
 
-**Plug/live_session parity pattern** ([`test/example/lib/example_web/router.ex:170`](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L170)):
+**Plug/live_session parity pattern** ([`test/example/lib/example_web/router.ex:170`](/workspace/sigra/test/example/lib/example_web/router.ex#L170)):
 ```elixir
     live_session :organization_scoped,
       on_mount: [
@@ -166,7 +166,7 @@ Admin routing should copy this structure exactly: one admin pipeline plus one ma
 
 **Analogs:** `priv/templates/sigra.install/core/error_handler.ex`, `lib/sigra/plug/error_handler.ex`
 
-**Small host-owned behaviour seam** ([`lib/sigra/plug/error_handler.ex:53`](/Users/jon/projects/sigra/lib/sigra/plug/error_handler.ex#L53)):
+**Small host-owned behaviour seam** ([`lib/sigra/plug/error_handler.ex:53`](/workspace/sigra/lib/sigra/plug/error_handler.ex#L53)):
 ```elixir
   @type error_type ::
           :unauthenticated
@@ -183,7 +183,7 @@ Admin routing should copy this structure exactly: one admin pipeline plus one ma
   @callback auth_error(Plug.Conn.t(), error_type(), keyword()) :: Plug.Conn.t()
 ```
 
-**Generated host boundary style** ([`priv/templates/sigra.install/core/error_handler.ex:1`](/Users/jon/projects/sigra/priv/templates/sigra.install/core/error_handler.ex#L1)):
+**Generated host boundary style** ([`priv/templates/sigra.install/core/error_handler.ex:1`](/workspace/sigra/priv/templates/sigra.install/core/error_handler.ex#L1)):
 ```elixir
 defmodule <%= web_module %>.AuthErrorHandler do
   @behaviour Sigra.Plug.ErrorHandler
@@ -200,7 +200,7 @@ Model the admin policy the same way: a tiny library behaviour plus one generated
 
 **Analog:** `lib/sigra/scope.ex`
 
-**Derived-scope constructor pattern** ([`lib/sigra/scope.ex:16`](/Users/jon/projects/sigra/lib/sigra/scope.ex#L16)):
+**Derived-scope constructor pattern** ([`lib/sigra/scope.ex:16`](/workspace/sigra/lib/sigra/scope.ex#L16)):
 ```elixir
   @spec build(scope_module :: module(), user :: struct() | map() | nil, opts :: keyword()) ::
           struct()
@@ -222,7 +222,7 @@ The admin scope module should follow the same pattern: derived from `current_sco
 
 **Analog:** `lib/sigra/plug/require_membership.ex`
 
-**Init validation pattern** ([`lib/sigra/plug/require_membership.ex:72`](/Users/jon/projects/sigra/lib/sigra/plug/require_membership.ex#L72)):
+**Init validation pattern** ([`lib/sigra/plug/require_membership.ex:72`](/workspace/sigra/lib/sigra/plug/require_membership.ex#L72)):
 ```elixir
   def init(opts) do
     error_handler = Keyword.fetch!(opts, :error_handler)
@@ -235,7 +235,7 @@ The admin scope module should follow the same pattern: derived from `current_sco
   end
 ```
 
-**Single choke-point enforcement pattern** ([`lib/sigra/plug/require_membership.ex:126`](/Users/jon/projects/sigra/lib/sigra/plug/require_membership.ex#L126)):
+**Single choke-point enforcement pattern** ([`lib/sigra/plug/require_membership.ex:126`](/workspace/sigra/lib/sigra/plug/require_membership.ex#L126)):
 ```elixir
   def call(%Plug.Conn{} = conn, opts) do
     error_handler = Keyword.fetch!(opts, :error_handler)
@@ -268,7 +268,7 @@ Reuse this shape for admin access: compute/expect a resolved admin scope and hal
 
 **Analog:** `lib/sigra/live_view/organization_scope.ex`
 
-**LiveView mount parity pattern** ([`lib/sigra/live_view/organization_scope.ex:40`](/Users/jon/projects/sigra/lib/sigra/live_view/organization_scope.ex#L40)):
+**LiveView mount parity pattern** ([`lib/sigra/live_view/organization_scope.ex:40`](/workspace/sigra/lib/sigra/live_view/organization_scope.ex#L40)):
 ```elixir
   def on_mount(opts, params, _session, socket) when is_list(opts) do
     organizations = Keyword.fetch!(opts, :organizations)
@@ -289,7 +289,7 @@ Reuse this shape for admin access: compute/expect a resolved admin scope and hal
   end
 ```
 
-**Denied/not-found signalling pattern** ([`lib/sigra/live_view/organization_scope.ex:63`](/Users/jon/projects/sigra/lib/sigra/live_view/organization_scope.ex#L63)):
+**Denied/not-found signalling pattern** ([`lib/sigra/live_view/organization_scope.ex:63`](/workspace/sigra/lib/sigra/live_view/organization_scope.ex#L63)):
 ```elixir
           :not_found ->
             {:halt, put_in(socket.assigns[:sigra_not_found], true)}
@@ -303,7 +303,7 @@ Admin `on_mount` should mirror the admin plug and return data-only halt signals 
 
 **Analogs:** `test/example/lib/example_web/components/org_switcher.ex`, `test/example/lib/example_web/components/layouts.ex`, `test/example/lib/example_web/components/core_components.ex`
 
-**Generated host component style** ([`test/example/lib/example_web/components/org_switcher.ex:20`](/Users/jon/projects/sigra/test/example/lib/example_web/components/org_switcher.ex#L20)):
+**Generated host component style** ([`test/example/lib/example_web/components/org_switcher.ex:20`](/workspace/sigra/test/example/lib/example_web/components/org_switcher.ex#L20)):
 ```elixir
   use ExampleWeb, :html
 
@@ -314,7 +314,7 @@ Admin `on_mount` should mirror the admin plug and return data-only halt signals 
   attr :return_to, :string, default: "/"
 ```
 
-**Layout hook pattern** ([`test/example/lib/example_web/components/layouts.ex:43`](/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex#L43)):
+**Layout hook pattern** ([`test/example/lib/example_web/components/layouts.ex:43`](/workspace/sigra/test/example/lib/example_web/components/layouts.ex#L43)):
 ```elixir
   def app(assigns) do
     ~H"""
@@ -329,7 +329,7 @@ Admin `on_mount` should mirror the admin plug and return data-only halt signals 
         />
 ```
 
-**HEEx + Heroicons primitive pattern** ([`test/example/lib/example_web/components/org_switcher.ex:28`](/Users/jon/projects/sigra/test/example/lib/example_web/components/org_switcher.ex#L28), [`test/example/lib/example_web/components/core_components.ex:94`](/Users/jon/projects/sigra/test/example/lib/example_web/components/core_components.ex#L94)):
+**HEEx + Heroicons primitive pattern** ([`test/example/lib/example_web/components/org_switcher.ex:28`](/workspace/sigra/test/example/lib/example_web/components/org_switcher.ex#L28), [`test/example/lib/example_web/components/core_components.ex:94`](/workspace/sigra/test/example/lib/example_web/components/core_components.ex#L94)):
 ```elixir
   def org_switcher(assigns) do
     ~H"""
@@ -347,27 +347,27 @@ Create the admin shell as a dedicated generated component and import it from `la
 **`test/sigra/install/features/admin_test.exs`**  
 Analog: `test/sigra/install/features/organizations_test.exs`
 
-Copy the test structure around template existence, `enabled?/1`, `files/1`, and migration registration from [`test/sigra/install/features/organizations_test.exs:13`](/Users/jon/projects/sigra/test/sigra/install/features/organizations_test.exs#L13) and [`test/sigra/install/features/organizations_test.exs:39`](/Users/jon/projects/sigra/test/sigra/install/features/organizations_test.exs#L39).
+Copy the test structure around template existence, `enabled?/1`, `files/1`, and migration registration from [`test/sigra/install/features/organizations_test.exs:13`](/workspace/sigra/test/sigra/install/features/organizations_test.exs#L13) and [`test/sigra/install/features/organizations_test.exs:39`](/workspace/sigra/test/sigra/install/features/organizations_test.exs#L39).
 
 **`test/sigra/plug/require_admin_access_test.exs`**  
 Analog: `test/sigra/plug/require_membership_test.exs`
 
-Copy the self-contained inline test structs, fake error handler, and `init/1` + `call/2` coverage shape from [`test/sigra/plug/require_membership_test.exs:7`](/Users/jon/projects/sigra/test/sigra/plug/require_membership_test.exs#L7) and [`test/sigra/plug/require_membership_test.exs:85`](/Users/jon/projects/sigra/test/sigra/plug/require_membership_test.exs#L85).
+Copy the self-contained inline test structs, fake error handler, and `init/1` + `call/2` coverage shape from [`test/sigra/plug/require_membership_test.exs:7`](/workspace/sigra/test/sigra/plug/require_membership_test.exs#L7) and [`test/sigra/plug/require_membership_test.exs:85`](/workspace/sigra/test/sigra/plug/require_membership_test.exs#L85).
 
 **`test/sigra/live_view/admin_scope_test.exs`**  
 Analog: `test/sigra/live_view/organization_scope_test.exs`
 
-Copy the fake socket approach, inline schemas, and halt-flag assertions from [`test/sigra/live_view/organization_scope_test.exs:97`](/Users/jon/projects/sigra/test/sigra/live_view/organization_scope_test.exs#L97) and [`test/sigra/live_view/organization_scope_test.exs:103`](/Users/jon/projects/sigra/test/sigra/live_view/organization_scope_test.exs#L103).
+Copy the fake socket approach, inline schemas, and halt-flag assertions from [`test/sigra/live_view/organization_scope_test.exs:97`](/workspace/sigra/test/sigra/live_view/organization_scope_test.exs#L97) and [`test/sigra/live_view/organization_scope_test.exs:103`](/workspace/sigra/test/sigra/live_view/organization_scope_test.exs#L103).
 
 **`test/example/test/example_web/integration/phase_27_integration_test.exs`**  
 Analog: `test/example/test/example_web/integration/phase_16_integration_test.exs`
 
-Copy the phase-level integration style from [`test/example/test/example_web/integration/phase_16_integration_test.exs:1`](/Users/jon/projects/sigra/test/example/test/example_web/integration/phase_16_integration_test.exs#L1): one requirement per test, direct file assertions for generated host seams, and end-to-end GET/POST route checks through the example app.
+Copy the phase-level integration style from [`test/example/test/example_web/integration/phase_16_integration_test.exs:1`](/workspace/sigra/test/example/test/example_web/integration/phase_16_integration_test.exs#L1): one requirement per test, direct file assertions for generated host seams, and end-to-end GET/POST route checks through the example app.
 
 ## Shared Patterns
 
 ### Additive Installer Features
-**Sources:** [`lib/sigra/install/feature.ex:28`](/Users/jon/projects/sigra/lib/sigra/install/feature.ex#L28), [`lib/sigra/install/runner.ex:52`](/Users/jon/projects/sigra/lib/sigra/install/runner.ex#L52)
+**Sources:** [`lib/sigra/install/feature.ex:28`](/workspace/sigra/lib/sigra/install/feature.ex#L28), [`lib/sigra/install/runner.ex:52`](/workspace/sigra/lib/sigra/install/runner.ex#L52)
 **Apply to:** `lib/sigra/install/features/admin.ex`, `lib/mix/tasks/sigra.install.ex`
 ```elixir
   @callback enabled?(opts :: keyword()) :: boolean()
@@ -383,7 +383,7 @@ Copy the phase-level integration style from [`test/example/test/example_web/inte
 ```
 
 ### URL-Owned Scope Resolution
-**Sources:** [`lib/sigra/plug/load_organization_from_slug.ex:47`](/Users/jon/projects/sigra/lib/sigra/plug/load_organization_from_slug.ex#L47), [`lib/sigra/live_view/organization_scope.ex:56`](/Users/jon/projects/sigra/lib/sigra/live_view/organization_scope.ex#L56)
+**Sources:** [`lib/sigra/plug/load_organization_from_slug.ex:47`](/workspace/sigra/lib/sigra/plug/load_organization_from_slug.ex#L47), [`lib/sigra/live_view/organization_scope.ex:56`](/workspace/sigra/lib/sigra/live_view/organization_scope.ex#L56)
 **Apply to:** `lib/sigra/plug/require_admin_access.ex`, `lib/sigra/live_view/admin_scope.ex`, admin router injection
 ```elixir
     scope = conn.assigns[:current_scope]
@@ -396,7 +396,7 @@ Copy the phase-level integration style from [`test/example/test/example_web/inte
 ```
 
 ### Plug + LiveView Parity
-**Sources:** [`test/example/lib/example_web/router.ex:151`](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L151), [`test/example/lib/example_web/user_auth.ex:254`](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L254)
+**Sources:** [`test/example/lib/example_web/router.ex:151`](/workspace/sigra/test/example/lib/example_web/router.ex#L151), [`test/example/lib/example_web/user_auth.ex:254`](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L254)
 **Apply to:** admin router scope, admin `on_mount`, admin shell wiring
 ```elixir
   pipeline :org_scoped do
@@ -413,7 +413,7 @@ Copy the phase-level integration style from [`test/example/test/example_web/inte
 ```
 
 ### Structural Org Scoping
-**Source:** [`lib/sigra/organizations/query.ex:27`](/Users/jon/projects/sigra/lib/sigra/organizations/query.ex#L27)
+**Source:** [`lib/sigra/organizations/query.ex:27`](/workspace/sigra/lib/sigra/organizations/query.ex#L27)
 **Apply to:** admin query/export/mutation layers when org-admin scope is active
 ```elixir
   def for_org(queryable, %{active_organization: %{id: org_id}}) when is_binary(org_id) do
@@ -427,7 +427,7 @@ Copy the phase-level integration style from [`test/example/test/example_web/inte
 ```
 
 ### Host-Owned Thin Wrappers
-**Source:** [`test/example/lib/example/organizations.ex:27`](/Users/jon/projects/sigra/test/example/lib/example/organizations.ex#L27)
+**Source:** [`test/example/lib/example/organizations.ex:27`](/workspace/sigra/test/example/lib/example/organizations.ex#L27)
 **Apply to:** generated admin policy module and any host-level admin chrome hook
 ```elixir
   use Sigra.Organizations,

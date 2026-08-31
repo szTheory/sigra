@@ -553,6 +553,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   configuration to Sigra library functions.
   """
   def sigra_config do
+    runtime_config = Application.get_env(:sigra_install_golden_tmp, :sigra_config, [])
+    legacy_config = Application.get_env(:sigra_install_golden_tmp, :sigra, [])
+
     Sigra.Config.new!(
       repo: SigraInstallGoldenTmp.Repo,
       user_schema: User,
@@ -571,6 +574,16 @@ defmodule SigraInstallGoldenTmp.Accounts do
         threshold: 5,
         duration: 900
       ],
+      mfa: Keyword.get(runtime_config, :mfa, Keyword.get(legacy_config, :mfa, [])),
+      passkeys:
+        Keyword.get(runtime_config, :passkeys, Keyword.get(legacy_config, :passkeys, [])),
+      enterprise:
+        Keyword.get(
+          runtime_config,
+          :enterprise,
+          Keyword.get(legacy_config, :enterprise, [])
+        ),
+      oauth: Keyword.get(runtime_config, :oauth, Keyword.get(legacy_config, :oauth, [])),
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc.
@@ -663,6 +676,25 @@ defmodule SigraInstallGoldenTmp.Accounts do
   alias SigraInstallGoldenTmp.Accounts.UserPasskey
 
 
+  @doc "Returns whether the generated MFA surface is available."
+  def mfa_capability_enabled? do
+    Sigra.Config.mfa_enabled?(sigra_config())
+  end
+
+  @doc "Returns whether the generated passkey surface is available."
+  def passkeys_enabled? do
+
+    Sigra.Config.passkeys_enabled?(sigra_config())
+
+  end
+
+  @doc "Returns whether generated enterprise/work-email discovery is available."
+  def enterprise_sign_in_enabled? do
+
+    Sigra.Config.enterprise_enabled?(sigra_config())
+
+  end
+
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
     Sigra.MFA.enroll(sigra_config(), opts)
@@ -720,7 +752,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
-    Sigra.MFA.enabled?(sigra_config(), user)
+    mfa_capability_enabled?() and Sigra.MFA.enabled?(sigra_config(), user)
   end
 
   @doc "Upgrade an MFA-pending Sigra session after second-factor verification."
@@ -730,10 +762,14 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
-    Sigra.MFA.status(sigra_config(), user,
-      mfa_credential_schema: SigraInstallGoldenTmp.Accounts.UserMFACredential,
-      backup_code_schema: SigraInstallGoldenTmp.Accounts.UserBackupCode
-    )
+    if mfa_capability_enabled?() do
+      Sigra.MFA.status(sigra_config(), user,
+        mfa_credential_schema: SigraInstallGoldenTmp.Accounts.UserMFACredential,
+        backup_code_schema: SigraInstallGoldenTmp.Accounts.UserBackupCode
+      )
+    else
+      %{enabled: false, backup_codes_remaining: 0}
+    end
   end
 
 
@@ -741,12 +777,16 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "List passkeys for a user."
   def passkeys_for_user(user) do
-    Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+    if passkeys_enabled?(),
+      do: Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey),
+      else: []
   end
 
   @doc "Count passkeys for a user."
   def passkey_count_for_user(user) do
-    Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+    if passkeys_enabled?(),
+      do: Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey),
+      else: 0
   end
 
   @doc "Return the user-facing label for a passkey."
@@ -826,13 +866,14 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Returns true when passkey-primary login is enabled."
   def passkey_primary_enabled?() do
-    case Application.fetch_env(:sigra_install_golden_tmp, :passkey_primary_enabled) do
-      {:ok, bool} when is_boolean(bool) ->
-        bool
+    passkeys_enabled?() and
+      case Application.fetch_env(:sigra_install_golden_tmp, :passkey_primary_enabled) do
+        {:ok, bool} when is_boolean(bool) ->
+          bool
 
-      _ ->
-        Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
-    end
+        _ ->
+          Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+      end
   end
 
   @doc "Returns true when a user may use passkey-primary login."

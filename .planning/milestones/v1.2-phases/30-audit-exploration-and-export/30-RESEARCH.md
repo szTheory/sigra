@@ -291,7 +291,7 @@ end
 
 ### Reusing Existing Keyset Pagination
 ```elixir
-# Source: /Users/jon/projects/sigra/lib/sigra/audit/query.ex
+# Source: /workspace/sigra/lib/sigra/audit/query.ex
 query
 |> Sigra.Audit.Query.build(filters)
 |> Sigra.Audit.Query.paginate(cursor, limit)
@@ -299,7 +299,7 @@ query
 
 ### Canonical Dual-Actor Extraction
 ```elixir
-# Source: /Users/jon/projects/sigra/lib/sigra/audit.ex
+# Source: /workspace/sigra/lib/sigra/audit.ex
 [
   organization_id: org && org.id,
   effective_user_id: user && user.id,

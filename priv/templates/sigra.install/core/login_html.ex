@@ -74,7 +74,7 @@ defmodule <%= web_module %>.SessionHTML do
             <div class="sigra-auth-divider">{dgettext("sigra", "or use a password")}</div>
             <%%= password_form(assigns) %>
 
-            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <div :if={@enterprise_sign_in_enabled} class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
             <%%= enterprise_form(assigns) %>
           </div>
         </details>
@@ -93,7 +93,7 @@ defmodule <%= web_module %>.SessionHTML do
           <summary>{dgettext("sigra", "Other ways to sign in")}</summary>
           <div class="sigra-auth-stack sigra-auth-stack--6">
             <%%= password_form(assigns) %>
-            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <div :if={@enterprise_sign_in_enabled} class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
             <%%= enterprise_form(assigns) %>
           </div>
         </details>
@@ -125,7 +125,7 @@ defmodule <%= web_module %>.SessionHTML do
 
   defp enterprise_form(assigns) do
     ~H"""
-    <section class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
+    <section :if={@enterprise_sign_in_enabled} class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
       <div class="sigra-auth-stack sigra-auth-stack--2">
         <h2 id="enterprise-sign-in-title">{dgettext("sigra", "Work sign-in")}</h2>
         <p>{dgettext("sigra", "Enter your work email. We'll continue to your organization's sign-in page when there is an exact active match.")}</p>

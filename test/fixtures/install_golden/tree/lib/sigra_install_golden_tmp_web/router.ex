@@ -56,6 +56,18 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     plug Sigra.Plug.RequireSudo, error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
   end
 
+  pipeline :require_mfa_capability do
+    plug :ensure_mfa_capability
+  end
+
+  pipeline :require_passkeys_capability do
+    plug :ensure_passkeys_capability
+  end
+
+  pipeline :require_auth_settings_capability do
+    plug :ensure_auth_settings_capability
+  end
+
   # Phase 14 Plan 03: organization-aware pipelines (opt-in).
   # Apps that want to gate routes by active organization membership
   # pipe_through :require_org (any active membership) or
@@ -73,7 +85,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", SigraInstallGoldenTmpWeb do
-    pipe_through [:browser]
+    pipe_through [:browser, :require_mfa_capability]
 
     live "/mfa", MFAChallengeLive
 
@@ -115,7 +127,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   end
 
   scope "/users", SigraInstallGoldenTmpWeb do
-    pipe_through [:browser, :require_authenticated, :require_sudo]
+    pipe_through [:browser, :require_auth_settings_capability, :require_authenticated, :require_sudo]
 
     live "/settings/mfa", MFASettingsLive
 
@@ -193,21 +205,21 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
 # Sigra passkeys
 scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser]
+  pipe_through [:browser, :require_mfa_capability, :require_passkeys_capability]
 
   post "/mfa/passkey", SessionController, :complete_mfa_passkey
   post "/mfa/passkey/options", SessionController, :passkey_mfa_options
 end
 
 scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser, :redirect_if_user_is_authenticated]
+  pipe_through [:browser, :require_passkeys_capability, :redirect_if_user_is_authenticated]
 
   post "/log_in/passkey", SessionController, :complete_passkey
   post "/log_in/passkey/options", SessionController, :passkey_authentication_options
 end
 
 scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser, :require_authenticated, :require_sudo]
+  pipe_through [:browser, :require_passkeys_capability, :require_authenticated, :require_sudo]
 
   post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
   post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration

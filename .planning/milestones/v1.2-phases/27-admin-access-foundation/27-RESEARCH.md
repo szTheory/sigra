@@ -330,7 +330,7 @@ end
 | Property | Value |
 |----------|-------|
 | Framework | ExUnit for library and example-app tests; Phoenix.ConnTest and selective Phoenix.LiveViewTest in the example app. [VERIFIED: codebase grep] |
-| Config file | [`/Users/jon/projects/sigra/test/test_helper.exs`](/Users/jon/projects/sigra/test/test_helper.exs), [`/Users/jon/projects/sigra/test/example/test/test_helper.exs`](/Users/jon/projects/sigra/test/example/test/test_helper.exs), [`/Users/jon/projects/sigra/test/example/config/test.exs`](/Users/jon/projects/sigra/test/example/config/test.exs) [VERIFIED: codebase grep] |
+| Config file | [`/workspace/sigra/test/test_helper.exs`](/workspace/sigra/test/test_helper.exs), [`/workspace/sigra/test/example/test/test_helper.exs`](/workspace/sigra/test/example/test/test_helper.exs), [`/workspace/sigra/test/example/config/test.exs`](/workspace/sigra/test/example/config/test.exs) [VERIFIED: codebase grep] |
 | Quick run command | `mix test test/sigra/plug/require_membership_test.exs test/sigra/live_view/organization_scope_test.exs` adapted with new admin equivalents. [VERIFIED: codebase grep] |
 | Full suite command | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test` plus example-app targeted tests under `test/example`. [VERIFIED: CLAUDE.md][VERIFIED: codebase grep] |
 
