@@ -464,6 +464,18 @@ defmodule Sigra.Install.Features.Core do
         plug Sigra.Plug.RequireSudo, error_handler: #{web_module}.AuthErrorHandler
       end
 
+      pipeline :require_mfa_capability do
+        plug :ensure_mfa_capability
+      end
+
+      pipeline :require_passkeys_capability do
+        plug :ensure_passkeys_capability
+      end
+
+      pipeline :require_auth_settings_capability do
+        plug :ensure_auth_settings_capability
+      end
+
       # Phase 14 Plan 03: organization-aware pipelines (opt-in).
       # Apps that want to gate routes by active organization membership
       # pipe_through :require_org (any active membership) or
@@ -481,7 +493,7 @@ defmodule Sigra.Install.Features.Core do
 
       # MFA challenge (accessible with mfa_pending sessions, D-24)
       scope "/users", #{web_module} do
-        pipe_through [:browser]
+        pipe_through [:browser, :require_mfa_capability]
     #{mfa_challenge_routes}
       end
 
@@ -505,7 +517,7 @@ defmodule Sigra.Install.Features.Core do
       end
 
       scope "/users", #{web_module} do
-        pipe_through [:browser, :require_authenticated, :require_sudo]
+        pipe_through [:browser, :require_auth_settings_capability, :require_authenticated, :require_sudo]
     #{mfa_settings_routes}
       end
     """
@@ -560,7 +572,9 @@ defmodule Sigra.Install.Features.Core do
       ],
       audit: [
         audit_schema: #{context_module}.AuditEvent
-      ]
+      ],
+      mfa: [enabled: true],
+      enterprise: [enabled: true]
 
     # Sigra worker runtime config (used by Oban workers)
     config :sigra,

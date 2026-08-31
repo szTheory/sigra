@@ -19,7 +19,19 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
-_Nothing yet._
+### Added
+
+- Generated hosts now support independent, default-on `mfa.enabled`, `passkeys.enabled`, and `enterprise.enabled` capability switches. Enterprise/work-email discovery no longer uses organization support itself as the product switch, and OAuth configuration remains independent.
+- Fresh generated-host integration coverage proves that a consumer-only login omits enterprise, passkey, and MFA affordances while disabled generated endpoints return 404.
+
+### Changed
+
+- Generated MFA, passkey, settings, and enterprise-discovery endpoints now fail closed when their capability is disabled. Generated login and account-security LiveViews derive their visible controls from the same runtime configuration.
+- Refreshed compatible Phoenix, LiveView, Plug, Ecto/Postgrex, and Swoosh lock versions for the release verification lane.
+
+### Upgrade notes
+
+- Generated host files remain host-owned and are not overwritten. Existing apps can adopt the new runtime config reads, router pipelines, controller checks, and conditional assigns described in [Upgrading generated hosts for v1.5 auth capability gates](guides/introduction/upgrading-to-v1.5.md). There is no database migration for these switches.
 
 ## [1.4.0](https://github.com/szTheory/sigra/compare/v1.3.0...v1.4.0) (2026-07-28)
 

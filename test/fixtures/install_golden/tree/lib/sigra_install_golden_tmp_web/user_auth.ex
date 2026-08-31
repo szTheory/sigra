@@ -386,6 +386,28 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
     end
   end
 
+  @doc "Fails closed when the generated MFA capability is disabled."
+  def ensure_mfa_capability(conn, _opts) do
+    if SigraInstallGoldenTmp.Accounts.mfa_capability_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
+  @doc "Fails closed when the generated passkey capability is disabled."
+  def ensure_passkeys_capability(conn, _opts) do
+    if SigraInstallGoldenTmp.Accounts.passkeys_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
+  @doc "Fails closed when every generated account-security capability is disabled."
+  def ensure_auth_settings_capability(conn, _opts) do
+    if SigraInstallGoldenTmp.Accounts.mfa_capability_enabled?() or
+         SigraInstallGoldenTmp.Accounts.passkeys_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
   @doc """
   Used for routes that require the user to be authenticated.
 
@@ -562,6 +584,12 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   # Exact request-path match so a redirect target inside the same pipeline
   # (settings, reactivation) and log out can't trap the user in a redirect loop.
   defp exempt_path?(conn, paths), do: conn.request_path in paths
+
+  defp capability_not_found(conn) do
+    conn
+    |> send_resp(:not_found, "Not Found")
+    |> halt()
+  end
 
   defp signed_in_path(_conn), do: ~p"/"
 end
