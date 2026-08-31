@@ -83,7 +83,7 @@ shipped-but-optional `admin_hooks.js` install template.
 <context>
 @.planning/STATE.md
 @./CLAUDE.md
-@/Users/jon/.claude/plans/summary-this-session-reshaped-fancy-curry.md
+@/Users/developer/.claude/plans/summary-this-session-reshaped-fancy-curry.md
 
 <interfaces>
 <!-- Ground truth extracted from the codebase — executor should NOT re-explore. -->

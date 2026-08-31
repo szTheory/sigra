@@ -1,7 +1,7 @@
 ---
 phase: 235
 fixed_at: 2026-08-03T14:20:00Z
-review_path: /Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
+review_path: /workspace/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
 iteration: 3
 findings_in_scope: 2
 fixed: 2
@@ -12,7 +12,7 @@ status: all_fixed
 # Phase 235: Code Review Fix Report
 
 **Fixed at:** 2026-08-03T14:20:00Z
-**Source review:** `/Users/jon/projects/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
+**Source review:** `/workspace/sigra/.planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md`
 **Iteration:** 3
 
 **Summary:**

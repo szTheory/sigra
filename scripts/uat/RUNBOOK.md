@@ -178,7 +178,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 
 1. In a temp directory: `mix phx.new test_oauth_app --no-tailwind --no-esbuild --binary-id`
 2. `cd test_oauth_app`
-3. Add to `mix.exs` deps: `{:sigra, path: "/Users/jon/projects/sigra"}`
+3. Add to `mix.exs` deps: `{:sigra, path: "/workspace/sigra"}`
 4. `mix deps.get`
 5. `mix sigra.install`
 6. `mix sigra.gen.oauth google github`
@@ -526,7 +526,7 @@ PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> mix test --include integration
 **Steps:**
 
 ```bash
-cd /Users/jon/projects/sigra   # repo root, NOT test/example
+cd /workspace/sigra   # repo root, NOT test/example
 mix docs
 open doc/index.html            # macOS; xdg-open on Linux
 ```
@@ -659,7 +659,7 @@ Total checked: \_\_\_ / 19
 If all 19 are `[x]` and the test suite still passes:
 
 ```bash
-cd /Users/jon/projects/sigra
+cd /workspace/sigra
 mix test                      # confirm 1249 tests still green
 scripts/uat/down.sh           # tear down (or --purge to wipe DB volume)
 ```

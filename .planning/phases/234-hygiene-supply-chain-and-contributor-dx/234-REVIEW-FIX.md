@@ -1,7 +1,7 @@
 ---
 phase: 234
 fixed_at: 2026-08-02T16:10:44Z
-review_path: /Users/jon/projects/sigra/.planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-REVIEW.md
+review_path: /workspace/sigra/.planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-REVIEW.md
 iteration: 1
 findings_in_scope: 3
 fixed: 3
@@ -12,7 +12,7 @@ status: all_fixed
 # Phase 234: Code Review Fix Report
 
 **Fixed at:** 2026-08-02T16:10:44Z
-**Source review:** `/Users/jon/projects/sigra/.planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-REVIEW.md`
+**Source review:** `/workspace/sigra/.planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-REVIEW.md`
 **Iteration:** 1
 
 **Summary:**

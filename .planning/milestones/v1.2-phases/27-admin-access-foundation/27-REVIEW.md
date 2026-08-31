@@ -51,7 +51,7 @@ Re-reviewed the Phase 27 source set after the repair, focusing on the prior find
 
 The previous issues are resolved in the current code:
 - The generated router fragment now installs both `Sigra.Plug.RequireAdminAccess` and `Sigra.LiveView.AdminScope` with the host policy seam.
-- `phoenix_live_view` is now a required dependency in [mix.exs](/Users/jon/projects/sigra/mix.exs#L75).
+- `phoenix_live_view` is now a required dependency in [mix.exs](/workspace/sigra/mix.exs#L75).
 
 All reviewed Phase 27 files meet the current correctness, security, and maintainability bar for this scope. No new Phase 27 issues were found.
 

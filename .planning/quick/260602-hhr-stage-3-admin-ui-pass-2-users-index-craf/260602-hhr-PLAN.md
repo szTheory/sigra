@@ -134,7 +134,7 @@ Three changes inside the existing `render/1` template plus small private helpers
 Add the new private helpers near the other param helpers: `any_filter_active?/1`, `applied_chips/1`, `chip_label/2` (or inline label map), `showing_range/2`. Reuse `present_param?`, `param_true?`, `index_path`, `append_query`, `@quick_filter_keys`, `@more_filter_keys` — do not duplicate their logic. Do not remove any existing helper that is still referenced. If you introduce a label map for humanizing keys, keep it as a module attribute or a small function clause set (no fenced code in this action — express as prose: a function with clauses mapping "mfa"→"MFA", "registered_from"→"Registered from", "registered_to"→"Registered to", "organization"→"Organization", "provider"→"Provider", and a fallback that capitalizes the word).
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | grep -v '^Compiling\|^Generated' | grep -ci warning | grep -qx 0 && echo "compile clean"</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | grep -v '^Compiling\|^Generated' | grep -ci warning | grep -qx 0 && echo "compile clean"</automated>
   </verify>
   <done>
 Template renders a "Showing X–Y of Z users" readout in place of "Page {n}"; an applied-filter
@@ -163,7 +163,7 @@ Two markup refinements (CSS classes land in Task 3).
 Keep desktop column order untouched (User, Status, Organizations, Activity, Action) — do not reorder.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | grep -v '^Compiling\|^Generated' | grep -ci warning | grep -qx 0 && echo "compile clean"</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | grep -v '^Compiling\|^Generated' | grep -ci warning | grep -qx 0 && echo "compile clean"</automated>
   </verify>
   <done>
 Desktop email + org summary cells ellipsize with a full-value title= tooltip; the mobile card
@@ -206,7 +206,7 @@ Keep additions inside the cascade layer; do not touch tokens or existing rules. 
 run the full verification below.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && grep -c '!important' test/example/priv/static/assets/css/app.css >/tmp/imp_before 2>/dev/null; grep -Eq 'sg-applied-chip|sg-truncate|sg-tabular' test/example/priv/static/assets/css/app.css && echo "css utilities present"</automated>
+    <automated>cd /workspace/sigra && grep -c '!important' test/example/priv/static/assets/css/app.css >/tmp/imp_before 2>/dev/null; grep -Eq 'sg-applied-chip|sg-truncate|sg-tabular' test/example/priv/static/assets/css/app.css && echo "css utilities present"</automated>
   </verify>
   <done>
 app.css contains token-driven `.sg-applied-chip` (+ `__remove`), `.sg-truncate`, and `.sg-tabular`
@@ -220,10 +220,10 @@ inside `@layer sg-components`, no new `!important`. Final gate (Task verificatio
 Run after all three tasks (from repo root, live Postgres on 5432 per CLAUDE.md):
 
 1. Compile clean (no warnings):
-   `cd /Users/jon/projects/sigra && mix compile --warnings-as-errors`
+   `cd /workspace/sigra && mix compile --warnings-as-errors`
 
 2. The two pinned test contracts pass UNCHANGED (run from test/example):
-   `cd /Users/jon/projects/sigra/test/example && mix test test/example_web/live/admin_user_index_live_test.exs test/example_web/live/admin_user_filters_live_test.exs`
+   `cd /workspace/sigra/test/example && mix test test/example_web/live/admin_user_index_live_test.exs test/example_web/live/admin_user_filters_live_test.exs`
    Both must be fully green — they pin: container ids/testids (desktop+mobile), "Search",
    "More filters", filter name=s, empty-state title "No users match this view", "Open user",
    and the ?return_to= URL.

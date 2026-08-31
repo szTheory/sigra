@@ -111,7 +111,7 @@ Because the branch is **already terminal-idempotent** (canary `--base HEAD` = 0 
 
 ```bash
 # 0. Live PG + alt port; pre-compile (avoids first-request reload crash)
-cd /Users/jon/projects/sigra
+cd /workspace/sigra
 source tmp/db.env 2>/dev/null || true          # or rely on localhost:5432 fallback
 MIX_ENV=dev mix compile
 PORT=4011 PHX_SERVER=true MIX_ENV=dev mix phx.server >/tmp/example-4011.log 2>&1 &

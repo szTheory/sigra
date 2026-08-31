@@ -307,7 +307,7 @@ console.log('\nTest 6: copy swap — text not matching any deterministic rule is
 console.log('\nTest 7: scope — CSS files are refused');
 
 {
-  const check = checkApplySurface('/Users/jon/projects/sigra/priv/static/css/sigra_admin.css');
+  const check = checkApplySurface('/workspace/sigra/priv/static/css/sigra_admin.css');
   assert(!check.allowed, '7a: CSS file not in apply surface');
   assert(typeof check.reason === 'string' && check.reason.length > 0, '7b: refusal has a reason');
 }
@@ -403,25 +403,25 @@ console.log('\nSurface pattern tests');
 
 // Admin LiveView .heex — ALLOWED
 {
-  const check = checkApplySurface('/Users/jon/projects/sigra/lib/sigra_web/live/admin/users_live.heex');
+  const check = checkApplySurface('/workspace/sigra/lib/sigra_web/live/admin/users_live.heex');
   assert(check.allowed, 'surface-a: admin LiveView .heex is allowed');
 }
 
 // Example .ex — ALLOWED
 {
-  const check = checkApplySurface('/Users/jon/projects/sigra/test/example/lib/example_web/live/admin/design_gallery_live.ex');
+  const check = checkApplySurface('/workspace/sigra/test/example/lib/example_web/live/admin/design_gallery_live.ex');
   assert(check.allowed, 'surface-b: test/example admin .ex is allowed');
 }
 
 // Non-admin .heex — NOT ALLOWED
 {
-  const check = checkApplySurface('/Users/jon/projects/sigra/lib/sigra_web/live/auth/login_live.heex');
+  const check = checkApplySurface('/workspace/sigra/lib/sigra_web/live/auth/login_live.heex');
   assert(!check.allowed, 'surface-c: non-admin LiveView .heex is not allowed');
 }
 
 // Sigra library source — NOT ALLOWED
 {
-  const check = checkApplySurface('/Users/jon/projects/sigra/lib/sigra/auth.ex');
+  const check = checkApplySurface('/workspace/sigra/lib/sigra/auth.ex');
   assert(!check.allowed, 'surface-d: library source is not allowed');
 }
 
