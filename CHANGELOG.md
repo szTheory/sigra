@@ -33,6 +33,35 @@ packaged into the Hex tarball, so the mistake is permanent for that release.
 
 - Generated host files remain host-owned and are not overwritten. Existing apps can adopt the new runtime config reads, router pipelines, controller checks, and conditional assigns described in [Upgrading generated hosts for v1.5 auth capability gates](guides/introduction/upgrading-to-v1.5.md). There is no database migration for these switches.
 
+## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
+
+
+### Features
+
+* **235-11:** run scaffold tests exactly once ([54c33e9](https://github.com/szTheory/sigra/commit/54c33e904155a454255952666711c882afdd06e4))
+* **auth:** add generated capability gates ([#222](https://github.com/szTheory/sigra/issues/222)) ([59e6809](https://github.com/szTheory/sigra/commit/59e68096a943f20644c26c39d70dfc1b20bdc32a))
+
+
+### Bug Fixes
+
+* **230:** ci-observe render step feeds raw run payload to --from-json ([#121](https://github.com/szTheory/sigra/issues/121)) ([20e4fe3](https://github.com/szTheory/sigra/commit/20e4fe3b9349d2da160d3c01fc580af7d1128317))
+* **230:** feed the raw run payload to --from-json, not the observer's output ([20e4fe3](https://github.com/szTheory/sigra/commit/20e4fe3b9349d2da160d3c01fc580af7d1128317))
+* **235-08:** retain complete workflow event receipts\n\n- Accept the exact ci.yml workflow_dispatch trigger alongside measured events\n- Keep manual evidence runs out of measured job receipt IDs\n ([4835c4c](https://github.com/szTheory/sigra/commit/4835c4c5dbe178dfce500a7c70768b64091f3c45))
+* **235-08:** retain skipped job source receipts ([b0c3d22](https://github.com/szTheory/sigra/commit/b0c3d22d3e594e4ea3b68de4c6edb585d06f4508))
+* **235-10:** fetch FAST cutoff history ([c2304ab](https://github.com/szTheory/sigra/commit/c2304abf590071580a370ffe0a8193092e1d6f4f))
+* **235-10:** preserve FAST readiness portability ([8525c1f](https://github.com/szTheory/sigra/commit/8525c1f2fb755684668e0c67a8aed56193741e3d))
+* **235-10:** validate FAST readiness PR population ([e36751e](https://github.com/szTheory/sigra/commit/e36751e1f7d1efa57941892fe9ddbc27702ef7dc))
+* **235-13:** accept terminal runs completed after endpoint ([#200](https://github.com/szTheory/sigra/issues/200)) ([6e1c20d](https://github.com/szTheory/sigra/commit/6e1c20d8da26213edfd0fc15f99c7205ccdc39e6))
+* **235-13:** exclude nonterminal FAST runs ([#201](https://github.com/szTheory/sigra/issues/201)) ([9b8a034](https://github.com/szTheory/sigra/commit/9b8a0344708fb829583e430b7ccd8b9359613de7))
+* **235-13:** fetch FAST evidence cutoff history ([#198](https://github.com/szTheory/sigra/issues/198)) ([eb12c6d](https://github.com/szTheory/sigra/commit/eb12c6dc0cc97111ada86da04ec2e1826d2accb6))
+* **235-13:** fetch remediation cutoff history for evidence ([eb12c6d](https://github.com/szTheory/sigra/commit/eb12c6dc0cc97111ada86da04ec2e1826d2accb6))
+* **ci:** retain skipped job source receipts ([#188](https://github.com/szTheory/sigra/issues/188)) ([b0c3d22](https://github.com/szTheory/sigra/commit/b0c3d22d3e594e4ea3b68de4c6edb585d06f4508))
+* **ci:** retain terminal manual workflow receipt ([#187](https://github.com/szTheory/sigra/issues/187)) ([4835c4c](https://github.com/szTheory/sigra/commit/4835c4c5dbe178dfce500a7c70768b64091f3c45))
+* **ci:** stream terminal job receipt assembly ([#189](https://github.com/szTheory/sigra/issues/189)) ([83ef9f5](https://github.com/szTheory/sigra/commit/83ef9f5d7b00a99aa945cf9839c056283c3e6c65))
+* fetch FAST measurement cutoff history ([#194](https://github.com/szTheory/sigra/issues/194)) ([c2304ab](https://github.com/szTheory/sigra/commit/c2304abf590071580a370ffe0a8193092e1d6f4f))
+* make FAST readiness cutoff portable ([#193](https://github.com/szTheory/sigra/issues/193)) ([8525c1f](https://github.com/szTheory/sigra/commit/8525c1f2fb755684668e0c67a8aed56193741e3d))
+* preserve FAST readiness across concurrent push runs ([#192](https://github.com/szTheory/sigra/issues/192)) ([e36751e](https://github.com/szTheory/sigra/commit/e36751e1f7d1efa57941892fe9ddbc27702ef7dc))
+
 ## [1.4.0](https://github.com/szTheory/sigra/compare/v1.3.0...v1.4.0) (2026-07-28)
 
 ### Added
