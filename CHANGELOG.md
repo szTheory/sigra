@@ -43,6 +43,7 @@ packaged into the Hex tarball, so the mistake is permanent for that release.
 
 ### Bug Fixes
 
+- Compile the optional Threadline audit forwarder reliably during incremental release builds while preserving the dependency-off path.
 * **230:** ci-observe render step feeds raw run payload to --from-json ([#121](https://github.com/szTheory/sigra/issues/121)) ([20e4fe3](https://github.com/szTheory/sigra/commit/20e4fe3b9349d2da160d3c01fc580af7d1128317))
 * **230:** feed the raw run payload to --from-json, not the observer's output ([20e4fe3](https://github.com/szTheory/sigra/commit/20e4fe3b9349d2da160d3c01fc580af7d1128317))
 * **235-08:** retain complete workflow event receipts\n\n- Accept the exact ci.yml workflow_dispatch trigger alongside measured events\n- Keep manual evidence runs out of measured job receipt IDs\n ([4835c4c](https://github.com/szTheory/sigra/commit/4835c4c5dbe178dfce500a7c70768b64091f3c45))
