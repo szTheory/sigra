@@ -40,6 +40,15 @@ defmodule Sigra.OAuth do
 
   @oauth_state_purpose "sigra-oauth-state"
   @oauth_state_max_age 900
+  @reserved_authorization_params ~w(
+    client_id
+    redirect_uri
+    response_type
+    state
+    code_challenge
+    code_challenge_method
+    nonce
+  )
 
   # -- Public API --
 
@@ -134,6 +143,32 @@ defmodule Sigra.OAuth do
           | {:link_confirmation_required, map()}
           | {:error, %OAuthError{}}
   def handle_callback(config, provider, params, session_params) do
+    handle_callback_pipeline(config, provider, params, session_params, false)
+  end
+
+  @doc """
+  Handles an OAuth callback and returns validated provider evidence on success.
+
+  Provider evidence is opt-in. The evidence map contains only the provider,
+  issuer, subject, and integer authentication time (or `nil` when unavailable).
+  Link-confirmation and error results retain their legacy shapes.
+  """
+  @doc since: "1.5.0"
+  @spec handle_callback(map(), atom(), map(), map(), provider_evidence: true) ::
+          {:ok, atom(), map(), map(),
+           %{
+             provider: atom(),
+             issuer: term(),
+             subject: term(),
+             auth_time: integer() | nil
+           }}
+          | {:link_confirmation_required, map()}
+          | {:error, %OAuthError{}}
+  def handle_callback(config, provider, params, session_params, provider_evidence: true) do
+    handle_callback_pipeline(config, provider, params, session_params, true)
+  end
+
+  defp handle_callback_pipeline(config, provider, params, session_params, provider_evidence?) do
     result =
       Telemetry.span([:sigra, :oauth, :callback], %{provider: provider}, fn ->
         with {:ok, state_data} <- verify_state(params, session_params, config.secret_key_base) do
@@ -146,24 +181,20 @@ defmodule Sigra.OAuth do
             strategy_module ->
               assent_session = extract_assent_session(session_params)
 
-              case strategy_module.callback(provider_config, params, assent_session) do
-                {:ok, user_info, token} ->
-                  Callback.process_callback(config, provider, user_info, token,
-                    enterprise_context: %{
-                      state:
-                        normalize_enterprise_context(Map.get(state_data, :enterprise_context)),
-                      session:
-                        normalize_enterprise_context(
-                          session_params[:enterprise_context] ||
-                            session_params["enterprise_context"]
-                        )
-                    }
-                  )
-
-                {:error, error} ->
-                  Logger.error("OAuth callback failed for #{provider}: #{inspect(error)}")
-                  {:error, %OAuthError{provider: provider, error_code: :token_exchange_failed}}
-              end
+              strategy_module
+              |> invoke_strategy_callback(
+                provider_config,
+                params,
+                assent_session,
+                provider_evidence?
+              )
+              |> route_callback_result(
+                config,
+                provider,
+                state_data,
+                session_params,
+                provider_evidence?
+              )
           end
         end
       end)
@@ -177,6 +208,12 @@ defmodule Sigra.OAuth do
         :ok
 
       {:ok, :logged_in, _user, _session} ->
+        :ok
+
+      {:ok, :registered, _user, _session, _evidence} ->
+        :ok
+
+      {:ok, :logged_in, _user, _session, _evidence} ->
         :ok
 
       {:error, %OAuthError{} = err} ->
@@ -197,6 +234,80 @@ defmodule Sigra.OAuth do
     end
 
     result
+  end
+
+  defp invoke_strategy_callback(
+         strategy_module,
+         provider_config,
+         params,
+         assent_session,
+         true
+       ) do
+    strategy_module.callback(
+      provider_config,
+      params,
+      assent_session,
+      provider_evidence: true
+    )
+  end
+
+  defp invoke_strategy_callback(
+         strategy_module,
+         provider_config,
+         params,
+         assent_session,
+         false
+       ) do
+    strategy_module.callback(provider_config, params, assent_session)
+  end
+
+  defp route_callback_result(
+         {:ok, user_info, token, evidence},
+         config,
+         provider,
+         state_data,
+         session_params,
+         true
+       ) do
+    case process_callback(config, provider, user_info, token, state_data, session_params) do
+      {:ok, action, user, session} -> {:ok, action, user, session, evidence}
+      other -> other
+    end
+  end
+
+  defp route_callback_result(
+         {:ok, user_info, token},
+         config,
+         provider,
+         state_data,
+         session_params,
+         false
+       ) do
+    process_callback(config, provider, user_info, token, state_data, session_params)
+  end
+
+  defp route_callback_result(
+         {:error, error},
+         _config,
+         provider,
+         _state_data,
+         _session_params,
+         _provider_evidence?
+       ) do
+    Logger.error("OAuth callback failed for #{provider}: #{inspect(error)}")
+    {:error, %OAuthError{provider: provider, error_code: :token_exchange_failed}}
+  end
+
+  defp process_callback(config, provider, user_info, token, state_data, session_params) do
+    Callback.process_callback(config, provider, user_info, token,
+      enterprise_context: %{
+        state: normalize_enterprise_context(Map.get(state_data, :enterprise_context)),
+        session:
+          normalize_enterprise_context(
+            session_params[:enterprise_context] || session_params["enterprise_context"]
+          )
+      }
+    )
   end
 
   @doc """
@@ -440,36 +551,92 @@ defmodule Sigra.OAuth do
   defp do_authorize_url(config, strategy_module, provider, provider_config, opts) do
     enterprise_context = normalize_enterprise_context(Keyword.get(opts, :enterprise))
 
-    case strategy_module.authorize_url(provider_config) do
-      {:ok, %{url: url, session_params: assent_session}} ->
-        # Generate HMAC-signed state to replace Assent's
-        state = generate_state(config.secret_key_base, provider, enterprise_context)
+    with {:ok, effective_provider_config, evidence_nonce} <-
+           prepare_authorization_config(provider_config || [], opts) do
+      case strategy_module.authorize_url(effective_provider_config) do
+        {:ok, %{url: url, session_params: assent_session}} ->
+          # Generate HMAC-signed state to replace Assent's
+          state = generate_state(config.secret_key_base, provider, enterprise_context)
 
-        # Replace state in the URL
-        new_url = replace_url_state(url, state)
+          # Replace state in the URL
+          new_url = replace_url_state(url, state)
 
-        # Build session params with Sigra state + PKCE verifier
-        session_params =
-          %{sigra_state: state}
-          |> maybe_put(:enterprise_context, enterprise_context)
-          |> maybe_put(:code_verifier, Map.get(assent_session, :code_verifier))
+          # Build session params with Sigra state + Assent's PKCE verifier and nonce.
+          session_params =
+            %{sigra_state: state}
+            |> maybe_put(:enterprise_context, enterprise_context)
+            |> maybe_put(:code_verifier, Map.get(assent_session, :code_verifier))
+            |> maybe_put(:nonce, Map.get(assent_session, :nonce, evidence_nonce))
 
-        {:ok, new_url, session_params}
+          {:ok, new_url, session_params}
 
-      {:ok, %{url: url}} ->
-        state = generate_state(config.secret_key_base, provider, enterprise_context)
-        new_url = replace_url_state(url, state)
+        {:ok, %{url: url}} ->
+          state = generate_state(config.secret_key_base, provider, enterprise_context)
+          new_url = replace_url_state(url, state)
 
-        session_params =
-          %{sigra_state: state}
-          |> maybe_put(:enterprise_context, enterprise_context)
+          session_params =
+            %{sigra_state: state}
+            |> maybe_put(:enterprise_context, enterprise_context)
+            |> maybe_put(:nonce, evidence_nonce)
 
-        {:ok, new_url, session_params}
+          {:ok, new_url, session_params}
 
-      {:error, error} ->
-        Logger.error("OAuth authorize_url failed for #{provider}: #{inspect(error)}")
-        {:error, %OAuthError{provider: provider, error_code: :authorize_failed}}
+        {:error, error} ->
+          Logger.error("OAuth authorize_url failed for #{provider}: #{inspect(error)}")
+          {:error, %OAuthError{provider: provider, error_code: :authorize_failed}}
+      end
     end
+  end
+
+  defp prepare_authorization_config(provider_config, opts) when is_list(opts) do
+    provider_evidence? = Keyword.get(opts, :provider_evidence) == true
+
+    case {provider_evidence?, Keyword.fetch(opts, :authorization_params)} do
+      {false, :error} ->
+        {:ok, provider_config, nil}
+
+      {false, {:ok, _authorization_params}} ->
+        invalid_authorization_params()
+
+      {true, :error} ->
+        put_provider_evidence_config(provider_config, [])
+
+      {true, {:ok, authorization_params}} ->
+        if valid_authorization_params?(authorization_params) do
+          put_provider_evidence_config(provider_config, authorization_params)
+        else
+          invalid_authorization_params()
+        end
+    end
+  end
+
+  defp prepare_authorization_config(_provider_config, _opts),
+    do: invalid_authorization_params()
+
+  defp valid_authorization_params?(authorization_params) do
+    Keyword.keyword?(authorization_params) and
+      Enum.all?(authorization_params, fn {key, _value} ->
+        to_string(key) not in @reserved_authorization_params
+      end)
+  end
+
+  defp put_provider_evidence_config(provider_config, authorization_params) do
+    nonce = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+    existing_params = Keyword.get(provider_config, :authorization_params, [])
+
+    effective_provider_config =
+      provider_config
+      |> Keyword.put(:nonce, nonce)
+      |> Keyword.put(
+        :authorization_params,
+        Keyword.merge(existing_params, authorization_params)
+      )
+
+    {:ok, effective_provider_config, nonce}
+  end
+
+  defp invalid_authorization_params do
+    {:error, %OAuthError{error_code: :invalid_authorization_params}}
   end
 
   defp generate_state(secret_key_base, provider, enterprise_context) do
@@ -537,10 +704,11 @@ defmodule Sigra.OAuth do
 
   defp extract_assent_session(session_params) do
     # Pass through PKCE code_verifier and other Assent-required session state
+    sigra_state = session_params[:sigra_state] || session_params["sigra_state"]
+
     session_params
     |> Map.drop([:sigra_state, "sigra_state", :enterprise_context, "enterprise_context"])
-    |> Map.to_list()
-    |> Enum.into(%{})
+    |> Map.put(:state, sigra_state)
   end
 
   defp get_provider_config(config, provider) do

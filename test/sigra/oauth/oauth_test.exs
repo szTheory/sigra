@@ -11,11 +11,22 @@ defmodule Sigra.OAuthTest do
   # Mock strategy that implements Assent's interface (2-arg callback)
   # Used via Generic wrapper's :strategy key -- no HTTP calls
   defmodule MockStrategy do
-    def authorize_url(_config) do
+    def authorize_url(config) do
+      authorization_params = Keyword.get(config, :authorization_params, [])
+
+      query =
+        [state: "original", scope: "email"]
+        |> Keyword.merge(authorization_params)
+        |> maybe_put(:nonce, Keyword.get(config, :nonce))
+
+      session_params =
+        %{code_verifier: "pkce_verifier"}
+        |> maybe_put(:nonce, Keyword.get(config, :nonce))
+
       {:ok,
        %{
-         url: "https://provider.example.com/auth?state=original&scope=email",
-         session_params: %{code_verifier: "pkce_verifier"}
+         url: "https://provider.example.com/auth?#{URI.encode_query(query)}",
+         session_params: session_params
        }}
     end
 
@@ -36,6 +47,67 @@ defmodule Sigra.OAuthTest do
            "expires_in" => 3600
          }
        }}
+    end
+
+    defp maybe_put(keyword, _key, nil) when is_list(keyword), do: keyword
+
+    defp maybe_put(keyword, key, value) when is_list(keyword),
+      do: Keyword.put(keyword, key, value)
+
+    defp maybe_put(map, _key, nil), do: map
+    defp maybe_put(map, key, value), do: Map.put(map, key, value)
+  end
+
+  defmodule OAuthHttpAdapter do
+    @behaviour Assent.HTTPAdapter
+
+    alias Assent.HTTPAdapter.HTTPResponse
+
+    @impl true
+    def request(method, url, _body, _headers, opts) do
+      send(opts[:test_pid], {:oauth_http_request, method, url})
+
+      {:ok,
+       %HTTPResponse{
+         status: 200,
+         headers: [{"content-type", "application/json"}],
+         body: opts[:token]
+       }}
+    end
+  end
+
+  defmodule CountingRepo do
+    def get_by(Sigra.Test.MockIdentity, _clauses) do
+      Process.put(
+        :oauth_identity_routing_calls,
+        Process.get(:oauth_identity_routing_calls, 0) + 1
+      )
+
+      nil
+    end
+
+    def get_by(Sigra.Test.MockUser, _clauses), do: nil
+
+    def insert(%Ecto.Changeset{} = changeset) do
+      {:ok,
+       changeset
+       |> Ecto.Changeset.apply_changes()
+       |> Map.put(:id, System.unique_integer([:positive]))}
+    end
+
+    def insert(struct) when is_map(struct) do
+      {:ok, Map.put(struct, :id, System.unique_integer([:positive]))}
+    end
+
+    def transaction(%Ecto.Multi{} = multi), do: Sigra.Test.MultiStub.run(__MODULE__, multi)
+  end
+
+  defmodule LinkRepo do
+    def get_by(Sigra.Test.MockIdentity, _clauses), do: nil
+
+    def get_by(Sigra.Test.MockUser, clauses) do
+      email = clauses[:email]
+      %{id: 50, email: email, hashed_password: "$argon2id$hash"}
     end
   end
 
@@ -146,6 +218,70 @@ defmodule Sigra.OAuthTest do
       assert {:error, %OAuthError{error_code: :authorize_failed}} =
                OAuth.authorize_url(config, :failing, [])
     end
+
+    test "authorization URL nonce == session nonce" do
+      config = build_config()
+
+      assert {:ok, url, %{nonce: nonce} = session_params} =
+               OAuth.authorize_url(config, :mock, provider_evidence: true)
+
+      assert URI.decode_query(URI.parse(url).query)["nonce"] == nonce
+      assert session_params.nonce == nonce
+      assert byte_size(Base.url_decode64!(nonce, padding: false)) == 32
+    end
+
+    test "evidence authorization merges allowed parameters" do
+      config = build_config()
+
+      assert {:ok, url, _session_params} =
+               OAuth.authorize_url(config, :mock,
+                 provider_evidence: true,
+                 authorization_params: [
+                   prompt: "login",
+                   claims: ~s({"id_token":{"auth_time":null}})
+                 ]
+               )
+
+      query = URI.decode_query(URI.parse(url).query)
+      assert query["prompt"] == "login"
+      assert query["claims"] == ~s({"id_token":{"auth_time":null}})
+    end
+
+    test "every reserved atom/string authorization key is rejected" do
+      reserved_keys = [
+        :client_id,
+        "client_id",
+        :redirect_uri,
+        "redirect_uri",
+        :response_type,
+        "response_type",
+        :state,
+        "state",
+        :code_challenge,
+        "code_challenge",
+        :code_challenge_method,
+        "code_challenge_method",
+        :nonce,
+        "nonce"
+      ]
+
+      for key <- reserved_keys do
+        assert {:error, %OAuthError{error_code: :invalid_authorization_params}} =
+                 OAuth.authorize_url(build_config(), :mock,
+                   provider_evidence: true,
+                   authorization_params: [{key, "must-not-reach-provider"}]
+                 )
+      end
+
+      assert {:error, %OAuthError{error_code: :invalid_authorization_params}} =
+               OAuth.authorize_url(build_config(), :mock,
+                 provider_evidence: true,
+                 authorization_params: %{prompt: "login"}
+               )
+
+      assert {:error, %OAuthError{error_code: :invalid_authorization_params}} =
+               OAuth.authorize_url(build_config(), :mock, authorization_params: [prompt: "login"])
+    end
   end
 
   describe "handle_callback/4" do
@@ -202,6 +338,73 @@ defmodule Sigra.OAuthTest do
                  mock_user_info(%{"email" => nil}),
                  mock_token()
                )
+    end
+
+    test "exact evidence five-tuple" do
+      config = build_google_config()
+      {:ok, url, session_params} = OAuth.authorize_url(config, :google, provider_evidence: true)
+
+      token = signed_id_token(session_params.nonce, %{"auth_time" => 1_777_777_777})
+      config = put_google_token(config, token)
+      params = %{"state" => URI.decode_query(URI.parse(url).query)["state"], "code" => "code"}
+
+      assert {:ok, :registered, _user, _session,
+              %{
+                provider: :google,
+                issuer: "https://issuer.example.com",
+                subject: "provider_uid_123",
+                auth_time: 1_777_777_777
+              } = evidence} =
+               OAuth.handle_callback(
+                 config,
+                 :google,
+                 params,
+                 session_params,
+                 provider_evidence: true
+               )
+
+      assert Map.keys(evidence) |> Enum.sort() == [:auth_time, :issuer, :provider, :subject]
+      assert_receive {:oauth_http_request, :post, "https://issuer.example.com/token"}
+      refute_receive {:oauth_http_request, :post, "https://issuer.example.com/token"}
+    end
+
+    test "one process_callback/4 routing call" do
+      Process.put(:oauth_identity_routing_calls, 0)
+      config = build_google_config() |> Map.put(:repo, CountingRepo)
+      {:ok, url, session_params} = OAuth.authorize_url(config, :google, provider_evidence: true)
+
+      config = put_google_token(config, signed_id_token(session_params.nonce))
+      params = %{"state" => URI.decode_query(URI.parse(url).query)["state"], "code" => "code"}
+
+      assert {:ok, :registered, _user, _session, _evidence} =
+               OAuth.handle_callback(
+                 config,
+                 :google,
+                 params,
+                 session_params,
+                 provider_evidence: true
+               )
+
+      assert Process.get(:oauth_identity_routing_calls) == 1
+    after
+      Process.delete(:oauth_identity_routing_calls)
+    end
+
+    test "legacy four-tuple/link/error compatibility" do
+      config = build_config()
+      {:ok, url, session_params} = OAuth.authorize_url(config, :mock)
+      params = %{"state" => URI.decode_query(URI.parse(url).query)["state"], "code" => "code"}
+
+      assert {:ok, :registered, _user, _session} =
+               OAuth.handle_callback(config, :mock, params, session_params)
+
+      link_config = %{config | repo: LinkRepo}
+
+      assert {:link_confirmation_required, %{provider: :mock, email: "test@example.com"}} =
+               OAuth.handle_callback(link_config, :mock, params, session_params)
+
+      assert {:error, %OAuthError{error_code: :state_mismatch}} =
+               OAuth.handle_callback(config, :mock, %{"state" => "wrong"}, session_params)
     end
   end
 
@@ -357,6 +560,67 @@ defmodule Sigra.OAuthTest do
       ],
       identity_schema: Sigra.Test.MockIdentity
     }
+  end
+
+  defp build_google_config do
+    build_config(
+      providers: [
+        google: [
+          client_id: "client-id",
+          client_secret: "client-secret",
+          redirect_uri: "https://app.example.com/oauth/callback",
+          openid_configuration: %{
+            "issuer" => "https://issuer.example.com",
+            "authorization_endpoint" => "https://issuer.example.com/authorize",
+            "token_endpoint" => "https://issuer.example.com/token",
+            "token_endpoint_auth_methods_supported" => ["client_secret_post"]
+          },
+          id_token_signed_response_alg: "HS256",
+          http_adapter: {OAuthHttpAdapter, test_pid: self(), token: nil}
+        ]
+      ]
+    )
+  end
+
+  defp put_google_token(config, token) do
+    providers =
+      config.oauth
+      |> Keyword.fetch!(:providers)
+      |> Keyword.update!(:google, fn provider_config ->
+        Keyword.put(
+          provider_config,
+          :http_adapter,
+          {OAuthHttpAdapter,
+           test_pid: self(), token: %{"access_token" => "access", "id_token" => token}}
+        )
+      end)
+
+    %{config | oauth: Keyword.put(config.oauth, :providers, providers)}
+  end
+
+  defp signed_id_token(nonce, overrides \\ %{}) do
+    now = :os.system_time(:second)
+
+    claims =
+      Map.merge(
+        %{
+          "iss" => "https://issuer.example.com",
+          "sub" => "provider_uid_123",
+          "aud" => "client-id",
+          "exp" => now + 300,
+          "iat" => now,
+          "nonce" => nonce,
+          "email" => "test@example.com",
+          "name" => "Test",
+          "email_verified" => true
+        },
+        overrides
+      )
+
+    {:ok, token} =
+      Assent.Strategy.sign_jwt(claims, "HS256", "client-secret", json_library: Jason)
+
+    token
   end
 
   defp sudo_session do
