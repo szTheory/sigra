@@ -30,11 +30,30 @@ defmodule Sigra.OAuth.Strategies.Google do
   @spec callback(keyword(), map(), map()) :: {:ok, map(), map()} | {:error, term()}
   def callback(provider_config, params, session_params) do
     ensure_assent!()
-    config = build_config(provider_config) |> Keyword.put(:session_params, session_params)
+    config = effective_callback_config(provider_config, session_params)
 
     case Assent.Strategy.Google.callback(config, params) do
       {:ok, %{user: user, token: token}} -> {:ok, normalize_user(user), token}
       {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
+  Handles the OAuth callback and returns validated OIDC evidence.
+
+  The evidence map is intentionally closed and never includes tokens, secrets,
+  provider config, or arbitrary claims.
+  """
+  @doc since: "1.5.0"
+  @spec callback(keyword(), map(), map(), provider_evidence: true) ::
+          {:ok, map(), map(), map()} | {:error, term()}
+  def callback(provider_config, params, session_params, provider_evidence: true) do
+    ensure_assent!()
+    config = effective_callback_config(provider_config, session_params)
+
+    with {:ok, %{user: user, token: token}} <- Assent.Strategy.Google.callback(config, params),
+         {:ok, jwt} <- validate_id_token(config, token) do
+      {:ok, normalize_user(user), token, evidence(jwt.claims)}
     end
   end
 
@@ -88,4 +107,31 @@ defmodule Sigra.OAuth.Strategies.Google do
       &Keyword.put_new(&1, :scope, Enum.join(scopes, " "))
     )
   end
+
+  defp effective_callback_config(provider_config, session_params) do
+    config = build_config(provider_config) |> Keyword.put(:session_params, session_params)
+
+    config
+    |> Assent.Strategy.Google.default_config()
+    |> Keyword.merge(config)
+    |> Keyword.put(:strategy, Assent.Strategy.Google)
+  end
+
+  defp validate_id_token(config, %{"id_token" => id_token}) when is_binary(id_token) do
+    Assent.Strategy.OIDC.validate_id_token(config, id_token)
+  end
+
+  defp validate_id_token(_config, _token), do: {:error, :missing_id_token}
+
+  defp evidence(claims) do
+    %{
+      provider: :google,
+      issuer: claims["iss"],
+      subject: claims["sub"],
+      auth_time: integer_or_nil(claims["auth_time"])
+    }
+  end
+
+  defp integer_or_nil(value) when is_integer(value), do: value
+  defp integer_or_nil(_value), do: nil
 end
