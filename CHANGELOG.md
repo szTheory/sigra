@@ -19,6 +19,13 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.5.1](https://github.com/szTheory/sigra/compare/v1.5.0...v1.5.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* **oauth:** publish validated provider evidence ([#223](https://github.com/szTheory/sigra/issues/223)) ([c6580d7](https://github.com/szTheory/sigra/commit/c6580d793710aaeef01a1f34d7000ead9ebcdcd2))
+
 ## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
 
 ### Added
