@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 8 plans in 8 waves
+**Plans**: 9 plans in 9 waves
 
 Plans:
 **Wave 1**
@@ -378,6 +378,10 @@ Plans:
 **Wave 8** *(gap closure; blocked on the Wave 7 workflow landing on protected main)*
 
 - [x] 235-08-PLAN.md — Retain and verify protected receipts, prove real event execution, and reconcile honest requirement statuses
+
+**Wave 9** *(gap closure; blocked on Wave 8 completion)*
+
+- [ ] 235-09-PLAN.md — Capture a fresh protected post-remediation population and reconcile FAST-01 only on a strict measured pass
 
 ## Progress
 
