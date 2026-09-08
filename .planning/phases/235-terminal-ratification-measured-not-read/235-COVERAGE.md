@@ -11,34 +11,36 @@ This closure adds a protected GitHub Actions evidence path, not a product API or
 
 ## GitHub capability inventory
 
-| Capability | Actor and request | Retained sanitized evidence | Deterministic seam | Blocking failure / operational rule |
-| --- | --- | --- | --- | --- |
-| Core budget preflight | Main-only workflow token; `gh api rate_limit --jq .resources.core.remaining` | Integer remaining budget only | Fake `gh` records exactly one preflight | Remaining `<=250`, malformed result, 403, or 429 stops immediately; no retry. |
-| Workflow-run pages | `GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs?created=2026-08-01T02:06:30Z..2026-08-02T18:07:04Z&per_page=100&page=N` | Page number, total count, public run IDs/events/times/conclusions | Production collector via fake `gh` | Missing/duplicate page, changed total, duplicate ID, incomplete population, cap hit, or inverted time fails closed. |
-| Per-run job pages | `GET /repos/szTheory/sigra/actions/runs/{id}/jobs?per_page=100&page=N` | Public job IDs/names/times/conclusions and page proof | Same production pagination/validator seam | Empty conclusion, malformed identity, incomplete pages, or inverted job interval blocks emission. |
-| Evidence dispatch | Invocation-authorized automation dispatches the separate main-only workflow after protected auto-merge | Workflow identity and canonical JSON subject | ExUnit workflow contract | Non-main ref is skipped; no PR trigger, input, duplicate watcher, or CI coupling exists. |
-| Artifact provenance | GitHub attestation service; exact JSON subject | Attestation bundle, signer workflow, source ref, artifact digest | Workflow contract | Failed attestation, signer mismatch, ref mismatch, or altered bytes blocks evidence. |
-| Artifact/attestation retrieval (Plan 08) | Authenticated API/CLI download | Artifact, bundle, trusted root | Plan 08 retained-file verifier | 403/429 and missing/download-failed evidence stop without retry. |
-| Offline attestation (Plan 08) | `gh attestation verify ARTIFACT -R szTheory/sigra --bundle BUNDLE --custom-trusted-root TRUSTED_ROOT --signer-workflow github.com/szTheory/sigra/.github/workflows/terminal-ratification-evidence.yml --source-ref refs/heads/main --format json` | Verification JSON only | Plan 08 contract | Any verifier or signer/ref mismatch blocks ratification. |
-| Workflow summary/logs (Plan 08) | Authenticated maintainer CLI | One structured summary; failed logs only | Plan 08 automation evidence | Plan 08 owns the one watcher: `gh run watch <id> --repo szTheory/sigra --compact --interval 60 --exit-status`. |
-| Fresh FAST-01 remeasurement | Main-only `fast-01-remeasurement-evidence.yml`; independently fixed workflow-start endpoint and `GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs?created=2026-08-03T15:36:12Z..ENDPOINT&per_page=100&page=N` | One attested/uploaded protected JSON subject, public PR run identities, count, wall statistics, and verdict | Collector fake-`gh` pagination plus focused workflow contract | A local readiness artifact can gate dispatch only by count; fewer than ten rows fail before attestation, 403/429 or core `<=250` hard-stop, and no workflow may create qualifying CI rows. |
-| Post-remediation FAST-01 population | Main-only `fast-01-gap-closure-evidence.yml`; `capture-fast-01-gap-closure.sh` fixes a workflow-start endpoint and reads `GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs?created=2026-08-03T21:37:08Z..ENDPOINT&per_page=100&page=N` | Separate attested/uploaded `fast-01-gap-closure-remeasurement.json`; cutoff, pages, all terminal PR identities, wall statistics, and verdict | Hermetic fake-`gh` collector and focused workflow contract | The collector verifies receipt digests against blobs at remediation commit `54c33e9`, rejects old receipt IDs, hard-stops on 403/429 or core `<=250`, and rejects fewer than ten rows before attestation/upload. |
+| capability | decision | reason |
+| --- | --- | --- |
+| Core budget preflight | INTEGRATE | Read remaining REST core budget once before collection; malformed data, 403/429, or remaining at/below 250 stops without immediate retry. |
+| Workflow-run page collection | INTEGRATE | Plan 16 retains every bounded workflow-run page through an empty terminal page and passes it to `scripts/ci/ci-run-metrics.sh`; missing, duplicate, non-contiguous, or malformed pages fail closed. |
+| Per-run job page collection | INTEGRATE | Plans 16–17 preserve exhaustive raw job pages and ordered steps for the instrument-selected median and maximum when the strict FAST-01 result misses, then verify run/job/step linkage offline; Plan 18 consumes only the validated poles. |
+| Main-only evidence dispatch | INTEGRATE | Retain and validate protected-main identity/blob, readiness, REST-budget, workflow-identity, UTC-boundary, and bounded pre-projection facts before the blocking decision; after authorization, dispatch the isolated workflow as the first external mutation. It has no PR trigger and creates no qualifying CI rows. |
+| Artifact provenance attestation | INTEGRATE | Attest the exact JSON subject and bind repository, signer workflow, main ref, workflow SHA, and subject digest. |
+| Artifact, bundle, and trusted-root retrieval | INTEGRATE | Retain all three exact inputs required for repeatable network-denied verification; missing downloads block reconciliation. |
+| Offline attestation verification | INTEGRATE | Verify the retained subject with the bundle and trusted root under network denial before reading its source population or verdict. |
+| Workflow run summary and failure logs | INTEGRATE | Use one 60-second watcher, fetch one structured summary, and retrieve logs only after a failure. |
+| Historical FAST-01 remeasurement | INTEGRATE | Preserve the earlier attested populations and measured misses as immutable, disjoint comparison history. |
+| Source-complete FAST-01 remeasurement | INTEGRATE | Sign raw timestamps, full page identities/counts, and terminal exhaustion so membership, duration, completeness, ordering, p50, and verdict can be independently replayed. |
+| Authoritative terminal statistic | INTEGRATE | `scripts/ci/ci-run-metrics.sh` wall mode alone decides membership/statistics/poles; the signed raw source supports a comparison oracle, not a competing terminal calculator. |
+| Dispatch correlation receipt | INTEGRATE | Plan 17 validates a reversible preflight-stage receipt before authorization, preserves those presented facts across the checkpoint, then adds the bounded post set, selected singleton ID/URL, and cardinality before the sole watcher starts. |
 
 ## Security and rate-limit contract
 
-The collector makes one rate-limit read before finite REST collection. It does not poll CI, create a watcher, fetch a summary, or fetch logs. HTTP 403/429 is a hard stop with no immediate retry. The receipt excludes tokens, authorization headers, cookies, and raw authenticated state. When the protected workflow is later dispatched, automation correlates dispatch to one run, uses one 60-second watcher (`gh run watch <run-id> --repo szTheory/sigra --compact --interval 60 --exit-status`), fetches one structured summary, fetches logs only after failure, and retrieves the artifact, provenance bundle, and trusted root for offline verification. The new collector/workflow is independent of `ci.yml`, cannot create qualifying rows, and preserves the existing GATE-05 ownership proof.
+The reversible preflight makes one rate-limit read, retains the reset/retry facts and bounded pre-dispatch projection, and stops before authorization when core remaining is at or below 250 or GitHub returns HTTP 403/429. The receipt excludes tokens, authorization headers, cookies, and raw authenticated state. Once the checkpoint authorizes exactly one protected workflow dispatch, that dispatch is the next external mutation. Automation then correlates it to one run, uses one 60-second watcher (`gh run watch <run-id> --repo szTheory/sigra --compact --interval 60 --exit-status`), fetches one structured summary, fetches logs only after failure, and retrieves the artifact, provenance bundle, and trusted root for offline verification. The new collector/workflow is independent of `ci.yml`, cannot create qualifying rows, and preserves the existing GATE-05 ownership proof.
 
 ## Source audit and gap contract
 
 | Source | Coverage decision |
 | --- | --- |
-| GOAL / FAST-01 | Complete bounded population and chronology protect the unchanged 19-run, 772-second miss; strict p50 remains `< 720`. |
-| REQUIREMENTS / GATE-05 | The receipt preserves source and job pages for direct-owner execution proof. |
-| CONTEXT D-01–D-03 | Fixed interval, wall-clock semantics, all conclusions, and explicit exhaustion are retained. |
-| CONTEXT D-04–D-05 | Plan 07 captures source jobs; Plan 08 reconciles all ownership rows from protected receipts. |
-| CONTEXT D-06–D-07 | Contributor and closeout truth remain Plan 08 work. |
+| GOAL / FAST-01 | Plans 16–17 capture one newly authorized source-complete population; the mandated metrics script supplies the strict terminal result and signed source permits independent comparison. Plan 18 reconciles the exact result across closeout records. |
+| REQUIREMENTS / GATE-05 | Plans 16–18 run byte-exact non-regression checks against the completed protected receipt, 93-row ledger, verifier, contributor topology, and requirement records. |
+| CONTEXT D-01–D-03 | Plan 16 extends the authoritative wall-mode instrument/source contract and signed miss-pole job/step schema; Plan 17 retains and verifies the exact protected evidence. |
+| CONTEXT D-04–D-05 | Plans 16–18 preserve the original protected GATE-05 artifacts and exact 93-row ownership proof without reopening it. |
+| CONTEXT D-06–D-07 | Plan 17 produces the authenticated handoff; Plan 18 reconciles closeout only from that metrics-script result after source comparison, while contributor topology remains unchanged. |
 | CONTEXT D-08 | No re-audit, new gate, product/UI/release work, test deletion, timeout change, retry masking, schema change, or unrelated todo is included. |
-| VERIFICATION CR-02–CR-04 | Hermetic fake API covers pagination and chronology; workflow contract covers provenance topology. |
+| VERIFICATION CR-02 | Plans 16–17 close the evidence gap with signed raw timestamps, contiguous pages/exhaustion, authoritative metrics-script output, and source-first offline comparison; Plan 18 applies the verified disposition without reopening evidence. |
 
 Resolved-but-flagged probes remain visible: strict `p50_seconds < 720` (720 is a miss); empty/null population fails closed; one through nine eligible runs cannot pass the count gate; duration ordering is stable by `{wall_seconds, run_id}`. The descriptor-less prohibitions remain flagged-unverified without invented descriptors: do not claim FAST-01 from fewer than ten runs/a p50 at or above 720, and do not claim GATE-05 while omitting an affected spec, suite, receiver, or execution receipt.
 
