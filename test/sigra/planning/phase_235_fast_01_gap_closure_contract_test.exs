@@ -3,6 +3,17 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
 
   @root Path.expand("../../..", __DIR__)
   @phase ".planning/phases/235-terminal-ratification-measured-not-read"
+  @requirements Path.join(@root, ".planning/REQUIREMENTS.md")
+  @residual Path.join(@root, ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md")
+  @cutoff_sha "54c33e904155a454255952666711c882afdd06e4"
+  @cutoff "2026-08-03T21:37:08Z"
+  @endpoint "2026-09-08T20:05:35Z"
+  @producer_run_id "34272746647"
+  @producer_run_url "https://github.com/szTheory/sigra/actions/runs/34272746647"
+  @subject "235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json"
+  @attestation "235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl"
+  @gate_05_requirement "- [x] **GATE-05**: A maintainer can see, from a single artifact, which specs run on PR vs main vs nightly before and after this milestone, proving no test was silently dropped. (Protected receipt `235-PROTECTED-RECEIPTS.json`, attested by protected main run `30782184713`, reconciles all 93 ownership rows.)"
+  @gate_05_trace "| GATE-05 | Phase 235 | Complete (protected run `30782184713`; 93-row execution proof) |"
 
   test "uses immutable remediation-cutoff blobs while retaining later two-PR receipt validation" do
     remediation =
@@ -120,5 +131,211 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert verifier =~ "mutate_and_reject cutoff"
     assert verifier =~ "mutate_and_reject endpoint"
     assert verifier =~ "mutate_and_reject historical_run_id"
+  end
+
+  test "independently derives canonical population, poles, and strict 719/720/721 verdicts" do
+    result = validate_population!(receipt!())
+
+    assert result == %{
+             n: 43,
+             p50: 466,
+             verdict: "pass",
+             median_run_id: 33_449_097_115,
+             maximum_run_id: 30_855_541_236,
+             maximum_seconds: 1331
+           }
+
+    assert synthetic_receipt(719) |> validate_population!() |> Map.fetch!(:verdict) == "pass"
+    assert synthetic_receipt(720) |> validate_population!() |> Map.fetch!(:verdict) == "miss"
+    assert synthetic_receipt(721) |> validate_population!() |> Map.fetch!(:verdict) == "miss"
+  end
+
+  test "rejects undersized, duplicate, overlapping, filtered, and noncanonical populations" do
+    receipt = receipt!()
+
+    for size <- [0, 1, 9] do
+      assert_raise ArgumentError, ~r/insufficient population/, fn ->
+        receipt |> with_runs(Enum.take(receipt["runs"], size)) |> validate_population!()
+      end
+    end
+
+    assert_raise ArgumentError, ~r/duplicate run id/, fn ->
+      receipt
+      |> with_runs([hd(receipt["runs"]) | receipt["runs"]])
+      |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/historical overlap/, fn ->
+      receipt
+      |> put_in(["runs", Access.at(0), "run_id"], 30_828_457_128)
+      |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/all terminal conclusions/, fn ->
+      receipt |> put_in(["runs", Access.at(0), "conclusion"], "") |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/all terminal conclusions/, fn ->
+      receipt |> with_runs(Enum.reject(receipt["runs"], &(&1["conclusion"] == "failure")))
+      |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/canonical ordering/, fn ->
+      receipt |> update_in(["runs"], &Enum.reverse/1) |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/fixed measurement bounds/, fn ->
+      put_in(receipt, ["cutoff", "timestamp"], "2026-08-03T21:37:09Z")
+      |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/fixed measurement bounds/, fn ->
+      put_in(receipt, ["window", "endpoint"], "2026-09-08T20:05:36Z")
+      |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/stored p50 contradiction/, fn ->
+      put_in(receipt, ["statistics", "p50_seconds"], 720) |> validate_population!()
+    end
+
+    assert_raise ArgumentError, ~r/strict verdict contradiction/, fn ->
+      put_in(receipt, ["verdict"], "miss") |> validate_population!()
+    end
+  end
+
+  test "strict pass reconciles only FAST-01 and leaves GATE-05 byte-exact" do
+    requirements = File.read!(@requirements)
+    result = validate_population!(receipt!())
+
+    assert result.verdict == "pass"
+    assert requirements =~ "- [x] **FAST-01**:"
+    assert requirements =~ "| FAST-01 | Phase 235 | Complete ("
+    assert requirements =~ @cutoff_sha
+    assert requirements =~ @cutoff
+    assert requirements =~ @endpoint
+    assert requirements =~ "n=43"
+    assert requirements =~ "p50=466 seconds"
+    assert requirements =~ @producer_run_id
+    assert requirements =~ @producer_run_url
+    assert requirements =~ @subject
+    assert requirements =~ @attestation
+    assert requirements =~ @gate_05_requirement
+    assert requirements =~ @gate_05_trace
+    refute requirements =~ "| FAST-01 | Phase 235 | Gaps Found |"
+  end
+
+  test "pass closure retains both misses and measured remediation evidence" do
+    residual = File.read!(@residual)
+
+    assert residual =~ "772 seconds"
+    assert residual =~ "724 seconds"
+    assert residual =~ "692 seconds"
+    assert residual =~ "148 seconds"
+    assert residual =~ "470 seconds"
+    assert residual =~ "2026-09-08"
+    assert residual =~ "Closed"
+    assert residual =~ @cutoff_sha
+    assert residual =~ @endpoint
+    assert residual =~ "n=43"
+    assert residual =~ "p50=466 seconds"
+    assert residual =~ @producer_run_id
+    assert residual =~ @subject
+    assert residual =~ @attestation
+  end
+
+  defp receipt! do
+    File.read!(Path.join(@root, Path.join(@phase, @subject))) |> Jason.decode!()
+  end
+
+  defp with_runs(receipt, runs) do
+    receipt
+    |> Map.put("runs", runs)
+    |> Map.put("eligible_pr_run_count", length(runs))
+  end
+
+  defp synthetic_receipt(median) do
+    runs =
+      for index <- 0..10 do
+        %{
+          "run_id" => 40_000_000_000 + index,
+          "wall_seconds" => median - 5 + index,
+          "conclusion" => if(rem(index, 2) == 0, do: "success", else: "failure"),
+          "url" => "https://github.com/szTheory/sigra/actions/runs/#{40_000_000_000 + index}"
+        }
+      end
+
+    receipt!()
+    |> with_runs(runs)
+    |> put_in(["statistics", "p50_seconds"], median)
+    |> Map.put("verdict", if(median < 720, do: "pass", else: "miss"))
+  end
+
+  defp validate_population!(receipt) do
+    unless receipt["authority"] == "protected_main_attestation" and
+             receipt["cutoff"] == %{"sha" => @cutoff_sha, "timestamp" => @cutoff} and
+             receipt["window"] == %{"endpoint" => @endpoint},
+      do: raise(ArgumentError, "fixed measurement bounds")
+
+    runs = receipt["runs"]
+    n = length(runs)
+
+    unless n >= 10 and receipt["eligible_pr_run_count"] == n,
+      do: raise(ArgumentError, "insufficient population")
+
+    ids = Enum.map(runs, &Map.fetch!(&1, "run_id"))
+    unless length(Enum.uniq(ids)) == n, do: raise(ArgumentError, "duplicate run id")
+
+    historical_ids =
+      ["235-FAST-01-REMEASUREMENT.json", "235-TERMINAL-RATIFICATION.json"]
+      |> Enum.flat_map(fn
+        "235-FAST-01-REMEASUREMENT.json" = name ->
+          Path.join(@root, Path.join(@phase, name))
+          |> File.read!()
+          |> Jason.decode!()
+          |> Map.fetch!("runs")
+          |> Enum.map(&Map.fetch!(&1, "run_id"))
+
+        name ->
+          Path.join(@root, Path.join(@phase, name))
+          |> File.read!()
+          |> Jason.decode!()
+          |> get_in(["measurements", "pull_request", "run_ids"])
+      end)
+      |> MapSet.new()
+
+    unless MapSet.disjoint?(MapSet.new(ids), historical_ids),
+      do: raise(ArgumentError, "historical overlap")
+
+    conclusions = Enum.map(runs, & &1["conclusion"])
+
+    unless Enum.all?(conclusions, &(&1 in ["success", "failure", "cancelled"])) and
+             "failure" in conclusions,
+      do: raise(ArgumentError, "all terminal conclusions")
+
+    ordered = Enum.sort_by(runs, &{&1["wall_seconds"], &1["run_id"]})
+    unless runs == ordered, do: raise(ArgumentError, "canonical ordering")
+
+    median_run = Enum.at(ordered, div(n, 2))
+    maximum_run = Enum.max_by(ordered, &{&1["wall_seconds"], &1["run_id"]})
+    p50 = median_run["wall_seconds"]
+
+    unless receipt["statistics"] == %{
+             "mode" => "wall",
+             "ordering" => "{wall_seconds, run_id}",
+             "p50_seconds" => p50
+           },
+      do: raise(ArgumentError, "stored p50 contradiction")
+
+    verdict = if p50 < 720, do: "pass", else: "miss"
+    unless receipt["verdict"] == verdict, do: raise(ArgumentError, "strict verdict contradiction")
+
+    %{
+      n: n,
+      p50: p50,
+      verdict: verdict,
+      median_run_id: median_run["run_id"],
+      maximum_run_id: maximum_run["run_id"],
+      maximum_seconds: maximum_run["wall_seconds"]
+    }
   end
 end
