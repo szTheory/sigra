@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
-status: executing
-stopped_at: Completed 235-15-PLAN.md
-last_updated: "2026-09-08T20:22:17.937Z"
+status: gaps_found
+stopped_at: Halted 235-15 after signed-source evidence review
+last_updated: "2026-09-08T20:36:00.000Z"
 last_activity: 2026-09-08
-last_activity_desc: Phase 235 execution started
-state_head: 252711fd7b20634f9b4c6b0ce714c579c5f9a660
+last_activity_desc: Phase 235 gap closure halted on insufficient signed source evidence
+state_head: 4f869877
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 63
-  completed_plans: 63
+  completed_plans: 62
   percent: 83
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
+Phase: 235 (Terminal Ratification — Measured, Not Read) — GAPS FOUND
 Plan: 9 of 9
-Status: Execution complete; verification pending
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 verification pending
-Last activity: 2026-09-08 — Completed Phase 235 plan 15 gap closure execution
+Status: Plan 235-15 halted; FAST-01 remains open
+Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 blocked on corrected protected evidence
+Last activity: 2026-09-08 — Rejected candidate closure after signed-source evidence review
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -453,6 +453,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
+- **Phase 235 FAST-01:** Plan 235-15's sole protected candidate attests 43 derived rows and stored p50 466 seconds, but omits signed timestamps and pagination/exhaustion evidence. Independent population, chronology, wall-time, and completeness proof is impossible from the retained subject; a new gap plan must correct the evidence schema before any newly authorized dispatch.
 
 ### Roadmap Evolution
 
@@ -585,9 +586,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-08T20:22:17.792Z
-Stopped at: Completed 235-15-PLAN.md
-Resume file: None
+Last session: 2026-09-08T20:36:00.000Z
+Stopped at: Halted 235-15 after signed-source evidence review
+Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md
 
 ## Operator Next Steps
 

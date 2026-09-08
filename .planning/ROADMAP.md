@@ -54,7 +54,7 @@
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
-- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - Re-measured against the baseline table, published the before/after coverage inventory, updated CONTRIBUTING, and closed GATE-05; FAST-01 remains an owned measured residual (completed 2026-08-02)
+- [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - GATE-05 is complete; FAST-01 remains open after gap plan 235-15 halted on insufficient signed source-population evidence.
 
 ## Phase Details
 
@@ -381,7 +381,7 @@ Plans:
 
 **Wave 9** *(gap closure; blocked on Wave 8 completion)*
 
-- [x] 235-15-PLAN.md — Capture a fresh protected post-remediation population and reconcile FAST-01 only on a strict measured pass
+- [x] 235-15-PLAN.md — HALTED: retained one protected candidate but rejected closure because the signed subject omitted timestamps and pagination/exhaustion evidence
 
 ## Progress
 
@@ -392,7 +392,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 9/9 | Execution complete; verification pending | — |
+| 235. Terminal Ratification | 8/9 | Halted — FAST-01 signed-source evidence gap | — |
 
 ## Requirement Coverage
 

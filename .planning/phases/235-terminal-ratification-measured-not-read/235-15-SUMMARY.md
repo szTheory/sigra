@@ -8,19 +8,19 @@ requires:
   - phase: 235-08
     provides: protected terminal measurement, 93-row ownership proof, and the honest FAST-01 miss
 provides:
-  - independently attested 43-run post-remediation PR population with p50 466 seconds
-  - network-denied exact-subject verification with adverse provenance and population checks
-  - evidence-driven FAST-01 completion preserving both historical misses and GATE-05
-affects: [milestone-closeout, ci-performance, protected-evidence]
+  - one attested 43-row derived post-remediation candidate with stored p50 466 seconds
+  - hardened network-denied exact-subject verification with separate provenance and population mutations
+  - durable diagnosis of the signed source-data gap preventing FAST-01 closure
+affects: [phase-235-gap-closure, ci-performance, protected-evidence]
 
 actuals:
-  tokens: 25000
+  tokens: 28000
   tasks: 2
-  commits: 5
+  commits: 9
 
 tech-stack:
   added: []
-  patterns: [fixed-path offline attestation verification, strict evidence-driven requirement reconciliation]
+  patterns: [fixed-path offline attestation verification, fail-closed evidence reconciliation]
 
 key-files:
   created:
@@ -34,19 +34,20 @@ key-files:
     - .planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md
 
 key-decisions:
-  - "Completed FAST-01 only from the independently recomputed strict 466-second p50 over all 43 fresh protected runs."
+  - "Did not complete FAST-01 from a derived 466-second p50 because the signed subject omitted timestamps and pagination/exhaustion data required for independent source-population verification."
   - "Preserved the 772- and 724-second misses plus the 692-to-148-second Library and 724-to-470-second wall remediation as immutable history."
-  - "Bound the sole dispatch through its returned run identity, one structured summary, and exact attestation after stale local origin/main prevented the planned set-difference selector from matching."
+  - "Made no second dispatch because this plan permits exactly one attempt and forbids rerolling an insufficient evidence result."
 
 patterns-established:
-  - "Fresh performance evidence uses a fixed remediation cutoff, one protected endpoint, disjoint run identities, all terminal conclusions, and canonical {wall_seconds, run_id} ordering."
-  - "Requirement state changes only after offline provenance succeeds and tests independently recompute the population and strict comparator."
+  - "Retained trusted roots are digest-pinned before custom-root verification."
+  - "Provenance mutations and semantic population mutations exercise separate validation gates."
+  - "A statistically passing derived receipt remains non-authoritative when signed source rows cannot prove membership, chronology, duration, and pagination."
 
-requirements-completed: [FAST-01, GATE-05]
+requirements-completed: [GATE-05]
 
 coverage:
   - id: D1
-    description: "A fresh protected population proves FAST-01 with 43 unique runs and independently recomputed p50 466 seconds."
+    description: "The exact protected subject authenticates and its 43 derived rows canonically recompute to stored p50 466 seconds."
     requirement: FAST-01
     verification:
       - kind: integration
@@ -57,107 +58,91 @@ coverage:
         status: pass
     human_judgment: false
   - id: D2
-    description: "FAST-01 requirements and the residual now cite the exact cutoff, endpoint, population, p50, producer, subject, and attestation while retaining both misses."
+    description: "FAST-01 remains open because the signed candidate lacks timestamps and authenticated pagination/exhaustion data needed for independent proof."
     requirement: FAST-01
     verification:
-      - kind: unit
-        ref: "test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs#strict pass reconciles only FAST-01 and leaves GATE-05 byte-exact"
-        status: pass
-      - kind: unit
-        ref: "test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs#pass closure retains both misses and measured remediation evidence"
-        status: pass
+      - kind: other
+        ref: ".planning/phases/235-terminal-ratification-measured-not-read/235-REVIEW.md#CR-02"
+        status: fail
     human_judgment: false
   - id: D3
-    description: "GATE-05 remains independently Complete with its original protected run and 93-row ownership proof unchanged."
+    description: "GATE-05 remains independently Complete with its original protected run, exact requirement records, verifier, and digest-pinned evidence unchanged."
     requirement: GATE-05
     verification:
       - kind: integration
         ref: "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
         status: pass
       - kind: unit
-        ref: "test/sigra/planning/phase_235_terminal_ratification_contract_test.exs"
+        ref: "test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs#derived pass stays open without signed source rows and leaves GATE-05 byte-exact"
         status: pass
     human_judgment: false
 
-duration: 20 min
+duration: 36 min
 completed: 2026-09-08
-status: complete
+status: halted
 ---
 
 # Phase 235 Plan 15: FAST-01 Gap Closure Summary
 
-**A fresh independently attested 43-run protected population records p50 466 seconds, completing FAST-01 without altering GATE-05 or erasing earlier misses.**
+**One protected candidate attests 43 derived rows and stored p50 466 seconds, but FAST-01 remains open because the signed subject cannot independently prove the source population.**
 
 ## Performance
 
-- **Duration:** 20 min
+- **Duration:** 36 min
 - **Started:** 2026-09-08T20:00:31Z
-- **Completed:** 2026-09-08T20:20:00Z
-- **Tasks:** 2
-- **Files modified:** 10
+- **Completed:** 2026-09-08T20:36:00Z
+- **Tasks:** 2 attempted; designed halt reached after code review
+- **Files modified:** 11
 
 ## Accomplishments
 
-- Captured and retained one protected-main population of 43 unique terminal PR runs, disjoint from both historical populations, with canonical p50 466 seconds.
-- Added a fixed-path offline verifier that binds the exact subject digest, signer workflow, protected ref, workflow SHA, cutoff, endpoint, bundle, and trust root under network denial.
-- Reconciled FAST-01 to Complete from independent recomputation while preserving the 772/724-second misses, measured remediation, and byte-exact GATE-05 requirement records.
+- Retained exactly one protected-main candidate subject, attestation, and trusted root without rerolling the observed result.
+- Hardened offline verification with a pinned trust-root digest, distinct provenance/semantic mutation gates, canonical ordering, historical disjointness, strict p50 recomputation, and complete terminal-conclusion support.
+- Reopened FAST-01 and preserved its residual when review proved the signed subject lacks the raw fields required for independent window, wall-time, and completeness verification; GATE-05 remains byte/digest pinned.
 
 ## Task Commits
 
 1. **Task 1 readiness:** `196cabe4` (chore)
 2. **Task 1 prerequisite diagnostic:** `0814649d` (docs)
-3. **Task 1 protected population and verification:** `b5fc9389` (feat)
+3. **Task 1 protected candidate and initial verification:** `b5fc9389` (feat)
 4. **Task 2 RED reconciliation contract:** `db5511e8` (test)
-5. **Task 2 GREEN requirement reconciliation:** `817e3033` (feat)
+5. **Task 2 attempted GREEN reconciliation:** `817e3033` (feat)
+6. **Plan summary before review:** `252711fd` (docs)
+7. **Offline validation hardening:** `9a5ced28` (fix)
+8. **Immutable GATE-05 evidence pinning:** `5c5910fa` (test)
+9. **Honest FAST-01 gap restoration:** `4f869877` (fix)
 
 ## Files Created/Modified
 
 - `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-READINESS.json` - Retains the single non-authoritative readiness probe.
-- `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json` - Stores the fresh protected 43-run population and strict verdict.
+- `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json` - Stores the attested candidate's derived rows and result.
 - `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl` - Retains exact-subject Sigstore provenance.
-- `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT-TRUSTED-ROOT.jsonl` - Retains contemporaneous trust material.
-- `scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh` - Verifies provenance and population contracts without network access.
-- `test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs` - Independently recomputes population semantics and requirement reconciliation.
-- `.planning/REQUIREMENTS.md` - Marks only FAST-01 Complete with exact fresh evidence; GATE-05 is unchanged.
-- `.planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md` - Appends the evidence-backed closure without deleting history.
+- `.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT-TRUSTED-ROOT.jsonl` - Retains digest-pinned trust material.
+- `scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh` - Verifies available provenance and derived-row contracts without network access.
+- `test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs` - Recomputes derived-row semantics and enforces fail-closed requirement status.
+- `.planning/REQUIREMENTS.md` - Keeps FAST-01 at Gaps Found and GATE-05 Complete.
+- `.planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md` - Records why the candidate cannot close the residual.
 
 ## Decisions Made
 
-- The stored verdict was not trusted directly; the contract independently sorted the full population, selected `floor(n/2)`, and applied strict `<720` semantics.
-- The one dispatched run was retained despite local dispatch-correlation failure because the dispatch response, one structured run summary, exact subject bytes, and offline attestation bind the same protected workflow execution.
-- Erlang 28.4.1 was selected only through process-local ASDF overrides because the repository-requested 28.5 is not installed; `.tool-versions` was left untouched.
+- Cryptographic provenance of derived output is insufficient for this plan's independent-source requirement when the signed bytes omit `created_at`, `updated_at`, page identities/counts, and exhaustion.
+- A later gap plan must correct the protected evidence schema before dispatch; it must not reinterpret or replace this attempt.
+- Erlang 28.4.1 was selected only through process-local ASDF overrides because repository-requested 28.5 is not installed; `.tool-versions` remains untouched.
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
-**1. Blocking local Erlang version mismatch**
+1. The unavailable Erlang 28.5 prerequisite was resolved with a process-local 28.4.1 override; all focused planning tests passed.
+2. Stale local `origin/main` prevented the planned pre/post set-difference selector from matching; no redispatch occurred, and the sole returned run was bound through its one structured summary and attestation.
+3. Code review found an unpinned custom trust root, signature-only semantic mutations, an incomplete terminal-conclusion validator, and weak GATE-05 immutability checks; all four repairable issues were fixed and reverified.
 
-- **Found during:** Task 1 prerequisite proof
-- **Issue:** Repository Erlang 28.5 was unavailable, so the planned ExUnit command did not start.
-- **Fix:** Used installed Erlang 28.4.1 and Elixir 1.19.5-otp-28 through process-local ASDF overrides.
-- **Files modified:** None
-- **Verification:** Phase 233 contract passed 6 tests; final focused contracts passed 31 tests and the planning suite passed 129 tests with 12 skipped.
-- **Committed in:** `b5fc9389` diagnostics and authenticated evidence commit
-
-**2. Dispatch selector could not match stale local origin/main**
-
-- **Found during:** Task 1 protected dispatch
-- **Issue:** `/usr/bin/date` was unavailable and local `origin/main` pointed at `10904571`, while the dispatched protected run used `c6580d79`; bounded projections therefore returned no candidate.
-- **Fix:** Did not redispatch. Bound the sole returned run `34272746647` through its single structured summary and the exact offline-verified attestation, recording the deviation durably.
-- **Files modified:** `.planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md`
-- **Verification:** One watcher concluded success; the downloaded subject digest and attestation certificate bind workflow SHA `c6580d793710aaeef01a1f34d7000ead9ebcdcd2`.
-- **Committed in:** `b5fc9389`
-
----
-
-**Total deviations:** 2 auto-fixed (1 blocking toolchain issue, 1 dispatch-correlation issue)
-**Impact on plan:** No extra workflow dispatch, evidence window, threshold, population selection, product scope, or GATE-05 state change occurred.
+**Impact on plan:** The remaining signed-source omission is not repairable from existing bytes and a second dispatch is prohibited. The plan halted without claiming FAST-01.
 
 ## Issues Encountered
 
-- The initial prerequisite diagnostic was intentionally retained and amended with the resolution and exact dispatch facts rather than erased.
-- Expected errors printed by adverse attestation cases are part of the passing offline verifier contract.
+- **Blocking:** The attested receipt discarded timestamps and pagination/exhaustion evidence. Offline consumers cannot independently prove membership, duration, chronology, or completeness. See `235-REVIEW.md` CR-02.
+- Expected errors printed by adverse attestation cases are part of the passing verifier contract.
 
 ## User Setup Required
 
@@ -165,11 +150,11 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-All Phase 235 plans now have summaries. The phase is ready for drift gates, code review, regression validation, and independent goal verification.
+Blocked. A new gap plan must change the protected evidence subject to retain raw timestamps and authenticated pagination/exhaustion evidence, land that producer change on protected main, then perform one newly authorized measurement. This plan must not be resumed or redispatched.
 
 ## Self-Check
 
-PASSED: all declared evidence paths exist; RED precedes GREEN; both offline verifiers pass; focused contracts pass 31/31; the planning contract suite passes 129/129 with 12 intentional skips.
+HALTED AS DESIGNED: one critical code-review finding remains durable; FAST-01 is unchecked/Gaps Found; GATE-05 and both historical misses are intact; no second dispatch occurred.
 
 ---
 *Phase: 235-terminal-ratification-measured-not-read*
