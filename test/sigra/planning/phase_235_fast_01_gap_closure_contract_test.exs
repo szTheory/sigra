@@ -128,9 +128,17 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert verifier =~ "expect_failure trusted_root_byte"
     assert verifier =~ "adversarial_case_unexpectedly_verified:signer_workflow"
     assert verifier =~ "adversarial_case_unexpectedly_verified:source_ref"
-    assert verifier =~ "mutate_and_reject cutoff"
-    assert verifier =~ "mutate_and_reject endpoint"
-    assert verifier =~ "mutate_and_reject historical_run_id"
+    assert verifier =~ "TRUSTED_ROOT_DIGEST=\"65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c\""
+    assert verifier =~ "trusted_root_digest_mismatch"
+    assert verifier =~ "expect_population_failure cutoff"
+    assert verifier =~ "expect_population_failure endpoint"
+    assert verifier =~ "expect_population_failure historical_run_id"
+    assert verifier =~ "expect_population_failure undersized"
+    assert verifier =~ "expect_population_failure duplicate_run_id"
+    assert verifier =~ "expect_population_failure empty_conclusion"
+    assert verifier =~ "expect_population_failure noncanonical_order"
+    assert verifier =~ "expect_population_failure stored_p50"
+    assert verifier =~ "expect_population_failure strict_verdict"
   end
 
   test "independently derives canonical population, poles, and strict 719/720/721 verdicts" do
@@ -148,6 +156,19 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert synthetic_receipt(719) |> validate_population!() |> Map.fetch!(:verdict) == "pass"
     assert synthetic_receipt(720) |> validate_population!() |> Map.fetch!(:verdict) == "miss"
     assert synthetic_receipt(721) |> validate_population!() |> Map.fetch!(:verdict) == "miss"
+
+    all_success =
+      synthetic_receipt(719)
+      |> update_in(["runs"], fn runs -> Enum.map(runs, &Map.put(&1, "conclusion", "success")) end)
+
+    assert all_success |> validate_population!() |> Map.fetch!(:verdict) == "pass"
+
+    for conclusion <- ~w(cancelled timed_out neutral skipped stale action_required startup_failure) do
+      assert synthetic_receipt(719)
+             |> put_in(["runs", Access.at(0), "conclusion"], conclusion)
+             |> validate_population!()
+             |> Map.fetch!(:verdict) == "pass"
+    end
   end
 
   test "rejects undersized, duplicate, overlapping, filtered, and noncanonical populations" do
@@ -173,11 +194,6 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
 
     assert_raise ArgumentError, ~r/all terminal conclusions/, fn ->
       receipt |> put_in(["runs", Access.at(0), "conclusion"], "") |> validate_population!()
-    end
-
-    assert_raise ArgumentError, ~r/all terminal conclusions/, fn ->
-      receipt |> with_runs(Enum.reject(receipt["runs"], &(&1["conclusion"] == "failure")))
-      |> validate_population!()
     end
 
     assert_raise ArgumentError, ~r/canonical ordering/, fn ->
@@ -221,6 +237,8 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert requirements =~ @attestation
     assert requirements =~ @gate_05_requirement
     assert requirements =~ @gate_05_trace
+    assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_requirement)) == 1
+    assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_trace)) == 1
     refute requirements =~ "| FAST-01 | Phase 235 | Gaps Found |"
   end
 
@@ -308,8 +326,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
 
     conclusions = Enum.map(runs, & &1["conclusion"])
 
-    unless Enum.all?(conclusions, &(&1 in ["success", "failure", "cancelled"])) and
-             "failure" in conclusions,
+    terminal_conclusions =
+      ~w(success failure cancelled timed_out neutral skipped stale action_required startup_failure)
+
+    unless Enum.all?(conclusions, &(&1 in terminal_conclusions)),
       do: raise(ArgumentError, "all terminal conclusions")
 
     ordered = Enum.sort_by(runs, &{&1["wall_seconds"], &1["run_id"]})

@@ -12,6 +12,7 @@ REPO="szTheory/sigra"
 SIGNER_WORKFLOW="szTheory/sigra/.github/workflows/fast-01-gap-closure-evidence.yml"
 SOURCE_REF="refs/heads/main"
 SUBJECT_DIGEST="6186f17eae61373f714fda0dd98d4318362de62d7d571d6f05e2e015b26a75ee"
+TRUSTED_ROOT_DIGEST="65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
 EXPECTED_WORKFLOW_SHA="c6580d793710aaeef01a1f34d7000ead9ebcdcd2"
 EXPECTED_CUTOFF_SHA="54c33e904155a454255952666711c882afdd06e4"
 EXPECTED_CUTOFF="2026-08-03T21:37:08Z"
@@ -46,6 +47,11 @@ done
 actual_digest="$(shasum -a 256 "$RECEIPT" | awk '{print $1}')"
 [[ "$actual_digest" == "$SUBJECT_DIGEST" ]] || {
   echo "subject_digest_mismatch" >&2
+  exit 1
+}
+actual_trusted_root_digest="$(shasum -a 256 "$TRUSTED_ROOT" | awk '{print $1}')"
+[[ "$actual_trusted_root_digest" == "$TRUSTED_ROOT_DIGEST" ]] || {
+  echo "trusted_root_digest_mismatch" >&2
   exit 1
 }
 
@@ -168,23 +174,14 @@ if "${isolation[@]}" /usr/bin/env -i \
   exit 1
 fi
 
-mutate_and_reject() {
-  local name="$1"
-  local filter="$2"
-  "$JQ_BIN" "$filter" "$RECEIPT" >"$work/$name-receipt.json"
-  expect_failure "$name" "$work/$name-receipt.json"
-}
-
-mutate_and_reject cutoff '.cutoff.timestamp = "2026-08-03T21:37:09Z"'
-mutate_and_reject endpoint '.window.endpoint = "2026-09-08T20:05:36Z"'
-mutate_and_reject historical_run_id '.runs[0].run_id = 30828457128'
-
-"$JQ_BIN" -e \
-  --arg cutoff_sha "$EXPECTED_CUTOFF_SHA" \
-  --arg cutoff "$EXPECTED_CUTOFF" \
-  --arg endpoint "$EXPECTED_ENDPOINT" \
-  --slurpfile old "$OLD_REMEASUREMENT" \
-  --slurpfile terminal "$TERMINAL_RATIFICATION" '
+validate_population() {
+  local input="$1"
+  "$JQ_BIN" -e \
+    --arg cutoff_sha "$EXPECTED_CUTOFF_SHA" \
+    --arg cutoff "$EXPECTED_CUTOFF" \
+    --arg endpoint "$EXPECTED_ENDPOINT" \
+    --slurpfile old "$OLD_REMEASUREMENT" \
+    --slurpfile terminal "$TERMINAL_RATIFICATION" '
     .schema_version == "sigra.fast-01-gap-closure-remeasurement/v1" and
     .authority == "protected_main_attestation" and
     .repository == "szTheory/sigra" and
@@ -202,7 +199,7 @@ mutate_and_reject historical_run_id '.runs[0].run_id = 30828457128'
     (all(.runs[];
       (.run_id | type) == "number" and
       (.wall_seconds | type) == "number" and .wall_seconds >= 0 and
-      (.conclusion | type) == "string" and (.conclusion | length) > 0 and
+      (.conclusion | IN("success", "failure", "cancelled", "timed_out", "neutral", "skipped", "stale", "action_required", "startup_failure")) and
       (.url | type) == "string" and (.url | length) > 0)) and
     ([.runs[] | {wall_seconds,run_id}] == ([.runs[] | {wall_seconds,run_id}] | sort_by(.wall_seconds,.run_id))) and
     ([.runs[].run_id] | any(. as $id | $old[0].runs[] | .run_id == $id) | not) and
@@ -210,9 +207,32 @@ mutate_and_reject historical_run_id '.runs[0].run_id = 30828457128'
     (.runs[(.eligible_pr_run_count / 2 | floor)].wall_seconds) as $p50 |
     .statistics.p50_seconds == $p50 and
     .verdict == (if $p50 < 720 then "pass" else "miss" end)
-  ' "$RECEIPT" >/dev/null || {
+  ' "$input" >/dev/null
+}
+
+validate_population "$RECEIPT" || {
   echo "protected_population_contract_failed" >&2
   exit 1
 }
+
+expect_population_failure() {
+  local name="$1"
+  local filter="$2"
+  "$JQ_BIN" "$filter" "$RECEIPT" >"$work/$name-population.json"
+  if validate_population "$work/$name-population.json"; then
+    echo "adversarial_population_unexpectedly_valid:$name" >&2
+    exit 1
+  fi
+}
+
+expect_population_failure cutoff '.cutoff.timestamp = "2026-08-03T21:37:09Z"'
+expect_population_failure endpoint '.window.endpoint = "2026-09-08T20:05:36Z"'
+expect_population_failure historical_run_id '.runs[0].run_id = 30828457128'
+expect_population_failure undersized '.runs = .runs[0:9] | .eligible_pr_run_count = 9'
+expect_population_failure duplicate_run_id '.runs[1].run_id = .runs[0].run_id'
+expect_population_failure empty_conclusion '.runs[0].conclusion = ""'
+expect_population_failure noncanonical_order '.runs |= reverse'
+expect_population_failure stored_p50 '.statistics.p50_seconds = 720'
+expect_population_failure strict_verdict '.verdict = "miss"'
 
 echo "fast_01_gap_closure_offline_attestation_verified"
