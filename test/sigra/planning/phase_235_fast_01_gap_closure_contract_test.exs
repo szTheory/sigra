@@ -14,6 +14,13 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   @attestation "235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl"
   @gate_05_requirement "- [x] **GATE-05**: A maintainer can see, from a single artifact, which specs run on PR vs main vs nightly before and after this milestone, proving no test was silently dropped. (Protected receipt `235-PROTECTED-RECEIPTS.json`, attested by protected main run `30782184713`, reconciles all 93 ownership rows.)"
   @gate_05_trace "| GATE-05 | Phase 235 | Complete (protected run `30782184713`; 93-row execution proof) |"
+  @gate_05_artifacts %{
+    "235-PROTECTED-RECEIPTS.json" => "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+    "235-PROTECTED-RECEIPTS.attestation.jsonl" => "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f",
+    "235-TRUSTED-ROOT.jsonl" => "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
+    "235-TERMINAL-RATIFICATION.json" => "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e"
+  }
+  @gate_05_verifier_sha256 "6c0805e0386186f017215ea7bf10bf450c9aafb68ef6742afa2f9e75b0463367"
 
   test "uses immutable remediation-cutoff blobs while retaining later two-PR receipt validation" do
     remediation =
@@ -239,6 +246,18 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert requirements =~ @gate_05_trace
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_requirement)) == 1
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_trace)) == 1
+    assert requirements
+           |> String.split("\n")
+           |> Enum.count(&(String.starts_with?(&1, "- [") and String.contains?(&1, "**GATE-05**"))) == 1
+    assert requirements |> String.split("\n") |> Enum.count(&String.starts_with?(&1, "| GATE-05 |")) == 1
+
+    for {name, digest} <- @gate_05_artifacts do
+      assert sha256!(Path.join(@root, Path.join(@phase, name))) == digest
+    end
+
+    assert sha256!(Path.join(@root, "scripts/ci/verify-terminal-ratification-attestation-offline.sh")) ==
+             @gate_05_verifier_sha256
+
     refute requirements =~ "| FAST-01 | Phase 235 | Gaps Found |"
   end
 
@@ -263,6 +282,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
 
   defp receipt! do
     File.read!(Path.join(@root, Path.join(@phase, @subject))) |> Jason.decode!()
+  end
+
+  defp sha256!(path) do
+    :crypto.hash(:sha256, File.read!(path)) |> Base.encode16(case: :lower)
   end
 
   defp with_runs(receipt, runs) do
