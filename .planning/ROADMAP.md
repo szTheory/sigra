@@ -381,7 +381,7 @@ Plans:
 
 **Wave 9** *(gap closure; blocked on Wave 8 completion)*
 
-- [ ] 235-09-PLAN.md — Capture a fresh protected post-remediation population and reconcile FAST-01 only on a strict measured pass
+- [x] 235-15-PLAN.md — Capture a fresh protected post-remediation population and reconcile FAST-01 only on a strict measured pass
 
 ## Progress
 
@@ -392,7 +392,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 6/8 | Gap closure planned; FAST-01 residual remains measured | — |
+| 235. Terminal Ratification | 9/9 | Execution complete; verification pending | — |
 
 ## Requirement Coverage
 
