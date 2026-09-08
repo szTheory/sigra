@@ -5,14 +5,14 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: executing
-stopped_at: Completed 235-08-PLAN.md
-last_updated: "2026-09-08T19:42:42.384Z"
-last_activity: 2026-08-02
+stopped_at: Paused 235-15 Task 1 before protected dispatch
+last_updated: "2026-09-08T20:02:55.372Z"
+last_activity: 2026-09-08
 last_activity_desc: Phase 235 execution started
-state_head: 0260a6dafcbe5bb2176b8ed5dcaad11163f84394
+state_head: 196cabe410d86cadac15e41241fa57d33fae42f3
 progress:
   total_phases: 6
-  completed_phases: 6
+  completed_phases: 5
   total_plans: 63
   completed_plans: 62
   percent: 83
@@ -26,15 +26,15 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235 — terminal-ratification-measured-not-read
+**Current focus:** Phase 235 — Terminal Ratification — Measured, Not Read
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — READY TO EXECUTE
-Plan: 3 of 8
-Status: Ready to execute
+Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
+Plan: 1 of 9
+Status: Executing Phase 235
 Progress: 3/6 milestone phases complete ([██████████] 100%); Phase 233 not started
-Last activity: 2026-08-02 — Phase 235 execution started
+Last activity: 2026-09-08 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -453,6 +453,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
+- Plan 235-15 paused before protected dispatch: Phase 233 prerequisite ExUnit did not start because configured Erlang 28.5 is not installed; readiness is already retained and must not be refreshed.
 
 ### Roadmap Evolution
 
@@ -585,9 +586,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-08-03T04:00:16.745Z
-Stopped at: Completed 235-08-PLAN.md
-Resume file: None
+Last session: 2026-09-08T20:02:55.235Z
+Stopped at: Paused 235-15 Task 1 before protected dispatch
+Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md
 
 ## Operator Next Steps
 
