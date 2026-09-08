@@ -1,9 +1,9 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
 plan: 15
-status: continued
-blocked_at: null
-updated: 2026-09-08T20:12:00Z
+status: halted
+blocked_at: signed-source-population-evidence
+updated: 2026-09-08T20:36:00Z
 ---
 
 # Plan 235-15 execution diagnostics
@@ -67,3 +67,20 @@ and no failed logs were fetched. The exact artifact, attestation bundle, and
 trusted root were then retained. Their offline verification binds the workflow
 SHA above and subject digest
 `6186f17eae61373f714fda0dd98d4318362de62d7d571d6f05e2e015b26a75ee`.
+
+## Code-review halt
+
+The exact subject authenticates and its 43 derived rows recompute to p50 466,
+but the signed JSON does not retain `created_at`, `updated_at`, requested page
+identities/counts, or a terminal exhaustion marker. Consequently no offline
+consumer can independently derive window membership, queue-inclusive wall
+duration, chronology, or population completeness. This violates the plan's
+independent source-population proof requirement.
+
+The same review's repairable findings were fixed: the trusted root now has a
+pinned digest, provenance and population mutations exercise separate gates, all
+supported terminal conclusions are accepted, and GATE-05 files plus its exact
+requirement records are digest/count pinned. The remaining source-data omission
+cannot be repaired from the existing signed bytes. A second dispatch would
+violate this plan's exact-once/no-reroll rule, so FAST-01 was returned to Gaps
+Found and the residual reopened. No second dispatch occurred.

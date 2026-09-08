@@ -226,22 +226,19 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     end
   end
 
-  test "strict pass reconciles only FAST-01 and leaves GATE-05 byte-exact" do
+  test "derived pass stays open without signed source rows and leaves GATE-05 byte-exact" do
     requirements = File.read!(@requirements)
     result = validate_population!(receipt!())
 
     assert result.verdict == "pass"
-    assert requirements =~ "- [x] **FAST-01**:"
-    assert requirements =~ "| FAST-01 | Phase 235 | Complete ("
-    assert requirements =~ @cutoff_sha
-    assert requirements =~ @cutoff
-    assert requirements =~ @endpoint
-    assert requirements =~ "n=43"
-    assert requirements =~ "p50=466 seconds"
+    assert requirements =~ "- [ ] **FAST-01**:"
+    assert requirements =~ "| FAST-01 | Phase 235 | Gaps Found ("
+    assert requirements =~ "43 derived rows"
+    assert requirements =~ "stored p50 466 seconds"
+    assert requirements =~ "omitted source timestamps and pagination/exhaustion evidence"
     assert requirements =~ @producer_run_id
     assert requirements =~ @producer_run_url
     assert requirements =~ @subject
-    assert requirements =~ @attestation
     assert requirements =~ @gate_05_requirement
     assert requirements =~ @gate_05_trace
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_requirement)) == 1
@@ -258,10 +255,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert sha256!(Path.join(@root, "scripts/ci/verify-terminal-ratification-attestation-offline.sh")) ==
              @gate_05_verifier_sha256
 
-    refute requirements =~ "| FAST-01 | Phase 235 | Gaps Found |"
+    refute requirements =~ "| FAST-01 | Phase 235 | Complete ("
   end
 
-  test "pass closure retains both misses and measured remediation evidence" do
+  test "rejected candidate retains both misses and measured remediation evidence" do
     residual = File.read!(@residual)
 
     assert residual =~ "772 seconds"
@@ -270,7 +267,8 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert residual =~ "148 seconds"
     assert residual =~ "470 seconds"
     assert residual =~ "2026-09-08"
-    assert residual =~ "Closed"
+    assert residual =~ "Open residual"
+    assert residual =~ "Candidate measurement rejected for closure"
     assert residual =~ @cutoff_sha
     assert residual =~ @endpoint
     assert residual =~ "n=43"
@@ -278,6 +276,9 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert residual =~ @producer_run_id
     assert residual =~ @subject
     assert residual =~ @attestation
+    assert residual =~ "cannot independently prove"
+    assert residual =~ "FAST-01\nremains open"
+    refute residual =~ "**Status:** Closed"
   end
 
   defp receipt! do
