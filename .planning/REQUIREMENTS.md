@@ -20,7 +20,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Critical path (FAST)
 
-- [ ] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change.
+- [x] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. (Completed from the fresh independently authenticated population bounded by remediation cutoff `54c33e904155a454255952666711c882afdd06e4` / `2026-08-03T21:37:08Z` and protected endpoint `2026-09-08T20:05:35Z`: n=43, independently recomputed p50=466 seconds, strictly below 720. Producer run [`34272746647`](https://github.com/szTheory/sigra/actions/runs/34272746647); subject `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json`; attestation `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl`. The earlier 772- and 724-second misses remain immutable history.)
 - [x] **FAST-02**: Design-gallery snapshot boards no longer run on the PR gate; they run on push-to-main and nightly, and their accessibility assertions still run on every PR.
 - [x] **FAST-03**: `admin_eval_render` no longer runs on pull requests.
 - [x] **FAST-04**: Pushing a new commit to a PR branch cancels the superseded in-flight CI run instead of letting it complete; main and scheduled runs are never cancelled.
@@ -65,7 +65,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| FAST-01 | Phase 235 | Gaps Found |
+| FAST-01 | Phase 235 | Complete (fresh protected population cutoff `54c33e904155a454255952666711c882afdd06e4` / `2026-08-03T21:37:08Z`, endpoint `2026-09-08T20:05:35Z`, n=43, p50=466 seconds; producer [`34272746647`](https://github.com/szTheory/sigra/actions/runs/34272746647); subject `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json`; attestation `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl`) |
 | FAST-02 | Phase 230 | Complete |
 | FAST-03 | Phase 230 | Complete |
 | FAST-04 | Phase 230 | Complete |
