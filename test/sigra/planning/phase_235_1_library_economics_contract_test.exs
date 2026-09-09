@@ -96,12 +96,12 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert passkeys =~ "InstallFixture.checkout!(:passkeys_standard, \"passkeys-rerun\")"
     assert passkeys =~ "InstallFixture.variant!(:passkeys_nonstandard_app_js)"
     assert passkeys =~ "passkey_browser.js"
-    assert passkeys =~ "count_occurrences(app_js, @marker) == 1"
+    assert passkeys =~ "count_occurrences(app_js, @passkey_start_marker) == 1"
     refute passkeys =~ "InstallFixture.setup_tmp_app_without_install"
 
     assert opt_out =~ "variant: :no_passkeys"
     assert opt_out =~ "variant: :no_org_no_passkeys"
-    assert opt_out =~ "InstallFixture.checkout!(variant, \"opt-out-"
+    assert opt_out =~ ~S|InstallFixture.checkout!(variant, "opt-out-#{variant}")|
     assert opt_out =~ "compile\", \"--warnings-as-errors"
     refute opt_out =~ "InstallFixture.setup_tmp_app_without_install"
 
@@ -130,7 +130,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     assert blocked =~ "34395477605"
     assert blocked =~ "status: blocked"
-    assert blocked =~ "Passing evidence: Intentionally absent"
+    assert blocked =~ "**Passing evidence:** Intentionally absent"
     refute blocked =~ "status: complete"
   end
 

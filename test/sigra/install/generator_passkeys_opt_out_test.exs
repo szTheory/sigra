@@ -7,10 +7,11 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   @moduletag :scaffold
 
   @cases [
-    %{label: "passkeys disabled", flags: ["--no-passkeys"]},
+    %{label: "passkeys disabled", flags: ["--no-passkeys"], variant: :no_passkeys},
     %{
       label: "passkeys disabled with organizations disabled",
-      flags: ["--no-organizations", "--no-passkeys"]
+      flags: ["--no-organizations", "--no-passkeys"],
+      variant: :no_org_no_passkeys
     }
   ]
 
@@ -30,15 +31,15 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   ]
 
   describe "mix sigra.install opt out" do
-    for %{label: label, flags: flags} <- @cases do
-      @tag flags: flags
-      test "#{label} omits passkey routes, files, dependencies, and residue", %{flags: flags} do
-        {:ok, %{app_dir: app_dir}} =
-          InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name())
+    for %{label: label, flags: flags, variant: variant} <- @cases do
+      @tag flags: flags, variant: variant
+      test "#{label} omits passkey routes, files, dependencies, and residue", %{
+        flags: _flags,
+        variant: variant
+      } do
+        checkout = InstallFixture.checkout!(variant, "opt-out-#{variant}")
+        app_dir = checkout.path
 
-        on_exit(fn -> File.rm_rf(Path.dirname(app_dir)) end)
-
-        assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, flags)
         # --warnings-as-errors guards against dead code in opt-out builds, e.g. an
         # impersonation guard helper whose only caller is passkey-gated (Phase 221).
         assert {:ok, _stdout} =
@@ -115,9 +116,5 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     app_dir
     |> Path.basename()
     |> Macro.underscore()
-  end
-
-  defp unique_app_name do
-    "sigra_passkeys_opt_out_#{System.unique_integer([:positive])}"
   end
 end
