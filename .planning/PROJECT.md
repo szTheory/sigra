@@ -68,6 +68,8 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 **Goal:** Cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest — by *executing* the already-written SEED-005 audit rather than re-running it.
 
+**Status:** Phase work complete — 6/6 phases and 67/67 plans finished. Phase 235 verified the authenticated source-complete FAST-01 result at n=52 / p50=469 seconds and preserved the independent 93-row GATE-05 ownership proof. Ready for milestone closeout.
+
 **Target features:**
 - **Reclaim the critical path** — design-gallery snapshots off the PR gate (a11y assertions stay), `admin_eval_render` demoted to non-PR, a `concurrency:` block, path filters, cached Playwright browsers, and `timeout-minutes` on every job.
 - **Make red mean something again** — revive the nightly (0 pass / 9 fail for weeks) and fix the two checks that report green while verifying nothing: `generated_admin_playwright_smoke` skipped on every PR behind a long-merged branch name, and `ci-gate` counting `skipped` as pass.
@@ -589,6 +591,10 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — Phase 235
+- ✓ **FAST-01** — authenticated source-complete protected evidence verifies 52 eligible PR runs at a 469-second wall-clock p50, below the strict 720-second threshold, with literal terminal conclusions and immutable miss history.
+- ✓ **GATE-05** — the protected 93-row ownership ledger, receipts, contributor topology, and independent offline verifier remain exact while FAST-01 is reconciled.
+
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.
 
@@ -1009,6 +1015,8 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | v1.39 idempotent fractal quality system (ledger + monotonic guard + scorecard) | A re-runnable design-system audit needs a forward-only ratchet: a quality-tier ledger per fractal-level item, a merge-blocking monotonic guard vs base ref, and a deterministic D1–D11 scorecard, so re-runs start from "current = ratified" and never regress. | ✓ Validated v1.39 (Phases 185–192) — ~35 ledger cells locked Tier 1; Phase 192 terminal gate proved forward-only vs origin/main |
 | v1.39 hand-rolled example-only `/admin/_design` gallery (no `phx_storybook` dep) | Auditing every component/group in every state/theme/width needs an isolated harness, but a storybook dependency would violate the minimal-deps constraint and isn't host-shippable. Build it in `test/example/` only, contract-guarded against ever being templated to the installer. | ✓ Validated v1.39 (Phase 185, INFRA-01) — gallery + `admin-design-{chromium,mobile,dark}` snapshot+axe lane |
 | A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
+| Source-complete signed evidence is the FAST-01 authority | Derived statistics cannot prove membership, chronology, pagination exhaustion, or preserved terminal outcomes; the signed raw source must replay exactly against the metrics instrument. | ✓ Validated Phase 235 — protected run `34350618761`, n=52, p50=469 seconds, exact offline replay |
+| FAST-01 reconciliation cannot reopen GATE-05 | Performance evidence and ownership evidence have separate protected receipts and verifiers, preventing a favorable performance result from weakening coverage ownership. | ✓ Validated Phase 235 — independent 93-row GATE-05 proof remained byte-stable and green |
 
 ## Evolution
 
@@ -1125,3 +1133,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-07-10 — `/gsd-new-milestone` opened **v1.45 RELEASE-CURRENCY** (phases continue from 221). Maintenance-first/post-1.0 lane chosen over an 11th UI milestone: **get Sigra current and trustworthy on Hex.** Root cause mapped: Hex is stuck at v1.1.0 because release-please auto-publish (`release-please.yml` → `hex-publish` job, gated on `gate-ci-green`) has been blocked since 2026-07-03 — `ci-gate` is red on every push to `main` from a **push/schedule-only, PR-invisible** `Upgrade smoke` `<.button type>` warning-as-error; v1.2.0 (#66) + v1.3.0 (#74) were cut + tagged + GitHub-released but silently never published. Four target features: (1) fix the `<.button type>` upgrade-smoke blocker (lib + installer template + example parity, golden re-bless) → `ci-gate` green; (2) publish v1.2.0 + v1.3.0 contiguous + retire stray `1.20.0` so `latest_stable` resolves to GA; (3) release-lane hardening so a red gate can't silently strand a release (Upgrade-smoke PR-visible/alerting + auto-publish fails loudly); (4) ship-honest generated-host debt (security-adjacent WR-01 installer `scope:` fix + golden re-bless, WR-02 copy, app.css corruption-guard false-negative, up.sh --help). Human-gated: `mix hex.retire` + publish dispatch (interactive Hex write-auth). Deferred: FEAT-01/02/03, SEED-005 CI-perf, further UI. Next: define REQUIREMENTS.md → roadmap.*
 
 *Last updated: 2026-08-02 — Phase **234 Hygiene, Supply Chain, and Contributor DX** complete (21/21 plans; verifier 7/7, status passed). `mix ci` is the executable contributor/PR parity path, release-critical actions and Dependabot coverage are fail-closed, every Playwright spec has an exact executable owner, SEED-006 evidence is ratified, and completion now admits exactly the six named evidence slots. The final gap also reblessed the generated `config/dev.exs` golden from stale Phoenix 1.8.7 scaffold bytes to the pinned `phx_new` 1.8.8 output. Phase 235 terminal ratification is next.*
+
+*Last updated: 2026-09-09 after Phase **235 Terminal Ratification — Measured, Not Read** completed (13/13 plans; verifier 11/11, UAT 2/2, Nyquist compliant, security threats open 0). Authenticated source-complete evidence closes FAST-01 at n=52 and p50=469 seconds; GATE-05 remains independently complete with its protected 93-row ownership proof. v1.47 is 6/6 phases and 67/67 plans complete, ready for `$gsd-complete-milestone v1.47`.*

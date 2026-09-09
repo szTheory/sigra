@@ -3,38 +3,37 @@ gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
-current_phase_name: Terminal Ratification — Measured, Not Read
-status: executing
-stopped_at: Completed 235-19-PLAN.md
-last_updated: "2026-09-09T15:32:28.071Z"
+status: completed
+stopped_at: Phase 235 complete — all phases complete
+last_updated: "2026-09-09T16:23:40.392Z"
 last_activity: 2026-09-09
-last_activity_desc: Completed Plan 235-19 literal terminal-outcome parity repair
-state_head: 59696e4b043339d36c3e548aa20b570968321a40
+last_activity_desc: Phase 235 complete
+state_head: 40cf8819abcdcab7359691b6cefe66aa29c656e0
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 67
   completed_plans: 67
-  percent: 83
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-31)
+See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235 — Terminal Ratification — Measured, Not Read
+**Current focus:** v1.47 CI-EFFICIENCY milestone closeout
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — AWAITING RE-VERIFICATION
+Phase: 235
 Plan: 13 of 13
-Status: All plans complete; ready for phase re-verification
-Progress: 5/6 milestone phases complete ([████████░░] 83%); 13 of 13 Phase 235 plans complete
-Last activity: 2026-09-09 — Completed Plan 235-19 literal terminal-outcome parity repair
+Status: All phases complete
+Progress: 6/6 milestone phases complete ([██████████] 100%); 13 of 13 Phase 235 plans complete
+Last activity: 2026-09-09 — Phase 235 complete
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -599,13 +598,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T15:32:27.851Z
-Stopped at: Completed 235-19-PLAN.md
+Last session: 2026-09-09T16:25:00Z
+Stopped at: Phase 235 complete — all phases complete
 Resume file: None
 
 ## Operator Next Steps
 
-- Verify the completed Terminal Ratification phase with `$gsd-verify-work 235`.
+- Complete and archive v1.47 with `$gsd-complete-milestone v1.47`.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
