@@ -24,6 +24,7 @@ trap cleanup EXIT
 
 STUB_BIN="${TMP_ROOT}/bin"
 CALLS="${TMP_ROOT}/calls"
+DIAGNOSTIC="/tmp/sigra-install-golden-diagnostics.json"
 mkdir -p "$STUB_BIN"
 : >"$CALLS"
 
@@ -31,6 +32,11 @@ cat >"${STUB_BIN}/mix" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s|prepared=%s\n' "$*" "${SIGRA_INSTALL_GOLDEN_PREPARED:-}" >>"$SIGRA_TEST_CALLS"
+if [[ "${SIGRA_TEST_SKIP_DIAGNOSTIC:-false}" != "true" ]]; then
+  cat >"/tmp/sigra-install-golden-diagnostics.json" <<'JSON'
+{"schema_version":"sigra.install-fixture-diagnostics/v1","phases":{"phx_new":1,"deps_get":1,"baseline_compile":1,"installer":1,"receiver_compile_runtime":1,"checkout_copy":1},"copy_mode":"copy","variant_count":6,"worker_count":2,"partitions":["a","b"],"ports":[41001,41002],"failed_paths":[]}
+JSON
+fi
 if [[ "${SIGRA_TEST_SIGNAL:-false}" == "true" ]]; then
   kill -TERM "$$"
 fi
@@ -42,6 +48,7 @@ EXPECTED='test test/sigra/install/features/passkeys_js_test.exs test/sigra/insta
 
 run_runner() {
   : >"$CALLS"
+  rm -f "$DIAGNOSTIC"
   set +e
   RUNNER_OUTPUT="$(PATH="${STUB_BIN}:${PATH}" SIGRA_TEST_CALLS="$CALLS" "$@" bash "$RUNNER" 2>&1)"
   RUNNER_RC=$?
@@ -55,6 +62,18 @@ if [[ "$RUNNER_RC" -eq 0 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]] \
   pass "fixed receiver universe executes exactly once in prepared mode"
 else
   fail "fixed invocation rc=${RUNNER_RC}, calls=$(tr '\n' ';' <"$CALLS"), output=${RUNNER_OUTPUT}"
+fi
+
+if jq -e '
+  .schema_version == "sigra.install-fixture-diagnostics/v1" and
+  .raw_install_duration_ms > 0 and
+  ([.phases[]] | add) <= .raw_install_duration_ms and
+  (.phases | keys | sort) == (["baseline_compile", "checkout_copy", "deps_get", "installer", "phx_new", "receiver_compile_runtime"] | sort) and
+  .variant_count == 6 and .worker_count == 2 and has("verdict") == false
+' "$DIAGNOSTIC" >/dev/null; then
+  pass "diagnostic phases are complete, bounded, and non-authoritative"
+else
+  fail "diagnostic receipt missing or malformed"
 fi
 
 echo "Test B: child status is process authority"
@@ -80,6 +99,14 @@ if ! grep -Eq 'eval|\$@|SIGRA_(INSTALL_)?COMMAND|bash -c' "$RUNNER" \
   pass "runner source is fixed and each endpoint path appears once"
 else
   fail "runner contains a dynamic command seam or duplicated endpoint"
+fi
+
+echo "Test E: missing diagnostics fail a successful child closed"
+run_runner env SIGRA_TEST_SKIP_DIAGNOSTIC=true
+if [[ "$RUNNER_RC" -ne 0 ]] && grep -q 'diagnostic receipt' <<<"$RUNNER_OUTPUT"; then
+  pass "missing diagnostics cannot produce a green install leg"
+else
+  fail "missing diagnostic rc=${RUNNER_RC}, output=${RUNNER_OUTPUT}"
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"

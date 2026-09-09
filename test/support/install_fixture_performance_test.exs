@@ -118,6 +118,81 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute File.exists?(root)
   end
 
+  test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
+    graph = prepare_test_graph!(root)
+    receipt = InstallFixture.diagnostic_receipt(graph, 100)
+
+    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+
+    assert Map.keys(receipt.phases) |> Enum.sort() ==
+             ~w(baseline_compile checkout_copy deps_get installer phx_new receiver_compile_runtime)a
+
+    assert Enum.all?(receipt.phases, fn {_phase, duration} -> duration > 0 end)
+    assert Enum.sum(Map.values(receipt.phases)) <= receipt.raw_install_duration_ms
+    assert receipt.variant_count == 6
+    assert receipt.worker_count == 2
+    refute Map.has_key?(receipt, :verdict)
+
+    assert_raise ArgumentError, fn ->
+      receipt
+      |> put_in([:phases, :installer], 0)
+      |> InstallFixture.validate_diagnostics!()
+    end
+
+    assert_raise ArgumentError, fn ->
+      %{receipt | phases: Map.put(receipt.phases, :unexpected, 1)}
+      |> InstallFixture.validate_diagnostics!()
+    end
+
+    assert_raise ArgumentError, fn ->
+      %{receipt | raw_install_duration_ms: 1}
+      |> InstallFixture.validate_diagnostics!()
+    end
+  end
+
+  test "scenario runner fixes concurrency at two and cancels on first failure" do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0, completed: []} end)
+    caller = self()
+
+    scenarios = [
+      %{id: :slow, path: "/tmp/slow"},
+      %{id: :fail, path: "/tmp/fail"},
+      %{id: :never_started, path: "/tmp/never"}
+    ]
+
+    runner = fn scenario ->
+      Agent.update(counter, fn state ->
+        active = state.active + 1
+        %{state | active: active, maximum: max(state.maximum, active)}
+      end)
+
+      send(caller, {:started, scenario.id})
+
+      result =
+        case scenario.id do
+          :fail -> {:error, 23}
+          _ -> Process.sleep(5_000)
+        end
+
+      Agent.update(counter, fn state ->
+        %{state | active: state.active - 1, completed: [scenario.id | state.completed]}
+      end)
+
+      result
+    end
+
+    assert {:error, %{status: 23, failed_path: "/tmp/fail"}} =
+             InstallFixture.run_scenarios(scenarios, runner)
+
+    state = Agent.get(counter, & &1)
+    assert state.maximum == 2
+    refute :never_started in state.completed
+    refute :slow in state.completed
+    assert_receive {:started, :slow}
+    assert_receive {:started, :fail}
+    refute_receive {:started, :never_started}
+  end
+
   defp prepare_test_graph!(root) do
     InstallFixture.prepare_graph!(
       root: root,

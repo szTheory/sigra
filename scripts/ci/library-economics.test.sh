@@ -181,6 +181,20 @@ else
   fail "zero duration rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
 fi
 
+echo "Test H: prepared-fixture reset remains inside install timing markers"
+install_start_line="$(grep -n 'install_start=.*clock_ms' "$PRODUCER" | cut -d: -f1)"
+diagnostic_reset_line="$(grep -n 'rm -f.*sigra-install-golden-diagnostics' "$PRODUCER" | cut -d: -f1)"
+install_call_line="$(grep -n '^mix ci.install_golden$' "$PRODUCER" | cut -d: -f1)"
+install_end_line="$(grep -n 'install_end=.*clock_ms' "$PRODUCER" | cut -d: -f1)"
+if [[ -n "$diagnostic_reset_line" ]] \
+  && ((install_start_line < diagnostic_reset_line)) \
+  && ((diagnostic_reset_line < install_call_line)) \
+  && ((install_call_line < install_end_line)); then
+  pass "all prepared-fixture state begins inside the measured install interval"
+else
+  fail "prepared fixture marker order is not start < reset < child < end"
+fi
+
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if ((FAIL > 0)); then echo "library-economics.test: FAIL"; exit 1; fi
 echo "library-economics.test: PASS"
