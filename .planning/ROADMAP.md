@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single `MIX_ENV=test mix ci` owner: same-run parallel slow-test visibility, separately timed comparable ordinary and install/scaffold work classes, and reconciled TEST-01/02/03 traceability without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 2/5 plans executed
+**Plans:** 3/5 plans executed
 
 **Success Criteria:**
 
@@ -540,7 +540,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 235.1-03-PLAN.md — Add the phase-owned mutation and protected-invariant contract
+- [x] 235.1-03-PLAN.md — Add the phase-owned mutation and protected-invariant contract
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
