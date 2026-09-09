@@ -530,9 +530,22 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 5. Requirements traceability, DX evidence, Phase 235 verification prose, and the milestone audit are reconciled only after the implementation evidence passes.
 
 Plans:
+**Wave 1**
 
 - [ ] 235.1-01-PLAN.md — Build the fail-closed same-run economics producer and independent verifier
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 235.1-02-PLAN.md — Wire one harness into mix ci and the sole Library tests owner
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 235.1-03-PLAN.md — Add the phase-owned mutation and protected-invariant contract
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 235.1-04-PLAN.md — Capture retry-free PR evidence and validate its committed contract
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit
