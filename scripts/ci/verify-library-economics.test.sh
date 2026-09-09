@@ -84,7 +84,7 @@ for spec in \
   label="${spec%%|*}"; filter="${spec#*|}"
   write_receipt 1000 1000
   mutate "$filter"
-  run_expect_fail "${label} timing fails" "raw integer timing"
+  run_expect_fail "${label} timing fails" "predicate failed"
 done
 
 echo "Test E: exact schema and class shape mutations fail"
@@ -103,13 +103,13 @@ for spec in \
   label="${spec%%|*}"; filter="${spec#*|}"
   write_receipt 1000 1000
   mutate "$filter"
-  run_expect_fail "$label fails" "exact schema"
+  run_expect_fail "$label fails" "predicate failed"
 done
 
 echo "Test F: producer-owned verdict and threshold fields cannot override raw values"
 write_receipt 2001 1000
 mutate '.pass = true | .ratio_threshold = 999'
-run_expect_fail "forged verdict and threshold are rejected" "exact schema"
+run_expect_fail "forged verdict and threshold are rejected" "predicate failed"
 
 echo "Test G: malformed, empty, duplicate, and oversized evidence fails closed"
 printf 'not-json\n' >"$RECEIPT"

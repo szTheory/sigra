@@ -24,11 +24,16 @@ clock_ms() {
   python3 -c 'import time; print(time.monotonic_ns() // 1000000)'
 }
 
-positive_duration() {
-  local start="$1" end="$2" duration
+measured_duration() {
+  local class="$1" start="$2" end="$3" duration
   duration=$((end - start))
   if ((duration <= 0)); then
-    duration=1
+    fail "non-positive ${class} duration is invalid raw evidence"
+    return 1
+  fi
+  if ((duration > 86400000)); then
+    fail "${class} duration exceeds the 24-hour evidence bound"
+    return 1
   fi
   printf '%s\n' "$duration"
 }
@@ -115,7 +120,10 @@ mix test --exclude scaffold \
   --formatter Sigra.CI.ExUnitTimingFormatter
 ordinary_status=$?
 ordinary_end="$(clock_ms)" || { fail "monotonic clock failed"; exit 1; }
-ordinary_duration="$(positive_duration "$ordinary_start" "$ordinary_end")"
+if ! ordinary_duration="$(measured_duration ordinary "$ordinary_start" "$ordinary_end")"; then
+  ordinary_conclusion="failure"
+  finish 1
+fi
 
 if ((ordinary_status != 0)); then
   ordinary_conclusion="failure"
@@ -134,7 +142,10 @@ install_start="$(clock_ms)" || { fail "monotonic clock failed"; finish 1; }
 mix ci.install_golden
 install_status=$?
 install_end="$(clock_ms)" || { fail "monotonic clock failed"; finish 1; }
-install_duration="$(positive_duration "$install_start" "$install_end")"
+if ! install_duration="$(measured_duration install_scaffold "$install_start" "$install_end")"; then
+  install_conclusion="failure"
+  finish 1
+fi
 if ((install_status == 0)); then
   install_conclusion="success"
 else

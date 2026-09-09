@@ -161,6 +161,17 @@ else
 fi
 rmdir "$RECEIPT"
 
+echo "Test F2: receipt-write failure never masks an ordinary child status"
+reset_fixture
+mkdir "$RECEIPT"
+run_producer env SIGRA_TEST_ORDINARY_STATUS=41
+if [[ "$PRODUCER_RC" -eq 41 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]]; then
+  pass "ordinary status 41 wins over receipt publication failure"
+else
+  fail "child/write precedence rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+rmdir "$RECEIPT"
+
 echo "Test G: zero measured duration is rejected rather than synthesized"
 reset_fixture 1000 1000 2000 3000
 run_producer env
