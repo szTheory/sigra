@@ -8,6 +8,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
   @correlation_keys ~w(schema_version status repository protected_main readiness rate_limit workflow_id protected_sha projection pre_dispatch dispatch_not_before)
   @forbidden_preflight_keys ~w(post_dispatch selected candidate_count watcher subject attestation)
+  @protected_blob_files ~w(scripts/ci/ci-run-metrics.sh scripts/ci/ci-run-metrics.test.sh scripts/ci/capture-fast-01-gap-closure.sh scripts/ci/capture-fast-01-gap-closure.test.sh .github/workflows/fast-01-gap-closure-evidence.yml scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs)
 
   test "protected workflow attests only the source-complete subject from main" do
     workflow = File.read!(@workflow)
@@ -78,6 +79,8 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
          String.duplicate("0", 40)
        )},
       {"readiness_authority_invalid", put_in(receipt, ["readiness", "authority"], "collector")},
+      {"readiness_purpose_invalid",
+       put_in(receipt, ["readiness", "purpose"], "terminal_verdict")},
       {"readiness_command_invalid", put_in(receipt, ["readiness", "command"], "echo nope")},
       {"readiness_population_undersized",
        put_in(receipt, ["readiness", "eligible_pr_run_count"], 9)},
@@ -144,6 +147,10 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       not is_list(protected["blobs"]) or length(protected["blobs"]) != 7 ->
         {:error, "protected_blob_set_invalid"}
 
+      Enum.map(protected["blobs"], & &1["file"]) |> Enum.sort() !=
+          Enum.sort(@protected_blob_files) ->
+        {:error, "protected_blob_set_invalid"}
+
       Enum.any?(protected["blobs"], fn blob ->
         Map.keys(blob) |> Enum.sort() != ~w(file merge_blob protected_blob) or
           not sha?(blob["merge_blob"]) or blob["merge_blob"] != blob["protected_blob"]
@@ -163,6 +170,9 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       readiness["authority"] != "scripts/ci/ci-run-metrics.sh" ->
         {:error, "readiness_authority_invalid"}
 
+      readiness["purpose"] != "dispatch_predicate_only" ->
+        {:error, "readiness_purpose_invalid"}
+
       not is_binary(readiness["command"]) or
         not String.contains?(readiness["command"], "scripts/ci/ci-run-metrics.sh") or
           not String.contains?(readiness["command"], "--mode wall") ->
@@ -173,7 +183,12 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         {:error, "readiness_population_undersized"}
 
       instrument["eligible_pr_run_count"] != readiness["eligible_pr_run_count"] or
-          instrument["mode"] != "wall" ->
+        instrument["mode"] != "wall" or instrument["event"] != "pull_request" or
+        instrument["schema_version"] != "sigra.ci-run-metrics/source-pages-v1" or
+        instrument["status"] != "measured" or
+          Enum.any?(instrument["runs"], fn run ->
+            run["url"] != "https://github.com/szTheory/sigra/actions/runs/#{run["run_id"]}"
+          end) ->
         {:error, "readiness_receipt_mismatch"}
 
       true ->
@@ -195,6 +210,9 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         {:error, "rate_limit_budget_low"}
 
       not utc?(rate["observed_at"]) or not utc?(rate["core_reset_at"]) ->
+        {:error, "rate_limit_time_invalid"}
+
+      DateTime.compare(parse_utc!(rate["core_reset_at"]), parse_utc!(rate["observed_at"])) == :lt ->
         {:error, "rate_limit_time_invalid"}
 
       not is_nil(rate["retry_after"]) and not utc?(rate["retry_after"]) ->
