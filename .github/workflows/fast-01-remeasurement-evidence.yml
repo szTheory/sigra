@@ -31,7 +31,7 @@ jobs:
       - name: Require a measured minimum population
         run: jq -e '.status == "measured" and .eligible_pr_run_count >= 10 and (.verdict == "pass" or .verdict == "miss")' fast-01-remeasurement.json
       - name: Attest fresh-window provenance
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: fast-01-remeasurement.json
       - name: Upload fresh-window subject
