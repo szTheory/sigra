@@ -32,6 +32,15 @@ defmodule Sigra.Test.InstallFixture do
   @prepared_key {__MODULE__, :prepared_graph}
   @manifest_name ".sigra-install-fixture.json"
   @diagnostic_path "/tmp/sigra-install-golden-diagnostics.json"
+  @scenario_table :sigra_install_fixture_scenarios
+  @diagnostic_phases [
+    :phx_new,
+    :deps_get,
+    :baseline_compile,
+    :installer,
+    :receiver_compile_runtime,
+    :checkout_copy
+  ]
   @variant_names [
     :default_installed,
     :passkeys_standard,
@@ -63,7 +72,14 @@ defmodule Sigra.Test.InstallFixture do
     variant_builder = Keyword.get(opts, :variant_builder, &build_variant!/2)
 
     File.mkdir_p!(Path.dirname(base_path))
-    timings = %{} |> timed_phase(:phx_new, fn -> base_builder.(base_path) end)
+    started = monotonic_ms()
+
+    timings =
+      case base_builder.(base_path) do
+        :ok -> %{phx_new: positive_elapsed(started), deps_get: 1, baseline_compile: 1}
+        {:ok, timings} when is_map(timings) -> validate_base_timings!(timings)
+        other -> raise "base builder returned invalid result: #{inspect(other)}"
+      end
 
     {variants, timings} =
       Enum.reduce(@variant_names, {%{}, timings}, fn name, {variants, phase_timings} ->
@@ -79,6 +95,7 @@ defmodule Sigra.Test.InstallFixture do
           end
 
         installer_ms = positive_elapsed(started)
+        token = System.unique_integer([:positive, :monotonic])
         make_tree_read_only!(variant_path)
 
         variant = %{
@@ -87,6 +104,8 @@ defmodule Sigra.Test.InstallFixture do
           stdout: normalize_stdout(stdout, variant_path),
           fingerprint: fingerprint,
           copy_mode: copy_mode,
+          partition: "variant-#{token}",
+          port: 40_000 + rem(token, 20_000),
           immutable: true
         }
 
@@ -98,11 +117,7 @@ defmodule Sigra.Test.InstallFixture do
         {Map.put(variants, name, variant), phase_timings}
       end)
 
-    timings =
-      timings
-      |> Map.put_new(:deps_get, 1)
-      |> Map.put_new(:baseline_compile, 1)
-      |> Map.put_new(:receiver_compile_runtime, 1)
+    timings = Map.put_new(timings, :receiver_compile_runtime, 1)
 
     graph = %{
       root: root,
@@ -111,9 +126,11 @@ defmodule Sigra.Test.InstallFixture do
       manifest_path: manifest_path,
       fingerprint: fingerprint,
       timings: timings,
+      prepared_at_ms: monotonic_ms(),
       failed_paths: []
     }
 
+    reset_scenario_table!()
     write_manifest!(graph)
     :persistent_term.put(@prepared_key, graph)
     Process.delete({__MODULE__, :building_root})
@@ -151,7 +168,7 @@ defmodule Sigra.Test.InstallFixture do
     token = System.unique_integer([:positive, :monotonic])
     safe_scenario = String.replace(scenario, ~r/[^a-zA-Z0-9_-]/, "-")
     checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
-    {copy_mode, _copy_ms} = copy_tree!(variant.path, checkout_path)
+    {copy_mode, copy_ms} = copy_tree!(variant.path, checkout_path)
     make_tree_writable!(checkout_path)
     build_path = Path.join(checkout_path, "_build/private-#{token}")
     File.mkdir_p!(build_path)
@@ -169,7 +186,76 @@ defmodule Sigra.Test.InstallFixture do
     }
 
     write_checkout_manifest!(checkout)
+    :ets.insert(@scenario_table, {checkout.path, checkout})
+    record_checkout_copy!(graph.root, copy_ms)
     checkout
+  end
+
+  @doc "Runs independent fixture scenarios with an invariant two-worker ceiling."
+  def run_scenarios(scenarios, runner) when is_list(scenarios) and is_function(runner, 1) do
+    ref = make_ref()
+    run_scenario_queue(ref, scenarios, %{}, [], runner)
+  end
+
+  @doc "Builds the diagnostic-only receipt consumed by the fixed shell runner."
+  def diagnostic_receipt(graph, raw_install_duration_ms \\ nil) do
+    checkouts = scenario_checkouts()
+    identities = Map.values(graph.variants) ++ checkouts
+    partitions = Enum.map(identities, & &1.partition)
+    ports = Enum.map(identities, & &1.port)
+
+    receipt = %{
+      schema_version: "sigra.install-fixture-diagnostics/v1",
+      phases: Map.take(graph.timings, @diagnostic_phases),
+      copy_mode: aggregate_copy_mode(graph, checkouts),
+      variant_count: map_size(graph.variants),
+      worker_count: 2,
+      partitions: partitions,
+      ports: ports,
+      failed_paths: failed_paths()
+    }
+
+    if is_nil(raw_install_duration_ms),
+      do: receipt,
+      else: Map.put(receipt, :raw_install_duration_ms, raw_install_duration_ms)
+  end
+
+  @doc "Rejects incomplete, forged, non-positive, or out-of-bound diagnostics."
+  def validate_diagnostics!(receipt) when is_map(receipt) do
+    expected_keys =
+      ~w(schema_version phases copy_mode variant_count worker_count partitions ports failed_paths raw_install_duration_ms)a
+
+    phase_keys = receipt |> Map.fetch!(:phases) |> Map.keys()
+    raw_duration = Map.fetch!(receipt, :raw_install_duration_ms)
+    durations = Map.values(receipt.phases)
+
+    valid? =
+      Enum.sort(Map.keys(receipt)) == Enum.sort(expected_keys) and
+        receipt.schema_version == "sigra.install-fixture-diagnostics/v1" and
+        Enum.sort(phase_keys) == Enum.sort(@diagnostic_phases) and
+        Enum.all?(durations, &(is_integer(&1) and &1 > 0)) and
+        is_integer(raw_duration) and raw_duration > 0 and Enum.sum(durations) <= raw_duration and
+        receipt.variant_count == 6 and receipt.worker_count == 2 and
+        unique?(receipt.partitions) and unique?(receipt.ports) and
+        receipt.copy_mode in [:reflink, :copy] and is_list(receipt.failed_paths)
+
+    if valid?, do: :ok, else: raise(ArgumentError, "invalid install fixture diagnostics")
+  rescue
+    KeyError -> raise ArgumentError, "invalid install fixture diagnostics"
+  end
+
+  @doc "Finalizes receiver time and atomically publishes non-authoritative diagnostics."
+  def finalize_diagnostics!(graph) do
+    graph =
+      case :persistent_term.get(@prepared_key, nil) do
+        %{root: root} = current when root == graph.root -> current
+        _ -> graph
+      end
+
+    receiver_ms = positive_elapsed(graph.prepared_at_ms)
+    graph = put_in(graph, [:timings, :receiver_compile_runtime], receiver_ms)
+    write_diagnostic!(graph)
+    graph
   end
 
   @doc "Builds an exact runtime/lock/compiler compatibility digest."
@@ -228,6 +314,8 @@ defmodule Sigra.Test.InstallFixture do
       %{root: ^root} -> :persistent_term.erase(@prepared_key)
       _ -> :ok
     end
+
+    if :ets.whereis(@scenario_table) != :undefined, do: :ets.delete(@scenario_table)
 
     :ok
   end
@@ -701,6 +789,7 @@ defmodule Sigra.Test.InstallFixture do
 
   defp build_source_base!(base_path) do
     parent = Path.dirname(base_path)
+    phx_started = monotonic_ms()
 
     {phx_out, phx_status} =
       System.cmd("mix", ["phx.new", @app_name, "--no-assets", "--no-install"],
@@ -709,8 +798,12 @@ defmodule Sigra.Test.InstallFixture do
       )
 
     if phx_status != 0, do: raise("mix phx.new failed (status #{phx_status}):\n#{phx_out}")
+    phx_ms = positive_elapsed(phx_started)
     patch_mix_exs_with_path_dep!(base_path)
+    deps_started = monotonic_ms()
     mix_deps_get_noninteractive!(base_path)
+    deps_ms = positive_elapsed(deps_started)
+    compile_started = monotonic_ms()
 
     {compile_out, compile_status} =
       System.cmd("mix", ["compile"],
@@ -720,7 +813,13 @@ defmodule Sigra.Test.InstallFixture do
       )
 
     if compile_status != 0, do: raise("pre-install mix compile failed:\n#{compile_out}")
-    :ok
+
+    {:ok,
+     %{
+       phx_new: phx_ms,
+       deps_get: deps_ms,
+       baseline_compile: positive_elapsed(compile_started)
+     }}
   end
 
   defp build_variant!(name, variant_path) do
@@ -790,6 +889,8 @@ defmodule Sigra.Test.InstallFixture do
            "stdout" => variant.stdout,
            "fingerprint" => variant.fingerprint,
            "copy_mode" => Atom.to_string(variant.copy_mode),
+           "partition" => variant.partition,
+           "port" => variant.port,
            "immutable" => true
          }}
       end)
@@ -805,7 +906,11 @@ defmodule Sigra.Test.InstallFixture do
     }
 
     write_json_atomic!(graph.manifest_path, receipt)
-    write_json_atomic!(@diagnostic_path, receipt)
+    write_diagnostic!(graph)
+  end
+
+  defp write_diagnostic!(graph) do
+    write_json_atomic!(@diagnostic_path, diagnostic_receipt(graph))
   end
 
   defp write_json_atomic!(path, value) do
@@ -816,11 +921,15 @@ defmodule Sigra.Test.InstallFixture do
     File.rename!(temp, path)
   end
 
-  defp timed_phase(timings, name, fun) do
-    started = monotonic_ms()
-    result = fun.()
-    if result != :ok, do: raise("#{name} builder must return :ok")
-    Map.put(timings, name, positive_elapsed(started))
+  defp validate_base_timings!(timings) do
+    expected = [:baseline_compile, :deps_get, :phx_new]
+
+    if Enum.sort(Map.keys(timings)) == expected and
+         Enum.all?(timings, fn {_phase, duration} -> is_integer(duration) and duration > 0 end) do
+      timings
+    else
+      raise "base builder timings must contain exact positive phx_new/deps_get/baseline_compile values"
+    end
   end
 
   defp monotonic_ms, do: System.monotonic_time(:millisecond)
@@ -828,7 +937,7 @@ defmodule Sigra.Test.InstallFixture do
 
   defp copy_tree!(source, target) do
     source = Path.expand(source)
-    target = Path.expand(target)
+    target = validate_graph_member!(target)
     File.mkdir_p!(Path.dirname(target))
     started = monotonic_ms()
 
@@ -836,16 +945,16 @@ defmodule Sigra.Test.InstallFixture do
       case :os.type() do
         {:unix, :linux} ->
           {out, rc} =
-            System.cmd("cp", ["--reflink=auto", "-R", source, target], stderr_to_stdout: true)
+            System.cmd("cp", ["--reflink=auto", "-RL", source, target], stderr_to_stdout: true)
 
           {:reflink, out, rc}
 
         {:unix, :darwin} ->
-          {out, rc} = System.cmd("cp", ["-cR", source, target], stderr_to_stdout: true)
+          {out, rc} = System.cmd("cp", ["-cRL", source, target], stderr_to_stdout: true)
           {:reflink, out, rc}
 
         _ ->
-          {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+          {out, rc} = System.cmd("cp", ["-RL", source, target], stderr_to_stdout: true)
           {:copy, out, rc}
       end
 
@@ -854,12 +963,35 @@ defmodule Sigra.Test.InstallFixture do
         {mode, output, status}
       else
         File.rm_rf!(target)
-        {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+        {out, rc} = System.cmd("cp", ["-RL", source, target], stderr_to_stdout: true)
         {:copy, out, rc}
       end
 
     if status != 0, do: raise("private fixture copy failed (status #{status}): #{output}")
     {mode, positive_elapsed(started)}
+  end
+
+  defp validate_graph_member!(path) do
+    expanded = Path.expand(path)
+
+    graph_root =
+      expanded
+      |> Path.dirname()
+      |> Stream.unfold(fn
+        "/" -> nil
+        current -> {current, Path.dirname(current)}
+      end)
+      |> Enum.find(fn candidate ->
+        String.starts_with?(Path.basename(candidate), "sigra_install_golden.") and
+          canonical_directory!(Path.dirname(candidate)) == canonical_directory!(System.tmp_dir!())
+      end)
+
+    if is_nil(graph_root) or expanded == graph_root or
+         not String.starts_with?(expanded, graph_root <> "/") do
+      raise ArgumentError, "unsafe install fixture target: #{expanded}"
+    end
+
+    expanded
   end
 
   defp make_tree_read_only!(root) do
@@ -912,6 +1044,125 @@ defmodule Sigra.Test.InstallFixture do
       end
     end)
   end
+
+  defp reset_scenario_table! do
+    if :ets.whereis(@scenario_table) != :undefined, do: :ets.delete(@scenario_table)
+    :ets.new(@scenario_table, [:named_table, :public, :set, read_concurrency: true])
+  end
+
+  defp scenario_checkouts do
+    case :ets.whereis(@scenario_table) do
+      :undefined ->
+        []
+
+      _table ->
+        @scenario_table |> :ets.tab2list() |> Enum.map(&elem(&1, 1)) |> Enum.sort_by(& &1.path)
+    end
+  end
+
+  defp record_checkout_copy!(root, copy_ms) do
+    :global.trans({__MODULE__, :graph_update}, fn ->
+      case :persistent_term.get(@prepared_key, nil) do
+        %{root: ^root} = graph ->
+          updated = update_in(graph, [:timings, :checkout_copy], &(&1 + copy_ms))
+          :persistent_term.put(@prepared_key, updated)
+
+        _ ->
+          :ok
+      end
+    end)
+  end
+
+  defp failed_paths do
+    scenario_checkouts()
+    |> Enum.filter(&Map.get(&1, :failed, false))
+    |> Enum.map(& &1.path)
+  end
+
+  defp aggregate_copy_mode(graph, checkouts) do
+    modes =
+      Enum.map(graph.variants, fn {_name, variant} -> variant.copy_mode end) ++
+        Enum.map(checkouts, & &1.copy_mode)
+
+    if Enum.all?(modes, &(&1 == :reflink)), do: :reflink, else: :copy
+  end
+
+  defp unique?(values), do: length(values) == MapSet.size(MapSet.new(values))
+
+  defp run_scenario_queue(ref, queued, active, results, runner) do
+    {queued, active} = fill_scenario_workers(ref, queued, active, runner)
+
+    if map_size(active) == 0 do
+      {:ok, Enum.reverse(results)}
+    else
+      receive do
+        {^ref, pid, scenario, {:ok, result}} ->
+          run_scenario_queue(
+            ref,
+            queued,
+            Map.delete(active, pid),
+            [{scenario, result} | results],
+            runner
+          )
+
+        {^ref, pid, scenario, {:error, status}} ->
+          active |> Map.delete(pid) |> Map.keys() |> Enum.each(&Process.exit(&1, :kill))
+          mark_scenario_failed!(scenario)
+          {:error, %{status: status, failed_path: Map.get(scenario, :path)}}
+      end
+    end
+  end
+
+  defp fill_scenario_workers(ref, queued, active, runner) when map_size(active) < 2 do
+    case queued do
+      [scenario | rest] ->
+        parent = self()
+
+        pid =
+          spawn(fn ->
+            result =
+              try do
+                case runner.(scenario) do
+                  :ok -> {:ok, :ok}
+                  {:ok, value} -> {:ok, value}
+                  {:error, status} when is_integer(status) and status != 0 -> {:error, status}
+                  other -> {:error, {:invalid_result, other}}
+                end
+              rescue
+                _exception -> {:error, 1}
+              catch
+                :exit, _reason -> {:error, 1}
+              end
+
+            send(parent, {ref, self(), scenario, result})
+          end)
+
+        fill_scenario_workers(ref, rest, Map.put(active, pid, scenario), runner)
+
+      [] ->
+        {[], active}
+    end
+  end
+
+  defp fill_scenario_workers(_ref, queued, active, _runner), do: {queued, active}
+
+  defp mark_scenario_failed!(%{path: path}) when is_binary(path) do
+    case :ets.whereis(@scenario_table) do
+      :undefined ->
+        :ok
+
+      _table ->
+        case :ets.lookup(@scenario_table, path) do
+          [{^path, checkout}] ->
+            :ets.insert(@scenario_table, {path, Map.put(checkout, :failed, true)})
+
+          [] ->
+            :ok
+        end
+    end
+  end
+
+  defp mark_scenario_failed!(_scenario), do: :ok
 
   @doc false
   def normalize_path_for_golden(rel), do: normalize_path(rel)

@@ -32,6 +32,8 @@ case System.get_env("SIGRA_INSTALL_GOLDEN_PREPARED") do
     graph = Sigra.Test.InstallFixture.prepare_graph!()
 
     ExUnit.after_suite(fn result ->
+      graph = Sigra.Test.InstallFixture.finalize_diagnostics!(graph)
+
       if result.failures == 0 do
         Sigra.Test.InstallFixture.cleanup_graph!(graph)
       else

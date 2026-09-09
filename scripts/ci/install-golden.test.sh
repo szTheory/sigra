@@ -19,6 +19,7 @@ cleanup() {
   else
     printf 'install-golden.test: refusing unsafe cleanup: %s\n' "$TMP_ROOT" >&2
   fi
+  rm -f "/tmp/sigra-install-golden-diagnostics.json"
 }
 trap cleanup EXIT
 
@@ -34,7 +35,7 @@ set -euo pipefail
 printf '%s|prepared=%s\n' "$*" "${SIGRA_INSTALL_GOLDEN_PREPARED:-}" >>"$SIGRA_TEST_CALLS"
 if [[ "${SIGRA_TEST_SKIP_DIAGNOSTIC:-false}" != "true" ]]; then
   cat >"/tmp/sigra-install-golden-diagnostics.json" <<'JSON'
-{"schema_version":"sigra.install-fixture-diagnostics/v1","phases":{"phx_new":1,"deps_get":1,"baseline_compile":1,"installer":1,"receiver_compile_runtime":1,"checkout_copy":1},"copy_mode":"copy","variant_count":6,"worker_count":2,"partitions":["a","b"],"ports":[41001,41002],"failed_paths":[]}
+{"schema_version":"sigra.install-fixture-diagnostics/v1","phases":{"phx_new":1,"deps_get":1,"baseline_compile":1,"installer":1,"receiver_compile_runtime":1,"checkout_copy":1},"copy_mode":"copy","variant_count":6,"worker_count":2,"partitions":["a","b","c","d","e","f"],"ports":[41001,41002,41003,41004,41005,41006],"failed_paths":[]}
 JSON
 fi
 if [[ "${SIGRA_TEST_SIGNAL:-false}" == "true" ]]; then

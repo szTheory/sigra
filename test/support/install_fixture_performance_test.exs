@@ -37,6 +37,8 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     Enum.each(graph.variants, fn {name, variant} ->
       assert variant.name == name
       assert variant.immutable
+      assert is_binary(variant.partition)
+      assert is_integer(variant.port)
       assert Path.type(variant.path) == :absolute
       assert File.read!(Path.join(variant.path, "variant.txt")) == Atom.to_string(name)
 
