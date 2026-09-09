@@ -34,6 +34,8 @@ revised: 2026-09-09
 - **Plan 17 Task 1:** Run the preflight receipt jq gate and focused ExUnit contract before presenting protected-main identity/blob equality, readiness, REST budget/reset facts, workflow identity, protected SHA, UTC boundary, and bounded pre-dispatch projection at the decision checkpoint.
 - **Plan 17 Task 3:** After the immediately preceding authorization, dispatch as the first external mutation, validate the finalized durable correlation receipt before the sole watcher, then run both offline verifiers, source-complete subject predicates, and focused ExUnit contracts exactly as declared in `235-17-PLAN.md`.
 - **Plan 18 Tasks 1–2:** Run both offline verifiers plus the applicable FAST/GATE focused contracts before requirement/residual reconciliation, then run the complete planning suite after SEED-005 and CI-PERF synchronization.
+- **Plan 19 Task 1:** Run the focused source-complete ExUnit contract; it drives success, failure, and cancelled through the production-shared semantic fixture path, rejects lossy outcome aggregation, and rechecks the authenticated default path.
+- **Plan 19 Task 2:** Run the metrics self-test, authenticated FAST-01 verifier, independent GATE-05 verifier, and focused source-complete ExUnit contract together, followed by the scoped whitespace check.
 - **After every plan wave:** Run `MIX_ENV=test mix test test/sigra/planning/` plus JSON parse validation for the terminal artifact.
 - **Before `$gsd-verify-work`:** Run `MIX_ENV=test mix ci` and the metrics self-test; both must be green.
 - **Max feedback latency:** Record actual focused-test duration during Wave 0 and keep every subsequent sample within that deterministic bound.
@@ -53,6 +55,8 @@ revised: 2026-09-09
 | 235-17-03 | 17 | 11 | FAST-01, GATE-05 | T-235-17-01/02/03/05/06 | Dispatch is the first external mutation after the checkpoint; a durable singleton correlation receipt precedes one watcher; signed source plus instrument output and miss poles verify offline; GATE-05 stays exact. | Bash + jq + ExUnit | `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh && bash scripts/ci/verify-terminal-ratification-attestation-offline.sh && ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | ✅ | ✅ green |
 | 235-18-01 | 18 | 12 | FAST-01, GATE-05 | T-235-18-01/02/04 | Requirement and residual reconciliation branches only on authenticated metrics-script output after independent comparison and complete pole linkage. | Offline verifier + ExUnit | `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh && bash scripts/ci/verify-terminal-ratification-attestation-offline.sh && ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | ✅ | ✅ green |
 | 235-18-02 | 18 | 12 | FAST-01, GATE-05 | T-235-18-03/04 | SEED-005 and CI-PERF agree with the authenticated pass/miss branch while all historical FAST facts and GATE-05 remain exact. | Offline verifier + ExUnit | `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh && bash scripts/ci/verify-terminal-ratification-attestation-offline.sh && ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs test/sigra/planning/phase_235_fast_01_remeasurement_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs && ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/` | ✅ | ✅ green |
+| 235-19-01 | 19 | 13 | FAST-01 | T-235-19-01/02/03 | The production-shared source-first validator preserves literal success, failure, and cancelled outcomes, requires complete statistics equality, rejects collapsed outcomes, and preserves stable ordering, floor median, and strict threshold behavior. | Bash verifier seam + ExUnit | `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` | ✅ | ✅ green |
+| 235-19-02 | 19 | 13 | FAST-01, GATE-05 | T-235-19-03/04 | The authenticated n=52/p50=469 FAST-01 path and independent protected 93-row GATE-05 proof remain green with exact digest and contributor-topology guards. | Bash + ExUnit integration | `bash scripts/ci/ci-run-metrics.test.sh && bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh && bash scripts/ci/verify-terminal-ratification-attestation-offline.sh && ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs && git diff --check -- scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -103,3 +107,19 @@ Evidence observed during this audit:
 - Four focused Phase 235 contracts — 45 tests, 0 failures.
 - Complete `test/sigra/planning/` suite — 143 tests, 0 failures, 12 intentional skips unrelated to the Phase 235 mapped behaviors.
 - All seven Plan 16 evidence-path blobs match protected-main squash commit `158aca14b11de13cbc5ab2fdea1bff790cc7ab29`; all recorded Plan 16–18 execution commits exist.
+
+### Plan 19 Delta Audit 2026-09-09
+
+| Metric | Count |
+|--------|-------|
+| Plan 19 map entries audited | 2 |
+| Resolved | 2 |
+| Escalated | 0 |
+
+Evidence observed during this delta audit:
+
+- `bash scripts/ci/ci-run-metrics.test.sh` — 11 passing contracts, including literal terminal conclusions, stable equal-duration ordering, floor median, and strict threshold behavior.
+- `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` — `source_complete_offline_attestation_verified`.
+- `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` — `offline_attestation_verified`; its intentional adverse trusted-root and source-ref mutations failed before the positive verification banner.
+- `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` — 16 tests, 0 failures, including the multi-conclusion semantic fixture, collapsed-outcome rejection, authenticated/default-path separation, protected digests, and exact 93-row GATE-05 assertion.
+- `git diff --check -- scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` — clean.
