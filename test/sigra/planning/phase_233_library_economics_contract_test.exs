@@ -47,8 +47,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute dep_off =~ "mix test --only threadline_guard --no-deps-check"
   end
 
-  test "scaffold modules have one explicit ci.install_golden receiver and are excluded from broad test" do
+  test "mix ci routes both test classes through one economics harness" do
     mix_exs = File.read!("mix.exs")
+    harness = File.read!("scripts/ci/library-economics.sh")
     expected_paths = canonical_scaffold_paths()
     live_paths = live_scaffold_paths()
 
@@ -60,10 +61,16 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              "deps.get --check-locked",
              "deps.unlock --check-unused",
              "compile --warnings-as-errors",
-             "test --exclude scaffold",
-             "ci.install_golden",
+             "cmd bash scripts/ci/library-economics.sh",
              "sigra.dep_off"
            ]
+
+    assert length(Regex.scan(~r/mix test --exclude scaffold/, harness)) == 1
+    assert length(Regex.scan(~r/mix ci\.install_golden/, harness)) == 1
+    assert harness =~ "--formatter ExUnit.CLIFormatter"
+    assert harness =~ "--formatter Sigra.CI.ExUnitTimingFormatter"
+    refute harness =~ "--slowest"
+    refute harness =~ "--trace"
 
     receiver_paths = install_golden_paths(mix_exs)
 
@@ -72,6 +79,11 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert length(receiver_paths) == MapSet.size(MapSet.new(receiver_paths)),
            "ci.install_golden must not duplicate scaffold paths"
+
+    Enum.each(receiver_paths, fn path ->
+      refute harness =~ path,
+             "the harness must call ci.install_golden rather than copy receiver path #{path}"
+    end)
   end
 
   test "remediation receipt is closed, retry-free, source-bound, and preserves the strict prior miss" do
