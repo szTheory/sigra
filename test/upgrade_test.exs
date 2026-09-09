@@ -9,7 +9,7 @@ defmodule Sigra.UpgradeIntegrationTest do
     * backfill-on  (ORG-UPGRADE-01): every user gets a personal org, re-run is a no-op
   """
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 

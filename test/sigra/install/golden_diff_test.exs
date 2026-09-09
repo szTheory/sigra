@@ -31,7 +31,7 @@ defmodule Sigra.Install.GoldenDiffTest do
   and review the resulting diff carefully before committing.
   """
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 

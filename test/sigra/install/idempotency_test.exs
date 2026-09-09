@@ -16,7 +16,7 @@ defmodule Sigra.Install.IdempotencyTest do
       the walker's `* skipping <path> (already exists)` /
       `* already injected <path>` emissions
   """
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 

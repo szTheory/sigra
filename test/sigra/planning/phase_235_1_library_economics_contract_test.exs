@@ -80,11 +80,46 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert length(install_golden_paths(runner)) == 6
     assert install_golden_paths(runner) == live_scaffold_paths()
     assert fixture =~ "when map_size(active) < 2"
-    assert fixture =~ "Process.exit(&1, :kill)"
+    assert fixture =~ "Process.exit(pid, :kill)"
     assert fixture =~ "mark_scenario_failed!(scenario)"
     assert fixture =~ "{:error, %{status: status, failed_path: Map.get(scenario, :path)}}"
     assert fixture =~ "MIX_TEST_PARTITION"
     assert fixture =~ "MIX_BUILD_PATH"
+  end
+
+  test "receiver modules overlap behind one graph-global two-worker scheduler" do
+    receiver_sources =
+      [
+        "test/upgrade_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs"
+      ]
+      |> Map.new(&{&1, File.read!(&1)})
+
+    assert map_size(receiver_sources) == 6
+
+    Enum.each(receiver_sources, fn {path, source} ->
+      assert source =~ "use ExUnit.Case, async: true", "#{path} must opt into safe overlap"
+      refute source =~ "use ExUnit.Case, async: false"
+    end)
+
+    fixture = File.read!("test/support/install_fixture.ex")
+
+    assert fixture =~ "def with_worker(fun)"
+    assert fixture =~ "map_size(state.active) < 2"
+    assert fixture =~ "Process.monitor(pid)"
+    assert fixture =~ "Process.get({__MODULE__, :worker_lease}"
+    assert fixture =~ "WorkerPool.release(@worker_pool)"
+    assert fixture =~ "with_worker(fn -> do_checkout!(graph, name, scenario) end)"
+    assert fixture =~ "case with_worker(fn -> runner.(scenario) end)"
+    assert length(Regex.scan(~r/with_worker\(fn/, fixture)) == 5
+
+    golden = Map.fetch!(receiver_sources, "test/sigra/install/golden_diff_test.exs")
+    assert golden =~ "InstallFixture.variant!(:default_installed)"
+    refute golden =~ "InstallFixture.checkout!"
   end
 
   test "all remaining prepared receivers retain real behavior on exact named states" do

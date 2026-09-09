@@ -1,5 +1,5 @@
 defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 
