@@ -5,10 +5,10 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: executing
-stopped_at: Completed 235-18-PLAN.md
-last_updated: "2026-09-09T15:14:27.123Z"
+stopped_at: Planned 235-19-PLAN.md; ready to execute gap closure
+last_updated: "2026-09-09T15:15:35Z"
 last_activity: 2026-09-09
-last_activity_desc: Plan 235-18 reconciled the authenticated FAST-01 pass across every closeout record without changing GATE-05
+last_activity_desc: Planned 235-19 to preserve literal terminal conclusions in the FAST-01 offline verifier
 state_head: 2951593eaafaeb128beadc8cd5f4f926cd63f501
 progress:
   total_phases: 6
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (Terminal Ratification — Measured, Not Read) — READY TO EXECUTE
-Plan: 12 of 12
+Plan: 12 of 13
 Status: Ready to execute
-Progress: 5/6 milestone phases complete ([████████░░] 83%); all 12 Phase 235 plans are complete and ready for verification
-Last activity: 2026-09-09 — Plan 235-18 reconciled the authenticated n=52, p50=469-second FAST-01 pass without changing GATE-05
+Progress: 5/6 milestone phases complete ([████████░░] 83%); 12 of 13 Phase 235 plans complete, with gap-closure Plan 235-19 ready to execute
+Last activity: 2026-09-09 — Planned literal terminal-conclusion parity for the FAST-01 offline verifier without changing GATE-05
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
