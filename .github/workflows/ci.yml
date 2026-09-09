@@ -545,7 +545,60 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
+          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-1-timings.json
+          SIGRA_LIBRARY_ECONOMICS_PATH: /tmp/sigra-library-economics.json
         run: MIX_ENV=test mix ci
+      - name: Validate per-test timing receipt
+        if: always()
+        run: |
+          set -euo pipefail
+          receipt=/tmp/sigra-library-1-timings.json
+          [[ -f "$receipt" && ! -L "$receipt" ]]
+          receipt_size="$(wc -c <"$receipt" | tr -d ' ')"
+          [[ "$receipt_size" =~ ^[0-9]+$ ]]
+          (( receipt_size > 0 && receipt_size <= 10485760 ))
+          jq -e '
+            type == "object" and
+            (keys | sort) == (["excluded", "failed", "invalid", "partition", "passed", "schema_version", "skipped", "tests", "total"] | sort) and
+            .schema_version == 1 and
+            .partition == "ordinary" and
+            (.total | type) == "number" and (.total | floor) == .total and
+            .total > 0 and .total <= 100000 and
+            ([.failed, .excluded, .invalid, .passed, .skipped] |
+              all(.[]; (type == "number") and (floor == .) and . >= 0)) and
+            (.failed + .excluded + .invalid + .passed + .skipped) == .total and
+            (.tests | type) == "array" and (.tests | length) == .total and
+            all(.tests[];
+              type == "object" and
+              (keys | sort) == (["file", "module", "name", "outcome", "time_us"] | sort) and
+              (.file | type) == "string" and (.file | length) > 0 and
+              (.module | type) == "string" and (.module | length) > 0 and
+              (.name | type) == "string" and (.name | length) > 0 and
+              (.outcome | IN("passed", "failed", "skipped", "excluded", "invalid")) and
+              (.time_us | type) == "number" and (.time_us | floor) == .time_us and
+              .time_us >= 0 and .time_us <= 86400000000) and
+            ([.tests[] | [.file, .module, .name]] | unique | length) == .total and
+            .tests == (.tests | sort_by([-(.time_us), .file, .module, .name]))
+          ' "$receipt" >/dev/null
+      - name: Validate library economics receipt
+        if: always()
+        run: bash scripts/ci/verify-library-economics.sh
+      - name: Upload per-test timing receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: library-test-timings-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-library-1-timings.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload library economics receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: library-economics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-library-economics.json
+          if-no-files-found: error
+          retention-days: 7
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
