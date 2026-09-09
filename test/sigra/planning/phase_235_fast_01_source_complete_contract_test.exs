@@ -7,6 +7,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @correlation ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
 
   @correlation_keys ~w(schema_version status repository protected_main readiness rate_limit workflow_id protected_sha projection pre_dispatch dispatch_not_before)
+  @dispatched_correlation_keys @correlation_keys ++ ~w(post_dispatch selected candidate_count)
   @forbidden_preflight_keys ~w(post_dispatch selected candidate_count watcher subject attestation)
   @protected_blob_files ~w(scripts/ci/ci-run-metrics.sh scripts/ci/ci-run-metrics.test.sh scripts/ci/capture-fast-01-gap-closure.sh scripts/ci/capture-fast-01-gap-closure.test.sh .github/workflows/fast-01-gap-closure-evidence.yml scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs)
 
@@ -59,7 +60,35 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   test "reversible dispatch preflight is complete and ready for exact authorization" do
     receipt = File.read!(@correlation) |> Jason.decode!()
 
-    assert :ok = validate_preflight(receipt)
+    preflight = receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+    assert :ok = validate_preflight(preflight)
+  end
+
+  test "dispatched correlation selects exactly one protected-main run before watching" do
+    receipt = File.read!(@correlation) |> Jason.decode!()
+
+    assert :ok = validate_dispatched(receipt)
+  end
+
+  test "dispatched correlation rejects cardinality, identity, and boundary mutations" do
+    receipt = File.read!(@correlation) |> Jason.decode!()
+
+    if receipt["status"] == "dispatched" do
+      mutations = [
+        {"dispatched_keys_invalid", Map.delete(receipt, "post_dispatch")},
+        {"candidate_count_invalid", Map.put(receipt, "candidate_count", 2)},
+        {"post_projection_invalid", put_in(receipt, ["post_dispatch", Access.at(0), "workflow_id"], 0)},
+        {"selected_run_invalid", put_in(receipt, ["selected", "id"], 342_727_466_47)},
+        {"selected_sha_invalid", put_in(receipt, ["selected", "head_sha"], String.duplicate("0", 40))},
+        {"selected_boundary_invalid", put_in(receipt, ["selected", "created_at"], "2026-09-09T01:00:00Z")}
+      ]
+
+      for {diagnostic, mutated} <- mutations do
+        assert {:error, ^diagnostic} = validate_dispatched(mutated), diagnostic
+      end
+    else
+      assert {:error, "dispatched_keys_invalid"} = validate_dispatched(receipt)
+    end
   end
 
   test "preflight contract rejects identity, readiness, rate, and projection mutations with named diagnostics" do
@@ -112,6 +141,58 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
          :ok <- projection(receipt),
          :ok <- boundary(receipt) do
       :ok
+    end
+  end
+
+  defp validate_dispatched(receipt) do
+    preflight = receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+    post = receipt["post_dispatch"]
+    selected = receipt["selected"] || %{}
+
+    cond do
+      Map.keys(receipt) |> Enum.sort() != Enum.sort(@dispatched_correlation_keys) or
+          receipt["status"] != "dispatched" ->
+        {:error, "dispatched_keys_invalid"}
+
+      validate_preflight(preflight) != :ok ->
+        {:error, "preflight_preservation_invalid"}
+
+      receipt["candidate_count"] != 1 ->
+        {:error, "candidate_count_invalid"}
+
+      not is_list(post) or Enum.any?(post, &(not projection_row?(&1, receipt))) or
+          Enum.uniq_by(post, & &1["run_id"]) != post ->
+        {:error, "post_projection_invalid"}
+
+      Map.keys(selected) |> Enum.sort() != ~w(created_at head_sha html_url id) or
+          selected["html_url"] != "https://github.com/szTheory/sigra/actions/runs/#{selected["id"]}" ->
+        {:error, "selected_run_invalid"}
+
+      selected["head_sha"] != receipt["protected_sha"] ->
+        {:error, "selected_sha_invalid"}
+
+      not utc?(selected["created_at"]) or
+          DateTime.compare(parse_utc!(selected["created_at"]), parse_utc!(receipt["dispatch_not_before"])) == :lt ->
+        {:error, "selected_boundary_invalid"}
+
+      true ->
+        pre_ids = MapSet.new(receipt["pre_dispatch"], & &1["run_id"])
+
+        candidates =
+          Enum.filter(post, fn row ->
+            not MapSet.member?(pre_ids, row["run_id"]) and row["workflow_id"] == receipt["workflow_id"] and
+              row["event"] == "workflow_dispatch" and row["head_branch"] == "main" and
+              row["head_sha"] == receipt["protected_sha"] and
+              DateTime.compare(parse_utc!(row["created_at"]), parse_utc!(receipt["dispatch_not_before"])) != :lt
+          end)
+
+        if length(candidates) == 1 and hd(candidates)["run_id"] == selected["id"] and
+             hd(candidates)["html_url"] == selected["html_url"] and
+             hd(candidates)["created_at"] == selected["created_at"] do
+          :ok
+        else
+          {:error, "selected_run_invalid"}
+        end
     end
   end
 
