@@ -134,6 +134,82 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     refute blocked =~ "status: complete"
   end
 
+  test "receiver optimization keeps every behavioral proof executable" do
+    sources = %{
+      golden: File.read!("test/sigra/install/golden_diff_test.exs"),
+      idempotency: File.read!("test/sigra/install/idempotency_test.exs"),
+      upgrade: File.read!("test/upgrade_test.exs"),
+      passkeys: File.read!("test/sigra/install/features/passkeys_js_test.exs"),
+      opt_out: File.read!("test/sigra/install/generator_passkeys_opt_out_test.exs"),
+      vault: File.read!("test/sigra/install/vault_promotion_test.exs")
+    }
+
+    assert_contains_all!(sources.golden, [
+      "InstallFixture.normalize_tree",
+      "assert_tree_equal(actual, expected)",
+      "variant.stdout",
+      "STDOUT diverges from fixture"
+    ])
+
+    assert_contains_all!(sources.idempotency, [
+      "hash_snapshot(app_dir)",
+      "collect_mtimes(app_dir)",
+      "missing_or_changed == []",
+      "new_files == []",
+      "changed_mtimes == []",
+      "already exists",
+      "already injected"
+    ])
+
+    assert_contains_all!(sources.upgrade, [
+      "ecto.migrate",
+      "compile",
+      "assert_login_redirects_to_organizations!",
+      "organizations_table_exists?",
+      "count_personal_orgs!",
+      "expected re-run to be a no-op",
+      "status_codes_seen"
+    ])
+
+    assert_contains_all!(sources.passkeys, [
+      "@passkey_start_marker",
+      "@passkey_end_marker",
+      "@passkey_import",
+      "@passkey_hooks_line",
+      "startRegistration",
+      "startAuthentication",
+      "run_browser_helper_node!"
+    ])
+
+    assert_contains_all!(sources.opt_out, [
+      "@forbidden_strings",
+      "compile\", \"--warnings-as-errors",
+      "migration_present?",
+      "tree_contains?"
+    ])
+
+    assert_contains_all!(sources.vault, [
+      "use Cloak.Vault",
+      "use Cloak.Ecto.Binary",
+      "Vault, []",
+      "compile\", \"--warnings-as-errors"
+    ])
+  end
+
+  test "fixed runner and verifier expose no command, environment, or threshold bypass" do
+    runner = File.read!("scripts/ci/install-golden.sh")
+    verifier = File.read!("scripts/ci/verify-library-economics.sh")
+
+    assert runner =~ "export SIGRA_INSTALL_GOLDEN_PREPARED=1"
+    assert runner =~ "mix test \"${receiver_paths[@]}\""
+    refute runner =~ "eval "
+    refute runner =~ "${SIGRA_INSTALL_GOLDEN"
+    assert verifier =~ "maximum * 1000 <= minimum * 2000"
+    assert verifier =~ "install <= ordinary"
+    refute verifier =~ "THRESHOLD"
+    refute verifier =~ "ALLOW_"
+  end
+
   test "protected FAST-01 and GATE-05 verifiers remain independently green" do
     assert_protected_verifiers!()
   end
@@ -397,6 +473,12 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   defp last_byte_index!(source, needle),
     do: source |> :binary.matches(needle) |> List.last() |> elem(0)
+
+  defp assert_contains_all!(source, needles) do
+    Enum.each(needles, fn needle ->
+      assert source =~ needle, "missing retained receiver proof: #{needle}"
+    end)
+  end
 
   defp alias_body(mix_exs, alias_name) do
     [_, body] = Regex.run(~r/"?#{Regex.escape(alias_name)}"?:\s*\[(.*?)\]/s, mix_exs)
