@@ -198,6 +198,8 @@ defmodule Sigra.Test.InstallFixture do
   def checkout!(graph, name, scenario) when name in @variant_names and is_binary(scenario) do
     variant = variant!(graph, name)
     token = System.unique_integer([:positive, :monotonic])
+    partition = checkout_partition(graph.root, token)
+    port = 40_000 + rem(token, 20_000)
     safe_scenario = String.replace(scenario, ~r/[^a-zA-Z0-9_-]/, "-")
     checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
     {copy_mode, copy_ms} = copy_tree!(variant.path, checkout_path)
@@ -208,13 +210,15 @@ defmodule Sigra.Test.InstallFixture do
       raise "prepared fixture checkout is missing its private compatible build: #{build_path}"
     end
 
+    patch_checkout_isolation!(checkout_path, partition, port)
+
     checkout = %{
       name: name,
       scenario: scenario,
       path: Path.expand(checkout_path),
       build_path: Path.expand(build_path),
-      partition: "prepared-#{token}",
-      port: 40_000 + rem(token, 20_000),
+      partition: partition,
+      port: port,
       fingerprint: graph.fingerprint,
       copy_mode: copy_mode,
       immutable: false
@@ -1153,16 +1157,61 @@ defmodule Sigra.Test.InstallFixture do
 
   defp make_tree_read_only!(root) do
     walk_tree(root, fn path, type ->
-      File.chmod!(path, if(type == :directory, do: 0o555, else: 0o444))
+      permissions = File.stat!(path).mode |> Bitwise.band(0o777) |> Bitwise.band(0o555)
+      required = if type == :directory, do: 0o500, else: 0o400
+      File.chmod!(path, Bitwise.bor(permissions, required))
     end)
   end
 
   defp make_tree_writable!(root) do
     if File.exists?(root) do
       walk_tree(root, fn path, type ->
-        File.chmod!(path, if(type == :directory, do: 0o700, else: 0o600))
+        permissions = File.stat!(path).mode |> Bitwise.band(0o777)
+        required = if type == :directory, do: 0o700, else: 0o200
+        File.chmod!(path, Bitwise.bor(permissions, required))
       end)
     end
+  end
+
+  defp patch_checkout_isolation!(checkout_path, partition, port) do
+    config_path = Path.join(checkout_path, "config/dev.exs")
+    content = File.read!(config_path)
+    database_partition = String.replace(partition, "-", "_")
+
+    patched =
+      Regex.replace(
+        ~r/database:\s*"sigra_install_golden_tmp_dev(?:_[^"]+)?"/,
+        content,
+        ~s(database: "sigra_install_golden_tmp_dev_#{database_partition}"),
+        global: false
+      )
+
+    if patched == content do
+      raise "prepared fixture checkout dev database config is not in the expected shape"
+    end
+
+    with_port =
+      Regex.replace(
+        ~r/(http:\s*\[[^\]]*port:\s*)\d+/s,
+        patched,
+        "\\g{1}#{port}",
+        global: false
+      )
+
+    if with_port == patched do
+      raise "prepared fixture checkout endpoint config is not in the expected shape"
+    end
+
+    File.write!(config_path, with_port)
+  end
+
+  defp checkout_partition(graph_root, token) do
+    run_id =
+      :crypto.hash(:sha256, graph_root)
+      |> Base.encode16(case: :lower)
+      |> binary_part(0, 10)
+
+    "prepared_#{run_id}_#{token}"
   end
 
   defp walk_tree(root, fun) do

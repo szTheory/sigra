@@ -55,6 +55,8 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     second = InstallFixture.checkout!(graph, :default_installed, "upgrade")
 
     assert first.partition != second.partition
+    assert first.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
+    assert second.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
     assert first.port != second.port
     assert first.build_path != second.build_path
     assert first.path != second.path
@@ -66,11 +68,37 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
              "prepared phoenix asset"
 
+    executable = "lib/file_system/priv/mac_listener"
+    first_executable = File.stat!(Path.join(first.build_path, executable)).mode
+
+    variant_executable =
+      File.stat!(Path.join([graph.variants.default_installed.path, "_build/dev", executable])).mode
+
+    assert Bitwise.band(first_executable, 0o100) == 0o100
+    assert Bitwise.band(first_executable, 0o200) == 0o200
+    assert Bitwise.band(variant_executable, 0o100) == 0o100
+    assert Bitwise.band(variant_executable, 0o200) == 0
+
     template = "lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
     assert File.regular?(Path.join(first.build_path, template))
 
     assert File.read!(Path.join(first.build_path, template)) ==
              File.read!("priv/templates/sigra.install/organizations/router_injection.ex")
+
+    first_dev = File.read!(Path.join(first.path, "config/dev.exs"))
+    second_dev = File.read!(Path.join(second.path, "config/dev.exs"))
+    first_database_partition = String.replace(first.partition, "-", "_")
+    second_database_partition = String.replace(second.partition, "-", "_")
+
+    assert first_dev =~
+             ~s(database: "sigra_install_golden_tmp_dev_#{first_database_partition}")
+
+    assert second_dev =~
+             ~s(database: "sigra_install_golden_tmp_dev_#{second_database_partition}")
+
+    assert first_dev =~ "port: #{first.port}"
+    assert second_dev =~ "port: #{second.port}"
+    refute first_dev == second_dev
 
     File.write!(Path.join(first.path, "variant.txt"), "private mutation")
 
@@ -272,6 +300,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         build_asset = Path.join(base_path, "_build/dev/lib/phoenix/priv/static/phoenix.js")
         File.mkdir_p!(Path.dirname(build_asset))
         File.write!(build_asset, "prepared phoenix asset")
+
+        executable = Path.join(base_path, "_build/dev/lib/file_system/priv/mac_listener")
+        File.mkdir_p!(Path.dirname(executable))
+        File.write!(executable, "#!/bin/sh\nexit 0\n")
+        File.chmod!(executable, 0o755)
+
+        dev_config = Path.join(base_path, "config/dev.exs")
+        File.mkdir_p!(Path.dirname(dev_config))
+
+        File.write!(dev_config, """
+        import Config
+        config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Repo,
+          database: "sigra_install_golden_tmp_dev"
+        config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
+          http: [ip: {127, 0, 0, 1}, port: 4000]
+        """)
 
         template_source =
           Path.expand("priv/templates/sigra.install/organizations/router_injection.ex")
