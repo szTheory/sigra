@@ -39,6 +39,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       assert variant.immutable
       assert Path.type(variant.path) == :absolute
       assert File.read!(Path.join(variant.path, "variant.txt")) == Atom.to_string(name)
+
       assert_raise File.Error, fn ->
         File.write!(Path.join(variant.path, "variant.txt"), "mutation")
       end
@@ -60,6 +61,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     File.write!(Path.join(first.path, "variant.txt"), "private mutation")
 
     assert File.read!(Path.join(second.path, "variant.txt")) == "default_installed"
+
     assert File.read!(Path.join(graph.variants.default_installed.path, "variant.txt")) ==
              "default_installed"
 

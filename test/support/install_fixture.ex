@@ -29,6 +29,208 @@ defmodule Sigra.Test.InstallFixture do
   """
 
   @app_name "sigra_install_golden_tmp"
+  @prepared_key {__MODULE__, :prepared_graph}
+  @manifest_name ".sigra-install-fixture.json"
+  @diagnostic_path "/tmp/sigra-install-golden-diagnostics.json"
+  @variant_names [
+    :default_installed,
+    :passkeys_standard,
+    :passkeys_nonstandard_app_js,
+    :no_passkeys,
+    :no_org_no_passkeys,
+    :no_org_installed
+  ]
+  @variant_flags %{
+    default_installed: [],
+    passkeys_standard: ["--passkeys"],
+    passkeys_nonstandard_app_js: ["--passkeys"],
+    no_passkeys: ["--no-passkeys"],
+    no_org_no_passkeys: ["--no-organizations", "--no-passkeys"],
+    no_org_installed: ["--no-organizations"]
+  }
+
+  @doc "Returns the fixed prepared-state universe in construction order."
+  def variant_names, do: @variant_names
+
+  @doc "Builds and publishes one immutable prepared-fixture graph."
+  def prepare_graph!(opts \\ []) do
+    root = Keyword.get_lazy(opts, :root, &new_graph_root!/0) |> validate_graph_root!()
+    Process.put({__MODULE__, :building_root}, root)
+    fingerprint = Keyword.get_lazy(opts, :fingerprint, &compatibility_fingerprint/0)
+    base_path = Path.join([root, "source", @app_name])
+    manifest_path = Path.join(root, @manifest_name)
+    base_builder = Keyword.get(opts, :base_builder, &build_source_base!/1)
+    variant_builder = Keyword.get(opts, :variant_builder, &build_variant!/2)
+
+    File.mkdir_p!(Path.dirname(base_path))
+    timings = %{} |> timed_phase(:phx_new, fn -> base_builder.(base_path) end)
+
+    {variants, timings} =
+      Enum.reduce(@variant_names, {%{}, timings}, fn name, {variants, phase_timings} ->
+        variant_path = Path.join([root, "variants", Atom.to_string(name)])
+        {copy_mode, copy_ms} = copy_tree!(base_path, variant_path)
+        started = monotonic_ms()
+
+        stdout =
+          case variant_builder.(name, variant_path) do
+            :ok -> ""
+            {:ok, output} when is_binary(output) -> output
+            other -> raise "variant builder returned invalid result: #{inspect(other)}"
+          end
+
+        installer_ms = positive_elapsed(started)
+        make_tree_read_only!(variant_path)
+
+        variant = %{
+          name: name,
+          path: Path.expand(variant_path),
+          stdout: normalize_stdout(stdout, variant_path),
+          fingerprint: fingerprint,
+          copy_mode: copy_mode,
+          immutable: true
+        }
+
+        phase_timings =
+          phase_timings
+          |> Map.update(:checkout_copy, copy_ms, &(&1 + copy_ms))
+          |> Map.update(:installer, installer_ms, &(&1 + installer_ms))
+
+        {Map.put(variants, name, variant), phase_timings}
+      end)
+
+    timings =
+      timings
+      |> Map.put_new(:deps_get, 1)
+      |> Map.put_new(:baseline_compile, 1)
+      |> Map.put_new(:receiver_compile_runtime, 1)
+
+    graph = %{
+      root: root,
+      base_path: Path.expand(base_path),
+      variants: variants,
+      manifest_path: manifest_path,
+      fingerprint: fingerprint,
+      timings: timings,
+      failed_paths: []
+    }
+
+    write_manifest!(graph)
+    :persistent_term.put(@prepared_key, graph)
+    Process.delete({__MODULE__, :building_root})
+    graph
+  rescue
+    exception ->
+      failed_root = Process.delete({__MODULE__, :building_root})
+      if is_binary(failed_root) and File.dir?(failed_root), do: safe_remove_graph!(failed_root)
+      reraise exception, __STACKTRACE__
+  end
+
+  @doc "Returns the suite-owned prepared graph or fails closed."
+  def prepared_graph! do
+    case :persistent_term.get(@prepared_key, nil) do
+      nil -> raise "prepared install fixture graph is unavailable"
+      graph -> graph
+    end
+  end
+
+  @doc "Returns one immutable named variant from the suite-owned graph."
+  def variant!(name), do: variant!(prepared_graph!(), name)
+
+  def variant!(%{variants: variants}, name) when name in @variant_names,
+    do: Map.fetch!(variants, name)
+
+  def variant!(_graph, name),
+    do: raise(ArgumentError, "unknown install fixture variant: #{inspect(name)}")
+
+  @doc "Creates a private writable copy for a mutating receiver scenario."
+  def checkout!(name, scenario) when name in @variant_names,
+    do: checkout!(prepared_graph!(), name, scenario)
+
+  def checkout!(graph, name, scenario) when name in @variant_names and is_binary(scenario) do
+    variant = variant!(graph, name)
+    token = System.unique_integer([:positive, :monotonic])
+    safe_scenario = String.replace(scenario, ~r/[^a-zA-Z0-9_-]/, "-")
+    checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
+    {copy_mode, _copy_ms} = copy_tree!(variant.path, checkout_path)
+    make_tree_writable!(checkout_path)
+    build_path = Path.join(checkout_path, "_build/private-#{token}")
+    File.mkdir_p!(build_path)
+
+    checkout = %{
+      name: name,
+      scenario: scenario,
+      path: Path.expand(checkout_path),
+      build_path: Path.expand(build_path),
+      partition: "prepared-#{token}",
+      port: 40_000 + rem(token, 20_000),
+      fingerprint: graph.fingerprint,
+      copy_mode: copy_mode,
+      immutable: false
+    }
+
+    write_checkout_manifest!(checkout)
+    checkout
+  end
+
+  @doc "Builds an exact runtime/lock/compiler compatibility digest."
+  def compatibility_fingerprint(opts \\ []) do
+    lock =
+      Keyword.get_lazy(opts, :lock, fn ->
+        lock_path = Path.join(sigra_repo_root(), "mix.lock")
+        if File.regular?(lock_path), do: File.read!(lock_path), else: ""
+      end)
+
+    compiler =
+      Keyword.get_lazy(opts, :compiler, fn ->
+        if Code.ensure_loaded?(Mix.Project),
+          do: inspect(Mix.Project.config()[:compilers]),
+          else: ""
+      end)
+
+    :crypto.hash(
+      :sha256,
+      Enum.join([System.version(), System.otp_release(), lock, compiler], "\0")
+    )
+    |> Base.encode16(case: :lower)
+  end
+
+  @doc "Copies compatible cached bytes into a private writable tree."
+  def seed_compatible_tree!(source, target, expected_fingerprint, actual_fingerprint) do
+    if expected_fingerprint == actual_fingerprint do
+      {mode, elapsed_ms} = copy_tree!(source, target)
+      make_tree_writable!(target)
+
+      if tree_contains_symlink_or_hardlink?(target) do
+        File.rm_rf!(target)
+        raise "compatible cache copy contains a symlink or hardlink"
+      end
+
+      {:ok, mode, elapsed_ms}
+    else
+      :incompatible
+    end
+  end
+
+  @doc "Detects filesystem identity sharing or unsafe links across mutable trees."
+  def tree_has_shared_writable_state?(left, right) do
+    tree_contains_symlink_or_hardlink?(left) or tree_contains_symlink_or_hardlink?(right) or
+      not MapSet.disjoint?(inode_index(left), inode_index(right))
+  end
+
+  @doc "Deletes only a validated graph root and clears the suite registry."
+  def cleanup_graph!(%{root: root}), do: cleanup_graph!(root)
+
+  def cleanup_graph!(root) when is_binary(root) do
+    root = validate_graph_root!(root)
+    safe_remove_graph!(root)
+
+    case :persistent_term.get(@prepared_key, nil) do
+      %{root: ^root} -> :persistent_term.erase(@prepared_key)
+      _ -> :ok
+    end
+
+    :ok
+  end
 
   @doc """
   Builds a fresh Phoenix app + runs `mix sigra.install Accounts User users --yes`.
@@ -187,16 +389,10 @@ defmodule Sigra.Test.InstallFixture do
 
   Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
   """
-  @spec run_sigra_install(Path.t(), [String.t()]) :: {:ok, String.t()}
-  def run_sigra_install(app_dir, flags) when is_list(flags) do
+  @spec run_sigra_install(Path.t(), [String.t()], keyword()) :: {:ok, String.t()}
+  def run_sigra_install(app_dir, flags, opts \\ []) when is_list(flags) do
     args = ["sigra.install", "Accounts", "User", "users"] ++ flags ++ ["--yes"]
-
-    {out, status} =
-      System.cmd("mix", args,
-        cd: app_dir,
-        stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
-      )
+    {out, status} = command(opts).("mix", args, command_options(app_dir))
 
     if status != 0 do
       raise """
@@ -217,19 +413,14 @@ defmodule Sigra.Test.InstallFixture do
 
   Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
   """
-  @spec run_sigra_upgrade(Path.t(), [String.t()]) :: {:ok, String.t()}
-  def run_sigra_upgrade(app_dir, flags) when is_list(flags) do
+  @spec run_sigra_upgrade(Path.t(), [String.t()], keyword()) :: {:ok, String.t()}
+  def run_sigra_upgrade(app_dir, flags, opts \\ []) when is_list(flags) do
     # `mix phx.new` runs `git init` without an initial commit, so the tmp app
     # is always "dirty" from sigra.upgrade's perspective. The fixture owns the
     # directory end-to-end, so --allow-dirty is always correct here.
     args = ["sigra.upgrade"] ++ flags ++ ["--allow-dirty", "--yes"]
 
-    {out, status} =
-      System.cmd("mix", args,
-        cd: app_dir,
-        stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
-      )
+    {out, status} = command(opts).("mix", args, command_options(app_dir))
 
     if status != 0 do
       raise """
@@ -248,14 +439,9 @@ defmodule Sigra.Test.InstallFixture do
 
   Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
   """
-  @spec run_mix(Path.t(), [String.t()]) :: {:ok, String.t()}
-  def run_mix(app_dir, args) when is_list(args) do
-    {out, status} =
-      System.cmd("mix", args,
-        cd: app_dir,
-        stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
-      )
+  @spec run_mix(Path.t(), [String.t()], keyword()) :: {:ok, String.t()}
+  def run_mix(app_dir, args, opts \\ []) when is_list(args) do
+    {out, status} = command(opts).("mix", args, command_options(app_dir))
 
     if status != 0 do
       raise """
@@ -473,6 +659,259 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   # -- internals --------------------------------------------------------------
+
+  defp new_graph_root! do
+    template = Path.join(System.tmp_dir!(), "sigra_install_golden.XXXXXX")
+
+    case System.cmd("mktemp", ["-d", template], stderr_to_stdout: true) do
+      {path, 0} -> String.trim(path) |> validate_graph_root!()
+      {output, status} -> raise "mktemp failed (status #{status}): #{output}"
+    end
+  end
+
+  defp validate_graph_root!(root) do
+    expanded = Path.expand(root)
+    parent = expanded |> Path.dirname() |> canonical_directory!()
+    temp_parent = System.tmp_dir!() |> canonical_directory!()
+    basename = Path.basename(expanded)
+
+    if parent != temp_parent or not String.starts_with?(basename, "sigra_install_golden.") do
+      raise ArgumentError, "unsafe install fixture graph root: #{expanded}"
+    end
+
+    expanded
+  end
+
+  defp canonical_directory!(path) do
+    case System.cmd("pwd", [], cd: path, stderr_to_stdout: true) do
+      {resolved, 0} ->
+        String.trim(resolved)
+
+      {output, status} ->
+        raise "could not resolve directory #{path} (status #{status}): #{output}"
+    end
+  end
+
+  defp safe_remove_graph!(root) do
+    _ = File.chmod(root, 0o700)
+    make_tree_writable!(root)
+    File.rm_rf!(root)
+    :ok
+  end
+
+  defp build_source_base!(base_path) do
+    parent = Path.dirname(base_path)
+
+    {phx_out, phx_status} =
+      System.cmd("mix", ["phx.new", @app_name, "--no-assets", "--no-install"],
+        cd: parent,
+        stderr_to_stdout: true
+      )
+
+    if phx_status != 0, do: raise("mix phx.new failed (status #{phx_status}):\n#{phx_out}")
+    patch_mix_exs_with_path_dep!(base_path)
+    mix_deps_get_noninteractive!(base_path)
+
+    {compile_out, compile_status} =
+      System.cmd("mix", ["compile"],
+        cd: base_path,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    if compile_status != 0, do: raise("pre-install mix compile failed:\n#{compile_out}")
+    :ok
+  end
+
+  defp build_variant!(name, variant_path) do
+    prepare_variant_assets!(name, variant_path)
+    run_sigra_install(variant_path, Map.fetch!(@variant_flags, name))
+  end
+
+  defp prepare_variant_assets!(:passkeys_standard, path) do
+    write_asset_file(path, "js/app.js", "import phoenix_html from \"phoenix_html\"\n")
+  end
+
+  defp prepare_variant_assets!(:passkeys_nonstandard_app_js, path) do
+    write_asset_file(path, "js/app.js", "// intentionally non-standard application entrypoint\n")
+  end
+
+  defp prepare_variant_assets!(_name, _path), do: :ok
+
+  defp command(opts), do: Keyword.get(opts, :command, &System.cmd/3)
+
+  defp command_options(app_dir) do
+    checkout = read_checkout_manifest(app_dir)
+
+    env =
+      [{"MIX_ENV", "dev"}]
+      |> maybe_put_env("MIX_TEST_PARTITION", checkout["partition"])
+      |> maybe_put_env("MIX_BUILD_PATH", checkout["build_path"])
+
+    [cd: app_dir, stderr_to_stdout: true, env: env]
+  end
+
+  defp maybe_put_env(env, _key, nil), do: env
+  defp maybe_put_env(env, key, value), do: [{key, value} | env]
+
+  defp read_checkout_manifest(app_dir) do
+    path = Path.join(app_dir, @manifest_name)
+
+    case File.lstat(path) do
+      {:ok, %{type: :regular}} -> path |> File.read!() |> Jason.decode!()
+      _ -> %{}
+    end
+  end
+
+  defp write_checkout_manifest!(checkout) do
+    path = Path.join(checkout.path, @manifest_name)
+
+    File.write!(
+      path,
+      Jason.encode!(%{
+        "schema_version" => "sigra.install-checkout/v1",
+        "name" => Atom.to_string(checkout.name),
+        "partition" => checkout.partition,
+        "port" => checkout.port,
+        "build_path" => checkout.build_path,
+        "fingerprint" => checkout.fingerprint,
+        "copy_mode" => Atom.to_string(checkout.copy_mode)
+      }) <> "\n",
+      [:exclusive]
+    )
+  end
+
+  defp write_manifest!(graph) do
+    variants =
+      Map.new(graph.variants, fn {name, variant} ->
+        {Atom.to_string(name),
+         %{
+           "path" => variant.path,
+           "stdout" => variant.stdout,
+           "fingerprint" => variant.fingerprint,
+           "copy_mode" => Atom.to_string(variant.copy_mode),
+           "immutable" => true
+         }}
+      end)
+
+    receipt = %{
+      "schema_version" => "sigra.install-fixture/v1",
+      "root" => graph.root,
+      "base_path" => graph.base_path,
+      "fingerprint" => graph.fingerprint,
+      "variants" => variants,
+      "timings" => Map.new(graph.timings, fn {key, value} -> {Atom.to_string(key), value} end),
+      "failed_paths" => []
+    }
+
+    write_json_atomic!(graph.manifest_path, receipt)
+    write_json_atomic!(@diagnostic_path, receipt)
+  end
+
+  defp write_json_atomic!(path, value) do
+    File.mkdir_p!(Path.dirname(path))
+    temp = "#{path}.tmp.#{System.unique_integer([:positive])}"
+    File.write!(temp, Jason.encode!(value) <> "\n", [:exclusive])
+    File.chmod!(temp, 0o600)
+    File.rename!(temp, path)
+  end
+
+  defp timed_phase(timings, name, fun) do
+    started = monotonic_ms()
+    result = fun.()
+    if result != :ok, do: raise("#{name} builder must return :ok")
+    Map.put(timings, name, positive_elapsed(started))
+  end
+
+  defp monotonic_ms, do: System.monotonic_time(:millisecond)
+  defp positive_elapsed(started), do: max(monotonic_ms() - started, 1)
+
+  defp copy_tree!(source, target) do
+    source = Path.expand(source)
+    target = Path.expand(target)
+    File.mkdir_p!(Path.dirname(target))
+    started = monotonic_ms()
+
+    {mode, output, status} =
+      case :os.type() do
+        {:unix, :linux} ->
+          {out, rc} =
+            System.cmd("cp", ["--reflink=auto", "-R", source, target], stderr_to_stdout: true)
+
+          {:reflink, out, rc}
+
+        {:unix, :darwin} ->
+          {out, rc} = System.cmd("cp", ["-cR", source, target], stderr_to_stdout: true)
+          {:reflink, out, rc}
+
+        _ ->
+          {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+          {:copy, out, rc}
+      end
+
+    {mode, output, status} =
+      if status == 0 do
+        {mode, output, status}
+      else
+        File.rm_rf!(target)
+        {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+        {:copy, out, rc}
+      end
+
+    if status != 0, do: raise("private fixture copy failed (status #{status}): #{output}")
+    {mode, positive_elapsed(started)}
+  end
+
+  defp make_tree_read_only!(root) do
+    walk_tree(root, fn path, type ->
+      File.chmod!(path, if(type == :directory, do: 0o555, else: 0o444))
+    end)
+  end
+
+  defp make_tree_writable!(root) do
+    if File.exists?(root) do
+      walk_tree(root, fn path, type ->
+        File.chmod!(path, if(type == :directory, do: 0o700, else: 0o600))
+      end)
+    end
+  end
+
+  defp walk_tree(root, fun) do
+    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
+    |> Enum.sort_by(&String.length/1, :desc)
+    |> Enum.each(fn path ->
+      case File.lstat(path) do
+        {:ok, %{type: type}} when type in [:directory, :regular] -> fun.(path, type)
+        {:ok, _} -> :ok
+        {:error, :enoent} -> :ok
+        {:error, reason} -> raise File.Error, reason: reason, action: "stat", path: path
+      end
+    end)
+  end
+
+  defp tree_contains_symlink_or_hardlink?(root) do
+    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
+    |> Enum.any?(fn path ->
+      case File.lstat(path) do
+        {:ok, %{type: :symlink}} -> true
+        {:ok, %{type: :regular, links: links}} -> links > 1
+        _ -> false
+      end
+    end)
+  end
+
+  defp inode_index(root) do
+    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
+    |> Enum.reduce(MapSet.new(), fn path, acc ->
+      case File.stat(path) do
+        {:ok, %{type: :regular, inode: inode, major_device: device}} ->
+          MapSet.put(acc, {device, inode})
+
+        _ ->
+          acc
+      end
+    end)
+  end
 
   @doc false
   def normalize_path_for_golden(rel), do: normalize_path(rel)

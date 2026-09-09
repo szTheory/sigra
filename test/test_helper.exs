@@ -21,6 +21,28 @@ end
 
 ExUnit.start()
 
+case System.get_env("SIGRA_INSTALL_GOLDEN_PREPARED") do
+  nil ->
+    :ok
+
+  "" ->
+    :ok
+
+  "1" ->
+    graph = Sigra.Test.InstallFixture.prepare_graph!()
+
+    ExUnit.after_suite(fn result ->
+      if result.failures == 0 do
+        Sigra.Test.InstallFixture.cleanup_graph!(graph)
+      else
+        IO.puts(:stderr, "prepared install fixture retained after failure: #{graph.root}")
+      end
+    end)
+
+  value ->
+    raise "SIGRA_INSTALL_GOLDEN_PREPARED must be unset or exactly 1, got: #{inspect(value)}"
+end
+
 if Code.ensure_loaded?(Postgrex) and Code.ensure_loaded?(Sigra.Test.PostgresRepo) do
   {:ok, _pid} = Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())
   Ecto.Adapters.SQL.Sandbox.mode(Sigra.Test.PostgresRepo, :manual)
