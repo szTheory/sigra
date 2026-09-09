@@ -11,7 +11,7 @@ created: "2026-09-09"
 
 # Phase 235 — Security
 
-> ASVS L1 verification of the STRIDE registers authored in all twelve Phase 235 plans.
+> ASVS L1 verification of the STRIDE registers authored in all thirteen Phase 235 plans.
 
 ## Trust Boundaries
 
@@ -100,6 +100,11 @@ Category, component, and mitigation text remain canonical in each referenced `23
 | T-235-18-04 | high | mitigate | E1, E6, E7 | closed |
 | T-235-18-05 | low | accept | E9 | accepted |
 | T-235-18-06 | low | mitigate | E8 | closed |
+| T-235-19-01 | medium | mitigate | E2, E6, E7 | closed |
+| T-235-19-02 | medium | mitigate | E6, E8 | closed |
+| T-235-19-03 | medium | mitigate | E6, E7 | closed |
+| T-235-19-04 | medium | mitigate | E1, E7 | closed |
+| T-235-19-SC | low | accept | E9 | accepted |
 
 ### Evidence Key
 
@@ -124,12 +129,14 @@ Category, component, and mitigation text remain canonical in each referenced `23
 | AR-235-05 | T-235-16-06 | Source-complete subject contains public workflow metadata only. | Plan-time register | 2026-09-09 |
 | AR-235-06 | T-235-17-07 | Correlation and evidence receipts expose no credentials or private API state. | Plan-time register | 2026-09-09 |
 | AR-235-07 | T-235-18-05 | Closeout records cite public run metadata and repository proof paths only. | Plan-time register | 2026-09-09 |
+| AR-235-08 | T-235-19-SC | No package manager, dependency resolution, or package installation occurs in the verifier-only gap closure. | Plan-time register | 2026-09-09 |
 
 ## Security Audit Trail
 
 | Audit Date | Threats Total | Closed | Accepted | Open | Run By |
 |---|---:|---:|---:|---:|---|
 | 2026-09-09 | 71 | 64 | 7 | 0 | gsd-security-auditor |
+| 2026-09-09 | 76 | 68 | 8 | 0 | execute-phase ASVS-L1 short-circuit |
 
 ## Sign-Off
 
