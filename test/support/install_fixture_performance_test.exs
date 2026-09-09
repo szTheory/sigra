@@ -60,12 +60,33 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert first.path != second.path
     assert first.copy_mode in [:reflink, :copy]
 
+    assert File.read!(Path.join(first.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
+
+    assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
+
     File.write!(Path.join(first.path, "variant.txt"), "private mutation")
+
+    File.write!(
+      Path.join(first.build_path, "lib/phoenix/priv/static/phoenix.js"),
+      "private build"
+    )
 
     assert File.read!(Path.join(second.path, "variant.txt")) == "default_installed"
 
     assert File.read!(Path.join(graph.variants.default_installed.path, "variant.txt")) ==
              "default_installed"
+
+    assert File.read!(
+             Path.join(
+               graph.variants.default_installed.path,
+               "_build/dev/lib/phoenix/priv/static/phoenix.js"
+             )
+           ) == "prepared phoenix asset"
+
+    assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
 
     refute InstallFixture.tree_has_shared_writable_state?(
              graph.variants.default_installed.path,
@@ -242,6 +263,9 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       base_builder: fn base_path ->
         File.mkdir_p!(base_path)
         File.write!(Path.join(base_path, "base.txt"), "base")
+        build_asset = Path.join(base_path, "_build/dev/lib/phoenix/priv/static/phoenix.js")
+        File.mkdir_p!(Path.dirname(build_asset))
+        File.write!(build_asset, "prepared phoenix asset")
         :ok
       end,
       variant_builder: fn name, variant_path ->

@@ -202,8 +202,11 @@ defmodule Sigra.Test.InstallFixture do
     checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
     {copy_mode, copy_ms} = copy_tree!(variant.path, checkout_path)
     make_tree_writable!(checkout_path)
-    build_path = Path.join(checkout_path, "_build/private-#{token}")
-    File.mkdir_p!(build_path)
+    build_path = Path.join(checkout_path, "_build/dev")
+
+    unless File.dir?(build_path) do
+      raise "prepared fixture checkout is missing its private compatible build: #{build_path}"
+    end
 
     checkout = %{
       name: name,
