@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: executing
-stopped_at: Halted 235-15 after signed-source evidence review
-last_updated: "2026-09-09T00:45:23.640Z"
+stopped_at: Completed 235-16-PLAN.md
+last_updated: "2026-09-09T01:28:18.064Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 235 execution started
-state_head: 4c46c55f7191157ef37bde4fd6238e633887560e
+state_head: 2e77218678dfc5a0bc57c5e23afbfd46d6c1016d
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 66
-  completed_plans: 63
+  completed_plans: 64
   percent: 83
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
-Plan: 1 of 12
-Status: Executing Phase 235
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 blocked on corrected protected evidence
-Last activity: 2026-09-08 — Phase 235 execution started
+Plan: 11 of 12
+Status: Ready to execute
+Progress: 5/6 milestone phases complete ([████████░░] 83%); Plan 235-16 landed the source-complete producer, Plan 235-17 is ready for measurement
+Last activity: 2026-09-08 — Plan 235-16 completed on protected main
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -441,6 +441,10 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
 - [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
 - [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
+- [Phase 235]: Plan 235-16: scripts/ci/ci-run-metrics.sh wall mode remains sole terminal authority; offline source replay is comparison-only.
+- [Phase 235]: Plan 235-16: use a repository-only dev/test Hackney 4 override until Threadline publishes a compatible optional constraint.
+- [Phase 235]: Plan 235-16: protected squash merge is proven by seven exact blob matches against main SHA 158aca14; no FAST evidence dispatch occurred.
+- [Phase 235]: Plan 235-16: FAST-01 remains open for Plan 17 source-complete measurement; GATE-05 remains unchanged.
 
 ### Pending Todos
 
@@ -453,8 +457,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
-- **Phase 235 FAST-01:** Plan 235-15's sole protected candidate attests 43 derived rows and stored p50 466 seconds, but omits signed timestamps and pagination/exhaustion evidence. Independent population, chronology, wall-time, and completeness proof is impossible from the retained subject; a new gap plan must correct the evidence schema before any newly authorized dispatch.
-- Plan 235-16 Task 2 blocked: protected PR #232 required Library tests fails on pre-existing hackney 1.25.0 advisories (including HIGH CVE-2026-47071); package migration is explicitly outside Plan 235-16 scope.
+- **Phase 235 FAST-01:** Plan 235-15's derived-only candidate remains rejected. Plan 235-16 landed the source-complete producer on protected main at `158aca14`; Plan 235-17 must capture and independently verify one new protected population before FAST-01 can change.
+- [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
 
 ### Roadmap Evolution
 
@@ -587,13 +591,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-08T20:36:00.000Z
-Stopped at: Halted 235-15 after signed-source evidence review
-Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md
+Last session: 2026-09-09T01:28:17.927Z
+Stopped at: Completed 235-16-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Plan the next phase with `$gsd-plan-phase 233`.
+- Execute the prepared source-complete measurement plan with `$gsd-execute-phase 235` (next plan: 235-17).
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -754,3 +758,4 @@ Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15
 | Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
 | Phase 235 P08 | unknown | 3 tasks | 7 files |
 | Phase 235 P15 | 20 min | 2 tasks | 10 files |
+| Phase 235 P16 | 72m | 2 tasks | 13 files |

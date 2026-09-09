@@ -385,7 +385,7 @@ Plans:
 
 **Wave 10** *(gap closure; blocked on halted Wave 9 diagnosis)*
 
-- [ ] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
+- [x] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
 
 **Wave 11** *(gap closure; blocked on the Wave 10 workflow landing on protected main)*
 
