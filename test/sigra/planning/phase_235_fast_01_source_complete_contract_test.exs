@@ -112,11 +112,17 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         ["source_collection", "pages", Access.at(0), "runs", Access.at(5), "updated_at"],
         "2026-08-04T00:12:00Z"
       )
+      |> put_in(
+        ["source_collection", "pages", Access.at(0), "runs", Access.at(6), "updated_at"],
+        "2026-08-04T00:12:00Z"
+      )
       |> put_in(["runs", Access.at(5), "wall_seconds"], 720)
+      |> put_in(["runs", Access.at(6), "wall_seconds"], 720)
       |> put_in(["instrument_receipt", "output", "runs", Access.at(5), "wall_seconds"], 720)
-      |> put_in(["statistics", "mean_seconds"], 563.9)
+      |> put_in(["instrument_receipt", "output", "runs", Access.at(6), "wall_seconds"], 720)
+      |> put_in(["statistics", "mean_seconds"], 564)
       |> put_in(["statistics", "p50_seconds"], 720)
-      |> put_in(["instrument_receipt", "output", "statistics", "mean_seconds"], 563.9)
+      |> put_in(["instrument_receipt", "output", "statistics", "mean_seconds"], 564)
       |> put_in(["instrument_receipt", "output", "statistics", "p50_seconds"], 720)
       |> write_semantic_fixture!()
 
