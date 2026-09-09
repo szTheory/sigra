@@ -64,6 +64,14 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert_formatter_contract!()
   end
 
+  test "protected FAST-01 and GATE-05 verifiers remain independently green" do
+    assert_protected_verifiers!()
+  end
+
+  test "protected digests, semantic tuples, and negative history remain immutable" do
+    assert_protected_evidence!()
+  end
+
   defp valid_receipt(opts \\ []) do
     ordinary_ms = Keyword.get(opts, :ordinary_ms, 1_000)
     install_ms = Keyword.get(opts, :install_ms, 500)
