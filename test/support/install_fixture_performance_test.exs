@@ -66,6 +66,12 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
              "prepared phoenix asset"
 
+    template = "lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
+    assert File.regular?(Path.join(first.build_path, template))
+
+    assert File.read!(Path.join(first.build_path, template)) ==
+             File.read!("priv/templates/sigra.install/organizations/router_injection.ex")
+
     File.write!(Path.join(first.path, "variant.txt"), "private mutation")
 
     File.write!(
@@ -266,6 +272,18 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         build_asset = Path.join(base_path, "_build/dev/lib/phoenix/priv/static/phoenix.js")
         File.mkdir_p!(Path.dirname(build_asset))
         File.write!(build_asset, "prepared phoenix asset")
+
+        template_source =
+          Path.expand("priv/templates/sigra.install/organizations/router_injection.ex")
+
+        template_link =
+          Path.join(
+            base_path,
+            "_build/dev/lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
+          )
+
+        File.mkdir_p!(Path.dirname(template_link))
+        File.ln_s!(template_source, template_link)
         :ok
       end,
       variant_builder: fn name, variant_path ->

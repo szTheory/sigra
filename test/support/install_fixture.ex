@@ -1080,7 +1080,7 @@ defmodule Sigra.Test.InstallFixture do
                do: Path.expand(link_target),
                else: Path.expand(link_target, Path.dirname(link))
              ),
-           true <- candidate == source_root or String.starts_with?(candidate, source_root <> "/"),
+           true <- allowed_materialization_target?(source_root, candidate),
            {:ok, stat} <- File.lstat(candidate) do
         if stat.type == :symlink,
           do: resolve_safe_link(source_root, candidate, seen),
@@ -1089,6 +1089,13 @@ defmodule Sigra.Test.InstallFixture do
         _ -> :omit
       end
     end
+  end
+
+  defp allowed_materialization_target?(source_root, candidate) do
+    repository_priv = Path.join(sigra_repo_root(), "priv") |> Path.expand()
+
+    candidate == source_root or String.starts_with?(candidate, source_root <> "/") or
+      candidate == repository_priv or String.starts_with?(candidate, repository_priv <> "/")
   end
 
   defp copy_materialized_path!(source_root, source, target, seen) do
