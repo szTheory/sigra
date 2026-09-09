@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
-status: executing
-stopped_at: Completed 235-17-PLAN.md
-last_updated: "2026-09-09T12:34:46.488Z"
+status: verifying
+stopped_at: Completed 235-18-PLAN.md
+last_updated: "2026-09-09T13:51:21.689Z"
 last_activity: 2026-09-09
-last_activity_desc: Plan 235-17 retained and verified the source-complete FAST-01 passing measurement
-state_head: 4d406ba36a8a2e61b183c1edac7084868ecea21b
+last_activity_desc: Plan 235-18 reconciled the authenticated FAST-01 pass across every closeout record without changing GATE-05
+state_head: c4e1cb2bccd240a33a90d6c40b455db223ca66c5
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 66
-  completed_plans: 65
+  completed_plans: 66
   percent: 83
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
+Phase: 235 (Terminal Ratification — Measured, Not Read) — VERIFYING
 Plan: 12 of 12
-Status: Ready to execute
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Plan 235-17 authenticated a 52-run, 469-second FAST-01 pass and Plan 235-18 owns reconciliation
-Last activity: 2026-09-09 — Plan 235-17 completed with verified protected evidence
+Status: Phase complete — ready for verification
+Progress: 5/6 milestone phases complete ([████████░░] 83%); all 12 Phase 235 plans are complete and ready for verification
+Last activity: 2026-09-09 — Plan 235-18 reconciled the authenticated n=52, p50=469-second FAST-01 pass without changing GATE-05
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -448,6 +448,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235]: Plan 235-17 Task 2: user selected authorize-once for exactly one immediate protected-main evidence dispatch from the unchanged sealed preflight.
 - [Phase 235]: Plan 235-17: retained scripts/ci/ci-run-metrics.sh wall mode as terminal authority; signed raw pages independently reproduced n=52, p50=469s, max=1331s, verdict=pass.
 - [Phase 235]: Plan 235-17 left FAST-01 reconciliation to Plan 18 and preserved GATE-05 unchanged.
+- [Phase 235]: FAST-01 completes only from protected run 34350618761's authenticated source-complete n=52, p50=469-second wall result.
+- [Phase 235]: The rejected derived-only n=43/p50=466 candidate and all prior miss/remediation measurements remain immutable historical context.
+- [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
 
 ### Pending Todos
 
@@ -594,13 +597,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T12:34:46.342Z
-Stopped at: Completed 235-17-PLAN.md
+Last session: 2026-09-09T13:51:21.539Z
+Stopped at: Completed 235-18-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Execute the prepared FAST-01 reconciliation plan with `$gsd-execute-phase 235` (next plan: 235-18).
+- Verify the completed Terminal Ratification phase with `$gsd-verify-work 235`.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -763,3 +766,4 @@ Resume file: None
 | Phase 235 P15 | 20 min | 2 tasks | 10 files |
 | Phase 235 P16 | 72m | 2 tasks | 13 files |
 | Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
+| Phase 235 P18 | 1h 5m | 2 tasks | 6 files |

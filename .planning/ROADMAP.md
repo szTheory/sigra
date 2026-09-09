@@ -393,7 +393,7 @@ Plans:
 
 **Wave 12** *(gap closure; blocked on authenticated Wave 11 evidence)*
 
-- [ ] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
+- [x] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
 
 ## Progress
 
