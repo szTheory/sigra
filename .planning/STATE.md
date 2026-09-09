@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235
 status: completed
-stopped_at: Phase 235 complete — all phases complete
-last_updated: "2026-09-09T16:23:40.392Z"
+stopped_at: Phase 235.1 context gathered (assumptions mode)
+last_updated: "2026-09-09T17:01:31.054Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235 complete
-state_head: 40cf8819abcdcab7359691b6cefe66aa29c656e0
+state_head: 01a1c1658c59be3a9d5445b8b29f5e633d280e3c
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
   total_plans: 67
   completed_plans: 67
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -475,6 +475,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 - v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
+- Phase 235.1 inserted after Phase 235: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (URGENT)
 
 ## Quick Tasks Completed
 
@@ -521,6 +522,59 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 | 260728-kub | Captured the CI-efficiency fan-out investigation in-repo: refreshed SEED-005 with a 2026-07-28 re-measured baseline and filed two high-severity CI defects. **Headline finding: the CI/CD audit is already done and was orphaned** — `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` carries a prioritized Phase 198→203 sequence, but only 198 partially ran because v1.41 reused phase numbers 199-204 for unrelated work. The audit is still accurate (it named `design_gallery` at ~700s; re-measured 734s) and its #1 win — a `storageState` refactor of `admin-design.spec.ts:250-255`, −6 to −7.5 min at Low risk with zero coverage loss — was never implemented. Baseline: PR mean 29.5m / p50 27.3m (~56 runner-min for a 25.6m wall), push 30.5m (~92 runner-min), nightly **0 pass / 9 fail**. New todos: (1) `admin_eval_render` burns ~17m per PR for a red nobody reads — its mobile project uses a WebKit device preset while the job installs chromium only, and an `SVGAnimatedString` probe bug compounds it; because the harness aborts under `set -euo pipefail`, guards b1-b6 have never executed in CI. (2) `generated_admin_playwright_smoke` is gated on a long-merged branch name, so it is skipped on every PR while `ci-gate` counts skipped as pass — generated-host parity is verified on no PR at all. Scoped as milestone v1.47 CI-EFFICIENCY, phases 230-235, targeting the `<12m` PR wall-clock v1.40 missed. Seed edit verified non-destructive (74 insertions, **0 deletions**; verbatim playbook byte-identical). | complete ✓ | 2026-07-28 |
 
 ## Deferred Items
+
+### Acknowledged during v1.47 closeout (2026-09-09)
+
+43 genuine pending or previously deferred artifacts were acknowledged through GSD's
+verdict-preserving, self-invalidating audit markers. The separate
+`.planning/debug/knowledge-base.md` false positive was resolved by adding its missing
+`status: resolved` metadata.
+
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| quick_tasks | 260718-dst-remove-home-domain-strip | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-mba-mfa-enrolled-backup-alert-polish | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-pdd-persona-dropdown-short-descriptions | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-svg-sessions-self-revoke-current-session-guard | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260728-d9h-fix-passkey-primary-email-label-and-id | deferred | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-mix-sigra-migrate-schema-helper.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-playwright-parallelization-per-shard-db.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-runtime-auth-prefix-override.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-22-white-label-auth-email-theming.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-02-app-css-corruption-guard-blind-spot.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-03-hex-retire-stray-1-20-0.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-09-218-rereview-followups.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-canary-recapture-lane-excludes-canary.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-installer-context-impersonation-guard-gap.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-upgrade-smoke-button-type-hex-publish.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-18-admin-audit-impersonation-filter-not-applying.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-27-login-wordmark-midword-break-at-320.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-admin-eval-render-burns-17m-per-pr-for-an-unread-red.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-gate-ci-green-timeout-too-tight-for-push-to-main.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-generated-host-parity-verified-on-no-pr-while-gate-reports-green.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-lane-rot-label-missing-breaks-hard-02-signal.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-please-orphans-unreleased-block.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w1-passkey-primary-duplicate-email-label-and-id.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w2-example-sigra-auth-css-stale-no-parity-gate.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w3-generated-auth-runtime-coverage-is-login-only.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w4-no-axe-run-covers-generated-auth.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w5-export-auth-data-deny-path-orphaned.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w6-generated-policy-test-outside-golden-coverage.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w7-admin-lib-sigra-auth-classes-and-one-dead-class.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w8-per-user-audit-presets-have-no-e2e-assertion.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-admin-generated-audit-presets-actor-filter-race.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-recapture-job-transient-hexpm-mirror-failure.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-github-evidence-residual.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-pr-evidence-blocked.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-02-fast-01-terminal-p50-miss.md | (presence-only) | 2026-09-09 | v1.47 |
+| seeds | SEED-004-phx-new-button-forward-compat | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-005-ci-cd-pipeline-performance-audit | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | 2026-09-09 | v1.47 |
+| uat_gaps | 202/202-UAT.md | deferred | 2026-09-09 | v1.47 |
+| deferred_items | 222/deferred-items.md: Plan 01 — pre-existing actionlint/shellcheck warnings in ci.yml | acknowledged | 2026-09-09 | v1.47 |
+| deferred_items | 27/deferred-items.md: installer_drift_test fix #9 is failing outside Phase 27 admin ownership | acknowledged | 2026-09-09 | v1.47 |
 
 ### Acknowledged at v1.46 close (2026-07-27)
 
@@ -598,9 +652,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T16:25:00Z
-Stopped at: Phase 235 complete — all phases complete
-Resume file: None
+Last session: 2026-09-09T17:01:30.840Z
+Stopped at: Phase 235.1 context gathered (assumptions mode)
+Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md
 
 ## Operator Next Steps
 
