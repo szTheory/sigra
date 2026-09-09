@@ -15,10 +15,14 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   @gate_05_requirement "- [x] **GATE-05**: A maintainer can see, from a single artifact, which specs run on PR vs main vs nightly before and after this milestone, proving no test was silently dropped. (Protected receipt `235-PROTECTED-RECEIPTS.json`, attested by protected main run `30782184713`, reconciles all 93 ownership rows.)"
   @gate_05_trace "| GATE-05 | Phase 235 | Complete (protected run `30782184713`; 93-row execution proof) |"
   @gate_05_artifacts %{
-    "235-PROTECTED-RECEIPTS.json" => "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
-    "235-PROTECTED-RECEIPTS.attestation.jsonl" => "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f",
-    "235-TRUSTED-ROOT.jsonl" => "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
-    "235-TERMINAL-RATIFICATION.json" => "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e"
+    "235-PROTECTED-RECEIPTS.json" =>
+      "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+    "235-PROTECTED-RECEIPTS.attestation.jsonl" =>
+      "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f",
+    "235-TRUSTED-ROOT.jsonl" =>
+      "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
+    "235-TERMINAL-RATIFICATION.json" =>
+      "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e"
   }
   @gate_05_verifier_sha256 "6c0805e0386186f017215ea7bf10bf450c9aafb68ef6742afa2f9e75b0463367"
 
@@ -61,7 +65,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     refute workflow =~ "inputs:"
     assert workflow =~ "github.ref == 'refs/heads/main'"
     assert workflow =~ "fetch-depth: 0"
-    assert workflow =~ "--protected-output fast-01-gap-closure-remeasurement.json"
+    assert workflow =~ "--protected-output fast-01-source-complete-remeasurement.json"
     assert workflow =~ "eligible_pr_run_count >= 10"
     refute workflow =~ "pull_request:"
     refute ci =~ "fast-01-gap-closure-evidence.yml"
@@ -97,6 +101,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert receipt["repository"] == "szTheory/sigra"
     assert receipt["workflow"] == "ci.yml"
     assert receipt["event"] == "pull_request"
+
     assert receipt["cutoff"] == %{
              "sha" => "54c33e904155a454255952666711c882afdd06e4",
              "timestamp" => "2026-08-03T21:37:08Z"
@@ -110,6 +115,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert MapSet.disjoint?(MapSet.new(run_ids), old_ids)
     assert MapSet.disjoint?(MapSet.new(run_ids), terminal_ids)
     assert Enum.all?(runs, &(&1["conclusion"] not in [nil, ""]))
+
     assert receipt["statistics"] == %{
              "mode" => "wall",
              "ordering" => "{wall_seconds, run_id}",
@@ -135,7 +141,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert verifier =~ "expect_failure trusted_root_byte"
     assert verifier =~ "adversarial_case_unexpectedly_verified:signer_workflow"
     assert verifier =~ "adversarial_case_unexpectedly_verified:source_ref"
-    assert verifier =~ "TRUSTED_ROOT_DIGEST=\"65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c\""
+
+    assert verifier =~
+             "TRUSTED_ROOT_DIGEST=\"65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c\""
+
     assert verifier =~ "trusted_root_digest_mismatch"
     assert verifier =~ "expect_population_failure cutoff"
     assert verifier =~ "expect_population_failure endpoint"
@@ -170,7 +179,8 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
 
     assert all_success |> validate_population!() |> Map.fetch!(:verdict) == "pass"
 
-    for conclusion <- ~w(cancelled timed_out neutral skipped stale action_required startup_failure) do
+    for conclusion <-
+          ~w(cancelled timed_out neutral skipped stale action_required startup_failure) do
       assert synthetic_receipt(719)
              |> put_in(["runs", Access.at(0), "conclusion"], conclusion)
              |> validate_population!()
@@ -243,16 +253,24 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert requirements =~ @gate_05_trace
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_requirement)) == 1
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_trace)) == 1
+
     assert requirements
            |> String.split("\n")
-           |> Enum.count(&(String.starts_with?(&1, "- [") and String.contains?(&1, "**GATE-05**"))) == 1
-    assert requirements |> String.split("\n") |> Enum.count(&String.starts_with?(&1, "| GATE-05 |")) == 1
+           |> Enum.count(
+             &(String.starts_with?(&1, "- [") and String.contains?(&1, "**GATE-05**"))
+           ) == 1
+
+    assert requirements
+           |> String.split("\n")
+           |> Enum.count(&String.starts_with?(&1, "| GATE-05 |")) == 1
 
     for {name, digest} <- @gate_05_artifacts do
       assert sha256!(Path.join(@root, Path.join(@phase, name))) == digest
     end
 
-    assert sha256!(Path.join(@root, "scripts/ci/verify-terminal-ratification-attestation-offline.sh")) ==
+    assert sha256!(
+             Path.join(@root, "scripts/ci/verify-terminal-ratification-attestation-offline.sh")
+           ) ==
              @gate_05_verifier_sha256
 
     refute requirements =~ "| FAST-01 | Phase 235 | Complete ("
@@ -316,7 +334,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     unless receipt["authority"] == "protected_main_attestation" and
              receipt["cutoff"] == %{"sha" => @cutoff_sha, "timestamp" => @cutoff} and
              receipt["window"] == %{"endpoint" => @endpoint},
-      do: raise(ArgumentError, "fixed measurement bounds")
+           do: raise(ArgumentError, "fixed measurement bounds")
 
     runs = receipt["runs"]
     n = length(runs)
@@ -368,7 +386,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
              "ordering" => "{wall_seconds, run_id}",
              "p50_seconds" => p50
            },
-      do: raise(ArgumentError, "stored p50 contradiction")
+           do: raise(ArgumentError, "stored p50 contradiction")
 
     verdict = if p50 < 720, do: "pass", else: "miss"
     unless receipt["verdict"] == verdict, do: raise(ArgumentError, "strict verdict contradiction")

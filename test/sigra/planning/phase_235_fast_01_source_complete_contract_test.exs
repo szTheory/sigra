@@ -38,8 +38,10 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
   test "completed ownership proof and contributor topology remain immutable" do
     pins = %{
-      ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json" => "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
-      ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json" => "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e",
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json" =>
+        "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json" =>
+        "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e",
       "CONTRIBUTING.md" => "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b"
     }
 
