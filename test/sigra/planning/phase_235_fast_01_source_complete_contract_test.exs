@@ -76,6 +76,57 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert :ok = validate_subject(subject)
   end
 
+  test "semantic fixture preserves literal conclusions and strict wall semantics" do
+    fixture = semantic_fixture()
+    path = write_semantic_fixture!(fixture)
+
+    {banner, 0} =
+      System.cmd("bash", [@verifier, "--semantic-fixture", path], stderr_to_stdout: true)
+
+    assert banner =~ "source_complete_semantic_fixture_verified"
+    assert Enum.map(fixture["runs"], & &1["run_id"]) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    assert fixture["statistics"]["p50_seconds"] == 719
+    assert fixture["statistics"]["outcomes"] == %{
+             "cancelled" => 2,
+             "failure" => 3,
+             "success" => 5
+           }
+
+    collapsed_outcomes = %{"failure" => 5, "success" => 5}
+
+    collapsed =
+      fixture
+      |> put_in(["statistics", "outcomes"], collapsed_outcomes)
+      |> put_in(["instrument_receipt", "output", "statistics", "outcomes"], collapsed_outcomes)
+      |> write_semantic_fixture!()
+
+    {collapsed_output, collapsed_status} =
+      System.cmd("bash", [@verifier, "--semantic-fixture", collapsed], stderr_to_stdout: true)
+
+    assert collapsed_status != 0
+    assert collapsed_output =~ "source_first_semantic_validation_failed"
+
+    boundary =
+      fixture
+      |> put_in(
+        ["source_collection", "pages", Access.at(0), "runs", Access.at(5), "updated_at"],
+        "2026-08-04T00:12:00Z"
+      )
+      |> put_in(["runs", Access.at(5), "wall_seconds"], 720)
+      |> put_in(["instrument_receipt", "output", "runs", Access.at(5), "wall_seconds"], 720)
+      |> put_in(["statistics", "mean_seconds"], 563.9)
+      |> put_in(["statistics", "p50_seconds"], 720)
+      |> put_in(["instrument_receipt", "output", "statistics", "mean_seconds"], 563.9)
+      |> put_in(["instrument_receipt", "output", "statistics", "p50_seconds"], 720)
+      |> write_semantic_fixture!()
+
+    {boundary_output, boundary_status} =
+      System.cmd("bash", [@verifier, "--semantic-fixture", boundary], stderr_to_stdout: true)
+
+    assert boundary_status != 0
+    assert boundary_output =~ "source_first_semantic_validation_failed"
+  end
+
   test "authenticated strict pass is reconciled exactly into FAST-01 and its residual" do
     {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
     assert banner =~ "source_complete_offline_attestation_verified"
@@ -310,6 +361,109 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
          :ok <- boundary(receipt) do
       :ok
     end
+  end
+
+  defp semantic_fixture do
+    rows = [
+      semantic_run(1, "success", 100),
+      semantic_run(2, "failure", 200),
+      semantic_run(3, "cancelled", 300),
+      semantic_run(4, "success", 400),
+      semantic_run(5, "failure", 500),
+      semantic_run(7, "success", 719),
+      semantic_run(6, "cancelled", 719),
+      semantic_run(8, "success", 800),
+      semantic_run(9, "failure", 900),
+      semantic_run(10, "success", 1000)
+    ]
+
+    runs =
+      rows
+      |> Enum.map(fn row -> Map.put(row, "wall_seconds", wall_seconds(row)) end)
+      |> Enum.sort_by(&{&1["wall_seconds"], &1["run_id"]})
+
+    statistics = %{
+      "mode" => "wall",
+      "ordering" => "{wall_seconds, run_id}",
+      "mean_seconds" => 563.8,
+      "p50_seconds" => 719,
+      "max_seconds" => 1000,
+      "outcomes" => %{"cancelled" => 2, "failure" => 3, "success" => 5}
+    }
+
+    selected_poles = %{"median_run_id" => 6, "maximum_run_id" => 10}
+
+    output = %{
+      "runs" => runs,
+      "eligible_pr_run_count" => 10,
+      "statistics" => statistics,
+      "selected_poles" => selected_poles,
+      "verdict" => "pass",
+      "status" => "measured",
+      "diagnostics" => []
+    }
+
+    %{
+      "schema_version" => "sigra.fast-01-source-complete-remeasurement/1",
+      "authority" => "protected_main_attestation",
+      "cutoff" => %{
+        "sha" => "54c33e904155a454255952666711c882afdd06e4",
+        "timestamp" => "2026-08-03T21:37:08Z"
+      },
+      "window" => %{"endpoint" => "2026-09-09T12:22:29Z"},
+      "source_collection" => %{
+        "resource" => "GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",
+        "query" => %{
+          "created" => "2026-08-03T21:37:08Z..2026-09-09T12:22:29Z",
+          "per_page" => 100
+        },
+        "requested_pages" => [1, 2],
+        "terminal_page" => 2,
+        "exhausted" => true,
+        "pages" => [
+          %{"page" => 1, "returned_count" => 10, "runs" => rows},
+          %{"page" => 2, "returned_count" => 0, "runs" => []}
+        ]
+      },
+      "runs" => runs,
+      "eligible_pr_run_count" => 10,
+      "statistics" => statistics,
+      "selected_poles" => selected_poles,
+      "verdict" => "pass",
+      "status" => "measured",
+      "binding_poles" => nil,
+      "instrument_receipt" => %{
+        "mode" => "wall",
+        "command" => "bash scripts/ci/ci-run-metrics.sh --source-pages fixture --mode wall",
+        "output" => output
+      }
+    }
+  end
+
+  defp semantic_run(run_id, conclusion, wall_seconds) do
+    %{
+      "run_id" => run_id,
+      "event" => "pull_request",
+      "conclusion" => conclusion,
+      "created_at" => "2026-08-04T00:00:00Z",
+      "updated_at" => DateTime.add(~U[2026-08-04 00:00:00Z], wall_seconds, :second) |> DateTime.to_iso8601()
+    }
+  end
+
+  defp wall_seconds(run) do
+    DateTime.diff(parse_utc!(run["updated_at"]), parse_utc!(run["created_at"]))
+  end
+
+  defp write_semantic_fixture!(fixture) do
+    path =
+      Path.join(
+        System.tmp_dir!(),
+        "phase-235-19-semantic-#{System.unique_integer([:positive, :monotonic])}.json"
+      )
+
+    File.write!(path, Jason.encode!(fixture))
+    on_exit(fn -> File.rm(path) end)
+    path
   end
 
   defp validate_dispatched(receipt) do
