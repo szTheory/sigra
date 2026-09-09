@@ -3,6 +3,8 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @library_jobs ["library_tests_shard", "library_tests", "library_tests_dep_off"]
+  @protected_aggregate_sha256 "04308ef8fb56acc65c5730630e1fd3e926da6804068db07f6f15636c2a0890cb"
+  @upload_artifact_pin "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
   @remediation_path ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json"
 
   test "library execution universe is fail-closed and has one full-suite owner" do
@@ -15,6 +17,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, shard)) == 1
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, Enum.join(Map.values(bodies), "\n"))) == 1
+    refute shard =~ "matrix:"
+    refute shard =~ "--slowest"
+    refute shard =~ "--trace"
 
     Enum.each(bodies, fn {job_id, body} ->
       refute body =~ "mix test", "#{job_id} must not retain a second test command"
@@ -35,6 +40,24 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert aggregate =~ "\"$SHARD\" != \"success\""
     assert ci_gate =~ "- library_tests"
     assert ci_gate =~ "- library_tests_dep_off"
+
+    assert :crypto.hash(:sha256, aggregate) |> Base.encode16(case: :lower) ==
+             @protected_aggregate_sha256
+  end
+
+  test "sole owner validates and uploads both fixed receipts fail-closed" do
+    shard = @workflow_path |> File.read!() |> job_body("library_tests_shard")
+
+    assert shard =~ "SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-1-timings.json"
+    assert shard =~ "SIGRA_LIBRARY_ECONOMICS_PATH: /tmp/sigra-library-economics.json"
+    assert shard =~ "Validate per-test timing receipt"
+    assert shard =~ "verify-library-economics.sh"
+    assert shard =~ "library-test-timings-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert shard =~ "library-economics-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
+    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, shard)) == 2
+    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 2
+    assert length(Regex.scan(~r/retention-days: 7/, shard)) == 2
   end
 
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
