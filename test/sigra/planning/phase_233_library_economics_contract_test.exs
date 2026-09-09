@@ -124,6 +124,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert idempotency =~ "InstallFixture.checkout!(:default_installed, \"idempotency-rerun\")"
     refute idempotency =~ "InstallFixture.setup_tmp_app()"
     assert length(Regex.scan(~r/InstallFixture\.checkout!\(/, upgrade)) == 3
+    assert upgrade =~ "InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)"
     assert upgrade =~ "InstallFixture.checkout!(:no_org_installed, \"upgrade-zero-org\")"
     assert length(Regex.scan(~r/InstallFixture\.checkout!\(:default_installed/, upgrade)) == 2
     refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"

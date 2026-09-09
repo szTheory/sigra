@@ -34,151 +34,165 @@ defmodule Sigra.UpgradeIntegrationTest do
     :ok
   end
 
-  describe "upgrade after --no-organizations install (zero-org path — ORG-02 + GEN-03 org-axis)" do
+  describe "isolated prepared upgrade scenarios" do
     @tag :tmp_dir
-    test "mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable" do
-      # BLOCKER 1: treats `mix sigra.install --no-organizations` as v1.0 fixture.
-      # The upgrade task MUST detect the missing organizations table and emit ZERO
-      # ALTER migrations (no crash on `mix ecto.migrate`).
-      checkout = InstallFixture.checkout!(:no_org_installed, "upgrade-zero-org")
-      app_dir = checkout.path
+    test "zero-org, backfill-off, and backfill-on retain their complete behavior" do
+      scenarios = [
+        InstallFixture.checkout!(:no_org_installed, "upgrade-zero-org")
+        |> Map.put(:kind, :zero_org),
+        InstallFixture.checkout!(:default_installed, "upgrade-backfill-off")
+        |> Map.put(:kind, :backfill_off),
+        InstallFixture.checkout!(:default_installed, "upgrade-backfill-on")
+        |> Map.put(:kind, :backfill_on)
+      ]
 
-      seed_users!(app_dir, 3)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+      assert {:ok, results} =
+               InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)
 
-      # Snapshot priv/repo/migrations/ before upgrade.
-      migrations_before =
-        [app_dir, "priv", "repo", "migrations"]
-        |> Path.join()
-        |> File.ls!()
-        |> Enum.sort()
-
-      # Act: run upgrade WITHOUT backfill flag.
-      {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
-
-      # Assert: no crash substring in upgrade stdout.
-      refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
-      assert documented_upgrade_command([]) == @documented_upgrade_command
-
-      # Assert: no new ALTER migrations emitted (zero-org path).
-      migrations_after =
-        [app_dir, "priv", "repo", "migrations"]
-        |> Path.join()
-        |> File.ls!()
-        |> Enum.sort()
-
-      new_migrations = migrations_after -- migrations_before
-      alter_migrations = Enum.filter(new_migrations, &String.contains?(&1, "organizations"))
-
-      assert alter_migrations == [],
-             "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
-
-      # Assert: app still compiles + migrates + boots.
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-      {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
-
-      # Assert: organizations table should be absent in the zero-org path.
-      refute organizations_table_exists?(app_dir),
-             "expected organizations table to be absent in --no-organizations upgrade"
+      assert results |> Enum.map(fn {scenario, :ok} -> scenario.kind end) |> Enum.sort() ==
+               [:backfill_off, :backfill_on, :zero_org]
     end
   end
 
-  describe "upgrade after default install (org-enabled path — ORG-UPGRADE-02)" do
-    @tag :tmp_dir
-    test "login after backfill-off upgrade redirects to /organizations with 302 and no 500s" do
-      # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
-      # "login still works, users land on create/accept page, no 500s, nil-guarded
-      # template accessors verified by boot test".
-      checkout = InstallFixture.checkout!(:default_installed, "upgrade-backfill-off")
-      app_dir = checkout.path
+  defp run_upgrade_scenario(%{kind: :zero_org} = checkout) do
+    # BLOCKER 1: treats `mix sigra.install --no-organizations` as v1.0 fixture.
+    # The upgrade task MUST detect the missing organizations table and emit ZERO
+    # ALTER migrations (no crash on `mix ecto.migrate`).
+    app_dir = checkout.path
 
-      seed_users!(app_dir, 2)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    seed_users!(app_dir, 3)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
 
-      # Act: run upgrade WITHOUT backfill flag. ALTER migrations use
-      # add_if_not_exists / create_if_not_exists so they are idempotent no-ops
-      # against the fresh-install shape.
-      {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
-      refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
-      assert documented_upgrade_command([]) == @documented_upgrade_command
+    # Snapshot priv/repo/migrations/ before upgrade.
+    migrations_before =
+      [app_dir, "priv", "repo", "migrations"]
+      |> Path.join()
+      |> File.ls!()
+      |> Enum.sort()
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-      {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+    # Act: run upgrade WITHOUT backfill flag.
+    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
 
-      # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
-      login_result = assert_login_redirects_to_organizations!(checkout)
+    # Assert: no crash substring in upgrade stdout.
+    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    assert documented_upgrade_command([]) == @documented_upgrade_command
 
-      assert login_result.login_status in [200, 302, 303],
-             "login POST returned #{login_result.login_status}"
+    # Assert: no new ALTER migrations emitted (zero-org path).
+    migrations_after =
+      [app_dir, "priv", "repo", "migrations"]
+      |> Path.join()
+      |> File.ls!()
+      |> Enum.sort()
 
-      # ORG-UPGRADE-02 post-upgrade landing assertion.
-      #
-      # The seeded login user was created via the generated
-      # `register_user/1` which, on a v1.1+ default install, auto-
-      # creates a personal organization. Post-upgrade that user
-      # therefore has an active org and is routed to the app root
-      # (`/`). A pre-v1.1 user with zero orgs would instead be
-      # trapped on `/organizations` by `RequireMembership`. Both
-      # outcomes are acceptable here — the load-bearing guarantee is
-      # that the session is valid, the router fires, and no 5xx
-      # leaks from a nil-guard gap in the upgraded templates.
-      assert login_result.final_path in ["/", "/organizations"],
-             "expected final path to be / or /organizations, got #{login_result.final_path}"
+    new_migrations = migrations_after -- migrations_before
+    alter_migrations = Enum.filter(new_migrations, &String.contains?(&1, "organizations"))
 
-      assert Enum.all?(login_result.status_codes_seen, &(&1 < 500)),
-             "saw 5xx response: #{inspect(login_result.status_codes_seen)}"
-    end
+    assert alter_migrations == [],
+           "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
+
+    # Assert: app still compiles + migrates + boots.
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
+    {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+
+    # Assert: organizations table should be absent in the zero-org path.
+    refute organizations_table_exists?(app_dir),
+           "expected organizations table to be absent in --no-organizations upgrade"
+
+    :ok
   end
 
-  describe "mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01)" do
-    @tag :tmp_dir
-    test "every user gets a personal org; re-run is a no-op" do
-      # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
-      # (org-enabled), not --no-organizations.
-      checkout = InstallFixture.checkout!(:default_installed, "upgrade-backfill-on")
-      app_dir = checkout.path
+  defp run_upgrade_scenario(%{kind: :backfill_off} = checkout) do
+    # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
+    # "login still works, users land on create/accept page, no 500s, nil-guarded
+    # template accessors verified by boot test".
+    app_dir = checkout.path
 
-      seeded_count = 5
-      seed_users!(app_dir, seeded_count)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    seed_users!(app_dir, 2)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
 
-      # First upgrade: backfill runs.
-      {:ok, _upgrade_out} =
-        InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+    # Act: run upgrade WITHOUT backfill flag. ALTER migrations use
+    # add_if_not_exists / create_if_not_exists so they are idempotent no-ops
+    # against the fresh-install shape.
+    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
+    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    assert documented_upgrade_command([]) == @documented_upgrade_command
 
-      assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
-               @documented_backfill_command
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
+    {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
+    # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
+    login_result = assert_login_redirects_to_organizations!(checkout)
+
+    assert login_result.login_status in [200, 302, 303],
+           "login POST returned #{login_result.login_status}"
+
+    # ORG-UPGRADE-02 post-upgrade landing assertion.
+    #
+    # The seeded login user was created via the generated
+    # `register_user/1` which, on a v1.1+ default install, auto-
+    # creates a personal organization. Post-upgrade that user
+    # therefore has an active org and is routed to the app root
+    # (`/`). A pre-v1.1 user with zero orgs would instead be
+    # trapped on `/organizations` by `RequireMembership`. Both
+    # outcomes are acceptable here — the load-bearing guarantee is
+    # that the session is valid, the router fires, and no 5xx
+    # leaks from a nil-guard gap in the upgraded templates.
+    assert login_result.final_path in ["/", "/organizations"],
+           "expected final path to be / or /organizations, got #{login_result.final_path}"
+
+    assert Enum.all?(login_result.status_codes_seen, &(&1 < 500)),
+           "saw 5xx response: #{inspect(login_result.status_codes_seen)}"
+
+    :ok
+  end
+
+  defp run_upgrade_scenario(%{kind: :backfill_on} = checkout) do
+    # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
+    # (org-enabled), not --no-organizations.
+    app_dir = checkout.path
+
+    seeded_count = 5
+    seed_users!(app_dir, seeded_count)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+
+    # First upgrade: backfill runs.
+    {:ok, _upgrade_out} =
+      InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+
+    assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
+             @documented_backfill_command
+
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    run_data_migrations!(app_dir)
+
+    if organizations_table_exists?(app_dir) do
+      first_count = count_personal_orgs!(app_dir)
+
+      assert first_count == seeded_count,
+             "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
+
+      # Re-run: must be a no-op.
+      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       run_data_migrations!(app_dir)
 
-      if organizations_table_exists?(app_dir) do
-        first_count = count_personal_orgs!(app_dir)
+      second_count = count_personal_orgs!(app_dir)
+      assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
+    else
+      # Some dependency-minimal install shapes do not install organizations.
+      # Backfill must remain a no-op in that shape, including on re-run.
+      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+      run_data_migrations!(app_dir)
 
-        assert first_count == seeded_count,
-               "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
-
-        # Re-run: must be a no-op.
-        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-        run_data_migrations!(app_dir)
-
-        second_count = count_personal_orgs!(app_dir)
-        assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
-      else
-        # Some dependency-minimal install shapes do not install organizations.
-        # Backfill must remain a no-op in that shape, including on re-run.
-        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-        run_data_migrations!(app_dir)
-
-        refute organizations_table_exists?(app_dir),
-               "expected backfill to preserve org-absent install shape"
-      end
+      refute organizations_table_exists?(app_dir),
+             "expected backfill to preserve org-absent install shape"
     end
+
+    :ok
   end
 
   # ── Helpers ─────────────────────────────────────────────────────
