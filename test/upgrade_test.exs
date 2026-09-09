@@ -41,10 +41,8 @@ defmodule Sigra.UpgradeIntegrationTest do
       # BLOCKER 1: treats `mix sigra.install --no-organizations` as v1.0 fixture.
       # The upgrade task MUST detect the missing organizations table and emit ZERO
       # ALTER migrations (no crash on `mix ecto.migrate`).
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_zero"))
-
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, ["--no-organizations"])
+      checkout = InstallFixture.checkout!(:no_org_installed, "upgrade-zero-org")
+      app_dir = checkout.path
 
       seed_users!(app_dir, 3)
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
@@ -93,12 +91,8 @@ defmodule Sigra.UpgradeIntegrationTest do
       # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
       # "login still works, users land on create/accept page, no 500s, nil-guarded
       # template accessors verified by boot test".
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_default"))
-
-      # Default install = org-enabled (from Plan 18-01; organizations table already
-      # has owner_user_id and personal columns).
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, [])
+      checkout = InstallFixture.checkout!(:default_installed, "upgrade-backfill-off")
+      app_dir = checkout.path
 
       seed_users!(app_dir, 2)
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
@@ -115,7 +109,7 @@ defmodule Sigra.UpgradeIntegrationTest do
       refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
       # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
-      login_result = assert_login_redirects_to_organizations!(app_dir)
+      login_result = assert_login_redirects_to_organizations!(checkout)
 
       assert login_result.login_status in [200, 302, 303],
              "login POST returned #{login_result.login_status}"
@@ -144,10 +138,8 @@ defmodule Sigra.UpgradeIntegrationTest do
     test "every user gets a personal org; re-run is a no-op" do
       # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
       # (org-enabled), not --no-organizations.
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_backfill"))
-
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, [])
+      checkout = InstallFixture.checkout!(:default_installed, "upgrade-backfill-on")
+      app_dir = checkout.path
 
       seeded_count = 5
       seed_users!(app_dir, seeded_count)
@@ -300,16 +292,13 @@ defmodule Sigra.UpgradeIntegrationTest do
     |> Enum.join(" ")
   end
 
-  defp unique_app_name(prefix) do
-    "#{prefix}_#{System.unique_integer([:positive])}"
-  end
-
   defp otp_app_atom(app_dir) do
-    app_dir |> Path.basename() |> Macro.underscore()
+    [_, app] = Regex.run(~r/app:\s+:(\w+)/, File.read!(Path.join(app_dir, "mix.exs")))
+    app
   end
 
   defp otp_app_module(app_dir) do
-    app_dir |> Path.basename() |> Macro.camelize()
+    app_dir |> otp_app_atom() |> Macro.camelize()
   end
 
   # ── BLOCKER 2 helper: HTTP login assertion for ORG-UPGRADE-02 ────
@@ -317,8 +306,9 @@ defmodule Sigra.UpgradeIntegrationTest do
   # Starts `mix phx.server` in the tmp app as a background port, POSTs login,
   # follows the redirect with the session cookie, and returns a map of observed
   # status codes + final path.
-  defp assert_login_redirects_to_organizations!(app_dir) do
-    port = 4444 + :rand.uniform(1000)
+  defp assert_login_redirects_to_organizations!(checkout) do
+    app_dir = checkout.path
+    port = checkout.port
 
     # Seed a user with a known password via generated register_user/1.
     seed_login_user!(app_dir, "login@example.test", "CorrectHorse!1")
@@ -328,7 +318,12 @@ defmodule Sigra.UpgradeIntegrationTest do
         System.cmd("mix", ["phx.server"],
           cd: app_dir,
           stderr_to_stdout: true,
-          env: [{"MIX_ENV", "dev"}, {"PORT", Integer.to_string(port)}]
+          env: [
+            {"MIX_ENV", "dev"},
+            {"MIX_TEST_PARTITION", checkout.partition},
+            {"MIX_BUILD_PATH", checkout.build_path},
+            {"PORT", Integer.to_string(port)}
+          ]
         )
       end)
 

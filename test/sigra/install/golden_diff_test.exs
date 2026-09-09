@@ -45,47 +45,33 @@ defmodule Sigra.Install.GoldenDiffTest do
 
   setup_all do
     ensure_fixture_present!()
-    {:ok, fixture_dir: @fixture_dir}
+    variant = InstallFixture.variant!(:default_installed)
+    {:ok, fixture_dir: @fixture_dir, variant: variant}
   end
 
   describe "golden diff" do
     @describetag :integration
 
-    test "generated tree matches committed fixture byte-for-byte (migration filenames normalized)" do
-      {:ok, %{app_dir: app_dir, baseline_paths: baseline}} = run_installer()
+    test "generated tree matches committed fixture byte-for-byte (migration filenames normalized)",
+         %{variant: variant} do
+      actual = InstallFixture.normalize_tree(variant.path, variant.baseline_paths)
+      expected = read_fixture_tree()
 
-      try do
-        actual = InstallFixture.normalize_tree(app_dir, baseline)
-        expected = read_fixture_tree()
-
-        assert_tree_equal(actual, expected)
-      after
-        File.rm_rf!(Path.dirname(app_dir))
-      end
+      assert_tree_equal(actual, expected)
     end
 
-    test "captured stdout matches committed STDOUT.txt after normalization" do
-      {:ok, %{app_dir: app_dir, stdout: raw}} = run_installer()
+    test "captured stdout matches committed STDOUT.txt after normalization", %{variant: variant} do
+      actual = variant.stdout
+      expected = File.read!(@fixture_stdout)
 
-      try do
-        actual = InstallFixture.normalize_stdout(raw, app_dir)
-        expected = File.read!(@fixture_stdout)
-
-        if actual != expected do
-          diff = render_diff(expected, actual)
-          flunk("STDOUT diverges from fixture:\n#{diff}")
-        end
-      after
-        File.rm_rf!(Path.dirname(app_dir))
+      if actual != expected do
+        diff = render_diff(expected, actual)
+        flunk("STDOUT diverges from fixture:\n#{diff}")
       end
     end
   end
 
   # -- helpers ----------------------------------------------------------------
-
-  defp run_installer do
-    InstallFixture.setup_tmp_app()
-  end
 
   defp ensure_fixture_present! do
     cond do

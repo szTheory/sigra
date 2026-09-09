@@ -26,13 +26,10 @@ defmodule Sigra.Install.IdempotencyTest do
   @moduletag :scaffold
 
   setup_all do
-    {:ok, %{app_dir: app_dir, stdout: first_stdout}} = InstallFixture.setup_tmp_app()
+    variant = InstallFixture.variant!(:default_installed)
+    checkout = InstallFixture.checkout!(:default_installed, "idempotency-rerun")
 
-    on_exit(fn ->
-      File.rm_rf!(Path.dirname(app_dir))
-    end)
-
-    %{app_dir: app_dir, first_stdout: first_stdout}
+    %{app_dir: checkout.path, first_stdout: variant.stdout}
   end
 
   test "second invocation produces zero new file writes and zero new injections",
@@ -40,16 +37,7 @@ defmodule Sigra.Install.IdempotencyTest do
     snapshot_before = hash_snapshot(app_dir)
     mtimes_before = collect_mtimes(app_dir)
 
-    {second_out, status} =
-      System.cmd(
-        "mix",
-        ["sigra.install", "Accounts", "User", "users", "--yes"],
-        cd: app_dir,
-        stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
-      )
-
-    assert status == 0, "second sigra.install failed:\n#{second_out}"
+    assert {:ok, second_out} = InstallFixture.run_sigra_install(app_dir, [])
 
     snapshot_after = hash_snapshot(app_dir)
     mtimes_after = collect_mtimes(app_dir)
