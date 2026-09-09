@@ -30,20 +30,37 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     "Add a passkey after creating your account"
   ]
 
+  setup_all do
+    scenarios =
+      Enum.map(@cases, fn %{label: label, variant: variant} ->
+        InstallFixture.checkout!(variant, "opt-out-#{label}")
+      end)
+
+    assert {:ok, results} =
+             InstallFixture.run_scenarios(scenarios, fn checkout ->
+               assert {:ok, _stdout} =
+                        InstallFixture.run_mix(checkout.path, [
+                          "compile",
+                          "--warnings-as-errors"
+                        ])
+
+               {:ok, checkout}
+             end)
+
+    checkouts = Map.new(results, fn {_scenario, checkout} -> {checkout.name, checkout} end)
+    {:ok, checkouts: checkouts}
+  end
+
   describe "mix sigra.install opt out" do
     for %{label: label, flags: flags, variant: variant} <- @cases do
       @tag flags: flags, variant: variant
       test "#{label} omits passkey routes, files, dependencies, and residue", %{
         flags: _flags,
-        variant: variant
+        variant: variant,
+        checkouts: checkouts
       } do
-        checkout = InstallFixture.checkout!(variant, "opt-out-#{variant}")
+        checkout = Map.fetch!(checkouts, variant)
         app_dir = checkout.path
-
-        # --warnings-as-errors guards against dead code in opt-out builds, e.g. an
-        # impersonation guard helper whose only caller is passkey-gated (Phase 221).
-        assert {:ok, _stdout} =
-                 InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
 
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_hooks.js"))
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_browser.js"))

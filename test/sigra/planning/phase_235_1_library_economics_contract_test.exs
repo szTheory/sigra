@@ -101,8 +101,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     assert opt_out =~ "variant: :no_passkeys"
     assert opt_out =~ "variant: :no_org_no_passkeys"
-    assert opt_out =~ ~S|InstallFixture.checkout!(variant, "opt-out-#{variant}")|
-    assert opt_out =~ "compile\", \"--warnings-as-errors"
+    assert opt_out =~ "InstallFixture.run_scenarios(scenarios"
+    assert opt_out =~ ~S|InstallFixture.checkout!(variant, "opt-out-#{label}")|
+    assert opt_out =~ "\"compile\""
+    assert opt_out =~ "\"--warnings-as-errors\""
     refute opt_out =~ "InstallFixture.setup_tmp_app_without_install"
 
     assert vault =~ "InstallFixture.checkout!(:passkeys_standard, \"vault-promotion\")"
@@ -183,7 +185,8 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     assert_contains_all!(sources.opt_out, [
       "@forbidden_strings",
-      "compile\", \"--warnings-as-errors",
+      "\"compile\"",
+      "\"--warnings-as-errors\"",
       "migration_present?",
       "tree_contains?"
     ])
