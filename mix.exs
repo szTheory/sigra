@@ -78,6 +78,7 @@ defmodule Sigra.MixProject do
         Assent.Strategy.Facebook,
         Assent.Strategy.Github,
         Assent.Strategy.Google,
+        Assent.Strategy.OIDC,
         Joken,
         Joken.Signer,
         Joken.Config,
