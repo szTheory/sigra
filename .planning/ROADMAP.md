@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single `MIX_ENV=test mix ci` owner: same-run parallel slow-test visibility, separately timed comparable ordinary and install/scaffold work classes, and reconciled TEST-01/02/03 traceability without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 5 plans
+**Plans:** 1/5 plans executed
 
 **Success Criteria:**
 
@@ -532,7 +532,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 Plans:
 **Wave 1**
 
-- [ ] 235.1-01-PLAN.md — Build the fail-closed same-run economics producer and independent verifier
+- [x] 235.1-01-PLAN.md — Build the fail-closed same-run economics producer and independent verifier
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

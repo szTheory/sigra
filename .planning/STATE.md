@@ -4,12 +4,12 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: discussed
+status: executing
 stopped_at: Phase 235.1 context gathered (assumptions mode)
-last_updated: "2026-09-09T18:12:14.102Z"
+last_updated: "2026-09-09T18:13:48.023Z"
 last_activity: 2026-09-09
-last_activity_desc: Phase 235 complete
-state_head: 6b30a4e26d8adeb69d6703382ae2865f30b14c09
+last_activity_desc: Phase 235.1 execution started
+state_head: f3a43c4d459734cdbc2b2aa5421e42d7a4261ba0
 progress:
   total_phases: 7
   completed_phases: 6
@@ -26,15 +26,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.47 CI-EFFICIENCY milestone closeout
+**Current focus:** Phase 235.1 — close-v1-47-library-economics-integration-gaps-test-01-test
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — READY TO EXECUTE
-Plan: 13 of 13
-Status: discussed
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 235.1
 Progress: 6/6 milestone phases complete ([██████████] 100%); 13 of 13 Phase 235 plans complete
-Last activity: 2026-09-09 — Phase 235 complete
+Last activity: 2026-09-09 — Phase 235.1 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
