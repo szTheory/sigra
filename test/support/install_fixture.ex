@@ -981,16 +981,16 @@ defmodule Sigra.Test.InstallFixture do
       case :os.type() do
         {:unix, :linux} ->
           {out, rc} =
-            System.cmd("cp", ["--reflink=auto", "-RL", source, target], stderr_to_stdout: true)
+            System.cmd("cp", ["--reflink=auto", "-R", source, target], stderr_to_stdout: true)
 
           {:reflink, out, rc}
 
         {:unix, :darwin} ->
-          {out, rc} = System.cmd("cp", ["-cRL", source, target], stderr_to_stdout: true)
+          {out, rc} = System.cmd("cp", ["-cR", source, target], stderr_to_stdout: true)
           {:reflink, out, rc}
 
         _ ->
-          {out, rc} = System.cmd("cp", ["-RL", source, target], stderr_to_stdout: true)
+          {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
           {:copy, out, rc}
       end
 
@@ -999,12 +999,123 @@ defmodule Sigra.Test.InstallFixture do
         {mode, output, status}
       else
         File.rm_rf!(target)
-        {out, rc} = System.cmd("cp", ["-RL", source, target], stderr_to_stdout: true)
+        {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
         {:copy, out, rc}
       end
 
     if status != 0, do: raise("private fixture copy failed (status #{status}): #{output}")
+    make_directories_writable_no_follow!(target)
+    materialize_or_omit_links!(source, target)
+
+    if tree_contains_symlink_or_hardlink?(target) do
+      raise "private fixture copy retained a symlink or hardlink"
+    end
+
     {mode, positive_elapsed(started)}
+  end
+
+  defp make_directories_writable_no_follow!(root) do
+    File.chmod!(root, 0o700)
+
+    root
+    |> File.ls!()
+    |> Enum.each(fn entry ->
+      path = Path.join(root, entry)
+
+      case File.lstat(path) do
+        {:ok, %{type: :directory}} -> make_directories_writable_no_follow!(path)
+        _ -> :ok
+      end
+    end)
+  end
+
+  defp materialize_or_omit_links!(source_root, target_root) do
+    source_root
+    |> symlink_paths()
+    |> Enum.each(fn source_link ->
+      relative = Path.relative_to(source_link, source_root)
+      target_link = Path.join(target_root, relative)
+      File.rm_rf!(target_link)
+
+      case resolve_safe_link(source_root, source_link, MapSet.new()) do
+        {:ok, resolved} ->
+          copy_materialized_path!(source_root, resolved, target_link, MapSet.new())
+
+        :omit ->
+          :ok
+      end
+    end)
+  end
+
+  defp symlink_paths(root) do
+    case File.ls(root) do
+      {:ok, entries} ->
+        Enum.flat_map(entries, fn entry ->
+          path = Path.join(root, entry)
+
+          case File.lstat(path) do
+            {:ok, %{type: :symlink}} -> [path]
+            {:ok, %{type: :directory}} -> symlink_paths(path)
+            _ -> []
+          end
+        end)
+
+      {:error, _reason} ->
+        []
+    end
+  end
+
+  defp resolve_safe_link(source_root, link, seen) do
+    if MapSet.member?(seen, link) do
+      :omit
+    else
+      seen = MapSet.put(seen, link)
+
+      with {:ok, link_target} <- File.read_link(link),
+           candidate <-
+             if(Path.type(link_target) == :absolute,
+               do: Path.expand(link_target),
+               else: Path.expand(link_target, Path.dirname(link))
+             ),
+           true <- candidate == source_root or String.starts_with?(candidate, source_root <> "/"),
+           {:ok, stat} <- File.lstat(candidate) do
+        if stat.type == :symlink,
+          do: resolve_safe_link(source_root, candidate, seen),
+          else: {:ok, candidate}
+      else
+        _ -> :omit
+      end
+    end
+  end
+
+  defp copy_materialized_path!(source_root, source, target, seen) do
+    case File.lstat!(source) do
+      %{type: :regular} ->
+        File.cp!(source, target)
+
+      %{type: :directory} ->
+        File.mkdir_p!(target)
+
+        source
+        |> File.ls!()
+        |> Enum.each(fn entry ->
+          copy_materialized_path!(
+            source_root,
+            Path.join(source, entry),
+            Path.join(target, entry),
+            seen
+          )
+        end)
+
+      %{type: :symlink} ->
+        case resolve_safe_link(source_root, source, seen) do
+          {:ok, resolved} -> copy_materialized_path!(source_root, resolved, target, seen)
+          :omit -> :ok
+        end
+
+      _other ->
+        :ok
+    end
   end
 
   defp validate_graph_member!(path) do

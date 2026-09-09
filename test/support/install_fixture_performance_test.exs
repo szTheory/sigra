@@ -95,6 +95,46 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute File.exists?(mismatch)
   end
 
+  test "copies materialize valid links and omit dangling generated build links", %{root: root} do
+    graph =
+      InstallFixture.prepare_graph!(
+        root: root,
+        fingerprint: "test-fingerprint",
+        base_builder: fn base_path ->
+          generated_dir = Path.join(base_path, "_build/dev/phoenix-colocated/node_modules")
+          File.mkdir_p!(generated_dir)
+          File.write!(Path.join(base_path, "source.txt"), "source bytes")
+          File.ln_s!("source.txt", Path.join(base_path, "valid-link"))
+
+          File.ln_s!(
+            "../../../../missing-node-modules",
+            Path.join(generated_dir, "dangling-link")
+          )
+
+          :ok
+        end,
+        variant_builder: fn _name, _variant_path -> {:ok, ""} end
+      )
+
+    assert File.lstat!(Path.join(graph.base_path, "valid-link")).type == :symlink
+
+    assert File.lstat!(
+             Path.join(graph.base_path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
+           ).type == :symlink
+
+    Enum.each(graph.variants, fn {_name, variant} ->
+      materialized = Path.join(variant.path, "valid-link")
+
+      dangling =
+        Path.join(variant.path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
+
+      assert File.regular?(materialized)
+      assert File.read!(materialized) == "source bytes"
+      refute File.exists?(dangling)
+      assert File.lstat(dangling) == {:error, :enoent}
+    end)
+  end
+
   test "subprocess helpers retain return shape and propagate checkout partition", %{root: root} do
     graph = prepare_test_graph!(root)
     checkout = InstallFixture.checkout!(graph, :default_installed, "subprocess")
