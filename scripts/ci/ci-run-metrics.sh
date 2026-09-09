@@ -56,6 +56,9 @@ EVENT=""
 MODE="wall"
 FORMAT="table"
 RUN_ID=""
+SOURCE_PAGES=""
+UNTIL=""
+THRESHOLD=720
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -65,8 +68,11 @@ while [[ $# -gt 0 ]]; do
     --workflow) WORKFLOW="$2"; shift 2;;
     --limit) LIMIT="$2"; shift 2;;
     --since) SINCE="$2"; shift 2;;
+    --until) UNTIL="$2"; shift 2;;
     --event) EVENT="$2"; shift 2;;
     --mode) MODE="$2"; shift 2;;
+    --source-pages) SOURCE_PAGES="$2"; shift 2;;
+    --threshold) THRESHOLD="$2"; shift 2;;
     *) echo "ci-run-metrics: FAIL: unknown arg: $1" >&2; exit 2;;
   esac
 done
@@ -84,8 +90,70 @@ if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
 fi
 
-if ! command -v gh >/dev/null 2>&1; then
+if [[ -z "$SOURCE_PAGES" ]] && ! command -v gh >/dev/null 2>&1; then
   fail "gh CLI not found on PATH"
+fi
+
+if [[ -n "$SOURCE_PAGES" ]]; then
+  [[ "$MODE" == "wall" ]] || fail "source-pages requires --mode wall"
+  [[ "$FORMAT" == "json" ]] || fail "source-pages requires --format json"
+  [[ "$EVENT" == "pull_request" ]] || fail "source-pages requires --event pull_request"
+  [[ -n "$SINCE" && -n "$UNTIL" ]] || fail "source-pages requires --since and --until"
+  [[ "$THRESHOLD" =~ ^[0-9]+$ ]] || fail "threshold must be a non-negative integer"
+  [[ -s "$SOURCE_PAGES" ]] || fail "source_pages_missing_or_empty"
+
+  jq -e --arg since "$SINCE" --arg until "$UNTIL" '
+    . as $s |
+    $s.resource == "GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs" and
+    $s.query.created == ($since + ".." + $until) and $s.query.per_page == 100 and
+    ($s.requested_pages | type == "array" and length == ($s.pages | length) and . == [range(1; length + 1)]) and
+    ([$s.pages[].page] == $s.requested_pages) and
+    $s.terminal_page == ($s.requested_pages[-1]) and $s.exhausted == true and
+    ($s.pages | type == "array" and length > 0) and
+    all($s.pages[]; (.page | type) == "number" and
+      (.returned_count | type) == "number" and (.runs | type) == "array" and .returned_count == (.runs | length)) and
+    all($s.pages[0:-1][]; .returned_count > 0) and
+    ($s.pages[-1].returned_count == 0) and
+    all($s.pages[].runs[];
+      (.run_id | type) == "number" and (.url | type) == "string" and (.url | length) > 0 and
+      (.event | type) == "string" and
+      ((.conclusion == null) or ((.conclusion | type) == "string" and (.conclusion | length) > 0)) and
+      (.created_at | type) == "string" and (.updated_at | type) == "string") and
+    ([$s.pages[].runs[].run_id] | length == (unique | length))
+  ' "$SOURCE_PAGES" >/dev/null || fail "source_pages_shape_invalid"
+
+  SOURCE_RESULT="$(jq -e --arg since "$SINCE" --arg until "$UNTIL" --argjson threshold "$THRESHOLD" '
+    [.pages[].runs[]
+      | select(.event == "pull_request" and (.conclusion | type) == "string" and (.conclusion | length) > 0)
+      | select(.created_at >= $since and .created_at <= $until)
+      | (((.created_at | fromdateiso8601) // error("created_at_invalid")) as $created
+        | ((.updated_at | fromdateiso8601) // error("updated_at_invalid")) as $updated
+        | if $updated < $created then error("run_chronology_invalid") else . end
+        | . + {wall_seconds: ($updated - $created)})]
+    | sort_by(.wall_seconds, .run_id) as $runs
+    | ($runs | length) as $n
+    | if $n < 10 then
+        {runs:$runs, eligible_pr_run_count:$n, statistics:null, selected_poles:null,
+         verdict:null, status:"insufficient_population",
+         diagnostics:["requires_at_least_10_terminal_pull_request_runs"]}
+      else
+        ($runs[($n / 2 | floor)]) as $median
+        | ($runs[-1]) as $maximum
+        | (($runs | map(.wall_seconds) | add) / $n) as $mean
+        | {runs:$runs, eligible_pr_run_count:$n,
+           statistics:{mode:"wall",ordering:"{wall_seconds, run_id}",mean_seconds:$mean,
+             p50_seconds:$median.wall_seconds,max_seconds:$maximum.wall_seconds,
+             outcomes:($runs | group_by(.conclusion) | map({key:.[0].conclusion,value:length}) | from_entries)},
+           selected_poles:{median_run_id:$median.run_id,maximum_run_id:$maximum.run_id},
+           verdict:(if $n < 10 then null elif $median.wall_seconds < $threshold then "pass" else "miss" end),
+           status:(if $n < 10 then "insufficient_population" else "measured" end),
+           diagnostics:(if $n < 10 then ["requires_at_least_10_terminal_pull_request_runs"] else [] end)}
+      end
+    | {schema_version:"sigra.ci-run-metrics/source-pages-v1",mode:"wall",event:"pull_request",
+       since:$since,until:$until,threshold_seconds:$threshold} + .
+  ' "$SOURCE_PAGES")" || fail "source_pages_semantics_invalid"
+  printf '%s\n' "$SOURCE_RESULT" | jq -S .
+  exit 0
 fi
 
 # ---------------------------------------------------------------------------

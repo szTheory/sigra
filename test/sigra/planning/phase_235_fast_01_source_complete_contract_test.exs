@@ -30,7 +30,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
     assert verifier =~ "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
     assert verifier =~ "deny network"
-    assert verifier =~ "gh\" attestation verify"
+    assert verifier =~ ~s("$GH_BIN" attestation verify)
     assert verifier =~ "UNSET_PLAN_17"
     assert verifier =~ "source_collection"
     assert verifier =~ "instrument_receipt"
