@@ -123,3 +123,18 @@ Evidence observed during this delta audit:
 - `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` — `offline_attestation_verified`; its intentional adverse trusted-root and source-ref mutations failed before the positive verification banner.
 - `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` — 16 tests, 0 failures, including the multi-conclusion semantic fixture, collapsed-outcome rejection, authenticated/default-path separation, protected digests, and exact 93-row GATE-05 assertion.
 - `git diff --check -- scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` — clean.
+
+### Verify-Work Post-Hook Audit 2026-09-09
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Fresh evidence observed before phase completion:
+
+- `bash scripts/ci/ci-run-metrics.test.sh` — 11 tests passed.
+- `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` — `source_complete_offline_attestation_verified`.
+- `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` — `offline_attestation_verified`, with all intentional adverse mutations rejected first.
+- `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` — 16 tests, 0 failures.
