@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: executing
-stopped_at: Planned 235-19-PLAN.md; ready to execute gap closure
-last_updated: "2026-09-09T15:15:35Z"
+stopped_at: Completed 235-19-PLAN.md
+last_updated: "2026-09-09T15:32:28.071Z"
 last_activity: 2026-09-09
-last_activity_desc: Planned 235-19 to preserve literal terminal conclusions in the FAST-01 offline verifier
-state_head: 2951593eaafaeb128beadc8cd5f4f926cd63f501
+last_activity_desc: Phase 235 execution started
+state_head: 59696e4b043339d36c3e548aa20b570968321a40
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 67
-  completed_plans: 66
+  completed_plans: 67
   percent: 83
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — READY TO EXECUTE
-Plan: 12 of 13
+Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
+Plan: 2 of 13
 Status: Ready to execute
 Progress: 5/6 milestone phases complete ([████████░░] 83%); 12 of 13 Phase 235 plans complete, with gap-closure Plan 235-19 ready to execute
-Last activity: 2026-09-09 — Planned literal terminal-conclusion parity for the FAST-01 offline verifier without changing GATE-05
+Last activity: 2026-09-09 — Phase 235 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -451,6 +451,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235]: FAST-01 completes only from protected run 34350618761's authenticated source-complete n=52, p50=469-second wall result.
 - [Phase 235]: The rejected derived-only n=43/p50=466 candidate and all prior miss/remediation measurements remain immutable historical context.
 - [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
+- [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
+- [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
 
 ### Pending Todos
 
@@ -597,8 +599,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T13:51:21.539Z
-Stopped at: Completed 235-18-PLAN.md
+Last session: 2026-09-09T15:32:27.851Z
+Stopped at: Completed 235-19-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -767,3 +769,4 @@ Resume file: None
 | Phase 235 P16 | 72m | 2 tasks | 13 files |
 | Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
+| Phase 235 P19 | 7min | 2 tasks | 2 files |

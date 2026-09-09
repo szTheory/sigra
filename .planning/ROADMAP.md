@@ -397,7 +397,7 @@ Plans:
 
 **Wave 13** *(gap closure; blocked on Wave 12 completion)*
 
-- [ ] 235-19-PLAN.md — Preserve literal terminal conclusions in the FAST-01 offline verifier and prove full-statistics equality
+- [x] 235-19-PLAN.md — Preserve literal terminal conclusions in the FAST-01 offline verifier and prove full-statistics equality
 
 ## Progress
 
