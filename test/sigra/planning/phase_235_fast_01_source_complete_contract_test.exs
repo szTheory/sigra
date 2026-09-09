@@ -86,6 +86,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert banner =~ "source_complete_semantic_fixture_verified"
     assert Enum.map(fixture["runs"], & &1["run_id"]) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     assert fixture["statistics"]["p50_seconds"] == 719
+
     assert fixture["statistics"]["outcomes"] == %{
              "cancelled" => 2,
              "failure" => 3,
@@ -133,6 +134,32 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert boundary_output =~ "source_first_semantic_validation_failed"
   end
 
+  test "semantic fixture parsing stays isolated from the authenticated default path" do
+    path = semantic_fixture() |> write_semantic_fixture!()
+
+    assert {"source_complete_semantic_fixture_verified\n", 0} =
+             System.cmd("bash", [@verifier, "--semantic-fixture", path], stderr_to_stdout: true)
+
+    assert {"source_complete_offline_attestation_verified\n", 0} =
+             System.cmd("bash", [@verifier], stderr_to_stdout: true)
+
+    malformed_arguments = [
+      {["--unknown"], "unknown_argument:--unknown"},
+      {["--semantic-fixture"], "missing_semantic_fixture_path"},
+      {["--semantic-fixture", ""], "empty_semantic_fixture_path"},
+      {["--semantic-fixture", path, "extra"], "extra_arguments_after_semantic_fixture"}
+    ]
+
+    for {arguments, diagnostic} <- malformed_arguments do
+      {output, status} = System.cmd("bash", [@verifier | arguments], stderr_to_stdout: true)
+
+      assert status != 0
+      assert output =~ diagnostic
+      refute output =~ "source_complete_semantic_fixture_verified"
+      refute output =~ "source_complete_offline_attestation_verified"
+    end
+  end
+
   test "authenticated strict pass is reconciled exactly into FAST-01 and its residual" do
     {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
     assert banner =~ "source_complete_offline_attestation_verified"
@@ -174,7 +201,8 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert_exact_source_complete_record(seed)
     assert_exact_source_complete_record(milestone_arc)
 
-    for record <- [seed, milestone_arc], historical <- ["772", "724", "466", "692", "148", "470"] do
+    for record <- [seed, milestone_arc],
+        historical <- ["772", "724", "466", "692", "148", "470"] do
       assert record =~ historical, "terminal record lost historical FAST fact: #{historical}"
     end
   end
@@ -185,6 +213,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
     assert :ok = validate_record_fixtures([pass, pass], :complete, 52, 469)
     assert :ok = validate_record_fixtures([miss, miss], :gaps_found, 10, 720)
+
     assert {:error, :record_contradiction} =
              validate_record_fixtures([pass, miss], :complete, 52, 469)
 
@@ -452,7 +481,8 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       "event" => "pull_request",
       "conclusion" => conclusion,
       "created_at" => "2026-08-04T00:00:00Z",
-      "updated_at" => DateTime.add(~U[2026-08-04 00:00:00Z], wall_seconds, :second) |> DateTime.to_iso8601()
+      "updated_at" =>
+        DateTime.add(~U[2026-08-04 00:00:00Z], wall_seconds, :second) |> DateTime.to_iso8601()
     }
   end
 
@@ -788,7 +818,9 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
   defp validate_record_fixtures(records, status, n, p50) do
     expected_status = if status == :complete, do: "FAST-01 Complete", else: "FAST-01 Gaps Found"
-    expected_disposition = if status == :complete, do: "disposition=pass", else: "disposition=miss"
+
+    expected_disposition =
+      if status == :complete, do: "disposition=pass", else: "disposition=miss"
 
     if Enum.all?(records, fn record ->
          record =~ expected_status and record =~ "n=#{n}" and record =~ "p50=#{p50}" and
