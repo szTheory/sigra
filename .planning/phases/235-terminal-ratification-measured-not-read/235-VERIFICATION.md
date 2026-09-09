@@ -1,45 +1,41 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-verified: 2026-09-09T14:49:33Z
-status: gaps_found
-score: 10/11 must-haves verified
+verified: 2026-09-09T15:59:27Z
+status: human_needed
+score: 11/11 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
+next_action: "Human verification required. Complete the manual tests in the phase's *-UAT.md, then re-run the verify step until status is passed."
+next_command: "$gsd-verify-work 235"
 re_verification:
   previous_status: gaps_found
-  previous_score: 9/11
+  previous_score: 10/11
   gaps_closed:
-    - "FAST-01 now has an authenticated source-complete population: 52 eligible PR runs, wall p50 469 seconds, exhaustive signed source pages, and offline source-first agreement for the retained population."
-  gaps_remaining:
-    - "The source-first offline verifier does not preserve the authoritative instrument's literal terminal-conclusion outcome map: it collapses every non-success conclusion into failure."
+    - "The source-first offline verifier now preserves every literal terminal conclusion and rejects a success/failure map that collapses cancelled into failure."
+  gaps_remaining: []
   regressions: []
-gaps:
-  - truth: "Terminal measurement verification retains and compares every terminal conclusion exactly as emitted by scripts/ci/ci-run-metrics.sh."
-    status: failed
-    reason: "The authoritative instrument groups outcomes by literal conclusion, but the offline verifier constructs only success and failure buckets. A valid population containing cancelled, timed_out, neutral, or skipped therefore fails source-first verification even though the phase contract explicitly retains all terminal outcomes. This is 235-REVIEW.md CR-01 and is directly in the Plan 16-18 path."
-    artifacts:
-      - path: "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
-        issue: "Lines 85-86 map success literally and collapse every other conclusion into failure, contradicting ci-run-metrics.sh line 146."
-      - path: "test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs"
-        issue: "No verifier-level fixture carries success, failure, and an additional terminal conclusion through full source/instrument equality, so the mismatch is not caught."
-    missing:
-      - "Build the offline oracle outcome map with the same literal-conclusion group_by/from_entries semantics as ci-run-metrics.sh."
-      - "Add an offline-verifier fixture containing at least success, failure, and cancelled and require full statistics equality."
 unverified_prohibitions:
   - requirement: FAST-01
     statement: "MUST NOT dispatch before readiness, rerun for a favorable p50, omit non-success conclusions, move the remediation cutoff, weaken the strict threshold, combine populations, or overwrite either historical miss."
-    llm_judgment: "The retained correlation and histories show one authorized dispatch and no visible reroll; exact external-history completeness remains a judgment-tier review item."
+    llm_judgment: "No violation found: the sealed correlation binds one post-protected-main dispatch, live history has only run 34350618761 after protected SHA 158aca14, literal outcomes are retained, and contracts preserve cutoff, threshold, population, and history. This remains a non-authoritative judgment-tier prohibition."
   - requirement: GATE-05
     statement: "MUST NOT couple FAST-01 reconciliation to any downgrade, replacement, or reopening of the protected ownership proof."
-    llm_judgment: "No violation is visible: GATE-05 remains Complete and its protected 93-row proof still passes deterministic verification."
+    llm_judgment: "No violation found: the independent verifier passes, the ledger remains exactly 93 rows, and protected receipt/digest guards remain green. This remains a non-authoritative judgment-tier prohibition."
+human_verification:
+  - test: "Review the FAST-01 dispatch and evidence-history sufficiency judgment."
+    expected: "Accept that the sealed singleton dispatch, exhaustive source window, literal-outcome replay, immutable cutoff/threshold, and retained miss history rule out a favorable reroll or evidence substitution."
+    why_human: "Repository and GitHub evidence prove observable history, but intent and absence of undisclosed attempts are judgment-tier negative claims."
+  - test: "Review the GATE-05 independence judgment."
+    expected: "Accept that FAST-01 reconciliation did not downgrade, replace, or reopen the protected 93-row ownership proof."
+    why_human: "Digest equality and independent verification prove byte preservation; complete semantic independence is the plan's flagged judgment-tier prohibition."
 ---
 
 # Phase 235: Terminal Ratification — Measured, Not Read Verification Report
 
 **Phase Goal:** The milestone's headline claims are proven from run data, and a maintainer can see exactly what moved and where it landed.
-**Verified:** 2026-09-09T14:49:33Z
-**Status:** gaps_found
-**Re-verification:** Yes — after Plans 235-16 through 235-18 closed the prior source-completeness gap
+**Verified:** 2026-09-09T15:59:27Z
+**Status:** human_needed
+**Re-verification:** Yes — after Plan 235-19 repaired the sole deterministic gap
 
 ## Goal Achievement
 
@@ -47,123 +43,136 @@ unverified_prohibitions:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | Terminal measurement semantics retain every conclusion, use queue-inclusive wall duration, stable `{wall_seconds, run_id}` ordering, floor(n/2), and strict `<720`, and the offline oracle compares the complete result exactly. | ✗ FAILED | `ci-run-metrics.sh` correctly groups literal conclusions, but `verify-fast-01-source-complete-attestation-offline.sh:85-86` rewrites every non-success outcome as `failure`. A synthetic `{success,failure,cancelled}` population produces unequal maps. |
-| 2 | PR wall-clock is below 12 minutes at p50 across at least 10 authenticated post-change PR runs. | ✓ VERIFIED | The retained signed subject has 52 unique eligible rows and p50 469 seconds; the current population contains 36 success and 16 failure conclusions. The fixed-path network-denied verifier succeeds for these exact bytes. |
-| 3 | The new FAST-01 population is source-complete, chronologically bounded, and exhaustively paginated. | ✓ VERIFIED | Signed pages retain 100, 20, and terminal 0 rows with `exhausted: true`; raw timestamps derive membership and queue-inclusive durations through endpoint `2026-09-09T12:22:29Z`. |
-| 4 | The protected evidence producer landed before the authorized measurement, and the dispatch is durably correlated to one protected-main run. | ✓ VERIFIED | Correlation artifact selects exactly run `34350618761` at protected SHA `158aca14b11de13cbc5ab2fdea1bff790cc7ab29`; Plan 16's seven tested blobs are recorded on that protected commit. |
-| 5 | Earlier 772- and 724-second misses and the rejected derived-only 466-second candidate remain immutable history. | ✓ VERIFIED | REQUIREMENTS, the residual, SEED-005, CI-PERF, and focused contracts retain all three earlier outcomes while recognizing only the later authenticated result as completion authority. |
-| 6 | One committed artifact lists the exact before/after PR, main, and nightly ownership universe. | ✓ VERIFIED | `235-TERMINAL-RATIFICATION.json` contains 93 sorted ownership rows derived from the hash-pinned Phase 234 inventory and declared non-Playwright families. |
-| 7 | Every GATE-05 row is tied to an executable owner, event eligibility, aggregate, receiver, and protected receipt. | ✓ VERIFIED | Original protected verifier passes; focused contracts require exactly 93 keys and reject missing, unexpected, duplicate, stale, receiverless, receiptless, and aggregate-only rows. |
-| 8 | Push and nightly outcomes over the terminal window are retained alongside the PR result. | ✓ VERIFIED | The terminal ledger retains the same-window push population (n=2, p50=1439) and schedule population (n=2, p50=1546), including non-success outcomes. |
-| 9 | CONTRIBUTING describes the current direct owners, aggregates, non-PR signals, and local reproduction paths. | ✓ VERIFIED | Lines 74-80 distinguish `library_tests_shard`, `example_playwright_shard`, terminal aggregates, the Playwright package/config seam, and non-PR diagnostic jobs; contributor contracts pass. |
-| 10 | SEED-005, CI-PERF, REQUIREMENTS, and the residual reconcile to the same authenticated FAST-01 disposition. | ✓ VERIFIED | All records cite cutoff `2026-08-03T21:37:08Z`, endpoint `2026-09-09T12:22:29Z`, n=52, p50=469, run `34350618761`, the subject/bundle, and the fixed-path verifier. |
-| 11 | GATE-05 remains independently Complete while FAST-01 is reconciled. | ✓ VERIFIED | REQUIREMENTS contains one checked GATE-05 row and one Complete traceability row for protected run `30782184713`; the terminal contract and offline attestation verifier pass. |
+| 1 | Terminal measurement semantics retain every conclusion, use queue-inclusive wall duration, stable `{wall_seconds, run_id}` ordering, `floor(n/2)`, strict `<720`, and exact offline-oracle agreement. | ✓ VERIFIED | `verify-fast-01-source-complete-attestation-offline.sh:48-58` now builds a literal `group_by(.conclusion)` map and compares the complete statistics object at both locations. The 10-run success/failure/cancelled fixture passes; its collapsed map and 720-second mutations fail. |
+| 2 | PR wall-clock is below 12 minutes at p50 across at least 10 authenticated post-change PR runs. | ✓ VERIFIED | The signed retained subject contains 52 unique eligible runs, p50 469 seconds, and strict `pass`; the default network-denied verifier succeeds. |
+| 3 | The FAST-01 population is source-complete, chronologically bounded, and exhaustively paginated. | ✓ VERIFIED | The signed subject retains pages of 100, 20, and terminal 0 rows with `exhausted: true`; source-first replay and adverse page/timestamp checks pass. |
+| 4 | The protected producer landed before measurement, and dispatch is correlated to one protected-main run. | ✓ VERIFIED | Correlation selects run `34350618761` at protected SHA `158aca14b11de13cbc5ab2fdea1bff790cc7ab29`; live workflow history has no sibling/later dispatch on that SHA. |
+| 5 | Earlier 772- and 724-second misses and the rejected derived-only 466-second candidate remain immutable history. | ✓ VERIFIED | Focused contracts check all three histories across REQUIREMENTS, the residual, SEED-005, and CI-PERF while recognizing only the authenticated result. |
+| 6 | One committed artifact lists the exact before/after PR, main, and nightly ownership universe. | ✓ VERIFIED | `235-TERMINAL-RATIFICATION.json` remains a substantive 93-row ledger derived from the pinned Phase 234 inventory. |
+| 7 | Every GATE-05 row has an executable owner, event state, aggregate, receiver, and protected receipt. | ✓ VERIFIED | The independent terminal verifier succeeds; focused contracts reject missing, unexpected, duplicate, stale, receiverless, receiptless, and aggregate-only rows. |
+| 8 | Push and nightly outcomes over the same measurement window are recorded alongside PR. | ✓ VERIFIED | The ledger retains push n=2/p50=1439 and schedule n=2/p50=1546, including non-success outcomes. |
+| 9 | CONTRIBUTING describes current owners, aggregates, non-PR signals, and local reproduction paths. | ✓ VERIFIED | `CONTRIBUTING.md:11-80` documents `mix ci`, both shard owners and aggregates, the Playwright seam, and push/schedule diagnostics; contracts pass. |
+| 10 | SEED-005, CI-PERF, REQUIREMENTS, and the residual reconcile to the same authenticated FAST-01 disposition. | ✓ VERIFIED | All carry cutoff `2026-08-03T21:37:08Z`, endpoint `2026-09-09T12:22:29Z`, n=52, p50=469, run `34350618761`, and fixed verifier path. |
+| 11 | GATE-05 remains independently Complete while FAST-01 is reconciled. | ✓ VERIFIED | REQUIREMENTS retains GATE-05 Complete from protected run `30782184713`; the exact 93-row digest contract and independent verifier remain green. |
 
-**Score:** 10/11 truths verified (0 present, behavior-unverified)
+**Score:** 11/11 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json` | Signed raw pages plus authoritative measurement output | ✓ VERIFIED | Substantive: 3 pages, 52 eligible rows, exact statistics, strict pass, protected provenance. |
-| `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl` and trusted root | Exact-subject protected provenance | ✓ VERIFIED | Network-denied fixed-path verification succeeds. |
-| `235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json` | Sealed preflight and singleton post-dispatch binding | ✓ VERIFIED | Binds workflow, protected SHA, pre/post sets, candidate count 1, and run `34350618761`. |
-| `scripts/ci/ci-run-metrics.sh` | Sole wall-mode membership/statistics authority | ✓ VERIFIED | Substantive and tested; preserves literal outcome keys and all terminal conclusions. |
-| `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` | Independent exact source-first oracle | ✗ PARTIAL | Provenance/current-subject replay succeeds, but its outcome aggregation disagrees with the authority for valid non-success conclusions other than literal `failure`. |
-| `phase_235_fast_01_source_complete_contract_test.exs` | Evidence, reconciliation, and GATE isolation contract | ⚠️ PARTIAL | Active and passing, but lacks the verifier-level multi-conclusion assertion needed to catch CR-01. |
-| `235-TERMINAL-RATIFICATION.json` | Single 93-row before/after ownership ledger and same-window outcomes | ✓ VERIFIED | Exists, substantive, exact-key checked, wired to live topology and protected receipts. |
+| `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json` | Signed source pages and authoritative output | ✓ VERIFIED | 52 rows, p50 469, exact statistics equality, exhaustive pages, protected provenance. |
+| Source-complete attestation and trusted root | Exact-subject provenance | ✓ VERIFIED | Fixed-path network-denied verifier succeeds. |
+| `235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json` | Sealed readiness/singleton binding | ✓ VERIFIED | Binds protected SHA, pre/post sets, candidate count 1, and run `34350618761`. |
+| `scripts/ci/ci-run-metrics.sh` | Sole membership/statistics authority | ✓ VERIFIED | Substantive and tested; literal outcomes, stable order, median, and strict threshold. |
+| `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` | Independent source-first oracle | ✓ VERIFIED | Shared validator preserves literal keys and exact complete statistics; both modes pass. |
+| `phase_235_fast_01_source_complete_contract_test.exs` | Evidence and regression contract | ✓ VERIFIED | 16 active tests, including multi-conclusion positive and collapsed-map adverse fixtures. |
+| `235-TERMINAL-RATIFICATION.json` | Single ownership ledger and same-window outcomes | ✓ VERIFIED | Exact-key checked, 93 rows, wired to live topology and protected receipts. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Signed source pages | authoritative `ci-run-metrics.sh` output | retained input, membership, timestamps, ordering, and statistics | ✓ WIRED | Current subject reconstructs 52 rows and p50 469. |
-| Authoritative outcome map | offline source-first oracle | full statistics equality | ✗ PARTIAL | Exact for the current success/failure-only population; breaks for other valid terminal conclusions. |
-| Attestation bundle | source-complete subject | repository/signer/ref/workflow/digest policy under network denial | ✓ WIRED | Fixed-path verifier succeeds and adverse provenance cases fail. |
-| Source-complete evidence | REQUIREMENTS / residual / SEED-005 / CI-PERF | evidence-gated reconciliation contract | ✓ WIRED | All four record surfaces carry the same authenticated tuple and disposition. |
-| Phase 234 inventory and `ci.yml` | 93 ownership rows | hash pin, exact key set, owner/event/aggregate/receipt validation | ✓ WIRED | Original terminal contract and attestation verifier pass. |
+| Signed source pages | authoritative metrics result | retained input, timestamps, ordering, statistics | ✓ WIRED | Reconstructs 52 rows and p50 469. |
+| Source conclusions | oracle outcomes | literal grouping | ✓ WIRED | Lines 48-56 preserve every key and require equality twice. |
+| Authenticated path | shared validator | digest/provenance then shared semantics | ✓ WIRED | Both authenticated and fixture banners are tested. |
+| Phase 234 inventory and `ci.yml` | 93 ownership rows | hash, exact keys, owner/event/aggregate/receipt checks | ✓ WIRED | Contract and attestation verifier pass. |
+| FAST-01 evidence | four closeout records | exact evidence tuple | ✓ WIRED | All carry the same authenticated result. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| FAST source-complete subject | `runs`, `statistics`, `verdict` | Signed GitHub workflow-run pages processed by `ci-run-metrics.sh` | Yes | ✓ FLOWING |
-| Offline FAST verifier | oracle `statistics.outcomes` | Signed raw conclusions | Not for the full allowed conclusion domain | ✗ PARTIAL |
-| FAST closeout records | n/p50/run/evidence tuple | Fixed retained subject and verifier | Yes | ✓ FLOWING |
-| GATE-05 ownership ledger | `ownership.rows[*]` | Phase 234 inventory, live workflow topology, protected job receipts | Yes | ✓ FLOWING |
+| FAST subject | runs/statistics/verdict | Signed GitHub run pages through `ci-run-metrics.sh` | Yes | ✓ FLOWING |
+| Offline verifier | oracle runs/statistics/outcomes | Retained signed source rows | Yes | ✓ FLOWING |
+| Closeout records | n/p50/run/evidence | Fixed retained subject and verifier | Yes | ✓ FLOWING |
+| GATE-05 ledger | `ownership.rows[*]` | Phase 234 inventory, workflow topology, protected receipts | Yes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Metrics source-page and terminal-conclusion semantics | `bash scripts/ci/ci-run-metrics.test.sh` | 11 passed, 0 failed | ✓ PASS |
-| Source-complete collector behavior | `bash scripts/ci/capture-fast-01-gap-closure.test.sh` | PASS | ✓ PASS |
-| Source-complete provenance/current replay | `bash scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` | `source_complete_offline_attestation_verified` | ✓ PASS |
-| Original GATE-05 provenance | `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` | `offline_attestation_verified`; expected adverse errors observed | ✓ PASS |
-| Focused Phase 235 contracts | `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test` on four Phase 235 files | 45 tests, 0 failures | ✓ PASS |
-| Literal-outcome compatibility | independent jq comparison for `{success,failure,cancelled}` | instrument `{cancelled:1,failure:1,success:1}` vs verifier `{failure:2,success:1}`; unequal | ✗ FAIL |
+| Metrics semantics | `bash scripts/ci/ci-run-metrics.test.sh` | 11 passed, 0 failed | ✓ PASS |
+| Authenticated FAST replay | default offline verifier | `source_complete_offline_attestation_verified` | ✓ PASS |
+| Protected GATE-05 | terminal offline verifier | `offline_attestation_verified`; expected adverse errors occurred first | ✓ PASS |
+| Literal outcomes/authenticated separation | focused source-complete ExUnit | 16 tests, 0 failures | ✓ PASS |
+| Terminal and historical regressions | three other Phase 235 ExUnit files | 31 tests, 0 failures | ✓ PASS |
+| Machine-readable predicates | `jq` over both ledgers | n=52/p50=469/exact stats and 93 rows/push+schedule true | ✓ PASS |
 
 ### Probe Execution
 
-Step 7c: SKIPPED — no Phase 235 `probe-*.sh` is declared. The phase-specific executable contracts are listed above.
+SKIPPED — no Phase 235 `probe-*.sh` is declared; phase-specific executable contracts are above.
 
 ### Requirements Coverage
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| FAST-01 | All twelve Phase 235 plans | Under-12-minute p50 over at least 10 post-change PR runs | ⚠️ SATISFIED FOR RETAINED POPULATION; PHASE BLOCKED | Authenticated current subject proves n=52 and p50=469, but the Plan 16-18 all-terminal-conclusion verifier contract has CR-01. |
-| GATE-05 | All twelve Phase 235 plans | One before/after artifact proves no test was silently dropped | ✓ SATISFIED | Protected run `30782184713`, exact 93-row ledger, current requirement rows, offline verifier, and focused contracts pass. |
+| FAST-01 | All thirteen plans | Under-12-minute p50 over at least 10 post-change PR runs | ✓ SATISFIED | Authenticated n=52/p50=469 plus corrected literal-outcome exact replay. |
+| GATE-05 | All thirteen plans | One before/after artifact proves no silent drop | ✓ SATISFIED | Protected run `30782184713`, exact 93-row ledger, verifier, and contracts. |
 
-Every requirement ID declared across all Phase 235 PLAN frontmatter is accounted for. REQUIREMENTS.md maps no additional requirement to Phase 235, so there are no orphaned requirements.
+No Phase 235 requirement is orphaned: every PLAN requirement ID is FAST-01 or GATE-05, and REQUIREMENTS.md maps no additional ID here.
 
 ### Test Quality Audit
 
 | Test File | Linked Req | Active | Skipped | Circular | Assertion Level | Verdict |
 | --- | --- | ---: | ---: | --- | --- | --- |
-| `phase_235_fast_01_source_complete_contract_test.exs` | FAST-01, GATE-05 | active | 0 | No | Behavioral/value | ✗ BLOCKER: does not exercise full verifier equality with an additional literal terminal conclusion |
-| `phase_235_terminal_ratification_contract_test.exs` | FAST-01, GATE-05 | active | 0 | No | Behavioral | ✓ VALID for terminal ledger and GATE-05 |
-| `ci-run-metrics.test.sh` | FAST-01 | 11 shell contracts | 0 | No | Behavioral/value | ✓ VALID; it exposes the literal conclusion domain the verifier mishandles |
-| `capture-fast-01-gap-closure.test.sh` | FAST-01 | active shell suite | 0 | No | Behavioral | ✓ VALID for source-complete capture |
+| Source-complete ExUnit contract | FAST-01, GATE-05 | 16 | 0 | No | Behavioral/value | ✓ VALID; real shell verifier, literal outcomes, lossy rejection, boundary, provenance, records, GATE immutability. |
+| Terminal-ratification ExUnit contract | FAST-01, GATE-05 | active | 0 | No | Behavioral/value | ✓ VALID for ledger and ownership. |
+| `ci-run-metrics.test.sh` | FAST-01 | 11 | 0 | No | Behavioral/value | ✓ VALID for source membership and metric semantics. |
+| Capture shell contract | FAST-01 | active | 0 | No | Behavioral/value | ✓ VALID for completeness and boundaries. |
 
-**Disabled tests on requirements:** 0. **Circular patterns detected:** 0. **Insufficient assertions:** 1 blocker in the source-complete offline-verifier seam.
+Disabled requirement-linked tests: 0. Circular patterns: 0. Insufficient assertions against the repaired must-have: 0.
 
 ### Review Finding Re-evaluation
 
-| Finding | Scope | Verification verdict |
-| --- | --- | --- |
-| CR-01 — offline replay rejects valid all-conclusion populations | Direct Plan 16-18 path | Open BLOCKER; independently reproduced from the two implementations. |
-| WR-01 — stdin source-page seam absent | Direct Plan 16 path | Warning; production uses a file and retained evidence is unaffected. |
-| WR-02 — miss-pole replay validation incomplete | Direct Plan 16 path | Warning; latent because the authenticated result is a pass, but planned miss-branch hardening remains incomplete. |
-| WR-03 — ExUnit replay omits full-statistics mutations | Direct Plan 16-18 path | Warning supporting CR-01; tests do not prove the claimed outcome compatibility. |
-| CR-02, CR-03, CR-04, WR-04 | Historical diff cross-check | Recorded in `235-REVIEW.md`; not used to score the Phase 235 terminal goal because they are outside Plans 16-18's execution scope. |
+| Finding | Must-have impact |
+| --- | --- |
+| CR-01 — install-smoke caller-selected deletion | Serious pre-ship safety blocker, but outside the Phase 235 measurement/ownership data flow; no roadmap truth is falsified. |
+| CR-02 — verifier `mktemp` cleanup trust | Directly inspected. Serious pre-ship safety defect, but it does not alter the retained subject, provenance output, statistics replay, or ownership proof in the trusted verification environment, so no Phase 235 must-have is falsified. |
+| CR-03 — OAuth evidence callback arity | Product defect outside Phase 235 artifacts; no must-have link. |
+| WR-01 — fixture accepts incomplete envelope fields | Fixture is weaker than the authoritative input contract, but the roadmap claim uses the digest-pinned authenticated path. Plan 19's required complete statistics equality is enforced. |
+| WR-02 — miss-pole validation incomplete | Latent for a miss; authenticated verdict is a pass and requires `binding_poles: null`. |
+| WR-03 — stdin source-page seam absent | Production uses the verified file seam; no roadmap truth depends on stdin. |
+| WR-04 — raw missing-option diagnostics | Robustness warning without effect on retained proof. |
+
+The advisory review was not treated as a waiver: every finding was traced to the must-have data flow. CR-02 remains a material pre-ship concern even though it does not falsify the phase goal.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | --- | ---: | --- | --- | --- |
-| `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` | 85-86 | Independent oracle uses a narrower outcome schema than the authoritative instrument | 🛑 Blocker | A valid retained terminal population may be rejected, contradicting the all-conclusion exact-agreement must-have. |
+| Source-complete offline verifier | 101-113 | Unwhitelisted `mktemp` and unvalidated recursive cleanup | ⚠️ Phase-goal warning; critical pre-ship issue | Proof output is unaffected in the verified environment, but cleanup can target a caller-influenced path. |
+| Source-complete offline verifier | 26-58 | Fixture omits some authoritative envelope validation | ⚠️ Warning | Fixture is not a full substitute for the authenticated path; it does prove Plan 19's literal-outcome regression. |
 
-No unreferenced `TBD`, `FIXME`, or `XXX` marker and no disabled requirement-linked test was found in the direct Phase 235 path.
+No unreferenced `TBD`, `FIXME`, or `XXX`, disabled linked test, stub, or hollow data path was found in the Plan 19 files.
 
 ### Decision Coverage
 
-All 8 trackable `235-CONTEXT.md` decisions are honored by shipped artifacts. This heuristic gate is non-blocking.
+All 8 trackable CONTEXT decisions are honored by shipped artifacts. This gate is non-blocking.
 
 ### Human Verification Required
 
-None. This is an infrastructure/evidence phase. The remaining gap is deterministic and does not require manual UAT.
+#### 1. FAST-01 negative-evidence sufficiency
+
+**Test:** Review sealed correlation, protected workflow-dispatch history, exhaustive signed source pages, and immutable prior results.
+**Expected:** Accept that these rule out pre-readiness dispatch, favorable reroll, filtered conclusions, changed cutoff/threshold, combined populations, and overwritten history.
+**Why human:** The facts are automated, but intent and absence of undisclosed attempts remain explicitly flagged judgment-tier claims.
+
+#### 2. GATE-05 semantic independence
+
+**Test:** Review unchanged ledger/receipt digests, exact 93-row contract, and independent verifier.
+**Expected:** Accept that FAST-01 reconciliation did not downgrade, replace, or reopen GATE-05.
+**Why human:** Byte preservation is deterministic; complete negative semantic interpretation remains judgment-tier.
 
 ### Deferred Items
 
-None. Phase 235 is the final milestone phase, so no later phase clearly owns this gap.
+None. Phase 235 is the final milestone phase.
 
 ### Gaps Summary
 
-Plans 16-18 close the previous blocker: FAST-01 now has authenticated raw source pages, exhaustive pagination, independent current-population replay, n=52, and p50 469 seconds. GATE-05 remains independently complete with its protected 93-row ownership proof.
-
-The phase still cannot pass because the direct source-complete verifier violates its own all-terminal-conclusion contract. The authoritative tool preserves literal terminal outcomes, while the offline oracle collapses all non-success states into `failure`. The current subject happens to contain only `success` and `failure`, so the positive verifier passes, but the declared evidence path is not correct for the allowed terminal domain. Per the verification gate, CR-01 is a BLOCKER and the canonical status is `gaps_found`.
+**No implementation gap remains.** Plan 235-19 closes the literal-outcome blocker and all 11 truths are verified. Status remains `human_needed`, not `passed`, solely because two flagged judgment-tier prohibitions require explicit maintainer resolution.
 
 ---
 
-_Verified: 2026-09-09T14:49:33Z_
+_Verified: 2026-09-09T15:59:27Z_
 _Verifier: the agent (gsd-verifier)_
