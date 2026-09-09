@@ -1,37 +1,47 @@
 ---
 phase: 235-terminal-ratification-measured-not-read
-verified: 2026-08-03T14:19:52Z
+verified: 2026-09-08T20:48:32Z
 status: gaps_found
-score: 9/10 must-haves verified
+score: 9/11 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
-  previous_score: 8/10
-  gaps_closed:
-    - "Every ownership row is now joined to the workflow-derived direct-owner job-name prefix in every retained protected event manifest; executed rows require a terminal non-skipped job and intentionally_absent rows require present skipped jobs."
+  previous_score: 9/10
+  gaps_closed: []
   gaps_remaining:
-    - "FAST-01 remains a measured miss: 19 PR runs have p50 772 seconds, not strictly below 720 seconds."
+    - "FAST-01 is not independently proven: the signed 43-row candidate stores a p50 of 466 seconds but omits the source timestamps and pagination/exhaustion evidence needed to prove the population, window, chronology, and queue-inclusive wall duration."
   regressions: []
 gaps:
-  - truth: "FAST-01 is achieved: PR p50 is under 12 minutes across at least 10 post-change PR runs."
+  - truth: "FAST-01 is achieved from one independently authenticated population of at least 10 post-remediation PR runs with queue-inclusive p50 strictly below 720 seconds."
     status: failed
-    reason: "The protected, replayed measurement contains 19 eligible pull_request runs and p50 772 seconds. The requirement uses a strict <720-second comparator."
+    reason: "Protected run 34272746647 signed 43 derived rows with stored p50 466, but each signed row contains only run_id, url, conclusion, and producer-supplied wall_seconds. The signed subject contains no created_at/updated_at fields or authenticated page identities, counts, and terminal exhaustion marker, so an offline consumer cannot independently establish membership, chronology, completeness, or updated_at-created_at duration."
     artifacts:
-      - path: ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
-        issue: "verdict.fast_01.status is miss with observed_p50_seconds 772 and threshold_seconds 720."
-      - path: ".planning/REQUIREMENTS.md"
-        issue: "FAST-01 is accurately open/Gaps Found, confirming the target is not achieved."
+      - path: ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json"
+        issue: "Authentic but evidentially hollow for the required source proof: the candidate attests derived values rather than the raw bounded population."
+      - path: "scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh"
+        issue: "validate_population recomputes p50 only from signed wall_seconds; it cannot derive window membership, chronology, duration, or exhaustive population from absent source fields."
+      - path: "test/sigra/planning/phase_235_fast_01_gap_closure_contract_test.exs"
+        issue: "The focused test independently sorts producer-supplied wall_seconds, but has the same evidence ceiling as the verifier."
     missing:
-      - "A future, independently measured PR population whose p50 is strictly below 720 seconds; do not change the threshold or waive the existing miss."
+      - "A newly authorized protected-main subject retaining created_at and updated_at for every eligible run."
+      - "Authenticated pagination evidence with contiguous requested page identities/counts and a terminal exhaustion marker."
+      - "Offline verification that derives window membership and queue-inclusive wall_seconds from those signed source fields before calculating p50."
+unverified_prohibitions:
+  - requirement: FAST-01
+    statement: "MUST NOT dispatch before readiness, rerun for a favorable p50, omit non-success conclusions, move the remediation cutoff, weaken the strict threshold, combine populations, or overwrite either historical miss."
+    llm_judgment: "No violation is visible in retained repository evidence; exact-once external dispatch history is not independently re-proven here. Human review recommended."
+  - requirement: GATE-05
+    statement: "MUST NOT couple FAST-01 reconciliation to any downgrade, replacement, or reopening of the protected ownership proof."
+    llm_judgment: "No violation is visible: the GATE-05 artifacts and verifier are digest-pinned and the protected proof still passes. Human review recommended because this is a judgment-tier prohibition."
 ---
 
 # Phase 235: Terminal Ratification — Measured, Not Read Verification Report
 
 **Phase Goal:** The milestone's headline claims are proven from run data, and a maintainer can see exactly what moved and where it landed.
-**Verified:** 2026-08-03T14:19:52Z
+**Verified:** 2026-09-08T20:48:32Z
 **Status:** gaps_found
-**Re-verification:** Yes — after protected ownership-job binding repair `d33a43c7`
+**Re-verification:** Yes — after halted gap plan 235-15
 
 ## Goal Achievement
 
@@ -39,94 +49,115 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | Terminal measurements use queue-inclusive wall mode, all conclusions, sorted `floor(n/2)` p50, and strict `< 720` comparison. | ✓ VERIFIED | Metrics contract passes; the ledger recomputes the retained PR population as p50 772 and treats 720 as a miss. |
-| 2 | FAST-01 is achieved: PR p50 is under 12 minutes across at least 10 post-change PR runs. | ✗ FAILED | Protected replay proves `n=19`, but p50 is `772`, not strictly below `720`. |
-| 3 | The complete source population is independently authenticated and exhaustively paginated. | ✓ VERIFIED | Protected receipt has 24 first-page runs plus retained empty page 2, with complete two-page job manifests; offline verification binds its SHA to protected-main run `30782184713`, signer/ref, and evidence-workflow commit `83ef9f5d7b00a99aa945cf9839c056283c3e6c65`. |
-| 4 | Binding-pole diagnoses are deterministically selected and replayed from retained PR data. | ✓ VERIFIED | Focused contract passes and the ledger retains the 772-second miss with its binding-pole receipts. |
-| 5 | One artifact has the exact before/after PR, push, and schedule ownership-key universe. | ✓ VERIFIED | Hash-pinned Phase 234 inventory and exact sorted 93-row comparison pass. |
-| 6 | Every ownership row proves its actual executable owner, aggregate, receiver, and protected event receipt. | ✓ VERIFIED | `validate_protected_ownership_jobs!/3` joins every row to every protected run for its event through the workflow-derived job-name prefix. Executed rows require a terminal, non-skipped job; intentionally absent rows require present skipped jobs. Renamed push admin-eval and skipped schedule library-owner mutations both fail. |
-| 7 | Push and schedule outcomes over the same measurement window are recorded from run data. | ✓ VERIFIED | Attested population maps exactly to push `1 success / 1 non-success` and schedule `0 success / 2 non-success`. |
-| 8 | CONTRIBUTING describes current topology and CI-used local reproduction. | ✓ VERIFIED | Phase 235 and Phase 198 contributor contracts relate direct owners, aggregates, `MIX_ENV=test mix ci`, and Playwright seams to live sources. |
-| 9 | SEED-005 and CI-PERF reconcile the delivered audit sequence and honest FAST residual. | ✓ VERIFIED | Both records retain the 19/772 miss, same-window outcomes, and residual path. |
-| 10 | Closeout preserves the 772-second miss rather than fabricating a pass. | ✓ VERIFIED | Ledger status is `miss`; FAST-01 remains unchecked/Gaps Found and its residual is open. |
+| 1 | Terminal measurement semantics retain every conclusion, use queue-inclusive wall duration, stable `{wall_seconds, run_id}` ordering, floor(n/2), and strict `<720`. | ✓ VERIFIED | `ci-run-metrics.test.sh` passed 9/9 checks; focused tests exercise 719/720/721 and terminal conclusions. |
+| 2 | FAST-01 is achieved over at least 10 post-change PR runs. | ✗ FAILED | The earlier independently source-proven window is `n=19`, p50 `772`. The newer stored p50 `466` is not independently source-proven. |
+| 3 | The original Phase 235 source population is independently authenticated and exhaustively paginated. | ✓ VERIFIED | `235-PROTECTED-RECEIPTS.json` retains total 24, requested pages `[1,2]`, terminal page 2, `exhausted:true`, timestamps, and job manifests; the offline attestation verifier passed. |
+| 4 | The fresh Plan 235-15 candidate independently proves its source population, fixed-window membership, chronology, and queue-inclusive durations. | ✗ FAILED | Signed rows contain only `run_id`, `url`, `conclusion`, and `wall_seconds`; source timestamps and pagination/exhaustion evidence are absent. This confirms `235-REVIEW.md` CR-02. |
+| 5 | Binding-pole and remediation evidence is retained without rewriting the two historical misses. | ✓ VERIFIED | The contracts retain the 772- and 724-second misses and the retry-free Library/wall improvement from 692→148 and 724→470 seconds. |
+| 6 | One committed artifact lists the exact before/after PR, main, and nightly ownership universe. | ✓ VERIFIED | The terminal ledger contains 93 sorted ownership rows derived from the hash-pinned Phase 234 inventory plus the declared non-Playwright universe. |
+| 7 | Every GATE-05 row is tied to an executable owner, event eligibility, aggregate, receiver, and protected job receipt. | ✓ VERIFIED | The original protected receipt and `phase_235_terminal_ratification_contract_test.exs` passed; executed and intentionally absent mutations are rejected. |
+| 8 | Push and nightly outcomes over the same terminal measurement window are recorded from protected run data. | ✓ VERIFIED | The independently authenticated original window retains push `1 success / 1 non-success` and schedule `0 success / 2 non-success`. |
+| 9 | CONTRIBUTING describes current direct owners, aggregates, non-PR signals, and local reproduction. | ✓ VERIFIED | The Phase 235 and Phase 198 contributor contracts pass against `ci.yml`, Mix, and Playwright sources. |
+| 10 | SEED-005 and CI-PERF are reconciled, with a durable residual for an unproven or missed FAST-01 claim. | ✓ VERIFIED | Requirements and closeout records keep FAST-01 open, preserve both historical misses, describe the rejected 466-second candidate, and retain the owned residual. |
+| 11 | The halted gap plan fails closed instead of treating a signed stored p50 as sufficient proof. | ✓ VERIFIED | FAST-01 is unchecked/Gaps Found; the residual and Plan 235-15 diagnostics explicitly reject closure and prohibit redispatching this attempt. |
 
-**Score:** 9/10 truths verified (0 present, behavior-unverified)
+**Score:** 9/11 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `235-PROTECTED-RECEIPTS.json` | Complete protected run/job receipt | ✓ VERIFIED | 24-run two-page source and 23 complete two-page job manifests; SHA matches ledger provenance. |
-| Attestation bundle + trusted root | Offline-verifiable external provenance | ✓ VERIFIED | Network-denied verifier accepts the subject and rejects altered receipt, bundle, root, signer, and source ref. |
-| `235-TERMINAL-RATIFICATION.json` | Single terminal measurement and ownership ledger | ✓ VERIFIED | Measurements flow exactly from protected evidence; 93 ownership rows are now verified against protected jobs. |
-| `phase_235_terminal_ratification_contract_test.exs` | Fail-closed evidence and ownership contract | ✓ VERIFIED | Contains the protected ownership join and negative push/schedule mutation coverage; 20 focused tests pass. |
-| Contributor and closeout records | Accurate topology and residual disclosure | ✓ VERIFIED | Contract-backed and congruent with the measured miss. |
+| `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json` | Independently replayable fresh measurement subject | ⚠️ HOLLOW | Exists, is signed, and stores 43 rows/p50 466, but lacks raw timestamps and pagination/exhaustion source evidence. |
+| `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl` + trusted root | Exact-subject protected provenance | ✓ VERIFIED | Network-denied offline verification passes and rejects altered subject, bundle, root, signer, and ref. Provenance authenticates the insufficient subject; it does not add missing fields. |
+| `verify-fast-01-gap-closure-attestation-offline.sh` | Independent source and verdict verifier | ⚠️ PARTIAL | Substantive and wired, but can only validate/sort supplied `wall_seconds`; CR-02 cannot be implemented against the retained subject. |
+| `phase_235_fast_01_gap_closure_contract_test.exs` | Independent source recomputation and status guard | ⚠️ PARTIAL | Substantive, active, and passing; it correctly keeps FAST-01 open but cannot reconstruct absent source facts. |
+| `235-PROTECTED-RECEIPTS.json` + original attestation/root | Complete GATE-05 protected run/job evidence | ✓ VERIFIED | Complete pages, source timestamps, jobs, provenance, and immutable digest pins remain intact. |
+| `235-TERMINAL-RATIFICATION.json` | Single before/after ownership and terminal ledger | ✓ VERIFIED | 93 rows, source inventory, original measurements, closeout links, and protected provenance remain substantive and wired. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Protected receipt | Ledger measurements | Attested digest → complete pages → normalized exact run map | ✓ WIRED | All measured PR/push/schedule rows equal protected data. |
-| Evidence workflow | Attestation | Protected-main signer/ref/workflow SHA → network-denied offline verification | ✓ WIRED | Positive and adverse cases pass as expected; current workflow blob equals `origin/main`. |
-| Phase 234 inventory | Ownership ledger | Hash-pinned exact 93-key comparison | ✓ WIRED | Missing, duplicate, and extra ownership rows fail. |
-| `ci.yml` and protected event jobs | Every ownership row | Eligibility + workflow-name prefix + terminal/non-skipped (or skipped absence) job | ✓ WIRED | The repaired validator is invoked from `validate_protected_receipt!/2`; adversarial push/schedule mutations fail. |
-| Ledger | Requirements/closeout documents | Verdict-driven status and wording | ✓ WIRED | FAST-01 remains open; GATE-05 is independently proven and Complete. |
+| Fresh attestation bundle | Fresh remeasurement subject | subject digest + signer/ref policy | ✓ WIRED | Exact retained bytes authenticate successfully. |
+| Fresh remeasurement subject | FAST-01 verdict | raw source → membership → chronology → duration → p50 | ✗ NOT_WIRED | The chain terminates at producer-supplied `wall_seconds`; the raw source and pagination evidence are absent. |
+| Original protected receipt | GATE-05 ownership ledger | attestation + exact inventory + event/job reconciliation | ✓ WIRED | Offline verifier and focused contract both pass. |
+| `ci.yml` / Phase 234 inventory | 93 ownership rows | owner/event/aggregate/receipt semantic map | ✓ WIRED | Exact-key and live-job adverse mutations remain covered. |
+| Terminal records | REQUIREMENTS.md | fail-closed status reconciliation | ✓ WIRED | FAST-01 remains unchecked/Gaps Found; GATE-05 remains checked/Complete. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| Terminal measurements | `measurements.*.runs` / statistics | Attested protected source pages | Yes | ✓ FLOWING |
-| Binding-pole receipts | Selected PR jobs | Retained PR rows and job data | Yes | ✓ FLOWING |
-| Ownership rows | `after.direct_owner`, event state, receiver | Phase 234 inventory + `ci.yml` + protected job manifests | Yes | ✓ FLOWING |
-| Contributor/closeout documents | Topology and verdict wording | `ci.yml`, Mix/Playwright sources, ledger | Yes | ✓ FLOWING |
+| Fresh FAST candidate | `runs[*].wall_seconds` / `statistics.p50_seconds` | Signed derived subject | Derived values only; no raw timestamps/pages | ⚠️ STATIC / HOLLOW |
+| Original terminal measurement | `measurements.*.runs` | Attested protected workflow-run pages | Yes | ✓ FLOWING |
+| GATE-05 ownership | `ownership.rows[*].after` and receipt | Phase 234 inventory + `ci.yml` + protected job manifests | Yes | ✓ FLOWING |
+| Closeout records | FAST/GATE status prose | Retained evidence and explicit fail-closed contract | Yes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Offline protected attestation | `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` | Positive verification plus altered receipt/bundle/root/signer/ref failures; exit 0 | ✓ PASS |
-| Dispatch correlation selector | `bash scripts/ci/correlate-terminal-ratification-dispatch.sh --self-test` | Exactly-one accepted; zero/multiple/stale/wrong identity rejected | ✓ PASS |
-| Protected collector | `bash scripts/ci/capture-terminal-ratification-evidence.test.sh` | Hermetic production-collector fixtures pass | ✓ PASS |
-| Metrics semantics | `bash scripts/ci/ci-run-metrics.test.sh` | 9 passed, 0 failed | ✓ PASS |
-| Protected ownership join | `MIX_ENV=test mix test test/sigra/planning/phase_235_terminal_ratification_contract_test.exs` | 20 tests, 0 failures; renamed push owner and skipped schedule owner are rejected | ✓ PASS |
-| Planning contracts | `MIX_ENV=test mix test test/sigra/planning/` | 115 tests, 0 failures, 12 skipped | ✓ PASS |
-
-The test startup logs local PostgreSQL connection refusals, but these deterministic planning contracts complete without a database.
+| Fresh offline attestation | `bash scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh` | Exact subject accepted; adverse provenance cases rejected; exit 0 | ✓ PASS |
+| Original GATE-05 offline attestation | `bash scripts/ci/verify-terminal-ratification-attestation-offline.sh` | Exact protected subject accepted; adverse cases rejected; exit 0 | ✓ PASS |
+| Focused FAST/GATE contracts | `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test ...phase_235_fast_01_gap_closure_contract_test.exs ...phase_235_terminal_ratification_contract_test.exs` | 29 tests, 0 failures | ✓ PASS |
+| FAST collector contract | `bash scripts/ci/capture-fast-01-gap-closure.test.sh` | PASS | ✓ PASS |
+| Original protected collector contract | `bash scripts/ci/capture-terminal-ratification-evidence.test.sh` | Exit 0 | ✓ PASS |
+| Metrics contract | `bash scripts/ci/ci-run-metrics.test.sh` | 9 passed, 0 failed | ✓ PASS |
+| Full planning contracts | `ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test mix test test/sigra/planning/` | 129 tests, 0 failures, 12 skipped | ✓ PASS |
 
 ### Probe Execution
 
-Step 7c: SKIPPED — no Phase 235 `probe-*.sh` script is declared. Applicable deterministic checks were executed above.
+Step 7c: SKIPPED — no Phase 235 `probe-*.sh` is declared. All phase-specific executable contracts are listed above.
 
 ### Requirements Coverage
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| FAST-01 | 235-01 through 235-08 | PR p50 under 12 minutes across at least 10 post-change runs | ✗ BLOCKED | Protected evidence proves 19 runs, p50 772 seconds; the explicit `<720` target is unmet. |
-| GATE-05 | 235-01 through 235-08 | One artifact proves no test was silently dropped across PR/main/nightly | ✓ SATISFIED | Exact 93-row inventory plus event eligibility and protected terminal/non-skipped owner-job evidence all validate together. |
+| FAST-01 | 235-01 through 235-08, 235-15 | Under-12-minute p50 over at least 10 post-change PR runs | ✗ BLOCKED | Original authoritative p50 is 772; newer signed p50 466 lacks independent source-population proof. |
+| GATE-05 | 235-01 through 235-08, 235-15 | One before/after artifact proves no test was silently dropped | ✓ SATISFIED | Original protected run `30782184713`, exact 93-row ledger, offline verifier, contract tests, and current digest pins pass. |
 
-All Phase 235 plan requirements are FAST-01 and GATE-05; none is orphaned. There is no later phase in this milestone that specifically resolves the remaining FAST-01 miss.
+Every requirement ID declared by every Phase 235 PLAN is accounted for. REQUIREMENTS.md maps no additional requirement to Phase 235, so there are no orphaned requirements. No later milestone phase exists to defer the FAST-01 gap.
+
+### Test Quality Audit
+
+| Test File | Linked Req | Active | Skipped | Circular | Assertion Level | Verdict |
+| --- | --- | ---: | ---: | --- | --- | --- |
+| `phase_235_fast_01_gap_closure_contract_test.exs` | FAST-01, GATE-05 | 8 | 0 | No | Value/behavioral | ⚠️ INSUFFICIENT for FAST-01 source proof; valid fail-closed status guard and GATE-05 digest pinning |
+| `phase_235_terminal_ratification_contract_test.exs` | FAST-01, GATE-05 | 21 | 0 | No | Behavioral | ✓ VALID for the original protected window and GATE-05 |
+| `capture-fast-01-gap-closure.test.sh` | FAST-01 | active shell suite | 0 | No | Behavioral | ✓ VALID for collector behavior, but it cannot retrofit missing fields into the already signed candidate |
+
+**Disabled tests on requirements:** 0. **Circular expected-value generation:** 0. **Insufficient assertions/evidence:** 1 blocker — fresh FAST assertions operate on derived rows rather than an independent raw-source oracle.
 
 ### Review Finding Re-evaluation
 
-| Earlier finding | Current verdict | Evidence |
+| Finding | Current verdict | Evidence |
 | --- | --- | --- |
-| Capped source population | Closed | Protected source has total `24`, pages `[1,2]`, and terminal empty page. |
-| Self-authenticating digest | Closed | External offline attestation binds signer, repository, ref, commit, and subject. |
-| Inverted measured timestamps | Closed | Retained measured run/job chronology rejects inversions before duration use. |
-| Disconnected ownership execution proof | Closed | `validate_protected_ownership_jobs!/3` is invoked by protected receipt validation and has adverse push/schedule mutation coverage. |
+| CR-02 — signed evidence cannot support independent population recomputation | Open — BLOCKER | The exact signed candidate still has no source timestamps or pagination/exhaustion manifest. Passing signature and p50 checks do not supply those facts. |
+| WR-02 — GATE-05 byte-exact non-regression weaker than claimed | Closed in current tree | The post-review contract pins SHA-256 values for the protected subject, bundle, trusted root, terminal ledger, and offline verifier, and requires exactly one canonical GATE-05 requirement and traceability row. The focused test passes. |
 
 ### Anti-Patterns Found
 
-No blocker or warning anti-pattern was found in the Phase 235 implementation artifacts. No unreferenced `TBD`, `FIXME`, or `XXX` marker was found.
+| File | Line | Pattern | Severity | Impact |
+| --- | ---: | --- | --- | --- |
+| `scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh` | 177 | Authenticated derived-value validation without authenticated source population | 🛑 Blocker | A valid signature and recomputed stored p50 can be mistaken for independent FAST-01 proof. Current status handling correctly refuses that conclusion. |
+
+No unreferenced `TBD`, `FIXME`, or `XXX` marker and no disabled requirement test was found in the checked Phase 235 implementation files.
+
+### Decision Coverage
+
+All 8 trackable CONTEXT.md decisions are honored by shipped artifacts. This gate is non-blocking.
+
+### Human Verification Required
+
+None. This is an evidence/infrastructure phase, and the remaining failure is deterministically observable from the signed schema. The two descriptor-less judgment-tier prohibitions remain explicitly flagged in frontmatter for maintainer review; neither is silently treated as verified.
 
 ### Gaps Summary
 
-Plans 07–08 and `d33a43c7` now provide complete, externally authenticated source data and an automated row-to-protected-job execution proof. **GATE-05 is independently satisfied.**
+GATE-05 remains independently satisfied: the original attested receipt, 93-row ownership ledger, event/job execution proof, contributor topology, and immutable pins all pass.
 
-The phase goal is still not fully achieved because **FAST-01 remains an honest measured miss**: 19 eligible PR runs have a p50 of 772 seconds, not the required value strictly below 720 seconds. This is an **Escalation Gate**: retain the evidence and residual, and only close FAST-01 after a new qualifying measurement proves the target.
+Phase 235 still fails its complete goal because FAST-01 lacks acceptable proof. The signed candidate's stored `466`-second p50 is not evidence of a complete bounded queue-inclusive population by itself. CR-02 is directly observable and remains a **BLOCKER**. A future gap plan must change the protected subject schema before dispatch, retain authenticated raw timestamps and pagination/exhaustion evidence, then perform one newly authorized measurement. The halted 235-15 attempt must not be resumed or reinterpreted.
 
 ---
 
-_Verified: 2026-08-03T14:19:52Z_
+_Verified: 2026-09-08T20:48:32Z_
 _Verifier: the agent (gsd-verifier)_

@@ -1,8 +1,8 @@
 # Phase 235: Terminal Ratification — Measured, Not Read - Pattern Map
 
 **Mapped:** 2026-08-02
-**Files analyzed:** 5
-**Analogs found:** 5 / 5
+**Files analyzed:** 12
+**Analogs found:** 12 / 12
 
 ## File Classification
 
@@ -13,8 +13,14 @@
 | `CONTRIBUTING.md` | documentation | request-response (operator guidance) | `test/sigra/planning/phase_198_contributor_dx_contract_test.exs` + current `CONTRIBUTING.md` | role-match |
 | `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` | planning record | transform / batch | its 2026-07-28 status addendum | exact in-place continuation |
 | `.planning/MILESTONE-ARC.md` | planning record | transform / batch | its existing `CI-PERF` entry | exact in-place continuation |
+| `scripts/ci/ci-run-metrics.sh` + `.test.sh` | authoritative measurement instrument | transform / batch | existing wall-mode and `--jobs` contracts in the same files | exact in-place extension |
+| `scripts/ci/capture-fast-01-gap-closure.sh` + `.test.sh` | protected source collector | external response → signed subject | `scripts/ci/capture-terminal-ratification-evidence.sh` + test | role-match |
+| `.github/workflows/fast-01-gap-closure-evidence.yml` | protected evidence workflow | dispatch → attested artifact | `.github/workflows/terminal-ratification-evidence.yml` | exact |
+| `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` | offline provenance/comparison verifier | signed subject → accepted evidence | `scripts/ci/verify-terminal-ratification-attestation-offline.sh` | exact |
+| `test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs` | evidence contract | batch / adversarial transform | `phase_235_terminal_ratification_contract_test.exs` | exact |
+| `235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json` | preflight and dispatch selection receipt | retained preflight → authorization → bounded post set → one watcher ID | `scripts/ci/correlate-terminal-ratification-dispatch.sh` output contract | role-match |
 
-The mandatory measurement script, workflow, and Phase 234 inventory are read-only inputs, not Phase 235 edit targets.
+The Phase 234 inventory and completed GATE-05 artifacts remain read-only inputs. Plans 16–17 intentionally extend the mandatory measurement script, protected collector/workflow, source-complete verifier/contract, and add a durable dispatch-correlation receipt; Plan 18 alone reconciles REQUIREMENTS, the FAST residual, SEED-005, and CI-PERF from that authenticated handoff.
 
 ## Pattern Assignments
 
@@ -162,6 +168,20 @@ FILTERED_RUNS="$(echo "$FILTERED_RUNS" | jq --arg since "$SINCE" \
 ```
 
 Source: [lines 51-69 and 130-154](../../../scripts/ci/ci-run-metrics.sh#L51-L69). The p50 is locked to `floor(n/2)` and failures remain in the outcome count ([lines 174-190](../../../scripts/ci/ci-run-metrics.sh#L174-L190)). Per-job binding-pole evidence comes only from `--jobs <run_id>` ([lines 92-124](../../../scripts/ci/ci-run-metrics.sh#L92-L124)).
+
+**Plans 16–18 assignment:** Plans 16–17 extend this script with a hermetic source-page input seam so it remains the sole authoritative implementation of membership, wall seconds, ordering, p50, and pole selection. The collector records its exact command/output; the offline verifier separately recomputes from signed raw pages only as a comparison oracle. On a miss, follow the existing `--jobs` precedent while retaining the underlying paginated job response, including steps, so run/job/step linkage is independently auditable. Plan 18 consumes that authenticated result and does not introduce another measurement path.
+
+### Retained preflight before authorization; durable dispatch correlation before watching
+
+**Analog:** `scripts/ci/correlate-terminal-ratification-dispatch.sh` and the Plan 15 correlation failure record.
+
+Before authorization, persist and validate the protected-main ancestry/blob receipts, authoritative readiness count, REST budget/reset facts, numeric workflow ID, protected-main SHA, bounded pre-dispatch projection, and UTC not-before boundary in `235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json`. Present those exact retained facts at the blocking decision. After authorization, the single dispatch is the first external mutation; only then collect the bounded post projection, finalize the same receipt with the singleton candidate ID/URL and cardinality, validate exact set difference and identity fields, and read the sole watcher ID from it. A temporary-only preflight or selection record is not sufficient because the Phase 15 diagnostics show that correlation state otherwise cannot survive a selector or host-tool failure.
+
+### Source-complete signed evidence and miss poles
+
+**Analog:** `235-PROTECTED-RECEIPTS.json` plus `verify-terminal-ratification-attestation-offline.sh`.
+
+Retain contiguous run pages through an explicit empty terminal page. If the authoritative result misses, also retain contiguous job pages through exhaustion for the selected median and maximum runs, including each job's ordered steps and timestamps. Verify repository/signer/ref/digest first, then compare raw-source replay with the metrics-script receipt and validate run→job→step linkage. GATE-05's original protected receipt, terminal ledger, verifier, and contract remain byte-stable non-regression inputs.
 
 ### Ownership means direct executable lane plus aggregate, not aggregate alone
 

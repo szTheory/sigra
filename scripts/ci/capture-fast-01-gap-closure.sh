@@ -83,17 +83,107 @@ jq -s -e --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" --slurpfile old "$OLD
   | if all($runs[]; (.id|type)=="number" and (.conclusion|type)=="string" and (.conclusion|length)>0 and (.created_at|type)=="string" and (.updated_at|type)=="string" and .created_at >= $cutoff and .created_at <= $endpoint and .updated_at >= .created_at) then . else error("run_chronology_or_identity_invalid") end
 ' "$MANIFEST" >/dev/null || fail "manifest_invalid"
 
-if [[ "$MODE" == readiness ]]; then
-  jq -S -n --arg endpoint "$ENDPOINT" --arg cutoff "$CUTOFF" --arg sha "$CUTOFF_SHA" --arg reset "$RESET" --argjson remaining "$REMAINING" --arg command "bash scripts/ci/capture-fast-01-gap-closure.sh --readiness $OUTPUT" --slurpfile pages "$MANIFEST" '
-    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request" and (.conclusion|type) == "string" and (.conclusion|length) > 0) ] | map({run_id:.id,url:.html_url,event:.event,conclusion:.conclusion,created_at:.created_at,updated_at:.updated_at})) as $runs
-    | {schema_version:"sigra.fast-01-gap-closure-readiness/v1",authority:"readiness_only",endpoint_source:"collector_current_utc",repository:"szTheory/sigra",workflow:"ci.yml",event:"pull_request",cutoff:{sha:$sha,timestamp:$cutoff},window:{endpoint:$endpoint},command:$command,source_api:"GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",requested_pages:[$pages[].page],exhausted:true,rate_limit:{remaining:$remaining,reset:$reset},runs:$runs,eligible_pr_run_count:($runs|length),statistics:null,verdict:null,status:(if ($runs|length)<10 then "insufficient_population" else "ready" end),diagnostics:(if ($runs|length)<10 then ["requires_at_least_10_terminal_pull_request_runs"] else [] end)}
-  ' >"$OUTTMP" || fail "canonical_readiness_output_failed"
+SOURCE_COLLECTION="$TMP/source-collection.json"
+jq -S -s --arg cutoff "$CUTOFF" --arg endpoint "$ENDPOINT" '
+  {resource:"GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",
+   query:{created:($cutoff + ".." + $endpoint),per_page:100},
+   requested_pages:[.[].page],terminal_page:.[-1].page,exhausted:true,
+   pages:[.[] | {page:.page,returned_count:(.body.workflow_runs|length),
+     runs:[.body.workflow_runs[] | {run_id:.id,url:.html_url,event:.event,
+       conclusion:.conclusion,created_at:.created_at,updated_at:.updated_at}]}]}
+' "$MANIFEST" >"$SOURCE_COLLECTION" || fail "source_collection_build_failed"
+
+if jq -e --slurpfile old "$OLD_RECEIPT" '
+  [.pages[].runs[].run_id] as $ids |
+  any($ids[]; . as $id | any($old[0].runs[]; .run_id == $id))
+' "$SOURCE_COLLECTION" >/dev/null; then
+  fail "old_population_overlap"
+fi
+
+INSTRUMENT_COMMAND=(bash "$ROOT/scripts/ci/ci-run-metrics.sh" --source-pages "$SOURCE_COLLECTION" --mode wall --event pull_request --since "$CUTOFF" --until "$ENDPOINT" --threshold 720 --format json)
+printf -v INSTRUMENT_COMMAND_TEXT '%q ' "${INSTRUMENT_COMMAND[@]}"
+INSTRUMENT_COMMAND_TEXT="${INSTRUMENT_COMMAND_TEXT% }"
+INSTRUMENT_OUTPUT="$TMP/instrument-output.json"
+"${INSTRUMENT_COMMAND[@]}" >"$INSTRUMENT_OUTPUT" || fail "instrument_failed"
+jq -e '.schema_version=="sigra.ci-run-metrics/source-pages-v1"' "$INSTRUMENT_OUTPUT" >/dev/null || fail "instrument_output_invalid"
+
+collect_pole() {
+  local role="$1" run_id="$2" pole_page=1 pole_response pole_api pole_count
+  local pole_manifest="$TMP/${role}-pages.jsonl"
+  : >"$pole_manifest"
+  while :; do
+    pole_response="$TMP/${role}-page-${pole_page}.json"
+    pole_api="repos/${REPO}/actions/runs/${run_id}/jobs?per_page=100&page=${pole_page}"
+    gh api "$pole_api" >"$pole_response" || fail "github_jobs_api_request_failed_${role}_page_${pole_page}"
+    jq -e --argjson page "$pole_page" --argjson run_id "$run_id" '
+      if ((.jobs | type) == "array" and
+        all(.jobs[]; (.id|type)=="number" and .run_id==$run_id and (.name|type)=="string" and
+          ((.conclusion==null) or (.conclusion|type)=="string") and
+          (.started_at|type)=="string" and (.completed_at|type)=="string" and .completed_at>=.started_at and
+          (.steps|type)=="array" and
+          all(.steps[]; (.number|type)=="number" and (.name|type)=="string" and (.status|type)=="string" and
+            ((.conclusion==null) or (.conclusion|type)=="string") and
+            (.started_at|type)=="string" and (.completed_at|type)=="string" and .completed_at>=.started_at)))
+      then {page:$page,jobs:.jobs} else error("jobs_page_invalid") end
+    ' "$pole_response" >>"$pole_manifest" || fail "malformed_${role}_jobs_page_${pole_page}"
+    pole_count="$(jq '.jobs | length' "$pole_response")"
+    (( pole_count == 0 )) && break
+    (( pole_page < MAX_PAGES )) || fail "${role}_jobs_pagination_bound_reached"
+    pole_page=$((pole_page + 1))
+  done
+  jq -S -s --arg role "$role" --argjson run_id "$run_id" '
+    {role:$role,run_id:$run_id,resource:("GET /repos/szTheory/sigra/actions/runs/"+($run_id|tostring)+"/jobs"),
+     query:{per_page:100},requested_pages:[.[].page],terminal_page:.[-1].page,exhausted:true,
+     pages:[.[] | {page:.page,returned_count:(.jobs|length),jobs:[.jobs[] |
+       {job_id:.id,run_id:.run_id,name:.name,conclusion:.conclusion,started_at:.started_at,
+        completed_at:.completed_at,steps:[.steps[] | {number:.number,name:.name,status:.status,
+          conclusion:.conclusion,started_at:.started_at,completed_at:.completed_at}]}]}]}
+  ' "$pole_manifest" >"$TMP/${role}-pole.json" || fail "${role}_pole_build_failed"
+  jq -e '
+    [.pages[].jobs[]] as $jobs |
+    ([$jobs[].job_id] | length) == ([$jobs[].job_id] | unique | length) and
+    all($jobs[]; . as $job | .run_id == $run_id and (.conclusion|type)=="string" and (.conclusion|length)>0 and
+      ([.steps[].number] == ([.steps[].number] | sort)) and
+      ([.steps[].number] | length) == ([.steps[].number] | unique | length) and
+      all(.steps[]; .status=="completed" and (.conclusion|type)=="string" and (.conclusion|length)>0 and
+        .started_at >= $job.started_at and .completed_at >= .started_at and .completed_at <= $job.completed_at))
+  ' --argjson run_id "$run_id" "$TMP/${role}-pole.json" >/dev/null || fail "${role}_pole_linkage_invalid"
+}
+
+VERDICT="$(jq -r '.verdict // empty' "$INSTRUMENT_OUTPUT")"
+BINDING_POLES="$TMP/binding-poles.json"
+if [[ "$VERDICT" == "miss" ]]; then
+  MEDIAN_RUN_ID="$(jq -r '.selected_poles.median_run_id' "$INSTRUMENT_OUTPUT")"
+  MAXIMUM_RUN_ID="$(jq -r '.selected_poles.maximum_run_id' "$INSTRUMENT_OUTPUT")"
+  collect_pole median "$MEDIAN_RUN_ID"
+  collect_pole maximum "$MAXIMUM_RUN_ID"
+  jq -S -n --slurpfile median "$TMP/median-pole.json" --slurpfile maximum "$TMP/maximum-pole.json" \
+    '{median:$median[0],maximum:$maximum[0]}' >"$BINDING_POLES"
 else
-  jq -S -n --arg endpoint "$ENDPOINT" --arg cutoff "$CUTOFF" --arg sha "$CUTOFF_SHA" --slurpfile pages "$MANIFEST" '
-    ([ $pages[].body.workflow_runs[]? | select(.event == "pull_request" and (.conclusion|type) == "string" and (.conclusion|length) > 0) ] | map({run_id:.id,wall_seconds:((.updated_at|fromdateiso8601)-(.created_at|fromdateiso8601)),conclusion:.conclusion,url:.html_url})) as $runs
-    | if ($runs|length)<10 then error("insufficient_population") else . end
-    | ($runs|sort_by(.wall_seconds,.run_id)) as $ordered | ($ordered[($ordered|length/2|floor)].wall_seconds) as $p50
-    | {schema_version:"sigra.fast-01-gap-closure-remeasurement/v1",authority:"protected_main_attestation",repository:"szTheory/sigra",workflow:"ci.yml",event:"pull_request",cutoff:{sha:$sha,timestamp:$cutoff},window:{endpoint:$endpoint},runs:$ordered,eligible_pr_run_count:($ordered|length),statistics:{mode:"wall",ordering:"{wall_seconds, run_id}",p50_seconds:$p50},verdict:(if $p50<720 then "pass" else "miss" end),status:"measured"}
-  ' >"$OUTTMP" || fail "canonical_protected_output_failed"
+  printf 'null\n' >"$BINDING_POLES"
+fi
+
+jq -S -n --arg mode "$MODE" --arg endpoint "$ENDPOINT" --arg cutoff "$CUTOFF" --arg sha "$CUTOFF_SHA" \
+  --arg reset "$RESET" --argjson remaining "$REMAINING" --arg instrument_command "$INSTRUMENT_COMMAND_TEXT" \
+  --slurpfile source "$SOURCE_COLLECTION" --slurpfile instrument "$INSTRUMENT_OUTPUT" --slurpfile poles "$BINDING_POLES" '
+  ($instrument[0]) as $i |
+  {schema_version:"sigra.fast-01-source-complete-remeasurement/1",
+   authority:(if $mode=="readiness" then "readiness_only" else "protected_main_attestation" end),
+   endpoint_source:(if $mode=="readiness" then "collector_current_utc" else "protected_workflow_start" end),
+   repository:"szTheory/sigra",workflow:"ci.yml",event:"pull_request",
+   cutoff:{sha:$sha,timestamp:$cutoff},window:{endpoint:$endpoint},
+   rate_limit:{remaining:$remaining,reset:$reset},source_collection:$source[0],
+   instrument_receipt:{mode:"wall",command:$instrument_command,output:$i},
+   runs:$i.runs,eligible_pr_run_count:$i.eligible_pr_run_count,statistics:$i.statistics,
+   selected_poles:$i.selected_poles,verdict:$i.verdict,
+   status:(if $mode=="readiness" and $i.status=="measured" then "ready" else $i.status end),
+   diagnostics:$i.diagnostics,binding_poles:$poles[0]}
+' >"$OUTTMP" || fail "canonical_source_complete_output_failed"
+
+if [[ "$MODE" == protected ]]; then
+  jq -e '.status=="measured" and .eligible_pr_run_count>=10 and (.verdict=="pass" or .verdict=="miss") and
+    (if .verdict=="miss" then (.binding_poles.median.run_id==.selected_poles.median_run_id and
+      .binding_poles.maximum.run_id==.selected_poles.maximum_run_id) else .binding_poles==null end)' \
+    "$OUTTMP" >/dev/null || fail "protected_subject_not_attestable"
 fi
 mv -f "$OUTTMP" "$OUTPUT"

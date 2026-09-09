@@ -127,6 +127,11 @@ defmodule Sigra.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
       {:stream_data, "~> 1.1", only: [:dev, :test]},
+      # Repository-only security override: Threadline releases through 0.9 still declare
+      # their optional Hackney edge as ~> 1.18, while tzdata 1.1.5 supports remediated 4.x.
+      # Keep this out of Sigra's runtime/package surface and remove it once Threadline's
+      # published constraint accepts Hackney 4.
+      {:hackney, "~> 4.7", only: [:dev, :test], runtime: false, override: true},
       # Postgres driver. Required at runtime when threadline (optional) is used;
       # also used by opt-in `:postgres` tagged tests (e.g. `test/sigra/audit/query_index_test.exs`)
       # that assert Query plans against a live Postgres repo. Excluded from default test runs
