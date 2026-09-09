@@ -31,15 +31,50 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert collector =~ "binding_poles"
   end
 
-  test "new offline verifier is fixed-path, network denied, and fail-closed on Plan 17 pins" do
+  test "offline verifier is fixed-path, network denied, and pinned to the retained subject" do
     verifier = File.read!(@verifier)
 
     assert verifier =~ "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
     assert verifier =~ "deny network"
     assert verifier =~ ~s("$GH_BIN" attestation verify)
-    assert verifier =~ "UNSET_PLAN_17"
+    refute verifier =~ "UNSET_PLAN_17"
+    assert verifier =~ "a5f4f6d5335755fcac14e9de8827f47f2b04ad3a143df4b6f283ebfc20853594"
+    assert verifier =~ "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
+    assert verifier =~ "158aca14b11de13cbc5ab2fdea1bff790cc7ab29"
+    assert verifier =~ "2026-09-09T12:22:29Z"
     assert verifier =~ "source_collection"
     assert verifier =~ "instrument_receipt"
+  end
+
+  test "retained source pages independently reproduce the authoritative wall result" do
+    subject =
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      |> File.read!()
+      |> Jason.decode!()
+
+    assert :ok = validate_subject(subject)
+  end
+
+  test "source replay rejects page, timestamp, event, identity, order, median, and boundary mutations" do
+    subject =
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      |> File.read!()
+      |> Jason.decode!()
+
+    mutations = [
+      {"source_pages_invalid", put_in(subject, ["source_collection", "exhausted"], false)},
+      {"source_pages_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "page"], 2)},
+      {"run_chronology_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "updated_at"], "2026-01-01T00:00:00Z")},
+      {"derived_runs_mismatch", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "event"], "pull_request")},
+      {"source_identity_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "run_id"], subject["runs"] |> hd() |> Map.fetch!("run_id"))},
+      {"derived_runs_mismatch", update_in(subject, ["runs"], &Enum.reverse/1)},
+      {"statistics_mismatch", put_in(subject, ["statistics", "p50_seconds"], 720)},
+      {"window_invalid", put_in(subject, ["window", "endpoint"], "2026-08-03T21:37:07Z")}
+    ]
+
+    for {diagnostic, mutated} <- mutations do
+      assert {:error, ^diagnostic} = validate_subject(mutated), diagnostic
+    end
   end
 
   test "completed ownership proof and contributor topology remain immutable" do
@@ -92,7 +127,11 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   end
 
   test "preflight contract rejects identity, readiness, rate, and projection mutations with named diagnostics" do
-    receipt = File.read!(@correlation) |> Jason.decode!()
+    receipt =
+      File.read!(@correlation)
+      |> Jason.decode!()
+      |> Map.take(@correlation_keys)
+      |> Map.put("status", "ready_for_authorization")
 
     mutations = [
       {"unexpected_keys", Map.put(receipt, "selected", %{})},
@@ -194,6 +233,74 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
           {:error, "selected_run_invalid"}
         end
     end
+  end
+
+  defp validate_subject(subject) do
+    source = subject["source_collection"] || %{}
+    pages = source["pages"] || []
+    cutoff = get_in(subject, ["cutoff", "timestamp"])
+    endpoint = get_in(subject, ["window", "endpoint"])
+
+    cond do
+      not utc?(cutoff) or not utc?(endpoint) or parse_utc!(endpoint) < parse_utc!(cutoff) ->
+        {:error, "window_invalid"}
+
+      source["exhausted"] != true or pages == [] or
+          Enum.map(pages, & &1["page"]) != Enum.to_list(1..length(pages)) or
+          source["requested_pages"] != Enum.to_list(1..length(pages)) or
+          source["terminal_page"] != length(pages) or
+          List.last(pages)["returned_count"] != 0 or
+          Enum.any?(pages, &(&1["returned_count"] != length(&1["runs"]))) ->
+        {:error, "source_pages_invalid"}
+
+      true ->
+        raw = Enum.flat_map(pages, & &1["runs"])
+        raw_ids = Enum.map(raw, & &1["run_id"])
+
+        cond do
+          Enum.uniq(raw_ids) != raw_ids ->
+            {:error, "source_identity_invalid"}
+
+          Enum.any?(raw, fn run -> parse_utc!(run["updated_at"]) < parse_utc!(run["created_at"]) end) ->
+            {:error, "run_chronology_invalid"}
+
+          true ->
+            oracle =
+              raw
+              |> Enum.filter(fn run ->
+                run["event"] == "pull_request" and is_binary(run["conclusion"]) and
+                  run["created_at"] >= cutoff and run["created_at"] <= endpoint
+              end)
+              |> Enum.map(fn run ->
+                Map.put(run, "wall_seconds", DateTime.diff(parse_utc!(run["updated_at"]), parse_utc!(run["created_at"])))
+              end)
+              |> Enum.sort_by(&{&1["wall_seconds"], &1["run_id"]})
+
+            n = length(oracle)
+            median = Enum.at(oracle, div(n, 2))
+            maximum = List.last(oracle)
+            verdict = if median["wall_seconds"] < 720, do: "pass", else: "miss"
+
+            cond do
+              n < 10 ->
+                {:error, "source_membership_invalid"}
+
+              oracle != subject["runs"] or oracle != get_in(subject, ["instrument_receipt", "output", "runs"]) ->
+                {:error, "derived_runs_mismatch"}
+
+              subject["eligible_pr_run_count"] != n or subject["verdict"] != verdict or
+                  get_in(subject, ["statistics", "p50_seconds"]) != median["wall_seconds"] or
+                  get_in(subject, ["statistics", "max_seconds"]) != maximum["wall_seconds"] or
+                  subject["selected_poles"] != %{"median_run_id" => median["run_id"], "maximum_run_id" => maximum["run_id"]} ->
+                {:error, "statistics_mismatch"}
+
+              true ->
+                :ok
+            end
+        end
+    end
+  rescue
+    _ -> {:error, "source_membership_invalid"}
   end
 
   defp exact_keys(receipt) do
