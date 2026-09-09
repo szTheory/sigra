@@ -314,7 +314,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Repo,
           database: "sigra_install_golden_tmp_dev"
         config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
-          http: [ip: {127, 0, 0, 1}, port: 4000]
+          http: [ip: {127, 0, 0, 1}]
         """)
 
         template_source =

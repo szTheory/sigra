@@ -1190,13 +1190,25 @@ defmodule Sigra.Test.InstallFixture do
       raise "prepared fixture checkout dev database config is not in the expected shape"
     end
 
-    with_port =
+    replaced_port =
       Regex.replace(
-        ~r/(http:\s*\[[^\]]*port:\s*)\d+/s,
+        ~r/(http:\s*\[[^\]\r\n]*port:\s*)\d+/,
         patched,
         "\\g{1}#{port}",
         global: false
       )
+
+    with_port =
+      if replaced_port == patched do
+        Regex.replace(
+          ~r/(http:\s*\[[^\]\r\n]*)(\])/,
+          patched,
+          "\\g{1}, port: #{port}\\g{2}",
+          global: false
+        )
+      else
+        replaced_port
+      end
 
     if with_port == patched do
       raise "prepared fixture checkout endpoint config is not in the expected shape"
