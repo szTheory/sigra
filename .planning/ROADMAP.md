@@ -513,3 +513,26 @@ Plans:
 </details>
 
 Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
+
+### Phase 235.1: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
+
+**Goal:** Restore measurable library-suite economics under the single `MIX_ENV=test mix ci` owner: same-run parallel slow-test visibility, separately timed comparable ordinary and install/scaffold work classes, and reconciled TEST-01/02/03 traceability without regressing FAST-01 or GATE-05.
+**Requirements**: TEST-01, TEST-02, TEST-03
+**Depends on:** Phase 235
+**Plans:** 5 plans
+
+**Success Criteria:**
+
+1. The ordinary parallel ExUnit run emits a deterministic slow-test receipt that CI validates and uploads, without a serial or duplicate full-suite rerun.
+2. The single library owner records ordinary and install/scaffold durations in the same run, with a deterministic contract enforcing comparable work classes and an install/scaffold non-dominance threshold.
+3. The byte-stable aggregate remains fail-closed and proves exact-once ordinary plus upgrade, golden-generation, and idempotency coverage.
+4. An observed green PR run produces durable evidence while preserving the Phase 235 FAST-01 baseline and GATE-05 ownership contract.
+5. Requirements traceability, DX evidence, Phase 235 verification prose, and the milestone audit are reconciled only after the implementation evidence passes.
+
+Plans:
+
+- [ ] 235.1-01-PLAN.md — Build the fail-closed same-run economics producer and independent verifier
+- [ ] 235.1-02-PLAN.md — Wire one harness into mix ci and the sole Library tests owner
+- [ ] 235.1-03-PLAN.md — Add the phase-owned mutation and protected-invariant contract
+- [ ] 235.1-04-PLAN.md — Capture retry-free PR evidence and validate its committed contract
+- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit
