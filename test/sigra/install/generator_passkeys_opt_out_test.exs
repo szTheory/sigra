@@ -130,8 +130,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   end
 
   defp otp_app(app_dir) do
-    app_dir
-    |> Path.basename()
-    |> Macro.underscore()
+    [_, app] = Regex.run(~r/app:\s+:(\w+)/, File.read!(Path.join(app_dir, "mix.exs")))
+    app
   end
 end
