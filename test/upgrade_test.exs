@@ -352,6 +352,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-c",
             "#{app_dir}/cookies.txt",
             "http://localhost:#{port}/users/log_in"
@@ -381,6 +385,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-i",
             "-b",
             "#{app_dir}/cookies.txt",
@@ -407,6 +415,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-L",
             "-b",
             "#{app_dir}/cookies.txt",
