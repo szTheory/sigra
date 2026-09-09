@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single `MIX_ENV=test mix ci` owner: same-run parallel slow-test visibility, separately timed comparable ordinary and install/scaffold work classes, and reconciled TEST-01/02/03 traceability without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 3/6 plans executed
+**Plans:** 3/7 plans executed
 
 **Success Criteria:**
 
@@ -544,12 +544,16 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 235.1-06-PLAN.md — Replace repeated Phoenix bootstraps with one timed immutable prepared-fixture DAG
+- [ ] 235.1-06-PLAN.md — Build the timed immutable fixture DAG and fixed measured runner
 
-**Wave 5** *(blocked on Plan 06 remediation)*
+**Wave 5** *(blocked on Plan 06 infrastructure)*
+
+- [ ] 235.1-07-PLAN.md — Migrate all six receivers and prove the unchanged economics bounds
+
+**Wave 6** *(blocked on Plan 07 remediation gate)*
 
 - [ ] 235.1-04-PLAN.md — Capture retry-free PR evidence and validate its committed contract
 
-**Wave 6** *(blocked on Wave 5 evidence completion)*
+**Wave 7** *(blocked on Wave 6 evidence completion)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit
