@@ -57,6 +57,36 @@ defmodule Sigra.Test.InstallFixture do
     no_org_no_passkeys: ["--no-organizations", "--no-passkeys"],
     no_org_installed: ["--no-organizations"]
   }
+  @standard_app_js """
+  import "phoenix_html"
+  import { Socket } from "phoenix"
+  import { LiveSocket } from "phoenix_live_view"
+  import topbar from "../vendor/topbar"
+  import { hooks as colocatedHooks } from "phoenix-colocated/my_app"
+
+  const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+  const liveSocket = new LiveSocket("/live", Socket, {
+    longPollFallbackMs: 2500,
+    params: { _csrf_token: csrfToken },
+    hooks: { ...colocatedHooks },
+  })
+
+  topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
+  window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
+  window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
+  liveSocket.connect()
+  window.liveSocket = liveSocket
+  """
+  @nonstandard_app_js """
+  import "phoenix_html"
+  import { Socket } from "phoenix"
+  import topbar from "../vendor/topbar"
+
+  const socket = new Socket("/socket", {})
+  socket.connect()
+
+  window.topbar = topbar
+  """
 
   @doc "Returns the fixed prepared-state universe in construction order."
   def variant_names, do: @variant_names
@@ -85,6 +115,7 @@ defmodule Sigra.Test.InstallFixture do
       Enum.reduce(@variant_names, {%{}, timings}, fn name, {variants, phase_timings} ->
         variant_path = Path.join([root, "variants", Atom.to_string(name)])
         {copy_mode, copy_ms} = copy_tree!(base_path, variant_path)
+        baseline_paths = snapshot_paths(variant_path)
         started = monotonic_ms()
 
         stdout =
@@ -102,6 +133,7 @@ defmodule Sigra.Test.InstallFixture do
           name: name,
           path: Path.expand(variant_path),
           stdout: normalize_stdout(stdout, variant_path),
+          baseline_paths: baseline_paths,
           fingerprint: fingerprint,
           copy_mode: copy_mode,
           partition: "variant-#{token}",
@@ -828,11 +860,11 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp prepare_variant_assets!(:passkeys_standard, path) do
-    write_asset_file(path, "js/app.js", "import phoenix_html from \"phoenix_html\"\n")
+    write_asset_file(path, "js/app.js", @standard_app_js)
   end
 
   defp prepare_variant_assets!(:passkeys_nonstandard_app_js, path) do
-    write_asset_file(path, "js/app.js", "// intentionally non-standard application entrypoint\n")
+    write_asset_file(path, "js/app.js", @nonstandard_app_js)
   end
 
   defp prepare_variant_assets!(_name, _path), do: :ok
@@ -887,6 +919,10 @@ defmodule Sigra.Test.InstallFixture do
          %{
            "path" => variant.path,
            "stdout" => variant.stdout,
+           "baseline_paths" =>
+             Map.new(variant.baseline_paths, fn {path, digest} ->
+               {path, Base.encode16(digest, case: :lower)}
+             end),
            "fingerprint" => variant.fingerprint,
            "copy_mode" => Atom.to_string(variant.copy_mode),
            "partition" => variant.partition,
