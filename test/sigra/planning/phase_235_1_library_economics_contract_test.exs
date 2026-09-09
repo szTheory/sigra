@@ -208,13 +208,23 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp assert_protected_verifiers! do
-    assert {fast_output, 0} = System.cmd("bash", [@fast_verifier], stderr_to_stdout: true)
+    assert {fast_output, 0} = run_offline_verifier(@fast_verifier)
     assert fast_output == "source_complete_offline_attestation_verified\n"
 
-    assert {terminal_output, 0} =
-             System.cmd("bash", [@terminal_verifier], stderr_to_stdout: true)
+    assert {terminal_output, 0} = run_offline_verifier(@terminal_verifier)
 
     assert terminal_output =~ "offline_attestation_verified"
+  end
+
+  # GitHub-hosted Linux runners disable unprivileged network namespaces. The
+  # protected verifiers therefore use their existing passwordless-sudo fallback;
+  # invoking the whole verifier with the same privilege keeps gh's state files
+  # removable by its EXIT trap. Darwin uses sandbox-exec and needs no elevation.
+  defp run_offline_verifier(path) do
+    case :os.type() do
+      {:unix, :linux} -> System.cmd("sudo", ["-n", "bash", path], stderr_to_stdout: true)
+      _ -> System.cmd("bash", [path], stderr_to_stdout: true)
+    end
   end
 
   defp assert_protected_evidence! do
