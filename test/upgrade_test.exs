@@ -326,23 +326,11 @@ defmodule Sigra.UpgradeIntegrationTest do
     # Seed a user with a known password via generated register_user/1.
     seed_login_user!(app_dir, "login@example.test", "CorrectHorse!1")
 
-    server_task =
-      Task.async(fn ->
-        System.cmd("mix", ["phx.server"],
-          cd: app_dir,
-          stderr_to_stdout: true,
-          env: [
-            {"MIX_ENV", "dev"},
-            {"MIX_TEST_PARTITION", checkout.partition},
-            {"MIX_BUILD_PATH", checkout.build_path},
-            {"PORT", Integer.to_string(port)}
-          ]
-        )
-      end)
-
-    :ok = wait_for_http(port, 30_000)
+    {server_port, server_pid} = start_server!(checkout)
 
     try do
+      :ok = wait_for_http(port, 30_000)
+
       # Step 1: GET the login form to establish a session cookie AND
       # extract the _csrf_token hidden input. Phoenix 1.8's default
       # `protect_from_forgery` plug rejects POSTs without a matching
@@ -443,13 +431,125 @@ defmodule Sigra.UpgradeIntegrationTest do
         status_codes_seen: all_status_codes
       }
     after
-      # Scope the kill pattern to this tmp app directory so we never
-      # touch unrelated `phx.server` processes on the developer's
-      # machine or shared CI runners.
-      System.cmd("pkill", ["-f", "phx.server.*#{Path.basename(app_dir)}"], stderr_to_stdout: true)
-
-      Task.shutdown(server_task, :brutal_kill)
+      stop_server!(server_port, server_pid)
     end
+  end
+
+  defp start_server!(checkout) do
+    executable = System.find_executable("mix") || flunk("mix executable not found")
+
+    server_port =
+      Port.open(
+        {:spawn_executable, executable},
+        [
+          :binary,
+          :exit_status,
+          :stderr_to_stdout,
+          args: [~c"phx.server"],
+          cd: String.to_charlist(checkout.path),
+          env: [
+            {~c"MIX_ENV", ~c"dev"},
+            {~c"MIX_TEST_PARTITION", String.to_charlist(checkout.partition)},
+            {~c"MIX_BUILD_PATH", String.to_charlist(checkout.build_path)},
+            {~c"PORT", checkout.port |> Integer.to_string() |> String.to_charlist()}
+          ]
+        ]
+      )
+
+    {:os_pid, server_pid} = Port.info(server_port, :os_pid)
+    {server_port, server_pid}
+  end
+
+  defp stop_server!(server_port, server_pid) do
+    owned_pids = [server_pid | descendant_pids(server_pid)] |> Enum.uniq()
+    signal_processes(Enum.reverse(owned_pids), "TERM")
+    await_port_exit(server_port, 2_000)
+
+    remaining = Enum.filter(owned_pids, &os_process_alive?/1)
+    signal_processes(Enum.reverse(remaining), "KILL")
+    await_process_exit(remaining, 2_000)
+
+    if Port.info(server_port) do
+      Port.close(server_port)
+    end
+
+    still_alive = Enum.filter(owned_pids, &os_process_alive?/1)
+
+    if still_alive != [] do
+      flunk("upgrade server left owned OS descendants alive: #{inspect(still_alive)}")
+    end
+  end
+
+  defp descendant_pids(parent_pid) do
+    case System.cmd("pgrep", ["-P", Integer.to_string(parent_pid)], stderr_to_stdout: true) do
+      {output, 0} ->
+        output
+        |> String.split()
+        |> Enum.map(&String.to_integer/1)
+        |> Enum.flat_map(fn child_pid -> [child_pid | descendant_pids(child_pid)] end)
+
+      {_output, _status} ->
+        []
+    end
+  end
+
+  defp signal_processes([], _signal), do: :ok
+
+  defp signal_processes(pids, signal) do
+    System.cmd("kill", ["-#{signal}" | Enum.map(pids, &Integer.to_string/1)],
+      stderr_to_stdout: true
+    )
+
+    :ok
+  end
+
+  defp await_port_exit(server_port, timeout_ms) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    do_await_port_exit(server_port, deadline)
+  end
+
+  defp do_await_port_exit(server_port, deadline) do
+    remaining = max(deadline - System.monotonic_time(:millisecond), 0)
+
+    receive do
+      {^server_port, {:exit_status, _status}} ->
+        :ok
+
+      {^server_port, {:data, _output}} ->
+        do_await_port_exit(server_port, deadline)
+    after
+      remaining -> :timeout
+    end
+  end
+
+  defp await_process_exit([], _timeout_ms), do: :ok
+
+  defp await_process_exit(pids, timeout_ms) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    do_await_process_exit(pids, deadline)
+  end
+
+  defp do_await_process_exit(pids, deadline) do
+    remaining = Enum.filter(pids, &os_process_alive?/1)
+
+    cond do
+      remaining == [] ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        :timeout
+
+      true ->
+        Process.sleep(25)
+        do_await_process_exit(remaining, deadline)
+    end
+  end
+
+  defp os_process_alive?(pid) do
+    match?(
+      {_output, 0},
+      System.cmd("kill", ["-0", Integer.to_string(pid)], stderr_to_stdout: true)
+    )
   end
 
   defp seed_login_user!(app_dir, email, password) do
