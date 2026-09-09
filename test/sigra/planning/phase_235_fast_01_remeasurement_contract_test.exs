@@ -60,7 +60,7 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
     assert workflow =~ "eligible_pr_run_count >= 10"
     assert workflow =~ "--protected-output fast-01-remeasurement.json"
     refute ci =~ "fast-01-remeasurement-evidence.yml"
-    assert coverage =~ "fast-01-remeasurement-evidence.yml"
+    assert coverage =~ "Historical FAST-01 remeasurement"
     assert coverage =~ "one 60-second watcher"
   end
 end
