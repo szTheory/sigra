@@ -22,7 +22,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     end
   end
 
-  test "198-01: mix ci has the ordered seven-leg contributor gate exactly once" do
+  test "198-01: mix ci has the ordered six-leg contributor gate with one timed library owner" do
     entry = ci_entry(read!("mix.exs"))
 
     expected = [
@@ -30,13 +30,14 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
-      "test --exclude scaffold",
-      "ci.install_golden",
+      "cmd bash scripts/ci/library-economics.sh",
       "sigra.dep_off"
     ]
 
     assert Enum.map(Regex.scan(~r/"([^"]+)"/, entry), fn [_, leg] -> leg end) == expected
     assert Enum.all?(expected, &(length(Regex.scan(~r/#{Regex.escape(&1)}/, entry)) == 1))
+    refute entry =~ "test --exclude scaffold"
+    refute entry =~ "ci.install_golden"
   end
 
   test "198-02: mix ci excludes non-gating tool families" do
