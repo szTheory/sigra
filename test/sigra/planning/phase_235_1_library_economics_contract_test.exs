@@ -2,6 +2,9 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   use ExUnit.Case, async: false
 
   @receipt_path "/tmp/sigra-library-economics.json"
+  @phase_235_dir ".planning/phases/235-terminal-ratification-measured-not-read"
+  @fast_verifier "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
+  @terminal_verifier "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
 
   setup do
     File.rm(@receipt_path)
@@ -202,6 +205,93 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert shard =~ ".total > 0 and .total <= 100000"
     assert shard =~ "([.tests[] | [.file, .module, .name]] | unique | length) == .total"
     assert shard =~ ".tests == (.tests | sort_by([-(.time_us), .file, .module, .name]))"
+  end
+
+  defp assert_protected_verifiers! do
+    assert {fast_output, 0} = System.cmd("bash", [@fast_verifier], stderr_to_stdout: true)
+    assert fast_output == "source_complete_offline_attestation_verified\n"
+
+    assert {terminal_output, 0} =
+             System.cmd("bash", [@terminal_verifier], stderr_to_stdout: true)
+
+    assert terminal_output =~ "offline_attestation_verified"
+  end
+
+  defp assert_protected_evidence! do
+    pins = %{
+      Path.join(@phase_235_dir, "235-PROTECTED-RECEIPTS.json") =>
+        "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
+      Path.join(@phase_235_dir, "235-TERMINAL-RATIFICATION.json") =>
+        "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e",
+      Path.join(@phase_235_dir, "235-PROTECTED-RECEIPTS.attestation.jsonl") =>
+        "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f",
+      Path.join(@phase_235_dir, "235-TRUSTED-ROOT.jsonl") =>
+        "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
+      @terminal_verifier => "6c0805e0386186f017215ea7bf10bf450c9aafb68ef6742afa2f9e75b0463367",
+      Path.join(@phase_235_dir, "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json") =>
+        "a5f4f6d5335755fcac14e9de8827f47f2b04ad3a143df4b6f283ebfc20853594",
+      Path.join(
+        @phase_235_dir,
+        "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT-TRUSTED-ROOT.jsonl"
+      ) => "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
+    }
+
+    Enum.each(pins, fn {path, expected} ->
+      actual = :crypto.hash(:sha256, File.read!(path)) |> Base.encode16(case: :lower)
+      assert actual == expected, "immutable digest drift: #{path}"
+    end)
+
+    source_complete =
+      @phase_235_dir
+      |> Path.join("235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json")
+      |> File.read!()
+      |> Jason.decode!()
+
+    assert source_complete["eligible_pr_run_count"] == 52
+    assert source_complete["statistics"]["p50_seconds"] == 469
+    assert source_complete["verdict"] == "pass"
+    assert source_complete["status"] == "measured"
+    assert source_complete["binding_poles"] == nil
+
+    terminal =
+      @phase_235_dir
+      |> Path.join("235-TERMINAL-RATIFICATION.json")
+      |> File.read!()
+      |> Jason.decode!()
+
+    assert length(get_in(terminal, ["ownership", "rows"])) == 93
+
+    assert get_in(terminal, ["measurements", "push", "statistics"]) == %{
+             "fail" => 1,
+             "max_seconds" => 1439,
+             "mean_seconds" => 1430,
+             "n" => 2,
+             "p50_seconds" => 1439,
+             "pass" => 1,
+             "trigger" => "push"
+           }
+
+    assert get_in(terminal, ["measurements", "schedule", "statistics"]) == %{
+             "fail" => 2,
+             "max_seconds" => 1546,
+             "mean_seconds" => 1436.5,
+             "n" => 2,
+             "p50_seconds" => 1546,
+             "pass" => 0,
+             "trigger" => "schedule"
+           }
+
+    history = File.read!(".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md")
+
+    for immutable_fact <- ["772", "724", "466", "rejected derived-only"] do
+      assert history =~ immutable_fact, "missing immutable FAST-01 history: #{immutable_fact}"
+    end
+
+    closeout = File.read!(".planning/REQUIREMENTS.md")
+    assert closeout =~ "n=52"
+    assert closeout =~ "p50 469 seconds"
+    assert closeout =~ "34350618761"
+    assert closeout =~ "protected run `30782184713`; 93-row execution proof"
   end
 
   defp ci_legs(mix_exs) do
