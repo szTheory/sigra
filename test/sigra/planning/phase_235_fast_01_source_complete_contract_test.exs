@@ -5,6 +5,22 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @collector "scripts/ci/capture-fast-01-gap-closure.sh"
   @verifier "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
   @correlation ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
+  @requirements ".planning/REQUIREMENTS.md"
+  @residual ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
+
+  @source_complete_fragments [
+    "2026-08-03T21:37:08Z",
+    "54c33e904155a454255952666711c882afdd06e4",
+    "2026-09-09T12:22:29Z",
+    "n=52",
+    "469 seconds",
+    "https://github.com/szTheory/sigra/actions/runs/34350618761",
+    "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json",
+    "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl",
+    "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh",
+    "source_complete_offline_attestation_verified",
+    "FAST-01 Complete"
+  ]
 
   @correlation_keys ~w(schema_version status repository protected_main readiness rate_limit workflow_id protected_sha projection pre_dispatch dispatch_not_before)
   @dispatched_correlation_keys @correlation_keys ++ ~w(post_dispatch selected candidate_count)
@@ -58,6 +74,40 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert :ok = validate_subject(subject)
   end
 
+  test "authenticated strict pass is reconciled exactly into FAST-01 and its residual" do
+    {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
+    assert banner =~ "source_complete_offline_attestation_verified"
+
+    requirements = File.read!(@requirements)
+    residual = File.read!(@residual)
+
+    assert requirements =~ "- [x] **FAST-01**"
+    assert requirements =~ "| FAST-01 | Phase 235 | Complete ("
+    assert_exact_source_complete_record(requirements)
+    assert_exact_source_complete_record(residual)
+
+    for historical <- ["772", "724", "466", "692", "148", "470"] do
+      assert residual =~ historical, "missing historical FAST fact: #{historical}"
+    end
+  end
+
+  test "strict reconciliation refuses undersized, unauthenticated, contradictory, and boundary results" do
+    assert {:ok, :complete} =
+             reconcile_fixture(%{verified?: true, n: 10, p50: 719, agreement?: true})
+
+    assert {:ok, :gaps_found} =
+             reconcile_fixture(%{verified?: true, n: 10, p50: 720, agreement?: true})
+
+    assert {:error, :verifier_required} =
+             reconcile_fixture(%{verified?: false, n: 52, p50: 469, agreement?: true})
+
+    assert {:error, :population_undersized} =
+             reconcile_fixture(%{verified?: true, n: 9, p50: 469, agreement?: true})
+
+    assert {:error, :source_disagreement} =
+             reconcile_fixture(%{verified?: true, n: 52, p50: 469, agreement?: false})
+  end
+
   test "source replay rejects page, timestamp, event, identity, order, median, and boundary mutations" do
     subject =
       ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
@@ -66,10 +116,26 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
     mutations = [
       {"source_pages_invalid", put_in(subject, ["source_collection", "exhausted"], false)},
-      {"source_pages_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "page"], 2)},
-      {"run_chronology_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "updated_at"], "2026-01-01T00:00:00Z")},
-      {"derived_runs_mismatch", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "event"], "pull_request")},
-      {"source_identity_invalid", put_in(subject, ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "run_id"], subject["runs"] |> hd() |> Map.fetch!("run_id"))},
+      {"source_pages_invalid",
+       put_in(subject, ["source_collection", "pages", Access.at(0), "page"], 2)},
+      {"run_chronology_invalid",
+       put_in(
+         subject,
+         ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "updated_at"],
+         "2026-01-01T00:00:00Z"
+       )},
+      {"derived_runs_mismatch",
+       put_in(
+         subject,
+         ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "event"],
+         "pull_request"
+       )},
+      {"source_identity_invalid",
+       put_in(
+         subject,
+         ["source_collection", "pages", Access.at(0), "runs", Access.at(0), "run_id"],
+         subject["runs"] |> hd() |> Map.fetch!("run_id")
+       )},
       {"derived_runs_mismatch", update_in(subject, ["runs"], &Enum.reverse/1)},
       {"statistics_mismatch", put_in(subject, ["statistics", "p50_seconds"], 720)},
       {"window_invalid", put_in(subject, ["window", "endpoint"], "2026-08-03T21:37:07Z")}
@@ -86,6 +152,12 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         "022a03a03a440643871d19afe12cc7c8220b23e7d709d00e072d240e065b8244",
       ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json" =>
         "c667836535ae1141fe4419b6675777a6aa865dd99da528c33caa5ac16794a27e",
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.attestation.jsonl" =>
+        "af49fd36b603adbdfdeb8698141cea2e8749c1edc3f9b88764e3465b6f84215f",
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-TRUSTED-ROOT.jsonl" =>
+        "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
+      "scripts/ci/verify-terminal-ratification-attestation-offline.sh" =>
+        "6c0805e0386186f017215ea7bf10bf450c9aafb68ef6742afa2f9e75b0463367",
       "CONTRIBUTING.md" => "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b"
     }
 
@@ -93,12 +165,31 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       actual = :crypto.hash(:sha256, File.read!(path)) |> Base.encode16(case: :lower)
       assert actual == expected, "immutable digest drift: #{path}"
     end
+
+    terminal =
+      ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+      |> File.read!()
+      |> Jason.decode!()
+
+    assert length(get_in(terminal, ["ownership", "rows"])) == 93
+
+    requirements = File.read!(@requirements)
+    assert length(Regex.scan(~r/^- \[x\] \*\*GATE-05\*\*:/m, requirements)) == 1
+
+    assert length(
+             Regex.scan(
+               ~r/^\| GATE-05 \| Phase 235 \| Complete \(protected run `30782184713`; 93-row execution proof\) \|$/m,
+               requirements
+             )
+           ) == 1
   end
 
   test "reversible dispatch preflight is complete and ready for exact authorization" do
     receipt = File.read!(@correlation) |> Jason.decode!()
 
-    preflight = receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+    preflight =
+      receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+
     assert :ok = validate_preflight(preflight)
   end
 
@@ -115,10 +206,13 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       mutations = [
         {"dispatched_keys_invalid", Map.delete(receipt, "post_dispatch")},
         {"candidate_count_invalid", Map.put(receipt, "candidate_count", 2)},
-        {"post_projection_invalid", put_in(receipt, ["post_dispatch", Access.at(0), "workflow_id"], 0)},
+        {"post_projection_invalid",
+         put_in(receipt, ["post_dispatch", Access.at(0), "workflow_id"], 0)},
         {"selected_run_invalid", put_in(receipt, ["selected", "id"], 342_727_466_47)},
-        {"selected_sha_invalid", put_in(receipt, ["selected", "head_sha"], String.duplicate("0", 40))},
-        {"selected_boundary_invalid", put_in(receipt, ["selected", "created_at"], "2026-09-09T01:00:00Z")}
+        {"selected_sha_invalid",
+         put_in(receipt, ["selected", "head_sha"], String.duplicate("0", 40))},
+        {"selected_boundary_invalid",
+         put_in(receipt, ["selected", "created_at"], "2026-09-09T01:00:00Z")}
       ]
 
       for {diagnostic, mutated} <- mutations do
@@ -187,7 +281,9 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   end
 
   defp validate_dispatched(receipt) do
-    preflight = receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+    preflight =
+      receipt |> Map.take(@correlation_keys) |> Map.put("status", "ready_for_authorization")
+
     post = receipt["post_dispatch"]
     selected = receipt["selected"] || %{}
 
@@ -207,14 +303,18 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         {:error, "post_projection_invalid"}
 
       Map.keys(selected) |> Enum.sort() != ~w(created_at head_sha html_url id) or
-          selected["html_url"] != "https://github.com/szTheory/sigra/actions/runs/#{selected["id"]}" ->
+          selected["html_url"] !=
+            "https://github.com/szTheory/sigra/actions/runs/#{selected["id"]}" ->
         {:error, "selected_run_invalid"}
 
       selected["head_sha"] != receipt["protected_sha"] ->
         {:error, "selected_sha_invalid"}
 
       not utc?(selected["created_at"]) or
-          DateTime.compare(parse_utc!(selected["created_at"]), parse_utc!(receipt["dispatch_not_before"])) == :lt ->
+          DateTime.compare(
+            parse_utc!(selected["created_at"]),
+            parse_utc!(receipt["dispatch_not_before"])
+          ) == :lt ->
         {:error, "selected_boundary_invalid"}
 
       true ->
@@ -222,10 +322,14 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
         candidates =
           Enum.filter(post, fn row ->
-            not MapSet.member?(pre_ids, row["run_id"]) and row["workflow_id"] == receipt["workflow_id"] and
+            not MapSet.member?(pre_ids, row["run_id"]) and
+              row["workflow_id"] == receipt["workflow_id"] and
               row["event"] == "workflow_dispatch" and row["head_branch"] == "main" and
               row["head_sha"] == receipt["protected_sha"] and
-              DateTime.compare(parse_utc!(row["created_at"]), parse_utc!(receipt["dispatch_not_before"])) != :lt
+              DateTime.compare(
+                parse_utc!(row["created_at"]),
+                parse_utc!(receipt["dispatch_not_before"])
+              ) != :lt
           end)
 
         if length(candidates) == 1 and hd(candidates)["run_id"] == selected["id"] and
@@ -249,10 +353,10 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         {:error, "window_invalid"}
 
       source["exhausted"] != true or pages == [] or
-          Enum.map(pages, & &1["page"]) != Enum.to_list(1..length(pages)) or
-          source["requested_pages"] != Enum.to_list(1..length(pages)) or
-          source["terminal_page"] != length(pages) or
-          List.last(pages)["returned_count"] != 0 or
+        Enum.map(pages, & &1["page"]) != Enum.to_list(1..length(pages)) or
+        source["requested_pages"] != Enum.to_list(1..length(pages)) or
+        source["terminal_page"] != length(pages) or
+        List.last(pages)["returned_count"] != 0 or
           Enum.any?(pages, &(&1["returned_count"] != length(&1["runs"]))) ->
         {:error, "source_pages_invalid"}
 
@@ -264,7 +368,9 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
           Enum.uniq(raw_ids) != raw_ids ->
             {:error, "source_identity_invalid"}
 
-          Enum.any?(raw, fn run -> parse_utc!(run["updated_at"]) < parse_utc!(run["created_at"]) end) ->
+          Enum.any?(raw, fn run ->
+            parse_utc!(run["updated_at"]) < parse_utc!(run["created_at"])
+          end) ->
             {:error, "run_chronology_invalid"}
 
           true ->
@@ -275,7 +381,11 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
                   run["created_at"] >= cutoff and run["created_at"] <= endpoint
               end)
               |> Enum.map(fn run ->
-                Map.put(run, "wall_seconds", DateTime.diff(parse_utc!(run["updated_at"]), parse_utc!(run["created_at"])))
+                Map.put(
+                  run,
+                  "wall_seconds",
+                  DateTime.diff(parse_utc!(run["updated_at"]), parse_utc!(run["created_at"]))
+                )
               end)
               |> Enum.sort_by(&{&1["wall_seconds"], &1["run_id"]})
 
@@ -288,13 +398,17 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
               n < 10 ->
                 {:error, "source_membership_invalid"}
 
-              oracle != subject["runs"] or oracle != get_in(subject, ["instrument_receipt", "output", "runs"]) ->
+              oracle != subject["runs"] or
+                  oracle != get_in(subject, ["instrument_receipt", "output", "runs"]) ->
                 {:error, "derived_runs_mismatch"}
 
               subject["eligible_pr_run_count"] != n or subject["verdict"] != verdict or
-                  get_in(subject, ["statistics", "p50_seconds"]) != median["wall_seconds"] or
-                  get_in(subject, ["statistics", "max_seconds"]) != maximum["wall_seconds"] or
-                  subject["selected_poles"] != %{"median_run_id" => median["run_id"], "maximum_run_id" => maximum["run_id"]} ->
+                get_in(subject, ["statistics", "p50_seconds"]) != median["wall_seconds"] or
+                get_in(subject, ["statistics", "max_seconds"]) != maximum["wall_seconds"] or
+                  subject["selected_poles"] != %{
+                    "median_run_id" => median["run_id"],
+                    "maximum_run_id" => maximum["run_id"]
+                  } ->
                 {:error, "statistics_mismatch"}
 
               true ->
@@ -467,6 +581,18 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       {:error, "dispatch_boundary_invalid"}
     end
   end
+
+  defp assert_exact_source_complete_record(record) do
+    for fragment <- @source_complete_fragments do
+      assert record =~ fragment, "source-complete closeout missing #{fragment}"
+    end
+  end
+
+  defp reconcile_fixture(%{verified?: false}), do: {:error, :verifier_required}
+  defp reconcile_fixture(%{n: n}) when n < 10, do: {:error, :population_undersized}
+  defp reconcile_fixture(%{agreement?: false}), do: {:error, :source_disagreement}
+  defp reconcile_fixture(%{p50: p50}) when p50 < 720, do: {:ok, :complete}
+  defp reconcile_fixture(%{p50: _p50}), do: {:ok, :gaps_found}
 
   defp sha?(value), do: is_binary(value) and Regex.match?(~r/^[0-9a-f]{40}$/, value)
 
