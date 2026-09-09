@@ -21,6 +21,7 @@ cleanup() {
   else
     printf 'library-economics.test: refusing unsafe cleanup: %s\n' "$TMP_ROOT" >&2
   fi
+  [[ ! -d "$RECEIPT" ]] || rmdir "$RECEIPT"
   rm -f "$RECEIPT" "$TIMINGS"
 }
 trap cleanup EXIT
@@ -46,8 +47,15 @@ cat >"${STUB_BIN}/mix" <<'STUB'
 set -euo pipefail
 printf '%s|partition=%s|timing=%s\n' "$*" "${MIX_TEST_PARTITION:-}" "${SIGRA_EXUNIT_TIMING_PATH:-}" >>"$SIGRA_TEST_MIX_CALLS"
 if [[ "$1" == "test" ]]; then
-  printf '{"schema_version":1,"partition":"ordinary","tests":[],"total":0,"passed":0,"failed":0,"skipped":0,"excluded":0,"invalid":0}\n' >"$SIGRA_EXUNIT_TIMING_PATH"
+  if [[ "${SIGRA_TEST_SIGNAL_ORDINARY:-false}" == "true" ]]; then
+    kill -TERM "$PPID"
+  fi
+  if [[ "${SIGRA_TEST_SKIP_TIMING:-false}" != "true" ]]; then
+    printf '{"schema_version":1,"partition":"ordinary","tests":[],"total":0,"passed":0,"failed":0,"skipped":0,"excluded":0,"invalid":0}\n' >"$SIGRA_EXUNIT_TIMING_PATH"
+  fi
+  exit "${SIGRA_TEST_ORDINARY_STATUS:-0}"
 fi
+exit "${SIGRA_TEST_INSTALL_STATUS:-0}"
 STUB
 chmod +x "${STUB_BIN}/python3" "${STUB_BIN}/mix"
 
@@ -85,6 +93,81 @@ if jq -e '.partition == "ordinary" and .schema_version == 1' "$TIMINGS" >/dev/nu
   pass "ordinary child produced the per-test timing receipt"
 else
   fail "per-test timing receipt missing"
+fi
+
+reset_fixture() {
+  rm -f "$RECEIPT" "$TIMINGS"
+  : >"$CALLS"
+  printf '%s\n' "${1:-1000}" "${2:-2000}" "${3:-2000}" "${4:-3000}" >"$CLOCK_VALUES"
+}
+
+run_producer() {
+  set +e
+  PRODUCER_OUTPUT="$(PATH="${STUB_BIN}:${PATH}" SIGRA_TEST_CLOCK_VALUES="$CLOCK_VALUES" \
+    SIGRA_TEST_MIX_CALLS="$CALLS" "$@" bash "$PRODUCER" 2>&1)"
+  PRODUCER_RC=$?
+  set -e
+}
+
+echo "Test B: ordinary failure is retained and skips install"
+reset_fixture
+run_producer env SIGRA_TEST_ORDINARY_STATUS=23
+if [[ "$PRODUCER_RC" -eq 23 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]] \
+  && jq -e '.install_leg_ran == false and .classes.ordinary.exit_status == 23 and .classes.ordinary.conclusion == "failure" and .classes.install_scaffold.conclusion == "not_run"' "$RECEIPT" >/dev/null; then
+  pass "ordinary status 23 survives receipt publication and install is skipped"
+else
+  fail "ordinary failure contract rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+
+echo "Test C: install failure is retained after both legs"
+reset_fixture
+run_producer env SIGRA_TEST_INSTALL_STATUS=37
+if [[ "$PRODUCER_RC" -eq 37 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "2" ]] \
+  && jq -e '.install_leg_ran == true and .classes.ordinary.exit_status == 0 and .classes.install_scaffold.exit_status == 37 and .classes.install_scaffold.conclusion == "failure"' "$RECEIPT" >/dev/null; then
+  pass "install status 37 survives receipt publication"
+else
+  fail "install failure contract rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+
+echo "Test D: missing same-run timing receipt fails before install"
+reset_fixture
+run_producer env SIGRA_TEST_SKIP_TIMING=true
+if [[ "$PRODUCER_RC" -ne 0 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]] \
+  && grep -q 'no safe per-test timing receipt' <<<"$PRODUCER_OUTPUT" \
+  && jq -e '.install_leg_ran == false and .classes.ordinary.conclusion == "failure"' "$RECEIPT" >/dev/null; then
+  pass "missing timing evidence fails closed without duplicate or install run"
+else
+  fail "missing timing contract rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+
+echo "Test E: signal status is retained in diagnostic receipt"
+reset_fixture
+run_producer env SIGRA_TEST_SIGNAL_ORDINARY=true
+if [[ "$PRODUCER_RC" -eq 143 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]] \
+  && jq -e '.install_leg_ran == false and .classes.ordinary.exit_status == 143 and .classes.ordinary.conclusion == "failure"' "$RECEIPT" >/dev/null; then
+  pass "TERM exits 143 and retains diagnostic evidence"
+else
+  fail "signal contract rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+
+echo "Test F: receipt-write failure cannot turn a successful run green"
+reset_fixture
+mkdir "$RECEIPT"
+run_producer env
+if [[ "$PRODUCER_RC" -ne 0 ]] && grep -q 'receipt path is a directory' <<<"$PRODUCER_OUTPUT"; then
+  pass "publication failure exits non-zero with a diagnostic"
+else
+  fail "receipt-write failure rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+rmdir "$RECEIPT"
+
+echo "Test G: zero measured duration is rejected rather than synthesized"
+reset_fixture 1000 1000 2000 3000
+run_producer env
+if [[ "$PRODUCER_RC" -ne 0 ]] && grep -q 'non-positive ordinary duration' <<<"$PRODUCER_OUTPUT"; then
+  pass "zero duration fails as invalid raw evidence"
+else
+  fail "zero duration rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
