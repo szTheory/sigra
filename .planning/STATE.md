@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235
 current_phase_name: Terminal Ratification — Measured, Not Read
 status: executing
-stopped_at: Completed 235-16-PLAN.md
-last_updated: "2026-09-09T01:28:18.064Z"
-last_activity: 2026-09-08
-last_activity_desc: Phase 235 execution started
-state_head: 2e77218678dfc5a0bc57c5e23afbfd46d6c1016d
+stopped_at: Completed 235-17-PLAN.md
+last_updated: "2026-09-09T12:34:46.488Z"
+last_activity: 2026-09-09
+last_activity_desc: Plan 235-17 retained and verified the source-complete FAST-01 passing measurement
+state_head: 4d406ba36a8a2e61b183c1edac7084868ecea21b
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 66
-  completed_plans: 64
+  completed_plans: 65
   percent: 83
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-07-31)
 ## Current Position
 
 Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
-Plan: 11 of 12
+Plan: 12 of 12
 Status: Ready to execute
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Plan 235-16 landed the source-complete producer, Plan 235-17 is ready for measurement
-Last activity: 2026-09-08 — Plan 235-16 completed on protected main
+Progress: 5/6 milestone phases complete ([████████░░] 83%); Plan 235-17 authenticated a 52-run, 469-second FAST-01 pass and Plan 235-18 owns reconciliation
+Last activity: 2026-09-09 — Plan 235-17 completed with verified protected evidence
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -445,6 +445,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235]: Plan 235-16: use a repository-only dev/test Hackney 4 override until Threadline publishes a compatible optional constraint.
 - [Phase 235]: Plan 235-16: protected squash merge is proven by seven exact blob matches against main SHA 158aca14; no FAST evidence dispatch occurred.
 - [Phase 235]: Plan 235-16: FAST-01 remains open for Plan 17 source-complete measurement; GATE-05 remains unchanged.
+- [Phase 235]: Plan 235-17 Task 2: user selected authorize-once for exactly one immediate protected-main evidence dispatch from the unchanged sealed preflight.
+- [Phase 235]: Plan 235-17: retained scripts/ci/ci-run-metrics.sh wall mode as terminal authority; signed raw pages independently reproduced n=52, p50=469s, max=1331s, verdict=pass.
+- [Phase 235]: Plan 235-17 left FAST-01 reconciliation to Plan 18 and preserved GATE-05 unchanged.
 
 ### Pending Todos
 
@@ -457,7 +460,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
-- **Phase 235 FAST-01:** Plan 235-15's derived-only candidate remains rejected. Plan 235-16 landed the source-complete producer on protected main at `158aca14`; Plan 235-17 must capture and independently verify one new protected population before FAST-01 can change.
+- [RESOLVED 2026-09-09] **Phase 235 FAST-01 evidence gap:** Plan 235-15's derived-only candidate remains rejected, but Plan 235-17 retained a source-complete protected population (`n=52`, `p50=469s`, `pass`) and verified it offline. Plan 235-18 owns requirement and closeout reconciliation.
 - [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
 
 ### Roadmap Evolution
@@ -591,13 +594,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T01:28:17.927Z
-Stopped at: Completed 235-16-PLAN.md
+Last session: 2026-09-09T12:34:46.342Z
+Stopped at: Completed 235-17-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Execute the prepared source-complete measurement plan with `$gsd-execute-phase 235` (next plan: 235-17).
+- Execute the prepared FAST-01 reconciliation plan with `$gsd-execute-phase 235` (next plan: 235-18).
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -759,3 +762,4 @@ Resume file: None
 | Phase 235 P08 | unknown | 3 tasks | 7 files |
 | Phase 235 P15 | 20 min | 2 tasks | 10 files |
 | Phase 235 P16 | 72m | 2 tasks | 13 files |
+| Phase 235 P17 | 10m 03s | 3 tasks | 6 files |

@@ -389,7 +389,7 @@ Plans:
 
 **Wave 11** *(gap closure; blocked on the Wave 10 workflow landing on protected main)*
 
-- [ ] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
+- [x] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
 
 **Wave 12** *(gap closure; blocked on authenticated Wave 11 evidence)*
 
