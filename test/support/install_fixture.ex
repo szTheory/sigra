@@ -33,6 +33,9 @@ defmodule Sigra.Test.InstallFixture do
   @manifest_name ".sigra-install-fixture.json"
   @diagnostic_path "/tmp/sigra-install-golden-diagnostics.json"
   @scenario_table :sigra_install_fixture_scenarios
+  @port_table :sigra_install_fixture_ports
+  @worker_pool Sigra.Test.InstallFixture.WorkerPool
+  @scenario_timeout_ms 120_000
   @diagnostic_phases [
     :phx_new,
     :deps_get,
@@ -91,32 +94,148 @@ defmodule Sigra.Test.InstallFixture do
   @doc "Returns the fixed prepared-state universe in construction order."
   def variant_names, do: @variant_names
 
+  defmodule WorkerPool do
+    @moduledoc false
+    use GenServer
+
+    def start_link(name), do: GenServer.start_link(__MODULE__, :ok, name: name)
+    def acquire(name), do: GenServer.call(name, :acquire, :infinity)
+    def release(name), do: GenServer.cast(name, {:release, self()})
+
+    @impl true
+    def init(:ok), do: {:ok, %{active: %{}, queued: :queue.new()}}
+
+    @impl true
+    def handle_call(:acquire, {pid, _tag} = from, state) do
+      if map_size(state.active) < 2 do
+        ref = Process.monitor(pid)
+        {:reply, :ok, put_in(state, [:active, pid], ref)}
+      else
+        {:noreply, %{state | queued: :queue.in(from, state.queued)}}
+      end
+    end
+
+    @impl true
+    def handle_cast({:release, pid}, state), do: {:noreply, release_and_promote(state, pid)}
+
+    @impl true
+    def handle_info({:DOWN, ref, :process, pid, _reason}, state) do
+      case Map.get(state.active, pid) do
+        ^ref -> {:noreply, release_and_promote(state, pid, false)}
+        _other -> {:noreply, state}
+      end
+    end
+
+    defp release_and_promote(state, pid, demonitor? \\ true) do
+      case Map.pop(state.active, pid) do
+        {nil, _active} ->
+          state
+
+        {ref, active} ->
+          if demonitor?, do: Process.demonitor(ref, [:flush])
+          promote(%{state | active: active})
+      end
+    end
+
+    defp promote(state) when map_size(state.active) >= 2, do: state
+
+    defp promote(state) do
+      case :queue.out(state.queued) do
+        {{:value, {pid, _tag} = from}, queued} ->
+          if Process.alive?(pid) do
+            ref = Process.monitor(pid)
+            GenServer.reply(from, :ok)
+            promote(%{state | active: Map.put(state.active, pid, ref), queued: queued})
+          else
+            promote(%{state | queued: queued})
+          end
+
+        {:empty, _queued} ->
+          state
+      end
+    end
+  end
+
+  @doc "Runs generated-app work under the graph-global two-worker ceiling."
+  def with_worker(fun) when is_function(fun, 0) do
+    if Process.get({__MODULE__, :worker_lease}, false) do
+      fun.()
+    else
+      ensure_worker_pool!()
+      :ok = WorkerPool.acquire(@worker_pool)
+      Process.put({__MODULE__, :worker_lease}, true)
+
+      try do
+        fun.()
+      after
+        Process.delete({__MODULE__, :worker_lease})
+        WorkerPool.release(@worker_pool)
+      end
+    end
+  end
+
   @doc "Builds and publishes one immutable prepared-fixture graph."
   def prepare_graph!(opts \\ []) do
     root = Keyword.get_lazy(opts, :root, &new_graph_root!/0) |> validate_graph_root!()
     Process.put({__MODULE__, :building_root}, root)
     fingerprint = Keyword.get_lazy(opts, :fingerprint, &compatibility_fingerprint/0)
     base_path = Path.join([root, "source", @app_name])
+    deps_path = Path.join(root, "shared_deps")
     manifest_path = Path.join(root, @manifest_name)
-    base_builder = Keyword.get(opts, :base_builder, &build_source_base!/1)
+    base_builder = Keyword.get(opts, :base_builder, fn path -> build_source_base!(path, opts) end)
     variant_builder = Keyword.get(opts, :variant_builder, &build_variant!/2)
 
+    reset_port_table!()
+    ensure_worker_pool!()
     File.mkdir_p!(Path.dirname(base_path))
     started = monotonic_ms()
 
     timings =
       case base_builder.(base_path) do
-        :ok -> %{phx_new: positive_elapsed(started), deps_get: 1, baseline_compile: 1}
-        {:ok, timings} when is_map(timings) -> validate_base_timings!(timings)
-        other -> raise "base builder returned invalid result: #{inspect(other)}"
+        :ok ->
+          %{
+            phx_new: positive_elapsed(started),
+            deps_get: 1,
+            baseline_compile: 1,
+            checkout_copy: 1
+          }
+
+        {:ok, timings} when is_map(timings) ->
+          validate_base_timings!(timings)
+
+        other ->
+          raise "base builder returned invalid result: #{inspect(other)}"
       end
 
-    {variants, timings} =
-      Enum.reduce(@variant_names, {%{}, timings}, fn name, {variants, phase_timings} ->
+    if File.regular?(Path.join(base_path, "config/dev.exs")) do
+      configure_runtime_isolation!(base_path)
+    end
+
+    copy_started = monotonic_ms()
+
+    copied_variants =
+      parallel_map!(@variant_names, fn name ->
         variant_path = Path.join([root, "variants", Atom.to_string(name)])
-        {copy_mode, copy_ms} = copy_tree!(base_path, variant_path)
+        {copy_mode, _copy_ms} = copy_tree!(base_path, variant_path)
         baseline_paths = snapshot_paths(variant_path)
-        started = monotonic_ms()
+
+        %{
+          name: name,
+          path: variant_path,
+          deps_path: deps_path,
+          copy_mode: copy_mode,
+          baseline_paths: baseline_paths
+        }
+      end)
+
+    copy_ms = positive_elapsed(copy_started)
+    installer_started = monotonic_ms()
+
+    variants =
+      copied_variants
+      |> parallel_map!(fn copied ->
+        name = copied.name
+        variant_path = copied.path
 
         stdout =
           case variant_builder.(name, variant_path) do
@@ -125,35 +244,35 @@ defmodule Sigra.Test.InstallFixture do
             other -> raise "variant builder returned invalid result: #{inspect(other)}"
           end
 
-        installer_ms = positive_elapsed(started)
         token = System.unique_integer([:positive, :monotonic])
         make_tree_read_only!(variant_path)
 
-        variant = %{
+        %{
           name: name,
           path: Path.expand(variant_path),
           stdout: normalize_stdout(stdout, variant_path),
-          baseline_paths: baseline_paths,
+          baseline_paths: copied.baseline_paths,
+          deps_path: copied.deps_path,
           fingerprint: fingerprint,
-          copy_mode: copy_mode,
+          copy_mode: copied.copy_mode,
           partition: "variant-#{token}",
-          port: 40_000 + rem(token, 20_000),
+          port: allocate_port!(root, token),
           immutable: true
         }
-
-        phase_timings =
-          phase_timings
-          |> Map.update(:checkout_copy, copy_ms, &(&1 + copy_ms))
-          |> Map.update(:installer, installer_ms, &(&1 + installer_ms))
-
-        {Map.put(variants, name, variant), phase_timings}
       end)
+      |> Map.new(&{&1.name, &1})
+
+    timings =
+      timings
+      |> Map.update(:checkout_copy, copy_ms, &(&1 + copy_ms))
+      |> Map.put(:installer, positive_elapsed(installer_started))
 
     timings = Map.put_new(timings, :receiver_compile_runtime, 1)
 
     graph = %{
       root: root,
       base_path: Path.expand(base_path),
+      deps_path: Path.expand(deps_path),
       variants: variants,
       manifest_path: manifest_path,
       fingerprint: fingerprint,
@@ -196,10 +315,14 @@ defmodule Sigra.Test.InstallFixture do
     do: checkout!(prepared_graph!(), name, scenario)
 
   def checkout!(graph, name, scenario) when name in @variant_names and is_binary(scenario) do
+    with_worker(fn -> do_checkout!(graph, name, scenario) end)
+  end
+
+  defp do_checkout!(graph, name, scenario) do
     variant = variant!(graph, name)
     token = System.unique_integer([:positive, :monotonic])
     partition = checkout_partition(graph.root, token)
-    port = 40_000 + rem(token, 20_000)
+    port = allocate_port!(graph.root, token)
     safe_scenario = String.replace(scenario, ~r/[^a-zA-Z0-9_-]/, "-")
     checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
     {copy_mode, copy_ms} = copy_tree!(variant.path, checkout_path)
@@ -210,13 +333,12 @@ defmodule Sigra.Test.InstallFixture do
       raise "prepared fixture checkout is missing its private compatible build: #{build_path}"
     end
 
-    patch_checkout_isolation!(checkout_path, partition, port)
-
     checkout = %{
       name: name,
       scenario: scenario,
       path: Path.expand(checkout_path),
       build_path: Path.expand(build_path),
+      deps_path: variant.deps_path,
       partition: partition,
       port: port,
       fingerprint: graph.fingerprint,
@@ -355,6 +477,7 @@ defmodule Sigra.Test.InstallFixture do
     end
 
     if :ets.whereis(@scenario_table) != :undefined, do: :ets.delete(@scenario_table)
+    if :ets.whereis(@port_table) != :undefined, do: :ets.delete(@port_table)
 
     :ok
   end
@@ -492,13 +615,14 @@ defmodule Sigra.Test.InstallFixture do
     {:ok, %{app_dir: app_dir}}
   end
 
-  defp mix_deps_get_noninteractive!(app_dir) do
+  defp mix_deps_get_noninteractive!(app_dir, env \\ []) do
     {out, status} =
       System.cmd(
         "sh",
         ["-c", "echo n | mix deps.get"],
         cd: app_dir,
-        stderr_to_stdout: true
+        stderr_to_stdout: true,
+        env: env
       )
 
     if status != 0 do
@@ -519,7 +643,7 @@ defmodule Sigra.Test.InstallFixture do
   @spec run_sigra_install(Path.t(), [String.t()], keyword()) :: {:ok, String.t()}
   def run_sigra_install(app_dir, flags, opts \\ []) when is_list(flags) do
     args = ["sigra.install", "Accounts", "User", "users"] ++ flags ++ ["--yes"]
-    {out, status} = command(opts).("mix", args, command_options(app_dir))
+    {out, status} = with_worker(fn -> command(opts).("mix", args, command_options(app_dir)) end)
 
     if status != 0 do
       raise """
@@ -547,7 +671,7 @@ defmodule Sigra.Test.InstallFixture do
     # directory end-to-end, so --allow-dirty is always correct here.
     args = ["sigra.upgrade"] ++ flags ++ ["--allow-dirty", "--yes"]
 
-    {out, status} = command(opts).("mix", args, command_options(app_dir))
+    {out, status} = with_worker(fn -> command(opts).("mix", args, command_options(app_dir)) end)
 
     if status != 0 do
       raise """
@@ -568,7 +692,7 @@ defmodule Sigra.Test.InstallFixture do
   """
   @spec run_mix(Path.t(), [String.t()], keyword()) :: {:ok, String.t()}
   def run_mix(app_dir, args, opts \\ []) when is_list(args) do
-    {out, status} = command(opts).("mix", args, command_options(app_dir))
+    {out, status} = with_worker(fn -> command(opts).("mix", args, command_options(app_dir)) end)
 
     if status != 0 do
       raise """
@@ -705,6 +829,14 @@ defmodule Sigra.Test.InstallFixture do
           ~r/live_view: \[signing_salt: "[^"]+"\]/,
           ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
         )
+        |> String.replace(
+          ~S|database: "sigra_install_golden_tmp_dev_" <> System.get_env("MIX_TEST_PARTITION", "base")|,
+          ~S|database: "sigra_install_golden_tmp_dev"|
+        )
+        |> String.replace(
+          ~S|, port: String.to_integer(System.get_env("PORT", "4000"))|,
+          ""
+        )
         # Phoenix generator output occasionally drifts on trailing spaces per
         # line; strip so golden bytes stay stable across patch releases.
         |> String.replace("\r\n", "\n")
@@ -826,7 +958,7 @@ defmodule Sigra.Test.InstallFixture do
     :ok
   end
 
-  defp build_source_base!(base_path) do
+  defp build_source_base!(base_path, opts) do
     parent = Path.dirname(base_path)
     phx_started = monotonic_ms()
 
@@ -840,15 +972,17 @@ defmodule Sigra.Test.InstallFixture do
     phx_ms = positive_elapsed(phx_started)
     patch_mix_exs_with_path_dep!(base_path)
     deps_started = monotonic_ms()
-    mix_deps_get_noninteractive!(base_path)
+    {shared_env, deps_copy_ms} = prepare_private_deps!(base_path, opts)
+    mix_deps_get_noninteractive!(base_path, shared_env)
     deps_ms = positive_elapsed(deps_started)
+    seed_ms = seed_root_build!(base_path, opts)
     compile_started = monotonic_ms()
 
     {compile_out, compile_status} =
       System.cmd("mix", ["compile"],
         cd: base_path,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: [{"MIX_ENV", "dev"} | shared_env]
       )
 
     if compile_status != 0, do: raise("pre-install mix compile failed:\n#{compile_out}")
@@ -857,8 +991,94 @@ defmodule Sigra.Test.InstallFixture do
      %{
        phx_new: phx_ms,
        deps_get: deps_ms,
-       baseline_compile: positive_elapsed(compile_started)
+       baseline_compile: positive_elapsed(compile_started),
+       checkout_copy: deps_copy_ms + seed_ms
      }}
+    |> tap(fn _result ->
+      make_tree_read_only!(Path.join(Path.dirname(Path.dirname(base_path)), "shared_deps"))
+    end)
+  end
+
+  defp prepare_private_deps!(base_path, opts) do
+    deps_path = root_deps_path(opts)
+    target = Path.join([Path.dirname(Path.dirname(base_path)), "shared_deps"])
+
+    if File.dir?(deps_path) do
+      {_mode, elapsed_ms} = copy_tree!(deps_path, target)
+      {[{"MIX_DEPS_PATH", target}], elapsed_ms}
+    else
+      File.mkdir_p!(target)
+      {[{"MIX_DEPS_PATH", target}], 1}
+    end
+  end
+
+  defp seed_root_build!(base_path, opts) do
+    source = Keyword.get(opts, :root_build_path, Path.join(sigra_repo_root(), "_build/test"))
+    target = Path.join(base_path, "_build/dev")
+    expected = compatibility_fingerprint()
+    actual = Keyword.get(opts, :root_build_fingerprint, expected)
+
+    if File.dir?(source) and expected == actual do
+      started = monotonic_ms()
+      File.rm_rf!(target)
+
+      case seed_compatible_tree!(source, target, expected, actual) do
+        {:ok, _mode, _elapsed_ms} ->
+          prune_incompatible_seed!(target, Path.join(base_path, "mix.lock"))
+
+          materialize_dependency_priv!(
+            target,
+            Path.join([Path.dirname(Path.dirname(base_path)), "shared_deps"])
+          )
+
+          positive_elapsed(started)
+
+        :incompatible ->
+          1
+      end
+    else
+      1
+    end
+  end
+
+  defp root_deps_path(opts),
+    do: Keyword.get(opts, :root_deps_path, Path.join(sigra_repo_root(), "deps"))
+
+  defp prune_incompatible_seed!(build_path, lock_path) do
+    lock_path
+    |> File.read!()
+    |> then(&Regex.scan(~r/^\s*"([^"]+)": \{:hex, :[^,]+, "([^"]+)"/m, &1))
+    |> Enum.each(fn [_entry, app, locked_version] ->
+      app_path = Path.join([build_path, "lib", app])
+      app_file = Path.join([app_path, "ebin", "#{app}.app"])
+
+      case File.read(app_file) do
+        {:ok, content} ->
+          case Regex.run(~r/\{vsn,"([^"]+)"\}/, content) do
+            [_match, ^locked_version] -> :ok
+            _mismatch -> File.rm_rf!(app_path)
+          end
+
+        {:error, :enoent} ->
+          :ok
+
+        {:error, reason} ->
+          raise File.Error, reason: reason, action: "read", path: app_file
+      end
+    end)
+  end
+
+  defp materialize_dependency_priv!(build_path, deps_path) do
+    deps_path
+    |> File.ls!()
+    |> Enum.each(fn app ->
+      source = Path.join([deps_path, app, "priv"])
+      target = Path.join([build_path, "lib", app, "priv"])
+
+      if File.dir?(source) and not File.exists?(target) do
+        {_mode, _elapsed_ms} = copy_tree!(source, target)
+      end
+    end)
   end
 
   defp build_variant!(name, variant_path) do
@@ -880,17 +1100,67 @@ defmodule Sigra.Test.InstallFixture do
 
   defp command_options(app_dir) do
     checkout = read_checkout_manifest(app_dir)
+    partition = checkout["partition"]
+
+    deps_path =
+      case checkout["deps_path"] do
+        nil -> graph_deps_path(app_dir) || Path.join(app_dir, "deps")
+        path -> validate_manifest_deps_path!(app_dir, path)
+      end
 
     env =
-      [{"MIX_ENV", "dev"}]
-      |> maybe_put_env("MIX_TEST_PARTITION", checkout["partition"])
+      [{"MIX_ENV", "dev"}, {"MIX_DEPS_PATH", deps_path}]
+      |> maybe_put_env("MIX_TEST_PARTITION", partition)
       |> maybe_put_env("MIX_BUILD_PATH", checkout["build_path"])
+      |> maybe_put_env("PORT", to_string_or_nil(checkout["port"]))
 
     [cd: app_dir, stderr_to_stdout: true, env: env]
   end
 
+  defp graph_deps_path(app_dir) do
+    case graph_root_for(app_dir) do
+      nil -> nil
+      graph_root -> validate_shared_deps!(graph_root, Path.join(graph_root, "shared_deps"))
+    end
+  end
+
+  defp validate_manifest_deps_path!(app_dir, path) do
+    case graph_root_for(app_dir) do
+      nil -> raise "prepared fixture checkout is outside its graph root"
+      graph_root -> validate_shared_deps!(graph_root, path)
+    end
+  end
+
+  defp validate_shared_deps!(graph_root, path) do
+    expanded = Path.expand(path)
+    expected = Path.join(graph_root, "shared_deps")
+
+    if expanded != expected do
+      raise "prepared fixture shared deps path escaped its graph root"
+    end
+
+    case File.lstat(expanded) do
+      {:ok, %{type: :directory, mode: mode}} when Bitwise.band(mode, 0o222) == 0 -> expanded
+      _other -> raise "prepared fixture shared deps are missing, writable, or unsafe"
+    end
+  end
+
+  defp graph_root_for(app_dir) do
+    app_dir
+    |> Path.expand()
+    |> Path.dirname()
+    |> Stream.unfold(fn
+      "/" -> nil
+      current -> {current, Path.dirname(current)}
+    end)
+    |> Enum.find(&String.starts_with?(Path.basename(&1), "sigra_install_golden."))
+  end
+
   defp maybe_put_env(env, _key, nil), do: env
   defp maybe_put_env(env, key, value), do: [{key, value} | env]
+
+  defp to_string_or_nil(nil), do: nil
+  defp to_string_or_nil(value), do: to_string(value)
 
   defp read_checkout_manifest(app_dir) do
     path = Path.join(app_dir, @manifest_name)
@@ -912,6 +1182,7 @@ defmodule Sigra.Test.InstallFixture do
         "partition" => checkout.partition,
         "port" => checkout.port,
         "build_path" => checkout.build_path,
+        "deps_path" => checkout.deps_path,
         "fingerprint" => checkout.fingerprint,
         "copy_mode" => Atom.to_string(checkout.copy_mode)
       }) <> "\n",
@@ -931,6 +1202,7 @@ defmodule Sigra.Test.InstallFixture do
                {path, Base.encode16(digest, case: :lower)}
              end),
            "fingerprint" => variant.fingerprint,
+           "deps_path" => variant.deps_path,
            "copy_mode" => Atom.to_string(variant.copy_mode),
            "partition" => variant.partition,
            "port" => variant.port,
@@ -942,6 +1214,7 @@ defmodule Sigra.Test.InstallFixture do
       "schema_version" => "sigra.install-fixture/v1",
       "root" => graph.root,
       "base_path" => graph.base_path,
+      "deps_path" => graph.deps_path,
       "fingerprint" => graph.fingerprint,
       "variants" => variants,
       "timings" => Map.new(graph.timings, fn {key, value} -> {Atom.to_string(key), value} end),
@@ -965,7 +1238,7 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp validate_base_timings!(timings) do
-    expected = [:baseline_compile, :deps_get, :phx_new]
+    expected = [:baseline_compile, :checkout_copy, :deps_get, :phx_new]
 
     if Enum.sort(Map.keys(timings)) == expected and
          Enum.all?(timings, fn {_phase, duration} -> is_integer(duration) and duration > 0 end) do
@@ -1011,29 +1284,15 @@ defmodule Sigra.Test.InstallFixture do
       end
 
     if status != 0, do: raise("private fixture copy failed (status #{status}): #{output}")
-    make_directories_writable_no_follow!(target)
+    chmod_tree!(target, "u+w")
     materialize_or_omit_links!(source, target)
+    break_hardlinks!(target)
 
-    if tree_contains_symlink_or_hardlink?(target) do
-      raise "private fixture copy retained a symlink or hardlink"
+    if unsafe_path = first_unsafe_link(target) do
+      raise "private fixture copy retained a symlink or hardlink: #{unsafe_path}"
     end
 
     {mode, positive_elapsed(started)}
-  end
-
-  defp make_directories_writable_no_follow!(root) do
-    File.chmod!(root, 0o700)
-
-    root
-    |> File.ls!()
-    |> Enum.each(fn entry ->
-      path = Path.join(root, entry)
-
-      case File.lstat(path) do
-        {:ok, %{type: :directory}} -> make_directories_writable_no_follow!(path)
-        _ -> :ok
-      end
-    end)
   end
 
   defp materialize_or_omit_links!(source_root, target_root) do
@@ -1055,20 +1314,27 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp symlink_paths(root) do
-    case File.ls(root) do
-      {:ok, entries} ->
-        Enum.flat_map(entries, fn entry ->
-          path = Path.join(root, entry)
+    case System.cmd("find", [root, "-type", "l", "-print0"], stderr_to_stdout: true) do
+      {output, 0} -> String.split(output, <<0>>, trim: true)
+      {output, status} -> raise "fixture link scan failed (status #{status}): #{output}"
+    end
+  end
 
-          case File.lstat(path) do
-            {:ok, %{type: :symlink}} -> [path]
-            {:ok, %{type: :directory}} -> symlink_paths(path)
-            _ -> []
-          end
+  defp break_hardlinks!(root) do
+    case System.cmd("find", [root, "-type", "f", "-links", "+1", "-print0"],
+           stderr_to_stdout: true
+         ) do
+      {output, 0} ->
+        output
+        |> String.split(<<0>>, trim: true)
+        |> Enum.each(fn path ->
+          temp = "#{path}.private-copy-#{System.unique_integer([:positive])}"
+          File.cp!(path, temp)
+          File.rename!(temp, path)
         end)
 
-      {:error, _reason} ->
-        []
+      {output, status} ->
+        raise "fixture hardlink scan failed (status #{status}): #{output}"
     end
   end
 
@@ -1156,45 +1422,41 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp make_tree_read_only!(root) do
-    walk_tree(root, fn path, type ->
-      permissions = File.stat!(path).mode |> Bitwise.band(0o777) |> Bitwise.band(0o555)
-      required = if type == :directory, do: 0o500, else: 0o400
-      File.chmod!(path, Bitwise.bor(permissions, required))
-    end)
+    chmod_tree!(root, "a-w")
   end
 
   defp make_tree_writable!(root) do
-    if File.exists?(root) do
-      walk_tree(root, fn path, type ->
-        permissions = File.stat!(path).mode |> Bitwise.band(0o777)
-        required = if type == :directory, do: 0o700, else: 0o200
-        File.chmod!(path, Bitwise.bor(permissions, required))
-      end)
+    if File.exists?(root), do: chmod_tree!(root, "u+w")
+  end
+
+  defp chmod_tree!(root, mode) do
+    case System.cmd("chmod", ["-R", mode, root], stderr_to_stdout: true) do
+      {_output, 0} -> :ok
+      {output, status} -> raise "fixture chmod failed (status #{status}): #{output}"
     end
   end
 
-  defp patch_checkout_isolation!(checkout_path, partition, port) do
-    config_path = Path.join(checkout_path, "config/dev.exs")
+  defp configure_runtime_isolation!(app_path) do
+    config_path = Path.join(app_path, "config/dev.exs")
     content = File.read!(config_path)
-    database_partition = String.replace(partition, "-", "_")
 
     patched =
       Regex.replace(
-        ~r/database:\s*"sigra_install_golden_tmp_dev(?:_[^"]+)?"/,
+        ~r/database:\s*"sigra_install_golden_tmp_dev"/,
         content,
-        ~s(database: "sigra_install_golden_tmp_dev_#{database_partition}"),
+        ~S|database: "sigra_install_golden_tmp_dev_" <> System.get_env("MIX_TEST_PARTITION", "base")|,
         global: false
       )
 
     if patched == content do
-      raise "prepared fixture checkout dev database config is not in the expected shape"
+      raise "prepared fixture source dev database config is not in the expected shape"
     end
 
     replaced_port =
       Regex.replace(
         ~r/(http:\s*\[[^\]\r\n]*port:\s*)\d+/,
         patched,
-        "\\g{1}#{port}",
+        ~S|\g{1}String.to_integer(System.get_env("PORT", "4000"))|,
         global: false
       )
 
@@ -1203,7 +1465,7 @@ defmodule Sigra.Test.InstallFixture do
         Regex.replace(
           ~r/(http:\s*\[[^\]\r\n]*)(\])/,
           patched,
-          "\\g{1}, port: #{port}\\g{2}",
+          ~S|\g{1}, port: String.to_integer(System.get_env("PORT", "4000"))\g{2}|,
           global: false
         )
       else
@@ -1211,7 +1473,7 @@ defmodule Sigra.Test.InstallFixture do
       end
 
     if with_port == patched do
-      raise "prepared fixture checkout endpoint config is not in the expected shape"
+      raise "prepared fixture source endpoint config is not in the expected shape"
     end
 
     File.write!(config_path, with_port)
@@ -1226,28 +1488,31 @@ defmodule Sigra.Test.InstallFixture do
     "prepared_#{run_id}_#{token}"
   end
 
-  defp walk_tree(root, fun) do
-    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
-    |> Enum.sort_by(&String.length/1, :desc)
-    |> Enum.each(fn path ->
-      case File.lstat(path) do
-        {:ok, %{type: type}} when type in [:directory, :regular] -> fun.(path, type)
-        {:ok, _} -> :ok
-        {:error, :enoent} -> :ok
-        {:error, reason} -> raise File.Error, reason: reason, action: "stat", path: path
-      end
-    end)
+  defp tree_contains_symlink_or_hardlink?(root) do
+    not is_nil(first_unsafe_link(root))
   end
 
-  defp tree_contains_symlink_or_hardlink?(root) do
-    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
-    |> Enum.any?(fn path ->
-      case File.lstat(path) do
-        {:ok, %{type: :symlink}} -> true
-        {:ok, %{type: :regular, links: links}} -> links > 1
-        _ -> false
-      end
-    end)
+  defp first_unsafe_link(root) do
+    args = [
+      root,
+      "(",
+      "-type",
+      "l",
+      "-o",
+      "-type",
+      "f",
+      "-links",
+      "+1",
+      ")",
+      "-print",
+      "-quit"
+    ]
+
+    case System.cmd("find", args, stderr_to_stdout: true) do
+      {"", 0} -> nil
+      {path, 0} -> String.trim(path)
+      {output, status} -> raise "fixture integrity scan failed (status #{status}): #{output}"
+    end
   end
 
   defp inode_index(root) do
@@ -1266,6 +1531,51 @@ defmodule Sigra.Test.InstallFixture do
   defp reset_scenario_table! do
     if :ets.whereis(@scenario_table) != :undefined, do: :ets.delete(@scenario_table)
     :ets.new(@scenario_table, [:named_table, :public, :set, read_concurrency: true])
+  end
+
+  defp ensure_worker_pool! do
+    case Process.whereis(@worker_pool) do
+      nil ->
+        case WorkerPool.start_link(@worker_pool) do
+          {:ok, _pid} -> :ok
+          {:error, {:already_started, _pid}} -> :ok
+          {:error, reason} -> raise "prepared fixture worker pool failed: #{inspect(reason)}"
+        end
+
+      _pid ->
+        :ok
+    end
+  end
+
+  defp reset_port_table! do
+    if :ets.whereis(@port_table) != :undefined, do: :ets.delete(@port_table)
+    :ets.new(@port_table, [:named_table, :public, :set])
+  end
+
+  defp allocate_port!(graph_root, token) do
+    start = :erlang.phash2({graph_root, token}, 20_000)
+
+    Enum.find_value(0..19_999, fn step ->
+      port = 40_000 + rem(start + step, 20_000)
+
+      if :ets.insert_new(@port_table, {port}) do
+        if port_available?(port) do
+          port
+        else
+          :ets.delete(@port_table, port)
+          nil
+        end
+      else
+        nil
+      end
+    end) || raise "prepared fixture could not allocate a private endpoint port"
+  end
+
+  defp port_available?(port) do
+    case :gen_tcp.listen(port, [:binary, active: false, reuseaddr: false]) do
+      {:ok, socket} -> :gen_tcp.close(socket) == :ok
+      {:error, _reason} -> false
+    end
   end
 
   defp scenario_checkouts do
@@ -1315,6 +1625,8 @@ defmodule Sigra.Test.InstallFixture do
     else
       receive do
         {^ref, pid, scenario, {:ok, result}} ->
+          cancel_scenario_timer(active, pid)
+
           run_scenario_queue(
             ref,
             queued,
@@ -1324,9 +1636,14 @@ defmodule Sigra.Test.InstallFixture do
           )
 
         {^ref, pid, scenario, {:error, status}} ->
-          active |> Map.delete(pid) |> Map.keys() |> Enum.each(&Process.exit(&1, :kill))
+          cancel_scenario_workers(active, pid)
           mark_scenario_failed!(scenario)
           {:error, %{status: status, failed_path: Map.get(scenario, :path)}}
+
+        {^ref, :timeout, _pid, scenario} ->
+          cancel_scenario_workers(active, nil)
+          mark_scenario_failed!(scenario)
+          {:error, %{status: 124, failed_path: Map.get(scenario, :path)}}
       end
     end
   end
@@ -1340,7 +1657,7 @@ defmodule Sigra.Test.InstallFixture do
           spawn(fn ->
             result =
               try do
-                case runner.(scenario) do
+                case with_worker(fn -> runner.(scenario) end) do
                   :ok -> {:ok, :ok}
                   {:ok, value} -> {:ok, value}
                   {:error, status} when is_integer(status) and status != 0 -> {:error, status}
@@ -1355,7 +1672,12 @@ defmodule Sigra.Test.InstallFixture do
             send(parent, {ref, self(), scenario, result})
           end)
 
-        fill_scenario_workers(ref, rest, Map.put(active, pid, scenario), runner)
+        timeout_ms =
+          min(Map.get(scenario, :timeout_ms, @scenario_timeout_ms), @scenario_timeout_ms)
+
+        timer = Process.send_after(parent, {ref, :timeout, pid, scenario}, timeout_ms)
+        worker = %{scenario: scenario, timer: timer}
+        fill_scenario_workers(ref, rest, Map.put(active, pid, worker), runner)
 
       [] ->
         {[], active}
@@ -1363,6 +1685,34 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp fill_scenario_workers(_ref, queued, active, _runner), do: {queued, active}
+
+  defp parallel_map!(items, fun) do
+    items
+    |> Task.async_stream(fun,
+      max_concurrency: 2,
+      ordered: true,
+      timeout: @scenario_timeout_ms,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn
+      {:ok, value} -> value
+      {:exit, reason} -> raise "prepared fixture worker failed: #{inspect(reason)}"
+    end)
+  end
+
+  defp cancel_scenario_timer(active, pid) do
+    case Map.fetch(active, pid) do
+      {:ok, %{timer: timer}} -> Process.cancel_timer(timer)
+      :error -> :ok
+    end
+  end
+
+  defp cancel_scenario_workers(active, completed_pid) do
+    Enum.each(active, fn {pid, %{timer: timer}} ->
+      Process.cancel_timer(timer)
+      if pid != completed_pid, do: Process.exit(pid, :kill)
+    end)
+  end
 
   defp mark_scenario_failed!(%{path: path}) when is_binary(path) do
     case :ets.whereis(@scenario_table) do

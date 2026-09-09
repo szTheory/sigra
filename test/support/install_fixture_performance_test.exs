@@ -58,9 +58,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert first.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
     assert second.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
     assert first.port != second.port
+    allocated_ports = [first.port, second.port | Enum.map(graph.variants, &elem(&1, 1).port)]
+    assert length(allocated_ports) == MapSet.size(MapSet.new(allocated_ports))
+
+    Enum.each(allocated_ports, fn port ->
+      assert {:ok, socket} = :gen_tcp.listen(port, [:binary, active: false, reuseaddr: false])
+      assert :ok = :gen_tcp.close(socket)
+    end)
+
     assert first.build_path != second.build_path
     assert first.path != second.path
     assert first.copy_mode in [:reflink, :copy]
+    refute File.exists?(Path.join(first.path, "deps"))
+    refute File.exists?(Path.join(second.path, "deps"))
+    refute File.exists?(Path.join(graph.variants.default_installed.path, "deps"))
+    assert File.dir?(graph.deps_path)
+    assert Bitwise.band(File.stat!(graph.deps_path).mode, 0o222) == 0
 
     assert File.read!(Path.join(first.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
              "prepared phoenix asset"
@@ -87,18 +100,45 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
     first_dev = File.read!(Path.join(first.path, "config/dev.exs"))
     second_dev = File.read!(Path.join(second.path, "config/dev.exs"))
-    first_database_partition = String.replace(first.partition, "-", "_")
-    second_database_partition = String.replace(second.partition, "-", "_")
+    variant_dev = File.read!(Path.join(graph.variants.default_installed.path, "config/dev.exs"))
 
-    assert first_dev =~
-             ~s(database: "sigra_install_golden_tmp_dev_#{first_database_partition}")
+    assert first_dev =~ ~S|System.get_env("MIX_TEST_PARTITION"|
+    assert first_dev =~ ~S|System.get_env("PORT"|
+    assert first_dev == second_dev
+    assert first_dev == variant_dev
 
-    assert second_dev =~
-             ~s(database: "sigra_install_golden_tmp_dev_#{second_database_partition}")
+    normalized_dev = InstallFixture.normalize_content_for_golden("config/dev.exs", first_dev)
+    assert normalized_dev =~ ~s(database: "sigra_install_golden_tmp_dev")
+    refute normalized_dev =~ "System.get_env"
 
-    assert first_dev =~ "port: #{first.port}"
-    assert second_dev =~ "port: #{second.port}"
-    refute first_dev == second_dev
+    first_runtime_config = read_runtime_config(first)
+    second_runtime_config = read_runtime_config(second)
+
+    assert get_in(first_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmp.Repo,
+             :database
+           ]) == "sigra_install_golden_tmp_dev_#{first.partition}"
+
+    assert get_in(second_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmp.Repo,
+             :database
+           ]) == "sigra_install_golden_tmp_dev_#{second.partition}"
+
+    assert get_in(first_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmpWeb.Endpoint,
+             :http,
+             :port
+           ]) == first.port
+
+    assert get_in(second_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmpWeb.Endpoint,
+             :http,
+             :port
+           ]) == second.port
 
     File.write!(Path.join(first.path, "variant.txt"), "private mutation")
 
@@ -134,6 +174,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     mismatch = Path.join(root, "mismatch-build")
     File.mkdir_p!(source)
     File.write!(Path.join(source, "beam"), "compiled")
+    File.ln!(Path.join(source, "beam"), Path.join(source, "beam-hardlink"))
 
     fingerprint = InstallFixture.compatibility_fingerprint(lock: "lock", compiler: "compiler")
 
@@ -143,6 +184,9 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert mode in [:reflink, :copy]
     assert elapsed_ms >= 1
     assert File.read!(Path.join(compatible, "beam")) == "compiled"
+    assert File.read!(Path.join(compatible, "beam-hardlink")) == "compiled"
+    assert File.stat!(Path.join(compatible, "beam")).links == 1
+    assert File.stat!(Path.join(compatible, "beam-hardlink")).links == 1
 
     assert :incompatible =
              InstallFixture.seed_compatible_tree!(source, mismatch, fingerprint, "different")
@@ -204,6 +248,9 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert_receive {:command, "mix", ["compile"], options}
     assert {"MIX_TEST_PARTITION", checkout.partition} in options[:env]
     assert {"MIX_BUILD_PATH", checkout.build_path} in options[:env]
+    assert {"MIX_DEPS_PATH", graph.deps_path} in options[:env]
+
+    assert {"PORT", to_string(checkout.port)} in options[:env]
   end
 
   test "cleanup rejects arbitrary roots and removes only the validated graph root", %{root: root} do
@@ -217,7 +264,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
   test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
     graph = prepare_test_graph!(root)
-    receipt = InstallFixture.diagnostic_receipt(graph, 100)
+    receipt = InstallFixture.diagnostic_receipt(graph, 1_000)
 
     assert :ok = InstallFixture.validate_diagnostics!(receipt)
 
@@ -245,6 +292,35 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       %{receipt | raw_install_duration_ms: 1}
       |> InstallFixture.validate_diagnostics!()
     end
+  end
+
+  test "variant preparation uses the same exact two-worker ceiling", %{root: root} do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0} end)
+
+    graph =
+      InstallFixture.prepare_graph!(
+        root: root,
+        fingerprint: "test-fingerprint",
+        base_builder: fn base_path ->
+          File.mkdir_p!(base_path)
+          File.write!(Path.join(base_path, "base.txt"), "base")
+          :ok
+        end,
+        variant_builder: fn name, variant_path ->
+          Agent.update(counter, fn state ->
+            active = state.active + 1
+            %{active: active, maximum: max(state.maximum, active)}
+          end)
+
+          Process.sleep(20)
+          File.write!(Path.join(variant_path, "variant.txt"), Atom.to_string(name))
+          Agent.update(counter, &%{&1 | active: &1.active - 1})
+          {:ok, ""}
+        end
+      )
+
+    assert map_size(graph.variants) == 6
+    assert Agent.get(counter, & &1.maximum) == 2
   end
 
   test "scenario runner fixes concurrency at two and cancels on first failure" do
@@ -290,6 +366,67 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute_receive {:started, :never_started}
   end
 
+  test "scenario runner bounds a hung external command and cancels its peer" do
+    caller = self()
+
+    scenarios = [
+      %{id: :hung, path: "/tmp/hung", timeout_ms: 25},
+      %{id: :peer, path: "/tmp/peer", timeout_ms: 25},
+      %{id: :never_started, path: "/tmp/never", timeout_ms: 25}
+    ]
+
+    runner = fn scenario ->
+      send(caller, {:started, scenario.id})
+      Process.sleep(:infinity)
+    end
+
+    assert {:error, %{status: 124, failed_path: failed_path}} =
+             InstallFixture.run_scenarios(scenarios, runner)
+
+    assert failed_path in ["/tmp/hung", "/tmp/peer"]
+    assert_receive {:started, :hung}
+    assert_receive {:started, :peer}
+    refute_receive {:started, :never_started}
+  end
+
+  test "graph-global worker leases cap independent callers and recover after owner death" do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0} end)
+
+    1..4
+    |> Enum.map(fn _index ->
+      Task.async(fn ->
+        InstallFixture.with_worker(fn ->
+          Agent.update(counter, fn state ->
+            active = state.active + 1
+            %{active: active, maximum: max(state.maximum, active)}
+          end)
+
+          Process.sleep(20)
+          Agent.update(counter, &%{&1 | active: &1.active - 1})
+        end)
+      end)
+    end)
+    |> Task.await_many(1_000)
+
+    assert Agent.get(counter, & &1.maximum) == 2
+
+    caller = self()
+
+    holder =
+      spawn(fn ->
+        InstallFixture.with_worker(fn ->
+          send(caller, :holder_acquired)
+          Process.sleep(:infinity)
+        end)
+      end)
+
+    assert_receive :holder_acquired
+    Process.exit(holder, :kill)
+
+    spawn(fn -> InstallFixture.with_worker(fn -> send(caller, :replacement_acquired) end) end)
+    assert_receive :replacement_acquired, 500
+  end
+
   defp prepare_test_graph!(root) do
     InstallFixture.prepare_graph!(
       root: root,
@@ -297,6 +434,12 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       base_builder: fn base_path ->
         File.mkdir_p!(base_path)
         File.write!(Path.join(base_path, "base.txt"), "base")
+        shared_deps = Path.join([Path.dirname(Path.dirname(base_path)), "shared_deps"])
+        File.mkdir_p!(shared_deps)
+        dependency_source = Path.join(shared_deps, "source.ex")
+        File.write!(dependency_source, "dependency source")
+        File.chmod!(dependency_source, 0o400)
+        File.chmod!(shared_deps, 0o500)
         build_asset = Path.join(base_path, "_build/dev/lib/phoenix/priv/static/phoenix.js")
         File.mkdir_p!(Path.dirname(build_asset))
         File.write!(build_asset, "prepared phoenix asset")
@@ -336,4 +479,21 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       end
     )
   end
+
+  defp read_runtime_config(checkout) do
+    previous_partition = System.get_env("MIX_TEST_PARTITION")
+    previous_port = System.get_env("PORT")
+    System.put_env("MIX_TEST_PARTITION", checkout.partition)
+    System.put_env("PORT", to_string(checkout.port))
+
+    try do
+      Config.Reader.read!(Path.join(checkout.path, "config/dev.exs"))
+    after
+      restore_env("MIX_TEST_PARTITION", previous_partition)
+      restore_env("PORT", previous_port)
+    end
+  end
+
+  defp restore_env(key, nil), do: System.delete_env(key)
+  defp restore_env(key, value), do: System.put_env(key, value)
 end
