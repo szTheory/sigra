@@ -16,7 +16,6 @@ defmodule Sigra.UpgradeIntegrationTest do
   @documented_upgrade_command "mix sigra.upgrade --yes"
   @documented_backfill_command "mix sigra.upgrade --backfill-personal-orgs --yes"
 
-  @moduletag :upgrade
   @moduletag timeout: 600_000
   @moduletag :scaffold
 

@@ -127,6 +127,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert upgrade =~ "InstallFixture.checkout!(:no_org_installed, \"upgrade-zero-org\")"
     assert length(Regex.scan(~r/InstallFixture\.checkout!\(:default_installed/, upgrade)) == 2
     refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"
+    refute upgrade =~ "@moduletag :upgrade"
   end
 
   test "remediation receipt is closed, retry-free, source-bound, and preserves the strict prior miss" do
