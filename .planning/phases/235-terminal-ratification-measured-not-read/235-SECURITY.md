@@ -137,6 +137,7 @@ Category, component, and mitigation text remain canonical in each referenced `23
 |---|---:|---:|---:|---:|---|
 | 2026-09-09 | 71 | 64 | 7 | 0 | gsd-security-auditor |
 | 2026-09-09 | 76 | 68 | 8 | 0 | execute-phase ASVS-L1 short-circuit |
+| 2026-09-09 | 76 | 68 | 8 | 0 | verify-work ASVS-L1 short-circuit |
 
 ## Sign-Off
 
