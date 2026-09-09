@@ -16,7 +16,7 @@ affects: [phase-235-verification, FAST-01, GATE-05]
 actuals:
   tokens: 4983
   tasks: 2
-  commits: 4
+  commits: 5
 
 tech-stack:
   added: []
@@ -97,6 +97,8 @@ Each task was committed atomically:
 2. **Task 1 GREEN: Preserve literal terminal outcomes** - `30d465b8` (fix)
 3. **Task 2: Lock verifier path separation** - `59696e4b` (test)
 
+**Plan metadata:** `77284a49` (docs: initial summary and state update)
+
 ## Files Created/Modified
 
 - `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` - Shared literal-outcome semantic validator and isolated fixture argument path.
@@ -110,7 +112,19 @@ Each task was committed atomically:
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Corrected stale plan cursor after the GSD state helper advanced 1 to 2**
+- **Found during:** Final state update
+- **Issue:** `state.advance-plan` consumed a stale `Plan: 1 of 13` cursor even though disk contained 13 plan summaries, leaving STATE and ROADMAP progress contradictory.
+- **Fix:** Reconciled the human-readable state position and roadmap progress to the authoritative 13/13 plan count while retaining `In Progress` pending phase re-verification.
+- **Files modified:** `.planning/STATE.md`, `.planning/ROADMAP.md`
+- **Verification:** Summary count is 13, every Phase 235 plan checkbox is checked, and state records 67/67 milestone plans complete.
+
+---
+
+**Total deviations:** 1 auto-fixed (1 Rule 1 bug)
+**Impact on plan:** Metadata correction only; no evidence, product, CI, package, schema, or requirement content changed.
 
 ## Issues Encountered
 
