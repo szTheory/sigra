@@ -11,12 +11,12 @@ TRUSTED_ROOT="$PHASE_DIR/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT-TRUSTED-ROOT.
 REPO="szTheory/sigra"
 SIGNER_WORKFLOW="szTheory/sigra/.github/workflows/fast-01-gap-closure-evidence.yml"
 SOURCE_REF="refs/heads/main"
-SUBJECT_DIGEST="UNSET_PLAN_17_SUBJECT_DIGEST"
-TRUSTED_ROOT_DIGEST="UNSET_PLAN_17_TRUSTED_ROOT_DIGEST"
-EXPECTED_WORKFLOW_SHA="UNSET_PLAN_17_WORKFLOW_SHA"
+SUBJECT_DIGEST="a5f4f6d5335755fcac14e9de8827f47f2b04ad3a143df4b6f283ebfc20853594"
+TRUSTED_ROOT_DIGEST="65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c"
+EXPECTED_WORKFLOW_SHA="158aca14b11de13cbc5ab2fdea1bff790cc7ab29"
 EXPECTED_CUTOFF_SHA="54c33e904155a454255952666711c882afdd06e4"
 EXPECTED_CUTOFF="2026-08-03T21:37:08Z"
-EXPECTED_ENDPOINT="UNSET_PLAN_17_ENDPOINT"
+EXPECTED_ENDPOINT="2026-09-09T12:22:29Z"
 
 fail() { echo "verify-fast-01-source-complete-attestation-offline: FAIL: $*" >&2; exit 1; }
 
@@ -83,7 +83,7 @@ cp "$RECEIPT" "$work/receipt.json"; cp "$BUNDLE" "$work/bundle.jsonl"; cp "$TRUS
   (if $median.wall_seconds<720 then "pass" else "miss" end) as $verdict |
   .runs==$oracle_runs and .eligible_pr_run_count==$n and .verdict==$verdict and .status=="measured" and
   .statistics=={mode:"wall",ordering:"{wall_seconds, run_id}",mean_seconds:$mean,p50_seconds:$median.wall_seconds,max_seconds:$maximum.wall_seconds,
-    pass:([$oracle_runs[]|select(.conclusion=="success")]|length),fail:([$oracle_runs[]|select(.conclusion!="success")]|length)} and
+    outcomes:{success:([$oracle_runs[]|select(.conclusion=="success")]|length),failure:([$oracle_runs[]|select(.conclusion!="success")]|length)}} and
   .selected_poles=={median_run_id:$median.run_id,maximum_run_id:$maximum.run_id} and
   .instrument_receipt.output.runs==$oracle_runs and .instrument_receipt.output.statistics==.statistics and
   .instrument_receipt.output.selected_poles==.selected_poles and .instrument_receipt.output.verdict==$verdict and

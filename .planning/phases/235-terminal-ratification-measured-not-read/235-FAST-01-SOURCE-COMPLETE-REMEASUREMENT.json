@@ -1,0 +1,2003 @@
+{
+  "authority": "protected_main_attestation",
+  "binding_poles": null,
+  "cutoff": {
+    "sha": "54c33e904155a454255952666711c882afdd06e4",
+    "timestamp": "2026-08-03T21:37:08Z"
+  },
+  "diagnostics": [],
+  "eligible_pr_run_count": 52,
+  "endpoint_source": "protected_workflow_start",
+  "event": "pull_request",
+  "instrument_receipt": {
+    "command": "bash /home/runner/work/sigra/sigra/scripts/ci/ci-run-metrics.sh --source-pages /tmp/tmp.34Kph4U9Bk/source-collection.json --mode wall --event pull_request --since 2026-08-03T21:37:08Z --until 2026-09-09T12:22:29Z --threshold 720 --format json",
+    "mode": "wall",
+    "output": {
+      "diagnostics": [],
+      "eligible_pr_run_count": 52,
+      "event": "pull_request",
+      "mode": "wall",
+      "runs": [
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-08T00:13:02Z",
+          "event": "pull_request",
+          "run_id": 31229468400,
+          "updated_at": "2026-08-08T00:17:28Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31229468400",
+          "wall_seconds": 266
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T23:51:06Z",
+          "event": "pull_request",
+          "run_id": 30863650035,
+          "updated_at": "2026-08-03T23:58:01Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30863650035",
+          "wall_seconds": 415
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:52:45Z",
+          "event": "pull_request",
+          "run_id": 30856451464,
+          "updated_at": "2026-08-03T22:00:02Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30856451464",
+          "wall_seconds": 437
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T00:35:18Z",
+          "event": "pull_request",
+          "run_id": 34295647672,
+          "updated_at": "2026-09-09T00:42:35Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34295647672",
+          "wall_seconds": 437
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-02T00:58:23Z",
+          "event": "pull_request",
+          "run_id": 33577490792,
+          "updated_at": "2026-09-02T01:05:43Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33577490792",
+          "wall_seconds": 440
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-22T00:12:56Z",
+          "event": "pull_request",
+          "run_id": 32539590649,
+          "updated_at": "2026-08-22T00:20:21Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/32539590649",
+          "wall_seconds": 445
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-02T00:50:15Z",
+          "event": "pull_request",
+          "run_id": 33576949256,
+          "updated_at": "2026-09-02T00:57:42Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33576949256",
+          "wall_seconds": 447
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-09T01:13:24Z",
+          "event": "pull_request",
+          "run_id": 34298307012,
+          "updated_at": "2026-09-09T01:20:51Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34298307012",
+          "wall_seconds": 447
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-04T00:11:12Z",
+          "event": "pull_request",
+          "run_id": 30864764874,
+          "updated_at": "2026-08-04T00:18:40Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30864764874",
+          "wall_seconds": 448
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-29T00:13:37Z",
+          "event": "pull_request",
+          "run_id": 33222889507,
+          "updated_at": "2026-08-29T00:21:05Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33222889507",
+          "wall_seconds": 448
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-03T23:13:24Z",
+          "event": "pull_request",
+          "run_id": 30861510163,
+          "updated_at": "2026-08-03T23:20:53Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30861510163",
+          "wall_seconds": 449
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:12:50Z",
+          "event": "pull_request",
+          "run_id": 33932221120,
+          "updated_at": "2026-09-05T00:20:19Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932221120",
+          "wall_seconds": 449
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-04T00:18:56Z",
+          "event": "pull_request",
+          "run_id": 30865179281,
+          "updated_at": "2026-08-04T00:26:27Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30865179281",
+          "wall_seconds": 451
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T22:30:40Z",
+          "event": "pull_request",
+          "run_id": 33446541259,
+          "updated_at": "2026-08-31T22:38:11Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33446541259",
+          "wall_seconds": 451
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-03T23:03:07Z",
+          "event": "pull_request",
+          "run_id": 30860907078,
+          "updated_at": "2026-08-03T23:10:40Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30860907078",
+          "wall_seconds": 453
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T22:40:37Z",
+          "event": "pull_request",
+          "run_id": 33447308375,
+          "updated_at": "2026-08-31T22:48:11Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33447308375",
+          "wall_seconds": 454
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T23:26:49Z",
+          "event": "pull_request",
+          "run_id": 33450713732,
+          "updated_at": "2026-08-31T23:34:23Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33450713732",
+          "wall_seconds": 454
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-02T01:00:10Z",
+          "event": "pull_request",
+          "run_id": 33577612123,
+          "updated_at": "2026-09-02T01:07:45Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33577612123",
+          "wall_seconds": 455
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:13:00Z",
+          "event": "pull_request",
+          "run_id": 33932230349,
+          "updated_at": "2026-09-05T00:20:36Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932230349",
+          "wall_seconds": 456
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:22:37Z",
+          "event": "pull_request",
+          "run_id": 34298940669,
+          "updated_at": "2026-09-09T01:30:14Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34298940669",
+          "wall_seconds": 457
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-04T00:01:21Z",
+          "event": "pull_request",
+          "run_id": 30864216193,
+          "updated_at": "2026-08-04T00:09:01Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30864216193",
+          "wall_seconds": 460
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T23:26:36Z",
+          "event": "pull_request",
+          "run_id": 33450698063,
+          "updated_at": "2026-08-31T23:34:16Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33450698063",
+          "wall_seconds": 460
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-08T00:12:53Z",
+          "event": "pull_request",
+          "run_id": 31229461347,
+          "updated_at": "2026-08-08T00:20:34Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31229461347",
+          "wall_seconds": 461
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-13T16:27:19Z",
+          "event": "pull_request",
+          "run_id": 31720751021,
+          "updated_at": "2026-08-13T16:35:00Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31720751021",
+          "wall_seconds": 461
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T00:25:40Z",
+          "event": "pull_request",
+          "run_id": 34294963286,
+          "updated_at": "2026-09-09T00:33:23Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34294963286",
+          "wall_seconds": 463
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-31T23:04:33Z",
+          "event": "pull_request",
+          "run_id": 33449097115,
+          "updated_at": "2026-08-31T23:12:19Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33449097115",
+          "wall_seconds": 466
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-29T00:13:43Z",
+          "event": "pull_request",
+          "run_id": 33222894174,
+          "updated_at": "2026-08-29T00:21:32Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33222894174",
+          "wall_seconds": 469
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T23:15:43Z",
+          "event": "pull_request",
+          "run_id": 33449929596,
+          "updated_at": "2026-08-31T23:23:35Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33449929596",
+          "wall_seconds": 472
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-15T00:13:06Z",
+          "event": "pull_request",
+          "run_id": 31852924967,
+          "updated_at": "2026-08-15T00:21:03Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31852924967",
+          "wall_seconds": 477
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T23:42:53Z",
+          "event": "pull_request",
+          "run_id": 30863190921,
+          "updated_at": "2026-08-03T23:50:53Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30863190921",
+          "wall_seconds": 480
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-15T00:12:29Z",
+          "event": "pull_request",
+          "run_id": 31852894432,
+          "updated_at": "2026-08-15T00:20:29Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31852894432",
+          "wall_seconds": 480
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:24:27Z",
+          "event": "pull_request",
+          "run_id": 34299061682,
+          "updated_at": "2026-09-09T01:32:29Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34299061682",
+          "wall_seconds": 482
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T23:22:09Z",
+          "event": "pull_request",
+          "run_id": 30862006447,
+          "updated_at": "2026-08-03T23:30:15Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30862006447",
+          "wall_seconds": 486
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:39:24Z",
+          "event": "pull_request",
+          "run_id": 30855538113,
+          "updated_at": "2026-08-03T21:47:38Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855538113",
+          "wall_seconds": 494
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T22:40:41Z",
+          "event": "pull_request",
+          "run_id": 33447312812,
+          "updated_at": "2026-08-31T22:48:57Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33447312812",
+          "wall_seconds": 496
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:37:45Z",
+          "event": "pull_request",
+          "run_id": 30855429436,
+          "updated_at": "2026-08-03T21:46:07Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855429436",
+          "wall_seconds": 502
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:12:58Z",
+          "event": "pull_request",
+          "run_id": 33932228382,
+          "updated_at": "2026-09-05T00:21:21Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932228382",
+          "wall_seconds": 503
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:13:05Z",
+          "event": "pull_request",
+          "run_id": 33932235493,
+          "updated_at": "2026-09-05T00:21:28Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932235493",
+          "wall_seconds": 503
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:24:26Z",
+          "event": "pull_request",
+          "run_id": 34299060760,
+          "updated_at": "2026-09-09T01:33:03Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34299060760",
+          "wall_seconds": 517
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-04T00:09:28Z",
+          "event": "pull_request",
+          "run_id": 30864670637,
+          "updated_at": "2026-08-04T00:18:17Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30864670637",
+          "wall_seconds": 529
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:24:23Z",
+          "event": "pull_request",
+          "run_id": 34299057625,
+          "updated_at": "2026-09-09T01:33:15Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34299057625",
+          "wall_seconds": 532
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:39:22Z",
+          "event": "pull_request",
+          "run_id": 30855536410,
+          "updated_at": "2026-08-03T21:48:16Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855536410",
+          "wall_seconds": 534
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-31T22:38:59Z",
+          "event": "pull_request",
+          "run_id": 33447184205,
+          "updated_at": "2026-08-31T22:48:04Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33447184205",
+          "wall_seconds": 545
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-15T00:12:57Z",
+          "event": "pull_request",
+          "run_id": 31852917188,
+          "updated_at": "2026-08-15T00:22:07Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31852917188",
+          "wall_seconds": 550
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:39:24Z",
+          "event": "pull_request",
+          "run_id": 30855538906,
+          "updated_at": "2026-08-03T21:49:01Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855538906",
+          "wall_seconds": 577
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:13:26Z",
+          "event": "pull_request",
+          "run_id": 33932253678,
+          "updated_at": "2026-09-05T00:23:10Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932253678",
+          "wall_seconds": 584
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:24:27Z",
+          "event": "pull_request",
+          "run_id": 34299062309,
+          "updated_at": "2026-09-09T01:34:34Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34299062309",
+          "wall_seconds": 607
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-13T16:35:36Z",
+          "event": "pull_request",
+          "run_id": 31721460492,
+          "updated_at": "2026-08-13T16:46:00Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/31721460492",
+          "wall_seconds": 624
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-09-09T01:24:25Z",
+          "event": "pull_request",
+          "run_id": 34299060003,
+          "updated_at": "2026-09-09T01:34:57Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/34299060003",
+          "wall_seconds": 632
+        },
+        {
+          "conclusion": "failure",
+          "created_at": "2026-08-03T21:41:27Z",
+          "event": "pull_request",
+          "run_id": 30855678496,
+          "updated_at": "2026-08-03T21:52:23Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855678496",
+          "wall_seconds": 656
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-09-05T00:13:08Z",
+          "event": "pull_request",
+          "run_id": 33932238188,
+          "updated_at": "2026-09-05T00:24:21Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/33932238188",
+          "wall_seconds": 673
+        },
+        {
+          "conclusion": "success",
+          "created_at": "2026-08-03T21:39:27Z",
+          "event": "pull_request",
+          "run_id": 30855541236,
+          "updated_at": "2026-08-03T22:01:38Z",
+          "url": "https://github.com/szTheory/sigra/actions/runs/30855541236",
+          "wall_seconds": 1331
+        }
+      ],
+      "schema_version": "sigra.ci-run-metrics/source-pages-v1",
+      "selected_poles": {
+        "maximum_run_id": 30855541236,
+        "median_run_id": 33222894174
+      },
+      "since": "2026-08-03T21:37:08Z",
+      "statistics": {
+        "max_seconds": 1331,
+        "mean_seconds": 505.09615384615387,
+        "mode": "wall",
+        "ordering": "{wall_seconds, run_id}",
+        "outcomes": {
+          "failure": 16,
+          "success": 36
+        },
+        "p50_seconds": 469
+      },
+      "status": "measured",
+      "threshold_seconds": 720,
+      "until": "2026-09-09T12:22:29Z",
+      "verdict": "pass"
+    }
+  },
+  "rate_limit": {
+    "remaining": 5000,
+    "reset": "1788960149"
+  },
+  "repository": "szTheory/sigra",
+  "runs": [
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-08T00:13:02Z",
+      "event": "pull_request",
+      "run_id": 31229468400,
+      "updated_at": "2026-08-08T00:17:28Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31229468400",
+      "wall_seconds": 266
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T23:51:06Z",
+      "event": "pull_request",
+      "run_id": 30863650035,
+      "updated_at": "2026-08-03T23:58:01Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30863650035",
+      "wall_seconds": 415
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:52:45Z",
+      "event": "pull_request",
+      "run_id": 30856451464,
+      "updated_at": "2026-08-03T22:00:02Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30856451464",
+      "wall_seconds": 437
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T00:35:18Z",
+      "event": "pull_request",
+      "run_id": 34295647672,
+      "updated_at": "2026-09-09T00:42:35Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34295647672",
+      "wall_seconds": 437
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-02T00:58:23Z",
+      "event": "pull_request",
+      "run_id": 33577490792,
+      "updated_at": "2026-09-02T01:05:43Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33577490792",
+      "wall_seconds": 440
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-22T00:12:56Z",
+      "event": "pull_request",
+      "run_id": 32539590649,
+      "updated_at": "2026-08-22T00:20:21Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/32539590649",
+      "wall_seconds": 445
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-02T00:50:15Z",
+      "event": "pull_request",
+      "run_id": 33576949256,
+      "updated_at": "2026-09-02T00:57:42Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33576949256",
+      "wall_seconds": 447
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-09T01:13:24Z",
+      "event": "pull_request",
+      "run_id": 34298307012,
+      "updated_at": "2026-09-09T01:20:51Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34298307012",
+      "wall_seconds": 447
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-04T00:11:12Z",
+      "event": "pull_request",
+      "run_id": 30864764874,
+      "updated_at": "2026-08-04T00:18:40Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30864764874",
+      "wall_seconds": 448
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-29T00:13:37Z",
+      "event": "pull_request",
+      "run_id": 33222889507,
+      "updated_at": "2026-08-29T00:21:05Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33222889507",
+      "wall_seconds": 448
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-03T23:13:24Z",
+      "event": "pull_request",
+      "run_id": 30861510163,
+      "updated_at": "2026-08-03T23:20:53Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30861510163",
+      "wall_seconds": 449
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:12:50Z",
+      "event": "pull_request",
+      "run_id": 33932221120,
+      "updated_at": "2026-09-05T00:20:19Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932221120",
+      "wall_seconds": 449
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-04T00:18:56Z",
+      "event": "pull_request",
+      "run_id": 30865179281,
+      "updated_at": "2026-08-04T00:26:27Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30865179281",
+      "wall_seconds": 451
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T22:30:40Z",
+      "event": "pull_request",
+      "run_id": 33446541259,
+      "updated_at": "2026-08-31T22:38:11Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33446541259",
+      "wall_seconds": 451
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-03T23:03:07Z",
+      "event": "pull_request",
+      "run_id": 30860907078,
+      "updated_at": "2026-08-03T23:10:40Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30860907078",
+      "wall_seconds": 453
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T22:40:37Z",
+      "event": "pull_request",
+      "run_id": 33447308375,
+      "updated_at": "2026-08-31T22:48:11Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33447308375",
+      "wall_seconds": 454
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T23:26:49Z",
+      "event": "pull_request",
+      "run_id": 33450713732,
+      "updated_at": "2026-08-31T23:34:23Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33450713732",
+      "wall_seconds": 454
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-02T01:00:10Z",
+      "event": "pull_request",
+      "run_id": 33577612123,
+      "updated_at": "2026-09-02T01:07:45Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33577612123",
+      "wall_seconds": 455
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:13:00Z",
+      "event": "pull_request",
+      "run_id": 33932230349,
+      "updated_at": "2026-09-05T00:20:36Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932230349",
+      "wall_seconds": 456
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:22:37Z",
+      "event": "pull_request",
+      "run_id": 34298940669,
+      "updated_at": "2026-09-09T01:30:14Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34298940669",
+      "wall_seconds": 457
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-04T00:01:21Z",
+      "event": "pull_request",
+      "run_id": 30864216193,
+      "updated_at": "2026-08-04T00:09:01Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30864216193",
+      "wall_seconds": 460
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T23:26:36Z",
+      "event": "pull_request",
+      "run_id": 33450698063,
+      "updated_at": "2026-08-31T23:34:16Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33450698063",
+      "wall_seconds": 460
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-08T00:12:53Z",
+      "event": "pull_request",
+      "run_id": 31229461347,
+      "updated_at": "2026-08-08T00:20:34Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31229461347",
+      "wall_seconds": 461
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-13T16:27:19Z",
+      "event": "pull_request",
+      "run_id": 31720751021,
+      "updated_at": "2026-08-13T16:35:00Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31720751021",
+      "wall_seconds": 461
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T00:25:40Z",
+      "event": "pull_request",
+      "run_id": 34294963286,
+      "updated_at": "2026-09-09T00:33:23Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34294963286",
+      "wall_seconds": 463
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-31T23:04:33Z",
+      "event": "pull_request",
+      "run_id": 33449097115,
+      "updated_at": "2026-08-31T23:12:19Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33449097115",
+      "wall_seconds": 466
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-29T00:13:43Z",
+      "event": "pull_request",
+      "run_id": 33222894174,
+      "updated_at": "2026-08-29T00:21:32Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33222894174",
+      "wall_seconds": 469
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T23:15:43Z",
+      "event": "pull_request",
+      "run_id": 33449929596,
+      "updated_at": "2026-08-31T23:23:35Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33449929596",
+      "wall_seconds": 472
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-15T00:13:06Z",
+      "event": "pull_request",
+      "run_id": 31852924967,
+      "updated_at": "2026-08-15T00:21:03Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31852924967",
+      "wall_seconds": 477
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T23:42:53Z",
+      "event": "pull_request",
+      "run_id": 30863190921,
+      "updated_at": "2026-08-03T23:50:53Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30863190921",
+      "wall_seconds": 480
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-15T00:12:29Z",
+      "event": "pull_request",
+      "run_id": 31852894432,
+      "updated_at": "2026-08-15T00:20:29Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31852894432",
+      "wall_seconds": 480
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:24:27Z",
+      "event": "pull_request",
+      "run_id": 34299061682,
+      "updated_at": "2026-09-09T01:32:29Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34299061682",
+      "wall_seconds": 482
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T23:22:09Z",
+      "event": "pull_request",
+      "run_id": 30862006447,
+      "updated_at": "2026-08-03T23:30:15Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30862006447",
+      "wall_seconds": 486
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:39:24Z",
+      "event": "pull_request",
+      "run_id": 30855538113,
+      "updated_at": "2026-08-03T21:47:38Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855538113",
+      "wall_seconds": 494
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T22:40:41Z",
+      "event": "pull_request",
+      "run_id": 33447312812,
+      "updated_at": "2026-08-31T22:48:57Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33447312812",
+      "wall_seconds": 496
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:37:45Z",
+      "event": "pull_request",
+      "run_id": 30855429436,
+      "updated_at": "2026-08-03T21:46:07Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855429436",
+      "wall_seconds": 502
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:12:58Z",
+      "event": "pull_request",
+      "run_id": 33932228382,
+      "updated_at": "2026-09-05T00:21:21Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932228382",
+      "wall_seconds": 503
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:13:05Z",
+      "event": "pull_request",
+      "run_id": 33932235493,
+      "updated_at": "2026-09-05T00:21:28Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932235493",
+      "wall_seconds": 503
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:24:26Z",
+      "event": "pull_request",
+      "run_id": 34299060760,
+      "updated_at": "2026-09-09T01:33:03Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34299060760",
+      "wall_seconds": 517
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-04T00:09:28Z",
+      "event": "pull_request",
+      "run_id": 30864670637,
+      "updated_at": "2026-08-04T00:18:17Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30864670637",
+      "wall_seconds": 529
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:24:23Z",
+      "event": "pull_request",
+      "run_id": 34299057625,
+      "updated_at": "2026-09-09T01:33:15Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34299057625",
+      "wall_seconds": 532
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:39:22Z",
+      "event": "pull_request",
+      "run_id": 30855536410,
+      "updated_at": "2026-08-03T21:48:16Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855536410",
+      "wall_seconds": 534
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-31T22:38:59Z",
+      "event": "pull_request",
+      "run_id": 33447184205,
+      "updated_at": "2026-08-31T22:48:04Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33447184205",
+      "wall_seconds": 545
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-15T00:12:57Z",
+      "event": "pull_request",
+      "run_id": 31852917188,
+      "updated_at": "2026-08-15T00:22:07Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31852917188",
+      "wall_seconds": 550
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:39:24Z",
+      "event": "pull_request",
+      "run_id": 30855538906,
+      "updated_at": "2026-08-03T21:49:01Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855538906",
+      "wall_seconds": 577
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:13:26Z",
+      "event": "pull_request",
+      "run_id": 33932253678,
+      "updated_at": "2026-09-05T00:23:10Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932253678",
+      "wall_seconds": 584
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:24:27Z",
+      "event": "pull_request",
+      "run_id": 34299062309,
+      "updated_at": "2026-09-09T01:34:34Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34299062309",
+      "wall_seconds": 607
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-13T16:35:36Z",
+      "event": "pull_request",
+      "run_id": 31721460492,
+      "updated_at": "2026-08-13T16:46:00Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/31721460492",
+      "wall_seconds": 624
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-09-09T01:24:25Z",
+      "event": "pull_request",
+      "run_id": 34299060003,
+      "updated_at": "2026-09-09T01:34:57Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/34299060003",
+      "wall_seconds": 632
+    },
+    {
+      "conclusion": "failure",
+      "created_at": "2026-08-03T21:41:27Z",
+      "event": "pull_request",
+      "run_id": 30855678496,
+      "updated_at": "2026-08-03T21:52:23Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855678496",
+      "wall_seconds": 656
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-09-05T00:13:08Z",
+      "event": "pull_request",
+      "run_id": 33932238188,
+      "updated_at": "2026-09-05T00:24:21Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/33932238188",
+      "wall_seconds": 673
+    },
+    {
+      "conclusion": "success",
+      "created_at": "2026-08-03T21:39:27Z",
+      "event": "pull_request",
+      "run_id": 30855541236,
+      "updated_at": "2026-08-03T22:01:38Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/30855541236",
+      "wall_seconds": 1331
+    }
+  ],
+  "schema_version": "sigra.fast-01-source-complete-remeasurement/1",
+  "selected_poles": {
+    "maximum_run_id": 30855541236,
+    "median_run_id": 33222894174
+  },
+  "source_collection": {
+    "exhausted": true,
+    "pages": [
+      {
+        "page": 1,
+        "returned_count": 100,
+        "runs": [
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-09T04:36:11Z",
+            "event": "schedule",
+            "run_id": 34311607071,
+            "updated_at": "2026-09-09T04:58:14Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34311607071"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:24:27Z",
+            "event": "pull_request",
+            "run_id": 34299061682,
+            "updated_at": "2026-09-09T01:32:29Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299061682"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:24:27Z",
+            "event": "pull_request",
+            "run_id": 34299062309,
+            "updated_at": "2026-09-09T01:34:34Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299062309"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:24:26Z",
+            "event": "pull_request",
+            "run_id": 34299060760,
+            "updated_at": "2026-09-09T01:33:03Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299060760"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:24:25Z",
+            "event": "pull_request",
+            "run_id": 34299060003,
+            "updated_at": "2026-09-09T01:34:57Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299060003"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:24:23Z",
+            "event": "pull_request",
+            "run_id": 34299057625,
+            "updated_at": "2026-09-09T01:33:15Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299057625"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T01:22:37Z",
+            "event": "pull_request",
+            "run_id": 34298940669,
+            "updated_at": "2026-09-09T01:30:14Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34298940669"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-09T01:22:15Z",
+            "event": "push",
+            "run_id": 34298916233,
+            "updated_at": "2026-09-09T01:45:46Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34298916233"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-09T01:13:24Z",
+            "event": "pull_request",
+            "run_id": 34298307012,
+            "updated_at": "2026-09-09T01:20:51Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34298307012"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T00:35:18Z",
+            "event": "pull_request",
+            "run_id": 34295647672,
+            "updated_at": "2026-09-09T00:42:35Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34295647672"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-09T00:25:40Z",
+            "event": "pull_request",
+            "run_id": 34294963286,
+            "updated_at": "2026-09-09T00:33:23Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34294963286"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-08T04:35:47Z",
+            "event": "schedule",
+            "run_id": 34187549184,
+            "updated_at": "2026-09-08T05:00:07Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34187549184"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-07T04:38:22Z",
+            "event": "schedule",
+            "run_id": 34083846648,
+            "updated_at": "2026-09-07T05:02:32Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34083846648"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-09-06T04:35:00Z",
+            "event": "schedule",
+            "run_id": 34011863871,
+            "updated_at": "2026-09-06T04:59:32Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/34011863871"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T04:34:42Z",
+            "event": "schedule",
+            "run_id": 33944931454,
+            "updated_at": "2026-09-05T04:56:49Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33944931454"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:13:26Z",
+            "event": "pull_request",
+            "run_id": 33932253678,
+            "updated_at": "2026-09-05T00:23:10Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932253678"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:13:08Z",
+            "event": "pull_request",
+            "run_id": 33932238188,
+            "updated_at": "2026-09-05T00:24:21Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932238188"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:13:05Z",
+            "event": "pull_request",
+            "run_id": 33932235493,
+            "updated_at": "2026-09-05T00:21:28Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932235493"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:13:00Z",
+            "event": "pull_request",
+            "run_id": 33932230349,
+            "updated_at": "2026-09-05T00:20:36Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932230349"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:12:58Z",
+            "event": "pull_request",
+            "run_id": 33932228382,
+            "updated_at": "2026-09-05T00:21:21Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932228382"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-05T00:12:50Z",
+            "event": "pull_request",
+            "run_id": 33932221120,
+            "updated_at": "2026-09-05T00:20:19Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33932221120"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-04T04:36:16Z",
+            "event": "schedule",
+            "run_id": 33837422281,
+            "updated_at": "2026-09-04T05:06:34Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33837422281"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-03T05:26:27Z",
+            "event": "schedule",
+            "run_id": 33718854631,
+            "updated_at": "2026-09-03T05:46:19Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33718854631"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-02T04:37:34Z",
+            "event": "schedule",
+            "run_id": 33591518559,
+            "updated_at": "2026-09-02T05:01:46Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33591518559"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-02T01:00:10Z",
+            "event": "pull_request",
+            "run_id": 33577612123,
+            "updated_at": "2026-09-02T01:07:45Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33577612123"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-02T00:58:23Z",
+            "event": "pull_request",
+            "run_id": 33577490792,
+            "updated_at": "2026-09-02T01:05:43Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33577490792"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-02T00:57:55Z",
+            "event": "push",
+            "run_id": 33577459757,
+            "updated_at": "2026-09-02T01:23:31Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33577459757"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-02T00:50:15Z",
+            "event": "pull_request",
+            "run_id": 33576949256,
+            "updated_at": "2026-09-02T00:57:42Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33576949256"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-09-01T04:36:14Z",
+            "event": "schedule",
+            "run_id": 33470456498,
+            "updated_at": "2026-09-01T04:59:59Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33470456498"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T23:26:49Z",
+            "event": "pull_request",
+            "run_id": 33450713732,
+            "updated_at": "2026-08-31T23:34:23Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33450713732"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T23:26:36Z",
+            "event": "pull_request",
+            "run_id": 33450698063,
+            "updated_at": "2026-08-31T23:34:16Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33450698063"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T23:24:32Z",
+            "event": "push",
+            "run_id": 33450549936,
+            "updated_at": "2026-08-31T23:47:47Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33450549936"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T23:15:43Z",
+            "event": "pull_request",
+            "run_id": 33449929596,
+            "updated_at": "2026-08-31T23:23:35Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33449929596"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-31T23:04:33Z",
+            "event": "pull_request",
+            "run_id": 33449097115,
+            "updated_at": "2026-08-31T23:12:19Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33449097115"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T22:40:41Z",
+            "event": "pull_request",
+            "run_id": 33447312812,
+            "updated_at": "2026-08-31T22:48:57Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33447312812"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T22:40:37Z",
+            "event": "pull_request",
+            "run_id": 33447308375,
+            "updated_at": "2026-08-31T22:48:11Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33447308375"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T22:38:59Z",
+            "event": "pull_request",
+            "run_id": 33447184205,
+            "updated_at": "2026-08-31T22:48:04Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33447184205"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T22:38:33Z",
+            "event": "push",
+            "run_id": 33447150476,
+            "updated_at": "2026-08-31T23:03:10Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33447150476"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T22:30:40Z",
+            "event": "pull_request",
+            "run_id": 33446541259,
+            "updated_at": "2026-08-31T22:38:11Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33446541259"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-31T04:38:26Z",
+            "event": "schedule",
+            "run_id": 33357796203,
+            "updated_at": "2026-08-31T05:01:37Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33357796203"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-30T04:35:04Z",
+            "event": "schedule",
+            "run_id": 33292814084,
+            "updated_at": "2026-08-30T04:57:41Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33292814084"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-29T04:33:58Z",
+            "event": "schedule",
+            "run_id": 33234124974,
+            "updated_at": "2026-08-29T04:56:43Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33234124974"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-29T00:13:43Z",
+            "event": "pull_request",
+            "run_id": 33222894174,
+            "updated_at": "2026-08-29T00:21:32Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33222894174"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-29T00:13:37Z",
+            "event": "pull_request",
+            "run_id": 33222889507,
+            "updated_at": "2026-08-29T00:21:05Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33222889507"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:56:14Z",
+            "event": "workflow_dispatch",
+            "run_id": 33187547160,
+            "updated_at": "2026-08-28T16:08:00Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33187547160"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:52:57Z",
+            "event": "workflow_dispatch",
+            "run_id": 33187292507,
+            "updated_at": "2026-08-28T15:55:24Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33187292507"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:49:08Z",
+            "event": "workflow_dispatch",
+            "run_id": 33186989686,
+            "updated_at": "2026-08-28T15:51:37Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33186989686"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:45:47Z",
+            "event": "workflow_dispatch",
+            "run_id": 33186726767,
+            "updated_at": "2026-08-28T15:48:05Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33186726767"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:40:58Z",
+            "event": "workflow_dispatch",
+            "run_id": 33186339724,
+            "updated_at": "2026-08-28T15:43:10Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33186339724"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:37:34Z",
+            "event": "workflow_dispatch",
+            "run_id": 33186061732,
+            "updated_at": "2026-08-28T15:39:15Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33186061732"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-28T15:34:28Z",
+            "event": "workflow_dispatch",
+            "run_id": 33185803049,
+            "updated_at": "2026-08-28T15:36:58Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33185803049"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-28T06:59:31Z",
+            "event": "schedule",
+            "run_id": 33149821594,
+            "updated_at": "2026-08-28T07:23:33Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33149821594"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-27T06:44:56Z",
+            "event": "schedule",
+            "run_id": 33046996672,
+            "updated_at": "2026-08-27T07:08:48Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/33046996672"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-26T04:43:32Z",
+            "event": "schedule",
+            "run_id": 32931289828,
+            "updated_at": "2026-08-26T05:07:33Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32931289828"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-25T04:43:28Z",
+            "event": "schedule",
+            "run_id": 32810043255,
+            "updated_at": "2026-08-25T05:06:58Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32810043255"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-24T04:44:24Z",
+            "event": "schedule",
+            "run_id": 32691126547,
+            "updated_at": "2026-08-24T05:07:32Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32691126547"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-23T04:43:22Z",
+            "event": "schedule",
+            "run_id": 32618559293,
+            "updated_at": "2026-08-23T05:07:01Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32618559293"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-22T04:41:57Z",
+            "event": "schedule",
+            "run_id": 32552379178,
+            "updated_at": "2026-08-22T05:06:08Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32552379178"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-22T00:12:56Z",
+            "event": "pull_request",
+            "run_id": 32539590649,
+            "updated_at": "2026-08-22T00:20:21Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32539590649"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-21T04:43:41Z",
+            "event": "schedule",
+            "run_id": 32447951110,
+            "updated_at": "2026-08-21T05:07:25Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32447951110"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-20T04:43:22Z",
+            "event": "schedule",
+            "run_id": 32332911671,
+            "updated_at": "2026-08-20T05:08:53Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32332911671"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-19T04:42:59Z",
+            "event": "schedule",
+            "run_id": 32216757284,
+            "updated_at": "2026-08-19T05:23:24Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32216757284"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-18T04:42:56Z",
+            "event": "schedule",
+            "run_id": 32100146149,
+            "updated_at": "2026-08-18T05:07:10Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/32100146149"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-17T04:43:56Z",
+            "event": "schedule",
+            "run_id": 31995478788,
+            "updated_at": "2026-08-17T05:08:24Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31995478788"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-16T04:42:30Z",
+            "event": "schedule",
+            "run_id": 31927264328,
+            "updated_at": "2026-08-16T05:01:54Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31927264328"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-15T04:40:45Z",
+            "event": "schedule",
+            "run_id": 31865021688,
+            "updated_at": "2026-08-15T05:05:03Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31865021688"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-15T00:13:06Z",
+            "event": "pull_request",
+            "run_id": 31852924967,
+            "updated_at": "2026-08-15T00:21:03Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31852924967"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-15T00:12:57Z",
+            "event": "pull_request",
+            "run_id": 31852917188,
+            "updated_at": "2026-08-15T00:22:07Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31852917188"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-15T00:12:29Z",
+            "event": "pull_request",
+            "run_id": 31852894432,
+            "updated_at": "2026-08-15T00:20:29Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31852894432"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-14T05:05:33Z",
+            "event": "schedule",
+            "run_id": 31771904790,
+            "updated_at": "2026-08-14T05:28:59Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31771904790"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-13T16:35:36Z",
+            "event": "pull_request",
+            "run_id": 31721460492,
+            "updated_at": "2026-08-13T16:46:00Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31721460492"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-13T16:34:56Z",
+            "event": "push",
+            "run_id": 31721402087,
+            "updated_at": "2026-08-13T17:00:37Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31721402087"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-13T16:27:19Z",
+            "event": "pull_request",
+            "run_id": 31720751021,
+            "updated_at": "2026-08-13T16:35:00Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31720751021"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-13T05:06:17Z",
+            "event": "schedule",
+            "run_id": 31669171571,
+            "updated_at": "2026-08-13T05:30:55Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31669171571"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-12T05:05:36Z",
+            "event": "schedule",
+            "run_id": 31565391646,
+            "updated_at": "2026-08-12T05:30:21Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31565391646"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-11T04:52:43Z",
+            "event": "schedule",
+            "run_id": 31459855798,
+            "updated_at": "2026-08-11T05:15:47Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31459855798"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-10T05:01:28Z",
+            "event": "schedule",
+            "run_id": 31357303010,
+            "updated_at": "2026-08-10T05:25:28Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31357303010"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-09T04:50:32Z",
+            "event": "schedule",
+            "run_id": 31295412800,
+            "updated_at": "2026-08-09T05:14:24Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31295412800"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-08T04:46:14Z",
+            "event": "schedule",
+            "run_id": 31240206132,
+            "updated_at": "2026-08-08T05:10:02Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31240206132"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-08T00:13:02Z",
+            "event": "pull_request",
+            "run_id": 31229468400,
+            "updated_at": "2026-08-08T00:17:28Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31229468400"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-08T00:12:53Z",
+            "event": "pull_request",
+            "run_id": 31229461347,
+            "updated_at": "2026-08-08T00:20:34Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31229461347"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-07T05:05:08Z",
+            "event": "schedule",
+            "run_id": 31149435264,
+            "updated_at": "2026-08-07T05:30:12Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31149435264"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-06T05:30:26Z",
+            "event": "schedule",
+            "run_id": 31074321351,
+            "updated_at": "2026-08-06T05:54:26Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31074321351"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T20:15:30Z",
+            "event": "workflow_dispatch",
+            "run_id": 31043224661,
+            "updated_at": "2026-08-05T20:36:32Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31043224661"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T18:14:14Z",
+            "event": "workflow_dispatch",
+            "run_id": 31033775283,
+            "updated_at": "2026-08-05T18:35:53Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31033775283"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T17:34:18Z",
+            "event": "workflow_dispatch",
+            "run_id": 31030638506,
+            "updated_at": "2026-08-05T17:59:21Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31030638506"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T17:25:02Z",
+            "event": "workflow_dispatch",
+            "run_id": 31029916206,
+            "updated_at": "2026-08-05T17:49:06Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31029916206"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T17:20:51Z",
+            "event": "workflow_dispatch",
+            "run_id": 31029589890,
+            "updated_at": "2026-08-05T17:44:48Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31029589890"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T17:16:55Z",
+            "event": "workflow_dispatch",
+            "run_id": 31029284571,
+            "updated_at": "2026-08-05T17:41:31Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31029284571"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T17:05:00Z",
+            "event": "workflow_dispatch",
+            "run_id": 31028341206,
+            "updated_at": "2026-08-05T17:28:11Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31028341206"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T16:34:02Z",
+            "event": "workflow_dispatch",
+            "run_id": 31025885187,
+            "updated_at": "2026-08-05T16:54:31Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31025885187"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T15:42:01Z",
+            "event": "workflow_dispatch",
+            "run_id": 31021611104,
+            "updated_at": "2026-08-05T16:05:44Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31021611104"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T15:17:02Z",
+            "event": "workflow_dispatch",
+            "run_id": 31019501361,
+            "updated_at": "2026-08-05T15:40:50Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/31019501361"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-05T05:29:44Z",
+            "event": "schedule",
+            "run_id": 30978273088,
+            "updated_at": "2026-08-05T05:53:43Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30978273088"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T02:33:27Z",
+            "event": "workflow_dispatch",
+            "run_id": 30969700524,
+            "updated_at": "2026-08-05T02:37:56Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30969700524"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T02:18:31Z",
+            "event": "workflow_dispatch",
+            "run_id": 30968974835,
+            "updated_at": "2026-08-05T02:23:17Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30968974835"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-05T02:08:12Z",
+            "event": "workflow_dispatch",
+            "run_id": 30968468626,
+            "updated_at": "2026-08-05T02:12:29Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30968468626"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-04T05:29:49Z",
+            "event": "schedule",
+            "run_id": 30880859834,
+            "updated_at": "2026-08-04T05:51:55Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30880859834"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-04T00:18:56Z",
+            "event": "pull_request",
+            "run_id": 30865179281,
+            "updated_at": "2026-08-04T00:26:27Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30865179281"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-04T00:18:31Z",
+            "event": "push",
+            "run_id": 30865158021,
+            "updated_at": "2026-08-04T00:42:17Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30865158021"
+          }
+        ]
+      },
+      {
+        "page": 2,
+        "returned_count": 20,
+        "runs": [
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-04T00:11:12Z",
+            "event": "pull_request",
+            "run_id": 30864764874,
+            "updated_at": "2026-08-04T00:18:40Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30864764874"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-04T00:09:28Z",
+            "event": "pull_request",
+            "run_id": 30864670637,
+            "updated_at": "2026-08-04T00:18:17Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30864670637"
+          },
+          {
+            "conclusion": "cancelled",
+            "created_at": "2026-08-04T00:08:56Z",
+            "event": "push",
+            "run_id": 30864641915,
+            "updated_at": "2026-08-04T00:44:40Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30864641915"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-04T00:01:21Z",
+            "event": "pull_request",
+            "run_id": 30864216193,
+            "updated_at": "2026-08-04T00:09:01Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30864216193"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T23:51:06Z",
+            "event": "pull_request",
+            "run_id": 30863650035,
+            "updated_at": "2026-08-03T23:58:01Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30863650035"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T23:50:40Z",
+            "event": "push",
+            "run_id": 30863626610,
+            "updated_at": "2026-08-04T00:25:28Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30863626610"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T23:42:53Z",
+            "event": "pull_request",
+            "run_id": 30863190921,
+            "updated_at": "2026-08-03T23:50:53Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30863190921"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T23:30:08Z",
+            "event": "push",
+            "run_id": 30862471506,
+            "updated_at": "2026-08-03T23:53:00Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30862471506"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T23:22:09Z",
+            "event": "pull_request",
+            "run_id": 30862006447,
+            "updated_at": "2026-08-03T23:30:15Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30862006447"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-03T23:13:24Z",
+            "event": "pull_request",
+            "run_id": 30861510163,
+            "updated_at": "2026-08-03T23:20:53Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30861510163"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-03T23:03:07Z",
+            "event": "pull_request",
+            "run_id": 30860907078,
+            "updated_at": "2026-08-03T23:10:40Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30860907078"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T22:00:00Z",
+            "event": "push",
+            "run_id": 30856933573,
+            "updated_at": "2026-08-03T22:20:12Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30856933573"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:52:45Z",
+            "event": "pull_request",
+            "run_id": 30856451464,
+            "updated_at": "2026-08-03T22:00:02Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30856451464"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-03T21:41:27Z",
+            "event": "pull_request",
+            "run_id": 30855678496,
+            "updated_at": "2026-08-03T21:52:23Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855678496"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:39:27Z",
+            "event": "pull_request",
+            "run_id": 30855541236,
+            "updated_at": "2026-08-03T22:01:38Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855541236"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:39:24Z",
+            "event": "pull_request",
+            "run_id": 30855538113,
+            "updated_at": "2026-08-03T21:47:38Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855538113"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:39:24Z",
+            "event": "pull_request",
+            "run_id": 30855538906,
+            "updated_at": "2026-08-03T21:49:01Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855538906"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:39:22Z",
+            "event": "pull_request",
+            "run_id": 30855536410,
+            "updated_at": "2026-08-03T21:48:16Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855536410"
+          },
+          {
+            "conclusion": "success",
+            "created_at": "2026-08-03T21:37:45Z",
+            "event": "pull_request",
+            "run_id": 30855429436,
+            "updated_at": "2026-08-03T21:46:07Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855429436"
+          },
+          {
+            "conclusion": "failure",
+            "created_at": "2026-08-03T21:37:11Z",
+            "event": "push",
+            "run_id": 30855390683,
+            "updated_at": "2026-08-03T21:58:17Z",
+            "url": "https://github.com/szTheory/sigra/actions/runs/30855390683"
+          }
+        ]
+      },
+      {
+        "page": 3,
+        "returned_count": 0,
+        "runs": []
+      }
+    ],
+    "query": {
+      "created": "2026-08-03T21:37:08Z..2026-09-09T12:22:29Z",
+      "per_page": 100
+    },
+    "requested_pages": [
+      1,
+      2,
+      3
+    ],
+    "resource": "GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",
+    "terminal_page": 3
+  },
+  "statistics": {
+    "max_seconds": 1331,
+    "mean_seconds": 505.09615384615387,
+    "mode": "wall",
+    "ordering": "{wall_seconds, run_id}",
+    "outcomes": {
+      "failure": 16,
+      "success": 36
+    },
+    "p50_seconds": 469
+  },
+  "status": "measured",
+  "verdict": "pass",
+  "window": {
+    "endpoint": "2026-09-09T12:22:29Z"
+  },
+  "workflow": "ci.yml"
+}
