@@ -7,6 +7,8 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @correlation ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
   @requirements ".planning/REQUIREMENTS.md"
   @residual ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
+  @seed ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md"
+  @milestone_arc ".planning/MILESTONE-ARC.md"
 
   @source_complete_fragments [
     "2026-08-03T21:37:08Z",
@@ -106,6 +108,36 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
     assert {:error, :source_disagreement} =
              reconcile_fixture(%{verified?: true, n: 52, p50: 469, agreement?: false})
+  end
+
+  test "SEED-005 and CI-PERF carry the identical authenticated terminal pass" do
+    seed = File.read!(@seed)
+    milestone_arc = File.read!(@milestone_arc)
+
+    assert_exact_source_complete_record(seed)
+    assert_exact_source_complete_record(milestone_arc)
+
+    for record <- [seed, milestone_arc], historical <- ["772", "724", "466", "692", "148", "470"] do
+      assert record =~ historical, "terminal record lost historical FAST fact: #{historical}"
+    end
+  end
+
+  test "terminal record fixtures reject pass/miss contradictions" do
+    pass = "FAST-01 Complete; n=52; p50=469; disposition=pass"
+    miss = "FAST-01 Gaps Found; n=10; p50=720; disposition=miss"
+
+    assert :ok = validate_record_fixtures([pass, pass], :complete, 52, 469)
+    assert :ok = validate_record_fixtures([miss, miss], :gaps_found, 10, 720)
+    assert {:error, :record_contradiction} =
+             validate_record_fixtures([pass, miss], :complete, 52, 469)
+
+    assert {:error, :record_contradiction} =
+             validate_record_fixtures(
+               [pass, "FAST-01 Complete; n=51; p50=469; disposition=pass"],
+               :complete,
+               52,
+               469
+             )
   end
 
   test "source replay rejects page, timestamp, event, identity, order, median, and boundary mutations" do
@@ -593,6 +625,20 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   defp reconcile_fixture(%{agreement?: false}), do: {:error, :source_disagreement}
   defp reconcile_fixture(%{p50: p50}) when p50 < 720, do: {:ok, :complete}
   defp reconcile_fixture(%{p50: _p50}), do: {:ok, :gaps_found}
+
+  defp validate_record_fixtures(records, status, n, p50) do
+    expected_status = if status == :complete, do: "FAST-01 Complete", else: "FAST-01 Gaps Found"
+    expected_disposition = if status == :complete, do: "disposition=pass", else: "disposition=miss"
+
+    if Enum.all?(records, fn record ->
+         record =~ expected_status and record =~ "n=#{n}" and record =~ "p50=#{p50}" and
+           record =~ expected_disposition
+       end) do
+      :ok
+    else
+      {:error, :record_contradiction}
+    end
+  end
 
   defp sha?(value), do: is_binary(value) and Regex.match?(~r/^[0-9a-f]{40}$/, value)
 
