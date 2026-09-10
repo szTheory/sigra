@@ -12,7 +12,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
   @tag :document_transition
   test "Plan 21 contributor documents follow the evidence-derived reconciliation state" do
     fixture = EvidenceState.fixture()
-    state = EvidenceState.validate_state(%{})
+    state = EvidenceState.repository_state(root())
 
     assert EvidenceState.validate_documents(state, %{
              "CONTRIBUTING.md" => read!("CONTRIBUTING.md"),

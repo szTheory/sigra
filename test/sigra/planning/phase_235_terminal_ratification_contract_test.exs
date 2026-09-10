@@ -7,7 +7,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   @tag :document_transition
   test "Plan 21 terminal documents preserve pre-evidence disclosures" do
-    state = EvidenceState.validate_state(%{})
+    state = EvidenceState.repository_state()
 
     assert EvidenceState.validate_documents(state, %{
              ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md" =>
@@ -15,7 +15,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
                  ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md"
                ),
              ".planning/phases/235-terminal-ratification-measured-not-read/235-VERIFICATION.md" =>
-               File.read!(@phase_235_dir <> "/235-VERIFICATION.md")
+               File.read!(
+                 ".planning/phases/235-terminal-ratification-measured-not-read/235-VERIFICATION.md"
+               )
            }) == :ok
   end
 

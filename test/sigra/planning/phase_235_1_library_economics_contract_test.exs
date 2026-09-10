@@ -10,9 +10,94 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     fixture = EvidenceState.fixture()
 
     assert EvidenceState.validate_state(%{}) == fixture.pre_state
-    assert EvidenceState.validate_state(%{pr: fixture.pr}) == fixture.pre_state
-    assert EvidenceState.validate_state(%{scaffold: fixture.scaffold}) == fixture.pre_state
+
+    assert {:pre, %{present_capture_receipts: [:pr]}} =
+             EvidenceState.validate_state(%{pr: fixture.pr})
+
+    assert {:pre, %{present_capture_receipts: [:scaffold]}} =
+             EvidenceState.validate_state(%{scaffold: fixture.scaffold})
+
     assert {:post, _facts} = EvidenceState.validate_state(fixture.receipts)
+  end
+
+  @tag :receipt_contract
+  test "Plan 21 receipt and prose mutations fail closed" do
+    fixture = EvidenceState.fixture()
+
+    receipt_mutations = [
+      Map.delete(fixture.receipts, :pr),
+      Map.delete(fixture.receipts, :scaffold),
+      put_in(fixture.receipts, [:pr, "schema_version"], "sigra.library-partitions-evidence/v0"),
+      put_in(fixture.receipts, [:pr, "run", "attempt"], 2),
+      put_in(fixture.receipts, [:pr, "run", "head_sha"], String.duplicate("d", 40)),
+      put_in(fixture.receipts, [:pr, "owner", "name"], "wrong"),
+      put_in(fixture.receipts, [:pr, "artifacts", Access.at(0), "sha256"], "short"),
+      put_in(fixture.receipts, [:scaffold, "run", "id"], fixture.pr["run"]["id"]),
+      put_in(fixture.receipts, [:scaffold, "receivers", "paths"], []),
+      put_in(fixture.receipts, [:validation, "capture_run_ids"], []),
+      put_in(
+        fixture.receipts,
+        [:validation, "validations", Access.at(0), "run", "head_sha"],
+        String.duplicate("e", 40)
+      ),
+      put_in(
+        fixture.receipts,
+        [:validation, "validations", Access.at(1), "run", "id"],
+        fixture.pr["run"]["id"]
+      ),
+      put_in(
+        fixture.receipts,
+        [:validation, "negative_run_ids"],
+        Enum.reverse(fixture.validation["negative_run_ids"])
+      ),
+      put_in(fixture.receipts, [:validation, "negative_runs_sha256"], String.duplicate("f", 64))
+    ]
+
+    Enum.each(receipt_mutations, fn mutation ->
+      assert_raise ArgumentError, fn -> EvidenceState.validate_state(mutation) end
+    end)
+
+    assert EvidenceState.validate_documents({:post, fixture.facts}, fixture.post_documents) == :ok
+
+    for token <- EvidenceState.fact_tokens(fixture.facts) ++ ["Complete", "FAST-01", "GATE-05"] do
+      mutation =
+        Map.update!(
+          fixture.post_documents,
+          "post.md",
+          &String.replace(&1, token, "missing")
+        )
+
+      assert_raise ArgumentError, fn ->
+        EvidenceState.validate_documents({:post, fixture.facts}, mutation)
+      end
+    end
+
+    assert EvidenceState.validate_documents(fixture.pre_state, fixture.pre_documents) == :ok
+
+    assert_raise ArgumentError, fn ->
+      EvidenceState.validate_documents(
+        fixture.pre_state,
+        Map.update!(
+          fixture.pre_documents,
+          ".planning/v1.47-MILESTONE-AUDIT.md",
+          &(&1 <> "\n24/24 satisfied")
+        )
+      )
+    end
+  end
+
+  @tag :document_transition
+  test "Plan 21 Phase 235.1 and audit documents follow repository receipt state" do
+    state = EvidenceState.repository_state()
+
+    assert EvidenceState.validate_documents(state, %{
+             ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION.md" =>
+               File.read!(
+                 ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION.md"
+               ),
+             ".planning/v1.47-MILESTONE-AUDIT.md" =>
+               File.read!(".planning/v1.47-MILESTONE-AUDIT.md")
+           }) == :ok
   end
 
   @receipt_path "/tmp/sigra-library-economics.json"
