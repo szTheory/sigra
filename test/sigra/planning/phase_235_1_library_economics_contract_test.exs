@@ -108,7 +108,6 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
   @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
-  @calibration_manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
   @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
   @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
 
@@ -976,8 +975,6 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp byte_index!(source, needle), do: :binary.match(source, needle) |> elem(0)
-
-  defp sha256(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
 
   defp oban_owner_contract?(source) do
     [before_cleanup, cleanup_and_after] =
