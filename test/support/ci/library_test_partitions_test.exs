@@ -102,6 +102,43 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
            }
   end
 
+  @tag :assignment_contract
+  test "both global Oban paths can occupy either measured partition" do
+    deletion = "test/sigra/account/deletion_test.exs"
+    delivery = "test/sigra/delivery_test.exs"
+    paths = [deletion, delivery, "test/a_test.exs", "test/b_test.exs"] |> Enum.sort()
+
+    fixtures = [
+      [{deletion, 100}, {delivery, 90}, {"test/a_test.exs", 80}, {"test/b_test.exs", 70}],
+      [{deletion, 90}, {delivery, 100}, {"test/a_test.exs", 80}, {"test/b_test.exs", 70}]
+    ]
+
+    placements =
+      Enum.map(fixtures, fn fixture ->
+        costs =
+          Enum.map(fixture, fn {path, time_us} -> %{"path" => path, "time_us" => time_us} end)
+
+        partitions = LibraryTestPartitions.build_partitions!(ordinary_paths: paths, costs: costs)
+
+        assert LibraryTestPartitions.validate_current_universe!(partitions, ordinary_paths: paths) ==
+                 partitions
+
+        assigned = partitions[1].paths ++ partitions[2].paths
+        assert Enum.sort(assigned) == paths
+        assert MapSet.disjoint?(MapSet.new(partitions[1].paths), MapSet.new(partitions[2].paths))
+        assert partitions[1].paths != [] and partitions[2].paths != []
+        assert partitions[1].total_us > 0 and partitions[2].total_us > 0
+
+        assert max(partitions[1].total_us, partitions[2].total_us) /
+                 min(partitions[1].total_us, partitions[2].total_us) <= 2.0
+
+        %{deletion => owner(partitions, deletion), delivery => owner(partitions, delivery)}
+      end)
+
+    assert Enum.map(placements, & &1[deletion]) |> Enum.sort() == [1, 2]
+    assert Enum.map(placements, & &1[delivery]) |> Enum.sort() == [1, 2]
+  end
+
   test "assignment rejects zero costs in either input order" do
     costs = [
       %{"path" => "test/a_test.exs", "time_us" => 0},
@@ -526,4 +563,8 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
   end
 
   defp digest(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
+
+  defp owner(partitions, path) do
+    Enum.find([1, 2], &(path in partitions[&1].paths))
+  end
 end

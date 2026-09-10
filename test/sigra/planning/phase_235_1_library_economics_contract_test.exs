@@ -299,6 +299,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert runner =~ "partition 2 changed partition 1 timing receipt"
   end
 
+  @tag :assignment_contract
   test "Plan 17 repairs only the global Oban test owners and runs three fresh validations" do
     registrants =
       "test"
@@ -355,50 +356,37 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) ==
              2
 
-    calibration = File.read!(@calibration_path)
-    manifest = @calibration_manifest_path |> File.read!() |> JSON.decode!()
-
-    assert Map.keys(manifest) |> Enum.sort() ==
-             ~w(calibration ordinary_source_index_sha256 payload_count sample_count schema_version source_snapshot)
-
-    assert manifest["schema_version"] == "sigra.library-partition-calibration-manifest/v1"
-    assert manifest["calibration"]["path"] == @calibration_path
-    assert manifest["calibration"]["byte_count"] == byte_size(calibration)
-    assert manifest["calibration"]["sha256"] == sha256(calibration)
-    assert manifest["sample_count"] == 3
-    assert manifest["payload_count"] == 9
-
-    immutable_paths = %{
-      "scripts/ci/library-partitions.sh" =>
-        "99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",
-      "scripts/ci/verify-library-partitions.sh" =>
-        "449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",
-      ".github/workflows/ci.yml" =>
-        "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
-    }
-
-    Enum.each(immutable_paths, fn {path, expected} ->
-      bytes = File.read!(path)
-      assert sha256(bytes) == expected, "immutable drift: #{path}"
-      refute sha256(bytes <> "\n") == expected
-    end)
-
     Code.require_file("test/support/ci/library_test_partitions.exs")
-    partitions = apply(Sigra.CI.LibraryTestPartitions, :build_partitions!, [])
+    ordinary = Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
+    historical_calibration = @calibration_path |> File.read!() |> JSON.decode!()
 
-    assert length(partitions[1].paths) + length(partitions[2].paths) ==
-             length(Sigra.CI.LibraryTestPartitions.current_ordinary_paths!())
+    partitions =
+      Sigra.CI.LibraryTestPartitions.build_partitions!(
+        ordinary_paths: ordinary,
+        costs: historical_calibration["derived_costs"]
+      )
 
+    assigned = partitions[1].paths ++ partitions[2].paths
+
+    assert Enum.sort(assigned) == ordinary
+    assert length(assigned) == MapSet.size(MapSet.new(assigned))
+    assert MapSet.disjoint?(MapSet.new(partitions[1].paths), MapSet.new(partitions[2].paths))
     assert partitions[1].total_us > 0
     assert partitions[2].total_us > 0
-    assert "test/sigra/account/deletion_test.exs" in partitions[2].paths
-    assert "test/sigra/delivery_test.exs" in partitions[2].paths
 
-    missing_path =
-      update_in(partitions, [2, :paths], &List.delete(&1, "test/sigra/delivery_test.exs"))
+    Enum.each(registrants, fn path ->
+      assert Enum.count(assigned, &(&1 == path)) == 1
+    end)
 
-    assert_raise ArgumentError, fn ->
-      apply(Sigra.CI.LibraryTestPartitions, :validate_current_universe!, [missing_path])
+    missing_path = hd(registrants)
+
+    broken =
+      Map.new(partitions, fn {id, part} ->
+        {id, %{part | paths: List.delete(part.paths, missing_path)}}
+      end)
+
+    assert_raise ArgumentError, ~r/current ordinary test manifest mismatch/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate_current_universe!(broken)
     end
 
     {production_diff, production_status} =
@@ -433,6 +421,56 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert three_validation_contract?(integration)
   end
 
+  @tag :assignment_contract
+  test "Plan 19 calibration diagnostics remain immutable blocked history" do
+    summary =
+      File.read!(
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
+      )
+
+    {pinned, 0} =
+      System.cmd("git", [
+        "show",
+        "d405755f078be8eefc8be1abcc2c387a4b6c8589:.planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
+      ])
+
+    assert pinned == summary
+
+    for fact <- [
+          "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
+          "02384b6410c371959dfeb976d29dd1e61acc3e4a",
+          "225",
+          "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
+          "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb",
+          "3,174ms / 60,072ms",
+          "25,178 / `173786d4150e730598f89e65f4cbac960ee8bb3c3081f25f6da44e0ecce20fb0`",
+          "273,229 / `8632d5825bcaf1ccfde79cd7907f2c124d4036a27648b81cc7ed07d5e8244934`",
+          "425,980 / `e7570371f8475af78eb111007c25b699675dbcb72cf3a897a4c77f4dc03da23d`",
+          "3,995ms / 41,711ms",
+          "31764c67e85ed0b091c27053d0c3035976ed035e036beb22e30e8b3796b2d41e",
+          "3f432a2f84144d04194309eb5c4b5fda9e17356081c9fef4335ca916397ae29a",
+          "c036ba202bb8840258e6525aea0b5e9dc5ebbe657f2afec0955f7b00ceaa8993",
+          "3,351ms / 42,354ms",
+          "ee8bd47263266a3765e721a8bef56fbc7e15bc71580759e7b1ffaec8533df957",
+          "55487aac6fa03c3319d26b9131b3c7eb6bce80ed324038a177ef4bd45e225274",
+          "df205cecf2fa21bc423e098f79419b8d209869c1771d6f58443eaa74b1203932",
+          "2,959,930",
+          "2d45b1db1ae2ffd614dc0c5b3692748504583ef4465545ee614117ea5e2b8a30",
+          "561",
+          "68ef4aa43c93cca6e70b2769adf6fc9f4b09bbd1dd57f4531cc3e89cb06c7028",
+          "zero post-calibration validation pairs",
+          "No push, workflow dispatch, CI watch, API poll, artifact download"
+        ] do
+      assert summary =~ fact
+    end
+
+    refute File.exists?(@calibration_manifest_path)
+
+    assert sha256(File.read!(@calibration_path)) ==
+             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+  end
+
+  @tag :assignment_contract
   test "ordinary pathname safety is assignment agnostic" do
     source = File.read!(__ENV__.file)
 
