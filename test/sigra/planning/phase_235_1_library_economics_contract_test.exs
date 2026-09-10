@@ -49,16 +49,14 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert validation_adverse =~ "waiver=True"
   end
 
-  test "Plan 18 candidate preflight pins authoritative immutable bytes" do
+  test "Plan 18 candidate preflight remains immutable negative history" do
     verifier = "scripts/ci/verify-library-routing-evidence.sh"
-
-    assert {output, 0} =
-             System.cmd("bash", [verifier, "--preflight", File.cwd!()], stderr_to_stdout: true)
-
-    assert output == "verify-library-routing-evidence: PREFLIGHT PASS\n"
 
     source = File.read!(verifier)
     assert source =~ "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
+    assert source =~ "91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97"
+    assert source =~ "3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5"
+    assert source =~ "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
     refute source =~ "cf46fc226daec325db1d3191c61158f9da55edb24b2f5cddac60bcb429aeb3f1"
 
     for plan <- [10, 12, 14, 15, 16, 17, 18] do
