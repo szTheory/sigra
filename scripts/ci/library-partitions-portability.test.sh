@@ -106,7 +106,7 @@ grep -Fq 'partition 1 is empty' "$test_root/empty.stderr" || fail "empty partiti
 # assignment and source binding to the immutable Plan 22 calibration.
 PATH="${PATH#"$test_root/bin:"}" ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" MIX_ENV=test \
   mix run --no-compile --no-start -r "$ORACLE" -e \
-  'p=Sigra.CI.LibraryTestPartitions.build_partitions!(); for id <- [1,2] do x=p[id]; IO.puts("META\\t#{id}\\t#{length(x.paths)}\\t#{x.total_us}\\t#{Sigra.CI.LibraryTestPartitions.manifest_sha256(x.paths)}"); Enum.each(x.paths,&IO.puts("PATH\\t#{id}\\t#{&1}")) end' \
+  'p=Sigra.CI.LibraryTestPartitions.build_partitions!(); for id <- [1,2] do x=p[id]; IO.puts("META\t#{id}\t#{length(x.paths)}\t#{x.total_us}\t#{Sigra.CI.LibraryTestPartitions.manifest_sha256(x.paths)}"); Enum.each(x.paths,&IO.puts("PATH\t#{id}\t#{&1}")) end' \
   >"$test_root/oracle.tsv"
 
 python3 - "$ROOT" "$test_root/oracle.tsv" "$CALIBRATION" "$MANIFEST" <<'PY'

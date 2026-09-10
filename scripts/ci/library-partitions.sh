@@ -71,11 +71,13 @@ write_receipt() {
 }
 
 run_partition() {
-  local id="$1" manifest timing
+  local id="$1" manifest timing path
   local -a paths
   manifest="/tmp/sigra-library-partition-${id}.paths"
   timing="/tmp/sigra-library-${id}-timings.json"
-  mapfile -t paths <"$manifest"
+  while IFS= read -r path || [[ -n "$path" ]]; do
+    paths[${#paths[@]}]="$path"
+  done <"$manifest"
   ((${#paths[@]} > 0)) || { fail "partition ${id} is empty"; status[id]=1; conclusion[id]=failure; return 1; }
   rm -f "$timing"
   start_ms[id]="$(clock_ms)" || return 1
