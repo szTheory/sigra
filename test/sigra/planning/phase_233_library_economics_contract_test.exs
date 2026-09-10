@@ -123,10 +123,23 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute golden =~ "InstallFixture.setup_tmp_app()"
     assert idempotency =~ "InstallFixture.checkout!(:default_installed, \"idempotency-rerun\")"
     refute idempotency =~ "InstallFixture.setup_tmp_app()"
-    assert length(Regex.scan(~r/InstallFixture\.checkout!\(/, upgrade)) == 3
+
+    assert Regex.scan(
+             ~r/\{:(no_org_installed|default_installed), "(upgrade-[^"]+)", :(zero_org|backfill_off|backfill_on)\}/,
+             upgrade,
+             capture: :all_but_first
+           ) == [
+             ["no_org_installed", "upgrade-zero-org", "zero_org"],
+             ["default_installed", "upgrade-backfill-off", "backfill_off"],
+             ["default_installed", "upgrade-backfill-on", "backfill_on"]
+           ]
+
+    assert upgrade =~ "prepare_checkouts!(["
+    assert length(Regex.scan(~r/InstallFixture\.checkout!\(/, upgrade)) == 1
+    assert upgrade =~ "max_concurrency: 2"
+    assert upgrade =~ "timeout: 120_000"
+    assert upgrade =~ "on_timeout: :kill_task"
     assert upgrade =~ "InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)"
-    assert upgrade =~ "InstallFixture.checkout!(:no_org_installed, \"upgrade-zero-org\")"
-    assert length(Regex.scan(~r/InstallFixture\.checkout!\(:default_installed/, upgrade)) == 2
     refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"
     refute upgrade =~ "@moduletag :upgrade"
   end
