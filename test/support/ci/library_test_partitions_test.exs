@@ -145,14 +145,14 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     assert Enum.all?(calibration.costs, &(&1["time_us"] > 0))
   end
 
-  test "sample and timing row order cannot alter independently replayed costs" do
+  test "unbound sample and timing row reorderings are rejected" do
     raw = @calibration_path |> File.read!() |> JSON.decode!()
-    expected = LibraryTestPartitions.load_calibration!().costs
 
     reordered_samples = Map.update!(raw, "samples", &Enum.reverse/1)
 
-    assert LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_samples)).costs ==
-             expected
+    assert_raise ArgumentError, ~r/calibration path differs from manifest/, fn ->
+      LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_samples))
+    end
 
     reordered_rows =
       update_in(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn receipt ->
@@ -160,8 +160,9 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
         replace_payload(receipt, JSON.encode!(timing))
       end)
 
-    assert LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_rows)).costs ==
-             expected
+    assert_raise ArgumentError, ~r/calibration path differs from manifest/, fn ->
+      LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_rows))
+    end
   end
 
   test "calibration rejects provenance, payload, universe, and derived-cost mutations" do
