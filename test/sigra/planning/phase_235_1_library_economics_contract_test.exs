@@ -433,6 +433,21 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert three_validation_contract?(integration)
   end
 
+  test "ordinary pathname safety is assignment agnostic" do
+    source = File.read!(__ENV__.file)
+
+    for path <- [
+          "test/sigra/account/deletion_test.exs",
+          "test/sigra/delivery_test.exs"
+        ] do
+      refute Regex.match?(
+               ~r/#{Regex.escape(path)}" in partitions\[[12]\]\.paths/,
+               source
+             ),
+             "ordinary path is coupled to a measured partition number: #{path}"
+    end
+  end
+
   test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
     fixture = File.read!("test/support/install_fixture.ex")
     runner = File.read!("scripts/ci/install-golden.sh")
