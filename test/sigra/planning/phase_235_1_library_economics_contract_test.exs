@@ -1,5 +1,19 @@
+Code.require_file("../../support/ci/phase_235_1_evidence_state_contract.exs", __DIR__)
+
 defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   use ExUnit.Case, async: false
+
+  alias Sigra.Planning.Phase2351EvidenceStateContract, as: EvidenceState
+
+  @tag :receipt_contract
+  test "Plan 21 receipts admit only pre/intermediate or a fully cross-linked post state" do
+    fixture = EvidenceState.fixture()
+
+    assert EvidenceState.validate_state(%{}) == fixture.pre_state
+    assert EvidenceState.validate_state(%{pr: fixture.pr}) == fixture.pre_state
+    assert EvidenceState.validate_state(%{scaffold: fixture.scaffold}) == fixture.pre_state
+    assert {:post, _facts} = EvidenceState.validate_state(fixture.receipts)
+  end
 
   @receipt_path "/tmp/sigra-library-economics.json"
   @phase_235_dir ".planning/phases/235-terminal-ratification-measured-not-read"
