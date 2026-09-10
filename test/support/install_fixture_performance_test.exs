@@ -389,6 +389,18 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute_receive {:started, :never_started}
   end
 
+  test "scenario runner preserves exception diagnostics while failing closed" do
+    scenario = %{path: "/tmp/diagnostic"}
+
+    assert {:error, %{status: 1, failed_path: "/tmp/diagnostic", detail: detail}} =
+             InstallFixture.run_scenarios([scenario], fn _scenario ->
+               raise MatchError, term: {:error, :timeout}
+             end)
+
+    assert detail =~ "** (MatchError)"
+    assert detail =~ "{:error, :timeout}"
+  end
+
   test "graph-global worker leases cap independent callers and recover after owner death" do
     {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0} end)
 

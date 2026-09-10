@@ -1635,6 +1635,11 @@ defmodule Sigra.Test.InstallFixture do
             runner
           )
 
+        {^ref, pid, scenario, {:error, {:exception, detail}}} ->
+          cancel_scenario_workers(active, pid)
+          mark_scenario_failed!(scenario)
+          {:error, %{status: 1, failed_path: Map.get(scenario, :path), detail: detail}}
+
         {^ref, pid, scenario, {:error, status}} ->
           cancel_scenario_workers(active, pid)
           mark_scenario_failed!(scenario)
@@ -1664,9 +1669,11 @@ defmodule Sigra.Test.InstallFixture do
                   other -> {:error, {:invalid_result, other}}
                 end
               rescue
-                _exception -> {:error, 1}
+                exception ->
+                  {:error, {:exception, Exception.format(:error, exception, __STACKTRACE__)}}
               catch
-                :exit, _reason -> {:error, 1}
+                kind, reason ->
+                  {:error, {:exception, Exception.format(kind, reason, __STACKTRACE__)}}
               end
 
             send(parent, {ref, self(), scenario, result})
