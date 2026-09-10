@@ -13,19 +13,57 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
     adverse = File.read!("scripts/ci/verify-library-routing-evidence.test.sh")
+    validation = File.read!("scripts/ci/verify-library-validation-run.sh")
+    validation_adverse = File.read!("scripts/ci/verify-library-validation-run.test.sh")
 
     assert verifier =~ "sigra.library-partitions-evidence/v1"
     assert verifier =~ "sigra.library-install-golden-evidence/v1"
     assert verifier =~ "max * 1000 <= min * 2000"
     assert verifier =~ "install_not_dominant"
     assert verifier =~ "ordinary-vs-scaffold comparable"
-    assert adverse =~ "PR attempt"
-    assert adverse =~ "same implementation SHA"
-    assert adverse =~ "failed-history run"
-    assert adverse =~ "history substitution"
-    assert adverse =~ "deterministic-failure advancement"
-    assert adverse =~ "candidate tree drift"
-    assert adverse =~ "over budget"
+    assert adverse =~ "update(attempt=2)"
+    assert adverse =~ "update(head_sha=\"d\"*40)"
+    assert adverse =~ "update(id=34520992740)"
+    assert adverse =~ "list(reversed(x))"
+
+    for run_id <-
+          ~w(34466384009 34466384470 34467186749 34467189602 34468109536 34468110161 34493873867 34493911924 34520992740 34520986751) do
+      assert verifier =~ run_id
+    end
+
+    assert verifier =~ "pair_inadmissible"
+    assert verifier =~ "summary_complete"
+    assert verifier =~ "summary_partial"
+    assert verifier =~ "immutable_workflow_byte_drift"
+    assert verifier =~ "unrelated_manual_ref_guards"
+    assert verifier =~ "--print-negative-runs"
+    assert verifier =~ "--negative-runs-sha256"
+    assert verifier =~ "--preflight"
+    assert adverse =~ "Every scalar/null, array membership/order, and nested key"
+    assert adverse =~ "one-blank-line drift accepted"
+    assert validation =~ "negative_runs_sha256"
+    assert validation =~ "run disjointness"
+    assert validation_adverse =~ "waiver=True"
+  end
+
+  test "Plan 18 candidate preflight pins authoritative immutable bytes" do
+    verifier = "scripts/ci/verify-library-routing-evidence.sh"
+
+    assert {output, 0} =
+             System.cmd("bash", [verifier, "--preflight", File.cwd!()], stderr_to_stdout: true)
+
+    assert output == "verify-library-routing-evidence: PREFLIGHT PASS\n"
+
+    source = File.read!(verifier)
+    assert source =~ "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
+    refute source =~ "cf46fc226daec325db1d3191c61158f9da55edb24b2f5cddac60bcb429aeb3f1"
+
+    for plan <- [10, 12, 14, 15, 16, 17, 18] do
+      summary =
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-#{plan}-SUMMARY.md"
+
+      refute historical_summary_exception_eligible?(summary)
+    end
   end
 
   setup do
@@ -848,6 +886,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
     |> Enum.filter(&(File.read!(&1) =~ ~r/^\s*@moduletag\s+:scaffold\b/m))
     |> Enum.sort()
+  end
+
+  defp historical_summary_exception_eligible?(path) do
+    phase_235_1 =
+      ~r{^\.planning/phases/235\.1-close-v1-47-library-economics-integration-gaps-test-01-test/235\.1-(10|12|14|15|16|17|18)-SUMMARY\.md$}
+
+    not Regex.match?(phase_235_1, path)
   end
 
   defp library_job_ids(workflow) do
