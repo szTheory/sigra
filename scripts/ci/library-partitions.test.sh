@@ -25,6 +25,9 @@ test_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-library-partitions-test.XXXXXX")"
 trap 'rm -rf "$test_root"' EXIT
 mkdir -p "$test_root/bin"
 
+# These single-quoted lines intentionally write a child script without expanding
+# its environment in this parent process.
+# shellcheck disable=SC2016
 printf '%s\n' \
   '#!/usr/bin/env bash' \
   'set -euo pipefail' \

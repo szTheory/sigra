@@ -17,7 +17,7 @@ fail() { printf 'library-partitions: FAIL: %s\n' "$*" >&2; }
 clock_ms() { python3 -c 'import time; print(time.monotonic_ns() // 1000000)'; }
 
 emit_manifests() {
-  MIX_ENV=test mix run --no-compile --no-start -r test/support/ci/library_test_partitions.exs -e \
+  env MIX_ENV=test mix run --no-compile --no-start -r test/support/ci/library_test_partitions.exs -e \
     'for id <- [1, 2], path <- Sigra.CI.LibraryTestPartitions.partition(id), do: IO.puts("#{id}\t#{path}")'
 }
 
@@ -56,27 +56,27 @@ write_receipt() {
 }
 
 run_partition() {
-  local id="$1" manifest timing now
+  local id="$1" manifest timing
   local -a paths
   manifest="/tmp/sigra-library-partition-${id}.paths"
   timing="/tmp/sigra-library-${id}-timings.json"
   mapfile -t paths <"$manifest"
-  ((${#paths[@]} > 0)) || { fail "partition ${id} is empty"; status[$id]=1; conclusion[$id]=failure; return 1; }
+  ((${#paths[@]} > 0)) || { fail "partition ${id} is empty"; status[id]=1; conclusion[id]=failure; return 1; }
   rm -f "$timing"
-  start_ms[$id]="$(clock_ms)" || return 1
+  start_ms[id]="$(clock_ms)" || return 1
   MIX_TEST_PARTITION="$id" SIGRA_EXUNIT_TIMING_PATH="$timing" \
     mix test "${paths[@]}" --formatter ExUnit.CLIFormatter --formatter Sigra.CI.ExUnitTimingFormatter
-  status[$id]=$?
-  end_ms[$id]="$(clock_ms)" || return 1
-  while ((end_ms[id] <= start_ms[id])); do end_ms[$id]="$(clock_ms)" || return 1; done
-  duration_ms[$id]=$((end_ms[id] - start_ms[id]))
-  if ((duration_ms[id] > MAX_DURATION_MS)); then status[$id]=1; fi
+  status[id]=$?
+  end_ms[id]="$(clock_ms)" || return 1
+  while ((end_ms[id] <= start_ms[id])); do end_ms[id]="$(clock_ms)" || return 1; done
+  duration_ms[id]=$((end_ms[id] - start_ms[id]))
+  if ((duration_ms[id] > MAX_DURATION_MS)); then status[id]=1; fi
   if ((status[id] == 0)) && [[ -f "$timing" && ! -L "$timing" ]]; then
-    conclusion[$id]=success
+    conclusion[id]=success
     return 0
   fi
-  conclusion[$id]=failure
-  if ((status[id] == 0)); then status[$id]=1; fi
+  conclusion[id]=failure
+  if ((status[id] == 0)); then status[id]=1; fi
   return "${status[$id]}"
 }
 
