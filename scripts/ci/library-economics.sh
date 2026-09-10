@@ -5,6 +5,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RECEIPT_PATH="/tmp/sigra-library-economics.json"
 TIMING_PATH="/tmp/sigra-library-1-timings.json"
+INSTALL_DIAGNOSTIC_PATH="/tmp/sigra-install-golden-diagnostics.json"
 
 ordinary_start=0
 ordinary_end=0
@@ -139,6 +140,7 @@ ordinary_conclusion="success"
 
 install_leg_ran=true
 install_start="$(clock_ms)" || { fail "monotonic clock failed"; finish 1; }
+rm -f "$INSTALL_DIAGNOSTIC_PATH"
 mix ci.install_golden
 install_status=$?
 install_end="$(clock_ms)" || { fail "monotonic clock failed"; finish 1; }

@@ -1,0 +1,570 @@
+defmodule Sigra.Test.InstallFixturePerformanceTest do
+  use ExUnit.Case, async: false
+
+  alias Sigra.Test.InstallFixture
+
+  @variants [
+    :default_installed,
+    :passkeys_standard,
+    :passkeys_nonstandard_app_js,
+    :no_passkeys,
+    :no_org_no_passkeys,
+    :no_org_installed
+  ]
+
+  setup do
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra_install_golden.unit-#{System.unique_integer([:positive])}"
+      )
+
+    on_exit(fn ->
+      if File.dir?(root), do: InstallFixture.cleanup_graph!(root)
+    end)
+
+    %{root: root}
+  end
+
+  test "one source base derives the exact six immutable variants", %{root: root} do
+    graph = prepare_test_graph!(root)
+
+    assert InstallFixture.variant_names() == @variants
+    assert Map.keys(graph.variants) |> Enum.sort() == Enum.sort(@variants)
+    assert File.regular?(Path.join(graph.base_path, "base.txt"))
+    assert File.regular?(graph.manifest_path)
+
+    Enum.each(graph.variants, fn {name, variant} ->
+      assert variant.name == name
+      assert variant.immutable
+      assert is_binary(variant.partition)
+      assert is_integer(variant.port)
+      assert Path.type(variant.path) == :absolute
+      assert File.read!(Path.join(variant.path, "variant.txt")) == Atom.to_string(name)
+
+      assert_raise File.Error, fn ->
+        File.write!(Path.join(variant.path, "variant.txt"), "mutation")
+      end
+    end)
+  end
+
+  test "private scenario checkouts isolate files, builds, partitions, and ports", %{root: root} do
+    graph = prepare_test_graph!(root)
+
+    first = InstallFixture.checkout!(graph, :default_installed, "idempotency")
+    second = InstallFixture.checkout!(graph, :default_installed, "upgrade")
+
+    assert first.partition != second.partition
+    assert first.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
+    assert second.partition =~ ~r/^prepared_[0-9a-f]{10}_\d+$/
+    assert first.port != second.port
+    allocated_ports = [first.port, second.port | Enum.map(graph.variants, &elem(&1, 1).port)]
+    assert length(allocated_ports) == MapSet.size(MapSet.new(allocated_ports))
+
+    Enum.each(allocated_ports, fn port ->
+      assert {:ok, socket} = :gen_tcp.listen(port, [:binary, active: false, reuseaddr: false])
+      assert :ok = :gen_tcp.close(socket)
+    end)
+
+    assert first.build_path != second.build_path
+    assert first.path != second.path
+    assert first.copy_mode in [:reflink, :copy]
+    refute File.exists?(Path.join(first.path, "deps"))
+    refute File.exists?(Path.join(second.path, "deps"))
+    refute File.exists?(Path.join(graph.variants.default_installed.path, "deps"))
+    assert File.dir?(graph.deps_path)
+    assert Bitwise.band(File.stat!(graph.deps_path).mode, 0o222) == 0
+
+    assert File.read!(Path.join(first.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
+
+    assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
+
+    executable = "lib/file_system/priv/mac_listener"
+    first_executable = File.stat!(Path.join(first.build_path, executable)).mode
+
+    variant_executable =
+      File.stat!(Path.join([graph.variants.default_installed.path, "_build/dev", executable])).mode
+
+    assert Bitwise.band(first_executable, 0o100) == 0o100
+    assert Bitwise.band(first_executable, 0o200) == 0o200
+    assert Bitwise.band(variant_executable, 0o100) == 0o100
+    assert Bitwise.band(variant_executable, 0o200) == 0
+
+    template = "lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
+    assert File.regular?(Path.join(first.build_path, template))
+
+    assert File.read!(Path.join(first.build_path, template)) ==
+             File.read!("priv/templates/sigra.install/organizations/router_injection.ex")
+
+    first_dev = File.read!(Path.join(first.path, "config/dev.exs"))
+    second_dev = File.read!(Path.join(second.path, "config/dev.exs"))
+    variant_dev = File.read!(Path.join(graph.variants.default_installed.path, "config/dev.exs"))
+
+    assert first_dev =~ ~S|System.get_env("MIX_TEST_PARTITION"|
+    assert first_dev =~ ~S|System.get_env("PORT"|
+    assert first_dev == second_dev
+    assert first_dev == variant_dev
+
+    normalized_dev = InstallFixture.normalize_content_for_golden("config/dev.exs", first_dev)
+    assert normalized_dev =~ ~s(database: "sigra_install_golden_tmp_dev")
+    refute normalized_dev =~ "System.get_env"
+
+    first_runtime_config = read_runtime_config(first)
+    second_runtime_config = read_runtime_config(second)
+
+    assert get_in(first_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmp.Repo,
+             :database
+           ]) == "sigra_install_golden_tmp_dev_#{first.partition}"
+
+    assert get_in(second_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmp.Repo,
+             :database
+           ]) == "sigra_install_golden_tmp_dev_#{second.partition}"
+
+    assert get_in(first_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmpWeb.Endpoint,
+             :http,
+             :port
+           ]) == first.port
+
+    assert get_in(second_runtime_config, [
+             :sigra_install_golden_tmp,
+             SigraInstallGoldenTmpWeb.Endpoint,
+             :http,
+             :port
+           ]) == second.port
+
+    File.write!(Path.join(first.path, "variant.txt"), "private mutation")
+
+    File.write!(
+      Path.join(first.build_path, "lib/phoenix/priv/static/phoenix.js"),
+      "private build"
+    )
+
+    assert File.read!(Path.join(second.path, "variant.txt")) == "default_installed"
+
+    assert File.read!(Path.join(graph.variants.default_installed.path, "variant.txt")) ==
+             "default_installed"
+
+    assert File.read!(
+             Path.join(
+               graph.variants.default_installed.path,
+               "_build/dev/lib/phoenix/priv/static/phoenix.js"
+             )
+           ) == "prepared phoenix asset"
+
+    assert File.read!(Path.join(second.build_path, "lib/phoenix/priv/static/phoenix.js")) ==
+             "prepared phoenix asset"
+
+    refute InstallFixture.tree_has_shared_writable_state?(
+             graph.variants.default_installed.path,
+             first.path
+           )
+  end
+
+  test "cache bytes are reused only for an exact compatibility fingerprint", %{root: root} do
+    source = Path.join(root, "source-build")
+    compatible = Path.join(root, "compatible-build")
+    mismatch = Path.join(root, "mismatch-build")
+    File.mkdir_p!(source)
+    File.write!(Path.join(source, "beam"), "compiled")
+    File.ln!(Path.join(source, "beam"), Path.join(source, "beam-hardlink"))
+
+    fingerprint = InstallFixture.compatibility_fingerprint(lock: "lock", compiler: "compiler")
+
+    assert {:ok, mode, elapsed_ms} =
+             InstallFixture.seed_compatible_tree!(source, compatible, fingerprint, fingerprint)
+
+    assert mode in [:reflink, :copy]
+    assert elapsed_ms >= 1
+    assert File.read!(Path.join(compatible, "beam")) == "compiled"
+    assert File.read!(Path.join(compatible, "beam-hardlink")) == "compiled"
+    assert File.stat!(Path.join(compatible, "beam")).links == 1
+    assert File.stat!(Path.join(compatible, "beam-hardlink")).links == 1
+
+    assert :incompatible =
+             InstallFixture.seed_compatible_tree!(source, mismatch, fingerprint, "different")
+
+    refute File.exists?(mismatch)
+  end
+
+  test "generated lock pruning retains only compatible dependency and Sigra build bytes", %{
+    root: root
+  } do
+    build = Path.join(root, "seeded-build")
+    lock = Path.join(root, "generated.lock")
+    project = Path.join(root, "generated-project")
+    File.mkdir_p!(project)
+
+    File.write!(
+      Path.join(project, "mix.exs"),
+      "def project, do: [app: :generated_host]\ndefp deps, do: [{:sigra, path: \"../sigra\"}]\n"
+    )
+
+    for {app, version} <- [phoenix: "1.8.13", stale_dep: "9.0.0", sigra: "1.5.0"] do
+      app_dir = Path.join([build, "lib", Atom.to_string(app), "ebin"])
+      File.mkdir_p!(app_dir)
+
+      File.write!(
+        Path.join(app_dir, "#{app}.app"),
+        "{application,#{app},[{vsn,\"#{version}\"}]} ."
+      )
+    end
+
+    File.write!(
+      lock,
+      ~s(%{\n  "phoenix": {:hex, :phoenix, "1.8.13", "hash", [], [], "hexpm", "hash"}\n})
+    )
+
+    assert {:ok, %{missing_required_apps: missing}} =
+             InstallFixture.prune_incompatible_seed!(build, lock, project)
+
+    assert File.dir?(Path.join([build, "lib", "phoenix"]))
+    assert File.dir?(Path.join([build, "lib", "sigra"]))
+    refute File.exists?(Path.join([build, "lib", "stale_dep"]))
+    assert missing == MapSet.new(["generated_host"])
+  end
+
+  test "generated lock pruning reports a missing required path app for Mix invalidation", %{
+    root: root
+  } do
+    build = Path.join(root, "missing-path-build")
+    project = Path.join(root, "missing-path-project")
+    lock = Path.join(root, "missing-path.lock")
+    File.mkdir_p!(Path.join(build, "lib"))
+    File.mkdir_p!(project)
+    File.write!(lock, "%{}\n")
+
+    File.write!(
+      Path.join(project, "mix.exs"),
+      "def project, do: [app: :generated_host]\ndefp deps, do: [{:sigra, path: \"../sigra\"}]\n"
+    )
+
+    assert {:ok, %{missing_required_apps: missing}} =
+             InstallFixture.prune_incompatible_seed!(build, lock, project)
+
+    assert missing == MapSet.new(["generated_host", "sigra"])
+    refute File.exists?(Path.join([build, "lib", "sigra"]))
+  end
+
+  test "copies materialize valid links and omit dangling generated build links", %{root: root} do
+    graph =
+      InstallFixture.prepare_graph!(
+        root: root,
+        fingerprint: "test-fingerprint",
+        base_builder: fn base_path ->
+          generated_dir = Path.join(base_path, "_build/dev/phoenix-colocated/node_modules")
+          File.mkdir_p!(generated_dir)
+          File.write!(Path.join(base_path, "source.txt"), "source bytes")
+          File.ln_s!("source.txt", Path.join(base_path, "valid-link"))
+
+          File.ln_s!(
+            "../../../../missing-node-modules",
+            Path.join(generated_dir, "dangling-link")
+          )
+
+          :ok
+        end,
+        variant_builder: fn _name, _variant_path -> {:ok, ""} end
+      )
+
+    assert File.lstat!(Path.join(graph.base_path, "valid-link")).type == :symlink
+
+    assert File.lstat!(
+             Path.join(graph.base_path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
+           ).type == :symlink
+
+    Enum.each(graph.variants, fn {_name, variant} ->
+      materialized = Path.join(variant.path, "valid-link")
+
+      dangling =
+        Path.join(variant.path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
+
+      assert File.regular?(materialized)
+      assert File.read!(materialized) == "source bytes"
+      refute File.exists?(dangling)
+      assert File.lstat(dangling) == {:error, :enoent}
+    end)
+  end
+
+  test "subprocess helpers retain return shape and propagate checkout partition", %{root: root} do
+    graph = prepare_test_graph!(root)
+    checkout = InstallFixture.checkout!(graph, :default_installed, "subprocess")
+
+    command = fn executable, argv, options ->
+      send(self(), {:command, executable, argv, options})
+      {"ok", 0}
+    end
+
+    assert {:ok, "ok"} = InstallFixture.run_mix(checkout.path, ["compile"], command: command)
+
+    assert_receive {:command, "mix", ["compile"], options}
+    assert {"MIX_TEST_PARTITION", checkout.partition} in options[:env]
+    assert {"MIX_BUILD_PATH", checkout.build_path} in options[:env]
+    assert {"MIX_DEPS_PATH", graph.deps_path} in options[:env]
+
+    assert {"PORT", to_string(checkout.port)} in options[:env]
+  end
+
+  test "cleanup rejects arbitrary roots and removes only the validated graph root", %{root: root} do
+    graph = prepare_test_graph!(root)
+    outside = Path.join(root, "..") |> Path.expand()
+
+    assert_raise ArgumentError, fn -> InstallFixture.cleanup_graph!(outside) end
+    assert :ok = InstallFixture.cleanup_graph!(graph)
+    refute File.exists?(root)
+  end
+
+  test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
+    graph = prepare_test_graph!(root)
+    receipt = InstallFixture.diagnostic_receipt(graph, 1_000)
+
+    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+
+    assert Map.keys(receipt.phases) |> Enum.sort() ==
+             ~w(baseline_compile checkout_copy deps_get installer phx_new receiver_compile_runtime)a
+
+    assert Enum.all?(receipt.phases, fn {_phase, duration} -> duration > 0 end)
+    assert Enum.sum(Map.values(receipt.phases)) <= receipt.raw_install_duration_ms
+    assert receipt.variant_count == 6
+    assert receipt.worker_count == 2
+    refute Map.has_key?(receipt, :verdict)
+
+    assert_raise ArgumentError, fn ->
+      receipt
+      |> put_in([:phases, :installer], 0)
+      |> InstallFixture.validate_diagnostics!()
+    end
+
+    assert_raise ArgumentError, fn ->
+      %{receipt | phases: Map.put(receipt.phases, :unexpected, 1)}
+      |> InstallFixture.validate_diagnostics!()
+    end
+
+    assert_raise ArgumentError, fn ->
+      %{receipt | raw_install_duration_ms: 1}
+      |> InstallFixture.validate_diagnostics!()
+    end
+  end
+
+  test "variant preparation uses the same exact two-worker ceiling", %{root: root} do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0} end)
+
+    graph =
+      InstallFixture.prepare_graph!(
+        root: root,
+        fingerprint: "test-fingerprint",
+        base_builder: fn base_path ->
+          File.mkdir_p!(base_path)
+          File.write!(Path.join(base_path, "base.txt"), "base")
+          :ok
+        end,
+        variant_builder: fn name, variant_path ->
+          Agent.update(counter, fn state ->
+            active = state.active + 1
+            %{active: active, maximum: max(state.maximum, active)}
+          end)
+
+          Process.sleep(20)
+          File.write!(Path.join(variant_path, "variant.txt"), Atom.to_string(name))
+          Agent.update(counter, &%{&1 | active: &1.active - 1})
+          {:ok, ""}
+        end
+      )
+
+    assert map_size(graph.variants) == 6
+    assert Agent.get(counter, & &1.maximum) == 2
+  end
+
+  test "scenario runner fixes concurrency at two and cancels on first failure" do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0, completed: []} end)
+    caller = self()
+
+    scenarios = [
+      %{id: :slow, path: "/tmp/slow"},
+      %{id: :fail, path: "/tmp/fail"},
+      %{id: :never_started, path: "/tmp/never"}
+    ]
+
+    runner = fn scenario ->
+      Agent.update(counter, fn state ->
+        active = state.active + 1
+        %{state | active: active, maximum: max(state.maximum, active)}
+      end)
+
+      send(caller, {:started, scenario.id})
+
+      result =
+        case scenario.id do
+          :fail -> {:error, 23}
+          _ -> Process.sleep(5_000)
+        end
+
+      Agent.update(counter, fn state ->
+        %{state | active: state.active - 1, completed: [scenario.id | state.completed]}
+      end)
+
+      result
+    end
+
+    assert {:error, %{status: 23, failed_path: "/tmp/fail"}} =
+             InstallFixture.run_scenarios(scenarios, runner)
+
+    state = Agent.get(counter, & &1)
+    assert state.maximum == 2
+    refute :never_started in state.completed
+    refute :slow in state.completed
+    assert_receive {:started, :slow}
+    assert_receive {:started, :fail}
+    refute_receive {:started, :never_started}
+  end
+
+  test "scenario runner bounds a hung external command and cancels its peer" do
+    caller = self()
+
+    scenarios = [
+      %{id: :hung, path: "/tmp/hung", timeout_ms: 25},
+      %{id: :peer, path: "/tmp/peer", timeout_ms: 25},
+      %{id: :never_started, path: "/tmp/never", timeout_ms: 25}
+    ]
+
+    runner = fn scenario ->
+      send(caller, {:started, scenario.id})
+      Process.sleep(:infinity)
+    end
+
+    assert {:error, %{status: 124, failed_path: failed_path}} =
+             InstallFixture.run_scenarios(scenarios, runner)
+
+    assert failed_path in ["/tmp/hung", "/tmp/peer"]
+    assert_receive {:started, :hung}
+    assert_receive {:started, :peer}
+    refute_receive {:started, :never_started}
+  end
+
+  test "scenario runner preserves exception diagnostics while failing closed" do
+    scenario = %{path: "/tmp/diagnostic"}
+
+    assert {:error, %{status: 1, failed_path: "/tmp/diagnostic", detail: detail}} =
+             InstallFixture.run_scenarios([scenario], fn _scenario ->
+               raise MatchError, term: {:error, :timeout}
+             end)
+
+    assert detail =~ "** (MatchError)"
+    assert detail =~ "{:error, :timeout}"
+  end
+
+  test "graph-global worker leases cap independent callers and recover after owner death" do
+    {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0} end)
+
+    1..4
+    |> Enum.map(fn _index ->
+      Task.async(fn ->
+        InstallFixture.with_worker(fn ->
+          Agent.update(counter, fn state ->
+            active = state.active + 1
+            %{active: active, maximum: max(state.maximum, active)}
+          end)
+
+          Process.sleep(20)
+          Agent.update(counter, &%{&1 | active: &1.active - 1})
+        end)
+      end)
+    end)
+    |> Task.await_many(1_000)
+
+    assert Agent.get(counter, & &1.maximum) == 2
+
+    caller = self()
+
+    holder =
+      spawn(fn ->
+        InstallFixture.with_worker(fn ->
+          send(caller, :holder_acquired)
+          Process.sleep(:infinity)
+        end)
+      end)
+
+    assert_receive :holder_acquired
+    Process.exit(holder, :kill)
+
+    spawn(fn -> InstallFixture.with_worker(fn -> send(caller, :replacement_acquired) end) end)
+    assert_receive :replacement_acquired, 500
+  end
+
+  defp prepare_test_graph!(root) do
+    InstallFixture.prepare_graph!(
+      root: root,
+      fingerprint: "test-fingerprint",
+      base_builder: fn base_path ->
+        File.mkdir_p!(base_path)
+        File.write!(Path.join(base_path, "base.txt"), "base")
+        shared_deps = Path.join([Path.dirname(Path.dirname(base_path)), "shared_deps"])
+        File.mkdir_p!(shared_deps)
+        dependency_source = Path.join(shared_deps, "source.ex")
+        File.write!(dependency_source, "dependency source")
+        File.chmod!(dependency_source, 0o400)
+        File.chmod!(shared_deps, 0o500)
+        build_asset = Path.join(base_path, "_build/dev/lib/phoenix/priv/static/phoenix.js")
+        File.mkdir_p!(Path.dirname(build_asset))
+        File.write!(build_asset, "prepared phoenix asset")
+
+        executable = Path.join(base_path, "_build/dev/lib/file_system/priv/mac_listener")
+        File.mkdir_p!(Path.dirname(executable))
+        File.write!(executable, "#!/bin/sh\nexit 0\n")
+        File.chmod!(executable, 0o755)
+
+        dev_config = Path.join(base_path, "config/dev.exs")
+        File.mkdir_p!(Path.dirname(dev_config))
+
+        File.write!(dev_config, """
+        import Config
+        config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Repo,
+          database: "sigra_install_golden_tmp_dev"
+        config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
+          http: [ip: {127, 0, 0, 1}]
+        """)
+
+        template_source =
+          Path.expand("priv/templates/sigra.install/organizations/router_injection.ex")
+
+        template_link =
+          Path.join(
+            base_path,
+            "_build/dev/lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
+          )
+
+        File.mkdir_p!(Path.dirname(template_link))
+        File.ln_s!(template_source, template_link)
+        :ok
+      end,
+      variant_builder: fn name, variant_path ->
+        File.write!(Path.join(variant_path, "variant.txt"), Atom.to_string(name))
+        {:ok, "stdout #{name}"}
+      end
+    )
+  end
+
+  defp read_runtime_config(checkout) do
+    previous_partition = System.get_env("MIX_TEST_PARTITION")
+    previous_port = System.get_env("PORT")
+    System.put_env("MIX_TEST_PARTITION", checkout.partition)
+    System.put_env("PORT", to_string(checkout.port))
+
+    try do
+      Config.Reader.read!(Path.join(checkout.path, "config/dev.exs"))
+    after
+      restore_env("MIX_TEST_PARTITION", previous_partition)
+      restore_env("PORT", previous_port)
+    end
+  end
+
+  defp restore_env(key, nil), do: System.delete_env(key)
+  defp restore_env(key, value), do: System.put_env(key, value)
+end

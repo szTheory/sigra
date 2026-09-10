@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PRODUCER="${SCRIPT_DIR}/library-economics.sh"
 RECEIPT="/tmp/sigra-library-economics.json"
 TIMINGS="/tmp/sigra-library-1-timings.json"
+INSTALL_DIAGNOSTIC="/tmp/sigra-install-golden-diagnostics.json"
 
 PASS=0
 FAIL=0
@@ -22,7 +23,7 @@ cleanup() {
     printf 'library-economics.test: refusing unsafe cleanup: %s\n' "$TMP_ROOT" >&2
   fi
   [[ ! -d "$RECEIPT" ]] || rmdir "$RECEIPT"
-  rm -f "$RECEIPT" "$TIMINGS"
+  rm -f "$RECEIPT" "$TIMINGS" "$INSTALL_DIAGNOSTIC"
 }
 trap cleanup EXIT
 
@@ -179,6 +180,20 @@ if [[ "$PRODUCER_RC" -ne 0 ]] && grep -q 'non-positive ordinary duration' <<<"$P
   pass "zero duration fails as invalid raw evidence"
 else
   fail "zero duration rc=${PRODUCER_RC}, output=${PRODUCER_OUTPUT}"
+fi
+
+echo "Test H: prepared-fixture reset remains inside install timing markers"
+install_start_line="$(grep -n 'install_start=.*clock_ms' "$PRODUCER" | cut -d: -f1)"
+diagnostic_reset_line="$(grep -n 'rm -f.*INSTALL_DIAGNOSTIC_PATH' "$PRODUCER" | cut -d: -f1 || true)"
+install_call_line="$(grep -n '^mix ci.install_golden$' "$PRODUCER" | cut -d: -f1)"
+install_end_line="$(grep -n 'install_end=.*clock_ms' "$PRODUCER" | cut -d: -f1)"
+if [[ -n "$diagnostic_reset_line" ]] \
+  && ((install_start_line < diagnostic_reset_line)) \
+  && ((diagnostic_reset_line < install_call_line)) \
+  && ((install_call_line < install_end_line)); then
+  pass "all prepared-fixture state begins inside the measured install interval"
+else
+  fail "prepared fixture marker order is not start < reset < child < end"
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"

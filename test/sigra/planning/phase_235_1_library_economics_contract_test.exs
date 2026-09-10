@@ -5,6 +5,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @phase_235_dir ".planning/phases/235-terminal-ratification-measured-not-read"
   @fast_verifier "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
   @terminal_verifier "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
+  @blocked_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-04-SUMMARY.md"
 
   setup do
     File.rm(@receipt_path)
@@ -65,6 +66,200 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   test "same ordinary run consumes the formatter and preserves deterministic unique timing evidence" do
     assert_formatter_contract!()
+  end
+
+  test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
+    fixture = File.read!("test/support/install_fixture.ex")
+    runner = File.read!("scripts/ci/install-golden.sh")
+
+    for variant <-
+          ~w(default_installed passkeys_standard passkeys_nonstandard_app_js no_passkeys no_org_no_passkeys no_org_installed) do
+      assert fixture =~ ":#{variant}"
+    end
+
+    assert length(install_golden_paths(runner)) == 6
+    assert install_golden_paths(runner) == live_scaffold_paths()
+    assert fixture =~ "when map_size(active) < 2"
+    assert fixture =~ "Process.exit(pid, :kill)"
+    assert fixture =~ "mark_scenario_failed!(scenario)"
+    assert fixture =~ "{:error, %{status: status, failed_path: Map.get(scenario, :path)}}"
+    assert fixture =~ "MIX_TEST_PARTITION"
+    assert fixture =~ "MIX_BUILD_PATH"
+  end
+
+  test "receiver modules overlap behind one graph-global two-worker scheduler" do
+    receiver_sources =
+      [
+        "test/upgrade_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs"
+      ]
+      |> Map.new(&{&1, File.read!(&1)})
+
+    assert map_size(receiver_sources) == 6
+
+    Enum.each(receiver_sources, fn {path, source} ->
+      assert source =~ "use ExUnit.Case, async: true", "#{path} must opt into safe overlap"
+      refute source =~ "use ExUnit.Case, async: false"
+    end)
+
+    fixture = File.read!("test/support/install_fixture.ex")
+
+    assert fixture =~ "def with_worker(fun)"
+    assert fixture =~ "map_size(state.active) < 2"
+    assert fixture =~ "Process.monitor(pid)"
+    assert fixture =~ "Process.get({__MODULE__, :worker_lease}"
+    assert fixture =~ "WorkerPool.release(@worker_pool)"
+    assert fixture =~ "with_worker(fn -> do_checkout!(graph, name, scenario) end)"
+    assert fixture =~ "case with_worker(fn -> runner.(scenario) end)"
+    assert length(Regex.scan(~r/with_worker\(fn/, fixture)) == 5
+
+    golden = Map.fetch!(receiver_sources, "test/sigra/install/golden_diff_test.exs")
+    assert golden =~ "InstallFixture.variant!(:default_installed)"
+    refute golden =~ "InstallFixture.checkout!"
+  end
+
+  test "all remaining prepared receivers retain real behavior on exact named states" do
+    passkeys = File.read!("test/sigra/install/features/passkeys_js_test.exs")
+    opt_out = File.read!("test/sigra/install/generator_passkeys_opt_out_test.exs")
+    vault = File.read!("test/sigra/install/vault_promotion_test.exs")
+
+    assert passkeys =~ "InstallFixture.variant!(:passkeys_standard)"
+    assert passkeys =~ "InstallFixture.checkout!(:passkeys_standard, \"passkeys-rerun\")"
+    assert passkeys =~ "InstallFixture.variant!(:passkeys_nonstandard_app_js)"
+    assert passkeys =~ "passkey_browser.js"
+    assert passkeys =~ "count_occurrences(app_js, @passkey_start_marker) == 1"
+    refute passkeys =~ "InstallFixture.setup_tmp_app_without_install"
+
+    assert opt_out =~ "variant: :no_passkeys"
+    assert opt_out =~ "variant: :no_org_no_passkeys"
+    assert opt_out =~ "InstallFixture.run_scenarios(scenarios"
+    assert opt_out =~ "prepare_checkouts!()"
+    assert opt_out =~ "InstallFixture.checkout!(variant, scenario)"
+    assert opt_out =~ "max_concurrency: 2"
+    assert opt_out =~ "timeout: 120_000"
+    assert opt_out =~ "on_timeout: :kill_task"
+    assert opt_out =~ "\"compile\""
+    assert opt_out =~ "\"--warnings-as-errors\""
+    refute opt_out =~ "InstallFixture.setup_tmp_app_without_install"
+
+    assert vault =~ "InstallFixture.checkout!(:passkeys_standard, \"vault-promotion\")"
+    assert vault =~ "compile\", \"--warnings-as-errors"
+    assert vault =~ "use Cloak.Vault"
+    assert vault =~ "use Cloak.Ecto.Binary"
+  end
+
+  test "fixture diagnostics stay inside measured install markers and blocked history stays failed" do
+    harness = File.read!("scripts/ci/library-economics.sh")
+    fixture = File.read!("test/support/install_fixture.ex")
+    blocked = File.read!(@blocked_summary)
+
+    assert byte_index!(harness, "install_start=") <
+             byte_index!(harness, "rm -f \"$INSTALL_DIAGNOSTIC_PATH\"")
+
+    assert byte_index!(harness, "rm -f \"$INSTALL_DIAGNOSTIC_PATH\"") <
+             byte_index!(harness, "mix ci.install_golden")
+
+    assert byte_index!(harness, "mix ci.install_golden") <
+             last_byte_index!(harness, "install_end=")
+
+    assert fixture =~ "sum(phases) <= raw_duration" or
+             fixture =~ "Enum.sum(durations) <= raw_duration"
+
+    assert blocked =~ "34395477605"
+    assert blocked =~ "status: blocked"
+    assert blocked =~ "**Passing evidence:** Intentionally absent"
+    refute blocked =~ "status: complete"
+  end
+
+  test "receiver optimization keeps every behavioral proof executable" do
+    sources = %{
+      golden: File.read!("test/sigra/install/golden_diff_test.exs"),
+      idempotency: File.read!("test/sigra/install/idempotency_test.exs"),
+      upgrade: File.read!("test/upgrade_test.exs"),
+      passkeys: File.read!("test/sigra/install/features/passkeys_js_test.exs"),
+      opt_out: File.read!("test/sigra/install/generator_passkeys_opt_out_test.exs"),
+      vault: File.read!("test/sigra/install/vault_promotion_test.exs")
+    }
+
+    assert_contains_all!(sources.golden, [
+      "InstallFixture.normalize_tree",
+      "assert_tree_equal(actual, expected)",
+      "variant.stdout",
+      "STDOUT diverges from fixture"
+    ])
+
+    assert_contains_all!(sources.idempotency, [
+      "hash_snapshot(app_dir)",
+      "collect_mtimes(app_dir)",
+      "missing_or_changed == []",
+      "new_files == []",
+      "changed_mtimes == []",
+      "already exists",
+      "already injected"
+    ])
+
+    assert_contains_all!(sources.upgrade, [
+      "ecto.migrate",
+      "compile",
+      "assert_login_redirects_to_organizations!",
+      "organizations_table_exists?",
+      "count_personal_orgs!",
+      "expected re-run to be a no-op",
+      "status_codes_seen",
+      "MIX_DEPS_PATH",
+      "run_mix_tasks!(app_dir",
+      ~S|[["compile"], ["ecto.migrate"]]|,
+      ~S|["ecto.create"]|,
+      ~S|["run", "-e", script]|,
+      ~S<InstallFixture.run_mix(app_dir, ["do" | args])>,
+      "prepare_checkouts!([",
+      "max_concurrency: 2",
+      "timeout: 120_000",
+      "on_timeout: :kill_task"
+    ])
+
+    assert_contains_all!(sources.passkeys, [
+      "@passkey_start_marker",
+      "@passkey_end_marker",
+      "@passkey_import",
+      "@passkey_hooks_line",
+      "startRegistration",
+      "startAuthentication",
+      "run_browser_helper_node!"
+    ])
+
+    assert_contains_all!(sources.opt_out, [
+      "@forbidden_strings",
+      "\"compile\"",
+      "\"--warnings-as-errors\"",
+      "migration_present?",
+      "tree_contains?"
+    ])
+
+    assert_contains_all!(sources.vault, [
+      "use Cloak.Vault",
+      "use Cloak.Ecto.Binary",
+      "Vault, []",
+      "compile\", \"--warnings-as-errors"
+    ])
+  end
+
+  test "fixed runner and verifier expose no command, environment, or threshold bypass" do
+    runner = File.read!("scripts/ci/install-golden.sh")
+    verifier = File.read!("scripts/ci/verify-library-economics.sh")
+
+    assert runner =~ "export SIGRA_INSTALL_GOLDEN_PREPARED=1"
+    assert runner =~ "mix test \"${receiver_paths[@]}\""
+    refute runner =~ "eval "
+    refute runner =~ "${SIGRA_INSTALL_GOLDEN"
+    assert verifier =~ "maximum * 1000 <= minimum * 2000"
+    assert verifier =~ "install <= ordinary"
+    refute verifier =~ "THRESHOLD"
+    refute verifier =~ "ALLOW_"
   end
 
   test "protected FAST-01 and GATE-05 verifiers remain independently green" do
@@ -178,7 +373,9 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert aggregate =~ "if: always()"
     assert aggregate =~ ~s("$SHARD" != "success")
 
-    receiver_paths = install_golden_paths(mix_exs)
+    install_runner = File.read!("scripts/ci/install-golden.sh")
+    assert install_alias_commands(mix_exs) == ["cmd bash scripts/ci/install-golden.sh"]
+    receiver_paths = install_golden_paths(install_runner)
     assert length(receiver_paths) == 6
     assert length(receiver_paths) == MapSet.size(MapSet.new(receiver_paths))
     assert receiver_paths == live_scaffold_paths()
@@ -310,15 +507,28 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     |> quoted_values()
   end
 
-  defp install_golden_paths(mix_exs) do
-    mix_exs
-    |> alias_body("ci.install_golden")
-    |> quoted_values()
-    |> Enum.flat_map(fn command ->
-      command
-      |> String.replace_prefix("test ", "")
-      |> String.split(" ", trim: true)
-      |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
+  defp install_alias_commands(mix_exs) do
+    mix_exs |> alias_body("ci.install_golden") |> quoted_values()
+  end
+
+  defp install_golden_paths(runner) do
+    [_, body] = Regex.run(~r/receiver_paths=\(\n(?<body>.*?)\n\)/s, runner)
+
+    body
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.trim/1)
+    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
+    |> Enum.sort()
+  end
+
+  defp byte_index!(source, needle), do: :binary.match(source, needle) |> elem(0)
+
+  defp last_byte_index!(source, needle),
+    do: source |> :binary.matches(needle) |> List.last() |> elem(0)
+
+  defp assert_contains_all!(source, needles) do
+    Enum.each(needles, fn needle ->
+      assert source =~ needle, "missing retained receiver proof: #{needle}"
     end)
   end
 

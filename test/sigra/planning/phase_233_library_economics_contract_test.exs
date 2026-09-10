@@ -73,6 +73,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   test "mix ci routes both test classes through one economics harness" do
     mix_exs = File.read!("mix.exs")
     harness = File.read!("scripts/ci/library-economics.sh")
+    install_runner = File.read!("scripts/ci/install-golden.sh")
     expected_paths = canonical_scaffold_paths()
     live_paths = live_scaffold_paths()
 
@@ -95,7 +96,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute harness =~ "--slowest"
     refute harness =~ "--trace"
 
-    receiver_paths = install_golden_paths(mix_exs)
+    assert install_alias_commands(mix_exs) == ["cmd bash scripts/ci/install-golden.sh"]
+
+    receiver_paths = install_golden_paths(install_runner)
 
     assert receiver_paths == expected_paths,
            "ci.install_golden must run every live scaffold module exactly once"
@@ -107,6 +110,38 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
       refute harness =~ path,
              "the harness must call ci.install_golden rather than copy receiver path #{path}"
     end)
+
+    refute mix_exs =~ "test/sigra/install/features/passkeys_js_test.exs"
+  end
+
+  test "prepared receivers preserve immutable reads and private mutation ownership" do
+    golden = File.read!("test/sigra/install/golden_diff_test.exs")
+    idempotency = File.read!("test/sigra/install/idempotency_test.exs")
+    upgrade = File.read!("test/upgrade_test.exs")
+
+    assert golden =~ "InstallFixture.variant!(:default_installed)"
+    refute golden =~ "InstallFixture.setup_tmp_app()"
+    assert idempotency =~ "InstallFixture.checkout!(:default_installed, \"idempotency-rerun\")"
+    refute idempotency =~ "InstallFixture.setup_tmp_app()"
+
+    assert Regex.scan(
+             ~r/\{:(no_org_installed|default_installed), "(upgrade-[^"]+)", :(zero_org|backfill_off|backfill_on)\}/,
+             upgrade,
+             capture: :all_but_first
+           ) == [
+             ["no_org_installed", "upgrade-zero-org", "zero_org"],
+             ["default_installed", "upgrade-backfill-off", "backfill_off"],
+             ["default_installed", "upgrade-backfill-on", "backfill_on"]
+           ]
+
+    assert upgrade =~ "prepare_checkouts!(["
+    assert length(Regex.scan(~r/InstallFixture\.checkout!\(/, upgrade)) == 1
+    assert upgrade =~ "max_concurrency: 2"
+    assert upgrade =~ "timeout: 120_000"
+    assert upgrade =~ "on_timeout: :kill_task"
+    assert upgrade =~ "InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)"
+    refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"
+    refute upgrade =~ "@moduletag :upgrade"
   end
 
   test "remediation receipt is closed, retry-free, source-bound, and preserves the strict prior miss" do
@@ -253,16 +288,18 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> quoted_values()
   end
 
-  defp install_golden_paths(mix_exs) do
-    mix_exs
-    |> alias_body("ci.install_golden")
-    |> quoted_values()
-    |> Enum.flat_map(fn command ->
-      command
-      |> String.replace_prefix("test ", "")
-      |> String.split(" ", trim: true)
-      |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
-    end)
+  defp install_alias_commands(mix_exs) do
+    mix_exs |> alias_body("ci.install_golden") |> quoted_values()
+  end
+
+  defp install_golden_paths(runner) do
+    [_, body] = Regex.run(~r/receiver_paths=\(\n(?<body>.*?)\n\)/s, runner)
+
+    body
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.trim/1)
+    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
+    |> Enum.sort()
   end
 
   defp alias_body(mix_exs, alias_name) do

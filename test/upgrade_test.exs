@@ -9,14 +9,13 @@ defmodule Sigra.UpgradeIntegrationTest do
     * backfill-on  (ORG-UPGRADE-01): every user gets a personal org, re-run is a no-op
   """
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 
   @documented_upgrade_command "mix sigra.upgrade --yes"
   @documented_backfill_command "mix sigra.upgrade --backfill-personal-orgs --yes"
 
-  @moduletag :upgrade
   @moduletag timeout: 600_000
   @moduletag :scaffold
 
@@ -35,162 +34,182 @@ defmodule Sigra.UpgradeIntegrationTest do
     :ok
   end
 
-  describe "upgrade after --no-organizations install (zero-org path — ORG-02 + GEN-03 org-axis)" do
+  describe "isolated prepared upgrade scenarios" do
     @tag :tmp_dir
-    test "mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable" do
-      # BLOCKER 1: treats `mix sigra.install --no-organizations` as v1.0 fixture.
-      # The upgrade task MUST detect the missing organizations table and emit ZERO
-      # ALTER migrations (no crash on `mix ecto.migrate`).
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_zero"))
+    test "zero-org, backfill-off, and backfill-on retain their complete behavior" do
+      scenarios =
+        prepare_checkouts!([
+          {:no_org_installed, "upgrade-zero-org", :zero_org},
+          {:default_installed, "upgrade-backfill-off", :backfill_off},
+          {:default_installed, "upgrade-backfill-on", :backfill_on}
+        ])
 
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, ["--no-organizations"])
+      assert {:ok, results} =
+               InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)
 
-      seed_users!(app_dir, 3)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-
-      # Snapshot priv/repo/migrations/ before upgrade.
-      migrations_before =
-        [app_dir, "priv", "repo", "migrations"]
-        |> Path.join()
-        |> File.ls!()
-        |> Enum.sort()
-
-      # Act: run upgrade WITHOUT backfill flag.
-      {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
-
-      # Assert: no crash substring in upgrade stdout.
-      refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
-      assert documented_upgrade_command([]) == @documented_upgrade_command
-
-      # Assert: no new ALTER migrations emitted (zero-org path).
-      migrations_after =
-        [app_dir, "priv", "repo", "migrations"]
-        |> Path.join()
-        |> File.ls!()
-        |> Enum.sort()
-
-      new_migrations = migrations_after -- migrations_before
-      alter_migrations = Enum.filter(new_migrations, &String.contains?(&1, "organizations"))
-
-      assert alter_migrations == [],
-             "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
-
-      # Assert: app still compiles + migrates + boots.
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-      {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
-
-      # Assert: organizations table should be absent in the zero-org path.
-      refute organizations_table_exists?(app_dir),
-             "expected organizations table to be absent in --no-organizations upgrade"
+      assert results |> Enum.map(fn {scenario, :ok} -> scenario.kind end) |> Enum.sort() ==
+               [:backfill_off, :backfill_on, :zero_org]
     end
   end
 
-  describe "upgrade after default install (org-enabled path — ORG-UPGRADE-02)" do
-    @tag :tmp_dir
-    test "login after backfill-off upgrade redirects to /organizations with 302 and no 500s" do
-      # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
-      # "login still works, users land on create/accept page, no 500s, nil-guarded
-      # template accessors verified by boot test".
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_default"))
+  defp run_upgrade_scenario(%{kind: :zero_org} = checkout) do
+    # BLOCKER 1: treats `mix sigra.install --no-organizations` as v1.0 fixture.
+    # The upgrade task MUST detect the missing organizations table and emit ZERO
+    # ALTER migrations (no crash on `mix ecto.migrate`).
+    app_dir = checkout.path
 
-      # Default install = org-enabled (from Plan 18-01; organizations table already
-      # has owner_user_id and personal columns).
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, [])
+    seed_users!(app_dir, 3)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
 
-      seed_users!(app_dir, 2)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    # Snapshot priv/repo/migrations/ before upgrade.
+    migrations_before =
+      [app_dir, "priv", "repo", "migrations"]
+      |> Path.join()
+      |> File.ls!()
+      |> Enum.sort()
 
-      # Act: run upgrade WITHOUT backfill flag. ALTER migrations use
-      # add_if_not_exists / create_if_not_exists so they are idempotent no-ops
-      # against the fresh-install shape.
-      {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
-      refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
-      assert documented_upgrade_command([]) == @documented_upgrade_command
+    # Act: run upgrade WITHOUT backfill flag.
+    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-      {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+    # Assert: no crash substring in upgrade stdout.
+    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    assert documented_upgrade_command([]) == @documented_upgrade_command
 
-      # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
-      login_result = assert_login_redirects_to_organizations!(app_dir)
+    # Assert: no new ALTER migrations emitted (zero-org path).
+    migrations_after =
+      [app_dir, "priv", "repo", "migrations"]
+      |> Path.join()
+      |> File.ls!()
+      |> Enum.sort()
 
-      assert login_result.login_status in [200, 302, 303],
-             "login POST returned #{login_result.login_status}"
+    new_migrations = migrations_after -- migrations_before
+    alter_migrations = Enum.filter(new_migrations, &String.contains?(&1, "organizations"))
 
-      # ORG-UPGRADE-02 post-upgrade landing assertion.
-      #
-      # The seeded login user was created via the generated
-      # `register_user/1` which, on a v1.1+ default install, auto-
-      # creates a personal organization. Post-upgrade that user
-      # therefore has an active org and is routed to the app root
-      # (`/`). A pre-v1.1 user with zero orgs would instead be
-      # trapped on `/organizations` by `RequireMembership`. Both
-      # outcomes are acceptable here — the load-bearing guarantee is
-      # that the session is valid, the router fires, and no 5xx
-      # leaks from a nil-guard gap in the upgraded templates.
-      assert login_result.final_path in ["/", "/organizations"],
-             "expected final path to be / or /organizations, got #{login_result.final_path}"
+    assert alter_migrations == [],
+           "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
 
-      assert Enum.all?(login_result.status_codes_seen, &(&1 < 500)),
-             "saw 5xx response: #{inspect(login_result.status_codes_seen)}"
-    end
+    # Assert: app still compiles + migrates + boots.
+    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
+    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+
+    # Assert: organizations table should be absent in the zero-org path.
+    refute organizations_table_exists?(app_dir),
+           "expected organizations table to be absent in --no-organizations upgrade"
+
+    :ok
   end
 
-  describe "mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01)" do
-    @tag :tmp_dir
-    test "every user gets a personal org; re-run is a no-op" do
-      # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
-      # (org-enabled), not --no-organizations.
-      {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_backfill"))
+  defp run_upgrade_scenario(%{kind: :backfill_off} = checkout) do
+    # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
+    # "login still works, users land on create/accept page, no 500s, nil-guarded
+    # template accessors verified by boot test".
+    app_dir = checkout.path
 
-      {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, [])
+    seed_users!(app_dir, 2)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
 
-      seeded_count = 5
-      seed_users!(app_dir, seeded_count)
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    # Act: run upgrade WITHOUT backfill flag. ALTER migrations use
+    # add_if_not_exists / create_if_not_exists so they are idempotent no-ops
+    # against the fresh-install shape.
+    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
+    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    assert documented_upgrade_command([]) == @documented_upgrade_command
 
-      # First upgrade: backfill runs.
-      {:ok, _upgrade_out} =
-        InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
+    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
-      assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
-               @documented_backfill_command
+    # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
+    login_result = assert_login_redirects_to_organizations!(checkout)
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
+    assert login_result.login_status in [200, 302, 303],
+           "login POST returned #{login_result.login_status}"
+
+    # ORG-UPGRADE-02 post-upgrade landing assertion.
+    #
+    # The seeded login user was created via the generated
+    # `register_user/1` which, on a v1.1+ default install, auto-
+    # creates a personal organization. Post-upgrade that user
+    # therefore has an active org and is routed to the app root
+    # (`/`). A pre-v1.1 user with zero orgs would instead be
+    # trapped on `/organizations` by `RequireMembership`. Both
+    # outcomes are acceptable here — the load-bearing guarantee is
+    # that the session is valid, the router fires, and no 5xx
+    # leaks from a nil-guard gap in the upgraded templates.
+    assert login_result.final_path in ["/", "/organizations"],
+           "expected final path to be / or /organizations, got #{login_result.final_path}"
+
+    assert Enum.all?(login_result.status_codes_seen, &(&1 < 500)),
+           "saw 5xx response: #{inspect(login_result.status_codes_seen)}"
+
+    :ok
+  end
+
+  defp run_upgrade_scenario(%{kind: :backfill_on} = checkout) do
+    # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
+    # (org-enabled), not --no-organizations.
+    app_dir = checkout.path
+
+    seeded_count = 5
+    seed_users!(app_dir, seeded_count)
+    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+
+    # First upgrade: backfill runs.
+    {:ok, _upgrade_out} =
+      InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+
+    assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
+             @documented_backfill_command
+
+    {:ok, _} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
+    run_data_migrations!(app_dir)
+
+    if organizations_table_exists?(app_dir) do
+      first_count = count_personal_orgs!(app_dir)
+
+      assert first_count == seeded_count,
+             "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
+
+      # Re-run: must be a no-op.
+      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       run_data_migrations!(app_dir)
 
-      if organizations_table_exists?(app_dir) do
-        first_count = count_personal_orgs!(app_dir)
+      second_count = count_personal_orgs!(app_dir)
+      assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
+    else
+      # Some dependency-minimal install shapes do not install organizations.
+      # Backfill must remain a no-op in that shape, including on re-run.
+      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+      run_data_migrations!(app_dir)
 
-        assert first_count == seeded_count,
-               "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
-
-        # Re-run: must be a no-op.
-        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-        run_data_migrations!(app_dir)
-
-        second_count = count_personal_orgs!(app_dir)
-        assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
-      else
-        # Some dependency-minimal install shapes do not install organizations.
-        # Backfill must remain a no-op in that shape, including on re-run.
-        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-        run_data_migrations!(app_dir)
-
-        refute organizations_table_exists?(app_dir),
-               "expected backfill to preserve org-absent install shape"
-      end
+      refute organizations_table_exists?(app_dir),
+             "expected backfill to preserve org-absent install shape"
     end
+
+    :ok
   end
 
   # ── Helpers ─────────────────────────────────────────────────────
+
+  defp prepare_checkouts!(specs) do
+    specs
+    |> Task.async_stream(
+      fn {variant, scenario, kind} ->
+        variant
+        |> InstallFixture.checkout!(scenario)
+        |> Map.put(:kind, kind)
+      end,
+      max_concurrency: 2,
+      ordered: true,
+      timeout: 120_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn
+      {:ok, checkout} -> checkout
+      {:exit, reason} -> flunk("private upgrade checkout preparation failed: #{inspect(reason)}")
+    end)
+  end
 
   # Seeds `n` users into the tmp app's DB via `mix run -e`.
   defp seed_users!(app_dir, n) do
@@ -209,9 +228,29 @@ defmodule Sigra.UpgradeIntegrationTest do
     end)
     """
 
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.create"])
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
+    {:ok, _} =
+      run_mix_tasks!(app_dir, [
+        ["ecto.create"],
+        ["ecto.migrate"],
+        ["run", "-e", script]
+      ])
+  end
+
+  defp run_mix_tasks!(app_dir, tasks) do
+    last_index = length(tasks) - 1
+
+    args =
+      tasks
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {task_args, index} ->
+        if index == last_index do
+          task_args
+        else
+          List.update_at(task_args, -1, &(&1 <> ","))
+        end
+      end)
+
+    InstallFixture.run_mix(app_dir, ["do" | args])
   end
 
   # `mix ecto.migrate` only runs schema migrations under
@@ -300,16 +339,13 @@ defmodule Sigra.UpgradeIntegrationTest do
     |> Enum.join(" ")
   end
 
-  defp unique_app_name(prefix) do
-    "#{prefix}_#{System.unique_integer([:positive])}"
-  end
-
   defp otp_app_atom(app_dir) do
-    app_dir |> Path.basename() |> Macro.underscore()
+    [_, app] = Regex.run(~r/app:\s+:(\w+)/, File.read!(Path.join(app_dir, "mix.exs")))
+    app
   end
 
   defp otp_app_module(app_dir) do
-    app_dir |> Path.basename() |> Macro.camelize()
+    app_dir |> otp_app_atom() |> Macro.camelize()
   end
 
   # ── BLOCKER 2 helper: HTTP login assertion for ORG-UPGRADE-02 ────
@@ -317,24 +353,18 @@ defmodule Sigra.UpgradeIntegrationTest do
   # Starts `mix phx.server` in the tmp app as a background port, POSTs login,
   # follows the redirect with the session cookie, and returns a map of observed
   # status codes + final path.
-  defp assert_login_redirects_to_organizations!(app_dir) do
-    port = 4444 + :rand.uniform(1000)
+  defp assert_login_redirects_to_organizations!(checkout) do
+    app_dir = checkout.path
+    port = checkout.port
 
     # Seed a user with a known password via generated register_user/1.
     seed_login_user!(app_dir, "login@example.test", "CorrectHorse!1")
 
-    server_task =
-      Task.async(fn ->
-        System.cmd("mix", ["phx.server"],
-          cd: app_dir,
-          stderr_to_stdout: true,
-          env: [{"MIX_ENV", "dev"}, {"PORT", Integer.to_string(port)}]
-        )
-      end)
-
-    :ok = wait_for_http(port, 30_000)
+    {server_port, server_pid} = start_server!(checkout)
 
     try do
+      :ok = wait_for_http(port, 30_000)
+
       # Step 1: GET the login form to establish a session cookie AND
       # extract the _csrf_token hidden input. Phoenix 1.8's default
       # `protect_from_forgery` plug rejects POSTs without a matching
@@ -344,6 +374,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-c",
             "#{app_dir}/cookies.txt",
             "http://localhost:#{port}/users/log_in"
@@ -373,6 +407,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-i",
             "-b",
             "#{app_dir}/cookies.txt",
@@ -399,6 +437,10 @@ defmodule Sigra.UpgradeIntegrationTest do
           "curl",
           [
             "-s",
+            "--connect-timeout",
+            "2",
+            "--max-time",
+            "10",
             "-L",
             "-b",
             "#{app_dir}/cookies.txt",
@@ -423,13 +465,126 @@ defmodule Sigra.UpgradeIntegrationTest do
         status_codes_seen: all_status_codes
       }
     after
-      # Scope the kill pattern to this tmp app directory so we never
-      # touch unrelated `phx.server` processes on the developer's
-      # machine or shared CI runners.
-      System.cmd("pkill", ["-f", "phx.server.*#{Path.basename(app_dir)}"], stderr_to_stdout: true)
-
-      Task.shutdown(server_task, :brutal_kill)
+      stop_server!(server_port, server_pid)
     end
+  end
+
+  defp start_server!(checkout) do
+    executable = System.find_executable("mix") || flunk("mix executable not found")
+
+    server_port =
+      Port.open(
+        {:spawn_executable, executable},
+        [
+          :binary,
+          :exit_status,
+          :stderr_to_stdout,
+          args: [~c"phx.server"],
+          cd: String.to_charlist(checkout.path),
+          env: [
+            {~c"MIX_ENV", ~c"dev"},
+            {~c"MIX_TEST_PARTITION", String.to_charlist(checkout.partition)},
+            {~c"MIX_BUILD_PATH", String.to_charlist(checkout.build_path)},
+            {~c"MIX_DEPS_PATH", String.to_charlist(checkout.deps_path)},
+            {~c"PORT", checkout.port |> Integer.to_string() |> String.to_charlist()}
+          ]
+        ]
+      )
+
+    {:os_pid, server_pid} = Port.info(server_port, :os_pid)
+    {server_port, server_pid}
+  end
+
+  defp stop_server!(server_port, server_pid) do
+    owned_pids = [server_pid | descendant_pids(server_pid)] |> Enum.uniq()
+    signal_processes(Enum.reverse(owned_pids), "TERM")
+    await_port_exit(server_port, 2_000)
+
+    remaining = Enum.filter(owned_pids, &os_process_alive?/1)
+    signal_processes(Enum.reverse(remaining), "KILL")
+    await_process_exit(remaining, 2_000)
+
+    if Port.info(server_port) do
+      Port.close(server_port)
+    end
+
+    still_alive = Enum.filter(owned_pids, &os_process_alive?/1)
+
+    if still_alive != [] do
+      flunk("upgrade server left owned OS descendants alive: #{inspect(still_alive)}")
+    end
+  end
+
+  defp descendant_pids(parent_pid) do
+    case System.cmd("pgrep", ["-P", Integer.to_string(parent_pid)], stderr_to_stdout: true) do
+      {output, 0} ->
+        output
+        |> String.split()
+        |> Enum.map(&String.to_integer/1)
+        |> Enum.flat_map(fn child_pid -> [child_pid | descendant_pids(child_pid)] end)
+
+      {_output, _status} ->
+        []
+    end
+  end
+
+  defp signal_processes([], _signal), do: :ok
+
+  defp signal_processes(pids, signal) do
+    System.cmd("kill", ["-#{signal}" | Enum.map(pids, &Integer.to_string/1)],
+      stderr_to_stdout: true
+    )
+
+    :ok
+  end
+
+  defp await_port_exit(server_port, timeout_ms) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    do_await_port_exit(server_port, deadline)
+  end
+
+  defp do_await_port_exit(server_port, deadline) do
+    remaining = max(deadline - System.monotonic_time(:millisecond), 0)
+
+    receive do
+      {^server_port, {:exit_status, _status}} ->
+        :ok
+
+      {^server_port, {:data, _output}} ->
+        do_await_port_exit(server_port, deadline)
+    after
+      remaining -> :timeout
+    end
+  end
+
+  defp await_process_exit([], _timeout_ms), do: :ok
+
+  defp await_process_exit(pids, timeout_ms) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    do_await_process_exit(pids, deadline)
+  end
+
+  defp do_await_process_exit(pids, deadline) do
+    remaining = Enum.filter(pids, &os_process_alive?/1)
+
+    cond do
+      remaining == [] ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        :timeout
+
+      true ->
+        Process.sleep(25)
+        do_await_process_exit(remaining, deadline)
+    end
+  end
+
+  defp os_process_alive?(pid) do
+    match?(
+      {_output, 0},
+      System.cmd("kill", ["-0", Integer.to_string(pid)], stderr_to_stdout: true)
+    )
   end
 
   defp seed_login_user!(app_dir, email, password) do
