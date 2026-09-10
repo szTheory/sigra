@@ -1893,12 +1893,18 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp strip_unavailable_optional_app_warning(output) do
-    Regex.replace(
-      ~r/\AYou have configured application :phoenix_live_view in your configuration file,\n.*?Please ensure :phoenix_live_view exists or remove the configuration\.\n\n/s,
-      output,
-      "",
-      global: false
-    )
+    warning =
+      ~r/\AYou have configured application :(?<app>[a-z][a-z0-9_]*) in your configuration file,\nbut the application is not available\.\n\nThis usually means one of:\n\n  1\. You have not added the application as a dependency in a mix\.exs file\.\n\n  2\. You are configuring an application that does not really exist\.\n\nPlease ensure :\k<app> exists or remove the configuration\.\n\n/
+
+    case Regex.run(warning, output) do
+      [matched, app] when app in ["sigra_install_golden_tmp", "phoenix_live_view"] ->
+        output
+        |> binary_part(byte_size(matched), byte_size(output) - byte_size(matched))
+        |> strip_unavailable_optional_app_warning()
+
+      _ ->
+        output
+    end
   end
 
   defp installer_no_compile_command(name) do
@@ -1911,6 +1917,10 @@ defmodule Sigra.Test.InstallFixture do
 
   @doc false
   def installer_no_compile_command_for_test(name), do: installer_no_compile_command(name)
+
+  @doc false
+  def normalize_no_compile_stdout_for_test(output),
+    do: strip_unavailable_optional_app_warning(output)
 
   defp prepare_variant_assets!(:passkeys_standard, path) do
     write_asset_file(path, "js/app.js", @standard_app_js)
