@@ -609,15 +609,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
   test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
     graph = prepare_test_graph!(root)
-    receipt = InstallFixture.diagnostic_receipt(graph, 1_000)
+    receipt_without_raw = InstallFixture.diagnostic_receipt(graph)
 
-    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+    refute Map.has_key?(receipt_without_raw, :raw_install_duration_ms)
 
-    assert Map.keys(receipt.phases) |> Enum.sort() ==
+    assert Map.keys(receipt_without_raw.phases) |> Enum.sort() ==
              ~w(baseline_compile checkout_copy deps_get installer phx_new receiver_compile_runtime)a
 
-    assert Enum.all?(receipt.phases, fn {_phase, duration} -> duration > 0 end)
-    assert Enum.sum(Map.values(receipt.phases)) <= receipt.raw_install_duration_ms
+    assert Enum.all?(receipt_without_raw.phases, fn {_phase, duration} -> duration > 0 end)
+
+    phase_sum = Enum.sum(Map.values(receipt_without_raw.phases))
+    assert phase_sum > 0
+
+    receipt = Map.put(receipt_without_raw, :raw_install_duration_ms, phase_sum)
+
+    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+    assert Enum.sum(Map.values(receipt.phases)) == receipt.raw_install_duration_ms
     assert receipt.variant_count == 6
     assert receipt.worker_count == 2
     refute Map.has_key?(receipt, :verdict)
@@ -634,7 +641,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     end
 
     assert_raise ArgumentError, fn ->
-      %{receipt | raw_install_duration_ms: 1}
+      %{receipt | raw_install_duration_ms: phase_sum - 1}
       |> InstallFixture.validate_diagnostics!()
     end
   end
