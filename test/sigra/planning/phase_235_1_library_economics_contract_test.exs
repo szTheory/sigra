@@ -205,7 +205,8 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       "organizations_table_exists?",
       "count_personal_orgs!",
       "expected re-run to be a no-op",
-      "status_codes_seen"
+      "status_codes_seen",
+      "MIX_DEPS_PATH"
     ])
 
     assert_contains_all!(sources.passkeys, [

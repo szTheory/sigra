@@ -451,6 +451,7 @@ defmodule Sigra.UpgradeIntegrationTest do
             {~c"MIX_ENV", ~c"dev"},
             {~c"MIX_TEST_PARTITION", String.to_charlist(checkout.partition)},
             {~c"MIX_BUILD_PATH", String.to_charlist(checkout.build_path)},
+            {~c"MIX_DEPS_PATH", String.to_charlist(checkout.deps_path)},
             {~c"PORT", checkout.port |> Integer.to_string() |> String.to_charlist()}
           ]
         ]
