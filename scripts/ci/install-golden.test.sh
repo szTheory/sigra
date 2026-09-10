@@ -38,6 +38,11 @@ if [[ "${SIGRA_TEST_SKIP_DIAGNOSTIC:-false}" != "true" ]]; then
 {"schema_version":"sigra.install-fixture-diagnostics/v1","phases":{"phx_new":1,"deps_get":1,"baseline_compile":1,"installer":1,"receiver_compile_runtime":1,"checkout_copy":1},"copy_mode":"copy","variant_count":6,"worker_count":2,"partitions":["a","b","c","d","e","f"],"ports":[41001,41002,41003,41004,41005,41006],"failed_paths":[]}
 JSON
 fi
+# The production runner measures whole-child monotonic time and requires the
+# six positive diagnostic phases (sum = 6ms) to fit inside it. Keep this stub
+# deterministically above that lower bound instead of relying on process-start
+# overhead, which can complete in under 6ms on a warm machine.
+sleep 0.02
 if [[ "${SIGRA_TEST_SIGNAL:-false}" == "true" ]]; then
   kill -TERM "$$"
 fi
