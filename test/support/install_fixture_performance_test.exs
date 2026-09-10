@@ -470,6 +470,20 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     {:ok, counter} = Agent.start_link(fn -> %{active: 0, maximum: 0, completed: []} end)
     caller = self()
 
+    barrier =
+      spawn(fn ->
+        receive do
+          {:entered, first_id, first_pid} ->
+            receive do
+              {:entered, second_id, second_pid} ->
+                fail_pid =
+                  Map.fetch!(%{first_id => first_pid, second_id => second_pid}, :fail)
+
+                send(fail_pid, :both_workers_entered)
+            end
+        end
+      end)
+
     scenarios = [
       %{id: :slow, path: "/tmp/slow"},
       %{id: :fail, path: "/tmp/fail"},
@@ -483,11 +497,19 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       end)
 
       send(caller, {:started, scenario.id})
+      send(barrier, {:entered, scenario.id, self()})
 
       result =
         case scenario.id do
-          :fail -> {:error, 23}
-          _ -> Process.sleep(5_000)
+          :fail ->
+            receive do
+              :both_workers_entered -> {:error, 23}
+            end
+
+          _ ->
+            receive do
+              :unexpected_release -> :unexpected
+            end
         end
 
       Agent.update(counter, fn state ->
