@@ -1,5 +1,5 @@
 defmodule Sigra.DeliveryTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mox
 
@@ -19,6 +19,38 @@ defmodule Sigra.DeliveryTest do
   end
 
   setup :verify_on_exit!
+
+  defp acquire_dummy_oban(spawn_dummy \\ fn -> spawn(fn -> Process.sleep(:infinity) end) end) do
+    dummy = spawn_dummy.()
+    on_exit(fn -> cleanup_dummy_oban(dummy) end)
+
+    try do
+      Process.register(dummy, Oban)
+      dummy
+    rescue
+      exception in ArgumentError ->
+        cleanup_dummy_oban(dummy)
+        reraise exception, __STACKTRACE__
+    end
+  end
+
+  defp cleanup_dummy_oban(dummy) do
+    ref = Process.monitor(dummy)
+
+    if Process.whereis(Oban) == dummy do
+      Process.unregister(Oban)
+    end
+
+    if Process.alive?(dummy) do
+      Process.exit(dummy, :kill)
+    end
+
+    receive do
+      {:DOWN, ^ref, :process, ^dummy, reason} when reason in [:killed, :noproc] -> :ok
+    after
+      1_000 -> raise "dummy Oban process did not terminate"
+    end
+  end
 
   describe "deliver_sync/3" do
     test "calls mailer.deliver and returns {:ok, result}" do
@@ -185,9 +217,7 @@ defmodule Sigra.DeliveryTest do
     test "with delivery_mode: :auto routes to :async when Oban process is registered" do
       # Simulate a supervised Oban by registering a dummy process under the
       # Oban name. Delivery.oban_running?/0 checks Process.whereis(Oban).
-      dummy = spawn(fn -> Process.sleep(:infinity) end)
-      Process.register(dummy, Oban)
-      on_exit(fn -> Process.exit(dummy, :kill) end)
+      _dummy = acquire_dummy_oban()
 
       args = %{user_id: 1, token: "tok"}
 
