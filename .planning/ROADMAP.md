@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 7 completed implementation plans, 2 retained failed/blocked evidence plans, and 3 active recovery plans
+**Plans:** 8 completed implementation plans, 3 retained failed/blocked evidence plans, and 3 active recovery plans
 
 **Success Criteria:**
 
@@ -566,14 +566,22 @@ Plans:
 
 - [x] 235.1-10-PLAN.md — Blocked capture history; no evidence admitted and all six failed runs retained
 
-**Wave 9** *(active; blocked on Plan 10 diagnostics)*
+**Wave 9** *(completed from Plan 10 diagnostics)*
 
-- [ ] 235.1-11-PLAN.md — Repair partition receipt lifetime and Rebar retry source-state isolation
+- [x] 235.1-11-PLAN.md — Repair partition receipt lifetime and Rebar retry source-state isolation
 
-**Wave 10** *(blocked on Plan 11)*
+**Blocked evidence history** *(two additional failed attempt-1 runs retained; not active routing)*
 
-- [ ] 235.1-12-PLAN.md — Capture and validate fresh dual-route evidence within a three-candidate budget
+- [x] 235.1-12-PLAN.md — Blocked candidate-1 capture; runs 34493873867/34493911924 retained and no evidence admitted
 
-**Wave 11** *(blocked on Plan 12)*
+**Wave 11** *(active; blocked on Plan 12 diagnostics)*
+
+- [ ] 235.1-13-PLAN.md — Repair formatter ownership, strict warning normalization, and no-rg verifier portability
+
+**Wave 12** *(blocked on Plan 13)*
+
+- [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
+
+**Wave 13** *(blocked on Plan 14)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
