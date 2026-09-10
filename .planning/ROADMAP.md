@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 11 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 12 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -614,10 +614,14 @@ Plans:
 
 - [x] 235.1-20-PLAN.md — Exact candidate `ec1850b4` retained; stale preflight pins stopped with zero timed pairs and zero GitHub actions
 
-**Wave 20** *(active; blocked on Plan 20 diagnosis)*
+**Blocked live recovery history** *(seven-pin authority passed; committed audit pre-state stopped before timed validation or GitHub)*
 
-- [ ] 235.1-23-PLAN.md — Separate historical/current authority pins, mutation-test all seven, and capture/validate the exact repaired tree
+- [x] 235.1-23-PLAN.md — Seven-pin repair retained; candidate `942df63e` stopped on omitted 21/24 audit pre-state with zero timed pairs/GitHub
 
-**Wave 21** *(blocked on Plan 23)*
+**Wave 21** *(active; blocked on Plan 23 diagnosis)*
+
+- [ ] 235.1-24-PLAN.md — Commit only the authorized 21/24 audit pre-state, then capture/validate its exact authority tree
+
+**Wave 22** *(blocked on Plan 24)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
