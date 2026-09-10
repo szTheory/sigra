@@ -1249,6 +1249,7 @@ defmodule Sigra.Test.InstallFixture do
          dependency_path <- validate_graph_member!(Path.join([build_path, "lib", dependency])),
          true <- File.dir?(dependency_path) do
       safe_remove_graph_member!(dependency_path)
+      File.mkdir_p!(Path.join(dependency_path, ".mix"))
 
       retry_options =
         Keyword.update!(options, :env, fn env ->

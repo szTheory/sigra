@@ -1754,7 +1754,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     playwright_shard = workflow_job_block!(workflow, "example_playwright_shard")
     playwright_aggregate = workflow_job_block!(workflow, "example_playwright_smoke")
 
-    require_text!(library_shard, "run: MIX_ENV=test mix ci", "library direct-owner command")
+    require_text!(library_shard, "MIX_ENV=test mix ci", "library direct-owner command")
     require_text!(library_aggregate, "needs: [library_tests_shard]", "library aggregate needs")
     require_text!(playwright_shard, "npx playwright test", "Playwright direct-owner command")
     require_text!(playwright_aggregate, "example_playwright_shard", "Playwright aggregate needs")
