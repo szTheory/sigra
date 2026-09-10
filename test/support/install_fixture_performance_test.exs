@@ -482,6 +482,30 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute File.exists?(root)
   end
 
+  test "graph cleanup retries a transient partially removed tree without hiding failure", %{
+    root: root
+  } do
+    nested = Path.join(root, "shared_deps")
+    File.mkdir_p!(nested)
+    File.chmod!(nested, 0o500)
+
+    remover = fn path ->
+      case Process.get(:cleanup_attempt, 0) do
+        0 ->
+          Process.put(:cleanup_attempt, 1)
+          {:error, nested, :eexist}
+
+        _ ->
+          File.rm_rf(path)
+      end
+    end
+
+    assert :ok = InstallFixture.cleanup_graph_root_for_test!(root, remover)
+    assert Process.get(:cleanup_attempt) == 1
+    refute File.exists?(root)
+    Process.delete(:cleanup_attempt)
+  end
+
   test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
     graph = prepare_test_graph!(root)
     receipt = InstallFixture.diagnostic_receipt(graph, 1_000)

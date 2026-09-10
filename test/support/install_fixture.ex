@@ -1059,11 +1059,33 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp safe_remove_graph!(root) do
-    _ = File.chmod(root, 0o700)
-    make_tree_writable!(root)
-    File.rm_rf!(root)
-    :ok
+    safe_remove_graph!(root, &File.rm_rf/1, 3)
   end
+
+  defp safe_remove_graph!(root, remover, attempts_left) do
+    if File.exists?(root) do
+      _ = File.chmod(root, 0o700)
+      make_tree_writable!(root)
+    end
+
+    case remover.(root) do
+      {:ok, _removed} ->
+        :ok
+
+      {:error, _path, _reason} when attempts_left > 1 ->
+        safe_remove_graph!(root, remover, attempts_left - 1)
+
+      {:error, path, reason} ->
+        raise File.Error,
+          reason: reason,
+          path: path,
+          action: "remove files and directories recursively from"
+    end
+  end
+
+  @doc false
+  def cleanup_graph_root_for_test!(root, remover) when is_function(remover, 1),
+    do: safe_remove_graph!(root, remover, 3)
 
   defp build_source_base!(base_path, opts) do
     parent = Path.dirname(base_path)
