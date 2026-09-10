@@ -28,6 +28,14 @@ verify_formatter_test_receipt_ownership() {
 
   grep -Fq 'path = "/tmp/sigra-library-scaffold-timings.json"' "$source" ||
     fail "formatter write contract does not own the scaffold receipt path"
+
+  for ordinary_path in \
+    '/tmp/sigra-library-1-timings.json' \
+    '/tmp/sigra-library-2-timings.json'; do
+    if grep -Fq -- "$ordinary_path" "$source"; then
+      fail "formatter test has ordinary receipt ownership: $ordinary_path"
+    fi
+  done
 }
 
 verify_formatter_test_receipt_ownership "$FORMATTER_TEST"
@@ -42,13 +50,26 @@ test_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-library-partitions-test.XXXXXX")"
 trap 'rm -rf "$test_root"' EXIT
 mkdir -p "$test_root/bin"
 
-mutated_formatter_test="$test_root/formatter-test-mutated.exs"
-sed 's|path = "/tmp/sigra-library-scaffold-timings.json"|path = "/tmp/sigra-library-1-timings.json"|' \
-  "$FORMATTER_TEST" >"$mutated_formatter_test"
+mutation_cases=(
+  'File.write!("/tmp/sigra-library-1-timings.json", "forged")'
+  'ordinary = "/tmp/sigra-library-2-timings.json"; File.write(ordinary, "forged")'
+  'File.rm("/tmp/sigra-library-1-timings.json")'
+  'ordinary = "/tmp/sigra-library-2-timings.json"; File.rm!(ordinary)'
+  'File.rm_rf("/tmp/sigra-library-1-timings.json")'
+  'ordinary = "/tmp/sigra-library-2-timings.json"; on_exit(fn -> File.rm(ordinary) end)'
+)
 
-if (verify_formatter_test_receipt_ownership "$mutated_formatter_test") 2>/dev/null; then
-  fail "ordinary-path formatter mutation was accepted"
-fi
+for index in "${!mutation_cases[@]}"; do
+  mutated_formatter_test="$test_root/formatter-test-mutated-${index}.exs"
+  {
+    cat "$FORMATTER_TEST"
+    printf '\n%s\n' "${mutation_cases[$index]}"
+  } >"$mutated_formatter_test"
+
+  if (verify_formatter_test_receipt_ownership "$mutated_formatter_test") 2>/dev/null; then
+    fail "ordinary-path formatter mutation ${index} was accepted"
+  fi
+done
 
 # These single-quoted lines intentionally write a child script without expanding
 # its environment in this parent process.
@@ -96,5 +117,16 @@ jq -e '
   .partitions[1].conclusion == "not_run" and
   .partitions[1].exit_status == 0
 ' /tmp/sigra-library-partitions.json >/dev/null || fail "failure receipt concealed child status"
+
+echo "Test C: real partition-2 ExUnit lifetime preserves partition-1 receipt"
+PATH="${PATH#"$test_root/bin:"}" \
+  ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
+  MIX_ENV=test bash "$RUNNER"
+[[ -f /tmp/sigra-library-1-timings.json && ! -L /tmp/sigra-library-1-timings.json ]] ||
+  fail "real partition 1 receipt is absent after partition 2 teardown"
+[[ -f /tmp/sigra-library-2-timings.json && ! -L /tmp/sigra-library-2-timings.json ]] ||
+  fail "real partition 2 receipt is absent after its teardown"
+ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
+  bash "$ROOT/scripts/ci/verify-library-partitions.sh" >/dev/null
 
 printf 'library-partitions.test: PASS\n'

@@ -129,6 +129,17 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert_formatter_contract!()
   end
 
+  test "formatter unit coverage cannot own either ordinary timing receipt" do
+    source = File.read!("test/support/ci/ex_unit_timing_formatter_test.exs")
+    runner = File.read!("scripts/ci/library-partitions.sh")
+
+    assert source =~ ~s(path = "/tmp/sigra-library-scaffold-timings.json")
+    refute source =~ "/tmp/sigra-library-1-timings.json"
+    refute source =~ "/tmp/sigra-library-2-timings.json"
+    assert runner =~ "partition_1_digest"
+    assert runner =~ "partition 2 changed partition 1 timing receipt"
+  end
+
   test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
     fixture = File.read!("test/support/install_fixture.ex")
     runner = File.read!("scripts/ci/install-golden.sh")
