@@ -1,5 +1,5 @@
 defmodule Sigra.CI.ExUnitTimingFormatterTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Sigra.CI.ExUnitTimingFormatter
 
@@ -71,13 +71,30 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
 
   test "write_receipt writes a JSON object only to the selected CI receipt path" do
     path = "/tmp/sigra-library-1-timings.json"
-    on_exit(fn -> File.rm(path) end)
+    partition_1_path = "/tmp/sigra-library-1-timings.json"
+    partition_2_path = "/tmp/sigra-library-2-timings.json"
+    partition_1_bytes = "partition-1-owned-by-runner\n"
+    partition_2_bytes = "partition-2-owned-by-runner\n"
+
+    File.write!(partition_1_path, partition_1_bytes)
+    File.write!(partition_2_path, partition_2_bytes)
+
+    on_exit(fn ->
+      File.rm(path)
+      File.rm(partition_1_path)
+      File.rm(partition_2_path)
+    end)
+
+    assert path == "/tmp/sigra-library-scaffold-timings.json"
 
     receipt = ExUnitTimingFormatter.build_receipt("1", [])
     :ok = ExUnitTimingFormatter.write_receipt!(path, receipt)
 
     assert File.read!(path) ==
              "{\"failed\":0,\"excluded\":0,\"invalid\":0,\"partition\":\"1\",\"passed\":0,\"schema_version\":1,\"skipped\":0,\"tests\":[],\"total\":0}\n"
+
+    assert File.read!(partition_1_path) == partition_1_bytes
+    assert File.read!(partition_2_path) == partition_2_bytes
   end
 
   defp completed_test(module, name, file, time, state) do

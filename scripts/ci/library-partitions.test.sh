@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUNNER="$ROOT/scripts/ci/library-partitions.sh"
+FORMATTER_TEST="$ROOT/test/support/ci/ex_unit_timing_formatter_test.exs"
 
 fail() { printf 'library-partitions.test: FAIL: %s\n' "$*" >&2; exit 1; }
 
@@ -15,6 +16,15 @@ grep -Fq 'ExUnit.CLIFormatter' "$RUNNER" || fail "CLI formatter is absent"
 grep -Eq 'run_partition[[:space:]]+1.*run_partition[[:space:]]+2' <(tr '\n' ' ' <"$RUNNER") ||
   fail "partitions are not sequential"
 
+verify_formatter_test_receipt_ownership() {
+  local source="$1"
+
+  grep -Fq 'path = "/tmp/sigra-library-scaffold-timings.json"' "$source" ||
+    fail "formatter write contract does not own the scaffold receipt path"
+}
+
+verify_formatter_test_receipt_ownership "$FORMATTER_TEST"
+
 for forbidden in --slowest --trace 'eval ' 'mix test --exclude scaffold'; do
   if grep -Fq -- "$forbidden" "$RUNNER"; then
     fail "runner contains forbidden command surface: $forbidden"
@@ -24,6 +34,14 @@ done
 test_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-library-partitions-test.XXXXXX")"
 trap 'rm -rf "$test_root"' EXIT
 mkdir -p "$test_root/bin"
+
+mutated_formatter_test="$test_root/formatter-test-mutated.exs"
+sed 's|path = "/tmp/sigra-library-scaffold-timings.json"|path = "/tmp/sigra-library-1-timings.json"|' \
+  "$FORMATTER_TEST" >"$mutated_formatter_test"
+
+if (verify_formatter_test_receipt_ownership "$mutated_formatter_test") 2>/dev/null; then
+  fail "ordinary-path formatter mutation was accepted"
+fi
 
 # These single-quoted lines intentionally write a child script without expanding
 # its environment in this parent process.
@@ -45,6 +63,7 @@ printf '%s\n' \
 chmod +x "$test_root/bin/mix"
 
 PATH="$test_root/bin:$PATH" bash "$RUNNER"
+partition_1_sha_before="$(sha256sum /tmp/sigra-library-1-timings.json | awk '{print $1}')"
 jq -e '
   .schema_version == "sigra.library-partitions/v1" and
   .execution_mode == "sequential" and
@@ -53,6 +72,9 @@ jq -e '
   [.partitions[].exit_status] == [0, 0] and
   all(.partitions[]; .duration_ms == (.end_ms - .start_ms) and .duration_ms > 0)
 ' /tmp/sigra-library-partitions.json >/dev/null || fail "success receipt is invalid"
+partition_1_sha_after="$(sha256sum /tmp/sigra-library-1-timings.json | awk '{print $1}')"
+[[ "$partition_1_sha_after" == "$partition_1_sha_before" ]] ||
+  fail "partition 2 changed partition 1 timing receipt"
 
 set +e
 PATH="$test_root/bin:$PATH" FAKE_FAIL_PARTITION=1 bash "$RUNNER"
