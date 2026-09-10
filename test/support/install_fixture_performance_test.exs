@@ -766,6 +766,15 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert_receive :replacement_acquired, 500
   end
 
+  test "variant compilation has one bounded failed-dependency recovery" do
+    source = File.read!("test/support/install_fixture.ex")
+
+    assert source =~ "retry_failed_dependency_compile"
+    assert source =~ "Could not compile dependency"
+    assert source =~ "safe_remove_graph_member!(dependency_path)"
+    assert source =~ ~s|{"DIAGNOSTIC", "1"}|
+  end
+
   defp prepare_test_graph!(root) do
     InstallFixture.prepare_graph!(
       root: root,
