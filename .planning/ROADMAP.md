@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 13 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 14 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -622,10 +622,14 @@ Plans:
 
 - [x] 235.1-24-PLAN.md — Audit authority `bc5f4b29` retained; candidate `a2c1139d` stopped before pair creation on Bash 3 portability
 
-**Wave 22** *(active; blocked on Plan 24 diagnosis)*
+**Blocked live recovery history** *(Bash 3 portability passed; Bash 5 nounset stopped before pair 1/GitHub)*
 
-- [ ] 235.1-25-PLAN.md — Make exact partition argv portable to Bash 3, refresh its active pin, and capture/validate the exact tree
+- [x] 235.1-25-PLAN.md — Portable runner authority `820ef36f` retained; candidate `634c4d5a` stopped on uninitialized array under Bash 5
 
-**Wave 23** *(blocked on Plan 25)*
+**Wave 23** *(active; blocked on Plan 25 diagnosis)*
+
+- [ ] 235.1-26-PLAN.md — Test the production loader under Bash 3/5, initialize its array, and capture/validate the exact tree
+
+**Wave 24** *(blocked on Plan 26)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
