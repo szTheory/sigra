@@ -492,7 +492,9 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: MIX_ENV=test mix sigra.fixture.rebless_golden --check
+        run: |
+          # shellcheck disable=SC2209
+          MIX_ENV=test mix sigra.fixture.rebless_golden --check
 
   # DX-01: sole full-library-suite owner. It deliberately remains exempt from
   # docs-only gating: repository-facing documentation changes still need the
@@ -533,11 +535,6 @@ jobs:
         run: |
           mix local.hex --force
           mix local.rebar --force
-      # phx_new archive is required by test/sigra/install/golden_diff_test.exs
-      # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
-      # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
-      - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         run: mix deps.get
       - name: Run contributor CI gate
@@ -545,68 +542,35 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-          SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-1-timings.json
-          SIGRA_LIBRARY_ECONOMICS_PATH: /tmp/sigra-library-economics.json
-        run: MIX_ENV=test mix ci
-      - name: Validate per-test timing receipt
-        if: always()
         run: |
-          set -euo pipefail
-          receipt=/tmp/sigra-library-1-timings.json
-          [[ -f "$receipt" && ! -L "$receipt" ]]
-          receipt_size="$(wc -c <"$receipt" | tr -d ' ')"
-          [[ "$receipt_size" =~ ^[0-9]+$ ]]
-          (( receipt_size > 0 && receipt_size <= 10485760 ))
-          jq -e '
-            type == "object" and
-            (keys | sort) == (["excluded", "failed", "invalid", "partition", "passed", "schema_version", "skipped", "tests", "total"] | sort) and
-            .schema_version == 1 and
-            .partition == "ordinary" and
-            (.total | type) == "number" and (.total | floor) == .total and
-            .total > 0 and .total <= 100000 and
-            ([.failed, .excluded, .invalid, .passed, .skipped] |
-              all(.[]; (type == "number") and (floor == .) and . >= 0)) and
-            (.failed + .excluded + .invalid + .passed + .skipped) == .total and
-            (.tests | type) == "array" and (.tests | length) == .total and
-            all(.tests[];
-              type == "object" and
-              (keys | sort) == (["file", "module", "name", "outcome", "time_us"] | sort) and
-              (.file | type) == "string" and (.file | length) > 0 and
-              (.module | type) == "string" and (.module | length) > 0 and
-              (.name | type) == "string" and (.name | length) > 0 and
-              (.outcome | IN("passed", "failed", "skipped", "excluded", "invalid")) and
-              (.time_us | type) == "number" and (.time_us | floor) == .time_us and
-              .time_us >= 0 and .time_us <= 86400000000) and
-            ([.tests[] | [.file, .module, .name]] | unique | length) == .total and
-            .tests == (.tests | sort_by([-(.time_us), .file, .module, .name]))
-          ' "$receipt" >/dev/null
-      - name: Validate library economics receipt
+          # shellcheck disable=SC2209
+          MIX_ENV=test mix ci
+      - name: Validate exhaustive library partition receipts
         if: always()
-        run: bash scripts/ci/verify-library-economics.sh
-      - name: Upload per-test timing receipt
+        run: bash scripts/ci/verify-library-partitions.sh
+      - name: Upload library partition receipt
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: library-test-timings-${{ github.run_id }}-${{ github.run_attempt }}
+          name: library-partitions-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-library-partitions.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload library partition 1 timings
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: library-partition-1-timings-${{ github.run_id }}-${{ github.run_attempt }}
           path: /tmp/sigra-library-1-timings.json
           if-no-files-found: error
           retention-days: 7
-      - name: Upload library economics receipt
+      - name: Upload library partition 2 timings
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: library-economics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/sigra-library-economics.json
+          name: library-partition-2-timings-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-library-2-timings.json
           if-no-files-found: error
-          retention-days: 7
-      # Diagnostic only and non-authoritative: this is not an admission artifact.
-      - name: Upload install fixture diagnostics (non-authoritative)
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/sigra-install-golden-diagnostics.json
-          if-no-files-found: ignore
           retention-days: 7
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
@@ -1784,6 +1748,7 @@ jobs:
           find test/example/priv/playwright/tests/admin-design.spec.ts-snapshots \
             -name 'board-notice-admin-design-*.png' -delete || true
           echo "Removed board-notice PNGs:"
+          # shellcheck disable=SC2010
           ls test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/ | grep board-notice || echo "(none — deletion successful)"
       - name: Recapture admin-design baselines
         # D-09: recapture all 84 admin-design PNGs (28 boards × chromium/mobile/dark)
@@ -1826,6 +1791,7 @@ jobs:
           # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-design-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
+          # shellcheck disable=SC2034
           while IFS=$'\t' read -r status path; do
             [[ -z "${path:-}" ]] && continue
             case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
@@ -2028,6 +1994,7 @@ jobs:
           git commit -q -m "ci(219): delete impersonation-banner canary for amd64 rebirth [skip ci]" \
             || echo "(no impersonation-banner PNGs to delete — nothing committed)"
           echo "Committed canary deletion; recreate follows via --update-snapshots. Remaining files:"
+          # shellcheck disable=SC2010
           ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
@@ -2081,6 +2048,7 @@ jobs:
           # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
+          # shellcheck disable=SC2034
           while IFS=$'\t' read -r status path; do
             [[ -z "${path:-}" ]] && continue
             case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac

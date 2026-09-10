@@ -45,41 +45,31 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              @protected_aggregate_sha256
   end
 
-  test "sole owner uploads two fixed receipts fail-closed and diagnostics non-authoritatively" do
+  test "sole owner verifies and uploads three fixed partition receipts fail-closed" do
     shard = @workflow_path |> File.read!() |> job_body("library_tests_shard")
 
-    assert shard =~ "SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-1-timings.json"
-    assert shard =~ "SIGRA_LIBRARY_ECONOMICS_PATH: /tmp/sigra-library-economics.json"
-    assert shard =~ "Validate per-test timing receipt"
-    assert shard =~ "verify-library-economics.sh"
-    assert shard =~ "library-test-timings-${{ github.run_id }}-${{ github.run_attempt }}"
-    assert shard =~ "library-economics-${{ github.run_id }}-${{ github.run_attempt }}"
-    assert shard =~ "Diagnostic only and non-authoritative: this is not an admission artifact."
-    assert shard =~ "Upload install fixture diagnostics (non-authoritative)"
+    assert shard =~ "Validate exhaustive library partition receipts"
+    assert shard =~ "verify-library-partitions.sh"
 
-    assert shard =~
-             "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
+    for {name, path} <- [
+          {"library-partitions", "/tmp/sigra-library-partitions.json"},
+          {"library-partition-1-timings", "/tmp/sigra-library-1-timings.json"},
+          {"library-partition-2-timings", "/tmp/sigra-library-2-timings.json"}
+        ] do
+      assert shard =~ "#{name}-${{ github.run_id }}-${{ github.run_attempt }}"
+      assert shard =~ "path: #{path}"
+    end
 
-    assert shard =~ "path: /tmp/sigra-install-golden-diagnostics.json"
-    assert shard =~ "if-no-files-found: ignore"
+    assert byte_index!(shard, "Validate exhaustive library partition receipts") <
+             byte_index!(shard, "Upload library partition receipt")
 
-    assert byte_index!(shard, "Validate per-test timing receipt") <
-             byte_index!(shard, "Validate library economics receipt")
-
-    assert byte_index!(shard, "Validate library economics receipt") <
-             byte_index!(shard, "Upload per-test timing receipt")
-
-    assert byte_index!(shard, "Upload per-test timing receipt") <
-             byte_index!(shard, "Upload library economics receipt")
-
-    assert byte_index!(shard, "Upload library economics receipt") <
-             byte_index!(shard, "Upload install fixture diagnostics (non-authoritative)")
-
-    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 5
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
     assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, shard)) == 3
-    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 2
-    assert length(Regex.scan(~r/if-no-files-found: ignore/, shard)) == 1
+    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 3
+    refute shard =~ "if-no-files-found: ignore"
     assert length(Regex.scan(~r/retention-days: 7/, shard)) == 3
+    refute shard =~ "phx_new"
+    refute shard =~ "library-economics"
   end
 
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
@@ -92,9 +82,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute dep_off =~ "mix test --only threadline_guard --no-deps-check"
   end
 
-  test "mix ci routes both test classes through one economics harness" do
+  test "mix ci routes the exhaustive ordinary universe through two sequential partitions" do
     mix_exs = File.read!("mix.exs")
-    harness = File.read!("scripts/ci/library-economics.sh")
+    harness = File.read!("scripts/ci/library-partitions.sh")
+    partition_source = File.read!("test/support/ci/library_test_partitions.exs")
     install_runner = File.read!("scripts/ci/install-golden.sh")
     expected_paths = canonical_scaffold_paths()
     live_paths = live_scaffold_paths()
@@ -107,16 +98,23 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              "deps.get --check-locked",
              "deps.unlock --check-unused",
              "compile --warnings-as-errors",
-             "cmd bash scripts/ci/library-economics.sh",
+             "cmd bash scripts/ci/library-partitions.sh",
              "sigra.dep_off"
            ]
 
-    assert length(Regex.scan(~r/mix test --exclude scaffold/, harness)) == 1
-    assert length(Regex.scan(~r/mix ci\.install_golden/, harness)) == 1
+    assert harness =~ "run_partition 1"
+    assert harness =~ "run_partition 2"
+    assert length(Regex.scan(~r/mix test /, harness)) == 1
     assert harness =~ "--formatter ExUnit.CLIFormatter"
     assert harness =~ "--formatter Sigra.CI.ExUnitTimingFormatter"
     refute harness =~ "--slowest"
     refute harness =~ "--trace"
+    refute harness =~ "ci.install_golden"
+
+    Enum.each(expected_paths, fn path ->
+      assert partition_source =~ path
+      refute harness =~ path
+    end)
 
     assert install_alias_commands(mix_exs) == ["cmd bash scripts/ci/install-golden.sh"]
 
@@ -127,11 +125,6 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert length(receiver_paths) == MapSet.size(MapSet.new(receiver_paths)),
            "ci.install_golden must not duplicate scaffold paths"
-
-    Enum.each(receiver_paths, fn path ->
-      refute harness =~ path,
-             "the harness must call ci.install_golden rather than copy receiver path #{path}"
-    end)
 
     refute mix_exs =~ "test/sigra/install/features/passkeys_js_test.exs"
   end

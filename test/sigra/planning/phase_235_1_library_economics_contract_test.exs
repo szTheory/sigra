@@ -6,6 +6,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @fast_verifier "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
   @terminal_verifier "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
   @blocked_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-04-SUMMARY.md"
+  @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
 
   setup do
     File.rm(@receipt_path)
@@ -152,10 +153,11 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert vault =~ "use Cloak.Ecto.Binary"
   end
 
-  test "fixture diagnostics stay inside measured install markers and blocked history stays failed" do
+  test "ordinary-vs-scaffold evidence remains failed history and is explicitly superseded" do
     harness = File.read!("scripts/ci/library-economics.sh")
     fixture = File.read!("test/support/install_fixture.ex")
     blocked = File.read!(@blocked_summary)
+    context = File.read!(@context_path)
 
     assert byte_index!(harness, "install_start=") <
              byte_index!(harness, "rm -f \"$INSTALL_DIAGNOSTIC_PATH\"")
@@ -173,6 +175,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert blocked =~ "status: blocked"
     assert blocked =~ "**Passing evidence:** Intentionally absent"
     refute blocked =~ "status: complete"
+    assert context =~ "D-02 superseded"
+    assert context =~ "D-06 superseded"
+    assert context =~ "negative diagnostics, not a"
+    assert context =~ "passing claim"
   end
 
   test "receiver optimization keeps every behavioral proof executable" do
@@ -347,7 +353,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   defp assert_current_topology! do
     workflow = File.read!(".github/workflows/ci.yml")
     mix_exs = File.read!("mix.exs")
-    harness = File.read!("scripts/ci/library-economics.sh")
+    harness = File.read!("scripts/ci/library-partitions.sh")
     shard = job_body(workflow, "library_tests_shard")
     aggregate = job_body(workflow, "library_tests")
 
@@ -359,33 +365,22 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, shard)) == 1
 
-    assert ci_legs(mix_exs) |> Enum.count(&(&1 == "cmd bash scripts/ci/library-economics.sh")) ==
+    assert ci_legs(mix_exs) |> Enum.count(&(&1 == "cmd bash scripts/ci/library-partitions.sh")) ==
              1
 
-    assert length(Regex.scan(~r/mix test --exclude scaffold/, harness)) == 1
-    assert length(Regex.scan(~r/mix ci\.install_golden/, harness)) == 1
-    assert harness =~ "install_leg_ran=true"
+    assert harness =~ "run_partition 1"
+    assert harness =~ "run_partition 2"
+    assert length(Regex.scan(~r/mix test /, harness)) == 1
+    refute harness =~ "ci.install_golden"
     refute shard =~ "matrix:"
 
-    assert length(
-             Regex.scan(~r/name: Upload (?:per-test timing|library economics) receipt/, shard)
-           ) ==
-             2
+    assert length(Regex.scan(~r/name: Upload library partition(?: receipt| [12] timings)/, shard)) ==
+             3
 
-    assert shard =~ "Diagnostic only and non-authoritative: this is not an admission artifact."
-    assert shard =~ "Upload install fixture diagnostics (non-authoritative)"
-
-    assert shard =~
-             "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
-
-    assert shard =~ "path: /tmp/sigra-install-golden-diagnostics.json"
-    assert length(Regex.scan(~r/if-no-files-found: ignore/, shard)) == 1
-
-    assert byte_index!(shard, "Upload library economics receipt") <
-             byte_index!(shard, "Upload install fixture diagnostics (non-authoritative)")
-
-    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 2
-    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 5
+    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 3
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
+    refute shard =~ "if-no-files-found: ignore"
+    refute shard =~ "phx_new"
     assert aggregate =~ "name: Library tests"
     assert aggregate =~ "needs: [library_tests_shard]"
     assert aggregate =~ "if: always()"
@@ -400,13 +395,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp assert_formatter_contract! do
-    harness = File.read!("scripts/ci/library-economics.sh")
+    harness = File.read!("scripts/ci/library-partitions.sh")
     workflow = File.read!(".github/workflows/ci.yml")
     shard = job_body(workflow, "library_tests_shard")
     formatter = File.read!("test/support/ci/ex_unit_timing_formatter.ex")
 
-    assert harness =~ "MIX_TEST_PARTITION=ordinary"
-    assert harness =~ ~s(SIGRA_EXUNIT_TIMING_PATH="$TIMING_PATH")
+    assert harness =~ ~s(MIX_TEST_PARTITION="$id")
+    assert harness =~ ~s(SIGRA_EXUNIT_TIMING_PATH="$timing")
     assert harness =~ "--formatter ExUnit.CLIFormatter"
     assert harness =~ "--formatter Sigra.CI.ExUnitTimingFormatter"
     refute harness =~ "--slowest"
@@ -417,9 +412,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert formatter =~ "is_integer(time) and time >= 0"
     assert formatter =~ "do: raise(ArgumentError, \"unknown completed test state:"
 
-    assert shard =~ ".total > 0 and .total <= 100000"
-    assert shard =~ "([.tests[] | [.file, .module, .name]] | unique | length) == .total"
-    assert shard =~ ".tests == (.tests | sort_by([-(.time_us), .file, .module, .name]))"
+    assert shard =~ "verify-library-partitions.sh"
+
+    assert File.read!("scripts/ci/verify-library-partitions.sh") =~
+             ".tests == (.tests | sort_by([-(.time_us),.file,.module,.name]))"
   end
 
   defp assert_protected_verifiers! do
