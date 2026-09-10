@@ -50,7 +50,7 @@ prepare_fixture_repo() {
   git -C "$FIXTURE_ROOT" init -q
   git -C "$FIXTURE_ROOT" add test scripts/ci/verify-library-install-golden.sh
 
-  for tool in bash dirname find git grep jq sort; do
+  for tool in bash dirname find git grep jq mktemp rm sort; do
     ln -s "$(command -v "$tool")" "$HERMETIC_BIN/$tool"
   done
 }

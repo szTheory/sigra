@@ -16,11 +16,34 @@ fail() {
 
 cd "$ROOT"
 
-live_receivers="$(
-  rg -l '^[[:space:]]*@moduletag[[:space:]]+:scaffold\b' test --glob '*_test.exs' \
-    | LC_ALL=C sort \
-    | jq -R -s 'split("\n")[:-1]'
-)" || fail "could not derive live scaffold ownership"
+candidate_file="$(mktemp "${TMPDIR:-/tmp}/sigra-scaffold-candidates.XXXXXX")" ||
+  fail "could not allocate scaffold ownership candidate file"
+trap 'rm -f "$candidate_file"' EXIT
+find test -type f -name '*_test.exs' -print0 >"$candidate_file" ||
+  fail "could not enumerate scaffold ownership candidates"
+
+declare -a discovered_receivers=()
+while IFS= read -r -d '' candidate; do
+  if grep -Eq '^[[:space:]]*@moduletag[[:space:]]+:scaffold[[:space:]]*$' -- "$candidate"; then
+    [[ "$candidate" =~ ^test/[A-Za-z0-9_./-]+_test\.exs$ ]] ||
+      fail "live scaffold ownership contains an unsafe repository path"
+    git ls-files --error-unmatch -- "$candidate" >/dev/null 2>&1 ||
+      fail "live scaffold ownership contains an untracked path"
+    discovered_receivers+=("$candidate")
+  else
+    grep_status=$?
+    ((grep_status == 1)) || fail "could not inspect scaffold ownership candidate"
+  fi
+done <"$candidate_file"
+
+mapfile -t sorted_receivers < <(printf '%s\n' "${discovered_receivers[@]}" | LC_ALL=C sort)
+for ((index = 1; index < ${#sorted_receivers[@]}; index++)); do
+  [[ "${sorted_receivers[index - 1]}" != "${sorted_receivers[index]}" ]] ||
+    fail "live scaffold ownership contains a duplicate path"
+done
+
+live_receivers="$(printf '%s\n' "${sorted_receivers[@]}" | jq -R -s 'split("\n")[:-1]')" ||
+  fail "could not derive live scaffold ownership"
 
 [[ "$(jq 'length' <<<"$live_receivers")" -eq 6 ]] || fail "live scaffold ownership must contain exactly six receivers"
 

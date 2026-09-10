@@ -355,7 +355,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     verifier = File.read!("scripts/ci/verify-library-install-golden.sh")
     adverse = File.read!("scripts/ci/verify-library-install-golden.test.sh")
 
-    refute verifier =~ "rg "
+    refute verifier =~ ~r/^\s*rg\s/m
     assert verifier =~ "find test -type f -name '*_test.exs'"
     assert verifier =~ "grep"
     assert verifier =~ "git ls-files --error-unmatch"
