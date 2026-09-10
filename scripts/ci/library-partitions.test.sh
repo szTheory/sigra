@@ -118,15 +118,40 @@ jq -e '
   .partitions[1].exit_status == 0
 ' /tmp/sigra-library-partitions.json >/dev/null || fail "failure receipt concealed child status"
 
-echo "Test C: real partition-2 ExUnit lifetime preserves partition-1 receipt"
-PATH="${PATH#"$test_root/bin:"}" \
-  ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
-  MIX_ENV=test bash "$RUNNER"
-[[ -f /tmp/sigra-library-1-timings.json && ! -L /tmp/sigra-library-1-timings.json ]] ||
-  fail "real partition 1 receipt is absent after partition 2 teardown"
-[[ -f /tmp/sigra-library-2-timings.json && ! -L /tmp/sigra-library-2-timings.json ]] ||
-  fail "real partition 2 receipt is absent after its teardown"
-ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
-  bash "$ROOT/scripts/ci/verify-library-partitions.sh" >/dev/null
+validation_root="$test_root/validations"
+mkdir -p "$validation_root"
+
+for validation in 1 2 3; do
+  echo "Test C.${validation}: fresh calibrated validation"
+  PATH="${PATH#"$test_root/bin:"}" \
+    ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
+    MIX_ENV=test bash "$RUNNER"
+
+  [[ -f /tmp/sigra-library-partitions.json && ! -L /tmp/sigra-library-partitions.json ]] ||
+    fail "validation ${validation} combined receipt is absent"
+  [[ -f /tmp/sigra-library-1-timings.json && ! -L /tmp/sigra-library-1-timings.json ]] ||
+    fail "validation ${validation} partition 1 receipt is absent after partition 2 teardown"
+  [[ -f /tmp/sigra-library-2-timings.json && ! -L /tmp/sigra-library-2-timings.json ]] ||
+    fail "validation ${validation} partition 2 receipt is absent after its teardown"
+
+  PATH="${PATH#"$test_root/bin:"}" \
+    ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" \
+    MIX_ENV=test bash "$ROOT/scripts/ci/verify-library-partitions.sh" >/dev/null
+
+  validation_dir="$validation_root/validation-${validation}"
+  mkdir -p "$validation_dir"
+  cp /tmp/sigra-library-partitions.json "$validation_dir/combined.json"
+  cp /tmp/sigra-library-1-timings.json "$validation_dir/partition-1-timings.json"
+  cp /tmp/sigra-library-2-timings.json "$validation_dir/partition-2-timings.json"
+
+  jq -c --arg validation "$validation" \
+    '{validation:($validation | tonumber), durations_ms:[.partitions[].duration_ms]}' \
+    "$validation_dir/combined.json"
+  printf 'validation %s digests: combined=%s partition-1=%s partition-2=%s\n' \
+    "$validation" \
+    "$(digest "$validation_dir/combined.json")" \
+    "$(digest "$validation_dir/partition-1-timings.json")" \
+    "$(digest "$validation_dir/partition-2-timings.json")"
+done
 
 printf 'library-partitions.test: PASS\n'

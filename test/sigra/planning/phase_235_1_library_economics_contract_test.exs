@@ -157,20 +157,33 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     Enum.each(registrants, fn path ->
       source = File.read!(path)
-      assert source =~ "use ExUnit.Case, async: false"
-      refute source =~ "use ExUnit.Case, async: true"
-      assert byte_index!(source, "on_exit(fn -> cleanup_dummy_oban(dummy) end)") <
-               byte_index!(source, "Process.register(dummy, Oban)")
+      assert oban_owner_contract?(source), "unsafe dummy Oban ownership: #{path}"
 
-      assert source =~ "ref = Process.monitor(dummy)"
-      assert source =~ "if Process.whereis(Oban) == dummy"
-      assert source =~ "if Process.alive?(dummy)"
-      assert source =~ "Process.exit(dummy, :kill)"
-      assert source =~ "{:DOWN, ^ref, :process, ^dummy, reason}"
-      assert source =~ "reason in [:killed, :noproc]"
-      assert source =~ "1_000 -> raise"
-      assert source =~ "exception in ArgumentError"
-      assert source =~ "cleanup_dummy_oban(dummy)"
+      mutations = [
+        String.replace(source, "async: false", "async: true", global: false),
+        String.replace(source, "ref = Process.monitor(dummy)", "ref = make_ref()", global: false),
+        String.replace(source, "if Process.whereis(Oban) == dummy", "if true", global: false),
+        String.replace(source, "Process.exit(dummy, :kill)", ":ok", global: false),
+        String.replace(source, "{:DOWN, ^ref, :process, ^dummy, reason}", "{:DOWN, _, _, _, reason}",
+          global: false
+        ),
+        String.replace(source, "reason in [:killed, :noproc]", "reason == :killed", global: false),
+        String.replace(source, "1_000 -> raise", "5_000 -> raise", global: false),
+        String.replace(
+          source,
+          "on_exit(fn -> cleanup_dummy_oban(dummy) end)\n\n    try do\n      Process.register(dummy, Oban)",
+          "Process.register(dummy, Oban)\n    on_exit(fn -> cleanup_dummy_oban(dummy) end)\n\n    try do",
+          global: false
+        ),
+        String.replace(
+          source,
+          "exception in ArgumentError ->\n        cleanup_dummy_oban(dummy)",
+          "exception in ArgumentError ->\n        :ok",
+          global: false
+        )
+      ]
+
+      Enum.each(mutations, &refute(oban_owner_contract?(&1)))
     end)
 
     delivery = File.read!("test/sigra/delivery_test.exs")
@@ -181,6 +194,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     calibration = File.read!(@calibration_path)
     assert byte_size(calibration) == 2_922_739
     assert sha256(calibration) == "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    refute sha256(calibration <> "\n") == "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
 
     immutable_paths = %{
       "test/support/ci/library_test_partitions.exs" =>
@@ -196,8 +210,25 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     }
 
     Enum.each(immutable_paths, fn {path, expected} ->
-      assert path |> File.read!() |> sha256() == expected, "immutable drift: #{path}"
+      bytes = File.read!(path)
+      assert sha256(bytes) == expected, "immutable drift: #{path}"
+      refute sha256(bytes <> "\n") == expected
     end)
+
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+    partitions = apply(Sigra.CI.LibraryTestPartitions, :build_partitions!, [])
+    assert length(partitions[1].paths) == 97
+    assert length(partitions[2].paths) == 128
+    assert partitions[1].total_us == 54_838_062
+    assert partitions[2].total_us == 54_838_062
+    assert "test/sigra/account/deletion_test.exs" in partitions[2].paths
+    assert "test/sigra/delivery_test.exs" in partitions[2].paths
+
+    missing_path = update_in(partitions, [2, :paths], &List.delete(&1, "test/sigra/delivery_test.exs"))
+
+    assert_raise ArgumentError, fn ->
+      apply(Sigra.CI.LibraryTestPartitions, :validate_current_universe!, [missing_path])
+    end
 
     {production_diff, production_status} =
       System.cmd("git", ["diff", "--name-only", "fd97522d", "--", "lib"])
@@ -214,11 +245,20 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert pinned_plan_16 == plan_16
 
     integration = File.read!("scripts/ci/library-partitions.test.sh")
-    assert integration =~ "for validation in 1 2 3"
+    assert length(Regex.scan(~r/for validation in 1 2 3/, integration)) == 1
     assert integration =~ "validation-${validation}"
     assert integration =~ "verify-library-partitions.sh"
-    assert length(Regex.scan(~r/bash \"\$RUNNER\"/, integration)) == 1
+    assert length(Regex.scan(~r/fresh calibrated validation/, integration)) == 1
+    refute integration =~ "for validation in $(seq"
     refute integration =~ ~r/retry|average|recalibrat|retun/i
+    refute three_validation_contract?(String.replace(integration, "1 2 3", "1 2", global: false))
+    refute three_validation_contract?(
+             String.replace(integration, "MIX_ENV=test bash \"$RUNNER\"", "MIX_ENV=test :",
+               global: false
+             )
+           )
+
+    assert three_validation_contract?(integration)
   end
 
   test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
@@ -715,6 +755,38 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   defp byte_index!(source, needle), do: :binary.match(source, needle) |> elem(0)
 
   defp sha256(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
+
+  defp oban_owner_contract?(source) do
+    [before_cleanup, cleanup_and_after] =
+      String.split(source, "defp cleanup_dummy_oban(dummy) do", parts: 2)
+
+    source =~ "use ExUnit.Case, async: false" and
+      not (source =~ "use ExUnit.Case, async: true") and
+      byte_index!(source, "on_exit(fn -> cleanup_dummy_oban(dummy) end)") <
+        byte_index!(source, "Process.register(dummy, Oban)") and
+      not (before_cleanup =~ "Process.monitor(dummy)") and
+      cleanup_and_after =~ "ref = Process.monitor(dummy)" and
+      cleanup_and_after =~ "if Process.whereis(Oban) == dummy" and
+      cleanup_and_after =~ "if Process.alive?(dummy)" and
+      cleanup_and_after =~ "Process.exit(dummy, :kill)" and
+      cleanup_and_after =~ "{:DOWN, ^ref, :process, ^dummy, reason}" and
+      cleanup_and_after =~ "reason in [:killed, :noproc]" and
+      cleanup_and_after =~ "1_000 -> raise" and
+      before_cleanup =~ "exception in ArgumentError ->\n        cleanup_dummy_oban(dummy)"
+  end
+
+  defp three_validation_contract?(source) do
+    case String.split(source, "for validation in 1 2 3; do", parts: 2) do
+      [_before, validation_loop] ->
+        validation_loop =~ "MIX_ENV=test bash \"$RUNNER\"" and
+          validation_loop =~ "verify-library-partitions.sh" and
+          validation_loop =~ "validation-${validation}" and
+          not (source =~ ~r/retry|average|recalibrat|retun/i)
+
+      _other ->
+        false
+    end
+  end
 
   defp registers_global_oban?(path) do
     case path |> File.read!() |> Code.string_to_quoted() do
