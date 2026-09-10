@@ -604,7 +604,7 @@ Plans:
 
 **Wave 17** *(active assignment-agnostic source freeze and fresh local recalibration)*
 
-- [ ] 235.1-21-PLAN.md — Remove fixed placement assumptions, rebuild v2 calibration from zero, and prove three local pairs
+- [ ] 235.1-21-PLAN.md — Freeze future-value evidence transitions, remove fixed placement assumptions, and rebuild v2 calibration from zero
 
 **Wave 18** *(blocked on Plan 21; exact-tree live evidence only)*
 
