@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 9 completed implementation plans, 10 retained failed/blocked plans, and 3 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 11 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -606,14 +606,18 @@ Plans:
 
 - [x] 235.1-21-PLAN.md — Source frozen at `a28248e3`; bootstrap stopped at 2,781ms/33,078ms with zero collection triples
 
-**Wave 18** *(active; measurement-only bootstrap collection from Plan 21 frozen source)*
+**Wave 18** *(completed; measurement-only bootstrap collection from Plan 21 frozen source)*
 
 - [x] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
 
-**Wave 19** *(blocked on Plan 22; exact-tree live evidence only)*
+**Blocked live recovery history** *(routing mutation suite passed; stale authority pins stopped before timed validation or GitHub)*
 
-- [ ] 235.1-20-PLAN.md — Construct an exact Plan 22 calibration tree candidate and capture/validate one strict dual-route evidence set
+- [x] 235.1-20-PLAN.md — Exact candidate `ec1850b4` retained; stale preflight pins stopped with zero timed pairs and zero GitHub actions
 
-**Wave 20** *(blocked on Plan 20)*
+**Wave 20** *(active; blocked on Plan 20 diagnosis)*
+
+- [ ] 235.1-23-PLAN.md — Separate historical/current authority pins, mutation-test all seven, and capture/validate the exact repaired tree
+
+**Wave 21** *(blocked on Plan 23)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
