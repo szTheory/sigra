@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 9 completed implementation plans, 9 retained failed/blocked plans, and 3 active/pending recovery plans
+**Plans:** 9 completed implementation plans, 10 retained failed/blocked plans, and 3 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -602,14 +602,18 @@ Plans:
 
 - [x] 235.1-19-PLAN.md — Discovery/loader repairs retained; three diagnostic triples rejected and prior artifact restored
 
-**Wave 17** *(active assignment-agnostic source freeze and fresh local recalibration)*
+**Blocked local recovery history** *(assignment/lifecycle source frozen; stale bootstrap failed before collection)*
 
-- [ ] 235.1-21-PLAN.md — Freeze future-value evidence transitions, remove fixed placement assumptions, and rebuild v2 calibration from zero
+- [x] 235.1-21-PLAN.md — Source frozen at `a28248e3`; bootstrap stopped at 2,781ms/33,078ms with zero collection triples
 
-**Wave 18** *(blocked on Plan 21; exact-tree live evidence only)*
+**Wave 18** *(active; measurement-only bootstrap collection from Plan 21 frozen source)*
 
-- [ ] 235.1-20-PLAN.md — Construct an exact Plan 21 tree candidate and capture/validate one strict dual-route evidence set
+- [ ] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
 
-**Wave 19** *(blocked on Plan 20)*
+**Wave 19** *(blocked on Plan 22; exact-tree live evidence only)*
+
+- [ ] 235.1-20-PLAN.md — Construct an exact Plan 22 calibration tree candidate and capture/validate one strict dual-route evidence set
+
+**Wave 20** *(blocked on Plan 20)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
