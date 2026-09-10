@@ -6,6 +6,20 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
   alias Sigra.CI.LibraryTestPartitions
 
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+  @manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
+
+  test "v2 calibration is externally bound to source bytes" do
+    source = File.read!("test/support/ci/library_test_partitions.exs")
+
+    assert source =~ ~s(@calibration_schema "sigra.library-partition-calibration/v2")
+    assert source =~ "sigra.library-partition-calibration-manifest/v1"
+    assert source =~ "source_files"
+    assert source =~ "ordinary_source_index_sha256"
+    assert source =~ "git_blob_bytes!"
+    refute source =~ ~r/@sample_implementation_commit|@calibration_sha256|@calibration_byte_count/
+    assert File.exists?(@calibration_path)
+    refute File.exists?(@manifest_path)
+  end
 
   test "the measured manifest is an exhaustive disjoint lexical ordinary universe" do
     partitions = LibraryTestPartitions.build_partitions!()
