@@ -254,6 +254,11 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     fallback = fn
       "cp", ["--reflink=always" | _rest] = args, _options ->
         send(parent, {:copy_command, args})
+        File.mkdir_p!(fallback_target)
+        partial = Path.join(fallback_target, "read-only-partial")
+        File.write!(partial, "incomplete reflink")
+        File.chmod!(partial, 0o400)
+        File.chmod!(fallback_target, 0o500)
         {"reflink unsupported", 1}
 
       executable, args, options ->
