@@ -84,13 +84,13 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     executable = "lib/file_system/priv/mac_listener"
     first_executable = File.stat!(Path.join(first.build_path, executable)).mode
 
-    variant_executable =
-      File.stat!(Path.join([graph.variants.default_installed.path, "_build/dev", executable])).mode
+    template_executable = File.stat!(Path.join(graph.build_template_path, executable)).mode
 
     assert Bitwise.band(first_executable, 0o100) == 0o100
     assert Bitwise.band(first_executable, 0o200) == 0o200
-    assert Bitwise.band(variant_executable, 0o100) == 0o100
-    assert Bitwise.band(variant_executable, 0o200) == 0
+    assert Bitwise.band(template_executable, 0o100) == 0o100
+    assert Bitwise.band(template_executable, 0o200) == 0
+    refute File.exists?(Path.join(graph.variants.default_installed.path, "_build/dev"))
 
     template = "lib/sigra/priv/templates/sigra.install/organizations/router_injection.ex"
     assert File.regular?(Path.join(first.build_path, template))
@@ -154,8 +154,8 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
     assert File.read!(
              Path.join(
-               graph.variants.default_installed.path,
-               "_build/dev/lib/phoenix/priv/static/phoenix.js"
+               graph.build_template_path,
+               "lib/phoenix/priv/static/phoenix.js"
              )
            ) == "prepared phoenix asset"
 
@@ -192,6 +192,85 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
              InstallFixture.seed_compatible_tree!(source, mismatch, fingerprint, "different")
 
     refute File.exists?(mismatch)
+  end
+
+  test "Linux graph parent selection requires every tmpfs safety predicate", %{root: root} do
+    File.mkdir_p!(root)
+    {canonical_root, 0} = System.cmd("pwd", [], cd: root)
+    {canonical_tmp, 0} = System.cmd("pwd", [], cd: System.tmp_dir!())
+    canonical_root = String.trim(canonical_root)
+    canonical_tmp = String.trim(canonical_tmp)
+    eligible = %{canonical?: true, tmpfs?: true, writable?: true, free_bytes: 1_610_612_736}
+
+    assert InstallFixture.graph_parent_for_test(
+             os_type: {:unix, :linux},
+             tmpfs_parent: root,
+             probe: fn ^root -> eligible end
+           ) == canonical_root
+
+    for rejected <- [
+          %{eligible | canonical?: false},
+          %{eligible | tmpfs?: false},
+          %{eligible | writable?: false},
+          %{eligible | free_bytes: 1_610_612_735}
+        ] do
+      assert InstallFixture.graph_parent_for_test(
+               os_type: {:unix, :linux},
+               tmpfs_parent: root,
+               probe: fn ^root -> rejected end
+             ) == canonical_tmp
+    end
+
+    assert InstallFixture.graph_parent_for_test(
+             os_type: {:unix, :darwin},
+             tmpfs_parent: root,
+             probe: fn _ -> flunk("non-Linux must not probe tmpfs") end
+           ) == canonical_tmp
+  end
+
+  test "Linux copy mode reports reflink only when reflink=always succeeds", %{root: root} do
+    source = Path.join(root, "copy-source")
+    File.mkdir_p!(source)
+    File.write!(Path.join(source, "bytes"), "private")
+    parent = self()
+
+    successful_reflink = fn executable, args, options ->
+      send(parent, {:copy_command, args})
+      System.cmd(executable, Enum.reject(args, &(&1 == "--reflink=always")), options)
+    end
+
+    reflink_target = Path.join(root, "reflink-target")
+
+    assert {:reflink, _elapsed} =
+             InstallFixture.copy_tree_for_test!(source, reflink_target,
+               os_type: {:unix, :linux},
+               command: successful_reflink
+             )
+
+    assert_receive {:copy_command, ["--reflink=always", "-R", ^source, ^reflink_target]}
+
+    fallback_target = Path.join(root, "fallback-target")
+
+    fallback = fn
+      "cp", ["--reflink=always" | _rest] = args, _options ->
+        send(parent, {:copy_command, args})
+        {"reflink unsupported", 1}
+
+      executable, args, options ->
+        send(parent, {:copy_command, args})
+        System.cmd(executable, args, options)
+    end
+
+    assert {:copy, _elapsed} =
+             InstallFixture.copy_tree_for_test!(source, fallback_target,
+               os_type: {:unix, :linux},
+               command: fallback
+             )
+
+    assert_receive {:copy_command, ["--reflink=always", "-R", ^source, ^fallback_target]}
+    assert_receive {:copy_command, ["-R", ^source, ^fallback_target]}
+    assert File.read!(Path.join(fallback_target, "bytes")) == "private"
+    refute InstallFixture.tree_has_shared_writable_state?(reflink_target, fallback_target)
   end
 
   test "generated lock pruning retains only compatible dependency and Sigra build bytes", %{
@@ -276,21 +355,21 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
     assert File.lstat!(Path.join(graph.base_path, "valid-link")).type == :symlink
 
-    assert File.lstat!(
-             Path.join(graph.base_path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
-           ).type == :symlink
+    refute File.exists?(Path.join(graph.base_path, "_build/dev"))
 
     Enum.each(graph.variants, fn {_name, variant} ->
       materialized = Path.join(variant.path, "valid-link")
 
-      dangling =
-        Path.join(variant.path, "_build/dev/phoenix-colocated/node_modules/dangling-link")
-
       assert File.regular?(materialized)
       assert File.read!(materialized) == "source bytes"
-      refute File.exists?(dangling)
-      assert File.lstat(dangling) == {:error, :enoent}
+      refute File.exists?(Path.join(variant.path, "_build/dev"))
     end)
+
+    dangling =
+      Path.join(graph.build_template_path, "phoenix-colocated/node_modules/dangling-link")
+
+    refute File.exists?(dangling)
+    assert File.lstat(dangling) == {:error, :enoent}
   end
 
   test "subprocess helpers retain return shape and propagate checkout partition", %{root: root} do
