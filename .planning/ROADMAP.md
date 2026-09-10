@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 8 completed implementation plans, 5 retained failed/blocked plans, and 3 active recovery plans
+**Plans:** 8 completed implementation plans, 6 retained failed/blocked plans, and 3 active recovery plans
 
 **Success Criteria:**
 
@@ -582,14 +582,18 @@ Plans:
 
 - [x] 235.1-15-PLAN.md — Blocked before calibration; summary `2d854758` retains the deterministic 1,000ms synthetic-bound failure
 
-**Wave 12** *(active; bounded local recovery superseding Plan 15)*
+**Blocked local recovery history** *(calibration retained; first post-calibration whole-source gate failed)*
 
-- [ ] 235.1-16-PLAN.md — Derive the exact synthetic diagnostic bound, then perform replayable calibration and repeated real local proof
+- [x] 235.1-16-PLAN.md — Calibration retained, but partition 2 failed on the async global-Oban collision before validation
 
-**Wave 13** *(blocked on Plan 16)*
+**Wave 13** *(active; bounded test-only recovery using Plan 16 calibration authority)*
+
+- [ ] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
+
+**Wave 14** *(blocked on Plan 17)*
 
 - [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
 
-**Wave 14** *(blocked on Plan 14)*
+**Wave 15** *(blocked on Plan 14)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
