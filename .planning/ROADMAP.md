@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 8 completed implementation plans, 6 retained failed/blocked plans, and 3 active recovery plans
+**Plans:** 9 completed implementation plans, 7 retained failed/blocked plans, and 2 active recovery plans
 
 **Success Criteria:**
 
@@ -586,14 +586,18 @@ Plans:
 
 - [x] 235.1-16-PLAN.md — Calibration retained, but partition 2 failed on the async global-Oban collision before validation
 
-**Wave 13** *(active; bounded test-only recovery using Plan 16 calibration authority)*
+**Wave 13** *(completed; bounded test-only recovery using Plan 16 calibration authority)*
 
-- [ ] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
+- [x] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
 
-**Wave 14** *(blocked on Plan 17)*
+**Blocked live evidence history** *(Plan 17 local chain and selected dispatch passed; PR immutable-byte contract failed)*
 
-- [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
+- [x] 235.1-14-PLAN.md — Blocked capture pair; runs 34520992740/34520986751 retained and no evidence admitted
 
-**Wave 15** *(blocked on Plan 14)*
+**Wave 15** *(active; candidate byte normalization plus one fresh capture/validation pair)*
+
+- [ ] 235.1-18-PLAN.md — Restore authoritative candidate bytes, expand ten-run history, and capture/validate one strict pair
+
+**Wave 16** *(blocked on Plan 18)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
