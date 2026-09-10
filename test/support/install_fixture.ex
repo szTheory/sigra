@@ -1227,10 +1227,42 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp compile_variant!(variant_path) do
-    {output, status} = System.cmd("mix", ["compile"], command_options(variant_path))
+    options = command_options(variant_path)
+    {output, status} = System.cmd("mix", ["compile"], options)
+
+    {output, status} =
+      if status != 0 do
+        retry_failed_dependency_compile(variant_path, output, options, status)
+      else
+        {output, status}
+      end
+
     if status != 0, do: raise("prepared fixture variant compile failed:\n#{output}")
     if output =~ ~r/\bwarning:/i, do: raise("prepared fixture variant compile warned:\n#{output}")
     :ok
+  end
+
+  defp retry_failed_dependency_compile(variant_path, output, options, status) do
+    with [_, dependency] <- Regex.run(~r/Could not compile dependency :([a-zA-Z0-9_]+)/, output),
+         build_path when is_binary(build_path) <-
+           options[:env] |> Map.new() |> Map.get("MIX_BUILD_PATH"),
+         dependency_path <- validate_graph_member!(Path.join([build_path, "lib", dependency])),
+         true <- File.dir?(dependency_path) do
+      safe_remove_graph_member!(dependency_path)
+
+      retry_options =
+        Keyword.update!(options, :env, fn env ->
+          [{"DIAGNOSTIC", "1"} | List.keydelete(env, "DIAGNOSTIC", 0)]
+        end)
+
+      System.cmd("mix", ["compile"], retry_options)
+    else
+      _ -> {output, status}
+    end
+  rescue
+    error ->
+      {output <> "\ncompile retry setup failed for #{variant_path}: #{Exception.message(error)}",
+       status}
   end
 
   defp compile_installed_variants!(variants, variant_compiler, false) do

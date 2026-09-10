@@ -99,7 +99,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert non_pr =~ "bash scripts/ci/verify-library-install-golden.sh"
     assert length(Regex.scan(~r/if-no-files-found: error/, non_pr)) == 2
     assert length(Regex.scan(~r/retention-days: 7/, non_pr)) == 2
-    assert length(Regex.scan(~r/actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/, non_pr)) == 2
+
+    assert length(
+             Regex.scan(
+               ~r/actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/,
+               non_pr
+             )
+           ) == 2
 
     for evidence <- ["library-install-golden", "library-install-diagnostics"] do
       assert non_pr =~ "#{evidence}-${{ github.run_id }}-${{ github.run_attempt }}"
