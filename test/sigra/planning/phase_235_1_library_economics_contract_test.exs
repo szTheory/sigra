@@ -8,6 +8,20 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @blocked_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-04-SUMMARY.md"
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
 
+  test "routing evidence is independently admitted and keeps fixed-bound history negative" do
+    verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
+    adverse = File.read!("scripts/ci/verify-library-routing-evidence.test.sh")
+
+    assert verifier =~ "sigra.library-partitions-evidence/v1"
+    assert verifier =~ "sigra.library-install-golden-evidence/v1"
+    assert verifier =~ "max * 1000 <= min * 2000"
+    assert verifier =~ "install_not_dominant"
+    assert verifier =~ "ordinary-vs-scaffold comparable"
+    assert adverse =~ "PR attempt"
+    assert adverse =~ "same implementation SHA"
+    assert adverse =~ "failed-history run"
+  end
+
   setup do
     File.rm(@receipt_path)
     on_exit(fn -> File.rm(@receipt_path) end)
