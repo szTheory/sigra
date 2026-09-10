@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 8 completed implementation plans, 4 retained failed/blocked plans, and 3 active recovery plans
+**Plans:** 8 completed implementation plans, 5 retained failed/blocked plans, and 3 active recovery plans
 
 **Success Criteria:**
 
@@ -578,11 +578,15 @@ Plans:
 
 - [x] 235.1-13-PLAN.md — Repairs retained, but unchanged local TEST-02 comparability remained red
 
-**Wave 12** *(active; bounded local recovery from Plan 13 diagnostics)*
+**Blocked local recovery history** *(zero calibration samples admitted; synthetic diagnostics fixture failed before RED)*
 
-- [ ] 235.1-15-PLAN.md — Replace zero-cost partition drift with provenance-bound current calibration and repeated real local proof
+- [x] 235.1-15-PLAN.md — Blocked before calibration; summary `2d854758` retains the deterministic 1,000ms synthetic-bound failure
 
-**Wave 13** *(blocked on Plan 15)*
+**Wave 12** *(active; bounded local recovery superseding Plan 15)*
+
+- [ ] 235.1-16-PLAN.md — Derive the exact synthetic diagnostic bound, then perform replayable calibration and repeated real local proof
+
+**Wave 13** *(blocked on Plan 16)*
 
 - [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
 
