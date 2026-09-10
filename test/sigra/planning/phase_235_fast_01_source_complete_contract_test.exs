@@ -29,16 +29,27 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @forbidden_preflight_keys ~w(post_dispatch selected candidate_count watcher subject attestation)
   @protected_blob_files ~w(scripts/ci/ci-run-metrics.sh scripts/ci/ci-run-metrics.test.sh scripts/ci/capture-fast-01-gap-closure.sh scripts/ci/capture-fast-01-gap-closure.test.sh .github/workflows/fast-01-gap-closure-evidence.yml scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs)
 
-  test "offline verifier paths remain serialized" do
+  test "offline verifier paths remain serialized with fail-closed Linux cleanup" do
+    source = File.read!(__ENV__.file)
+
     module_header =
-      __ENV__.file
-      |> File.read!()
+      source
       |> String.split("\n")
       |> Enum.take(3)
       |> Enum.join("\n")
 
     assert module_header =~ "use ExUnit.Case, async: false"
     refute module_header =~ "use ExUnit.Case, async: true"
+
+    assert length(Regex.scan(~r/run_offline_verifier\(@verifier\)/, source)) == 2
+
+    assert source =~
+             ~s|{:unix, :linux} -> System.cmd("sudo", ["-n", "bash", path], stderr_to_stdout: true)|
+
+    assert source =~ ~s|_ -> System.cmd("bash", [path], stderr_to_stdout: true)|
+
+    assert source =~
+             ~s|System.cmd("bash", [@verifier, "--semantic-fixture", path], stderr_to_stdout: true)|
   end
 
   test "protected workflow attests only the source-complete subject from main" do
@@ -153,7 +164,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
              System.cmd("bash", [@verifier, "--semantic-fixture", path], stderr_to_stdout: true)
 
     assert {"source_complete_offline_attestation_verified\n", 0} =
-             System.cmd("bash", [@verifier], stderr_to_stdout: true)
+             run_offline_verifier(@verifier)
 
     malformed_arguments = [
       {["--unknown"], "unknown_argument:--unknown"},
@@ -173,7 +184,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   end
 
   test "authenticated strict pass is reconciled exactly into FAST-01 and its residual" do
-    {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
+    {banner, 0} = run_offline_verifier(@verifier)
     assert banner =~ "source_complete_offline_attestation_verified"
 
     requirements = File.read!(@requirements)
@@ -841,6 +852,15 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
       :ok
     else
       {:error, :record_contradiction}
+    end
+  end
+
+  # GitHub-hosted Linux requires sudo for the verifier's network namespace.
+  # Elevating the complete verifier keeps gh's state owned by its EXIT cleanup.
+  defp run_offline_verifier(path) do
+    case :os.type() do
+      {:unix, :linux} -> System.cmd("sudo", ["-n", "bash", path], stderr_to_stdout: true)
+      _ -> System.cmd("bash", [path], stderr_to_stdout: true)
     end
   end
 
