@@ -1024,7 +1024,7 @@ defmodule Sigra.Test.InstallFixture do
 
       case seed_compatible_tree!(source, target, expected, actual) do
         {:ok, _mode, _elapsed_ms} ->
-          prune_incompatible_seed!(target, Path.join(base_path, "mix.lock"))
+          prune_incompatible_seed!(target, Path.join(base_path, "mix.lock"), base_path)
 
           materialize_dependency_priv!(
             target,
@@ -1044,28 +1044,71 @@ defmodule Sigra.Test.InstallFixture do
   defp root_deps_path(opts),
     do: Keyword.get(opts, :root_deps_path, Path.join(sigra_repo_root(), "deps"))
 
-  defp prune_incompatible_seed!(build_path, lock_path) do
-    lock_path
-    |> File.read!()
-    |> then(&Regex.scan(~r/^\s*"([^"]+)": \{:hex, :[^,]+, "([^"]+)"/m, &1))
-    |> Enum.each(fn [_entry, app, locked_version] ->
+  @doc false
+  def prune_incompatible_seed!(build_path, lock_path, project_path \\ nil) do
+    locked_versions =
+      lock_path
+      |> File.read!()
+      |> then(&Regex.scan(~r/^\s*"([^"]+)": \{:hex, :[^,]+, "([^"]+)"/m, &1))
+      |> Map.new(fn [_entry, app, locked_version] -> {app, locked_version} end)
+
+    required_apps = project_build_apps(project_path)
+    allowed_apps = MapSet.union(MapSet.new(Map.keys(locked_versions)), required_apps)
+
+    build_path
+    |> Path.join("lib")
+    |> File.ls!()
+    |> Enum.each(fn app ->
       app_path = Path.join([build_path, "lib", app])
       app_file = Path.join([app_path, "ebin", "#{app}.app"])
 
-      case File.read(app_file) do
-        {:ok, content} ->
-          case Regex.run(~r/\{vsn,"([^"]+)"\}/, content) do
-            [_match, ^locked_version] -> :ok
-            _mismatch -> File.rm_rf!(app_path)
-          end
+      if MapSet.member?(allowed_apps, app) do
+        case Map.fetch(locked_versions, app) do
+          {:ok, locked_version} ->
+            case File.read(app_file) do
+              {:ok, content} ->
+                case Regex.run(~r/\{vsn,"([^"]+)"\}/, content) do
+                  [_match, ^locked_version] -> :ok
+                  _mismatch -> File.rm_rf!(app_path)
+                end
 
-        {:error, :enoent} ->
-          :ok
+              {:error, :enoent} ->
+                :ok
 
-        {:error, reason} ->
-          raise File.Error, reason: reason, action: "read", path: app_file
+              {:error, reason} ->
+                raise File.Error, reason: reason, action: "read", path: app_file
+            end
+
+          :error ->
+            :ok
+        end
+      else
+        File.rm_rf!(app_path)
       end
     end)
+
+    present_apps = build_path |> Path.join("lib") |> File.ls!() |> MapSet.new()
+    {:ok, %{missing_required_apps: MapSet.difference(required_apps, present_apps)}}
+  end
+
+  defp project_build_apps(nil), do: MapSet.new(["sigra"])
+
+  defp project_build_apps(project_path) do
+    mix_exs = File.read!(Path.join(project_path, "mix.exs"))
+
+    project_apps =
+      Regex.scan(~r/\bapp:\s*:([a-zA-Z0-9_]+)/, mix_exs, capture: :all_but_first)
+      |> List.flatten()
+
+    unlocked_apps =
+      Regex.scan(
+        ~r/\{\s*:([a-zA-Z0-9_]+)\s*,[^}\n]*\b(?:path|git):/,
+        mix_exs,
+        capture: :all_but_first
+      )
+      |> List.flatten()
+
+    MapSet.new(project_apps ++ unlocked_apps)
   end
 
   defp materialize_dependency_priv!(build_path, deps_path) do

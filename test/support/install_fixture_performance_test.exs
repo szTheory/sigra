@@ -194,6 +194,65 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute File.exists?(mismatch)
   end
 
+  test "generated lock pruning retains only compatible dependency and Sigra build bytes", %{
+    root: root
+  } do
+    build = Path.join(root, "seeded-build")
+    lock = Path.join(root, "generated.lock")
+    project = Path.join(root, "generated-project")
+    File.mkdir_p!(project)
+
+    File.write!(
+      Path.join(project, "mix.exs"),
+      "def project, do: [app: :generated_host]\ndefp deps, do: [{:sigra, path: \"../sigra\"}]\n"
+    )
+
+    for {app, version} <- [phoenix: "1.8.13", stale_dep: "9.0.0", sigra: "1.5.0"] do
+      app_dir = Path.join([build, "lib", Atom.to_string(app), "ebin"])
+      File.mkdir_p!(app_dir)
+
+      File.write!(
+        Path.join(app_dir, "#{app}.app"),
+        "{application,#{app},[{vsn,\"#{version}\"}]} ."
+      )
+    end
+
+    File.write!(
+      lock,
+      ~s(%{\n  "phoenix": {:hex, :phoenix, "1.8.13", "hash", [], [], "hexpm", "hash"}\n})
+    )
+
+    assert {:ok, %{missing_required_apps: missing}} =
+             InstallFixture.prune_incompatible_seed!(build, lock, project)
+
+    assert File.dir?(Path.join([build, "lib", "phoenix"]))
+    assert File.dir?(Path.join([build, "lib", "sigra"]))
+    refute File.exists?(Path.join([build, "lib", "stale_dep"]))
+    assert missing == MapSet.new(["generated_host"])
+  end
+
+  test "generated lock pruning reports a missing required path app for Mix invalidation", %{
+    root: root
+  } do
+    build = Path.join(root, "missing-path-build")
+    project = Path.join(root, "missing-path-project")
+    lock = Path.join(root, "missing-path.lock")
+    File.mkdir_p!(Path.join(build, "lib"))
+    File.mkdir_p!(project)
+    File.write!(lock, "%{}\n")
+
+    File.write!(
+      Path.join(project, "mix.exs"),
+      "def project, do: [app: :generated_host]\ndefp deps, do: [{:sigra, path: \"../sigra\"}]\n"
+    )
+
+    assert {:ok, %{missing_required_apps: missing}} =
+             InstallFixture.prune_incompatible_seed!(build, lock, project)
+
+    assert missing == MapSet.new(["generated_host", "sigra"])
+    refute File.exists?(Path.join([build, "lib", "sigra"]))
+  end
+
   test "copies materialize valid links and omit dangling generated build links", %{root: root} do
     graph =
       InstallFixture.prepare_graph!(
