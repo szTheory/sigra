@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 8 completed implementation plans, 3 retained failed/blocked evidence plans, and 3 active recovery plans
+**Plans:** 8 completed implementation plans, 4 retained failed/blocked plans, and 3 active recovery plans
 
 **Success Criteria:**
 
@@ -574,14 +574,18 @@ Plans:
 
 - [x] 235.1-12-PLAN.md — Blocked candidate-1 capture; runs 34493873867/34493911924 retained and no evidence admitted
 
-**Wave 11** *(active; blocked on Plan 12 diagnostics)*
+**Blocked local recovery history** *(three repairs retained; terminal comparability gate failed)*
 
-- [ ] 235.1-13-PLAN.md — Repair formatter ownership, strict warning normalization, and no-rg verifier portability
+- [x] 235.1-13-PLAN.md — Repairs retained, but unchanged local TEST-02 comparability remained red
 
-**Wave 12** *(blocked on Plan 13)*
+**Wave 12** *(active; bounded local recovery from Plan 13 diagnostics)*
+
+- [ ] 235.1-15-PLAN.md — Replace zero-cost partition drift with provenance-bound current calibration and repeated real local proof
+
+**Wave 13** *(blocked on Plan 15)*
 
 - [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
 
-**Wave 13** *(blocked on Plan 14)*
+**Wave 14** *(blocked on Plan 14)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
