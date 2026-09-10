@@ -100,6 +100,45 @@ defmodule Sigra.DeliveryTest do
   end
 
   describe "deliver/3" do
+    test "failed dummy acquisition kills only the dummy and cleanup is process-local" do
+      owner = spawn(fn -> Process.sleep(:infinity) end)
+      on_exit(fn -> cleanup_dummy_oban(owner) end)
+      Process.register(owner, Oban)
+
+      test_process = self()
+
+      assert_raise ArgumentError, fn ->
+        acquire_dummy_oban(fn ->
+          dummy = spawn(fn -> Process.sleep(:infinity) end)
+          send(test_process, {:failed_dummy, dummy})
+          dummy
+        end)
+      end
+
+      assert_receive {:failed_dummy, dummy}
+      refute Process.alive?(dummy)
+      assert Process.whereis(Oban) == owner
+      assert Process.alive?(owner)
+
+      assert Task.await(Task.async(fn -> cleanup_dummy_oban(dummy) end)) == :ok
+      assert cleanup_dummy_oban(dummy) == :ok
+      assert Process.whereis(Oban) == owner
+      assert Process.alive?(owner)
+    end
+
+    test "cleanup does not unregister or kill a replacement Oban owner" do
+      dummy = acquire_dummy_oban()
+      assert cleanup_dummy_oban(dummy) == :ok
+
+      replacement = spawn(fn -> Process.sleep(:infinity) end)
+      on_exit(fn -> cleanup_dummy_oban(replacement) end)
+      Process.register(replacement, Oban)
+
+      assert Task.await(Task.async(fn -> cleanup_dummy_oban(dummy) end)) == :ok
+      assert Process.whereis(Oban) == replacement
+      assert Process.alive?(replacement)
+    end
+
     test "with delivery_mode: :sync uses synchronous path" do
       Sigra.MockMailer
       |> expect(:deliver, fn "user@example.com", "Test", %{text: "body"} ->
