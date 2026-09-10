@@ -351,6 +351,21 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     refute install_verifier =~ "ALLOW_"
   end
 
+  test "install ownership verifier uses portable tracked exact-tag discovery" do
+    verifier = File.read!("scripts/ci/verify-library-install-golden.sh")
+    adverse = File.read!("scripts/ci/verify-library-install-golden.test.sh")
+
+    refute verifier =~ "rg "
+    assert verifier =~ "find test -type f -name '*_test.exs'"
+    assert verifier =~ "grep"
+    assert verifier =~ "git ls-files --error-unmatch"
+    assert verifier =~ "LC_ALL=C sort"
+    assert adverse =~ "hermetic no-rg tool path"
+    assert adverse =~ "unsafe delimiter-bearing ownership path rejected"
+    assert adverse =~ "@moduletag :scaffold_extra"
+    assert adverse =~ "# @moduletag :scaffold"
+  end
+
   test "protected FAST-01 and GATE-05 verifiers remain independently green" do
     assert_protected_verifiers!()
   end
