@@ -6,6 +6,13 @@ RUNNER="$ROOT/scripts/ci/library-partitions.sh"
 FORMATTER_TEST="$ROOT/test/support/ci/ex_unit_timing_formatter_test.exs"
 
 fail() { printf 'library-partitions.test: FAIL: %s\n' "$*" >&2; exit 1; }
+digest() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
 
 [[ -x "$RUNNER" ]] || fail "runner must exist and be executable"
 grep -Fq '/tmp/sigra-library-partitions.json' "$RUNNER" || fail "combined path is not fixed"
@@ -63,7 +70,7 @@ printf '%s\n' \
 chmod +x "$test_root/bin/mix"
 
 PATH="$test_root/bin:$PATH" bash "$RUNNER"
-partition_1_sha_before="$(sha256sum /tmp/sigra-library-1-timings.json | awk '{print $1}')"
+partition_1_sha_before="$(digest /tmp/sigra-library-1-timings.json)"
 jq -e '
   .schema_version == "sigra.library-partitions/v1" and
   .execution_mode == "sequential" and
@@ -72,7 +79,7 @@ jq -e '
   [.partitions[].exit_status] == [0, 0] and
   all(.partitions[]; .duration_ms == (.end_ms - .start_ms) and .duration_ms > 0)
 ' /tmp/sigra-library-partitions.json >/dev/null || fail "success receipt is invalid"
-partition_1_sha_after="$(sha256sum /tmp/sigra-library-1-timings.json | awk '{print $1}')"
+partition_1_sha_after="$(digest /tmp/sigra-library-1-timings.json)"
 [[ "$partition_1_sha_after" == "$partition_1_sha_before" ]] ||
   fail "partition 2 changed partition 1 timing receipt"
 

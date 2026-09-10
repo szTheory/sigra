@@ -70,7 +70,7 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
   end
 
   test "write_receipt writes a JSON object only to the selected CI receipt path" do
-    path = "/tmp/sigra-library-1-timings.json"
+    path = "/tmp/sigra-library-scaffold-timings.json"
     partition_1_path = "/tmp/sigra-library-1-timings.json"
     partition_2_path = "/tmp/sigra-library-2-timings.json"
     partition_1_bytes = "partition-1-owned-by-runner\n"
