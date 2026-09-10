@@ -601,6 +601,76 @@ jobs:
           fi
           echo "all library tests passed"
 
+  library_install_golden_non_pr:
+    name: Library install golden (non-PR)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library install deps
+        id: library_install_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-install-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-install-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch locked library deps
+        env:
+          MIX_ENV: test
+        run: mix deps.get --check-locked
+      - name: Run exact install golden receiver
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          # shellcheck disable=SC2209
+          MIX_ENV=test bash scripts/ci/install-golden.sh
+      - name: Validate install golden receipt and diagnostics
+        if: always()
+        run: bash scripts/ci/verify-library-install-golden.sh
+      - name: Upload library install golden receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: library-install-golden-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-library-install-golden.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload library install diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/sigra-install-golden-diagnostics.json
+          if-no-files-found: error
+          retention-days: 7
+
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
     runs-on: ubuntu-latest

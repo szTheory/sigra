@@ -65,6 +65,42 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert_current_topology!()
   end
 
+  test "non-PR install authority is event-complete, fail-closed, and empirically justified" do
+    workflow = File.read!(".github/workflows/ci.yml")
+    non_pr = job_body(workflow, "library_install_golden_non_pr")
+    context = File.read!(@context_path)
+
+    assert non_pr =~
+             "if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}"
+
+    refute non_pr =~ "pull_request"
+    refute non_pr =~ "push"
+    refute non_pr =~ "continue-on-error"
+    refute non_pr =~ "force_"
+    assert non_pr =~ "mix deps.get --check-locked"
+    assert non_pr =~ "mix archive.install --force hex phx_new 1.8.8"
+    assert non_pr =~ "version-file: .tool-versions"
+    assert non_pr =~ "MIX_ENV=test bash scripts/ci/install-golden.sh"
+    assert non_pr =~ "if: always()"
+    assert non_pr =~ "bash scripts/ci/verify-library-install-golden.sh"
+    assert length(Regex.scan(~r/if-no-files-found: error/, non_pr)) == 2
+    assert length(Regex.scan(~r/retention-days: 7/, non_pr)) == 2
+    assert length(Regex.scan(~r/actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/, non_pr)) == 2
+
+    for evidence <- ["library-install-golden", "library-install-diagnostics"] do
+      assert non_pr =~ "#{evidence}-${{ github.run_id }}-${{ github.run_attempt }}"
+    end
+
+    ci_gate = job_body(workflow, "ci-gate")
+    aggregate = job_body(workflow, "library_tests")
+    refute ci_gate =~ "library_install_golden_non_pr"
+    refute aggregate =~ "library_install_golden_non_pr"
+
+    for fact <- ["28,671ms", "79,614ms", "57,389ms", "negative diagnostics", "non-PR lane"] do
+      assert context =~ fact
+    end
+  end
+
   test "same ordinary run consumes the formatter and preserves deterministic unique timing evidence" do
     assert_formatter_contract!()
   end
@@ -263,6 +299,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   test "fixed runner and verifier expose no command, environment, or threshold bypass" do
     runner = File.read!("scripts/ci/install-golden.sh")
     verifier = File.read!("scripts/ci/verify-library-economics.sh")
+    install_verifier = File.read!("scripts/ci/verify-library-install-golden.sh")
 
     assert runner =~ "export SIGRA_INSTALL_GOLDEN_PREPARED=1"
     assert runner =~ "mix test \"${receiver_paths[@]}\""
@@ -272,6 +309,11 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert verifier =~ "install <= ordinary"
     refute verifier =~ "THRESHOLD"
     refute verifier =~ "ALLOW_"
+    assert install_verifier =~ "live scaffold ownership"
+    assert install_verifier =~ ".worker_ceiling != 2"
+    assert install_verifier =~ ".prepared_fixture != true"
+    refute install_verifier =~ "THRESHOLD"
+    refute install_verifier =~ "ALLOW_"
   end
 
   test "protected FAST-01 and GATE-05 verifiers remain independently green" do
@@ -356,6 +398,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     harness = File.read!("scripts/ci/library-partitions.sh")
     shard = job_body(workflow, "library_tests_shard")
     aggregate = job_body(workflow, "library_tests")
+    non_pr = job_body(workflow, "library_install_golden_non_pr")
 
     assert library_job_ids(workflow) == [
              "library_tests_shard",
@@ -385,6 +428,9 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert aggregate =~ "needs: [library_tests_shard]"
     assert aggregate =~ "if: always()"
     assert aggregate =~ ~s("$SHARD" != "success")
+    refute shard =~ "install-golden.sh"
+    refute shard =~ "phx_new"
+    assert non_pr =~ "MIX_ENV=test bash scripts/ci/install-golden.sh"
 
     install_runner = File.read!("scripts/ci/install-golden.sh")
     assert install_alias_commands(mix_exs) == ["cmd bash scripts/ci/install-golden.sh"]

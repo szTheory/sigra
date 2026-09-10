@@ -72,6 +72,31 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute shard =~ "library-economics"
   end
 
+  test "exact scaffold universe has one hard-signal schedule and dispatch receiver" do
+    workflow = File.read!(@workflow_path)
+    non_pr = job_body(workflow, "library_install_golden_non_pr")
+    runner = File.read!("scripts/ci/install-golden.sh")
+
+    assert non_pr =~ "name: Library install golden (non-PR)"
+
+    assert non_pr =~
+             "if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}"
+
+    refute non_pr =~ "pull_request"
+    refute non_pr =~ "push"
+    refute non_pr =~ "continue-on-error"
+    assert length(Regex.scan(~r/MIX_ENV=test bash scripts\/ci\/install-golden\.sh/, non_pr)) == 1
+    assert non_pr =~ "if: always()"
+    assert non_pr =~ "verify-library-install-golden.sh"
+    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, non_pr)) == 2
+    assert length(Regex.scan(~r/if-no-files-found: error/, non_pr)) == 2
+    assert length(Regex.scan(~r/retention-days: 7/, non_pr)) == 2
+    assert non_pr =~ "library-install-golden-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert non_pr =~ "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert install_golden_paths(runner) == live_scaffold_paths()
+    assert length(install_golden_paths(runner)) == 6
+  end
+
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
     dep_off = job_body(File.read!(@workflow_path), "library_tests_dep_off")
 
