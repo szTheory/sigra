@@ -166,6 +166,8 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
              graph.variants.default_installed.path,
              first.path
            )
+
+    refute InstallFixture.tree_has_shared_writable_state?(first.build_path, second.build_path)
   end
 
   test "cache bytes are reused only for an exact compatibility fingerprint", %{root: root} do
@@ -247,7 +249,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
                command: successful_reflink
              )
 
-    assert_receive {:copy_command, ["--reflink=always", "-R", ^source, ^reflink_target]}
+    assert_receive {:copy_command, ["--reflink=always", "-a", ^source, ^reflink_target]}
 
     fallback_target = Path.join(root, "fallback-target")
 
@@ -272,10 +274,62 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
                command: fallback
              )
 
-    assert_receive {:copy_command, ["--reflink=always", "-R", ^source, ^fallback_target]}
-    assert_receive {:copy_command, ["-R", ^source, ^fallback_target]}
+    assert_receive {:copy_command, ["--reflink=always", "-a", ^source, ^fallback_target]}
+    assert_receive {:copy_command, ["-a", ^source, ^fallback_target]}
     assert File.read!(Path.join(fallback_target, "bytes")) == "private"
     refute InstallFixture.tree_has_shared_writable_state?(reflink_target, fallback_target)
+  end
+
+  test "validated compiler manifest relocation preserves a clean private build", %{root: root} do
+    graph =
+      InstallFixture.prepare_graph!(
+        root: root,
+        fingerprint: "relocation",
+        base_builder: fn base ->
+          File.mkdir_p!(Path.join(base, "lib"))
+          deps = Path.join([Path.dirname(Path.dirname(base)), "shared_deps"])
+          File.mkdir_p!(deps)
+          File.chmod!(deps, 0o500)
+
+          File.write!(
+            Path.join(base, "mix.exs"),
+            "defmodule R.MixProject do\nuse Mix.Project\ndef project, do: [app: :r, version: \"0.1.0\"]\nend\n"
+          )
+
+          File.write!(Path.join(base, "lib/r.ex"), "defmodule R do\ndef ok, do: true\nend\n")
+          {_, 0} = System.cmd("mix", ["compile"], cd: base, stderr_to_stdout: true)
+          :ok
+        end,
+        variant_builder: fn _name, _path -> {:ok, ""} end,
+        variant_compiler: fn path ->
+          assert {:ok, output} = InstallFixture.run_mix(path, ["compile"])
+          assert output =~ "Compiling 1 file"
+          :ok
+        end
+      )
+
+    checkout = InstallFixture.checkout!(graph, :default_installed, "relocated")
+    assert checkout.manifest_mode == :relocated
+    assert {:ok, output} = InstallFixture.run_mix(checkout.path, ["compile"])
+    refute output =~ "Compiling"
+
+    File.write!(
+      Path.join(checkout.path, "lib/r.ex"),
+      "defmodule R do\ndef ok, do: :changed\nend\n"
+    )
+
+    assert {:ok, output} = InstallFixture.run_mix(checkout.path, ["compile"])
+    assert output =~ "Compiling 1 file"
+
+    unknown = Path.join([checkout.build_path, "lib", "r", ".mix", "compile.elixir"])
+    File.write!(unknown, :erlang.term_to_binary({999, :unknown}))
+
+    assert :fallback =
+             InstallFixture.relocate_compile_manifest!(
+               checkout.build_path,
+               checkout.path,
+               checkout.path
+             )
   end
 
   test "generated lock pruning retains only compatible dependency and Sigra build bytes", %{
@@ -335,6 +389,29 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
     assert missing == MapSet.new(["generated_host", "sigra"])
     refute File.exists?(Path.join([build, "lib", "sigra"]))
+  end
+
+  test "Sigra dependency compile bypass is conditional on a trusted current seed", %{root: root} do
+    app = Path.join(root, "seed-policy-app")
+    File.mkdir_p!(app)
+    sigra_root = Path.expand(".")
+    mix_exs = Path.join(app, "mix.exs")
+
+    dependency = "{:sigra, path: #{inspect(sigra_root)}, override: true}"
+    File.write!(mix_exs, "defp deps, do: [#{dependency}]\n")
+
+    assert :fallback = InstallFixture.configure_seeded_path_dep_for_test!(app, false)
+    assert File.read!(mix_exs) =~ dependency
+    refute File.read!(mix_exs) =~ "compile: false"
+
+    assert :trusted = InstallFixture.configure_seeded_path_dep_for_test!(app, true)
+    assert File.read!(mix_exs) =~ "#{dependency |> String.trim_trailing("}")}, compile: false}"
+
+    missing_build = Path.join(root, "missing-seed")
+    copied_build = Path.join(root, "copied-seed")
+    File.mkdir_p!(copied_build)
+
+    refute InstallFixture.trusted_sigra_seed_for_test?(missing_build, copied_build)
   end
 
   test "copies materialize valid links and omit dangling generated build links", %{root: root} do
