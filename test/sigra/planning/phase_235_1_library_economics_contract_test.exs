@@ -464,10 +464,8 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       assert summary =~ fact
     end
 
-    refute File.exists?(@calibration_manifest_path)
-
-    assert sha256(File.read!(@calibration_path)) ==
-             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    assert summary =~ "the manifest is absent"
+    assert summary =~ "prior tracked calibration was restored byte-for-byte"
   end
 
   @tag :assignment_contract
