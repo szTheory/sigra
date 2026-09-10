@@ -1,3 +1,5 @@
+Code.require_file("library_test_partitions.exs", __DIR__)
+
 defmodule Sigra.CI.LibraryTestPartitionsTest do
   use ExUnit.Case, async: true
 
@@ -50,7 +52,8 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
           {opts[:costs] ++ [%{"path" => "test/stale_test.exs", "time_us" => 1}],
            "stale manifest paths"},
           {opts[:costs] ++ [%{"path" => "test/a_test.exs", "time_us" => 1}], "duplicate"},
-          {opts[:costs] ++ [%{"path" => hd(LibraryTestPartitions.scaffold_paths()), "time_us" => 1}],
+          {opts[:costs] ++
+             [%{"path" => hd(LibraryTestPartitions.scaffold_paths()), "time_us" => 1}],
            "scaffold"}
         ] do
       assert_raise ArgumentError, ~r/#{message}/, fn ->
