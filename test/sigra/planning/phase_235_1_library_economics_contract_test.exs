@@ -9,6 +9,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
   @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+  @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
 
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
@@ -64,6 +65,22 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
       refute historical_summary_exception_eligible?(summary)
     end
+  end
+
+  test "Plan 18 remains immutable blocked history before recalibration" do
+    summary = File.read!(@plan_18_summary)
+
+    assert summary =~ "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
+    assert summary =~ "627428df5a20dc0479163b9993a49dccf5e6f92e"
+    assert summary =~ "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8"
+    assert summary =~ "71d14c82105cc8e48f018999bd3f02d2c9dc4a47"
+    assert summary =~ "2,449ms"
+    assert summary =~ "13,579ms"
+    assert summary =~ "5.544"
+    assert summary =~ "validation 2/3 did not run"
+    assert summary =~ "No candidate push occurred"
+    assert summary =~ "No new GitHub run or job IDs exist"
+    assert summary =~ "847f97542bd110be6022771098a54db9b4d8b0f75db2c32b923ee81834acf962"
   end
 
   setup do
