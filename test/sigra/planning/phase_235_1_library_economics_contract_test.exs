@@ -7,6 +7,8 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @terminal_verifier "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
   @blocked_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-04-SUMMARY.md"
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
+  @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
+  @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
 
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
@@ -138,6 +140,85 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     refute source =~ "/tmp/sigra-library-2-timings.json"
     assert runner =~ "partition_1_digest"
     assert runner =~ "partition 2 changed partition 1 timing receipt"
+  end
+
+  test "Plan 17 repairs only the global Oban test owners and runs three fresh validations" do
+    registrants =
+      "test"
+      |> Path.join("**/*_test.exs")
+      |> Path.wildcard()
+      |> Enum.filter(&registers_global_oban?/1)
+      |> Enum.sort()
+
+    assert registrants == [
+             "test/sigra/account/deletion_test.exs",
+             "test/sigra/delivery_test.exs"
+           ]
+
+    Enum.each(registrants, fn path ->
+      source = File.read!(path)
+      assert source =~ "use ExUnit.Case, async: false"
+      refute source =~ "use ExUnit.Case, async: true"
+      assert byte_index!(source, "on_exit(fn -> cleanup_dummy_oban(dummy) end)") <
+               byte_index!(source, "Process.register(dummy, Oban)")
+
+      assert source =~ "ref = Process.monitor(dummy)"
+      assert source =~ "if Process.whereis(Oban) == dummy"
+      assert source =~ "if Process.alive?(dummy)"
+      assert source =~ "Process.exit(dummy, :kill)"
+      assert source =~ "{:DOWN, ^ref, :process, ^dummy, reason}"
+      assert source =~ "reason in [:killed, :noproc]"
+      assert source =~ "1_000 -> raise"
+      assert source =~ "exception in ArgumentError"
+      assert source =~ "cleanup_dummy_oban(dummy)"
+    end)
+
+    delivery = File.read!("test/sigra/delivery_test.exs")
+    assert delivery =~ "failed dummy acquisition kills only the dummy"
+    assert delivery =~ "cleanup does not unregister or kill a replacement Oban owner"
+    assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) == 2
+
+    calibration = File.read!(@calibration_path)
+    assert byte_size(calibration) == 2_922_739
+    assert sha256(calibration) == "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+
+    immutable_paths = %{
+      "test/support/ci/library_test_partitions.exs" =>
+        "91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97",
+      "test/support/ci/library_test_partitions_test.exs" =>
+        "3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5",
+      "scripts/ci/library-partitions.sh" =>
+        "99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",
+      "scripts/ci/verify-library-partitions.sh" =>
+        "449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",
+      ".github/workflows/ci.yml" =>
+        "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
+    }
+
+    Enum.each(immutable_paths, fn {path, expected} ->
+      assert path |> File.read!() |> sha256() == expected, "immutable drift: #{path}"
+    end)
+
+    {production_diff, production_status} =
+      System.cmd("git", ["diff", "--name-only", "fd97522d", "--", "lib"])
+
+    assert production_status == 0
+    assert production_diff == ""
+
+    plan_16 = File.read!(@plan_16_summary)
+    assert plan_16 =~ "37,517ms"
+    assert plan_16 =~ "26,409ms"
+    assert plan_16 =~ "Fresh post-calibration validation pairs completed: 0 of 3"
+
+    {pinned_plan_16, 0} = System.cmd("git", ["show", "84550d73:#{@plan_16_summary}"])
+    assert pinned_plan_16 == plan_16
+
+    integration = File.read!("scripts/ci/library-partitions.test.sh")
+    assert integration =~ "for validation in 1 2 3"
+    assert integration =~ "validation-${validation}"
+    assert integration =~ "verify-library-partitions.sh"
+    assert length(Regex.scan(~r/bash \"\$RUNNER\"/, integration)) == 1
+    refute integration =~ ~r/retry|average|recalibrat|retun/i
   end
 
   test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
@@ -632,6 +713,29 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp byte_index!(source, needle), do: :binary.match(source, needle) |> elem(0)
+
+  defp sha256(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
+
+  defp registers_global_oban?(path) do
+    case path |> File.read!() |> Code.string_to_quoted() do
+      {:ok, quoted} ->
+        {_quoted, found?} =
+          Macro.prewalk(quoted, false, fn
+            {{:., _, [{:__aliases__, _, [:Process]}, :register]}, _,
+             [_, {:__aliases__, _, [:Oban]}]} = node,
+            _found? ->
+              {node, true}
+
+            node, found? ->
+              {node, found?}
+          end)
+
+        found?
+
+      {:error, _reason} ->
+        false
+    end
+  end
 
   defp last_byte_index!(source, needle),
     do: source |> :binary.matches(needle) |> List.last() |> elem(0)
