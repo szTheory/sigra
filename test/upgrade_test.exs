@@ -89,8 +89,7 @@ defmodule Sigra.UpgradeIntegrationTest do
            "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
 
     # Assert: app still compiles + migrates + boots.
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-    {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
     refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
     # Assert: organizations table should be absent in the zero-org path.
@@ -116,8 +115,7 @@ defmodule Sigra.UpgradeIntegrationTest do
     refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
     assert documented_upgrade_command([]) == @documented_upgrade_command
 
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-    {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
     refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
     # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
@@ -162,8 +160,7 @@ defmodule Sigra.UpgradeIntegrationTest do
     assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
              @documented_backfill_command
 
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+    {:ok, _} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
     run_data_migrations!(app_dir)
 
     if organizations_table_exists?(app_dir) do
@@ -231,9 +228,29 @@ defmodule Sigra.UpgradeIntegrationTest do
     end)
     """
 
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.create"])
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
+    {:ok, _} =
+      run_mix_tasks!(app_dir, [
+        ["ecto.create"],
+        ["ecto.migrate"],
+        ["run", "-e", script]
+      ])
+  end
+
+  defp run_mix_tasks!(app_dir, tasks) do
+    last_index = length(tasks) - 1
+
+    args =
+      tasks
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {task_args, index} ->
+        if index == last_index do
+          task_args
+        else
+          List.update_at(task_args, -1, &(&1 <> ","))
+        end
+      end)
+
+    InstallFixture.run_mix(app_dir, ["do" | args])
   end
 
   # `mix ecto.migrate` only runs schema migrations under
