@@ -45,7 +45,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              @protected_aggregate_sha256
   end
 
-  test "sole owner validates and uploads both fixed receipts fail-closed" do
+  test "sole owner uploads two fixed receipts fail-closed and diagnostics non-authoritatively" do
     shard = @workflow_path |> File.read!() |> job_body("library_tests_shard")
 
     assert shard =~ "SIGRA_EXUNIT_TIMING_PATH: /tmp/sigra-library-1-timings.json"
@@ -54,10 +54,32 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert shard =~ "verify-library-economics.sh"
     assert shard =~ "library-test-timings-${{ github.run_id }}-${{ github.run_attempt }}"
     assert shard =~ "library-economics-${{ github.run_id }}-${{ github.run_attempt }}"
-    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
-    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, shard)) == 2
+    assert shard =~ "Diagnostic only and non-authoritative: this is not an admission artifact."
+    assert shard =~ "Upload install fixture diagnostics (non-authoritative)"
+
+    assert shard =~
+             "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
+
+    assert shard =~ "path: /tmp/sigra-install-golden-diagnostics.json"
+    assert shard =~ "if-no-files-found: ignore"
+
+    assert byte_index!(shard, "Validate per-test timing receipt") <
+             byte_index!(shard, "Validate library economics receipt")
+
+    assert byte_index!(shard, "Validate library economics receipt") <
+             byte_index!(shard, "Upload per-test timing receipt")
+
+    assert byte_index!(shard, "Upload per-test timing receipt") <
+             byte_index!(shard, "Upload library economics receipt")
+
+    assert byte_index!(shard, "Upload library economics receipt") <
+             byte_index!(shard, "Upload install fixture diagnostics (non-authoritative)")
+
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 5
+    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, shard)) == 3
     assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 2
-    assert length(Regex.scan(~r/retention-days: 7/, shard)) == 2
+    assert length(Regex.scan(~r/if-no-files-found: ignore/, shard)) == 1
+    assert length(Regex.scan(~r/retention-days: 7/, shard)) == 3
   end
 
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
@@ -314,6 +336,13 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   defp quoted_values(body) do
     Regex.scan(~r/"([^"]+)"/, body, capture: :all_but_first)
     |> List.flatten()
+  end
+
+  defp byte_index!(source, needle) do
+    case :binary.match(source, needle) do
+      {index, _length} -> index
+      :nomatch -> flunk("missing source marker #{inspect(needle)}")
+    end
   end
 
   defp canonical_scaffold_paths do
