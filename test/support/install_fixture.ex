@@ -1477,7 +1477,7 @@ defmodule Sigra.Test.InstallFixture do
       if status == 0 do
         {mode, output, status}
       else
-        File.rm_rf!(target)
+        safe_remove_graph_member!(target)
         {out, rc} = copy_command.("cp", ["-R", source, target], stderr_to_stdout: true)
         {:copy, out, rc}
       end
