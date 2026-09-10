@@ -402,8 +402,6 @@ defmodule Sigra.Test.InstallFixture do
       schema_version: "sigra.install-fixture-diagnostics/v1",
       phases: Map.take(graph.timings, @diagnostic_phases),
       copy_mode: aggregate_copy_mode(graph, checkouts),
-      compile_manifest_modes:
-        Enum.frequencies_by(checkouts, &Map.get(&1, :manifest_mode, :fallback)),
       variant_count: map_size(graph.variants),
       worker_count: 2,
       partitions: partitions,
