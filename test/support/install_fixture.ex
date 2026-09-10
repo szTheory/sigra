@@ -1226,13 +1226,19 @@ defmodule Sigra.Test.InstallFixture do
     target
   end
 
-  defp compile_variant!(variant_path) do
+  defp compile_variant!(variant_path), do: compile_variant!(variant_path, &System.cmd/3)
+
+  @doc false
+  def compile_variant_for_test!(variant_path, command) when is_function(command, 3),
+    do: compile_variant!(variant_path, command)
+
+  defp compile_variant!(variant_path, command) do
     options = command_options(variant_path)
-    {output, status} = System.cmd("mix", ["compile"], options)
+    {output, status} = command.("mix", ["compile"], options)
 
     {output, status} =
       if status != 0 do
-        retry_failed_dependency_compile(variant_path, output, options, status)
+        retry_failed_dependency_compile(variant_path, output, options, status, command)
       else
         {output, status}
       end
@@ -1242,21 +1248,20 @@ defmodule Sigra.Test.InstallFixture do
     :ok
   end
 
-  defp retry_failed_dependency_compile(variant_path, output, options, status) do
-    with [_, dependency] <- Regex.run(~r/Could not compile dependency :([a-zA-Z0-9_]+)/, output),
-         build_path when is_binary(build_path) <-
-           options[:env] |> Map.new() |> Map.get("MIX_BUILD_PATH"),
-         dependency_path <- validate_graph_member!(Path.join([build_path, "lib", dependency])),
-         true <- File.dir?(dependency_path) do
-      safe_remove_graph_member!(dependency_path)
-      File.mkdir_p!(Path.join(dependency_path, ".mix"))
+  defp retry_failed_dependency_compile(variant_path, output, options, status, command) do
+    with {:ok, dependency} <- failed_dependency(output) do
+      retry_deps_path = prepare_retry_deps!(variant_path, options, dependency)
 
       retry_options =
         Keyword.update!(options, :env, fn env ->
-          [{"DIAGNOSTIC", "1"} | List.keydelete(env, "DIAGNOSTIC", 0)]
+          env
+          |> List.keydelete("DIAGNOSTIC", 0)
+          |> List.keydelete("MIX_DEPS_PATH", 0)
+          |> then(&[{"DIAGNOSTIC", "1"}, {"MIX_DEPS_PATH", retry_deps_path} | &1])
         end)
 
-      System.cmd("mix", ["compile"], retry_options)
+      {retry_output, retry_status} = command.("mix", ["compile"], retry_options)
+      {output <> "\ncompile retry:\n" <> retry_output, retry_status}
     else
       _ -> {output, status}
     end
@@ -1264,6 +1269,98 @@ defmodule Sigra.Test.InstallFixture do
     error ->
       {output <> "\ncompile retry setup failed for #{variant_path}: #{Exception.message(error)}",
        status}
+  end
+
+  defp failed_dependency(output) do
+    case Regex.scan(~r/Could not compile dependency :([a-z][a-z0-9_]*)\b/, output) do
+      [[_match, dependency]] -> {:ok, dependency}
+      _other -> :error
+    end
+  end
+
+  defp prepare_retry_deps!(variant_path, options, dependency) do
+    graph_root =
+      graph_root_for(variant_path) || raise("prepared fixture is outside its graph root")
+
+    env = options[:env] |> Map.new()
+
+    shared_deps =
+      case Map.get(env, "MIX_DEPS_PATH") do
+        path when is_binary(path) -> validate_shared_deps!(graph_root, path)
+        _other -> raise "prepared fixture retry is missing canonical shared deps"
+      end
+
+    validate_retry_shared_deps!(shared_deps)
+
+    dependency_source = Path.join(shared_deps, dependency)
+
+    case File.lstat(dependency_source) do
+      {:ok, %{type: :directory}} -> :ok
+      _other -> raise "prepared fixture retry is missing dependency source: #{dependency}"
+    end
+
+    token = System.unique_integer([:positive, :monotonic])
+
+    retry_deps =
+      Path.join([graph_root, "compile_recovery", "retry-#{token}", "shared_deps"])
+      |> validate_graph_member!()
+
+    source_state = tree_state(shared_deps)
+    source_contents = tree_contents(source_state)
+
+    try do
+      {_mode, _elapsed_ms} = copy_tree!(shared_deps, retry_deps)
+      make_tree_writable!(retry_deps)
+
+      if tree_state(shared_deps) != source_state do
+        raise "prepared fixture retry mutated canonical shared deps"
+      end
+
+      if retry_deps |> tree_state() |> tree_contents() != source_contents do
+        raise "prepared fixture retry dependency copy is incomplete"
+      end
+
+      if tree_has_shared_writable_state?(shared_deps, retry_deps) do
+        raise "prepared fixture retry dependency copy shares writable filesystem identity"
+      end
+
+      case File.lstat(Path.join(retry_deps, dependency)) do
+        {:ok, %{type: :directory}} -> retry_deps
+        _other -> raise "prepared fixture retry dependency copy is missing #{dependency}"
+      end
+    rescue
+      error ->
+        if File.exists?(retry_deps), do: safe_remove_graph_member!(retry_deps)
+        reraise error, __STACKTRACE__
+    end
+  end
+
+  defp validate_retry_shared_deps!(shared_deps) do
+    paths = [shared_deps | Path.wildcard(Path.join(shared_deps, "**/*"), match_dot: true)]
+
+    if unsafe_path = first_unsafe_link(shared_deps) do
+      raise "prepared fixture shared deps contain an unsafe link: #{unsafe_path}"
+    end
+
+    case Enum.find(paths, fn path -> Bitwise.band(File.lstat!(path).mode, 0o222) != 0 end) do
+      nil -> shared_deps
+      writable -> raise "prepared fixture shared deps contain a writable path: #{writable}"
+    end
+  end
+
+  defp tree_state(root) do
+    [root | Path.wildcard(Path.join(root, "**/*"), match_dot: true)]
+    |> Enum.map(fn path ->
+      stat = File.lstat!(path)
+      relative = if path == root, do: ".", else: Path.relative_to(path, root)
+      bytes = if stat.type == :regular, do: File.read!(path), else: nil
+      {relative, stat.type, Bitwise.band(stat.mode, 0o777), bytes}
+    end)
+    |> Enum.sort()
+  end
+
+  defp tree_contents(state) do
+    Enum.map(state, fn {relative, type, _mode, bytes} -> {relative, type, bytes} end)
   end
 
   defp compile_installed_variants!(variants, variant_compiler, false) do

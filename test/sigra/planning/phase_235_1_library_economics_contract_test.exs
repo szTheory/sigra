@@ -20,6 +20,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert adverse =~ "PR attempt"
     assert adverse =~ "same implementation SHA"
     assert adverse =~ "failed-history run"
+    assert adverse =~ "history substitution"
+    assert adverse =~ "deterministic-failure advancement"
+    assert adverse =~ "candidate tree drift"
+    assert adverse =~ "over budget"
   end
 
   setup do

@@ -766,14 +766,141 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     assert_receive :replacement_acquired, 500
   end
 
-  test "variant compilation has one bounded failed-dependency recovery" do
-    source = File.read!("test/support/install_fixture.ex")
+  test "variant compilation retries once with a complete graph-private writable deps copy", %{
+    root: root
+  } do
+    %{variant_path: variant_path, shared_deps: shared_deps} = recovery_fixture!(root)
+    shared_snapshot = tree_snapshot(shared_deps)
+    Process.delete({__MODULE__, :compile_calls})
 
-    assert source =~ "retry_failed_dependency_compile"
-    assert source =~ "Could not compile dependency"
-    assert source =~ "safe_remove_graph_member!(dependency_path)"
-    assert source =~ ~s|File.mkdir_p!(Path.join(dependency_path, ".mix"))|
-    assert source =~ ~s|{"DIAGNOSTIC", "1"}|
+    command = fn "mix", ["compile"], options ->
+      call = Process.get({__MODULE__, :compile_calls}, 0) + 1
+      Process.put({__MODULE__, :compile_calls}, call)
+      env = options[:env] |> Map.new()
+
+      case call do
+        1 ->
+          assert env["MIX_DEPS_PATH"] == shared_deps
+          {"Could not compile dependency :telemetry_poller, mix compile failed", 1}
+
+        2 ->
+          retry_deps = Map.fetch!(env, "MIX_DEPS_PATH")
+          assert env["DIAGNOSTIC"] == "1"
+          assert retry_deps != shared_deps
+          assert String.starts_with?(retry_deps, Path.join(root, "compile_recovery") <> "/")
+          assert File.read!(Path.join(retry_deps, "telemetry_poller/source.erl")) == "poller"
+          assert File.read!(Path.join(retry_deps, "jason/source.ex")) == "jason"
+
+          assert File.read!(
+                   Path.join(retry_deps, "telemetry_poller/_build/prod/lib/.rebar3/base_graph")
+                 ) == "sealed graph"
+
+          assert Bitwise.band(File.stat!(retry_deps).mode, 0o200) == 0o200
+          refute InstallFixture.tree_has_shared_writable_state?(shared_deps, retry_deps)
+
+          dag_path =
+            Path.join(retry_deps, "telemetry_poller/_build/prod/lib/.rebar3/compile_graph")
+
+          File.mkdir_p!(Path.dirname(dag_path))
+          File.write!(dag_path, "private dag")
+          {"retry succeeded", 0}
+      end
+    end
+
+    assert :ok = InstallFixture.compile_variant_for_test!(variant_path, command)
+    assert Process.get({__MODULE__, :compile_calls}) == 2
+    assert tree_snapshot(shared_deps) == shared_snapshot
+
+    [retry_deps] = Path.wildcard(Path.join(root, "compile_recovery/*/shared_deps"))
+
+    assert File.read!(
+             Path.join(retry_deps, "telemetry_poller/_build/prod/lib/.rebar3/compile_graph")
+           ) ==
+             "private dag"
+  end
+
+  test "non-dependency failures keep original authority and create no recovery copy", %{
+    root: root
+  } do
+    %{variant_path: variant_path} = recovery_fixture!(root)
+    Process.put({__MODULE__, :compile_calls}, 0)
+
+    command = fn "mix", ["compile"], _options ->
+      Process.put({__MODULE__, :compile_calls}, Process.get({__MODULE__, :compile_calls}) + 1)
+      {"ordinary compiler failure", 17}
+    end
+
+    assert_raise RuntimeError, ~r/ordinary compiler failure/, fn ->
+      InstallFixture.compile_variant_for_test!(variant_path, command)
+    end
+
+    assert Process.get({__MODULE__, :compile_calls}) == 1
+    refute File.exists?(Path.join(root, "compile_recovery"))
+  end
+
+  test "missing dependency source fails closed before retry or copy", %{root: root} do
+    %{variant_path: variant_path} = recovery_fixture!(root)
+    Process.put({__MODULE__, :compile_calls}, 0)
+
+    command = fn "mix", ["compile"], _options ->
+      Process.put({__MODULE__, :compile_calls}, Process.get({__MODULE__, :compile_calls}) + 1)
+      {"Could not compile dependency :missing_dep, mix compile failed", 19}
+    end
+
+    assert_raise RuntimeError, ~r/missing dependency source/, fn ->
+      InstallFixture.compile_variant_for_test!(variant_path, command)
+    end
+
+    assert Process.get({__MODULE__, :compile_calls}) == 1
+    refute File.exists?(Path.join(root, "compile_recovery"))
+  end
+
+  test "ambiguous or path-shaped dependency output cannot authorize recovery", %{root: root} do
+    %{variant_path: variant_path} = recovery_fixture!(root)
+
+    for output <- [
+          "Could not compile dependency :../../escape, mix compile failed",
+          "Could not compile dependency :jason\nCould not compile dependency :telemetry_poller"
+        ] do
+      Process.put({__MODULE__, :compile_calls}, 0)
+
+      command = fn "mix", ["compile"], _options ->
+        Process.put({__MODULE__, :compile_calls}, Process.get({__MODULE__, :compile_calls}) + 1)
+        {output, 31}
+      end
+
+      assert_raise RuntimeError, fn ->
+        InstallFixture.compile_variant_for_test!(variant_path, command)
+      end
+
+      assert Process.get({__MODULE__, :compile_calls}) == 1
+      refute File.exists?(Path.join(root, "compile_recovery"))
+    end
+  end
+
+  test "failed retry remains bounded and graph cleanup removes its private source", %{root: root} do
+    %{variant_path: variant_path, shared_deps: shared_deps} = recovery_fixture!(root)
+    shared_snapshot = tree_snapshot(shared_deps)
+    Process.put({__MODULE__, :compile_calls}, 0)
+
+    command = fn "mix", ["compile"], _options ->
+      call = Process.get({__MODULE__, :compile_calls}) + 1
+      Process.put({__MODULE__, :compile_calls}, call)
+
+      if call == 1,
+        do: {"Could not compile dependency :telemetry_poller, mix compile failed", 23},
+        else: {"retry still failed", 29}
+    end
+
+    assert_raise RuntimeError, ~r/retry still failed/, fn ->
+      InstallFixture.compile_variant_for_test!(variant_path, command)
+    end
+
+    assert Process.get({__MODULE__, :compile_calls}) == 2
+    assert tree_snapshot(shared_deps) == shared_snapshot
+    assert [_private] = Path.wildcard(Path.join(root, "compile_recovery/*/shared_deps"))
+    assert :ok = InstallFixture.cleanup_graph!(root)
+    refute File.exists?(root)
   end
 
   defp prepare_test_graph!(root) do
@@ -827,6 +954,39 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         {:ok, "stdout #{name}"}
       end
     )
+  end
+
+  defp recovery_fixture!(root) do
+    variant_path = Path.join(root, "variants/default_installed")
+    shared_deps = Path.join(root, "shared_deps")
+    build_path = Path.join(root, "build_template/dev")
+
+    File.mkdir_p!(variant_path)
+    File.mkdir_p!(build_path)
+    File.mkdir_p!(Path.join(shared_deps, "telemetry_poller"))
+    File.mkdir_p!(Path.join(shared_deps, "jason"))
+    File.write!(Path.join(shared_deps, "telemetry_poller/source.erl"), "poller")
+    File.write!(Path.join(shared_deps, "jason/source.ex"), "jason")
+
+    sealed_dag = Path.join(shared_deps, "telemetry_poller/_build/prod/lib/.rebar3/base_graph")
+    File.mkdir_p!(Path.dirname(sealed_dag))
+    File.write!(sealed_dag, "sealed graph")
+
+    {_, 0} = System.cmd("chmod", ["-R", "a-w", shared_deps], stderr_to_stdout: true)
+
+    %{variant_path: variant_path, shared_deps: Path.expand(shared_deps)}
+  end
+
+  defp tree_snapshot(root) do
+    root
+    |> Path.join("**/*")
+    |> Path.wildcard(match_dot: true)
+    |> Enum.sort()
+    |> Enum.map(fn path ->
+      stat = File.lstat!(path)
+      bytes = if stat.type == :regular, do: File.read!(path), else: nil
+      {Path.relative_to(path, root), stat.type, Bitwise.band(stat.mode, 0o777), bytes}
+    end)
   end
 
   defp read_runtime_config(checkout) do

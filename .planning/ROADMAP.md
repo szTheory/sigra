@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 5 completed historical plans, 1 empirically superseded failed evidence plan, and 4 active fallback plans
+**Plans:** 7 completed implementation plans, 2 retained failed/blocked evidence plans, and 3 active recovery plans
 
 **Success Criteria:**
 
@@ -556,16 +556,24 @@ Plans:
 
 **Wave 6** *(active; blocked on completed Plan 07 history)*
 
-- [ ] 235.1-08-PLAN.md — Restore two exhaustive comparable ordinary partitions inside the sole PR owner
+- [x] 235.1-08-PLAN.md — Restore two exhaustive comparable ordinary partitions inside the sole PR owner
 
 **Wave 7** *(blocked on Plan 08)*
 
-- [ ] 235.1-09-PLAN.md — Route the exact six scaffold modules to a fail-closed schedule/workflow_dispatch job
+- [x] 235.1-09-PLAN.md — Route the exact six scaffold modules to a fail-closed schedule/workflow_dispatch job
 
-**Wave 8** *(blocked on Plan 09)*
+**Blocked evidence history** *(six failed attempt-1 runs retained; not active routing)*
 
-- [ ] 235.1-10-PLAN.md — Capture fresh attempt-1 PR/dispatch evidence and distinct evidence-SHA validation runs
+- [x] 235.1-10-PLAN.md — Blocked capture history; no evidence admitted and all six failed runs retained
 
-**Wave 9** *(blocked on Plan 10)*
+**Wave 9** *(active; blocked on Plan 10 diagnostics)*
+
+- [ ] 235.1-11-PLAN.md — Repair partition receipt lifetime and Rebar retry source-state isolation
+
+**Wave 10** *(blocked on Plan 11)*
+
+- [ ] 235.1-12-PLAN.md — Capture and validate fresh dual-route evidence within a three-candidate budget
+
+**Wave 11** *(blocked on Plan 12)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
