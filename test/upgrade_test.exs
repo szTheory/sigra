@@ -58,9 +58,6 @@ defmodule Sigra.UpgradeIntegrationTest do
     # ALTER migrations (no crash on `mix ecto.migrate`).
     app_dir = checkout.path
 
-    seed_users!(app_dir, 3)
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-
     # Snapshot priv/repo/migrations/ before upgrade.
     migrations_before =
       [app_dir, "priv", "repo", "migrations"]
@@ -68,11 +65,12 @@ defmodule Sigra.UpgradeIntegrationTest do
       |> File.ls!()
       |> Enum.sort()
 
-    # Act: run upgrade WITHOUT backfill flag.
-    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
+    # Act: seed, upgrade, compile, migrate, and inspect the database inside one
+    # bounded checkout-local Mix session.
+    result = run_upgrade_session!(checkout, seeded_count: 3)
 
     # Assert: no crash substring in upgrade stdout.
-    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    refute result.output =~ "** (", "upgrade raised: #{result.output}"
     assert documented_upgrade_command([]) == @documented_upgrade_command
 
     # Assert: no new ALTER migrations emitted (zero-org path).
@@ -89,11 +87,10 @@ defmodule Sigra.UpgradeIntegrationTest do
            "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
 
     # Assert: app still compiles + migrates + boots.
-    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
-    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+    refute result.output =~ "** (", "ecto.migrate raised: #{result.output}"
 
     # Assert: organizations table should be absent in the zero-org path.
-    refute organizations_table_exists?(app_dir),
+    refute result.organizations_table_exists,
            "expected organizations table to be absent in --no-organizations upgrade"
 
     :ok
@@ -103,20 +100,14 @@ defmodule Sigra.UpgradeIntegrationTest do
     # BLOCKER 2: ORG-UPGRADE-02 proof. Per D-06 step 5 and ROADMAP SC #3:
     # "login still works, users land on create/accept page, no 500s, nil-guarded
     # template accessors verified by boot test".
-    app_dir = checkout.path
-
-    seed_users!(app_dir, 2)
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-
     # Act: run upgrade WITHOUT backfill flag. ALTER migrations use
     # add_if_not_exists / create_if_not_exists so they are idempotent no-ops
     # against the fresh-install shape.
-    {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
-    refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+    result = run_upgrade_session!(checkout, seeded_count: 2)
+    refute result.output =~ "** (", "upgrade raised: #{result.output}"
     assert documented_upgrade_command([]) == @documented_upgrade_command
 
-    {:ok, migrate_out} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
-    refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
+    refute result.output =~ "** (", "ecto.migrate raised: #{result.output}"
 
     # HTTP login assertion (BLOCKER 2 — ORG-UPGRADE-02 proof).
     login_result = assert_login_redirects_to_organizations!(checkout)
@@ -147,43 +138,22 @@ defmodule Sigra.UpgradeIntegrationTest do
   defp run_upgrade_scenario(%{kind: :backfill_on} = checkout) do
     # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
     # (org-enabled), not --no-organizations.
-    app_dir = checkout.path
-
     seeded_count = 5
-    seed_users!(app_dir, seeded_count)
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-
-    # First upgrade: backfill runs.
-    {:ok, _upgrade_out} =
-      InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+    result = run_upgrade_session!(checkout, seeded_count: seeded_count)
 
     assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
              @documented_backfill_command
 
-    {:ok, _} = run_mix_tasks!(app_dir, [["compile"], ["ecto.migrate"]])
-    run_data_migrations!(app_dir)
+    if result.organizations_table_exists do
+      assert result.first_count == seeded_count,
+             "expected #{seeded_count} personal orgs after first backfill, got #{result.first_count}"
 
-    if organizations_table_exists?(app_dir) do
-      first_count = count_personal_orgs!(app_dir)
-
-      assert first_count == seeded_count,
-             "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
-
-      # Re-run: must be a no-op.
-      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      run_data_migrations!(app_dir)
-
-      second_count = count_personal_orgs!(app_dir)
-      assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
+      assert result.second_count == seeded_count,
+             "expected re-run to be a no-op; got #{result.second_count}"
     else
       # Some dependency-minimal install shapes do not install organizations.
       # Backfill must remain a no-op in that shape, including on re-run.
-      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      run_data_migrations!(app_dir)
-
-      refute organizations_table_exists?(app_dir),
+      refute result.organizations_table_exists_after_rerun,
              "expected backfill to preserve org-absent install shape"
     end
 
@@ -211,126 +181,126 @@ defmodule Sigra.UpgradeIntegrationTest do
     end)
   end
 
-  # Seeds `n` users into the tmp app's DB via `mix run -e`.
-  defp seed_users!(app_dir, n) do
+  # Runs each upgrade scenario's Mix tasks and database assertions in one BEAM.
+  # The fixture runner provides the hard 120-second scenario timeout around this
+  # command, and run_mix/3 retains the graph-global two-worker lease.
+  defp run_upgrade_session!(checkout, opts) do
+    app_dir = checkout.path
+    seeded_count = Keyword.fetch!(opts, :seeded_count)
     otp_atom = otp_app_atom(app_dir)
     otp_module = otp_app_module(app_dir)
 
     script = """
-    {:ok, _} = Application.ensure_all_started(:#{otp_atom})
-    Enum.each(1..#{n}, fn i ->
-      %#{otp_module}.Accounts.User{}
-      |> Ecto.Changeset.change(%{
-        email: "user\#{i}@example.test",
-        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
-      })
-      |> #{otp_module}.Repo.insert!()
-    end)
-    """
+    defmodule SigraUpgradeReceiverSession do
+      import Ecto.Query
 
-    {:ok, _} =
-      run_mix_tasks!(app_dir, [
-        ["ecto.create"],
-        ["ecto.migrate"],
-        ["run", "-e", script]
-      ])
-  end
+      @repo #{otp_module}.Repo
 
-  defp run_mix_tasks!(app_dir, tasks) do
-    last_index = length(tasks) - 1
+      def run(kind, seeded_count) do
+        Logger.configure(level: :warning)
+        task("ecto.create", ["--quiet"])
+        task("ecto.migrate", ["--quiet"])
+        {:ok, _} = Application.ensure_all_started(:#{otp_atom})
+        seed_users(seeded_count)
 
-    args =
-      tasks
-      |> Enum.with_index()
-      |> Enum.flat_map(fn {task_args, index} ->
-        if index == last_index do
-          task_args
-        else
-          List.update_at(task_args, -1, &(&1 <> ","))
+        if kind == :backfill_off do
+          {:ok, _} =
+            #{otp_module}.Accounts.register_user(%{
+              email: "login@example.test",
+              password: "CorrectHorse!1"
+            })
         end
-      end)
 
-    InstallFixture.run_mix(app_dir, ["do" | args])
-  end
+        upgrade_flags = if kind == :backfill_on, do: ["--backfill-personal-orgs"], else: []
+        upgrade(upgrade_flags)
+        task("compile", [])
+        task("ecto.migrate", ["--quiet"])
 
-  # `mix ecto.migrate` only runs schema migrations under
-  # `priv/repo/migrations/`. The upgrade task writes the
-  # backfill-personal-orgs shim under `priv/repo/data_migrations/`
-  # (per Sigra.Upgrade.write_migration/3) which must be invoked
-  # explicitly via Ecto.Migrator.run with the path override.
-  defp run_data_migrations!(app_dir) do
-    otp_atom = otp_app_atom(app_dir)
-    otp_module = otp_app_module(app_dir)
+        result =
+          if kind == :backfill_on do
+            data_migrations()
+            exists = organizations_table_exists?()
+            first_count = if exists, do: personal_org_count(), else: nil
 
-    script = """
-    {:ok, _} = Application.ensure_all_started(:#{otp_atom})
-    _ =
-      Ecto.Migrator.run(
-        #{otp_module}.Repo,
-        "priv/repo/data_migrations",
-        :up,
-        all: true
-      )
+            upgrade(upgrade_flags)
+            task("ecto.migrate", ["--quiet"])
+            data_migrations()
+
+            %{
+              organizations_table_exists: exists,
+              organizations_table_exists_after_rerun: organizations_table_exists?(),
+              first_count: first_count,
+              second_count: if(exists, do: personal_org_count(), else: nil)
+            }
+          else
+            %{organizations_table_exists: organizations_table_exists?()}
+          end
+
+        IO.puts("SIGRA_UPGRADE_RESULT:" <> Jason.encode!(result))
+      end
+
+      defp task(name, args) do
+        Mix.Task.reenable(name)
+        Mix.Task.run(name, args)
+      end
+
+      defp upgrade(flags),
+        do: task("sigra.upgrade", flags ++ ["--allow-dirty", "--yes"])
+
+      defp seed_users(count) do
+        Enum.each(1..count, fn i ->
+          %#{otp_module}.Accounts.User{}
+          |> Ecto.Changeset.change(%{
+            email: "user\#{i}@example.test",
+            confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          })
+          |> @repo.insert!()
+        end)
+      end
+
+      # Schema migrations and generated data migrations intentionally remain
+      # distinct so the receiver proves the documented two-stage upgrade path.
+      defp data_migrations do
+        Ecto.Migrator.run(@repo, "priv/repo/data_migrations", :up, all: true)
+      end
+
+      defp organizations_table_exists? do
+        result =
+          Ecto.Adapters.SQL.query!(
+            @repo,
+            "SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = 'organizations'",
+            []
+          )
+
+        result.rows != []
+      end
+
+      defp personal_org_count do
+        @repo.aggregate(from(o in "organizations", where: o.personal == true), :count)
+      end
+    end
+
+    SigraUpgradeReceiverSession.run(#{inspect(checkout.kind)}, #{seeded_count})
     """
 
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
-  end
+    {:ok, output} =
+      InstallFixture.run_mix(app_dir, ["run", "--no-start", "--no-compile", "-e", script])
 
-  defp count_personal_orgs!(app_dir) do
-    otp_atom = otp_app_atom(app_dir)
-    otp_module = otp_app_module(app_dir)
+    case Regex.run(~r/^SIGRA_UPGRADE_RESULT:(\{.*\})$/m, output) do
+      [_, encoded] ->
+        result = Jason.decode!(encoded)
 
-    script = """
-    import Ecto.Query
-    {:ok, _} = Application.ensure_all_started(:#{otp_atom})
-    count =
-      #{otp_module}.Repo.aggregate(
-        from(o in "organizations", where: o.personal == true),
-        :count
-      )
-    IO.puts("SIGRA_TEST_RESULT:" <> Integer.to_string(count))
-    """
-
-    {:ok, out} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
-
-    case Regex.run(~r/SIGRA_TEST_RESULT:(\d+)/, out) do
-      [_, value] ->
-        String.to_integer(value)
+        %{
+          output: output,
+          organizations_table_exists: result["organizations_table_exists"],
+          organizations_table_exists_after_rerun:
+            result["organizations_table_exists_after_rerun"],
+          first_count: result["first_count"],
+          second_count: result["second_count"]
+        }
 
       nil ->
-        flunk("count_personal_orgs!/1 did not find SIGRA_TEST_RESULT sentinel in output:\n#{out}")
-    end
-  end
-
-  defp organizations_table_exists?(app_dir) do
-    otp_atom = otp_app_atom(app_dir)
-    otp_module = otp_app_module(app_dir)
-
-    script = """
-    {:ok, _} = Application.ensure_all_started(:#{otp_atom})
-    result =
-      Ecto.Adapters.SQL.query!(
-        #{otp_module}.Repo,
-        "SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = 'organizations'",
-        []
-      )
-    IO.puts("SIGRA_TEST_RESULT:" <> Integer.to_string(length(result.rows)))
-    """
-
-    case InstallFixture.run_mix(app_dir, ["run", "-e", script]) do
-      {:ok, out} ->
-        case Regex.run(~r/SIGRA_TEST_RESULT:(\d+)/, out) do
-          [_, value] ->
-            String.to_integer(value) > 0
-
-          nil ->
-            flunk(
-              "organizations_table_exists?/1 did not find SIGRA_TEST_RESULT sentinel in output:\n#{out}"
-            )
-        end
-
-      _ ->
-        false
+        flunk("upgrade session did not emit SIGRA_UPGRADE_RESULT:\n#{output}")
     end
   end
 
@@ -356,9 +326,6 @@ defmodule Sigra.UpgradeIntegrationTest do
   defp assert_login_redirects_to_organizations!(checkout) do
     app_dir = checkout.path
     port = checkout.port
-
-    # Seed a user with a known password via generated register_user/1.
-    seed_login_user!(app_dir, "login@example.test", "CorrectHorse!1")
 
     {server_port, server_pid} = start_server!(checkout)
 
@@ -585,18 +552,6 @@ defmodule Sigra.UpgradeIntegrationTest do
       {_output, 0},
       System.cmd("kill", ["-0", Integer.to_string(pid)], stderr_to_stdout: true)
     )
-  end
-
-  defp seed_login_user!(app_dir, email, password) do
-    otp_atom = otp_app_atom(app_dir)
-    otp_module = otp_app_module(app_dir)
-
-    script = """
-    {:ok, _} = Application.ensure_all_started(:#{otp_atom})
-    #{otp_module}.Accounts.register_user(%{email: "#{email}", password: "#{password}"})
-    """
-
-    {:ok, _} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
   end
 
   defp wait_for_http(port, timeout_ms) do

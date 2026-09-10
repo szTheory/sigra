@@ -207,20 +207,26 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       "compile",
       "assert_login_redirects_to_organizations!",
       "organizations_table_exists?",
-      "count_personal_orgs!",
+      "personal_org_count",
       "expected re-run to be a no-op",
       "status_codes_seen",
       "MIX_DEPS_PATH",
-      "run_mix_tasks!(app_dir",
-      ~S|[["compile"], ["ecto.migrate"]]|,
-      ~S|["ecto.create"]|,
-      ~S|["run", "-e", script]|,
-      ~S<InstallFixture.run_mix(app_dir, ["do" | args])>,
+      "run_upgrade_session!(checkout, seeded_count:",
+      ~S|task("ecto.create", ["--quiet"])|,
+      ~S|task("ecto.migrate", ["--quiet"])|,
+      ~S|task("sigra.upgrade", flags ++ ["--allow-dirty", "--yes"])|,
+      ~S|task("compile", [])|,
+      "Mix.Task.reenable(name)",
+      ~S<Ecto.Migrator.run(@repo, "priv/repo/data_migrations">,
+      ~S<InstallFixture.run_mix(app_dir, ["run", "--no-start", "--no-compile", "-e", script])>,
+      "SIGRA_UPGRADE_RESULT:",
       "prepare_checkouts!([",
       "max_concurrency: 2",
       "timeout: 120_000",
       "on_timeout: :kill_task"
     ])
+
+    assert length(Regex.scan(~r/InstallFixture\.run_mix\(/, sources.upgrade)) == 1
 
     assert_contains_all!(sources.passkeys, [
       "@passkey_start_marker",

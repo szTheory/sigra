@@ -162,6 +162,24 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert upgrade =~ "timeout: 120_000"
     assert upgrade =~ "on_timeout: :kill_task"
     assert upgrade =~ "InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)"
+    assert length(Regex.scan(~r/InstallFixture\.run_mix\(/, upgrade)) == 1
+    assert upgrade =~ "run_upgrade_session!(checkout, seeded_count:"
+    assert upgrade =~ "Mix.Task.reenable(name)"
+
+    assert upgrade =~
+             ~S<InstallFixture.run_mix(app_dir, ["run", "--no-start", "--no-compile", "-e", script])>
+
+    for task <- ~w(ecto.create ecto.migrate sigra.upgrade compile) do
+      assert upgrade =~ ~s(task("#{task}")
+    end
+
+    assert upgrade =~ ~s(flags ++ ["--allow-dirty", "--yes"])
+    assert upgrade =~ "Ecto.Migrator.run(@repo, \"priv/repo/data_migrations\""
+    assert upgrade =~ "SIGRA_UPGRADE_RESULT:"
+    assert upgrade =~ "{server_port, server_pid} = start_server!(checkout)"
+    assert upgrade =~ "stop_server!(server_port, server_pid)"
+    assert upgrade =~ "--connect-timeout"
+    assert upgrade =~ "--max-time"
     refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"
     refute upgrade =~ "@moduletag :upgrade"
   end
