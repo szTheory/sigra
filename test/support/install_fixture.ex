@@ -36,6 +36,8 @@ defmodule Sigra.Test.InstallFixture do
   @port_table :sigra_install_fixture_ports
   @worker_pool Sigra.Test.InstallFixture.WorkerPool
   @scenario_timeout_ms 120_000
+  @linux_graph_parent "/dev/shm"
+  @minimum_tmpfs_bytes 1_610_612_736
   @diagnostic_phases [
     :phx_new,
     :deps_get,
@@ -211,6 +213,8 @@ defmodule Sigra.Test.InstallFixture do
       configure_runtime_isolation!(base_path)
     end
 
+    build_template_path = seal_build_template!(root, base_path)
+
     copy_started = monotonic_ms()
 
     copied_variants =
@@ -236,13 +240,13 @@ defmodule Sigra.Test.InstallFixture do
       |> parallel_map!(fn copied ->
         name = copied.name
         variant_path = copied.path
+        installer_build_path = prepare_installer_build!(root, build_template_path, name)
+        Process.put({__MODULE__, :installer_build_path}, installer_build_path)
 
-        stdout =
-          case variant_builder.(name, variant_path) do
-            :ok -> ""
-            {:ok, output} when is_binary(output) -> output
-            other -> raise "variant builder returned invalid result: #{inspect(other)}"
-          end
+        stdout = run_variant_builder!(variant_builder, name, variant_path)
+
+        Process.delete({__MODULE__, :installer_build_path})
+        if installer_build_path, do: safe_remove_graph_member!(installer_build_path)
 
         token = System.unique_integer([:positive, :monotonic])
         make_tree_read_only!(variant_path)
@@ -273,6 +277,7 @@ defmodule Sigra.Test.InstallFixture do
       root: root,
       base_path: Path.expand(base_path),
       deps_path: Path.expand(deps_path),
+      build_template_path: build_template_path,
       variants: variants,
       manifest_path: manifest_path,
       fingerprint: fingerprint,
@@ -291,6 +296,16 @@ defmodule Sigra.Test.InstallFixture do
       failed_root = Process.delete({__MODULE__, :building_root})
       if is_binary(failed_root) and File.dir?(failed_root), do: safe_remove_graph!(failed_root)
       reraise exception, __STACKTRACE__
+  end
+
+  defp run_variant_builder!(variant_builder, name, variant_path) do
+    case variant_builder.(name, variant_path) do
+      :ok -> ""
+      {:ok, output} when is_binary(output) -> output
+      other -> raise "variant builder returned invalid result: #{inspect(other)}"
+    end
+  after
+    Process.delete({__MODULE__, :installer_build_path})
   end
 
   @doc "Returns the suite-owned prepared graph or fails closed."
@@ -325,9 +340,13 @@ defmodule Sigra.Test.InstallFixture do
     port = allocate_port!(graph.root, token)
     safe_scenario = String.replace(scenario, ~r/[^a-zA-Z0-9_-]/, "-")
     checkout_path = Path.join([graph.root, "checkouts", "#{safe_scenario}-#{token}"])
-    {copy_mode, copy_ms} = copy_tree!(variant.path, checkout_path)
-    make_tree_writable!(checkout_path)
+    {source_copy_mode, source_copy_ms} = copy_tree!(variant.path, checkout_path)
     build_path = Path.join(checkout_path, "_build/dev")
+
+    {build_copy_mode, build_copy_ms} =
+      copy_build_template!(graph.build_template_path, build_path)
+
+    make_tree_writable!(checkout_path)
 
     unless File.dir?(build_path) do
       raise "prepared fixture checkout is missing its private compatible build: #{build_path}"
@@ -342,13 +361,13 @@ defmodule Sigra.Test.InstallFixture do
       partition: partition,
       port: port,
       fingerprint: graph.fingerprint,
-      copy_mode: copy_mode,
+      copy_mode: aggregate_modes([source_copy_mode, build_copy_mode]),
       immutable: false
     }
 
     write_checkout_manifest!(checkout)
     :ets.insert(@scenario_table, {checkout.path, checkout})
-    record_checkout_copy!(graph.root, copy_ms)
+    record_checkout_copy!(graph.root, source_copy_ms + build_copy_ms)
     checkout
   end
 
@@ -920,25 +939,99 @@ defmodule Sigra.Test.InstallFixture do
   # -- internals --------------------------------------------------------------
 
   defp new_graph_root! do
-    template = Path.join(System.tmp_dir!(), "sigra_install_golden.XXXXXX")
+    template = Path.join(graph_parent_for_test(), "sigra_install_golden.XXXXXX")
 
     case System.cmd("mktemp", ["-d", template], stderr_to_stdout: true) do
-      {path, 0} -> String.trim(path) |> validate_graph_root!()
-      {output, status} -> raise "mktemp failed (status #{status}): #{output}"
+      {path, 0} ->
+        root = String.trim(path) |> validate_graph_root!()
+        File.chmod!(root, 0o700)
+
+        if Bitwise.band(File.stat!(root).mode, 0o777) != 0o700 do
+          raise "install fixture graph root is not private: #{root}"
+        end
+
+        root
+
+      {output, status} ->
+        raise "mktemp failed (status #{status}): #{output}"
     end
+  end
+
+  @doc false
+  def graph_parent_for_test(opts \\ []) do
+    os_type = Keyword.get(opts, :os_type, :os.type())
+    tmpfs_parent = Keyword.get(opts, :tmpfs_parent, @linux_graph_parent)
+    probe = Keyword.get(opts, :probe, &probe_tmpfs_parent/1)
+
+    case os_type do
+      {:unix, :linux} ->
+        case probe.(tmpfs_parent) do
+          %{canonical?: true, tmpfs?: true, writable?: true, free_bytes: bytes}
+          when is_integer(bytes) and bytes >= @minimum_tmpfs_bytes ->
+            canonical_directory!(tmpfs_parent)
+
+          _ ->
+            canonical_directory!(System.tmp_dir!())
+        end
+
+      _ ->
+        canonical_directory!(System.tmp_dir!())
+    end
+  end
+
+  defp probe_tmpfs_parent(parent) do
+    canonical? =
+      File.dir?(parent) and
+        canonical_directory!(parent) == canonical_directory!(@linux_graph_parent)
+
+    {filesystem, fs_status} =
+      System.cmd("stat", ["-f", "-c", "%T", parent], stderr_to_stdout: true)
+
+    {_writable, writable_status} = System.cmd("test", ["-w", parent], stderr_to_stdout: true)
+    {space, space_status} = System.cmd("df", ["-Pk", parent], stderr_to_stdout: true)
+
+    free_bytes =
+      if space_status == 0 do
+        space
+        |> String.split("\n", trim: true)
+        |> List.last()
+        |> to_string()
+        |> String.split(~r/\s+/, trim: true)
+        |> Enum.at(3, "0")
+        |> String.to_integer()
+        |> Kernel.*(1024)
+      else
+        0
+      end
+
+    %{
+      canonical?: canonical?,
+      tmpfs?: fs_status == 0 and String.trim(filesystem) == "tmpfs",
+      writable?: writable_status == 0,
+      free_bytes: free_bytes
+    }
+  rescue
+    _ -> %{canonical?: false, tmpfs?: false, writable?: false, free_bytes: 0}
   end
 
   defp validate_graph_root!(root) do
     expanded = Path.expand(root)
     parent = expanded |> Path.dirname() |> canonical_directory!()
-    temp_parent = System.tmp_dir!() |> canonical_directory!()
+    allowed_parents = allowed_graph_parents()
     basename = Path.basename(expanded)
 
-    if parent != temp_parent or not String.starts_with?(basename, "sigra_install_golden.") do
+    if parent not in allowed_parents or not String.starts_with?(basename, "sigra_install_golden.") do
       raise ArgumentError, "unsafe install fixture graph root: #{expanded}"
     end
 
     expanded
+  end
+
+  defp allowed_graph_parents do
+    [System.tmp_dir!(), @linux_graph_parent]
+    |> Enum.filter(&File.dir?/1)
+    |> Enum.map(&canonical_directory!/1)
+    |> Enum.uniq()
   end
 
   defp canonical_directory!(path) do
@@ -997,6 +1090,47 @@ defmodule Sigra.Test.InstallFixture do
     |> tap(fn _result ->
       make_tree_read_only!(Path.join(Path.dirname(Path.dirname(base_path)), "shared_deps"))
     end)
+  end
+
+  defp seal_build_template!(root, base_path) do
+    source = Path.join(base_path, "_build/dev")
+
+    if File.dir?(source) do
+      target = validate_graph_member!(Path.join(root, "build_template/dev"))
+      {_mode, _elapsed_ms} = copy_tree!(source, target)
+      File.rm_rf!(source)
+      make_tree_read_only!(target)
+      Path.expand(target)
+    end
+  end
+
+  defp copy_build_template!(nil, _target), do: {:copy, 1}
+
+  defp copy_build_template!(source, target) do
+    result = copy_tree!(source, target)
+
+    if tree_has_shared_writable_state?(source, target) do
+      File.rm_rf!(target)
+      raise "prepared fixture private build shares filesystem identity with its sealed template"
+    end
+
+    result
+  end
+
+  defp prepare_installer_build!(_root, nil, _name), do: nil
+
+  defp prepare_installer_build!(root, source, name) do
+    target = Path.join([root, "installer_builds", Atom.to_string(name), "dev"])
+    {_mode, _elapsed_ms} = copy_build_template!(source, target)
+    make_tree_writable!(target)
+    target
+  end
+
+  defp safe_remove_graph_member!(path) do
+    path = validate_graph_member!(path)
+    make_tree_writable!(path)
+    File.rm_rf!(path)
+    :ok
   end
 
   defp prepare_private_deps!(base_path, opts) do
@@ -1154,10 +1288,25 @@ defmodule Sigra.Test.InstallFixture do
     env =
       [{"MIX_ENV", "dev"}, {"MIX_DEPS_PATH", deps_path}]
       |> maybe_put_env("MIX_TEST_PARTITION", partition)
-      |> maybe_put_env("MIX_BUILD_PATH", checkout["build_path"])
+      |> maybe_put_env(
+        "MIX_BUILD_PATH",
+        checkout["build_path"] || Process.get({__MODULE__, :installer_build_path}) ||
+          graph_build_template_path(app_dir)
+      )
       |> maybe_put_env("PORT", to_string_or_nil(checkout["port"]))
 
     [cd: app_dir, stderr_to_stdout: true, env: env]
+  end
+
+  defp graph_build_template_path(app_dir) do
+    case graph_root_for(app_dir) do
+      nil ->
+        nil
+
+      root ->
+        path = Path.join(root, "build_template/dev")
+        if File.dir?(path), do: validate_graph_member!(path)
+    end
   end
 
   defp graph_deps_path(app_dir) do
@@ -1294,26 +1443,33 @@ defmodule Sigra.Test.InstallFixture do
   defp monotonic_ms, do: System.monotonic_time(:millisecond)
   defp positive_elapsed(started), do: max(monotonic_ms() - started, 1)
 
-  defp copy_tree!(source, target) do
+  @doc false
+  def copy_tree_for_test!(source, target, opts \\ []), do: copy_tree!(source, target, opts)
+
+  defp copy_tree!(source, target, opts \\ []) do
     source = Path.expand(source)
     target = validate_graph_member!(target)
     File.mkdir_p!(Path.dirname(target))
     started = monotonic_ms()
+    os_type = Keyword.get(opts, :os_type, :os.type())
+    copy_command = Keyword.get(opts, :command, &System.cmd/3)
 
     {mode, output, status} =
-      case :os.type() do
+      case os_type do
         {:unix, :linux} ->
           {out, rc} =
-            System.cmd("cp", ["--reflink=auto", "-R", source, target], stderr_to_stdout: true)
+            copy_command.("cp", ["--reflink=always", "-R", source, target],
+              stderr_to_stdout: true
+            )
 
           {:reflink, out, rc}
 
         {:unix, :darwin} ->
-          {out, rc} = System.cmd("cp", ["-cR", source, target], stderr_to_stdout: true)
+          {out, rc} = copy_command.("cp", ["-cR", source, target], stderr_to_stdout: true)
           {:reflink, out, rc}
 
         _ ->
-          {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+          {out, rc} = copy_command.("cp", ["-R", source, target], stderr_to_stdout: true)
           {:copy, out, rc}
       end
 
@@ -1322,7 +1478,7 @@ defmodule Sigra.Test.InstallFixture do
         {mode, output, status}
       else
         File.rm_rf!(target)
-        {out, rc} = System.cmd("cp", ["-R", source, target], stderr_to_stdout: true)
+        {out, rc} = copy_command.("cp", ["-R", source, target], stderr_to_stdout: true)
         {:copy, out, rc}
       end
 
@@ -1336,6 +1492,10 @@ defmodule Sigra.Test.InstallFixture do
     end
 
     {mode, positive_elapsed(started)}
+  end
+
+  defp aggregate_modes(modes) do
+    if Enum.all?(modes, &(&1 == :reflink)), do: :reflink, else: :copy
   end
 
   defp materialize_or_omit_links!(source_root, target_root) do
@@ -1453,7 +1613,7 @@ defmodule Sigra.Test.InstallFixture do
       end)
       |> Enum.find(fn candidate ->
         String.starts_with?(Path.basename(candidate), "sigra_install_golden.") and
-          canonical_directory!(Path.dirname(candidate)) == canonical_directory!(System.tmp_dir!())
+          canonical_directory!(Path.dirname(candidate)) in allowed_graph_parents()
       end)
 
     if is_nil(graph_root) or expanded == graph_root or
