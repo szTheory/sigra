@@ -448,6 +448,46 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
              "Mix.Tasks.Sigra.Install.run([\"Accounts\", \"User\", \"users\", \"--no-organizations\", \"--no-passkeys\", \"--yes\"])"
   end
 
+  test "no-compile stdout strips only canonical leading allowlisted warning blocks" do
+    installer = "* creating lib/example.ex\ninstaller-owned bytes\n"
+    sigra = unavailable_app_warning("sigra_install_golden_tmp")
+    live_view = unavailable_app_warning("phoenix_live_view")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(installer) == installer
+    assert InstallFixture.normalize_no_compile_stdout_for_test(sigra <> installer) == installer
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(
+             sigra <> sigra <> live_view <> installer
+           ) == installer
+
+    forbidden = unavailable_app_warning("unknown_app")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(forbidden <> installer) ==
+             forbidden <> installer
+
+    mismatched =
+      unavailable_app_warning("sigra_install_golden_tmp")
+      |> String.replace(
+        "Please ensure :sigra_install_golden_tmp exists",
+        "Please ensure :phoenix_live_view exists"
+      )
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(mismatched <> installer) ==
+             mismatched <> installer
+
+    noncanonical =
+      String.replace(sigra, "This usually means one of:", "This usually means one of: ")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(noncanonical <> installer) ==
+             noncanonical <> installer
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(installer <> live_view) ==
+             installer <> live_view
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(sigra <> installer <> live_view) ==
+             installer <> live_view
+  end
+
   test "compile-state reuse requires identical compile-relevant source bytes", %{root: root} do
     first = Path.join(root, "digest-first")
     second = Path.join(root, "digest-second")
@@ -954,6 +994,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         {:ok, "stdout #{name}"}
       end
     )
+  end
+
+  defp unavailable_app_warning(app) do
+    """
+    You have configured application :#{app} in your configuration file,
+    but the application is not available.
+
+    This usually means one of:
+
+      1. You have not added the application as a dependency in a mix.exs file.
+
+      2. You are configuring an application that does not really exist.
+
+    Please ensure :#{app} exists or remove the configuration.
+
+    """
   end
 
   defp recovery_fixture!(root) do
