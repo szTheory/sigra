@@ -448,6 +448,46 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
              "Mix.Tasks.Sigra.Install.run([\"Accounts\", \"User\", \"users\", \"--no-organizations\", \"--no-passkeys\", \"--yes\"])"
   end
 
+  test "no-compile stdout strips only canonical leading allowlisted warning blocks" do
+    installer = "* creating lib/example.ex\ninstaller-owned bytes\n"
+    sigra = unavailable_app_warning("sigra_install_golden_tmp")
+    live_view = unavailable_app_warning("phoenix_live_view")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(installer) == installer
+    assert InstallFixture.normalize_no_compile_stdout_for_test(sigra <> installer) == installer
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(
+             sigra <> sigra <> live_view <> installer
+           ) == installer
+
+    forbidden = unavailable_app_warning("unknown_app")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(forbidden <> installer) ==
+             forbidden <> installer
+
+    mismatched =
+      unavailable_app_warning("sigra_install_golden_tmp")
+      |> String.replace(
+        "Please ensure :sigra_install_golden_tmp exists",
+        "Please ensure :phoenix_live_view exists"
+      )
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(mismatched <> installer) ==
+             mismatched <> installer
+
+    noncanonical =
+      String.replace(sigra, "This usually means one of:", "This usually means one of: ")
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(noncanonical <> installer) ==
+             noncanonical <> installer
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(installer <> live_view) ==
+             installer <> live_view
+
+    assert InstallFixture.normalize_no_compile_stdout_for_test(sigra <> installer <> live_view) ==
+             installer <> live_view
+  end
+
   test "compile-state reuse requires identical compile-relevant source bytes", %{root: root} do
     first = Path.join(root, "digest-first")
     second = Path.join(root, "digest-second")
@@ -569,15 +609,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
   test "diagnostics require exact positive phases bounded by raw install duration", %{root: root} do
     graph = prepare_test_graph!(root)
-    receipt = InstallFixture.diagnostic_receipt(graph, 1_000)
+    receipt_without_raw = InstallFixture.diagnostic_receipt(graph)
 
-    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+    refute Map.has_key?(receipt_without_raw, :raw_install_duration_ms)
 
-    assert Map.keys(receipt.phases) |> Enum.sort() ==
+    assert Map.keys(receipt_without_raw.phases) |> Enum.sort() ==
              ~w(baseline_compile checkout_copy deps_get installer phx_new receiver_compile_runtime)a
 
-    assert Enum.all?(receipt.phases, fn {_phase, duration} -> duration > 0 end)
-    assert Enum.sum(Map.values(receipt.phases)) <= receipt.raw_install_duration_ms
+    assert Enum.all?(receipt_without_raw.phases, fn {_phase, duration} -> duration > 0 end)
+
+    phase_sum = Enum.sum(Map.values(receipt_without_raw.phases))
+    assert phase_sum > 0
+
+    receipt = Map.put(receipt_without_raw, :raw_install_duration_ms, phase_sum)
+
+    assert :ok = InstallFixture.validate_diagnostics!(receipt)
+    assert Enum.sum(Map.values(receipt.phases)) == receipt.raw_install_duration_ms
     assert receipt.variant_count == 6
     assert receipt.worker_count == 2
     refute Map.has_key?(receipt, :verdict)
@@ -594,7 +641,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     end
 
     assert_raise ArgumentError, fn ->
-      %{receipt | raw_install_duration_ms: 1}
+      %{receipt | raw_install_duration_ms: phase_sum - 1}
       |> InstallFixture.validate_diagnostics!()
     end
   end
@@ -954,6 +1001,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
         {:ok, "stdout #{name}"}
       end
     )
+  end
+
+  defp unavailable_app_warning(app) do
+    """
+    You have configured application :#{app} in your configuration file,
+    but the application is not available.
+
+    This usually means one of:
+
+      1. You have not added the application as a dependency in a mix.exs file.
+
+      2. You are configuring an application that does not really exist.
+
+    Please ensure :#{app} exists or remove the configuration.
+
+    """
   end
 
   defp recovery_fixture!(root) do

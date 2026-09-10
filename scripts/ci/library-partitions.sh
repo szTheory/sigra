@@ -29,6 +29,21 @@ manifest_sha() {
   fi
 }
 
+normalize_timing_paths() {
+  local timing="$1" temporary
+  temporary="$(mktemp "${timing}.tmp.XXXXXX")" || return 1
+
+  jq --arg root_prefix "$ROOT/" '
+    if all(.tests[]; (.file | startswith("test/")) or (.file | startswith($root_prefix + "test/"))) then
+      .tests |= map(if .file | startswith($root_prefix) then .file |= ltrimstr($root_prefix) else . end)
+    else
+      error("timing receipt contains a path outside the repository test tree")
+    end
+  ' "$timing" >"$temporary" || { rm -f "$temporary"; return 1; }
+
+  chmod 600 "$temporary" && mv -f "$temporary" "$timing"
+}
+
 write_receipt() {
   local temporary
   umask 077
@@ -71,6 +86,7 @@ run_partition() {
   while ((end_ms[id] <= start_ms[id])); do end_ms[id]="$(clock_ms)" || return 1; done
   duration_ms[id]=$((end_ms[id] - start_ms[id]))
   if ((duration_ms[id] > MAX_DURATION_MS)); then status[id]=1; fi
+  if ((status[id] == 0)) && ! normalize_timing_paths "$timing"; then status[id]=1; fi
   if ((status[id] == 0)) && [[ -f "$timing" && ! -L "$timing" ]]; then
     conclusion[id]=success
     return 0
@@ -88,7 +104,29 @@ printf '%s\n' "$manifest_lines" | awk -F '\t' '$1 == "1" {print $2}' >"$MANIFEST
 printf '%s\n' "$manifest_lines" | awk -F '\t' '$1 == "2" {print $2}' >"$MANIFEST_2"
 
 first_status=0
+partition_1_digest=""
 run_partition 1 || first_status=$?
+if ((first_status == 0)); then
+  [[ -f "$TIMING_1" && ! -L "$TIMING_1" ]] || {
+    fail "partition 1 timing receipt is not a regular non-symlink file"
+    first_status=1
+  }
+fi
+if ((first_status == 0)); then
+  partition_1_digest="$(manifest_sha "$TIMING_1")" || {
+    fail "could not digest partition 1 timing receipt"
+    first_status=1
+  }
+fi
 if ((first_status == 0)); then run_partition 2 || first_status=$?; fi
+if ((first_status == 0)); then
+  if [[ ! -f "$TIMING_1" || -L "$TIMING_1" ]] ||
+    [[ "$(manifest_sha "$TIMING_1")" != "$partition_1_digest" ]]; then
+    fail "partition 2 changed partition 1 timing receipt"
+    status[2]=1
+    conclusion[2]=failure
+    first_status=1
+  fi
+fi
 write_receipt || { fail "could not publish raw combined receipt"; exit 1; }
 exit "$first_status"

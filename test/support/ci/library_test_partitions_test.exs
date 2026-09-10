@@ -5,6 +5,8 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
 
   alias Sigra.CI.LibraryTestPartitions
 
+  @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+
   test "the measured manifest is an exhaustive disjoint lexical ordinary universe" do
     partitions = LibraryTestPartitions.build_partitions!()
     ordinary = LibraryTestPartitions.current_ordinary_paths!()
@@ -33,6 +35,135 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
              1 => %{paths: ["test/a_test.exs", "test/b_test.exs"], total_us: 15},
              2 => %{paths: ["test/m_test.exs", "test/z_test.exs"], total_us: 15}
            }
+  end
+
+  test "assignment rejects zero costs in either input order" do
+    costs = [
+      %{"path" => "test/a_test.exs", "time_us" => 0},
+      %{"path" => "test/b_test.exs", "time_us" => 0}
+    ]
+
+    for candidate <- [costs, Enum.reverse(costs)] do
+      assert_raise ArgumentError, ~r/positive measured cost/, fn ->
+        LibraryTestPartitions.assign!(candidate)
+      end
+    end
+  end
+
+  test "calibration replays all three retained triples into exact positive median costs" do
+    calibration = LibraryTestPartitions.load_calibration!()
+    raw = @calibration_path |> File.read!() |> JSON.decode!()
+
+    assert raw["source"] == %{
+             "aggregation" => "median(max(1,sum(time_us)))",
+             "blocked_summary_commit" => "2d854758",
+             "collection_command" =>
+               "ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test bash scripts/ci/library-partitions.sh",
+             "implementation_commit" => "60ef7c94e955a15e404a3133789ab3b0325f8b62",
+             "sample_count" => 3
+           }
+
+    assert Enum.map(raw["samples"], & &1["ordinal"]) == [1, 2, 3]
+
+    assert length(
+             for sample <- raw["samples"],
+                 receipt <- [sample["combined"] | sample["timings"]],
+                 do: receipt
+           ) == 9
+
+    assert calibration.costs == independently_replayed_costs(raw)
+    assert Enum.map(calibration.costs, & &1["path"]) == raw["ordinary_universe"]["paths"]
+    assert Enum.all?(calibration.costs, &(&1["time_us"] > 0))
+  end
+
+  test "sample and timing row order cannot alter independently replayed costs" do
+    raw = @calibration_path |> File.read!() |> JSON.decode!()
+    expected = LibraryTestPartitions.load_calibration!().costs
+
+    reordered_samples = Map.update!(raw, "samples", &Enum.reverse/1)
+
+    assert LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_samples)).costs ==
+             expected
+
+    reordered_rows =
+      update_in(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn receipt ->
+        timing = receipt |> decode_receipt!() |> Map.update!("tests", &Enum.reverse/1)
+        replace_payload(receipt, JSON.encode!(timing))
+      end)
+
+    assert LibraryTestPartitions.load_calibration!(path: write_calibration!(reordered_rows)).costs ==
+             expected
+  end
+
+  test "calibration rejects provenance, payload, universe, and derived-cost mutations" do
+    raw = @calibration_path |> File.read!() |> JSON.decode!()
+
+    mutations = [
+      Map.put(raw, "unexpected", true),
+      put_in(raw, ["source", "implementation_commit"], String.duplicate("0", 40)),
+      put_in(raw, ["samples", Access.at(1), "ordinal"], 1),
+      put_in(raw, ["limits", "timing_bytes"], 1),
+      update_in(raw, ["ordinary_universe", "paths"], &tl/1),
+      put_in(raw, ["derived_costs", Access.at(0), "time_us"], 0),
+      update_in(raw, ["derived_costs", Access.at(0), "time_us"], &(&1 + 1)),
+      update_in(raw, ["derived_costs"], &Enum.reverse/1),
+      put_in(raw, ["samples", Access.at(0), "combined", "payload_base64"], "not-base64"),
+      put_in(raw, ["samples", Access.at(0), "combined", "sha256"], String.duplicate("0", 64)),
+      update_in(raw, ["samples", Access.at(0), "combined", "byte_count"], &(&1 + 1)),
+      put_in(raw, ["samples", Access.at(0), "timings", Access.at(1), "role"], "timing-1"),
+      put_in(
+        raw,
+        ["samples", Access.at(0), "timings", Access.at(0), "source_path"],
+        "/tmp/forged.json"
+      )
+    ]
+
+    embedded_mutations = [
+      mutate_payload(raw, ["samples", Access.at(0), "combined"], fn combined ->
+        update_in(combined, ["partitions", Access.at(0), "duration_ms"], &(&1 + 1))
+      end),
+      mutate_payload(raw, ["samples", Access.at(0), "combined"], fn combined ->
+        update_in(combined, ["partitions", Access.at(0), "paths"], &tl/1)
+      end),
+      mutate_payload(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn timing ->
+        update_in(timing, ["tests", Access.at(0), "file"], fn _ ->
+          hd(LibraryTestPartitions.scaffold_paths())
+        end)
+      end),
+      mutate_payload(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn timing ->
+        update_in(timing, ["tests", Access.at(0)], &Map.delete(&1, "outcome"))
+      end),
+      mutate_payload(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn timing ->
+        put_in(timing, ["tests"], [hd(timing["tests"]) | timing["tests"]])
+      end)
+    ]
+
+    Enum.each(mutations ++ embedded_mutations, fn mutation ->
+      assert_raise ArgumentError, fn ->
+        LibraryTestPartitions.load_calibration!(path: write_calibration!(mutation))
+      end
+    end)
+
+    oversized =
+      update_in(raw, ["samples", Access.at(0), "timings", Access.at(0)], fn receipt ->
+        replace_payload(receipt, String.duplicate("x", 1_048_577))
+      end)
+
+    assert_raise ArgumentError, fn ->
+      LibraryTestPartitions.load_calibration!(path: write_calibration!(oversized))
+    end
+
+    assert_raise ArgumentError, fn ->
+      LibraryTestPartitions.load_calibration!(path: write_raw_calibration!("{"))
+    end
+
+    duplicate_top_key =
+      File.read!(@calibration_path)
+      |> String.replace_prefix("{", "{\"schema_version\":\"forged\",")
+
+    assert_raise ArgumentError, fn ->
+      LibraryTestPartitions.load_calibration!(path: write_raw_calibration!(duplicate_top_key))
+    end
   end
 
   test "missing, stale, duplicate, and scaffold paths fail closed" do
@@ -73,5 +204,57 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
                :crypto.hash(:sha256, Enum.join(partitions[id].paths, "\n") <> "\n")
                |> Base.encode16(case: :lower)
     end
+  end
+
+  defp independently_replayed_costs(raw) do
+    raw["ordinary_universe"]["paths"]
+    |> Enum.map(fn path ->
+      samples =
+        Enum.map(raw["samples"], fn sample ->
+          sample["timings"]
+          |> Enum.flat_map(&decode_receipt!(&1)["tests"])
+          |> Enum.filter(&(&1["file"] == path))
+          |> Enum.map(& &1["time_us"])
+          |> Enum.sum()
+          |> max(1)
+        end)
+        |> Enum.sort()
+
+      %{"path" => path, "time_us" => Enum.at(samples, 1)}
+    end)
+  end
+
+  defp decode_receipt!(receipt) do
+    receipt["payload_base64"] |> Base.decode64!() |> JSON.decode!()
+  end
+
+  defp replace_payload(receipt, payload) do
+    receipt
+    |> Map.put("payload_base64", Base.encode64(payload))
+    |> Map.put("byte_count", byte_size(payload))
+    |> Map.put("sha256", :crypto.hash(:sha256, payload) |> Base.encode16(case: :lower))
+  end
+
+  defp mutate_payload(raw, access_path, fun) do
+    update_in(raw, access_path, fn receipt ->
+      payload = receipt |> decode_receipt!() |> fun.() |> JSON.encode!()
+      replace_payload(receipt, payload)
+    end)
+  end
+
+  defp write_calibration!(value) do
+    write_raw_calibration!(JSON.encode!(value))
+  end
+
+  defp write_raw_calibration!(value) do
+    path =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-partition-calibration-#{System.unique_integer([:positive])}.json"
+      )
+
+    File.write!(path, value)
+    on_exit(fn -> File.rm(path) end)
+    path
   end
 end
