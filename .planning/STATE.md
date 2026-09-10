@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Completed 235.1-22-PLAN.md
-last_updated: "2026-09-10T22:30:20.941Z"
+stopped_at: "Blocked 235.1-20 before local timed validation: stale routing-verifier immutable pins"
+last_updated: "2026-09-10T22:35:01.837Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 4f684ce4bea60fc0af39cff309a9a70381bf900c
+state_head: a2a072d8e1d584d424db6a30d0d5c221f93de4e9
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 89
-  completed_plans: 83
+  completed_plans: 84
   percent: 86
 ---
 
@@ -470,6 +470,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
 - [RESOLVED 2026-09-09] **Phase 235 FAST-01 evidence gap:** Plan 235-15's derived-only candidate remains rejected, but Plan 235-17 retained a source-complete protected population (`n=52`, `p50=469s`, `pass`) and verified it offline. Plan 235-18 owns requirement and closeout reconciliation.
 - [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
+- Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
 
 ### Roadmap Evolution
 
@@ -657,8 +658,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-10T22:30:20.651Z
-Stopped at: Completed 235.1-22-PLAN.md
+Last session: 2026-09-10T22:35:01.530Z
+Stopped at: Blocked 235.1-20 before local timed validation: stale routing-verifier immutable pins
 Resume file: None
 
 ## Operator Next Steps
