@@ -64,13 +64,15 @@ printf '%s\n' \
   '  partition="${MIX_TEST_PARTITION:?}"' \
   '  if [[ "${FAKE_FAIL_PARTITION:-}" == "$partition" ]]; then exit 23; fi' \
   '  jq -n --arg partition "$partition" '\''{schema_version:1,partition:$partition,tests:[{file:(if $partition == "1" then "test/a_test.exs" else "test/b_test.exs" end),module:"FakeTest",name:"test fake",time_us:1,outcome:"passed"}],total:1,passed:1,failed:0,skipped:0,excluded:0,invalid:0}'\'' >"${SIGRA_EXUNIT_TIMING_PATH:?}"' \
+  '  if [[ "$partition" == "1" ]]; then cp "${SIGRA_EXUNIT_TIMING_PATH:?}" "${FAKE_PARTITION_1_COPY:?}"; fi' \
   '  exit 0' \
   'fi' \
   'exit 99' >"$test_root/bin/mix"
 chmod +x "$test_root/bin/mix"
 
-PATH="$test_root/bin:$PATH" bash "$RUNNER"
-partition_1_sha_before="$(digest /tmp/sigra-library-1-timings.json)"
+partition_1_copy="$test_root/partition-1-before-partition-2.json"
+PATH="$test_root/bin:$PATH" FAKE_PARTITION_1_COPY="$partition_1_copy" bash "$RUNNER"
+partition_1_sha_before="$(digest "$partition_1_copy")"
 jq -e '
   .schema_version == "sigra.library-partitions/v1" and
   .execution_mode == "sequential" and
