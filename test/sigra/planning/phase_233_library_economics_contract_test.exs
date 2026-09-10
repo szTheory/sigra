@@ -8,7 +8,12 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   @remediation_path ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json"
 
   test "scaffold discovery is tracked, NUL-safe, and ignores hostile trees" do
-    root = Path.join(System.tmp_dir!(), "sigra-scaffold-discovery-#{System.unique_integer([:positive])}")
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-scaffold-discovery-#{System.unique_integer([:positive])}"
+      )
+
     File.mkdir_p!(Path.join(root, "test/ignored/loop"))
     File.write!(Path.join(root, ".gitignore"), "test/ignored/\n")
     File.write!(Path.join(root, "test/ordinary_test.exs"), "defmodule OrdinaryTest do\nend\n")
@@ -27,7 +32,15 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert {_, 0} = System.cmd("git", ["-C", root, "init", "--quiet"])
 
     assert {_, 0} =
-             System.cmd("git", ["-C", root, "add", ".gitignore", "test/ordinary_test.exs", "test/space scaffold_test.exs", "test/newline\nscaffold_test.exs"])
+             System.cmd("git", [
+               "-C",
+               root,
+               "add",
+               ".gitignore",
+               "test/ordinary_test.exs",
+               "test/space scaffold_test.exs",
+               "test/newline\nscaffold_test.exs"
+             ])
 
     task = Task.async(fn -> live_scaffold_paths(root) end)
 
@@ -428,11 +441,46 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> Enum.sort()
   end
 
-  defp live_scaffold_paths do
-    "test/**/*_test.exs"
-    |> Path.wildcard()
-    |> Enum.filter(fn path -> File.read!(path) =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+  defp live_scaffold_paths(root \\ File.cwd!()) do
+    root = Path.expand(root)
+
+    unless File.dir?(root), do: raise(ArgumentError, "repository root is not a directory")
+
+    {tracked, status} =
+      System.cmd(
+        "git",
+        ["-C", root, "ls-files", "-z", "--", ":(glob)test/**/*_test.exs"],
+        stderr_to_stdout: true
+      )
+
+    unless status == 0, do: raise(ArgumentError, "tracked test discovery failed: #{tracked}")
+
+    paths = String.split(tracked, <<0>>, trim: true)
+
+    if length(paths) != MapSet.size(MapSet.new(paths)),
+      do: raise(ArgumentError, "duplicate tracked test path")
+
+    paths
+    |> Enum.map(fn path ->
+      unless valid_tracked_test_path?(path),
+        do: raise(ArgumentError, "malformed tracked test path: #{inspect(path)}")
+
+      absolute = Path.join(root, path)
+
+      unless match?({:ok, %File.Stat{type: :regular}}, File.lstat(absolute)),
+        do: raise(ArgumentError, "missing tracked test or non-regular path: #{inspect(path)}")
+
+      {path, File.read!(absolute)}
+    end)
+    |> Enum.filter(fn {_path, source} -> source =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+    |> Enum.map(&elem(&1, 0))
     |> Enum.sort()
+  end
+
+  defp valid_tracked_test_path?(path) do
+    is_binary(path) and String.valid?(path) and String.starts_with?(path, "test/") and
+      String.ends_with?(path, "_test.exs") and
+      not String.contains?(path, ["../", "/../", "//", "\\", <<0>>])
   end
 
   defp job_body(workflow, job_id) do

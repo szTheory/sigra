@@ -10,6 +10,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
   @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
+  @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
 
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
@@ -70,7 +71,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   test "Plan 18 remains immutable blocked history before recalibration" do
     summary = File.read!(@plan_18_summary)
 
-    assert summary =~ "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
+    assert {historical_summary, 0} =
+             System.cmd("git", ["show", "#{@plan_18_summary_commit}:#{@plan_18_summary}"])
+
+    assert historical_summary == summary
     assert summary =~ "627428df5a20dc0479163b9993a49dccf5e6f92e"
     assert summary =~ "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8"
     assert summary =~ "71d14c82105cc8e48f018999bd3f02d2c9dc4a47"
@@ -895,13 +899,36 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     Regex.scan(~r/"([^"]+)"/, body, capture: :all_but_first) |> List.flatten()
   end
 
-  defp live_scaffold_paths do
-    {tracked, 0} = System.cmd("git", ["ls-files", "test"])
+  defp live_scaffold_paths(root \\ File.cwd!()) do
+    root = Path.expand(root)
+
+    {tracked, status} =
+      System.cmd(
+        "git",
+        ["-C", root, "ls-files", "-z", "--", ":(glob)test/**/*_test.exs"],
+        stderr_to_stdout: true
+      )
+
+    unless status == 0, do: raise(ArgumentError, "tracked test discovery failed: #{tracked}")
 
     tracked
-    |> String.split("\n", trim: true)
-    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
-    |> Enum.filter(&(File.read!(&1) =~ ~r/^\s*@moduletag\s+:scaffold\b/m))
+    |> String.split(<<0>>, trim: true)
+    |> Enum.map(fn path ->
+      unless is_binary(path) and String.valid?(path) and String.starts_with?(path, "test/") and
+               String.ends_with?(path, "_test.exs") and
+               not String.contains?(path, ["../", "/../", "//", "\\", <<0>>]),
+             do: raise(ArgumentError, "malformed tracked test path: #{inspect(path)}")
+
+      absolute = Path.join(root, path)
+
+      unless match?({:ok, %File.Stat{type: :regular}}, File.lstat(absolute)),
+        do: raise(ArgumentError, "missing tracked test or non-regular path: #{inspect(path)}")
+
+      {path, File.read!(absolute)}
+    end)
+    |> Enum.filter(fn {_path, source} -> source =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.uniq()
     |> Enum.sort()
   end
 
