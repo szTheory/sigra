@@ -59,6 +59,49 @@ for which,fn in mutations:
  a,b=copy.deepcopy(pr),copy.deepcopy(sc); fn(a if which=="pr" else b); check(a,b,False)
 print("verify-library-routing-evidence.test: PASS")
 PY
+# Current admission authority is a closed seven-path set.  Each pin must fail
+# independently, while Plan 18 literals remain inert historical context.
+python3 - "$ROOT" "$VERIFY" "$TMP/authority" <<'PY'
+import hashlib,json,os,shutil,subprocess,sys
+root,verify,tmp=sys.argv[1:]
+expected=[
+ (".github/workflows/ci.yml","ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",None),
+ ("test/support/ci/library_test_partitions.exs","6ed033650d9483f96eefc3d5576fd4f33f814e4678e6547d9fdeb5ff95c90889",None),
+ ("test/support/ci/library_test_partitions_test.exs","26cc656d01320d128b1afe6883736b3b4d7123482df976d0c2dda3beb77addbf",None),
+ ("scripts/ci/library-partitions.sh","99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",None),
+ ("scripts/ci/verify-library-partitions.sh","449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",None),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","f54316873b2e66cb39277e063accf1168736eb9d3f74ee6c61183a845244e99b",2968244),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","1168cda99d40277253a0eb4a1c2e7ce3debdb3f92d77f3ca88c304690539e424",561),
+]
+authority=json.loads(subprocess.check_output([verify,"--print-active-authority"]))
+assert [(v["path"],v["sha256"],v["size_bytes"]) for v in authority]==expected
+for path,_,_ in expected:
+ src=os.path.join(root,path); dst=os.path.join(tmp,path)
+ os.makedirs(os.path.dirname(dst),exist_ok=True); shutil.copy2(src,dst)
+copied_verify=os.path.join(tmp,"scripts/ci/verify-library-routing-evidence.sh")
+os.makedirs(os.path.dirname(copied_verify),exist_ok=True); shutil.copy2(verify,copied_verify)
+def preflight(want):
+ ok=subprocess.run([copied_verify,"--preflight",tmp],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+ assert ok==want
+preflight(True)
+for path,_,_ in expected:
+ target=os.path.join(tmp,path); pristine=open(target,"rb").read()
+ open(target,"wb").write(pristine+b"X")
+ preflight(False)
+ open(target,"wb").write(pristine)
+ preflight(True)
+source=open(copied_verify,encoding="utf-8").read()
+assert "HISTORICAL_NEGATIVE_AUTHORITY" in source and "CURRENT_ACTIVE_AUTHORITY" in source
+historical="91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97"
+assert source.count(historical)==1
+open(copied_verify,"w",encoding="utf-8").write(source.replace(historical,"f"*64))
+preflight(True)
+old=subprocess.check_output(["git","-C",root,"show","627428df5a20dc0479163b9993a49dccf5e6f92e:test/support/ci/library_test_partitions.exs"])
+assert hashlib.sha256(old).hexdigest()==historical
+open(os.path.join(tmp,"test/support/ci/library_test_partitions.exs"),"wb").write(old)
+preflight(False)
+print("verify-library-routing-evidence.active-authority.test: PASS")
+PY
 # Candidate preflight rejects the exact one-line-short Plan 14 workflow and accepts authority.
 "$VERIFY" --preflight "$ROOT" >/dev/null
 MUT="$TMP/candidate"
