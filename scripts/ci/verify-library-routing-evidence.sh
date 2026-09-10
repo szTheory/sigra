@@ -27,17 +27,36 @@ NEGATIVE_RUNS=[
  record(10,5,34520986751,"dispatch","47f9578fc97edc63603953d446e79fac884326c3",[job(103018160561,"Library install golden (non-PR)","completed","success")],[artifact(10169749166,"library-install-golden-34520986751-1",467,"ffc0cdac67ac1158ccdf44e2e620f0e6b695df92d48e594896d9c7dc9fd286e9",None,"Pair-inadmissible diagnostic only"),artifact(10169750133,"library-install-diagnostics-34520986751-1",559,"46c4bd113239d2fff141bc94fb5ac860f419013f2a5cc8b132932d3ba69b921b",None,"Pair-inadmissible diagnostic only")],"plan14",P14,"summary_complete","unrelated_manual_ref_guards")]
 def canonical(value): return (json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False)+"\n").encode()
 def sha(value): return hashlib.sha256(value).hexdigest()
-IMMUTABLE={".github/workflows/ci.yml":"ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682","test/support/ci/library_test_partitions.exs":"91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97","test/support/ci/library_test_partitions_test.exs":"3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5","scripts/ci/library-partitions.sh":"99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202","scripts/ci/verify-library-partitions.sh":"449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json":"975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"}
+# Plan 18's preflight authority is retained only as immutable negative history.
+# Nothing traverses this structure when admitting current repository bytes.
+HISTORICAL_NEGATIVE_AUTHORITY={
+ ".github/workflows/ci.yml":"ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",
+ "test/support/ci/library_test_partitions.exs":"91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97",
+ "test/support/ci/library_test_partitions_test.exs":"3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5",
+ ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json":"975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb",
+}
+# This ordered, closed structure is the sole current --preflight authority.
+CURRENT_ACTIVE_AUTHORITY=(
+ (".github/workflows/ci.yml","ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",None),
+ ("test/support/ci/library_test_partitions.exs","6ed033650d9483f96eefc3d5576fd4f33f814e4678e6547d9fdeb5ff95c90889",None),
+ ("test/support/ci/library_test_partitions_test.exs","26cc656d01320d128b1afe6883736b3b4d7123482df976d0c2dda3beb77addbf",None),
+ ("scripts/ci/library-partitions.sh","99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",None),
+ ("scripts/ci/verify-library-partitions.sh","449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",None),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","f54316873b2e66cb39277e063accf1168736eb9d3f74ee6c61183a845244e99b",2968244),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","1168cda99d40277253a0eb4a1c2e7ce3debdb3f92d77f3ca88c304690539e424",561),
+)
 if args and args[0]=="--print-negative-runs": sys.stdout.buffer.write(canonical(NEGATIVE_RUNS)); raise SystemExit
 if args and args[0]=="--negative-runs-sha256": print(sha(canonical(NEGATIVE_RUNS))); raise SystemExit
+if args and args[0]=="--print-active-authority":
+ sys.stdout.buffer.write(canonical([{"path":path,"sha256":expected,"size_bytes":size} for path,expected,size in CURRENT_ACTIVE_AUTHORITY])); raise SystemExit
 if args and args[0]=="--preflight":
  root=os.path.realpath(args[1] if len(args)>1 else ROOT)
- for path,expected in IMMUTABLE.items():
+ for path,expected,size in CURRENT_ACTIVE_AUTHORITY:
   full=os.path.realpath(os.path.join(root,path))
-  if not full.startswith(root+os.sep): fail("preflight path containment")
+  if os.path.commonpath((root,full))!=root or full==root: fail("preflight path containment")
   try: data=open(full,"rb").read()
   except OSError as error: fail(f"immutable read {path}: {error}")
-  if path.endswith("CALIBRATION.json") and len(data)!=2922739: fail("calibration byte size")
+  if size is not None and len(data)!=size: fail(f"immutable byte size: {path}")
   if sha(data)!=expected: fail(f"immutable drift: {path}")
  print("verify-library-routing-evidence: PREFLIGHT PASS"); raise SystemExit
 def load(path):
