@@ -366,8 +366,20 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
            ) ==
              2
 
+    assert shard =~ "Diagnostic only and non-authoritative: this is not an admission artifact."
+    assert shard =~ "Upload install fixture diagnostics (non-authoritative)"
+
+    assert shard =~
+             "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
+
+    assert shard =~ "path: /tmp/sigra-install-golden-diagnostics.json"
+    assert length(Regex.scan(~r/if-no-files-found: ignore/, shard)) == 1
+
+    assert byte_index!(shard, "Upload library economics receipt") <
+             byte_index!(shard, "Upload install fixture diagnostics (non-authoritative)")
+
     assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 2
-    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 5
     assert aggregate =~ "name: Library tests"
     assert aggregate =~ "needs: [library_tests_shard]"
     assert aggregate =~ "if: always()"
