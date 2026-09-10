@@ -1,5 +1,5 @@
 defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @workflow ".github/workflows/fast-01-gap-closure-evidence.yml"
   @collector "scripts/ci/capture-fast-01-gap-closure.sh"
@@ -28,6 +28,18 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @dispatched_correlation_keys @correlation_keys ++ ~w(post_dispatch selected candidate_count)
   @forbidden_preflight_keys ~w(post_dispatch selected candidate_count watcher subject attestation)
   @protected_blob_files ~w(scripts/ci/ci-run-metrics.sh scripts/ci/ci-run-metrics.test.sh scripts/ci/capture-fast-01-gap-closure.sh scripts/ci/capture-fast-01-gap-closure.test.sh .github/workflows/fast-01-gap-closure-evidence.yml scripts/ci/verify-fast-01-source-complete-attestation-offline.sh test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs)
+
+  test "offline verifier paths remain serialized" do
+    module_header =
+      __ENV__.file
+      |> File.read!()
+      |> String.split("\n")
+      |> Enum.take(3)
+      |> Enum.join("\n")
+
+    assert module_header =~ "use ExUnit.Case, async: false"
+    refute module_header =~ "use ExUnit.Case, async: true"
+  end
 
   test "protected workflow attests only the source-complete subject from main" do
     workflow = File.read!(@workflow)
