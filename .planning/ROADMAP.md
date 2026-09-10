@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 9 completed implementation plans, 7 retained failed/blocked plans, and 2 active recovery plans
+**Plans:** 9 completed implementation plans, 8 retained failed/blocked plans, and 3 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -594,10 +594,18 @@ Plans:
 
 - [x] 235.1-14-PLAN.md — Blocked capture pair; runs 34520992740/34520986751 retained and no evidence admitted
 
-**Wave 15** *(active; candidate byte normalization plus one fresh capture/validation pair)*
+**Blocked local recovery history** *(ten-run ledger retained; clean candidate comparability failed before push)*
 
-- [ ] 235.1-18-PLAN.md — Restore authoritative candidate bytes, expand ten-run history, and capture/validate one strict pair
+- [x] 235.1-18-PLAN.md — Closed ten-run ledger retained; candidate stopped locally at 2,449ms/13,579ms with no GitHub action
 
-**Wave 16** *(blocked on Plan 18)*
+**Wave 16** *(active local-only source-discovery and replayable recalibration recovery)*
+
+- [ ] 235.1-19-PLAN.md — Replace ignored-tree discovery, bind every ordinary source byte, recalibrate, and prove three local pairs
+
+**Wave 17** *(blocked on Plan 19; exact-tree live evidence only)*
+
+- [ ] 235.1-20-PLAN.md — Construct an exact Plan 19 tree candidate and capture/validate one strict dual-route evidence set
+
+**Wave 18** *(blocked on Plan 20)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
