@@ -616,8 +616,11 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp live_scaffold_paths do
-    "test/**/*_test.exs"
-    |> Path.wildcard()
+    {tracked, 0} = System.cmd("git", ["ls-files", "test"])
+
+    tracked
+    |> String.split("\n", trim: true)
+    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
     |> Enum.filter(&(File.read!(&1) =~ ~r/^\s*@moduletag\s+:scaffold\b/m))
     |> Enum.sort()
   end

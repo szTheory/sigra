@@ -24,9 +24,9 @@ write_valid() {
     ],
     partitions:{execution_mode:"sequential",ordinary_universe_count:20,manifest_counts:[10,10],test_counts:[40,42],durations_ms:[12000,18000],conclusions:["success","success"],exit_statuses:[0,0]},
     protected_invariants:{library_tests_aggregate_sha256:"04308ef8fb56acc65c5730630e1fd3e926da6804068db07f6f15636c2a0890cb",sole_pr_owner:"MIX_ENV=test mix ci",fast_01_verifier:"source_complete_offline_attestation_verified",gate_05_verifier:"offline_attestation_verified"},
-    commands:{rate_limit:"gh api rate_limit --jq '\'' .resources.core | {remaining,reset}'\''"},
+    commands:{rate_limit:"gh api rate_limit --jq '\''.resources.core | {remaining,reset}'\''",watch:"gh run watch 4001 --repo szTheory/sigra --compact --interval 60 --exit-status",summary:"gh run view 4001 --repo szTheory/sigra --json databaseId,event,headSha,conclusion,attempt,url,jobs",artifacts:["gh run download 4001 --repo szTheory/sigra --name library-partitions-4001-1","gh run download 4001 --repo szTheory/sigra --name library-partition-1-timings-4001-1","gh run download 4001 --repo szTheory/sigra --name library-partition-2-timings-4001-1"]},
     supersession:{plan04_status:"empirically superseded (failed evidence retained)",forbidden_predicates:["install_not_dominant","ordinary-vs-scaffold comparable"]}
-  }' | sed "s/' \.resources/'.resources/" >"$PR"
+  }' >"$PR"
 
   jq -n '{
     schema_version:"sigra.library-install-golden-evidence/v1",
@@ -37,10 +37,10 @@ write_valid() {
       {id:604,name:"library-install-golden-4002-1",file:"sigra-library-install-golden.json",sha256:"4444444444444444444444444444444444444444444444444444444444444444"},
       {id:605,name:"library-install-diagnostics-4002-1",file:"sigra-install-golden-diagnostics.json",sha256:"5555555555555555555555555555555555555555555555555555555555555555"}
     ],
-    receivers:{paths:["test/a_test.exs","test/b_test.exs","test/c_test.exs","test/d_test.exs","test/e_test.exs","test/f_test.exs"],count:6,duration_ms:57389,exit_status:0,conclusion:"success",prepared_fixture:true,worker_ceiling:2},
+    receivers:{paths:["test/sigra/install/features/passkeys_js_test.exs","test/sigra/install/generator_passkeys_opt_out_test.exs","test/sigra/install/golden_diff_test.exs","test/sigra/install/idempotency_test.exs","test/sigra/install/vault_promotion_test.exs","test/upgrade_test.exs"],count:6,duration_ms:57389,exit_status:0,conclusion:"success",prepared_fixture:true,worker_ceiling:2},
     diagnostics:{schema_version:"sigra.install-fixture-diagnostics/v1",variant_count:6,worker_count:2,failed_paths:[],raw_install_duration_ms:57389},
     protected_invariants:{non_pr_events:["schedule","workflow_dispatch"],pr_execution:false,hard_signal:true},
-    commands:{rate_limit:"gh api rate_limit --jq '\''.resources.core | {remaining,reset}'\''"},
+    commands:{rate_limit:"gh api rate_limit --jq '\''.resources.core | {remaining,reset}'\''",watch:"gh run watch 4002 --repo szTheory/sigra --compact --interval 60 --exit-status",summary:"gh run view 4002 --repo szTheory/sigra --json databaseId,event,headSha,conclusion,attempt,url,jobs",artifacts:["gh run download 4002 --repo szTheory/sigra --name library-install-golden-4002-1","gh run download 4002 --repo szTheory/sigra --name library-install-diagnostics-4002-1"]},
     supersession:{failed_run_id:34435818106,ordinary_duration_ms:28671,install_duration_ms:79614,safe_optimization_commits:["1fa788fc","488f4fa1"],bounded_clean_local_range_ms:[56000,78000],final_hard_stop_ms:57389,status:"failed evidence retained"}
   }' >"$SCAFFOLD"
 }
@@ -72,7 +72,7 @@ for spec in \
   'pr|.artifacts[0].id=.artifacts[1].id|artifact ID uniqueness' \
   'pr|.artifacts[0].name="wrong"|artifact name' \
   'pr|.artifacts[0].sha256="bad"|artifact digest' \
-  'pr|.partitions.manifest_counts=[19,1]|partition coverage' \
+  'pr|.partitions.manifest_counts=[19,2]|partition coverage' \
   'pr|.partitions.durations_ms=[1000,2001]|partition ratio' \
   'pr|.partitions.exit_statuses=[0,1]|partition outcome' \
   'pr|.protected_invariants.library_tests_aggregate_sha256="bad"|protected aggregate' \
