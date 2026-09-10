@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Phase 235.1 context gathered (assumptions mode)
-last_updated: "2026-09-09T18:13:48.023Z"
+stopped_at: Completed 235.1-22-PLAN.md
+last_updated: "2026-09-10T22:30:20.941Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: f3a43c4d459734cdbc2b2aa5421e42d7a4261ba0
+state_head: 4f684ce4bea60fc0af39cff309a9a70381bf900c
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 72
-  completed_plans: 67
+  total_plans: 89
+  completed_plans: 83
   percent: 86
 ---
 
@@ -31,9 +31,9 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 235.1
-Progress: 6/6 milestone phases complete ([██████████] 100%); 13 of 13 Phase 235 plans complete
+Plan: 2 of 5
+Status: Ready to execute
+Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
@@ -453,6 +453,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
 - [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
 - [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
+- [Phase 235.1]: Use the stale v1-derived placement only to route exhaustive collection; admit no bootstrap timing or payload as evidence.
+- [Phase 235.1]: Bind calibration solely to three wholly new complete triples from the frozen Plan 21 source.
+- [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
 
 ### Pending Todos
 
@@ -654,9 +657,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T17:01:30.840Z
-Stopped at: Phase 235.1 context gathered (assumptions mode)
-Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md
+Last session: 2026-09-10T22:30:20.651Z
+Stopped at: Completed 235.1-22-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -825,3 +828,4 @@ Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-ga
 | Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
+| Phase 235.1 P22 | 17m | 2 tasks | 3 files |

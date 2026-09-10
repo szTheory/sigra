@@ -608,7 +608,7 @@ Plans:
 
 **Wave 18** *(active; measurement-only bootstrap collection from Plan 21 frozen source)*
 
-- [ ] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
+- [x] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
 
 **Wave 19** *(blocked on Plan 22; exact-tree live evidence only)*
 
