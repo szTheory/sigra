@@ -790,6 +790,11 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
           assert String.starts_with?(retry_deps, Path.join(root, "compile_recovery") <> "/")
           assert File.read!(Path.join(retry_deps, "telemetry_poller/source.erl")) == "poller"
           assert File.read!(Path.join(retry_deps, "jason/source.ex")) == "jason"
+
+          assert File.read!(
+                   Path.join(retry_deps, "telemetry_poller/_build/prod/lib/.rebar3/base_graph")
+                 ) == "sealed graph"
+
           assert Bitwise.band(File.stat!(retry_deps).mode, 0o200) == 0o200
           refute InstallFixture.tree_has_shared_writable_state?(shared_deps, retry_deps)
 
@@ -848,6 +853,29 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
 
     assert Process.get({__MODULE__, :compile_calls}) == 1
     refute File.exists?(Path.join(root, "compile_recovery"))
+  end
+
+  test "ambiguous or path-shaped dependency output cannot authorize recovery", %{root: root} do
+    %{variant_path: variant_path} = recovery_fixture!(root)
+
+    for output <- [
+          "Could not compile dependency :../../escape, mix compile failed",
+          "Could not compile dependency :jason\nCould not compile dependency :telemetry_poller"
+        ] do
+      Process.put({__MODULE__, :compile_calls}, 0)
+
+      command = fn "mix", ["compile"], _options ->
+        Process.put({__MODULE__, :compile_calls}, Process.get({__MODULE__, :compile_calls}) + 1)
+        {output, 31}
+      end
+
+      assert_raise RuntimeError, fn ->
+        InstallFixture.compile_variant_for_test!(variant_path, command)
+      end
+
+      assert Process.get({__MODULE__, :compile_calls}) == 1
+      refute File.exists?(Path.join(root, "compile_recovery"))
+    end
   end
 
   test "failed retry remains bounded and graph cleanup removes its private source", %{root: root} do
@@ -939,6 +967,11 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     File.mkdir_p!(Path.join(shared_deps, "jason"))
     File.write!(Path.join(shared_deps, "telemetry_poller/source.erl"), "poller")
     File.write!(Path.join(shared_deps, "jason/source.ex"), "jason")
+
+    sealed_dag = Path.join(shared_deps, "telemetry_poller/_build/prod/lib/.rebar3/base_graph")
+    File.mkdir_p!(Path.dirname(sealed_dag))
+    File.write!(sealed_dag, "sealed graph")
+
     {_, 0} = System.cmd("chmod", ["-R", "a-w", shared_deps], stderr_to_stdout: true)
 
     %{variant_path: variant_path, shared_deps: Path.expand(shared_deps)}
