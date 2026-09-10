@@ -97,7 +97,35 @@ if pr["protected_invariants"] != expected_protected: fail("PR protected invarian
 keys(pr["commands"], ["rate_limit", "watch", "summary", "artifacts"], "PR commands")
 expected_commands = [f"gh run download {run['id']} --repo szTheory/sigra --name {name}" for name, _ in expected_pr_artifacts]
 if pr["commands"] != {"rate_limit": rate, "watch": f"gh run watch {run['id']} --repo szTheory/sigra --compact --interval 60 --exit-status", "summary": f"gh run view {run['id']} --repo szTheory/sigra --json {summary_fields}", "artifacts": expected_commands}: fail("PR commands")
-if pr["supersession"] != {"plan04_status": "empirically superseded (failed evidence retained)", "forbidden_predicates": ["install_not_dominant", "ordinary-vs-scaffold comparable"]}: fail("PR supersession ledger")
+supersession = pr["supersession"]
+keys(supersession, ["plan04_status", "forbidden_predicates", "plan10_run_ids", "recovery_attempts"], "PR supersession")
+if supersession["plan04_status"] != "empirically superseded (failed evidence retained)" or supersession["forbidden_predicates"] != ["install_not_dominant", "ordinary-vs-scaffold comparable"]: fail("PR supersession ledger")
+historical_run_ids = [34466384009, 34466384470, 34467186749, 34467189602, 34468109536, 34468110161]
+if supersession["plan10_run_ids"] != historical_run_ids: fail("Plan 10 run history")
+attempts = supersession["recovery_attempts"]
+if not isinstance(attempts, list) or not 1 <= len(attempts) <= 3: fail("recovery attempt budget")
+candidate_run_ids = []
+candidate_shas = []
+tree_id = None
+for index, attempt in enumerate(attempts, start=1):
+    keys(attempt, ["candidate", "implementation_sha", "tree_id", "pr_run", "dispatch_run", "classification", "diagnostic_refs"], "recovery attempt")
+    if attempt["candidate"] != index or not digest(attempt["implementation_sha"], 40) or not digest(attempt["tree_id"], 40): fail("recovery candidate identity")
+    if tree_id is None: tree_id = attempt["tree_id"]
+    if attempt["tree_id"] != tree_id: fail("recovery candidate tree drift")
+    if attempt["implementation_sha"] in candidate_shas: fail("recovery candidate SHA uniqueness")
+    candidate_shas.append(attempt["implementation_sha"])
+    for route in ["pr_run", "dispatch_run"]:
+        keys(attempt[route], ["id", "attempt"], f"recovery {route}")
+        if not integer(attempt[route]["id"]) or attempt[route]["id"] <= 0 or attempt[route]["attempt"] != 1: fail("recovery run provenance")
+        candidate_run_ids.append(attempt[route]["id"])
+    is_final = index == len(attempts)
+    if is_final:
+        if attempt["classification"] != "admitted" or attempt["diagnostic_refs"] != []: fail("final recovery admission")
+    else:
+        refs = attempt["diagnostic_refs"]
+        if attempt["classification"] != "external_transient" or not isinstance(refs, list) or not refs or not all(isinstance(ref, str) and ref.startswith("https://github.com/szTheory/sigra/actions/runs/") for ref in refs): fail("transient-only recovery advancement")
+if len(set(candidate_run_ids)) != len(candidate_run_ids): fail("recovery run ID uniqueness")
+if set(candidate_run_ids) & set(historical_run_ids): fail("historical run substitution")
 
 keys(scaffold, ["schema_version", "repository", "run", "job", "artifacts", "receivers", "diagnostics", "protected_invariants", "commands", "supersession"], "scaffold")
 if scaffold["schema_version"] != "sigra.library-install-golden-evidence/v1" or scaffold["repository"] != "szTheory/sigra": fail("scaffold identity")
@@ -132,5 +160,7 @@ expected_history = {"failed_run_id": 34435818106, "ordinary_duration_ms": 28671,
 if scaffold["supersession"] != expected_history: fail("failed-history supersession ledger")
 if run["head_sha"] != srun["head_sha"]: fail("capture routes do not share one implementation SHA")
 if run["id"] == srun["id"]: fail("capture run IDs must be distinct")
+final_attempt = attempts[-1]
+if final_attempt["implementation_sha"] != run["head_sha"] or final_attempt["pr_run"]["id"] != run["id"] or final_attempt["dispatch_run"]["id"] != srun["id"]: fail("capture routes do not match final recovery candidate")
 print("verify-library-routing-evidence: PASS")
 PY
