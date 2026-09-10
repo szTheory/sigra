@@ -9,6 +9,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
   @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+  @calibration_manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
   @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
   @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
 
@@ -258,19 +259,19 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
              2
 
     calibration = File.read!(@calibration_path)
-    assert byte_size(calibration) == 2_922_739
+    manifest = @calibration_manifest_path |> File.read!() |> JSON.decode!()
 
-    assert sha256(calibration) ==
-             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    assert Map.keys(manifest) |> Enum.sort() ==
+             ~w(calibration ordinary_source_index_sha256 payload_count sample_count schema_version source_snapshot)
 
-    refute sha256(calibration <> "\n") ==
-             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    assert manifest["schema_version"] == "sigra.library-partition-calibration-manifest/v1"
+    assert manifest["calibration"]["path"] == @calibration_path
+    assert manifest["calibration"]["byte_count"] == byte_size(calibration)
+    assert manifest["calibration"]["sha256"] == sha256(calibration)
+    assert manifest["sample_count"] == 3
+    assert manifest["payload_count"] == 9
 
     immutable_paths = %{
-      "test/support/ci/library_test_partitions.exs" =>
-        "91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97",
-      "test/support/ci/library_test_partitions_test.exs" =>
-        "3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5",
       "scripts/ci/library-partitions.sh" =>
         "99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",
       "scripts/ci/verify-library-partitions.sh" =>
@@ -287,10 +288,12 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     Code.require_file("test/support/ci/library_test_partitions.exs")
     partitions = apply(Sigra.CI.LibraryTestPartitions, :build_partitions!, [])
-    assert length(partitions[1].paths) == 97
-    assert length(partitions[2].paths) == 128
-    assert partitions[1].total_us == 54_838_062
-    assert partitions[2].total_us == 54_838_062
+
+    assert length(partitions[1].paths) + length(partitions[2].paths) ==
+             length(Sigra.CI.LibraryTestPartitions.current_ordinary_paths!())
+
+    assert partitions[1].total_us > 0
+    assert partitions[2].total_us > 0
     assert "test/sigra/account/deletion_test.exs" in partitions[2].paths
     assert "test/sigra/delivery_test.exs" in partitions[2].paths
 

@@ -2,9 +2,10 @@ defmodule Sigra.CI.LibraryTestPartitions do
   @moduledoc false
 
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
-  @calibration_schema "sigra.library-partition-calibration/v1"
-  @sample_implementation_commit "60ef7c94e955a15e404a3133789ab3b0325f8b62"
-  @blocked_summary_commit "2d854758"
+  @manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
+  @calibration_schema "sigra.library-partition-calibration/v2"
+  @manifest_schema "sigra.library-partition-calibration-manifest/v1"
+  @blocked_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
   @collection_command "ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test bash scripts/ci/library-partitions.sh"
   @aggregation "median(max(1,sum(time_us)))"
   @artifact_max_bytes 8_388_608
@@ -47,6 +48,13 @@ defmodule Sigra.CI.LibraryTestPartitions do
     |> Kernel.<>("\n")
     |> then(&:crypto.hash(:sha256, &1))
     |> Base.encode16(case: :lower)
+  end
+
+  def ordinary_universe_sha256(paths) when is_list(paths) do
+    paths
+    |> Enum.join(<<0>>)
+    |> Kernel.<>(<<0>>)
+    |> sha256()
   end
 
   @spec partition(String.t() | pos_integer()) :: [String.t()]
@@ -167,16 +175,19 @@ defmodule Sigra.CI.LibraryTestPartitions do
   end
 
   defp discover_current_ordinary_paths!(opts) do
-    root = Keyword.get(opts, :root, File.cwd!())
+    root = opts |> Keyword.get(:root, File.cwd!()) |> Path.expand()
 
-    {tracked_paths, 0} =
-      System.cmd("git", ["-C", root, "ls-files", "--", "test/**/*_test.exs", "test/*_test.exs"],
+    {tracked_paths, status} =
+      System.cmd("git", ["-C", root, "ls-files", "-z", "--", ":(glob)test/**/*_test.exs"],
         stderr_to_stdout: true
       )
 
+    unless status == 0, do: invalid!("tracked ordinary discovery failed")
+
     eligible_paths =
       tracked_paths
-      |> String.split("\n", trim: true)
+      |> String.split(<<0>>, trim: true)
+      |> validate_tracked_paths!(root)
       |> Enum.filter(&matches_load_filters?/1)
       |> Enum.sort()
 
@@ -219,7 +230,24 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
   @spec load_calibration!(keyword()) :: map()
   def load_calibration!(opts \\ []) do
-    path = Keyword.get(opts, :path, @calibration_path)
+    root = opts |> Keyword.get(:root, File.cwd!()) |> Path.expand()
+    manifest_path = Keyword.get(opts, :manifest_path, Path.join(root, @manifest_path))
+    manifest = load_manifest!(manifest_path)
+    validate_manifest_source!(manifest, root)
+
+    calibration_relative = manifest["calibration"]["path"]
+
+    unless valid_repository_relative_json?(calibration_relative),
+      do: invalid!("manifest calibration path")
+
+    if not Keyword.has_key?(opts, :manifest_path) and calibration_relative != @calibration_path,
+      do: invalid!("default manifest calibration path")
+
+    expected_path = Path.join(root, calibration_relative)
+    path = Keyword.get(opts, :path, expected_path)
+
+    unless Path.expand(path) == Path.expand(expected_path),
+      do: invalid!("calibration path differs from manifest")
 
     ordinary_paths =
       Keyword.get_lazy(opts, :ordinary_paths, fn -> current_ordinary_paths!(opts) end)
@@ -227,6 +255,10 @@ defmodule Sigra.CI.LibraryTestPartitions do
     unless regular_non_symlink?(path), do: invalid!("calibration must be a regular non-symlink")
 
     raw = File.read!(path)
+
+    unless byte_size(raw) == manifest["calibration"]["byte_count"] and
+             sha256(raw) == manifest["calibration"]["sha256"],
+           do: invalid!("manifest calibration byte binding")
 
     if byte_size(raw) > @artifact_max_bytes,
       do: invalid!("calibration exceeds artifact byte limit")
@@ -241,9 +273,9 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
     if calibration["schema_version"] != @calibration_schema, do: invalid!("calibration schema")
 
-    validate_source!(calibration["source"])
+    validate_source!(calibration["source"], manifest)
     validate_limits!(calibration["limits"])
-    validate_universe!(calibration["ordinary_universe"], ordinary_paths)
+    validate_universe!(calibration["ordinary_universe"], ordinary_paths, manifest, root)
 
     samples = calibration["samples"]
 
@@ -262,11 +294,11 @@ defmodule Sigra.CI.LibraryTestPartitions do
       samples: samples
     }
   rescue
-    error in [ArgumentError, File.Error, KeyError] ->
+    error in [ArgumentError, File.Error, KeyError, MatchError] ->
       raise ArgumentError, "invalid partition calibration: #{Exception.message(error)}"
   end
 
-  defp validate_source!(source) do
+  defp validate_source!(source, manifest) do
     exact_keys!(
       source,
       ~w(implementation_commit blocked_summary_commit collection_command sample_count aggregation),
@@ -274,7 +306,7 @@ defmodule Sigra.CI.LibraryTestPartitions do
     )
 
     expected = %{
-      "implementation_commit" => @sample_implementation_commit,
+      "implementation_commit" => manifest["source_snapshot"]["commit"],
       "blocked_summary_commit" => @blocked_summary_commit,
       "collection_command" => @collection_command,
       "sample_count" => 3,
@@ -304,14 +336,89 @@ defmodule Sigra.CI.LibraryTestPartitions do
     if limits != expected, do: invalid!("calibration limits")
   end
 
-  defp validate_universe!(universe, ordinary_paths) do
-    exact_keys!(universe, ~w(paths count newline_manifest_sha256), "ordinary universe")
+  defp validate_universe!(universe, ordinary_paths, manifest, root) do
+    exact_keys!(universe, ~w(paths count nul_manifest_sha256 source_files), "ordinary universe")
     paths = universe["paths"]
+    source_files = universe["source_files"]
 
     unless paths == Enum.sort(paths) and paths == ordinary_paths and
              universe["count"] == length(paths) and
-             universe["newline_manifest_sha256"] == manifest_sha256(paths),
+             universe["nul_manifest_sha256"] == ordinary_universe_sha256(paths),
            do: invalid!("ordinary universe")
+
+    unless is_list(source_files) and Enum.map(source_files, & &1["path"]) == paths and
+             source_files == Enum.sort_by(source_files, & &1["path"]),
+           do: invalid!("ordinary source index")
+
+    Enum.each(source_files, &validate_source_file!(&1, manifest, root))
+
+    unless source_index_sha256(source_files) == manifest["ordinary_source_index_sha256"],
+      do: invalid!("ordinary source index digest")
+  end
+
+  defp load_manifest!(path) do
+    unless regular_non_symlink?(path), do: invalid!("manifest must be a regular non-symlink")
+    manifest = path |> File.read!() |> decode_strict_json!("manifest")
+
+    exact_keys!(
+      manifest,
+      ~w(schema_version source_snapshot calibration ordinary_source_index_sha256 sample_count payload_count),
+      "manifest"
+    )
+
+    exact_keys!(manifest["source_snapshot"], ~w(commit tree), "manifest source snapshot")
+    exact_keys!(manifest["calibration"], ~w(path byte_count sha256), "manifest calibration")
+
+    unless manifest["schema_version"] == @manifest_schema and manifest["sample_count"] == 3 and
+             manifest["payload_count"] == 9 and hex?(manifest["source_snapshot"]["commit"], 40) and
+             hex?(manifest["source_snapshot"]["tree"], 40) and
+             hex?(manifest["calibration"]["sha256"], 64) and
+             hex?(manifest["ordinary_source_index_sha256"], 64) and
+             positive_integer?(manifest["calibration"]["byte_count"]),
+           do: invalid!("manifest values")
+
+    manifest
+  end
+
+  defp validate_manifest_source!(manifest, root) do
+    commit = manifest["source_snapshot"]["commit"]
+
+    {tree, status} =
+      System.cmd("git", ["-C", root, "rev-parse", "#{commit}^{tree}"], stderr_to_stdout: true)
+
+    unless status == 0 and String.trim(tree) == manifest["source_snapshot"]["tree"],
+      do: invalid!("source snapshot commit/tree")
+  end
+
+  defp validate_source_file!(row, manifest, root) do
+    exact_keys!(row, ~w(path byte_count sha256), "ordinary source row")
+    path = row["path"]
+
+    unless valid_ordinary_path?(path) and positive_integer?(row["byte_count"]) and
+             hex?(row["sha256"], 64),
+           do: invalid!("ordinary source row values")
+
+    current = Path.join(root, path)
+    unless regular_non_symlink?(current), do: invalid!("ordinary source file")
+    bytes = File.read!(current)
+
+    unless byte_size(bytes) == row["byte_count"] and sha256(bytes) == row["sha256"],
+      do: invalid!("current ordinary source bytes")
+
+    snapshot = git_blob_bytes!(root, manifest["source_snapshot"]["commit"], path)
+
+    unless snapshot == bytes, do: invalid!("snapshot ordinary source bytes")
+  end
+
+  defp git_blob_bytes!(root, commit, path) do
+    case System.cmd("git", ["-C", root, "show", "#{commit}:#{path}"], stderr_to_stdout: true) do
+      {bytes, 0} -> bytes
+      _ -> invalid!("missing snapshot source blob")
+    end
+  end
+
+  defp source_index_sha256(rows) do
+    rows |> JSON.encode!() |> Kernel.<>("\n") |> sha256()
   end
 
   defp validate_sample!(sample, ordinary_paths) do
@@ -508,10 +615,32 @@ defmodule Sigra.CI.LibraryTestPartitions do
     match?({:ok, %File.Stat{type: :regular}}, File.lstat(path))
   end
 
+  defp validate_tracked_paths!(paths, root) do
+    if length(paths) != MapSet.size(MapSet.new(paths)), do: invalid!("duplicate tracked path")
+
+    Enum.map(paths, fn path ->
+      unless is_binary(path) and String.valid?(path) and String.starts_with?(path, "test/") and
+               String.ends_with?(path, "_test.exs") and
+               not String.contains?(path, ["../", "/../", "//", "\\", <<0>>]),
+             do: invalid!("malformed tracked path")
+
+      unless regular_non_symlink?(Path.join(root, path)),
+        do: invalid!("tracked path is not regular")
+
+      path
+    end)
+  end
+
   defp valid_ordinary_path?(path) do
     is_binary(path) and String.starts_with?(path, "test/") and
       String.ends_with?(path, "_test.exs") and
       path not in @scaffold_paths and not String.contains?(path, ["..", "//", "\\"])
+  end
+
+  defp valid_repository_relative_json?(path) do
+    is_binary(path) and path != "" and Path.type(path) != :absolute and
+      String.ends_with?(path, ".json") and
+      not String.contains?(path, ["..", "//", "\\", <<0>>])
   end
 
   defp positive_cost?(%{"path" => path, "time_us" => time_us} = row) do
@@ -521,6 +650,10 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
   defp positive_cost?(_), do: false
   defp positive_integer?(value), do: is_integer(value) and value > 0
+
+  defp hex?(value, length),
+    do: is_binary(value) and byte_size(value) == length and Regex.match?(~r/\A[0-9a-f]+\z/, value)
+
   defp sha256(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
   defp invalid!(message), do: raise(ArgumentError, message)
 
