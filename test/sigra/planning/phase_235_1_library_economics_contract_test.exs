@@ -164,10 +164,15 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
         String.replace(source, "ref = Process.monitor(dummy)", "ref = make_ref()", global: false),
         String.replace(source, "if Process.whereis(Oban) == dummy", "if true", global: false),
         String.replace(source, "Process.exit(dummy, :kill)", ":ok", global: false),
-        String.replace(source, "{:DOWN, ^ref, :process, ^dummy, reason}", "{:DOWN, _, _, _, reason}",
+        String.replace(
+          source,
+          "{:DOWN, ^ref, :process, ^dummy, reason}",
+          "{:DOWN, _, _, _, reason}",
           global: false
         ),
-        String.replace(source, "reason in [:killed, :noproc]", "reason == :killed", global: false),
+        String.replace(source, "reason in [:killed, :noproc]", "reason == :killed",
+          global: false
+        ),
         String.replace(source, "1_000 -> raise", "5_000 -> raise", global: false),
         String.replace(
           source,
@@ -189,12 +194,18 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     delivery = File.read!("test/sigra/delivery_test.exs")
     assert delivery =~ "failed dummy acquisition kills only the dummy"
     assert delivery =~ "cleanup does not unregister or kill a replacement Oban owner"
-    assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) == 2
+
+    assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) ==
+             2
 
     calibration = File.read!(@calibration_path)
     assert byte_size(calibration) == 2_922_739
-    assert sha256(calibration) == "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
-    refute sha256(calibration <> "\n") == "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+
+    assert sha256(calibration) ==
+             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+
+    refute sha256(calibration <> "\n") ==
+             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
 
     immutable_paths = %{
       "test/support/ci/library_test_partitions.exs" =>
@@ -224,7 +235,8 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert "test/sigra/account/deletion_test.exs" in partitions[2].paths
     assert "test/sigra/delivery_test.exs" in partitions[2].paths
 
-    missing_path = update_in(partitions, [2, :paths], &List.delete(&1, "test/sigra/delivery_test.exs"))
+    missing_path =
+      update_in(partitions, [2, :paths], &List.delete(&1, "test/sigra/delivery_test.exs"))
 
     assert_raise ArgumentError, fn ->
       apply(Sigra.CI.LibraryTestPartitions, :validate_current_universe!, [missing_path])
@@ -252,6 +264,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     refute integration =~ "for validation in $(seq"
     refute integration =~ ~r/retry|average|recalibrat|retun/i
     refute three_validation_contract?(String.replace(integration, "1 2 3", "1 2", global: false))
+
     refute three_validation_contract?(
              String.replace(integration, "MIX_ENV=test bash \"$RUNNER\"", "MIX_ENV=test :",
                global: false
