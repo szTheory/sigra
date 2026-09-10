@@ -516,18 +516,18 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 
 ### Phase 235.1: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 
-**Goal:** Restore measurable library-suite economics under the single `MIX_ENV=test mix ci` owner: same-run parallel slow-test visibility, separately timed comparable ordinary and install/scaffold work classes, and reconciled TEST-01/02/03 traceability without regressing FAST-01 or GATE-05.
+**Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 6/7 plans executed
+**Plans:** 5 completed historical plans, 1 empirically superseded failed evidence plan, and 4 active fallback plans
 
 **Success Criteria:**
 
-1. The ordinary parallel ExUnit run emits a deterministic slow-test receipt that CI validates and uploads, without a serial or duplicate full-suite rerun.
-2. The single library owner records ordinary and install/scaffold durations in the same run, with a deterministic contract enforcing comparable work classes and an install/scaffold non-dominance threshold.
-3. The byte-stable aggregate remains fail-closed and proves exact-once ordinary plus upgrade, golden-generation, and idempotency coverage.
-4. An observed green PR run produces durable evidence while preserving the Phase 235 FAST-01 baseline and GATE-05 ownership contract.
-5. Requirements traceability, DX evidence, Phase 235 verification prose, and the milestone audit are reconciled only after the implementation evidence passes.
+1. The sole PR owner runs two non-empty, disjoint, exhaustive ordinary partitions sequentially, with parallel ExUnit inside each and deterministic per-test receipts; no scaffold module leaks into either partition.
+2. Fresh attempt-1 PR evidence proves both ordinary partitions execute successfully with comparable independently recomputed raw durations while `Library tests` remains byte-identical and fail-closed.
+3. The exact six upgrade/golden/idempotency/scaffold modules are absent from PR `mix ci` and execute unchanged in one hard-signal job on every schedule/workflow_dispatch event, with required receipt and diagnostic artifacts.
+4. Fresh attempt-1 PR and dispatch capture runs plus distinct evidence-SHA validation runs prove both routes while preserving FAST-01 and GATE-05.
+5. Requirements, Phase 234 DX-01 evolution, validation, Phase 235 prose, and the milestone audit reconcile only after all machine evidence passes; the failed fixed-bound observations remain explicit history.
 
 Plans:
 **Wave 1**
@@ -550,10 +550,22 @@ Plans:
 
 - [x] 235.1-07-PLAN.md — Migrate all six receivers and prove the unchanged economics bounds
 
-**Wave 6** *(blocked on Plan 07 remediation gate)*
+**Empirically superseded evidence path** *(not active routing)*
 
-- [ ] 235.1-04-PLAN.md — Capture retry-free PR evidence and validate its committed contract
+- [x] 235.1-04-PLAN.md — Empirically superseded—failed history retained; no passing evidence admitted
 
-**Wave 7** *(blocked on Wave 6 evidence completion)*
+**Wave 6** *(active; blocked on completed Plan 07 history)*
 
-- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit
+- [ ] 235.1-08-PLAN.md — Restore two exhaustive comparable ordinary partitions inside the sole PR owner
+
+**Wave 7** *(blocked on Plan 08)*
+
+- [ ] 235.1-09-PLAN.md — Route the exact six scaffold modules to a fail-closed schedule/workflow_dispatch job
+
+**Wave 8** *(blocked on Plan 09)*
+
+- [ ] 235.1-10-PLAN.md — Capture fresh attempt-1 PR/dispatch evidence and distinct evidence-SHA validation runs
+
+**Wave 9** *(blocked on Plan 10)*
+
+- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

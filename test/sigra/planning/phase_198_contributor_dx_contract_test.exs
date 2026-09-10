@@ -30,7 +30,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
-      "cmd bash scripts/ci/library-economics.sh",
+      "cmd bash scripts/ci/library-partitions.sh",
       "sigra.dep_off"
     ]
 
@@ -38,6 +38,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     assert Enum.all?(expected, &(length(Regex.scan(~r/#{Regex.escape(&1)}/, entry)) == 1))
     refute entry =~ "test --exclude scaffold"
     refute entry =~ "ci.install_golden"
+    refute entry =~ "library-economics.sh"
   end
 
   test "198-02: mix ci excludes non-gating tool families" do

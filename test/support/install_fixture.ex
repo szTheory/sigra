@@ -180,6 +180,7 @@ defmodule Sigra.Test.InstallFixture do
   def prepare_graph!(opts \\ []) do
     root = Keyword.get_lazy(opts, :root, &new_graph_root!/0) |> validate_graph_root!()
     Process.put({__MODULE__, :building_root}, root)
+    Process.delete({__MODULE__, :trusted_seed})
     fingerprint = Keyword.get_lazy(opts, :fingerprint, &compatibility_fingerprint/0)
     base_path = Path.join([root, "source", @app_name])
     deps_path = Path.join(root, "shared_deps")
@@ -216,6 +217,8 @@ defmodule Sigra.Test.InstallFixture do
           raise "base builder returned invalid result: #{inspect(other)}"
       end
 
+    trusted_seed? = Process.delete({__MODULE__, :trusted_seed}) == true
+
     if File.regular?(Path.join(base_path, "config/dev.exs")) do
       configure_runtime_isolation!(base_path)
     end
@@ -242,7 +245,7 @@ defmodule Sigra.Test.InstallFixture do
     copy_ms = positive_elapsed(copy_started)
     installer_started = monotonic_ms()
 
-    variants =
+    installed_variants =
       copied_variants
       |> parallel_map!(fn copied ->
         name = copied.name
@@ -252,22 +255,36 @@ defmodule Sigra.Test.InstallFixture do
 
         stdout =
           try do
-            stdout = run_variant_builder!(variant_builder, name, variant_path)
-            :ok = variant_compiler.(variant_path)
-            stdout
+            run_variant_builder!(variant_builder, name, variant_path, trusted_seed?, opts)
           after
             Process.delete({__MODULE__, :installer_build_path})
           end
 
-        variant_build_template_path = seal_variant_build_template!(installer_build_path)
+        %{
+          copied: copied,
+          stdout: normalize_stdout(stdout, variant_path),
+          installer_build_path: installer_build_path,
+          compile_digest: compile_relevant_digest(variant_path)
+        }
+      end)
 
+    reuse_compiles? = trusted_seed? and not Keyword.has_key?(opts, :variant_compiler)
+    compile_installed_variants!(installed_variants, variant_compiler, reuse_compiles?)
+
+    variants =
+      installed_variants
+      |> Enum.map(fn installed ->
+        copied = installed.copied
+        name = copied.name
+        variant_path = copied.path
+        variant_build_template_path = seal_variant_build_template!(installed.installer_build_path)
         token = System.unique_integer([:positive, :monotonic])
         make_tree_read_only!(variant_path)
 
         %{
           name: name,
           path: Path.expand(variant_path),
-          stdout: normalize_stdout(stdout, variant_path),
+          stdout: installed.stdout,
           baseline_paths: copied.baseline_paths,
           deps_path: copied.deps_path,
           build_template_path: variant_build_template_path,
@@ -307,13 +324,21 @@ defmodule Sigra.Test.InstallFixture do
     graph
   rescue
     exception ->
+      Process.delete({__MODULE__, :trusted_seed})
       failed_root = Process.delete({__MODULE__, :building_root})
       if is_binary(failed_root) and File.dir?(failed_root), do: safe_remove_graph!(failed_root)
       reraise exception, __STACKTRACE__
   end
 
-  defp run_variant_builder!(variant_builder, name, variant_path) do
-    case variant_builder.(name, variant_path) do
+  defp run_variant_builder!(variant_builder, name, variant_path, trusted_seed?, opts) do
+    result =
+      if trusted_seed? and not Keyword.has_key?(opts, :variant_builder) do
+        build_variant_without_host_compile!(name, variant_path)
+      else
+        variant_builder.(name, variant_path)
+      end
+
+    case result do
       :ok -> ""
       {:ok, output} when is_binary(output) -> output
       other -> raise "variant builder returned invalid result: #{inspect(other)}"
@@ -1062,7 +1087,30 @@ defmodule Sigra.Test.InstallFixture do
     safe_remove_graph!(root, &File.rm_rf/1, 3)
   end
 
-  defp safe_remove_graph!(root, remover, attempts_left) do
+  defp safe_remove_graph!(root, remover, detach_attempts_left) do
+    if File.exists?(root) do
+      _ = File.chmod(root, 0o700)
+      make_tree_writable!(root)
+      detached = "#{root}.removing-#{System.unique_integer([:positive, :monotonic])}"
+      File.rename!(root, detached)
+      remove_detached_graph!(detached, remover, 3)
+
+      if File.exists?(root) do
+        if detach_attempts_left > 1 do
+          safe_remove_graph!(root, remover, detach_attempts_left - 1)
+        else
+          raise File.Error,
+            reason: :eexist,
+            path: root,
+            action: "remove recreated install fixture graph root"
+        end
+      end
+    end
+
+    :ok
+  end
+
+  defp remove_detached_graph!(root, remover, attempts_left) do
     if File.exists?(root) do
       _ = File.chmod(root, 0o700)
       make_tree_writable!(root)
@@ -1072,10 +1120,10 @@ defmodule Sigra.Test.InstallFixture do
       {:ok, _removed} ->
         :ok
 
-      {:error, _path, _reason} when attempts_left > 1 ->
-        safe_remove_graph!(root, remover, attempts_left - 1)
+      {:error, _reason, _path} when attempts_left > 1 ->
+        remove_detached_graph!(root, remover, attempts_left - 1)
 
-      {:error, path, reason} ->
+      {:error, reason, path} ->
         raise File.Error,
           reason: reason,
           path: path,
@@ -1114,18 +1162,23 @@ defmodule Sigra.Test.InstallFixture do
 
     compile_started = monotonic_ms()
 
-    {compile_out, compile_status} =
-      System.cmd("mix", ["compile"],
-        cd: base_path,
-        stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"} | shared_env]
-      )
+    compile_baseline!(trusted_sigra_seed?, fn ->
+      {compile_out, compile_status} =
+        System.cmd("mix", ["compile"],
+          cd: base_path,
+          stderr_to_stdout: true,
+          env: [{"MIX_ENV", "dev"} | shared_env]
+        )
 
-    if compile_status != 0, do: raise("pre-install mix compile failed:\n#{compile_out}")
+      if compile_status != 0, do: raise("pre-install mix compile failed:\n#{compile_out}")
+      :ok
+    end)
 
     unless trusted_sigra_seed? do
       disable_compiled_path_dep!(base_path)
     end
+
+    Process.put({__MODULE__, :trusted_seed}, trusted_sigra_seed?)
 
     {:ok,
      %{
@@ -1176,8 +1229,114 @@ defmodule Sigra.Test.InstallFixture do
   defp compile_variant!(variant_path) do
     {output, status} = System.cmd("mix", ["compile"], command_options(variant_path))
     if status != 0, do: raise("prepared fixture variant compile failed:\n#{output}")
+    if output =~ ~r/\bwarning:/i, do: raise("prepared fixture variant compile warned:\n#{output}")
     :ok
   end
+
+  defp compile_installed_variants!(variants, variant_compiler, false) do
+    parallel_map!(variants, &run_variant_compile!(&1, variant_compiler))
+    :ok
+  end
+
+  defp compile_installed_variants!(variants, variant_compiler, true) do
+    variants
+    |> Enum.reduce([], fn variant, groups ->
+      case Enum.find_index(groups, &(hd(&1).compile_digest == variant.compile_digest)) do
+        nil -> groups ++ [[variant]]
+        index -> List.update_at(groups, index, &(&1 ++ [variant]))
+      end
+    end)
+    |> Enum.reduce(nil, fn [representative | equivalents], previous ->
+      if previous do
+        safe_remove_graph_member!(representative.installer_build_path)
+
+        {_mode, _elapsed_ms} =
+          copy_private_build!(previous.installer_build_path, representative.installer_build_path)
+
+        make_tree_writable!(representative.installer_build_path)
+
+        unless relocate_incremental_compile_manifest!(
+                 representative.installer_build_path,
+                 previous.copied.path,
+                 representative.copied.path
+               ) == :relocated do
+          safe_remove_graph_member!(representative.installer_build_path)
+
+          {_mode, _elapsed_ms} =
+            copy_private_build!(
+              graph_build_template_path(representative.copied.path),
+              representative.installer_build_path
+            )
+
+          make_tree_writable!(representative.installer_build_path)
+        end
+      end
+
+      :ok = run_variant_compile!(representative, variant_compiler)
+
+      Enum.each(equivalents, fn equivalent ->
+        source = representative.installer_build_path
+        target = equivalent.installer_build_path
+        safe_remove_graph_member!(target)
+        {_mode, _elapsed_ms} = copy_private_build!(source, target)
+        make_tree_writable!(target)
+
+        unless relocate_compile_manifest!(
+                 target,
+                 representative.copied.path,
+                 equivalent.copied.path
+               ) == :relocated do
+          :ok = run_variant_compile!(equivalent, variant_compiler)
+        end
+      end)
+
+      representative
+    end)
+
+    :ok
+  end
+
+  defp copy_private_build!(source, target) do
+    result = copy_tree!(source, target)
+
+    if tree_contains_symlink_or_hardlink?(target) or
+         not MapSet.disjoint?(inode_index(source), inode_index(target)) do
+      safe_remove_graph_member!(target)
+      raise "prepared fixture reused build is linked or shares filesystem identity"
+    end
+
+    result
+  end
+
+  defp run_variant_compile!(variant, variant_compiler) do
+    Process.put({__MODULE__, :installer_build_path}, variant.installer_build_path)
+
+    try do
+      variant_compiler.(variant.copied.path)
+    after
+      Process.delete({__MODULE__, :installer_build_path})
+    end
+  end
+
+  defp compile_relevant_digest(path) do
+    files =
+      [Path.join(path, "mix.exs"), Path.join(path, "mix.lock")] ++
+        Path.wildcard(Path.join(path, "config/**/*")) ++
+        Path.wildcard(Path.join(path, "lib/**/*"))
+
+    digest =
+      files
+      |> Enum.filter(&File.regular?/1)
+      |> Enum.sort()
+      |> Enum.map(fn file -> [Path.relative_to(file, path), <<0>>, File.read!(file), <<0>>] end)
+      |> then(&:crypto.hash(:sha256, &1))
+      |> Base.encode16(case: :lower)
+
+    digest
+  end
+
+  @doc false
+  def compile_relevant_digest_for_test(path), do: compile_relevant_digest(path)
 
   defp seal_variant_build_template!(nil), do: nil
 
@@ -1242,6 +1401,7 @@ defmodule Sigra.Test.InstallFixture do
       case seed_compatible_tree!(source, target, expected, actual) do
         {:ok, _mode, _elapsed_ms} ->
           prune_incompatible_seed!(target, Path.join(base_path, "mix.lock"), base_path)
+          prune_incomplete_seed_apps!(target)
 
           materialize_dependency_priv!(
             target,
@@ -1266,6 +1426,34 @@ defmodule Sigra.Test.InstallFixture do
       current_sigra_sources_match_manifest?(source_manifest) and
       manifest_modules_present?(source_manifest, copied_build, "sigra")
   end
+
+  defp prune_incomplete_seed_apps!(build_path) do
+    build_path
+    |> Path.join("lib/*")
+    |> Path.wildcard()
+    |> Enum.each(fn app_path ->
+      app = Path.basename(app_path)
+      app_file = Path.join([app_path, "ebin", "#{app}.app"])
+
+      complete? =
+        with true <- File.regular?(app_file),
+             {:ok, [{:application, _name, properties}]} <-
+               :file.consult(String.to_charlist(app_file)),
+             modules when is_list(modules) <- Keyword.get(properties, :modules) do
+          Enum.all?(modules, fn module ->
+            File.regular?(Path.join([app_path, "ebin", "#{module}.beam"]))
+          end)
+        else
+          _ -> false
+        end
+
+      unless complete?, do: safe_remove_graph_member!(app_path)
+    end)
+  end
+
+  @doc false
+  def prune_incomplete_seed_apps_for_test!(build_path),
+    do: prune_incomplete_seed_apps!(build_path)
 
   defp manifest_modules_present?(manifest, build_path, app) do
     {modules, _sources} = Mix.Compilers.Elixir.read_manifest(manifest)
@@ -1307,6 +1495,16 @@ defmodule Sigra.Test.InstallFixture do
 
   def configure_seeded_path_dep_for_test!(_app_dir, false), do: :fallback
 
+  defp compile_baseline!(true, _compiler), do: :trusted
+
+  defp compile_baseline!(false, compiler) do
+    :ok = compiler.()
+    :compiled
+  end
+
+  @doc false
+  def compile_baseline_for_test!(trusted?, compiler), do: compile_baseline!(trusted?, compiler)
+
   @doc false
   def relocate_compile_manifest!(build_path, old_root, new_root) do
     old_root = canonical_directory!(old_root)
@@ -1330,6 +1528,43 @@ defmodule Sigra.Test.InstallFixture do
     end
   rescue
     _ -> :fallback
+  end
+
+  defp relocate_incremental_compile_manifest!(build_path, old_root, new_root) do
+    old_root = canonical_directory!(old_root)
+    new_root = canonical_directory!(new_root)
+
+    with {:ok, app} <- project_app(new_root),
+         manifest <- Path.join([build_path, "lib", app, ".mix", "compile.elixir"]),
+         {:ok, bytes} <- File.read(manifest),
+         term <- :erlang.binary_to_term(bytes),
+         true <- is_tuple(term) and tuple_size(term) == 11 and elem(term, 0) == 29,
+         {_modules, sources} <- Mix.Compilers.Elixir.read_manifest(manifest),
+         true <- manifest_sources_match_root?(sources, old_root),
+         {rewritten, count} <- rewrite_exact_term(term, old_root, new_root, 0),
+         true <- count > 0 do
+      temp = "#{manifest}.relocate-#{System.unique_integer([:positive])}"
+      File.write!(temp, :erlang.term_to_binary(rewritten, compressed: 9))
+      File.rename!(temp, manifest)
+      :relocated
+    else
+      _ -> :fallback
+    end
+  rescue
+    _ -> :fallback
+  end
+
+  defp manifest_sources_match_root?(sources, root) do
+    MapSet.new(Map.keys(sources)) == source_set(root) and
+      Enum.all?(sources, fn {relative, source_entry} ->
+        with {:source, size, mtime} <-
+               source_entry |> Tuple.to_list() |> Enum.take(3) |> List.to_tuple(),
+             {:ok, stat} <- File.stat(Path.join(root, relative), time: :posix) do
+          stat.size == size and stat.mtime == mtime
+        else
+          _ -> false
+        end
+      end)
   end
 
   defp project_app(root) do
@@ -1512,6 +1747,40 @@ defmodule Sigra.Test.InstallFixture do
     prepare_variant_assets!(name, variant_path)
     run_sigra_install(variant_path, Map.fetch!(@variant_flags, name))
   end
+
+  defp build_variant_without_host_compile!(name, variant_path) do
+    prepare_variant_assets!(name, variant_path)
+    args = installer_no_compile_command(name)
+
+    command_fun = fn -> System.cmd("mix", args, command_options(variant_path)) end
+    {output, status} = with_worker(command_fun)
+
+    if status != 0 do
+      raise "mix sigra.install no-compile entrypoint failed in #{variant_path}:\n#{output}"
+    end
+
+    {:ok, strip_unavailable_optional_app_warning(output)}
+  end
+
+  defp strip_unavailable_optional_app_warning(output) do
+    Regex.replace(
+      ~r/\AYou have configured application :phoenix_live_view in your configuration file,\n.*?Please ensure :phoenix_live_view exists or remove the configuration\.\n\n/s,
+      output,
+      "",
+      global: false
+    )
+  end
+
+  defp installer_no_compile_command(name) do
+    install_args =
+      ["Accounts", "User", "users"] ++ Map.fetch!(@variant_flags, name) ++ ["--yes"]
+
+    expression = "Mix.Tasks.Sigra.Install.run(#{inspect(install_args)})"
+    ["run", "--no-start", "--no-compile", "-e", expression]
+  end
+
+  @doc false
+  def installer_no_compile_command_for_test(name), do: installer_no_compile_command(name)
 
   defp prepare_variant_assets!(:passkeys_standard, path) do
     write_asset_file(path, "js/app.js", @standard_app_js)
@@ -1883,7 +2152,25 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   defp make_tree_writable!(root) do
-    if File.exists?(root), do: chmod_tree!(root, "u+w")
+    if File.exists?(root) do
+      remove_inherited_acl!(root)
+      chmod_tree!(root, "u+w")
+    end
+  end
+
+  defp remove_inherited_acl!(root) do
+    if :os.type() == {:unix, :darwin} do
+      case System.cmd(
+             "find",
+             [root, "-type", "d", "-exec", "chmod", "-N", "{}", "+"],
+             stderr_to_stdout: true
+           ) do
+        {_output, 0} -> :ok
+        {output, status} -> raise "fixture ACL removal failed (status #{status}): #{output}"
+      end
+    else
+      :ok
+    end
   end
 
   defp chmod_tree!(root, mode) do

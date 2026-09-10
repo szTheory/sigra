@@ -151,7 +151,7 @@ defmodule Sigra.MixProject do
         "deps.get --check-locked",
         "deps.unlock --check-unused",
         "compile --warnings-as-errors",
-        "cmd bash scripts/ci/library-economics.sh",
+        "cmd bash scripts/ci/library-partitions.sh",
         "sigra.dep_off"
       ],
       "ci.audit_45": [

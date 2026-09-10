@@ -391,6 +391,22 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     refute File.exists?(Path.join([build, "lib", "sigra"]))
   end
 
+  test "incomplete seeded applications are invalidated before trusted reuse", %{root: root} do
+    build = Path.join(root, "incomplete-app-build")
+    app_path = Path.join([build, "lib", "parser_dep"])
+    ebin = Path.join(app_path, "ebin")
+    File.mkdir_p!(ebin)
+
+    File.write!(
+      Path.join(ebin, "parser_dep.app"),
+      ~c"{application,parser_dep,[{modules,['Elixir.ParserDep',parser_dep_generated]}]}.\n"
+    )
+
+    File.write!(Path.join(ebin, "Elixir.ParserDep.beam"), "present")
+    InstallFixture.prune_incomplete_seed_apps_for_test!(build)
+    refute File.exists?(app_path)
+  end
+
   test "Sigra dependency compile bypass is conditional on a trusted current seed", %{root: root} do
     app = Path.join(root, "seed-policy-app")
     File.mkdir_p!(app)
@@ -412,6 +428,51 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
     File.mkdir_p!(copied_build)
 
     refute InstallFixture.trusted_sigra_seed_for_test?(missing_build, copied_build)
+  end
+
+  test "trusted seed skips baseline host compile and uses the exact no-compile installer task" do
+    compiler = fn ->
+      send(self(), :compiled)
+      :ok
+    end
+
+    assert :trusted = InstallFixture.compile_baseline_for_test!(true, compiler)
+    refute_received :compiled
+    assert :compiled = InstallFixture.compile_baseline_for_test!(false, compiler)
+    assert_received :compiled
+
+    assert ["run", "--no-start", "--no-compile", "-e", expression] =
+             InstallFixture.installer_no_compile_command_for_test(:no_org_no_passkeys)
+
+    assert expression ==
+             "Mix.Tasks.Sigra.Install.run([\"Accounts\", \"User\", \"users\", \"--no-organizations\", \"--no-passkeys\", \"--yes\"])"
+  end
+
+  test "compile-state reuse requires identical compile-relevant source bytes", %{root: root} do
+    first = Path.join(root, "digest-first")
+    second = Path.join(root, "digest-second")
+
+    for path <- [first, second] do
+      File.mkdir_p!(Path.join(path, "lib"))
+      File.mkdir_p!(Path.join(path, "assets"))
+      File.write!(Path.join(path, "mix.exs"), "def project, do: [app: :host]\n")
+      File.write!(Path.join(path, "mix.lock"), "%{}\n")
+      File.write!(Path.join(path, "lib/host.ex"), "defmodule Host do\nend\n")
+    end
+
+    File.write!(Path.join(first, "assets/app.js"), "standard")
+    File.write!(Path.join(second, "assets/app.js"), "nonstandard")
+
+    assert InstallFixture.compile_relevant_digest_for_test(first) ==
+             InstallFixture.compile_relevant_digest_for_test(second)
+
+    File.write!(
+      Path.join(second, "lib/host.ex"),
+      "defmodule Host do\ndef changed, do: true\nend\n"
+    )
+
+    refute InstallFixture.compile_relevant_digest_for_test(first) ==
+             InstallFixture.compile_relevant_digest_for_test(second)
   end
 
   test "copies materialize valid links and omit dangling generated build links", %{root: root} do
@@ -493,7 +554,7 @@ defmodule Sigra.Test.InstallFixturePerformanceTest do
       case Process.get(:cleanup_attempt, 0) do
         0 ->
           Process.put(:cleanup_attempt, 1)
-          {:error, nested, :eexist}
+          {:error, :eexist, nested}
 
         _ ->
           File.rm_rf(path)

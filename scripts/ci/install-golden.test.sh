@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNNER="${SCRIPT_DIR}/install-golden.sh"
+RECEIPT="/tmp/sigra-library-install-golden.json"
 
 PASS=0
 FAIL=0
@@ -20,6 +21,7 @@ cleanup() {
     printf 'install-golden.test: refusing unsafe cleanup: %s\n' "$TMP_ROOT" >&2
   fi
   rm -f "/tmp/sigra-install-golden-diagnostics.json"
+  rm -f "$RECEIPT"
 }
 trap cleanup EXIT
 
@@ -55,6 +57,7 @@ EXPECTED='test test/sigra/install/features/passkeys_js_test.exs test/sigra/insta
 run_runner() {
   : >"$CALLS"
   rm -f "$DIAGNOSTIC"
+  rm -f "$RECEIPT"
   set +e
   RUNNER_OUTPUT="$(PATH="${STUB_BIN}:${PATH}" SIGRA_TEST_CALLS="$CALLS" "$@" bash "$RUNNER" 2>&1)"
   RUNNER_RC=$?
@@ -68,6 +71,29 @@ if [[ "$RUNNER_RC" -eq 0 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]] \
   pass "fixed receiver universe executes exactly once in prepared mode"
 else
   fail "fixed invocation rc=${RUNNER_RC}, calls=$(tr '\n' ';' <"$CALLS"), output=${RUNNER_OUTPUT}"
+fi
+
+echo "Test A2: successful child publishes the exact atomic receipt"
+if jq -e '
+  (keys | sort) == (["conclusion", "diagnostic_path", "duration_ms", "end_ms", "exit_status", "prepared_fixture", "receiver_paths", "schema_version", "start_ms", "worker_ceiling"] | sort) and
+  .schema_version == "sigra.library-install-golden/v1" and
+  .receiver_paths == [
+    "test/sigra/install/features/passkeys_js_test.exs",
+    "test/sigra/install/generator_passkeys_opt_out_test.exs",
+    "test/sigra/install/golden_diff_test.exs",
+    "test/sigra/install/idempotency_test.exs",
+    "test/sigra/install/vault_promotion_test.exs",
+    "test/upgrade_test.exs"
+  ] and
+  .start_ms >= 0 and .end_ms > .start_ms and
+  .duration_ms == (.end_ms - .start_ms) and
+  .exit_status == 0 and .conclusion == "success" and
+  .worker_ceiling == 2 and .prepared_fixture == true and
+  .diagnostic_path == "/tmp/sigra-install-golden-diagnostics.json"
+' "$RECEIPT" >/dev/null 2>&1 && [[ ! -L "$RECEIPT" ]]; then
+  pass "successful receipt has the exact raw schema and outcome"
+else
+  fail "successful receipt missing or malformed"
 fi
 
 if jq -e '
@@ -88,6 +114,15 @@ if [[ "$RUNNER_RC" -eq 37 ]] && [[ "$(wc -l <"$CALLS" | tr -d ' ')" == "1" ]]; t
   pass "child status 37 is preserved"
 else
   fail "child status rc=${RUNNER_RC}, output=${RUNNER_OUTPUT}"
+fi
+
+if jq -e '
+  .exit_status == 37 and .conclusion == "failure" and
+  .duration_ms == (.end_ms - .start_ms) and .duration_ms > 0
+' "$RECEIPT" >/dev/null 2>&1; then
+  pass "failed child still publishes raw failure evidence"
+else
+  fail "failed child did not publish a failure receipt"
 fi
 
 echo "Test C: signal failure is not converted to green"

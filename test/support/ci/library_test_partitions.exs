@@ -12,11 +12,35 @@ defmodule Sigra.CI.LibraryTestPartitions do
                     "test/sigra/install/vault_promotion_test.exs"
                   ])
 
+  @timing_paths %{
+    1 => "/tmp/sigra-library-1-timings.json",
+    2 => "/tmp/sigra-library-2-timings.json"
+  }
+
   # Retry-free pull-request probe 30666977944. Candidates are ordered by
   # descending measured microseconds/path; lower cumulative cost wins, with
   # partition 1 winning exact ties. The exported lists are lexical for review.
   @spec source_run_id() :: pos_integer()
   def source_run_id, do: @source_run_id
+
+  @spec scaffold_paths() :: [String.t()]
+  def scaffold_paths, do: @scaffold_paths |> Enum.sort()
+
+  @spec timing_path(String.t() | pos_integer()) :: String.t()
+  def timing_path(value) when value in [1, "1"], do: @timing_paths[1]
+  def timing_path(value) when value in [2, "2"], do: @timing_paths[2]
+
+  def timing_path(value),
+    do: raise(ArgumentError, "unknown library test partition: #{inspect(value)}")
+
+  @spec manifest_sha256([String.t()]) :: String.t()
+  def manifest_sha256(paths) when is_list(paths) do
+    paths
+    |> Enum.join("\n")
+    |> Kernel.<>("\n")
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+  end
 
   @spec partition(String.t() | pos_integer()) :: [String.t()]
   def partition(value) when value in [1, "1"], do: build_partitions!()[1].paths
@@ -37,6 +61,17 @@ defmodule Sigra.CI.LibraryTestPartitions do
              is_binary(cost["path"]) and is_integer(cost["time_us"]) and cost["time_us"] >= 0
            end) do
       raise ArgumentError, "partition assignment requires non-negative measured cost and path"
+    end
+
+    duplicate_paths =
+      costs
+      |> Enum.frequencies_by(& &1["path"])
+      |> Enum.filter(fn {_path, count} -> count > 1 end)
+      |> Enum.map(&elem(&1, 0))
+
+    if duplicate_paths != [] do
+      raise ArgumentError,
+            "duplicate measured paths are forbidden: #{Enum.join(Enum.sort(duplicate_paths), ", ")}"
     end
 
     costs
@@ -70,26 +105,69 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
   @spec build_partitions!(keyword()) :: %{1 => map(), 2 => map()}
   def build_partitions!(opts \\ []) do
+    ordinary_paths =
+      Keyword.get_lazy(opts, :ordinary_paths, fn -> current_ordinary_paths!(opts) end)
+
+    ordinary_set = MapSet.new(ordinary_paths)
+    supplied_costs? = Keyword.has_key?(opts, :costs)
+    raw_costs = Keyword.get_lazy(opts, :costs, &measured_costs/0)
+
+    duplicate_paths =
+      raw_costs
+      |> Enum.frequencies_by(& &1["path"])
+      |> Enum.filter(fn {_path, count} -> count > 1 end)
+      |> Enum.map(&elem(&1, 0))
+
+    if duplicate_paths != [],
+      do: raise(ArgumentError, "duplicate measured paths: #{format_paths(duplicate_paths)}")
+
+    scaffold_leaks = Enum.filter(raw_costs, &MapSet.member?(@scaffold_paths, &1["path"]))
+
+    if supplied_costs? and scaffold_leaks != [],
+      do:
+        raise(
+          ArgumentError,
+          "scaffold paths must not be measured: #{format_paths(Enum.map(scaffold_leaks, & &1["path"]))}"
+        )
+
+    ordinary_costs = Enum.reject(raw_costs, &MapSet.member?(@scaffold_paths, &1["path"]))
+    cost_paths = MapSet.new(ordinary_costs, & &1["path"])
+    stale_paths = MapSet.difference(cost_paths, ordinary_set)
+    missing_paths = MapSet.difference(ordinary_set, cost_paths)
+
+    if MapSet.size(stale_paths) > 0,
+      do: raise(ArgumentError, "stale manifest paths: #{format_paths(stale_paths)}")
+
+    if supplied_costs? and MapSet.size(missing_paths) > 0,
+      do: raise(ArgumentError, "missing current paths: #{format_paths(missing_paths)}")
+
     costs =
-      opts
-      |> Keyword.get_lazy(:costs, &measured_costs/0)
-      |> Enum.reject(&MapSet.member?(@scaffold_paths, &1["path"]))
-      |> Enum.sort_by(&{-&1["time_us"], &1["path"]})
+      ordinary_costs ++ Enum.map(missing_paths, &%{"path" => &1, "time_us" => 0})
 
     partitions = assign!(costs)
-    validate_current_universe!(partitions, opts)
+    validate_current_universe!(partitions, Keyword.put(opts, :ordinary_paths, ordinary_paths))
     partitions
   end
 
   @spec current_ordinary_paths!(keyword()) :: [String.t()]
   def current_ordinary_paths!(opts \\ []) do
+    case Keyword.fetch(opts, :ordinary_paths) do
+      {:ok, paths} -> Enum.sort(paths)
+      :error -> discover_current_ordinary_paths!(opts)
+    end
+  end
+
+  defp discover_current_ordinary_paths!(opts) do
     root = Keyword.get(opts, :root, File.cwd!())
 
+    {tracked_paths, 0} =
+      System.cmd("git", ["-C", root, "ls-files", "--", "test/**/*_test.exs", "test/*_test.exs"],
+        stderr_to_stdout: true
+      )
+
     eligible_paths =
-      root
-      |> Path.join("test/**/*_test.exs")
-      |> Path.wildcard()
-      |> Enum.map(&repository_path(root, &1))
+      tracked_paths
+      |> String.split("\n", trim: true)
       |> Enum.filter(&matches_load_filters?/1)
       |> Enum.sort()
 
@@ -145,12 +223,6 @@ defmodule Sigra.CI.LibraryTestPartitions do
       filter when is_function(filter, 1) -> filter.(path)
       filter when is_binary(filter) -> filter == path
     end)
-  end
-
-  defp repository_path(root, path) do
-    path
-    |> Path.relative_to(root)
-    |> String.replace("\\\\", "/")
   end
 
   defp format_paths(paths) do
