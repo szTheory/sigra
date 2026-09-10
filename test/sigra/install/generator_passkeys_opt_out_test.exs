@@ -32,9 +32,9 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
   setup_all do
     scenarios =
-      Enum.map(@cases, fn %{label: label, variant: variant} ->
-        InstallFixture.checkout!(variant, "opt-out-#{label}")
-      end)
+      @cases
+      |> Enum.map(fn %{label: label, variant: variant} -> {variant, "opt-out-#{label}"} end)
+      |> prepare_checkouts!()
 
     assert {:ok, results} =
              InstallFixture.run_scenarios(scenarios, fn checkout ->
@@ -113,6 +113,21 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     |> Path.join("priv/repo/migrations/#{pattern}")
     |> Path.wildcard()
     |> Enum.any?()
+  end
+
+  defp prepare_checkouts!(specs) do
+    specs
+    |> Task.async_stream(
+      fn {variant, scenario} -> InstallFixture.checkout!(variant, scenario) end,
+      max_concurrency: 2,
+      ordered: true,
+      timeout: 120_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn
+      {:ok, checkout} -> checkout
+      {:exit, reason} -> flunk("private opt-out checkout preparation failed: #{inspect(reason)}")
+    end)
   end
 
   defp tree_contains?(app_dir, needle) do

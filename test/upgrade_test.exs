@@ -37,14 +37,12 @@ defmodule Sigra.UpgradeIntegrationTest do
   describe "isolated prepared upgrade scenarios" do
     @tag :tmp_dir
     test "zero-org, backfill-off, and backfill-on retain their complete behavior" do
-      scenarios = [
-        InstallFixture.checkout!(:no_org_installed, "upgrade-zero-org")
-        |> Map.put(:kind, :zero_org),
-        InstallFixture.checkout!(:default_installed, "upgrade-backfill-off")
-        |> Map.put(:kind, :backfill_off),
-        InstallFixture.checkout!(:default_installed, "upgrade-backfill-on")
-        |> Map.put(:kind, :backfill_on)
-      ]
+      scenarios =
+        prepare_checkouts!([
+          {:no_org_installed, "upgrade-zero-org", :zero_org},
+          {:default_installed, "upgrade-backfill-off", :backfill_off},
+          {:default_installed, "upgrade-backfill-on", :backfill_on}
+        ])
 
       assert {:ok, results} =
                InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)
@@ -196,6 +194,25 @@ defmodule Sigra.UpgradeIntegrationTest do
   end
 
   # ── Helpers ─────────────────────────────────────────────────────
+
+  defp prepare_checkouts!(specs) do
+    specs
+    |> Task.async_stream(
+      fn {variant, scenario, kind} ->
+        variant
+        |> InstallFixture.checkout!(scenario)
+        |> Map.put(:kind, kind)
+      end,
+      max_concurrency: 2,
+      ordered: true,
+      timeout: 120_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn
+      {:ok, checkout} -> checkout
+      {:exit, reason} -> flunk("private upgrade checkout preparation failed: #{inspect(reason)}")
+    end)
+  end
 
   # Seeds `n` users into the tmp app's DB via `mix run -e`.
   defp seed_users!(app_dir, n) do

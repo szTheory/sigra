@@ -137,7 +137,11 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert opt_out =~ "variant: :no_passkeys"
     assert opt_out =~ "variant: :no_org_no_passkeys"
     assert opt_out =~ "InstallFixture.run_scenarios(scenarios"
-    assert opt_out =~ ~S|InstallFixture.checkout!(variant, "opt-out-#{label}")|
+    assert opt_out =~ "prepare_checkouts!()"
+    assert opt_out =~ "InstallFixture.checkout!(variant, scenario)"
+    assert opt_out =~ "max_concurrency: 2"
+    assert opt_out =~ "timeout: 120_000"
+    assert opt_out =~ "on_timeout: :kill_task"
     assert opt_out =~ "\"compile\""
     assert opt_out =~ "\"--warnings-as-errors\""
     refute opt_out =~ "InstallFixture.setup_tmp_app_without_install"
@@ -206,7 +210,11 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       "count_personal_orgs!",
       "expected re-run to be a no-op",
       "status_codes_seen",
-      "MIX_DEPS_PATH"
+      "MIX_DEPS_PATH",
+      "prepare_checkouts!([",
+      "max_concurrency: 2",
+      "timeout: 120_000",
+      "on_timeout: :kill_task"
     ])
 
     assert_contains_all!(sources.passkeys, [
