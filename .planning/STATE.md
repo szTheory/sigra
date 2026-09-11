@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Blocked 235.1-25 at sole timed self-test before local pair 1
-last_updated: "2026-09-10T23:54:37.526Z"
+stopped_at: Blocked 235.1-26 at sole timed self-test before local pair 1
+last_updated: "2026-09-11T00:10:04.633Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 820ef36f0d0641870d87cbeabf44923f2f5ed7f6
+state_head: 105498a76a0cd05d24451ea8f87cc60a1778e2b8
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 92
-  completed_plans: 87
+  total_plans: 93
+  completed_plans: 88
   percent: 86
 ---
 
@@ -472,6 +472,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
 - Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
 - Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
+- Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
 
 ### Roadmap Evolution
 
@@ -659,8 +660,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-10T23:54:37.168Z
-Stopped at: Blocked 235.1-25 at sole timed self-test before local pair 1
+Last session: 2026-09-11T00:10:04.328Z
+Stopped at: Blocked 235.1-26 at sole timed self-test before local pair 1
 Resume file: None
 
 ## Operator Next Steps
