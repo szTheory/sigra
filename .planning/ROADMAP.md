@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 21 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 22 retained failed/blocked plans, and 3 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -654,10 +654,18 @@ Plans:
 
 - [x] 235.1-32-PLAN.md — Candidate `63910813` retained; pair 1 passed at 1.8208×, then QueryIndexTest setup timed out in pair 2 with zero GitHub action
 
-**Wave 30** *(active; classified recovery after Plan 32)*
+**Blocked local recovery history** *(database timeout classified transient; one fresh pair passed before an async telemetry identity race stopped pair 2/GitHub)*
 
-- [x] 235.1-33-PLAN.md — Classify the PostgreSQL setup timeout once, then permit one fresh recovery series only when transient
+- [x] 235.1-33-PLAN.md — Candidate `63910813` retained; pair 1 passed at 1.516×, then AuthTest consumed a concurrent user-1 event in pair 2
 
-**Wave 31** *(blocked on Plan 33)*
+**Wave 31** *(active; deterministic test-isolation repair after Plan 33)*
+
+- [ ] 235.1-34-PLAN.md — Filter login telemetry by exact identity and freeze the one-file ordinary-source successor
+
+**Wave 32** *(blocked on Plan 34)*
+
+- [ ] 235.1-35-PLAN.md — Collect three new source-bound triples, rebuild calibration/pins, validate locally, and capture strict live evidence
+
+**Wave 33** *(blocked on Plan 35)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
