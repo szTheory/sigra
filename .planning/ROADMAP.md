@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 33 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 34 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -706,10 +706,14 @@ Plans:
 
 - [x] 235.1-45-PLAN.md — Native fixture and protected snapshot retained; one-line collector parser failed closed
 
-**Wave 43** *(active; authenticate exact transaction framing under fresh one-shot markers, then resume bounded local/live evidence)*
+**Failed parser-precedence history** *(the sole Plan 46 fixture wrapper proved RED, then stopped at `multiple_sentinel`: parser returned framing before sentinel classification; zero dry run, admission, timing, or GitHub)*
 
-- [ ] 235.1-46-PLAN.md — Repair exact real-psql framing without changing SQL, candidate, calibration, or protected authority
+- [x] 235.1-46-PLAN.md — Exact real-psql framing parser retained; first semantic precedence mismatch stopped the route
 
-**Wave 44** *(blocked on Plan 46; documentation reconciliation only)*
+**Wave 44** *(active; prove corrected parser precedence without spending the wrapper, then resume bounded local/live evidence)*
+
+- [ ] 235.1-47-PLAN.md — Marker-free parser preflight followed by one fresh dry-run/admission/timing/live route
+
+**Wave 45** *(blocked on Plan 47; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
