@@ -9,19 +9,32 @@ CALIBRATION="$PHASE_DIR/235.1-PARTITION-CALIBRATION.json"
 MANIFEST="$PHASE_DIR/235.1-PARTITION-CALIBRATION-MANIFEST.json"
 
 fail() { printf 'library-partitions-portability.test: FAIL: %s\n' "$*" >&2; exit 1; }
-digest() {
-  if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum "$1" | awk '{print $1}'
-  else
-    shasum -a 256 "$1" | awk '{print $1}'
-  fi
-}
 
-# The production runner must remain valid for the system Bash shipped by macOS.
-if [[ "$(uname -s)" == "Darwin" ]]; then
-  [[ "$(/bin/bash -c 'printf %s "${BASH_VERSINFO[0]}"')" == "3" ]] ||
-    fail "macOS /bin/bash must exercise Bash 3"
+system_bash=/bin/bash
+[[ -x "$system_bash" ]] || fail "/bin/bash is unavailable"
+system_major="$($system_bash -c 'printf %s "${BASH_VERSINFO[0]}"')"
+if [[ "$(uname -s)" == "Darwin" && "$system_major" != "3" ]]; then
+  fail "macOS /bin/bash must exercise Bash 3"
 fi
+
+modern_bash=""
+for candidate in /opt/homebrew/bin/bash /usr/local/bin/bash /opt/local/bin/bash; do
+  if [[ -x "$candidate" ]] && [[ "$($candidate -c 'printf %s "${BASH_VERSINFO[0]}"')" -ge 5 ]]; then
+    modern_bash="$candidate"
+    break
+  fi
+done
+if [[ -z "$modern_bash" ]]; then
+  candidate="$(command -v bash || true)"
+  if [[ -n "$candidate" && -x "$candidate" ]] && [[ "$($candidate -c 'printf %s "${BASH_VERSINFO[0]}"')" -ge 5 ]]; then
+    modern_bash="$candidate"
+  fi
+fi
+[[ -n "$modern_bash" ]] || fail "a Bash 5-or-newer test runtime is required"
+modern_major="$($modern_bash -c 'printf %s "${BASH_VERSINFO[0]}"')"
+[[ "$modern_bash" != "$system_bash" && "$modern_major" != "$system_major" ]] ||
+  fail "system and modern Bash runtimes must be distinct"
+
 grep -Fq 'System.cmd("git", ["-C", root, "ls-files", "-z"' "$ORACLE" ||
   fail "ordinary discovery is not NUL-safe git ls-files -z"
 grep -Fq 'mix test "${paths[@]}"' "$RUNNER" || fail "partition argv is not quoted"
@@ -30,8 +43,9 @@ test_root="$(mktemp -d "${TMPDIR:-/tmp}/sigra-library-portability.XXXXXX")"
 trap 'rm -rf "$test_root"' EXIT
 mkdir -p "$test_root/bin"
 
-# The fake child records every argument with a NUL terminator. Its oracle paths
-# deliberately contain shell metacharacters that would expand if quoting drifted.
+# The fake child records exact argv with NUL terminators. The oracle includes
+# spaces and glob metacharacters and writes one absolute timing path so that the
+# production normalization path is exercised rather than approximated here.
 printf '%s\n' \
   '#!/bin/bash' \
   'set -eu' \
@@ -48,7 +62,7 @@ printf '%s\n' \
   '  printf "%s\\0" "$@" >>"${ARGV_LOG:?}"' \
   '  printf "%s\\n" "$partition" >>"${ORDER_LOG:?}"' \
   '  case "$partition" in' \
-  '    1) files='"'"'["test/a space_test.exs","test/literal[abc]*_test.exs"]'"'"' ;;' \
+  '    1) files="[\"${REPO_ROOT:?}/test/a space_test.exs\",\"test/literal[abc]*_test.exs\"]" ;;' \
   '    2) files='"'"'["test/z final_test.exs"]'"'"' ;;' \
   '    *) exit 91 ;;' \
   '  esac' \
@@ -58,52 +72,92 @@ printf '%s\n' \
   'exit 99' >"$test_root/bin/mix"
 chmod +x "$test_root/bin/mix"
 
-argv_log="$test_root/argv.bin"
-order_log="$test_root/order.txt"
-PATH="$test_root/bin:$PATH" ARGV_LOG="$argv_log" ORDER_LOG="$order_log" /bin/bash "$RUNNER"
+run_nonempty() {
+  local label="$1" shell="$2" case_root="$test_root/$1-nonempty" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  set +e
+  PATH="$test_root/bin:$PATH" REPO_ROOT="$ROOT" ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  if [[ "$status" != 0 ]]; then
+    if grep -Fq 'paths: unbound variable' "$case_root/stderr"; then
+      fail "$label production loader hit paths: unbound variable"
+    fi
+    sed -n '1,20p' "$case_root/stderr" >&2
+    fail "$label production loader failed with status $status"
+  fi
+  cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+  cp /tmp/sigra-library-1-timings.json "$case_root/timing-1.json"
+  cp /tmp/sigra-library-2-timings.json "$case_root/timing-2.json"
+}
+
+run_empty() {
+  local label="$1" shell="$2" case_root="$test_root/$1-empty" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  set +e
+  PATH="$test_root/bin:$PATH" REPO_ROOT="$ROOT" ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" EMPTY_PARTITION=1 \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  [[ "$status" != 0 ]] || fail "$label accepted an empty partition"
+  [[ "$(cat "$case_root/stderr")" == 'library-partitions: FAIL: partition 1 is empty' ]] ||
+    fail "$label empty-partition diagnostic differed"
+  ! grep -Eqi 'unbound variable|nounset' "$case_root/stderr" ||
+    fail "$label empty partition triggered a nounset diagnostic"
+  [[ ! -s "$case_root/argv.bin" && ! -s "$case_root/order.txt" ]] ||
+    fail "$label empty partition reached a child test process"
+  cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+}
+
+run_nonempty system "$system_bash"
+run_empty system "$system_bash"
+run_nonempty modern "$modern_bash"
+run_empty modern "$modern_bash"
+
+python3 - "$ROOT" "$test_root" <<'PY'
+import hashlib,json,os,sys
+root,test_root=sys.argv[1:]
+expected_argv=[
+ b"test",b"test/a space_test.exs",b"test/literal[abc]*_test.exs",b"--formatter",b"ExUnit.CLIFormatter",b"--formatter",b"Sigra.CI.ExUnitTimingFormatter",
+ b"test",b"test/z final_test.exs",b"--formatter",b"ExUnit.CLIFormatter",b"--formatter",b"Sigra.CI.ExUnitTimingFormatter",
+]
+expected_paths=[["test/a space_test.exs","test/literal[abc]*_test.exs"],["test/z final_test.exs"]]
+semantic=[]
+for label in ("system","modern"):
+ case=os.path.join(test_root,label+"-nonempty")
+ raw=open(os.path.join(case,"argv.bin"),"rb").read()
+ assert raw.endswith(b"\0") and raw[:-1].split(b"\0")==expected_argv
+ assert open(os.path.join(case,"order.txt"),encoding="utf-8").read()=="1\n2\n"
+ r=json.load(open(os.path.join(case,"receipt.json"),encoding="utf-8"))
+ assert set(r)=={"schema_version","execution_mode","ordinary_universe","partitions"}
+ assert r["schema_version"]=="sigra.library-partitions/v1" and r["execution_mode"]=="sequential"
+ assert r["ordinary_universe"]=={"paths":sorted(sum(expected_paths,[])),"count":3,"missing":[],"stale":[],"duplicate":[],"scaffold_leaks":[]}
+ assert [p["paths"] for p in r["partitions"]]==expected_paths
+ assert [p["conclusion"] for p in r["partitions"]]==["success","success"]
+ assert [p["exit_status"] for p in r["partitions"]]==[0,0]
+ for p,paths in zip(r["partitions"],expected_paths):
+  assert p["manifest_sha256"]==hashlib.sha256(("\n".join(paths)+"\n").encode()).hexdigest()
+  assert p["duration_ms"]==p["end_ms"]-p["start_ms"] and p["duration_ms"]>0
+  timing=json.load(open(os.path.join(case,"timing-%s.json"%p["id"]),encoding="utf-8"))
+  assert all(row["file"].startswith("test/") for row in timing["tests"])
+ semantic.append((r["ordinary_universe"],[{k:p[k] for k in ("id","paths","manifest_sha256","timing_receipt_path","conclusion","exit_status")} for p in r["partitions"]]))
+assert semantic[0]==semantic[1]
+for label in ("system","modern"):
+ r=json.load(open(os.path.join(test_root,label+"-empty","receipt.json"),encoding="utf-8"))
+ assert r["ordinary_universe"]["paths"]==["test/z final_test.exs"]
+ assert [p["conclusion"] for p in r["partitions"]]==["failure","not_run"]
+ assert [p["exit_status"] for p in r["partitions"]]==[1,0]
+PY
+
 if grep -Eq '(^|[^[:alnum:]_])(mapfile|readarray)([^[:alnum:]_]|$)' "$RUNNER"; then
   fail "runner contains a Bash-4-only manifest reader"
 fi
 
-python3 - "$argv_log" "$order_log" /tmp/sigra-library-partitions.json <<'PY'
-import hashlib,json,sys
-argv_path,order_path,receipt_path=sys.argv[1:]
-raw=open(argv_path,"rb").read()
-assert raw.endswith(b"\0")
-argv=raw[:-1].split(b"\0")
-expected=[
- b"test",b"test/a space_test.exs",b"test/literal[abc]*_test.exs",b"--formatter",b"ExUnit.CLIFormatter",b"--formatter",b"Sigra.CI.ExUnitTimingFormatter",
- b"test",b"test/z final_test.exs",b"--formatter",b"ExUnit.CLIFormatter",b"--formatter",b"Sigra.CI.ExUnitTimingFormatter",
-]
-assert argv==expected, (argv,expected)
-assert open(order_path,encoding="utf-8").read()=="1\n2\n"
-r=json.load(open(receipt_path,encoding="utf-8"))
-assert set(r)=={"schema_version","execution_mode","ordinary_universe","partitions"}
-assert r["schema_version"]=="sigra.library-partitions/v1" and r["execution_mode"]=="sequential"
-expected_paths=[["test/a space_test.exs","test/literal[abc]*_test.exs"],["test/z final_test.exs"]]
-assert r["ordinary_universe"]=={"paths":sorted(sum(expected_paths,[])),"count":3,"missing":[],"stale":[],"duplicate":[],"scaffold_leaks":[]}
-assert [p["paths"] for p in r["partitions"]]==expected_paths
-assert [p["conclusion"] for p in r["partitions"]]==["success","success"]
-assert [p["exit_status"] for p in r["partitions"]]==[0,0]
-for p,paths in zip(r["partitions"],expected_paths):
- data=("\n".join(paths)+"\n").encode()
- assert p["manifest_sha256"]==hashlib.sha256(data).hexdigest()
- assert p["duration_ms"]==p["end_ms"]-p["start_ms"] and p["duration_ms"]>0
-PY
-
-: >"$argv_log"
-: >"$order_log"
-set +e
-PATH="$test_root/bin:$PATH" ARGV_LOG="$argv_log" ORDER_LOG="$order_log" EMPTY_PARTITION=1 \
-  /bin/bash "$RUNNER" >"$test_root/empty.stdout" 2>"$test_root/empty.stderr"
-empty_status=$?
-set -e
-[[ "$empty_status" != 0 ]] || fail "empty partition was accepted"
-grep -Fq 'partition 1 is empty' "$test_root/empty.stderr" || fail "empty partition diagnostic missing"
-[[ ! -s "$argv_log" ]] || fail "empty manifest reached a child test process"
-
-# Replay the production oracle without running ExUnit and compare its complete
-# assignment and source binding to the immutable Plan 22 calibration.
 PATH="${PATH#"$test_root/bin:"}" ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.4.1}" MIX_ENV=test \
   mix run --no-compile --no-start -r "$ORACLE" -e \
   'p=Sigra.CI.LibraryTestPartitions.build_partitions!(); for id <- [1,2] do x=p[id]; IO.puts("META\t#{id}\t#{length(x.paths)}\t#{x.total_us}\t#{Sigra.CI.LibraryTestPartitions.manifest_sha256(x.paths)}"); Enum.each(x.paths,&IO.puts("PATH\t#{id}\t#{&1}")) end' \
@@ -115,8 +169,7 @@ root,oracle_path,calibration_path,manifest_path=sys.argv[1:]
 lines=open(oracle_path,encoding="utf-8").read().splitlines()
 meta={}; paths={1:[],2:[]}
 for line in lines:
- kind,pid,*rest=line.split("\t")
- pid=int(pid)
+ kind,pid,*rest=line.split("\t"); pid=int(pid)
  if kind=="META": meta[pid]=(int(rest[0]),int(rest[1]),rest[2])
  elif kind=="PATH": paths[pid].append(rest[0])
  else: raise AssertionError(line)
@@ -131,8 +184,7 @@ cal_bytes=open(calibration_path,"rb").read(); manifest_bytes=open(manifest_path,
 assert hashlib.sha256(cal_bytes).hexdigest()=="f54316873b2e66cb39277e063accf1168736eb9d3f74ee6c61183a845244e99b"
 assert hashlib.sha256(manifest_bytes).hexdigest()=="1168cda99d40277253a0eb4a1c2e7ce3debdb3f92d77f3ca88c304690539e424"
 cal=json.loads(cal_bytes); manifest=json.loads(manifest_bytes)
-assert cal["ordinary_universe"]["count"]==225
-assert cal["ordinary_universe"]["paths"]==all_paths
+assert cal["ordinary_universe"]["count"]==225 and cal["ordinary_universe"]["paths"]==all_paths
 assert hashlib.sha256(("\0".join(all_paths)+"\0").encode()).hexdigest()==cal["ordinary_universe"]["nul_manifest_sha256"]=="78a70051f7aa55f91de5849327b86dca7915028b15d263230efb5c217b1907f7"
 source=cal["ordinary_universe"]["source_files"]
 canonical=(json.dumps(source,sort_keys=True,separators=(",",":"))+"\n").encode()
@@ -143,4 +195,4 @@ for row in source:
  assert len(data)==row["byte_count"] and hashlib.sha256(data).hexdigest()==row["sha256"]
 PY
 
-printf 'library-partitions-portability.test: PASS (bash %s)\n' "${BASH_VERSION}"
+printf 'library-partitions-portability.test: PASS (system bash %s; modern bash %s)\n' "$system_major" "$modern_major"
