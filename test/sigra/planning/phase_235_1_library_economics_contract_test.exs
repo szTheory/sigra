@@ -125,8 +125,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     for {source, verb} <- [
           {~S|System.cmd("git", ["show", "deadbeef:path"])|, "show"},
-          {~S|System.cmd("git", ["diff", "--name-only", "deadbeef", "--", "lib"])|,
-           "diff"},
+          {~S|System.cmd("git", ["diff", "--name-only", "deadbeef", "--", "lib"])|, "diff"},
           {~S|System.cmd("git", ["rev-parse", "deadbeef^{commit}"])|, "rev-parse"},
           {~S|System.cmd("git", ["fetch", "origin", "deadbeef"])|, "fetch"}
         ] do
@@ -209,16 +208,42 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     for mutation <- [
           String.replace(summary, "status: halted", "status: complete", global: false),
-          String.replace(summary, "627428df5a20dc0479163b9993a49dccf5e6f92e", String.duplicate("a", 40), global: true),
-          String.replace(summary, "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8", String.duplicate("b", 40), global: false),
-          String.replace(summary, "71d14c82105cc8e48f018999bd3f02d2c9dc4a47", String.duplicate("c", 40), global: false),
-          String.replace(summary, "scripts/ci/verify-library-validation-run.test.sh", "scripts/ci/forged.sh", global: true),
+          String.replace(
+            summary,
+            "627428df5a20dc0479163b9993a49dccf5e6f92e",
+            String.duplicate("a", 40),
+            global: true
+          ),
+          String.replace(
+            summary,
+            "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+            String.duplicate("b", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "71d14c82105cc8e48f018999bd3f02d2c9dc4a47",
+            String.duplicate("c", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "scripts/ci/verify-library-validation-run.test.sh",
+            "scripts/ci/forged.sh",
+            global: true
+          ),
           String.replace(summary, "2,449ms", "2,450ms", global: true),
           String.replace(summary, "13,579ms", "13,580ms", global: true),
           String.replace(summary, "5.544", "1.000", global: true),
-          String.replace(summary, "validation 2/3 did not run", "validation 2/3 ran", global: false),
-          String.replace(summary, "No candidate push occurred", "Candidate push occurred", global: false),
-          String.replace(summary, "No new GitHub run or job IDs exist", "New GitHub run exists", global: false),
+          String.replace(summary, "validation 2/3 did not run", "validation 2/3 ran",
+            global: false
+          ),
+          String.replace(summary, "No candidate push occurred", "Candidate push occurred",
+            global: false
+          ),
+          String.replace(summary, "No new GitHub run or job IDs exist", "New GitHub run exists",
+            global: false
+          ),
           String.replace(summary, "remain absent", "were created", global: false),
           String.replace(summary, "not retried", "retried", global: false)
         ] do
@@ -342,10 +367,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   @tag :assignment_contract
   test "Plan 17 repairs only the global Oban test owners and runs three fresh validations" do
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+
     registrants =
-      "test"
-      |> Path.join("**/*_test.exs")
-      |> Path.wildcard()
+      Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
       |> Enum.filter(&registers_global_oban?/1)
       |> Enum.sort()
 
@@ -397,7 +422,6 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) ==
              2
 
-    Code.require_file("test/support/ci/library_test_partitions.exs")
     ordinary = Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
     historical_calibration = @calibration_path |> File.read!() |> JSON.decode!()
 
@@ -437,12 +461,19 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     for mutation <- [
           String.replace(plan_17, "status: complete", "status: halted", global: false),
-          String.replace(plan_17, "DeletionTest` and `DeliveryTest", "DeletionTest` only", global: false),
+          String.replace(plan_17, "DeletionTest` and `DeliveryTest", "DeletionTest` only",
+            global: false
+          ),
           String.replace(plan_17, "fd97522d", "deadbeef", global: true),
           String.replace(plan_17, "84550d73", "deadbeef", global: false),
           String.replace(plan_17, "three samples", "two samples", global: false),
           String.replace(plan_17, "nine payloads", "eight payloads", global: false),
-          String.replace(plan_17, "zero completed validation pairs", "one completed validation pair", global: false),
+          String.replace(
+            plan_17,
+            "zero completed validation pairs",
+            "one completed validation pair",
+            global: false
+          ),
           String.replace(plan_17, "| 3 | 30,167ms", "| 4 | 30,167ms", global: false)
         ] do
       assert_raise ArgumentError, fn -> validate_plan_17_summary!(mutation, false) end
@@ -475,16 +506,46 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     for mutation <- [
           String.replace(summary, "status: halted", "status: complete", global: false),
-          String.replace(summary, "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed", String.duplicate("a", 40), global: false),
-          String.replace(summary, "02384b6410c371959dfeb976d29dd1e61acc3e4a", String.duplicate("b", 40), global: false),
-          String.replace(summary, "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c", String.duplicate("c", 64), global: false),
+          String.replace(
+            summary,
+            "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
+            String.duplicate("a", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "02384b6410c371959dfeb976d29dd1e61acc3e4a",
+            String.duplicate("b", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
+            String.duplicate("c", 64),
+            global: false
+          ),
           String.replace(summary, "Ordinary paths: 225", "Ordinary paths: 224", global: false),
           String.replace(summary, "| 3 | 3,351ms", "| 4 | 3,351ms", global: false),
-          String.replace(summary, "zero post-calibration validation pairs", "one post-calibration validation pair", global: false),
-          String.replace(summary, "No push, workflow dispatch, CI watch, API poll, artifact download", "A push occurred", global: false),
+          String.replace(
+            summary,
+            "zero post-calibration validation pairs",
+            "one post-calibration validation pair",
+            global: false
+          ),
+          String.replace(
+            summary,
+            "No push, workflow dispatch, CI watch, API poll, artifact download",
+            "A push occurred",
+            global: false
+          ),
           String.replace(summary, "restored byte-for-byte", "recreated", global: false),
           String.replace(summary, "manifest is absent", "manifest is present", global: false),
-          String.replace(summary, "post-build source contract was red", "post-build source contract passed", global: false)
+          String.replace(
+            summary,
+            "post-build source contract was red",
+            "post-build source contract passed",
+            global: false
+          )
         ] do
       assert_raise ArgumentError, fn -> validate_plan_19_summary!(mutation, false) end
     end
@@ -1070,7 +1131,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp validate_plan_17_summary!(summary, identity? \\ true) do
-    if identity?, do: validate_summary_identity!(summary, 7_082, "bb6218a0a16594bd0c30f5b6bfab7ebe2691665b20f2aaf5c5d16cdaca009373")
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          7_082,
+          "bb6218a0a16594bd0c30f5b6bfab7ebe2691665b20f2aaf5c5d16cdaca009373"
+        )
 
     require_summary_facts!(summary, [
       "status: complete",
@@ -1092,7 +1159,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp validate_plan_18_summary!(summary, identity? \\ true) do
-    if identity?, do: validate_summary_identity!(summary, 19_790, "864d5545a59e801adac7da9d56c66d3bc42ac6673f01770b7829ab8247ff7d5e")
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          19_790,
+          "864d5545a59e801adac7da9d56c66d3bc42ac6673f01770b7829ab8247ff7d5e"
+        )
 
     require_summary_facts!(summary, [
       "status: halted",
@@ -1136,7 +1209,13 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   defp validate_plan_19_summary!(summary, identity? \\ true) do
-    if identity?, do: validate_summary_identity!(summary, 7_698, "7872bb4e16c7300728b22996981cd65d6ec81dbbda7fd2e8daf4359dcefd6117")
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          7_698,
+          "7872bb4e16c7300728b22996981cd65d6ec81dbbda7fd2e8daf4359dcefd6117"
+        )
 
     require_summary_facts!(summary, [
       "status: halted",
@@ -1238,8 +1317,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
     {_quoted, findings} =
       Macro.prewalk(quoted, [], fn
-        {{:., _, [{:__aliases__, _, [:System]}, :cmd]}, _, ["git", args | _]} = node,
-        findings
+        {{:., _, [{:__aliases__, _, [:System]}, :cmd]}, _, ["git", args | _]} = node, findings
         when is_list(args) ->
           case prohibited_git_invocation(args) do
             nil -> {node, findings}
