@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 23 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 24 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -666,10 +666,14 @@ Plans:
 
 - [x] 235.1-35-PLAN.md — Candidate `f179e3af` retained; PR run `34562007714` failed provenance-object resolution while dispatch run `34562004702` passed, so no live evidence was admitted
 
-**Wave 33** *(active; blocked on Plan 35 diagnostics)*
+**Blocked live recovery history** *(loader and three local pairs passed; reachable-provenance test fetched an unavailable sibling object in shallow PR CI)*
 
-- [x] 235.1-36-PLAN.md — Separate immutable calibration provenance from exact runtime source-index authorization, revalidate locally, and recapture strict live evidence
+- [x] 235.1-36-PLAN.md — Candidate `0bf7b8e9` retained; three local pairs passed, but PR run `34564383170` failed its checkout-dependent reachable control while dispatch `34564379273` passed, so no receipts were admitted
 
-**Wave 34** *(blocked on Plan 36)*
+**Wave 34** *(active; blocked on Plan 36 diagnostics)*
+
+- [ ] 235.1-37-PLAN.md — Make the reachable-provenance control self-contained, rebind its source row, and recapture strict live evidence
+
+**Wave 35** *(blocked on Plan 37)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
