@@ -710,10 +710,14 @@ Plans:
 
 - [x] 235.1-46-PLAN.md — Exact real-psql framing parser retained; first semantic precedence mismatch stopped the route
 
-**Wave 44** *(active; prove corrected parser precedence without spending the wrapper, then resume bounded local/live evidence)*
+**Failed fresh-namespace history** *(Plan 47 stopped before Task 1 because two planning outputs and one executor comparison file matched its global freshness glob; zero parser, database, timing, or GitHub action)*
 
-- [ ] 235.1-47-PLAN.md — Marker-free parser preflight followed by one fresh dry-run/admission/timing/live route
+- [x] 235.1-47-PLAN.md — Exact three-path collision retained; no action budget consumed
 
-**Wave 45** *(blocked on Plan 47; documentation reconciliation only)*
+**Wave 45** *(active; allocate one receipt-authorized private root, then resume the unchanged bounded parser/local/live route)*
+
+- [ ] 235.1-48-PLAN.md — Collision-resistant root allocation followed by the complete parser/dry-run/admission/timing/live route
+
+**Wave 46** *(blocked on Plan 48; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
