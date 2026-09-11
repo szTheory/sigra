@@ -358,7 +358,27 @@ defmodule Sigra.AuthTest do
     end
 
     test "emits login telemetry event on success" do
-      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :auth, :login, :stop]])
+      test_pid = self()
+      handler_id = {__MODULE__, test_pid, make_ref()}
+
+      :ok =
+        :telemetry.attach(
+          handler_id,
+          [:sigra, :auth, :login, :stop],
+          fn
+            [:sigra, :auth, :login, :stop], measurements,
+            %{user_id: 5, failed_attempts_before: 3} = metadata,
+            _config ->
+              send(test_pid, {:correlated_login_stop, measurements, metadata})
+              :ok
+
+            _event, _measurements, _metadata, _config ->
+              :ok
+          end,
+          nil
+        )
+
+      on_exit(fn -> :telemetry.detach(handler_id) end)
       hashed = Sigra.Crypto.hash_password("correct_password")
 
       user = %TestUser{
@@ -385,9 +405,10 @@ defmodule Sigra.AuthTest do
         user_schema: TestUser
       )
 
-      assert_received {[:sigra, :auth, :login, :stop], ^ref, _measurements, metadata}
+      assert_received {:correlated_login_stop, _measurements, metadata}
       assert metadata.user_id == 5
       assert metadata.failed_attempts_before == 3
+      refute_received {:correlated_login_stop, _measurements, %{user_id: 1}}
     end
 
     test "emits hash_upgraded telemetry event on hash upgrade" do
