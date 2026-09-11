@@ -714,10 +714,14 @@ Plans:
 
 - [x] 235.1-47-PLAN.md — Exact three-path collision retained; no action budget consumed
 
-**Wave 45** *(active; allocate one receipt-authorized private root, then resume the unchanged bounded parser/local/live route)*
+**Failed allocator-verifier history** *(Plan 48 stopped before its sole allocator because two pinned UTC string normalizations were falsely classified as filesystem mutation; zero root, database, timing, or GitHub action)*
 
-- [ ] 235.1-48-PLAN.md — Collision-resistant root allocation followed by the complete parser/dry-run/admission/timing/live route
+- [x] 235.1-48-PLAN.md — Exact zero-action AST false-positive evidence retained
 
-**Wave 46** *(blocked on Plan 48; documentation reconciliation only)*
+**Wave 46** *(active; receiver-aware allocator authentication followed by the unchanged bounded parser/local/live route)*
+
+- [ ] 235.1-49-PLAN.md — Prove the two harmless UTC replacements, allocate one private root, and complete the carried evidence route
+
+**Wave 47** *(blocked on Plan 49; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
