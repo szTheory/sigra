@@ -64,7 +64,7 @@ printf '%s\n' \
   '  printf "%s\\n" "$partition" >>"${ORDER_LOG:?}"' \
   '  if [[ -n "${CHILD_DELAY_SECONDS:-}" ]]; then sleep "$CHILD_DELAY_SECONDS"; fi' \
   '  case "$partition" in' \
-  '    1) files="[\"${REPO_ROOT:?}/test/a space_test.exs\",\"test/literal[abc]*_test.exs\"]" ;;' \
+  '    1) files="${TIMING_FILES_JSON:-[\"${REPO_ROOT:?}/test/a space_test.exs\",\"test/literal[abc]*_test.exs\"]}" ;;' \
   '    2) files='"'"'["test/z final_test.exs"]'"'"' ;;' \
   '    *) exit 91 ;;' \
   '  esac' \
@@ -93,6 +93,56 @@ chmod +x "$test_root/clock-bin/python3"
 mkdir -p "$test_root/real-clock-bin"
 printf '%s\n' '#!/bin/bash' 'exec /usr/bin/python3 "$@"' >"$test_root/real-clock-bin/python3"
 chmod +x "$test_root/real-clock-bin/python3"
+
+# Exercise the production runner through a lexical symlink while formatter rows
+# identify the same repository by its physical path. Each hostile row is driven
+# through normalize_timing_paths in the runner, never through a test duplicate.
+physical_repo="$test_root/physical-repo"
+alias_repo="$test_root/lexical-repo"
+mkdir -p "$physical_repo/scripts/ci"
+cp "$RUNNER" "$physical_repo/scripts/ci/library-partitions.sh"
+ln -s "$physical_repo" "$alias_repo"
+physical_repo="$(cd "$physical_repo" && pwd -P)"
+
+run_alias_path_case() {
+  local label="$1" shell="$2" candidate="$3" expected="$4" case_root="$test_root/alias-$1-$5" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  set +e
+  PATH="$test_root/bin:$PATH" REPO_ROOT="$physical_repo" TIMING_FILES_JSON="[\"$candidate\"]" \
+    ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$alias_repo/scripts/ci/library-partitions.sh" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  if [[ "$expected" == success ]]; then
+    [[ "$status" == 0 ]] || fail "$label rejected safe alias path '$candidate' with status $status"
+    cp /tmp/sigra-library-1-timings.json "$case_root/timing.json"
+    [[ "$(jq -r '.tests[0].file' "$case_root/timing.json")" == "test/safe_test.exs" ]] ||
+      fail "$label did not canonicalize safe alias path"
+  else
+    [[ "$status" != 0 ]] || fail "$label accepted hostile alias path '$candidate'"
+    cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+    jq -e '.partitions[0].conclusion == "failure" and .partitions[1].conclusion == "not_run"' \
+      "$case_root/receipt.json" >/dev/null || fail "$label published an untruthful hostile receipt"
+  fi
+}
+
+run_alias_matrix() {
+  local label="$1" shell="$2"
+  run_alias_path_case "$label physical" "$shell" "$physical_repo/test/safe_test.exs" success physical
+  run_alias_path_case "$label relative" "$shell" "test/safe_test.exs" success relative
+  run_alias_path_case "$label external" "$shell" "$test_root/external/test/safe_test.exs" failure external
+  run_alias_path_case "$label sibling-prefix" "$shell" "${physical_repo}-sibling/test/safe_test.exs" failure sibling
+  run_alias_path_case "$label parent" "$shell" "test/../safe_test.exs" failure parent
+  run_alias_path_case "$label dot" "$shell" "test/./safe_test.exs" failure dot
+  run_alias_path_case "$label double-separator" "$shell" "test//safe_test.exs" failure double
+  run_alias_path_case "$label non-test" "$shell" "lib/safe_test.exs" failure nontest
+  run_alias_path_case "$label wrong-suffix" "$shell" "test/safe.exs" failure suffix
+}
+
+run_alias_matrix system "$system_bash"
+run_alias_matrix modern "$modern_bash"
 
 run_nonempty() {
   local label="$1" shell="$2" case_root="$test_root/$1-nonempty" status
