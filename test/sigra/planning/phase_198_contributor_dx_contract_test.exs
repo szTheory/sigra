@@ -1,9 +1,27 @@
+Code.require_file("../../support/ci/phase_235_1_evidence_state_contract.exs", __DIR__)
+
 defmodule Sigra.Planning.Phase198ContributorDxContractTest do
   @moduledoc """
   Fail-closed DX-01 contract for the one contributor command and its PR owner.
   """
 
   use ExUnit.Case, async: true
+
+  alias Sigra.Planning.Phase2351EvidenceStateContract, as: EvidenceState
+
+  @tag :document_transition
+  test "Plan 21 contributor documents follow the evidence-derived reconciliation state" do
+    fixture = EvidenceState.fixture()
+    state = EvidenceState.repository_state(root())
+
+    assert EvidenceState.validate_documents(state, %{
+             "CONTRIBUTING.md" => read!("CONTRIBUTING.md"),
+             ".planning/REQUIREMENTS.md" => read!(".planning/REQUIREMENTS.md"),
+             ".planning/ROADMAP.md" => read!(".planning/ROADMAP.md")
+           }) == :ok
+
+    assert fixture.pre_state == state
+  end
 
   defp root, do: Path.expand("../../..", __DIR__)
   defp read!(rel), do: root() |> Path.join(rel) |> File.read!()

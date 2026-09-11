@@ -1,0 +1,15 @@
+{
+  "calibration": {
+    "byte_count": 2987511,
+    "path": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json",
+    "sha256": "69938bf800a04f553260db6da72d6d7e555cd96d7d048659eea8b28a0f8fca6c"
+  },
+  "ordinary_source_index_sha256": "7597c8b85027f14edd14f1c74d215481a6683ac0d4f760c214e4ac63db4f99aa",
+  "payload_count": 9,
+  "sample_count": 3,
+  "schema_version": "sigra.library-partition-calibration-manifest/v1",
+  "source_snapshot": {
+    "commit": "b37ac1164cee96be11a5cdeb60b31db560018e04",
+    "tree": "02bb907f075b1428d89bb87e519c0e0d8810fcd9"
+  }
+}

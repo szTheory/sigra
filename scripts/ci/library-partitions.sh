@@ -2,7 +2,7 @@
 # Fixed sequential producer for exhaustive ordinary-library partition evidence.
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 RECEIPT_PATH="/tmp/sigra-library-partitions.json"
 MANIFEST_1="/tmp/sigra-library-partition-1.paths"
 MANIFEST_2="/tmp/sigra-library-partition-2.paths"
@@ -14,7 +14,7 @@ declare -a start_ms=(0 0 0) end_ms=(0 0 0) duration_ms=(0 0 0) status=(0 0 0)
 declare -a conclusion=(not_run not_run not_run)
 
 fail() { printf 'library-partitions: FAIL: %s\n' "$*" >&2; }
-clock_ms() { python3 -c 'import time; print(time.monotonic_ns() // 1000000)'; }
+clock_ms() { python3 -c 'import time; print(time.time_ns() // 1000000)'; }
 
 emit_manifests() {
   env MIX_ENV=test mix run --no-compile --no-start -r test/support/ci/library_test_partitions.exs -e \
@@ -34,11 +34,26 @@ normalize_timing_paths() {
   temporary="$(mktemp "${timing}.tmp.XXXXXX")" || return 1
 
   jq --arg root_prefix "$ROOT/" '
-    if all(.tests[]; (.file | startswith("test/")) or (.file | startswith($root_prefix + "test/"))) then
-      .tests |= map(if .file | startswith($root_prefix) then .file |= ltrimstr($root_prefix) else . end)
-    else
-      error("timing receipt contains a path outside the repository test tree")
-    end
+    def canonical_test_path:
+      type == "string" and
+      startswith("test/") and
+      endswith("_test.exs") and
+      (contains("//") | not) and
+      (split("/") | length >= 2 and all(. != "" and . != "." and . != ".."));
+    .tests |= map(
+      .file = (
+        if (.file | type == "string") and (.file | startswith($root_prefix + "test/")) then
+          .file | ltrimstr($root_prefix)
+        elif (.file | type == "string") and (.file | startswith("test/")) then
+          .file
+        else
+          error("timing receipt contains a path outside the repository test tree")
+        end
+      ) |
+      if (.file | canonical_test_path) then .
+      else error("timing receipt contains a non-canonical repository test path")
+      end
+    )
   ' "$timing" >"$temporary" || { rm -f "$temporary"; return 1; }
 
   chmod 600 "$temporary" && mv -f "$temporary" "$timing"
@@ -71,11 +86,13 @@ write_receipt() {
 }
 
 run_partition() {
-  local id="$1" manifest timing
-  local -a paths
+  local id="$1" manifest timing path
+  local -a paths=()
   manifest="/tmp/sigra-library-partition-${id}.paths"
   timing="/tmp/sigra-library-${id}-timings.json"
-  mapfile -t paths <"$manifest"
+  while IFS= read -r path || [[ -n "$path" ]]; do
+    paths[${#paths[@]}]="$path"
+  done <"$manifest"
   ((${#paths[@]} > 0)) || { fail "partition ${id} is empty"; status[id]=1; conclusion[id]=failure; return 1; }
   rm -f "$timing"
   start_ms[id]="$(clock_ms)" || return 1

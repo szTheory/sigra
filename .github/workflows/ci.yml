@@ -572,6 +572,7 @@ jobs:
           path: /tmp/sigra-library-2-timings.json
           if-no-files-found: error
           retention-days: 7
+
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
   # (confirmed via gh api repos/szTheory/sigra/rulesets/14941512 at execution time).

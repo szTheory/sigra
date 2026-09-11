@@ -1,5 +1,104 @@
+Code.require_file("../../support/ci/phase_235_1_evidence_state_contract.exs", __DIR__)
+
 defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   use ExUnit.Case, async: false
+
+  alias Sigra.Planning.Phase2351EvidenceStateContract, as: EvidenceState
+
+  @tag :receipt_contract
+  test "Plan 21 receipts admit only pre/intermediate or a fully cross-linked post state" do
+    fixture = EvidenceState.fixture()
+
+    assert EvidenceState.validate_state(%{}) == fixture.pre_state
+
+    assert {:pre, %{present_capture_receipts: [:pr]}} =
+             EvidenceState.validate_state(%{pr: fixture.pr})
+
+    assert {:pre, %{present_capture_receipts: [:scaffold]}} =
+             EvidenceState.validate_state(%{scaffold: fixture.scaffold})
+
+    assert {:post, _facts} = EvidenceState.validate_state(fixture.receipts)
+  end
+
+  @tag :receipt_contract
+  test "Plan 21 receipt and prose mutations fail closed" do
+    fixture = EvidenceState.fixture()
+
+    receipt_mutations = [
+      Map.delete(fixture.receipts, :pr),
+      Map.delete(fixture.receipts, :scaffold),
+      put_in(fixture.receipts, [:pr, "schema_version"], "sigra.library-partitions-evidence/v0"),
+      put_in(fixture.receipts, [:pr, "run", "attempt"], 2),
+      put_in(fixture.receipts, [:pr, "run", "head_sha"], String.duplicate("d", 40)),
+      put_in(fixture.receipts, [:pr, "owner", "name"], "wrong"),
+      put_in(fixture.receipts, [:pr, "artifacts", Access.at(0), "sha256"], "short"),
+      put_in(fixture.receipts, [:scaffold, "run", "id"], fixture.pr["run"]["id"]),
+      put_in(fixture.receipts, [:scaffold, "receivers", "paths"], []),
+      put_in(fixture.receipts, [:validation, "capture_run_ids"], []),
+      put_in(
+        fixture.receipts,
+        [:validation, "validations", Access.at(0), "run", "head_sha"],
+        String.duplicate("e", 40)
+      ),
+      put_in(
+        fixture.receipts,
+        [:validation, "validations", Access.at(1), "run", "id"],
+        fixture.pr["run"]["id"]
+      ),
+      put_in(
+        fixture.receipts,
+        [:validation, "negative_run_ids"],
+        Enum.reverse(fixture.validation["negative_run_ids"])
+      ),
+      put_in(fixture.receipts, [:validation, "negative_runs_sha256"], String.duplicate("f", 64))
+    ]
+
+    Enum.each(receipt_mutations, fn mutation ->
+      assert_raise ArgumentError, fn -> EvidenceState.validate_state(mutation) end
+    end)
+
+    assert EvidenceState.validate_documents({:post, fixture.facts}, fixture.post_documents) == :ok
+
+    for token <- EvidenceState.fact_tokens(fixture.facts) ++ ["Complete", "FAST-01", "GATE-05"] do
+      mutation =
+        Map.update!(
+          fixture.post_documents,
+          "post.md",
+          &String.replace(&1, token, "missing")
+        )
+
+      assert_raise ArgumentError, fn ->
+        EvidenceState.validate_documents({:post, fixture.facts}, mutation)
+      end
+    end
+
+    assert EvidenceState.validate_documents(fixture.pre_state, fixture.pre_documents) == :ok
+
+    assert_raise ArgumentError, fn ->
+      EvidenceState.validate_documents(
+        fixture.pre_state,
+        Map.update!(
+          fixture.pre_documents,
+          ".planning/v1.47-MILESTONE-AUDIT.md",
+          &(&1 <> "\n24/24 satisfied")
+        )
+      )
+    end
+  end
+
+  @tag :document_transition
+  test "Plan 21 Phase 235.1 and audit documents follow repository receipt state" do
+    state = EvidenceState.repository_state()
+
+    assert EvidenceState.validate_documents(state, %{
+             ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION.md" =>
+               File.read!(
+                 ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION.md"
+               ),
+             ".planning/v1.47-MILESTONE-AUDIT.md" =>
+               File.read!(".planning/v1.47-MILESTONE-AUDIT.md")
+           }) == :ok
+  end
 
   @receipt_path "/tmp/sigra-library-economics.json"
   @phase_235_dir ".planning/phases/235-terminal-ratification-measured-not-read"
@@ -9,23 +108,80 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
   @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+  @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
+  @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
 
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
     adverse = File.read!("scripts/ci/verify-library-routing-evidence.test.sh")
+    validation = File.read!("scripts/ci/verify-library-validation-run.sh")
+    validation_adverse = File.read!("scripts/ci/verify-library-validation-run.test.sh")
 
     assert verifier =~ "sigra.library-partitions-evidence/v1"
     assert verifier =~ "sigra.library-install-golden-evidence/v1"
     assert verifier =~ "max * 1000 <= min * 2000"
     assert verifier =~ "install_not_dominant"
     assert verifier =~ "ordinary-vs-scaffold comparable"
-    assert adverse =~ "PR attempt"
-    assert adverse =~ "same implementation SHA"
-    assert adverse =~ "failed-history run"
-    assert adverse =~ "history substitution"
-    assert adverse =~ "deterministic-failure advancement"
-    assert adverse =~ "candidate tree drift"
-    assert adverse =~ "over budget"
+    assert adverse =~ "update(attempt=2)"
+    assert adverse =~ "update(head_sha=\"d\"*40)"
+    assert adverse =~ "update(id=34520992740)"
+    assert adverse =~ "list(reversed(x))"
+
+    for run_id <-
+          ~w(34466384009 34466384470 34467186749 34467189602 34468109536 34468110161 34493873867 34493911924 34520992740 34520986751) do
+      assert verifier =~ run_id
+    end
+
+    assert verifier =~ "pair_inadmissible"
+    assert verifier =~ "summary_complete"
+    assert verifier =~ "summary_partial"
+    assert verifier =~ "immutable_workflow_byte_drift"
+    assert verifier =~ "unrelated_manual_ref_guards"
+    assert verifier =~ "--print-negative-runs"
+    assert verifier =~ "--negative-runs-sha256"
+    assert verifier =~ "--preflight"
+    assert adverse =~ "Every scalar/null, array membership/order, and nested key"
+    assert adverse =~ "one-blank-line drift accepted"
+    assert validation =~ "negative_runs_sha256"
+    assert validation =~ "run disjointness"
+    assert validation_adverse =~ "waiver=True"
+  end
+
+  test "Plan 18 candidate preflight remains immutable negative history" do
+    verifier = "scripts/ci/verify-library-routing-evidence.sh"
+
+    source = File.read!(verifier)
+    assert source =~ "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
+    assert source =~ "91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97"
+    assert source =~ "3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5"
+    assert source =~ "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    refute source =~ "cf46fc226daec325db1d3191c61158f9da55edb24b2f5cddac60bcb429aeb3f1"
+
+    for plan <- [10, 12, 14, 15, 16, 17, 18] do
+      summary =
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-#{plan}-SUMMARY.md"
+
+      refute historical_summary_exception_eligible?(summary)
+    end
+  end
+
+  test "Plan 18 remains immutable blocked history before recalibration" do
+    summary = File.read!(@plan_18_summary)
+
+    assert {historical_summary, 0} =
+             System.cmd("git", ["show", "#{@plan_18_summary_commit}:#{@plan_18_summary}"])
+
+    assert historical_summary == summary
+    assert summary =~ "627428df5a20dc0479163b9993a49dccf5e6f92e"
+    assert summary =~ "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8"
+    assert summary =~ "71d14c82105cc8e48f018999bd3f02d2c9dc4a47"
+    assert summary =~ "2,449ms"
+    assert summary =~ "13,579ms"
+    assert summary =~ "5.544"
+    assert summary =~ "validation 2/3 did not run"
+    assert summary =~ "No candidate push occurred"
+    assert summary =~ "No new GitHub run or job IDs exist"
+    assert summary =~ "847f97542bd110be6022771098a54db9b4d8b0f75db2c32b923ee81834acf962"
   end
 
   setup do
@@ -142,6 +298,7 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert runner =~ "partition 2 changed partition 1 timing receipt"
   end
 
+  @tag :assignment_contract
   test "Plan 17 repairs only the global Oban test owners and runs three fresh validations" do
     registrants =
       "test"
@@ -198,48 +355,37 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) ==
              2
 
-    calibration = File.read!(@calibration_path)
-    assert byte_size(calibration) == 2_922_739
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+    ordinary = Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
+    historical_calibration = @calibration_path |> File.read!() |> JSON.decode!()
 
-    assert sha256(calibration) ==
-             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    partitions =
+      Sigra.CI.LibraryTestPartitions.build_partitions!(
+        ordinary_paths: ordinary,
+        costs: historical_calibration["derived_costs"]
+      )
 
-    refute sha256(calibration <> "\n") ==
-             "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb"
+    assigned = partitions[1].paths ++ partitions[2].paths
 
-    immutable_paths = %{
-      "test/support/ci/library_test_partitions.exs" =>
-        "91646f072512d32e603b850ac44caa14825543b67188c5221eea6ccaf7738c97",
-      "test/support/ci/library_test_partitions_test.exs" =>
-        "3550a8bd2fa9f408c8477928f1e82eac5d418d6d50865d74d4173493bbc75ae5",
-      "scripts/ci/library-partitions.sh" =>
-        "99c0114090412c297524c1e4b7e0905f2439211244c508504a59fdaf4d5a5202",
-      "scripts/ci/verify-library-partitions.sh" =>
-        "449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",
-      ".github/workflows/ci.yml" =>
-        "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682"
-    }
+    assert Enum.sort(assigned) == ordinary
+    assert length(assigned) == MapSet.size(MapSet.new(assigned))
+    assert MapSet.disjoint?(MapSet.new(partitions[1].paths), MapSet.new(partitions[2].paths))
+    assert partitions[1].total_us > 0
+    assert partitions[2].total_us > 0
 
-    Enum.each(immutable_paths, fn {path, expected} ->
-      bytes = File.read!(path)
-      assert sha256(bytes) == expected, "immutable drift: #{path}"
-      refute sha256(bytes <> "\n") == expected
+    Enum.each(registrants, fn path ->
+      assert Enum.count(assigned, &(&1 == path)) == 1
     end)
 
-    Code.require_file("test/support/ci/library_test_partitions.exs")
-    partitions = apply(Sigra.CI.LibraryTestPartitions, :build_partitions!, [])
-    assert length(partitions[1].paths) == 97
-    assert length(partitions[2].paths) == 128
-    assert partitions[1].total_us == 54_838_062
-    assert partitions[2].total_us == 54_838_062
-    assert "test/sigra/account/deletion_test.exs" in partitions[2].paths
-    assert "test/sigra/delivery_test.exs" in partitions[2].paths
+    missing_path = hd(registrants)
 
-    missing_path =
-      update_in(partitions, [2, :paths], &List.delete(&1, "test/sigra/delivery_test.exs"))
+    broken =
+      Map.new(partitions, fn {id, part} ->
+        {id, %{part | paths: List.delete(part.paths, missing_path)}}
+      end)
 
-    assert_raise ArgumentError, fn ->
-      apply(Sigra.CI.LibraryTestPartitions, :validate_current_universe!, [missing_path])
+    assert_raise ArgumentError, ~r/current ordinary test manifest mismatch/, fn ->
+      Sigra.CI.LibraryTestPartitions.validate_current_universe!(broken)
     end
 
     {production_diff, production_status} =
@@ -272,6 +418,69 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
            )
 
     assert three_validation_contract?(integration)
+  end
+
+  @tag :assignment_contract
+  test "Plan 19 calibration diagnostics remain immutable blocked history" do
+    summary =
+      File.read!(
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
+      )
+
+    {pinned, 0} =
+      System.cmd("git", [
+        "show",
+        "d405755f078be8eefc8be1abcc2c387a4b6c8589:.planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
+      ])
+
+    assert pinned == summary
+
+    for fact <- [
+          "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
+          "02384b6410c371959dfeb976d29dd1e61acc3e4a",
+          "225",
+          "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
+          "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb",
+          "3,174ms / 60,072ms",
+          "25,178 / `173786d4150e730598f89e65f4cbac960ee8bb3c3081f25f6da44e0ecce20fb0`",
+          "273,229 / `8632d5825bcaf1ccfde79cd7907f2c124d4036a27648b81cc7ed07d5e8244934`",
+          "425,980 / `e7570371f8475af78eb111007c25b699675dbcb72cf3a897a4c77f4dc03da23d`",
+          "3,995ms / 41,711ms",
+          "31764c67e85ed0b091c27053d0c3035976ed035e036beb22e30e8b3796b2d41e",
+          "3f432a2f84144d04194309eb5c4b5fda9e17356081c9fef4335ca916397ae29a",
+          "c036ba202bb8840258e6525aea0b5e9dc5ebbe657f2afec0955f7b00ceaa8993",
+          "3,351ms / 42,354ms",
+          "ee8bd47263266a3765e721a8bef56fbc7e15bc71580759e7b1ffaec8533df957",
+          "55487aac6fa03c3319d26b9131b3c7eb6bce80ed324038a177ef4bd45e225274",
+          "df205cecf2fa21bc423e098f79419b8d209869c1771d6f58443eaa74b1203932",
+          "2,959,930",
+          "2d45b1db1ae2ffd614dc0c5b3692748504583ef4465545ee614117ea5e2b8a30",
+          "561",
+          "68ef4aa43c93cca6e70b2769adf6fc9f4b09bbd1dd57f4531cc3e89cb06c7028",
+          "zero post-calibration validation pairs",
+          "No push, workflow dispatch, CI watch, API poll, artifact download"
+        ] do
+      assert summary =~ fact
+    end
+
+    assert summary =~ "the manifest is absent"
+    assert summary =~ "prior tracked calibration was restored byte-for-byte"
+  end
+
+  @tag :assignment_contract
+  test "ordinary pathname safety is assignment agnostic" do
+    source = File.read!(__ENV__.file)
+
+    for path <- [
+          "test/sigra/account/deletion_test.exs",
+          "test/sigra/delivery_test.exs"
+        ] do
+      refute Regex.match?(
+               ~r/#{Regex.escape(path)}" in partitions\[[12]\]\.paths/,
+               source
+             ),
+             "ordinary path is coupled to a measured partition number: #{path}"
+    end
   end
 
   test "prepared fixture source pins six variants, private mutations, and two-worker failure semantics" do
@@ -767,8 +976,6 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   defp byte_index!(source, needle), do: :binary.match(source, needle) |> elem(0)
 
-  defp sha256(bytes), do: :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
-
   defp oban_owner_contract?(source) do
     [before_cleanup, cleanup_and_after] =
       String.split(source, "defp cleanup_dummy_oban(dummy) do", parts: 2)
@@ -840,14 +1047,44 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     Regex.scan(~r/"([^"]+)"/, body, capture: :all_but_first) |> List.flatten()
   end
 
-  defp live_scaffold_paths do
-    {tracked, 0} = System.cmd("git", ["ls-files", "test"])
+  defp live_scaffold_paths(root \\ File.cwd!()) do
+    root = Path.expand(root)
+
+    {tracked, status} =
+      System.cmd(
+        "git",
+        ["-C", root, "ls-files", "-z", "--", ":(glob)test/**/*_test.exs"],
+        stderr_to_stdout: true
+      )
+
+    unless status == 0, do: raise(ArgumentError, "tracked test discovery failed: #{tracked}")
 
     tracked
-    |> String.split("\n", trim: true)
-    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
-    |> Enum.filter(&(File.read!(&1) =~ ~r/^\s*@moduletag\s+:scaffold\b/m))
+    |> String.split(<<0>>, trim: true)
+    |> Enum.map(fn path ->
+      unless is_binary(path) and String.valid?(path) and String.starts_with?(path, "test/") and
+               String.ends_with?(path, "_test.exs") and
+               not String.contains?(path, ["../", "/../", "//", "\\", <<0>>]),
+             do: raise(ArgumentError, "malformed tracked test path: #{inspect(path)}")
+
+      absolute = Path.join(root, path)
+
+      unless match?({:ok, %File.Stat{type: :regular}}, File.lstat(absolute)),
+        do: raise(ArgumentError, "missing tracked test or non-regular path: #{inspect(path)}")
+
+      {path, File.read!(absolute)}
+    end)
+    |> Enum.filter(fn {_path, source} -> source =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.uniq()
     |> Enum.sort()
+  end
+
+  defp historical_summary_exception_eligible?(path) do
+    phase_235_1 =
+      ~r{^\.planning/phases/235\.1-close-v1-47-library-economics-integration-gaps-test-01-test/235\.1-(10|12|14|15|16|17|18)-SUMMARY\.md$}
+
+    not Regex.match?(phase_235_1, path)
   end
 
   defp library_job_ids(workflow) do

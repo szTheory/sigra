@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 8 completed implementation plans, 6 retained failed/blocked plans, and 3 active recovery plans
+**Plans:** 10 completed implementation plans, 14 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -586,14 +586,50 @@ Plans:
 
 - [x] 235.1-16-PLAN.md — Calibration retained, but partition 2 failed on the async global-Oban collision before validation
 
-**Wave 13** *(active; bounded test-only recovery using Plan 16 calibration authority)*
+**Wave 13** *(completed; bounded test-only recovery using Plan 16 calibration authority)*
 
-- [ ] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
+- [x] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
 
-**Wave 14** *(blocked on Plan 17)*
+**Blocked live evidence history** *(Plan 17 local chain and selected dispatch passed; PR immutable-byte contract failed)*
 
-- [ ] 235.1-14-PLAN.md — Capture one strict dual-route pair and one distinct validation pair
+- [x] 235.1-14-PLAN.md — Blocked capture pair; runs 34520992740/34520986751 retained and no evidence admitted
 
-**Wave 15** *(blocked on Plan 14)*
+**Blocked local recovery history** *(ten-run ledger retained; clean candidate comparability failed before push)*
+
+- [x] 235.1-18-PLAN.md — Closed ten-run ledger retained; candidate stopped locally at 2,449ms/13,579ms with no GitHub action
+
+**Blocked local recovery history** *(tracked discovery/v2 loader retained; fixed-placement contract blocked artifact admission)*
+
+- [x] 235.1-19-PLAN.md — Discovery/loader repairs retained; three diagnostic triples rejected and prior artifact restored
+
+**Blocked local recovery history** *(assignment/lifecycle source frozen; stale bootstrap failed before collection)*
+
+- [x] 235.1-21-PLAN.md — Source frozen at `a28248e3`; bootstrap stopped at 2,781ms/33,078ms with zero collection triples
+
+**Wave 18** *(completed; measurement-only bootstrap collection from Plan 21 frozen source)*
+
+- [x] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
+
+**Blocked live recovery history** *(routing mutation suite passed; stale authority pins stopped before timed validation or GitHub)*
+
+- [x] 235.1-20-PLAN.md — Exact candidate `ec1850b4` retained; stale preflight pins stopped with zero timed pairs and zero GitHub actions
+
+**Blocked live recovery history** *(seven-pin authority passed; committed audit pre-state stopped before timed validation or GitHub)*
+
+- [x] 235.1-23-PLAN.md — Seven-pin repair retained; candidate `942df63e` stopped on omitted 21/24 audit pre-state with zero timed pairs/GitHub
+
+**Blocked live recovery history** *(audit authority and untimed gates passed; Bash 3 mapfile failure stopped before any pair/GitHub)*
+
+- [x] 235.1-24-PLAN.md — Audit authority `bc5f4b29` retained; candidate `a2c1139d` stopped before pair creation on Bash 3 portability
+
+**Blocked live recovery history** *(Bash 3 portability passed; Bash 5 nounset stopped before pair 1/GitHub)*
+
+- [x] 235.1-25-PLAN.md — Portable runner authority `820ef36f` retained; candidate `634c4d5a` stopped on uninitialized array under Bash 5
+
+**Wave 23** *(active; blocked on Plan 25 diagnosis)*
+
+- [ ] 235.1-26-PLAN.md — Test the production loader under Bash 3/5, initialize its array, and capture/validate the exact tree
+
+**Wave 24** *(blocked on Plan 26)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

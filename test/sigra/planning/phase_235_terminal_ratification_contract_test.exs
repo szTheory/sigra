@@ -1,5 +1,25 @@
+Code.require_file("../../support/ci/phase_235_1_evidence_state_contract.exs", __DIR__)
+
 defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   use ExUnit.Case, async: true
+
+  alias Sigra.Planning.Phase2351EvidenceStateContract, as: EvidenceState
+
+  @tag :document_transition
+  test "Plan 21 terminal documents preserve pre-evidence disclosures" do
+    state = EvidenceState.repository_state()
+
+    assert EvidenceState.validate_documents(state, %{
+             ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md" =>
+               File.read!(
+                 ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VERIFICATION.md"
+               ),
+             ".planning/phases/235-terminal-ratification-measured-not-read/235-VERIFICATION.md" =>
+               File.read!(
+                 ".planning/phases/235-terminal-ratification-measured-not-read/235-VERIFICATION.md"
+               )
+           }) == :ok
+  end
 
   @ledger_path ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
   @protected_receipt_path ".planning/phases/235-terminal-ratification-measured-not-read/235-PROTECTED-RECEIPTS.json"
