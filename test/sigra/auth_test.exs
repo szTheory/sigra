@@ -366,7 +366,8 @@ defmodule Sigra.AuthTest do
           handler_id,
           [:sigra, :auth, :login, :stop],
           fn
-            [:sigra, :auth, :login, :stop], measurements,
+            [:sigra, :auth, :login, :stop],
+            measurements,
             %{user_id: 5, failed_attempts_before: 3} = metadata,
             _config ->
               send(test_pid, {:correlated_login_stop, measurements, metadata})
