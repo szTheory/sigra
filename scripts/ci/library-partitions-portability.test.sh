@@ -7,6 +7,7 @@ ORACLE="$ROOT/test/support/ci/library_test_partitions.exs"
 PHASE_DIR="$ROOT/.planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test"
 CALIBRATION="$PHASE_DIR/235.1-PARTITION-CALIBRATION.json"
 MANIFEST="$PHASE_DIR/235.1-PARTITION-CALIBRATION-MANIFEST.json"
+AUTHORITY_VERIFY="$ROOT/scripts/ci/verify-library-routing-evidence.sh"
 
 fail() { printf 'library-partitions-portability.test: FAIL: %s\n' "$*" >&2; exit 1; }
 
@@ -163,36 +164,98 @@ PATH="${PATH#"$test_root/bin:"}" ASDF_ERLANG_VERSION="${ASDF_ERLANG_VERSION:-28.
   'p=Sigra.CI.LibraryTestPartitions.build_partitions!(); for id <- [1,2] do x=p[id]; IO.puts("META\t#{id}\t#{length(x.paths)}\t#{x.total_us}\t#{Sigra.CI.LibraryTestPartitions.manifest_sha256(x.paths)}"); Enum.each(x.paths,&IO.puts("PATH\t#{id}\t#{&1}")) end' \
   >"$test_root/oracle.tsv"
 
-python3 - "$ROOT" "$test_root/oracle.tsv" "$CALIBRATION" "$MANIFEST" <<'PY'
-import hashlib,json,os,sys
-root,oracle_path,calibration_path,manifest_path=sys.argv[1:]
+"$AUTHORITY_VERIFY" --print-active-authority >"$test_root/active-authority.json"
+
+python3 - "$ROOT" "$test_root/oracle.tsv" "$CALIBRATION" "$MANIFEST" "$test_root/active-authority.json" <<'PY'
+import copy,hashlib,json,os,sys
+root,oracle_path,calibration_path,manifest_path,authority_path=sys.argv[1:]
+calibration_relative=os.path.relpath(calibration_path,root)
+manifest_relative=os.path.relpath(manifest_path,root)
+portability_relative="scripts/ci/library-partitions-portability.test.sh"
+
+def sha(data): return hashlib.sha256(data).hexdigest()
+def canonical(value): return (json.dumps(value,sort_keys=True,separators=(",",":"))+"\n").encode()
+def newline_manifest(values): return sha(("\n".join(values)+"\n").encode())
+
+def check(meta,paths,cal,manifest,cal_bytes,manifest_bytes,authority):
+ assert set(meta)==set(paths)=={1,2}
+ assert all(paths[pid] and paths[pid]==sorted(paths[pid]) for pid in (1,2))
+ assert not set(paths[1])&set(paths[2])
+ universe=cal["ordinary_universe"]
+ all_paths=sorted(paths[1]+paths[2])
+ assert len(all_paths)==len(set(all_paths))==universe["count"]
+ assert all_paths==universe["paths"]
+ source=universe["source_files"]
+ assert [row["path"] for row in source]==all_paths
+ assert sha(("\0".join(all_paths)+"\0").encode())==universe["nul_manifest_sha256"]
+ costs={row["path"]:row["time_us"] for row in cal["derived_costs"]}
+ assert len(costs)==len(cal["derived_costs"]) and set(costs)==set(all_paths)
+ for pid in (1,2):
+  count,total,digest=meta[pid]
+  assert count==len(paths[pid])
+  assert total==sum(costs[path] for path in paths[pid])
+  assert digest==newline_manifest(paths[pid])
+ source_digest=sha(canonical(source))
+ assert source_digest==manifest["ordinary_source_index_sha256"]
+ for row in source:
+  data=open(os.path.join(root,row["path"]),"rb").read()
+  assert len(data)==row["byte_count"] and sha(data)==row["sha256"]
+ binding=manifest["calibration"]
+ assert binding["path"]==calibration_relative
+ assert binding["byte_count"]==len(cal_bytes) and binding["sha256"]==sha(cal_bytes)
+ entries=[entry for entry in authority if entry["path"] in (calibration_relative,manifest_relative)]
+ assert len(entries)==2 and len({entry["path"] for entry in entries})==2
+ by_path={entry["path"]:entry for entry in entries}
+ assert portability_relative not in {entry["path"] for entry in authority}
+ assert by_path[calibration_relative]=={"path":calibration_relative,"sha256":sha(cal_bytes),"size_bytes":len(cal_bytes)}
+ assert by_path[manifest_relative]=={"path":manifest_relative,"sha256":sha(manifest_bytes),"size_bytes":len(manifest_bytes)}
+ assert by_path[calibration_relative]["sha256"]==binding["sha256"]
+ assert by_path[calibration_relative]["size_bytes"]==binding["byte_count"]
+
 lines=open(oracle_path,encoding="utf-8").read().splitlines()
 meta={}; paths={1:[],2:[]}
 for line in lines:
  kind,pid,*rest=line.split("\t"); pid=int(pid)
- if kind=="META": meta[pid]=(int(rest[0]),int(rest[1]),rest[2])
- elif kind=="PATH": paths[pid].append(rest[0])
+ if kind=="META":
+  assert pid not in meta and len(rest)==3
+  meta[pid]=(int(rest[0]),int(rest[1]),rest[2])
+ elif kind=="PATH":
+  assert len(rest)==1
+  paths.setdefault(pid,[]).append(rest[0])
  else: raise AssertionError(line)
-assert meta=={
- 1:(111,22878707,"8e5c31efc1ca73ca05939c70b423e579d86944ecfc49b693fb93d6e2c356aabc"),
- 2:(114,22878706,"1740e9fee3f3670d64ad8a843dda90935797b7204640e83e979cb18d212e044a"),
-}
-assert all(values==sorted(values) for values in paths.values())
-all_paths=sorted(paths[1]+paths[2])
-assert len(all_paths)==225 and len(set(all_paths))==225 and not set(paths[1])&set(paths[2])
-cal_bytes=open(calibration_path,"rb").read(); manifest_bytes=open(manifest_path,"rb").read()
-assert hashlib.sha256(cal_bytes).hexdigest()=="f54316873b2e66cb39277e063accf1168736eb9d3f74ee6c61183a845244e99b"
-assert hashlib.sha256(manifest_bytes).hexdigest()=="1168cda99d40277253a0eb4a1c2e7ce3debdb3f92d77f3ca88c304690539e424"
+cal_bytes=open(calibration_path,"rb").read()
+manifest_bytes=open(manifest_path,"rb").read()
 cal=json.loads(cal_bytes); manifest=json.loads(manifest_bytes)
-assert cal["ordinary_universe"]["count"]==225 and cal["ordinary_universe"]["paths"]==all_paths
-assert hashlib.sha256(("\0".join(all_paths)+"\0").encode()).hexdigest()==cal["ordinary_universe"]["nul_manifest_sha256"]=="78a70051f7aa55f91de5849327b86dca7915028b15d263230efb5c217b1907f7"
-source=cal["ordinary_universe"]["source_files"]
-canonical=(json.dumps(source,sort_keys=True,separators=(",",":"))+"\n").encode()
-assert hashlib.sha256(canonical).hexdigest()==manifest["ordinary_source_index_sha256"]=="f4ffd881ff99ce65bc1bfef576188de24ed99064f0e7132306d0831fe8dc4485"
-assert [row["path"] for row in source]==all_paths
-for row in source:
- data=open(os.path.join(root,row["path"]),"rb").read()
- assert len(data)==row["byte_count"] and hashlib.sha256(data).hexdigest()==row["sha256"]
+authority=json.load(open(authority_path,encoding="utf-8"))
+
+pristine=(meta,paths,cal,manifest,cal_bytes,manifest_bytes,authority)
+check(*pristine)
+def rejects(label,mutate):
+ values=list(copy.deepcopy(pristine))
+ mutate(values)
+ try: check(*values)
+ except (AssertionError,KeyError,TypeError,ValueError): pass
+ else: raise AssertionError("accepted "+label)
+ check(*pristine)
+
+rejects("reported count",lambda v:v[0].__setitem__(1,(v[0][1][0]+1,*v[0][1][1:])))
+rejects("reported total",lambda v:v[0].__setitem__(1,(v[0][1][0],v[0][1][1]+1,v[0][1][2])))
+rejects("partition manifest",lambda v:v[0].__setitem__(1,(*v[0][1][:2],"0"*64)))
+rejects("dropped membership",lambda v:v[1][1].pop())
+rejects("duplicated membership",lambda v:v[1][1].append(v[1][1][-1]))
+def swap_membership(values):
+ values[1][1][0],values[1][2][0]=values[1][2][0],values[1][1][0]
+ values[1][1].sort(); values[1][2].sort()
+rejects("swapped membership",swap_membership)
+rejects("calibration artifact bytes",lambda v:v.__setitem__(4,v[4]+b"X"))
+rejects("calibration binding digest",lambda v:v[3]["calibration"].__setitem__("sha256","0"*64))
+rejects("calibration binding size",lambda v:v[3]["calibration"].__setitem__("byte_count",v[3]["calibration"]["byte_count"]+1))
+def mutate_active(values,path,key,value):
+ next(entry for entry in values[6] if entry["path"]==path)[key]=value
+rejects("active calibration digest",lambda v:mutate_active(v,calibration_relative,"sha256","0"*64))
+rejects("active calibration size",lambda v:mutate_active(v,calibration_relative,"size_bytes",len(v[4])+1))
+rejects("active manifest digest",lambda v:mutate_active(v,manifest_relative,"sha256","0"*64))
+rejects("active manifest size",lambda v:mutate_active(v,manifest_relative,"size_bytes",len(v[5])+1))
 PY
 
 printf 'library-partitions-portability.test: PASS (system bash %s; modern bash %s)\n' "$system_major" "$modern_major"
