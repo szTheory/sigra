@@ -672,7 +672,7 @@ Plans:
 
 **Wave 34** *(active; blocked on Plan 36 diagnostics)*
 
-- [ ] 235.1-37-PLAN.md — Make the reachable-provenance control self-contained, rebind its source row, and recapture strict live evidence
+- [x] 235.1-37-PLAN.md — Make the reachable-provenance control self-contained, rebind its source row, and recapture strict live evidence
 
 **Wave 35** *(blocked on Plan 37)*
 

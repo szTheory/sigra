@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-36 blocked at attempt-1 PR capture run 34564383170
-last_updated: "2026-09-11T05:12:07.561Z"
+stopped_at: Plan 235.1-37 blocked at attempt-1 PR capture run 34594098613
+last_updated: "2026-09-11T13:10:48.075Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: d7d4cee057de668f177ab8ff6e76ad2a4bbfb186
+state_head: 3025561434c26e7a583dbc532f613b6168e5a542
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 103
-  completed_plans: 98
+  total_plans: 104
+  completed_plans: 99
   percent: 86
 ---
 
@@ -484,6 +484,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 33 sole recovery invocation stopped in pair 2 partition 1: async Sigra.AuthTest consumed Sigra.TelemetryTest's global login-stop event (expected user_id 5, observed 1); no retry or GitHub evidence is admissible.
 - Plan 235.1-35 attempt-1 PR capture run 34562007714 failed in Library tests shard job 103146530106: invalid partition calibration source snapshot commit/tree; the exact-six dispatch selected job passed, but no receipts or validation evidence are admissible.
 - Plan 36 attempt-1 PR run 34564383170 failed: reachable-provenance fixture fetched unavailable b37ac116 from shallow checkout; no retry or receipts.
+- Plan 37 attempt-1 PR run 34594098613 failed in Library tests shard job 103245785859: three planning-contract tests resolve unavailable historical revisions d405755f, 81afbf0c, and fd97522d in the shallow checkout; no retry or receipts.
 
 ### Roadmap Evolution
 
@@ -671,9 +672,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T05:12:07.247Z
-Stopped at: Plan 235.1-36 blocked at attempt-1 PR capture run 34564383170
-Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-36-SUMMARY.md
+Last session: 2026-09-11T13:10:47.767Z
+Stopped at: Plan 235.1-37 blocked at attempt-1 PR capture run 34594098613
+Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-37-SUMMARY.md
 
 ## Operator Next Steps
 
@@ -850,3 +851,4 @@ Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-ga
 | Phase 235.1 P34 | 12m | 2 tasks | 1 files |
 | Phase 235.1 P35 | 51m | 2 tasks | 5 files |
 | Phase 235.1 P36 | 28m | 2 tasks | 6 files |
+| Phase 235.1 P37 | 5h 1m | 2 tasks | 5 files |
