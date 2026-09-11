@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 15 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 16 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -630,10 +630,14 @@ Plans:
 
 - [x] 235.1-26-PLAN.md — Authority `105498a7`/candidate `9ae29062` retained; symlinked build leaked main-checkout receipt paths
 
-**Wave 24** *(active; blocked on Plan 26 diagnosis)*
+**Blocked live recovery history** *(contained paths passed; global outer build path broke nested fixture-private build before a completed pair/GitHub)*
 
-- [ ] 235.1-27-PLAN.md — Reuse candidate `9ae29062` in a fully contained offline build, then capture/validate its exact SHA
+- [x] 235.1-27-PLAN.md — Candidate `9ae29062` retained; C.1 stopped at partition 2 relocation failure with zero completed pairs/GitHub
 
-**Wave 25** *(blocked on Plan 27)*
+**Wave 25** *(active; blocked on Plan 27 diagnosis)*
+
+- [ ] 235.1-28-PLAN.md — Reuse `9ae29062` with default outer/private nested builds, then capture/validate its exact SHA
+
+**Wave 26** *(blocked on Plan 28)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
