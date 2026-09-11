@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-43 halted at non-materialized protected snapshot
-last_updated: "2026-09-11T17:55:49.758Z"
+stopped_at: Plan 235.1-44 halted at fake-client exact-environment gate
+last_updated: "2026-09-11T18:22:38.045Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 58d271a2002328c39979a244eed00ea3f8a63380
+state_head: be5e0895ff6bbc970cc718fce811f81a6c67b1e3
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 110
-  completed_plans: 105
+  total_plans: 111
+  completed_plans: 106
   percent: 86
 ---
 
@@ -489,6 +489,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Phase 235.1 Plan 39 fixed health sample failed: load 25.32 > 18 CPUs, one foreign idle-in-transaction session, and 132 matching scratch databases; timing and GitHub budgets remain unused.
 - Plan 235.1-41 halted: the sole health collection did not materialize its required RR/RO PostgreSQL snapshot, so no canonical health receipt, timing series, or live evidence is admissible.
 - Plan 235.1-43 halted: the sole RR/RO protected-database snapshot produced no materialized SELECT tuple, so no protected receipt, collector, timing, or live evidence is admissible.
+- Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
 
 ### Roadmap Evolution
 
@@ -676,8 +677,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T17:55:49.365Z
-Stopped at: Plan 235.1-43 halted at non-materialized protected snapshot
+Last session: 2026-09-11T18:22:37.626Z
+Stopped at: Plan 235.1-44 halted at fake-client exact-environment gate
 Resume file: None
 
 ## Operator Next Steps
