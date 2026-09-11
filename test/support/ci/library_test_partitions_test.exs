@@ -10,17 +10,15 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
   @immutable_source_commit "b37ac1164cee96be11a5cdeb60b31db560018e04"
   @immutable_source_tree "02bb907f075b1428d89bb87e519c0e0d8810fcd9"
 
+  @tag :provenance_fixture
   test "exact runtime source index authorizes a shallow checkout without the provenance object" do
     fixture = shallow_repository_fixture!()
 
-    {_output, status} =
-      System.cmd(
-        "git",
-        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
-        stderr_to_stdout: true
-      )
+    assert_standalone_repository!(fixture.root)
+    assert_git_object_missing!(fixture.root, @immutable_source_commit, "commit")
+    assert_git_object_missing!(fixture.root, @immutable_source_tree, "tree")
+    assert_git_object_missing!(fixture.root, "47f9578fc97edc63603953d446e79fac884326c3", "commit")
 
-    assert status != 0
     loaded = LibraryTestPartitions.load_calibration!(root: fixture.root)
     partitions = LibraryTestPartitions.assign!(loaded.costs)
 
@@ -28,22 +26,16 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     assert length(partitions[2].paths) == 111
   end
 
+  @tag :provenance_fixture
   test "reachable provenance remains a non-authorizing compatibility control" do
     fixture = shallow_repository_fixture!()
 
-    {_, 0} =
-      System.cmd(
-        "git",
-        ["-C", fixture.root, "fetch", "--quiet", File.cwd!(), @immutable_source_commit],
-        stderr_to_stdout: true
-      )
+    assert_standalone_repository!(fixture.root)
+    assert_git_object_missing!(fixture.root, @immutable_source_commit, "commit")
+    assert_git_object_missing!(fixture.root, @immutable_source_tree, "tree")
+    assert_git_object_missing!(fixture.root, "47f9578fc97edc63603953d446e79fac884326c3", "commit")
 
-    {_, 0} =
-      System.cmd(
-        "git",
-        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
-        stderr_to_stdout: true
-      )
+    install_exact_provenance_object!(fixture.root)
 
     loaded = LibraryTestPartitions.load_calibration!(root: fixture.root)
     partitions = LibraryTestPartitions.assign!(loaded.costs)
@@ -762,6 +754,44 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
       calibration_path: calibration_path,
       manifest_path: manifest_path
     }
+  end
+
+  defp install_exact_provenance_object!(_root) do
+    flunk("fixture-local exact provenance object installer is not implemented")
+  end
+
+  defp assert_standalone_repository!(root) do
+    assert File.dir?(Path.join(root, ".git"))
+    refute File.regular?(Path.join(root, ".git"))
+    refute File.exists?(Path.join(root, ".git/objects/info/alternates"))
+
+    {common_dir, 0} = fixture_git!(root, ["rev-parse", "--git-common-dir"])
+    assert String.trim(common_dir) == ".git"
+
+    {objects_dir, 0} = fixture_git!(root, ["rev-parse", "--git-path", "objects"])
+    assert String.trim(objects_dir) == ".git/objects"
+
+    {remotes, 0} = fixture_git!(root, ["remote"])
+    assert String.trim(remotes) == ""
+  end
+
+  defp assert_git_object_missing!(root, object, type) do
+    {_output, status} = fixture_git!(root, ["cat-file", "-e", "#{object}^{#{type}}"])
+    assert status != 0
+  end
+
+  defp fixture_git!(root, args, opts \\ []) do
+    env = [
+      {"GIT_ALTERNATE_OBJECT_DIRECTORIES", nil},
+      {"GIT_OBJECT_DIRECTORY", nil},
+      {"GIT_COMMON_DIR", nil},
+      {"GIT_DIR", nil},
+      {"GIT_WORK_TREE", nil}
+    ]
+
+    System.cmd("git", ["-C", root | args],
+      Keyword.merge([stderr_to_stdout: true, env: env], opts)
+    )
   end
 
   defp assert_fixture_mutation!(message, mutate) do
