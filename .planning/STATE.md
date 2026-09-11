@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 31 halted at first local pair timing-path containment alias
-last_updated: "2026-09-11T02:22:11.997Z"
+stopped_at: Plan 32 halted at timed pair 2 PostgreSQL setup timeout
+last_updated: "2026-09-11T02:45:00.999Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 9cb590abf2eac0e1714c52200e9e54a4fe8d5bf7
+state_head: 03aec79e5ab051b1540f9d975fd3b6f7813cfc91
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 98
-  completed_plans: 93
+  total_plans: 99
+  completed_plans: 94
   percent: 86
 ---
 
@@ -478,6 +478,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 29 blocked before timed validation: frozen library-partitions-portability.test.sh pins superseded Plan 22 assignment/artifact values but the exact four-file authority forbids updating that fifth file.
 - Plan 30: sole local validation invocation failed pair 3 at raw 3ms/1ms comparability; no retry or GitHub evidence permitted
 - Plan 31: sole timed validation stopped on macOS /tmp versus /private/tmp lexical containment alias; no retry or live evidence admitted
+- Plan 32 timed pair 2 partition 1 invalidated Sigra.Audit.QueryIndexTest after a 15s PostgreSQL setup query timeout; no timed retry is admissible.
 
 ### Roadmap Evolution
 
@@ -665,8 +666,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T02:22:11.339Z
-Stopped at: Plan 31 halted at first local pair timing-path containment alias
+Last session: 2026-09-11T02:45:00.169Z
+Stopped at: Plan 32 halted at timed pair 2 PostgreSQL setup timeout
 Resume file: None
 
 ## Operator Next Steps
@@ -839,3 +840,4 @@ Resume file: None
 | Phase 235.1 P22 | 17m | 2 tasks | 3 files |
 | Phase 235.1 P27 | 18m | 1 tasks | 1 files |
 | Phase 235.1 P28 | 16m | 1 tasks | 1 files |
+| Phase 235.1 P32 | 15m | 1 tasks | 4 files |
