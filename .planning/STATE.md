@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-46 halted inside sole transaction-framing fixture matrix
-last_updated: "2026-09-11T19:41:07Z"
+stopped_at: Plan 235.1-47 halted at fresh-namespace precondition
+last_updated: "2026-09-11T20:13:55Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-46 preserved a permanent one-shot fixture-matrix hard stop
-state_head: 04b1c6902bdb9343202e7b3cf9aaff919892d467
+last_activity_desc: Plan 235.1-47 preserved a permanent precondition hard stop before any one-shot work
+state_head: 43aec33ea5c4280d3c4c9facec6f3c82202c23b5
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 46 of 46
-Status: Blocked — Plan 46 sole fixture wrapper consumed without a receipt
+Plan: 47 of 47
+Status: Blocked — Plan 47 fresh namespace precondition failed before Task 1
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -679,8 +679,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T19:41:07Z
-Stopped at: Plan 235.1-46 halted inside sole transaction-framing fixture matrix
+Last session: 2026-09-11T20:13:55Z
+Stopped at: Plan 235.1-47 halted at fresh-namespace precondition
 Resume file: None
 
 ## Operator Next Steps
