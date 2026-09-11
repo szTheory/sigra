@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Blocked 235.1-28 at sole timed self-test during local pair C.1 comparability
-last_updated: "2026-09-11T00:58:29.841Z"
+stopped_at: Plan 29 halted at frozen portability expectation mismatch
+last_updated: "2026-09-11T01:27:13.537Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: c093ac51fab622d3426e1e08f85ef19a36e953a9
+state_head: 80e975fcc25c90de22a4239508e467c8590f390d
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 95
-  completed_plans: 90
+  total_plans: 96
+  completed_plans: 91
   percent: 86
 ---
 
@@ -475,6 +475,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
 - Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
 - Plan 28 blocked: sole default-build local harness invocation produced green 111/114 children at 4,643ms/13,965ms but failed the immutable <=2.0 comparability predicate at 3.008; no retry or GitHub action permitted.
+- Plan 29 blocked before timed validation: frozen library-partitions-portability.test.sh pins superseded Plan 22 assignment/artifact values but the exact four-file authority forbids updating that fifth file.
 
 ### Roadmap Evolution
 
@@ -662,9 +663,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T00:58:29.556Z
-Stopped at: Blocked 235.1-28 at sole timed self-test during local pair C.1 comparability
-Resume file: None
+Last session: 2026-09-11T01:27:13.216Z
+Stopped at: Plan 29 halted at frozen portability expectation mismatch
+Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-29-SUMMARY.md
 
 ## Operator Next Steps
 
