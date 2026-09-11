@@ -62,16 +62,37 @@ printf '%s\n' \
   '  partition="${MIX_TEST_PARTITION:?}"' \
   '  printf "%s\\0" "$@" >>"${ARGV_LOG:?}"' \
   '  printf "%s\\n" "$partition" >>"${ORDER_LOG:?}"' \
+  '  if [[ -n "${CHILD_DELAY_SECONDS:-}" ]]; then sleep "$CHILD_DELAY_SECONDS"; fi' \
   '  case "$partition" in' \
   '    1) files="[\"${REPO_ROOT:?}/test/a space_test.exs\",\"test/literal[abc]*_test.exs\"]" ;;' \
   '    2) files='"'"'["test/z final_test.exs"]'"'"' ;;' \
   '    *) exit 91 ;;' \
   '  esac' \
   '  jq -n --argjson files "$files" '"'"'{schema_version:1,tests:[$files[]|{file:.,module:"Portable",name:"test argv",time_us:1,outcome:"passed"}],total:($files|length),passed:($files|length),failed:0,skipped:0,excluded:0,invalid:0}'"'"' >"${SIGRA_EXUNIT_TIMING_PATH:?}"' \
+  '  if [[ "${FAIL_PARTITION:-}" == "$partition" ]]; then exit "${FAIL_STATUS:-42}"; fi' \
   '  exit 0' \
   'fi' \
   'exit 99' >"$test_root/bin/mix"
 chmod +x "$test_root/bin/mix"
+
+mkdir -p "$test_root/clock-bin"
+printf '%s\n' \
+  '#!/bin/bash' \
+  'set -eu' \
+  'sequence=${CLOCK_SEQUENCE:?}' \
+  'lock=${sequence}.lock' \
+  'attempts=0' \
+  'until mkdir "$lock" 2>/dev/null; do attempts=$((attempts + 1)); [[ "$attempts" -lt 1000 ]] || exit 72; done' \
+  'trap '\''rmdir "$lock" 2>/dev/null || true'\'' EXIT' \
+  'value=$(sed -n '\''1p'\'' "$sequence")' \
+  '[[ -n "$value" ]] || exit 73' \
+  'sed '\''1d'\'' "$sequence" >"${sequence}.next"' \
+  'mv "${sequence}.next" "$sequence"' \
+  'printf '\''%s\n'\'' "$value"' >"$test_root/clock-bin/python3"
+chmod +x "$test_root/clock-bin/python3"
+mkdir -p "$test_root/real-clock-bin"
+printf '%s\n' '#!/bin/bash' 'exec /usr/bin/python3 "$@"' >"$test_root/real-clock-bin/python3"
+chmod +x "$test_root/real-clock-bin/python3"
 
 run_nonempty() {
   local label="$1" shell="$2" case_root="$test_root/$1-nonempty" status
@@ -115,10 +136,87 @@ run_empty() {
   cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
 }
 
+run_controlled_clock() {
+  local label="$1" shell="$2" case_root="$test_root/$1-controlled" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  printf '%s\n' 1700000000000 1700000000125 1700000001000 1700000001225 >"$case_root/clock.sequence"
+  set +e
+  PATH="$test_root/clock-bin:$test_root/bin:$PATH" CLOCK_SEQUENCE="$case_root/clock.sequence" \
+    REPO_ROOT="$ROOT" ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  if [[ "$status" != 0 ]]; then
+    sed -n '1,20p' "$case_root/stderr" >&2
+    fail "$label controlled-clock runner failed with status $status"
+  fi
+  cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+  [[ ! -s "$case_root/clock.sequence" ]] || fail "$label controlled clock did not consume exactly four values"
+}
+
+run_real_clock() {
+  local label="$1" shell="$2" case_root="$test_root/$1-real-clock" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  set +e
+  PATH="$test_root/real-clock-bin:$test_root/bin:$PATH" CHILD_DELAY_SECONDS=0.08 REPO_ROOT="$ROOT" \
+    ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  [[ "$status" == 0 ]] || fail "$label real-clock runner failed with status $status"
+  cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+}
+
+run_bad_clock() {
+  local label="$1" shell="$2" kind="$3" values="$4" case_root="$test_root/$1-$3-clock" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  printf '%s' "$values" >"$case_root/clock.sequence"
+  set +e
+  PATH="$test_root/clock-bin:$test_root/bin:$PATH" CLOCK_SEQUENCE="$case_root/clock.sequence" \
+    REPO_ROOT="$ROOT" ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  [[ "$status" != 0 ]] || fail "$label accepted $kind controlled clock"
+}
+
+run_child_failure() {
+  local label="$1" shell="$2" case_root="$test_root/$1-child-failure" status
+  mkdir -p "$case_root"
+  : >"$case_root/argv.bin"
+  : >"$case_root/order.txt"
+  set +e
+  PATH="$test_root/bin:$PATH" FAIL_PARTITION=1 FAIL_STATUS=42 REPO_ROOT="$ROOT" \
+    ARGV_LOG="$case_root/argv.bin" ORDER_LOG="$case_root/order.txt" \
+    "$shell" "$RUNNER" >"$case_root/stdout" 2>"$case_root/stderr"
+  status=$?
+  set -e
+  [[ "$status" == 42 ]] || fail "$label did not propagate first-child status 42 (got $status)"
+  cp /tmp/sigra-library-partitions.json "$case_root/receipt.json"
+}
+
 run_nonempty system "$system_bash"
 run_empty system "$system_bash"
+run_controlled_clock system "$system_bash"
+run_real_clock system "$system_bash"
+run_bad_clock system "$system_bash" malformed $'not-an-integer\n'
+run_bad_clock system "$system_bash" regressing $'1700000000100\n1700000000000\n'
+run_bad_clock system "$system_bash" exhausted $'1700000000000\n'
+run_child_failure system "$system_bash"
 run_nonempty modern "$modern_bash"
 run_empty modern "$modern_bash"
+run_controlled_clock modern "$modern_bash"
+run_real_clock modern "$modern_bash"
+run_bad_clock modern "$modern_bash" malformed $'not-an-integer\n'
+run_bad_clock modern "$modern_bash" regressing $'1700000000100\n1700000000000\n'
+run_bad_clock modern "$modern_bash" exhausted $'1700000000000\n'
+run_child_failure modern "$modern_bash"
 
 python3 - "$ROOT" "$test_root" <<'PY'
 import hashlib,json,os,sys
@@ -153,6 +251,20 @@ for label in ("system","modern"):
  assert r["ordinary_universe"]["paths"]==["test/z final_test.exs"]
  assert [p["conclusion"] for p in r["partitions"]]==["failure","not_run"]
  assert [p["exit_status"] for p in r["partitions"]]==[1,0]
+for label in ("system","modern"):
+ r=json.load(open(os.path.join(test_root,label+"-controlled","receipt.json"),encoding="utf-8"))
+ assert [(p["start_ms"],p["end_ms"],p["duration_ms"]) for p in r["partitions"]]==[(1700000000000,1700000000125,125),(1700000001000,1700000001225,225)]
+ assert [p["conclusion"] for p in r["partitions"]]==["success","success"]
+ assert [p["exit_status"] for p in r["partitions"]]==[0,0]
+ r=json.load(open(os.path.join(test_root,label+"-real-clock","receipt.json"),encoding="utf-8"))
+ for p in r["partitions"]:
+  assert p["end_ms"]>p["start_ms"]
+  assert p["duration_ms"]==p["end_ms"]-p["start_ms"]
+  assert 60<=p["duration_ms"]<5000
+ r=json.load(open(os.path.join(test_root,label+"-child-failure","receipt.json"),encoding="utf-8"))
+ assert [p["conclusion"] for p in r["partitions"]]==["failure","not_run"]
+ assert [p["exit_status"] for p in r["partitions"]]==[42,0]
+ assert open(os.path.join(test_root,label+"-child-failure","order.txt"),encoding="utf-8").read()=="1\n"
 PY
 
 if grep -Eq '(^|[^[:alnum:]_])(mapfile|readarray)([^[:alnum:]_]|$)' "$RUNNER"; then
