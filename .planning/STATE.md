@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Blocked 235.1-26 at sole timed self-test before local pair 1
-last_updated: "2026-09-11T00:10:04.633Z"
+stopped_at: Blocked 235.1-27 at sole timed self-test during local pair C.1 partition 2
+last_updated: "2026-09-11T00:26:49.347Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 105498a76a0cd05d24451ea8f87cc60a1778e2b8
+state_head: 9471a22ccada815579a38ac915ff208f8eee6723
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 93
-  completed_plans: 88
+  total_plans: 94
+  completed_plans: 89
   percent: 86
 ---
 
@@ -473,6 +473,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
 - Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
 - Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
+- Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
 
 ### Roadmap Evolution
 
@@ -660,8 +661,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T00:10:04.328Z
-Stopped at: Blocked 235.1-26 at sole timed self-test before local pair 1
+Last session: 2026-09-11T00:26:49.036Z
+Stopped at: Blocked 235.1-27 at sole timed self-test during local pair C.1 partition 2
 Resume file: None
 
 ## Operator Next Steps
@@ -832,3 +833,4 @@ Resume file: None
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
 | Phase 235.1 P22 | 17m | 2 tasks | 3 files |
+| Phase 235.1 P27 | 18m | 1 tasks | 1 files |
