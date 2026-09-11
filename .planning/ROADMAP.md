@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 25 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 26 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -674,10 +674,14 @@ Plans:
 
 - [x] 235.1-37-PLAN.md — Candidate `87338db7` retained; PR `34594098613` failed three old-object assertions while dispatch `34594093081` passed, so no receipts were admitted
 
-**Wave 35** *(active; blocked on Plan 37 diagnostics)*
+**Blocked local recovery history** *(history-free suite and first two pairs passed; pair 3 hit isolated broad host/scheduler skew at 2.174×)*
 
-- [x] 235.1-38-PLAN.md — Replace all active old-object assertions with byte-pinned semantic history, rebind one source row, and recapture strict live evidence
+- [x] 235.1-38-PLAN.md — Exact unpushed candidate `3713dcd4` retained; pair 3 measured 63,852ms/29,367ms after eleven preceding comparable pairs, with zero GitHub action
 
-**Wave 36** *(blocked on Plan 38)*
+**Wave 36** *(active; bounded AGENTS.md transient recovery from Plan 38)*
+
+- [ ] 235.1-39-PLAN.md — Health-gate one unchanged-candidate recovery series, then capture and validate strict live evidence
+
+**Wave 37** *(blocked on Plan 39)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
