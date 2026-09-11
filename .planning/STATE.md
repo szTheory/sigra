@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-44 halted at fake-client exact-environment gate
-last_updated: "2026-09-11T18:22:38.045Z"
+stopped_at: Plan 235.1-45 halted at sole collector dry-run parser gate
+last_updated: "2026-09-11T18:43:54.037Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: be5e0895ff6bbc970cc718fce811f81a6c67b1e3
+state_head: 270b6a5f492081e45af67edda72ca483955ffba8
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 111
-  completed_plans: 106
+  total_plans: 112
+  completed_plans: 107
   percent: 86
 ---
 
@@ -490,6 +490,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-41 halted: the sole health collection did not materialize its required RR/RO PostgreSQL snapshot, so no canonical health receipt, timing series, or live evidence is admissible.
 - Plan 235.1-43 halted: the sole RR/RO protected-database snapshot produced no materialized SELECT tuple, so no protected receipt, collector, timing, or live evidence is admissible.
 - Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
+- Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
 
 ### Roadmap Evolution
 
@@ -677,8 +678,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T18:22:37.626Z
-Stopped at: Plan 235.1-44 halted at fake-client exact-environment gate
+Last session: 2026-09-11T18:43:53.615Z
+Stopped at: Plan 235.1-45 halted at sole collector dry-run parser gate
 Resume file: None
 
 ## Operator Next Steps
