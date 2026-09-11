@@ -1,20 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 235.1
+current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 32 halted at timed pair 2 PostgreSQL setup timeout
-last_updated: "2026-09-11T02:45:00.999Z"
+stopped_at: Plan 33 halted at pair 2 async login telemetry cross-test failure
+last_updated: "2026-09-11T03:09:27.212Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 03aec79e5ab051b1540f9d975fd3b6f7813cfc91
+state_head: 59e0b06de3fbfd7160681c167d5b3147d3f01954
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 99
-  completed_plans: 94
+  total_plans: 100
+  completed_plans: 95
   percent: 86
 ---
 
@@ -479,6 +479,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 30: sole local validation invocation failed pair 3 at raw 3ms/1ms comparability; no retry or GitHub evidence permitted
 - Plan 31: sole timed validation stopped on macOS /tmp versus /private/tmp lexical containment alias; no retry or live evidence admitted
 - Plan 32 timed pair 2 partition 1 invalidated Sigra.Audit.QueryIndexTest after a 15s PostgreSQL setup query timeout; no timed retry is admissible.
+- Plan 33 sole recovery invocation stopped in pair 2 partition 1: async Sigra.AuthTest consumed Sigra.TelemetryTest's global login-stop event (expected user_id 5, observed 1); no retry or GitHub evidence is admissible.
 
 ### Roadmap Evolution
 
@@ -666,8 +667,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T02:45:00.169Z
-Stopped at: Plan 32 halted at timed pair 2 PostgreSQL setup timeout
+Last session: 2026-09-11T03:09:26.308Z
+Stopped at: Plan 33 halted at pair 2 async login telemetry cross-test failure
 Resume file: None
 
 ## Operator Next Steps
@@ -841,3 +842,4 @@ Resume file: None
 | Phase 235.1 P27 | 18m | 1 tasks | 1 files |
 | Phase 235.1 P28 | 16m | 1 tasks | 1 files |
 | Phase 235.1 P32 | 15m | 1 tasks | 4 files |
+| Phase 235.1 P33 | 15m | 1 tasks | 0 files |

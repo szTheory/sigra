@@ -656,7 +656,7 @@ Plans:
 
 **Wave 30** *(active; classified recovery after Plan 32)*
 
-- [ ] 235.1-33-PLAN.md — Classify the PostgreSQL setup timeout once, then permit one fresh recovery series only when transient
+- [x] 235.1-33-PLAN.md — Classify the PostgreSQL setup timeout once, then permit one fresh recovery series only when transient
 
 **Wave 31** *(blocked on Plan 33)*
 
