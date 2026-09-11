@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-45 halted at sole collector dry-run parser gate
-last_updated: "2026-09-11T18:43:54.037Z"
-last_activity: 2026-09-09
-last_activity_desc: Phase 235.1 execution started
-state_head: 270b6a5f492081e45af67edda72ca483955ffba8
+stopped_at: Plan 235.1-46 halted inside sole transaction-framing fixture matrix
+last_updated: "2026-09-11T19:41:07Z"
+last_activity: 2026-09-11
+last_activity_desc: Plan 235.1-46 preserved a permanent one-shot fixture-matrix hard stop
+state_head: 04b1c6902bdb9343202e7b3cf9aaff919892d467
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 3 of 5
-Status: Ready to execute
+Plan: 46 of 46
+Status: Blocked — Plan 46 sole fixture wrapper consumed without a receipt
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -491,6 +491,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-43 halted: the sole RR/RO protected-database snapshot produced no materialized SELECT tuple, so no protected receipt, collector, timing, or live evidence is admissible.
 - Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
 - Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
+- Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
 
 ### Roadmap Evolution
 
@@ -678,8 +679,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T18:43:53.615Z
-Stopped at: Plan 235.1-45 halted at sole collector dry-run parser gate
+Last session: 2026-09-11T19:41:07Z
+Stopped at: Plan 235.1-46 halted inside sole transaction-framing fixture matrix
 Resume file: None
 
 ## Operator Next Steps

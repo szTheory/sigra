@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 11
+open_count: 12
 waived_count: 0
 fixed_count: 0
-total_count: 11
-last_updated: 2026-09-11T18:43:52.896Z
+total_count: 12
+last_updated: 2026-09-11T19:42:38.151Z
 ---
 
 # Broken Windows Ledger
@@ -26,6 +26,7 @@ last_updated: 2026-09-11T18:43:52.896Z
 | 9 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-43-PLAN.md |  | Plan 43 collector, timing, and live verification were prohibited after the sole RR/RO snapshot produced no materialized tuple output | open |  | 2026-09-11T17:55:47.673Z |  |
 | 10 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-44-SUMMARY.md |  | Plan 44 sole fixture wrapper stopped at 2/6 after Python injected five environment keys; probe, protected snapshot, collector, timing, and live verification were prohibited | open |  | 2026-09-11T18:22:36.789Z |  |
 | 11 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-45-PLAN.md |  | Plan 45 Task 2 health/timing and Task 3 live verification were prohibited after the sole collector dry-run parser failure | open |  | 2026-09-11T18:43:52.896Z |  |
+| 12 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 46 timing and GitHub validation were prohibited by the consumed Task 1 hard stop | open |  | 2026-09-11T19:42:38.151Z |  |
 
 ````json
 [
@@ -164,6 +165,19 @@ last_updated: 2026-09-11T18:43:52.896Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T18:43:52.896Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 12,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 46 timing and GitHub validation were prohibited by the consumed Task 1 hard stop",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-11T19:42:38.151Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
