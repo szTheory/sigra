@@ -676,7 +676,7 @@ Plans:
 
 **Wave 35** *(active; blocked on Plan 37 diagnostics)*
 
-- [ ] 235.1-38-PLAN.md — Replace all active old-object assertions with byte-pinned semantic history, rebind one source row, and recapture strict live evidence
+- [x] 235.1-38-PLAN.md — Replace all active old-object assertions with byte-pinned semantic history, rebind one source row, and recapture strict live evidence
 
 **Wave 36** *(blocked on Plan 38)*
 
