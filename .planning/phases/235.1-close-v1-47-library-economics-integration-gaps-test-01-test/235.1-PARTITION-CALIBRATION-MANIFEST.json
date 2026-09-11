@@ -1,1 +1,15 @@
-{"calibration":{"byte_count":2968244,"path":".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","sha256":"f54316873b2e66cb39277e063accf1168736eb9d3f74ee6c61183a845244e99b"},"ordinary_source_index_sha256":"f4ffd881ff99ce65bc1bfef576188de24ed99064f0e7132306d0831fe8dc4485","payload_count":9,"sample_count":3,"schema_version":"sigra.library-partition-calibration-manifest/v1","source_snapshot":{"commit":"a28248e3ca3b3810562b98aa2e1e0a6f77f22d83","tree":"99527011b8fbad637b76df49cad9c71d4decaa29"}}
+{
+  "calibration": {
+    "byte_count": 2986763,
+    "path": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json",
+    "sha256": "8d54ea4ddb09b7aa5b6b0a5acec462f6e57ba2218a3466c31cf2cad76a562603"
+  },
+  "ordinary_source_index_sha256": "f4ffd881ff99ce65bc1bfef576188de24ed99064f0e7132306d0831fe8dc4485",
+  "payload_count": 9,
+  "sample_count": 3,
+  "schema_version": "sigra.library-partition-calibration-manifest/v1",
+  "source_snapshot": {
+    "commit": "a28248e3ca3b3810562b98aa2e1e0a6f77f22d83",
+    "tree": "99527011b8fbad637b76df49cad9c71d4decaa29"
+  }
+}
