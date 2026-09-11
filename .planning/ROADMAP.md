@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 18 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 19 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -642,10 +642,14 @@ Plans:
 
 - [x] 235.1-29-PLAN.md — Calibration `ac8f7613` and pins `80e975fc` retained; candidate `1f19b0c9` stopped on stale untimed literals
 
-**Wave 27** *(active; blocked on Plan 29 diagnosis)*
+**Blocked local recovery history** *(relational portability and all children passed; process-relative cross-process clock produced false 1–3ms durations and pair-3 rejection)*
 
-- [ ] 235.1-30-PLAN.md — Make portability assertions relational, freeze the one-file successor, then validate/capture exact evidence
+- [x] 235.1-30-PLAN.md — Candidate `33a4f235` retained; pairs 1/2 passed and pair 3's false 3ms/1ms clock ratio stopped before GitHub
 
-**Wave 28** *(blocked on Plan 30)*
+**Wave 28** *(active; blocked on Plan 30 diagnosis)*
+
+- [ ] 235.1-31-PLAN.md — Repair the cross-process clock, refresh its active pin, then validate/capture the exact successor
+
+**Wave 29** *(blocked on Plan 31)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
