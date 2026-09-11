@@ -373,6 +373,12 @@ defmodule Sigra.AuthTest do
       |> expect(:get_by, fn TestUser, _ -> user end)
       |> expect(:update, fn changeset -> {:ok, Map.merge(user, changeset.changes)} end)
 
+      :telemetry.execute(
+        [:sigra, :auth, :login, :stop],
+        %{},
+        %{user_id: 1, failed_attempts_before: 0}
+      )
+
       Auth.authenticate(
         Sigra.MockRepo,
         %{"email" => "user@example.com", "password" => "correct_password"},
