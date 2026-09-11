@@ -680,7 +680,7 @@ Plans:
 
 **Wave 36** *(active; bounded AGENTS.md transient recovery from Plan 38)*
 
-- [ ] 235.1-39-PLAN.md — Health-gate one unchanged-candidate recovery series, then capture and validate strict live evidence
+- [x] 235.1-39-PLAN.md — Health-gate one unchanged-candidate recovery series, then capture and validate strict live evidence
 
 **Wave 37** *(blocked on Plan 39)*
 
