@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Blocked 235.1-27 at sole timed self-test during local pair C.1 partition 2
-last_updated: "2026-09-11T00:26:49.347Z"
+stopped_at: Blocked 235.1-28 at sole timed self-test during local pair C.1 comparability
+last_updated: "2026-09-11T00:58:29.841Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 9471a22ccada815579a38ac915ff208f8eee6723
+state_head: c093ac51fab622d3426e1e08f85ef19a36e953a9
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 94
-  completed_plans: 89
+  total_plans: 95
+  completed_plans: 90
   percent: 86
 ---
 
@@ -474,6 +474,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
 - Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
 - Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
+- Plan 28 blocked: sole default-build local harness invocation produced green 111/114 children at 4,643ms/13,965ms but failed the immutable <=2.0 comparability predicate at 3.008; no retry or GitHub action permitted.
 
 ### Roadmap Evolution
 
@@ -661,8 +662,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T00:26:49.036Z
-Stopped at: Blocked 235.1-27 at sole timed self-test during local pair C.1 partition 2
+Last session: 2026-09-11T00:58:29.556Z
+Stopped at: Blocked 235.1-28 at sole timed self-test during local pair C.1 comparability
 Resume file: None
 
 ## Operator Next Steps
@@ -834,3 +835,4 @@ Resume file: None
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
 | Phase 235.1 P22 | 17m | 2 tasks | 3 files |
 | Phase 235.1 P27 | 18m | 1 tasks | 1 files |
+| Phase 235.1 P28 | 16m | 1 tasks | 1 files |
