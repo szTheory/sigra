@@ -660,7 +660,7 @@ Plans:
 
 **Wave 31** *(active; deterministic test-isolation repair after Plan 33)*
 
-- [ ] 235.1-34-PLAN.md — Filter login telemetry by exact identity and freeze the one-file ordinary-source successor
+- [x] 235.1-34-PLAN.md — Filter login telemetry by exact identity and freeze the one-file ordinary-source successor
 
 **Wave 32** *(blocked on Plan 34)*
 

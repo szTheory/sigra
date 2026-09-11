@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 33 halted at pair 2 async login telemetry cross-test failure
-last_updated: "2026-09-11T03:09:27.212Z"
+stopped_at: Completed 235.1-34-PLAN.md
+last_updated: "2026-09-11T03:39:32.643Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 59e0b06de3fbfd7160681c167d5b3147d3f01954
+state_head: 33945eb42a9dcdacf985c3357124f07c6c94f574
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 100
-  completed_plans: 95
+  total_plans: 102
+  completed_plans: 96
   percent: 86
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
@@ -456,6 +456,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Use the stale v1-derived placement only to route exhaustive collection; admit no bootstrap timing or payload as evidence.
 - [Phase 235.1]: Bind calibration solely to three wholly new complete triples from the frozen Plan 21 source.
 - [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
+- [Phase 235.1]: Correlate async login-stop telemetry by exact event plus user/attempt identity; preserve both test modules as async.
+- [Phase 235.1]: Source b37ac116/tree 02bb907f supersedes candidate 63910813 for fresh calibration; Plan 29 timing authority is stale source history.
 
 ### Pending Todos
 
@@ -667,8 +669,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T03:09:26.308Z
-Stopped at: Plan 33 halted at pair 2 async login telemetry cross-test failure
+Last session: 2026-09-11T03:39:32.304Z
+Stopped at: Completed 235.1-34-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -843,3 +845,4 @@ Resume file: None
 | Phase 235.1 P28 | 16m | 1 tasks | 1 files |
 | Phase 235.1 P32 | 15m | 1 tasks | 4 files |
 | Phase 235.1 P33 | 15m | 1 tasks | 0 files |
+| Phase 235.1 P34 | 12m | 2 tasks | 1 files |
