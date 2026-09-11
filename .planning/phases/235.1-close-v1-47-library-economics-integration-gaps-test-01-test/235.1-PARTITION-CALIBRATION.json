@@ -2260,9 +2260,9 @@
         "sha256": "e4b04851e4bbc7b367f0c6930739da4374c46a528bbf1ce69e5704be43813d5e"
       },
       {
-        "byte_count": 30278,
+        "byte_count": 33152,
         "path": "test/support/ci/library_test_partitions_test.exs",
-        "sha256": "f68aae0c524a662b7d6cacabea151e9d3d09fbc82a59b96714af661428289ab8"
+        "sha256": "61feccce1cd7fef696e55fcbb270c2cc80f0f8f1f29a4c3136b5a29caeecf92a"
       },
       {
         "byte_count": 38993,
