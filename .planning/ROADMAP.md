@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 22 retained failed/blocked plans, and 3 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 23 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -662,10 +662,14 @@ Plans:
 
 - [x] 235.1-34-PLAN.md — Filter login telemetry by exact identity and freeze the one-file ordinary-source successor
 
-**Wave 32** *(blocked on Plan 34)*
+**Blocked live recovery history** *(source-bound recalibration and all three local pairs passed; PR loader rejected the unreachable provenance object before receipts)*
 
-- [ ] 235.1-35-PLAN.md — Collect three new source-bound triples, rebuild calibration/pins, validate locally, and capture strict live evidence
+- [x] 235.1-35-PLAN.md — Candidate `f179e3af` retained; PR run `34562007714` failed provenance-object resolution while dispatch run `34562004702` passed, so no live evidence was admitted
 
-**Wave 33** *(blocked on Plan 35)*
+**Wave 33** *(active; blocked on Plan 35 diagnostics)*
+
+- [ ] 235.1-36-PLAN.md — Separate immutable calibration provenance from exact runtime source-index authorization, revalidate locally, and recapture strict live evidence
+
+**Wave 34** *(blocked on Plan 36)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
