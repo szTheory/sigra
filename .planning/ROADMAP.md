@@ -668,7 +668,7 @@ Plans:
 
 **Wave 33** *(active; blocked on Plan 35 diagnostics)*
 
-- [ ] 235.1-36-PLAN.md — Separate immutable calibration provenance from exact runtime source-index authorization, revalidate locally, and recapture strict live evidence
+- [x] 235.1-36-PLAN.md — Separate immutable calibration provenance from exact runtime source-index authorization, revalidate locally, and recapture strict live evidence
 
 **Wave 34** *(blocked on Plan 36)*
 
