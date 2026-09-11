@@ -72,7 +72,7 @@ write_receipt() {
 
 run_partition() {
   local id="$1" manifest timing path
-  local -a paths
+  local -a paths=()
   manifest="/tmp/sigra-library-partition-${id}.paths"
   timing="/tmp/sigra-library-${id}-timings.json"
   while IFS= read -r path || [[ -n "$path" ]]; do
