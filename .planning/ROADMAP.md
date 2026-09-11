@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 30 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 31 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -694,10 +694,14 @@ Plans:
 
 - [x] 235.1-42-PLAN.md — Read-only inventory found the retained Plan 41 DB plus two `rindle` additions; zero action followed
 
-**Wave 40** *(active; fresh protect-all snapshot and unchanged hash-bound collector route)*
+**Blocked snapshot-framing history** *(the sole RR/RO command exited zero but `--command` exposed no SELECT tuple; zero collector, timing, or GitHub followed)*
 
 - [x] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
 
-**Wave 41** *(blocked on Plan 43)*
+**Wave 41** *(active; fake-psql-tested file/sentinel framing then one protected snapshot and unchanged recovery)*
+
+- [ ] 235.1-44-PLAN.md — Prove strict one-row psql framing, take one protected snapshot, then run one collector-tested local/live route
+
+**Wave 42** *(blocked on Plan 44)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
