@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 27 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 28 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -682,10 +682,14 @@ Plans:
 
 - [x] 235.1-39-PLAN.md — Candidate `3713dcd4` remained unpushed; canonical health receipt `9b3d89e4` rejected the environment with zero timing/GitHub
 
-**Wave 37** *(active; exact test-owned cleanup and one final fixed health-gated recovery)*
+**Blocked precondition history** *(the executor compared candidate lineage to the unrelated planning branch and stopped before cleanup, sampling, timing, or GitHub)*
 
-- [ ] 235.1-40-PLAN.md — Inventory and clean only proven scratch/task residue, then run one fresh health-gated local/live route
+- [x] 235.1-40-PLAN.md — Hardened cleanup remained unspent because `ci/phase-235-16-source-complete` was incorrectly checked as the PR head
 
-**Wave 38** *(blocked on Plan 40)*
+**Wave 38** *(active; corrected PR #234 head authority with unchanged hardened recovery)*
+
+- [ ] 235.1-41-PLAN.md — Bind only `ci/phase-235-1-evidence` at `87338db7`, then execute the preserved cleanup/health/local/live contract
+
+**Wave 39** *(blocked on Plan 41)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
