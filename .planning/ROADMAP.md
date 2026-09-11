@@ -718,10 +718,14 @@ Plans:
 
 - [x] 235.1-48-PLAN.md — Exact zero-action AST false-positive evidence retained
 
-**Wave 46** *(active; receiver-aware allocator authentication followed by the unchanged bounded parser/local/live route)*
+**Failed runtime-AST history** *(Plan 49's source/call/assignment gates passed, but its location-bearing AST digest differed under required Python 3.9.6; zero root, database, timing, or GitHub action)*
 
-- [ ] 235.1-49-PLAN.md — Prove the two harmless UTC replacements, allocate one private root, and complete the carried evidence route
+- [x] 235.1-49-PLAN.md — Exact Python-version AST mismatch and zero-action evidence retained
 
-**Wave 47** *(blocked on Plan 49; documentation reconciliation only)*
+**Wave 47** *(active; version-independent structural allocator authentication followed by the unchanged evidence route)*
+
+- [ ] 235.1-50-PLAN.md — Authenticate a stable AST manifest under Python 3.9.6, allocate one private root, and complete the carried route
+
+**Wave 48** *(blocked on Plan 50; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
