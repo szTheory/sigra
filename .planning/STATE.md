@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-49 halted at runtime-dependent allocator AST digest contradiction
-last_updated: "2026-09-11T21:58:16.340Z"
+stopped_at: Plan 235.1-50 halted at macOS system-Python executable identity contradiction
+last_updated: "2026-09-11T22:28:35.000Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-49 preserved all one-shot budgets after the exact allocator's location-bearing AST digest differed under mandated system Python
-state_head: 47be7690df21cc07cfb8d2cb0fc3d5c9a1ad170f
+last_activity_desc: Plan 235.1-50 preserved all one-shot budgets after the mandated system-Python command could not satisfy the approved literal sys.executable assertion
+state_head: 62aa6c4ec8c19db13a0f871800bf3fbb29c6871f
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 49 of 49
-Status: Blocked — Plan 49 exact allocator and pinned location-bearing AST digest are incompatible under `/usr/bin/python3` 3.9.6
+Plan: 50 of 50
+Status: Blocked — Plan 50 requires `sys.executable == "/usr/bin/python3"`, but the mandated command reports the Xcode developer-tool path on macOS
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -680,8 +680,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T21:58:15.742Z
-Stopped at: Plan 235.1-49 halted at runtime-dependent allocator AST digest contradiction
+Last session: 2026-09-11T22:28:35.000Z
+Stopped at: Plan 235.1-50 halted at macOS system-Python executable identity contradiction
 Resume file: None
 
 ## Operator Next Steps
