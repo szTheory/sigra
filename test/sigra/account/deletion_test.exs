@@ -1,5 +1,5 @@
 defmodule Sigra.Account.DeletionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mox
 
@@ -45,6 +45,38 @@ defmodule Sigra.Account.DeletionTest do
     )
   end
 
+  defp acquire_dummy_oban do
+    dummy = spawn(fn -> Process.sleep(:infinity) end)
+    on_exit(fn -> cleanup_dummy_oban(dummy) end)
+
+    try do
+      Process.register(dummy, Oban)
+      dummy
+    rescue
+      exception in ArgumentError ->
+        cleanup_dummy_oban(dummy)
+        reraise exception, __STACKTRACE__
+    end
+  end
+
+  defp cleanup_dummy_oban(dummy) do
+    ref = Process.monitor(dummy)
+
+    if Process.whereis(Oban) == dummy do
+      Process.unregister(Oban)
+    end
+
+    if Process.alive?(dummy) do
+      Process.exit(dummy, :kill)
+    end
+
+    receive do
+      {:DOWN, ^ref, :process, ^dummy, reason} when reason in [:killed, :noproc] -> :ok
+    after
+      1_000 -> raise "dummy Oban process did not terminate"
+    end
+  end
+
   # --- schedule/3 ---
 
   describe "schedule/3" do
@@ -86,9 +118,7 @@ defmodule Sigra.Account.DeletionTest do
       # Simulate Oban supervision: oban_running?/0 checks both oban_available?/0
       # (true — Oban is compiled) AND Process.whereis(Oban) != nil. Register a
       # dummy process under the Oban name so the guard passes (D-01/D-02).
-      dummy = spawn(fn -> Process.sleep(:infinity) end)
-      Process.register(dummy, Oban)
-      on_exit(fn -> Process.exit(dummy, :kill) end)
+      _dummy = acquire_dummy_oban()
 
       user = build_user()
 

@@ -1,5 +1,5 @@
 defmodule Sigra.Install.Features.PasskeysJsTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 
@@ -10,32 +10,10 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
   @passkey_hooks_line ~s(hooks: { ...colocatedHooks, ...PasskeyHooks })
   @passkey_start_marker "// Sigra passkeys:start"
   @passkey_end_marker "// Sigra passkeys:end"
-  @standard_app_js """
-  import "phoenix_html"
-  import { Socket } from "phoenix"
-  import { LiveSocket } from "phoenix_live_view"
-  import topbar from "../vendor/topbar"
-  import { hooks as colocatedHooks } from "phoenix-colocated/my_app"
-
-  const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-  const liveSocket = new LiveSocket("/live", Socket, {
-    longPollFallbackMs: 2500,
-    params: { _csrf_token: csrfToken },
-    hooks: { ...colocatedHooks },
-  })
-
-  topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
-  window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
-  window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
-  liveSocket.connect()
-  window.liveSocket = liveSocket
-  """
-
   describe "mix sigra.install --passkeys app.js wiring" do
     test "injects a marker-wrapped merged hooks block into the standard Phoenix app.js shape" do
-      %{app_dir: app_dir} = setup_tmp_app_with_standard_app_js!()
-
-      assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, ["--passkeys"])
+      variant = InstallFixture.variant!(:passkeys_standard)
+      app_dir = variant.path
 
       app_js = InstallFixture.read_asset_file(app_dir, "js/app.js")
       browser_helper = InstallFixture.read_asset_file(app_dir, "js/passkey_browser.js")
@@ -50,9 +28,9 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     end
 
     test "rerunning install keeps a single passkey marker block" do
-      %{app_dir: app_dir} = setup_tmp_app_with_standard_app_js!()
+      checkout = InstallFixture.checkout!(:passkeys_standard, "passkeys-rerun")
+      app_dir = checkout.path
 
-      assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, ["--passkeys"])
       assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, ["--passkeys"])
 
       app_js = InstallFixture.read_asset_file(app_dir, "js/app.js")
@@ -64,7 +42,8 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     end
 
     test "leaves non-standard app.js untouched and prints exact manual instructions" do
-      %{app_dir: app_dir} = setup_tmp_app!()
+      variant = InstallFixture.variant!(:passkeys_nonstandard_app_js)
+      app_dir = variant.path
 
       custom_app_js = """
       import "phoenix_html"
@@ -77,9 +56,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       window.topbar = topbar
       """
 
-      :ok = InstallFixture.write_asset_file(app_dir, "js/app.js", custom_app_js)
-
-      assert {:ok, stdout} = InstallFixture.run_sigra_install(app_dir, ["--passkeys"])
+      stdout = variant.stdout
 
       assert InstallFixture.read_asset_file(app_dir, "js/app.js") == custom_app_js
       assert stdout =~ @passkey_import
@@ -384,21 +361,6 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         flunk("node executable is required for passkey browser helper coverage")
       end
     end
-  end
-
-  defp setup_tmp_app! do
-    {:ok, fixture} = InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name())
-    fixture
-  end
-
-  defp setup_tmp_app_with_standard_app_js! do
-    fixture = setup_tmp_app!()
-    :ok = InstallFixture.write_asset_file(fixture.app_dir, "js/app.js", @standard_app_js)
-    fixture
-  end
-
-  defp unique_app_name do
-    "sigra_passkeys_#{System.unique_integer([:positive])}"
   end
 
   defp count_occurrences(contents, needle) do

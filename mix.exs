@@ -151,16 +151,13 @@ defmodule Sigra.MixProject do
         "deps.get --check-locked",
         "deps.unlock --check-unused",
         "compile --warnings-as-errors",
-        "test --exclude scaffold",
-        "ci.install_golden",
+        "cmd bash scripts/ci/library-partitions.sh",
         "sigra.dep_off"
       ],
       "ci.audit_45": [
         "test test/sigra/oauth/ test/sigra/workers/account_deletion_test.exs test/sigra/account/deletion_test.exs test/sigra/account_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/impersonation_test.exs test/sigra/suspicious_login_test.exs test/sigra/lockout_test.exs test/sigra/mfa_audit_atomicity_test.exs test/sigra/api_token_audit_atomic_test.exs"
       ],
-      "ci.install_golden": [
-        "test test/sigra/install/features/passkeys_js_test.exs test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs test/upgrade_test.exs"
-      ],
+      "ci.install_golden": ["cmd bash scripts/ci/install-golden.sh"],
       # Local repro of the CI dep-off lane. The harness owns the destructive
       # unlock/clean sequence and restores the locked dependency state afterward.
       # Usage: MIX_ENV=test mix sigra.dep_off

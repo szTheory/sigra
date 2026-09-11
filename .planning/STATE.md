@@ -2,39 +2,39 @@
 gsd_state_version: 1.0
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 235
-current_phase_name: Terminal Ratification — Measured, Not Read
+current_phase: 235.1
+current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Halted 235-15 after signed-source evidence review
-last_updated: "2026-09-09T00:45:23.640Z"
-last_activity: 2026-09-08
-last_activity_desc: Phase 235 execution started
-state_head: 4c46c55f7191157ef37bde4fd6238e633887560e
+stopped_at: Blocked 235.1-25 at sole timed self-test before local pair 1
+last_updated: "2026-09-10T23:54:37.526Z"
+last_activity: 2026-09-09
+last_activity_desc: Phase 235.1 execution started
+state_head: 820ef36f0d0641870d87cbeabf44923f2f5ed7f6
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 66
-  completed_plans: 63
-  percent: 83
+  total_phases: 7
+  completed_phases: 6
+  total_plans: 92
+  completed_plans: 87
+  percent: 86
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-31)
+See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235 — Terminal Ratification — Measured, Not Read
+**Current focus:** Phase 235.1 — close-v1-47-library-economics-integration-gaps-test-01-test
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
-Plan: 1 of 12
-Status: Executing Phase 235
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 blocked on corrected protected evidence
-Last activity: 2026-09-08 — Phase 235 execution started
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
+Last activity: 2026-09-09 — Phase 235.1 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -441,6 +441,21 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
 - [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
 - [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
+- [Phase 235]: Plan 235-16: scripts/ci/ci-run-metrics.sh wall mode remains sole terminal authority; offline source replay is comparison-only.
+- [Phase 235]: Plan 235-16: use a repository-only dev/test Hackney 4 override until Threadline publishes a compatible optional constraint.
+- [Phase 235]: Plan 235-16: protected squash merge is proven by seven exact blob matches against main SHA 158aca14; no FAST evidence dispatch occurred.
+- [Phase 235]: Plan 235-16: FAST-01 remains open for Plan 17 source-complete measurement; GATE-05 remains unchanged.
+- [Phase 235]: Plan 235-17 Task 2: user selected authorize-once for exactly one immediate protected-main evidence dispatch from the unchanged sealed preflight.
+- [Phase 235]: Plan 235-17: retained scripts/ci/ci-run-metrics.sh wall mode as terminal authority; signed raw pages independently reproduced n=52, p50=469s, max=1331s, verdict=pass.
+- [Phase 235]: Plan 235-17 left FAST-01 reconciliation to Plan 18 and preserved GATE-05 unchanged.
+- [Phase 235]: FAST-01 completes only from protected run 34350618761's authenticated source-complete n=52, p50=469-second wall result.
+- [Phase 235]: The rejected derived-only n=43/p50=466 candidate and all prior miss/remediation measurements remain immutable historical context.
+- [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
+- [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
+- [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
+- [Phase 235.1]: Use the stale v1-derived placement only to route exhaustive collection; admit no bootstrap timing or payload as evidence.
+- [Phase 235.1]: Bind calibration solely to three wholly new complete triples from the frozen Plan 21 source.
+- [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
 
 ### Pending Todos
 
@@ -453,8 +468,10 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
-- **Phase 235 FAST-01:** Plan 235-15's sole protected candidate attests 43 derived rows and stored p50 466 seconds, but omits signed timestamps and pagination/exhaustion evidence. Independent population, chronology, wall-time, and completeness proof is impossible from the retained subject; a new gap plan must correct the evidence schema before any newly authorized dispatch.
-- Plan 235-16 Task 2 blocked: protected PR #232 required Library tests fails on pre-existing hackney 1.25.0 advisories (including HIGH CVE-2026-47071); package migration is explicitly outside Plan 235-16 scope.
+- [RESOLVED 2026-09-09] **Phase 235 FAST-01 evidence gap:** Plan 235-15's derived-only candidate remains rejected, but Plan 235-17 retained a source-complete protected population (`n=52`, `p50=469s`, `pass`) and verified it offline. Plan 235-18 owns requirement and closeout reconciliation.
+- [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
+- Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
+- Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
 
 ### Roadmap Evolution
 
@@ -464,6 +481,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 - v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
+- Phase 235.1 inserted after Phase 235: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (URGENT)
+- Phase 235.1 edited: edited fields: goal, requirements, success_criteria
 
 ## Quick Tasks Completed
 
@@ -510,6 +529,59 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 | 260728-kub | Captured the CI-efficiency fan-out investigation in-repo: refreshed SEED-005 with a 2026-07-28 re-measured baseline and filed two high-severity CI defects. **Headline finding: the CI/CD audit is already done and was orphaned** — `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` carries a prioritized Phase 198→203 sequence, but only 198 partially ran because v1.41 reused phase numbers 199-204 for unrelated work. The audit is still accurate (it named `design_gallery` at ~700s; re-measured 734s) and its #1 win — a `storageState` refactor of `admin-design.spec.ts:250-255`, −6 to −7.5 min at Low risk with zero coverage loss — was never implemented. Baseline: PR mean 29.5m / p50 27.3m (~56 runner-min for a 25.6m wall), push 30.5m (~92 runner-min), nightly **0 pass / 9 fail**. New todos: (1) `admin_eval_render` burns ~17m per PR for a red nobody reads — its mobile project uses a WebKit device preset while the job installs chromium only, and an `SVGAnimatedString` probe bug compounds it; because the harness aborts under `set -euo pipefail`, guards b1-b6 have never executed in CI. (2) `generated_admin_playwright_smoke` is gated on a long-merged branch name, so it is skipped on every PR while `ci-gate` counts skipped as pass — generated-host parity is verified on no PR at all. Scoped as milestone v1.47 CI-EFFICIENCY, phases 230-235, targeting the `<12m` PR wall-clock v1.40 missed. Seed edit verified non-destructive (74 insertions, **0 deletions**; verbatim playbook byte-identical). | complete ✓ | 2026-07-28 |
 
 ## Deferred Items
+
+### Acknowledged during v1.47 closeout (2026-09-09)
+
+43 genuine pending or previously deferred artifacts were acknowledged through GSD's
+verdict-preserving, self-invalidating audit markers. The separate
+`.planning/debug/knowledge-base.md` false positive was resolved by adding its missing
+`status: resolved` metadata.
+
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| quick_tasks | 260718-dst-remove-home-domain-strip | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-mba-mfa-enrolled-backup-alert-polish | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-pdd-persona-dropdown-short-descriptions | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-svg-sessions-self-revoke-current-session-guard | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260728-d9h-fix-passkey-primary-email-label-and-id | deferred | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-mix-sigra-migrate-schema-helper.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-playwright-parallelization-per-shard-db.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-runtime-auth-prefix-override.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-22-white-label-auth-email-theming.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-02-app-css-corruption-guard-blind-spot.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-03-hex-retire-stray-1-20-0.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-09-218-rereview-followups.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-canary-recapture-lane-excludes-canary.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-installer-context-impersonation-guard-gap.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-upgrade-smoke-button-type-hex-publish.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-18-admin-audit-impersonation-filter-not-applying.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-27-login-wordmark-midword-break-at-320.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-admin-eval-render-burns-17m-per-pr-for-an-unread-red.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-gate-ci-green-timeout-too-tight-for-push-to-main.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-generated-host-parity-verified-on-no-pr-while-gate-reports-green.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-lane-rot-label-missing-breaks-hard-02-signal.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-please-orphans-unreleased-block.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w1-passkey-primary-duplicate-email-label-and-id.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w2-example-sigra-auth-css-stale-no-parity-gate.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w3-generated-auth-runtime-coverage-is-login-only.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w4-no-axe-run-covers-generated-auth.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w5-export-auth-data-deny-path-orphaned.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w6-generated-policy-test-outside-golden-coverage.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w7-admin-lib-sigra-auth-classes-and-one-dead-class.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w8-per-user-audit-presets-have-no-e2e-assertion.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-admin-generated-audit-presets-actor-filter-race.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-recapture-job-transient-hexpm-mirror-failure.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-github-evidence-residual.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-pr-evidence-blocked.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-02-fast-01-terminal-p50-miss.md | (presence-only) | 2026-09-09 | v1.47 |
+| seeds | SEED-004-phx-new-button-forward-compat | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-005-ci-cd-pipeline-performance-audit | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | 2026-09-09 | v1.47 |
+| uat_gaps | 202/202-UAT.md | deferred | 2026-09-09 | v1.47 |
+| deferred_items | 222/deferred-items.md: Plan 01 — pre-existing actionlint/shellcheck warnings in ci.yml | acknowledged | 2026-09-09 | v1.47 |
+| deferred_items | 27/deferred-items.md: installer_drift_test fix #9 is failing outside Phase 27 admin ownership | acknowledged | 2026-09-09 | v1.47 |
 
 ### Acknowledged at v1.46 close (2026-07-27)
 
@@ -587,13 +659,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-08T20:36:00.000Z
-Stopped at: Halted 235-15 after signed-source evidence review
-Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md
+Last session: 2026-09-10T23:54:37.168Z
+Stopped at: Blocked 235.1-25 at sole timed self-test before local pair 1
+Resume file: None
 
 ## Operator Next Steps
 
-- Plan the next phase with `$gsd-plan-phase 233`.
+- Complete and archive v1.47 with `$gsd-complete-milestone v1.47`.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -754,3 +826,8 @@ Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15
 | Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
 | Phase 235 P08 | unknown | 3 tasks | 7 files |
 | Phase 235 P15 | 20 min | 2 tasks | 10 files |
+| Phase 235 P16 | 72m | 2 tasks | 13 files |
+| Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
+| Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
+| Phase 235 P19 | 7min | 2 tasks | 2 files |
+| Phase 235.1 P22 | 17m | 2 tasks | 3 files |

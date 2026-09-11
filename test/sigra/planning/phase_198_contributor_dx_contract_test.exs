@@ -1,9 +1,27 @@
+Code.require_file("../../support/ci/phase_235_1_evidence_state_contract.exs", __DIR__)
+
 defmodule Sigra.Planning.Phase198ContributorDxContractTest do
   @moduledoc """
   Fail-closed DX-01 contract for the one contributor command and its PR owner.
   """
 
   use ExUnit.Case, async: true
+
+  alias Sigra.Planning.Phase2351EvidenceStateContract, as: EvidenceState
+
+  @tag :document_transition
+  test "Plan 21 contributor documents follow the evidence-derived reconciliation state" do
+    fixture = EvidenceState.fixture()
+    state = EvidenceState.repository_state(root())
+
+    assert EvidenceState.validate_documents(state, %{
+             "CONTRIBUTING.md" => read!("CONTRIBUTING.md"),
+             ".planning/REQUIREMENTS.md" => read!(".planning/REQUIREMENTS.md"),
+             ".planning/ROADMAP.md" => read!(".planning/ROADMAP.md")
+           }) == :ok
+
+    assert fixture.pre_state == state
+  end
 
   defp root, do: Path.expand("../../..", __DIR__)
   defp read!(rel), do: root() |> Path.join(rel) |> File.read!()
@@ -22,7 +40,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     end
   end
 
-  test "198-01: mix ci has the ordered seven-leg contributor gate exactly once" do
+  test "198-01: mix ci has the ordered six-leg contributor gate with one timed library owner" do
     entry = ci_entry(read!("mix.exs"))
 
     expected = [
@@ -30,13 +48,15 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
-      "test --exclude scaffold",
-      "ci.install_golden",
+      "cmd bash scripts/ci/library-partitions.sh",
       "sigra.dep_off"
     ]
 
     assert Enum.map(Regex.scan(~r/"([^"]+)"/, entry), fn [_, leg] -> leg end) == expected
     assert Enum.all?(expected, &(length(Regex.scan(~r/#{Regex.escape(&1)}/, entry)) == 1))
+    refute entry =~ "test --exclude scaffold"
+    refute entry =~ "ci.install_golden"
+    refute entry =~ "library-economics.sh"
   end
 
   test "198-02: mix ci excludes non-gating tool families" do

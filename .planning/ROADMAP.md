@@ -54,7 +54,7 @@
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
-- [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - GATE-05 is complete; FAST-01 remains open after gap plan 235-15 halted on insufficient signed source-population evidence.
+- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - All 13 plans complete; source-complete FAST-01 and independent GATE-05 evidence verified. (completed 2026-09-09)
 
 ## Phase Details
 
@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 12 plans in 12 waves
+**Plans**: 13 plans in 13 waves
 
 Plans:
 **Wave 1**
@@ -385,15 +385,19 @@ Plans:
 
 **Wave 10** *(gap closure; blocked on halted Wave 9 diagnosis)*
 
-- [ ] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
+- [x] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
 
 **Wave 11** *(gap closure; blocked on the Wave 10 workflow landing on protected main)*
 
-- [ ] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
+- [x] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
 
 **Wave 12** *(gap closure; blocked on authenticated Wave 11 evidence)*
 
-- [ ] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
+- [x] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
+
+**Wave 13** *(gap closure; blocked on Wave 12 completion)*
+
+- [x] 235-19-PLAN.md — Preserve literal terminal conclusions in the FAST-01 offline verifier and prove full-statistics equality
 
 ## Progress
 
@@ -404,7 +408,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 8/12 | Halted — FAST-01 signed-source evidence gap | — |
+| 235. Terminal Ratification | 13/13 | Complete    | 2026-09-09 |
 
 ## Requirement Coverage
 
@@ -509,3 +513,123 @@ Plans:
 </details>
 
 Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
+
+### Phase 235.1: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
+
+**Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
+**Requirements**: TEST-01, TEST-02, TEST-03
+**Depends on:** Phase 235
+**Plans:** 10 completed implementation plans, 14 retained failed/blocked plans, and 2 active/pending recovery plans
+
+**Success Criteria:**
+
+1. The sole PR owner runs two non-empty, disjoint, exhaustive ordinary partitions sequentially, with parallel ExUnit inside each and deterministic per-test receipts; no scaffold module leaks into either partition.
+2. Fresh attempt-1 PR evidence proves both ordinary partitions execute successfully with comparable independently recomputed raw durations while `Library tests` remains byte-identical and fail-closed.
+3. The exact six upgrade/golden/idempotency/scaffold modules are absent from PR `mix ci` and execute unchanged in one hard-signal job on every schedule/workflow_dispatch event, with required receipt and diagnostic artifacts.
+4. Fresh attempt-1 PR and dispatch capture runs plus distinct evidence-SHA validation runs prove both routes while preserving FAST-01 and GATE-05.
+5. Requirements, Phase 234 DX-01 evolution, validation, Phase 235 prose, and the milestone audit reconcile only after all machine evidence passes; the failed fixed-bound observations remain explicit history.
+
+Plans:
+**Wave 1**
+
+- [x] 235.1-01-PLAN.md — Build the fail-closed same-run economics producer and independent verifier
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 235.1-02-PLAN.md — Wire one harness into mix ci and the sole Library tests owner
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 235.1-03-PLAN.md — Add the phase-owned mutation and protected-invariant contract
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 235.1-06-PLAN.md — Build the timed immutable fixture DAG and fixed measured runner
+
+**Wave 5** *(blocked on Plan 06 infrastructure)*
+
+- [x] 235.1-07-PLAN.md — Migrate all six receivers and prove the unchanged economics bounds
+
+**Empirically superseded evidence path** *(not active routing)*
+
+- [x] 235.1-04-PLAN.md — Empirically superseded—failed history retained; no passing evidence admitted
+
+**Wave 6** *(active; blocked on completed Plan 07 history)*
+
+- [x] 235.1-08-PLAN.md — Restore two exhaustive comparable ordinary partitions inside the sole PR owner
+
+**Wave 7** *(blocked on Plan 08)*
+
+- [x] 235.1-09-PLAN.md — Route the exact six scaffold modules to a fail-closed schedule/workflow_dispatch job
+
+**Blocked evidence history** *(six failed attempt-1 runs retained; not active routing)*
+
+- [x] 235.1-10-PLAN.md — Blocked capture history; no evidence admitted and all six failed runs retained
+
+**Wave 9** *(completed from Plan 10 diagnostics)*
+
+- [x] 235.1-11-PLAN.md — Repair partition receipt lifetime and Rebar retry source-state isolation
+
+**Blocked evidence history** *(two additional failed attempt-1 runs retained; not active routing)*
+
+- [x] 235.1-12-PLAN.md — Blocked candidate-1 capture; runs 34493873867/34493911924 retained and no evidence admitted
+
+**Blocked local recovery history** *(three repairs retained; terminal comparability gate failed)*
+
+- [x] 235.1-13-PLAN.md — Repairs retained, but unchanged local TEST-02 comparability remained red
+
+**Blocked local recovery history** *(zero calibration samples admitted; synthetic diagnostics fixture failed before RED)*
+
+- [x] 235.1-15-PLAN.md — Blocked before calibration; summary `2d854758` retains the deterministic 1,000ms synthetic-bound failure
+
+**Blocked local recovery history** *(calibration retained; first post-calibration whole-source gate failed)*
+
+- [x] 235.1-16-PLAN.md — Calibration retained, but partition 2 failed on the async global-Oban collision before validation
+
+**Wave 13** *(completed; bounded test-only recovery using Plan 16 calibration authority)*
+
+- [x] 235.1-17-PLAN.md — Serialize the two Oban registrants, prove identity-safe cleanup, and run three fresh calibrated validations
+
+**Blocked live evidence history** *(Plan 17 local chain and selected dispatch passed; PR immutable-byte contract failed)*
+
+- [x] 235.1-14-PLAN.md — Blocked capture pair; runs 34520992740/34520986751 retained and no evidence admitted
+
+**Blocked local recovery history** *(ten-run ledger retained; clean candidate comparability failed before push)*
+
+- [x] 235.1-18-PLAN.md — Closed ten-run ledger retained; candidate stopped locally at 2,449ms/13,579ms with no GitHub action
+
+**Blocked local recovery history** *(tracked discovery/v2 loader retained; fixed-placement contract blocked artifact admission)*
+
+- [x] 235.1-19-PLAN.md — Discovery/loader repairs retained; three diagnostic triples rejected and prior artifact restored
+
+**Blocked local recovery history** *(assignment/lifecycle source frozen; stale bootstrap failed before collection)*
+
+- [x] 235.1-21-PLAN.md — Source frozen at `a28248e3`; bootstrap stopped at 2,781ms/33,078ms with zero collection triples
+
+**Wave 18** *(completed; measurement-only bootstrap collection from Plan 21 frozen source)*
+
+- [x] 235.1-22-PLAN.md — Build source-bound calibration without circular bootstrap comparability and run three later validations
+
+**Blocked live recovery history** *(routing mutation suite passed; stale authority pins stopped before timed validation or GitHub)*
+
+- [x] 235.1-20-PLAN.md — Exact candidate `ec1850b4` retained; stale preflight pins stopped with zero timed pairs and zero GitHub actions
+
+**Blocked live recovery history** *(seven-pin authority passed; committed audit pre-state stopped before timed validation or GitHub)*
+
+- [x] 235.1-23-PLAN.md — Seven-pin repair retained; candidate `942df63e` stopped on omitted 21/24 audit pre-state with zero timed pairs/GitHub
+
+**Blocked live recovery history** *(audit authority and untimed gates passed; Bash 3 mapfile failure stopped before any pair/GitHub)*
+
+- [x] 235.1-24-PLAN.md — Audit authority `bc5f4b29` retained; candidate `a2c1139d` stopped before pair creation on Bash 3 portability
+
+**Blocked live recovery history** *(Bash 3 portability passed; Bash 5 nounset stopped before pair 1/GitHub)*
+
+- [x] 235.1-25-PLAN.md — Portable runner authority `820ef36f` retained; candidate `634c4d5a` stopped on uninitialized array under Bash 5
+
+**Wave 23** *(active; blocked on Plan 25 diagnosis)*
+
+- [ ] 235.1-26-PLAN.md — Test the production loader under Bash 3/5, initialize its array, and capture/validate the exact tree
+
+**Wave 24** *(blocked on Plan 26)*
+
+- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

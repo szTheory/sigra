@@ -12,6 +12,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   @producer_run_url "https://github.com/szTheory/sigra/actions/runs/34272746647"
   @subject "235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json"
   @attestation "235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl"
+  @source_complete_run_id "34350618761"
+  @source_complete_run_url "https://github.com/szTheory/sigra/actions/runs/34350618761"
+  @source_complete_subject "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+  @source_complete_attestation "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl"
   @gate_05_requirement "- [x] **GATE-05**: A maintainer can see, from a single artifact, which specs run on PR vs main vs nightly before and after this milestone, proving no test was silently dropped. (Protected receipt `235-PROTECTED-RECEIPTS.json`, attested by protected main run `30782184713`, reconciles all 93 ownership rows.)"
   @gate_05_trace "| GATE-05 | Phase 235 | Complete (protected run `30782184713`; 93-row execution proof) |"
   @gate_05_artifacts %{
@@ -236,19 +240,30 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     end
   end
 
-  test "derived pass stays open without signed source rows and leaves GATE-05 byte-exact" do
+  test "derived candidate stays non-authoritative while the later source-complete pass closes FAST-01" do
     requirements = File.read!(@requirements)
+    residual = File.read!(@residual)
     result = validate_population!(receipt!())
 
     assert result.verdict == "pass"
-    assert requirements =~ "- [ ] **FAST-01**:"
-    assert requirements =~ "| FAST-01 | Phase 235 | Gaps Found ("
-    assert requirements =~ "43 derived rows"
-    assert requirements =~ "stored p50 466 seconds"
-    assert requirements =~ "omitted source timestamps and pagination/exhaustion evidence"
-    assert requirements =~ @producer_run_id
-    assert requirements =~ @producer_run_url
-    assert requirements =~ @subject
+    assert requirements =~ "- [x] **FAST-01**:"
+    assert requirements =~ "| FAST-01 | Phase 235 | Complete ("
+    assert requirements =~ "rejected derived-only 466-second candidate"
+    assert requirements =~ @source_complete_run_id
+    assert requirements =~ @source_complete_run_url
+    assert requirements =~ @source_complete_subject
+    assert requirements =~ @source_complete_attestation
+    assert residual =~ "Candidate measurement rejected for closure"
+    assert residual =~ @producer_run_id
+    assert residual =~ @producer_run_url
+    assert residual =~ @subject
+    assert residual =~ "cannot independently prove"
+    assert residual =~ "n=52"
+    assert residual =~ "p50 469 seconds"
+    assert residual =~ @source_complete_run_id
+    assert residual =~ @source_complete_subject
+    assert residual =~ @source_complete_attestation
+    assert residual =~ "FAST-01 Complete"
     assert requirements =~ @gate_05_requirement
     assert requirements =~ @gate_05_trace
     assert requirements |> String.split("\n") |> Enum.count(&(&1 == @gate_05_requirement)) == 1
@@ -273,10 +288,10 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
            ) ==
              @gate_05_verifier_sha256
 
-    refute requirements =~ "| FAST-01 | Phase 235 | Complete ("
+    refute requirements =~ "| FAST-01 | Phase 235 | Gaps Found ("
   end
 
-  test "rejected candidate retains both misses and measured remediation evidence" do
+  test "rejected candidate history survives the authenticated source-complete closure" do
     residual = File.read!(@residual)
 
     assert residual =~ "772 seconds"
@@ -285,7 +300,7 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
     assert residual =~ "148 seconds"
     assert residual =~ "470 seconds"
     assert residual =~ "2026-09-08"
-    assert residual =~ "Open residual"
+    assert residual =~ "**Status:** Resolved — authenticated source-complete pass on 2026-09-09"
     assert residual =~ "Candidate measurement rejected for closure"
     assert residual =~ @cutoff_sha
     assert residual =~ @endpoint

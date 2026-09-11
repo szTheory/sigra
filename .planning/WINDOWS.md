@@ -1,15 +1,15 @@
 ---
 schema_version: 1
-open_count: 2
+open_count: 3
 waived_count: 0
 fixed_count: 0
-total_count: 2
-last_updated: 2026-08-02T01:35:01.099Z
+total_count: 3
+last_updated: 2026-09-09T01:27:29.104Z
 ---
 
 # Broken Windows Ledger
 
-> Cross-phase defect register. `/gsd-ship` blocks while `open_count > 0`.
+> Cross-phase defect register. With `workflow.windows_enforce` enabled, `/gsd-ship` blocks while `open_count > 0`.
 > Waive with `gsd-tools windows waive <id> "<reason>"` (reason required).
 > Mark fixed with `gsd-tools windows fixed <id>`.
 
@@ -17,6 +17,7 @@ last_updated: 2026-08-02T01:35:01.099Z
 |----|-------|------|------|------|-------------|--------|--------|-------------|-------------|
 | 1 | 234 | unrun-verify | test/sigra/install/golden_diff_test.exs | 54 | Golden/idempotency verifier exits 1: generated config/dev.exs differs from committed fixture | open |  | 2026-08-02T01:35:01.034Z |  |
 | 2 | 234 | deviation | .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-EVIDENCE.json |  | Dependabot job-log evidence remains failed because authenticated browser capture is unavailable | open |  | 2026-08-02T01:35:01.099Z |  |
+| 3 | 235 | stub | scripts/ci/verify-fast-01-source-complete-attestation-offline.sh | 14 | Four UNSET_PLAN_17 capture pins intentionally fail closed until Plan 17 installs protected capture provenance | open |  | 2026-09-09T01:27:29.104Z |  |
 
 ````json
 [
@@ -42,6 +43,18 @@ last_updated: 2026-08-02T01:35:01.099Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-08-02T01:35:01.099Z",
+    "resolved_at": null
+  },
+  {
+    "id": 3,
+    "kind": "stub",
+    "phase": "235",
+    "file": "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh",
+    "line": 14,
+    "description": "Four UNSET_PLAN_17 capture pins intentionally fail closed until Plan 17 installs protected capture provenance",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-09T01:27:29.104Z",
     "resolved_at": null
   }
 ]
