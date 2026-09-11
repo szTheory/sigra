@@ -14,7 +14,7 @@ declare -a start_ms=(0 0 0) end_ms=(0 0 0) duration_ms=(0 0 0) status=(0 0 0)
 declare -a conclusion=(not_run not_run not_run)
 
 fail() { printf 'library-partitions: FAIL: %s\n' "$*" >&2; }
-clock_ms() { python3 -c 'import time; print(time.monotonic_ns() // 1000000)'; }
+clock_ms() { python3 -c 'import time; print(time.time_ns() // 1000000)'; }
 
 emit_manifests() {
   env MIX_ENV=test mix run --no-compile --no-start -r test/support/ci/library_test_partitions.exs -e \
