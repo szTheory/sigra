@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-48 halted at allocator AST contradiction
-last_updated: "2026-09-11T21:28:35Z"
+stopped_at: Plan 235.1-49 halted at runtime-dependent allocator AST digest contradiction
+last_updated: "2026-09-11T21:58:16.340Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-48 preserved all one-shot budgets after its exact allocator failed the exact embedded AST verifier
-state_head: af42570945fc1c9bca72e3cec93f4b9faed73a88
+last_activity_desc: Plan 235.1-49 preserved all one-shot budgets after the exact allocator's location-bearing AST digest differed under mandated system Python
+state_head: 47be7690df21cc07cfb8d2cb0fc3d5c9a1ad170f
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 112
-  completed_plans: 107
+  total_plans: 116
+  completed_plans: 111
   percent: 86
 ---
 
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 48 of 48
-Status: Blocked — Plan 48 allocator and embedded AST verifier are mutually incompatible
+Plan: 49 of 49
+Status: Blocked — Plan 49 exact allocator and pinned location-bearing AST digest are incompatible under `/usr/bin/python3` 3.9.6
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -492,6 +492,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
 - Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
 - Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
+- Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
 
 ### Roadmap Evolution
 
@@ -679,8 +680,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T21:28:35Z
-Stopped at: Plan 235.1-48 halted at allocator AST contradiction
+Last session: 2026-09-11T21:58:15.742Z
+Stopped at: Plan 235.1-49 halted at runtime-dependent allocator AST digest contradiction
 Resume file: None
 
 ## Operator Next Steps

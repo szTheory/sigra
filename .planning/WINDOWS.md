@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 12
+open_count: 13
 waived_count: 0
 fixed_count: 0
-total_count: 12
-last_updated: 2026-09-11T19:42:38.151Z
+total_count: 13
+last_updated: 2026-09-11T21:58:14.807Z
 ---
 
 # Broken Windows Ledger
@@ -27,6 +27,7 @@ last_updated: 2026-09-11T19:42:38.151Z
 | 10 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-44-SUMMARY.md |  | Plan 44 sole fixture wrapper stopped at 2/6 after Python injected five environment keys; probe, protected snapshot, collector, timing, and live verification were prohibited | open |  | 2026-09-11T18:22:36.789Z |  |
 | 11 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-45-PLAN.md |  | Plan 45 Task 2 health/timing and Task 3 live verification were prohibited after the sole collector dry-run parser failure | open |  | 2026-09-11T18:43:52.896Z |  |
 | 12 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 46 timing and GitHub validation were prohibited by the consumed Task 1 hard stop | open |  | 2026-09-11T19:42:38.151Z |  |
+| 13 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-49-PLAN.md |  | Exact Plan 49 allocator location-bearing AST digest differs under mandated /usr/bin/python3 3.9.6; no allocator invocation occurred | open |  | 2026-09-11T21:58:14.807Z |  |
 
 ````json
 [
@@ -178,6 +179,19 @@ last_updated: 2026-09-11T19:42:38.151Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T19:42:38.151Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 13,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-49-PLAN.md",
+    "line": null,
+    "description": "Exact Plan 49 allocator location-bearing AST digest differs under mandated /usr/bin/python3 3.9.6; no allocator invocation occurred",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-11T21:58:14.807Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
