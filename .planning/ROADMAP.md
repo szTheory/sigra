@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 32 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 33 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -702,10 +702,14 @@ Plans:
 
 - [x] 235.1-44-PLAN.md — Exact SQL bundle retained; Python fake client failed closed after two calls and no downstream action
 
-**Wave 42** *(active; native Perl fake client under fresh markers, then unchanged snapshot/local/live route)*
+**Failed collector-framing history** *(Perl fixture, probe, and protected snapshot passed; the sole collector dry run exposed real `BEGIN`/payload/`ROLLBACK` framing and stopped before admission, timing, or GitHub)*
 
-- [ ] 235.1-45-PLAN.md — Prove exact seven-key fixture behavior with Perl, then run the one-shot protected/local/live route
+- [x] 235.1-45-PLAN.md — Native fixture and protected snapshot retained; one-line collector parser failed closed
 
-**Wave 43** *(blocked on Plan 45)*
+**Wave 43** *(active; authenticate exact transaction framing under fresh one-shot markers, then resume bounded local/live evidence)*
+
+- [ ] 235.1-46-PLAN.md — Repair exact real-psql framing without changing SQL, candidate, calibration, or protected authority
+
+**Wave 44** *(blocked on Plan 46; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
