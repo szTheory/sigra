@@ -7,6 +7,24 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
 
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
   @manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
+  @immutable_source_commit "b37ac1164cee96be11a5cdeb60b31db560018e04"
+  @immutable_source_tree "02bb907f075b1428d89bb87e519c0e0d8810fcd9"
+
+  test "exact runtime source index authorizes a shallow checkout without the provenance object" do
+    fixture = shallow_repository_fixture!()
+
+    {_output, status} =
+      System.cmd("git", ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
+        stderr_to_stdout: true
+      )
+
+    assert status != 0
+    loaded = LibraryTestPartitions.load_calibration!(root: fixture.root)
+    partitions = LibraryTestPartitions.assign!(loaded.costs)
+
+    assert length(partitions[1].paths) == 114
+    assert length(partitions[2].paths) == 111
+  end
 
   test "v2 calibration is externally bound to source bytes" do
     source = File.read!("test/support/ci/library_test_partitions.exs")
@@ -514,6 +532,71 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
         ordinary_paths: paths
       ]
     }
+  end
+
+  defp shallow_repository_fixture! do
+    source_root = File.cwd!()
+
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-shallow-calibration-fixture-#{System.unique_integer([:positive])}"
+      )
+
+    ordinary_paths = LibraryTestPartitions.current_ordinary_paths!()
+
+    Enum.each(ordinary_paths, fn path ->
+      target = Path.join(root, path)
+      File.mkdir_p!(Path.dirname(target))
+      File.cp!(Path.join(source_root, path), target)
+    end)
+
+    calibration = @calibration_path |> File.read!() |> JSON.decode!()
+
+    source_files =
+      Enum.map(calibration["ordinary_universe"]["source_files"], fn row ->
+        if row["path"] == "test/support/ci/library_test_partitions_test.exs" do
+          source_row!(root, row["path"])
+        else
+          row
+        end
+      end)
+
+    calibration = put_in(calibration, ["ordinary_universe", "source_files"], source_files)
+    calibration_path = Path.join(root, @calibration_path)
+    manifest_path = Path.join(root, @manifest_path)
+    File.mkdir_p!(Path.dirname(calibration_path))
+    File.write!(calibration_path, JSON.encode!(calibration))
+
+    manifest = @manifest_path |> File.read!() |> JSON.decode!()
+
+    manifest =
+      manifest
+      |> put_in(["source_snapshot", "commit"], @immutable_source_commit)
+      |> put_in(["source_snapshot", "tree"], @immutable_source_tree)
+      |> put_in(["ordinary_source_index_sha256"], digest(JSON.encode!(source_files) <> "\n"))
+      |> put_in(["calibration", "byte_count"], File.stat!(calibration_path).size)
+      |> put_in(["calibration", "sha256"], digest(File.read!(calibration_path)))
+
+    File.write!(manifest_path, JSON.encode!(manifest))
+    System.cmd("git", ["-C", root, "init", "--quiet"])
+    System.cmd("git", ["-C", root, "add", "test", ".planning"])
+
+    System.cmd("git", [
+      "-C",
+      root,
+      "-c",
+      "user.name=Sigra",
+      "-c",
+      "user.email=sigra@example.test",
+      "commit",
+      "-m",
+      "shallow candidate",
+      "--quiet"
+    ])
+
+    on_exit(fn -> File.rm_rf!(root) end)
+    %{root: root, ordinary_paths: ordinary_paths}
   end
 
   defp source_row!(root, path) do
