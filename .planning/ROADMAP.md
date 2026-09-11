@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 29 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 30 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -690,10 +690,14 @@ Plans:
 
 - [x] 235.1-41-PLAN.md — Canonical cleanup receipts retained; incomplete health collection diagnostic `798c86bc` stopped before timing/live
 
-**Wave 39** *(active; deterministic temporary collector and one health-gated recovery)*
+**Blocked precondition history** *(new unrelated databases were safely protected; stale equality to the old baseline stopped before collector creation, mutation, timing, or GitHub)*
 
-- [ ] 235.1-42-PLAN.md — Consume cleanup without repetition, fixture/dry-run-test corrected collection, then run one local/live route
+- [x] 235.1-42-PLAN.md — Read-only inventory found the retained Plan 41 DB plus two `rindle` additions; zero action followed
 
-**Wave 40** *(blocked on Plan 42)*
+**Wave 40** *(active; fresh protect-all snapshot and unchanged hash-bound collector route)*
+
+- [ ] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
+
+**Wave 41** *(blocked on Plan 43)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
