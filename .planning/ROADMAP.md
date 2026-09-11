@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 31 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 32 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -698,10 +698,14 @@ Plans:
 
 - [x] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
 
-**Wave 41** *(active; fake-psql-tested file/sentinel framing then one protected snapshot and unchanged recovery)*
+**Blocked fixture-environment history** *(the fresh bundle/marker were consumed when macOS Python injected five keys; zero live query, timing, or GitHub followed)*
 
-- [ ] 235.1-44-PLAN.md — Prove strict one-row psql framing, take one protected snapshot, then run one collector-tested local/live route
+- [x] 235.1-44-PLAN.md — Exact SQL bundle retained; Python fake client failed closed after two calls and no downstream action
 
-**Wave 42** *(blocked on Plan 44)*
+**Wave 42** *(active; native Perl fake client under fresh markers, then unchanged snapshot/local/live route)*
+
+- [ ] 235.1-45-PLAN.md — Prove exact seven-key fixture behavior with Perl, then run the one-shot protected/local/live route
+
+**Wave 43** *(blocked on Plan 45)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
