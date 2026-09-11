@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Completed 235.1-34-PLAN.md
-last_updated: "2026-09-11T03:39:32.643Z"
+stopped_at: Plan 235.1-35 blocked at attempt-1 PR capture run 34562007714
+last_updated: "2026-09-11T04:33:34.910Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 33945eb42a9dcdacf985c3357124f07c6c94f574
+state_head: 595515d4ed9e76a52a75e3fcfdd225117e7f4211
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 102
-  completed_plans: 96
+  completed_plans: 97
   percent: 86
 ---
 
@@ -482,6 +482,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 31: sole timed validation stopped on macOS /tmp versus /private/tmp lexical containment alias; no retry or live evidence admitted
 - Plan 32 timed pair 2 partition 1 invalidated Sigra.Audit.QueryIndexTest after a 15s PostgreSQL setup query timeout; no timed retry is admissible.
 - Plan 33 sole recovery invocation stopped in pair 2 partition 1: async Sigra.AuthTest consumed Sigra.TelemetryTest's global login-stop event (expected user_id 5, observed 1); no retry or GitHub evidence is admissible.
+- Plan 235.1-35 attempt-1 PR capture run 34562007714 failed in Library tests shard job 103146530106: invalid partition calibration source snapshot commit/tree; the exact-six dispatch selected job passed, but no receipts or validation evidence are admissible.
 
 ### Roadmap Evolution
 
@@ -669,9 +670,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T03:39:32.304Z
-Stopped at: Completed 235.1-34-PLAN.md
-Resume file: None
+Last session: 2026-09-11T04:33:34.334Z
+Stopped at: Plan 235.1-35 blocked at attempt-1 PR capture run 34562007714
+Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-35-SUMMARY.md
 
 ## Operator Next Steps
 
@@ -846,3 +847,4 @@ Resume file: None
 | Phase 235.1 P32 | 15m | 1 tasks | 4 files |
 | Phase 235.1 P33 | 15m | 1 tasks | 0 files |
 | Phase 235.1 P34 | 12m | 2 tasks | 1 files |
+| Phase 235.1 P35 | 51m | 2 tasks | 5 files |
