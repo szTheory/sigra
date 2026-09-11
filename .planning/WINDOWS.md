@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 8
+open_count: 9
 waived_count: 0
 fixed_count: 0
-total_count: 8
-last_updated: 2026-09-11T15:09:46.100Z
+total_count: 9
+last_updated: 2026-09-11T17:55:47.673Z
 ---
 
 # Broken Windows Ledger
@@ -23,6 +23,7 @@ last_updated: 2026-09-11T15:09:46.100Z
 | 6 | 235.1 | deviation | scripts/ci/verify-library-routing-evidence.test.sh |  | Archive replay exposed and removed a pin-test historical Git lookup. | open |  | 2026-09-11T15:09:45.853Z |  |
 | 7 | 235.1 | deviation | test/sigra/planning/phase_235_1_library_economics_contract_test.exs |  | Archive verification required a format-stable authority refresh under the installed compatible Erlang runtime. | open |  | 2026-09-11T15:09:45.978Z |  |
 | 8 | 235.1 | deviation | test/sigra/planning/phase_235_1_library_economics_contract_test.exs |  | Symlink-sensitive wildcard discovery was replaced with the authoritative ordinary-path registry. | open |  | 2026-09-11T15:09:46.100Z |  |
+| 9 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-43-PLAN.md |  | Plan 43 collector, timing, and live verification were prohibited after the sole RR/RO snapshot produced no materialized tuple output | open |  | 2026-09-11T17:55:47.673Z |  |
 
 ````json
 [
@@ -122,6 +123,19 @@ last_updated: 2026-09-11T15:09:46.100Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T15:09:46.100Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 9,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-43-PLAN.md",
+    "line": null,
+    "description": "Plan 43 collector, timing, and live verification were prohibited after the sole RR/RO snapshot produced no materialized tuple output",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-11T17:55:47.673Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }

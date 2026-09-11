@@ -696,7 +696,7 @@ Plans:
 
 **Wave 40** *(active; fresh protect-all snapshot and unchanged hash-bound collector route)*
 
-- [ ] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
+- [x] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
 
 **Wave 41** *(blocked on Plan 43)*
 
