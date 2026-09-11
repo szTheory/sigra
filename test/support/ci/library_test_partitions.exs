@@ -11,6 +11,8 @@ defmodule Sigra.CI.LibraryTestPartitions do
   @artifact_max_bytes 8_388_608
   @payload_max_bytes 1_048_576
   @source_run_id 30_666_977_944
+  @source_snapshot_commit "b37ac1164cee96be11a5cdeb60b31db560018e04"
+  @source_snapshot_tree "02bb907f075b1428d89bb87e519c0e0d8810fcd9"
   @scaffold_paths MapSet.new([
                     "test/upgrade_test.exs",
                     "test/sigra/install/generator_passkeys_opt_out_test.exs",
@@ -233,7 +235,7 @@ defmodule Sigra.CI.LibraryTestPartitions do
     root = opts |> Keyword.get(:root, File.cwd!()) |> Path.expand()
     manifest_path = Keyword.get(opts, :manifest_path, Path.join(root, @manifest_path))
     manifest = load_manifest!(manifest_path)
-    validate_manifest_source!(manifest, root)
+    validate_manifest_source!(manifest)
 
     calibration_relative = manifest["calibration"]["path"]
 
@@ -350,7 +352,7 @@ defmodule Sigra.CI.LibraryTestPartitions do
              source_files == Enum.sort_by(source_files, & &1["path"]),
            do: invalid!("ordinary source index")
 
-    Enum.each(source_files, &validate_source_file!(&1, manifest, root))
+    Enum.each(source_files, &validate_source_file!(&1, root))
 
     unless source_index_sha256(source_files) == manifest["ordinary_source_index_sha256"],
       do: invalid!("ordinary source index digest")
@@ -380,17 +382,15 @@ defmodule Sigra.CI.LibraryTestPartitions do
     manifest
   end
 
-  defp validate_manifest_source!(manifest, root) do
-    commit = manifest["source_snapshot"]["commit"]
-
-    {tree, status} =
-      System.cmd("git", ["-C", root, "rev-parse", "#{commit}^{tree}"], stderr_to_stdout: true)
-
-    unless status == 0 and String.trim(tree) == manifest["source_snapshot"]["tree"],
-      do: invalid!("source snapshot commit/tree")
+  defp validate_manifest_source!(manifest) do
+    unless manifest["source_snapshot"] == %{
+             "commit" => @source_snapshot_commit,
+             "tree" => @source_snapshot_tree
+           },
+           do: invalid!("source snapshot commit/tree")
   end
 
-  defp validate_source_file!(row, manifest, root) do
+  defp validate_source_file!(row, root) do
     exact_keys!(row, ~w(path byte_count sha256), "ordinary source row")
     path = row["path"]
 
@@ -404,17 +404,6 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
     unless byte_size(bytes) == row["byte_count"] and sha256(bytes) == row["sha256"],
       do: invalid!("current ordinary source bytes")
-
-    snapshot = git_blob_bytes!(root, manifest["source_snapshot"]["commit"], path)
-
-    unless snapshot == bytes, do: invalid!("snapshot ordinary source bytes")
-  end
-
-  defp git_blob_bytes!(root, commit, path) do
-    case System.cmd("git", ["-C", root, "show", "#{commit}:#{path}"], stderr_to_stdout: true) do
-      {bytes, 0} -> bytes
-      _ -> invalid!("missing snapshot source blob")
-    end
   end
 
   defp source_index_sha256(rows) do

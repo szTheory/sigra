@@ -38,12 +38,12 @@ HISTORICAL_NEGATIVE_AUTHORITY={
 # This ordered, closed structure is the sole current --preflight authority.
 CURRENT_ACTIVE_AUTHORITY=(
  (".github/workflows/ci.yml","ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",None),
- ("test/support/ci/library_test_partitions.exs","6ed033650d9483f96eefc3d5576fd4f33f814e4678e6547d9fdeb5ff95c90889",None),
- ("test/support/ci/library_test_partitions_test.exs","26cc656d01320d128b1afe6883736b3b4d7123482df976d0c2dda3beb77addbf",None),
+ ("test/support/ci/library_test_partitions.exs","9384fce2c84de95681d1e1ef08c7efec5bf993c2bd0abf9837c169f2fdefb103",None),
+ ("test/support/ci/library_test_partitions_test.exs","f68aae0c524a662b7d6cacabea151e9d3d09fbc82a59b96714af661428289ab8",None),
  ("scripts/ci/library-partitions.sh","deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",None),
  ("scripts/ci/verify-library-partitions.sh","449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",None),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","69938bf800a04f553260db6da72d6d7e555cd96d7d048659eea8b28a0f8fca6c",2987511),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","b1240c012420506e044de5d9a3d6a2ef5067ee7bfe4081d2ad480f0c2e08c9f7",623),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","f5208c0c1f9078cedd37cde001fe26a0c1bed4f6e84ddd3b42eeab19910efc19",2987511),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","b80effe8b59d5d454dcb5064aacdad1892893861e775dcbd3dc7fad4f8c8abc6",623),
 )
 if args and args[0]=="--print-negative-runs": sys.stdout.buffer.write(canonical(NEGATIVE_RUNS)); raise SystemExit
 if args and args[0]=="--negative-runs-sha256": print(sha(canonical(NEGATIVE_RUNS))); raise SystemExit

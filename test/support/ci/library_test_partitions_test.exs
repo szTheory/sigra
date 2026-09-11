@@ -7,6 +7,171 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
 
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
   @manifest_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json"
+  @immutable_source_commit "b37ac1164cee96be11a5cdeb60b31db560018e04"
+  @immutable_source_tree "02bb907f075b1428d89bb87e519c0e0d8810fcd9"
+
+  test "exact runtime source index authorizes a shallow checkout without the provenance object" do
+    fixture = shallow_repository_fixture!()
+
+    {_output, status} =
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
+        stderr_to_stdout: true
+      )
+
+    assert status != 0
+    loaded = LibraryTestPartitions.load_calibration!(root: fixture.root)
+    partitions = LibraryTestPartitions.assign!(loaded.costs)
+
+    assert length(partitions[1].paths) == 114
+    assert length(partitions[2].paths) == 111
+  end
+
+  test "reachable provenance remains a non-authorizing compatibility control" do
+    fixture = shallow_repository_fixture!()
+
+    {_, 0} =
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "fetch", "--quiet", File.cwd!(), @immutable_source_commit],
+        stderr_to_stdout: true
+      )
+
+    {_, 0} =
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
+        stderr_to_stdout: true
+      )
+
+    loaded = LibraryTestPartitions.load_calibration!(root: fixture.root)
+    partitions = LibraryTestPartitions.assign!(loaded.costs)
+    assert {length(partitions[1].paths), length(partitions[2].paths)} == {114, 111}
+  end
+
+  test "immutable provenance and artifact cross-link mutations fail with regenerated bindings" do
+    assert_fixture_mutation!(~r/source snapshot commit\/tree/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        commit = String.duplicate("0", 40)
+
+        {
+          put_in(calibration, ["source", "implementation_commit"], commit),
+          put_in(manifest, ["source_snapshot", "commit"], commit)
+        }
+      end)
+    end)
+
+    assert_fixture_mutation!(~r/source snapshot commit\/tree/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        {calibration, put_in(manifest, ["source_snapshot", "tree"], String.duplicate("0", 40))}
+      end)
+    end)
+
+    assert_fixture_mutation!(~r/calibration provenance/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        {put_in(calibration, ["source", "implementation_commit"], String.duplicate("0", 40)),
+         manifest}
+      end)
+    end)
+  end
+
+  test "runtime source path, content, order, index, regular-file, and uniqueness drift fail closed" do
+    assert_fixture_mutation!(~r/current ordinary source bytes/, fn fixture ->
+      path = Path.join(fixture.root, hd(fixture.ordinary_paths))
+      File.write!(path, File.read!(path) <> "# changed\n")
+    end)
+
+    assert_fixture_mutation!(~r/ordinary universe/, fn fixture ->
+      added = Path.join(fixture.root, "test/plan36_added_test.exs")
+      File.write!(added, "defmodule Plan36AddedTest do\nend\n")
+      {_, 0} = System.cmd("git", ["-C", fixture.root, "add", "test/plan36_added_test.exs"])
+    end)
+
+    assert_fixture_mutation!(
+      ~r/ordinary source file|ordinary universe|tracked path is not regular/,
+      fn fixture ->
+        File.rm!(Path.join(fixture.root, hd(fixture.ordinary_paths)))
+      end
+    )
+
+    assert_fixture_mutation!(~r/ordinary universe/, fn fixture ->
+      first = hd(fixture.ordinary_paths)
+      renamed = first <> ".renamed_test.exs"
+      {_, 0} = System.cmd("git", ["-C", fixture.root, "mv", first, renamed])
+    end)
+
+    assert_fixture_mutation!(~r/ordinary source index/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        rows = calibration["ordinary_universe"]["source_files"] |> Enum.reverse()
+        calibration = put_in(calibration, ["ordinary_universe", "source_files"], rows)
+
+        manifest =
+          put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))
+
+        {calibration, manifest}
+      end)
+    end)
+
+    assert_fixture_mutation!(~r/current ordinary source bytes/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        calibration =
+          put_in(
+            calibration,
+            ["ordinary_universe", "source_files", Access.at(0), "sha256"],
+            String.duplicate("0", 64)
+          )
+
+        rows = calibration["ordinary_universe"]["source_files"]
+
+        {calibration,
+         put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))}
+      end)
+    end)
+
+    assert_fixture_mutation!(~r/ordinary source index digest/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        {calibration,
+         put_in(manifest, ["ordinary_source_index_sha256"], String.duplicate("0", 64))}
+      end)
+    end)
+
+    assert_fixture_mutation!(~r/ordinary source file|tracked path is not regular/, fn fixture ->
+      first = hd(fixture.ordinary_paths)
+      path = Path.join(fixture.root, first)
+      bytes = File.read!(path)
+      File.rm!(path)
+      File.ln_s!(Path.basename(first), path)
+      assert File.lstat!(path).type == :symlink
+      refute bytes == ""
+    end)
+
+    assert_fixture_mutation!(~r/ordinary source file|tracked path is not regular/, fn fixture ->
+      path = Path.join(fixture.root, hd(fixture.ordinary_paths))
+      File.rm!(path)
+      File.mkdir_p!(path)
+    end)
+
+    assert_fixture_mutation!(~r/ordinary source index|ordinary universe/, fn fixture ->
+      rewrite_bound_fixture!(fixture, fn calibration, manifest ->
+        rows = calibration["ordinary_universe"]["source_files"]
+        duplicate_rows = [hd(rows) | rows]
+
+        calibration =
+          calibration
+          |> put_in(["ordinary_universe", "source_files"], duplicate_rows)
+
+        manifest =
+          put_in(
+            manifest,
+            ["ordinary_source_index_sha256"],
+            digest(JSON.encode!(duplicate_rows) <> "\n")
+          )
+
+        {calibration, manifest}
+      end)
+    end)
+  end
 
   test "v2 calibration is externally bound to source bytes" do
     source = File.read!("test/support/ci/library_test_partitions.exs")
@@ -15,7 +180,10 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     assert source =~ "sigra.library-partition-calibration-manifest/v1"
     assert source =~ "source_files"
     assert source =~ "ordinary_source_index_sha256"
-    assert source =~ "git_blob_bytes!"
+    refute source =~ "git_blob_bytes!"
+    refute source =~ ~s(System.cmd("git", ["-C", root, "rev-parse")
+    assert source =~ @immutable_source_commit
+    assert source =~ @immutable_source_tree
     refute source =~ ~r/@sample_implementation_commit|@calibration_sha256|@calibration_byte_count/
     assert File.exists?(@calibration_path)
   end
@@ -392,11 +560,6 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
       "--quiet"
     ])
 
-    {commit, 0} = System.cmd("git", ["-C", root, "rev-parse", "HEAD"])
-    {tree, 0} = System.cmd("git", ["-C", root, "rev-parse", "HEAD^{tree}"])
-    commit = String.trim(commit)
-    tree = String.trim(tree)
-
     source_files = Enum.map(paths, fn path -> source_row!(root, path) end)
 
     costs = [
@@ -468,7 +631,7 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     calibration = %{
       "schema_version" => "sigra.library-partition-calibration/v2",
       "source" => %{
-        "implementation_commit" => commit,
+        "implementation_commit" => @immutable_source_commit,
         "blocked_summary_commit" => "81afbf0cafcf7dcf380d728a03053c42cdccdaa0",
         "collection_command" =>
           "ASDF_ERLANG_VERSION=28.4.1 MIX_ENV=test bash scripts/ci/library-partitions.sh",
@@ -497,7 +660,15 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     calibration_path = Path.join(root, "calibration.json")
     manifest_path = Path.join(root, "manifest.json")
     File.write!(calibration_path, JSON.encode!(calibration))
-    manifest = manifest_for!(calibration_path, commit, tree, source_files)
+
+    manifest =
+      manifest_for!(
+        calibration_path,
+        @immutable_source_commit,
+        @immutable_source_tree,
+        source_files
+      )
+
     File.write!(manifest_path, JSON.encode!(manifest))
     on_exit(fn -> File.rm_rf!(root) end)
 
@@ -514,6 +685,107 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
         ordinary_paths: paths
       ]
     }
+  end
+
+  defp shallow_repository_fixture! do
+    source_root = File.cwd!()
+
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-shallow-calibration-fixture-#{System.unique_integer([:positive])}"
+      )
+
+    ordinary_paths = LibraryTestPartitions.current_ordinary_paths!()
+
+    Enum.each(ordinary_paths, fn path ->
+      target = Path.join(root, path)
+      File.mkdir_p!(Path.dirname(target))
+      File.cp!(Path.join(source_root, path), target)
+    end)
+
+    Enum.each(LibraryTestPartitions.scaffold_paths(), fn path ->
+      target = Path.join(root, path)
+      File.mkdir_p!(Path.dirname(target))
+      File.cp!(Path.join(source_root, path), target)
+    end)
+
+    calibration = @calibration_path |> File.read!() |> JSON.decode!()
+
+    source_files =
+      Enum.map(calibration["ordinary_universe"]["source_files"], fn row ->
+        if row["path"] == "test/support/ci/library_test_partitions_test.exs" do
+          source_row!(root, row["path"])
+        else
+          row
+        end
+      end)
+
+    calibration = put_in(calibration, ["ordinary_universe", "source_files"], source_files)
+    calibration_path = Path.join(root, @calibration_path)
+    manifest_path = Path.join(root, @manifest_path)
+    File.mkdir_p!(Path.dirname(calibration_path))
+    File.write!(calibration_path, JSON.encode!(calibration))
+
+    manifest = @manifest_path |> File.read!() |> JSON.decode!()
+
+    manifest =
+      manifest
+      |> put_in(["source_snapshot", "commit"], @immutable_source_commit)
+      |> put_in(["source_snapshot", "tree"], @immutable_source_tree)
+      |> put_in(["ordinary_source_index_sha256"], digest(JSON.encode!(source_files) <> "\n"))
+      |> put_in(["calibration", "byte_count"], File.stat!(calibration_path).size)
+      |> put_in(["calibration", "sha256"], digest(File.read!(calibration_path)))
+
+    File.write!(manifest_path, JSON.encode!(manifest))
+    System.cmd("git", ["-C", root, "init", "--quiet"])
+    System.cmd("git", ["-C", root, "add", "test", ".planning"])
+
+    System.cmd("git", [
+      "-C",
+      root,
+      "-c",
+      "user.name=Sigra",
+      "-c",
+      "user.email=sigra@example.test",
+      "commit",
+      "-m",
+      "shallow candidate",
+      "--quiet"
+    ])
+
+    on_exit(fn -> File.rm_rf!(root) end)
+
+    %{
+      root: root,
+      ordinary_paths: ordinary_paths,
+      calibration_path: calibration_path,
+      manifest_path: manifest_path
+    }
+  end
+
+  defp assert_fixture_mutation!(message, mutate) do
+    fixture = shallow_repository_fixture!()
+    mutate.(fixture)
+
+    assert_raise ArgumentError, message, fn ->
+      LibraryTestPartitions.load_calibration!(root: fixture.root)
+    end
+  end
+
+  defp rewrite_bound_fixture!(fixture, rewrite) do
+    calibration = fixture.calibration_path |> File.read!() |> JSON.decode!()
+    manifest = fixture.manifest_path |> File.read!() |> JSON.decode!()
+    {calibration, manifest} = rewrite.(calibration, manifest)
+    File.write!(fixture.calibration_path, JSON.encode!(calibration))
+    bytes = File.read!(fixture.calibration_path)
+
+    manifest =
+      manifest
+      |> put_in(["calibration", "byte_count"], byte_size(bytes))
+      |> put_in(["calibration", "sha256"], digest(bytes))
+
+    File.write!(fixture.manifest_path, JSON.encode!(manifest))
   end
 
   defp source_row!(root, path) do
