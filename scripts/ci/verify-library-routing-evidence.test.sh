@@ -66,12 +66,12 @@ import hashlib,json,os,shutil,subprocess,sys
 root,verify,tmp=sys.argv[1:]
 expected=[
  (".github/workflows/ci.yml","ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",None),
- ("test/support/ci/library_test_partitions.exs","6ed033650d9483f96eefc3d5576fd4f33f814e4678e6547d9fdeb5ff95c90889",None),
- ("test/support/ci/library_test_partitions_test.exs","26cc656d01320d128b1afe6883736b3b4d7123482df976d0c2dda3beb77addbf",None),
+ ("test/support/ci/library_test_partitions.exs","c3fad9abe659b0aa312d6ce43ca8f7be43c08be618a7f441250626fe21698ef9",None),
+ ("test/support/ci/library_test_partitions_test.exs","1f7db6f019ff4ed1ffbf6ac377d70f073c67a440e0e3c2b732cde742dd03a1e2",None),
  ("scripts/ci/library-partitions.sh","deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",None),
  ("scripts/ci/verify-library-partitions.sh","449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",None),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","69938bf800a04f553260db6da72d6d7e555cd96d7d048659eea8b28a0f8fca6c",2987511),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","b1240c012420506e044de5d9a3d6a2ef5067ee7bfe4081d2ad480f0c2e08c9f7",623),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","4df1ac929be5daa65167d08c3168b7400830803e82e599feee81cc62674af8a5",2987511),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","6fbb15d18b00972844650bfffd98f1e5e5c26c6fb5c355e8dd9e53925f216d0e",623),
 ]
 authority=json.loads(subprocess.check_output([verify,"--print-active-authority"]))
 assert [(v["path"],v["sha256"],v["size_bytes"]) for v in authority]==expected
