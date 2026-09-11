@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 4
+open_count: 5
 waived_count: 0
 fixed_count: 0
-total_count: 4
-last_updated: 2026-09-11T01:27:46.425Z
+total_count: 5
+last_updated: 2026-09-11T01:56:40.455Z
 ---
 
 # Broken Windows Ledger
@@ -19,6 +19,7 @@ last_updated: 2026-09-11T01:27:46.425Z
 | 2 | 234 | deviation | .planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-EVIDENCE.json |  | Dependabot job-log evidence remains failed because authenticated browser capture is unavailable | open |  | 2026-08-02T01:35:01.099Z |  |
 | 3 | 235 | stub | scripts/ci/verify-fast-01-source-complete-attestation-offline.sh | 14 | Four UNSET_PLAN_17 capture pins intentionally fail closed until Plan 17 installs protected capture provenance | open |  | 2026-09-09T01:27:29.104Z |  |
 | 4 | 235.1 | unrun-verify | scripts/ci/library-partitions-portability.test.sh |  | Plan 29 timed validation and live evidence were not run because the frozen portability test pins superseded Plan 22 calibration values | open |  | 2026-09-11T01:27:46.425Z |  |
+| 5 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-30-PLAN.md |  | Plan 30 live capture and validation were not run after the sole local harness failed pair 3 comparability | open |  | 2026-09-11T01:56:40.455Z |  |
 
 ````json
 [
@@ -68,6 +69,18 @@ last_updated: 2026-09-11T01:27:46.425Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T01:27:46.425Z",
+    "resolved_at": null
+  },
+  {
+    "id": 5,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-30-PLAN.md",
+    "line": null,
+    "description": "Plan 30 live capture and validation were not run after the sole local harness failed pair 3 comparability",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-11T01:56:40.455Z",
     "resolved_at": null
   }
 ]

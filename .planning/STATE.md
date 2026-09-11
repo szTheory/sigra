@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: 235.1
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 29 halted at frozen portability expectation mismatch
-last_updated: "2026-09-11T01:27:13.537Z"
+stopped_at: Plan 30 halted at third local pair factor-two failure
+last_updated: "2026-09-11T01:56:41.353Z"
 last_activity: 2026-09-09
 last_activity_desc: Phase 235.1 execution started
-state_head: 80e975fcc25c90de22a4239508e467c8590f390d
+state_head: d7f092dfe59464e8a89081909e6a0a0b323b5d6a
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 96
-  completed_plans: 91
+  total_plans: 97
+  completed_plans: 92
   percent: 86
 ---
 
@@ -476,6 +476,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
 - Plan 28 blocked: sole default-build local harness invocation produced green 111/114 children at 4,643ms/13,965ms but failed the immutable <=2.0 comparability predicate at 3.008; no retry or GitHub action permitted.
 - Plan 29 blocked before timed validation: frozen library-partitions-portability.test.sh pins superseded Plan 22 assignment/artifact values but the exact four-file authority forbids updating that fifth file.
+- Plan 30: sole local validation invocation failed pair 3 at raw 3ms/1ms comparability; no retry or GitHub evidence permitted
 
 ### Roadmap Evolution
 
@@ -663,9 +664,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-11T01:27:13.216Z
-Stopped at: Plan 29 halted at frozen portability expectation mismatch
-Resume file: .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-29-SUMMARY.md
+Last session: 2026-09-11T01:56:41.044Z
+Stopped at: Plan 30 halted at third local pair factor-two failure
+Resume file: None
 
 ## Operator Next Steps
 
