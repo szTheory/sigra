@@ -387,7 +387,7 @@ defmodule Sigra.CI.LibraryTestPartitions do
              "commit" => @source_snapshot_commit,
              "tree" => @source_snapshot_tree
            },
-      do: invalid!("source snapshot commit/tree")
+           do: invalid!("source snapshot commit/tree")
   end
 
   defp validate_source_file!(row, root) do
@@ -404,7 +404,6 @@ defmodule Sigra.CI.LibraryTestPartitions do
 
     unless byte_size(bytes) == row["byte_count"] and sha256(bytes) == row["sha256"],
       do: invalid!("current ordinary source bytes")
-
   end
 
   defp source_index_sha256(rows) do

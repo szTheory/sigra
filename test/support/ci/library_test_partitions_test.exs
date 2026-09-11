@@ -14,7 +14,9 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     fixture = shallow_repository_fixture!()
 
     {_output, status} =
-      System.cmd("git", ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
         stderr_to_stdout: true
       )
 
@@ -30,12 +32,16 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     fixture = shallow_repository_fixture!()
 
     {_, 0} =
-      System.cmd("git", ["-C", fixture.root, "fetch", "--quiet", File.cwd!(), @immutable_source_commit],
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "fetch", "--quiet", File.cwd!(), @immutable_source_commit],
         stderr_to_stdout: true
       )
 
     {_, 0} =
-      System.cmd("git", ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
+      System.cmd(
+        "git",
+        ["-C", fixture.root, "cat-file", "-e", "#{@immutable_source_commit}^{commit}"],
         stderr_to_stdout: true
       )
 
@@ -82,9 +88,12 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
       {_, 0} = System.cmd("git", ["-C", fixture.root, "add", "test/plan36_added_test.exs"])
     end)
 
-    assert_fixture_mutation!(~r/ordinary source file|ordinary universe|tracked path is not regular/, fn fixture ->
-      File.rm!(Path.join(fixture.root, hd(fixture.ordinary_paths)))
-    end)
+    assert_fixture_mutation!(
+      ~r/ordinary source file|ordinary universe|tracked path is not regular/,
+      fn fixture ->
+        File.rm!(Path.join(fixture.root, hd(fixture.ordinary_paths)))
+      end
+    )
 
     assert_fixture_mutation!(~r/ordinary universe/, fn fixture ->
       first = hd(fixture.ordinary_paths)
@@ -96,16 +105,27 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
       rewrite_bound_fixture!(fixture, fn calibration, manifest ->
         rows = calibration["ordinary_universe"]["source_files"] |> Enum.reverse()
         calibration = put_in(calibration, ["ordinary_universe", "source_files"], rows)
-        manifest = put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))
+
+        manifest =
+          put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))
+
         {calibration, manifest}
       end)
     end)
 
     assert_fixture_mutation!(~r/current ordinary source bytes/, fn fixture ->
       rewrite_bound_fixture!(fixture, fn calibration, manifest ->
-        calibration = put_in(calibration, ["ordinary_universe", "source_files", Access.at(0), "sha256"], String.duplicate("0", 64))
+        calibration =
+          put_in(
+            calibration,
+            ["ordinary_universe", "source_files", Access.at(0), "sha256"],
+            String.duplicate("0", 64)
+          )
+
         rows = calibration["ordinary_universe"]["source_files"]
-        {calibration, put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))}
+
+        {calibration,
+         put_in(manifest, ["ordinary_source_index_sha256"], digest(JSON.encode!(rows) <> "\n"))}
       end)
     end)
 
@@ -640,6 +660,7 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     calibration_path = Path.join(root, "calibration.json")
     manifest_path = Path.join(root, "manifest.json")
     File.write!(calibration_path, JSON.encode!(calibration))
+
     manifest =
       manifest_for!(
         calibration_path,
@@ -647,6 +668,7 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
         @immutable_source_tree,
         source_files
       )
+
     File.write!(manifest_path, JSON.encode!(manifest))
     on_exit(fn -> File.rm_rf!(root) end)
 
@@ -733,6 +755,7 @@ defmodule Sigra.CI.LibraryTestPartitionsTest do
     ])
 
     on_exit(fn -> File.rm_rf!(root) end)
+
     %{
       root: root,
       ordinary_paths: ordinary_paths,
