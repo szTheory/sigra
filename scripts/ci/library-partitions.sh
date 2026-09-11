@@ -2,7 +2,7 @@
 # Fixed sequential producer for exhaustive ordinary-library partition evidence.
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 RECEIPT_PATH="/tmp/sigra-library-partitions.json"
 MANIFEST_1="/tmp/sigra-library-partition-1.paths"
 MANIFEST_2="/tmp/sigra-library-partition-2.paths"
@@ -34,11 +34,26 @@ normalize_timing_paths() {
   temporary="$(mktemp "${timing}.tmp.XXXXXX")" || return 1
 
   jq --arg root_prefix "$ROOT/" '
-    if all(.tests[]; (.file | startswith("test/")) or (.file | startswith($root_prefix + "test/"))) then
-      .tests |= map(if .file | startswith($root_prefix) then .file |= ltrimstr($root_prefix) else . end)
-    else
-      error("timing receipt contains a path outside the repository test tree")
-    end
+    def canonical_test_path:
+      type == "string" and
+      startswith("test/") and
+      endswith("_test.exs") and
+      (contains("//") | not) and
+      (split("/") | length >= 2 and all(. != "" and . != "." and . != ".."));
+    .tests |= map(
+      .file = (
+        if (.file | type == "string") and (.file | startswith($root_prefix + "test/")) then
+          .file | ltrimstr($root_prefix)
+        elif (.file | type == "string") and (.file | startswith("test/")) then
+          .file
+        else
+          error("timing receipt contains a path outside the repository test tree")
+        end
+      ) |
+      if (.file | canonical_test_path) then .
+      else error("timing receipt contains a non-canonical repository test path")
+      end
+    )
   ' "$timing" >"$temporary" || { rm -f "$temporary"; return 1; }
 
   chmod 600 "$temporary" && mv -f "$temporary" "$timing"
