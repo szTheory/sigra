@@ -42,8 +42,8 @@ CURRENT_ACTIVE_AUTHORITY=(
  ("test/support/ci/library_test_partitions_test.exs","61feccce1cd7fef696e55fcbb270c2cc80f0f8f1f29a4c3136b5a29caeecf92a",None),
  ("scripts/ci/library-partitions.sh","deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",None),
  ("scripts/ci/verify-library-partitions.sh","449d239630013c0f25837763c1dfe494442f32ad8d8fe6c4275d4890b5219a54",None),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","a217328185ccc2bb96e2925b8d2b5c897217bf5fd10057f95b53852426c96239",2987511),
- (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","51d1531208c596d65014e136a3651080f130781b1cd706ce0d5955b752e00fa4",623),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json","b77710ed4da5882404004efb77c56aac168dcf22342777d0df5e23c5ba6b18bf",2987511),
+ (".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION-MANIFEST.json","754d990ae9b52a63aac9d6bb660f89c2c28a77c24d92d2a68bd9905f44762751",623),
 )
 if args and args[0]=="--print-negative-runs": sys.stdout.buffer.write(canonical(NEGATIVE_RUNS)); raise SystemExit
 if args and args[0]=="--negative-runs-sha256": print(sha(canonical(NEGATIVE_RUNS))); raise SystemExit
