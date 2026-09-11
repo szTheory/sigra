@@ -722,10 +722,14 @@ Plans:
 
 - [x] 235.1-49-PLAN.md — Exact Python-version AST mismatch and zero-action evidence retained
 
-**Wave 47** *(active; version-independent structural allocator authentication followed by the unchanged evidence route)*
+**Failed interpreter-path history** *(Plan 50 invoked `/usr/bin/python3` 3.9.6, which truthfully reported the Xcode developer-tool runtime path; zero root, allocator, downstream, or GitHub action)*
 
-- [ ] 235.1-50-PLAN.md — Authenticate a stable AST manifest under Python 3.9.6, allocate one private root, and complete the carried route
+- [x] 235.1-50-PLAN.md — Exact parent-command/child-runtime path mismatch and zero-action evidence retained
 
-**Wave 48** *(blocked on Plan 50; documentation reconciliation only)*
+**Wave 48** *(active; parent-observed launch identity and child runtime are cross-bound before the unchanged evidence route)*
+
+- [ ] 235.1-51-PLAN.md — Authenticate the `/usr/bin/python3` Apple stub launch separately from the Xcode-resolved child runtime, then complete the carried route
+
+**Wave 49** *(blocked on Plan 51; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
