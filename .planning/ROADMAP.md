@@ -688,7 +688,7 @@ Plans:
 
 **Wave 38** *(active; corrected PR #234 head authority with unchanged hardened recovery)*
 
-- [ ] 235.1-41-PLAN.md — Bind only `ci/phase-235-1-evidence` at `87338db7`, then execute the preserved cleanup/health/local/live contract
+- [x] 235.1-41-PLAN.md — Bind only `ci/phase-235-1-evidence` at `87338db7`, then execute the preserved cleanup/health/local/live contract
 
 **Wave 39** *(blocked on Plan 41)*
 
