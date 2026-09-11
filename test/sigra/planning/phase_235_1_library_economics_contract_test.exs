@@ -111,6 +111,40 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
   @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
 
+  @tag :history_contract
+  test "all ordinary tests are independent of historical checkout objects" do
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+
+    findings =
+      Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
+      |> Enum.flat_map(fn path -> historical_git_calls(File.read!(path), path) end)
+
+    assert length(Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()) == 225
+
+    assert Enum.map(findings, &Map.take(&1, [:path, :verb])) == []
+
+    for {source, verb} <- [
+          {~S|System.cmd("git", ["show", "deadbeef:path"])|, "show"},
+          {~S|System.cmd("git", ["diff", "--name-only", "deadbeef", "--", "lib"])|,
+           "diff"},
+          {~S|System.cmd("git", ["rev-parse", "deadbeef^{commit}"])|, "rev-parse"},
+          {~S|System.cmd("git", ["fetch", "origin", "deadbeef"])|, "fetch"}
+        ] do
+      assert [%{verb: ^verb}] = historical_git_calls(source, "adverse.exs")
+    end
+
+    allowed = ~S'''
+    # System.cmd("git", ["show", "deadbeef:path"])
+    prose = "git diff deadbeef"
+    System.cmd("git", ["ls-files", "-z"])
+    System.cmd("git", ["-C", fixture, "init"])
+    System.cmd("git", ["-C", fixture, "hash-object", "-w", "--stdin"])
+    System.cmd("git", ["-C", fixture, "cat-file", "-t", object])
+    '''
+
+    assert historical_git_calls(allowed, "allowed.exs") == []
+  end
+
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
     adverse = File.read!("scripts/ci/verify-library-routing-evidence.test.sh")
@@ -1085,6 +1119,43 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       ~r{^\.planning/phases/235\.1-close-v1-47-library-economics-integration-gaps-test-01-test/235\.1-(10|12|14|15|16|17|18)-SUMMARY\.md$}
 
     not Regex.match?(phase_235_1, path)
+  end
+
+  defp historical_git_calls(source, path) do
+    quoted = Code.string_to_quoted!(source)
+
+    {_quoted, findings} =
+      Macro.prewalk(quoted, [], fn
+        {{:., _, [{:__aliases__, _, [:System]}, :cmd]}, _, ["git", args | _]} = node,
+        findings
+        when is_list(args) ->
+          case prohibited_git_invocation(args) do
+            nil -> {node, findings}
+            verb -> {node, [%{path: path, verb: verb, args: args} | findings]}
+          end
+
+        node, findings ->
+          {node, findings}
+      end)
+
+    Enum.reverse(findings)
+  end
+
+  defp prohibited_git_invocation(args) do
+    literal_args = Enum.filter(args, &is_binary/1)
+    verb = Enum.find(literal_args, &(&1 in ~w(show diff rev-parse fetch)))
+
+    case verb do
+      "show" -> "show"
+      "fetch" -> "fetch"
+      "diff" -> if Enum.any?(literal_args, &historical_revision?/1), do: "diff"
+      "rev-parse" -> if Enum.any?(literal_args, &historical_revision?/1), do: "rev-parse"
+      nil -> nil
+    end
+  end
+
+  defp historical_revision?(argument) do
+    Regex.match?(~r/^[0-9a-f]{7,40}(?:\^\{(?:commit|tree)\})?$/, argument)
   end
 
   defp library_job_ids(workflow) do
