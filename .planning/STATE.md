@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-56 halted before allocation on canonical key-order and observer-schema contradictions
-last_updated: "2026-09-12T03:49:51Z"
-last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-56 preserved every one-shot budget after proving two committed verifier authorities mutually inconsistent
-state_head: 004c1435523d86e4f91e0281b83b48900fefe665
+stopped_at: Plan 235.1-57 halted after sole allocation receipt timestamp-order failure
+last_updated: "2026-09-12T04:18:26.355Z"
+last_activity: 2026-09-12
+last_activity_desc: Plan 235.1-57 preserved its one-shot root and every downstream budget after the first Task 1 verifier failed
+state_head: 69b41265c17964e26aab850da3c5be831ffc230c
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 122
-  completed_plans: 117
+  total_plans: 124
+  completed_plans: 119
   percent: 86
 ---
 
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 56 of 56
-Status: Blocked — Plan 56 canonical sorted authority JSON cannot satisfy its non-sorted key tuple, and its pinned Perl source emits the Plan 54 schema while Task 2 requires Plan 56
+Plan: 57 of 57
+Status: Blocked — Plan 57's immutable allocation receipt gives identity-preflight completion and parent-launch start the same timestamp, but the approved verifier requires strict precedence
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -494,6 +494,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
 - Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
 - Plan 235.1-55 halted after its sole allocation: exact Plan55 allocator stable AST digest is 90651ac4 under both pinned runtimes, while the approved verifier requires stale Plan54 digest ad6595a0.
+- Plan 235.1-57 sole allocation receipt has identity_preflight.completed_at equal to parent_launch.started_at; strict Task 1 verifier requires completed_at < started_at, and no retry/rewrite is permitted
 
 ### Roadmap Evolution
 
@@ -681,8 +682,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T02:46:37.916Z
-Stopped at: Plan 235.1-55 halted after consumed sole allocation AST authority failure
+Last session: 2026-09-12T04:18:25.944Z
+Stopped at: Plan 235.1-57 halted after sole allocation receipt timestamp-order failure
 Resume file: None
 
 ## Operator Next Steps
@@ -866,3 +867,4 @@ Resume file: None
 | Phase 235.1 P41 | 20m | 1 tasks | 2 files |
 | Phase 235.1 P43 | 9m | 0 tasks | 2 files |
 | Phase 235.1 P55 | 14m | 0 tasks | 3 files |
+| Phase 235.1 P57 | 10m | 0 tasks | 4 files |

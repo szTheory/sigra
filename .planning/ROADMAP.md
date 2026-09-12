@@ -750,9 +750,9 @@ Plans:
 
 - [x] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
 
-**Wave 54** *(active successor; preserve Plan 56's zero-action contradictions, derive canonical sorted authority keys, and bind the native observer to Plan 57)*
+**Wave 54** *(halted after Plan 57 consumed its sole allocation; preserve the immutable timestamp-order failure and all unspent downstream budgets)*
 
-- [ ] 235.1-57-PLAN.md — Repair canonical authority ordering and the native observer schema in one fresh root
+- [x] 235.1-57-PLAN.md — Dual-runtime preflights passed; sole root/receipts preserved after strict preflight-before-launch timestamp ordering failed
 
 **Wave 55** *(blocked on successful Plan 57 dual-route evidence; documentation reconciliation only)*
 

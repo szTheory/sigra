@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 24
+open_count: 26
 waived_count: 0
 fixed_count: 0
-total_count: 24
-last_updated: 2026-09-12T03:49:51.057Z
+total_count: 26
+last_updated: 2026-09-12T04:17:45.653Z
 ---
 
 # Broken Windows Ledger
@@ -39,6 +39,8 @@ last_updated: 2026-09-12T03:49:51.057Z
 | 22 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md |  | Plan55 Tasks 2-3 were not run after the no-retry Task1 authority gate failed | open |  | 2026-09-12T02:45:29.868Z |  |
 | 23 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-56-PLAN.md |  | Plan56 canonical sorted expected-authority JSON cannot satisfy the verifier non-sorted key tuple; allocator was not invoked | open |  | 2026-09-12T03:49:50.973Z |  |
 | 24 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan56 allocation, local timing, and GitHub validation were prohibited after deterministic pre-allocation verifier contradictions | open |  | 2026-09-12T03:49:51.057Z |  |
+| 25 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-57-PLAN.md |  | Plan57 sole allocation receipt records identity-preflight completion equal to parent-launch start while its first verifier requires strict precedence | open |  | 2026-09-12T04:17:45.542Z |  |
+| 26 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan57 parser, local timing, and GitHub validation were prohibited after the no-retry Task1 receipt-order failure | open |  | 2026-09-12T04:17:45.653Z |  |
 
 ````json
 [
@@ -346,6 +348,32 @@ last_updated: 2026-09-12T03:49:51.057Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T03:49:51.057Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 25,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-57-PLAN.md",
+    "line": null,
+    "description": "Plan57 sole allocation receipt records identity-preflight completion equal to parent-launch start while its first verifier requires strict precedence",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T04:17:45.542Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 26,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan57 parser, local timing, and GitHub validation were prohibited after the no-retry Task1 receipt-order failure",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T04:17:45.653Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
