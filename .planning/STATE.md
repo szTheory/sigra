@@ -4,16 +4,16 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: executing
-stopped_at: Plan 235.1-62 halted after allocation on embedded Task 2 verifier identity mismatch
-last_updated: "2026-09-12T14:58:18.000Z"
+status: planning
+stopped_at: Plan 235.1-63 planned as the fresh source-derived Task 2 materialization successor
+last_updated: "2026-09-12T15:20:00.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-62 halted after its sole allocation because embedded verifier bytes and SHA differ from the approved contract
-state_head: ff5086c8ec53bf08fe945b35de9ab0ffcd94616e
+last_activity_desc: Plan 235.1-63 planned with frozen Plan 62 root authority and a generated post-substitution Task 2 source contract
+state_head: 636c9bbccdcc870a70bde4e24a067d6676a62e0e
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 126
+  total_plans: 127
   completed_plans: 120
   percent: 86
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 62 of 62
-Status: Blocked — Plan 62 embedded Task 2 verifier decodes to 40,816 bytes/SHA `a4239aa7` instead of approved 40,372 bytes/SHA `a0fea47f`
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 62 halted after its sole allocation
-Last activity: 2026-09-12 — Plan 235.1-62 halted with zero parser, database, timing, and GitHub actions
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Plan: 63 of 63
+Status: Ready — execute Plan 63 only; Plan 62 remains an immutable post-allocation halt
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 63 planning replay is green with allocator zero
+Last activity: 2026-09-12 — Plan 235.1-63 planned from the frozen Plan 62 seven-file/no-local halt
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -498,6 +498,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-58 exact cache harness requires sigra.phase235.1-plan55-cache-harness-input/v1 while its approved Task 1 verifier requires sigra.phase235.1-plan58-cache-harness-input/v1; halted before allocation with zero downstream actions
 - Plan 235.1-61 authenticated allocator requires exactly LC_ALL and SIGRA_PLAN61_PREFLIGHT_B64, but Apple /usr/bin/python3 injects CPATH, LIBRARY_PATH, MANPATH, SDKROOT, and __CF_USER_TEXT_ENCODING before user code; halted before mktemp with zero roots or downstream actions
 - Plan 235.1-62 allocated and authenticated its sole root, then the committed Task 2 verifier decoded to 40,816 bytes/SHA a4239aa7 instead of the approved 40,372 bytes/SHA a0fea47f; halted before materialization with zero downstream actions
+- Plan 235.1-63 derives the Task 2 materialized source identity only after final element extraction and binds it to the generated nineteen-row embedded authority table; the Plan 62 copied tuple is a rejecting adverse
 
 ### Roadmap Evolution
 
@@ -686,12 +687,12 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-12T14:58:18.000Z
-Stopped at: Plan 235.1-62 halted after allocation on embedded Task 2 verifier identity mismatch
+Stopped at: Plan 235.1-63 planned with both-runtime zero-allocation replay green
 Resume file: None
 
 ## Operator Next Steps
 
-- Correct and re-approve the Plan 62 embedded Task 2 verifier byte/SHA contract in a fresh successor; never rerun or modify the retained Plan 62 root.
+- Execute Plan 235.1-63 only; allocate one fresh Plan 63 root, and never rerun or modify the retained Plan 62 root.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics

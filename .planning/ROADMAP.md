@@ -770,10 +770,14 @@ Plans:
 
 - [x] 235.1-61-PLAN.md — Preserve the exact pre-mktemp environment-contract halt as immutable history
 
-**Wave 59** *(fresh environment-contract repair: prove two explicit clean environments, then run the unchanged one-shot route)*
+**Wave 59** *(halted after sole allocation: frozen seven-file root, no local or downstream action)*
 
-- [ ] 235.1-62-PLAN.md — Authenticate the Plan 61 halt and use the explicit three-key clean allocator environment
+- [x] 235.1-62-PLAN.md — Preserve the passed clean-environment route and frozen post-allocation Task 2 source-identity halt
 
-**Wave 60** *(blocked on successful Plan 62 dual-route evidence; documentation reconciliation only)*
+**Wave 60** *(fresh Task 2 materialization repair: derive one post-substitution authority, then run the unchanged one-shot route)*
+
+- [ ] 235.1-63-PLAN.md — Authenticate the Plan 62 halt and generate one identical Task 2 materialized-source authority for every consumer
+
+**Wave 61** *(blocked on successful Plan 63 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
