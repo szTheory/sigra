@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-58 halted before allocation on cache-harness schema contradiction
-last_updated: "2026-09-12T06:32:49.399Z"
+stopped_at: Plan 235.1-59 halted before allocation on manifest label-ledger contradiction
+last_updated: "2026-09-12T07:01:00.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-58 halted before allocation because its exact cache harness and verifier require mutually exclusive input schemas
-state_head: 47be49f7cc501cd59392a983487d60b6c7f496d5
+last_activity_desc: Plan 235.1-59 halted before allocation because its exact harness and first verifier require incompatible label-mutant ledgers
+state_head: bc90b41f58ac57dfce4edbb4bf1869fe6017d90e
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 58 of 58
-Status: Blocked — Plan 58's exact cache harness requires a Plan 55 input schema while its approved Task 1 verifier requires a Plan 58 input schema
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 58 halted before allocation
-Last activity: 2026-09-12 — Plan 235.1-58 halted before allocation with zero downstream actions
+Plan: 59 of 59
+Status: Blocked — Plan 59's exact manifest harness emits seven label-mutant rows while its first Task 1 verifier constructs six and demands the seven-row digest
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 59 halted before allocation
+Last activity: 2026-09-12 — Plan 235.1-59 halted before allocation with zero downstream actions
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),

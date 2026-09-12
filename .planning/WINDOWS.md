@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 28
+open_count: 30
 waived_count: 0
 fixed_count: 0
-total_count: 28
-last_updated: 2026-09-12T06:33:43.824Z
+total_count: 30
+last_updated: 2026-09-12T07:01:51.153Z
 ---
 
 # Broken Windows Ledger
@@ -43,6 +43,8 @@ last_updated: 2026-09-12T06:33:43.824Z
 | 26 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan57 parser, local timing, and GitHub validation were prohibited after the no-retry Task1 receipt-order failure | open |  | 2026-09-12T04:17:45.653Z |  |
 | 27 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md | 104 | Plan 58 cache harness requires a Plan 55 input schema while the approved Task 1 verifier requires a Plan 58 input schema | open |  | 2026-09-12T06:33:36.033Z |  |
 | 28 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md |  | Plan 58 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation cache-harness schema contradiction | open |  | 2026-09-12T06:33:43.824Z |  |
+| 29 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md | 233 | Plan 59 first Task 1 verifier constructs six label-mutant rows while the exact manifest harness produces seven and the verifier demands the seven-row digest | open |  | 2026-09-12T07:01:51.078Z |  |
+| 30 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md |  | Plan 59 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation manifest label-ledger contradiction | open |  | 2026-09-12T07:01:51.153Z |  |
 
 ````json
 [
@@ -402,6 +404,32 @@ last_updated: 2026-09-12T06:33:43.824Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T06:33:43.824Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 29,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md",
+    "line": 233,
+    "description": "Plan 59 first Task 1 verifier constructs six label-mutant rows while the exact manifest harness produces seven and the verifier demands the seven-row digest",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T07:01:51.078Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 30,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md",
+    "line": null,
+    "description": "Plan 59 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation manifest label-ledger contradiction",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T07:01:51.153Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
