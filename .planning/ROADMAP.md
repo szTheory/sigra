@@ -784,7 +784,7 @@ Plans:
 
 **Wave 62** *(fresh host-path recovery: authenticate the current PostgreSQL 14 data directory and bind the frozen collector to it)*
 
-- [ ] 235.1-65-PLAN.md — Preserve Plan 64's nine-descendant root and pre-action PostgreSQL 16 halt, then run the unchanged route with fail-closed PostgreSQL 14 host-path authority
+- [x] 235.1-65-PLAN.md — Preserve the authenticated three-file root after PostgreSQL 14 preallocation passed and the sole finalizer halted on a missing `base64` import
 
 **Wave 63** *(blocked on successful Plan 65 dual-route evidence; documentation reconciliation only)*
 
