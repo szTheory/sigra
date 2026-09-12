@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-62 planned as the fresh clean-environment successor
-last_updated: "2026-09-12T13:37:30.000Z"
+stopped_at: Plan 235.1-62 halted after allocation on embedded Task 2 verifier identity mismatch
+last_updated: "2026-09-12T14:58:18.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-62 planned with an authenticated explicit three-key allocator environment
-state_head: 1f08423d58c07319b3e7fec7da2cd360a5b74586
+last_activity_desc: Plan 235.1-62 halted after its sole allocation because embedded verifier bytes and SHA differ from the approved contract
+state_head: ff5086c8ec53bf08fe945b35de9ab0ffcd94616e
 progress:
   total_phases: 7
   completed_phases: 6
@@ -32,9 +32,9 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
 Plan: 62 of 62
-Status: Planned — Plan 62 is the fresh authenticated clean-environment successor; Plan 61 remains immutable
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 62 has zero allocation roots
-Last activity: 2026-09-12 — Plan 235.1-62 planning-only validation preserved zero mktemp, database, timing, and GitHub actions
+Status: Blocked — Plan 62 embedded Task 2 verifier decodes to 40,816 bytes/SHA `a4239aa7` instead of approved 40,372 bytes/SHA `a0fea47f`
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 62 halted after its sole allocation
+Last activity: 2026-09-12 — Plan 235.1-62 halted with zero parser, database, timing, and GitHub actions
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -497,6 +497,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-57 sole allocation receipt has identity_preflight.completed_at equal to parent_launch.started_at; strict Task 1 verifier requires completed_at < started_at, and no retry/rewrite is permitted
 - Plan 235.1-58 exact cache harness requires sigra.phase235.1-plan55-cache-harness-input/v1 while its approved Task 1 verifier requires sigra.phase235.1-plan58-cache-harness-input/v1; halted before allocation with zero downstream actions
 - Plan 235.1-61 authenticated allocator requires exactly LC_ALL and SIGRA_PLAN61_PREFLIGHT_B64, but Apple /usr/bin/python3 injects CPATH, LIBRARY_PATH, MANPATH, SDKROOT, and __CF_USER_TEXT_ENCODING before user code; halted before mktemp with zero roots or downstream actions
+- Plan 235.1-62 allocated and authenticated its sole root, then the committed Task 2 verifier decoded to 40,816 bytes/SHA a4239aa7 instead of the approved 40,372 bytes/SHA a0fea47f; halted before materialization with zero downstream actions
 
 ### Roadmap Evolution
 
@@ -684,13 +685,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:37:30.000Z
-Stopped at: Plan 235.1-62 planned as the fresh clean-environment successor
+Last session: 2026-09-12T14:58:18.000Z
+Stopped at: Plan 235.1-62 halted after allocation on embedded Task 2 verifier identity mismatch
 Resume file: None
 
 ## Operator Next Steps
 
-- Execute only fresh Plan 62 after approval; never rerun Plan 61 or transfer its consumed allocator-subprocess budget.
+- Correct and re-approve the Plan 62 embedded Task 2 verifier byte/SHA contract in a fresh successor; never rerun or modify the retained Plan 62 root.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
