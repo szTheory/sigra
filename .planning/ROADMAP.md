@@ -778,6 +778,10 @@ Plans:
 
 - [x] 235.1-63-PLAN.md — Preserve the authenticated seven-file root after the mutating tracer-rerun conflict and missing Task 2 materialization halt
 
-**Wave 61** *(blocked on successful Plan 63 dual-route evidence; documentation reconciliation only)*
+**Wave 61** *(fresh structural repair: one non-tracer mutating boundary atomically materializes the approved Task 2 verifier)*
+
+- [ ] 235.1-64-PLAN.md — Preserve the frozen Plan 63 root, eliminate tracer feedback replay, and materialize the sole approved Task 2 verifier before handoff
+
+**Wave 62** *(blocked on successful Plan 64 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

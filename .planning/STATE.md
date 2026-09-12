@@ -4,16 +4,16 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: blocked
-stopped_at: Plan 235.1-63 halted after sole allocation; successor planning required
-last_updated: "2026-09-12T15:30:07.697Z"
+status: planning
+stopped_at: Plan 235.1-64 planned and validated without allocation; execution not started
+last_updated: "2026-09-12T16:00:00.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-63 frozen with seven receipts and no local subtree after deterministic tracer/materialization halt
-state_head: caffecb302151114b6c23c0726396e27abc19127
+last_activity_desc: Plan 235.1-64 successor repairs the tracer feedback and Task 2 materialization structure while preserving the frozen Plan 63 root
+state_head: d02b10f7e90118e940fdfe9ffa52e7a725eb89a9
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 130
+  total_plans: 131
   completed_plans: 125
   percent: 86
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
-Plan: 63 of 63
-Status: Halted — Plan 63's sole root is frozen; its mutating tracer verifier cannot be rerun and Task 2's required materialized verifier is absent
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 63 stopped before parser/local/live evidence
-Last activity: 2026-09-12 — Plan 235.1-63 allocated one seven-file root and halted before Task 2
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNING COMPLETE
+Plan: 64 of 64
+Status: Ready to execute — Plan 64 is a validated non-tracer successor; no Plan 64 root has been allocated
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 63 remains frozen and Plan 64 planning replay is green
+Last activity: 2026-09-12 — Plan 235.1-64 planning replay passed on both pinned Python runtimes with zero allocator invocations and zero roots
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -460,6 +460,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Source b37ac116/tree 02bb907f supersedes candidate 63910813 for fresh calibration; Plan 29 timing authority is stale source history.
 - [Phase 235.1]: Plan 63's consumed mutating tracer verifier must not be rerun; preserve its seven-file root.
 - [Phase 235.1]: A successor must materialize local/verify-task2.py in Task 1 and use a non-mutating tracer gate.
+- [Phase 235.1]: Plan 64 uses the established no-tracer exception: three `auto` tasks, one mutating Task 1 verify boundary, and no feedback hook that can repeat allocator/finalizer/verifier one-shots.
+- [Phase 235.1]: Plan 64 Task 1 finalizer alone creates mode-0700 `local` and atomically materializes authenticated mode-0600 `local/verify-task2.py`; its independent verifier checks exact bytes, SHA, stat identity, inventory, and adverse cases before Task 2.
 
 ### Pending Todos
 
@@ -689,14 +691,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T15:30:07.290Z
-Stopped at: Plan 235.1-63 halted after sole allocation; successor planning required
+Last session: 2026-09-12T16:00:00.000Z
+Stopped at: Plan 235.1-64 planned and validated without allocation; execution not started
 Resume file: None
 
 ## Operator Next Steps
 
 - Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
-- Plan a fresh successor whose Task 1 is non-tracer (or has a separate read-only tracer verifier) and whose one-shot chain materializes `local/verify-task2.py` before Task 2.
+- Execute Plan 235.1-64; its sole Task 1 chain allocates a fresh root and materializes `local/verify-task2.py` before Task 2.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
