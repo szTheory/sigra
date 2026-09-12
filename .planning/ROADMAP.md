@@ -758,10 +758,14 @@ Plans:
 
 - [x] 235.1-58-PLAN.md — Preserve the zero-action cache-harness schema contradiction as immutable history
 
-**Wave 56** *(fresh schema repair: bind every current component and receipt to Plan 59, then resume the unchanged one-shot route)*
+**Wave 56** *(halted before allocation: authenticated harness emitted seven label-mutant rows while the verifier reconstructed six; zero roots/actions and all budgets unspent)*
 
-- [ ] 235.1-59-PLAN.md — Repair the cache harness schema, audit all current schema labels, and run the bounded local/live evidence route
+- [x] 235.1-59-PLAN.md — Preserve the exact seven-versus-six label-ledger contradiction as immutable history
 
-**Wave 57** *(blocked on successful Plan 59 dual-route evidence; documentation reconciliation only)*
+**Wave 57** *(fresh sole-source label repair: derive every row, count, label, and digest from the authenticated Plan 60 harness, then resume the unchanged one-shot route)*
+
+- [ ] 235.1-60-PLAN.md — Eliminate duplicated label ledgers and run the bounded local/live evidence route
+
+**Wave 58** *(blocked on successful Plan 60 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
