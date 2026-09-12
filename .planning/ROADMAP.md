@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 35 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 36 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -766,10 +766,14 @@ Plans:
 
 - [x] 235.1-60-PLAN.md — Preserve the exact root/receipts and definition-order halt as immutable history
 
-**Wave 58** *(fresh definition-order repair: authenticate helper/source dominance before allocating, then resume the unchanged one-shot route)*
+**Wave 58** *(halted before mktemp: the authenticated allocator subprocess observed five Apple-injected keys beyond its exact two-key contract; zero roots/downstream actions)*
 
-- [ ] 235.1-61-PLAN.md — Prove schema/helper definition dominance and run the bounded local/live evidence route
+- [x] 235.1-61-PLAN.md — Preserve the exact pre-mktemp environment-contract halt as immutable history
 
-**Wave 59** *(blocked on successful Plan 61 dual-route evidence; documentation reconciliation only)*
+**Wave 59** *(fresh environment-contract repair: prove two explicit clean environments, then run the unchanged one-shot route)*
+
+- [ ] 235.1-62-PLAN.md — Authenticate the Plan 61 halt and use the explicit three-key clean allocator environment
+
+**Wave 60** *(blocked on successful Plan 62 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

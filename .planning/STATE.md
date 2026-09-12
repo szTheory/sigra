@@ -5,15 +5,15 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-61 halted before mktemp on authenticated allocator child-environment mismatch
+stopped_at: Plan 235.1-62 planned as the fresh clean-environment successor
 last_updated: "2026-09-12T13:37:30.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-61 halted before mktemp because Apple Python injects five keys beyond the allocator's exact two-key environment
-state_head: c7de6a965f1b66f4a1b664a3505a1132ea0bbb6a
+last_activity_desc: Plan 235.1-62 planned with an authenticated explicit three-key allocator environment
+state_head: 1f08423d58c07319b3e7fec7da2cd360a5b74586
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 125
+  total_plans: 126
   completed_plans: 120
   percent: 86
 ---
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 61 of 61
-Status: Blocked — Plan 61 authenticated allocator rejects Apple Python's injected child-environment keys before mktemp
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 61 halted with zero allocation roots
-Last activity: 2026-09-12 — Plan 235.1-61 halted with zero mktemp, database, timing, and GitHub actions
+Plan: 62 of 62
+Status: Planned — Plan 62 is the fresh authenticated clean-environment successor; Plan 61 remains immutable
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 62 has zero allocation roots
+Last activity: 2026-09-12 — Plan 235.1-62 planning-only validation preserved zero mktemp, database, timing, and GitHub actions
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -685,12 +685,12 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-12T13:37:30.000Z
-Stopped at: Plan 235.1-61 halted before mktemp on authenticated allocator child-environment mismatch
+Stopped at: Plan 235.1-62 planned as the fresh clean-environment successor
 Resume file: None
 
 ## Operator Next Steps
 
-- Correct and re-approve the Plan 61 authenticated allocator environment contract before attempting a fresh exact/no-retry execution.
+- Execute only fresh Plan 62 after approval; never rerun Plan 61 or transfer its consumed allocator-subprocess budget.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
