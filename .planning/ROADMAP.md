@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 37 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 38 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -786,6 +786,10 @@ Plans:
 
 - [x] 235.1-65-PLAN.md — Preserve the authenticated three-file root after PostgreSQL 14 preallocation passed and the sole finalizer halted on a missing `base64` import
 
-**Wave 63** *(blocked on successful Plan 65 dual-route evidence; documentation reconciliation only)*
+**Wave 63** *(fresh finalizer-import recovery: authenticate the repaired finalizer under both runtimes before sole allocation)*
+
+- [ ] 235.1-66-PLAN.md — Add the authenticated `base64` import, prove `validate_host_path` with a disposable dual-runtime control/adverse probe, and preserve all unused downstream budgets
+
+**Wave 64** *(blocked on successful Plan 66 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
