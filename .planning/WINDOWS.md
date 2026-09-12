@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 18
+open_count: 20
 waived_count: 0
 fixed_count: 0
-total_count: 18
-last_updated: 2026-09-12T01:10:19.097Z
+total_count: 20
+last_updated: 2026-09-12T01:46:46.324Z
 ---
 
 # Broken Windows Ledger
@@ -33,6 +33,8 @@ last_updated: 2026-09-12T01:10:19.097Z
 | 16 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 52 Task 2 local timing and Task 3 GitHub validation were prohibited after the no-retry Task 1 contradictory verifier halt | open |  | 2026-09-12T00:25:02.890Z |  |
 | 17 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-53-PLAN.md |  | Plan 53 consumed dry-run environment verifier failed before collector-tests receipt; no retry or downstream action occurred | open |  | 2026-09-12T01:10:19.006Z |  |
 | 18 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 53 candidate, admission, timing, and GitHub validation were prohibited after the consumed dry-run environment hard stop | open |  | 2026-09-12T01:10:19.097Z |  |
+| 19 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-54-PLAN.md |  | Plan 54 Task 1 selects full Plan 53 descendant rows but requires the reduced cache-manifest byte count and digest; allocator was not invoked | open |  | 2026-09-12T01:46:46.219Z |  |
+| 20 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 54 allocation, local timing, and GitHub validation were prohibited after the pre-allocation cache-schema contradiction | open |  | 2026-09-12T01:46:46.324Z |  |
 
 ````json
 [
@@ -262,6 +264,32 @@ last_updated: 2026-09-12T01:10:19.097Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:10:19.097Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 19,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-54-PLAN.md",
+    "line": null,
+    "description": "Plan 54 Task 1 selects full Plan 53 descendant rows but requires the reduced cache-manifest byte count and digest; allocator was not invoked",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T01:46:46.219Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 20,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 54 allocation, local timing, and GitHub validation were prohibited after the pre-allocation cache-schema contradiction",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T01:46:46.324Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }

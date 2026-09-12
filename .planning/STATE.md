@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-53 halted after consumed dry-run environment verifier failure
-last_updated: "2026-09-12T01:10:19.000Z"
+stopped_at: Plan 235.1-54 halted before allocation on contradictory Plan 53 cache-row schema assertion
+last_updated: "2026-09-12T01:46:00.000Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-53 repaired the closed authority and passed 22 parser children, then preserved the sole root after the consumed dry-run environment verifier failed
-state_head: 6be4a6b4
+last_activity_desc: Plan 235.1-54 reproduced the immutable Plan 53 manifests and halted before allocation because its cache verifier mixed full and reduced row schemas
+state_head: 5e45fd53
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 53 of 53
-Status: Blocked — Plan 53 consumed its sole dry run, but the `/usr/bin/python3` exact-environment verifier failed before `collector-tests.json` could be sealed
+Plan: 54 of 54
+Status: Blocked — Plan 54 Task 1 derives full Plan 53 descendant rows but requires the reduced cache-manifest digest, so allocation is prohibited
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
