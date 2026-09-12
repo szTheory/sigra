@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-59 halted before allocation on manifest label-ledger contradiction
-last_updated: "2026-09-12T07:01:00.000Z"
+stopped_at: Plan 235.1-60 halted after allocation on Task 1 schema-audit definition-order failure
+last_updated: "2026-09-12T07:51:00.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-59 halted before allocation because its exact harness and first verifier require incompatible label-mutant ledgers
-state_head: bc90b41f58ac57dfce4edbb4bf1869fe6017d90e
+last_activity_desc: Plan 235.1-60 halted after its sole allocation because verifier 1 references schema_audit before defining it
+state_head: ec6da4839595222a3c2e3ae7bb176c287d4a2c93
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 59 of 59
-Status: Blocked — Plan 59's exact manifest harness emits seven label-mutant rows while its first Task 1 verifier constructs six and demands the seven-row digest
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 59 halted before allocation
-Last activity: 2026-09-12 — Plan 235.1-59 halted before allocation with zero downstream actions
+Plan: 60 of 60
+Status: Blocked — Plan 60 verifier 1 references `schema_audit` at source line 45 before its line-189 definition
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 60 halted after its sole allocation
+Last activity: 2026-09-12 — Plan 235.1-60 halted with zero database, timing, and GitHub actions
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),

@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 30
+open_count: 32
 waived_count: 0
 fixed_count: 0
-total_count: 30
-last_updated: 2026-09-12T07:01:51.153Z
+total_count: 32
+last_updated: 2026-09-12T07:53:02.106Z
 ---
 
 # Broken Windows Ledger
@@ -45,6 +45,8 @@ last_updated: 2026-09-12T07:01:51.153Z
 | 28 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md |  | Plan 58 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation cache-harness schema contradiction | open |  | 2026-09-12T06:33:43.824Z |  |
 | 29 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md | 233 | Plan 59 first Task 1 verifier constructs six label-mutant rows while the exact manifest harness produces seven and the verifier demands the seven-row digest | open |  | 2026-09-12T07:01:51.078Z |  |
 | 30 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md |  | Plan 59 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation manifest label-ledger contradiction | open |  | 2026-09-12T07:01:51.153Z |  |
+| 31 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md | 162 | Plan 60 first Task 1 verifier references schema_audit at source line 45 before defining it at source line 189 after the sole allocation | open |  | 2026-09-12T07:53:02.019Z |  |
+| 32 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md |  | Plan 60 parser, Perl dry run, local timing, and GitHub validation were prohibited after the no-retry Task 1 verifier definition-order failure | open |  | 2026-09-12T07:53:02.106Z |  |
 
 ````json
 [
@@ -430,6 +432,32 @@ last_updated: 2026-09-12T07:01:51.153Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:01:51.153Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 31,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md",
+    "line": 162,
+    "description": "Plan 60 first Task 1 verifier references schema_audit at source line 45 before defining it at source line 189 after the sole allocation",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T07:53:02.019Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 32,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md",
+    "line": null,
+    "description": "Plan 60 parser, Perl dry run, local timing, and GitHub validation were prohibited after the no-retry Task 1 verifier definition-order failure",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T07:53:02.106Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
