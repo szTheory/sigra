@@ -4,16 +4,16 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: blocked
-stopped_at: Plan 235.1-67 halted at its sole dry-run result gate after the corrected host gate and parser preflight passed
-last_updated: "2026-09-12T20:44:00.000Z"
+status: planned
+stopped_at: Plan 235.1-68 planned and planning-validated with allocator 0 and no Plan 68 roots
+last_updated: "2026-09-12T21:50:13.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-67 froze its sole root after the one permitted dry run returned nonzero or emitted stderr and created Apple Python cache directories
-state_head: 81b8af7de8504e1f7d6a8f2d95691fa6181823c5
+last_activity_desc: Plan 235.1-68 adds bytecode suppression, truthful dry-run ordering, and durable process diagnostics
+state_head: 8716bf50e01eee48bc6b9a1526ac0b419cfe3491
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 134
+  total_plans: 135
   completed_plans: 125
   percent: 86
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
-Plan: 67 of 67
-Status: Plan 67 Task 1, host gate, and parser preflight passed; the sole collector dry run failed before its receipt
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 67's root is frozen and Plan 05 remains blocked without local/live evidence
-Last activity: 2026-09-12 — Plan 235.1-67 halted fail-closed before candidate database, timing, terminal, or GitHub actions
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Plan: 68 of 68
+Status: Plan 68 planning replay passes under both required Python runtimes with allocator zero and roots empty
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 67's failed root remains frozen while Plan 68 awaits execution
+Last activity: 2026-09-12 — Plan 235.1-68 validated Xcode Python `-B`, truthful dry-run ordering, and durable failure-process evidence
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -474,6 +474,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 67 planning evidence is allocator-zero and root-empty; its sole fresh root may be allocated only by execution.
 - [Phase 235.1]: Plan 67 Task 1 finalized `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W`; the corrected dual-runtime host gate and all 22 parser cases passed.
 - [Phase 235.1]: Plan 67 halted at the sole dry-run result gate; no completed dry receipt, candidate database, admission, timing, terminal receipt, or GitHub action exists.
+- [Phase 235.1]: Plan 68 authenticates Plan 67's exact 90-descendant frozen root and treats its premature completion log and cache tree only as failed history.
+- [Phase 235.1]: Plan 68 requires the collector's sole inner Python exec to use `-B`, records completion only after process and empty-cache acceptance, and durably seals failure process output before halting.
+- [Phase 235.1]: Plan 68 planning evidence replays identically under Python 3.9.6 and 3.14.4 with allocator zero and no Plan 68 roots.
 
 ### Pending Todos
 
@@ -707,8 +710,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T20:44:00.000Z
-Stopped at: Plan 235.1-67 halted at its sole dry-run result gate after the corrected host gate and parser preflight passed
+Last session: 2026-09-12T21:50:13.000Z
+Stopped at: Plan 235.1-68 planned and planning-validated with allocator 0 and no Plan 68 roots
 Resume file: None
 
 ## Operator Next Steps
