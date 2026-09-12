@@ -730,10 +730,14 @@ Plans:
 
 - [x] 235.1-51-PLAN.md — Preserve exact allocated root/marker and the post-marker link-count contradiction
 
-**Wave 49** *(active; separate pre-marker/post-marker root state before the unchanged evidence route)*
+**Failed authority-schema history** *(Plan 52 authenticated the nlink 2→3 lifecycle and allocated one root, then stopped because its verifier simultaneously required and omitted `expected_authority.plan51`; zero downstream or GitHub action)*
 
-- [ ] 235.1-52-PLAN.md — Authenticate the nlink 2→3 lifecycle, use stable persistent root identity, and complete the carried route
+- [x] 235.1-52-PLAN.md — Preserve the exact allocated root/receipts and contradictory authority-schema halt
 
-**Wave 50** *(blocked on Plan 52; documentation reconciliation only)*
+**Wave 50** *(active; one canonical closed authority object before the unchanged evidence route)*
+
+- [ ] 235.1-53-PLAN.md — Reuse one plan51-inclusive authority object across receipt production and every verifier
+
+**Wave 51** *(blocked on Plan 53; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
