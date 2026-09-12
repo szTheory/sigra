@@ -754,10 +754,14 @@ Plans:
 
 - [x] 235.1-57-PLAN.md — Dual-runtime preflights passed; sole root/receipts preserved after strict preflight-before-launch timestamp ordering failed
 
-**Wave 55** *(fresh chronology repair; Plan 57 remains immutable and its equal-resolution timestamps are accepted only at the preflight-to-launch boundary)*
+**Wave 55** *(failed before allocation: cache harness required the Plan 55 input schema while both Plan 58 verifiers required Plan 58; zero roots/actions and all budgets unspent)*
 
-- [ ] 235.1-58-PLAN.md — Centralize resolution-aware interval semantics, then run the unchanged one-shot local/live evidence route from a fresh root
+- [x] 235.1-58-PLAN.md — Preserve the zero-action cache-harness schema contradiction as immutable history
 
-**Wave 56** *(blocked on successful Plan 58 dual-route evidence; documentation reconciliation only)*
+**Wave 56** *(fresh schema repair: bind every current component and receipt to Plan 59, then resume the unchanged one-shot route)*
+
+- [ ] 235.1-59-PLAN.md — Repair the cache harness schema, audit all current schema labels, and run the bounded local/live evidence route
+
+**Wave 57** *(blocked on successful Plan 59 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
