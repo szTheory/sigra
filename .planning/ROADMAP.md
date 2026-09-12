@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 34 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 35 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -742,10 +742,14 @@ Plans:
 
 - [x] 235.1-54-PLAN.md — Preserve the exact full-row/reduced-row schema contradiction and zero-action halt
 
-**Wave 52** *(active; two-stage cache filter/projection proof before the unchanged evidence route)*
+**Wave 52** *(failed stable-manifest history; Plan 55 allocated once, then rejected the copied Plan 54 manifest digest before downstream actions)*
 
 - [x] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
 
-**Wave 53** *(blocked on Plan 55; documentation reconciliation only)*
+**Wave 53** *(active; exact Plan 56 allocator manifest regenerated under both required runtimes before the unchanged evidence route)*
+
+- [ ] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
+
+**Wave 54** *(blocked on Plan 56; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
