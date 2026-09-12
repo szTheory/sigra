@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-57 halted after sole allocation receipt timestamp-order failure
-last_updated: "2026-09-12T04:18:26.355Z"
+stopped_at: Plan 235.1-58 halted before allocation on cache-harness schema contradiction
+last_updated: "2026-09-12T06:32:49.399Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-57 preserved its one-shot root and every downstream budget after the first Task 1 verifier failed
-state_head: 69b41265c17964e26aab850da3c5be831ffc230c
+last_activity_desc: Plan 235.1-58 halted before allocation because its exact cache harness and verifier require mutually exclusive input schemas
+state_head: 47be49f7cc501cd59392a983487d60b6c7f496d5
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 124
-  completed_plans: 119
+  total_plans: 125
+  completed_plans: 120
   percent: 86
 ---
 
@@ -31,10 +31,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 57 of 57
-Status: Blocked — Plan 57's immutable allocation receipt gives identity-preflight completion and parent-launch start the same timestamp, but the approved verifier requires strict precedence
-Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
-Last activity: 2026-09-09 — Phase 235.1 execution started
+Plan: 58 of 58
+Status: Blocked — Plan 58's exact cache harness requires a Plan 55 input schema while its approved Task 1 verifier requires a Plan 58 input schema
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 58 halted before allocation
+Last activity: 2026-09-12 — Plan 235.1-58 halted before allocation with zero downstream actions
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -495,6 +495,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
 - Plan 235.1-55 halted after its sole allocation: exact Plan55 allocator stable AST digest is 90651ac4 under both pinned runtimes, while the approved verifier requires stale Plan54 digest ad6595a0.
 - Plan 235.1-57 sole allocation receipt has identity_preflight.completed_at equal to parent_launch.started_at; strict Task 1 verifier requires completed_at < started_at, and no retry/rewrite is permitted
+- Plan 235.1-58 exact cache harness requires sigra.phase235.1-plan55-cache-harness-input/v1 while its approved Task 1 verifier requires sigra.phase235.1-plan58-cache-harness-input/v1; halted before allocation with zero downstream actions
 
 ### Roadmap Evolution
 
@@ -682,13 +683,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T04:18:25.944Z
-Stopped at: Plan 235.1-57 halted after sole allocation receipt timestamp-order failure
+Last session: 2026-09-12T06:32:48.998Z
+Stopped at: Plan 235.1-58 halted before allocation on cache-harness schema contradiction
 Resume file: None
 
 ## Operator Next Steps
 
-- Complete and archive v1.47 with `$gsd-complete-milestone v1.47`.
+- Correct and re-approve the Plan 58 cache-harness schema contract before attempting a fresh exact/no-retry execution.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics

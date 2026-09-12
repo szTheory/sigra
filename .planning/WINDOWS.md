@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 26
+open_count: 28
 waived_count: 0
 fixed_count: 0
-total_count: 26
-last_updated: 2026-09-12T04:17:45.653Z
+total_count: 28
+last_updated: 2026-09-12T06:33:43.824Z
 ---
 
 # Broken Windows Ledger
@@ -41,6 +41,8 @@ last_updated: 2026-09-12T04:17:45.653Z
 | 24 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan56 allocation, local timing, and GitHub validation were prohibited after deterministic pre-allocation verifier contradictions | open |  | 2026-09-12T03:49:51.057Z |  |
 | 25 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-57-PLAN.md |  | Plan57 sole allocation receipt records identity-preflight completion equal to parent-launch start while its first verifier requires strict precedence | open |  | 2026-09-12T04:17:45.542Z |  |
 | 26 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan57 parser, local timing, and GitHub validation were prohibited after the no-retry Task1 receipt-order failure | open |  | 2026-09-12T04:17:45.653Z |  |
+| 27 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md | 104 | Plan 58 cache harness requires a Plan 55 input schema while the approved Task 1 verifier requires a Plan 58 input schema | open |  | 2026-09-12T06:33:36.033Z |  |
+| 28 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md |  | Plan 58 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation cache-harness schema contradiction | open |  | 2026-09-12T06:33:43.824Z |  |
 
 ````json
 [
@@ -374,6 +376,32 @@ last_updated: 2026-09-12T04:17:45.653Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T04:17:45.653Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 27,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md",
+    "line": 104,
+    "description": "Plan 58 cache harness requires a Plan 55 input schema while the approved Task 1 verifier requires a Plan 58 input schema",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T06:33:36.033Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 28,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-58-PLAN.md",
+    "line": null,
+    "description": "Plan 58 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation cache-harness schema contradiction",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T06:33:43.824Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
