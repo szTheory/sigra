@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 32
+open_count: 34
 waived_count: 0
 fixed_count: 0
-total_count: 32
-last_updated: 2026-09-12T07:53:02.106Z
+total_count: 34
+last_updated: 2026-09-12T13:38:33.595Z
 ---
 
 # Broken Windows Ledger
@@ -47,6 +47,8 @@ last_updated: 2026-09-12T07:53:02.106Z
 | 30 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-59-PLAN.md |  | Plan 59 allocation, parser, Perl dry run, local timing, and GitHub validation were prohibited after the pre-allocation manifest label-ledger contradiction | open |  | 2026-09-12T07:01:51.153Z |  |
 | 31 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md | 162 | Plan 60 first Task 1 verifier references schema_audit at source line 45 before defining it at source line 189 after the sole allocation | open |  | 2026-09-12T07:53:02.019Z |  |
 | 32 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-60-PLAN.md |  | Plan 60 parser, Perl dry run, local timing, and GitHub validation were prohibited after the no-retry Task 1 verifier definition-order failure | open |  | 2026-09-12T07:53:02.106Z |  |
+| 33 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-61-PLAN.md | 7 | Authenticated allocator exact two-key environment rejects five Apple Python injected toolchain variables before mktemp | open |  | 2026-09-12T13:38:26.075Z |  |
+| 34 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 61 allocation, parser, local timing, and GitHub validation were prohibited after the authenticated allocator child-environment hard stop | open |  | 2026-09-12T13:38:33.595Z |  |
 
 ````json
 [
@@ -458,6 +460,32 @@ last_updated: 2026-09-12T07:53:02.106Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:53:02.106Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 33,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-61-PLAN.md",
+    "line": 7,
+    "description": "Authenticated allocator exact two-key environment rejects five Apple Python injected toolchain variables before mktemp",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T13:38:26.075Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 34,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 61 allocation, parser, local timing, and GitHub validation were prohibited after the authenticated allocator child-environment hard stop",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T13:38:33.595Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
