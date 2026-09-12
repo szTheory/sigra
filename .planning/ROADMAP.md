@@ -790,10 +790,10 @@ Plans:
 
 - [x] 235.1-66-PLAN.md — Authenticate the repaired finalizer and preserve the finalized root after the sole Task 2 host gate rejected cross-process monotonic ordering
 
-**Wave 64** *(fresh clock-domain recovery: parent-observed wall enclosure across processes; monotonic order only within one process)*
+**Wave 64** *(halted after the corrected host gate and 22 parser cases passed: the sole dry run failed before candidate/database/timing/live actions)*
 
-- [ ] 235.1-67-PLAN.md — Preserve Plan 66's frozen host-gate halt and replace invalid cross-runtime monotonic enclosure with challenge-bound parent wall-clock boundaries
+- [x] 235.1-67-PLAN.md — Correct cross-process clock handling, pass the dual-runtime host gate and parser preflight, then preserve the root after the sole dry run rejected
 
-**Wave 65** *(blocked on successful successor dual-route evidence; documentation reconciliation only)*
+**Wave 65** *(blocked because Plan 67 produced no admitted local series or live-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence

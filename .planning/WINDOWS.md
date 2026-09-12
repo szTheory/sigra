@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 42
+open_count: 44
 waived_count: 0
 fixed_count: 0
-total_count: 42
-last_updated: 2026-09-12T20:05:21.633Z
+total_count: 44
+last_updated: 2026-09-12T20:43:40.536Z
 ---
 
 # Broken Windows Ledger
@@ -57,6 +57,8 @@ last_updated: 2026-09-12T20:05:21.633Z
 | 40 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-65-PLAN.md |  | Plan 65 Tasks 2-3 unrun: sole Task 1 finalizer halted before finalization because its pinned source omitted base64 import required by validate_host_path | open |  | 2026-09-12T19:14:58.557Z |  |
 | 41 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-66-PLAN.md | 354 | Plan 66 Task 2 host gate compares process-relative Python 3.9 and system-wide Python 3.14 monotonic timestamps as one numeric epoch and rejects after consuming the nonce marker | open |  | 2026-09-12T20:05:21.548Z |  |
 | 42 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 66 collector, candidate/database, local timing, and GitHub validation were prohibited after the sole Task 2 host gate failed before publishing its receipt | open |  | 2026-09-12T20:05:21.633Z |  |
+| 43 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-67-PLAN.md | 272 | Plan 67 sole dry-run command returned nonzero or emitted stderr after the authenticated host gate and 22 parser cases passed; the consumed wrapper/dry-run chain was frozen without retry | open |  | 2026-09-12T20:43:40.427Z |  |
+| 44 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 67 candidate database, admission, timing, terminal receipt, and all GitHub validation remained prohibited after the sole dry-run gate failed | open |  | 2026-09-12T20:43:40.536Z |  |
 
 ````json
 [
@@ -598,6 +600,32 @@ last_updated: 2026-09-12T20:05:21.633Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:05:21.633Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 43,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-67-PLAN.md",
+    "line": 272,
+    "description": "Plan 67 sole dry-run command returned nonzero or emitted stderr after the authenticated host gate and 22 parser cases passed; the consumed wrapper/dry-run chain was frozen without retry",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T20:43:40.427Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 44,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 67 candidate database, admission, timing, terminal receipt, and all GitHub validation remained prohibited after the sole dry-run gate failed",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T20:43:40.536Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
