@@ -734,10 +734,14 @@ Plans:
 
 - [x] 235.1-52-PLAN.md — Preserve the exact allocated root/receipts and contradictory authority-schema halt
 
-**Wave 50** *(active; one canonical closed authority object before the unchanged evidence route)*
+**Failed dry-environment history** *(Plan 53 authenticated the canonical authority, root, and 22-case parser preflight, then its sole dry run completed PostgreSQL collection but the Apple-stub Python observer created HOME cache files and failed the closed environment contract; zero candidate, admission, timing, or GitHub action)*
 
-- [ ] 235.1-53-PLAN.md — Reuse one plan51-inclusive authority object across receipt production and every verifier
+- [x] 235.1-53-PLAN.md — Preserve the exact root, preflight, consumed dry run, and cache-side-effect halt
 
-**Wave 51** *(blocked on Plan 53; documentation reconciliation only)*
+**Wave 51** *(active; native no-cache environment observation before the unchanged evidence route)*
+
+- [ ] 235.1-54-PLAN.md — Replace the Apple-stub Python observer with an exact native Perl closed-environment proof
+
+**Wave 52** *(blocked on Plan 54; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
