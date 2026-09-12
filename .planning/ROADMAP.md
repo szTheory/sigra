@@ -726,10 +726,14 @@ Plans:
 
 - [x] 235.1-50-PLAN.md — Exact parent-command/child-runtime path mismatch and zero-action evidence retained
 
-**Wave 48** *(active; parent-observed launch identity and child runtime are cross-bound before the unchanged evidence route)*
+**Failed root-lifecycle history** *(Plan 51 authenticated parent/child Python identity and allocated one root/marker, then stopped because the pre-marker nlink-2 predicate was incorrectly reused after APFS raised it to three; zero downstream or GitHub action)*
 
-- [ ] 235.1-51-PLAN.md — Authenticate the `/usr/bin/python3` Apple stub launch separately from the Xcode-resolved child runtime, then complete the carried route
+- [x] 235.1-51-PLAN.md — Preserve exact allocated root/marker and the post-marker link-count contradiction
 
-**Wave 49** *(blocked on Plan 51; documentation reconciliation only)*
+**Wave 49** *(active; separate pre-marker/post-marker root state before the unchanged evidence route)*
+
+- [ ] 235.1-52-PLAN.md — Authenticate the nlink 2→3 lifecycle, use stable persistent root identity, and complete the carried route
+
+**Wave 50** *(blocked on Plan 52; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
