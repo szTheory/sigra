@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 14
+open_count: 16
 waived_count: 0
 fixed_count: 0
-total_count: 14
-last_updated: 2026-09-11T23:52:23.970Z
+total_count: 16
+last_updated: 2026-09-12T00:25:02.890Z
 ---
 
 # Broken Windows Ledger
@@ -29,6 +29,8 @@ last_updated: 2026-09-11T23:52:23.970Z
 | 12 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 46 timing and GitHub validation were prohibited by the consumed Task 1 hard stop | open |  | 2026-09-11T19:42:38.151Z |  |
 | 13 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-49-PLAN.md |  | Exact Plan 49 allocator location-bearing AST digest differs under mandated /usr/bin/python3 3.9.6; no allocator invocation occurred | open |  | 2026-09-11T21:58:14.807Z |  |
 | 14 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-51-PLAN.md |  | Plan 51 persistent root nlink=2 contract fails after exclusive marker creation; live root nlink is 3 | open |  | 2026-09-11T23:52:23.970Z |  |
+| 15 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-52-PLAN.md |  | Plan 52 Task 1 verifier requires expected_authority.plan51 and later requires exact expected_authority equality to a closed object that omits plan51 | open |  | 2026-09-12T00:25:02.798Z |  |
+| 16 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 52 Task 2 local timing and Task 3 GitHub validation were prohibited after the no-retry Task 1 contradictory verifier halt | open |  | 2026-09-12T00:25:02.890Z |  |
 
 ````json
 [
@@ -206,6 +208,32 @@ last_updated: 2026-09-11T23:52:23.970Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T23:52:23.970Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 15,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-52-PLAN.md",
+    "line": null,
+    "description": "Plan 52 Task 1 verifier requires expected_authority.plan51 and later requires exact expected_authority equality to a closed object that omits plan51",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T00:25:02.798Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 16,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 52 Task 2 local timing and Task 3 GitHub validation were prohibited after the no-retry Task 1 contradictory verifier halt",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T00:25:02.890Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }

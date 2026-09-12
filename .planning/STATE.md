@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-51 halted at post-marker root link-count contradiction
-last_updated: "2026-09-11T23:52:00.000Z"
+stopped_at: Plan 235.1-52 halted at contradictory expected-authority verifier
+last_updated: "2026-09-12T00:26:41.000Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-51 authenticated parent and child Python identities, allocated once, and preserved the root after the post-marker nlink gate failed
-state_head: 1f3ec3b4da5fe9356d73d33286d0d1d9d8d2b222
+last_activity_desc: Plan 235.1-52 allocated once with nlink 2-to-3 lifecycle proof and preserved the root after its closed history verifier required and omitted plan51
+state_head: c9066ff116d84717623df19dc93eefbe19bdbf83
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 51 of 51
-Status: Blocked — Plan 51 requires persistent root `st_nlink == 2`, but the sole allocated root reports `3` after `.allocation.once` is created
+Plan: 52 of 52
+Status: Blocked — Plan 52 verifier requires `expected_authority.plan51` and later requires exact equality to a closed object that omits `plan51`
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 
@@ -681,7 +681,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-11T23:52:00.000Z
-Stopped at: Plan 235.1-51 halted at post-marker root link-count contradiction
+Stopped at: Plan 235.1-52 halted at contradictory expected-authority verifier
 Resume file: None
 
 ## Operator Next Steps
