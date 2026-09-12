@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: planning
-stopped_at: Plan 235.1-63 planned as the fresh source-derived Task 2 materialization successor
-last_updated: "2026-09-12T15:20:00.000Z"
+status: blocked
+stopped_at: Plan 235.1-63 halted after sole allocation; successor planning required
+last_updated: "2026-09-12T15:30:07.697Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-63 planned with frozen Plan 62 root authority and a generated post-substitution Task 2 source contract
-state_head: 636c9bbccdcc870a70bde4e24a067d6676a62e0e
+last_activity_desc: Plan 235.1-63 frozen with seven receipts and no local subtree after deterministic tracer/materialization halt
+state_head: caffecb302151114b6c23c0726396e27abc19127
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 127
-  completed_plans: 120
+  total_plans: 130
+  completed_plans: 125
   percent: 86
 ---
 
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
 Plan: 63 of 63
-Status: Ready — execute Plan 63 only; Plan 62 remains an immutable post-allocation halt
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 63 planning replay is green with allocator zero
-Last activity: 2026-09-12 — Plan 235.1-63 planned from the frozen Plan 62 seven-file/no-local halt
+Status: Halted — Plan 63's sole root is frozen; its mutating tracer verifier cannot be rerun and Task 2's required materialized verifier is absent
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 63 stopped before parser/local/live evidence
+Last activity: 2026-09-12 — Plan 235.1-63 allocated one seven-file root and halted before Task 2
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -458,6 +458,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
 - [Phase 235.1]: Correlate async login-stop telemetry by exact event plus user/attempt identity; preserve both test modules as async.
 - [Phase 235.1]: Source b37ac116/tree 02bb907f supersedes candidate 63910813 for fresh calibration; Plan 29 timing authority is stale source history.
+- [Phase 235.1]: Plan 63's consumed mutating tracer verifier must not be rerun; preserve its seven-file root.
+- [Phase 235.1]: A successor must materialize local/verify-task2.py in Task 1 and use a non-mutating tracer gate.
 
 ### Pending Todos
 
@@ -499,6 +501,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-61 authenticated allocator requires exactly LC_ALL and SIGRA_PLAN61_PREFLIGHT_B64, but Apple /usr/bin/python3 injects CPATH, LIBRARY_PATH, MANPATH, SDKROOT, and __CF_USER_TEXT_ENCODING before user code; halted before mktemp with zero roots or downstream actions
 - Plan 235.1-62 allocated and authenticated its sole root, then the committed Task 2 verifier decoded to 40,816 bytes/SHA a4239aa7 instead of the approved 40,372 bytes/SHA a0fea47f; halted before materialization with zero downstream actions
 - Plan 235.1-63 derives the Task 2 materialized source identity only after final element extraction and binds it to the generated nineteen-row embedded authority table; the Plan 62 copied tuple is a rejecting adverse
+- Plan 63 halted after sole allocation: mandatory tracer rerun conflicts with one-shot budgets, and Task 2 verifier precondition is unmet.
 
 ### Roadmap Evolution
 
@@ -686,13 +689,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T14:58:18.000Z
-Stopped at: Plan 235.1-63 planned with both-runtime zero-allocation replay green
+Last session: 2026-09-12T15:30:07.290Z
+Stopped at: Plan 235.1-63 halted after sole allocation; successor planning required
 Resume file: None
 
 ## Operator Next Steps
 
-- Execute Plan 235.1-63 only; allocate one fresh Plan 63 root, and never rerun or modify the retained Plan 62 root.
+- Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
+- Plan a fresh successor whose Task 1 is non-tracer (or has a separate read-only tracer verifier) and whose one-shot chain materializes `local/verify-task2.py` before Task 2.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -872,3 +876,4 @@ Resume file: None
 | Phase 235.1 P43 | 9m | 0 tasks | 2 files |
 | Phase 235.1 P55 | 14m | 0 tasks | 3 files |
 | Phase 235.1 P57 | 10m | 0 tasks | 4 files |
+| Phase 235.1 P63 | 5m | 0 tasks | 3 files |

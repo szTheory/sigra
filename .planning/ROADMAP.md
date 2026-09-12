@@ -776,7 +776,7 @@ Plans:
 
 **Wave 60** *(fresh Task 2 materialization repair: derive one post-substitution authority, then run the unchanged one-shot route)*
 
-- [ ] 235.1-63-PLAN.md — Authenticate the Plan 62 halt and generate one identical Task 2 materialized-source authority for every consumer
+- [x] 235.1-63-PLAN.md — Preserve the authenticated seven-file root after the mutating tracer-rerun conflict and missing Task 2 materialization halt
 
 **Wave 61** *(blocked on successful Plan 63 dual-route evidence; documentation reconciliation only)*
 
