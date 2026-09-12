@@ -5,11 +5,11 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-55 halted after consumed sole allocation AST authority failure
-last_updated: "2026-09-12T02:46:38.506Z"
+stopped_at: Plan 235.1-56 halted before allocation on canonical key-order and observer-schema contradictions
+last_updated: "2026-09-12T03:49:51Z"
 last_activity: 2026-09-11
-last_activity_desc: Plan 235.1-54 reproduced the immutable Plan 53 manifests and halted before allocation because its cache verifier mixed full and reduced row schemas
-state_head: b0a1e217f25e2f4e3c9f354285788c9585525d0e
+last_activity_desc: Plan 235.1-56 preserved every one-shot budget after proving two committed verifier authorities mutually inconsistent
+state_head: 004c1435523d86e4f91e0281b83b48900fefe665
 progress:
   total_phases: 7
   completed_phases: 6
@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 54 of 54
-Status: Blocked — Plan 54 Task 1 derives full Plan 53 descendant rows but requires the reduced cache-manifest digest, so allocation is prohibited
+Plan: 56 of 56
+Status: Blocked — Plan 56 canonical sorted authority JSON cannot satisfy its non-sorted key tuple, and its pinned Perl source emits the Plan 54 schema while Task 2 requires Plan 56
 Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
 Last activity: 2026-09-09 — Phase 235.1 execution started
 

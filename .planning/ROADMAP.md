@@ -746,9 +746,9 @@ Plans:
 
 - [x] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
 
-**Wave 53** *(active; exact Plan 56 allocator manifest regenerated under both required runtimes before the unchanged evidence route)*
+**Wave 53** *(failed pre-allocation authority contract; canonical sorted JSON cannot satisfy the verifier's non-sorted key tuple, and the pinned observer emits the Plan 54 schema)*
 
-- [ ] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
+- [x] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
 
 **Wave 54** *(blocked on Plan 56; documentation reconciliation only)*
 

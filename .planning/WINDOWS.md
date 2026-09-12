@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 22
+open_count: 24
 waived_count: 0
 fixed_count: 0
-total_count: 22
-last_updated: 2026-09-12T02:45:29.868Z
+total_count: 24
+last_updated: 2026-09-12T03:49:51.057Z
 ---
 
 # Broken Windows Ledger
@@ -37,6 +37,8 @@ last_updated: 2026-09-12T02:45:29.868Z
 | 20 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 54 allocation, local timing, and GitHub validation were prohibited after the pre-allocation cache-schema contradiction | open |  | 2026-09-12T01:46:46.324Z |  |
 | 21 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md |  | Approved Plan55 reuses Plan54 allocator AST digest although the Plan55 literals changed; both pinned runtimes derive 90651ac4 instead of ad6595a0 | open |  | 2026-09-12T02:45:29.763Z |  |
 | 22 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md |  | Plan55 Tasks 2-3 were not run after the no-retry Task1 authority gate failed | open |  | 2026-09-12T02:45:29.868Z |  |
+| 23 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-56-PLAN.md |  | Plan56 canonical sorted expected-authority JSON cannot satisfy the verifier non-sorted key tuple; allocator was not invoked | open |  | 2026-09-12T03:49:50.973Z |  |
+| 24 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan56 allocation, local timing, and GitHub validation were prohibited after deterministic pre-allocation verifier contradictions | open |  | 2026-09-12T03:49:51.057Z |  |
 
 ````json
 [
@@ -318,6 +320,32 @@ last_updated: 2026-09-12T02:45:29.868Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T02:45:29.868Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 23,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-56-PLAN.md",
+    "line": null,
+    "description": "Plan56 canonical sorted expected-authority JSON cannot satisfy the verifier non-sorted key tuple; allocator was not invoked",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T03:49:50.973Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 24,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan56 allocation, local timing, and GitHub validation were prohibited after deterministic pre-allocation verifier contradictions",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T03:49:51.057Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
