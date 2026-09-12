@@ -762,10 +762,14 @@ Plans:
 
 - [x] 235.1-59-PLAN.md — Preserve the exact seven-versus-six label-ledger contradiction as immutable history
 
-**Wave 57** *(fresh sole-source label repair: derive every row, count, label, and digest from the authenticated Plan 60 harness, then resume the unchanged one-shot route)*
+**Wave 57** *(halted after one root allocation: the first verifier used schema_audit before its later definition; zero downstream actions and all delivery budgets unspent)*
 
-- [ ] 235.1-60-PLAN.md — Eliminate duplicated label ledgers and run the bounded local/live evidence route
+- [x] 235.1-60-PLAN.md — Preserve the exact root/receipts and definition-order halt as immutable history
 
-**Wave 58** *(blocked on successful Plan 60 dual-route evidence; documentation reconciliation only)*
+**Wave 58** *(fresh definition-order repair: authenticate helper/source dominance before allocating, then resume the unchanged one-shot route)*
+
+- [ ] 235.1-61-PLAN.md — Prove schema/helper definition dominance and run the bounded local/live evidence route
+
+**Wave 59** *(blocked on successful Plan 61 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
