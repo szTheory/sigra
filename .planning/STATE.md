@@ -4,12 +4,12 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: planned
-stopped_at: Plan 235.1-66 planned and planning-only validation passed with allocator0/roots[]
-last_updated: "2026-09-12T19:40:00.000Z"
+status: blocked
+stopped_at: Plan 235.1-66 halted at its sole Task 2 host gate; cross-runtime monotonic clocks are not numerically comparable
+last_updated: "2026-09-12T20:02:28.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-66 repairs the authenticated finalizer import and proves the repaired path under both runtimes without allocation
-state_head: 747db4aea3e2b9073d7d7f634f29a7f3bea266a4
+last_activity_desc: Plan 235.1-66 finalized one root, then froze it after the sole Task 2 host gate rejected cross-process monotonic ordering
+state_head: 5039b65117ba80ea155d504fdb835eaccf16056c
 progress:
   total_phases: 7
   completed_phases: 6
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
 Plan: 66 of 66
-Status: Plan 66 is ready; planning-only dual-runtime replay passed with allocator0/roots[]
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 65's three-file root is frozen while Plan 66 awaits its fresh sole allocation
-Last activity: 2026-09-12 — Plan 235.1-66 authenticated the repaired finalizer and exercised `validate_host_path` under both runtimes without execution
+Status: Plan 66 Task 1 passed; the sole Task 2 host gate failed closed before its atomic receipt
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 66's root and nonce marker are frozen while a successor is planned
+Last activity: 2026-09-12 — Plan 235.1-66 exposed a cross-process monotonic-clock epoch mismatch between Python 3.9 and Python 3.14
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -467,6 +467,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 65 planning replay is allocator-zero/root-empty; execution alone may allocate its fresh `sigra-p2351-plan65-de6d9a0b.XXXXXXXX` root, and Plan 64's frozen root is immutable history.
 - [Phase 235.1]: Plan 65 execute preallocation passed and allocated `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2`; the sole finalizer then failed before writing any final receipt because its pinned source omitted `import base64`.
 - [Phase 235.1]: Plan 66 adds only the authenticated `base64` import, then uses a disposable dual-runtime probe whose control reaches `validate_host_path` and whose missing-import mutant deterministically raises `NameError`; planning replay remains allocator-zero/root-empty.
+- [Phase 235.1]: Plan 66 Task 1 passed and finalized `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy`; the sole Task 2 host gate then failed because it compared process-relative Python 3.9 monotonic values with system-wide Python 3.14 values as one numeric epoch.
+- [Phase 235.1]: Preserve Plan 66's consumed nonce chain; a successor must use wall time across process boundaries and monotonic time only within one process/clock domain.
 
 ### Pending Todos
 
@@ -511,6 +513,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 63 halted after sole allocation: mandatory tracer rerun conflicts with one-shot budgets, and Task 2 verifier precondition is unmet.
 - Plan 64 halted after Task 1: immutable collector admission would deterministically exit 78 because absolute `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent; every Task 2/3 one-shot remains unused.
 - Plan 65 halted during its sole Task 1 finalizer: `validate_host_path` calls `base64.b64decode` but the pinned source does not import `base64`; the three-file root is frozen and every Task 2/3 budget remains unused.
+- Plan 66 halted during its sole Task 2 host gate: cross-process monotonic interval assertions compare incompatible Python 3.9 process-relative and Python 3.14 system-wide clock epochs; the root and nonce marker are frozen and all collector/database/timing/GitHub budgets remain unused.
 
 ### Roadmap Evolution
 
@@ -698,8 +701,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T19:40:00.000Z
-Stopped at: Plan 235.1-66 planned and planning-only validation passed with allocator0/roots[]
+Last session: 2026-09-12T20:02:28.000Z
+Stopped at: Plan 235.1-66 halted at its sole Task 2 host gate; cross-runtime monotonic clocks are not numerically comparable
 Resume file: None
 
 ## Operator Next Steps
@@ -707,7 +710,8 @@ Resume file: None
 - Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
 - Preserve `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam` exactly and do not rerun its consumed launcher, allocator, finalizer, or verifier.
 - Preserve `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2` exactly and do not rerun its consumed launcher, allocator, or finalizer.
-- Execute Plan 66 once from its committed authority; only execution may allocate the fresh Plan 66 namespace, and every Task 2/3 budget remains fail-closed behind Task 1.
+- Preserve `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, or Task 2 host gate.
+- Plan a successor that retains wall-clock causal checks across processes but scopes monotonic comparisons to one process/clock domain; preserve all unused collector/database/timing/GitHub budgets.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics

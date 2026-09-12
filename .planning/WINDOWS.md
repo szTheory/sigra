@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 40
+open_count: 42
 waived_count: 0
 fixed_count: 0
-total_count: 40
-last_updated: 2026-09-12T19:14:58.557Z
+total_count: 42
+last_updated: 2026-09-12T20:05:21.633Z
 ---
 
 # Broken Windows Ledger
@@ -55,6 +55,8 @@ last_updated: 2026-09-12T19:14:58.557Z
 | 38 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 63 Task 2 and live validation were prohibited because Task 1 produced no local/verify-task2.py and its tracer rerun was unsafe | open |  | 2026-09-12T15:29:22.011Z |  |
 | 39 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-64-PLAN.md |  | Plan 64 Tasks 2-3 unrun: immutable collector requires absent /opt/homebrew/var/postgresql@16 disk path on PostgreSQL 14 host | open |  | 2026-09-12T16:42:28.441Z |  |
 | 40 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-65-PLAN.md |  | Plan 65 Tasks 2-3 unrun: sole Task 1 finalizer halted before finalization because its pinned source omitted base64 import required by validate_host_path | open |  | 2026-09-12T19:14:58.557Z |  |
+| 41 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-66-PLAN.md | 354 | Plan 66 Task 2 host gate compares process-relative Python 3.9 and system-wide Python 3.14 monotonic timestamps as one numeric epoch and rejects after consuming the nonce marker | open |  | 2026-09-12T20:05:21.548Z |  |
+| 42 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 66 collector, candidate/database, local timing, and GitHub validation were prohibited after the sole Task 2 host gate failed before publishing its receipt | open |  | 2026-09-12T20:05:21.633Z |  |
 
 ````json
 [
@@ -570,6 +572,32 @@ last_updated: 2026-09-12T19:14:58.557Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T19:14:58.557Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 41,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-66-PLAN.md",
+    "line": 354,
+    "description": "Plan 66 Task 2 host gate compares process-relative Python 3.9 and system-wide Python 3.14 monotonic timestamps as one numeric epoch and rejects after consuming the nonce marker",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T20:05:21.548Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 42,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 66 collector, candidate/database, local timing, and GitHub validation were prohibited after the sole Task 2 host gate failed before publishing its receipt",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T20:05:21.633Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }

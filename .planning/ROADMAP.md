@@ -786,10 +786,10 @@ Plans:
 
 - [x] 235.1-65-PLAN.md — Preserve the authenticated three-file root after PostgreSQL 14 preallocation passed and the sole finalizer halted on a missing `base64` import
 
-**Wave 63** *(fresh finalizer-import recovery: authenticate the repaired finalizer under both runtimes before sole allocation)*
+**Wave 63** *(halted after Task 1 and the sole Task 2 host-gate marker: cross-runtime monotonic epochs are incomparable; all downstream budgets unused)*
 
-- [ ] 235.1-66-PLAN.md — Add the authenticated `base64` import, prove `validate_host_path` with a disposable dual-runtime control/adverse probe, and preserve all unused downstream budgets
+- [x] 235.1-66-PLAN.md — Authenticate the repaired finalizer and preserve the finalized root after the sole Task 2 host gate rejected cross-process monotonic ordering
 
-**Wave 64** *(blocked on successful Plan 66 dual-route evidence; documentation reconciliation only)*
+**Wave 64** *(blocked on successful successor dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
