@@ -738,10 +738,14 @@ Plans:
 
 - [x] 235.1-53-PLAN.md — Preserve the exact root, preflight, consumed dry run, and cache-side-effect halt
 
-**Wave 51** *(active; native no-cache environment observation before the unchanged evidence route)*
+**Failed cache-projection history** *(Plan 54 stopped before allocation because its verifier compared 58 full descendant rows with the reduced cache-row authority; zero Plan 54 roots or actions)*
 
-- [ ] 235.1-54-PLAN.md — Replace the Apple-stub Python observer with an exact native Perl closed-environment proof
+- [x] 235.1-54-PLAN.md — Preserve the exact full-row/reduced-row schema contradiction and zero-action halt
 
-**Wave 52** *(blocked on Plan 54; documentation reconciliation only)*
+**Wave 52** *(active; two-stage cache filter/projection proof before the unchanged evidence route)*
+
+- [ ] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
+
+**Wave 53** *(blocked on Plan 55; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
