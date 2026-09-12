@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 44
+open_count: 46
 waived_count: 0
 fixed_count: 0
-total_count: 44
-last_updated: 2026-09-12T20:43:40.536Z
+total_count: 46
+last_updated: 2026-09-12T22:22:53.885Z
 ---
 
 # Broken Windows Ledger
@@ -59,6 +59,8 @@ last_updated: 2026-09-12T20:43:40.536Z
 | 42 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 66 collector, candidate/database, local timing, and GitHub validation were prohibited after the sole Task 2 host gate failed before publishing its receipt | open |  | 2026-09-12T20:05:21.633Z |  |
 | 43 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-67-PLAN.md | 272 | Plan 67 sole dry-run command returned nonzero or emitted stderr after the authenticated host gate and 22 parser cases passed; the consumed wrapper/dry-run chain was frozen without retry | open |  | 2026-09-12T20:43:40.427Z |  |
 | 44 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 67 candidate database, admission, timing, terminal receipt, and all GitHub validation remained prohibited after the sole dry-run gate failed | open |  | 2026-09-12T20:43:40.536Z |  |
+| 45 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-68-PLAN.md | 135 | Plan 68 execute launcher called undefined nodup while validating the authenticated bytecode probe after the sole allocator created its root; the consumed launcher/driver/allocator chain was frozen without retry | open |  | 2026-09-12T22:22:53.807Z |  |
+| 46 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 68 finalizer, Task 1 verifier, all Task 2 local/database/timing actions, terminal PASS, and all Task 3 GitHub validation remained prohibited after the execute launcher failed post-allocation | open |  | 2026-09-12T22:22:53.885Z |  |
 
 ````json
 [
@@ -626,6 +628,32 @@ last_updated: 2026-09-12T20:43:40.536Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:43:40.536Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 45,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-68-PLAN.md",
+    "line": 135,
+    "description": "Plan 68 execute launcher called undefined nodup while validating the authenticated bytecode probe after the sole allocator created its root; the consumed launcher/driver/allocator chain was frozen without retry",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T22:22:53.807Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 46,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 68 finalizer, Task 1 verifier, all Task 2 local/database/timing actions, terminal PASS, and all Task 3 GitHub validation remained prohibited after the execute launcher failed post-allocation",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T22:22:53.885Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }

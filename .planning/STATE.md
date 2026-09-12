@@ -4,12 +4,12 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: planned
-stopped_at: Plan 235.1-68 planned and planning-validated with allocator 0 and no Plan 68 roots
-last_updated: "2026-09-12T21:50:13.000Z"
+status: blocked
+stopped_at: Plan 235.1-68 halted after its sole execute launcher allocated one root and then called undefined nodup before handoff
+last_updated: "2026-09-12T22:23:19.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-68 adds bytecode suppression, truthful dry-run ordering, and durable process diagnostics
-state_head: 8716bf50e01eee48bc6b9a1526ac0b419cfe3491
+last_activity_desc: Plan 235.1-68 froze its sole marker-only root after the execute launcher failed post-allocation and before finalizer, Task 2, or GitHub actions
+state_head: 38c8c1aa8c280afce5a70ce93be029d9c9715645
 progress:
   total_phases: 7
   completed_phases: 6
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
 Plan: 68 of 68
-Status: Plan 68 planning replay passes under both required Python runtimes with allocator zero and roots empty
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 67's failed root remains frozen while Plan 68 awaits execution
-Last activity: 2026-09-12 — Plan 235.1-68 validated Xcode Python `-B`, truthful dry-run ordering, and durable failure-process evidence
+Status: Plan 68 planning replay passed; the sole execute launcher allocated one root, then failed on undefined `nodup` before handoff
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
+Last activity: 2026-09-12 — Plan 235.1-68 halted fail-closed before finalizer, Task 1 verifier, every Task 2 action, and every GitHub action
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -477,6 +477,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 68 authenticates Plan 67's exact 90-descendant frozen root and treats its premature completion log and cache tree only as failed history.
 - [Phase 235.1]: Plan 68 requires the collector's sole inner Python exec to use `-B`, records completion only after process and empty-cache acceptance, and durably seals failure process output before halting.
 - [Phase 235.1]: Plan 68 planning evidence replays identically under Python 3.9.6 and 3.14.4 with allocator zero and no Plan 68 roots.
+- [Phase 235.1]: Plan 68 execute preallocation allocated `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w`, but the launcher then called undefined `nodup` while validating the bytecode-probe row.
+- [Phase 235.1]: Freeze Plan 68's sole marker-only root; its handoff, finalizer, Task 1 verifier, Task 2, and GitHub budgets remain unused.
 
 ### Pending Todos
 
@@ -523,6 +525,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 65 halted during its sole Task 1 finalizer: `validate_host_path` calls `base64.b64decode` but the pinned source does not import `base64`; the three-file root is frozen and every Task 2/3 budget remains unused.
 - Plan 66 halted during its sole Task 2 host gate: cross-process monotonic interval assertions compare incompatible Python 3.9 process-relative and Python 3.14 system-wide clock epochs; the root and nonce marker are frozen and all collector/database/timing/GitHub budgets remain unused.
 - Plan 67 halted during its sole dry-run command after the corrected host gate and 22 parser cases passed: the collector returned nonzero or emitted stderr and Apple Python created a cache tree under dry-home; candidate/database/timing/GitHub budgets remain unused.
+- Plan 68 halted after its sole execute launcher allocated one root: launcher source line 70 passes undefined `nodup` to `json.loads`, so no handoff, finalization, Task 2, or GitHub action is admissible.
 
 ### Roadmap Evolution
 
@@ -710,8 +713,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T21:50:13.000Z
-Stopped at: Plan 235.1-68 planned and planning-validated with allocator 0 and no Plan 68 roots
+Last session: 2026-09-12T22:23:19.000Z
+Stopped at: Plan 235.1-68 halted after its sole execute launcher allocated one root and then called undefined nodup before handoff
 Resume file: None
 
 ## Operator Next Steps
@@ -721,7 +724,8 @@ Resume file: None
 - Preserve `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2` exactly and do not rerun its consumed launcher, allocator, or finalizer.
 - Preserve `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, or Task 2 host gate.
 - Preserve `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, host gate, parser children, wrapper, or dry-run command.
-- Diagnose the frozen Plan 67 dry-run process result and Apple Python cache side effect before authorizing any new execution plan; candidate/database/timing/GitHub budgets remain unused.
+- Preserve `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w` exactly; do not rerun its consumed execute launcher, driver, allocator, mktemp, or root allocation.
+- Diagnose the Plan 68 launcher's undefined `nodup` load before authorizing any new execution plan; handoff/finalizer/Task 1 verifier/Task 2/GitHub budgets remain unused.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics

@@ -794,10 +794,10 @@ Plans:
 
 - [x] 235.1-67-PLAN.md — Correct cross-process clock handling, pass the dual-runtime host gate and parser preflight, then preserve the root after the sole dry run rejected
 
-**Wave 65** *(fresh dry-run recovery: suppress Apple bytecode caches, order completion truthfully, and retain failure process evidence)*
+**Wave 65** *(halted after the sole execute launcher allocated one root, then called undefined `nodup` before handoff/finalization)*
 
-- [ ] 235.1-68-PLAN.md — Preserve Plan 67's frozen dry-run halt and repair bytecode suppression, completion ordering, and failure diagnostics
+- [x] 235.1-68-PLAN.md — Preserve Plan 67's frozen halt, then freeze Plan 68's marker-only root after the execute launcher rejected before handoff
 
-**Wave 66** *(blocked on successful Plan 68 dual-route evidence; documentation reconciliation only)*
+**Wave 66** *(blocked because Plan 68 produced no finalized root, admitted local series, or live-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
