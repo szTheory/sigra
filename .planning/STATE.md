@@ -4,16 +4,16 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: blocked
-stopped_at: Plan 235.1-64 halted after Task 1; immutable collector requires absent PostgreSQL 16 disk path
-last_updated: "2026-09-12T16:43:00.000Z"
+status: planned
+stopped_at: Plan 235.1-65 planned; execution has not started and zero Plan 65 roots exist
+last_updated: "2026-09-12T17:25:00.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-64 materialized the approved verifier, then preserved every downstream budget when the frozen collector's absolute PostgreSQL 16 disk probe failed pre-action
+last_activity_desc: Plan 235.1-65 planned an authenticated current-host PostgreSQL 14 path contract while preserving Plan 64's frozen root and every downstream budget
 state_head: d02b10f7e90118e940fdfe9ffa52e7a725eb89a9
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 131
+  total_plans: 132
   completed_plans: 125
   percent: 86
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
-Plan: 64 of 64
-Status: Plan 64 halted after Task 1 — the immutable collector's absolute `/opt/homebrew/var/postgresql@16` disk target is absent on the PostgreSQL 14 host
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 64 Task 1 is proven while every Task 2/3 one-shot remains unused
-Last activity: 2026-09-12 — Plan 235.1-64 allocated one authenticated root and materialized the approved verifier, then stopped before Task 2 action
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Plan: 65 of 65
+Status: Plan 65 is planning-complete and unexecuted — its authenticated current-host contract binds the frozen collector's disk probe to PostgreSQL 14 and fails closed on drift
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 64 Task 1 remains frozen while every Plan 65 one-shot and every Task 2/3 budget remain unused
+Last activity: 2026-09-12 — Plan 235.1-65 planning replay passed under both required Python runtimes with allocator zero and roots empty
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -463,6 +463,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 64 uses the established no-tracer exception: three `auto` tasks, one mutating Task 1 verify boundary, and no feedback hook that can repeat allocator/finalizer/verifier one-shots.
 - [Phase 235.1]: Plan 64 Task 1 finalizer alone creates mode-0700 `local` and atomically materializes authenticated mode-0600 `local/verify-task2.py`; its independent verifier checks exact bytes, SHA, stat identity, inventory, and adverse cases before Task 2.
 - [Phase 235.1]: Plan 64 Task 1 passed in root `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam`; Task 2 must not run because frozen `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent while the server data directory is `postgresql@14`.
+- [Phase 235.1]: Plan 65 authenticates `/opt/homebrew/var/postgresql@14` as current-host evidence through no-follow data/config reads plus PID, process, Homebrew opt-link, and `/bin/df` filesystem binding under both pinned Python runtimes; ten stale/wrong/symlink adverses reject without a database query or mutation.
+- [Phase 235.1]: Plan 65 planning replay is allocator-zero/root-empty; execution alone may allocate its fresh `sigra-p2351-plan65-de6d9a0b.XXXXXXXX` root, and Plan 64's frozen root is immutable history.
 
 ### Pending Todos
 
@@ -693,15 +695,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T16:43:00.000Z
-Stopped at: Plan 235.1-64 halted after Task 1; immutable collector requires absent PostgreSQL 16 disk path
+Last session: 2026-09-12T17:25:00.000Z
+Stopped at: Plan 235.1-65 planned; execution has not started and zero Plan 65 roots exist
 Resume file: None
 
 ## Operator Next Steps
 
 - Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
 - Preserve `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam` exactly and do not rerun its consumed launcher, allocator, finalizer, or verifier.
-- Plan a narrow successor whose authenticated collector disk probe derives the running PostgreSQL data directory instead of pinning nonexistent `/opt/homebrew/var/postgresql@16`; preserve all unused Task 2/3 budgets.
+- Execute Plan 235.1-65 only when ready; it must authenticate the current PostgreSQL 14 host-path receipt before its sole fresh allocation and preserve all unused Task 2/3 budgets on any drift.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
