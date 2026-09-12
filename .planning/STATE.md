@@ -4,16 +4,16 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
-status: blocked
-stopped_at: Plan 235.1-66 halted at its sole Task 2 host gate; cross-runtime monotonic clocks are not numerically comparable
-last_updated: "2026-09-12T20:02:28.000Z"
+status: planned
+stopped_at: Plan 235.1-67 planned and planning-validated with allocator 0 and no Plan 67 roots
+last_updated: "2026-09-12T20:27:23.000Z"
 last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-66 finalized one root, then froze it after the sole Task 2 host gate rejected cross-process monotonic ordering
-state_head: 5039b65117ba80ea155d504fdb835eaccf16056c
+last_activity_desc: Plan 235.1-67 replaces cross-process monotonic enclosure with challenge-bound parent-observed wall-clock boundaries
+state_head: 07118a9a58d410ea85fb942b546ff77620998826
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 133
+  total_plans: 134
   completed_plans: 125
   percent: 86
 ---
@@ -30,11 +30,11 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — BLOCKED
-Plan: 66 of 66
-Status: Plan 66 Task 1 passed; the sole Task 2 host gate failed closed before its atomic receipt
-Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 66's root and nonce marker are frozen while a successor is planned
-Last activity: 2026-09-12 — Plan 235.1-66 exposed a cross-process monotonic-clock epoch mismatch between Python 3.9 and Python 3.14
+Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — PLANNED
+Plan: 67 of 67
+Status: Plan 67 planning replay passes under both required Python runtimes with allocator zero and roots empty
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 66's root and nonce marker remain frozen while Plan 67 awaits execution
+Last activity: 2026-09-12 — Plan 235.1-67 bound cross-process causality to parent-observed wall-clock boundaries and retained monotonic order only inside one process
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -469,6 +469,9 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 66 adds only the authenticated `base64` import, then uses a disposable dual-runtime probe whose control reaches `validate_host_path` and whose missing-import mutant deterministically raises `NameError`; planning replay remains allocator-zero/root-empty.
 - [Phase 235.1]: Plan 66 Task 1 passed and finalized `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy`; the sole Task 2 host gate then failed because it compared process-relative Python 3.9 monotonic values with system-wide Python 3.14 values as one numeric epoch.
 - [Phase 235.1]: Preserve Plan 66's consumed nonce chain; a successor must use wall time across process boundaries and monotonic time only within one process/clock domain.
+- [Phase 235.1]: Plan 67 authenticates the frozen Plan 66 root as exactly ten descendants with inventory SHA `01353abc3c8593f10d7ecf42906900a216575e9a8550556b8fb563a7a16e7a1c`; it never mutates or reuses that root or marker.
+- [Phase 235.1]: Plan 67 uses parent-observed wall-clock launch/return boundaries with explicit ±2-second tolerance for cross-process enclosure, while challenge/marker/root/PID/PPID/source/interpreter equality prevents replay; monotonic values authorize only duration/order within their originating process.
+- [Phase 235.1]: Plan 67 planning evidence is allocator-zero and root-empty; its sole fresh root may be allocated only by execution.
 
 ### Pending Todos
 
@@ -702,7 +705,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-12T20:02:28.000Z
-Stopped at: Plan 235.1-66 halted at its sole Task 2 host gate; cross-runtime monotonic clocks are not numerically comparable
+Stopped at: Plan 235.1-67 planned and planning-validated with allocator 0 and no Plan 67 roots
 Resume file: None
 
 ## Operator Next Steps

@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 38 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 10 completed implementation plans, 39 retained failed/blocked plans, and 2 active/pending recovery plans
 
 **Success Criteria:**
 
@@ -790,6 +790,10 @@ Plans:
 
 - [x] 235.1-66-PLAN.md — Authenticate the repaired finalizer and preserve the finalized root after the sole Task 2 host gate rejected cross-process monotonic ordering
 
-**Wave 64** *(blocked on successful successor dual-route evidence; documentation reconciliation only)*
+**Wave 64** *(fresh clock-domain recovery: parent-observed wall enclosure across processes; monotonic order only within one process)*
+
+- [ ] 235.1-67-PLAN.md — Preserve Plan 66's frozen host-gate halt and replace invalid cross-runtime monotonic enclosure with challenge-bound parent wall-clock boundaries
+
+**Wave 65** *(blocked on successful successor dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
