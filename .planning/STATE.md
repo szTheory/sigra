@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
 status: executing
-stopped_at: Plan 235.1-54 halted before allocation on contradictory Plan 53 cache-row schema assertion
-last_updated: "2026-09-12T01:46:00.000Z"
+stopped_at: Plan 235.1-55 halted after consumed sole allocation AST authority failure
+last_updated: "2026-09-12T02:46:38.506Z"
 last_activity: 2026-09-11
 last_activity_desc: Plan 235.1-54 reproduced the immutable Plan 53 manifests and halted before allocation because its cache verifier mixed full and reduced row schemas
-state_head: 5e45fd53
+state_head: b0a1e217f25e2f4e3c9f354285788c9585525d0e
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 116
-  completed_plans: 111
+  total_plans: 122
+  completed_plans: 117
   percent: 86
 ---
 
@@ -493,6 +493,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
 - Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
 - Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
+- Plan 235.1-55 halted after its sole allocation: exact Plan55 allocator stable AST digest is 90651ac4 under both pinned runtimes, while the approved verifier requires stale Plan54 digest ad6595a0.
 
 ### Roadmap Evolution
 
@@ -680,8 +681,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T01:10:19.000Z
-Stopped at: Plan 235.1-53 halted after consumed dry-run environment verifier failure
+Last session: 2026-09-12T02:46:37.916Z
+Stopped at: Plan 235.1-55 halted after consumed sole allocation AST authority failure
 Resume file: None
 
 ## Operator Next Steps
@@ -864,3 +865,4 @@ Resume file: None
 | Phase 235.1 P39 | 22m | 1 tasks | 1 files |
 | Phase 235.1 P41 | 20m | 1 tasks | 2 files |
 | Phase 235.1 P43 | 9m | 0 tasks | 2 files |
+| Phase 235.1 P55 | 14m | 0 tasks | 3 files |

@@ -744,7 +744,7 @@ Plans:
 
 **Wave 52** *(active; two-stage cache filter/projection proof before the unchanged evidence route)*
 
-- [ ] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
+- [x] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
 
 **Wave 53** *(blocked on Plan 55; documentation reconciliation only)*
 

@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 20
+open_count: 22
 waived_count: 0
 fixed_count: 0
-total_count: 20
-last_updated: 2026-09-12T01:46:46.324Z
+total_count: 22
+last_updated: 2026-09-12T02:45:29.868Z
 ---
 
 # Broken Windows Ledger
@@ -35,6 +35,8 @@ last_updated: 2026-09-12T01:46:46.324Z
 | 18 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 53 candidate, admission, timing, and GitHub validation were prohibited after the consumed dry-run environment hard stop | open |  | 2026-09-12T01:10:19.097Z |  |
 | 19 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-54-PLAN.md |  | Plan 54 Task 1 selects full Plan 53 descendant rows but requires the reduced cache-manifest byte count and digest; allocator was not invoked | open |  | 2026-09-12T01:46:46.219Z |  |
 | 20 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 54 allocation, local timing, and GitHub validation were prohibited after the pre-allocation cache-schema contradiction | open |  | 2026-09-12T01:46:46.324Z |  |
+| 21 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md |  | Approved Plan55 reuses Plan54 allocator AST digest although the Plan55 literals changed; both pinned runtimes derive 90651ac4 instead of ad6595a0 | open |  | 2026-09-12T02:45:29.763Z |  |
+| 22 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md |  | Plan55 Tasks 2-3 were not run after the no-retry Task1 authority gate failed | open |  | 2026-09-12T02:45:29.868Z |  |
 
 ````json
 [
@@ -290,6 +292,32 @@ last_updated: 2026-09-12T01:46:46.324Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:46:46.324Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 21,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md",
+    "line": null,
+    "description": "Approved Plan55 reuses Plan54 allocator AST digest although the Plan55 literals changed; both pinned runtimes derive 90651ac4 instead of ad6595a0",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T02:45:29.763Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 22,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-55-PLAN.md",
+    "line": null,
+    "description": "Plan55 Tasks 2-3 were not run after the no-retry Task1 authority gate failed",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T02:45:29.868Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
