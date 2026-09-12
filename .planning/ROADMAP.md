@@ -750,6 +750,10 @@ Plans:
 
 - [x] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
 
-**Wave 54** *(blocked on Plan 56; documentation reconciliation only)*
+**Wave 54** *(active successor; preserve Plan 56's zero-action contradictions, derive canonical sorted authority keys, and bind the native observer to Plan 57)*
+
+- [ ] 235.1-57-PLAN.md — Repair canonical authority ordering and the native observer schema in one fresh root
+
+**Wave 55** *(blocked on successful Plan 57 dual-route evidence; documentation reconciliation only)*
 
 - [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
