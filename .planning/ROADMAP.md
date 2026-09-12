@@ -780,7 +780,7 @@ Plans:
 
 **Wave 61** *(fresh structural repair: one non-tracer mutating boundary atomically materializes the approved Task 2 verifier)*
 
-- [ ] 235.1-64-PLAN.md — Preserve the frozen Plan 63 root, eliminate tracer feedback replay, and materialize the sole approved Task 2 verifier before handoff
+- [x] 235.1-64-PLAN.md — Materialize the approved Task 2 verifier, then preserve all downstream budgets after the immutable collector's nonexistent PostgreSQL 16 disk target fails pre-action
 
 **Wave 62** *(blocked on successful Plan 64 dual-route evidence; documentation reconciliation only)*
 

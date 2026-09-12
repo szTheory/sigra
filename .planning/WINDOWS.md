@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 38
+open_count: 39
 waived_count: 0
 fixed_count: 0
-total_count: 38
-last_updated: 2026-09-12T15:29:22.011Z
+total_count: 39
+last_updated: 2026-09-12T16:42:28.441Z
 ---
 
 # Broken Windows Ledger
@@ -53,6 +53,7 @@ last_updated: 2026-09-12T15:29:22.011Z
 | 36 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 62 parser, Perl dry run, candidate/database, local timing, and GitHub validation were prohibited after the post-allocation Task 2 verifier identity contradiction | open |  | 2026-09-12T14:58:12.819Z |  |
 | 37 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-63-PLAN.md | 138 | Plan 63 Task 1 tracer verify is the consumed one-shot allocator chain, so the mandatory tracer feedback rerun would violate exact launcher/allocator/root budgets | open |  | 2026-09-12T15:29:21.919Z |  |
 | 38 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 63 Task 2 and live validation were prohibited because Task 1 produced no local/verify-task2.py and its tracer rerun was unsafe | open |  | 2026-09-12T15:29:22.011Z |  |
+| 39 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-64-PLAN.md |  | Plan 64 Tasks 2-3 unrun: immutable collector requires absent /opt/homebrew/var/postgresql@16 disk path on PostgreSQL 14 host | open |  | 2026-09-12T16:42:28.441Z |  |
 
 ````json
 [
@@ -542,6 +543,19 @@ last_updated: 2026-09-12T15:29:22.011Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T15:29:22.011Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 39,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-64-PLAN.md",
+    "line": null,
+    "description": "Plan 64 Tasks 2-3 unrun: immutable collector requires absent /opt/homebrew/var/postgresql@16 disk path on PostgreSQL 14 host",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T16:42:28.441Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
