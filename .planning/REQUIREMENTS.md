@@ -20,7 +20,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Critical path (FAST)
 
-- [ ] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. (Gap closure run [`34272746647`](https://github.com/szTheory/sigra/actions/runs/34272746647) attests 43 derived rows with stored p50 466 seconds, but its subject `235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json` omitted source timestamps and pagination/exhaustion evidence. Independent window membership, wall-duration, and completeness verification is therefore impossible; FAST-01 remains open. The earlier 772- and 724-second misses remain immutable history.)
+- [x] **FAST-01**: A contributor opening a PR gets a merge verdict in under 12 minutes at p50, measured over at least 10 runs after the change. (FAST-01 Complete from the authenticated source-complete window at cutoff `2026-08-03T21:37:08Z` / `54c33e904155a454255952666711c882afdd06e4`, endpoint `2026-09-09T12:22:29Z`: n=52, wall p50 469 seconds, strictly below 720. Producer: [`34350618761`](https://github.com/szTheory/sigra/actions/runs/34350618761); subject `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json`; bundle `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl`; verifier `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` → `source_complete_offline_attestation_verified`. The earlier 772- and 724-second misses and rejected derived-only 466-second candidate remain immutable history.)
 - [x] **FAST-02**: Design-gallery snapshot boards no longer run on the PR gate; they run on push-to-main and nightly, and their accessibility assertions still run on every PR.
 - [x] **FAST-03**: `admin_eval_render` no longer runs on pull requests.
 - [x] **FAST-04**: Pushing a new commit to a PR branch cancels the superseded in-flight CI run instead of letting it complete; main and scheduled runs are never cancelled.
@@ -65,7 +65,7 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| FAST-01 | Phase 235 | Gaps Found (run [`34272746647`](https://github.com/szTheory/sigra/actions/runs/34272746647) attests n=43 derived rows and stored p50=466 seconds, but the subject lacks timestamps and pagination/exhaustion evidence required for independent verification) |
+| FAST-01 | Phase 235 | Complete (FAST-01 Complete; cutoff `2026-08-03T21:37:08Z` / `54c33e904155a454255952666711c882afdd06e4`; endpoint `2026-09-09T12:22:29Z`; n=52; wall p50 469 seconds; producer [`34350618761`](https://github.com/szTheory/sigra/actions/runs/34350618761); subject `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json`; bundle `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl`; verifier `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` → `source_complete_offline_attestation_verified`) |
 | FAST-02 | Phase 230 | Complete |
 | FAST-03 | Phase 230 | Complete |
 | FAST-04 | Phase 230 | Complete |

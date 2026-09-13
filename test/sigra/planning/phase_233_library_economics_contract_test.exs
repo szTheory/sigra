@@ -3,7 +3,57 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @library_jobs ["library_tests_shard", "library_tests", "library_tests_dep_off"]
+  @protected_aggregate_sha256 "04308ef8fb56acc65c5730630e1fd3e926da6804068db07f6f15636c2a0890cb"
+  @upload_artifact_pin "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
   @remediation_path ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json"
+
+  test "scaffold discovery is tracked, NUL-safe, and ignores hostile trees" do
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-scaffold-discovery-#{System.unique_integer([:positive])}"
+      )
+
+    File.mkdir_p!(Path.join(root, "test/ignored/loop"))
+    File.write!(Path.join(root, ".gitignore"), "test/ignored/\n")
+    File.write!(Path.join(root, "test/ordinary_test.exs"), "defmodule OrdinaryTest do\nend\n")
+    File.write!(Path.join(root, "test/space scaffold_test.exs"), "@moduletag :scaffold\n")
+    File.write!(Path.join(root, "test/newline\nscaffold_test.exs"), "@moduletag :scaffold\n")
+    File.write!(Path.join(root, "test/ignored/false_scaffold_test.exs"), "@moduletag :scaffold\n")
+
+    sparse = Path.join(root, "test/ignored/sparse.bin")
+    {:ok, io} = File.open(sparse, [:write, :binary])
+    sparse_offset = 363 * 1024 * 1024
+    {:ok, ^sparse_offset} = :file.position(io, sparse_offset)
+    :ok = IO.binwrite(io, <<0>>)
+    File.close(io)
+    File.ln_s!(Path.join(root, "test/ignored"), Path.join(root, "test/ignored/loop/self"))
+
+    assert {_, 0} = System.cmd("git", ["-C", root, "init", "--quiet"])
+
+    assert {_, 0} =
+             System.cmd("git", [
+               "-C",
+               root,
+               "add",
+               ".gitignore",
+               "test/ordinary_test.exs",
+               "test/space scaffold_test.exs",
+               "test/newline\nscaffold_test.exs"
+             ])
+
+    task = Task.async(fn -> live_scaffold_paths(root) end)
+
+    assert Task.await(task, 5_000) == [
+             "test/newline\nscaffold_test.exs",
+             "test/space scaffold_test.exs"
+           ]
+
+    File.rm!(Path.join(root, "test/space scaffold_test.exs"))
+    assert_raise ArgumentError, ~r/missing tracked test/, fn -> live_scaffold_paths(root) end
+
+    on_exit(fn -> File.rm_rf!(root) end)
+  end
 
   test "library execution universe is fail-closed and has one full-suite owner" do
     workflow = File.read!(@workflow_path)
@@ -15,6 +65,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, shard)) == 1
     assert length(Regex.scan(~r/MIX_ENV=test mix ci/, Enum.join(Map.values(bodies), "\n"))) == 1
+    refute shard =~ "matrix:"
+    refute shard =~ "--slowest"
+    refute shard =~ "--trace"
 
     Enum.each(bodies, fn {job_id, body} ->
       refute body =~ "mix test", "#{job_id} must not retain a second test command"
@@ -35,6 +88,61 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     assert aggregate =~ "\"$SHARD\" != \"success\""
     assert ci_gate =~ "- library_tests"
     assert ci_gate =~ "- library_tests_dep_off"
+
+    assert :crypto.hash(:sha256, aggregate) |> Base.encode16(case: :lower) ==
+             @protected_aggregate_sha256
+  end
+
+  test "sole owner verifies and uploads three fixed partition receipts fail-closed" do
+    shard = @workflow_path |> File.read!() |> job_body("library_tests_shard")
+
+    assert shard =~ "Validate exhaustive library partition receipts"
+    assert shard =~ "verify-library-partitions.sh"
+
+    for {name, path} <- [
+          {"library-partitions", "/tmp/sigra-library-partitions.json"},
+          {"library-partition-1-timings", "/tmp/sigra-library-1-timings.json"},
+          {"library-partition-2-timings", "/tmp/sigra-library-2-timings.json"}
+        ] do
+      assert shard =~ "#{name}-${{ github.run_id }}-${{ github.run_attempt }}"
+      assert shard =~ "path: #{path}"
+    end
+
+    assert byte_index!(shard, "Validate exhaustive library partition receipts") <
+             byte_index!(shard, "Upload library partition receipt")
+
+    assert length(Regex.scan(~r/if: always\(\)/, shard)) == 4
+    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, shard)) == 3
+    assert length(Regex.scan(~r/if-no-files-found: error/, shard)) == 3
+    refute shard =~ "if-no-files-found: ignore"
+    assert length(Regex.scan(~r/retention-days: 7/, shard)) == 3
+    refute shard =~ "phx_new"
+    refute shard =~ "library-economics"
+  end
+
+  test "exact scaffold universe has one hard-signal schedule and dispatch receiver" do
+    workflow = File.read!(@workflow_path)
+    non_pr = job_body(workflow, "library_install_golden_non_pr")
+    runner = File.read!("scripts/ci/install-golden.sh")
+
+    assert non_pr =~ "name: Library install golden (non-PR)"
+
+    assert non_pr =~
+             "if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}"
+
+    refute non_pr =~ "pull_request"
+    refute non_pr =~ "push"
+    refute non_pr =~ "continue-on-error"
+    assert length(Regex.scan(~r/MIX_ENV=test bash scripts\/ci\/install-golden\.sh/, non_pr)) == 1
+    assert non_pr =~ "if: always()"
+    assert non_pr =~ "verify-library-install-golden.sh"
+    assert length(Regex.scan(~r/#{Regex.escape(@upload_artifact_pin)}/, non_pr)) == 2
+    assert length(Regex.scan(~r/if-no-files-found: error/, non_pr)) == 2
+    assert length(Regex.scan(~r/retention-days: 7/, non_pr)) == 2
+    assert non_pr =~ "library-install-golden-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert non_pr =~ "library-install-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert install_golden_paths(runner) == live_scaffold_paths()
+    assert length(install_golden_paths(runner)) == 6
   end
 
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
@@ -47,8 +155,11 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     refute dep_off =~ "mix test --only threadline_guard --no-deps-check"
   end
 
-  test "scaffold modules have one explicit ci.install_golden receiver and are excluded from broad test" do
+  test "mix ci routes the exhaustive ordinary universe through two sequential partitions" do
     mix_exs = File.read!("mix.exs")
+    harness = File.read!("scripts/ci/library-partitions.sh")
+    partition_source = File.read!("test/support/ci/library_test_partitions.exs")
+    install_runner = File.read!("scripts/ci/install-golden.sh")
     expected_paths = canonical_scaffold_paths()
     live_paths = live_scaffold_paths()
 
@@ -60,18 +171,83 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              "deps.get --check-locked",
              "deps.unlock --check-unused",
              "compile --warnings-as-errors",
-             "test --exclude scaffold",
-             "ci.install_golden",
+             "cmd bash scripts/ci/library-partitions.sh",
              "sigra.dep_off"
            ]
 
-    receiver_paths = install_golden_paths(mix_exs)
+    assert harness =~ "run_partition 1"
+    assert harness =~ "run_partition 2"
+    assert length(Regex.scan(~r/mix test /, harness)) == 1
+    assert harness =~ "--formatter ExUnit.CLIFormatter"
+    assert harness =~ "--formatter Sigra.CI.ExUnitTimingFormatter"
+    refute harness =~ "--slowest"
+    refute harness =~ "--trace"
+    refute harness =~ "ci.install_golden"
+
+    Enum.each(expected_paths, fn path ->
+      assert partition_source =~ path
+      refute harness =~ path
+    end)
+
+    assert install_alias_commands(mix_exs) == ["cmd bash scripts/ci/install-golden.sh"]
+
+    receiver_paths = install_golden_paths(install_runner)
 
     assert receiver_paths == expected_paths,
            "ci.install_golden must run every live scaffold module exactly once"
 
     assert length(receiver_paths) == MapSet.size(MapSet.new(receiver_paths)),
            "ci.install_golden must not duplicate scaffold paths"
+
+    refute mix_exs =~ "test/sigra/install/features/passkeys_js_test.exs"
+  end
+
+  test "prepared receivers preserve immutable reads and private mutation ownership" do
+    golden = File.read!("test/sigra/install/golden_diff_test.exs")
+    idempotency = File.read!("test/sigra/install/idempotency_test.exs")
+    upgrade = File.read!("test/upgrade_test.exs")
+
+    assert golden =~ "InstallFixture.variant!(:default_installed)"
+    refute golden =~ "InstallFixture.setup_tmp_app()"
+    assert idempotency =~ "InstallFixture.checkout!(:default_installed, \"idempotency-rerun\")"
+    refute idempotency =~ "InstallFixture.setup_tmp_app()"
+
+    assert Regex.scan(
+             ~r/\{:(no_org_installed|default_installed), "(upgrade-[^"]+)", :(zero_org|backfill_off|backfill_on)\}/,
+             upgrade,
+             capture: :all_but_first
+           ) == [
+             ["no_org_installed", "upgrade-zero-org", "zero_org"],
+             ["default_installed", "upgrade-backfill-off", "backfill_off"],
+             ["default_installed", "upgrade-backfill-on", "backfill_on"]
+           ]
+
+    assert upgrade =~ "prepare_checkouts!(["
+    assert length(Regex.scan(~r/InstallFixture\.checkout!\(/, upgrade)) == 1
+    assert upgrade =~ "max_concurrency: 2"
+    assert upgrade =~ "timeout: 120_000"
+    assert upgrade =~ "on_timeout: :kill_task"
+    assert upgrade =~ "InstallFixture.run_scenarios(scenarios, &run_upgrade_scenario/1)"
+    assert length(Regex.scan(~r/InstallFixture\.run_mix\(/, upgrade)) == 1
+    assert upgrade =~ "run_upgrade_session!(checkout, seeded_count:"
+    assert upgrade =~ "Mix.Task.reenable(name)"
+
+    assert upgrade =~
+             ~S<InstallFixture.run_mix(app_dir, ["run", "--no-start", "--no-compile", "-e", script])>
+
+    for task <- ~w(ecto.create ecto.migrate sigra.upgrade compile) do
+      assert upgrade =~ ~s(task("#{task}")
+    end
+
+    assert upgrade =~ ~s(flags ++ ["--allow-dirty", "--yes"])
+    assert upgrade =~ "Ecto.Migrator.run(@repo, \"priv/repo/data_migrations\""
+    assert upgrade =~ "SIGRA_UPGRADE_RESULT:"
+    assert upgrade =~ "{server_port, server_pid} = start_server!(checkout)"
+    assert upgrade =~ "stop_server!(server_port, server_pid)"
+    assert upgrade =~ "--connect-timeout"
+    assert upgrade =~ "--max-time"
+    refute upgrade =~ "InstallFixture.setup_tmp_app_without_install"
+    refute upgrade =~ "@moduletag :upgrade"
   end
 
   test "remediation receipt is closed, retry-free, source-bound, and preserves the strict prior miss" do
@@ -218,16 +394,18 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> quoted_values()
   end
 
-  defp install_golden_paths(mix_exs) do
-    mix_exs
-    |> alias_body("ci.install_golden")
-    |> quoted_values()
-    |> Enum.flat_map(fn command ->
-      command
-      |> String.replace_prefix("test ", "")
-      |> String.split(" ", trim: true)
-      |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
-    end)
+  defp install_alias_commands(mix_exs) do
+    mix_exs |> alias_body("ci.install_golden") |> quoted_values()
+  end
+
+  defp install_golden_paths(runner) do
+    [_, body] = Regex.run(~r/receiver_paths=\(\n(?<body>.*?)\n\)/s, runner)
+
+    body
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.trim/1)
+    |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
+    |> Enum.sort()
   end
 
   defp alias_body(mix_exs, alias_name) do
@@ -244,6 +422,13 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> List.flatten()
   end
 
+  defp byte_index!(source, needle) do
+    case :binary.match(source, needle) do
+      {index, _length} -> index
+      :nomatch -> flunk("missing source marker #{inspect(needle)}")
+    end
+  end
+
   defp canonical_scaffold_paths do
     [_, scaffold_set] =
       Regex.run(
@@ -256,11 +441,46 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> Enum.sort()
   end
 
-  defp live_scaffold_paths do
-    "test/**/*_test.exs"
-    |> Path.wildcard()
-    |> Enum.filter(fn path -> File.read!(path) =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+  defp live_scaffold_paths(root \\ File.cwd!()) do
+    root = Path.expand(root)
+
+    unless File.dir?(root), do: raise(ArgumentError, "repository root is not a directory")
+
+    {tracked, status} =
+      System.cmd(
+        "git",
+        ["-C", root, "ls-files", "-z", "--", ":(glob)test/**/*_test.exs"],
+        stderr_to_stdout: true
+      )
+
+    unless status == 0, do: raise(ArgumentError, "tracked test discovery failed: #{tracked}")
+
+    paths = String.split(tracked, <<0>>, trim: true)
+
+    if length(paths) != MapSet.size(MapSet.new(paths)),
+      do: raise(ArgumentError, "duplicate tracked test path")
+
+    paths
+    |> Enum.map(fn path ->
+      unless valid_tracked_test_path?(path),
+        do: raise(ArgumentError, "malformed tracked test path: #{inspect(path)}")
+
+      absolute = Path.join(root, path)
+
+      unless match?({:ok, %File.Stat{type: :regular}}, File.lstat(absolute)),
+        do: raise(ArgumentError, "missing tracked test or non-regular path: #{inspect(path)}")
+
+      {path, File.read!(absolute)}
+    end)
+    |> Enum.filter(fn {_path, source} -> source =~ ~r/^\s*@moduletag\s+:scaffold\b/m end)
+    |> Enum.map(&elem(&1, 0))
     |> Enum.sort()
+  end
+
+  defp valid_tracked_test_path?(path) do
+    is_binary(path) and String.valid?(path) and String.starts_with?(path, "test/") and
+      String.ends_with?(path, "_test.exs") and
+      not String.contains?(path, ["../", "/../", "//", "\\", <<0>>])
   end
 
   defp job_body(workflow, job_id) do

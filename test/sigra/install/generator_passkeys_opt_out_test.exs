@@ -1,5 +1,5 @@
 defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Test.InstallFixture
 
@@ -7,10 +7,11 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   @moduletag :scaffold
 
   @cases [
-    %{label: "passkeys disabled", flags: ["--no-passkeys"]},
+    %{label: "passkeys disabled", flags: ["--no-passkeys"], variant: :no_passkeys},
     %{
       label: "passkeys disabled with organizations disabled",
-      flags: ["--no-organizations", "--no-passkeys"]
+      flags: ["--no-organizations", "--no-passkeys"],
+      variant: :no_org_no_passkeys
     }
   ]
 
@@ -29,20 +30,37 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     "Add a passkey after creating your account"
   ]
 
+  setup_all do
+    scenarios =
+      @cases
+      |> Enum.map(fn %{label: label, variant: variant} -> {variant, "opt-out-#{label}"} end)
+      |> prepare_checkouts!()
+
+    assert {:ok, results} =
+             InstallFixture.run_scenarios(scenarios, fn checkout ->
+               assert {:ok, _stdout} =
+                        InstallFixture.run_mix(checkout.path, [
+                          "compile",
+                          "--warnings-as-errors"
+                        ])
+
+               {:ok, checkout}
+             end)
+
+    checkouts = Map.new(results, fn {_scenario, checkout} -> {checkout.name, checkout} end)
+    {:ok, checkouts: checkouts}
+  end
+
   describe "mix sigra.install opt out" do
-    for %{label: label, flags: flags} <- @cases do
-      @tag flags: flags
-      test "#{label} omits passkey routes, files, dependencies, and residue", %{flags: flags} do
-        {:ok, %{app_dir: app_dir}} =
-          InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name())
-
-        on_exit(fn -> File.rm_rf(Path.dirname(app_dir)) end)
-
-        assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, flags)
-        # --warnings-as-errors guards against dead code in opt-out builds, e.g. an
-        # impersonation guard helper whose only caller is passkey-gated (Phase 221).
-        assert {:ok, _stdout} =
-                 InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
+    for %{label: label, flags: flags, variant: variant} <- @cases do
+      @tag flags: flags, variant: variant
+      test "#{label} omits passkey routes, files, dependencies, and residue", %{
+        flags: _flags,
+        variant: variant,
+        checkouts: checkouts
+      } do
+        checkout = Map.fetch!(checkouts, variant)
+        app_dir = checkout.path
 
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_hooks.js"))
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_browser.js"))
@@ -97,6 +115,21 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     |> Enum.any?()
   end
 
+  defp prepare_checkouts!(specs) do
+    specs
+    |> Task.async_stream(
+      fn {variant, scenario} -> InstallFixture.checkout!(variant, scenario) end,
+      max_concurrency: 2,
+      ordered: true,
+      timeout: 120_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.map(fn
+      {:ok, checkout} -> checkout
+      {:exit, reason} -> flunk("private opt-out checkout preparation failed: #{inspect(reason)}")
+    end)
+  end
+
   defp tree_contains?(app_dir, needle) do
     [
       Path.join(app_dir, "lib/**/*"),
@@ -112,12 +145,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
   end
 
   defp otp_app(app_dir) do
-    app_dir
-    |> Path.basename()
-    |> Macro.underscore()
-  end
-
-  defp unique_app_name do
-    "sigra_passkeys_opt_out_#{System.unique_integer([:positive])}"
+    [_, app] = Regex.run(~r/app:\s+:(\w+)/, File.read!(Path.join(app_dir, "mix.exs")))
+    app
   end
 end

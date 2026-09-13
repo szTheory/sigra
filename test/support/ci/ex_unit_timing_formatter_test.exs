@@ -1,5 +1,5 @@
 defmodule Sigra.CI.ExUnitTimingFormatterTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Sigra.CI.ExUnitTimingFormatter
 
@@ -70,8 +70,10 @@ defmodule Sigra.CI.ExUnitTimingFormatterTest do
   end
 
   test "write_receipt writes a JSON object only to the selected CI receipt path" do
-    path = "/tmp/sigra-library-1-timings.json"
+    path = "/tmp/sigra-library-scaffold-timings.json"
     on_exit(fn -> File.rm(path) end)
+
+    assert path == "/tmp/sigra-library-scaffold-timings.json"
 
     receipt = ExUnitTimingFormatter.build_receipt("1", [])
     :ok = ExUnitTimingFormatter.write_receipt!(path, receipt)

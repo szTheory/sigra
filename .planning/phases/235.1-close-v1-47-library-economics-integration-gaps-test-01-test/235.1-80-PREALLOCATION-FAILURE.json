@@ -1,0 +1,47 @@
+{
+  "schema": "sigra.phase235.1-plan80-preallocation-failure/v1",
+  "status": "FAIL",
+  "stage": "task1-immediate-independent-reverification-before-allocation",
+  "failure": {
+    "type": "deterministic-verifier-roundtrip-mismatch",
+    "message": "preallocation receipt does not exactly match independently derived authority",
+    "cause": "partition_authority.manifest_sha256 is derived with integer mapping keys; JSON serialization/reload produces string keys, so exact equality is false",
+    "verifier_sha256": "ede4d9124a2e3c69ef5dcdef8be19a74f01135f839ae91a2fb458d6d924abd80",
+    "receipt_sha256": "9e3f558fe652f11f55b6e11c33659d7c10e88f54ec89051a93c5c06e6a00fd6f",
+    "fix_attempts_consumed": 3,
+    "fix_attempt_limit": 3,
+    "retry_permitted": false
+  },
+  "plan76": {
+    "execution_mode_observed": "sequential",
+    "pair_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159",
+    "admitted_for_plan80": false
+  },
+  "effects": {
+    "filesystem_root_allocation": 0,
+    "local_terminal_launcher": 0,
+    "timing_children": 0,
+    "exact_six": 0,
+    "git_remote_actions": 0,
+    "github_api": 0,
+    "watchers": 0,
+    "capture": 0,
+    "validation": 0
+  },
+  "remaining": {
+    "filesystem_root_allocation": 1,
+    "local_terminal_launcher": 1,
+    "timing_children": 4,
+    "exact_six": 1,
+    "candidate_push": 1,
+    "capture_pull_request": 1,
+    "capture_workflow_dispatch": 1,
+    "evidence_child_push": 1,
+    "validation_pull_request": 1,
+    "validation_workflow_dispatch": 1,
+    "diagnostic_retry_triplet": 1
+  },
+  "protected_predecessors_mutated": false,
+  "production_or_schema_sources_mutated": false,
+  "completed_at": "2026-09-13T20:00:00Z"
+}

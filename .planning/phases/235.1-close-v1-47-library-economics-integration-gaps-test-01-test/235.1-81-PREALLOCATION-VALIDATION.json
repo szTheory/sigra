@@ -1,0 +1,585 @@
+{
+  "blacklists": {
+    "plan77": {
+      "action_ids": [
+        "plan77-repeat-1-partition-1",
+        "plan77-repeat-1-partition-2",
+        "plan77-repeat-2-partition-1",
+        "plan77-repeat-2-partition-2"
+      ],
+      "archive_names": [
+        "local/archive/repeat-1-partition-1.json",
+        "local/archive/repeat-1-partition-2.json",
+        "local/archive/repeat-2-partition-1.json",
+        "local/archive/repeat-2-partition-2.json"
+      ],
+      "id_prefix": "plan77-",
+      "root_namespace": "/private/tmp/sigra-p2351-plan77-fixed-receipts.*"
+    },
+    "plan78": {
+      "exact_root": "/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL",
+      "id_prefix": "plan78-",
+      "root_namespace": "/private/tmp/sigra-p2351-plan78-canonical-paths.*"
+    },
+    "plan79": {
+      "diagnostic_ids": [
+        "plan79-classified-transient-diagnostic-retry",
+        "plan79-classified-transient-diagnostic-run-attempt",
+        "plan79-classified-transient-diagnostic-monitor"
+      ],
+      "exact_root": "/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N",
+      "exact_six_action_id": "plan79-install-golden-canonical-receiver",
+      "id_prefix": "plan79-",
+      "launcher": "plan79-local-terminal-launch",
+      "remote_action_ids": [
+        "plan79-candidate-push",
+        "plan79-capture-pull-request",
+        "plan79-capture-workflow-dispatch",
+        "plan79-evidence-child-push",
+        "plan79-validation-pull-request",
+        "plan79-validation-workflow-dispatch"
+      ],
+      "root_namespace": "/private/tmp/sigra-p2351-plan79-status-recovery.*",
+      "timing_action_ids": [
+        "plan79-repeat-1-partition-1",
+        "plan79-repeat-1-partition-2",
+        "plan79-repeat-2-partition-1",
+        "plan79-repeat-2-partition-2"
+      ]
+    },
+    "plan80": {
+      "diagnostic_ids": [
+        "plan80-classified-transient-diagnostic-retry",
+        "plan80-classified-transient-diagnostic-run-attempt",
+        "plan80-classified-transient-diagnostic-monitor"
+      ],
+      "exact_six_action_id": "plan80-install-golden-canonical-receiver",
+      "id_prefix": "plan80-",
+      "launcher": "plan80-local-terminal-launch",
+      "phase_local_paths": [
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-verify-preallocation.py",
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PREALLOCATION-VALIDATION.json",
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PREALLOCATION-FAILURE.json",
+        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-SUMMARY.md"
+      ],
+      "remote_action_ids": [
+        "plan80-candidate-push",
+        "plan80-capture-pull-request",
+        "plan80-capture-workflow-dispatch",
+        "plan80-evidence-child-push",
+        "plan80-validation-pull-request",
+        "plan80-validation-workflow-dispatch"
+      ],
+      "root_namespace": "/private/tmp/sigra-p2351-plan80-sequential-authority.*",
+      "timing_action_ids": [
+        "plan80-repeat-1-partition-1",
+        "plan80-repeat-1-partition-2",
+        "plan80-repeat-2-partition-1",
+        "plan80-repeat-2-partition-2"
+      ],
+      "timing_archive_paths": [
+        "local/archive/plan80-repeat-1-partition-1.json",
+        "local/archive/plan80-repeat-1-partition-2.json",
+        "local/archive/plan80-repeat-2-partition-1.json",
+        "local/archive/plan80-repeat-2-partition-2.json"
+      ],
+      "timing_process_paths": [
+        "local/process/plan80-repeat-1-partition-1.json",
+        "local/process/plan80-repeat-1-partition-2.json",
+        "local/process/plan80-repeat-2-partition-1.json",
+        "local/process/plan80-repeat-2-partition-2.json"
+      ]
+    }
+  },
+  "bounded_contracts": [
+    {
+      "argv": [
+        "bash",
+        "scripts/ci/install-golden.test.sh"
+      ],
+      "environment": {},
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": null,
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "bash",
+        "scripts/ci/verify-library-install-golden.test.sh"
+      ],
+      "environment": {},
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": null,
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs:654",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 1,
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs",
+        "--only",
+        "receipt_contract",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 2,
+      "timeout_seconds": 90
+    }
+  ],
+  "budgets": {
+    "candidate_push": 1,
+    "capture_pull_request": 1,
+    "capture_workflow_dispatch": 1,
+    "evidence_child_push": 1,
+    "exact_six": 1,
+    "filesystem_root_allocation": 1,
+    "local_terminal_launcher": 1,
+    "timing_children": 4,
+    "validation_pull_request": 1,
+    "validation_workflow_dispatch": 1
+  },
+  "canonical_scaffold": {
+    "fixture_variants": [
+      "default_installed",
+      "passkeys_standard",
+      "passkeys_nonstandard_app_js",
+      "no_passkeys",
+      "no_org_no_passkeys",
+      "no_org_installed"
+    ],
+    "receiver_count": 6,
+    "receiver_paths": [
+      "test/sigra/install/features/passkeys_js_test.exs",
+      "test/sigra/install/generator_passkeys_opt_out_test.exs",
+      "test/sigra/install/golden_diff_test.exs",
+      "test/sigra/install/idempotency_test.exs",
+      "test/sigra/install/vault_promotion_test.exs",
+      "test/upgrade_test.exs"
+    ],
+    "variant_count": 6
+  },
+  "diagnostic_retry": {
+    "action_id": "plan81-classified-transient-diagnostic-retry",
+    "budgets": {
+      "action": 1,
+      "monitor_identity": 1,
+      "run_attempt_identity": 1
+    },
+    "consumed": {
+      "action": 0,
+      "monitor_identity": 0,
+      "run_attempt_identity": 0
+    },
+    "eligible_primaries": [
+      "plan81-capture-pull-request",
+      "plan81-capture-workflow-dispatch",
+      "plan81-validation-pull-request",
+      "plan81-validation-workflow-dispatch"
+    ],
+    "monitor_identity_slot": "plan81-classified-transient-diagnostic-monitor",
+    "run_attempt_identity_slot": "plan81-classified-transient-diagnostic-run-attempt"
+  },
+  "effects": {
+    "capture": 0,
+    "exact_six": 0,
+    "filesystem_root_allocation": 0,
+    "formatter_receipt_output": 0,
+    "git": 0,
+    "github_api": 0,
+    "mix": 0,
+    "postgresql": 0,
+    "reconciliation": 0,
+    "validation": 0,
+    "watcher": 0
+  },
+  "exact_six_action_id": "plan81-install-golden-canonical-receiver",
+  "identity_schedule": [
+    {
+      "action_id": "plan81-repeat-1-partition-1",
+      "archive_path": "local/archive/plan81-repeat-1-partition-1.json",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 1,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan81-repeat-1-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 1,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan81-repeat-1-partition-2",
+      "archive_path": "local/archive/plan81-repeat-1-partition-2.json",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 2,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan81-repeat-1-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 1,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan81-repeat-2-partition-1",
+      "archive_path": "local/archive/plan81-repeat-2-partition-1.json",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 1,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan81-repeat-2-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 2,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan81-repeat-2-partition-2",
+      "archive_path": "local/archive/plan81-repeat-2-partition-2.json",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 2,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan81-repeat-2-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 2,
+      "validate_receipt": true
+    }
+  ],
+  "local_terminal_launcher": "plan81-local-terminal-launch",
+  "partition_authority": {
+    "fixed_receipt_paths": {
+      "1": "/tmp/sigra-library-1-timings.json",
+      "2": "/tmp/sigra-library-2-timings.json"
+    },
+    "manifest_sha256": {
+      "1": "8edff82ae153955c27c0389ee742fb6cbdcebe8398b3212e40c84b32a169b3fb",
+      "2": "a55e32b413dffb5abe12cf49aeafb4acf5e7322809648218f04d3931aca64a91"
+    },
+    "plan81_child_orchestration": "serial_one_shot_children",
+    "producer": "fixed_sequential"
+  },
+  "plan76": {
+    "execution_mode": "sequential",
+    "pair_count_admitted": 1,
+    "pair_path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1.json",
+    "pair_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159",
+    "partition_cardinalities": [
+      114,
+      111
+    ],
+    "partition_durations_ms": [
+      12056,
+      12949
+    ],
+    "partition_receipts": [
+      {
+        "path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1-partition-1.json",
+        "sha256": "e1a3a629be9c236818ec58b664798d30a9b686b5043f9be6b297b7b75eb06e22",
+        "total": 1319
+      },
+      {
+        "path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1-partition-2.json",
+        "sha256": "e57b188e22cf7ac1a80176811173f595167aa7e82d9d4fcfe94ab590270e933e",
+        "total": 1354
+      }
+    ],
+    "schema_version": "sigra.library-partitions/v1",
+    "unique_paths": 225
+  },
+  "plan77": {
+    "github_action_count": 0,
+    "mix_process_count": 0,
+    "root_count": 0,
+    "status": "halted",
+    "unspent_one_shot_budgets": {
+      "candidate_push": 1,
+      "capture_pull_request": 1,
+      "capture_workflow_dispatch": 1,
+      "evidence_child_push": 1,
+      "exact_six": 1,
+      "repeat_children": 4,
+      "validation_pull_request": 1,
+      "validation_workflow_dispatch": 1
+    }
+  },
+  "plan78": {
+    "failure_process_sha256": "337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61",
+    "identity": {
+      "device": 16777229,
+      "gid": 0,
+      "inode": 302331219,
+      "mode": "0700",
+      "uid": 501
+    },
+    "orphan_pairs_admitted": 0,
+    "root": "/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL",
+    "status": "halted"
+  },
+  "plan79": {
+    "failure": {
+      "action": "plan79-local-terminal-launch",
+      "allocation_marker": {
+        "path": "/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N/.allocation.once",
+        "sha256": "c67ddc70f248934b8908a0c11509714792da9931b252ee03e1188da947079d10"
+      },
+      "completed_at": "2026-09-13T19:28:58Z",
+      "consumed": {
+        "exact_six": 0,
+        "filesystem_root_allocation": 1,
+        "git_remote_actions": 0,
+        "github_api": 0,
+        "local_terminal_launcher": 1,
+        "timing_children": 0,
+        "watchers": 0
+      },
+      "failure": {
+        "actual_execution_mode": "sequential",
+        "expected_by_embedded_verifier": "parallel",
+        "message": "Plan 76 execution authority drifted",
+        "source": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1.json",
+        "source_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159",
+        "stage": "import authenticated Plan 76 complete green pair before first Plan 79 timing child",
+        "type": "deterministic-local-contract-mismatch"
+      },
+      "frozen_root": "/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N",
+      "preallocation_sha256": "e3d4884ddd1ee3c5a541d6fac78034b3b09495dfacefb7bdfb8f5c4c1c87b58a",
+      "remaining": {
+        "candidate_push": 1,
+        "capture_pull_request": 1,
+        "capture_workflow_dispatch": 1,
+        "diagnostic_retry_triplet": 1,
+        "evidence_child_push": 1,
+        "exact_six": 1,
+        "timing_children": 4,
+        "validation_pull_request": 1,
+        "validation_workflow_dispatch": 1
+      },
+      "retry_permitted": false,
+      "schema": "sigra.phase235.1-plan79-local-failure/v1",
+      "status": "FAIL"
+    },
+    "files": {
+      ".allocation.once": "c67ddc70f248934b8908a0c11509714792da9931b252ee03e1188da947079d10",
+      "local/root-identity.json": "7c92062af05dafaf741482a20b183254919bdcb9cc0612e61f95fbb43a32f15b",
+      "local/task2-local-failure.json": "a475469c4156c3f50bbc282d9eba344d1f655c4ebe332f17525533be41dc2065",
+      "local/verify-plan79-terminal.py": "019d186e100a8764e4b9f06ebf4c3dfc67f5fbc186936c7260389c7f5947538b"
+    },
+    "identity": {
+      "device": 16777229,
+      "gid": 0,
+      "inode": 303572057,
+      "mode": "0700",
+      "uid": 501
+    },
+    "preallocation_status": "PASS",
+    "root": "/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N",
+    "status": "halted"
+  },
+  "plan80": {
+    "candidate_status": "excluded_pass_shaped_negative_evidence",
+    "effects": {
+      "capture": 0,
+      "exact_six": 0,
+      "filesystem_root_allocation": 0,
+      "git_remote_actions": 0,
+      "github_api": 0,
+      "local_terminal_launcher": 0,
+      "timing_children": 0,
+      "validation": 0,
+      "watchers": 0
+    },
+    "failure": {
+      "completed_at": "2026-09-13T20:00:00Z",
+      "effects": {
+        "capture": 0,
+        "exact_six": 0,
+        "filesystem_root_allocation": 0,
+        "git_remote_actions": 0,
+        "github_api": 0,
+        "local_terminal_launcher": 0,
+        "timing_children": 0,
+        "validation": 0,
+        "watchers": 0
+      },
+      "failure": {
+        "cause": "partition_authority.manifest_sha256 is derived with integer mapping keys; JSON serialization/reload produces string keys, so exact equality is false",
+        "fix_attempt_limit": 3,
+        "fix_attempts_consumed": 3,
+        "message": "preallocation receipt does not exactly match independently derived authority",
+        "receipt_sha256": "9e3f558fe652f11f55b6e11c33659d7c10e88f54ec89051a93c5c06e6a00fd6f",
+        "retry_permitted": false,
+        "type": "deterministic-verifier-roundtrip-mismatch",
+        "verifier_sha256": "ede4d9124a2e3c69ef5dcdef8be19a74f01135f839ae91a2fb458d6d924abd80"
+      },
+      "plan76": {
+        "admitted_for_plan80": false,
+        "execution_mode_observed": "sequential",
+        "pair_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159"
+      },
+      "production_or_schema_sources_mutated": false,
+      "protected_predecessors_mutated": false,
+      "remaining": {
+        "candidate_push": 1,
+        "capture_pull_request": 1,
+        "capture_workflow_dispatch": 1,
+        "diagnostic_retry_triplet": 1,
+        "evidence_child_push": 1,
+        "exact_six": 1,
+        "filesystem_root_allocation": 1,
+        "local_terminal_launcher": 1,
+        "timing_children": 4,
+        "validation_pull_request": 1,
+        "validation_workflow_dispatch": 1
+      },
+      "schema": "sigra.phase235.1-plan80-preallocation-failure/v1",
+      "stage": "task1-immediate-independent-reverification-before-allocation",
+      "status": "FAIL"
+    },
+    "root_count": 0,
+    "status": "halted"
+  },
+  "precondition": {
+    "plan81_process_record_count": 0,
+    "plan81_root_count": 0,
+    "status": "PASS"
+  },
+  "predecessor_digests": {
+    "235.1-04-PLAN.md": "b439e6898660f92ec8a9a232ebf7dbf77517f6de3b18ec7b8847e726f785f213",
+    "235.1-04-SUMMARY.md": "2931fc78869aa5b3662c5a49723312bf822945d3761f171f8764990f941acf99",
+    "235.1-10-PLAN.md": "c92c963057f17d7d89cbeee2535c8252dcc93e09d87271b1296a0caf460b1bc2",
+    "235.1-10-SUMMARY.md": "86a4ac133a9f5426a577234862cb8b9b2b84876d9e019f446a12f5bfcc784281",
+    "235.1-12-PLAN.md": "e7c9433802f9bc390434e33cadb5f4df952db833dad62ebb74d063179a7b48fc",
+    "235.1-12-SUMMARY.md": "585c6c3db40bf4473172f61d83f42b84f62a2bb54194a982c58b1cd0eb09428c",
+    "235.1-15-PLAN.md": "9ac2f664e2d99999e71a74408ec1d863a892c53ed571fa53535ba3103aff3f61",
+    "235.1-15-SUMMARY.md": "e487b0ec66eb89f7bc439eba843c267a79d4bf08151c807cfbf996064a235522",
+    "235.1-70-PLAN.md": "0cf4db4405d228a6ae36c388e608e247a7612e60416691cdfe5ce6956142c9f5",
+    "235.1-76-HOME-PROBE.json": "c6ec362e1fc99f62ca22238c9937129829631a306c8e450ab266e309f35f9fc7",
+    "235.1-76-PLAN.md": "9521f1263e242204dc27406fa46ca0df6168f168009072f465ba93cedaa6a84b",
+    "235.1-76-PREALLOCATION-VALIDATION.json": "1f18e5eea1d75e05107d5cfb12bbf84bffb874f2baad13c588b7e318dab7e17f",
+    "235.1-76-PREREQUISITE-VALIDATION.json": "e7df44f4c5165c5c04320bfeb094217a439f03c3bcd340264e2327dc8d11b213",
+    "235.1-76-SUMMARY.md": "da8632f927ede7e6054f2d44aa3713a93a1a7c4d227171a977a8cdcdb454ca0c",
+    "235.1-77-PLAN.md": "49156197bd74c6556b4e17f205f7fdc32cab701cf084e067ed52d5f81c94a71b",
+    "235.1-77-PREALLOCATION-VALIDATION.json": "ee2100d18b6228f5c035217c8c7336fad61d30829c6962ed4e169fe43efef7cd",
+    "235.1-77-SUMMARY.md": "e555b1d66c3aab4427a162f34da051ec167ba40c897d51aff22818cd1091424b",
+    "235.1-78-PLAN.md": "bb7a996f6c5bf9c7d71b0f39464df6e6ec24cfca73cff12e284fc2a33d1a557a",
+    "235.1-78-PREALLOCATION-VALIDATION.json": "9565b723530790827aa3b28f67077e14b3d008b7b188ce1c6c3eecde6088c912",
+    "235.1-78-SUMMARY.md": "39bce31a5b03f2c5ad326e8eb6d0897ffcb0340183dc8091127c38c5c2883a2f",
+    "235.1-78-verify-preallocation.py": "8df1699ab9ed643f8a65be8cda82231fcac067238244862133b76cb91bc4d2a0",
+    "235.1-79-PLAN.md": "a29fff147433101a9b39c79d903aa9b81777571f56dfce621725b569b350dbef",
+    "235.1-79-PREALLOCATION-VALIDATION.json": "e3d4884ddd1ee3c5a541d6fac78034b3b09495dfacefb7bdfb8f5c4c1c87b58a",
+    "235.1-79-SUMMARY.md": "965d8b5c7e219a112923d7622e0b3fa6deb4fc5c33ba260a165f96891568b380",
+    "235.1-79-verify-preallocation.py": "d5763688e0e156afa5516489db841ba81800f06f0c6216970b6b8107cd109779",
+    "235.1-80-PLAN.md": "cc3731c6e12c787f6bedcbe9a0973280b597f61f599f96a658ebcfee0d1fc61d",
+    "235.1-80-PREALLOCATION-FAILURE.json": "61ab41b211383bc7913753b356eeacb272208bbaa67c4e3d9c389f6ddc054d44",
+    "235.1-80-PREALLOCATION-VALIDATION.json": "9e3f558fe652f11f55b6e11c33659d7c10e88f54ec89051a93c5c06e6a00fd6f",
+    "235.1-80-SUMMARY.md": "8e3b2bd461cb9d1e5267d311f403de23e6c503bbaf5f618f77995603957af4b0",
+    "235.1-80-verify-preallocation.py": "ede4d9124a2e3c69ef5dcdef8be19a74f01135f839ae91a2fb458d6d924abd80"
+  },
+  "prohibitions": {
+    "prior_artifacts_mutable": false,
+    "receipt_self_authentication": false,
+    "source_changes_allowed": false
+  },
+  "remote_action_ids": [
+    "plan81-candidate-push",
+    "plan81-capture-pull-request",
+    "plan81-capture-workflow-dispatch",
+    "plan81-evidence-child-push",
+    "plan81-validation-pull-request",
+    "plan81-validation-workflow-dispatch"
+  ],
+  "repository": {
+    "authenticated_plan_head": "8639710e8363982df544b88612dd6c2e32ebcf87",
+    "root": "/Users/jon/projects/sigra"
+  },
+  "root_template": "/private/tmp/sigra-p2351-plan81-sequential-authority.XXXXXXXX",
+  "scheduler": {
+    "derived": {
+      "execution_chain": [
+        "235.1-81",
+        "235.1-70"
+      ],
+      "superseded_absent": [
+        "235.1-04",
+        "235.1-10",
+        "235.1-12",
+        "235.1-15"
+      ]
+    },
+    "raw": {
+      "init_execute_phase": {
+        "incomplete_plans": [
+          "235.1-70-PLAN.md",
+          "235.1-81-PLAN.md"
+        ],
+        "runnable_plans": [
+          "235.1-70-PLAN.md",
+          "235.1-81-PLAN.md"
+        ],
+        "stdout_sha256": "f4801dd7b5e87f5fca7966c25fa2ee9fb6f0bb22c29695bb1a9f79024a540134"
+      },
+      "phase_plan_index": {
+        "incomplete": [
+          "235.1-70",
+          "235.1-81"
+        ],
+        "runnable": [
+          "235.1-70",
+          "235.1-81"
+        ],
+        "stdout_sha256": "7d9ec6a8b974e6cfbe8db943338a6da427a5db31d35b2892a392f89d42ae7044"
+      }
+    }
+  },
+  "schema": "sigra.phase235.1-plan81-preallocation-validation/v1",
+  "source_digests": {
+    ".github/workflows/ci.yml": "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",
+    "scripts/ci/install-golden.sh": "b68dfd02687486459b4fd1fb04bddc23844e4301e68a94373d5005967d29c89a",
+    "scripts/ci/install-golden.test.sh": "9240eed665210ab2316cb83f1325222571c55bcc43b56ff1f94485073a1f1f9b",
+    "scripts/ci/library-partitions.sh": "deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",
+    "scripts/ci/verify-library-install-golden.sh": "2d8e838951229c406d4295844d87c48f148c2743139dc93289deee6e210e6aa4",
+    "scripts/ci/verify-library-install-golden.test.sh": "2e008e515f2be91dd1c98ef9f363541bc7cb21cee846a002b3167dc2975eaa20",
+    "test/sigra/planning/phase_235_1_library_economics_contract_test.exs": "d81f71a2e1008756e6f8a988f30e1426ff900aee61fbacd90136d09040b9e06b",
+    "test/support/ci/ex_unit_timing_formatter.ex": "e9ad6dbaaba24528c60be38f54ddd8d1e946ab539943dd744a1602eba4a29d0c",
+    "test/support/ci/library_test_partitions.exs": "9384fce2c84de95681d1e1ef08c7efec5bf993c2bd0abf9837c169f2fdefb103",
+    "test/support/ci/phase_235_1_evidence_state_contract.exs": "6cb58e74e463d977c228be94efbde05aa7609e4ca1357ca94509e90077bd7921",
+    "test/support/install_fixture.ex": "e31568e6ff5103d775afdf546420644493e4bdbc8ecf5a40bb3b27e1926157dc"
+  },
+  "status": "PASS",
+  "toolchain_digests": {
+    "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs": "e563417cf4b03401f609cf1bb97f611afba9210bbc4716172891adcb27810504",
+    "/Users/jon/.codex/gsd-core/bin/lib/plan-dependency-graph.cjs": "d0b053bdbe4fad0010b4adb95e2f55af786cb7c1bf3da036ed6302db5f7e5cbc",
+    "/Users/jon/.codex/gsd-core/bin/lib/plan-scan.cjs": "11731a44cf7b1f3d8a7e0fa469425b3b4317598cf9118a97f976243a96f61d8e"
+  },
+  "verdict": {
+    "allocation_authorized": true,
+    "independently_computed": true
+  }
+}

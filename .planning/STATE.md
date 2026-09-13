@@ -1,40 +1,40 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 235
-current_phase_name: Terminal Ratification — Measured, Not Read
+current_phase: "235.1"
+current_phase_name: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 status: executing
-stopped_at: Halted 235-15 after signed-source evidence review
-last_updated: "2026-09-09T00:45:23.640Z"
-last_activity: 2026-09-08
-last_activity_desc: Phase 235 execution started
-state_head: 4c46c55f7191157ef37bde4fd6238e633887560e
+stopped_at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
+last_updated: "2026-09-13T20:04:56.527Z"
+last_activity: 2026-09-13
+last_activity_desc: Phase 235.1 execution started
+state_head: becaa467914010f4e0e577ae81007f0d2db46c17
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 66
-  completed_plans: 63
-  percent: 83
+  total_phases: 7
+  completed_phases: 6
+  total_plans: 142
+  completed_plans: 141
+  percent: 86
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-31)
+See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235 — Terminal Ratification — Measured, Not Read
+**Current focus:** Phase 235.1 — Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 
 ## Current Position
 
-Phase: 235 (Terminal Ratification — Measured, Not Read) — EXECUTING
-Plan: 1 of 12
-Status: Executing Phase 235
-Progress: 5/6 milestone phases complete ([████████░░] 83%); Phase 235 blocked on corrected protected evidence
-Last activity: 2026-09-08 — Phase 235 execution started
+Phase: 235.1 (Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)) — EXECUTING
+Plan: 1 of 75
+Status: Executing Phase 235.1
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
+Last activity: 2026-09-13 — Phase 235.1 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -441,6 +441,45 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
 - [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
 - [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
+- [Phase 235]: Plan 235-16: scripts/ci/ci-run-metrics.sh wall mode remains sole terminal authority; offline source replay is comparison-only.
+- [Phase 235]: Plan 235-16: use a repository-only dev/test Hackney 4 override until Threadline publishes a compatible optional constraint.
+- [Phase 235]: Plan 235-16: protected squash merge is proven by seven exact blob matches against main SHA 158aca14; no FAST evidence dispatch occurred.
+- [Phase 235]: Plan 235-16: FAST-01 remains open for Plan 17 source-complete measurement; GATE-05 remains unchanged.
+- [Phase 235]: Plan 235-17 Task 2: user selected authorize-once for exactly one immediate protected-main evidence dispatch from the unchanged sealed preflight.
+- [Phase 235]: Plan 235-17: retained scripts/ci/ci-run-metrics.sh wall mode as terminal authority; signed raw pages independently reproduced n=52, p50=469s, max=1331s, verdict=pass.
+- [Phase 235]: Plan 235-17 left FAST-01 reconciliation to Plan 18 and preserved GATE-05 unchanged.
+- [Phase 235]: FAST-01 completes only from protected run 34350618761's authenticated source-complete n=52, p50=469-second wall result.
+- [Phase 235]: The rejected derived-only n=43/p50=466 candidate and all prior miss/remediation measurements remain immutable historical context.
+- [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
+- [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
+- [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
+- [Phase 235.1]: Use the stale v1-derived placement only to route exhaustive collection; admit no bootstrap timing or payload as evidence.
+- [Phase 235.1]: Bind calibration solely to three wholly new complete triples from the frozen Plan 21 source.
+- [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
+- [Phase 235.1]: Correlate async login-stop telemetry by exact event plus user/attempt identity; preserve both test modules as async.
+- [Phase 235.1]: Source b37ac116/tree 02bb907f supersedes candidate 63910813 for fresh calibration; Plan 29 timing authority is stale source history.
+- [Phase 235.1]: Plan 63's consumed mutating tracer verifier must not be rerun; preserve its seven-file root.
+- [Phase 235.1]: A successor must materialize local/verify-task2.py in Task 1 and use a non-mutating tracer gate.
+- [Phase 235.1]: Plan 64 uses the established no-tracer exception: three `auto` tasks, one mutating Task 1 verify boundary, and no feedback hook that can repeat allocator/finalizer/verifier one-shots.
+- [Phase 235.1]: Plan 64 Task 1 finalizer alone creates mode-0700 `local` and atomically materializes authenticated mode-0600 `local/verify-task2.py`; its independent verifier checks exact bytes, SHA, stat identity, inventory, and adverse cases before Task 2.
+- [Phase 235.1]: Plan 64 Task 1 passed in root `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam`; Task 2 must not run because frozen `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent while the server data directory is `postgresql@14`.
+- [Phase 235.1]: Plan 65 authenticates `/opt/homebrew/var/postgresql@14` as current-host evidence through no-follow data/config reads plus PID, process, Homebrew opt-link, and `/bin/df` filesystem binding under both pinned Python runtimes; ten stale/wrong/symlink adverses reject without a database query or mutation.
+- [Phase 235.1]: Plan 65 planning replay is allocator-zero/root-empty; execution alone may allocate its fresh `sigra-p2351-plan65-de6d9a0b.XXXXXXXX` root, and Plan 64's frozen root is immutable history.
+- [Phase 235.1]: Plan 65 execute preallocation passed and allocated `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2`; the sole finalizer then failed before writing any final receipt because its pinned source omitted `import base64`.
+- [Phase 235.1]: Plan 66 adds only the authenticated `base64` import, then uses a disposable dual-runtime probe whose control reaches `validate_host_path` and whose missing-import mutant deterministically raises `NameError`; planning replay remains allocator-zero/root-empty.
+- [Phase 235.1]: Plan 66 Task 1 passed and finalized `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy`; the sole Task 2 host gate then failed because it compared process-relative Python 3.9 monotonic values with system-wide Python 3.14 values as one numeric epoch.
+- [Phase 235.1]: Preserve Plan 66's consumed nonce chain; a successor must use wall time across process boundaries and monotonic time only within one process/clock domain.
+- [Phase 235.1]: Plan 67 authenticates the frozen Plan 66 root as exactly ten descendants with inventory SHA `01353abc3c8593f10d7ecf42906900a216575e9a8550556b8fb563a7a16e7a1c`; it never mutates or reuses that root or marker.
+- [Phase 235.1]: Plan 67 uses parent-observed wall-clock launch/return boundaries with explicit ±2-second tolerance for cross-process enclosure, while challenge/marker/root/PID/PPID/source/interpreter equality prevents replay; monotonic values authorize only duration/order within their originating process.
+- [Phase 235.1]: Plan 67 planning evidence is allocator-zero and root-empty; its sole fresh root may be allocated only by execution.
+- [Phase 235.1]: Plan 67 Task 1 finalized `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W`; the corrected dual-runtime host gate and all 22 parser cases passed.
+- [Phase 235.1]: Plan 67 halted at the sole dry-run result gate; no completed dry receipt, candidate database, admission, timing, terminal receipt, or GitHub action exists.
+- [Phase 235.1]: Plan 68 authenticates Plan 67's exact 90-descendant frozen root and treats its premature completion log and cache tree only as failed history.
+- [Phase 235.1]: Plan 68 requires the collector's sole inner Python exec to use `-B`, records completion only after process and empty-cache acceptance, and durably seals failure process output before halting.
+- [Phase 235.1]: Plan 68 planning evidence replays identically under Python 3.9.6 and 3.14.4 with allocator zero and no Plan 68 roots.
+- [Phase 235.1]: Plan 68 execute preallocation allocated `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w`, but the launcher then called undefined `nodup` while validating the bytecode-probe row.
+- [Phase 235.1]: Freeze Plan 68's sole marker-only root; its handoff, finalizer, Task 1 verifier, Task 2, and GitHub budgets remain unused.
+- [Phase 235.1]: Plan 80 halted before allocation because its emitted receipt failed exact independent JSON round-trip verification after three Task 1 auto-fixes.
 
 ### Pending Todos
 
@@ -453,8 +492,44 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
 - Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
 - 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
-- **Phase 235 FAST-01:** Plan 235-15's sole protected candidate attests 43 derived rows and stored p50 466 seconds, but omits signed timestamps and pagination/exhaustion evidence. Independent population, chronology, wall-time, and completeness proof is impossible from the retained subject; a new gap plan must correct the evidence schema before any newly authorized dispatch.
-- Plan 235-16 Task 2 blocked: protected PR #232 required Library tests fails on pre-existing hackney 1.25.0 advisories (including HIGH CVE-2026-47071); package migration is explicitly outside Plan 235-16 scope.
+- [RESOLVED 2026-09-09] **Phase 235 FAST-01 evidence gap:** Plan 235-15's derived-only candidate remains rejected, but Plan 235-17 retained a source-complete protected population (`n=52`, `p50=469s`, `pass`) and verified it offline. Plan 235-18 owns requirement and closeout reconciliation.
+- [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
+- Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
+- Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
+- Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
+- Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
+- Plan 28 blocked: sole default-build local harness invocation produced green 111/114 children at 4,643ms/13,965ms but failed the immutable <=2.0 comparability predicate at 3.008; no retry or GitHub action permitted.
+- Plan 29 blocked before timed validation: frozen library-partitions-portability.test.sh pins superseded Plan 22 assignment/artifact values but the exact four-file authority forbids updating that fifth file.
+- Plan 30: sole local validation invocation failed pair 3 at raw 3ms/1ms comparability; no retry or GitHub evidence permitted
+- Plan 31: sole timed validation stopped on macOS /tmp versus /private/tmp lexical containment alias; no retry or live evidence admitted
+- Plan 32 timed pair 2 partition 1 invalidated Sigra.Audit.QueryIndexTest after a 15s PostgreSQL setup query timeout; no timed retry is admissible.
+- Plan 33 sole recovery invocation stopped in pair 2 partition 1: async Sigra.AuthTest consumed Sigra.TelemetryTest's global login-stop event (expected user_id 5, observed 1); no retry or GitHub evidence is admissible.
+- Plan 235.1-35 attempt-1 PR capture run 34562007714 failed in Library tests shard job 103146530106: invalid partition calibration source snapshot commit/tree; the exact-six dispatch selected job passed, but no receipts or validation evidence are admissible.
+- Plan 36 attempt-1 PR run 34564383170 failed: reachable-provenance fixture fetched unavailable b37ac116 from shallow checkout; no retry or receipts.
+- Plan 37 attempt-1 PR run 34594098613 failed in Library tests shard job 103245785859: three planning-contract tests resolve unavailable historical revisions d405755f, 81afbf0c, and fd97522d in the shallow checkout; no retry or receipts.
+- Plan 235.1-38 halted: the sole permitted local three-pair run failed pair 3 comparability at 63,852ms / 29,367ms = 2.174277 (>2.0); no retry or live GitHub evidence is authorized.
+- Phase 235.1 Plan 39 fixed health sample failed: load 25.32 > 18 CPUs, one foreign idle-in-transaction session, and 132 matching scratch databases; timing and GitHub budgets remain unused.
+- Plan 235.1-41 halted: the sole health collection did not materialize its required RR/RO PostgreSQL snapshot, so no canonical health receipt, timing series, or live evidence is admissible.
+- Plan 235.1-43 halted: the sole RR/RO protected-database snapshot produced no materialized SELECT tuple, so no protected receipt, collector, timing, or live evidence is admissible.
+- Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
+- Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
+- Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
+- Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
+- Plan 235.1-55 halted after its sole allocation: exact Plan55 allocator stable AST digest is 90651ac4 under both pinned runtimes, while the approved verifier requires stale Plan54 digest ad6595a0.
+- Plan 235.1-57 sole allocation receipt has identity_preflight.completed_at equal to parent_launch.started_at; strict Task 1 verifier requires completed_at < started_at, and no retry/rewrite is permitted
+- Plan 235.1-58 exact cache harness requires sigra.phase235.1-plan55-cache-harness-input/v1 while its approved Task 1 verifier requires sigra.phase235.1-plan58-cache-harness-input/v1; halted before allocation with zero downstream actions
+- Plan 235.1-61 authenticated allocator requires exactly LC_ALL and SIGRA_PLAN61_PREFLIGHT_B64, but Apple /usr/bin/python3 injects CPATH, LIBRARY_PATH, MANPATH, SDKROOT, and __CF_USER_TEXT_ENCODING before user code; halted before mktemp with zero roots or downstream actions
+- Plan 235.1-62 allocated and authenticated its sole root, then the committed Task 2 verifier decoded to 40,816 bytes/SHA a4239aa7 instead of the approved 40,372 bytes/SHA a0fea47f; halted before materialization with zero downstream actions
+- Plan 235.1-63 derives the Task 2 materialized source identity only after final element extraction and binds it to the generated nineteen-row embedded authority table; the Plan 62 copied tuple is a rejecting adverse
+- Plan 63 halted after sole allocation: mandatory tracer rerun conflicts with one-shot budgets, and Task 2 verifier precondition is unmet.
+- Plan 64 halted after Task 1: immutable collector admission would deterministically exit 78 because absolute `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent; every Task 2/3 one-shot remains unused.
+- Plan 65 halted during its sole Task 1 finalizer: `validate_host_path` calls `base64.b64decode` but the pinned source does not import `base64`; the three-file root is frozen and every Task 2/3 budget remains unused.
+- Plan 66 halted during its sole Task 2 host gate: cross-process monotonic interval assertions compare incompatible Python 3.9 process-relative and Python 3.14 system-wide clock epochs; the root and nonce marker are frozen and all collector/database/timing/GitHub budgets remain unused.
+- Plan 67 halted during its sole dry-run command after the corrected host gate and 22 parser cases passed: the collector returned nonzero or emitted stderr and Apple Python created a cache tree under dry-home; candidate/database/timing/GitHub budgets remain unused.
+- Plan 68 halted after its sole execute launcher allocated one root: launcher source line 70 passes undefined `nodup` to `json.loads`, so no handoff, finalization, Task 2, or GitHub action is admissible.
+- Plan 235.1-78 Task 2 one-shot halt: plan78-repeat-1-partition-2 exited 2 because phase contract line 654 requires Plan 04 summary status: blocked while authenticated HEAD has status: halted; frozen raw process /private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL/local/process/plan78-repeat-1-partition-2.json sha256 337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61. No retry permitted.
+- Plan 235.1-79 halted after its sole root allocation marker: embedded verifier required Plan 76 execution_mode parallel, but authenticated pair declares sequential; zero timing/scaffold/remote actions ran and root ULG0YI9N is frozen
+- Plan 80 preallocation verifier deterministically mismatches integer-derived manifest mapping keys after JSON reload; Plan 70 must not execute.
 
 ### Roadmap Evolution
 
@@ -464,6 +539,8 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
 - v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
 - v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
+- Phase 235.1 inserted after Phase 235: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (URGENT)
+- Phase 235.1 edited: edited fields: goal, requirements, success_criteria
 
 ## Quick Tasks Completed
 
@@ -510,6 +587,59 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 | 260728-kub | Captured the CI-efficiency fan-out investigation in-repo: refreshed SEED-005 with a 2026-07-28 re-measured baseline and filed two high-severity CI defects. **Headline finding: the CI/CD audit is already done and was orphaned** — `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` carries a prioritized Phase 198→203 sequence, but only 198 partially ran because v1.41 reused phase numbers 199-204 for unrelated work. The audit is still accurate (it named `design_gallery` at ~700s; re-measured 734s) and its #1 win — a `storageState` refactor of `admin-design.spec.ts:250-255`, −6 to −7.5 min at Low risk with zero coverage loss — was never implemented. Baseline: PR mean 29.5m / p50 27.3m (~56 runner-min for a 25.6m wall), push 30.5m (~92 runner-min), nightly **0 pass / 9 fail**. New todos: (1) `admin_eval_render` burns ~17m per PR for a red nobody reads — its mobile project uses a WebKit device preset while the job installs chromium only, and an `SVGAnimatedString` probe bug compounds it; because the harness aborts under `set -euo pipefail`, guards b1-b6 have never executed in CI. (2) `generated_admin_playwright_smoke` is gated on a long-merged branch name, so it is skipped on every PR while `ci-gate` counts skipped as pass — generated-host parity is verified on no PR at all. Scoped as milestone v1.47 CI-EFFICIENCY, phases 230-235, targeting the `<12m` PR wall-clock v1.40 missed. Seed edit verified non-destructive (74 insertions, **0 deletions**; verbatim playbook byte-identical). | complete ✓ | 2026-07-28 |
 
 ## Deferred Items
+
+### Acknowledged during v1.47 closeout (2026-09-09)
+
+43 genuine pending or previously deferred artifacts were acknowledged through GSD's
+verdict-preserving, self-invalidating audit markers. The separate
+`.planning/debug/knowledge-base.md` false positive was resolved by adding its missing
+`status: resolved` metadata.
+
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| quick_tasks | 260718-dst-remove-home-domain-strip | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-mba-mfa-enrolled-backup-alert-polish | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-pdd-persona-dropdown-short-descriptions | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260718-svg-sessions-self-revoke-current-session-guard | missing | 2026-09-09 | v1.47 |
+| quick_tasks | 260728-d9h-fix-passkey-primary-email-label-and-id | deferred | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-mix-sigra-migrate-schema-helper.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-playwright-parallelization-per-shard-db.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-20-runtime-auth-prefix-override.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-06-22-white-label-auth-email-theming.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-02-app-css-corruption-guard-blind-spot.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-03-hex-retire-stray-1-20-0.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-09-218-rereview-followups.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-canary-recapture-lane-excludes-canary.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-installer-context-impersonation-guard-gap.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-10-upgrade-smoke-button-type-hex-publish.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-18-admin-audit-impersonation-filter-not-applying.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-27-login-wordmark-midword-break-at-320.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-admin-eval-render-burns-17m-per-pr-for-an-unread-red.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-gate-ci-green-timeout-too-tight-for-push-to-main.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-generated-host-parity-verified-on-no-pr-while-gate-reports-green.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-lane-rot-label-missing-breaks-hard-02-signal.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-release-please-orphans-unreleased-block.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w1-passkey-primary-duplicate-email-label-and-id.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w2-example-sigra-auth-css-stale-no-parity-gate.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w3-generated-auth-runtime-coverage-is-login-only.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w4-no-axe-run-covers-generated-auth.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w5-export-auth-data-deny-path-orphaned.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w6-generated-policy-test-outside-golden-coverage.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w7-admin-lib-sigra-auth-classes-and-one-dead-class.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-28-w8-per-user-audit-presets-have-no-e2e-assertion.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-admin-generated-audit-presets-actor-filter-race.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-07-30-recapture-job-transient-hexpm-mirror-failure.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-github-evidence-residual.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-01-phase-234-pr-evidence-blocked.md | (presence-only) | 2026-09-09 | v1.47 |
+| todos | 2026-08-02-fast-01-terminal-p50-miss.md | (presence-only) | 2026-09-09 | v1.47 |
+| seeds | SEED-004-phx-new-button-forward-compat | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-005-ci-cd-pipeline-performance-audit | dormant | 2026-09-09 | v1.47 |
+| seeds | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | 2026-09-09 | v1.47 |
+| uat_gaps | 202/202-UAT.md | deferred | 2026-09-09 | v1.47 |
+| deferred_items | 222/deferred-items.md: Plan 01 — pre-existing actionlint/shellcheck warnings in ci.yml | acknowledged | 2026-09-09 | v1.47 |
+| deferred_items | 27/deferred-items.md: installer_drift_test fix #9 is failing outside Phase 27 admin ownership | acknowledged | 2026-09-09 | v1.47 |
 
 ### Acknowledged at v1.46 close (2026-07-27)
 
@@ -587,13 +717,19 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-08T20:36:00.000Z
-Stopped at: Halted 235-15 after signed-source evidence review
-Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15-EXECUTION-DIAGNOSTICS.md
+Last session: 2026-09-13T20:04:55.930Z
+Stopped at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
+Resume file: None
 
 ## Operator Next Steps
 
-- Plan the next phase with `$gsd-plan-phase 233`.
+- Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
+- Preserve `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam` exactly and do not rerun its consumed launcher, allocator, finalizer, or verifier.
+- Preserve `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2` exactly and do not rerun its consumed launcher, allocator, or finalizer.
+- Preserve `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, or Task 2 host gate.
+- Preserve `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, host gate, parser children, wrapper, or dry-run command.
+- Preserve `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w` exactly; do not rerun its consumed execute launcher, driver, allocator, mktemp, or root allocation.
+- Diagnose the Plan 68 launcher's undefined `nodup` load before authorizing any new execution plan; handoff/finalizer/Task 1 verifier/Task 2/GitHub budgets remain unused.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -754,3 +890,25 @@ Resume file: .planning/phases/235-terminal-ratification-measured-not-read/235-15
 | Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
 | Phase 235 P08 | unknown | 3 tasks | 7 files |
 | Phase 235 P15 | 20 min | 2 tasks | 10 files |
+| Phase 235 P16 | 72m | 2 tasks | 13 files |
+| Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
+| Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
+| Phase 235 P19 | 7min | 2 tasks | 2 files |
+| Phase 235.1 P22 | 17m | 2 tasks | 3 files |
+| Phase 235.1 P27 | 18m | 1 tasks | 1 files |
+| Phase 235.1 P28 | 16m | 1 tasks | 1 files |
+| Phase 235.1 P32 | 15m | 1 tasks | 4 files |
+| Phase 235.1 P33 | 15m | 1 tasks | 0 files |
+| Phase 235.1 P34 | 12m | 2 tasks | 1 files |
+| Phase 235.1 P35 | 51m | 2 tasks | 5 files |
+| Phase 235.1 P36 | 28m | 2 tasks | 6 files |
+| Phase 235.1 P37 | 5h 1m | 2 tasks | 5 files |
+| Phase 235.1 P38 | 46m | 1 tasks | 5 files |
+| Phase 235.1 P39 | 22m | 1 tasks | 1 files |
+| Phase 235.1 P41 | 20m | 1 tasks | 2 files |
+| Phase 235.1 P43 | 9m | 0 tasks | 2 files |
+| Phase 235.1 P55 | 14m | 0 tasks | 3 files |
+| Phase 235.1 P57 | 10m | 0 tasks | 4 files |
+| Phase 235.1 P63 | 5m | 0 tasks | 3 files |
+| Phase 235.1 P79 | 7min | 1 tasks | 3 files |
+| Phase 235.1 P80 | 12min | 0 tasks | 4 files |
