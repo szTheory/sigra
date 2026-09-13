@@ -1,20 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 235.1
-current_phase_name: close-v1-47-library-economics-integration-gaps-test-01-test
+current_phase: "235.1"
+current_phase_name: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 status: executing
-stopped_at: Blocked 235.1-25 at sole timed self-test before local pair 1
-last_updated: "2026-09-10T23:54:37.526Z"
-last_activity: 2026-09-09
+stopped_at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
+last_updated: "2026-09-13T20:04:56.527Z"
+last_activity: 2026-09-13
 last_activity_desc: Phase 235.1 execution started
-state_head: 820ef36f0d0641870d87cbeabf44923f2f5ed7f6
+state_head: becaa467914010f4e0e577ae81007f0d2db46c17
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 92
-  completed_plans: 87
+  total_plans: 142
+  completed_plans: 141
   percent: 86
 ---
 
@@ -26,15 +26,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235.1 — close-v1-47-library-economics-integration-gaps-test-01-test
+**Current focus:** Phase 235.1 — Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 
 ## Current Position
 
-Phase: 235.1 (close-v1-47-library-economics-integration-gaps-test-01-test) — EXECUTING
-Plan: 2 of 5
-Status: Ready to execute
-Progress: 6/6 milestone phases complete ([█████████░] 86%); 13 of 13 Phase 235 plans complete
-Last activity: 2026-09-09 — Phase 235.1 execution started
+Phase: 235.1 (Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)) — EXECUTING
+Plan: 1 of 75
+Status: Executing Phase 235.1
+Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
+Last activity: 2026-09-13 — Phase 235.1 execution started
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
@@ -456,6 +456,30 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Use the stale v1-derived placement only to route exhaustive collection; admit no bootstrap timing or payload as evidence.
 - [Phase 235.1]: Bind calibration solely to three wholly new complete triples from the frozen Plan 21 source.
 - [Phase 235.1]: Consume the entire post-build validation budget through one self-test invocation containing exactly three real pairs.
+- [Phase 235.1]: Correlate async login-stop telemetry by exact event plus user/attempt identity; preserve both test modules as async.
+- [Phase 235.1]: Source b37ac116/tree 02bb907f supersedes candidate 63910813 for fresh calibration; Plan 29 timing authority is stale source history.
+- [Phase 235.1]: Plan 63's consumed mutating tracer verifier must not be rerun; preserve its seven-file root.
+- [Phase 235.1]: A successor must materialize local/verify-task2.py in Task 1 and use a non-mutating tracer gate.
+- [Phase 235.1]: Plan 64 uses the established no-tracer exception: three `auto` tasks, one mutating Task 1 verify boundary, and no feedback hook that can repeat allocator/finalizer/verifier one-shots.
+- [Phase 235.1]: Plan 64 Task 1 finalizer alone creates mode-0700 `local` and atomically materializes authenticated mode-0600 `local/verify-task2.py`; its independent verifier checks exact bytes, SHA, stat identity, inventory, and adverse cases before Task 2.
+- [Phase 235.1]: Plan 64 Task 1 passed in root `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam`; Task 2 must not run because frozen `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent while the server data directory is `postgresql@14`.
+- [Phase 235.1]: Plan 65 authenticates `/opt/homebrew/var/postgresql@14` as current-host evidence through no-follow data/config reads plus PID, process, Homebrew opt-link, and `/bin/df` filesystem binding under both pinned Python runtimes; ten stale/wrong/symlink adverses reject without a database query or mutation.
+- [Phase 235.1]: Plan 65 planning replay is allocator-zero/root-empty; execution alone may allocate its fresh `sigra-p2351-plan65-de6d9a0b.XXXXXXXX` root, and Plan 64's frozen root is immutable history.
+- [Phase 235.1]: Plan 65 execute preallocation passed and allocated `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2`; the sole finalizer then failed before writing any final receipt because its pinned source omitted `import base64`.
+- [Phase 235.1]: Plan 66 adds only the authenticated `base64` import, then uses a disposable dual-runtime probe whose control reaches `validate_host_path` and whose missing-import mutant deterministically raises `NameError`; planning replay remains allocator-zero/root-empty.
+- [Phase 235.1]: Plan 66 Task 1 passed and finalized `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy`; the sole Task 2 host gate then failed because it compared process-relative Python 3.9 monotonic values with system-wide Python 3.14 values as one numeric epoch.
+- [Phase 235.1]: Preserve Plan 66's consumed nonce chain; a successor must use wall time across process boundaries and monotonic time only within one process/clock domain.
+- [Phase 235.1]: Plan 67 authenticates the frozen Plan 66 root as exactly ten descendants with inventory SHA `01353abc3c8593f10d7ecf42906900a216575e9a8550556b8fb563a7a16e7a1c`; it never mutates or reuses that root or marker.
+- [Phase 235.1]: Plan 67 uses parent-observed wall-clock launch/return boundaries with explicit ±2-second tolerance for cross-process enclosure, while challenge/marker/root/PID/PPID/source/interpreter equality prevents replay; monotonic values authorize only duration/order within their originating process.
+- [Phase 235.1]: Plan 67 planning evidence is allocator-zero and root-empty; its sole fresh root may be allocated only by execution.
+- [Phase 235.1]: Plan 67 Task 1 finalized `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W`; the corrected dual-runtime host gate and all 22 parser cases passed.
+- [Phase 235.1]: Plan 67 halted at the sole dry-run result gate; no completed dry receipt, candidate database, admission, timing, terminal receipt, or GitHub action exists.
+- [Phase 235.1]: Plan 68 authenticates Plan 67's exact 90-descendant frozen root and treats its premature completion log and cache tree only as failed history.
+- [Phase 235.1]: Plan 68 requires the collector's sole inner Python exec to use `-B`, records completion only after process and empty-cache acceptance, and durably seals failure process output before halting.
+- [Phase 235.1]: Plan 68 planning evidence replays identically under Python 3.9.6 and 3.14.4 with allocator zero and no Plan 68 roots.
+- [Phase 235.1]: Plan 68 execute preallocation allocated `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w`, but the launcher then called undefined `nodup` while validating the bytecode-probe row.
+- [Phase 235.1]: Freeze Plan 68's sole marker-only root; its handoff, finalizer, Task 1 verifier, Task 2, and GitHub budgets remain unused.
+- [Phase 235.1]: Plan 80 halted before allocation because its emitted receipt failed exact independent JSON round-trip verification after three Task 1 auto-fixes.
 
 ### Pending Todos
 
@@ -472,6 +496,40 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
 - Phase 235.1 Plan 20 exact authority tree cef127a fails frozen routing verifier: immutable pins for library_test_partitions.exs, library_test_partitions_test.exs, and v2 calibration are stale; zero timed validations and zero GitHub actions occurred.
 - Plan 235.1-25 blocked after its sole timed self-test: Bash 5 set -u treats declared-but-uninitialized paths array as unbound before pair 1
+- Phase 235.1 Plan 26 stopped after its sole timed invocation: candidate _build symlink emitted main-checkout absolute timing paths, so normalization failed before local pair 1; retry is prohibited.
+- Plan 27 blocked: sole isolated local harness invocation failed because candidate-global MIX_BUILD_PATH redirected a nested install fixture away from its required checkout-local _build/dev; no retry or GitHub action permitted.
+- Plan 28 blocked: sole default-build local harness invocation produced green 111/114 children at 4,643ms/13,965ms but failed the immutable <=2.0 comparability predicate at 3.008; no retry or GitHub action permitted.
+- Plan 29 blocked before timed validation: frozen library-partitions-portability.test.sh pins superseded Plan 22 assignment/artifact values but the exact four-file authority forbids updating that fifth file.
+- Plan 30: sole local validation invocation failed pair 3 at raw 3ms/1ms comparability; no retry or GitHub evidence permitted
+- Plan 31: sole timed validation stopped on macOS /tmp versus /private/tmp lexical containment alias; no retry or live evidence admitted
+- Plan 32 timed pair 2 partition 1 invalidated Sigra.Audit.QueryIndexTest after a 15s PostgreSQL setup query timeout; no timed retry is admissible.
+- Plan 33 sole recovery invocation stopped in pair 2 partition 1: async Sigra.AuthTest consumed Sigra.TelemetryTest's global login-stop event (expected user_id 5, observed 1); no retry or GitHub evidence is admissible.
+- Plan 235.1-35 attempt-1 PR capture run 34562007714 failed in Library tests shard job 103146530106: invalid partition calibration source snapshot commit/tree; the exact-six dispatch selected job passed, but no receipts or validation evidence are admissible.
+- Plan 36 attempt-1 PR run 34564383170 failed: reachable-provenance fixture fetched unavailable b37ac116 from shallow checkout; no retry or receipts.
+- Plan 37 attempt-1 PR run 34594098613 failed in Library tests shard job 103245785859: three planning-contract tests resolve unavailable historical revisions d405755f, 81afbf0c, and fd97522d in the shallow checkout; no retry or receipts.
+- Plan 235.1-38 halted: the sole permitted local three-pair run failed pair 3 comparability at 63,852ms / 29,367ms = 2.174277 (>2.0); no retry or live GitHub evidence is authorized.
+- Phase 235.1 Plan 39 fixed health sample failed: load 25.32 > 18 CPUs, one foreign idle-in-transaction session, and 132 matching scratch databases; timing and GitHub budgets remain unused.
+- Plan 235.1-41 halted: the sole health collection did not materialize its required RR/RO PostgreSQL snapshot, so no canonical health receipt, timing series, or live evidence is admissible.
+- Plan 235.1-43 halted: the sole RR/RO protected-database snapshot produced no materialized SELECT tuple, so no protected receipt, collector, timing, or live evidence is admissible.
+- Plan 235.1-44 halted: sole fixture wrapper stopped at 2/6 because /usr/bin/python3 injected five environment keys; exact-once marker prohibits rerun
+- Plan 235.1-45 halted: sole collector dry run failed strict single-line parsing after exclusive marker consumption; no admission, timing, or GitHub evidence
+- Plan 235.1-46 halted: the sole fixture wrapper exited at its per-case result assertion after consuming the exclusive marker; no matrix receipt, dry run, candidate database, admission, timing, or GitHub evidence exists, and the no-retry contract prohibits repair or rerun.
+- Plan 235.1-49: exact allocator AST digest e63ea6ed... differs from approved c72d7aa1... under /usr/bin/python3 3.9.6 before allocation
+- Plan 235.1-55 halted after its sole allocation: exact Plan55 allocator stable AST digest is 90651ac4 under both pinned runtimes, while the approved verifier requires stale Plan54 digest ad6595a0.
+- Plan 235.1-57 sole allocation receipt has identity_preflight.completed_at equal to parent_launch.started_at; strict Task 1 verifier requires completed_at < started_at, and no retry/rewrite is permitted
+- Plan 235.1-58 exact cache harness requires sigra.phase235.1-plan55-cache-harness-input/v1 while its approved Task 1 verifier requires sigra.phase235.1-plan58-cache-harness-input/v1; halted before allocation with zero downstream actions
+- Plan 235.1-61 authenticated allocator requires exactly LC_ALL and SIGRA_PLAN61_PREFLIGHT_B64, but Apple /usr/bin/python3 injects CPATH, LIBRARY_PATH, MANPATH, SDKROOT, and __CF_USER_TEXT_ENCODING before user code; halted before mktemp with zero roots or downstream actions
+- Plan 235.1-62 allocated and authenticated its sole root, then the committed Task 2 verifier decoded to 40,816 bytes/SHA a4239aa7 instead of the approved 40,372 bytes/SHA a0fea47f; halted before materialization with zero downstream actions
+- Plan 235.1-63 derives the Task 2 materialized source identity only after final element extraction and binds it to the generated nineteen-row embedded authority table; the Plan 62 copied tuple is a rejecting adverse
+- Plan 63 halted after sole allocation: mandatory tracer rerun conflicts with one-shot budgets, and Task 2 verifier precondition is unmet.
+- Plan 64 halted after Task 1: immutable collector admission would deterministically exit 78 because absolute `/bin/df` target `/opt/homebrew/var/postgresql@16` is absent; every Task 2/3 one-shot remains unused.
+- Plan 65 halted during its sole Task 1 finalizer: `validate_host_path` calls `base64.b64decode` but the pinned source does not import `base64`; the three-file root is frozen and every Task 2/3 budget remains unused.
+- Plan 66 halted during its sole Task 2 host gate: cross-process monotonic interval assertions compare incompatible Python 3.9 process-relative and Python 3.14 system-wide clock epochs; the root and nonce marker are frozen and all collector/database/timing/GitHub budgets remain unused.
+- Plan 67 halted during its sole dry-run command after the corrected host gate and 22 parser cases passed: the collector returned nonzero or emitted stderr and Apple Python created a cache tree under dry-home; candidate/database/timing/GitHub budgets remain unused.
+- Plan 68 halted after its sole execute launcher allocated one root: launcher source line 70 passes undefined `nodup` to `json.loads`, so no handoff, finalization, Task 2, or GitHub action is admissible.
+- Plan 235.1-78 Task 2 one-shot halt: plan78-repeat-1-partition-2 exited 2 because phase contract line 654 requires Plan 04 summary status: blocked while authenticated HEAD has status: halted; frozen raw process /private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL/local/process/plan78-repeat-1-partition-2.json sha256 337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61. No retry permitted.
+- Plan 235.1-79 halted after its sole root allocation marker: embedded verifier required Plan 76 execution_mode parallel, but authenticated pair declares sequential; zero timing/scaffold/remote actions ran and root ULG0YI9N is frozen
+- Plan 80 preallocation verifier deterministically mismatches integer-derived manifest mapping keys after JSON reload; Plan 70 must not execute.
 
 ### Roadmap Evolution
 
@@ -659,13 +717,19 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-10T23:54:37.168Z
-Stopped at: Blocked 235.1-25 at sole timed self-test before local pair 1
+Last session: 2026-09-13T20:04:55.930Z
+Stopped at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
 Resume file: None
 
 ## Operator Next Steps
 
-- Complete and archive v1.47 with `$gsd-complete-milestone v1.47`.
+- Preserve `/private/tmp/sigra-p2351-plan63-636c9bbc.yjp5hO7s` exactly; do not rerun its consumed launcher, allocator, finalizer, or verifier.
+- Preserve `/private/tmp/sigra-p2351-plan64-d02b10f7.bcaL6sam` exactly and do not rerun its consumed launcher, allocator, finalizer, or verifier.
+- Preserve `/private/tmp/sigra-p2351-plan65-de6d9a0b.NX7UE1r2` exactly and do not rerun its consumed launcher, allocator, or finalizer.
+- Preserve `/private/tmp/sigra-p2351-plan66-747db4ae.M4CM7jKy` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, or Task 2 host gate.
+- Preserve `/private/tmp/sigra-p2351-plan67-07118a9a.ISwUhr9W` exactly; do not rerun its launcher, allocator, finalizer, Task 1 verifier, host gate, parser children, wrapper, or dry-run command.
+- Preserve `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w` exactly; do not rerun its consumed execute launcher, driver, allocator, mktemp, or root allocation.
+- Diagnose the Plan 68 launcher's undefined `nodup` load before authorizing any new execution plan; handoff/finalizer/Task 1 verifier/Task 2/GitHub budgets remain unused.
 - Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
 
 ## Performance Metrics
@@ -831,3 +895,20 @@ Resume file: None
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
 | Phase 235.1 P22 | 17m | 2 tasks | 3 files |
+| Phase 235.1 P27 | 18m | 1 tasks | 1 files |
+| Phase 235.1 P28 | 16m | 1 tasks | 1 files |
+| Phase 235.1 P32 | 15m | 1 tasks | 4 files |
+| Phase 235.1 P33 | 15m | 1 tasks | 0 files |
+| Phase 235.1 P34 | 12m | 2 tasks | 1 files |
+| Phase 235.1 P35 | 51m | 2 tasks | 5 files |
+| Phase 235.1 P36 | 28m | 2 tasks | 6 files |
+| Phase 235.1 P37 | 5h 1m | 2 tasks | 5 files |
+| Phase 235.1 P38 | 46m | 1 tasks | 5 files |
+| Phase 235.1 P39 | 22m | 1 tasks | 1 files |
+| Phase 235.1 P41 | 20m | 1 tasks | 2 files |
+| Phase 235.1 P43 | 9m | 0 tasks | 2 files |
+| Phase 235.1 P55 | 14m | 0 tasks | 3 files |
+| Phase 235.1 P57 | 10m | 0 tasks | 4 files |
+| Phase 235.1 P63 | 5m | 0 tasks | 3 files |
+| Phase 235.1 P79 | 7min | 1 tasks | 3 files |
+| Phase 235.1 P80 | 12min | 0 tasks | 4 files |

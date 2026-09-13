@@ -1,0 +1,396 @@
+{
+  "allocation_marker": {
+    "bytes": 29,
+    "device": 16777229,
+    "inode": 304524781,
+    "mode": "0600",
+    "nlink": 1,
+    "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/.allocation.once",
+    "sha256": "d498f648a0a4b349075472191cefa7487b3c103aa039d2e0a2b2924442e20cc1"
+  },
+  "archive_records": [
+    {
+      "bytes": 345901,
+      "device": 16777229,
+      "inode": 304552766,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-1-partition-1.json",
+      "sha256": "4658c9d1bc0f15c6bafe3c8d9c28cfee9c403833e5b882575b8b37472fd57b61"
+    },
+    {
+      "bytes": 357492,
+      "device": 16777229,
+      "inode": 304563050,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-1-partition-2.json",
+      "sha256": "87ce0715e91b76a86d778376ff9b82469dc6ee9e25d1e4496b568af129a79e68"
+    },
+    {
+      "bytes": 345781,
+      "device": 16777229,
+      "inode": 304589489,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-2-partition-1.json",
+      "sha256": "b9dea2d677caae59b017b918cc09afaecb9d72e4ef4b10884da5690e26215f16"
+    },
+    {
+      "bytes": 357520,
+      "device": 16777229,
+      "inode": 304594690,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-2-partition-2.json",
+      "sha256": "1e079e9f160ff2a6783fc0cd45ba8d7b9b96b0f0cd8e239681faa64e84e45cfc"
+    }
+  ],
+  "evidence_root": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI",
+  "exact_six": {
+    "count": 6,
+    "diagnostics": {
+      "bytes": 899,
+      "device": 16777229,
+      "inode": 304673628,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-install-golden-canonical-receiver-diagnostics.json",
+      "sha256": "206e7c2299ee172abcd528275a6a096055e504aefb98966c8a9839970ff1d2a3"
+    },
+    "fixture_variants": [
+      "default_installed",
+      "passkeys_standard",
+      "passkeys_nonstandard_app_js",
+      "no_passkeys",
+      "no_org_no_passkeys",
+      "no_org_installed"
+    ],
+    "independent_verifier": "PASS",
+    "process": {
+      "bytes": 1304,
+      "device": 16777229,
+      "inode": 304673617,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-install-golden-canonical-receiver.json",
+      "sha256": "b4b7a13e93611e50a44425c504b35c8e5a7c5358cf4a8717cf453b87a90f8b44"
+    },
+    "process_count": 1,
+    "receipt": {
+      "bytes": 615,
+      "device": 16777229,
+      "inode": 304673627,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-install-golden-canonical-receiver-receipt.json",
+      "sha256": "d4335d558af5243901b5d05b0e53b331c0e896fbca7f8472878a42c1899a3e7a"
+    },
+    "receiver_paths": [
+      "test/sigra/install/features/passkeys_js_test.exs",
+      "test/sigra/install/generator_passkeys_opt_out_test.exs",
+      "test/sigra/install/golden_diff_test.exs",
+      "test/sigra/install/idempotency_test.exs",
+      "test/sigra/install/vault_promotion_test.exs",
+      "test/upgrade_test.exs"
+    ],
+    "verifier_process": {
+      "bytes": 1138,
+      "device": 16777229,
+      "inode": 304673626,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/install-golden-verifier.json",
+      "sha256": "b361476c388ab41976c97acdce223e19164a34afc290450ad3665c4a4e32d1e8"
+    }
+  },
+  "negative_authority": {
+    "plan76_failed_repeat_admitted": false,
+    "plan77_timing_pairs": 0,
+    "plan78_failure_process_sha256": "337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61",
+    "plan78_orphan_admitted": false,
+    "plan78_timing_pairs": 0,
+    "plan79_timing_pairs": 0,
+    "plan80_candidate_admitted": false,
+    "plan80_timing_pairs": 0
+  },
+  "one_shot_accounting": {
+    "exact_six": 1,
+    "filesystem_root_allocation": 1,
+    "local_terminal_launcher": 1,
+    "repeat_children": 4
+  },
+  "ordinary": {
+    "fresh_child_count": 4,
+    "fresh_pairs": [
+      {
+        "child_orchestration": "serial_one_shot_children",
+        "durations_ms": [
+          10939,
+          11320
+        ],
+        "partitions": [
+          {
+            "action_id": "plan81-repeat-1-partition-1",
+            "archive": {
+              "bytes": 345901,
+              "device": 16777229,
+              "inode": 304552766,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-1-partition-1.json",
+              "sha256": "4658c9d1bc0f15c6bafe3c8d9c28cfee9c403833e5b882575b8b37472fd57b61"
+            },
+            "duration_ms": 10939,
+            "partition_id": 1,
+            "process": {
+              "bytes": 18922,
+              "device": 16777229,
+              "inode": 304552764,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-1-partition-1.json",
+              "sha256": "298dfa92bc311c2e4fb546bc798364a0608f9b71ec76728808579ceb61f884f2"
+            }
+          },
+          {
+            "action_id": "plan81-repeat-1-partition-2",
+            "archive": {
+              "bytes": 357492,
+              "device": 16777229,
+              "inode": 304563050,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-1-partition-2.json",
+              "sha256": "87ce0715e91b76a86d778376ff9b82469dc6ee9e25d1e4496b568af129a79e68"
+            },
+            "duration_ms": 11320,
+            "partition_id": 2,
+            "process": {
+              "bytes": 22322,
+              "device": 16777229,
+              "inode": 304563006,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-1-partition-2.json",
+              "sha256": "e4a054b80023021990ef6e5a31a2379684819ffd4658a7ac6ebfc59d4b54b194"
+            }
+          }
+        ],
+        "ratio_at_most_2": true,
+        "repeat": 1
+      },
+      {
+        "child_orchestration": "serial_one_shot_children",
+        "durations_ms": [
+          11752,
+          11662
+        ],
+        "partitions": [
+          {
+            "action_id": "plan81-repeat-2-partition-1",
+            "archive": {
+              "bytes": 345781,
+              "device": 16777229,
+              "inode": 304589489,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-2-partition-1.json",
+              "sha256": "b9dea2d677caae59b017b918cc09afaecb9d72e4ef4b10884da5690e26215f16"
+            },
+            "duration_ms": 11752,
+            "partition_id": 1,
+            "process": {
+              "bytes": 19018,
+              "device": 16777229,
+              "inode": 304589487,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-2-partition-1.json",
+              "sha256": "b665cf14c13df0846b23272bd002565a548c5b9697f67d35bb188b95d730eff7"
+            }
+          },
+          {
+            "action_id": "plan81-repeat-2-partition-2",
+            "archive": {
+              "bytes": 357520,
+              "device": 16777229,
+              "inode": 304594690,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/archive/plan81-repeat-2-partition-2.json",
+              "sha256": "1e079e9f160ff2a6783fc0cd45ba8d7b9b96b0f0cd8e239681faa64e84e45cfc"
+            },
+            "duration_ms": 11662,
+            "partition_id": 2,
+            "process": {
+              "bytes": 22326,
+              "device": 16777229,
+              "inode": 304594688,
+              "mode": "0600",
+              "nlink": 1,
+              "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-2-partition-2.json",
+              "sha256": "1f9ad26bbdf16a5189209b9e25098fa5e70560b94fc6b673568a02c824e96f10"
+            }
+          }
+        ],
+        "ratio_at_most_2": true,
+        "repeat": 2
+      }
+    ],
+    "imported_plan76_execution_mode": "sequential",
+    "ordinary_paths_sha256": "78a70051f7aa55f91de5849327b86dca7915028b15d263230efb5c217b1907f7",
+    "pair_count": 3,
+    "partition_cardinalities": [
+      114,
+      111
+    ],
+    "plan76": {
+      "durations_ms": [
+        12056,
+        12949
+      ],
+      "execution_mode": "sequential",
+      "pair": {
+        "bytes": 25195,
+        "device": 16777229,
+        "inode": 298473280,
+        "mode": "0600",
+        "nlink": 1,
+        "path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1.json",
+        "sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159"
+      },
+      "partition_receipts": [
+        {
+          "bytes": 345669,
+          "device": 16777229,
+          "inode": 298473281,
+          "mode": "0600",
+          "nlink": 1,
+          "path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1-partition-1.json",
+          "sha256": "e1a3a629be9c236818ec58b664798d30a9b686b5043f9be6b297b7b75eb06e22"
+        },
+        {
+          "bytes": 357222,
+          "device": 16777229,
+          "inode": 298473282,
+          "mode": "0600",
+          "nlink": 1,
+          "path": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6/local/timing-pair-1-partition-2.json",
+          "sha256": "e57b188e22cf7ac1a80176811173f595167aa7e82d9d4fcfe94ab590270e933e"
+        }
+      ]
+    },
+    "plan76_pairs": 1,
+    "plan77_pairs": 0,
+    "plan78_pairs": 0,
+    "plan79_pairs": 0,
+    "plan80_pairs": 0,
+    "plan81_child_orchestration": "serial_one_shot_children",
+    "plan81_pairs": 2,
+    "receipt_count": 6,
+    "unique_paths_per_pair": 225
+  },
+  "preallocation_sha256": "6dcc7fcf1e5646b9b97259c5c3e37ea6b7879d2a940475e73fab59affed95499",
+  "predecessor_digests": {
+    "235.1-76-HOME-PROBE.json": "c6ec362e1fc99f62ca22238c9937129829631a306c8e450ab266e309f35f9fc7",
+    "235.1-76-PREREQUISITE-VALIDATION.json": "e7df44f4c5165c5c04320bfeb094217a439f03c3bcd340264e2327dc8d11b213",
+    "235.1-76-SUMMARY.md": "da8632f927ede7e6054f2d44aa3713a93a1a7c4d227171a977a8cdcdb454ca0c",
+    "235.1-77-PREALLOCATION-VALIDATION.json": "ee2100d18b6228f5c035217c8c7336fad61d30829c6962ed4e169fe43efef7cd",
+    "235.1-77-SUMMARY.md": "e555b1d66c3aab4427a162f34da051ec167ba40c897d51aff22818cd1091424b",
+    "235.1-78-PREALLOCATION-VALIDATION.json": "9565b723530790827aa3b28f67077e14b3d008b7b188ce1c6c3eecde6088c912",
+    "235.1-78-SUMMARY.md": "39bce31a5b03f2c5ad326e8eb6d0897ffcb0340183dc8091127c38c5c2883a2f",
+    "235.1-79-PREALLOCATION-VALIDATION.json": "e3d4884ddd1ee3c5a541d6fac78034b3b09495dfacefb7bdfb8f5c4c1c87b58a",
+    "235.1-79-SUMMARY.md": "965d8b5c7e219a112923d7622e0b3fa6deb4fc5c33ba260a165f96891568b380",
+    "235.1-80-PREALLOCATION-FAILURE.json": "61ab41b211383bc7913753b356eeacb272208bbaa67c4e3d9c389f6ddc054d44",
+    "235.1-80-SUMMARY.md": "8e3b2bd461cb9d1e5267d311f403de23e6c503bbaf5f618f77995603957af4b0"
+  },
+  "process_records": [
+    {
+      "bytes": 18922,
+      "device": 16777229,
+      "inode": 304552764,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-1-partition-1.json",
+      "sha256": "298dfa92bc311c2e4fb546bc798364a0608f9b71ec76728808579ceb61f884f2"
+    },
+    {
+      "bytes": 22322,
+      "device": 16777229,
+      "inode": 304563006,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-1-partition-2.json",
+      "sha256": "e4a054b80023021990ef6e5a31a2379684819ffd4658a7ac6ebfc59d4b54b194"
+    },
+    {
+      "bytes": 19018,
+      "device": 16777229,
+      "inode": 304589487,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-2-partition-1.json",
+      "sha256": "b665cf14c13df0846b23272bd002565a548c5b9697f67d35bb188b95d730eff7"
+    },
+    {
+      "bytes": 22326,
+      "device": 16777229,
+      "inode": 304594688,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-repeat-2-partition-2.json",
+      "sha256": "1f9ad26bbdf16a5189209b9e25098fa5e70560b94fc6b673568a02c824e96f10"
+    },
+    {
+      "bytes": 1304,
+      "device": 16777229,
+      "inode": 304673617,
+      "mode": "0600",
+      "nlink": 1,
+      "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/process/plan81-install-golden-canonical-receiver.json",
+      "sha256": "b4b7a13e93611e50a44425c504b35c8e5a7c5358cf4a8717cf453b87a90f8b44"
+    }
+  ],
+  "remote_effects": {
+    "capture": 0,
+    "git": 0,
+    "github_api": 0,
+    "reconciliation": 0,
+    "validation": 0,
+    "watcher": 0
+  },
+  "root_identity": {
+    "device": 16777229,
+    "gid": 0,
+    "inode": 304451586,
+    "mode": "0700",
+    "physical_path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI",
+    "schema": "sigra.phase235.1-plan81-root-identity/v1",
+    "uid": 501
+  },
+  "schema": "sigra.phase235.1-plan81-local-terminal/v1",
+  "source_digests": {
+    ".github/workflows/ci.yml": "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",
+    "scripts/ci/install-golden.sh": "b68dfd02687486459b4fd1fb04bddc23844e4301e68a94373d5005967d29c89a",
+    "scripts/ci/install-golden.test.sh": "9240eed665210ab2316cb83f1325222571c55bcc43b56ff1f94485073a1f1f9b",
+    "scripts/ci/library-partitions.sh": "deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",
+    "scripts/ci/verify-library-install-golden.sh": "2d8e838951229c406d4295844d87c48f148c2743139dc93289deee6e210e6aa4",
+    "scripts/ci/verify-library-install-golden.test.sh": "2e008e515f2be91dd1c98ef9f363541bc7cb21cee846a002b3167dc2975eaa20",
+    "test/sigra/planning/phase_235_1_library_economics_contract_test.exs": "d81f71a2e1008756e6f8a988f30e1426ff900aee61fbacd90136d09040b9e06b",
+    "test/support/ci/ex_unit_timing_formatter.ex": "e9ad6dbaaba24528c60be38f54ddd8d1e946ab539943dd744a1602eba4a29d0c",
+    "test/support/ci/library_test_partitions.exs": "9384fce2c84de95681d1e1ef08c7efec5bf993c2bd0abf9837c169f2fdefb103",
+    "test/support/ci/phase_235_1_evidence_state_contract.exs": "6cb58e74e463d977c228be94efbde05aa7609e4ca1357ca94509e90077bd7921",
+    "test/support/install_fixture.ex": "e31568e6ff5103d775afdf546420644493e4bdbc8ecf5a40bb3b27e1926157dc"
+  },
+  "status": "PASS",
+  "terminal_verifier": {
+    "bytes": 31558,
+    "device": 16777229,
+    "inode": 304459690,
+    "mode": "0600",
+    "nlink": 1,
+    "path": "/private/tmp/sigra-p2351-plan81-sequential-authority.UphjlqZI/local/verify-plan81-terminal.py",
+    "sha256": "beaf9e9859bbb37aafb7807ceaea855b60c00df299e11f4c579e359c1705b870"
+  }
+}

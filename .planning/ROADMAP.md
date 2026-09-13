@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 14 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 76 retained plans (including completed implementation work and the explicit failed/blocked/halted recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -626,10 +626,227 @@ Plans:
 
 - [x] 235.1-25-PLAN.md — Portable runner authority `820ef36f` retained; candidate `634c4d5a` stopped on uninitialized array under Bash 5
 
-**Wave 23** *(active; blocked on Plan 25 diagnosis)*
+**Blocked live recovery history** *(dual-shell runner passed; external build metadata stopped after partition 1 and before a completed pair/GitHub)*
 
-- [ ] 235.1-26-PLAN.md — Test the production loader under Bash 3/5, initialize its array, and capture/validate the exact tree
+- [x] 235.1-26-PLAN.md — Authority `105498a7`/candidate `9ae29062` retained; symlinked build leaked main-checkout receipt paths
 
-**Wave 24** *(blocked on Plan 26)*
+**Blocked live recovery history** *(contained paths passed; global outer build path broke nested fixture-private build before a completed pair/GitHub)*
 
-- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
+- [x] 235.1-27-PLAN.md — Candidate `9ae29062` retained; C.1 stopped at partition 2 relocation failure with zero completed pairs/GitHub
+
+**Blocked live recovery history** *(default/private builds and both children passed; environment-underfit calibration exceeded the immutable bound before a completed pair/GitHub)*
+
+- [x] 235.1-28-PLAN.md — Candidate `9ae29062` retained; C.1 measured 4,643ms/13,965ms (3.008×), with zero completed pairs/GitHub
+
+**Blocked local recovery history** *(isolated recalibration and pin authority retained; stale portability literals stopped before validation/GitHub)*
+
+- [x] 235.1-29-PLAN.md — Calibration `ac8f7613` and pins `80e975fc` retained; candidate `1f19b0c9` stopped on stale untimed literals
+
+**Blocked local recovery history** *(relational portability and all children passed; process-relative cross-process clock produced false 1–3ms durations and pair-3 rejection)*
+
+- [x] 235.1-30-PLAN.md — Candidate `33a4f235` retained; pairs 1/2 passed and pair 3's false 3ms/1ms clock ratio stopped before GitHub
+
+**Blocked local recovery history** *(epoch clock passed; lexical `/tmp` versus physical `/private/tmp` rejected partition-1 timing paths before a complete pair/GitHub)*
+
+- [x] 235.1-31-PLAN.md — Candidate `34931b9c` retained; truthful 13,113ms partition stopped on safe macOS path alias normalization
+
+**Blocked live recovery history** *(physical containment passed; one complete pair passed before an isolated PostgreSQL setup timeout stopped pair 2/GitHub)*
+
+- [x] 235.1-32-PLAN.md — Candidate `63910813` retained; pair 1 passed at 1.8208×, then QueryIndexTest setup timed out in pair 2 with zero GitHub action
+
+**Blocked local recovery history** *(database timeout classified transient; one fresh pair passed before an async telemetry identity race stopped pair 2/GitHub)*
+
+- [x] 235.1-33-PLAN.md — Candidate `63910813` retained; pair 1 passed at 1.516×, then AuthTest consumed a concurrent user-1 event in pair 2
+
+**Wave 31** *(active; deterministic test-isolation repair after Plan 33)*
+
+- [x] 235.1-34-PLAN.md — Filter login telemetry by exact identity and freeze the one-file ordinary-source successor
+
+**Blocked live recovery history** *(source-bound recalibration and all three local pairs passed; PR loader rejected the unreachable provenance object before receipts)*
+
+- [x] 235.1-35-PLAN.md — Candidate `f179e3af` retained; PR run `34562007714` failed provenance-object resolution while dispatch run `34562004702` passed, so no live evidence was admitted
+
+**Blocked live recovery history** *(loader and three local pairs passed; reachable-provenance test fetched an unavailable sibling object in shallow PR CI)*
+
+- [x] 235.1-36-PLAN.md — Candidate `0bf7b8e9` retained; three local pairs passed, but PR run `34564383170` failed its checkout-dependent reachable control while dispatch `34564379273` passed, so no receipts were admitted
+
+**Blocked live recovery history** *(hermetic provenance and three local pairs passed; three ordinary contracts required unreachable old objects in shallow PR CI)*
+
+- [x] 235.1-37-PLAN.md — Candidate `87338db7` retained; PR `34594098613` failed three old-object assertions while dispatch `34594093081` passed, so no receipts were admitted
+
+**Blocked local recovery history** *(history-free suite and first two pairs passed; pair 3 hit isolated broad host/scheduler skew at 2.174×)*
+
+- [x] 235.1-38-PLAN.md — Exact unpushed candidate `3713dcd4` retained; pair 3 measured 63,852ms/29,367ms after eleven preceding comparable pairs, with zero GitHub action
+
+**Blocked environmental recovery history** *(the fixed health sample rejected load 25.32 on 18 CPUs, one unidentified idle-in-transaction session, and 132 test-scratch databases before timing/GitHub)*
+
+- [x] 235.1-39-PLAN.md — Candidate `3713dcd4` remained unpushed; canonical health receipt `9b3d89e4` rejected the environment with zero timing/GitHub
+
+**Blocked precondition history** *(the executor compared candidate lineage to the unrelated planning branch and stopped before cleanup, sampling, timing, or GitHub)*
+
+- [x] 235.1-40-PLAN.md — Hardened cleanup remained unspent because `ci/phase-235-16-source-complete` was incorrectly checked as the PR head
+
+**Blocked collector history** *(PR authority and exact 132-database cleanup passed; malformed vm_stat/psql collection left no complete health receipt, timing, or GitHub)*
+
+- [x] 235.1-41-PLAN.md — Canonical cleanup receipts retained; incomplete health collection diagnostic `798c86bc` stopped before timing/live
+
+**Blocked precondition history** *(new unrelated databases were safely protected; stale equality to the old baseline stopped before collector creation, mutation, timing, or GitHub)*
+
+- [x] 235.1-42-PLAN.md — Read-only inventory found the retained Plan 41 DB plus two `rindle` additions; zero action followed
+
+**Blocked snapshot-framing history** *(the sole RR/RO command exited zero but `--command` exposed no SELECT tuple; zero collector, timing, or GitHub followed)*
+
+- [x] 235.1-43-PLAN.md — Protect every current database, retain arbitrary additions, then run one collector-tested local/live route
+
+**Blocked fixture-environment history** *(the fresh bundle/marker were consumed when macOS Python injected five keys; zero live query, timing, or GitHub followed)*
+
+- [x] 235.1-44-PLAN.md — Exact SQL bundle retained; Python fake client failed closed after two calls and no downstream action
+
+**Failed collector-framing history** *(Perl fixture, probe, and protected snapshot passed; the sole collector dry run exposed real `BEGIN`/payload/`ROLLBACK` framing and stopped before admission, timing, or GitHub)*
+
+- [x] 235.1-45-PLAN.md — Native fixture and protected snapshot retained; one-line collector parser failed closed
+
+**Failed parser-precedence history** *(the sole Plan 46 fixture wrapper proved RED, then stopped at `multiple_sentinel`: parser returned framing before sentinel classification; zero dry run, admission, timing, or GitHub)*
+
+- [x] 235.1-46-PLAN.md — Exact real-psql framing parser retained; first semantic precedence mismatch stopped the route
+
+**Failed fresh-namespace history** *(Plan 47 stopped before Task 1 because two planning outputs and one executor comparison file matched its global freshness glob; zero parser, database, timing, or GitHub action)*
+
+- [x] 235.1-47-PLAN.md — Exact three-path collision retained; no action budget consumed
+
+**Failed allocator-verifier history** *(Plan 48 stopped before its sole allocator because two pinned UTC string normalizations were falsely classified as filesystem mutation; zero root, database, timing, or GitHub action)*
+
+- [x] 235.1-48-PLAN.md — Exact zero-action AST false-positive evidence retained
+
+**Failed runtime-AST history** *(Plan 49's source/call/assignment gates passed, but its location-bearing AST digest differed under required Python 3.9.6; zero root, database, timing, or GitHub action)*
+
+- [x] 235.1-49-PLAN.md — Exact Python-version AST mismatch and zero-action evidence retained
+
+**Failed interpreter-path history** *(Plan 50 invoked `/usr/bin/python3` 3.9.6, which truthfully reported the Xcode developer-tool runtime path; zero root, allocator, downstream, or GitHub action)*
+
+- [x] 235.1-50-PLAN.md — Exact parent-command/child-runtime path mismatch and zero-action evidence retained
+
+**Failed root-lifecycle history** *(Plan 51 authenticated parent/child Python identity and allocated one root/marker, then stopped because the pre-marker nlink-2 predicate was incorrectly reused after APFS raised it to three; zero downstream or GitHub action)*
+
+- [x] 235.1-51-PLAN.md — Preserve exact allocated root/marker and the post-marker link-count contradiction
+
+**Failed authority-schema history** *(Plan 52 authenticated the nlink 2→3 lifecycle and allocated one root, then stopped because its verifier simultaneously required and omitted `expected_authority.plan51`; zero downstream or GitHub action)*
+
+- [x] 235.1-52-PLAN.md — Preserve the exact allocated root/receipts and contradictory authority-schema halt
+
+**Failed dry-environment history** *(Plan 53 authenticated the canonical authority, root, and 22-case parser preflight, then its sole dry run completed PostgreSQL collection but the Apple-stub Python observer created HOME cache files and failed the closed environment contract; zero candidate, admission, timing, or GitHub action)*
+
+- [x] 235.1-53-PLAN.md — Preserve the exact root, preflight, consumed dry run, and cache-side-effect halt
+
+**Failed cache-projection history** *(Plan 54 stopped before allocation because its verifier compared 58 full descendant rows with the reduced cache-row authority; zero Plan 54 roots or actions)*
+
+- [x] 235.1-54-PLAN.md — Preserve the exact full-row/reduced-row schema contradiction and zero-action halt
+
+**Wave 52** *(failed stable-manifest history; Plan 55 allocated once, then rejected the copied Plan 54 manifest digest before downstream actions)*
+
+- [x] 235.1-55-PLAN.md — Bind full and reduced cache manifests through one pure pinned projection
+
+**Wave 53** *(failed pre-allocation authority contract; canonical sorted JSON cannot satisfy the verifier's non-sorted key tuple, and the pinned observer emits the Plan 54 schema)*
+
+- [x] 235.1-56-PLAN.md — Rebind the fresh allocator to its exact cross-runtime stable manifest and preserve Plan 55 halt authority
+
+**Wave 54** *(halted after Plan 57 consumed its sole allocation; preserve the immutable timestamp-order failure and all unspent downstream budgets)*
+
+- [x] 235.1-57-PLAN.md — Dual-runtime preflights passed; sole root/receipts preserved after strict preflight-before-launch timestamp ordering failed
+
+**Wave 55** *(failed before allocation: cache harness required the Plan 55 input schema while both Plan 58 verifiers required Plan 58; zero roots/actions and all budgets unspent)*
+
+- [x] 235.1-58-PLAN.md — Preserve the zero-action cache-harness schema contradiction as immutable history
+
+**Wave 56** *(halted before allocation: authenticated harness emitted seven label-mutant rows while the verifier reconstructed six; zero roots/actions and all budgets unspent)*
+
+- [x] 235.1-59-PLAN.md — Preserve the exact seven-versus-six label-ledger contradiction as immutable history
+
+**Wave 57** *(halted after one root allocation: the first verifier used schema_audit before its later definition; zero downstream actions and all delivery budgets unspent)*
+
+- [x] 235.1-60-PLAN.md — Preserve the exact root/receipts and definition-order halt as immutable history
+
+**Wave 58** *(halted before mktemp: the authenticated allocator subprocess observed five Apple-injected keys beyond its exact two-key contract; zero roots/downstream actions)*
+
+- [x] 235.1-61-PLAN.md — Preserve the exact pre-mktemp environment-contract halt as immutable history
+
+**Wave 59** *(halted after sole allocation: frozen seven-file root, no local or downstream action)*
+
+- [x] 235.1-62-PLAN.md — Preserve the passed clean-environment route and frozen post-allocation Task 2 source-identity halt
+
+**Wave 60** *(fresh Task 2 materialization repair: derive one post-substitution authority, then run the unchanged one-shot route)*
+
+- [x] 235.1-63-PLAN.md — Preserve the authenticated seven-file root after the mutating tracer-rerun conflict and missing Task 2 materialization halt
+
+**Wave 61** *(fresh structural repair: one non-tracer mutating boundary atomically materializes the approved Task 2 verifier)*
+
+- [x] 235.1-64-PLAN.md — Materialize the approved Task 2 verifier, then preserve all downstream budgets after the immutable collector's nonexistent PostgreSQL 16 disk target fails pre-action
+
+**Wave 62** *(fresh host-path recovery: authenticate the current PostgreSQL 14 data directory and bind the frozen collector to it)*
+
+- [x] 235.1-65-PLAN.md — Preserve the authenticated three-file root after PostgreSQL 14 preallocation passed and the sole finalizer halted on a missing `base64` import
+
+**Wave 63** *(halted after Task 1 and the sole Task 2 host-gate marker: cross-runtime monotonic epochs are incomparable; all downstream budgets unused)*
+
+- [x] 235.1-66-PLAN.md — Authenticate the repaired finalizer and preserve the finalized root after the sole Task 2 host gate rejected cross-process monotonic ordering
+
+**Wave 64** *(halted after the corrected host gate and 22 parser cases passed: the sole dry run failed before candidate/database/timing/live actions)*
+
+- [x] 235.1-67-PLAN.md — Correct cross-process clock handling, pass the dual-runtime host gate and parser preflight, then preserve the root after the sole dry run rejected
+
+**Wave 65** *(halted after the sole execute launcher allocated one root, then called undefined `nodup` before handoff/finalization)*
+
+- [x] 235.1-68-PLAN.md — Preserve Plan 67's frozen halt, then freeze Plan 68's marker-only root after the execute launcher rejected before handoff
+
+**Wave 66** *(Plan 05 remains blocked and retained because Plan 68 produced no finalized root, admitted local series, or live-route evidence; Plan 69 halted before allocation when its blanket backslash scan rejected the authenticated SQL sentinel escape)*
+
+- [x] 235.1-05-PLAN.md — Retained blocked reconciliation plan whose Plan 68 evidence precondition was never met
+- [x] 235.1-69-PLAN.md — Retained failed recovery whose zero-allocation SQL gate rejected the required authenticated E-string tab escape before psql
+
+**Wave 68** *(halted after Plan 71 passed the dual-runtime exact SQL allowlist gate, then its sole fresh root failed post-allocation because the assumed Plan 68 health_sql_base64 element was absent)*
+
+- [x] 235.1-71-PLAN.md — Retain the successful structural SQL-policy proof and freeze the allocated root after zero source/psql/database/timing/network/GitHub continuation
+
+**Wave 70** *(frozen failed history: Plan 72 proved source reconstruction, inherited SQL policy, and three timing pairs, then halted after bypassing the prepared canonical exact-six entrypoint)*
+
+- [x] 235.1-72-PLAN.md — Frozen failed recovery: source/SQL/timing proof passed; raw exact-six lacked prepared-fixture mode and no remote route ran
+
+**Wave 72** *(frozen failed history: Plan 73 proved the canonical exact-six runner and non-PostgreSQL prerequisites, then its sole grouped-command psql process exposed only `ROLLBACK` and halted before allocation)*
+
+- [x] 235.1-73-PLAN.md — Frozen failed recovery: canonical runner/prerequisites passed; grouped `--command` transcript failed with zero root or remote work
+
+**Wave 74** *(frozen failed history: Plan 74 proved exact stdin/raw-output framing, then its first timing process omitted HOME and stopped before any complete pair, exact-six action, or remote work)*
+
+- [x] 235.1-74-PLAN.md — Frozen failed recovery: stdin prerequisite passed; missing HOME stopped the first timing command with zero exact-six or remote work
+
+**Wave 76** *(frozen failed history: Plan 75 halted before RED because its overbroad descendant-link ban rejected the authenticated 34-link repository build state; every process, root, and live budget remained unused)*
+
+- [x] 235.1-75-PLAN.md — Frozen zero-action recovery: HOME/runtime contract retained, but the all-descendant-link rejection blocked before RED, home probe, allocation, or remote work
+
+**Wave 78** *(frozen halted history: Plan 76 proved the build/runtime/HOME prerequisites and one canonical timing pair, then its consumed repeat child produced no formatter receipt; exact-six and live evidence remained unspent)*
+
+- [x] 235.1-76-PLAN.md — Frozen halted recovery: one canonical timing pair passed, but the missing repeat formatter receipt blocked exact-six, GitHub evidence, and reconciliation
+
+**Wave 79** *(frozen halted history: Plan 77 authenticated Plan 76 and a fixed-path schedule with zero effects, then stopped before costly allocation because its exact-six semantic names were not repository-backed)*
+
+- [x] 235.1-77-PLAN.md — Frozen zero-effect recovery: fixed formatter scheduling passed, but stale exact-six names halted before any root, process, timing pair, or GitHub action
+
+**Wave 80** *(frozen halted history: Plan 78 preallocation passed, then its green repeat-1 partition-1 became an excluded orphan when partition-2 deterministically failed the literal blocked-summary contract; every later identity is unspent but retired)*
+
+- [x] 235.1-78-PLAN.md — Preserve Task 1 PASS, frozen root `/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL`, the excluded green orphan, partition-2 process SHA `337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61`, and zero later effects without reuse
+
+**Wave 81** *(frozen halted history: Plan 79 preallocation passed, then its sole root and launcher were consumed before any timing child when its verifier contradicted authenticated Plan 76 `execution_mode: sequential`; zero timing, exact-six, or GitHub effects occurred and every Plan 79 identity is retired)*
+
+- [x] 235.1-79-PLAN.md — Preserve frozen root `/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N`, the deterministic sequential-versus-parallel failure diagnostic, and zero downstream effects without reuse
+
+**Wave 82** *(frozen halted history: Plan 80 stopped in Task 1 with zero effects because integer `partition_authority.manifest_sha256` keys could not survive its required exact JSON serialization/reload equality; its PASS-shaped candidate receipt is excluded and every Plan 80 identity is retired)*
+
+- [x] 235.1-80-PLAN.md — Preserve the finalized Python 3.9/string-partition/two-receipt-test verifier corrections, deterministic mapping-key failure receipt, zero roots/local/remote effects, and unspent-but-retired identities
+
+**Wave 1** *(active JSON-stable sequential-authority recovery; consumes Plans 76/77/78/79/80 only as immutable historical inputs and allocates wholly fresh Plan 81 identities)*
+
+- [ ] 235.1-81-PLAN.md — Normalize manifest-map keys before serialization, prove two fresh byte-identical round-trip-stable preallocation receipts before allocation, then collect fresh local and live evidence
+
+**Wave 2** *(blocked on successful Plan 81 completion and all five Plan 81 receipts passing their independent verifiers)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 81 evidence while retaining Plans 76/77/78/79/80 as immutable halted history

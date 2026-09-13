@@ -1985,9 +1985,9 @@
         "sha256": "68b61b5bcf6569de370c66b5be2927b3544bca327babe9318c06da6f1a27fe30"
       },
       {
-        "byte_count": 44247,
+        "byte_count": 53320,
         "path": "test/sigra/planning/phase_235_1_library_economics_contract_test.exs",
-        "sha256": "65f5f8903812ba868debec2f6804fd73f3caefe2fcc36b188c71b9dc541d9631"
+        "sha256": "d81f71a2e1008756e6f8a988f30e1426ff900aee61fbacd90136d09040b9e06b"
       },
       {
         "byte_count": 17307,

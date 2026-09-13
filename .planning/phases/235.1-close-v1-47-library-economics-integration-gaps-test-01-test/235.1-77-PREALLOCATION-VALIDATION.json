@@ -1,0 +1,173 @@
+{
+  "schema": "sigra.phase235.1-plan77-preallocation-validation/v1",
+  "status": "PASS",
+  "assumption_delta": "no-change",
+  "primary_noun": "formatter fixed receipt-path authority",
+  "evaluated_at": "2026-09-13T15:09:00Z",
+  "precondition": {
+    "status": "PASS",
+    "plan76_root": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6",
+    "plan76_root_count": 1,
+    "plan77_root_count": 0,
+    "plan77_process_record_count": 0
+  },
+  "pinned_artifacts": {
+    "235.1-76-PLAN.md": "9521f1263e242204dc27406fa46ca0df6168f168009072f465ba93cedaa6a84b",
+    "235.1-76-SUMMARY.md": "da8632f927ede7e6054f2d44aa3713a93a1a7c4d227171a977a8cdcdb454ca0c",
+    "235.1-76-PREALLOCATION-VALIDATION.json": "1f18e5eea1d75e05107d5cfb12bbf84bffb874f2baad13c588b7e318dab7e17f",
+    "235.1-76-HOME-PROBE.json": "c6ec362e1fc99f62ca22238c9937129829631a306c8e450ab266e309f35f9fc7",
+    "235.1-76-PREREQUISITE-VALIDATION.json": "e7df44f4c5165c5c04320bfeb094217a439f03c3bcd340264e2327dc8d11b213"
+  },
+  "source_digests": {
+    "test/support/ci/ex_unit_timing_formatter.ex": "e9ad6dbaaba24528c60be38f54ddd8d1e946ab539943dd744a1602eba4a29d0c",
+    "scripts/ci/library-partitions.sh": "deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd"
+  },
+  "fixed_formatter_paths": [
+    "/tmp/sigra-library-1-timings.json",
+    "/tmp/sigra-library-2-timings.json"
+  ],
+  "fixed_path_derivation": {
+    "formatter_allowlist": [
+      "/tmp/sigra-library-1-timings.json",
+      "/tmp/sigra-library-2-timings.json"
+    ],
+    "wrapper_partition_map": {
+      "1": "/tmp/sigra-library-1-timings.json",
+      "2": "/tmp/sigra-library-2-timings.json"
+    },
+    "sets_and_partition_mapping_agree": true
+  },
+  "plan76": {
+    "retry": false,
+    "canonical_pair_admitted": true,
+    "canonical_pair_receipt_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159",
+    "canonical_partition_receipt_sha256": [
+      "e1a3a629be9c236818ec58b664798d30a9b686b5043f9be6b297b7b75eb06e22",
+      "e57b188e22cf7ac1a80176811173f595167aa7e82d9d4fcfe94ab590270e933e"
+    ],
+    "canonical_partition_cardinalities": [114, 111],
+    "canonical_unique_paths": 225,
+    "canonical_durations_ms": [12056, 12949],
+    "failed_repeat_admitted": false,
+    "failed_repeat_process_sha256": "4f9d455818fcdebfea2d962d74c20cd4c4a20582bca386c518ffdbee164b2be3",
+    "failed_repeat_process_id": 92841,
+    "failed_repeat_receipt_present": false,
+    "failure_receipt_sha256": "7b9d98e5668b275ed5c3a2618e9f726a5cf26f1785b3e6f6fd2d43f449421583",
+    "positive_pair_count": 1,
+    "positive_receipt_count": 2,
+    "excluded_failure_count": 1
+  },
+  "frozen_root_inventory_before": {
+    "rows": 16,
+    "regular_files": 14,
+    "sha256": "5a700098dc7e461ee1fdb88bd9efee93aaa7e23919bbfa9f42f7a9ca89fe469b"
+  },
+  "frozen_root_inventory_after": {
+    "rows": 16,
+    "regular_files": 14,
+    "sha256": "5a700098dc7e461ee1fdb88bd9efee93aaa7e23919bbfa9f42f7a9ca89fe469b"
+  },
+  "schedule": [
+    {
+      "repeat": 1,
+      "partition_id": 1,
+      "action_id": "plan77-repeat-1-partition-1",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "archive_label": "local/archive/repeat-1-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "persist_raw_process_before_parse": true,
+      "nofollow_reopen": true,
+      "validate_receipt": true,
+      "immediate_archive_before_reuse": true
+    },
+    {
+      "repeat": 1,
+      "partition_id": 2,
+      "action_id": "plan77-repeat-1-partition-2",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "archive_label": "local/archive/repeat-1-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "persist_raw_process_before_parse": true,
+      "nofollow_reopen": true,
+      "validate_receipt": true,
+      "immediate_archive_before_reuse": true
+    },
+    {
+      "repeat": 2,
+      "partition_id": 1,
+      "action_id": "plan77-repeat-2-partition-1",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "archive_label": "local/archive/repeat-2-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "persist_raw_process_before_parse": true,
+      "nofollow_reopen": true,
+      "validate_receipt": true,
+      "immediate_archive_before_reuse": true
+    },
+    {
+      "repeat": 2,
+      "partition_id": 2,
+      "action_id": "plan77-repeat-2-partition-2",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "archive_label": "local/archive/repeat-2-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "persist_raw_process_before_parse": true,
+      "nofollow_reopen": true,
+      "validate_receipt": true,
+      "immediate_archive_before_reuse": true
+    }
+  ],
+  "negative_cases": {
+    "plan76_pair_specific_formatter_path": "rejected",
+    "scaffold_path_for_ordinary_partition": "rejected",
+    "swapped_partition_paths": "rejected",
+    "missing_schedule_row": "rejected",
+    "extra_schedule_row": "rejected",
+    "reused_plan76_identity": "rejected",
+    "duplicate_archive_label": "rejected",
+    "archive_label_equal_to_formatter_path": "rejected",
+    "archive_after_fixed_path_reuse": "rejected",
+    "parse_before_process_persistence": "rejected",
+    "missing_receipt": "rejected",
+    "empty_receipt": "rejected",
+    "stale_receipt": "rejected",
+    "symlinked_receipt": "rejected",
+    "malformed_receipt": "rejected",
+    "wrong_partition": "rejected",
+    "wrong_universe": "rejected",
+    "non_green_receipt": "rejected",
+    "unordered_rows": "rejected",
+    "duplicate_rows": "rejected",
+    "status_only_admission": "rejected"
+  },
+  "flagged_assumptions": [
+    "EDGE-TEST-01-UNCLASSIFIED",
+    "EDGE-TEST-02-ADJACENCY",
+    "EDGE-TEST-02-EMPTY",
+    "EDGE-TEST-02-ORDERING",
+    "EDGE-TEST-03-UNCLASSIFIED"
+  ],
+  "unspent_one_shot_budgets": {
+    "repeat_children": 4,
+    "exact_six": 1,
+    "candidate_push": 1,
+    "capture_pull_request": 1,
+    "capture_workflow_dispatch": 1,
+    "evidence_child_push": 1,
+    "validation_pull_request": 1,
+    "validation_workflow_dispatch": 1
+  },
+  "effects": {
+    "mix": 0,
+    "postgresql": 0,
+    "filesystem_root_allocation": 0,
+    "formatter_receipt_output": 0,
+    "exact_six": 0,
+    "git": 0,
+    "github_api": 0,
+    "watcher": 0,
+    "capture": 0,
+    "validation": 0,
+    "reconciliation": 0
+  }
+}

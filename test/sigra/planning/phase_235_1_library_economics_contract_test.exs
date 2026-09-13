@@ -106,10 +106,43 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   @terminal_verifier "scripts/ci/verify-terminal-ratification-attestation-offline.sh"
   @blocked_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-04-SUMMARY.md"
   @context_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-CONTEXT.md"
-  @plan_16_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-16-SUMMARY.md"
   @calibration_path ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-PARTITION-CALIBRATION.json"
+  @plan_17_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-17-SUMMARY.md"
   @plan_18_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-18-SUMMARY.md"
-  @plan_18_summary_commit "81afbf0cafcf7dcf380d728a03053c42cdccdaa0"
+  @plan_19_summary ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
+
+  @tag :history_contract
+  test "all ordinary tests are independent of historical checkout objects" do
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+
+    findings =
+      Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
+      |> Enum.flat_map(fn path -> historical_git_calls(File.read!(path), path) end)
+
+    assert length(Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()) == 225
+
+    assert Enum.map(findings, &Map.take(&1, [:path, :verb])) == []
+
+    for {source, verb} <- [
+          {~S|System.cmd("git", ["show", "deadbeef:path"])|, "show"},
+          {~S|System.cmd("git", ["diff", "--name-only", "deadbeef", "--", "lib"])|, "diff"},
+          {~S|System.cmd("git", ["rev-parse", "deadbeef^{commit}"])|, "rev-parse"},
+          {~S|System.cmd("git", ["fetch", "origin", "deadbeef"])|, "fetch"}
+        ] do
+      assert [%{verb: ^verb}] = historical_git_calls(source, "adverse.exs")
+    end
+
+    allowed = ~S'''
+    # System.cmd("git", ["show", "deadbeef:path"])
+    prose = "git diff deadbeef"
+    System.cmd("git", ["ls-files", "-z"])
+    System.cmd("git", ["-C", fixture, "init"])
+    System.cmd("git", ["-C", fixture, "hash-object", "-w", "--stdin"])
+    System.cmd("git", ["-C", fixture, "cat-file", "-t", object])
+    '''
+
+    assert historical_git_calls(allowed, "allowed.exs") == []
+  end
 
   test "routing evidence is independently admitted and keeps fixed-bound history negative" do
     verifier = File.read!("scripts/ci/verify-library-routing-evidence.sh")
@@ -166,22 +199,56 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
   end
 
   test "Plan 18 remains immutable blocked history before recalibration" do
-    summary = File.read!(@plan_18_summary)
+    summary = read_regular_summary!(@plan_18_summary)
+    assert validate_plan_18_summary!(summary) == :ok
 
-    assert {historical_summary, 0} =
-             System.cmd("git", ["show", "#{@plan_18_summary_commit}:#{@plan_18_summary}"])
+    assert_raise ArgumentError, fn ->
+      validate_plan_18_summary!(summary <> "\n")
+    end
 
-    assert historical_summary == summary
-    assert summary =~ "627428df5a20dc0479163b9993a49dccf5e6f92e"
-    assert summary =~ "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8"
-    assert summary =~ "71d14c82105cc8e48f018999bd3f02d2c9dc4a47"
-    assert summary =~ "2,449ms"
-    assert summary =~ "13,579ms"
-    assert summary =~ "5.544"
-    assert summary =~ "validation 2/3 did not run"
-    assert summary =~ "No candidate push occurred"
-    assert summary =~ "No new GitHub run or job IDs exist"
-    assert summary =~ "847f97542bd110be6022771098a54db9b4d8b0f75db2c32b923ee81834acf962"
+    for mutation <- [
+          String.replace(summary, "status: halted", "status: complete", global: false),
+          String.replace(
+            summary,
+            "627428df5a20dc0479163b9993a49dccf5e6f92e",
+            String.duplicate("a", 40),
+            global: true
+          ),
+          String.replace(
+            summary,
+            "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+            String.duplicate("b", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "71d14c82105cc8e48f018999bd3f02d2c9dc4a47",
+            String.duplicate("c", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "scripts/ci/verify-library-validation-run.test.sh",
+            "scripts/ci/forged.sh",
+            global: true
+          ),
+          String.replace(summary, "2,449ms", "2,450ms", global: true),
+          String.replace(summary, "13,579ms", "13,580ms", global: true),
+          String.replace(summary, "5.544", "1.000", global: true),
+          String.replace(summary, "validation 2/3 did not run", "validation 2/3 ran",
+            global: false
+          ),
+          String.replace(summary, "No candidate push occurred", "Candidate push occurred",
+            global: false
+          ),
+          String.replace(summary, "No new GitHub run or job IDs exist", "New GitHub run exists",
+            global: false
+          ),
+          String.replace(summary, "remain absent", "were created", global: false),
+          String.replace(summary, "not retried", "retried", global: false)
+        ] do
+      assert_raise ArgumentError, fn -> validate_plan_18_summary!(mutation, false) end
+    end
   end
 
   setup do
@@ -300,10 +367,10 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   @tag :assignment_contract
   test "Plan 17 repairs only the global Oban test owners and runs three fresh validations" do
+    Code.require_file("test/support/ci/library_test_partitions.exs")
+
     registrants =
-      "test"
-      |> Path.join("**/*_test.exs")
-      |> Path.wildcard()
+      Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
       |> Enum.filter(&registers_global_oban?/1)
       |> Enum.sort()
 
@@ -355,7 +422,6 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     assert length(Regex.scan(~r/Task\.async\(fn -> cleanup_dummy_oban\(dummy\) end\)/, delivery)) ==
              2
 
-    Code.require_file("test/support/ci/library_test_partitions.exs")
     ordinary = Sigra.CI.LibraryTestPartitions.current_ordinary_paths!()
     historical_calibration = @calibration_path |> File.read!() |> JSON.decode!()
 
@@ -388,19 +454,30 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       Sigra.CI.LibraryTestPartitions.validate_current_universe!(broken)
     end
 
-    {production_diff, production_status} =
-      System.cmd("git", ["diff", "--name-only", "fd97522d", "--", "lib"])
+    plan_17 = read_regular_summary!(@plan_17_summary)
+    assert validate_plan_17_summary!(plan_17) == :ok
 
-    assert production_status == 0
-    assert production_diff == ""
+    assert_raise ArgumentError, fn -> validate_plan_17_summary!(plan_17 <> "\n") end
 
-    plan_16 = File.read!(@plan_16_summary)
-    assert plan_16 =~ "37,517ms"
-    assert plan_16 =~ "26,409ms"
-    assert plan_16 =~ "Fresh post-calibration validation pairs completed: 0 of 3"
-
-    {pinned_plan_16, 0} = System.cmd("git", ["show", "84550d73:#{@plan_16_summary}"])
-    assert pinned_plan_16 == plan_16
+    for mutation <- [
+          String.replace(plan_17, "status: complete", "status: halted", global: false),
+          String.replace(plan_17, "DeletionTest` and `DeliveryTest", "DeletionTest` only",
+            global: false
+          ),
+          String.replace(plan_17, "fd97522d", "deadbeef", global: true),
+          String.replace(plan_17, "84550d73", "deadbeef", global: false),
+          String.replace(plan_17, "three samples", "two samples", global: false),
+          String.replace(plan_17, "nine payloads", "eight payloads", global: false),
+          String.replace(
+            plan_17,
+            "zero completed validation pairs",
+            "one completed validation pair",
+            global: false
+          ),
+          String.replace(plan_17, "| 3 | 30,167ms", "| 4 | 30,167ms", global: false)
+        ] do
+      assert_raise ArgumentError, fn -> validate_plan_17_summary!(mutation, false) end
+    end
 
     integration = File.read!("scripts/ci/library-partitions.test.sh")
     assert length(Regex.scan(~r/for validation in 1 2 3/, integration)) == 1
@@ -422,49 +499,56 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
 
   @tag :assignment_contract
   test "Plan 19 calibration diagnostics remain immutable blocked history" do
-    summary =
-      File.read!(
-        ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
-      )
+    summary = read_regular_summary!(@plan_19_summary)
+    assert validate_plan_19_summary!(summary) == :ok
 
-    {pinned, 0} =
-      System.cmd("git", [
-        "show",
-        "d405755f078be8eefc8be1abcc2c387a4b6c8589:.planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-19-SUMMARY.md"
-      ])
+    assert_raise ArgumentError, fn -> validate_plan_19_summary!(summary <> "\n") end
 
-    assert pinned == summary
-
-    for fact <- [
-          "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
-          "02384b6410c371959dfeb976d29dd1e61acc3e4a",
-          "225",
-          "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
-          "975612d7f3cbfda75fb6857791ebfd9bcadd852451b86a6b917871b3ba092eeb",
-          "3,174ms / 60,072ms",
-          "25,178 / `173786d4150e730598f89e65f4cbac960ee8bb3c3081f25f6da44e0ecce20fb0`",
-          "273,229 / `8632d5825bcaf1ccfde79cd7907f2c124d4036a27648b81cc7ed07d5e8244934`",
-          "425,980 / `e7570371f8475af78eb111007c25b699675dbcb72cf3a897a4c77f4dc03da23d`",
-          "3,995ms / 41,711ms",
-          "31764c67e85ed0b091c27053d0c3035976ed035e036beb22e30e8b3796b2d41e",
-          "3f432a2f84144d04194309eb5c4b5fda9e17356081c9fef4335ca916397ae29a",
-          "c036ba202bb8840258e6525aea0b5e9dc5ebbe657f2afec0955f7b00ceaa8993",
-          "3,351ms / 42,354ms",
-          "ee8bd47263266a3765e721a8bef56fbc7e15bc71580759e7b1ffaec8533df957",
-          "55487aac6fa03c3319d26b9131b3c7eb6bce80ed324038a177ef4bd45e225274",
-          "df205cecf2fa21bc423e098f79419b8d209869c1771d6f58443eaa74b1203932",
-          "2,959,930",
-          "2d45b1db1ae2ffd614dc0c5b3692748504583ef4465545ee614117ea5e2b8a30",
-          "561",
-          "68ef4aa43c93cca6e70b2769adf6fc9f4b09bbd1dd57f4531cc3e89cb06c7028",
-          "zero post-calibration validation pairs",
-          "No push, workflow dispatch, CI watch, API poll, artifact download"
+    for mutation <- [
+          String.replace(summary, "status: halted", "status: complete", global: false),
+          String.replace(
+            summary,
+            "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
+            String.duplicate("a", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "02384b6410c371959dfeb976d29dd1e61acc3e4a",
+            String.duplicate("b", 40),
+            global: false
+          ),
+          String.replace(
+            summary,
+            "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
+            String.duplicate("c", 64),
+            global: false
+          ),
+          String.replace(summary, "Ordinary paths: 225", "Ordinary paths: 224", global: false),
+          String.replace(summary, "| 3 | 3,351ms", "| 4 | 3,351ms", global: false),
+          String.replace(
+            summary,
+            "zero post-calibration validation pairs",
+            "one post-calibration validation pair",
+            global: false
+          ),
+          String.replace(
+            summary,
+            "No push, workflow dispatch, CI watch, API poll, artifact download",
+            "A push occurred",
+            global: false
+          ),
+          String.replace(summary, "restored byte-for-byte", "recreated", global: false),
+          String.replace(summary, "manifest is absent", "manifest is present", global: false),
+          String.replace(
+            summary,
+            "post-build source contract was red",
+            "post-build source contract passed",
+            global: false
+          )
         ] do
-      assert summary =~ fact
+      assert_raise ArgumentError, fn -> validate_plan_19_summary!(mutation, false) end
     end
-
-    assert summary =~ "the manifest is absent"
-    assert summary =~ "prior tracked calibration was restored byte-for-byte"
   end
 
   @tag :assignment_contract
@@ -1038,6 +1122,147 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
     end)
   end
 
+  defp read_regular_summary!(path) do
+    unless match?({:ok, %File.Stat{type: :regular}}, File.lstat(path)) do
+      raise ArgumentError, "historical summary must be a regular non-symlink file: #{path}"
+    end
+
+    File.read!(path)
+  end
+
+  defp validate_plan_17_summary!(summary, identity? \\ true) do
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          7_082,
+          "bb6218a0a16594bd0c30f5b6bfab7ebe2691665b20f2aaf5c5d16cdaca009373"
+        )
+
+    require_summary_facts!(summary, [
+      "status: complete",
+      "changed only `DeletionTest` and `DeliveryTest`",
+      "84550d73",
+      "three samples, and nine payloads",
+      "zero completed validation pairs",
+      "all `lib/` production sources stayed byte-identical to approved HEAD `fd97522d`"
+    ])
+
+    unless length(Regex.scan(~r/^\| [123] \| [0-9,]+ms \| [0-9,]+ms \|/m, summary)) == 3 and
+             summary =~ "| 1 | 45,839ms | 46,304ms |" and
+             summary =~ "| 2 | 28,360ms | 26,675ms |" and
+             summary =~ "| 3 | 30,167ms | 30,610ms |" do
+      raise ArgumentError, "Plan 17 validation-row contract drift"
+    end
+
+    :ok
+  end
+
+  defp validate_plan_18_summary!(summary, identity? \\ true) do
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          19_790,
+          "864d5545a59e801adac7da9d56c66d3bc42ac6673f01770b7829ab8247ff7d5e"
+        )
+
+    require_summary_facts!(summary, [
+      "status: halted",
+      "627428df5a20dc0479163b9993a49dccf5e6f92e",
+      "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+      "71d14c82105cc8e48f018999bd3f02d2c9dc4a47",
+      "GREEN commit `627428df5a20dc0479163b9993a49dccf5e6f92e` changed exactly five files",
+      "2,449ms",
+      "13,579ms",
+      "5.544",
+      "validation 2/3 did not run",
+      "No candidate push occurred",
+      "No new GitHub run or job IDs exist",
+      "remain absent",
+      "not retried"
+    ])
+
+    changed_paths = [
+      "scripts/ci/verify-library-routing-evidence.sh",
+      "scripts/ci/verify-library-routing-evidence.test.sh",
+      "scripts/ci/verify-library-validation-run.sh",
+      "scripts/ci/verify-library-validation-run.test.sh",
+      "test/sigra/planning/phase_235_1_library_economics_contract_test.exs"
+    ]
+
+    changed_table =
+      summary
+      |> String.split("with these post-commit identities:", parts: 2)
+      |> List.last()
+      |> String.split("Immutable preflight passed", parts: 2)
+      |> hd()
+
+    table_paths =
+      Regex.scan(~r/^\| `([^`]+)` \|/m, changed_table, capture: :all_but_first)
+      |> List.flatten()
+
+    unless table_paths == changed_paths,
+      do: raise(ArgumentError, "Plan 18 changed-path set drift")
+
+    :ok
+  end
+
+  defp validate_plan_19_summary!(summary, identity? \\ true) do
+    if identity?,
+      do:
+        validate_summary_identity!(
+          summary,
+          7_698,
+          "7872bb4e16c7300728b22996981cd65d6ec81dbbda7fd2e8daf4359dcefd6117"
+        )
+
+    require_summary_facts!(summary, [
+      "status: halted",
+      "75a4798faf50c29af5d849ff0ba2ee8a83f4e5ed",
+      "02384b6410c371959dfeb976d29dd1e61acc3e4a",
+      "Ordinary paths: 225",
+      "39f26999db7160124dd61a65427155a7f2e78f60c50f3f42e7af211a9ee6ed1c",
+      "zero post-calibration validation pairs",
+      "No push, workflow dispatch, CI watch, API poll, artifact download",
+      "prior tracked calibration was restored byte-for-byte",
+      "manifest is absent",
+      "post-build source contract was red"
+    ])
+
+    payload_hashes = ~w(
+      173786d4150e730598f89e65f4cbac960ee8bb3c3081f25f6da44e0ecce20fb0
+      8632d5825bcaf1ccfde79cd7907f2c124d4036a27648b81cc7ed07d5e8244934
+      e7570371f8475af78eb111007c25b699675dbcb72cf3a897a4c77f4dc03da23d
+      31764c67e85ed0b091c27053d0c3035976ed035e036beb22e30e8b3796b2d41e
+      3f432a2f84144d04194309eb5c4b5fda9e17356081c9fef4335ca916397ae29a
+      c036ba202bb8840258e6525aea0b5e9dc5ebbe657f2afec0955f7b00ceaa8993
+      ee8bd47263266a3765e721a8bef56fbc7e15bc71580759e7b1ffaec8533df957
+      55487aac6fa03c3319d26b9131b3c7eb6bce80ed324038a177ef4bd45e225274
+      df205cecf2fa21bc423e098f79419b8d209869c1771d6f58443eaa74b1203932
+    )
+
+    require_summary_facts!(summary, payload_hashes)
+
+    unless length(Regex.scan(~r/^\| [123] \| [0-9,]+ms \/ [0-9,]+ms \|/m, summary)) == 3,
+      do: raise(ArgumentError, "Plan 19 diagnostic-triple contract drift")
+
+    :ok
+  end
+
+  defp validate_summary_identity!(summary, expected_bytes, expected_sha256) do
+    actual_sha256 = :crypto.hash(:sha256, summary) |> Base.encode16(case: :lower)
+
+    unless byte_size(summary) == expected_bytes and actual_sha256 == expected_sha256,
+      do: raise(ArgumentError, "historical summary byte identity drift")
+  end
+
+  defp require_summary_facts!(summary, facts) do
+    Enum.each(facts, fn fact ->
+      unless summary =~ fact, do: raise(ArgumentError, "historical summary semantic drift")
+    end)
+  end
+
   defp alias_body(mix_exs, alias_name) do
     [_, body] = Regex.run(~r/"?#{Regex.escape(alias_name)}"?:\s*\[(.*?)\]/s, mix_exs)
     body
@@ -1085,6 +1310,42 @@ defmodule Sigra.Planning.Phase2351LibraryEconomicsContractTest do
       ~r{^\.planning/phases/235\.1-close-v1-47-library-economics-integration-gaps-test-01-test/235\.1-(10|12|14|15|16|17|18)-SUMMARY\.md$}
 
     not Regex.match?(phase_235_1, path)
+  end
+
+  defp historical_git_calls(source, path) do
+    quoted = Code.string_to_quoted!(source)
+
+    {_quoted, findings} =
+      Macro.prewalk(quoted, [], fn
+        {{:., _, [{:__aliases__, _, [:System]}, :cmd]}, _, ["git", args | _]} = node, findings
+        when is_list(args) ->
+          case prohibited_git_invocation(args) do
+            nil -> {node, findings}
+            verb -> {node, [%{path: path, verb: verb, args: args} | findings]}
+          end
+
+        node, findings ->
+          {node, findings}
+      end)
+
+    Enum.reverse(findings)
+  end
+
+  defp prohibited_git_invocation(args) do
+    literal_args = Enum.filter(args, &is_binary/1)
+    verb = Enum.find(literal_args, &(&1 in ~w(show diff rev-parse fetch)))
+
+    case verb do
+      "show" -> "show"
+      "fetch" -> "fetch"
+      "diff" -> if Enum.any?(literal_args, &historical_revision?/1), do: "diff"
+      "rev-parse" -> if Enum.any?(literal_args, &historical_revision?/1), do: "rev-parse"
+      nil -> nil
+    end
+  end
+
+  defp historical_revision?(argument) do
+    Regex.match?(~r/^[0-9a-f]{7,40}(?:\^\{(?:commit|tree)\})?$/, argument)
   end
 
   defp library_job_ids(workflow) do

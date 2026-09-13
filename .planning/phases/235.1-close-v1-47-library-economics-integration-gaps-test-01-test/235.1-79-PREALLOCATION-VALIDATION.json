@@ -1,0 +1,531 @@
+{
+  "assumption_delta": "no-change",
+  "assumptions": [
+    {
+      "flagged": true,
+      "id": "EDGE-TEST-01-UNCLASSIFIED",
+      "statement": "With no phase SPEC, TEST-01 behavior for an otherwise valid timing receipt containing an unclassified ordinary test path remains unspecified; this plan admits only the exact current 225-path universe.",
+      "status": "unverified"
+    },
+    {
+      "flagged": true,
+      "id": "EDGE-TEST-02-ADJACENCY",
+      "statement": "With no phase SPEC, TEST-02 behavior when valid partition receipts are not adjacent in capture order remains unspecified; this plan preserves the existing evidence schema.",
+      "status": "unverified"
+    },
+    {
+      "flagged": true,
+      "id": "EDGE-TEST-02-EMPTY",
+      "statement": "With no phase SPEC, TEST-02 behavior for an empty otherwise well-formed partition remains unspecified; this plan admits only the known non-empty 114/111 universe.",
+      "status": "unverified"
+    },
+    {
+      "flagged": true,
+      "id": "EDGE-TEST-02-ORDERING",
+      "statement": "With no phase SPEC, TEST-02 behavior for reordered otherwise valid timing rows remains unspecified; this plan preserves deterministic formatter ordering.",
+      "status": "unverified"
+    },
+    {
+      "flagged": true,
+      "id": "EDGE-TEST-03-UNCLASSIFIED",
+      "statement": "With no phase SPEC, TEST-03 behavior for an additional tracked scaffold-tagged path remains unspecified; this plan requires exact equality with the current six-path repository universe and fails closed on drift.",
+      "status": "unverified"
+    }
+  ],
+  "bounded_contracts": [
+    {
+      "argv": [
+        "bash",
+        "scripts/ci/install-golden.test.sh"
+      ],
+      "environment": {},
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": null,
+      "timeout_seconds": 60
+    },
+    {
+      "argv": [
+        "bash",
+        "scripts/ci/verify-library-install-golden.test.sh"
+      ],
+      "environment": {},
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": null,
+      "timeout_seconds": 60
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs:570",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 1,
+      "timeout_seconds": 60
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs:654",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 1,
+      "timeout_seconds": 60
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs:761",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 1,
+      "timeout_seconds": 60
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "test/sigra/planning/phase_235_1_library_economics_contract_test.exs:781",
+        "--max-failures",
+        "1"
+      ],
+      "environment": {
+        "ASDF_ERLANG_VERSION": "28.4.1",
+        "MIX_ENV": "test"
+      },
+      "exit_status": 0,
+      "result": "PASS",
+      "selected_test_count": 1,
+      "timeout_seconds": 60
+    }
+  ],
+  "budgets": {
+    "candidate_push": 1,
+    "capture_pull_request": 1,
+    "capture_workflow_dispatch": 1,
+    "evidence_child_push": 1,
+    "exact_six": 1,
+    "repeat_children": 4,
+    "validation_pull_request": 1,
+    "validation_workflow_dispatch": 1
+  },
+  "canonical_scaffold": {
+    "fixture_variants": [
+      "default_installed",
+      "passkeys_standard",
+      "passkeys_nonstandard_app_js",
+      "no_passkeys",
+      "no_org_no_passkeys",
+      "no_org_installed"
+    ],
+    "receiver_count": 6,
+    "receiver_derivations": {
+      "evidence_contract_ordered": [
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs",
+        "test/upgrade_test.exs"
+      ],
+      "live_tracked_sorted": [
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs",
+        "test/upgrade_test.exs"
+      ],
+      "partition_authority_sorted": [
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs",
+        "test/upgrade_test.exs"
+      ],
+      "phase_contract_equal": true,
+      "runner_ordered": [
+        "test/sigra/install/features/passkeys_js_test.exs",
+        "test/sigra/install/generator_passkeys_opt_out_test.exs",
+        "test/sigra/install/golden_diff_test.exs",
+        "test/sigra/install/idempotency_test.exs",
+        "test/sigra/install/vault_promotion_test.exs",
+        "test/upgrade_test.exs"
+      ]
+    },
+    "receiver_paths": [
+      "test/sigra/install/features/passkeys_js_test.exs",
+      "test/sigra/install/generator_passkeys_opt_out_test.exs",
+      "test/sigra/install/golden_diff_test.exs",
+      "test/sigra/install/idempotency_test.exs",
+      "test/sigra/install/vault_promotion_test.exs",
+      "test/upgrade_test.exs"
+    ],
+    "variant_count": 6
+  },
+  "diagnostic_retry": {
+    "action_id": "plan79-classified-transient-diagnostic-retry",
+    "budgets": {
+      "action": 1,
+      "monitor_identity": 1,
+      "run_attempt_identity": 1
+    },
+    "consumed": {
+      "action": 0,
+      "monitor_identity": 0,
+      "run_attempt_identity": 0
+    },
+    "eligible_primaries": [
+      "plan79-capture-pull-request",
+      "plan79-capture-workflow-dispatch",
+      "plan79-validation-pull-request",
+      "plan79-validation-workflow-dispatch"
+    ],
+    "monitor_identity_slot": "plan79-classified-transient-diagnostic-monitor",
+    "run_attempt_identity_slot": "plan79-classified-transient-diagnostic-run-attempt"
+  },
+  "effects": {
+    "capture": 0,
+    "exact_six": 0,
+    "filesystem_root_allocation": 0,
+    "formatter_receipt_output": 0,
+    "git": 0,
+    "github_api": 0,
+    "mix": 0,
+    "postgresql": 0,
+    "reconciliation": 0,
+    "validation": 0,
+    "watcher": 0
+  },
+  "fixed_receipt_authority": {
+    "formatter_allowlist": [
+      "/tmp/sigra-library-1-timings.json",
+      "/tmp/sigra-library-2-timings.json"
+    ],
+    "partition_authority_map": {
+      "1": "/tmp/sigra-library-1-timings.json",
+      "2": "/tmp/sigra-library-2-timings.json"
+    },
+    "wrapper_partition_map": {
+      "1": "/tmp/sigra-library-1-timings.json",
+      "2": "/tmp/sigra-library-2-timings.json"
+    }
+  },
+  "frozen_plan78": {
+    "failure_exit": 2,
+    "files": {
+      "local/archive/plan78-repeat-1-partition-1.json": "6677d5e668f22059e25dbfffba20c3a1071e2d8bd9edc14c45c5fa59fc4dc82c",
+      "local/process/partition-oracle.json": "4d6fe4782c4f10013890b148f73173d43b84a3d2796cbd634b32def9eeeb3a53",
+      "local/process/plan78-repeat-1-partition-1.json": "04e8792edbf69296aa2c18eec9a212caf891f3d1f90d5ab1766ebc28289ce216",
+      "local/process/plan78-repeat-1-partition-2.json": "337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61",
+      "local/root-identity.json": "40849978c81d9bbe912af3fbbcd8ae2a3ddefa6579c13d37c450b9f768176926",
+      "local/verify-plan78-terminal.py": "621d95f997e98941e431ad94e32174aad6b7f8671bc55fa229446825decc7584"
+    },
+    "identity": {
+      "device": 16777229,
+      "gid": 0,
+      "inode": 302331219,
+      "mode": "0700",
+      "uid": 501
+    },
+    "later_effects": 0,
+    "orphan_exit": 0,
+    "root": "/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL",
+    "task1": "PASS"
+  },
+  "identity_schedule": [
+    {
+      "action_id": "plan79-repeat-1-partition-1",
+      "archive_path": "local/archive/plan79-repeat-1-partition-1.json",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 1,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan79-repeat-1-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 1,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan79-repeat-1-partition-2",
+      "archive_path": "local/archive/plan79-repeat-1-partition-2.json",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 2,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan79-repeat-1-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 1,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan79-repeat-2-partition-1",
+      "archive_path": "local/archive/plan79-repeat-2-partition-1.json",
+      "fixed_formatter_path": "/tmp/sigra-library-1-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 1,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan79-repeat-2-partition-1.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 2,
+      "validate_receipt": true
+    },
+    {
+      "action_id": "plan79-repeat-2-partition-2",
+      "archive_path": "local/archive/plan79-repeat-2-partition-2.json",
+      "fixed_formatter_path": "/tmp/sigra-library-2-timings.json",
+      "immediate_archive_before_reuse": true,
+      "nofollow_reopen": true,
+      "partition_id": 2,
+      "persist_raw_process_before_parse": true,
+      "raw_process_path": "local/process/plan79-repeat-2-partition-2.json",
+      "remove_fixed_output_before_child": true,
+      "repeat": 2,
+      "validate_receipt": true
+    }
+  ],
+  "plan76": {
+    "canonical_durations_ms": [
+      12056,
+      12949
+    ],
+    "canonical_pair_admitted": true,
+    "canonical_pair_receipt_sha256": "864d2b33994d4eb783f4e7e36ac3fe017eef234b6b0270d49f22feeb68810159",
+    "canonical_partition_cardinalities": [
+      114,
+      111
+    ],
+    "canonical_partition_receipt_sha256": [
+      "e1a3a629be9c236818ec58b664798d30a9b686b5043f9be6b297b7b75eb06e22",
+      "e57b188e22cf7ac1a80176811173f595167aa7e82d9d4fcfe94ab590270e933e"
+    ],
+    "canonical_unique_paths": 225,
+    "excluded_failure_count": 1,
+    "failed_repeat_admitted": false,
+    "failed_repeat_process_id": 92841,
+    "failed_repeat_process_sha256": "4f9d455818fcdebfea2d962d74c20cd4c4a20582bca386c518ffdbee164b2be3",
+    "failed_repeat_receipt_present": false,
+    "failure_receipt_sha256": "7b9d98e5668b275ed5c3a2618e9f726a5cf26f1785b3e6f6fd2d43f449421583",
+    "positive_pair_count": 1,
+    "positive_receipt_count": 2,
+    "retry": false
+  },
+  "plan77": {
+    "effects": {
+      "capture": 0,
+      "exact_six": 0,
+      "filesystem_root_allocation": 0,
+      "formatter_receipt_output": 0,
+      "git": 0,
+      "github_api": 0,
+      "mix": 0,
+      "postgresql": 0,
+      "reconciliation": 0,
+      "validation": 0,
+      "watcher": 0
+    },
+    "precondition": {
+      "plan76_root": "/private/tmp/sigra-p2351-plan76-build-links.josc17x6",
+      "plan76_root_count": 1,
+      "plan77_process_record_count": 0,
+      "plan77_root_count": 0,
+      "status": "PASS"
+    },
+    "schema": "sigra.phase235.1-plan77-preallocation-validation/v1",
+    "status": "PASS",
+    "unspent_one_shot_budgets": {
+      "candidate_push": 1,
+      "capture_pull_request": 1,
+      "capture_workflow_dispatch": 1,
+      "evidence_child_push": 1,
+      "exact_six": 1,
+      "repeat_children": 4,
+      "validation_pull_request": 1,
+      "validation_workflow_dispatch": 1
+    }
+  },
+  "plan77_blacklist": {
+    "action_ids": [
+      "plan77-repeat-1-partition-1",
+      "plan77-repeat-1-partition-2",
+      "plan77-repeat-2-partition-1",
+      "plan77-repeat-2-partition-2"
+    ],
+    "archive_paths": [
+      "local/archive/repeat-1-partition-1.json",
+      "local/archive/repeat-1-partition-2.json",
+      "local/archive/repeat-2-partition-1.json",
+      "local/archive/repeat-2-partition-2.json"
+    ],
+    "further_literals": [],
+    "id_prefix": "plan77-",
+    "root_namespace": "/private/tmp/sigra-p2351-plan77-fixed-receipts.*"
+  },
+  "plan77_summary": {
+    "completed_tasks": 1,
+    "github_action_count": 0,
+    "mix_process_count": 0,
+    "root_count": 0,
+    "status": "halted",
+    "total_tasks": 3
+  },
+  "plan78_blacklist": {
+    "exact_root": "/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL",
+    "id_prefix": "plan78-",
+    "root_namespace": "/private/tmp/sigra-p2351-plan78-canonical-paths.*"
+  },
+  "precondition": {
+    "plan79_process_record_count": 0,
+    "plan79_root_count": 0,
+    "status": "PASS"
+  },
+  "predecessor_digests": {
+    "235.1-04-PLAN.md": "b439e6898660f92ec8a9a232ebf7dbf77517f6de3b18ec7b8847e726f785f213",
+    "235.1-04-SUMMARY.md": "2931fc78869aa5b3662c5a49723312bf822945d3761f171f8764990f941acf99",
+    "235.1-10-PLAN.md": "c92c963057f17d7d89cbeee2535c8252dcc93e09d87271b1296a0caf460b1bc2",
+    "235.1-10-SUMMARY.md": "86a4ac133a9f5426a577234862cb8b9b2b84876d9e019f446a12f5bfcc784281",
+    "235.1-12-PLAN.md": "e7c9433802f9bc390434e33cadb5f4df952db833dad62ebb74d063179a7b48fc",
+    "235.1-12-SUMMARY.md": "585c6c3db40bf4473172f61d83f42b84f62a2bb54194a982c58b1cd0eb09428c",
+    "235.1-15-PLAN.md": "9ac2f664e2d99999e71a74408ec1d863a892c53ed571fa53535ba3103aff3f61",
+    "235.1-15-SUMMARY.md": "e487b0ec66eb89f7bc439eba843c267a79d4bf08151c807cfbf996064a235522",
+    "235.1-70-PLAN.md": "0ee8fdff076d7de4c89a11bef475917b765d72b7afd56a4b8c432ee4753a8459",
+    "235.1-76-HOME-PROBE.json": "c6ec362e1fc99f62ca22238c9937129829631a306c8e450ab266e309f35f9fc7",
+    "235.1-76-PLAN.md": "9521f1263e242204dc27406fa46ca0df6168f168009072f465ba93cedaa6a84b",
+    "235.1-76-PREALLOCATION-VALIDATION.json": "1f18e5eea1d75e05107d5cfb12bbf84bffb874f2baad13c588b7e318dab7e17f",
+    "235.1-76-PREREQUISITE-VALIDATION.json": "e7df44f4c5165c5c04320bfeb094217a439f03c3bcd340264e2327dc8d11b213",
+    "235.1-76-SUMMARY.md": "da8632f927ede7e6054f2d44aa3713a93a1a7c4d227171a977a8cdcdb454ca0c",
+    "235.1-77-PLAN.md": "49156197bd74c6556b4e17f205f7fdc32cab701cf084e067ed52d5f81c94a71b",
+    "235.1-77-PREALLOCATION-VALIDATION.json": "ee2100d18b6228f5c035217c8c7336fad61d30829c6962ed4e169fe43efef7cd",
+    "235.1-77-SUMMARY.md": "e555b1d66c3aab4427a162f34da051ec167ba40c897d51aff22818cd1091424b",
+    "235.1-78-PLAN.md": "bb7a996f6c5bf9c7d71b0f39464df6e6ec24cfca73cff12e284fc2a33d1a557a",
+    "235.1-78-PREALLOCATION-VALIDATION.json": "9565b723530790827aa3b28f67077e14b3d008b7b188ce1c6c3eecde6088c912",
+    "235.1-78-SUMMARY.md": "39bce31a5b03f2c5ad326e8eb6d0897ffcb0340183dc8091127c38c5c2883a2f",
+    "235.1-78-verify-preallocation.py": "8df1699ab9ed643f8a65be8cda82231fcac067238244862133b76cb91bc4d2a0"
+  },
+  "prohibitions": {
+    "prior_artifacts_mutable": false,
+    "receipt_self_authentication": false,
+    "source_changes_allowed": false
+  },
+  "remote_action_ids": [
+    "plan79-candidate-push",
+    "plan79-capture-pull-request",
+    "plan79-capture-workflow-dispatch",
+    "plan79-evidence-child-push",
+    "plan79-validation-pull-request",
+    "plan79-validation-workflow-dispatch"
+  ],
+  "repository": {
+    "authenticated_plan_head": "43aeea7818f6ee33868d48abbfc2bf504be4637e",
+    "root": "/Users/jon/projects/sigra"
+  },
+  "root_template": "/private/tmp/sigra-p2351-plan79-status-recovery.XXXXXXXX",
+  "scheduler": {
+    "derived": {
+      "execution_chain": [
+        "235.1-79",
+        "235.1-70"
+      ],
+      "superseded_absent": [
+        "235.1-04",
+        "235.1-10",
+        "235.1-12",
+        "235.1-15"
+      ]
+    },
+    "raw": {
+      "init_execute_phase": {
+        "incomplete_plans": [
+          "235.1-70-PLAN.md",
+          "235.1-79-PLAN.md"
+        ],
+        "runnable_plans": [
+          "235.1-70-PLAN.md",
+          "235.1-79-PLAN.md"
+        ],
+        "stdout_sha256": "745eb6b4dd198e097572310d51e54c869f38360c7c9a3666d1534dc0a86900be"
+      },
+      "phase_plan_index": {
+        "incomplete": [
+          "235.1-70",
+          "235.1-79"
+        ],
+        "runnable": [
+          "235.1-70",
+          "235.1-79"
+        ],
+        "stdout_sha256": "5a7a878a7e7c8c11d95f95d7a1034b599a1d54cc21e1c88fc71352c04dbd80fd"
+      }
+    }
+  },
+  "schema": "sigra.phase235.1-plan79-preallocation-validation/v1",
+  "source_digests": {
+    ".github/workflows/ci.yml": "ae1e2b519a433720aeb8f7a598d3869e3a5d73c871092f4e6df60456ee413682",
+    "scripts/ci/install-golden.sh": "b68dfd02687486459b4fd1fb04bddc23844e4301e68a94373d5005967d29c89a",
+    "scripts/ci/install-golden.test.sh": "9240eed665210ab2316cb83f1325222571c55bcc43b56ff1f94485073a1f1f9b",
+    "scripts/ci/library-partitions.sh": "deae1229e1bfabea6924d2512db1293026d6904497c2ac804f0478afc04471dd",
+    "scripts/ci/verify-library-install-golden.sh": "2d8e838951229c406d4295844d87c48f148c2743139dc93289deee6e210e6aa4",
+    "scripts/ci/verify-library-install-golden.test.sh": "2e008e515f2be91dd1c98ef9f363541bc7cb21cee846a002b3167dc2975eaa20",
+    "test/sigra/planning/phase_235_1_library_economics_contract_test.exs": "d81f71a2e1008756e6f8a988f30e1426ff900aee61fbacd90136d09040b9e06b",
+    "test/support/ci/ex_unit_timing_formatter.ex": "e9ad6dbaaba24528c60be38f54ddd8d1e946ab539943dd744a1602eba4a29d0c",
+    "test/support/ci/library_test_partitions.exs": "9384fce2c84de95681d1e1ef08c7efec5bf993c2bd0abf9837c169f2fdefb103",
+    "test/support/ci/phase_235_1_evidence_state_contract.exs": "6cb58e74e463d977c228be94efbde05aa7609e4ca1357ca94509e90077bd7921",
+    "test/support/install_fixture.ex": "e31568e6ff5103d775afdf546420644493e4bdbc8ecf5a40bb3b27e1926157dc"
+  },
+  "status": "PASS",
+  "toolchain_digests": {
+    "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs": "e563417cf4b03401f609cf1bb97f611afba9210bbc4716172891adcb27810504",
+    "/Users/jon/.codex/gsd-core/bin/lib/plan-dependency-graph.cjs": "d0b053bdbe4fad0010b4adb95e2f55af786cb7c1bf3da036ed6302db5f7e5cbc",
+    "/Users/jon/.codex/gsd-core/bin/lib/plan-scan.cjs": "11731a44cf7b1f3d8a7e0fa469425b3b4317598cf9118a97f976243a96f61d8e"
+  },
+  "verdict": {
+    "allocation_authorized": true,
+    "independently_computed": true
+  },
+  "workflow_authority": {
+    "absent_from": [
+      "library_tests",
+      "ci-gate"
+    ],
+    "artifact_names": [
+      "library-install-golden-${github.run_id}-${github.run_attempt}",
+      "library-install-diagnostics-${github.run_id}-${github.run_attempt}"
+    ],
+    "events": [
+      "schedule",
+      "workflow_dispatch"
+    ],
+    "if_no_files_found": "error",
+    "runner": "MIX_ENV=test bash scripts/ci/install-golden.sh",
+    "verifier_always": true
+  }
+}
