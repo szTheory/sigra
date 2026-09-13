@@ -835,10 +835,14 @@ Plans:
 
 - [x] 235.1-78-PLAN.md — Preserve Task 1 PASS, frozen root `/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL`, the excluded green orphan, partition-2 process SHA `337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61`, and zero later effects without reuse
 
-**Wave 1** *(active status-recovery successor; consumes Plans 76/77/78 only as immutable historical inputs and allocates wholly fresh Plan 79 identities)*
+**Wave 81** *(frozen halted history: Plan 79 preallocation passed, then its sole root and launcher were consumed before any timing child when its verifier contradicted authenticated Plan 76 `execution_mode: sequential`; zero timing, exact-six, or GitHub effects occurred and every Plan 79 identity is retired)*
 
-- [ ] 235.1-79-PLAN.md — HALTED after sole root allocation marker and before the first timing child; frozen diagnostic records the Plan 76 execution-mode contract mismatch
+- [x] 235.1-79-PLAN.md — Preserve frozen root `/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N`, the deterministic sequential-versus-parallel failure diagnostic, and zero downstream effects without reuse
 
-**Wave 2** *(blocked on successful Plan 79 completion and all five Plan 79 receipts passing their independent verifiers)*
+**Wave 1** *(active sequential-authority recovery; consumes Plans 76/77/78/79 only as immutable historical inputs and allocates wholly fresh Plan 80 identities)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 79 evidence while retaining Plans 76/77/78 as immutable halted history
+- [ ] 235.1-80-PLAN.md — Authenticate Plan 76's exact receipt schema and literal `execution_mode: sequential` before allocation, then collect fresh local and live evidence without reusing any Plan 77/78/79 identity
+
+**Wave 2** *(blocked on successful Plan 80 completion and all five Plan 80 receipts passing their independent verifiers)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 80 evidence while retaining Plans 76/77/78/79 as immutable halted history
