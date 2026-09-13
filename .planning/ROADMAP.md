@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 71 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 72 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -811,10 +811,14 @@ Plans:
 
 - [x] 235.1-72-PLAN.md — Frozen failed recovery: source/SQL/timing proof passed; raw exact-six lacked prepared-fixture mode and no remote route ran
 
-**Wave 72** *(Plans 69/71/72 remain permanently frozen; Plan 73 must authenticate the canonical exact-six entrypoint and all prerequisites before one distinct allocation)*
+**Wave 72** *(frozen failed history: Plan 73 proved the canonical exact-six runner and non-PostgreSQL prerequisites, then its sole grouped-command psql process exposed only `ROLLBACK` and halted before allocation)*
 
-- [ ] 235.1-73-PLAN.md — Prove the canonical prepared exact-six route plus inherited source/SQL policies with zero effects, then run one fresh local and live evidence chain
+- [x] 235.1-73-PLAN.md — Frozen failed recovery: canonical runner/prerequisites passed; grouped `--command` transcript failed with zero root or remote work
 
-**Wave 73** *(runs only after Plan 73's local and live evidence verifiers pass)*
+**Wave 74** *(Plans 69/71/72/73 remain permanently frozen; Plan 74 must prove exact stdin/raw-output framing before one fresh prerequisite process and distinct allocation)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 73 evidence
+- [ ] 235.1-74-PLAN.md — Prove byte-exact stdin PostgreSQL readiness with zero-call adverses, then run one fresh canonical local and live evidence chain
+
+**Wave 75** *(runs only after Plan 74's stdin prerequisite, local terminal, and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 74 evidence
