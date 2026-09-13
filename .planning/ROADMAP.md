@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 10 completed implementation plans, 40 retained failed/blocked plans, and 2 active/pending recovery plans
+**Plans:** 68 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -798,6 +798,11 @@ Plans:
 
 - [x] 235.1-68-PLAN.md — Preserve Plan 67's frozen halt, then freeze Plan 68's marker-only root after the execute launcher rejected before handoff
 
-**Wave 66** *(blocked because Plan 68 produced no finalized root, admitted local series, or live-route evidence; documentation reconciliation only)*
+**Wave 66** *(Plan 05 remains blocked and retained because Plan 68 produced no finalized root, admitted local series, or live-route evidence; Plan 69 owns the successor evidence attempt)*
 
-- [ ] 235.1-05-PLAN.md — Reconcile TEST/DX truth, validation, and the milestone audit from dual-route evidence
+- [x] 235.1-05-PLAN.md — Retained blocked reconciliation plan whose Plan 68 evidence precondition was never met
+- [ ] 235.1-69-PLAN.md — Repair the definition-order defect under a distinct root, prove the local partition route, and capture fresh attempt-1 PR/dispatch evidence
+
+**Wave 67** *(runs only after Plan 69's local and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 69 evidence
