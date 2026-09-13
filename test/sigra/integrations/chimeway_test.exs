@@ -48,18 +48,18 @@ defmodule Sigra.Integrations.ChimewayTest do
     end
   end
 
-  test "magic-link lookup is bound to each request's exact raw token" do
+  test "magic-link lookup hashes decoded URL-safe token bytes for each request" do
     user = %{id: 17, email: "user@example.com"}
-    first_token = "first-raw-token"
-    second_token = "second-raw-token"
+    {first_token, first_stored_hash} = Sigra.Token.generate_hashed_token()
+    {second_token, second_stored_hash} = Sigra.Token.generate_hashed_token()
 
     Sigra.MockRepo
     |> expect(:one, fn query ->
-      assert_query_token(query, first_token)
+      assert_query_token(query, first_stored_hash)
       nil
     end)
     |> expect(:one, fn query ->
-      assert_query_token(query, second_token)
+      assert_query_token(query, second_stored_hash)
       nil
     end)
 
@@ -84,9 +84,20 @@ defmodule Sigra.Integrations.ChimewayTest do
              )
   end
 
-  defp assert_query_token(%Ecto.Query{wheres: [where]}, raw_token) do
-    expected_hash = Sigra.Token.hash_token(raw_token)
+  test "malformed magic-link tokens fail without querying the repository" do
+    user = %{id: 17, email: "user@example.com"}
 
+    assert {:error, :magic_link_token_not_found} =
+             Chimeway.dispatch_magic_link(
+               Sigra.MockRepo,
+               user,
+               "not-valid-base64*",
+               "https://example.com/magic/invalid",
+               user_token_schema: Sigra.TestUserToken
+             )
+  end
+
+  defp assert_query_token(%Ecto.Query{wheres: [where]}, expected_hash) do
     assert {expected_hash, {0, :token}} in where.params
     refute Enum.any?(where.params, fn {_value, {_binding, field}} -> field == :inserted_at end)
   end
