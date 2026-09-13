@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 68 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 69 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -798,11 +798,15 @@ Plans:
 
 - [x] 235.1-68-PLAN.md — Preserve Plan 67's frozen halt, then freeze Plan 68's marker-only root after the execute launcher rejected before handoff
 
-**Wave 66** *(Plan 05 remains blocked and retained because Plan 68 produced no finalized root, admitted local series, or live-route evidence; Plan 69 owns the successor evidence attempt)*
+**Wave 66** *(Plan 05 remains blocked and retained because Plan 68 produced no finalized root, admitted local series, or live-route evidence; Plan 69 halted before allocation when its blanket backslash scan rejected the authenticated SQL sentinel escape)*
 
 - [x] 235.1-05-PLAN.md — Retained blocked reconciliation plan whose Plan 68 evidence precondition was never met
-- [ ] 235.1-69-PLAN.md — Repair the definition-order defect under a distinct root, prove the local partition route, and capture fresh attempt-1 PR/dispatch evidence
+- [x] 235.1-69-PLAN.md — Retained failed recovery whose zero-allocation SQL gate rejected the required authenticated E-string tab escape before psql
 
-**Wave 67** *(runs only after Plan 69's local and live evidence verifiers pass)*
+**Wave 68** *(Plan 69 remains permanently frozen; Plan 71 must pass its two-runtime exact SQL allowlist gate before allocating one distinct fresh root)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 69 evidence
+- [ ] 235.1-71-PLAN.md — Replace the blanket backslash ban with an exact parsed allowlist, then run one fresh local and live evidence chain if every preallocation test passes
+
+**Wave 69** *(runs only after Plan 71's local and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 71 evidence
