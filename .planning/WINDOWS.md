@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 47
+open_count: 49
 waived_count: 0
 fixed_count: 0
-total_count: 47
-last_updated: 2026-09-13T02:51:01.729Z
+total_count: 49
+last_updated: 2026-09-13T03:47:11.642Z
 ---
 
 # Broken Windows Ledger
@@ -62,6 +62,8 @@ last_updated: 2026-09-13T02:51:01.729Z
 | 45 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-68-PLAN.md | 135 | Plan 68 execute launcher called undefined nodup while validating the authenticated bytecode probe after the sole allocator created its root; the consumed launcher/driver/allocator chain was frozen without retry | open |  | 2026-09-12T22:22:53.807Z |  |
 | 46 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 68 finalizer, Task 1 verifier, all Task 2 local/database/timing actions, terminal PASS, and all Task 3 GitHub validation remained prohibited after the execute launcher failed post-allocation | open |  | 2026-09-12T22:22:53.885Z |  |
 | 47 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-69-DRY-RUN-FAILURE.json | 1 | Plan 69's sole dry run failed before psql launch because the blanket backslash ban rejected the authenticated E-string tab sentinel; the consumed root and all Plan 69 actions must never be retried or reused | open |  | 2026-09-13T02:51:01.729Z |  |
+| 48 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-71-LOCAL-FAILURE.json | 1 | Plan 71 source reconstruction failed after its sole allocation because the expected committed Plan 68 health_sql_base64 element was absent; the consumed root must never be retried or reused | open |  | 2026-09-13T03:47:11.551Z |  |
+| 49 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 71 local source/database/timing chain and every network/GitHub validation remained prohibited after post-allocation source reconstruction failed | open |  | 2026-09-13T03:47:11.642Z |  |
 
 ````json
 [
@@ -135,8 +137,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T15:09:45.853Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 7,
@@ -148,8 +149,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T15:09:45.978Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 8,
@@ -161,8 +161,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T15:09:46.100Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 9,
@@ -174,8 +173,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T17:55:47.673Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 10,
@@ -187,8 +185,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T18:22:36.789Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 11,
@@ -200,8 +197,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T18:43:52.896Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 12,
@@ -213,8 +209,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T19:42:38.151Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 13,
@@ -226,8 +221,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T21:58:14.807Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 14,
@@ -239,8 +233,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-11T23:52:23.970Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 15,
@@ -252,8 +245,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T00:25:02.798Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 16,
@@ -265,8 +257,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T00:25:02.890Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 17,
@@ -278,8 +269,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:10:19.006Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 18,
@@ -291,8 +281,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:10:19.097Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 19,
@@ -304,8 +293,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:46:46.219Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 20,
@@ -317,8 +305,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T01:46:46.324Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 21,
@@ -330,8 +317,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T02:45:29.763Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 22,
@@ -343,8 +329,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T02:45:29.868Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 23,
@@ -356,8 +341,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T03:49:50.973Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 24,
@@ -369,8 +353,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T03:49:51.057Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 25,
@@ -382,8 +365,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T04:17:45.542Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 26,
@@ -395,8 +377,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T04:17:45.653Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 27,
@@ -408,8 +389,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T06:33:36.033Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 28,
@@ -421,8 +401,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T06:33:43.824Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 29,
@@ -434,8 +413,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:01:51.078Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 30,
@@ -447,8 +425,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:01:51.153Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 31,
@@ -460,8 +437,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:53:02.019Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 32,
@@ -473,8 +449,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T07:53:02.106Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 33,
@@ -486,8 +461,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T13:38:26.075Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 34,
@@ -499,8 +473,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T13:38:33.595Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 35,
@@ -512,8 +485,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T14:58:12.725Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 36,
@@ -525,8 +497,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T14:58:12.819Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 37,
@@ -538,8 +509,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T15:29:21.919Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 38,
@@ -551,8 +521,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T15:29:22.011Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 39,
@@ -564,8 +533,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T16:42:28.441Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 40,
@@ -577,8 +545,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T19:14:58.557Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 41,
@@ -590,8 +557,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:05:21.548Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 42,
@@ -603,8 +569,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:05:21.633Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 43,
@@ -616,8 +581,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:43:40.427Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 44,
@@ -629,8 +593,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T20:43:40.536Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 45,
@@ -642,8 +605,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T22:22:53.807Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 46,
@@ -655,8 +617,7 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T22:22:53.885Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
   },
   {
     "id": 47,
@@ -668,8 +629,31 @@ last_updated: 2026-09-13T02:51:01.729Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-13T02:51:01.729Z",
-    "resolved_at": null,
-    "milestone": "v1.47"
+    "resolved_at": null
+  },
+  {
+    "id": 48,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-71-LOCAL-FAILURE.json",
+    "line": 1,
+    "description": "Plan 71 source reconstruction failed after its sole allocation because the expected committed Plan 68 health_sql_base64 element was absent; the consumed root must never be retried or reused",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T03:47:11.551Z",
+    "resolved_at": null
+  },
+  {
+    "id": 49,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json",
+    "line": null,
+    "description": "Plan 71 local source/database/timing chain and every network/GitHub validation remained prohibited after post-allocation source reconstruction failed",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T03:47:11.642Z",
+    "resolved_at": null
   }
 ]
 ````
