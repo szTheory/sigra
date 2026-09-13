@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 51
+open_count: 53
 waived_count: 0
 fixed_count: 0
-total_count: 51
-last_updated: 2026-09-13T04:33:55.527Z
+total_count: 53
+last_updated: 2026-09-13T13:58:38.159Z
 ---
 
 # Broken Windows Ledger
@@ -66,6 +66,8 @@ last_updated: 2026-09-13T04:33:55.527Z
 | 49 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 71 local source/database/timing chain and every network/GitHub validation remained prohibited after post-allocation source reconstruction failed | open |  | 2026-09-13T03:47:11.642Z |  |
 | 50 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-LOCAL-FAILURE.json |  | Plan 72 sole local chain failed at the exact-six scaffold command after three green timing pairs; root is frozen and retry is forbidden. | open |  | 2026-09-13T04:33:55.397Z |  |
 | 51 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-PLAN.md |  | Plan 72 remote capture and final verification were not run because the local terminal prerequisite failed. | open |  | 2026-09-13T04:33:55.527Z |  |
+| 52 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md |  | Plan 76 sole local chain froze after a green repeat timing child emitted no receipt at the non-allowlisted formatter path; retry is forbidden. | open |  | 2026-09-13T13:58:38.044Z |  |
+| 53 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md |  | Plan 76 exact-six, terminal, GitHub capture, validation, and final verification were not run because the one-shot local prerequisite failed. | open |  | 2026-09-13T13:58:38.159Z |  |
 
 ````json
 [
@@ -679,6 +681,30 @@ last_updated: 2026-09-13T04:33:55.527Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-13T04:33:55.527Z",
+    "resolved_at": null
+  },
+  {
+    "id": 52,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md",
+    "line": null,
+    "description": "Plan 76 sole local chain froze after a green repeat timing child emitted no receipt at the non-allowlisted formatter path; retry is forbidden.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T13:58:38.044Z",
+    "resolved_at": null
+  },
+  {
+    "id": 53,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md",
+    "line": null,
+    "description": "Plan 76 exact-six, terminal, GitHub capture, validation, and final verification were not run because the one-shot local prerequisite failed.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T13:58:38.159Z",
     "resolved_at": null
   }
 ]
