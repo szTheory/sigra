@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 46
+open_count: 47
 waived_count: 0
 fixed_count: 0
-total_count: 46
-last_updated: 2026-09-12T22:22:53.885Z
+total_count: 47
+last_updated: 2026-09-13T02:51:01.729Z
 ---
 
 # Broken Windows Ledger
@@ -61,6 +61,7 @@ last_updated: 2026-09-12T22:22:53.885Z
 | 44 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 67 candidate database, admission, timing, terminal receipt, and all GitHub validation remained prohibited after the sole dry-run gate failed | open |  | 2026-09-12T20:43:40.536Z |  |
 | 45 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-68-PLAN.md | 135 | Plan 68 execute launcher called undefined nodup while validating the authenticated bytecode probe after the sole allocator created its root; the consumed launcher/driver/allocator chain was frozen without retry | open |  | 2026-09-12T22:22:53.807Z |  |
 | 46 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 68 finalizer, Task 1 verifier, all Task 2 local/database/timing actions, terminal PASS, and all Task 3 GitHub validation remained prohibited after the execute launcher failed post-allocation | open |  | 2026-09-12T22:22:53.885Z |  |
+| 47 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-69-DRY-RUN-FAILURE.json | 1 | Plan 69's sole dry run failed before psql launch because the blanket backslash ban rejected the authenticated E-string tab sentinel; the consumed root and all Plan 69 actions must never be retried or reused | open |  | 2026-09-13T02:51:01.729Z |  |
 
 ````json
 [
@@ -654,6 +655,19 @@ last_updated: 2026-09-12T22:22:53.885Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T22:22:53.885Z",
+    "resolved_at": null,
+    "milestone": "v1.47"
+  },
+  {
+    "id": 47,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-69-DRY-RUN-FAILURE.json",
+    "line": 1,
+    "description": "Plan 69's sole dry run failed before psql launch because the blanket backslash ban rejected the authenticated E-string tab sentinel; the consumed root and all Plan 69 actions must never be retried or reused",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T02:51:01.729Z",
     "resolved_at": null,
     "milestone": "v1.47"
   }
