@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 69 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 70 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -803,10 +803,14 @@ Plans:
 - [x] 235.1-05-PLAN.md — Retained blocked reconciliation plan whose Plan 68 evidence precondition was never met
 - [x] 235.1-69-PLAN.md — Retained failed recovery whose zero-allocation SQL gate rejected the required authenticated E-string tab escape before psql
 
-**Wave 68** *(Plan 69 remains permanently frozen; Plan 71 must pass its two-runtime exact SQL allowlist gate before allocating one distinct fresh root)*
+**Wave 68** *(halted after Plan 71 passed the dual-runtime exact SQL allowlist gate, then its sole fresh root failed post-allocation because the assumed Plan 68 health_sql_base64 element was absent)*
 
-- [ ] 235.1-71-PLAN.md — Replace the blanket backslash ban with an exact parsed allowlist, then run one fresh local and live evidence chain if every preallocation test passes
+- [x] 235.1-71-PLAN.md — Retain the successful structural SQL-policy proof and freeze the allocated root after zero source/psql/database/timing/network/GitHub continuation
 
-**Wave 69** *(runs only after Plan 71's local and live evidence verifiers pass)*
+**Wave 70** *(Plans 69/71 remain permanently frozen; Plan 72 must discover and authenticate the actual Plan 68 health-SQL source collection/key before one distinct allocation)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 71 evidence
+- [ ] 235.1-72-PLAN.md — Prove source-location reconstruction plus the inherited exact SQL policy with zero effects, then run one fresh local and live evidence chain
+
+**Wave 71** *(runs only after Plan 72's local and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 72 evidence
