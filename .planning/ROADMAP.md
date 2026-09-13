@@ -839,10 +839,14 @@ Plans:
 
 - [x] 235.1-79-PLAN.md — Preserve frozen root `/private/tmp/sigra-p2351-plan79-status-recovery.ULG0YI9N`, the deterministic sequential-versus-parallel failure diagnostic, and zero downstream effects without reuse
 
-**Wave 1** *(active sequential-authority recovery; consumes Plans 76/77/78/79 only as immutable historical inputs and allocates wholly fresh Plan 80 identities)*
+**Wave 82** *(frozen halted history: Plan 80 stopped in Task 1 with zero effects because integer `partition_authority.manifest_sha256` keys could not survive its required exact JSON serialization/reload equality; its PASS-shaped candidate receipt is excluded and every Plan 80 identity is retired)*
 
-- [x] 235.1-80-PLAN.md — Authenticate Plan 76's exact receipt schema and literal `execution_mode: sequential` before allocation, then collect fresh local and live evidence without reusing any Plan 77/78/79 identity
+- [x] 235.1-80-PLAN.md — Preserve the finalized Python 3.9/string-partition/two-receipt-test verifier corrections, deterministic mapping-key failure receipt, zero roots/local/remote effects, and unspent-but-retired identities
 
-**Wave 2** *(blocked on successful Plan 80 completion and all five Plan 80 receipts passing their independent verifiers)*
+**Wave 1** *(active JSON-stable sequential-authority recovery; consumes Plans 76/77/78/79/80 only as immutable historical inputs and allocates wholly fresh Plan 81 identities)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 80 evidence while retaining Plans 76/77/78/79 as immutable halted history
+- [ ] 235.1-81-PLAN.md — Normalize manifest-map keys before serialization, prove two fresh byte-identical round-trip-stable preallocation receipts before allocation, then collect fresh local and live evidence
+
+**Wave 2** *(blocked on successful Plan 81 completion and all five Plan 81 receipts passing their independent verifiers)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 81 evidence while retaining Plans 76/77/78/79/80 as immutable halted history
