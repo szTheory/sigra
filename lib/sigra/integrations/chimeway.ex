@@ -231,17 +231,24 @@ if Code.ensure_loaded?(Chimeway) do
     end
 
     defp fetch_magic_link_token_inserted_at(repo, user, raw_token, user_token_schema) do
-      hashed_token = Sigra.Token.hash_token(raw_token)
+      case Base.url_decode64(raw_token, padding: false) do
+        {:ok, decoded_token} ->
+          hashed_token = Sigra.Token.hash_token(decoded_token)
 
-      case repo.one(
-             from(t in user_token_schema,
-               where:
-                 t.user_id == ^user.id and t.context == "magic_link" and t.token == ^hashed_token,
-               select: t.inserted_at
-             )
-           ) do
-        nil -> {:error, :magic_link_token_not_found}
-        inserted_at -> {:ok, inserted_at}
+          case repo.one(
+                 from(t in user_token_schema,
+                   where:
+                     t.user_id == ^user.id and t.context == "magic_link" and
+                       t.token == ^hashed_token,
+                   select: t.inserted_at
+                 )
+               ) do
+            nil -> {:error, :magic_link_token_not_found}
+            inserted_at -> {:ok, inserted_at}
+          end
+
+        :error ->
+          {:error, :magic_link_token_not_found}
       end
     end
 
