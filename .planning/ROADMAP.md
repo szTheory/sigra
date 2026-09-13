@@ -831,10 +831,14 @@ Plans:
 
 - [x] 235.1-77-PLAN.md — Frozen zero-effect recovery: fixed formatter scheduling passed, but stale exact-six names halted before any root, process, timing pair, or GitHub action
 
-**Wave 1** *(active repository-backed successor; consumes Plans 76/77 only as immutable historical inputs and allocates wholly fresh identities)*
+**Wave 80** *(frozen halted history: Plan 78 preallocation passed, then its green repeat-1 partition-1 became an excluded orphan when partition-2 deterministically failed the literal blocked-summary contract; every later identity is unspent but retired)*
 
-- [ ] 235.1-78-PLAN.md — Authenticate Plan 77's zero-effect/unspent ledger, then prove the canonical six receiver paths with fresh local and attempt-1 capture/validation evidence
+- [x] 235.1-78-PLAN.md — Preserve Task 1 PASS, frozen root `/private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL`, the excluded green orphan, partition-2 process SHA `337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61`, and zero later effects without reuse
 
-**Wave 2** *(blocked on successful Plan 78 completion and all five Plan 78 receipts passing their independent verifiers)*
+**Wave 1** *(active status-recovery successor; consumes Plans 76/77/78 only as immutable historical inputs and allocates wholly fresh Plan 79 identities)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 78 evidence while retaining Plans 76/77 as immutable halted history
+- [ ] 235.1-79-PLAN.md — Prove blocked-summary/superseded-plan scheduler semantics, collect two fresh complete ordinary pairs plus canonical-six local evidence, then capture and validate fresh attempt-1 remote evidence
+
+**Wave 2** *(blocked on successful Plan 79 completion and all five Plan 79 receipts passing their independent verifiers)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 79 evidence while retaining Plans 76/77/78 as immutable halted history
