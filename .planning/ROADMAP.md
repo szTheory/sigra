@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 73 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 76 retained plans (including completed implementation work and the explicit failed/blocked/halted recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -819,10 +819,22 @@ Plans:
 
 - [x] 235.1-74-PLAN.md — Frozen failed recovery: stdin prerequisite passed; missing HOME stopped the first timing command with zero exact-six or remote work
 
-**Wave 76** *(Plans 69/71/72/73/74 remain permanently frozen; Plan 75 must prove the complete closed HOME/Mix/Hex runtime before one fresh allocation)*
+**Wave 76** *(frozen failed history: Plan 75 halted before RED because its overbroad descendant-link ban rejected the authenticated 34-link repository build state; every process, root, and live budget remained unused)*
 
-- [ ] 235.1-75-PLAN.md — Prove HOME, Mix/Hex, cache/archive, tool, timing, and canonical exact-six environment authority before one fresh local/live chain
+- [x] 235.1-75-PLAN.md — Frozen zero-action recovery: HOME/runtime contract retained, but the all-descendant-link rejection blocked before RED, home probe, allocation, or remote work
 
-**Wave 77** *(runs only after Plan 75's home/runtime prerequisite, local terminal, and live evidence verifiers pass)*
+**Wave 78** *(frozen halted history: Plan 76 proved the build/runtime/HOME prerequisites and one canonical timing pair, then its consumed repeat child produced no formatter receipt; exact-six and live evidence remained unspent)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 75 evidence
+- [x] 235.1-76-PLAN.md — Frozen halted recovery: one canonical timing pair passed, but the missing repeat formatter receipt blocked exact-six, GitHub evidence, and reconciliation
+
+**Wave 79** *(frozen halted history: Plan 77 authenticated Plan 76 and a fixed-path schedule with zero effects, then stopped before costly allocation because its exact-six semantic names were not repository-backed)*
+
+- [x] 235.1-77-PLAN.md — Frozen zero-effect recovery: fixed formatter scheduling passed, but stale exact-six names halted before any root, process, timing pair, or GitHub action
+
+**Wave 1** *(active repository-backed successor; consumes Plans 76/77 only as immutable historical inputs and allocates wholly fresh identities)*
+
+- [ ] 235.1-78-PLAN.md — Authenticate Plan 77's zero-effect/unspent ledger, then prove the canonical six receiver paths with fresh local and attempt-1 capture/validation evidence
+
+**Wave 2** *(blocked on successful Plan 78 completion and all five Plan 78 receipts passing their independent verifiers)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 78 evidence while retaining Plans 76/77 as immutable halted history

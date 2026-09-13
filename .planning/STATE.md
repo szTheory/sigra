@@ -4,17 +4,17 @@ milestone: v1.47
 milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
-status: blocked
+status: executing
 stopped_at: Plan 235.1-68 halted after its sole execute launcher allocated one root and then called undefined nodup before handoff
-last_updated: "2026-09-13T01:33:39.064Z"
-last_activity: 2026-09-12
-last_activity_desc: Plan 235.1-68 froze its sole marker-only root after the execute launcher failed post-allocation and before finalizer, Task 2, or GitHub actions
-state_head: faf884a4deb9bc5af0fe0d1689b03bcfe2c8fbee
+last_updated: "2026-09-13T16:36:45.343Z"
+last_activity: 2026-09-13
+last_activity_desc: Phase 235.1 execution resumed (wave continue)
+state_head: 2b0a14d7d3c417f9ddc9c6da775fdff299308746
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 137
-  completed_plans: 125
+  total_plans: 144
+  completed_plans: 137
   percent: 86
 ---
 
@@ -26,15 +26,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 235.1 — close-v1-47-library-economics-integration-gaps-test-01-test
+**Current focus:** Phase 235.1 — Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 
 ## Current Position
 
 Phase: 235.1 (Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)) — READY TO EXECUTE
-Plan: 68 of 68
-Status: Plan 68 planning replay passed; the sole execute launcher allocated one root, then failed on undefined `nodup` before handoff
+Plan: 1 of 77
+Status: Ready to execute
 Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
-Last activity: 2026-09-12 — Plan 235.1-68 halted fail-closed before finalizer, Task 1 verifier, every Task 2 action, and every GitHub action
+Last activity: 2026-09-13 — Phase 235.1 execution resumed (wave continue)
 
 **Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
 21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
