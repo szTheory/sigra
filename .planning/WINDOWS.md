@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 53
+open_count: 55
 waived_count: 0
 fixed_count: 0
-total_count: 53
-last_updated: 2026-09-13T13:58:38.159Z
+total_count: 55
+last_updated: 2026-09-13T20:04:52.816Z
 ---
 
 # Broken Windows Ledger
@@ -68,6 +68,8 @@ last_updated: 2026-09-13T13:58:38.159Z
 | 51 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-PLAN.md |  | Plan 72 remote capture and final verification were not run because the local terminal prerequisite failed. | open |  | 2026-09-13T04:33:55.527Z |  |
 | 52 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md |  | Plan 76 sole local chain froze after a green repeat timing child emitted no receipt at the non-allowlisted formatter path; retry is forbidden. | open |  | 2026-09-13T13:58:38.044Z |  |
 | 53 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-76-PLAN.md |  | Plan 76 exact-six, terminal, GitHub capture, validation, and final verification were not run because the one-shot local prerequisite failed. | open |  | 2026-09-13T13:58:38.159Z |  |
+| 54 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PLAN.md |  | Plan 80 Task 2 local timing and exact-six verification was not run after fail-closed Task 1 halt | open |  | 2026-09-13T20:04:52.724Z |  |
+| 55 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PLAN.md |  | Plan 80 Task 3 live capture and validation verification was not run after fail-closed Task 1 halt | open |  | 2026-09-13T20:04:52.816Z |  |
 
 ````json
 [
@@ -705,6 +707,30 @@ last_updated: 2026-09-13T13:58:38.159Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-13T13:58:38.159Z",
+    "resolved_at": null
+  },
+  {
+    "id": 54,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PLAN.md",
+    "line": null,
+    "description": "Plan 80 Task 2 local timing and exact-six verification was not run after fail-closed Task 1 halt",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T20:04:52.724Z",
+    "resolved_at": null
+  },
+  {
+    "id": 55,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-80-PLAN.md",
+    "line": null,
+    "description": "Plan 80 Task 3 live capture and validation verification was not run after fail-closed Task 1 halt",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T20:04:52.816Z",
     "resolved_at": null
   }
 ]

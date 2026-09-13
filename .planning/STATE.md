@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 status: executing
-stopped_at: Plan 235.1-79 halted after allocation marker and before first timing child
-last_updated: "2026-09-13T19:31:11.108Z"
+stopped_at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
+last_updated: "2026-09-13T20:04:56.527Z"
 last_activity: 2026-09-13
 last_activity_desc: Phase 235.1 execution started
-state_head: 341d95bae53adaec780632d492c613f70efdf7a5
+state_head: becaa467914010f4e0e577ae81007f0d2db46c17
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 141
-  completed_plans: 140
+  total_plans: 142
+  completed_plans: 141
   percent: 86
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)) — EXECUTING
-Plan: 1 of 74
+Plan: 1 of 75
 Status: Executing Phase 235.1
 Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
 Last activity: 2026-09-13 — Phase 235.1 execution started
@@ -479,6 +479,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - [Phase 235.1]: Plan 68 planning evidence replays identically under Python 3.9.6 and 3.14.4 with allocator zero and no Plan 68 roots.
 - [Phase 235.1]: Plan 68 execute preallocation allocated `/private/tmp/sigra-p2351-plan68-8716bf50.teZ26i0w`, but the launcher then called undefined `nodup` while validating the bytecode-probe row.
 - [Phase 235.1]: Freeze Plan 68's sole marker-only root; its handoff, finalizer, Task 1 verifier, Task 2, and GitHub budgets remain unused.
+- [Phase 235.1]: Plan 80 halted before allocation because its emitted receipt failed exact independent JSON round-trip verification after three Task 1 auto-fixes.
 
 ### Pending Todos
 
@@ -528,6 +529,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 68 halted after its sole execute launcher allocated one root: launcher source line 70 passes undefined `nodup` to `json.loads`, so no handoff, finalization, Task 2, or GitHub action is admissible.
 - Plan 235.1-78 Task 2 one-shot halt: plan78-repeat-1-partition-2 exited 2 because phase contract line 654 requires Plan 04 summary status: blocked while authenticated HEAD has status: halted; frozen raw process /private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL/local/process/plan78-repeat-1-partition-2.json sha256 337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61. No retry permitted.
 - Plan 235.1-79 halted after its sole root allocation marker: embedded verifier required Plan 76 execution_mode parallel, but authenticated pair declares sequential; zero timing/scaffold/remote actions ran and root ULG0YI9N is frozen
+- Plan 80 preallocation verifier deterministically mismatches integer-derived manifest mapping keys after JSON reload; Plan 70 must not execute.
 
 ### Roadmap Evolution
 
@@ -715,8 +717,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-13T19:31:10.615Z
-Stopped at: Plan 235.1-79 halted after allocation marker and before first timing child
+Last session: 2026-09-13T20:04:55.930Z
+Stopped at: Plan 235.1-80 halted before allocation after deterministic preallocation round-trip mismatch
 Resume file: None
 
 ## Operator Next Steps
@@ -909,3 +911,4 @@ Resume file: None
 | Phase 235.1 P57 | 10m | 0 tasks | 4 files |
 | Phase 235.1 P63 | 5m | 0 tasks | 3 files |
 | Phase 235.1 P79 | 7min | 1 tasks | 3 files |
+| Phase 235.1 P80 | 12min | 0 tasks | 4 files |

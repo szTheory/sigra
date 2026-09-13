@@ -841,7 +841,7 @@ Plans:
 
 **Wave 1** *(active sequential-authority recovery; consumes Plans 76/77/78/79 only as immutable historical inputs and allocates wholly fresh Plan 80 identities)*
 
-- [ ] 235.1-80-PLAN.md — Authenticate Plan 76's exact receipt schema and literal `execution_mode: sequential` before allocation, then collect fresh local and live evidence without reusing any Plan 77/78/79 identity
+- [x] 235.1-80-PLAN.md — Authenticate Plan 76's exact receipt schema and literal `execution_mode: sequential` before allocation, then collect fresh local and live evidence without reusing any Plan 77/78/79 identity
 
 **Wave 2** *(blocked on successful Plan 80 completion and all five Plan 80 receipts passing their independent verifiers)*
 
