@@ -41,6 +41,18 @@ if Code.ensure_loaded?(Chimeway) do
       Application.get_env(:sigra, :repo) || Sigra.Repo
     end
 
+    @doc false
+    @spec recipient_reference(String.t()) :: String.t()
+    def recipient_reference(user_id) when is_binary(user_id) and user_id != "" do
+      digest =
+        user_id
+        |> then(&:crypto.hash(:sha256, &1))
+        |> Base.encode16(case: :lower)
+        |> binary_part(0, 32)
+
+      "cw_sigra_user_#{digest}"
+    end
+
     @doc """
     Triggers `sigra.auth.magic_link` after a successful magic-link request.
 
@@ -254,6 +266,7 @@ if Code.ensure_loaded?(Chimeway) do
       @behaviour Chimeway.Notifier
       @compile {:no_warn_undefined, [Chimeway.Notifier]}
 
+      alias Sigra.Integrations.Chimeway, as: ChimewayIntegration
       alias Sigra.Integrations.Chimeway.PendingDelivery
 
       @impl true
@@ -265,11 +278,23 @@ if Code.ensure_loaded?(Chimeway) do
       @impl true
       def recipients(params) do
         email = Map.get(params, :email) || Map.get(params, "email")
+        user_id = Map.get(params, :user_id) || Map.get(params, "user_id")
 
-        if is_binary(email) and email != "" do
-          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        with true <- is_binary(email),
+             normalized_email when normalized_email != "" <- Sigra.Email.normalize(email),
+             true <- is_binary(user_id) and user_id != "" do
+          {:ok,
+           [
+             %{
+               recipient_ref: ChimewayIntegration.recipient_reference(user_id),
+               recipient_identity: "user:#{normalized_email}",
+               recipient_type: "email"
+             }
+           ]}
         else
-          {:error, :missing_email}
+          false when not is_binary(email) -> {:error, :missing_email}
+          "" -> {:error, :missing_email}
+          false -> {:error, :missing_user_id}
         end
       end
 
@@ -319,6 +344,7 @@ if Code.ensure_loaded?(Chimeway) do
       @behaviour Chimeway.Notifier
       @compile {:no_warn_undefined, [Chimeway.Notifier]}
 
+      alias Sigra.Integrations.Chimeway, as: ChimewayIntegration
       alias Sigra.Integrations.Chimeway.PendingDelivery
 
       @impl true
@@ -330,11 +356,23 @@ if Code.ensure_loaded?(Chimeway) do
       @impl true
       def recipients(params) do
         email = Map.get(params, :email) || Map.get(params, "email")
+        user_id = Map.get(params, :user_id) || Map.get(params, "user_id")
 
-        if is_binary(email) and email != "" do
-          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        with true <- is_binary(email),
+             normalized_email when normalized_email != "" <- Sigra.Email.normalize(email),
+             true <- is_binary(user_id) and user_id != "" do
+          {:ok,
+           [
+             %{
+               recipient_ref: ChimewayIntegration.recipient_reference(user_id),
+               recipient_identity: "user:#{normalized_email}",
+               recipient_type: "email"
+             }
+           ]}
         else
-          {:error, :missing_email}
+          false when not is_binary(email) -> {:error, :missing_email}
+          "" -> {:error, :missing_email}
+          false -> {:error, :missing_user_id}
         end
       end
 
