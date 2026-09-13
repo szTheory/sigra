@@ -445,7 +445,7 @@
     "plan79-validation-workflow-dispatch"
   ],
   "repository": {
-    "head": "43aeea7818f6ee33868d48abbfc2bf504be4637e",
+    "authenticated_plan_head": "43aeea7818f6ee33868d48abbfc2bf504be4637e",
     "root": "/Users/jon/projects/sigra"
   },
   "root_template": "/private/tmp/sigra-p2351-plan79-status-recovery.XXXXXXXX",

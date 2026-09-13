@@ -523,7 +523,7 @@ def derive_expected(root: Path) -> dict[str, Any]:
     return {
         "schema": SCHEMA,
         "status": "PASS",
-        "repository": {"root": str(root), "head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()},
+        "repository": {"root": str(root), "authenticated_plan_head": subprocess.check_output(["git", "log", "-1", "--format=%H", "--", str(PHASE / "235.1-79-PLAN.md")], cwd=root, text=True).strip()},
         "toolchain_digests": TOOLS,
         "scheduler": scheduler_authority(root, predecessor_bytes),
         "assumption_delta": "no-change",
