@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 49
+open_count: 51
 waived_count: 0
 fixed_count: 0
-total_count: 49
-last_updated: 2026-09-13T03:47:11.642Z
+total_count: 51
+last_updated: 2026-09-13T04:33:55.527Z
 ---
 
 # Broken Windows Ledger
@@ -64,6 +64,8 @@ last_updated: 2026-09-13T03:47:11.642Z
 | 47 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-69-DRY-RUN-FAILURE.json | 1 | Plan 69's sole dry run failed before psql launch because the blanket backslash ban rejected the authenticated E-string tab sentinel; the consumed root and all Plan 69 actions must never be retried or reused | open |  | 2026-09-13T02:51:01.729Z |  |
 | 48 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-71-LOCAL-FAILURE.json | 1 | Plan 71 source reconstruction failed after its sole allocation because the expected committed Plan 68 health_sql_base64 element was absent; the consumed root must never be retried or reused | open |  | 2026-09-13T03:47:11.551Z |  |
 | 49 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-VALIDATION-RUN.json |  | Plan 71 local source/database/timing chain and every network/GitHub validation remained prohibited after post-allocation source reconstruction failed | open |  | 2026-09-13T03:47:11.642Z |  |
+| 50 | 235.1 | deviation | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-LOCAL-FAILURE.json |  | Plan 72 sole local chain failed at the exact-six scaffold command after three green timing pairs; root is frozen and retry is forbidden. | open |  | 2026-09-13T04:33:55.397Z |  |
+| 51 | 235.1 | unrun-verify | .planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-PLAN.md |  | Plan 72 remote capture and final verification were not run because the local terminal prerequisite failed. | open |  | 2026-09-13T04:33:55.527Z |  |
 
 ````json
 [
@@ -653,6 +655,30 @@ last_updated: 2026-09-13T03:47:11.642Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-13T03:47:11.642Z",
+    "resolved_at": null
+  },
+  {
+    "id": 50,
+    "kind": "deviation",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-LOCAL-FAILURE.json",
+    "line": null,
+    "description": "Plan 72 sole local chain failed at the exact-six scaffold command after three green timing pairs; root is frozen and retry is forbidden.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T04:33:55.397Z",
+    "resolved_at": null
+  },
+  {
+    "id": 51,
+    "kind": "unrun-verify",
+    "phase": "235.1",
+    "file": ".planning/phases/235.1-close-v1-47-library-economics-integration-gaps-test-01-test/235.1-72-PLAN.md",
+    "line": null,
+    "description": "Plan 72 remote capture and final verification were not run because the local terminal prerequisite failed.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-13T04:33:55.527Z",
     "resolved_at": null
   }
 ]
