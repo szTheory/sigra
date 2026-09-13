@@ -5,16 +5,16 @@ milestone_name: CI-EFFICIENCY
 current_phase: "235.1"
 current_phase_name: Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)
 status: executing
-stopped_at: Plan 235.1-68 halted after its sole execute launcher allocated one root and then called undefined nodup before handoff
-last_updated: "2026-09-13T18:26:48.186Z"
+stopped_at: Plan 235.1-79 halted after allocation marker and before first timing child
+last_updated: "2026-09-13T19:31:11.108Z"
 last_activity: 2026-09-13
 last_activity_desc: Phase 235.1 execution started
-state_head: 4c852825527a1a769accf0977b7e6db233bcc76d
+state_head: 341d95bae53adaec780632d492c613f70efdf7a5
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 144
-  completed_plans: 142
+  total_plans: 141
+  completed_plans: 140
   percent: 86
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 235.1 (Close v1.47 library economics integration gaps TEST-01 TEST-02 TEST-03 (INSERTED)) — EXECUTING
-Plan: 1 of 77
+Plan: 1 of 74
 Status: Executing Phase 235.1
 Progress: 6/6 milestone phases complete ([█████████░] 86%); Plan 68's marker-only root is frozen and Plan 05 remains blocked without local/live evidence
 Last activity: 2026-09-13 — Phase 235.1 execution started
@@ -527,6 +527,7 @@ source-update REST call received `403`; that repo-admin follow-up remains filed 
 - Plan 67 halted during its sole dry-run command after the corrected host gate and 22 parser cases passed: the collector returned nonzero or emitted stderr and Apple Python created a cache tree under dry-home; candidate/database/timing/GitHub budgets remain unused.
 - Plan 68 halted after its sole execute launcher allocated one root: launcher source line 70 passes undefined `nodup` to `json.loads`, so no handoff, finalization, Task 2, or GitHub action is admissible.
 - Plan 235.1-78 Task 2 one-shot halt: plan78-repeat-1-partition-2 exited 2 because phase contract line 654 requires Plan 04 summary status: blocked while authenticated HEAD has status: halted; frozen raw process /private/tmp/sigra-p2351-plan78-canonical-paths.0NFrtEIL/local/process/plan78-repeat-1-partition-2.json sha256 337bd0c8f66b55da48feb5d03980aebe19e72c72c5ca7c15a86cbb22627aea61. No retry permitted.
+- Plan 235.1-79 halted after its sole root allocation marker: embedded verifier required Plan 76 execution_mode parallel, but authenticated pair declares sequential; zero timing/scaffold/remote actions ran and root ULG0YI9N is frozen
 
 ### Roadmap Evolution
 
@@ -714,8 +715,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-12T22:23:19.000Z
-Stopped at: Plan 235.1-68 halted after its sole execute launcher allocated one root and then called undefined nodup before handoff
+Last session: 2026-09-13T19:31:10.615Z
+Stopped at: Plan 235.1-79 halted after allocation marker and before first timing child
 Resume file: None
 
 ## Operator Next Steps
@@ -907,3 +908,4 @@ Resume file: None
 | Phase 235.1 P55 | 14m | 0 tasks | 3 files |
 | Phase 235.1 P57 | 10m | 0 tasks | 4 files |
 | Phase 235.1 P63 | 5m | 0 tasks | 3 files |
+| Phase 235.1 P79 | 7min | 1 tasks | 3 files |

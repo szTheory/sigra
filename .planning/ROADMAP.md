@@ -837,7 +837,7 @@ Plans:
 
 **Wave 1** *(active status-recovery successor; consumes Plans 76/77/78 only as immutable historical inputs and allocates wholly fresh Plan 79 identities)*
 
-- [ ] 235.1-79-PLAN.md — Prove blocked-summary/superseded-plan scheduler semantics, collect two fresh complete ordinary pairs plus canonical-six local evidence, then capture and validate fresh attempt-1 remote evidence
+- [ ] 235.1-79-PLAN.md — HALTED after sole root allocation marker and before the first timing child; frozen diagnostic records the Plan 76 execution-mode contract mismatch
 
 **Wave 2** *(blocked on successful Plan 79 completion and all five Plan 79 receipts passing their independent verifiers)*
 
