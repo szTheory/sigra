@@ -41,6 +41,18 @@ if Code.ensure_loaded?(Chimeway) do
       Application.get_env(:sigra, :repo) || Sigra.Repo
     end
 
+    @doc false
+    @spec recipient_reference(String.t()) :: String.t()
+    def recipient_reference(user_id) when is_binary(user_id) and user_id != "" do
+      digest =
+        user_id
+        |> then(&:crypto.hash(:sha256, &1))
+        |> Base.encode16(case: :lower)
+        |> binary_part(0, 32)
+
+      "cw_sigra_user_#{digest}"
+    end
+
     @doc """
     Triggers `sigra.auth.magic_link` after a successful magic-link request.
 
@@ -52,7 +64,8 @@ if Code.ensure_loaded?(Chimeway) do
     def dispatch_magic_link(repo, user, _raw_token, url, opts \\ []) do
       with true <- enabled?(),
            user_token_schema <- user_token_schema(opts),
-           {:ok, token_inserted_at} <- fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+           {:ok, token_inserted_at} <-
+             fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
         user_id = user_id_string(user)
         idempotency_key = magic_link_idempotency_key(user_id, token_inserted_at)
 
@@ -94,7 +107,14 @@ if Code.ensure_loaded?(Chimeway) do
     def dispatch_magic_link_after_request(repo, email, opts \\ []) do
       auth_opts =
         opts
-        |> Keyword.take([:user_schema, :user_token_schema, :url_fun, :rate_limiter, :max_requests, :window_ms])
+        |> Keyword.take([
+          :user_schema,
+          :user_token_schema,
+          :url_fun,
+          :rate_limiter,
+          :max_requests,
+          :window_ms
+        ])
         |> Keyword.merge(
           user_schema: Keyword.get(opts, :user_schema, user_schema(opts)),
           user_token_schema: Keyword.get(opts, :user_token_schema, user_token_schema(opts)),
@@ -182,7 +202,12 @@ if Code.ensure_loaded?(Chimeway) do
 
       url = confirmation_url_fun.(encoded_token)
 
-      case dispatch_confirmation_code(repo, user, encoded_token, code, url,
+      case dispatch_confirmation_code(
+             repo,
+             user,
+             encoded_token,
+             code,
+             url,
              Keyword.put(opts, :confirmation_id, link_token.id)
            ) do
         {:ok, result} -> {:ok, {encoded_token, code, url, result}}
@@ -240,6 +265,7 @@ if Code.ensure_loaded?(Chimeway) do
       @behaviour Chimeway.Notifier
       @compile {:no_warn_undefined, [Chimeway.Notifier]}
 
+      alias Sigra.Integrations.Chimeway, as: ChimewayIntegration
       alias Sigra.Integrations.Chimeway.PendingDelivery
 
       @impl true
@@ -251,11 +277,23 @@ if Code.ensure_loaded?(Chimeway) do
       @impl true
       def recipients(params) do
         email = Map.get(params, :email) || Map.get(params, "email")
+        user_id = Map.get(params, :user_id) || Map.get(params, "user_id")
 
-        if is_binary(email) and email != "" do
-          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        with true <- is_binary(email),
+             normalized_email when normalized_email != "" <- Sigra.Email.normalize(email),
+             true <- is_binary(user_id) and user_id != "" do
+          {:ok,
+           [
+             %{
+               recipient_ref: ChimewayIntegration.recipient_reference(user_id),
+               recipient_identity: "user:#{normalized_email}",
+               recipient_type: "email"
+             }
+           ]}
         else
-          {:error, :missing_email}
+          false when not is_binary(email) -> {:error, :missing_email}
+          "" -> {:error, :missing_email}
+          false -> {:error, :missing_user_id}
         end
       end
 
@@ -305,6 +343,7 @@ if Code.ensure_loaded?(Chimeway) do
       @behaviour Chimeway.Notifier
       @compile {:no_warn_undefined, [Chimeway.Notifier]}
 
+      alias Sigra.Integrations.Chimeway, as: ChimewayIntegration
       alias Sigra.Integrations.Chimeway.PendingDelivery
 
       @impl true
@@ -316,11 +355,23 @@ if Code.ensure_loaded?(Chimeway) do
       @impl true
       def recipients(params) do
         email = Map.get(params, :email) || Map.get(params, "email")
+        user_id = Map.get(params, :user_id) || Map.get(params, "user_id")
 
-        if is_binary(email) and email != "" do
-          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        with true <- is_binary(email),
+             normalized_email when normalized_email != "" <- Sigra.Email.normalize(email),
+             true <- is_binary(user_id) and user_id != "" do
+          {:ok,
+           [
+             %{
+               recipient_ref: ChimewayIntegration.recipient_reference(user_id),
+               recipient_identity: "user:#{normalized_email}",
+               recipient_type: "email"
+             }
+           ]}
         else
-          {:error, :missing_email}
+          false when not is_binary(email) -> {:error, :missing_email}
+          "" -> {:error, :missing_email}
+          false -> {:error, :missing_user_id}
         end
       end
 
@@ -329,7 +380,8 @@ if Code.ensure_loaded?(Chimeway) do
         {:ok,
          %{
            user_id: Map.get(params, :user_id) || Map.get(params, "user_id"),
-           confirmation_id: Map.get(params, :confirmation_id) || Map.get(params, "confirmation_id"),
+           confirmation_id:
+             Map.get(params, :confirmation_id) || Map.get(params, "confirmation_id"),
            kind: "confirmation_code"
          }}
       end
@@ -382,8 +434,12 @@ if Code.ensure_loaded?(Chimeway) do
         ensure_table!()
 
         case :ets.lookup(@table, idempotency_key) do
-          [{^idempotency_key, secrets}] -> secrets
-          [] -> raise ArgumentError, "no pending delivery for idempotency_key #{inspect(idempotency_key)}"
+          [{^idempotency_key, secrets}] ->
+            secrets
+
+          [] ->
+            raise ArgumentError,
+                  "no pending delivery for idempotency_key #{inspect(idempotency_key)}"
         end
       end
 
