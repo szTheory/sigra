@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 70 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 71 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -807,10 +807,14 @@ Plans:
 
 - [x] 235.1-71-PLAN.md — Retain the successful structural SQL-policy proof and freeze the allocated root after zero source/psql/database/timing/network/GitHub continuation
 
-**Wave 70** *(Plans 69/71 remain permanently frozen; Plan 72 must discover and authenticate the actual Plan 68 health-SQL source collection/key before one distinct allocation)*
+**Wave 70** *(frozen failed history: Plan 72 proved source reconstruction, inherited SQL policy, and three timing pairs, then halted after bypassing the prepared canonical exact-six entrypoint)*
 
-- [ ] 235.1-72-PLAN.md — Prove source-location reconstruction plus the inherited exact SQL policy with zero effects, then run one fresh local and live evidence chain
+- [x] 235.1-72-PLAN.md — Frozen failed recovery: source/SQL/timing proof passed; raw exact-six lacked prepared-fixture mode and no remote route ran
 
-**Wave 71** *(runs only after Plan 72's local and live evidence verifiers pass)*
+**Wave 72** *(Plans 69/71/72 remain permanently frozen; Plan 73 must authenticate the canonical exact-six entrypoint and all prerequisites before one distinct allocation)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 72 evidence
+- [ ] 235.1-73-PLAN.md — Prove the canonical prepared exact-six route plus inherited source/SQL policies with zero effects, then run one fresh local and live evidence chain
+
+**Wave 73** *(runs only after Plan 73's local and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 73 evidence
