@@ -519,7 +519,7 @@ Earlier milestones (v1.33–v1.40) are archived under `milestones/`.
 **Goal:** Restore measurable library-suite economics under the single PR `MIX_ENV=test mix ci` owner: two exhaustive, comparable ordinary partitions with parallel ExUnit timing, plus exact six-module scaffold coverage on a fail-closed schedule/workflow_dispatch receiver, without regressing FAST-01 or GATE-05.
 **Requirements**: TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 235
-**Plans:** 72 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
+**Plans:** 73 retained plans (including completed implementation work and the explicit failed/blocked recovery history), plus 2 active recovery plans
 
 **Success Criteria:**
 
@@ -815,10 +815,14 @@ Plans:
 
 - [x] 235.1-73-PLAN.md — Frozen failed recovery: canonical runner/prerequisites passed; grouped `--command` transcript failed with zero root or remote work
 
-**Wave 74** *(Plans 69/71/72/73 remain permanently frozen; Plan 74 must prove exact stdin/raw-output framing before one fresh prerequisite process and distinct allocation)*
+**Wave 74** *(frozen failed history: Plan 74 proved exact stdin/raw-output framing, then its first timing process omitted HOME and stopped before any complete pair, exact-six action, or remote work)*
 
-- [ ] 235.1-74-PLAN.md — Prove byte-exact stdin PostgreSQL readiness with zero-call adverses, then run one fresh canonical local and live evidence chain
+- [x] 235.1-74-PLAN.md — Frozen failed recovery: stdin prerequisite passed; missing HOME stopped the first timing command with zero exact-six or remote work
 
-**Wave 75** *(runs only after Plan 74's stdin prerequisite, local terminal, and live evidence verifiers pass)*
+**Wave 76** *(Plans 69/71/72/73/74 remain permanently frozen; Plan 75 must prove the complete closed HOME/Mix/Hex runtime before one fresh allocation)*
 
-- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 74 evidence
+- [ ] 235.1-75-PLAN.md — Prove HOME, Mix/Hex, cache/archive, tool, timing, and canonical exact-six environment authority before one fresh local/live chain
+
+**Wave 77** *(runs only after Plan 75's home/runtime prerequisite, local terminal, and live evidence verifiers pass)*
+
+- [ ] 235.1-70-PLAN.md — Reconcile TEST truth, validation, protected verification history, and the milestone audit from Plan 75 evidence
