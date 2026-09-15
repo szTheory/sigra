@@ -4,6 +4,9 @@ source: 218-REVIEW.md (gap-closure re-review)
 resolves_phase: 221
 severity: warning
 tags: [installer-template-drift, admin-demo, harness-doc]
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 # Phase 218 re-review follow-ups (5 findings — pre-existing drift/nits, NOT in 218 gap scope)

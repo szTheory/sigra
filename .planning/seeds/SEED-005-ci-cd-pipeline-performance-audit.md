@@ -1,7 +1,26 @@
+---
+id: SEED-005
+status: implemented
+planted: 2026-06-18
+planted_during: v1.39 DS-COHERENCE + Docker DX ship (PR #54)
+implemented_during: v1.47 CI-EFFICIENCY (Phases 230-235)
+implemented: 2026-09-15
+trigger_when: Triggered and delivered — scoped into v1.47 as Phases 230-235
+scope: Large
+---
+
 # SEED-005 — CI/CD Pipeline Performance Audit (reduce ~17–30 min PR wall-clock)
 
-**Status:** OPEN — future milestone candidate. Filed 2026-06-18 during the v1.39
-DS-COHERENCE + Docker DX ship (PR #54).
+**Status:** DELIVERED by milestone v1.47 CI-EFFICIENCY (Phases 230-235), closed 2026-09-15.
+Filed 2026-06-18 during the v1.39 DS-COHERENCE + Docker DX ship (PR #54).
+
+> **Outcome.** The audit in this seed was scoped into v1.47 as Phases 230-235 and executed
+> in full. Phase 235's terminal ratification measured PR wall-clock at **p50 469s (7m49s)
+> over n=52 authenticated post-change PR runs** against the milestone baseline of **p50
+> 27.3m (n=21)** — the under-12-minute target (FAST-01) satisfied with signed, offline-
+> verifiable attestation rather than a code-level read. Push (n=2, p50 1439s) and schedule
+> (n=2, p50 1546s) outcomes were recorded over the same window, non-success conclusions
+> included. See `.planning/milestones/v1.47-ROADMAP.md` and Phase 235's VERIFICATION.
 **Priority:** Medium-High — pure DX / PR-feedback latency, **not** a correctness bug. CI is
 green and trustworthy; it is just slow. Schedule as a "Maintenance / trust (CI / DX)" lane
 milestone, not a hotfix.

@@ -554,6 +554,59 @@ spans all 15 requirements. The readiness projection therefore reports five phase
 `verification: missing`, which forces `override_closeout` even though coverage is complete.
 This is a recurring artifact of the terminal-ratification pattern, not a v1.46 defect.
 
+### Acknowledged at v1.47 close (2026-09-15)
+
+46 open artifacts were acknowledged and deferred, making this an `override_closeout`.
+**Known verification overrides: 46 newly acknowledged, 0 carried forward.** All six
+milestone phases (230-235) are `phase_complete: true` with `verification_status: passed`,
+and all 24 v1.47 requirements are Complete — none of the 46 items below is a v1.47 gap.
+
+**Closed during this close-out, NOT acknowledged:**
+
+| Seed | Disposition |
+| --- | --- |
+| SEED-005 (CI/CD pipeline performance audit) | **DELIVERED by this milestone.** v1.47 Phases 230-235 *are* the execution of this seed. Phase 235 measured PR wall-clock at p50 469s (7m49s) over n=52 authenticated runs against the p50 27.3m baseline. Marked `status: implemented` |
+| SEED-006 (admin-design gallery CI baseline recapture) | **DELIVERED by Phase 197 (Plans 03-05).** The seed body already recorded ADDRESSED/DELIVERED while its header lagged at OPEN; header and frontmatter corrected, marked `status: implemented` |
+
+Also corrected, not deferred: eight REQUIREMENTS.md traceability rows (TEST-01..03,
+DX-01..04, DX-06) still read `Gaps Found` from the first verification pass. Phases 233 and
+234 both re-verified to `passed` with `gaps_remaining: []` (16/16 and 7/7 must-haves), so
+the rows were stale, not open. Corrected before archival so the milestone archive does not
+permanently record closed gaps as open.
+
+**Debug sessions (1)** — `knowledge-base` (status unknown, no hypothesis recorded). Stale;
+not v1.47 scope.
+
+**Quick tasks (5)** — the same set carried at the v1.46 close: 4 from the 2026-07-18
+demo-DX burst (`260718-dst`, `260718-mba`, `260718-pdd`, `260718-svg`) plus `260728-d9h`
+(the W-1 passkey label fix, planned and deliberately deferred).
+
+**UAT gaps (1)** — Phase 202 `202-UAT.md` (archived v1.41), status deferred, 0 pending
+scenarios. Carried, not blocking.
+
+**Seeds (1)** — SEED-004 (phx.new ≥ 1.8.8 `<.button>` forward-compat). Still dormant and
+genuinely open.
+
+**Deferred items (2)** — Phase 222 (archived v1.45): 5 pre-existing actionlint/shellcheck
+warnings in `ci.yml` at `run:` blocks unrelated to that plan, confirmed present on `main`
+beforehand. Phase 27 (archived v1.2): `installer_drift_test` fix #9 failing outside Phase 27
+ownership (`confirmation_live.ex` missing the `current_scope.user` marker).
+
+**Pending todos (36)** — the full `.planning/todos/pending/` backlog, none v1.47 gaps.
+Notable groupings: the 8 W-1..W-8 findings from the v1.46 audit; the release-ops set
+(Hex `1.20.0` retire, `release-please` Unreleased orphaning, `release-lane-rot` label,
+`gate-ci-green` timeout); the v2 feature set (FEAT-01/02/03 config, installer, email
+white-label); and 4 filed during this milestone's tail — the three 2026-09-15 branding
+todos from PR #238 and `2026-09-15-gap-closure-verifier-exit-trap-flaw` (PR #240), the
+latent EXIT-trap twin of the verifier bug fixed in `535876b0`.
+
+**Structural note on the closeout type:** the acknowledgement path forces
+`override_closeout` by construction. It does not reflect unverified work here —
+`ALL_PHASES_VERIFIED` computed `true` from the readiness projection before any item was
+acknowledged. Acknowledgement is verdict-preserving and self-invalidating: each suppression
+lapses the moment the artifact's own state changes, so every item above resurfaces at the
+next audit if touched.
+
 ### Carried forward from earlier milestones
 
 | Category | Item | Status | Deferred At |

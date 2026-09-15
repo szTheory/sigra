@@ -5,10 +5,17 @@ title: Demo brand presets are split into light/dark pairs only because one profi
 area: demo
 severity: cosmetic
 files:
+
   - test/example/lib/example/demo/branding.ex
+
 source: 2026-09-15 — found while implementing dark_logo_url
 related:
+
   - .planning/todos/pending/2026-09-15-branding-profile-has-no-dark-logo-url.md
+
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

@@ -4,11 +4,16 @@ status: pending
 title: "GitHub Pages still builds main's repo root instead of the gh-pages publish branch — workflow token receives 403"
 area: ci
 files:
+
   - .github/workflows/playwright-github-pages.yml
   - scripts/ci/ensure-github-pages-legacy-branch.sh
+
 severity: low
 source: Phase 231 CONTEXT D-18 (owner-selected finding) + plan 231-10 Task 3 (live dispatch confirms the self-heal question is structurally unobservable before this phase's fix reaches main)
 resolves_phase: 231
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

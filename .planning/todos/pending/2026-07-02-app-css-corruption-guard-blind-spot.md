@@ -6,6 +6,9 @@ created: 2026-07-02
 source: phase-214 verification (W1)
 requirement: DEBT-05 (follow-up)
 severity: low
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

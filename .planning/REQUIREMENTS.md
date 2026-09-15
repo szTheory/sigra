@@ -80,15 +80,15 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Complete |
 | PW-03 | Phase 232 | Complete |
-| TEST-01 | Phase 233 | Gaps Found |
-| TEST-02 | Phase 233 | Gaps Found |
-| TEST-03 | Phase 233 | Gaps Found |
-| DX-01 | Phase 234 | Gaps Found |
-| DX-02 | Phase 234 | Gaps Found |
-| DX-03 | Phase 234 | Gaps Found |
-| DX-04 | Phase 234 | Gaps Found |
+| TEST-01 | Phase 233 | Complete (233 re-verification 2026-07-31 closed the exhaustive-manifest gap; `gaps_remaining: []`, 16/16 must-haves) |
+| TEST-02 | Phase 233 | Complete (233 re-verification 2026-07-31; `gaps_remaining: []`, 16/16 must-haves) |
+| TEST-03 | Phase 233 | Complete (233 re-verification 2026-07-31; `gaps_remaining: []`, 16/16 must-haves) |
+| DX-01 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
+| DX-02 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
+| DX-03 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
+| DX-04 | Phase 234 | Complete (234 re-verification 2026-08-02 recorded the Phoenix 1.8.8 install-golden rebless against the implementation commit; `gaps_remaining: []`) |
 | DX-05 | Phase 231 | Complete |
-| DX-06 | Phase 234 | Gaps Found |
+| DX-06 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
 
 **Placement notes:**
 

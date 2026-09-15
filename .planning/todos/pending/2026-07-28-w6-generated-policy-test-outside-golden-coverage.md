@@ -8,9 +8,14 @@ audit_finding: W-6
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [BOOT-03, PROOF-02]
 files:
+
   - test/support/install_fixture.ex
   - test/fixtures/install_golden/tree/
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

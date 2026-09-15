@@ -4,6 +4,9 @@ created: 2026-06-22
 source: user report (demo /dev/mailbox screenshot — "emails are not really styled")
 severity: enhancement
 area: lib/sigra email templates + priv/templates/sigra.install/core/emails.ex + Mailglass recipe
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 # White-label themeable transactional auth emails (+ Mailglass refresh)
@@ -16,6 +19,7 @@ inline color tokens. Captured for future work; not urgent.
 ## Three threads
 
 ### 1. (Quick win) Fix the demo email drift
+
 `test/example/lib/example/accounts/emails.ex` hardcodes colors + a literal "Example"
 wordmark and never calls its `branding()` helper, so the Tasklane demo's emails look
 unstyled and off-brand (this is what the user's screenshot shows). Re-sync the example
@@ -24,9 +28,11 @@ core/emails.ex`) so demo emails render the Tasklane profile (logo + teal accent)
 alone makes the demo mailbox look real and is independent of the bigger effort.
 
 ### 2. (Main ask) White-label email theming to login-parity
+
 Elevate the email layout (`base_layout/1`, `cta_button/2`, `email_logo_or_name/1` in the
 installer template + the `Sigra.EmailTemplates` / `Sigra.Branding` contract) so emails
 are themeable like the auth pages:
+
 - Honor the **logo** + full brand palette consistently (today logo only renders if
   `logo_url` is set; demo falls back to a text wordmark).
 - Support a **dark-theme email variant** (emails currently use light-theme colors only,
@@ -39,6 +45,7 @@ are themeable like the auth pages:
   `doc/auth-branding.md`.
 
 ### 3. (Sub-ask) Refresh Mailglass to latest + evaluate as the theming vehicle
+
 - Sigra's Mailglass posture is **recipe-only host-owned wiring** via `Sigra.Mailer`
   (`guides/recipes/companion-libs/mailglass.md`) — confirmed still the supported posture
   (no library adapter, no `--with-mailglass`; PROJECT.md v1.29 corrigendum).
@@ -51,6 +58,7 @@ are themeable like the auth pages:
   document it; do NOT re-land a library-resident adapter unless that decision is revisited.
 
 ## Key files
+
 - `priv/templates/sigra.install/core/emails.ex` (brand-aware installer email layout)
 - `test/example/lib/example/accounts/emails.ex` (stale/hardcoded demo emails)
 - `lib/sigra/email_templates.ex`, `lib/sigra/branding/profile.ex`, `lib/sigra/branding.ex`,
@@ -58,6 +66,7 @@ are themeable like the auth pages:
 - `guides/recipes/companion-libs/mailglass.md`, `doc/auth-branding.md`
 
 ## Acceptance (when tackled)
+
 Demo mailbox emails render the active brand (logo + palette, light & dark); a documented
 override hook exists; the Mailglass recipe references `~> 1.8` and is re-validated; a
 clear "Sigra emails vs Mailglass HEEx components" theming recommendation is documented.
