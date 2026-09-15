@@ -1,8 +1,8 @@
 # FAST-01 terminal p50 miss — measured 2026-08-02
 
-**Status:** Open residual
+**Status:** Resolved — authenticated source-complete pass on 2026-09-09
 **Owner:** CI maintainers
-**Follow-up:** In a separately planned evidence correction, retain source timestamps and authenticated pagination/exhaustion data in the protected subject before one new measurement; preserve all historical populations and do not reroll this attempt.
+**Follow-up:** None. The one authorized source-complete measurement passed; this closure creates no authority for another dispatch or rerun.
 
 ## Measured evidence
 
@@ -46,3 +46,19 @@ window membership, queue-inclusive duration, or complete pagination. FAST-01
 remains open. This rejected closure does not erase the 19-run/772-second
 terminal miss or the 13-run/724-second follow-up miss, and it does not alter the
 independently completed GATE-05 proof. No second dispatch was made.
+
+## Authenticated source-complete closure — 2026-09-09
+
+Plan 235-17 retained the raw source timestamps and exhaustive pagination evidence that the rejected derived-only candidate lacked. The fixed-path offline verifier authenticated the protected-main subject and independently reproduced the exact `scripts/ci/ci-run-metrics.sh` wall-mode result:
+
+- Cutoff: `2026-08-03T21:37:08Z` (`54c33e904155a454255952666711c882afdd06e4`)
+- Endpoint: `2026-09-09T12:22:29Z`
+- Population: n=52 unique eligible PR runs, disjoint from every historical FAST population
+- Result: wall p50 469 seconds; maximum 1331 seconds; strict verdict `pass` because `469 < 720`
+- Producer: [`34350618761`](https://github.com/szTheory/sigra/actions/runs/34350618761), protected SHA `158aca14b11de13cbc5ab2fdea1bff790cc7ab29`
+- Subject: `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json`
+- Bundle: `235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.attestation.jsonl`
+- Verifier: `scripts/ci/verify-fast-01-source-complete-attestation-offline.sh` (`source_complete_offline_attestation_verified`)
+- Disposition: **pass — FAST-01 Complete**
+
+This exact authenticated pass closes the residual. It does not overwrite the original 19-run/772-second miss, the 13-run/724-second follow-up miss, the rejected derived-only n=43/p50=466 candidate, or the measured 692-to-148 and 724-to-470 remediation facts above. It does not alter or reopen GATE-05 and authorizes no further measurement window or dispatch.

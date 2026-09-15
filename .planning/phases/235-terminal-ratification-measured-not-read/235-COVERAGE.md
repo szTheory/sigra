@@ -15,8 +15,8 @@ This closure adds a protected GitHub Actions evidence path, not a product API or
 | --- | --- | --- |
 | Core budget preflight | INTEGRATE | Read remaining REST core budget once before collection; malformed data, 403/429, or remaining at/below 250 stops without immediate retry. |
 | Workflow-run page collection | INTEGRATE | Plan 16 retains every bounded workflow-run page through an empty terminal page and passes it to `scripts/ci/ci-run-metrics.sh`; missing, duplicate, non-contiguous, or malformed pages fail closed. |
-| Per-run job page collection | INTEGRATE | Plans 16–17 preserve exhaustive raw job pages and ordered steps for the instrument-selected median and maximum when the strict FAST-01 result misses, then verify run/job/step linkage offline; Plan 18 consumes only the validated poles. |
-| Main-only evidence dispatch | INTEGRATE | Retain and validate protected-main identity/blob, readiness, REST-budget, workflow-identity, UTC-boundary, and bounded pre-projection facts before the blocking decision; after authorization, dispatch the isolated workflow as the first external mutation. It has no PR trigger and creates no qualifying CI rows. |
+| Per-run job page collection | INTEGRATE | Preserve exhaustive job pages and ordered steps for the selected median and maximum on a FAST-01 miss, verify linkage offline, and let Plan 18 consume only validated poles. |
+| Main-only evidence dispatch | INTEGRATE | Validate protected-main identity, readiness, REST budget, workflow identity, UTC boundary, and bounded projection before authorization; dispatch the isolated workflow as the first external mutation. |
 | Artifact provenance attestation | INTEGRATE | Attest the exact JSON subject and bind repository, signer workflow, main ref, workflow SHA, and subject digest. |
 | Artifact, bundle, and trusted-root retrieval | INTEGRATE | Retain all three exact inputs required for repeatable network-denied verification; missing downloads block reconciliation. |
 | Offline attestation verification | INTEGRATE | Verify the retained subject with the bundle and trusted root under network denial before reading its source population or verdict. |
@@ -24,7 +24,7 @@ This closure adds a protected GitHub Actions evidence path, not a product API or
 | Historical FAST-01 remeasurement | INTEGRATE | Preserve the earlier attested populations and measured misses as immutable, disjoint comparison history. |
 | Source-complete FAST-01 remeasurement | INTEGRATE | Sign raw timestamps, full page identities/counts, and terminal exhaustion so membership, duration, completeness, ordering, p50, and verdict can be independently replayed. |
 | Authoritative terminal statistic | INTEGRATE | `scripts/ci/ci-run-metrics.sh` wall mode alone decides membership/statistics/poles; the signed raw source supports a comparison oracle, not a competing terminal calculator. |
-| Dispatch correlation receipt | INTEGRATE | Plan 17 validates a reversible preflight-stage receipt before authorization, preserves those presented facts across the checkpoint, then adds the bounded post set, selected singleton ID/URL, and cardinality before the sole watcher starts. |
+| Dispatch correlation receipt | INTEGRATE | Validate a reversible preflight receipt before authorization, preserve its facts across the checkpoint, then add the bounded post set, selected run ID/URL, and cardinality before the sole watcher. |
 
 ## Security and rate-limit contract
 
