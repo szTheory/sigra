@@ -1,257 +1,276 @@
-# Feature Research
+# Feature Research — v1.48 CLEAN-BASELINE
 
-**Domain:** Self-hosted auth/operator admin console — coherence/needs-led journey pass (v1.34)
-**Researched:** 2026-06-03
-**Confidence:** HIGH (all findings from direct source inspection)
-**Scope:** Polish and coherence of the EXISTING 6-screen admin surface. No net-new surfaces.
+**Domain:** Baseline hygiene / release-readiness posture for a public Elixir Hex library
+**Researched:** 2026-09-15
+**Confidence:** HIGH (Hex/hexpm behavior verified against upstream source + live API; conventions verified against six major Elixir libraries)
 
----
-
-## Framing: What "Coherent, Needs-Led" Means for This Domain
-
-An operator lands the admin console because something happened. The session starts with a
-situation — a locked user, a suspicious login, a support ticket, a compliance request —
-not with curiosity about features. Coherent means: the journey from situation to action is
-predictable everywhere, the same job is handled by the same component on every screen, and
-nothing fights the operator's mental model. Needs-led means: every screen opens with verbs
-("What do you need to do?"), not nouns (tables of data).
-
-The two operator personas from the kickoff brief:
-- **Platform Operator** (admin@, global scope): power user; jobs = find-and-fix user access, triage risk, investigate/export, verify posture, scope-switch to tenant.
-- **Org Admin** (morgan@, single-org): Persona 1 minus global and minus cross-tenant. Jobs = support org members, manage roster/invitations, review org risk, pull org-scoped audit evidence.
+> **"Features" here are maintenance properties, not product capabilities.** The unit of
+> delivery is *"the repo/package now has property X, proven by evidence Y."* Every row below
+> is phrased so the roadmapper can turn it into a requirement with a falsifiable check.
 
 ---
 
-## Table Stakes
+## ⚠️ Three findings that change scope before anything else is planned
 
-Features operators expect from any admin console. Missing = product feels broken or incomplete.
-Each row is tagged HAVE / PARTIAL / MISSING with screen-level evidence from direct file inspection.
+These were verified this session and **invalidate or redirect parts of the stated milestone
+intent**. Read these before the tables.
 
-| Feature | Why Expected | Complexity | Status | Screens Affected | Evidence |
-|---------|--------------|------------|--------|-----------------|---------|
-| Verb-first landing page (triage launcher, not BI dashboard) | Auth-ops is incident-driven; operators arrive with a job, not curiosity | LOW | PARTIAL | IndexLive, OrganizationLive | IndexLive has the H1 "What do you need to do?" and 3 task cards — correct instinct. But the needs-review alarm is buried below the task cards inside the posture strip card. OrganizationLive has a separate "Scoped attention" card that duplicates the alarm. The alarm should be the loudest single element, not a stripe inside a card. |
-| Single needs-review alarm (loud if >0, "all clear" if 0) | Risk triage must be impossible to miss; one number, one deep-link | LOW | PARTIAL | IndexLive, OrganizationLive | Both screens compute `needs_review` and render a `sg-status-pill data-tone=risk/ok`. In IndexLive it is inside `.sg-posture-strip__risk` inside the posture-strip card, visually competing with 6 metric links. In OrganizationLive a second alarm inside a `.sg-card.sg-stack--3` duplicates it at a different visual weight. Neither screen makes the alarm the primary visual element above the task grid. |
-| Master-detail spine: Overview to List to Detail with identical header anatomy | Operators learn one page shape; nav is predictable | MEDIUM | PARTIAL | All 6 screens | Overview (IndexLive/OrganizationLive), List (UsersIndexLive), Detail (UserShowLive/AuditIndexLive/AuditUserLive) exist but differ in header structure. UserShowLive wraps its identity section in `sg-card` (boxed), while all other screens use open `sg-page-header`. Back-nav only exists on UserShowLive and AuditUserLive (bespoke inline button), not on the List. |
-| Consistent back-navigation component | Operators deep-link into detail and must return exactly where they came from | LOW | PARTIAL | UserShowLive, AuditUserLive | Both screens have a back button, but as inline bespoke HEEx (no shared component). Neither the List nor the Overview has an equivalent. `return_to` round-tripping exists and works. |
-| In-body scope indicator (persistent throughout nested pages) | When operating org-scoped, operators need visual confirmation they are bounded | LOW | MISSING | All 6 screens | A small `sg-muted sg-text-sm` scope string appears in UserShowLive (line 94) and AuditUserLive (line 66), but only as plain text, not as a persistent visual component. No shared scope ribbon or badge exists. IndexLive has no scope indicator at all. OrganizationLive shows the org name only in the H1. |
-| Applied filter chips with individual remove and "clear all" | Standard filter UX; operators must see and remove filters without re-filling the form | LOW | HAVE | UsersIndexLive, AuditIndexLive, AuditUserLive | All three filter screens implement `sg-applied-chip` with per-key remove links and a "Clear all" button. Component is private to each LiveView (duplicated 3x). |
-| Empty state: informative, not a blank hole | First-run and filter-no-match states need guidance | LOW | HAVE | UsersIndexLive, AuditIndexLive, AuditUserLive | All three use `sg-empty-state` with context-specific messages for the two cases (no data vs filtered-to-nothing). Component is not shared. |
-| Loading skeleton / async mount feedback | Users expect visual feedback during data load; blank content flashes feel broken | LOW | MISSING | All 6 screens | `.sg-skeleton` is defined in app.css but is used by zero LiveViews. All screens mount synchronously; no skeleton is shown during initial load. |
-| Status display: one component, consistent tones across all screens | Status must carry meaning, not decoration; same tone must mean the same thing everywhere | LOW | PARTIAL | All 6 screens | `sg-status-pill` with `data-tone` is used everywhere (correct). But tone assignment for org member roles in OrganizationLive uses `"info"` for both owner and admin — identical tone, different semantic weight. Minor but inconsistent. |
-| Pagination with orientation readout | Operators need to know where they are in large result sets | LOW | PARTIAL | UsersIndexLive, AuditIndexLive, AuditUserLive | UsersIndexLive has "Showing X-Y of Z" + "Page N of M". AuditIndexLive and AuditUserLive show only "Page N" (cursor-based pagination, so total count is unavailable — this is a pagination model difference, not a gap to fix). Component is private to each screen. |
-| Primary action at consistent location per archetype | Operators learn the action placement once, use it everywhere | LOW | PARTIAL | UserShowLive, UsersIndexLive | UsersIndexLive places "Open user" in a right-aligned column. UserShowLive danger-zone places "Start impersonation" and "Revoke all sessions" inline in a cluster. No shared primary-action placement rule is enforced. |
-| Destructive action: confirmation before irreversible mutations | Session revocation is consequential; operators must not fat-finger it | MEDIUM | HAVE | UserShowLive | `confirm_action` state machine gates revoke_session and revoke_all_sessions behind a confirmation step. Pattern is inline, not shared as a component. |
-| Notice/alert component for in-page contextual warnings | Transient states (locked, deletion-scheduled) need callout, not just status pills | LOW | PARTIAL | UserShowLive | `summary_alert/1` renders a `sg-list-row` with `data-tone` for locked/deletion states. `sg-list-row` is a structural primitive, not a semantic notice component. No shared `<.notice tone=>` component exists. |
+### F1 — `mix hex.retire` does NOT fix `latest_stable_version`, and does NOT fix `~> 1.0` resolution
 
----
+Verified against upstream source:
 
-## Differentiators
+- `hexpm/hexpm` `lib/hexpm/repository/release.ex:189 latest_version/2` filters candidates on
+  **prerelease** and **`has_docs`** only. Retirement is not a filter. `package_view.ex:20`
+  computes `latest_stable_version` straight from that function. **Retiring `1.20.0` will not
+  change `latest_stable_version`; it will still read `1.20.0`.**
+- `hexpm/hex` `lib/hex/solver.ex` contains **zero** references to retirement. Retirement
+  filtering lives exclusively in `lib/hex/policy/filter.ex` — i.e. it applies **only** when an
+  organization has configured a Hex *dependency policy* with a retirement rule and the project
+  opted into it. The default resolver **resolves retired versions normally** and merely prints
+  a warning (`remote_converger.ex:11` `print_retired_warning`).
+- Live check, 2026-09-15: `GET https://hex.pm/api/packages/sigra` →
+  `latest_version: 1.20.0`, `latest_stable_version: 1.20.0`, `retirements: {}`.
 
-Features that elevate the experience from "functional" to "coherent and delightful." These are
-what distinguishes Sigra's admin console as an evaluator-facing showcase surface.
+**Consequence for the roadmap:** the stated requirement *"retire the stray Hex 1.20.0 … and a
+real `{:sigra, "~> 1.0"}` adopter-resolution proof"* **cannot pass as written**. A fresh
+`mix deps.get` with `{:sigra, "~> 1.0"}` will still resolve to `1.20.0` after the retire — it
+will just print `Found retired packages`. The requirement must be re-scoped to what retirement
+actually buys (an honest, machine-readable "do not use this" signal + a red banner on the
+package page + a loud warning at `deps.get` time), and the *resolution* problem must be solved
+by one of the options in **F2**.
 
-| Feature | Value Proposition | Complexity | Status | Screens Affected | Evidence |
-|---------|-------------------|------------|--------|-----------------|---------|
-| Needs-led landing with verbs-first task cards (not feature matrix) | Evaluators and operators form a positive first impression; the GOV.UK model proves this reduces support-ticket confusion | LOW | PARTIAL | IndexLive, OrganizationLive | Task cards exist and are well-written. The capability matrix ("What Sigra can do" — 7-item grid) competes equally with them at the same visual weight. Kickoff brief specifies: demote capability matrix to lowest priority. |
-| Posture strip as metric-deep-links, demoted below task cards | Every metric is an entry point into a filtered list — a power pattern experienced operators discover and use | LOW | HAVE | IndexLive, OrganizationLive | Both screens implement `metric_link` components linking to filtered list views. Pattern is correct; it just needs consistent visual hierarchy (posture strip below tasks, not adjacent). |
-| Scope-aware dual-persona (global vs org) from a single IA | One coherent console serves both personas, not forked dashboards | MEDIUM | HAVE | All 6 screens | Both scopes share the same LiveViews, with `admin_scope`-conditional rendering and routing. Clean and correct. |
-| Command palette (Cmd-K) as cross-skill accelerator | Power operators use keyboard; novices use sidebar; both are served without compromise | MEDIUM | HAVE (shell) | AdminShell | Cmd-K infrastructure exists in AdminShell. Per IA-JOURNEY-SYNTHESIS: ensure it surfaces actions + entities, not just routes. This milestone audits usage, not re-implements. |
-| Org roster with roles, lock state, confirmation state, and pending invitations | Org admin needs member overview in one click, not buried in a user list | LOW | HAVE | OrganizationLive | `@members` and `@pending_invitations` rendered with role pills, locked state, confirmed state, expired invite tone. Gap: member roster rows have no link to open the user detail from the roster. |
-| Per-user audit explorer with its own filter set and return-to back-nav | Investigators working a support ticket need a bounded, exportable view of exactly one user's history | MEDIUM | HAVE | AuditUserLive | Full filter set, applied chips, CSV export, `return_to` round-tripping. Mobile layout gap: table-only (same gap as AuditIndexLive). |
-| Audit row tone system (risk/info/neutral zebra) | Scannable timelines; failure events pop without visual noise on routine rows | LOW | HAVE | AuditIndexLive, AuditUserLive, UserShowLive (recent audit panel) | All three use identical `row_tone` logic. Failure outcome = risk, impersonation badge = info, routine success = neutral. Consistent and correct. |
-| Mobile-responsive users list (card fallback) | Operators work from phones during incidents; mobile must be usable | MEDIUM | HAVE | UsersIndexLive | Desktop table + mobile card layout with `sg-show-desktop` / `sg-show-mobile`. Correct pattern for other screens to mirror. |
-| Return-to round-trip preserving full filter state | Operators deep-link to a user, take action, and land back exactly where they were | LOW | HAVE | UsersIndexLive to UserShowLive (back) | `open_user_path` encodes current filter params into `return_to`. UserShowLive decodes and sanitizes it. AuditUserLive also uses `return_to`. Pattern works end-to-end. |
+### F2 — The only levers that actually repair `~> 1.0` resolution
 
----
+| Lever | Effect on resolution | Cost | Verdict |
+|---|---|---|---|
+| `mix hex.retire sigra 1.20.0 invalid` | **None** by default (policy-gated only) | Interactive write-auth, reversible via `--unretire` | **Do it anyway** — it is the correct honesty signal and the documented remedy for "no longer recommend its usage". Just don't claim it fixes resolution. |
+| Publish a real release **above** `1.20.0` (e.g. `1.21.0`, or `2.0.0`) | **Fixes it completely** — `~> 1.0` resolves to a real release again | Burns `1.6.0 … 1.20.0` of version space forever; a `2.0.0` implies a breaking change that didn't happen | Viable, and the only *automated* fix. Needs an explicit decision — this is a **new ADR**, not a task. |
+| Keep pinned install docs (`{:sigra, "~> 1.5"}`) | Works for anyone who copies the README | Zero | **Already in place.** Adequate while there are no adopters. Should be an explicit documented decision, not an unlabelled workaround. |
+| Ask hex.pm admins to unpublish out-of-window | Fixes it completely | Requires hex.pm maintainer goodwill; immutability policy says exceptions are rare (60-min / 24-hour windows) | Long-shot; worth exactly one polite issue, not a blocking dependency. |
 
-## Anti-Features
+### F3 — Unscoped and higher-impact than the retire: **HexDocs currently serves the phantom's docs**
 
-Features to explicitly NOT build in this milestone (and why).
+`https://hexdocs.pm/sigra/` → 301 → `https://sigra.hexdocs.pm/` → the rendered page reports
+**`v1.20.0`**. The Hex API confirms `1.20.0` has `has_docs: true`. So *every* adopter who
+follows the `Documentation` link from the package page reads documentation generated from the
+phantom release, not from `1.5.0`.
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Net-new admin surfaces (API-token/service-account management UI) | Out of scope per locked milestone brief; adds surface area before coherence is solved | Track as future milestone |
-| Top-level nav restructure (adding or removing nav rungs) | Breaks existing Playwright baselines, ruptures operator mental model, high re-work cost | Keep Overview to List to Detail spine; make existing rungs consistent |
-| New `sg-*` CSS token additions | Token layer is mature at ~89 properties; adding without usage governance creates future drift | Audit usage of existing tokens; produce governance document, not new primitives |
-| New motion primitives | Emil Kowalski compliance is already achieved in the token layer; adding primitives before usage is governed creates inconsistency | Audit motion USAGE on the existing 6 screens; fix no-animation on keyboard-frequent actions (filter apply, row selection) |
-| Role-based admin forking (separate dashboards per persona) | Diverges code and mental models; scope-conditional rendering already serves both personas cleanly | Single LiveView with scope-conditional emphasis — already the right pattern |
-| Broad Playwright behavior-matrix expansion | The goal is covering the Overview/UserAudit baseline gaps, not expanding what behaviors are tested | ADD checkpoints: `global-overview`, `org-overview`, `user-audit`; do not widen behavior matrix |
-| Passive capability matrix as primary landing content | Feature inventory on landing fights the needs-led pattern; evaluators see a wall of labels, not a front door | Demote to a collapsed secondary disclosure section or remove from primary viewport |
+**Fix:** `mix hex.publish docs --revert 1.20.0`. Hex documents docs as explicitly *mutable*
+("Documentation has no limitations on when it can be updated"), unlike the package tarball.
+Removing `1.20.0`'s docs makes `latest_version(with_docs: true)` fall through to `1.5.0`, and
+`hexdocs.pm/sigra` resolves to the real docs. This is **the single highest adopter-facing win
+in the whole milestone**, it is one command, and it is currently **not in the milestone scope**.
+It shares the same interactive-write-auth constraint as the retire, so it belongs in the *same*
+gated operator runbook step.
 
 ---
 
-## Component Inventory: Same Job, Same Component
+## Feature Landscape
 
-The central coherence artifact for v1.34. Every recurring job across the 6 screens must map
-to exactly ONE canonical component. All of these should live in a new lib-owned
-`Sigra.Admin.Components` module.
+### Table Stakes — any respected Elixir/Hex library has these
 
-| Job | Current State | Canonical Component Needed | Where Duplicated Today |
-|-----|--------------|---------------------------|------------------------|
-| Display a scalar stat with a deep-link | `metric_link` in IndexLive (private), byte-identical `metric_link` in OrganizationLive (private), non-linking `summary_chip` in UsersIndexLive | One shared `stat_link/3` (linked variant) + `stat/2` (non-linking variant) | IndexLive lines 118-125, OrganizationLive lines 169-176 (identical), UsersIndexLive lines 336-343 |
-| Verb-first task card with primary CTA | `task_card` in IndexLive (private), byte-identical `task_card` in OrganizationLive (private) | One shared `task_card/4` | IndexLive lines 132-144, OrganizationLive lines 183-195 (identical) |
-| Applied filter chip with remove | Private HEEx block in UsersIndexLive, AuditIndexLive, AuditUserLive | One shared `applied_chip/3` | All three filter screens |
-| Empty state (no data or filtered-no-match) | Private `sg-empty-state` HEEx blocks in UsersIndexLive, AuditIndexLive, AuditUserLive | One shared `empty_state/2` (title + body slot) | Three screens, each with two cases |
-| Back navigation consuming return_to | Bespoke inline button in UserShowLive (line 91-94), AuditUserLive (lines 63-66) | One shared `page_back/2` (label + href) | UserShowLive, AuditUserLive |
-| In-body scope indicator | Plain `sg-muted sg-text-sm` text span in UserShowLive (line 94), AuditUserLive (line 66); absent on other screens | One shared `scope_ribbon/1` consuming `admin_scope` | UserShowLive, AuditUserLive; MISSING from IndexLive, OrganizationLive, UsersIndexLive, AuditIndexLive |
-| Contextual notice/alert for in-page warnings | `sg-list-row` with `data-tone` in UserShowLive (lines 131-133) via `summary_alert/1` | One shared `notice/3` (tone + title + body) | UserShowLive only; no other screen has an equivalent |
-| Loading skeleton | `.sg-skeleton` defined in CSS but unused in any LiveView | One shared `skeleton/1` (height/width) for async mount states | ALL 6 screens (none use it today) |
-| Status pill (single state label) | `sg-status-pill` with `data-tone` — used consistently across all screens | KEEP as-is; document tone assignment rules in governance doc | Tone assignments mostly correct; minor inconsistency on org role tones (owner + admin both "info") |
-| Destructive action confirmation | Inline state machine + bespoke HEEx in UserShowLive (`confirm_action` assign) | Extract to a shared `confirm_modal/3` pattern | UserShowLive only today |
+Missing these makes the package look abandoned or untrustworthy to an evaluating adopter.
 
----
+| # | Property | Why expected (evidence) | Complexity | Sigra status |
+|---|---|---|---|---|
+| TS-1 | **Tag namespace contains release versions only** | Verified across Ecto (170 `vN.N.N` + 21 prerelease, nothing else), Phoenix (153 + 23), Oban (103 + 6), Req (62 + 1), Bandit (108 `N.N.N` + 18 `-pre`), Absinthe (82 + 27). **Zero** non-release tags in any of them. A tag namespace with two meanings is a foot-gun that already fired here. | LOW (mechanical) | ❌ **41 stray tags**: 28 `vN.N` planning, 11 `phase-238-generated-auth-proof-*`, 1 `archive/…`, vs 12 real `vN.N.N` |
+| TS-2 | **No publish path derived from an arbitrary tag push** | The direct cause of the phantom `1.20.0` (ADR 003). Release Please / explicit-input dispatch only. | — | ✅ **Already satisfied** (ADR 003 guardrails 1–2 in place; `hex-publish.yml` is `workflow_dispatch` with a `release_version` that must match `@version`) |
+| TS-3 | **A machine-enforced guard for TS-1/TS-2** | Convention-only discipline already failed twice: `v1.47` and `v1.48` were minted *after* ADR 003 said stop. A convention without a gate is not a control. | LOW | ❌ Not present — the milestone correctly scopes a CI guard rejecting non-SemVer `v*` tags |
+| TS-4 | **`latest_stable_version` on Hex is a real release** | It is the number in every "add this to your deps" snippet Hex itself generates (`dep_snippet` in `package_view.ex` uses exactly this release). | HIGH (see F1/F2 — needs a decision, not just a task) | ❌ Reads `1.20.0` |
+| TS-5 | **`hexdocs.pm/<pkg>` serves the current release's docs** | The canonical documentation entry point. | LOW (one command, gated auth) | ❌ Serves `1.20.0` — see **F3** |
+| TS-6 | **Known-bad releases are retired with a reason** | Hex's documented practice: "retire a package or release instead of unpublishing it … if maintainers no longer recommend its use". | LOW (interactive auth) | ❌ `retirements: {}` |
+| TS-7 | **README / CHANGELOG / LICENSE / SemVer discipline** | The Elixir Library Guidelines + community convention baseline. | — | ✅ **Already satisfied** — plus `CONTRIBUTING.md`, `SECURITY.md`, `MAINTAINING.md`, `CONVENTIONS.md`, `AGENTS.md`, and a Keep-a-Changelog CHANGELOG with an explicit "Planning milestones vs Hex releases" disambiguation section (genuinely above-average) |
+| TS-8 | **No internal project-management bookkeeping in `@moduledoc`/`@doc`** | Verified: `Ecto` and `Oban` have **zero** `Phase N` / bare `#NNN` refs in `lib/`. Phoenix has 2, and they are *resolvable external URLs* in `#` comments (e.g. `# See https://github.com/mtrudel/bandit/issues/582`), not doc content. The norm is: rationale that a stranger can follow, in code comments; nothing unresolvable in public docs. | MEDIUM (volume) | ❌ **470 hits in `lib/`** across 43 files; 4 dead `.planning/` paths, incl. `lib/sigra/audit.ex:5` which is line 5 of a `@moduledoc` → renders on HexDocs as a link to nowhere |
+| TS-9 | **Nothing unresolvable ships into adopters' generated files** | `mix.exs` `files: ~w(lib priv docs …)` → `priv/templates` **is** in the tarball. A generated file quoting `.planning/phases/16-org-liveviews-switcher/` lands in a stranger's repo, forever, with no way to follow it. | MEDIUM | ❌ **134 hits in `priv/templates/`**, incl. `organizations/organizations.ex:59` referencing a `.planning/` path |
+| TS-10 | **Default branch CI is actually green, and green means "ran"** | The mechanism that silently stranded releases in v1.45. A gate that can be red-by-flake is not a gate. | HIGH (root-cause work) | ⚠️ Partial — `ci-gate` no longer counts `skipped` as pass (v1.47), but the `Generated admin Playwright smoke` flake is live and `pages build` fails on every push |
+| TS-11 | **No permanently-failing workflow on the default branch** | A permanently-red check trains maintainers to ignore red. | LOW–MEDIUM | ❌ GitHub Pages fails on every push |
+| TS-12 | **`.gitignore` complete; no tracked build artifacts** | Baseline repo hygiene. | LOW | ⚠️ Mostly good, but: `doc/llms.txt` is **tracked while ignored** (verified via `git ls-files -i -c`), `.gsd/` is unignored, root holds untracked `sigra-0.1.0.tar` / `sigra-0.2.0.tar` |
+| TS-13 | **Dependency PRs are drained, not accumulated** | An 8-month-old Dependabot queue reads as unmaintained to anyone browsing the PR list, regardless of actual activity. | LOW–MEDIUM | ❌ 10 open Dependabot PRs (oldest #183, `credo` 1.7.18→1.7.19); 18 open PRs total |
+| TS-14 | **PR/issue queue reflects reality** | Oban has 1 open issue, Ecto 12, Bandit 11 — the well-maintained end. Phoenix 47 / Req 54 is the tolerable end for high-traffic projects. 18 open PRs on a low-traffic lib where 8 are stale internal phase/recapture branches is noise. | LOW | ❌ 8 stale phase/recapture PRs (#211, #172, #124, #174, #219, #234 …) |
+| TS-15 | **Dev branches/worktrees/stashes pruned** | Not adopter-visible, but 31 remote branches is a real navigation and accidental-base-branch hazard (already bit this project — the "worktrees fork from stale origin/main" issue). | LOW | ❌ 19 local / 31 remote branches, 6 stashes, 6 worktrees |
 
-## Seed Data: What Each Screen Must Show to Be Self-Demonstrating
+### Differentiators — notably good practice, worth adopting
 
-Existing personas: admin, alice, bob, carol, dave, frank, morgan. Orgs: Acme Corp, Beta Labs.
-Per-screen audit of which states must be present and which are MISSING from current seeds.
+| # | Property | Value proposition | Complexity | Sigra status |
+|---|---|---|---|---|
+| D-1 | **Tag-shape CI guard rejecting non-SemVer `v*`** | Turns ADR 003 from a document into an enforced invariant. Most Elixir libs rely on convention; a guard is strictly better and cheap. | LOW | Scoped in milestone — keep |
+| D-2 | **A distinct namespace for non-release tags** (`milestone/v1.49`, `proof/phase-238-…`) | Lets planning traceability survive without polluting the release namespace — the ADR 003 escape hatch. Prevents the "delete tags → lose all traceability" objection. | LOW | ADR 003 already prescribes this; not implemented |
+| D-3 | **A written "what may appear in public docs" rule** | Converts TS-8/TS-9 from a one-time cleanup into a durable property. Rule: *external resolvable URL or self-contained prose, yes; internal phase/plan/decision IDs, no.* Enforceable with a grep in `mix ci`. | LOW (rule) + LOW (grep gate) | Not present; `CONVENTIONS.md` is the natural home |
+| D-4 | **A grep gate on `lib/` + `priv/templates/` for planning-ID patterns** | Without it, the next eleven phases re-pollute the surface. This is the difference between a cleanup and a fix. | LOW | Not present |
+| D-5 | **Explicit flake quarantine with an owner and an expiry** | 2025–26 consensus: retries are "a shock absorber for rare intermittency"; quarantine is "an explicit risk acceptance record". Quarantine + tracked root cause is the honest form. Keep quarantine <5% of suite. | MEDIUM | Sigra already has a `ci-skip-manifest.tsv` — the right shape — but the milestone notes it cites a parity guard that does not exist. Repairing it is a differentiator-grade win |
+| D-6 | **Dependabot `groups:` + cooldown** | Reported 70–80% PR-noise reduction. Turns a recurring 10-PR backlog into one reviewable PR per ecosystem per week. This is the *durable* fix; draining the current 10 is only the one-time fix. | LOW | `.github/dependabot.yml` has 3 ecosystems, **no `groups:`** — adding groups is a one-file change with outsized payoff |
+| D-7 | **Todo triage with recorded disposition** | 41 pending todos with no keep/close/defer decision is indistinguishable from 41 forgotten todos. Recording *why* each was deferred is what makes deferral honest rather than avoidance (ADR 003 already models this well for the retire). | MEDIUM (volume) | Scoped in milestone — keep |
+| D-8 | **Pin install docs to a known-good range while `latest_stable_version` lies** | A zero-auth, zero-risk mitigation that already works. Elevate it from an undocumented workaround to a stated decision with a removal trigger. | LOW | Already done in practice; not documented as a decision |
+| D-9 | **A supersession ADR for knowingly-unsatisfied requirements** | v1.47 closed with TEST-01/02 as dead code and a contract test that now *blesses* the regression. Writing that down as a supersession decision (rather than leaving a green test lying) is exactly the honesty posture this milestone is about. | LOW–MEDIUM | Scoped in milestone — keep |
+| D-10 | **`mix hex.publish docs --revert` on bad releases** | Rarely used, high leverage. Docs are mutable where tarballs are not — the one real escape hatch from an immutable mistake. | LOW | **Not scoped — add it** (see F3) |
 
-### IndexLive (Global Overview)
+### Anti-Features — look tidy, cost more than they're worth
 
-HAVE states: needs_review > 0 (dave locked, frank deletion-scheduled), confirmed/MFA/passkeys/locked/deleted counts all non-zero across personas.
-
-Seed gaps: NONE for primary demonstration. The alarm renders "2 accounts need review" (dave + frank), which is the correct self-demonstrating state.
-
-### OrganizationLive (Org Overview via morgan, Acme scoped)
-
-HAVE states: org with varied roles (admin=owner, morgan=admin, alice/carol/dave=member), locked member in org (dave), unconfirmed member (dave), pending invitation (invited@demo.sigra.dev).
-
-Seed gaps:
-1. MISSING: An **expired invitation** (expires_at in the past). Seeds only seed a future-dated invite. `OrganizationLive` renders `data-tone="risk"` on expired invitations. Without one, the "Expired" pill on the org overview never renders in the demo. Add an expired invitation to Acme with `expires_at` in the past.
-2. MISSING: A member with **scheduled_deletion** visible in the Acme roster. Frank has `scheduled_deletion: true` but is NOT in any org. `OrganizationLive` renders `member.locked?` and `member.confirmed?` but not deletion-scheduled — however, getting frank into Acme would demonstrate his state on the user detail pivot. Simplest fix: add frank to Acme membership in seeds. Low-impact.
-
-### UsersIndexLive (Users List, Global)
-
-HAVE states: confirmed, unconfirmed (dave), TOTP MFA (admin, bob), passkey (admin), MFA+passkeys combined (admin), no MFA (neutral pill), locked (dave), deletion-scheduled (frank), GitHub OAuth (carol), multi-org membership (admin in Acme+Beta), last-active date (admin has 3 sessions).
-
-Seed gaps:
-1. MISSING: A user with **multiple OAuth providers** (e.g. github + google). The "Provider: Google" filter never matches any user today. Add a Google identity to carol or another persona.
-2. MISSING: A **passkey-only user** (passkey without TOTP). Admin has both. The "Passkeys" status pill (without the MFA pill) never renders alone. Add `passkey: true` to a persona with `totp: false` — alice or morgan are the cleanest candidates.
-3. PARTIAL: Pagination is always single-page (7 users). Pagination nav renders with both arrows disabled. Not a blocking gap for demonstration, but the "Showing 1-7 of 7 users" readout is accurate.
-
-### UserShowLive (User Detail, admin persona is richest)
-
-HAVE states: identity panel (confirmed, display_name, email, ID), TOTP MFA enrolled, passkey with nickname ("Demo Security Key"), 3 active sessions (multi-session table), security summary facts, 2 org memberships with pivot links, GitHub identity (carol), recent audit with impersonation and failure tone rows, summary_alert for locked (dave) and deletion-scheduled (frank), danger-zone impersonation + revoke buttons.
-
-Seed gaps:
-1. MISSING: A user with **only a passkey, no TOTP**. Admin has both. To show the Passkeys detail panel without the MFA panel active: add `passkey: true` to alice or morgan (totp=false). This also fixes the UsersIndexLive gap above.
-2. MISSING: A user with **multiple OAuth providers** (beyond carol's single GitHub). The Identities panel shows one row. Add a second identity (e.g. google) to carol to show the panel with 2+ rows.
-3. PARTIAL: Backup codes count in the security panel — admin has a TOTP credential seeded but the backup codes state depends on whether `mfa_value` reads from backup_codes_count. If it silently shows 0, that is an acceptable demo state. If the panel omits the count entirely, it is a gap in seed coverage but not in the component.
-
-### AuditIndexLive (Global Audit Explorer)
-
-HAVE states: >=6 distinct action types (18+ across both seed batches), failure rows with risk tone, impersonation rows with info tone, applied filter chips (in code), CSV export button, empty state (reachable by filtering to a nonexistent actor).
-
-Seed gaps:
-1. MISSING: An **`account.password.change`** event. Operators investigating security incidents want to see password-change events. Not in either seed batch.
-2. MISSING: An **`auth.magic_link`** or **`auth.email_confirm`** event. Common auth primitives that demonstrate the full event vocabulary. Neither is seeded.
-3. MISSING: An **`api.token_verify.failure`** or **`api.jwt_refresh`** event. These demonstrate Sigra's API auth surface in the audit trail.
-4. MISSING: **Mobile card fallback layout**. The audit table is desktop-only. On mobile the table overflows. This is a template gap, not a seed gap.
-
-### AuditUserLive (Per-User Audit, admin persona)
-
-HAVE states: >=20 events for admin (18 admin-batch + 2 persona-batch), impersonation badge events, failure tone events, applied filter chips, return-to back-nav, CSV export, "View full audit" link from UserShowLive.
-
-Seed gaps:
-1. MISSING: **Mobile card fallback layout** (same as AuditIndexLive). Table-only on mobile.
-2. PARTIAL: Actor != effective_user distinction on alice's per-user view. The persona batch includes `admin.impersonation.start/stop` with `actor_id=admin, effective_user_id=alice`. This SHOULD render the "Actor: admin / Effective user: alice" distinction on alice's AuditUserLive. Worth verifying this renders correctly when alice's AuditUserLive is loaded — if it does, this is already covered.
+| Anti-feature | Surface appeal | Why problematic | Do instead |
+|---|---|---|---|
+| **Rewriting git history (BFG / `filter-repo`) to slim the 645 MB `.git`** | "Clean, small repo" | Invalidates every existing clone, fork, worktree, and open PR; breaks every commit SHA cited in CHANGELOG, ADRs, phase artifacts and GitHub Release notes — including the `compare/v1.4.0...v1.5.0` links in the published CHANGELOG *that is packaged inside the Hex tarball*. Irreversible; the gain is disk space nobody is paying for. | **The milestone's existing exclusion is correct — validated.** Keep `.git` untouched. If size ever bites, fix it at clone time (`--filter=blob:none`, shallow CI clones), not at history level. |
+| **Pruning `.planning/` out of the repo** | "The shipped repo shouldn't carry project management" | `.planning/` is not shipped — `mix.exs` `files:` is `lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md`. It never reaches Hex. Deleting it destroys the traceability that makes the *other* cleanups safe (you cannot judge "is this `Phase 131` comment real rationale?" with the phases deleted). | **The milestone's existing exclusion is correct — validated.** Fix the *leak* (TS-8/TS-9), not the source. |
+| **Deleting the stray tags without first checking for dependents** | "Namespace is clean" | Low risk here, but non-zero: a deleted tag breaks any `{:sigra, github: …, tag: "v1.20"}` pin and orphans any GitHub Release attached to it. Verified: sigra's 12 GitHub Releases all map to real `vN.N.N` tags, so the 41 stray tags carry **no** releases. | Do delete — but as an explicit two-step: enumerate + confirm no attached release/branch/dependent, *then* delete, and record the deleted list in the ADR so the history is recoverable. Optionally re-mint the 11 proof tags under `proof/` first (D-2). |
+| **Wrapping the Playwright smoke flake in a retry** | "main goes green today" | "A retry masks the symptom … the root cause is still there and now invisible." Worse: a real race in generated auth code also passes on retry, so the retry hides a *customer-facing* bug behind a green gate. This is precisely the v1.45 failure mode restated. | Root-cause it. If it cannot be root-caused inside the milestone, **quarantine it into the non-blocking suite with an owner, a reason, and an expiry date** in `ci-skip-manifest.tsv` — an explicit, dated risk acceptance, not a silent retry. |
+| **Bulk-merging all 10 Dependabot PRs on green CI without reading them** | "Queue drained" | "If teams start accepting grouped PRs purely because they are familiar … the policy can reduce scrutiny exactly where supply-chain exposure needs discipline most." Two of the queued bumps are *major* (`otplib` 12→13, `@anthropic-ai/sdk` 0.110→0.123) and one is a companion lib (`threadline` 0.7→0.9) with a real integration seam. | Split: auto-merge patch/minor on green; read majors and `threadline` individually. Then add `groups:` (D-6) so this never becomes a backlog again. |
+| **Unpublishing / force-fixing `1.20.0`** | "Erase the mistake" | Hex is immutable past the 60-min/24-hr windows by design. Chasing this burns operator time on a lever that does not exist. | Retire (TS-6) + revert docs (D-10) + decide F2. Accept that `1.20.0` exists forever. |
+| **Cutting `2.0.0` purely to escape `1.20.0`** | "`~> 1.0` resolves again, and we get a clean major" | A major version signals a breaking change to every adopter and to every automated tool. Using it as a numbering escape hatch is a lie in the version number — the same class of error that caused this mess. | If F2 says "publish above the phantom", prefer `1.21.0` (truthful minor) over `2.0.0`, and say why in the CHANGELOG. |
+| **Deleting the `archive/local-main-pre-*-recovery` tag along with the rest** | "One sweep, all stray tags gone" | That tag is a deliberate safety anchor for a recovery event, in an already-distinct namespace (`archive/`). It is the *correct* pattern (D-2), not pollution. | Keep it. Delete only `vN.N` and — after re-minting under `proof/` if wanted — `phase-238-*`. |
 
 ---
 
-## Feature Dependencies
+## Dependencies
 
 ```
-scope_ribbon component
-    depends on: admin_scope assign (already in all LiveViews — no new data needed)
+TS-1 delete stray tags ──requires──> TS-2/TS-3 guard in place first
+      │                              (delete before guard = the guard has nothing
+      │                               to prevent, and the next close flow re-mints)
+      └──enhanced-by──> D-2 distinct namespace (re-mint proof tags before deleting)
 
-skeleton component
-    depends on: decision on sync vs async mount pattern
-    note: skeleton can be added without full async conversion — shows on websocket handshake
+TS-6 retire 1.20.0 ──shares operator step──> D-10 revert 1.20.0 docs
+      │                                       (same interactive Hex write-auth;
+      │                                        one runbook, one prompt session)
+      └──does NOT satisfy──> TS-4 latest_stable_version  [see F1]
 
-shared task_card component
-    required by: Phase 1 (component foundation)
-    consumed by: Phase 2 (IndexLive + OrganizationLive reconciliation)
+TS-4 latest_stable_version ──blocked-on──> an F2 decision (new ADR)
+      └──mitigated-meanwhile-by──> D-8 pinned install docs
 
-shared stat_link / stat components
-    required by: Phase 1
-    consumed by: IndexLive, OrganizationLive, UsersIndexLive
+TS-8 strip lib/ bookkeeping ──must-precede──> D-4 grep gate
+TS-9 strip template bookkeeping ──┘          (gate on a dirty tree = red forever)
 
-page_back component
-    required by: Phase 1
-    consumed by: UserShowLive, AuditUserLive
+D-4 grep gate ──must-precede──> the next milestone
+      (otherwise TS-8/TS-9 are a one-shot that re-pollutes)
 
-mobile audit card layout
-    required by: Phase 4 (AuditIndexLive + AuditUserLive)
-    depends on: existing sg-show-desktop / sg-show-mobile classes (already in CSS)
-    does NOT depend on: skeleton or other new components
+TS-10 honest green main ──gates──> "land the pending release" (PR #224, release 1.5.1)
+      │  release-please's gate-ci-green cannot pass on an intermittently-red ci-gate
+      └──requires-decision──> D-5 quarantine, IF root-cause exceeds the milestone
 
-needs-review alarm prominence
-    required by: Phase 3 (Overview landings)
-    is: purely visual hierarchy change — no new data, no new component
+TS-13 drain Dependabot ──should-precede──> D-6 groups:
+      (grouping an existing backlog produces one enormous unreviewable PR)
 
-expired invitation seed
-    required for: OrganizationLive expired pill to render
-    depends on: OrganizationInvitation with expires_at in the past (trivial seed change)
+TS-13 drain Dependabot ──competes-with──> TS-10 honest green main
+      (every dep PR must pass the same flaky ci-gate; draining 10 PRs through a
+       flaky gate is where the milestone will actually lose its time)
 
-frank as Acme member seed
-    required for: OrganizationLive "Deletion scheduled" pill in member roster
-    depends on: adding frank to Acme org membership (1 line in seed_memberships/3)
-
-passkey-only persona seed
-    required for: UsersIndexLive "Passkeys" pill without MFA pill; UserShowLive passkeys panel solo
-    depends on: adding passkey: true to alice or morgan persona
+TS-12 gitignore/doc/llms.txt ──independent──> everything else (do it first, it's free)
 ```
 
-### Dependency Notes
+### Dependency notes
 
-- **Shared components before screen reconciliation.** All consolidated component slots (stat_link, stat, task_card, applied_chip, empty_state, page_back, scope_ribbon, notice, skeleton) must be extracted into `Sigra.Admin.Components` before the individual screen passes in Phases 2-4 can swap to them. This is the Phase 1 prerequisite.
-
-- **Seed enrichment is independent of component work.** Seed gaps can be closed in any phase. They do not gate component consolidation. The coherence sweep (Phase 5) benefits from all seed states being present so the journey is self-demonstrating end-to-end.
-
-- **Mobile audit layout depends only on existing CSS.** `sg-show-desktop` / `sg-show-mobile` utility classes exist and are proven on UsersIndexLive. The audit card fallback is a template change, not a CSS primitive addition.
-
-- **Skeleton requires a pattern decision.** If screens stay sync-mount (all assigns in `mount`), skeleton shows only briefly during the LiveView websocket handshake. If a screen moves to `assign_async`, skeletons become meaningfully visible. The skeleton component itself is separable from the async decision.
+- **The flake is the critical path, not the tags.** TS-10 gates the release *and* taxes every
+  one of the 10 Dependabot merges. It should be phased first or run in parallel from day one.
+- **`doc/llms.txt` tracked-while-ignored is a genuine conflict, not a typo.** `doc/` is
+  ignored because it is ex_doc output, but `llms.txt` is a deliberately published artifact
+  (ex_doc 0.40+ generates it). Decide: either `!doc/llms.txt` negation in `.gitignore`, or
+  move the published copy out of `doc/` (root `llms.txt` already exists — check for a duplicate).
+- **Retire + docs-revert must be one operator session.** Both need interactive Hex write auth.
+  Splitting them across phases doubles the human-gated steps for no benefit.
 
 ---
 
-## Feature Prioritization Matrix
+## Milestone scoping
 
-| Feature | Operator Value | Implementation Cost | Priority |
-|---------|---------------|---------------------|----------|
-| Consolidate stat_link + task_card into shared components | HIGH (foundation for all subsequent screen changes) | LOW (byte-identical extraction) | P1 |
-| Shared page_back component | MEDIUM | LOW | P1 |
-| Shared applied_chip + empty_state + notice components | MEDIUM | LOW | P1 |
-| Needs-review alarm prominence on IndexLive (alarm above task grid) | HIGH (primary triage job; first evaluator impression) | LOW (visual hierarchy rearrangement) | P1 |
-| OrganizationLive: expired invitation seed | HIGH (makes the "Expired" pill render in demo) | LOW (1 seed addition) | P1 |
-| OrganizationLive: frank added to Acme membership seed | MEDIUM (shows deletion-scheduled member in roster) | LOW (1 line in seed_memberships) | P1 |
-| Scope ribbon component used on all 6 screens | MEDIUM (org-scope orientation) | LOW | P1 |
-| Audit mobile card layout (AuditIndexLive + AuditUserLive) | HIGH (audit table unusable on mobile today) | MEDIUM (mirrors UsersIndexLive pattern) | P1 |
-| IndexLive: demote capability matrix below posture strip | MEDIUM (cleaner evaluator impression) | LOW | P2 |
-| OrganizationLive: add "Open user" link per member in roster | MEDIUM (Org Admin's #1 shortcut from roster) | LOW | P2 |
-| PassKey-only persona seed (alice or morgan gets passkey, no TOTP) | MEDIUM (demonstrates Passkeys panel without MFA lit up; fixes UsersIndexLive gap) | LOW (1-line persona change) | P2 |
-| Carol: second OAuth identity seed (add Google) | LOW (shows multi-row Identities panel) | LOW | P2 |
-| Global audit: additional action types in seed (password.change, magic_link, api events) | MEDIUM (makes audit explorer vocabulary-rich for evaluators) | LOW (3-4 seed rows) | P2 |
-| Skeleton component + usage on initial mount | LOW-MEDIUM (perception improvement) | MEDIUM (async decision + implementation) | P3 |
-| Confirm modal as shared component | LOW (only one screen uses confirms today) | LOW | P3 |
-| Pagination demonstration (add more seed personas to exceed 25) | LOW (disabled-state pagination is not broken, just unreachable) | LOW | P3 |
+### Do in v1.48 (the honest floor)
+
+- [ ] **TS-12** — `.gitignore` `.gsd/`, resolve `doc/llms.txt`, drop stray tarballs — free, unblocks nothing but costs nothing
+- [ ] **TS-10 / TS-11** — root-cause the Playwright smoke flake; fix `pages build`; prove `ci-gate` green across consecutive pushes with live-run evidence
+- [ ] **TS-3 / D-1 / D-2** — tag-shape CI guard + distinct namespace, **then** TS-1 tag deletion
+- [ ] **TS-6 + D-10** — one gated operator runbook: `mix hex.retire sigra 1.20.0 invalid` **and** `mix hex.publish docs --revert 1.20.0`, with pre/post API verification
+- [ ] **TS-8 / TS-9 → D-3 / D-4** — strip bookkeeping from `lib/` (HexDocs-rendering first) and `priv/templates/` (adopter-shipping first), write the rule, add the grep gate
+- [ ] **TS-13 → D-6** — drain the 10 dep PRs (split patch/minor vs major), then add `groups:`
+- [ ] **TS-14 / TS-15** — close stale phase PRs, prune branches/worktrees/stashes
+- [ ] **D-7** — triage 41 todos to keep/close/defer with recorded reasons
+- [ ] **D-9** — supersession ADR for TEST-01/02; delete `ExUnitTimingFormatter`; rewrite the contract test that blesses the regression
+- [ ] **D-5** — repair the skip manifest's phantom parity-guard citation + the rotted `MAINTAINING.md` leg
+- [ ] Land the pending release (PR #224)
+
+### Decide in v1.48, act later if needed
+
+- [ ] **F2 / TS-4** — write an ADR choosing between "live with pinned docs", "publish `1.21.0`",
+      or "petition hex.pm". **Do not scope a `~> 1.0` resolution *proof* until this ADR lands** —
+      the current requirement as written cannot pass (F1).
+
+### Explicitly out (validated exclusions)
+
+- [ ] History rewriting / `.git` slimming — **confirmed anti-feature**, see table
+- [ ] Pruning `.planning/` — **confirmed anti-feature**; it never ships (verified via `mix.exs` `files:`)
+- [ ] Any feature, UI, or W-3/W-4 generated-auth runtime-proof work
+
+---
+
+## Prioritization matrix
+
+| Item | Adopter/maintainer value | Cost | Priority |
+|---|---|---|---|
+| D-10 revert `1.20.0` docs | **HIGH** — fixes the actual documentation adopters read | **LOW** — one command | **P1** (currently unscoped) |
+| TS-10 honest green `ci-gate` | HIGH — gates the release and every dep merge | HIGH | P1 |
+| TS-9 strip adopter-shipped template refs | HIGH — permanent, lands in strangers' repos | MEDIUM | P1 |
+| TS-8 strip HexDocs-rendering refs | HIGH — public credibility surface | MEDIUM | P1 |
+| TS-1+TS-3 tag namespace + guard | HIGH — structurally closes ADR 003 | LOW | P1 |
+| TS-6 retire `1.20.0` | MEDIUM — honesty signal, not a resolution fix | LOW (gated) | P1 |
+| TS-11 fix Pages | MEDIUM — removes permanent red | LOW–MEDIUM | P1 |
+| D-4 grep gate | HIGH — makes TS-8/9 durable | LOW | P1 |
+| TS-13 drain deps | MEDIUM | MEDIUM (gate-taxed) | P2 |
+| D-6 dependabot `groups:` | MEDIUM — durable noise fix | LOW | P2 |
+| D-9 supersession ADR + dead-code delete | MEDIUM — retires dishonest debt | LOW–MEDIUM | P2 |
+| D-5 skip-manifest repair | MEDIUM | MEDIUM | P2 |
+| D-7 todo triage | MEDIUM | MEDIUM | P2 |
+| TS-14/15 PR + branch prune | LOW–MEDIUM | LOW | P2 |
+| TS-12 gitignore/artifacts | LOW | LOW | P2 (do first, it's free) |
+| TS-4 `latest_stable_version` | HIGH | HIGH + irreversible | P3 — **decide** in v1.48, act later |
+
+---
+
+## Comparator scan (how respected Elixir libraries actually look)
+
+| Property | Ecto | Phoenix | Oban | Req | Bandit | Sigra today |
+|---|---|---|---|---|---|---|
+| Tag namespace | `vN.N.N` only | `vN.N.N` only | `vN.N.N` only | `vN.N.N` only | `N.N.N` only | **3 namespaces mixed in `v*`** |
+| Non-release tags | 0 | 0 | 0 | 0 | 0 | **40** |
+| `Phase N` / bare `#NNN` in `lib/` | 0 | 2 (both resolvable external URLs, in `#` comments) | 0 | — | — | **470** |
+| Open issues | 12 | 47 | 1 | 54 | 11 | 18 open PRs, 8 of them stale-internal |
+| `dependabot.yml` | no | yes | yes | no | yes | yes, **no `groups:`** |
+| Changelog | yes | yes | yes | yes | yes | yes + an unusually good SemVer-vs-milestone disambiguation |
+
+**Read:** on *documentation and process artifacts* Sigra is at or above the ecosystem bar
+(CONTRIBUTING, SECURITY, MAINTAINING, CONVENTIONS, ADRs, a disambiguating CHANGELOG). The gap
+is entirely in **namespace discipline, shipped-surface cleanliness, and queue drainage** —
+exactly the three things this milestone names. The thesis is well-aimed; the scope needs the
+three F-corrections above.
 
 ---
 
 ## Sources
 
-- `lib/sigra/admin/live/index_live.ex` — direct inspection (HIGH confidence)
-- `lib/sigra/admin/live/organization_live.ex` — direct inspection (HIGH confidence)
-- `lib/sigra/admin/live/users_index_live.ex` — direct inspection (HIGH confidence)
-- `lib/sigra/admin/live/user_show_live.ex` — direct inspection (HIGH confidence)
-- `lib/sigra/admin/live/audit_index_live.ex` — direct inspection (HIGH confidence)
-- `lib/sigra/admin/live/audit_user_live.ex` — direct inspection (HIGH confidence)
-- `test/example/lib/example/demo/personas.ex` — direct inspection (HIGH confidence)
-- `test/example/lib/example/demo/seeds.ex` — direct inspection (HIGH confidence)
-- `~/.claude/plans/recap-sigra-v1-0-0-ga-cached-puppy.md` — approved kickoff brief (HIGH confidence)
-- `.planning/research/IA-JOURNEY-SYNTHESIS.md` — prior research synthesis (HIGH confidence)
-- `.planning/PROJECT.md` — milestone scope and persona definitions (HIGH confidence)
+**Verified against upstream source (HIGH confidence):**
+- `hexpm/hexpm` `lib/hexpm/repository/release.ex` `latest_version/2` and
+  `lib/hexpm_web/views/api/package_view.ex` — proves `latest_stable_version` ignores retirement
+- `hexpm/hex` `lib/hex/solver.ex` (no retirement logic), `lib/hex/policy/filter.ex`
+  (retirement is policy-gated), `lib/hex/remote_converger.ex` (warning-only path)
+- Live `GET https://hex.pm/api/packages/sigra`, 2026-09-15 — `latest_stable_version: 1.20.0`,
+  `retirements: {}`, `1.20.0 has_docs: true`
+- Live `https://hexdocs.pm/sigra/` → `https://sigra.hexdocs.pm/` reports `v1.20.0`
+- `gh api repos/<org>/<repo>/tags` for ecto, phoenix, oban, req, bandit, absinthe
+
+**Documentation (HIGH confidence):**
+- [mix hex.retire — Hex v2.5](https://hexdocs.pm/hex/Mix.Tasks.Hex.Retire.html)
+- [Hex.pm FAQ](https://hex.pm/docs/faq) — immutability windows; "retire instead of unpublish"
+- [Hex.pm dependency policies](https://hex.pm/docs/dependency-policies) — retirement rule is policy-scoped
+- [mix hex.publish — `docs --revert VERSION`](https://hexdocs.pm/hex/Mix.Tasks.Hex.Publish.html)
+- [Elixir Library Guidelines](https://hexdocs.pm/elixir/library-guidelines.html)
+- [Optimizing PR creation for Dependabot version updates — GitHub Docs](https://docs.github.com/en/code-security/tutorials/secure-your-dependencies/optimizing-pr-creation-version-updates)
+
+**Practice literature (MEDIUM confidence):**
+- [Flaky Test Quarantine — minware](https://www.minware.com/guide/best-practices/flaky-test-quarantine)
+- [CI Flaky Test Auto Quarantine Workflow — QASkills.sh](https://qaskills.sh/blog/ci-flaky-test-auto-quarantine-workflow)
+- [Taming Dependabot: Grouping, Cooldowns, and Cutting PR Noise (2026)](https://dev.to/instasla/taming-dependabot-a-2026-guide-to-grouping-cooldowns-and-cutting-pr-noise-246e)
+- [Prepare and release your Elixir open source package like a pro — Fresha Engineering](https://medium.com/fresha-engineering/ultimate-guide-to-preparing-and-releasing-elixir-open-source-package-like-a-pro-d64a0f86d012)
+
+**Local (HIGH confidence):**
+- `.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`
+- `.planning/PROJECT.md` (v1.48 milestone + current state), `CHANGELOG.md`, `mix.exs`,
+  `.gitignore`, `.github/dependabot.yml`, `git tag`/`git ls-files -i -c`/`gh pr list` output
 
 ---
-
-*Feature research for: Sigra admin console coherence/needs-led journey pass (v1.34)*
-*Researched: 2026-06-03*
+*Feature research for: clean-baseline posture of a public Elixir/Hex library*
+*Researched: 2026-09-15*
