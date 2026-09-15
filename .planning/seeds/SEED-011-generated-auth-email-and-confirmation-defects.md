@@ -5,7 +5,7 @@ status: planted
 disposition: fast-follow after v1.48
 title: Generated auth email + confirmation flow defect cluster (7 findings)
 area: installer templates / generated auth / transactional email
-source: downstream adopter field report, 2026-09-15 (relayed); 3 of 7 verified locally at 160de093
+source: downstream adopter field report, 2026-09-15 (relayed); 4 of 7 verified locally at 160de093
 severity: mixed (1 blocker, 1 high, 3 medium, 2 low)
 related:
   - .planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md
@@ -20,8 +20,8 @@ flow. **All seven are in the generator templates, not in the adopter's copies of
 any host running `mix sigra.install --live` today gets every one. The adopter fixed all
 seven locally and is not blocked; no action is owed to them.
 
-I verified **A, B and E** myself against HEAD `160de093`. C, D, F and G are recorded as
-reported and still need confirmation.
+I verified **A, B, E and the E line numbers** myself against HEAD `160de093`. C, D, F and G
+are recorded as reported and still need confirmation.
 
 ## Disposition — FAST FOLLOW (decided 2026-09-15)
 
@@ -53,7 +53,7 @@ Plan a phase when any of these hold:
 | B | high | A code copied from the email cannot be pasted into the form | ✓ at 160de093 |
 | C | medium | Generated emails render thousands of px wide | reported |
 | D | medium | `sigra_auth_page` renders no flash region — every `put_flash/3` is invisible | reported |
-| E | low | `sigra-auth-copy--error` does not exist; modifier is `--danger` | ✗ not reproduced |
+| E | low | `sigra-auth-copy--error` does not exist; modifier is `--danger` | ✓ at 160de093 |
 | F | medium | A spent confirmation link reports the *code* as invalid | reported |
 | G | low | Apple Mail strips CTA anchor styling (underline + square corners) | reported |
 
@@ -104,14 +104,29 @@ that is a submit that clears the field and says nothing, which is **indistinguis
 A's silent failure**. That is why A was hard to name from the outside, and it is why D
 should be fixed in the same phase as A rather than after it.
 
-### E — wrong BEM modifier (low) — NOT REPRODUCED
+### E — wrong BEM modifier (low) — VERIFIED
 
-Reported as `sigra-auth-copy--error` where the defined modifier is `--danger`. At
-`160de093` the token `sigra-auth-copy--error` appears nowhere in `priv/templates/` or
-`lib/` — only `--center` and `--muted` are in use. Either it is against a local copy or a
-surface not swept here. **Confirm before acting.** The general trap is real regardless: a
-missing CSS class has no failure mode and renders unstyled silently, and `--danger` sits
-awkwardly against the `:error`/`:warning` vocabulary the flash API uses.
+`priv/templates/sigra.install/core/sigra_auth.css:177-181` defines exactly:
+
+```css
+.sigra-auth-copy          { margin: 0; }
+.sigra-auth-copy--muted   { color: var(--sigra-auth-muted); }
+.sigra-auth-copy--center  { text-align: center; }
+.sigra-auth-copy--danger  { color: var(--sigra-auth-risk); }
+.sigra-auth-copy--warning { color: var(--sigra-auth-warn); }
+```
+
+There is **no `--error`**. The trap: the flash API's vocabulary is `:error` / `:warning`, so
+`--warning` matches the flash key but `--danger` does not. Anyone writing an inline error
+reaches for `sigra-auth-copy--error` by analogy, gets no class, and it renders unstyled
+with **no failure mode at all** — no build error, no console warning, nothing.
+
+This is not a bug in the CSS; it is a naming trap in the seam between the stylesheet's BEM
+vocabulary and the flash API's atom vocabulary. Severity low is right.
+
+Fix (small, pick one): add `--error` as an alias for `--danger`, or rename so the modifiers
+match the `:error` / `:warning` atoms the flash API already uses. The adopter explicitly
+recommended **not** spending milestone budget beyond that.
 
 ### F — spent link blames the code (medium)
 
@@ -128,6 +143,11 @@ reasonably concludes the code expired.
 
 Fix: ask the **account**, not the token, when the token comes back unusable, and word it
 "invalid or has already been used".
+
+**Prioritise F over C/E/G if only one more gets checked.** It is the only finding in the
+cluster that produces a *wrong* message rather than an *absent* one — and a wrong message
+**survives the D fix**. Restoring the flash region makes D's silent failures visible, but it
+makes F's incorrect message visible too, stated more confidently.
 
 ### G — Apple Mail strips CTA styling (low)
 
