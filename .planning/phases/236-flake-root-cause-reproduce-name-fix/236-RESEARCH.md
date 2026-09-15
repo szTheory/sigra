@@ -180,7 +180,7 @@ All small, all worth correcting so plans don't edit the wrong line.
 | `<.link patch>` render | `phoenix_component.ex:3090-3120` | **`:3108-3120`** (patch clause) | [VERIFIED: deps/phoenix_live_view/lib/phoenix_component.ex:3108-3120] |
 | `phx-no-format` strip | `tag_engine.ex:1538` ✅ | `:1538-1540` ✅ | [VERIFIED: deps/phoenix_live_view/lib/phoenix_live_view/tag_engine.ex:1538-1540] |
 | Router two sessions | `router_injection.ex:28-41,56-69` ✅ | ✅ (`live_session :admin_global` `:28`, `AuditIndexLive` `:36`; `live_session :admin_organization` `:56`, `AuditIndexLive` `:69`) | [VERIFIED: priv/templates/sigra.install/admin/router_injection.ex:28,36,56,69] |
-| All `audit_index_live.ex` anchor/form citations | `:59-74,76,121,122,140,142,155,180,189-190,286-289` | **all correct** | [VERIFIED: lib/sigra/admin/live/audit_index_live.ex — `href=` at 61, 68, 121, 122, 155, 180; `<form method="get"` at 76; `remove_href=` 140; `Clear all` 142; `prev_href/next_href` 189-190; `index_path/1` 286-289] |
+| All `audit_index_live.ex` anchor/form citations | `:59-74,76,121,122,140,142,155,180,189-190,286-289` | **all correct EXCEPT `189-190`, which is `:188-189`** | [VERIFIED: lib/sigra/admin/live/audit_index_live.ex — `href=` at 61, 68, 121, 122, 155, 180; `<form method="get"` at 76; `remove_href=` 140; `Clear all` 142; `prev_href` 188, `next_href` 189; `index_path/1` 286-289] |
 | `ci.yml` regions | `:80-96, :393, :1401-1421, :1460` | **all correct** | [VERIFIED: .github/workflows/ci.yml:78 step, 393 glob, 1401 job, 1460 env] |
 
 ### 🟡 C-5: D-04's "stable control" is a **different LiveView**, and it uses a button, not Enter
@@ -439,7 +439,7 @@ BEFORE (today)                               AFTER (D-08)
 
 ### Pattern 1: `<.link patch>` with full attribute carry-over
 **What:** Replace `<a href={f(...)} class=… aria-current=…>` with `<.link patch={f(...)} class=… aria-current=…>`.
-**When:** Every anchor at `audit_index_live.ex:61, 68, 121, 140 (via remove_href), 142, 155, 180, 189-190`.
+**When:** Every anchor at `audit_index_live.ex:61, 68, 121, 140 (via remove_href), 142, 155, 180, 188-189`.
 **NOT:** `:122` `Export CSV` — a controller download, must stay a document navigation (D-08.5).
 **Example (in-repo, already shipping):**
 ```heex
@@ -454,7 +454,7 @@ BEFORE (today)                               AFTER (D-08)
 </.link>
 ```
 
-⚠️ `remove_href={...}` at `:140` and `prev_href`/`next_href` at `:189-190` are **component attrs**, not raw anchors — the anchors live inside `.applied_chip` and `.audit_pagination_nav` in `lib/sigra/admin/components.ex`. Converting them means editing `components.ex`, which is **shared by `audit_user_live.ex` and `users_index_live.ex`** — i.e. it widens the blast radius into D-30's excluded files and puts `user-audit-*.png` ×3 at risk. **Recommendation: scope the fix to the raw anchors in `audit_index_live.ex` (`:61, :68, :121, :142, :155, :180`) plus the form, and explicitly record in the plan that `.applied_chip` / `.audit_pagination_nav` stay `<a href>` for this phase** — they are not on the failing test's path (the test only clicks presets and submits the form). The planner must verify this component boundary before writing tasks; CONTEXT's D-08 list reads as if `:140/:189-190` were plain anchors.
+⚠️ `remove_href={...}` at `:140` and `prev_href`/`next_href` at `:188-189` are **component attrs**, not raw anchors — the anchors live inside `.applied_chip` and `.audit_pagination_nav` in `lib/sigra/admin/components.ex`. Converting them means editing `components.ex`, which is **shared by `audit_user_live.ex` and `users_index_live.ex`** — i.e. it widens the blast radius into D-30's excluded files and puts `user-audit-*.png` ×3 at risk. **Recommendation: scope the fix to the raw anchors in `audit_index_live.ex` (`:61, :68, :121, :142, :155, :180`) plus the form, and explicitly record in the plan that `.applied_chip` / `.audit_pagination_nav` stay `<a href>` for this phase** — they are not on the failing test's path (the test only clicks presets and submits the form). The planner must verify this component boundary before writing tasks; CONTEXT's D-08 list reads as if `:140/:188-189` were plain anchors.
 
 ### Pattern 2: `phx-submit` + `handle_event` → `push_patch`, keeping progressive enhancement
 ```heex
