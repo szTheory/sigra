@@ -46,7 +46,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
   submitted with a wiped input would still serialize `actor=` (empty) — the key would be
   present. Its total absence means no submission occurred.
 
-- **D-04:** The controlled differential that seals it: the example-lane spec
+- **D-04 [informational]:** The controlled differential that seals it: the example-lane spec
   `test/example/priv/playwright/tests/admin-audit.spec.ts:127-146` drives the **identical** GET
   filter form and is stable — because it calls `waitForLiveViewReady(page)` immediately before
   the fill *and* after the click. `admin-generated.spec.ts:441-459` calls it only after the
@@ -62,7 +62,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
 
 ### Stale Citations to Correct Before Planning
 
-- **D-06:** The ROADMAP (SC-1, "line 428") and the todo (lines 454-458) both cite a
+- **D-06 [informational]:** The ROADMAP (SC-1, "line 428") and the todo (lines 454-458) both cite a
   `getByRole("button", {name:"Apply filters"}).click()`. **The spec at HEAD does not do that.**
   It uses `actorFilter.press("Enter")` at `admin-generated.spec.ts:457`, changed by commit
   `2a96d72f` ("ci: authenticate Playwright once, then shard", #168) *after* the 2026-07-30 todo
@@ -70,7 +70,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
   target the real lines — a plan written against the cited button-click edits a line that is not
   there, and an SC-1 RED captured against it proves nothing.
 
-- **D-07:** Both todos point at `lib/sigra/admin/live/audit_live.ex`, **a file that does not
+- **D-07 [informational]:** Both todos point at `lib/sigra/admin/live/audit_live.ex`, **a file that does not
   exist**. The real module is `audit_index_live.ex` (siblings: `audit_user_live.ex`).
 
 ### Fix Shape in `lib/`
@@ -94,7 +94,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
   multi-field filter panel (every keystroke would push a history entry and re-enter
   `handle_params` mid-typing).
 
-- **D-10:** Keeping `method="get"` + `action=` alongside `phx-submit` is **sanctioned and
+- **D-10 [informational]:** Keeping `method="get"` + `action=` alongside `phx-submit` is **sanctioned and
   hazard-free**, not dead markup. `bindForms` (`live_socket.js:1158-1197`) calls
   `preventDefault()` unconditionally whenever `phx-submit` is present, so the native GET never
   fires while connected; the native-submit branch cannot double-fire. `action=` stays live in
@@ -145,14 +145,20 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
   plan must **state this divergence explicitly and cite the zero-hit grep**, so it reads as a
   deliberate first-of-its-kind choice rather than an oversight.
 
-- **D-17:** There is **no `priv/templates/` or `test/example/lib/` mirror** of this LiveView —
+- **D-17 [informational]:** There is **no `priv/templates/` or `test/example/lib/` mirror** of this LiveView —
   it ships purely as library code. The only outside mention is a comment at
   `test/example/lib/example_web/live/admin/design_gallery_live.ex:1329`, a static design board,
   unaffected. Re-verify with one grep before planning (installer-template-drift precedent).
+  *(Correction folded in from RESEARCH C-8, so the record is accurate: the design-gallery comment is
+  NOT the only outside mention. The example app's own router mounts this LiveView twice —
+  `test/example/lib/example_web/router.ex:282` (`/admin/audit`) and `:315` (`/audit`, under
+  `live_session :admin_organization`). Neither is a change surface, so D-17's core claim — no
+  LiveView mirror exists — holds; but it confirms the two-`live_session` constraint applies in the
+  example lane as well as the generated lane.)*
 
 ### Reproduction Mechanics (GREEN-01 / SC-1, SC-3)
 
-- **D-18:** No trace exists today and none can be harvested: `playwright.config.ts:59` hardcodes
+- **D-18 [informational]:** No trace exists today and none can be harvested: `playwright.config.ts:59` hardcodes
   `retries: 0` and `trace: 'on-first-retry'`. The RED must be **manufactured deliberately**.
 
 - **D-19:** The stale-`head_ref` finding is **already fixed at HEAD** —
@@ -200,7 +206,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
   `test.slow(`. Plus the mandatory non-vacuity floors (the config parse found a `retries:` line;
   the spec walk found ≥10 spec files).
 
-- **D-25:** **Comment-stripping is load-bearing:** `playwright.config.ts:16-18` literally reads
+- **D-25 [informational]:** **Comment-stripping is load-bearing:** `playwright.config.ts:16-18` literally reads
   *"Retries stay at zero everywhere; CI shard commands repeat `--retries=0` explicitly"* — a
   naive `/retries/` match reds on the very prose that documents compliance.
 

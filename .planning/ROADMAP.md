@@ -98,9 +98,17 @@
 **Plans**: 4 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 236-01-PLAN.md — Manufacture the RED (tracer), write the differential diagnosis, and take the D-05 branch call *(wave 1)*
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 236-02-PLAN.md — Make `audit_index_live.ex` the sole owner of its URL: six `<.link patch>` anchors, `phx-submit`, one whitelisting `handle_event` → `push_patch` *(wave 2)*
 - [ ] 236-03-PLAN.md — The `p17` retry-wrapper guard + committed known-bad fixture, delete `PLAYWRIGHT_RETRIES`, correct STACK.md, renumber SURF-04 to `p18` *(wave 2)*
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 236-04-PLAN.md — SC-3 evidence at n=5 sequential PR runs, the AFTER-FIX-GREEN ledger slot, and the named deferrals *(wave 3)*
 
 ### Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
@@ -286,7 +294,6 @@ Plans:
 **Closed as `override_closeout` with two unsatisfied requirements.** TEST-01 and TEST-02 are satisfied only on paper: `ExUnitTimingFormatter` and `SIGRA_EXUNIT_TIMING_PATH` have zero references in `.github/`, `scripts/`, or `mix.exs` at HEAD. Phase 234-01 removed the wiring and the re-wiring commits live on the parked 235.1 branch. The Phase 233 contract test was rewritten to *require* the replacement single-owner topology, so the guard blesses the regression rather than detecting it — which is why Phase 233 re-verified green. The milestone's performance goal was met by that replacement design, so the requirements were accepted as debt rather than re-litigated at close. Full diagnosis in `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`; five audit-surfaced findings filed alongside it.
 
 </details>
-
 
 <details>
 <summary>✅ v1.46 ADOPTER-EXPERIENCE (Phases 224-229) — SHIPPED 2026-07-27 (`override_closeout` · 15/15 requirements · 8 audit findings deferred) · full detail in milestones/v1.46-ROADMAP.md</summary>
