@@ -754,7 +754,13 @@ Low-surface phase. No auth logic, no crypto, no new input handling beyond one pa
 | A5 | Repeated PR pushes produce one CI run each and the `generated_admin_playwright_smoke` job completes in ~3.7m | Pitfall 5 | Duration is from `ci.yml:1395`'s comment (a recorded measurement, not a live probe). If slower, SC-3's wall-clock budget grows. |
 | A6 | `gsd_run check prohibition-enforcement` is available to this repo's GSD runtime | SC-4 validation | If not, the manual two-invocation RED/GREEN pair (shown above) is a complete substitute. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three closed at plan time; see `236-01-PLAN.md` `<planner_decisions_closed_here>` for the
+> reasoning of record. (1) n=5 — closed question 1. (2) SPECIFIED, not built — closed question 2,
+> realised as `<sc5_contingency_design>` in `236-04-PLAN.md`. (3) No — closed question 4:
+> `admin-generated.spec.ts` stays byte-unchanged so SC-3's repeated green is attributable to the
+> `lib/` fix alone. No open question remains in this document.
 
 1. **What n does Phase 236's SC-3 commit to?**
    - Known: Phase 240/GREEN-04 owns n≥20; Phase 236's SC-3 says only "dispatched repeatedly … passes every repeat".
