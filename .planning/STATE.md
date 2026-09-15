@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 236
 current_phase_name: Flake Root Cause — Reproduce, Name, Fix
 status: executing
-stopped_at: Completed 236-01-PLAN.md
-last_updated: "2026-09-15T21:38:37.625Z"
+stopped_at: Completed 236-02-PLAN.md
+last_updated: "2026-09-15T21:56:45.157Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 236 execution started
-state_head: f400fa15d21a059cb5ebe782082d29fca3c07b67
+state_head: e3b61df6829cb6f8c1fcaecb9e4c4a7d5d2b64cb
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 236 execution started
 
@@ -454,6 +454,7 @@ Last activity: 2026-09-15 — Phase 236 execution started
 - [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
 - [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
 - [Phase 236]: D-05 branch call: (a) product race — actor= absent from URL entirely, confirmed by real CI failure (run 35004420339) and local reproduction; plan 236-02 proceeds as written
+- [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
 
 ### Pending Todos
 
@@ -654,8 +655,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-15T21:38:37.606Z
-Stopped at: Completed 236-01-PLAN.md
+Last session: 2026-09-15T21:56:45.137Z
+Stopped at: Completed 236-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -831,3 +832,4 @@ Resume file: None
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
 | Phase 236 P01 | 2h 15min | 3 tasks | 3 files |
+| Phase 236 P02 | 35min | 3 tasks | 3 files |
