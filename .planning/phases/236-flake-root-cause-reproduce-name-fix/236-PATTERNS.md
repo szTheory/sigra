@@ -66,7 +66,7 @@ Copy this shape verbatim onto the **raw anchors** in `audit_index_live.ex`. Curr
 | `:155` | `<th><a href={sort_path(@admin_scope, @current_params, "inserted_at")}>Occurred</a></th>` | **yes** |
 | `:180` | `<a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>` | **yes** |
 | `:140` `remove_href={remove_chip_path(...)}` | **component attr**, not an anchor | **NO — out of scope** |
-| `:188-189` `prev_href=` / `next_href=` | **component attrs**, not anchors | **NO — out of scope** |
+| `:189-190` `prev_href=` / `next_href=` | **component attrs**, not anchors | **NO — out of scope** |
 
 **Component boundary VERIFIED this session (closes RESEARCH assumption A2):**
 `def applied_chip` lives at `lib/sigra/admin/components.ex:372` and `def audit_pagination_nav` at

@@ -76,7 +76,7 @@ root cause is a genuine product race in `lib/`, **fixing it is in scope**.
 ### Fix Shape in `lib/`
 
 - **D-08:** Keep `AuditIndexLive` a LiveView and make it the **sole owner of its URL**:
-  1. Presets (`:59-74`), chip-remove (`:140`), sort (`:155`), pagination (`:188-189`), `Clear`
+  1. Presets (`:59-74`), chip-remove (`:140`), sort (`:155`), pagination (`:189-190`), `Clear`
      (`:121`) and `Clear all` (`:142`, `:180`) anchors become `<.link patch={...}>`.
   2. The filter form (`:76`) **keeps** `method="get"` and `action={index_path(...)}` and simply
      **adds** `phx-submit="apply_filters"`.
