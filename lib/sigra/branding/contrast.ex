@@ -106,26 +106,35 @@ defmodule Sigra.Branding.Contrast do
   # candidate that meets the target. Tracks the best candidate seen so a
   # genuinely unreachable target still yields the most legible option.
   defp search_lightness(h, s, l, direction, surface, target) do
-    Enum.reduce_while(1..100, {nil, 0.0}, fn step, {_best_hex, best_ratio} = acc ->
-      candidate_l = l + direction * step / 100.0
+    context = %{h: h, s: s, l: l, direction: direction, surface: surface, target: target}
 
-      if candidate_l < 0.0 or candidate_l > 1.0 do
-        {:halt, acc}
-      else
-        candidate = from_hsl(h, s, candidate_l)
-        ratio = contrast_ratio(candidate, surface)
-
-        cond do
-          ratio >= target -> {:halt, {:found, candidate}}
-          ratio > best_ratio -> {:cont, {candidate, ratio}}
-          true -> {:cont, acc}
-        end
-      end
-    end)
+    1..100
+    |> Enum.reduce_while({nil, 0.0}, &step_lightness(&1, &2, context))
     |> case do
       {:found, hex} -> {:ok, hex}
       {nil, _ratio} -> {:best, from_hsl(h, s, l)}
       {hex, _ratio} -> {:best, hex}
+    end
+  end
+
+  defp step_lightness(step, acc, context) do
+    candidate_l = context.l + context.direction * step / 100.0
+
+    if candidate_l < 0.0 or candidate_l > 1.0 do
+      {:halt, acc}
+    else
+      from_hsl(context.h, context.s, candidate_l)
+      |> evaluate_candidate(acc, context)
+    end
+  end
+
+  defp evaluate_candidate(candidate, {_best_hex, best_ratio} = acc, context) do
+    ratio = contrast_ratio(candidate, context.surface)
+
+    cond do
+      ratio >= context.target -> {:halt, {:found, candidate}}
+      ratio > best_ratio -> {:cont, {candidate, ratio}}
+      true -> {:cont, acc}
     end
   end
 
