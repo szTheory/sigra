@@ -76,3 +76,25 @@ and lightness adjustment is straightforward in HSL/OKLCH.
   dark mode will actually use and override it if they disagree.
 - Document the final rule in `guides/recipes/auth-branding.md` at the point of use. Even
   with derivation in place, the resolution order should be written down.
+
+## Adopter confirmation (2026-09-15)
+
+The reporting adopter confirmed they will leave `dark_accent_color` **unset** and let the
+derivation run, rather than pinning a value. Their reasoning is worth keeping, because it
+validates the design choice and tells us what makes it acceptable:
+
+- Their accent was chosen against a warm off-white light surface. They have no
+  independently-chosen dark accent, so a derived value is better-founded than anything
+  they would guess today. This is the common case, not an unusual one — hosts pick one
+  brand accent against their light surface and have never had reason to choose a second.
+- **Surfacing the derived value in the admin branding UI is explicitly what makes the
+  derivation safe for them to accept.** They intend to review the derived result there
+  and pin explicitly only if they dislike it. So the admin-UI surfacing is not a nice-to-
+  have that can be dropped to a follow-up — it is the escape hatch that makes automatic
+  derivation trustworthy rather than magic. Treat it as in-scope with the derivation.
+- They independently reached the same rejection of the "Sigra dark-accent default" option
+  and for the same reason: discarding a brand colour the host explicitly supplied is the
+  worse default.
+
+Confirms the `explicit value always wins untouched` rule matters in practice — it is the
+thing that lets a host opt out of derivation after reviewing it.
