@@ -220,7 +220,8 @@ defmodule Sigra.Branding.Contrast do
         value
 
       _ ->
-        raise ArgumentError, "expected a 6-digit hex colour, got an invalid pair: #{inspect(pair)}"
+        raise ArgumentError,
+              "expected a 6-digit hex colour, got an invalid pair: #{inspect(pair)}"
     end
   end
 

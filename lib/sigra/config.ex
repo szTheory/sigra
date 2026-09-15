@@ -115,7 +115,8 @@ defmodule Sigra.Config do
         dark_logo_url: [
           type: {:or, [:string, nil]},
           default: nil,
-          doc: "Optional dark-theme logo URL for generated auth screens. Falls back to logo_url when unset. Not used for transactional email, which always uses logo_url."
+          doc:
+            "Optional dark-theme logo URL for generated auth screens. Falls back to logo_url when unset. Not used for transactional email, which always uses logo_url."
         ],
         accent_color: [
           type: :string,

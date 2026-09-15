@@ -18,7 +18,10 @@ defmodule Sigra.Branding.ContrastTest do
 
     test "raises a helpful error on a malformed hex" do
       assert_raise ArgumentError, ~r/6-digit hex/, fn -> Contrast.relative_luminance("teal") end
-      assert_raise ArgumentError, ~r/6-digit hex/, fn -> Contrast.relative_luminance("#ggg000") end
+
+      assert_raise ArgumentError, ~r/6-digit hex/, fn ->
+        Contrast.relative_luminance("#ggg000")
+      end
     end
   end
 

@@ -1065,7 +1065,11 @@ defmodule Sigra.Admin.Components do
     # here. The live auth screen cannot do this when theme is :system -- see the
     # <picture> emission in the generated auth components.
     assigns =
-      assign(assigns, :preview_logo, Sigra.Branding.logo(assigns.profile, preview_theme(assigns.theme)))
+      assign(
+        assigns,
+        :preview_logo,
+        Sigra.Branding.logo(assigns.profile, preview_theme(assigns.theme))
+      )
 
     ~H"""
     <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>

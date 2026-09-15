@@ -164,7 +164,8 @@ defmodule Sigra.BrandingTest do
     test "email ignores a pinned dark theme" do
       # Transactional email renders on an effectively light surface whatever the
       # profile theme says, so a pinned :dark theme must not pull in the dark asset.
-      profile = Profile.new!(theme: :dark, logo_url: "/positive.svg", dark_logo_url: "/reversed.svg")
+      profile =
+        Profile.new!(theme: :dark, logo_url: "/positive.svg", dark_logo_url: "/reversed.svg")
 
       assert Branding.email_logo(profile) == "/positive.svg"
     end
