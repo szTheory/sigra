@@ -3,6 +3,7 @@
 | Slot | What it is | How captured | Status |
 |------|-----------|--------------|--------|
 | [BEFORE-FLAKE-RED](#before-flake-red) | Deliberately manufactured RED of `admin-generated.spec.ts:459` (`toHaveURL(actor=...)`), corroborated by a real, unprompted CI failure of the identical assertion on the same day | Real GitHub Actions CI run `35004420339` (`gh run view` / `gh api .../logs`) plus a local `npx playwright test --repeat-each --trace=on` sweep against a scaffolded generated host under real CPU contention | captured (run `35004420339`) |
+| [AFTER-P17-GUARD-OBSERVED](#after-p17-guard-observed) | `p17-no-playwright-retry-wrapper.test.mjs` observed RED against a committed known-bad fixture and GREEN against the real config (standing constraint 6) | `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` (RED) then the same command without the env override (GREEN) | captured |
 
 ---
 
@@ -148,3 +149,44 @@ npx playwright show-trace /Users/jon/projects/sigra/.gsd/scratch/phase236-eviden
 **Branch (a):** `actor=` is absent from the URL entirely, not present-and-empty. Both the real
 CI failure and the local reproduction show the identical received string with no `actor=` key.
 See `236-DIAGNOSIS.md` for the differential diagnosis.
+
+## AFTER-P17-GUARD-OBSERVED
+
+Status: captured
+
+Per ROADMAP standing constraint 6 ("a guard never observed RED does not count"), both halves of
+`scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` were run and their exit codes
+recorded.
+
+### RED half — committed known-bad fixture substituted as the subject
+
+```bash
+GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs
+```
+
+Exit code: `1`.
+
+Failure message (verbatim, from the `the config subject carries no retry wrapper` test):
+
+```text
+a `retries` value is read from `process.env` — recovering a failed attempt via an env-controlled retry count masks the isolation evidence a flake investigation depends on
+```
+
+TAP summary: `# tests 5`, `# pass 4`, `# fail 1`.
+
+### GREEN half — real, unmodified subject
+
+```bash
+node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs
+```
+
+Exit code: `0`. TAP summary: `# tests 5`, `# pass 5`, `# fail 0`.
+
+### Shared glob unaffected
+
+```bash
+node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs
+```
+
+Exit code: `0`. TAP summary: `# tests 71`, `# pass 71`, `# fail 0` — the new guard does not break
+any of the other 15 prohibition guards sharing the `fast_checks` glob.
