@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 236
 current_phase_name: Flake Root Cause — Reproduce, Name, Fix
 status: executing
-stopped_at: Completed 236-02-PLAN.md
-last_updated: "2026-09-15T21:56:45.157Z"
+stopped_at: Completed 236-03-PLAN.md
+last_updated: "2026-09-15T22:11:35.624Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 236 execution started
-state_head: e3b61df6829cb6f8c1fcaecb9e4c4a7d5d2b64cb
+state_head: 70a797e6a3f75ac9300f96c0982803e7fba249c6
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 236 execution started
 
@@ -455,6 +455,7 @@ Last activity: 2026-09-15 — Phase 236 execution started
 - [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
 - [Phase 236]: D-05 branch call: (a) product race — actor= absent from URL entirely, confirmed by real CI failure (run 35004420339) and local reproduction; plan 236-02 proceeds as written
 - [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
+- [Phase 236]: 236-03: p17 no-playwright-retry-wrapper guard added, observed RED against a committed known-bad fixture and GREEN against the real config; dead PLAYWRIGHT_RETRIES env key deleted from ci.yml. — ROADMAP SC-4/GREEN-02: retry-wrapping the flake into silence is prohibited; the guard makes that mechanical instead of prose-only.
 
 ### Pending Todos
 
@@ -655,8 +656,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-15T21:56:45.137Z
-Stopped at: Completed 236-02-PLAN.md
+Last session: 2026-09-15T22:11:35.597Z
+Stopped at: Completed 236-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -833,3 +834,4 @@ Resume file: None
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
 | Phase 236 P01 | 2h 15min | 3 tasks | 3 files |
 | Phase 236 P02 | 35min | 3 tasks | 3 files |
+| Phase 236 P03 | 55min | 3 tasks | 7 files |
