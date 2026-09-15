@@ -54,7 +54,7 @@
 - [x] **Phase 232: Playwright Economics — Authenticate Once, Then Shard** - `storageState` for the design boards first (measured), then per-shard-DB parallelization and a single shared boot prelude (completed 2026-07-31)
 - [x] **Phase 233: Library Suite Economics** - Restore parallelism, balance the shards, and stop the subprocess-heavy install tests from dominating shard wall-clock (completed 2026-07-31)
 - [x] **Phase 234: Hygiene, Supply Chain, and Contributor DX** - `mix ci` reproduces the gate, actions SHA-pinned, Dependabot covers Hex+npm, no orphaned specs, SEED-006 closed (completed 2026-08-02)
-- [ ] **Phase 235: Terminal Ratification — Measured, Not Read** - GATE-05 is complete; FAST-01 remains open after gap plan 235-15 halted on insufficient signed source-population evidence.
+- [x] **Phase 235: Terminal Ratification — Measured, Not Read** - All 13 plans complete; source-complete FAST-01 and independent GATE-05 evidence verified. (completed 2026-09-09)
 
 ## Phase Details
 
@@ -344,7 +344,7 @@ Plans:
   5. SEED-005 is closed as delivered — or its residuals are filed — and the `CI-PERF` entry in MILESTONE-ARC.md is reconciled to reflect that the audit's Phase 198→203 sequence was executed as 230-235.
 
 **Proof discipline**: This phase re-measures; it does not re-audit. If the p50 lands above 12 minutes, the honest outcome is v1.40's precedent — record the measured number and the binding pole, and disclose the miss rather than restating the target.
-**Plans**: 12 plans in 12 waves
+**Plans**: 13 plans in 13 waves
 
 Plans:
 **Wave 1**
@@ -385,15 +385,19 @@ Plans:
 
 **Wave 10** *(gap closure; blocked on halted Wave 9 diagnosis)*
 
-- [ ] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
+- [x] 235-16-PLAN.md — Make the protected subject source-complete and land the exact producer on main before dispatch
 
 **Wave 11** *(gap closure; blocked on the Wave 10 workflow landing on protected main)*
 
-- [ ] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
+- [x] 235-17-PLAN.md — Capture and verify one source-complete protected population without changing closeout records
 
 **Wave 12** *(gap closure; blocked on authenticated Wave 11 evidence)*
 
-- [ ] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
+- [x] 235-18-PLAN.md — Reconcile FAST-01, its residual, SEED-005, and CI-PERF without regressing GATE-05
+
+**Wave 13** *(gap closure; blocked on Wave 12 completion)*
+
+- [x] 235-19-PLAN.md — Preserve literal terminal conclusions in the FAST-01 offline verifier and prove full-statistics equality
 
 ## Progress
 
@@ -404,7 +408,7 @@ Plans:
 | 232. Playwright Economics | 7/7 | Complete    | 2026-07-31 |
 | 233. Library Suite Economics | 6/6 | Complete    | 2026-07-31 |
 | 234. Hygiene, Supply Chain, Contributor DX | 21/21 | Complete    | 2026-08-02 |
-| 235. Terminal Ratification | 8/12 | Halted — FAST-01 signed-source evidence gap | — |
+| 235. Terminal Ratification | 13/13 | Complete    | 2026-09-09 |
 
 ## Requirement Coverage
 
