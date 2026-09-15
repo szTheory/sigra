@@ -25,7 +25,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.47 CI-EFFICIENCY milestone closeout
+**Current focus:** Between milestones — v1.47 CI-EFFICIENCY shipped and archived 2026-09-15. Next: `/gsd-new-milestone` (phases continue from 236).
 
 ## Current Position
 
@@ -624,13 +624,17 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-09T16:25:00Z
-Stopped at: Phase 235 complete — all phases complete
+Last session: 2026-09-15
+Stopped at: v1.47 CI-EFFICIENCY archived (override_closeout); close-out PR open
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Merge the v1.47 close-out PR, then start the next milestone with `/gsd-new-milestone` (phases continue from **236**).
+- **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
+- **Cheap, high-value:** add `example_unit_smoke` to `ci-gate.needs` and to `honest-skip-verdict.sh`'s lane set. It is a ruleset-required context absent from both, and `wait-for-ci-gate.sh` polls only the `ci-gate` job — so a red `example_unit_smoke` on a push to main does not currently stop a Hex publish.
+- Four further audit-surfaced findings are filed under `todos/pending/2026-09-15-*`.
+- **No git tag** — milestone tags were dropped after v1.35 (collision risk with the Hex package version).
 
 ## Performance Metrics
 
