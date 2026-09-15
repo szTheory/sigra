@@ -89,16 +89,48 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 ## Traceability
 
-Populated during roadmap creation.
+Every v1.48 requirement is mapped to exactly one phase. Phase details and success
+criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (pending roadmap) | | |
+| GREEN-01 | Phase 236 | Pending |
+| GREEN-02 | Phase 236 | Pending |
+| GREEN-03 | Phase 237 | Pending |
+| GREEN-04 | Phase 240 | Pending |
+| GREEN-05 | Phase 240 | Pending |
+| REL-01 | Phase 238 | Pending |
+| REL-02 | Phase 238 | Pending |
+| REL-03 | Phase 242 | Pending |
+| REL-04 | Phase 242 | Pending |
+| REL-05 | Phase 242 | Pending |
+| REL-06 | Phase 242 | Pending |
+| SURF-01 | Phase 239 | Pending |
+| SURF-02 | Phase 237 | Pending |
+| SURF-03 | Phase 239 | Pending |
+| SURF-04 | Phase 241 | Pending |
+| REPO-01 | Phase 237 | Pending |
+| REPO-02 | Phase 237 | Pending |
+| REPO-03 | Phase 237 | Pending |
+| REPO-04 | Phase 245 | Pending |
+| QUEUE-01 | Phase 243 | Pending |
+| QUEUE-02 | Phase 244 | Pending |
+| QUEUE-03 | Phase 243 | Pending |
+| QUEUE-04 | Phase 243 | Pending |
+| DEBT-01 | Phase 241 | Pending |
+| DEBT-02 | Phase 241 | Pending |
+| DEBT-03 | Phase 241 | Pending |
+| DEBT-04 | Phase 241 | Pending |
 
 **Coverage:**
 - v1.48 requirements: 27 total
-- Mapped to phases: 0
-- Unmapped: 27 ⚠️
+- Mapped to phases: 27 ✓
+- Unmapped: 0
+- Duplicated across phases: 0
+
+**Phase roll-up:** 236 (GREEN-01/02) · 237 (GREEN-03, REPO-01/02/03, SURF-02) · 238 (REL-01/02) ·
+239 (SURF-01/03) · 240 (GREEN-04/05) · 241 (DEBT-01/02/03/04, SURF-04) · 242 (REL-03/04/05/06) ·
+243 (QUEUE-01/03/04) · 244 (QUEUE-02) · 245 (REPO-04)
 
 ---
-*Requirements defined: 2026-09-15*
+*Requirements defined: 2026-09-15 · Traceability populated at roadmap creation 2026-09-15*

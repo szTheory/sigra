@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 status: planning
-last_updated: "2026-09-15T18:06:41.511Z"
+last_updated: "2026-09-15T00:00:00.000Z"
 last_activity: 2026-09-15
 progress:
-  total_phases: 0
+  total_phases: 10
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,42 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones — v1.47 CI-EFFICIENCY shipped and archived 2026-09-15. Next: `/gsd-new-milestone` (phases continue from 236).
+**Current focus:** **v1.48 CLEAN-BASELINE** (Phases 236-245) — baseline hygiene + cut a release. Explicitly not a feature or UI milestone. Roadmap created 2026-09-15; 27/27 requirements mapped. Next: `/gsd-plan-phase 236`.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 236 — Flake Root Cause: Reproduce, Name, Fix (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-15 — Milestone v1.48 started
+Status: Roadmap created; awaiting `/gsd-plan-phase 236`
+Last activity: 2026-09-15 — v1.48 roadmap created (10 phases, 236-245, 27/27 requirements mapped)
+
+### v1.48 phase map
+
+| Phase | Name | Requirements |
+|-------|------|--------------|
+| 236 | Flake Root Cause — Reproduce, Name, Fix | GREEN-01, GREEN-02 |
+| 237 | Clean Working Tree, Green Pages, Clean `lib/` Docs Surface | GREEN-03, REPO-01, REPO-02, REPO-03, SURF-02 |
+| 238 | Tag Guard, Then Tag Deletion | REL-01, REL-02 |
+| 239 | `priv/templates/` Sweep + One Batched Re-bless | SURF-01, SURF-03 |
+| 240 | Green-Main Evidence + Honest Pages Script | GREEN-04, GREEN-05 |
+| 241 | Retire v1.47's Dishonest Debt + Adopter-Leakage Guard | DEBT-01..04, SURF-04 |
+| 242 | Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1 | REL-03..06 |
+| 243 | Drain the Queue — Dependabot A/B, Stale PRs, Todo Triage | QUEUE-01, QUEUE-03, QUEUE-04 |
+| 244 | `@playwright/test` 1.59.1 → 1.62.1, Alone | QUEUE-02 |
+| 245 | Branch Prune — Local and Remote | REPO-04 |
+
+**Parallel from day one:** 236, 237, 238 (one pre-resolved file collision — `lib/sigra/admin/live/audit_index_live.ex` belongs to 236; 237 skips it).
+**Forced spine:** 236 → 239 → 241; 236 + 237 → 240; 238 + 239 + 240 → 242 → 243 → 244 → 245.
+
+### v1.48 standing constraints (bind every phase)
+
+- One live-external observation per phase (GitHub API / Hex API / freshly generated app / built tarball / captured CI run). Count-only acceptance is rejected.
+- Evidence captured at the final committed HEAD on a clean tree.
+- `mix ci`, never root `mix test`, before every push.
+- Found-while-cleaning → a new todo file, never an in-phase fix. **One pre-authorized exception:** if Phase 236's root cause is a genuine product race in `lib/`, fixing it is in scope.
+- New prohibition guards go in `scripts/ci/prohibitions/*.test.mjs` — never into `mix ci` (changing the alias re-opens the v1.47 wound this milestone closes).
+- A guard never observed RED does not count.
+- The `REQUIREMENTS.md` Out of Scope table binds every phase.
 
 ## Accumulated Context
 
@@ -621,12 +649,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-15
-Stopped at: v1.47 CI-EFFICIENCY archived (override_closeout); close-out PR open
+Stopped at: v1.48 CLEAN-BASELINE roadmap created — 10 phases (236-245), 27/27 requirements mapped, 0 orphans
 Resume file: None
 
 ## Operator Next Steps
 
-- Merge the v1.47 close-out PR, then start the next milestone with `/gsd-new-milestone` (phases continue from **236**).
+- Review `.planning/ROADMAP.md` `# v1.48 CLEAN-BASELINE (active)`, then `/gsd-plan-phase 236`. Phases 237 and 238 can be planned and executed in parallel with 236.
+- **TEST-01/TEST-02 is now scheduled, not open:** Phase 241 records the supersession as an ADR and deletes the orphaned `ExUnitTimingFormatter`, with the replacement guard demonstrated RED against a committed known-bad fixture.
+- **`example_unit_smoke` / `ci-gate.needs` is deliberately a todo, not a phase** (FUT-03) — filed in Phase 243's triage with the diagnosis attached.
 - **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
 - **Cheap, high-value:** add `example_unit_smoke` to `ci-gate.needs` and to `honest-skip-verdict.sh`'s lane set. It is a ruleset-required context absent from both, and `wait-for-ci-gate.sh` polls only the `ci-gate` job — so a red `example_unit_smoke` on a push to main does not currently stop a Hex publish.
 - Four further audit-surfaced findings are filed under `todos/pending/2026-09-15-*`.
