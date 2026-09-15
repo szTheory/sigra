@@ -2,7 +2,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PHASE_DIR="$ROOT/.planning/phases/235-terminal-ratification-measured-not-read"
+# shellcheck source=scripts/ci/_phase-dir-resolve.sh
+. "$ROOT/scripts/ci/_phase-dir-resolve.sh"
+PHASE_DIR="$(resolve_phase_dir "$ROOT" "235-terminal-ratification-measured-not-read")"
 RECEIPT="$PHASE_DIR/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.json"
 BUNDLE="$PHASE_DIR/235-FAST-01-GAP-CLOSURE-REMEASUREMENT.attestation.jsonl"
 TRUSTED_ROOT="$PHASE_DIR/235-FAST-01-GAP-CLOSURE-REMEASUREMENT-TRUSTED-ROOT.jsonl"
