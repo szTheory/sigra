@@ -140,6 +140,31 @@
   .sigra-auth__mark span:nth-child(2) { height: 1.7rem; opacity: 0.72; }
   .sigra-auth__mark span:nth-child(3) { height: 1rem; opacity: 0.88; }
 
+  /* Theme-specific logo slots. Mirrors the installer template.
+     Must sit AFTER .sigra-auth__mark and qualify the attribute with the element
+     class: a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark on
+     specificity, so the later display:grid would win and the dark placeholder would
+     stay visible in light mode. */
+  .sigra-auth__logo[data-sigra-logo-slot="dark"],
+  .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="light"],
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="light"] {
+      display: none;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="dark"] {
+      display: block;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+      display: grid;
+    }
+  }
+
   .sigra-auth__product {
     margin: 0;
     color: var(--sigra-auth-text);
