@@ -95,7 +95,13 @@
   4. Adding a retry wrapper (`retries`, `waitForTimeout`, `test.slow()`) **fails** a `scripts/ci/prohibitions/*.test.mjs` guard, demonstrated RED against a committed known-bad fixture; and the dead `PLAYWRIGHT_RETRIES: 1` at `ci.yml:1460` is either wired to `playwright.config.ts` or deleted (it is itself a dishonest surface).
   5. If root cause genuinely fails, the only accepted close is a **dated quarantine entry naming an owner** in `.github/ci-skip-manifest.tsv` — an explicit, attributed risk acceptance. Retry-wrapping is never that fallback.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 236-01-PLAN.md — Manufacture the RED (tracer), write the differential diagnosis, and take the D-05 branch call *(wave 1)*
+- [ ] 236-02-PLAN.md — Make `audit_index_live.ex` the sole owner of its URL: six `<.link patch>` anchors, `phx-submit`, one whitelisting `handle_event` → `push_patch` *(wave 2)*
+- [ ] 236-03-PLAN.md — The `p17` retry-wrapper guard + committed known-bad fixture, delete `PLAYWRIGHT_RETRIES`, correct STACK.md, renumber SURF-04 to `p18` *(wave 2)*
+- [ ] 236-04-PLAN.md — SC-3 evidence at n=5 sequential PR runs, the AFTER-FIX-GREEN ledger slot, and the named deferrals *(wave 3)*
 
 ### Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
 
