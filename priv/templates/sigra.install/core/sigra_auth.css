@@ -407,31 +407,6 @@
     object-fit: contain;
   }
 
-  /* Theme-specific logo slots.
-     Only emitted when theme is "system" AND the light and dark themes resolve
-     different assets; a pinned theme renders one slot with no data attribute, so
-     these rules do not apply to it. Each slot is independently an <img> or the
-     placeholder mark, which is why this is CSS toggling rather than <picture> --
-     <picture> cannot express "placeholder in light, logo in dark". */
-  [data-sigra-logo-slot="dark"] {
-    display: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="light"],
-    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="light"] {
-      display: none;
-    }
-
-    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="dark"] {
-      display: block;
-    }
-
-    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="dark"] {
-      display: grid;
-    }
-  }
-
   .sigra-auth__mark {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -466,6 +441,38 @@
   .sigra-auth__mark span:nth-child(3) {
     height: 1rem;
     opacity: 0.88;
+  }
+
+  /* Theme-specific logo slots.
+     Only emitted when theme is "system" AND the light and dark themes resolve
+     different assets; a pinned theme renders one slot with no data attribute, so
+     these rules never apply to it. Each slot is independently an <img> or the
+     placeholder mark, which is why this is CSS toggling rather than <picture> --
+     <picture> cannot express "placeholder in light, logo in dark".
+
+     Both the placement and the doubled selectors are load-bearing. These rules must
+     sit AFTER .sigra-auth__mark, and must qualify the attribute with the element
+     class, because a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark
+     on specificity -- the later display:grid would win and the dark placeholder would
+     stay visible in light mode. */
+  .sigra-auth__logo[data-sigra-logo-slot="dark"],
+  .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="light"],
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="light"] {
+      display: none;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="dark"] {
+      display: block;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+      display: grid;
+    }
   }
 
   .sigra-auth__product {
