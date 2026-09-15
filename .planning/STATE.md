@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 236
 current_phase_name: Flake Root Cause — Reproduce, Name, Fix
-status: planning
-stopped_at: Phase 236 context gathered (assumptions mode)
-last_updated: "2026-09-15T19:25:10.000Z"
+status: executing
+stopped_at: Completed 236-01-PLAN.md
+last_updated: "2026-09-15T21:38:37.625Z"
 last_activity: 2026-09-15
-last_activity_desc: v1.48 roadmap created (10 phases, 236-245, 27/27 requirements mapped)
-state_head: 65dad286397a5123822f4176ed8b06cddbc60451
+last_activity_desc: Phase 236 execution started
+state_head: f400fa15d21a059cb5ebe782082d29fca3c07b67
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **v1.48 CLEAN-BASELINE** (Phases 236-245) — baseline hygiene + cut a release. Explicitly not a feature or UI milestone. Roadmap created 2026-09-15; 27/27 requirements mapped. Next: `/gsd-plan-phase 236`.
+**Current focus:** Phase 236 — Flake Root Cause — Reproduce, Name, Fix
 
 ## Current Position
 
-Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — READY TO EXECUTE
-Plan: —
-Status: Roadmap created; awaiting `/gsd-plan-phase 236`
-Last activity: 2026-09-15 — v1.48 roadmap created (10 phases, 236-245, 27/27 requirements mapped)
+Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-09-15 — Phase 236 execution started
 
 ### v1.48 phase map
 
@@ -453,6 +453,7 @@ Last activity: 2026-09-15 — v1.48 roadmap created (10 phases, 236-245, 27/27 r
 - [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
 - [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
 - [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
+- [Phase 236]: D-05 branch call: (a) product race — actor= absent from URL entirely, confirmed by real CI failure (run 35004420339) and local reproduction; plan 236-02 proceeds as written
 
 ### Pending Todos
 
@@ -653,9 +654,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-15T18:42:30.031Z
-Stopped at: Phase 236 context gathered (assumptions mode)
-Resume file: .planning/phases/236-flake-root-cause-reproduce-name-fix/236-CONTEXT.md
+Last session: 2026-09-15T21:38:37.606Z
+Stopped at: Completed 236-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -829,3 +830,4 @@ Resume file: .planning/phases/236-flake-root-cause-reproduce-name-fix/236-CONTEX
 | Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
 | Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
 | Phase 235 P19 | 7min | 2 tasks | 2 files |
+| Phase 236 P01 | 2h 15min | 3 tasks | 3 files |
