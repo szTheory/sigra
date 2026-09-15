@@ -44,9 +44,9 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 
 ### Library suite economics (TEST)
 
-- [x] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially.
-- [x] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works.
-- [x] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification.
+- [ ] **TEST-01**: Slow-test visibility no longer forces the library suite to run serially. *(NOT satisfied at v1.47 close — see audit; the timing formatter has no CI consumer.)*
+- [ ] **TEST-02**: The two library shards finish within a comparable time of each other rather than one idling while the other works. *(NOT satisfied at v1.47 close — there is one shard, not two.)*
+- [~] **TEST-03**: The subprocess-heavy install tests no longer dominate library shard wall-clock, whether by sharing fixture setup or by moving to a non-PR lane with recorded justification. *(Partial — re-satisfied by a different mechanism; golden/idempotency still execute twice.)*
 
 ### Hygiene and contributor DX (DX)
 
@@ -80,9 +80,9 @@ A PR burns ~56 runner-minutes for a 25.6m wall; a push ~92 for 35m.
 | PW-01 | Phase 232 | Complete |
 | PW-02 | Phase 232 | Complete |
 | PW-03 | Phase 232 | Complete |
-| TEST-01 | Phase 233 | Complete (233 re-verification 2026-07-31 closed the exhaustive-manifest gap; `gaps_remaining: []`, 16/16 must-haves) |
-| TEST-02 | Phase 233 | Complete (233 re-verification 2026-07-31; `gaps_remaining: []`, 16/16 must-haves) |
-| TEST-03 | Phase 233 | Complete (233 re-verification 2026-07-31; `gaps_remaining: []`, 16/16 must-haves) |
+| TEST-01 | Phase 233 | **Unsatisfied at close** — `Sigra.CI.ExUnitTimingFormatter` and `SIGRA_EXUNIT_TIMING_PATH` have zero references in `.github/`, `scripts/`, or `mix.exs` at HEAD. 234-01 removed the wiring; the re-wiring commits are on the parked 235.1 branch, not ancestors of main. Deferred to `.planning/todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`. |
+| TEST-02 | Phase 233 | **Unsatisfied at close** — `library_tests_shard` is a single non-matrix job running `MIX_ENV=test mix ci` (`ci.yml:548`); there are no two cost-balanced shards to compare. Same deferred todo as TEST-01. |
+| TEST-03 | Phase 233 | **Partial** — re-satisfied by a different mechanism than planned: scaffold modules are `@tag :scaffold`, excluded from the broad leg (`mix.exs:154`) and re-run by `ci.install_golden` inside the Postgres-backed shard. `golden_diff_test.exs` / `idempotency_test.exs` still also run in `install_golden_contract`, so the duplicate execution the audit flagged is real. |
 | DX-01 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
 | DX-02 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
 | DX-03 | Phase 234 | Complete (234 re-verification 2026-08-02; `gaps_remaining: []`, 7/7 must-haves) |
