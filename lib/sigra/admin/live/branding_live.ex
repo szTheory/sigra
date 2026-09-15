@@ -37,6 +37,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
     product_name
     logo_url
     logo_alt
+    dark_logo_url
     theme
     accent_color
     accent_foreground
@@ -258,6 +259,12 @@ defmodule Sigra.Admin.Live.BrandingLive do
                       value={field_value(@draft_params, "logo_alt")}
                       help={"Used when a logo is shown. Keep it short, like \"Acme logo\"."}
                       required
+                    />
+                    <.detail_input
+                      name="dark_logo_url"
+                      label="Dark theme logo URL"
+                      value={field_value(@draft_params, "dark_logo_url")}
+                      help="Optional reversed logo for the dark theme. Falls back to Logo URL when empty. Email always uses Logo URL, never this one."
                     />
                     <.detail_select
                       name="theme"
