@@ -51,9 +51,7 @@ defmodule Sigra.Planning.Phase236RetryWrapperProhibitionTest do
         block
 
       nil ->
-        flunk(
-          "job `#{job_id}` not found in #{@ci} — the parse broke, this is not a pass"
-        )
+        flunk("job `#{job_id}` not found in #{@ci} — the parse broke, this is not a pass")
     end
   end
 
@@ -87,7 +85,12 @@ defmodule Sigra.Planning.Phase236RetryWrapperProhibitionTest do
   test "the surviving env keys are unchanged" do
     block = job_block(@job_id)
 
-    for key <- ["PGUSER: postgres", "PGPASSWORD: postgres", "PGHOST: localhost", "GITHUB_WORKSPACE:"] do
+    for key <- [
+          "PGUSER: postgres",
+          "PGPASSWORD: postgres",
+          "PGHOST: localhost",
+          "GITHUB_WORKSPACE:"
+        ] do
       assert block =~ key,
              "expected `#{@job_id}` to still declare `#{key}` — only PLAYWRIGHT_RETRIES was " <>
                "supposed to be removed"
