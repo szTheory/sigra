@@ -12,6 +12,7 @@ source: 2026-07-28 quick 260728-glj — found while cutting release PR #83 for 1
 audit_acknowledged:
   milestone: v1.47
   at: 2026-09-15
+resolves_phase: 242
 ---
 
 ## What
