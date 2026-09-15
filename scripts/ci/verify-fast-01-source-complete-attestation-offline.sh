@@ -110,7 +110,23 @@ case "$(uname -s)" in
   *) fail "network_isolation_unavailable:unsupported_platform";;
 esac
 
-work="$($MKTEMP_BIN -d)"; trap 'rm -rf -- "$work"' EXIT; mkdir "$work/home"
+work="$($MKTEMP_BIN -d)"
+# Cleanup must never alter the script's exit status. Under `set -e` a failing
+# command inside an EXIT trap overrides it, so a *successful* verification would
+# report failure when the sandboxed `gh` leaves behind a state directory whose
+# mode blocks unlinking (observed in CI: "rm: cannot remove
+# '$work/home/.local/state/gh/device-id': Permission denied"). Restore write
+# permission first, and swallow any residual cleanup error.
+cleanup() {
+  if [[ "${isolation[0]}" == "/usr/bin/sudo" ]]; then
+    /usr/bin/sudo -n /usr/bin/rm -rf -- "$work" 2>/dev/null || true
+  else
+    chmod -R u+rwX -- "$work" 2>/dev/null || true
+    rm -rf -- "$work" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+mkdir "$work/home"
 cp "$RECEIPT" "$work/receipt.json"; cp "$BUNDLE" "$work/bundle.jsonl"; cp "$TRUSTED_ROOT" "$work/trusted-root.jsonl"
 "${isolation[@]}" /usr/bin/env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin HOME="$work/home" \
   GH_TOKEN= GITHUB_TOKEN= HTTP_PROXY= HTTPS_PROXY= ALL_PROXY= NO_PROXY= \
