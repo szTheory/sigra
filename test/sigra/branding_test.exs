@@ -217,11 +217,11 @@ defmodule Sigra.BrandingTest do
     end
 
     test "keeps a foreground the host was already running below target" do
-      # White on this pink is already below target in light mode. That is the host's
+      # White on this accent is already below target in light mode. That is the host's
       # aesthetic choice, not a defect for us to silently "fix" in dark mode only --
       # flipping their button text to black would be a far more visible change than
       # the sub-perceptual accent shift that triggered it.
-      profile = Profile.new!(accent_color: "#ea4a71", accent_foreground: "#ffffff")
+      profile = Profile.new!(accent_color: "#c25f3f", accent_foreground: "#ffffff")
 
       assert Branding.color_tokens(profile, :dark).accent_foreground == "#ffffff"
     end
