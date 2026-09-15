@@ -1,20 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.47
 milestone_name: CI-EFFICIENCY
-current_phase: 235
-status: completed
+status: Awaiting next milestone
 stopped_at: Phase 235 complete — all phases complete
-last_updated: "2026-09-09T16:23:40.392Z"
-last_activity: 2026-09-09
-last_activity_desc: Phase 235 complete
-state_head: 40cf8819abcdcab7359691b6cefe66aa29c656e0
+last_updated: "2026-09-15T17:15:23.738Z"
+last_activity: 2026-09-15
+last_activity_desc: Milestone v1.47 completed and archived
+state_head: 17ff9846a05051a4ffc8b12348c8442a36512b35
 progress:
   total_phases: 6
   completed_phases: 6
   total_plans: 67
   completed_plans: 67
   percent: 100
+current_phase: 235
 ---
 
 # Project State
@@ -29,38 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 235
-Plan: 13 of 13
-Status: All phases complete
-Progress: 6/6 milestone phases complete ([██████████] 100%); 13 of 13 Phase 235 plans complete
-Last activity: 2026-09-15 — Completed quick task 260915-h3b: recovered Phase 235 closure onto origin/main
-
-**Phase 230 planning artifacts:** `230-RESEARCH.md` (verified line anchors at HEAD `5db4f0fb`, full
-21-job inventory, reconstructed D-21 baseline method), `230-PATTERNS.md` (8/8 analogs),
-`230-VALIDATION.md` (8-slot observed-run evidence contract, 6 Wave 0 gaps), `230-01..09-PLAN.md`.
-
-**Two evidence slots close post-merge, by construction — not an oversight.** AFTER-PUSH (SC-1's
-push-to-main half) and AFTER-DOCSONLY (FAST-05) cannot be captured pre-merge: `ci.yml` triggers on
-`pull_request: branches: [main]`, so any pre-merge PR's `origin/main...HEAD` diff necessarily
-carries this phase's own non-Markdown changes and can never classify `docs_only=true`. FAST-05
-retains in-phase falsifiable evidence via a hermetic self-test of the extracted
-`scripts/ci/docs-only-classify.sh` plus two observed `docs_only=false` runs.
-
-**Milestone baseline to beat (measured 2026-07-28, last 40 runs):** PR mean 29.5m / p50 27.3m
-(n=21) · push mean 30.5m (n=7) · nightly **0 pass / 9 fail** (n=9). Sole PR critical path is
-`example_playwright_smoke` (23m), of which `design_gallery` is 734s (53%).
-
-**Verification philosophy (binds every phase):** success criteria are proven by *running CI and
-reading measured numbers*, never by reading YAML. `.planning/v1.42-CI-GATE-REMEDIATION-FINDINGS.md`
-is the precedent — a milestone passed audits that were "code-level reads that never executed the
-specs" while the required Playwright check carried ~15 real failures. A `skipped` job proves
-nothing (`ci-gate` counts skipped as pass), and a demotion is honest only if the receiving lane is
-observed executing the work.
-
-**Phase 231 closure:** Scheduled run `30607570671` is the measured successor to the 0/9 nightly
-baseline: `event: schedule`, PR #125 merge SHA, overall success, 25 executing jobs green, and one
-legitimate notification skip. The separate Pages publisher also ran green (`30613728531`), but its
-source-update REST call received `403`; that repo-admin follow-up remains filed and owned.
+Phase: Milestone v1.47 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-15 — Milestone v1.47 completed and archived
 
 ## Accumulated Context
 
@@ -658,8 +630,7 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Complete and archive v1.47 with `$gsd-complete-milestone v1.47`.
-- Separately, repo admin `szTheory` can resolve the non-blocking Pages todo by selecting `gh-pages` / in repository Settings → Pages.
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 
