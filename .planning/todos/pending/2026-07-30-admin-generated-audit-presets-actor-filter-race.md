@@ -4,8 +4,10 @@ status: pending
 title: "admin-generated.spec.ts's Actor-filter assertion times out — a genuine URL race, distinct from the duplicate-action_prefix bug"
 area: admin-ui
 files:
+
   - test/example/priv/playwright/tests/admin-generated.spec.ts
   - lib/sigra/admin/live/audit_live.ex
+
 severity: medium
 source: >-
   Diagnosed during Phase 231's GATE-02 gap-closure and dispatch cycles
@@ -13,6 +15,9 @@ source: >-
   phase's own "diagnose/file, never paper over" mandate — it had only been
   reported inline in plan SUMMARYs, not as a discoverable todo, until now.
 owner: unassigned (repo maintainer to triage)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

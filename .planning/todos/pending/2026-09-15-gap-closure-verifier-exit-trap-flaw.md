@@ -5,8 +5,13 @@ title: Gap-closure attestation verifier can still fail a passing run from its EX
 area: ci
 severity: moderate
 files:
+
   - scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh
+
 source: 2026-09-15 — found while fixing the same flaw in the source-complete verifier (PR #239)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

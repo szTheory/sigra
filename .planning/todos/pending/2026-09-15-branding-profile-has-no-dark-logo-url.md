@@ -5,6 +5,7 @@ title: Branding profile has no dark_logo_url, so no logo value is correct in bot
 area: auth-ui
 severity: major
 files:
+
   - lib/sigra/branding/profile.ex
   - lib/sigra/branding.ex
   - lib/sigra/config.ex
@@ -13,9 +14,15 @@ files:
   - priv/templates/sigra.install/core/sigra_auth_components.ex
   - priv/templates/sigra.install/core/emails.ex
   - guides/recipes/auth-branding.md
+
 source: 2026-09-15 — reported by an early adopter integrating Sigra into a production app; verified against main 1afd37f0
 related:
+
   - .planning/todos/pending/2026-06-22-white-label-auth-email-theming.md
+
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -106,6 +113,7 @@ the placeholder, because a blank space where a logo should be reads as a broken 
 rather than as a deliberate neutral mark.
 
 So the fallback is **directional, not symmetric**:
+
 - Auth screens: dark slot falls back to light slot (and vice versa) — fine, because the
   surface behind it is theme-matched.
 - Email: light slot only, degrade to placeholder when unset — because the email surface

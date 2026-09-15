@@ -8,11 +8,16 @@ audit_finding: W-1
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [AUTHUI-02, AUTHUI-04, PROOF-03]
 files:
+
   - priv/templates/sigra.install/core/login_html.ex
   - test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/session_html.ex
   - test/sigra/install/generator_passkey_primary_login_test.exs
+
 plan_ready: .planning/quick/260728-d9h-fix-passkey-primary-email-label-and-id/260728-d9h-PLAN.md
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

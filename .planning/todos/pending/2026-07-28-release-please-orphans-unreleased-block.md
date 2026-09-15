@@ -4,9 +4,14 @@ status: pending
 title: Release Please orphans the hand-written `## Unreleased` block at every release — notes ship inside a released Hex package still labelled "Unreleased"
 area: release
 files:
+
   - CHANGELOG.md
   - release-please-config.json
+
 source: 2026-07-28 quick 260728-glj — found while cutting release PR #83 for 1.4.0
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

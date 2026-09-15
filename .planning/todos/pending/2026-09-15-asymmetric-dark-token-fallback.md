@@ -5,11 +5,18 @@ title: Dark token fallback is asymmetric, so the default dark theme is a palette
 area: auth-ui
 severity: minor
 files:
+
   - lib/sigra/branding.ex
   - guides/recipes/auth-branding.md
+
 source: 2026-09-15 — reported by an early adopter integrating Sigra into a production app; verified against main 1afd37f0
 related:
+
   - .planning/todos/pending/2026-09-15-branding-profile-has-no-dark-logo-url.md
+
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -19,10 +26,13 @@ In `Sigra.Branding.color_tokens/2`, the `:dark` clause resolves an unset `dark_*
 
 ```elixir
 accent_color:     profile.dark_accent_color || profile.accent_color,
+
 # ^ falls back to the host's LIGHT value
 
 background_color: profile.dark_background_color || Map.fetch!(@dark_color_defaults, :background_color),
+
 # ^ falls back to SIGRA's DARK default
+
 ```
 
 Accent and accent-foreground inherit the host's light values; the five neutrals

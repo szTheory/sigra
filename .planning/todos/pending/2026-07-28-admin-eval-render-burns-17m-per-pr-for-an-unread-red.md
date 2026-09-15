@@ -4,13 +4,18 @@ status: pending
 title: "admin_eval_render burns ~17m on every PR to produce a red artifact that nothing reads, and its first-phase failure means the harness guards b1-b6 have never executed in CI"
 area: ci
 files:
+
   - .github/workflows/ci.yml
   - scripts/ci/admin-eval-harness.sh
   - test/example/priv/playwright/playwright.config.ts
   - test/example/priv/playwright/tests/admin-eval.spec.ts
+
 severity: high
 source: 2026-07-28 CI fan-out investigation that scoped the v1.47 CI-EFFICIENCY milestone
 resolves_phase: 231
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

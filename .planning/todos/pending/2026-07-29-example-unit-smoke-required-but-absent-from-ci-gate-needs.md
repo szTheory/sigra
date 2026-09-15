@@ -4,10 +4,15 @@ status: pending
 title: "example_unit_smoke is one of the five ruleset-14941512-required checks, yet ci-gate.needs does not include it, so ci-gate can conclude success while that lane is red"
 area: ci
 files:
+
   - .github/workflows/ci.yml
   - MAINTAINING.md
+
 severity: medium
 source: Phase 231 planning (231-CONTEXT.md § Deferred Ideas) — filed per plan 231-09, GATE-03's own honesty gap fell out of scope
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

@@ -4,9 +4,14 @@ status: pending
 title: Admin audit "Impersonation" action_prefix filter chip does not apply (duplicate action_prefix query param)
 area: admin-ui
 files:
+
   - lib/sigra/admin/live/audit_live.ex
   - lib/sigra/admin/components.ex
+
 source: 2026-07-18 Jon spotted the chip on /admin/audit not filtering; flagged during the demo-DX polish burst
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

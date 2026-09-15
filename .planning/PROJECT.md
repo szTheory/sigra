@@ -10,16 +10,21 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-234 are complete; Phase 235
-(Terminal Ratification — Measured, Not Read) is next. Phase 234 made `mix ci` the
-executable local/PR parity path, pinned the release-critical action surface, expanded
-Dependabot coverage, assigned every Playwright spec an executable owner, and closed
-the evidence ledger with an exact six-slot completion contract.
+**Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
+(230-235) cut PR wall-clock p50 from **27.3 minutes to 469 seconds (7m49s)** across n=52
+authenticated runs — inside the `<720s` target and roughly 3.5x faster than baseline. The
+nightly went from 0-pass/9-fail to an honest mix, `ci-gate` no longer counts `skipped` as
+pass, and every Playwright consumer boots through one shared composite action across five
+concurrent seams.
 
-Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
-on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
-The related Pages publisher is green, while its source-setting REST call is a separately filed
-repo-admin follow-up after the default workflow token received `403`.
+**It closed with two requirements unsatisfied, knowingly.** TEST-01 and TEST-02 are dead
+code at HEAD: `ExUnitTimingFormatter` and `SIGRA_EXUNIT_TIMING_PATH` have zero references in
+`.github/`, `scripts/`, or `mix.exs`. Phase 234-01 removed the wiring; the re-wiring commits
+live only on the parked 235.1 branch. The Phase 233 contract test was rewritten to *require*
+the replacement single-owner `mix ci` topology, so the guard now blesses the regression
+instead of catching it — which is why Phase 233 re-verified green and the close-out re-audit
+had to overrule it. The performance goal was met by that replacement design, so the
+requirements were accepted as debt rather than re-litigated under close-out pressure.
 
 **Hex is current again.** `sigra 1.4.0` published 2026-07-28 from tag `v1.4.0` at `cfc5e6b8`
 — the first release since `1.3.0`. The v1.46 changelog content was folded into the 1.4.0
@@ -64,7 +69,30 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 </details>
 
-## Current Milestone: v1.47 CI-EFFICIENCY
+## Latest Shipped Milestone: v1.47 CI-EFFICIENCY (shipped 2026-09-15 — override_closeout)
+
+Delivered across 6 phases (230-235): the design-gallery snapshot split that took the sole PR
+critical-path job off its heaviest step while keeping a11y assertions on every PR;
+`admin_eval_render` demoted off PR and given back a hard non-PR signal; a revived, honest
+nightly; a fail-closed honest-skip verdict that refuses to count an unmanifested `skipped`
+as a pass; one shared `example-playwright-boot` composite action behind five concurrent
+matrix seams converging on the unchanged protected context; SHA-pinned release workflows with
+mutation coverage and weekly Dependabot; `mix ci` as the executable local/PR parity path; and
+a sealed, signed, source-complete 52-run population closing FAST-01 alongside a fail-closed
+93-row GATE-05 ownership ledger.
+
+**21/24 requirements satisfied.** TEST-01/TEST-02 unsatisfied and TEST-03 partial (see
+Current State); 46 open artifacts acknowledged and deferred at close. Five audit-surfaced
+findings were filed as todos rather than fixed at close: the orphaned timing machinery, a
+skip-manifest citation of a parity guard that does not exist (plus the `MAINTAINING.md` leg
+that rotted behind it), the GATE-05 ledger's Playwright-only scope and its disagreement with
+the skip manifest, Phase 232's composite action sitting outside both supply-chain guards, and
+an isolated `admin_eval_render` red that notifies nobody.
+
+Full detail in `milestones/v1.47-ROADMAP.md`; findings in `milestones/v1.47-MILESTONE-AUDIT.md`.
+
+<details>
+<summary>v1.47 CI-EFFICIENCY — original milestone brief</summary>
 
 **Goal:** Cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest — by *executing* the already-written SEED-005 audit rather than re-running it.
 
@@ -80,7 +108,9 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 Phases continue from **230**. Explicitly deferred: credo, dialyzer and mix_audit as new gates; the `async: false` posture (contract-locked by `phase_153_infra_stability_contract_test.exs`); larger or self-hosted runners; and the Hex `1.20.0` retire.
 
-## Latest Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
+</details>
+
+## Previous Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
 
 Delivered across 6 phases (224–229): a host-owned persisted platform-admin grant with an
 explicit `mix sigra.admin.*` workflow replacing all first-user/email-domain inference;

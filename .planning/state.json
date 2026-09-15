@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.47 — CI-EFFICIENCY",
+  "phases": [
+    {
+      "number": "230",
+      "name": "Tier-1 Critical-Path Reclamation",
+      "status": "complete"
+    },
+    {
+      "number": "231",
+      "name": "Gate Honesty + Nightly Revival",
+      "status": "complete"
+    },
+    {
+      "number": "232",
+      "name": "Playwright Economics",
+      "status": "complete"
+    },
+    {
+      "number": "233",
+      "name": "Library Suite Economics",
+      "status": "complete"
+    },
+    {
+      "number": "234",
+      "name": "Hygiene, Supply Chain, Contributor DX",
+      "status": "complete"
+    },
+    {
+      "number": "235",
+      "name": "Terminal Ratification",
+      "status": "complete"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress",
+    "label": "Show progress",
+    "reason": "Unsure of state — showing progress"
+  },
+  "updated_at": "2026-09-15T17:15:23.757Z"
+}

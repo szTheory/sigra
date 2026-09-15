@@ -5,9 +5,14 @@ resolves_phase: 223
 title: Publish v1.2.0/v1.3.0 to Hex — one-time break of the upgrade-smoke chicken-and-egg (self-heals)
 area: release
 files:
+
   - scripts/ci/upgrade-smoke.sh
   - .github/workflows/hex-publish.yml
+
 source: 2026-07-10 v1.44 ship — Jon chose defer-Hex (Option A). Irreversible publish; deliberate manual step.
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

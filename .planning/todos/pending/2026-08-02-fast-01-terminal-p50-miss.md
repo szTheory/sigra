@@ -1,3 +1,9 @@
+---
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
+---
+
 # FAST-01 terminal p50 miss — measured 2026-08-02
 
 **Status:** Resolved — authenticated source-complete pass on 2026-09-09

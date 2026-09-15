@@ -8,9 +8,14 @@ audit_finding: W-5
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [SEC-01]
 files:
+
   - priv/templates/sigra.install/core/auth.ex
   - test/sigra/install/generated_impersonation_parity_test.exs
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

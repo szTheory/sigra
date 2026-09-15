@@ -4,10 +4,15 @@ status: pending
 title: runtime/boot-time auth-schema prefix override (currently baked at install time)
 area: config
 files:
+
   - lib/sigra/config.ex
   - lib/sigra/branding.ex
   - lib/mix/tasks/sigra.install.ex
+
 source: 2026-06-20 discussion (Phase 197 discuss-phase tail) — PG-schema isolation already shipped in v1.1.0; this is the additive runtime-config follow-on
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -31,6 +36,7 @@ config :my_app, :sigra, auth_prefix: "my_auth_schema"
 
 so the prefix can be environment-specific (dev vs. multi-tenant vs. staging) without
 regenerating. Likely involves:
+
 - `Sigra.Config` accepting an optional `:auth_prefix` / `:auth_schema`.
 - Library queries (`Sigra.Branding`, account/session lookups, etc.) honoring a
   `:prefix` override that supersedes the schema-introspected default.

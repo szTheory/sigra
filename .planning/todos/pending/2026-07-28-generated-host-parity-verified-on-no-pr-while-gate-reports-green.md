@@ -4,11 +4,16 @@ status: pending
 title: "generated_admin_playwright_smoke is skipped on every real PR by a stale head_ref gate, and ci-gate counts skipped as pass — so generated-host parity is verified on no PR at all while the gate reports green"
 area: ci
 files:
+
   - .github/workflows/ci.yml
   - .github/workflows/release-please.yml
+
 severity: high
 source: 2026-07-28 CI fan-out investigation that scoped the v1.47 CI-EFFICIENCY milestone
 resolves_phase: 231
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

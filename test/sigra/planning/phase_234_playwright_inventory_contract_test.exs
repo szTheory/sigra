@@ -3,7 +3,10 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
-  @inventory_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-PLAYWRIGHT-INVENTORY.json"
+  @inventory_path Sigra.Test.PlanningPaths.phase_file(
+                    "234-hygiene-supply-chain-and-contributor-dx",
+                    "234-PLAYWRIGHT-INVENTORY.json"
+                  )
   @harness_mappings %{
     "test/example/priv/playwright/tests/admin-eval.spec.ts" => %{
       "command_marker" => "scripts/ci/admin-eval-harness.sh",
