@@ -144,12 +144,20 @@ defmodule <%= web_module %>.SigraAuthComponents do
     build_logo_slots(theme_attr(branding), light, logo_value(branding, :dark_logo_url) || light)
   end
 
+  # Every branch returns the same keys. HEEx :if does short-circuit attribute
+  # evaluation, so a partial map would work today -- but a total map means a future
+  # refactor away from :if cannot turn this into a KeyError on the login page.
   defp build_logo_slots("system", light, dark) when light != dark do
-    %{mode: :dual, light: light, dark: dark}
+    %{mode: :dual, url: light, light: light, dark: dark}
   end
 
-  defp build_logo_slots("dark", _light, dark), do: %{mode: :single, url: dark}
-  defp build_logo_slots(_theme, light, _dark), do: %{mode: :single, url: light}
+  defp build_logo_slots("dark", light, dark) do
+    %{mode: :single, url: dark, light: light, dark: dark}
+  end
+
+  defp build_logo_slots(_theme, light, dark) do
+    %{mode: :single, url: light, light: light, dark: dark}
+  end
 
   defp logo_value(%{} = branding, key) do
     Map.get(branding, key) || Map.get(branding, Atom.to_string(key))

@@ -212,6 +212,12 @@ defmodule Sigra.Admin.Live.BrandingLive do
                         value={field_value(@draft_params, name)}
                       />
                     </div>
+                    <p
+                      class="sg-section-copy"
+                      data-testid="admin-auth-branding-dark-accent-resolution"
+                    >
+                      {dark_accent_note(@preview_profile)}
+                    </p>
                   </fieldset>
                 </section>
 
@@ -551,6 +557,26 @@ defmodule Sigra.Admin.Live.BrandingLive do
       {key, Map.get(params, key, Map.get(fallback, key, "")) || ""}
     end)
   end
+
+  # Says out loud which of the three paths produced the dark accent.
+  #
+  # Derivation is only defensible because an operator can see the resolved value
+  # and pin their own if they disagree -- an automatic colour nobody can inspect is
+  # just a different invisible default. Keep this visible if the derivation changes.
+  defp dark_accent_note(%Sigra.Branding.Profile{} = profile) do
+    case Sigra.Branding.dark_accent_source(profile) do
+      {:explicit, hex} ->
+        "Accent is pinned to #{hex}. An explicit dark accent is never adjusted."
+
+      {:inherited, hex} ->
+        "Accent is blank, so the light accent #{hex} is used unchanged - it already meets contrast against this surface."
+
+      {:derived, hex} ->
+        "Accent is blank, so Sigra derived #{hex} from the light accent to meet contrast against this surface. Set an accent above to pin your own."
+    end
+  end
+
+  defp dark_accent_note(_profile), do: nil
 
   defp field_value(params, key), do: Map.get(params, key, "")
 
