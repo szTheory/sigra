@@ -2,8 +2,8 @@ defmodule Sigra.Planning.Phase235Fast01GapClosureContractTest do
   use ExUnit.Case, async: true
 
   @root Path.expand("../../..", __DIR__)
-  @phase ".planning/phases/235-terminal-ratification-measured-not-read"
-  @requirements Path.join(@root, ".planning/REQUIREMENTS.md")
+  @phase Sigra.Test.PlanningPaths.phase_dir("235-terminal-ratification-measured-not-read")
+  @requirements Path.join(@root, Sigra.Test.PlanningPaths.requirements())
   @residual Path.join(@root, ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md")
   @cutoff_sha "54c33e904155a454255952666711c882afdd06e4"
   @cutoff "2026-08-03T21:37:08Z"

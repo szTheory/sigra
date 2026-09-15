@@ -4,8 +4,11 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @workflow ".github/workflows/fast-01-gap-closure-evidence.yml"
   @collector "scripts/ci/capture-fast-01-gap-closure.sh"
   @verifier "scripts/ci/verify-fast-01-source-complete-attestation-offline.sh"
-  @correlation ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
-  @requirements ".planning/REQUIREMENTS.md"
+  @correlation Sigra.Test.PlanningPaths.phase_file(
+                 "235-terminal-ratification-measured-not-read",
+                 "235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
+               )
+  @requirements Sigra.Test.PlanningPaths.requirements()
   @residual ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
   @seed ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md"
   @milestone_arc ".planning/MILESTONE-ARC.md"
@@ -69,7 +72,10 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
   test "retained source pages independently reproduce the authoritative wall result" do
     subject =
-      ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      Sigra.Test.PlanningPaths.phase_file(
+        "235-terminal-ratification-measured-not-read",
+        "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      )
       |> File.read!()
       |> Jason.decode!()
 
@@ -228,7 +234,10 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
 
   test "source replay rejects page, timestamp, event, identity, order, median, and boundary mutations" do
     subject =
-      ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      Sigra.Test.PlanningPaths.phase_file(
+        "235-terminal-ratification-measured-not-read",
+        "235-FAST-01-SOURCE-COMPLETE-REMEASUREMENT.json"
+      )
       |> File.read!()
       |> Jason.decode!()
 
@@ -280,12 +289,18 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     }
 
     for {path, expected} <- pins do
-      actual = :crypto.hash(:sha256, File.read!(path)) |> Base.encode16(case: :lower)
+      actual =
+        :crypto.hash(:sha256, File.read!(Sigra.Test.PlanningPaths.resolve(path)))
+        |> Base.encode16(case: :lower)
+
       assert actual == expected, "immutable digest drift: #{path}"
     end
 
     terminal =
-      ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+      Sigra.Test.PlanningPaths.phase_file(
+        "235-terminal-ratification-measured-not-read",
+        "235-TERMINAL-RATIFICATION.json"
+      )
       |> File.read!()
       |> Jason.decode!()
 

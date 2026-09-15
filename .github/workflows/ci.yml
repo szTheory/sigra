@@ -314,7 +314,13 @@ jobs:
         # This is intentionally in required fast_checks: every PR and main push
         # revalidates the retained signature, policy, receipt digest, and
         # adversarial failure cases with networking disabled.
-        run: bash scripts/ci/verify-terminal-ratification-attestation-offline.sh
+        # The verifier is sha256-pinned by the phase 235 contract tests, so it
+        # cannot be edited to look in the archive; the shim gives it a staged
+        # ROOT instead and runs its exact reviewed bytes.
+        run: >-
+          bash scripts/ci/run-pinned-phase-verifier.sh
+          verify-terminal-ratification-attestation-offline.sh
+          235-terminal-ratification-measured-not-read
       - name: Docs-only classifier self-test
         # Phase 230 (FAST-05 / D-07): hermetic proof that the docs-only
         # classification rule is correct in both directions, plus the
