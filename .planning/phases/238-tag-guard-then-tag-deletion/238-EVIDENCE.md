@@ -101,7 +101,13 @@ Neither probe body carries a `deletion` rule. Both carry an empty `bypass_actors
 
 ### Probe A — Tier 1 (`tag_name_pattern`)
 
-Request body (Pattern 1 shape from `238-RESEARCH.md`, `target: "tag"`, one `tag_name_pattern` rule,
+Request body — **reconstructed, not captured.** The probe was issued in an earlier execution
+session whose scratch body file was not durable, so the JSON below is the Pattern 1 shape from
+`238-RESEARCH.md` as the probe was specified, not a byte-capture of what was sent. The *response*
+below IS the observed response. Flagged explicitly because this ledger's credibility rests on the
+distinction.
+
+Shape (Pattern 1 from `238-RESEARCH.md`, `target: "tag"`, one `tag_name_pattern` rule,
 `operator: "regex"`, `negate: false`, GitHub's own published SemVer regex prefixed with `^v` and
 terminated with an optional-newline end anchor per RESEARCH Pitfall 2):
 
@@ -152,7 +158,7 @@ Request body (Pattern 2 shape from `238-RESEARCH.md` — a shape CONTEXT did not
 
 ```json
 {
-  "name": "tag-namespace-probe-tier2",
+  "name": "tag-namespace-probe",
   "target": "tag",
   "enforcement": "disabled",
   "bypass_actors": [],
