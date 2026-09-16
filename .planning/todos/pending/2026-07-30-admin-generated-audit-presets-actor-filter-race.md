@@ -18,6 +18,7 @@ owner: unassigned (repo maintainer to triage)
 audit_acknowledged:
   milestone: v1.47
   at: 2026-09-15
+resolves_phase: 236
 ---
 
 ## What

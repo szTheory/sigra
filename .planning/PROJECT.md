@@ -8,6 +8,55 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current Milestone: v1.48 CLEAN-BASELINE
+
+**Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
+code free of planning artifacts, and a release cut — so Sigra sits in a quiet, ready posture
+where the next milestone can start whenever we choose.
+
+**Thesis (post-1.0, maintenance-first):** Eleven consecutive feature/UI/CI milestones left a
+real baseline debt that no single phase owned. Evidence gathered 2026-09-15: `ci-gate` is
+intermittently red on `main` (the `Generated admin Playwright smoke` flake), which is the exact
+mechanism that silently stranded releases in v1.45; GitHub Pages fails on *every* push; Hex
+still resolves `{:sigra, "~> 1.0"}` to the phantom `1.20.0`; 28 planning tags share the tag
+namespace with real release tags — the literal ADR-003 footgun, still being fed (`v1.47`,
+`v1.48` were cut after the convention said stop); 171 planning-bookkeeping references sit in
+`lib/` and `priv/templates/`, five of them dead `.planning/` paths including one that ships
+into every adopter's project; and 18 PRs, 19 local branches, 31 remote branches, 3 stale
+worktrees and 6 stashes have accumulated unpruned. This milestone is explicitly NOT a feature
+or UI milestone. It pays the baseline down and cuts a release, so the next thesis-driven
+milestone starts from a clean, trustworthy floor.
+
+**Target features:**
+- **Green main, honestly** — root-cause the intermittent `Generated admin Playwright smoke`
+  flake (not a retry-wrap), fix the always-red `pages build`, close issue #231, and prove
+  `ci-gate` green across consecutive pushes with live-run evidence rather than assertion.
+- **Unambiguous release namespace + cut the release** — delete the 28 `v1.NN` planning tags
+  and 11 `phase-238-*` proof tags, add a CI guard that rejects any non-SemVer `v*` tag
+  (structurally closing ADR-003), retire the stray Hex `1.20.0` behind a gated operator step
+  with pre/post verification and a real `{:sigra, "~> 1.0"}` adopter-resolution proof, and
+  land the pending release.
+- **Clean shipped surface** — strip planning bookkeeping (`Phase NN`, `D-NN`, `NNN-NN`,
+  `.planning/` paths) from `lib/` and `priv/templates/`, prioritizing what renders on HexDocs
+  and what ships into adopter projects. Keep genuine design rationale; drop the bookkeeping.
+- **Clean git working state** — prune stale branches, worktrees and stashes; gitignore `.gsd/`
+  and GSD scratch; resolve the `doc/llms.txt` tracked-while-ignored conflict; drop stray
+  tracked artifacts.
+- **Drain the queue** — merge the 10 Dependabot bumps, close the 8 stale phase/recapture PRs,
+  and triage all 41 pending todos to keep / close / defer with recorded reasons.
+- **Retire v1.47's dishonest debt** — TEST-01/02 as a recorded supersession decision (delete
+  the orphaned `ExUnitTimingFormatter`, rewrite the contract test that currently blesses the
+  regression), repair the skip manifest's citation of a parity guard that does not exist plus
+  the `MAINTAINING.md` leg that rotted behind it, and bring Phase 232's composite action inside
+  the supply-chain guards.
+
+Phases continue from **236**. **Human-gated operator step** (inherent — Hex write-auth prompts
+interactively): `mix hex.retire sigra 1.20.0 invalid`, scoped as an explicit runbook step, not
+automation. **Explicitly out of scope:** the W-3/W-4 generated-auth runtime-proof lane (the
+intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` out of the repo,
+BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
+and any new feature work.
+
 ## Current State
 
 **Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
@@ -26,15 +75,14 @@ instead of catching it — which is why Phase 233 re-verified green and the clos
 had to overrule it. The performance goal was met by that replacement design, so the
 requirements were accepted as debt rather than re-litigated under close-out pressure.
 
-**Hex is current again.** `sigra 1.4.0` published 2026-07-28 from tag `v1.4.0` at `cfc5e6b8`
-— the first release since `1.3.0`. The v1.46 changelog content was folded into the 1.4.0
-section before merge, so it ships as release notes rather than orphaned under `## Unreleased`.
-Two release-lane defects surfaced during that publish and were repaired in Phase 231:
-`gate-ci-green` now has a 75-minute job ceiling with 120 polling attempts, and the HARD-02
-`release-lane-rot` notifier self-heals its missing label. The stray
-`1.20.0` still outranks everything on Hex — the retire is blocked by Hex 2.5's OAuth token
-scopes (not ownership), so documented install lines are pinned `{:sigra, "~> 1.4.0"}` as a
-zero-auth workaround.
+**Hex publishing works; Hex *resolution* is still broken.** `sigra 1.5.0` is published
+and tagged `v1.5.0` — the series is contiguous through `1.0.0 → 1.5.0`, and PR #224
+(`chore(main): release 1.5.1`) is open and waiting. Two release-lane defects repaired in Phase
+231 hold: `gate-ci-green` has a 75-minute job ceiling with 120 polling attempts, and the
+HARD-02 `release-lane-rot` notifier self-heals its missing label. **But the stray `1.20.0` is
+still `latest_stable_version` on Hex and is not retired**, so `{:sigra, "~> 1.0"}` resolves to
+a phantom release; documented install lines are pinned as a zero-auth workaround. v1.48 takes
+the retire as a gated operator step.
 
 The adopted experience is now coherent end to end and proven from a fresh generated host —
 install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke →
@@ -48,9 +96,15 @@ defect the owner caught by eye survives one config flag away, and the fix shippe
 covered only one branch of a two-branch conditional. W-3 + W-4 (no axe run touches any
 `sigra-auth-*` surface) are the coherent core of a follow-on auth-UI proof milestone.
 
-Also outstanding and unrelated to UI: Hex currency. Last published release is `1.3.0`; the
-stray `1.20.0` still outranks it and the retire remains operator-deferred (ADR 003). The
-v1.46 changelog content is still under `## Unreleased`.
+**Baseline debt is the reason v1.48 exists.** Evidence gathered 2026-09-15: `ci-gate` is
+intermittently red on `main` via a flaky `Generated admin Playwright smoke`, which is the same
+mechanism that silently stranded releases in v1.45; `pages build` fails on every push; 28
+`v1.NN` planning tags share the tag namespace with real release tags (the ADR-003 footgun, and
+`v1.47`/`v1.48` were cut *after* the convention said stop); 171 planning-bookkeeping references
+sit in `lib/` and `priv/templates/`, five of them dead `.planning/` paths including one that
+ships into every adopter's project; and 18 PRs, 19 local branches, 31 remote branches, 3 stale
+worktrees and 6 stashes are unpruned. The W-3/W-4 auth-UI runtime-proof lane remains the
+intended milestone *after* this one.
 
 <details>
 <summary>v1.46 ADOPTER-EXPERIENCE — original milestone brief</summary>
@@ -1165,3 +1219,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-08-02 — Phase **234 Hygiene, Supply Chain, and Contributor DX** complete (21/21 plans; verifier 7/7, status passed). `mix ci` is the executable contributor/PR parity path, release-critical actions and Dependabot coverage are fail-closed, every Playwright spec has an exact executable owner, SEED-006 evidence is ratified, and completion now admits exactly the six named evidence slots. The final gap also reblessed the generated `config/dev.exs` golden from stale Phoenix 1.8.7 scaffold bytes to the pinned `phx_new` 1.8.8 output. Phase 235 terminal ratification is next.*
 
 *Last updated: 2026-09-09 after Phase **235 Terminal Ratification — Measured, Not Read** completed (13/13 plans; verifier 11/11, UAT 2/2, Nyquist compliant, security threats open 0). Authenticated source-complete evidence closes FAST-01 at n=52 and p50=469 seconds; GATE-05 remains independently complete with its protected 93-row ownership proof. v1.47 is 6/6 phases and 67/67 plans complete, ready for `$gsd-complete-milestone v1.47`.*
+
+*Last updated: 2026-09-15 — `/gsd-new-milestone` opened **v1.48 CLEAN-BASELINE** (phases continue from 236). Housekeeping/release-readiness lane chosen over the W-3/W-4 auth-UI proof milestone, which is deliberately queued next. Evidence gathered this session: `ci-gate` intermittently red on `main` via a flaky `Generated admin Playwright smoke` (the v1.45 silent-strand mechanism recurring); `pages build` red on every push; Hex `latest_stable_version` still the phantom `1.20.0`, unretired, so `{:sigra, "~> 1.0"}` misresolves; 28 `v1.NN` planning tags + 11 `phase-238-*` proof tags polluting the release-tag namespace (ADR-003 footgun, still being fed); 171 planning-bookkeeping references in `lib/`+`priv/templates/`, 5 of them dead `.planning/` paths incl. one shipping to adopters; 18 open PRs, 19 local / 31 remote branches, 3 stale worktrees, 6 stashes, 41 pending todos. Six target features: (1) green main honestly; (2) unambiguous release namespace + cut the release, incl. gated Hex `1.20.0` retire; (3) clean shipped surface; (4) clean git working state; (5) drain the PR/todo queue; (6) retire v1.47's dishonest debt (TEST-01/02 supersession, fictional parity guard, composite-action supply-chain gap). Also corrected a stale Current State claim that `1.4.0` was latest — `v1.5.0` is live. Human-gated: `mix hex.retire sigra 1.20.0 invalid`. Out of scope: W-3/W-4 auth-UI runtime proof, admin/operator-UI iteration, `.planning/` pruning, BFG history slimming, all new features. Next: define REQUIREMENTS.md → roadmap.*

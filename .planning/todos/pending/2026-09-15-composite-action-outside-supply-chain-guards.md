@@ -4,6 +4,7 @@ source: v1.47 CI-EFFICIENCY milestone audit (re-audit at close)
 severity: medium
 requirements: [DX-01, DX-02, PW-02]
 audit_acknowledged: v1.47
+resolves_phase: 241
 ---
 
 # Phase 232's composite action sits outside both Phase 234 supply-chain guards

@@ -4,6 +4,7 @@ source: v1.47 CI-EFFICIENCY milestone audit (re-audit at close)
 severity: high
 requirements: [TEST-01, TEST-02]
 audit_acknowledged: v1.47
+resolves_phase: 241
 ---
 
 # TEST-01/TEST-02: library timing machinery is orphaned at HEAD
