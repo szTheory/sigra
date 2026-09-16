@@ -69,7 +69,7 @@
 
 ## Phases
 
-- [ ] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition
+- [x] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition (completed 2026-09-15)
 - [ ] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip
 - [ ] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags
 - [ ] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree
@@ -100,16 +100,16 @@
 Plans:
 **Wave 1**
 
-- [ ] 236-01-PLAN.md — Manufacture the RED (tracer), write the differential diagnosis, and take the D-05 branch call *(wave 1)*
+- [x] 236-01-PLAN.md — Manufacture the RED (tracer), write the differential diagnosis, and take the D-05 branch call *(wave 1)*
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 236-02-PLAN.md — Make `audit_index_live.ex` the sole owner of its URL: six `<.link patch>` anchors, `phx-submit`, one whitelisting `handle_event` → `push_patch` *(wave 2)*
-- [ ] 236-03-PLAN.md — The `p17` retry-wrapper guard + committed known-bad fixture, delete `PLAYWRIGHT_RETRIES`, correct STACK.md, renumber SURF-04 to `p18` *(wave 2)*
+- [x] 236-02-PLAN.md — Make `audit_index_live.ex` the sole owner of its URL: six `<.link patch>` anchors, `phx-submit`, one whitelisting `handle_event` → `push_patch` *(wave 2)*
+- [x] 236-03-PLAN.md — The `p17` retry-wrapper guard + committed known-bad fixture, delete `PLAYWRIGHT_RETRIES`, correct STACK.md, renumber SURF-04 to `p18` *(wave 2)*
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 236-04-PLAN.md — SC-3 evidence at n=5 sequential PR runs, the AFTER-FIX-GREEN ledger slot, and the named deferrals *(wave 3)*
+- [x] 236-04-PLAN.md — SC-3 evidence at n=5 sequential PR runs, the AFTER-FIX-GREEN ledger slot, and the named deferrals *(wave 3)*
 
 ### Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
 
@@ -247,7 +247,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 236. Flake Root Cause | 0/? | Not started | - |
+| 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
 | 237. Clean Working Tree + Pages + `lib/` Docs | 0/? | Not started | - |
 | 238. Tag Guard, Then Tag Deletion | 0/? | Not started | - |
 | 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |

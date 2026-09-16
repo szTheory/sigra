@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 236
-current_phase_name: Flake Root Cause — Reproduce, Name, Fix
-status: verifying
-stopped_at: Completed 236-04-PLAN.md
-last_updated: "2026-09-16T01:23:51.504Z"
+current_phase: 237
+current_phase_name: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
+status: planning
+stopped_at: Phase 236 complete, ready to plan Phase 237
+last_updated: "2026-09-16T02:31:31.496Z"
 last_activity: 2026-09-15
-last_activity_desc: Phase 236 execution started
-state_head: 63d01d3e0c60839c7851dc54a53eb654563b6210
+last_activity_desc: Phase 236 complete, transitioned to Phase 237
+state_head: b8a1587323ba4c334ca4f71eb4668eff416e300b
 progress:
   total_phases: 10
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
   completed_plans: 4
-  percent: 0
+  percent: 10
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-09-15 — Phase 236 execution started
+Phase: 237 — Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
 
 ### v1.48 phase map
 
@@ -658,7 +658,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-16T01:23:51.365Z
-Stopped at: Completed 236-04-PLAN.md
+Stopped at: Phase 236 complete, ready to plan Phase 237
 Resume file: None
 
 ## Operator Next Steps
