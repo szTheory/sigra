@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 237
 current_phase_name: Clean Working Tree, Green Pages, Clean lib/ Docs Surface
 status: executing
-stopped_at: Completed 237-04-PLAN.md
-last_updated: "2026-09-16T15:24:01.948Z"
+stopped_at: Completed 237-05-PLAN.md
+last_updated: "2026-09-16T15:42:14.013Z"
 last_activity: 2026-09-16
 last_activity_desc: Phase 237 execution started
-state_head: d790184b604ebf5d2f982aee87be8063acc686ac
+state_head: e30145da84130a0661a1ab489815d80e6251ec19
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
   percent: 10
 ---
 
@@ -462,6 +462,7 @@ Last activity: 2026-09-16 — Phase 237 execution started
 - [Phase 237]: 237-02: GitHub Pages repointed main -> gh-pages (D-07); prior setting committed as a literal revert value before the PUT
 - [Phase 237]: D-04 applied literally: SC-5's check subject is the regex class security|CSRF|enumeration|timing|scope|impersonation, never the dead # SECURITY: literal (zero occurrences repo-wide) — A guard on a zero-occurrence literal is a green gate that verifies nothing; the check is demonstrated RED on a committed fixture before being trusted
 - [Phase 237]: D-01 scope held to exactly 4 named dead .planning/ references in lib/ doc attributes; the other ~344 benign phase-mention hits are handed to Phase 241's p18 ratchet with a recorded 52-line baseline — A phase that rewrites 259 doc sites is verified only by counting, and count-only acceptance is rejected in this repo
+- [Phase 237]: D-03 applied: fixed 3 dead .planning/ links in upgrade guides before removing the 2 skip entries they justified (9->7), earning the reduction rather than declaring it — Remove-and-retest proved the 7 survivors load-bearing and the 4 dead-link warnings absent from the emptied-list capture
 
 ### Pending Todos
 
@@ -663,8 +664,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T15:24:01.926Z
-Stopped at: Completed 237-04-PLAN.md
+Last session: 2026-09-16T15:42:13.989Z
+Stopped at: Completed 237-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -846,3 +847,4 @@ Resume file: None
 | Phase 237 P01 | 20m | 2 tasks | 2 files |
 | Phase 237 P02 | 20m | 2 tasks | 2 files |
 | Phase 237 P04 | 20 min | 3 tasks | 7 files |
+| Phase 237 P05 | 25 min | 3 tasks | 3 files |
