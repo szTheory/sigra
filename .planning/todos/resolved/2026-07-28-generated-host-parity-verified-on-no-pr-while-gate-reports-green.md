@@ -1,6 +1,8 @@
 ---
 created: 2026-07-28T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-09-15
+resolved_by: phase-236-04
 title: "generated_admin_playwright_smoke is skipped on every real PR by a stale head_ref gate, and ci-gate counts skipped as pass — so generated-host parity is verified on no PR at all while the gate reports green"
 area: ci
 files:
@@ -61,3 +63,23 @@ This todo records the diagnosis only. Nothing in `.github/` was changed.
 Cross-reference the **v1.47 CI-EFFICIENCY** scope and
 `.planning/todos/pending/2026-07-28-gate-ci-green-timeout-too-tight-for-push-to-main.md`, which
 is the other half of the release-gate story.
+
+## Resolution (2026-09-15, Phase 236 plan 04)
+
+**Closed as already-resolved-at-HEAD — D-19.** The stale-`head_ref` gate this todo describes is
+already gone. `.github/workflows/ci.yml:1401-1421` (`generated_admin_playwright_smoke` job) has
+**no `if:` clause at all** — it declares only `needs: release_ref_guard`, so it runs on every
+event including `pull_request`, unconditionally. The job carries an 11-line comment (`ci.yml:1403-
+1420`) crediting the fix to "Phase 231 GATE-02 / D-06" and explicitly forbidding reintroduction of
+either the removed branch-name condition or the seemingly-safer `github.event_name !=
+'pull_request'` pattern, both of which this todo's own "Recommended fix" section would have
+produced the same defect restated.
+
+Corroborated independently, per Phase 236's `236-CONTEXT.md` D-19: `p09`'s pole pin and `p10`'s
+tier-A floor comment both record this row's deletion. Phase 236 plan 04's Task 1 depended on this
+already being fixed — its SC-3 evidence (`236-EVIDENCE.md`'s `AFTER-FIX-GREEN` slot) harvests five
+`Generated admin Playwright smoke` job conclusions from ordinary `pull_request` runs on the fix
+branch, which is only possible because the job genuinely executes (rather than skipping) on a PR.
+
+**Not re-fixed here** — it was already fixed before this phase began; this closure documents that
+fact with today's citation rather than leaving the stale finding open.
