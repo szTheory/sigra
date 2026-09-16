@@ -129,7 +129,7 @@ Plans:
 Plans:
 - [ ] 237-01-PLAN.md — reachable ignore negation, ignored agent scratch dir, regenerated docs index, clean fresh clone (REPO-01, REPO-02)
 - [ ] 237-02-PLAN.md — record prior Pages config, repoint publish source, two live observations; de-fang the Liquid-crashing guide line (GREEN-03)
-- [ ] 237-03-PLAN.md — snapshot 12 git objects, prune stale worktrees, archive 6 stashes to `origin`, then drop behind a decision checkpoint (REPO-03)
+- [ ] 237-03-PLAN.md — sanitized worktree snapshot, prune 6 worktrees to 1; all 6 stashes left local and untouched, SC-3's stash half recorded deliberately unmet per D-09 (REPO-03)
 - [ ] 237-04-PLAN.md — regex-class rationale-preservation check proven RED, then the 4 named dead planning references removed from `lib/` doc attributes (SURF-02)
 - [ ] 237-05-PLAN.md — 3 dead guide links removed, suppression list earned down 9 -> 7, false comment corrected (SURF-02)
 - [ ] 237-06-PLAN.md — evidence ledger at final committed HEAD, ratchet baseline, 2 required todos, `mix ci` gate (all five requirements)
