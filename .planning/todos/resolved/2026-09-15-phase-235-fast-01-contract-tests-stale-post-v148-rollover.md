@@ -64,3 +64,37 @@ Not fixed in Phase 236 plan 02: out of that plan's file scope
 (`lib/sigra/admin/live/audit_index_live.ex` +
 `test/sigra/planning/phase_236_audit_url_ownership_test.exs` only) and unrelated to its
 GREEN-02 objective.
+
+## Resolution (2026-09-16, quick task 260915-vcq)
+
+**Option 2 taken** (rewrite to assert against the closed milestone's archived snapshot),
+not option 1 (retire). Retiring would have discarded the immutability contract these
+tests exist to enforce — the whole point of "phase contract tests remain immutable" is
+that they keep proving something about the CLOSED v1.47 milestone's completion record,
+which is exactly what a rewrite against the archive preserves and a retirement would not.
+
+**Root cause was not the tests.** `Sigra.Test.PlanningPaths.requirements/0` only falls
+back to the milestone archive when the LIVE `.planning/REQUIREMENTS.md` is MISSING. A
+milestone rollover REPLACES that file wholesale rather than deleting it (`cc6f17e4`), so
+the "live file is missing" fallback condition never fires and both tests silently kept
+reading the live v1.48 file — which naturally has no `FAST-01`/`GATE-05` entries.
+
+**Fix:** added `Sigra.Test.PlanningPaths.requirements_for/1`, a milestone-scoped resolver
+that returns `.planning/milestones/v1.47-REQUIREMENTS.md` directly, no missing-file
+fallback involved. Both contract test files now pin `requirements_for("v1.47")` instead
+of the ambient `requirements/0`. `requirements/0`'s own behaviour is untouched.
+
+**Verification:** both files pass — 24 tests (16 + 8), 0 failures, same count as before
+this change (no assertion added, removed, or weakened). `MIX_ENV=test mix ci` no longer
+shows any of the 3 originally-named phase-235 failures.
+
+**Unrelated, out-of-scope, NOT fixed by this task:** `MIX_ENV=test mix ci` still fails
+the `sigra-dep-off` lane with 6 pre-existing failures in
+`Sigra.Audit.Forwarders.ThreadlineTest` (`UndefinedFunctionError:
+Sigra.Audit.Forwarders.Threadline.attach/1 is undefined`) — a known stale-optional-dep
+compile artifact unrelated to this change (confirmed via `git diff` showing zero changes
+to `mix.exs`/`mix.lock`/threadline forwarder files from this task's diff). Recurred
+identically after the documented `mix deps.compile threadline --force && mix compile
+--force` remediation, so it is an environment/dependency-resolution flake in the
+`sigra-dep-off` lane, not something this quick task's scope covers. Left for a future
+phase/todo to investigate.
