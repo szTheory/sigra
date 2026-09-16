@@ -88,6 +88,86 @@ The script **swallows that 403 and exits 0**, so the workflow reported success w
 stayed broken. Repairing that swallowed 403 to fail loudly, and closing the related issue and
 todo, are fenced to **Phase 240 (GREEN-05)** and are deliberately not touched here.
 
+## THE CHANGE
+
+Performed at **2026-09-16T13:09:13Z**, after the pre-change record above was committed
+(`06169df2`):
+
+```bash
+gh api repos/szTheory/sigra/pages --method PUT --input - <<<'{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
+```
+
+Result: **HTTP 204, no response body** (exit 0). No 403 — the local `gh` token, which
+authenticates with repository `admin: true`, can perform what the Actions default token could
+not.
+
+A build was then requested explicitly:
+
+```bash
+gh api repos/szTheory/sigra/pages/builds --method POST
+# 2026-09-16T13:09:36Z -> {"status":"queued","url":"…/pages/builds/latest"}
+```
+
 ## POST-CHANGE OBSERVATIONS
 
-_Appended after the change is performed. See the section below._
+Two independent live observations. Neither is the PUT's own response body — the PUT returned no
+body at all, and would not have been acceptable evidence if it had.
+
+### Observation 1 — live API read-back (`gh api`, not the PUT echo)
+
+```bash
+gh api repos/szTheory/sigra/pages --jq '{status,build_type,source}'
+# 2026-09-16T13:11:21Z
+{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"},"status":"built"}
+```
+
+Status polling (up to 60 × 10s; `built` passes, `building`/`null` keeps polling, anything else
+fails immediately) **settled on the first iteration**: the site reported `built`, not the prior
+`errored`.
+
+The build record for the explicitly-requested build confirms it completed cleanly with no error:
+
+```bash
+gh api repos/szTheory/sigra/pages/builds/latest --jq '{status,error,commit,created_at,updated_at,duration}'
+{"commit":"29e6ad40bf3e892d7582e7c07ed1fa7cc7910ec1","created_at":"2026-09-16T13:09:38Z",
+ "duration":25514,"error":{"message":null},"status":"built","updated_at":"2026-09-16T13:10:03Z"}
+```
+
+`commit` is a `gh-pages` tip, not a `main` commit — the builder is now sourcing the publish
+branch.
+
+### Observation 2 — real HTTP fetch of the published URL
+
+```bash
+curl -sSI https://sztheory.github.io/sigra/ | head -6
+# 2026-09-16T13:11:03Z
+HTTP/2 200
+server: GitHub.com
+content-type: text/html; charset=utf-8
+last-modified: Wed, 16 Sep 2026 13:10:03 GMT
+```
+
+`last-modified` equals the build's `updated_at` exactly, so the bytes being served are the output
+of the build observed above, not a stale cached artifact.
+
+The 2xx assertion was run with a negative control in the same block, so the "it returned 2xx"
+result is not an artifact of a check that cannot fail:
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}" https://sztheory.github.io/sigra/ | grep -Eqx "2[0-9][0-9]"
+# exit 0
+curl -sS -o /dev/null -w "%{http_code}" https://sztheory.github.io/sigra/__definitely_not_a_real_path__ | grep -Eqx "2[0-9][0-9]"
+# exit 1  <- control: the check does discriminate
+```
+
+### Prohibitions re-checked after the change
+
+| Prohibition | Check | Result |
+|---|---|---|
+| No root Jekyll-bypass marker on the default branch | `git ls-files '.nojekyll' ':(glob)*.nojekyll'` (control: `git ls-files 'CLAUDE.md'` → `CLAUDE.md`, so the search ran) | no output — none exists |
+| Publisher script untouched | `git diff --exit-code "$(git merge-base origin/main HEAD)" HEAD -- ":/scripts/ci/ensure-github-pages-legacy-branch.sh"` | exit 0 — byte-unchanged |
+| Related issue stays open for Phase 240 | `gh issue view 231 --json state` | `OPEN` |
+
+The pending todo `.planning/todos/pending/2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md`
+is likewise left in place. Its "Required owner action" is now performed, but moving or closing it
+belongs to Phase 240 (GREEN-05) along with the swallowed-403 repair.
