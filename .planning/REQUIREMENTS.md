@@ -38,8 +38,8 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 ### Clean git working state (REPO)
 
-- [ ] **REPO-01**: `git status` is clean on a fresh checkout — `.gsd/` and GSD scratch files are gitignored, and the stray `sigra-*.tar` tarballs and tracked `.log`/screenshot artifacts are resolved.
-- [ ] **REPO-02**: The `doc/llms.txt` tracked-while-ignored conflict is resolved by a `!doc/llms.txt` **negation**, not deletion — its three live consumers (`phase_148_*`, `phase_149_*`, `scripts/ci/launch-pack-contract.sh`) keep passing under `mix ci`.
+- [x] **REPO-01**: `git status` is clean on a fresh checkout — `.gsd/` and GSD scratch files are gitignored, and the stray `sigra-*.tar` tarballs and tracked `.log`/screenshot artifacts are resolved.
+- [x] **REPO-02**: The `doc/llms.txt` tracked-while-ignored conflict is resolved by a `!doc/llms.txt` **negation**, not deletion — its three live consumers (`phase_148_*`, `phase_149_*`, `scripts/ci/launch-pack-contract.sh`) keep passing under `mix ci`.
 - [ ] **REPO-03**: All 6 stashes are materialized as pushed refs and the 5 stale worktrees removed **before** any branch deletion. No `git gc` runs anywhere in this milestone.
 - [ ] **REPO-04**: Stale local and remote branches are pruned, with every pre-prune SHA still `git cat-file -e`-resolvable, the documented safety refs kept (`ci/phase-235-16-source-complete`, `safety/local-main-before-release-cleanup-*`), and no open PR's head or base branch deleted.
 
@@ -109,8 +109,8 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | SURF-02 | Phase 237 | Pending |
 | SURF-03 | Phase 239 | Pending |
 | SURF-04 | Phase 241 | Pending |
-| REPO-01 | Phase 237 | Pending |
-| REPO-02 | Phase 237 | Pending |
+| REPO-01 | Phase 237 | Complete |
+| REPO-02 | Phase 237 | Complete |
 | REPO-03 | Phase 237 | Pending |
 | REPO-04 | Phase 245 | Pending |
 | QUEUE-01 | Phase 243 | Pending |

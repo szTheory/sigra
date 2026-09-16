@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 237
 current_phase_name: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
 status: planning
-stopped_at: Phase 236 complete, ready to plan Phase 237
-last_updated: "2026-09-16T02:31:31.496Z"
+stopped_at: Completed 237-01-PLAN.md
+last_updated: "2026-09-16T13:10:49.831Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 236 complete, transitioned to Phase 237
-state_head: b8a1587323ba4c334ca4f71eb4668eff416e300b
+state_head: 36a9aa09fdea0679b7120e30fe03e7018203618e
 progress:
   total_phases: 10
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 10
+  completed_plans: 5
   percent: 10
 ---
 
@@ -457,6 +457,8 @@ Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
 - [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
 - [Phase 236]: 236-03: p17 no-playwright-retry-wrapper guard added, observed RED against a committed known-bad fixture and GREEN against the real config; dead PLAYWRIGHT_RETRIES env key deleted from ci.yml. — ROADMAP SC-4/GREEN-02: retry-wrapping the flake into silence is prohibited; the guard makes that mechanical instead of prose-only.
 - [Phase 236]: Phase 236 plan 04: SC-3 GREEN evidence captured — 5 sequential pull_request CI runs all pass Generated admin Playwright smoke, and the 236-01 repro re-run unchanged against the fix produced 50/50 passes (was 41/50 pre-fix).
+- [Phase 237]: D-06 gitignore negation uses /doc/* + !/doc/llms.txt; verified with git check-ignore --no-index expecting exit 1
+- [Phase 237]: D-05 doc/llms.txt regenerated and committed so mix docs is idempotent on a fresh clone
 
 ### Pending Todos
 
@@ -658,8 +660,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T01:23:51.365Z
-Stopped at: Phase 236 complete, ready to plan Phase 237
+Last session: 2026-09-16T13:10:49.809Z
+Stopped at: Completed 237-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -838,3 +840,4 @@ Resume file: None
 | Phase 236 P02 | 35min | 3 tasks | 3 files |
 | Phase 236 P03 | 55min | 3 tasks | 7 files |
 | Phase 236 P04 | 50 min | 3 tasks | 4 files |
+| Phase 237 P01 | 20m | 2 tasks | 2 files |
