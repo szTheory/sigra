@@ -13,6 +13,15 @@ defmodule Sigra.Test.PlanningPaths do
   or join it onto their own root. When nothing resolves, the declared live path
   is returned unchanged, so a genuinely missing artifact still fails loudly
   against the path the test names rather than a surprising archive location.
+
+  `requirements/0` and `requirements_for/1` resolve two different subjects, and
+  both are needed: `requirements/0` resolves the ACTIVE milestone's live
+  `.planning/REQUIREMENTS.md`, while `requirements_for/1` pins a CLOSED
+  milestone's immutable archived snapshot. A milestone rollover REPLACES the
+  live REQUIREMENTS.md wholesale rather than deleting it, so "the live file
+  exists" is not evidence that the live file is still the right subject for a
+  contract test written against a prior, now-closed milestone — that test must
+  ask for its milestone by name via `requirements_for/1` instead.
   """
 
   @root Path.expand("../..", __DIR__)
@@ -43,6 +52,21 @@ defmodule Sigra.Test.PlanningPaths do
     else
       newest_archived("REQUIREMENTS.md") || live
     end
+  end
+
+  @doc """
+  Repo-relative path to a NAMED, CLOSED milestone's archived REQUIREMENTS.md
+  snapshot (e.g. `requirements_for("v1.47")` resolves to
+  `.planning/milestones/v1.47-REQUIREMENTS.md`).
+
+  Unlike `requirements/0`, this never falls back to the live file — a contract
+  test that pins a closed milestone's evidence wants that milestone's snapshot
+  specifically, not whatever happens to be live today. When the archive is
+  missing, the declared path is returned unchanged so the caller fails loudly
+  against the name it asked for.
+  """
+  def requirements_for(milestone) do
+    ".planning/milestones/#{milestone}-REQUIREMENTS.md"
   end
 
   @doc """
