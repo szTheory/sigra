@@ -6,6 +6,22 @@ scope: complete
 
 # Phase 237 Context — Decisions
 
+## Decisions
+
+Single-line bullet form below is the parser-recognized grammar; each entry expands into a
+`## D-NN:` section further down. (The `##` heading form alone causes the decision-coverage
+gate to *skip* rather than run — itself an instance of the gate-that-verifies-nothing defect
+this milestone exists to remove.)
+
+- **D-01:** Docs-surface scope is a committed named list of exactly 4 dead `.planning/` paths in `lib/`, not the full 348-hit surface; the residual is handed to Phase 241's `p18` ratchet and 237 records the measured baseline count.
+- **D-02:** The one tracked `.log` and one tracked `.png` are KEPT, because both live under `.planning/` and the phase's own Out-of-Scope fence forbids pruning `.planning/`; REPO-01 is satisfied as "no tracked artifacts outside `.planning/`".
+- **D-03:** Fix the 3 dead links in the published upgrade guides and retire the 2 `skip_undefined_reference_warnings_on` entries they were propping up; all 9 entries are already proven load-bearing, so this is the only non-vacuous prune available.
+- **D-04:** SC-5's subject changes from the literal `# SECURITY:` (which occurs zero times repo-wide and can never fire) to the regex `security|CSRF|enumeration|timing|scope|impersonation` over `#`-comment lines in `lib/`, checked in-plan against the phase diff and demonstrated RED first.
+- **D-05:** `doc/llms.txt` is regenerated and committed in this phase, because the committed copy is stale at v1.4.0 and a single `mix docs` on a fresh clone dirties the tree and falsifies SC-1.
+- **D-06:** The `.gitignore` negation uses the working form `/doc/*` plus `!/doc/llms.txt`, since git cannot re-include a file beneath an excluded directory, and verification uses `git check-ignore -q --no-index` expecting exit 1.
+- **D-07:** GitHub Pages is repointed from `main` to the existing `gh-pages` branch, recording the prior setting first; adding a root `.nojekyll` to `main` is rejected because it would publish the entire repository root publicly.
+- **D-08:** SC-1 is verified by performing a literal fresh `git clone` into a temp dir rather than by building a new CI job, and `scripts/ci/launch-pack-contract.sh` is run manually and recorded as manual-only because no workflow invokes it.
+
 Authority: the user granted standing autonomy for this milestone ("continue on auto
 follow ur recommendations as far as possible without my intervention"). The five open
 questions raised by `237-RESEARCH.md` are answered here so the planner plans against
