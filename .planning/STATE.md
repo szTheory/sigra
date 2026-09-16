@@ -3,18 +3,18 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 237
-current_phase_name: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
-status: planning
-stopped_at: Completed 237-02-PLAN.md
-last_updated: "2026-09-16T13:15:21.127Z"
-last_activity: 2026-09-15
-last_activity_desc: Phase 236 complete, transitioned to Phase 237
-state_head: e0d98092f57f81f0c38730188a81a0a3f11a746d
+current_phase_name: Clean Working Tree, Green Pages, Clean lib/ Docs Surface
+status: executing
+stopped_at: Completed 237-04-PLAN.md
+last_updated: "2026-09-16T15:24:01.948Z"
+last_activity: 2026-09-16
+last_activity_desc: Phase 237 execution started
+state_head: d790184b604ebf5d2f982aee87be8063acc686ac
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
+  completed_plans: 7
   percent: 10
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 236 — Flake Root Cause — Reproduce, Name, Fix
+**Current focus:** Phase 237 — Clean Working Tree, Green Pages, Clean lib/ Docs Surface
 
 ## Current Position
 
-Phase: 237 — Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
+Phase: 237 (Clean Working Tree, Green Pages, Clean lib/ Docs Surface) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-09-16 — Phase 237 execution started
 
 ### v1.48 phase map
 
@@ -460,6 +460,8 @@ Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
 - [Phase 237]: D-06 gitignore negation uses /doc/* + !/doc/llms.txt; verified with git check-ignore --no-index expecting exit 1
 - [Phase 237]: D-05 doc/llms.txt regenerated and committed so mix docs is idempotent on a fresh clone
 - [Phase 237]: 237-02: GitHub Pages repointed main -> gh-pages (D-07); prior setting committed as a literal revert value before the PUT
+- [Phase 237]: D-04 applied literally: SC-5's check subject is the regex class security|CSRF|enumeration|timing|scope|impersonation, never the dead # SECURITY: literal (zero occurrences repo-wide) — A guard on a zero-occurrence literal is a green gate that verifies nothing; the check is demonstrated RED on a committed fixture before being trusted
+- [Phase 237]: D-01 scope held to exactly 4 named dead .planning/ references in lib/ doc attributes; the other ~344 benign phase-mention hits are handed to Phase 241's p18 ratchet with a recorded 52-line baseline — A phase that rewrites 259 doc sites is verified only by counting, and count-only acceptance is rejected in this repo
 
 ### Pending Todos
 
@@ -661,8 +663,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T13:15:13.793Z
-Stopped at: Completed 237-02-PLAN.md
+Last session: 2026-09-16T15:24:01.926Z
+Stopped at: Completed 237-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -843,3 +845,4 @@ Resume file: None
 | Phase 236 P04 | 50 min | 3 tasks | 4 files |
 | Phase 237 P01 | 20m | 2 tasks | 2 files |
 | Phase 237 P02 | 20m | 2 tasks | 2 files |
+| Phase 237 P04 | 20 min | 3 tasks | 7 files |
