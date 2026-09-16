@@ -187,11 +187,10 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
-      # ExDoc only autolinks extras by basename; maintainer paths under `.planning/`
-      # are intentionally relative from this guide for repo navigation.
+      # ExDoc only autolinks extras by basename; the entries below suppress references
+      # the tool cannot resolve — hidden Application helpers and a behaviour callback
+      # (a `@callback`, not a public function ExDoc can autolink).
       skip_undefined_reference_warnings_on: [
-        "guides/introduction/upgrading-to-v1.10.md",
-        "guides/introduction/upgrading-to-v1.11.md",
         # Phase 131: hidden Application helpers referenced in moduledocs; suppressed pending
         # a @doc false / @moduledoc false strategy alignment in a future phase.
         "lib/sigra/audit/forwarder.ex",
