@@ -76,3 +76,50 @@ path lines across 4 of the 6 stash diffs, not in the subject lines themselves, b
 this section stays deliberately terse): stash 0 is a pre-release workspace safety
 snapshot; stashes 1–2 are broken/incomplete work-in-progress from an earlier phase
 range; stashes 3–5 are per-worktree-agent WIP from earlier executor runs.
+
+## SC-3 STASH HALF — DELIBERATELY UNMET (D-09)
+
+A verifier reading only this file must be able to tell a choice from a failure. This
+section is that record.
+
+**What SC-3 asks for.** All six local stashes pushed to `origin` as archive refs, and
+`git stash list` empty at the end — i.e. the local stash list fully drained after an
+off-machine copy exists.
+
+**What is being done instead.** Nothing. No stash was pushed to `origin` or to any
+other remote, no stash was dropped, cleared, or otherwise disturbed. All six stashes
+recorded in the `STASH INVENTORY` section above are still present, at the same commit
+SHAs, at the end of this plan as at the start.
+
+**Why — D-09, operator decision, 2026-09-16.** Four of the six stashes carry roughly
+two thousand lines of home-directory paths (shape described, not reproduced — see the
+standing constraint in `237-CONTEXT.md`). `origin` is the **public** sigra repository
+on GitHub. A push to a public remote is **irreversible with respect to content**:
+once an object lands, it stays fetchable by SHA indefinitely, and deleting the ref
+that named it does not retract it — un-publishing requires a GitHub Support request,
+not a git command. Given that irreversibility and the measured content, pushing these
+stashes anywhere public is not a step this plan is willing to take. This is an
+operator decision recorded as **D-09**, not a planner judgement and not an unfinished
+task — nothing about it is deferred or waiting on a future phase to complete it.
+
+**The consequence for the phase — the single most load-bearing sentence in this
+file.** With no archive of these six stashes anywhere else — not on `origin`, not on
+any other remote, not in any export — the `git gc`, `git reflog expire`, and
+`--prune=now`-family prohibitions that bind this whole phase are now the **only**
+mechanism keeping these six stash objects alive. They are unreachable from any branch
+tip; the only thing anchoring them in the object database is `refs/stash` itself plus
+the reflog `git stash` maintains. Running any of the prohibited commands after this
+plan closes would be the actual loss event this plan spent its whole design avoiding.
+
+**What a future phase would need before revisiting this.** A way to archive these six
+stashes off-machine **without publishing to a public remote** — a private mirror, an
+encrypted local/off-machine backup, or a redaction pass that strips the home-directory
+paths from the four affected stashes before any push is considered. None of that
+exists today; this plan does not build it and does not file a todo re-proposing the
+original push — the decision is recorded, not deferred.
+
+**Corresponding `must_haves` truth.** The fourth `must_haves.truths` entry in this
+plan's frontmatter (the "INTENTIONALLY UNMET, NOT FAILED" one) is marked
+**intentionally unmet, citing D-09** — not reported as a failure. The inverse proof
+that nothing was destroyed is the fifth truth: `git stash list` still reports exactly
+six entries at the end of this plan, verified above.
