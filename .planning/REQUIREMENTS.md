@@ -32,7 +32,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 ### Clean shipped surface (SURF)
 
 - [ ] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
-- [ ] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
+- [x] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
 - [ ] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one** batched `mix sigra.fixture.rebless_golden`, in separate commits. Only the `test/example/` counterparts of edited templates are mirrored.
 - [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`.
 
@@ -40,7 +40,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 - [x] **REPO-01**: `git status` is clean on a fresh checkout — `.gsd/` and GSD scratch files are gitignored, and the stray `sigra-*.tar` tarballs and tracked `.log`/screenshot artifacts are resolved.
 - [x] **REPO-02**: The `doc/llms.txt` tracked-while-ignored conflict is resolved by a `!doc/llms.txt` **negation**, not deletion — its three live consumers (`phase_148_*`, `phase_149_*`, `scripts/ci/launch-pack-contract.sh`) keep passing under `mix ci`.
-- [ ] **REPO-03**: All 6 stashes are materialized as pushed refs and the 5 stale worktrees removed **before** any branch deletion. No `git gc` runs anywhere in this milestone.
+- [x] **REPO-03**: All 6 stashes are materialized as pushed refs and the 5 stale worktrees removed **before** any branch deletion. No `git gc` runs anywhere in this milestone.
 - [ ] **REPO-04**: Stale local and remote branches are pruned, with every pre-prune SHA still `git cat-file -e`-resolvable, the documented safety refs kept (`ci/phase-235-16-source-complete`, `safety/local-main-before-release-cleanup-*`), and no open PR's head or base branch deleted.
 
 ### Drain the queue (QUEUE)
@@ -106,12 +106,12 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | REL-05 | Phase 242 | Pending |
 | REL-06 | Phase 242 | Pending |
 | SURF-01 | Phase 239 | Pending |
-| SURF-02 | Phase 237 | Pending |
+| SURF-02 | Phase 237 | Complete |
 | SURF-03 | Phase 239 | Pending |
 | SURF-04 | Phase 241 | Pending |
 | REPO-01 | Phase 237 | Complete |
 | REPO-02 | Phase 237 | Complete |
-| REPO-03 | Phase 237 | Pending |
+| REPO-03 | Phase 237 | Complete |
 | REPO-04 | Phase 245 | Pending |
 | QUEUE-01 | Phase 243 | Pending |
 | QUEUE-02 | Phase 244 | Pending |

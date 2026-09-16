@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 237
 current_phase_name: Clean Working Tree, Green Pages, Clean lib/ Docs Surface
 status: executing
-stopped_at: Completed 237-03-PLAN.md
-last_updated: "2026-09-16T15:48:24.350Z"
+stopped_at: Completed 237-06-PLAN.md
+last_updated: "2026-09-16T16:51:47.623Z"
 last_activity: 2026-09-16
 last_activity_desc: Phase 237 execution started
-state_head: 75bfc438bd6902ff74934239f1235ceab9555404
+state_head: 7306723ccc5393d6a4ee3b91ddb0fd53fd340ca5
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 10
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 237 (Clean Working Tree, Green Pages, Clean lib/ Docs Surface) — EXECUTING
-Plan: 3 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-09-16 — Phase 237 execution started
 
@@ -465,6 +465,7 @@ Last activity: 2026-09-16 — Phase 237 execution started
 - [Phase 237]: D-03 applied: fixed 3 dead .planning/ links in upgrade guides before removing the 2 skip entries they justified (9->7), earning the reduction rather than declaring it — Remove-and-retest proved the 7 survivors load-bearing and the 4 dead-link warnings absent from the emptied-list capture
 - [Phase 237]: D-09 (inherited): SC-3 stash-archival half abandoned — all 6 stashes stay local, nothing pushed to public origin — 4/6 stashes carry ~2,018 lines of home-directory paths; push to public origin is irreversible with respect to content
 - [Phase 237]: git worktree prune alone only retired 3/5 stale worktrees; used git worktree remove (git-native, non-destructive) for the 2 live-but-unwanted checkouts — 2 entries had live valid checkout dirs not reachable by prune; plain remove for the clean one, --force for the unborn-branch one; no branch/commit lost
+- [Phase 237]: Phase 237 closed honestly: one evidence ledger re-observes all five requirements at final committed HEAD, the ratchet baseline (337/254/69) hands Phase 241 a starting number, and MIX_ENV=test mix ci is proven green only after diagnosing a real dep-off recompile bug (not by retrying blindly).
 
 ### Pending Todos
 
@@ -666,8 +667,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T15:48:24.324Z
-Stopped at: Completed 237-03-PLAN.md
+Last session: 2026-09-16T16:51:47.590Z
+Stopped at: Completed 237-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -851,3 +852,4 @@ Resume file: None
 | Phase 237 P04 | 20 min | 3 tasks | 7 files |
 | Phase 237 P05 | 25 min | 3 tasks | 3 files |
 | Phase 237 P03 | 8min | 2 tasks | 2 files |
+| Phase 237 P06 | ~2h | 3 tasks | 7 files |

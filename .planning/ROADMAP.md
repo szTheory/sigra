@@ -70,7 +70,7 @@
 ## Phases
 
 - [x] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition (completed 2026-09-15)
-- [ ] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip
+- [x] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip (completed 2026-09-16)
 - [ ] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags
 - [ ] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree
 - [ ] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence
@@ -127,12 +127,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 237-01-PLAN.md — reachable ignore negation, ignored agent scratch dir, regenerated docs index, clean fresh clone (REPO-01, REPO-02)
-- [ ] 237-02-PLAN.md — record prior Pages config, repoint publish source, two live observations; de-fang the Liquid-crashing guide line (GREEN-03)
-- [ ] 237-03-PLAN.md — sanitized worktree snapshot, prune 6 worktrees to 1; all 6 stashes left local and untouched, SC-3's stash half recorded deliberately unmet per D-09 (REPO-03)
-- [ ] 237-04-PLAN.md — regex-class rationale-preservation check proven RED, then the 4 named dead planning references removed from `lib/` doc attributes (SURF-02)
-- [ ] 237-05-PLAN.md — 3 dead guide links removed, suppression list earned down 9 -> 7, false comment corrected (SURF-02)
-- [ ] 237-06-PLAN.md — evidence ledger at final committed HEAD, ratchet baseline, 2 required todos, `mix ci` gate (all five requirements)
+- [x] 237-01-PLAN.md — reachable ignore negation, ignored agent scratch dir, regenerated docs index, clean fresh clone (REPO-01, REPO-02)
+- [x] 237-02-PLAN.md — record prior Pages config, repoint publish source, two live observations; de-fang the Liquid-crashing guide line (GREEN-03)
+- [x] 237-03-PLAN.md — sanitized worktree snapshot, prune 6 worktrees to 1; all 6 stashes left local and untouched, SC-3's stash half recorded deliberately unmet per D-09 (REPO-03)
+- [x] 237-04-PLAN.md — regex-class rationale-preservation check proven RED, then the 4 named dead planning references removed from `lib/` doc attributes (SURF-02)
+- [x] 237-05-PLAN.md — 3 dead guide links removed, suppression list earned down 9 -> 7, false comment corrected (SURF-02)
+- [x] 237-06-PLAN.md — evidence ledger at final committed HEAD, ratchet baseline, 2 required todos, `mix ci` gate (all five requirements)
 
 ### Phase 238: Tag Guard, Then Tag Deletion
 
@@ -256,7 +256,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
-| 237. Clean Working Tree + Pages + `lib/` Docs | 0/? | Not started | - |
+| 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
 | 238. Tag Guard, Then Tag Deletion | 0/? | Not started | - |
 | 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
