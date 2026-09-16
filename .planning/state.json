@@ -11,7 +11,7 @@
     {
       "number": "237",
       "name": "Clean Working Tree + Pages + `lib/` Docs",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "238",
@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 237 of 10 · 10% · executing"
+    "label": "Advance to the next step (plan phase 238)",
+    "reason": "Phase 238 of 10 — needs a plan"
   },
-  "updated_at": "2026-09-16T16:51:26.508Z"
+  "updated_at": "2026-09-16T17:00:04.152Z"
 }
