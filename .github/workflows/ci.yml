@@ -1457,7 +1457,6 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
-          PLAYWRIGHT_RETRIES: 1
         # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
         # seam runs the full acceptance target (`--test all` — both the
         # desktop/mobile shell and the denial-response assertions) so

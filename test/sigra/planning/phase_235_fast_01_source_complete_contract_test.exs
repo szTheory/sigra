@@ -8,7 +8,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
                  "235-terminal-ratification-measured-not-read",
                  "235-FAST-01-SOURCE-COMPLETE-DISPATCH-CORRELATION.json"
                )
-  @requirements Sigra.Test.PlanningPaths.requirements()
+  @requirements Sigra.Test.PlanningPaths.requirements_for("v1.47")
   @residual ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
   @seed ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md"
   @milestone_arc ".planning/MILESTONE-ARC.md"

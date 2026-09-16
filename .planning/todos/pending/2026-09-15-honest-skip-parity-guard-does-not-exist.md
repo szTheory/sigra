@@ -4,6 +4,7 @@ source: v1.47 CI-EFFICIENCY milestone audit (re-audit at close)
 severity: medium
 requirements: [GATE-03, GATE-05]
 audit_acknowledged: v1.47
+resolves_phase: 241
 ---
 
 # The skip manifest cites a three-way parity guard that does not exist

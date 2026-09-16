@@ -1,43 +1,63 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.47 — CI-EFFICIENCY",
+  "milestone": "v1.48 — CLEAN-BASELINE",
   "phases": [
     {
-      "number": "230",
-      "name": "Tier-1 Critical-Path Reclamation",
+      "number": "236",
+      "name": "Flake Root Cause",
       "status": "complete"
     },
     {
-      "number": "231",
-      "name": "Gate Honesty + Nightly Revival",
-      "status": "complete"
+      "number": "237",
+      "name": "Clean Working Tree + Pages + `lib/` Docs",
+      "status": "pending"
     },
     {
-      "number": "232",
-      "name": "Playwright Economics",
-      "status": "complete"
+      "number": "238",
+      "name": "Tag Guard, Then Tag Deletion",
+      "status": "pending"
     },
     {
-      "number": "233",
-      "name": "Library Suite Economics",
-      "status": "complete"
+      "number": "239",
+      "name": "`priv/templates/` Sweep + Re-bless",
+      "status": "pending"
     },
     {
-      "number": "234",
-      "name": "Hygiene, Supply Chain, Contributor DX",
-      "status": "complete"
+      "number": "240",
+      "name": "Green-Main Evidence + Honest Pages Script",
+      "status": "pending"
     },
     {
-      "number": "235",
-      "name": "Terminal Ratification",
-      "status": "complete"
+      "number": "241",
+      "name": "Debt Retirement + Leakage Guard",
+      "status": "pending"
+    },
+    {
+      "number": "242",
+      "name": "Hex Retire + Docs Revert + Cut 1.5.1",
+      "status": "pending"
+    },
+    {
+      "number": "243",
+      "name": "Queue Drain + Todo Triage",
+      "status": "pending"
+    },
+    {
+      "number": "244",
+      "name": "`@playwright/test` Bump, Alone",
+      "status": "pending"
+    },
+    {
+      "number": "245",
+      "name": "Branch Prune",
+      "status": "pending"
     }
   ],
   "next": {
-    "command": "/gsd:progress",
-    "label": "Show progress",
-    "reason": "Unsure of state — showing progress"
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (plan phase 237)",
+    "reason": "Phase 237 of 10 — needs a plan"
   },
-  "updated_at": "2026-09-15T17:15:23.757Z"
+  "updated_at": "2026-09-16T02:31:31.517Z"
 }
