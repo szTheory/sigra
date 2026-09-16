@@ -8,7 +8,11 @@
 /deps/
 
 # Where third-party dependencies like ExDoc output generated docs.
-/doc/
+# `/doc/*` (not `/doc/`) because git never descends into an excluded directory, so a
+# negation beneath the bare directory form is unreachable: the glob form is what makes
+# the `!/doc/llms.txt` re-inclusion below actually take effect.
+/doc/*
+!/doc/llms.txt
 
 # Ignore .fetch files in case you like to edit your project deps locally.
 /.fetch
@@ -63,6 +67,10 @@ test/example/priv/playwright/test-results/
 # Phase 217-06 (AUTOFIX-02): admin-autofix-loop persisted poison-set.
 # Never-retry finding_ids for the auto-fix loop; operator/nightly tool state.
 eval/autofix-state.json
+
+# GSD agent runtime + scratch: hundreds of megabytes of CI artifacts, Playwright traces,
+# videos and logs that must never be committed to a public repository.
+/.gsd/
 
 # secrets/local vars
 .env
