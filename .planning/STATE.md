@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 236
 current_phase_name: Flake Root Cause — Reproduce, Name, Fix
-status: executing
-stopped_at: Completed 236-03-PLAN.md
-last_updated: "2026-09-15T22:11:35.624Z"
+status: verifying
+stopped_at: Completed 236-04-PLAN.md
+last_updated: "2026-09-16T01:23:51.504Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 236 execution started
-state_head: 70a797e6a3f75ac9300f96c0982803e7fba249c6
+state_head: 63d01d3e0c60839c7851dc54a53eb654563b6210
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 236 (Flake Root Cause — Reproduce, Name, Fix) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-15 — Phase 236 execution started
 
 ### v1.48 phase map
@@ -456,6 +456,7 @@ Last activity: 2026-09-15 — Phase 236 execution started
 - [Phase 236]: D-05 branch call: (a) product race — actor= absent from URL entirely, confirmed by real CI failure (run 35004420339) and local reproduction; plan 236-02 proceeds as written
 - [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
 - [Phase 236]: 236-03: p17 no-playwright-retry-wrapper guard added, observed RED against a committed known-bad fixture and GREEN against the real config; dead PLAYWRIGHT_RETRIES env key deleted from ci.yml. — ROADMAP SC-4/GREEN-02: retry-wrapping the flake into silence is prohibited; the guard makes that mechanical instead of prose-only.
+- [Phase 236]: Phase 236 plan 04: SC-3 GREEN evidence captured — 5 sequential pull_request CI runs all pass Generated admin Playwright smoke, and the 236-01 repro re-run unchanged against the fix produced 50/50 passes (was 41/50 pre-fix).
 
 ### Pending Todos
 
@@ -656,8 +657,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-15T22:11:35.597Z
-Stopped at: Completed 236-03-PLAN.md
+Last session: 2026-09-16T01:23:51.365Z
+Stopped at: Completed 236-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -835,3 +836,4 @@ Resume file: None
 | Phase 236 P01 | 2h 15min | 3 tasks | 3 files |
 | Phase 236 P02 | 35min | 3 tasks | 3 files |
 | Phase 236 P03 | 55min | 3 tasks | 7 files |
+| Phase 236 P04 | 50 min | 3 tasks | 4 files |

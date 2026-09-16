@@ -15,7 +15,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 ### Green main, honestly (GREEN)
 
 - [x] **GREEN-01**: The `Generated admin Playwright smoke` failure is reproduced as a captured RED run before any fix is written (no traces exist today — `PLAYWRIGHT_RETRIES: 1` at `ci.yml:1460` is dead and `playwright.config.ts:59` hardcodes `retries: 0`).
-- [ ] **GREEN-02**: The audit-filter navigation race is fixed in shipped `lib/` — `lib/sigra/admin/live/audit_index_live.ex` no longer runs a plain `<form method="get">` plus `<a href>` presets against `handle_params/3` with no `handle_event`. If root-cause fails, a **dated quarantine entry naming an owner** is recorded instead. Retry-wrapping is prohibited.
+- [x] **GREEN-02**: The audit-filter navigation race is fixed in shipped `lib/` — `lib/sigra/admin/live/audit_index_live.ex` no longer runs a plain `<form method="get">` plus `<a href>` presets against `handle_params/3` with no `handle_event`. If root-cause fails, a **dated quarantine entry naming an owner** is recorded instead. Retry-wrapping is prohibited.
 - [ ] **GREEN-03**: GitHub Pages builds successfully on push — the legacy Jekyll builder no longer renders `main`'s repo root and fails on `guides/introduction/code-walkthrough.md:174`.
 - [ ] **GREEN-04**: `ci-gate` is proven green on the affected job across n≥20 runs via `workflow_dispatch` (not 20 full pushes), captured at the final committed HEAD on a clean tree.
 - [ ] **GREEN-05**: Issue #231 is closed against that evidence, and `scripts/ci/ensure-github-pages-legacy-branch.sh` no longer reports success while silently swallowing a 403.
@@ -95,7 +95,7 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | GREEN-01 | Phase 236 | Complete |
-| GREEN-02 | Phase 236 | Pending |
+| GREEN-02 | Phase 236 | Complete |
 | GREEN-03 | Phase 237 | Pending |
 | GREEN-04 | Phase 240 | Pending |
 | GREEN-05 | Phase 240 | Pending |
