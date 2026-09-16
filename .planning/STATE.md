@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 237
 current_phase_name: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
 status: planning
-stopped_at: Completed 237-01-PLAN.md
-last_updated: "2026-09-16T13:10:49.831Z"
+stopped_at: Completed 237-02-PLAN.md
+last_updated: "2026-09-16T13:15:21.127Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 236 complete, transitioned to Phase 237
-state_head: 36a9aa09fdea0679b7120e30fe03e7018203618e
+state_head: e0d98092f57f81f0c38730188a81a0a3f11a746d
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 5
+  completed_plans: 6
   percent: 10
 ---
 
@@ -459,6 +459,7 @@ Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
 - [Phase 236]: Phase 236 plan 04: SC-3 GREEN evidence captured — 5 sequential pull_request CI runs all pass Generated admin Playwright smoke, and the 236-01 repro re-run unchanged against the fix produced 50/50 passes (was 41/50 pre-fix).
 - [Phase 237]: D-06 gitignore negation uses /doc/* + !/doc/llms.txt; verified with git check-ignore --no-index expecting exit 1
 - [Phase 237]: D-05 doc/llms.txt regenerated and committed so mix docs is idempotent on a fresh clone
+- [Phase 237]: 237-02: GitHub Pages repointed main -> gh-pages (D-07); prior setting committed as a literal revert value before the PUT
 
 ### Pending Todos
 
@@ -660,8 +661,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T13:10:49.809Z
-Stopped at: Completed 237-01-PLAN.md
+Last session: 2026-09-16T13:15:13.793Z
+Stopped at: Completed 237-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -841,3 +842,4 @@ Resume file: None
 | Phase 236 P03 | 55min | 3 tasks | 7 files |
 | Phase 236 P04 | 50 min | 3 tasks | 4 files |
 | Phase 237 P01 | 20m | 2 tasks | 2 files |
+| Phase 237 P02 | 20m | 2 tasks | 2 files |
