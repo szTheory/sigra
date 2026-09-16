@@ -127,6 +127,7 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
+
 - [x] 237-01-PLAN.md — reachable ignore negation, ignored agent scratch dir, regenerated docs index, clean fresh clone (REPO-01, REPO-02)
 - [x] 237-02-PLAN.md — record prior Pages config, repoint publish source, two live observations; de-fang the Liquid-crashing guide line (GREEN-03)
 - [x] 237-03-PLAN.md — sanitized worktree snapshot, prune 6 worktrees to 1; all 6 stashes left local and untouched, SC-3's stash half recorded deliberately unmet per D-09 (REPO-03)
@@ -150,11 +151,25 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 238-01-PLAN.md — Authorize repo-settings writes, commit the pre-change ruleset record, and settle the Tier-1/Tier-2/Tier-3 ladder in one probe cycle
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 238-02-PLAN.md — Tracer: ruleset live and active, `v9.9` rejected / `v9.9.9-rulesettest` accepted, snapshot committed, guard born falsifiable, delete-governance probed
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 238-03-PLAN.md — Full `p19` contract assertions, committed known-bad fixture, recorded RED proof, ledger grammar enforced, live drift read on the observer lane
 - [ ] 238-04-PLAN.md — Committed 39-row delete allowlist with pre-deletion SHAs, and the dry-run-by-default deletion script with its edge behaviors proven on a scratch clone
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 238-05-PLAN.md — Execute deletion behind a one-way-door checkpoint: local pass, verify, remote pass, verify, and an untouched release surface
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 238-06-PLAN.md — Maintainer runbook subsections, ADR 003 amendment correcting guardrail 3, any REL-01 supersession, and the ledger closed at the final head
 
 ### Phase 239: `priv/templates/` Sweep + One Batched Re-bless
