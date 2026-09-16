@@ -21,6 +21,7 @@ this milestone exists to remove.)
 - **D-06:** The `.gitignore` negation uses the working form `/doc/*` plus `!/doc/llms.txt`, since git cannot re-include a file beneath an excluded directory, and verification uses `git check-ignore -q --no-index` expecting exit 1.
 - **D-07:** GitHub Pages is repointed from `main` to the existing `gh-pages` branch, recording the prior setting first; adding a root `.nojekyll` to `main` is rejected because it would publish the entire repository root publicly.
 - **D-08:** SC-1 is verified by performing a literal fresh `git clone` into a temp dir rather than by building a new CI job, and `scripts/ci/launch-pack-contract.sh` is run manually and recorded as manual-only because no workflow invokes it.
+- **D-09:** The stash half of SC-3 is ABANDONED by operator decision — all 6 stashes stay local and untouched, nothing is pushed to the public remote and nothing is dropped, because 4 of the 6 carry ~2,018 lines of home-directory paths and a push to a public repo is irreversible; the worktree-prune half of SC-3 still proceeds, and REPO-03 closes with the stash half recorded as deliberately unmet.
 
 Authority: the user granted standing autonomy for this milestone ("continue on auto
 follow ur recommendations as far as possible without my intervention"). The five open
@@ -213,3 +214,57 @@ manually and record the result; do not claim `mix ci` covered it.
   refs enumerated, `refs/heads/main` matched). They must be pushed as refs and proven
   `git cat-file -e`-resolvable **before** `git stash list` is emptied. Push first, verify,
   then drop — never the reverse.
+
+## D-09: The stash half of SC-3 is abandoned — nothing is pushed, nothing is dropped
+
+**Operator decision, 2026-09-16.** SC-3 as written requires all 6 stashes to exist as
+pushed refs on `origin` and `git stash list` to be empty. `origin` is the **public** sigra
+repo. Measured, read-only, before any action:
+
+```
+stash@{0}: 1664 lines matching /Users/<username>/...
+stash@{3}:  174
+stash@{4}:  174
+stash@{5}:    6
+                    control: printf '/Users/example/x' | grep -cE '/Users/[a-zA-Z0-9._-]+' -> 1
+sample shape: /Users/<redacted>/.claude  .codex  .cursor  /projects
+```
+
+~2,018 lines across 4 of the 6 stashes. **A push to a public GitHub remote is irreversible
+with respect to content** — once objects land they are fetchable by SHA permanently, and
+deleting the ref does not retract them (removal requires a GitHub Support request). This
+collides directly with the standing constraint recorded at the bottom of this file and in
+the operator's own words: *no personal identity, no local filesystem paths*.
+
+The plan as drafted made this worse in two specific ways, both now moot but recorded so the
+shape is recognisable if it recurs:
+1. The push sat **before** the human checkpoint, so the disclosure would have been permanent
+   before any human saw the evidence.
+2. The plan's own threat model instructed a halt on exactly this class of hit — but the halt
+   had no `<prohibition>` and no automated gate, and halting on all six stashes would have
+   made the plan's own `6/6` assertions unsatisfiable. An **authorized path with no green
+   route**, pushing a faithful executor toward publishing anyway. This is the same defect
+   class removed once already from this plan (see M6 in the review history).
+
+**Decision: abandon the stash half entirely.**
+- All 6 stashes stay **local and untouched**. No `git stash push` to any remote, no
+  `git stash drop`, no `git stash clear`.
+- The **worktree-prune half of SC-3 still proceeds** — 6 worktrees down to 1 live, via
+  `git worktree prune`, never `rm -rf` first. That half has no disclosure surface.
+- REPO-03 closes with the stash half recorded as **deliberately unmet**, with this rationale
+  named in the SUMMARY and the phase's `must_haves` truth marked intentionally-unmet rather
+  than failed. An exercised authorized option is not a failure, but it must be visible as a
+  choice, not as a gap.
+- The `git gc` / `git reflog expire` / `--prune=now` prohibitions **remain in force** for the
+  phase. They are now load-bearing for a different reason: they are what keeps the
+  un-archived stash objects alive locally.
+
+**Also required by this decision:** the snapshot file must NOT commit the raw
+`git worktree list --porcelain` block. Entry 1 of that output is
+`worktree /Users/<username>/projects/sigra` — a home-directory path with the account name,
+which would be committed to a public repo. Sanitize the home-directory prefix before
+committing; the `/private/tmp/` entries are fine as-is.
+
+**Consequently moot** (the machinery they guarded no longer exists): the ARCHIVE TABLE
+grammar, the SHA-for-SHA remote assertions, the pre-drop/post-drop bracket, the
+`checkpoint:decision` on the drop, and the retry/namespace-pinning concern.
