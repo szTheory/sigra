@@ -147,7 +147,15 @@ Plans:
   4. `gh release list` returns the same release count before and after with **zero** drafts (`[.[]|select(.draft)]|length == 0`), and a published HexDocs "View source" link still resolves — proving no tag backing a GitHub Release or `mix.exs` `source_ref` was touched. Deletion runs local → verify → remote, never in one command.
   5. ADR 003 is amended with the deletion date, the path to the committed delete-list, and the prescribed `milestone/` + `proof/` namespaces for future non-release tags.
 
-**Plans**: TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 238-01-PLAN.md — Authorize repo-settings writes, commit the pre-change ruleset record, and settle the Tier-1/Tier-2/Tier-3 ladder in one probe cycle
+- [ ] 238-02-PLAN.md — Tracer: ruleset live and active, `v9.9` rejected / `v9.9.9-rulesettest` accepted, snapshot committed, guard born falsifiable, delete-governance probed
+- [ ] 238-03-PLAN.md — Full `p19` contract assertions, committed known-bad fixture, recorded RED proof, ledger grammar enforced, live drift read on the observer lane
+- [ ] 238-04-PLAN.md — Committed 39-row delete allowlist with pre-deletion SHAs, and the dry-run-by-default deletion script with its edge behaviors proven on a scratch clone
+- [ ] 238-05-PLAN.md — Execute deletion behind a one-way-door checkpoint: local pass, verify, remote pass, verify, and an untouched release surface
+- [ ] 238-06-PLAN.md — Maintainer runbook subsections, ADR 003 amendment correcting guardrail 3, any REL-01 supersession, and the ledger closed at the final head
 
 ### Phase 239: `priv/templates/` Sweep + One Batched Re-bless
 
