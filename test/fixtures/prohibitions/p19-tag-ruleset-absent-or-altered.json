@@ -1,0 +1,24 @@
+{
+  "id": 99999999,
+  "name": "tag-namespace",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "szTheory/sigra",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": ["refs/heads/main"]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    }
+  ],
+  "node_id": "RRS_fixture_p19_altered",
+  "created_at": "1970-01-01T00:00:00.000-00:00",
+  "updated_at": "1970-01-01T00:00:00.000-00:00",
+  "bypass_actors": [],
+  "current_user_can_bypass": "always"
+}

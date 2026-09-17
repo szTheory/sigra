@@ -230,11 +230,104 @@ fire; no Tier-3 infrastructure was built or is needed.
 
 ## AFTER-RULESET-ACTIVE
 
-Status: pending (238-02)
+Status: captured
+
+The live `tag-namespace` ruleset was created by the operator via `POST /repos/szTheory/sigra/rulesets`
+(the harness permission classifier blocks a `gh api -X POST` against rulesets for this executor;
+see 238-02-PLAN.md's `<already_done_by_operator>` note). This executor's task 1 step 1 is therefore
+a read-back and validation of the live object, not a creation.
+
+```bash
+$ gh api repos/szTheory/sigra/rulesets/23574716
+{"id":23574716,"name":"tag-namespace","target":"tag","source_type":"Repository","source":"szTheory/sigra","enforcement":"active","conditions":{"ref_name":{"exclude":["refs/tags/v*.*.*"],"include":["refs/tags/v*"]}},"rules":[{"type":"creation"}],"node_id":"RRS_lACqUmVwb3NpdG9yec5H-MzEzgFnuLw","created_at":"2026-09-16T21:56:28.810-04:00","updated_at":"2026-09-16T21:56:28.834-04:00","bypass_actors":[],"current_user_can_bypass":"never","_links":{"self":{"href":"https://api.github.com/repos/szTheory/sigra/rulesets/23574716"},"html":{"href":"https://github.com/szTheory/sigra/rules/23574716"}}}
+```
+
+Validated: `target: "tag"` (yes), `enforcement: "active"` (yes), `bypass_actors: []` (yes, empty),
+`rules: [{"type":"creation"}]` — exactly one rule, no rule of type `deletion` present. This is the
+Tier-2 shape selected in 238-01: `conditions.ref_name.include: ["refs/tags/v*"]`,
+`conditions.ref_name.exclude: ["refs/tags/v*.*.*"]`, one `creation` rule.
+
+Departs from: the landed ruleset carries exactly one `creation` rule. This departs from two locked
+source artifacts, both recorded here because this is the plan where the rule actually lands (task 1
+restates 238-01's tier record per this plan's own obligation):
+
+1. **CONTEXT D-04** — D-04 states absolutely that the ruleset contains no `creation` rule and no
+   `deletion` rule, ever. This IS a `creation` rule, which D-04 forbade. Reason this is safe: D-04's
+   stated objection was that a `creation` rule would block release-please's own tag creation (e.g.
+   `v1.5.1`); the `ref_name.exclude` list of `refs/tags/v*.*.*` takes any three-component release
+   tag out of the ruleset's scope entirely, so the objection D-04 existed to prevent does not apply
+   to this shape. See 238-06 task 3 for the dated supersession record.
+2. **ROADMAP SC-1's named mechanism** — SC-1 names a name-pattern rule (Tier 1's
+   `tag_name_pattern`) as the mechanism, not a `creation`+`exclude` shape. This departs from the
+   named mechanism. Reason this is safe: SC-1's observable outcome still holds under Tier 2 — a
+   two-component scratch tag name (`vX.Y`) carries exactly one dot and is therefore not excluded by
+   `v*.*.*`, so it remains in the ruleset's scope and is rejected by the `creation` rule; a
+   three-component release tag carries two dots and is excluded, so it is accepted. See 238-06 task
+   3 for the dated supersession record.
 
 ## AFTER-SC1-REJECT-ACCEPT
 
-Status: pending (238-02)
+Status: captured
+
+**A3 (238-RESEARCH Assumptions Log) is now PROVEN, not assumed: `conditions.ref_name.exclude`
+does take precedence over `include` on this live ruleset.** The accept probe below was NOT
+rejected — `v9.9.9-rulesettest` is in `include` (`refs/tags/v*`) but also in `exclude`
+(`refs/tags/v*.*.*`), and it was accepted. Had exclude lost to include, this push would have been
+rejected too, which would have been phase-stopping (it would mean release-please's `v1.5.1` push
+is also blocked under Tier 2). It was not — exclude wins.
+
+### Reject probe: `v9.9` (in `include`, NOT in `exclude` — one dot, in scope)
+
+```bash
+$ git tag v9.9 HEAD && git push origin v9.9
+remote: error: GH013: Repository rule violations found for refs/tags/v9.9.
+remote: Review all repository rules at https://github.com/szTheory/sigra/rules?ref=refs%2Ftags%2Fv9.9
+remote:
+remote: - Cannot create ref due to creations being restricted.
+remote:
+To https://github.com/szTheory/sigra.git
+ ! [remote rejected]   v9.9 -> v9.9 (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/szTheory/sigra.git'
+```
+
+Outcome: **REJECTED**, as expected.
+
+### Accept probe: `v9.9.9-rulesettest` (in `include` AND in `exclude` — two dots, out of scope)
+
+```bash
+$ git tag v9.9.9-rulesettest HEAD && git push origin v9.9.9-rulesettest
+To https://github.com/szTheory/sigra.git
+ * [new tag]           v9.9.9-rulesettest -> v9.9.9-rulesettest
+```
+
+Outcome: **ACCEPTED**, as expected. A3 verdict: **exclude wins over include** — confirmed live.
+
+Route caveat (RESEARCH Pitfall 3): this probe exercises the `git push` route only. release-please
+creates its release tag via the Releases API, a different route. Under Tier 2 this route
+distinction is moot for the exclusion question — `v1.5.1` (two dots) is excluded from the
+ruleset's scope entirely regardless of which route creates it, so no rule evaluates it either way.
+This observation is **indicative**, not proof, that the Releases-API route behaves identically;
+Phase 242 is the true observation for that route. The word used here is indicative, not proven.
+
+### Rule-suite citation (D-18) — embedded JSON, not just an id
+
+Fetched inside the `rule-suites` query window (`time_period=day`), locally as the owner
+(rule-suites requires Administration: read, which an Actions `GITHUB_TOKEN` cannot be granted):
+
+```bash
+$ SUITE=$(gh api 'repos/szTheory/sigra/rulesets/rule-suites?time_period=day&ref=refs/tags/v9.9' \
+    --jq '[.[]|select(.result=="fail")][0].id')
+$ echo "$SUITE"
+4106927843
+$ gh api "repos/szTheory/sigra/rulesets/rule-suites/$SUITE"
+{"id":4106927843,"actor_id":28652,"actor_name":"szTheory","before_sha":"0000000000000000000000000000000000000000","after_sha":"ba8a7b61b9b8d799c207575573cfdd5309cb4ce1","ref":"refs/tags/v9.9","repository_id":1207487684,"repository_name":"sigra","pushed_at":"2026-09-16T22:00:44-04:00","result":"fail","rule_evaluations":[{"rule_source":{"type":"secret_scanning"},"enforcement":"active","result":"pass","rule_type":"secret_scanning"},{"rule_source":{"type":"ruleset","id":23574716,"name":"tag-namespace"},"enforcement":"active","result":"fail","rule_type":"creation","details":"Cannot create ref due to creations being restricted."}]}
+```
+
+Citable by `rule_suite_id: 4106927843`, `rule_evaluations[]` entry naming `ruleset id: 23574716`
+(`tag-namespace`), `rule_type: "creation"`, `result: "fail"`, `details: "Cannot create ref due to
+creations being restricted."` — the JSON above is the record; the id alone is not enough because
+the query window (default `day`) expires. `actor_name: "szTheory"` names the public repo owner;
+no credential material is present, nothing scrubbed beyond that (none present).
 
 ## AFTER-DELETE-PROBE
 
