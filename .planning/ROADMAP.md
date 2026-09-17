@@ -280,7 +280,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
 | 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
-| 238. Tag Guard, Then Tag Deletion | 0/? | Not started | - |
+| 238. Tag Guard, Then Tag Deletion | 6/6 | Complete | 2026-09-17 |
 | 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |

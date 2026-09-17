@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 238
 current_phase_name: Tag Guard, Then Tag Deletion
 status: executing
-stopped_at: Phase 238 context gathered (assumptions mode)
-last_updated: "2026-09-16T19:15:03.323Z"
-last_activity: 2026-09-16
-last_activity_desc: Phase 238 execution started
-state_head: 12f2264d028ee7528f6fcda2a0a9279675aa37da
+stopped_at: Completed 238-06-PLAN.md
+last_updated: "2026-09-17T14:40:38.274Z"
+last_activity: 2026-09-17
+last_activity_desc: "Phase 238 complete (6/6 plans): tag guard, deletion, runbook, ADR amendment, supersession, ledger closed"
+state_head: f7a987528d3ec1a9e0ba196461bbc39170c97bd4
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 16
-  completed_plans: 10
+  completed_plans: 16
   percent: 20
 ---
 
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 238 (Tag Guard, Then Tag Deletion) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 238
-Last activity: 2026-09-16 — Phase 238 execution started
+Phase: 238 (Tag Guard, Then Tag Deletion) — COMPLETE (6/6 plans)
+Plan: 6 of 6 — all plans complete
+Status: Phase 238 execution complete (awaiting verification)
+Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-01 supersession, evidence ledger closed
 
 ### v1.48 phase map
 
@@ -667,9 +667,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T17:28:14.551Z
-Stopped at: Phase 238 context gathered (assumptions mode)
-Resume file: .planning/phases/238-tag-guard-then-tag-deletion/238-CONTEXT.md
+Last session: 2026-09-17T14:40:38.237Z
+Stopped at: Completed 238-06-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -853,3 +853,4 @@ Resume file: .planning/phases/238-tag-guard-then-tag-deletion/238-CONTEXT.md
 | Phase 237 P05 | 25 min | 3 tasks | 3 files |
 | Phase 237 P03 | 8min | 2 tasks | 2 files |
 | Phase 237 P06 | ~2h | 3 tasks | 7 files |
+| Phase 238 P06 | 41 min | 3 tasks | 5 files |
