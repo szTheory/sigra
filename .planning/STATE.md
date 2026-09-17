@@ -3,18 +3,18 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
-current_phase_name: priv-templates-sweep-one-batched-re-bless
+current_phase_name: "`priv/templates/` Sweep + One Batched Re-bless"
 status: executing
-stopped_at: Phase 239 context gathered (assumptions mode)
-last_updated: "2026-09-17T18:54:30.542Z"
+stopped_at: Completed 239-01-PLAN.md
+last_updated: "2026-09-17T19:15:24.259Z"
 last_activity: 2026-09-17
-last_activity_desc: Phase 238 complete, transitioned to Phase 239
-state_head: 87dff44b710c6571fb182d0f49e360d429260e29
+last_activity_desc: Phase 239 execution started
+state_head: 4512c462dce9b1d383087fec9a8e7ee3d61317f4
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 20
-  completed_plans: 16
+  completed_plans: 17
   percent: 30
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 238 — Tag Guard, Then Tag Deletion
+**Current focus:** Phase 239 — `priv/templates/` Sweep + One Batched Re-bless
 
 ## Current Position
 
-Phase: 239 (priv-templates-sweep-one-batched-re-bless) — READY TO EXECUTE
-Plan: Not started
+Phase: 239 (`priv/templates/` Sweep + One Batched Re-bless) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-09-17 — Phase 238 complete, transitioned to Phase 239
+Last activity: 2026-09-17 — Phase 239 execution started
 
 ### v1.48 phase map
 
@@ -470,6 +470,7 @@ Last activity: 2026-09-17 — Phase 238 complete, transitioned to Phase 239
 - [Phase 238]: The tag guard is deliberately paired and asymmetric — `p19` asserts the committed snapshot offline on every PR (no network on the merge-gating lane), while the live-vs-committed drift read runs only on the post-merge `workflow_run` observer lane. The drift job's jq projection omits `bypass_actors` on purpose: GitHub returns that field only to callers with write access, so asserting it at CI-token permission level would compare an absent value and always report drift. The bypass check moves to a documented operator step.
 - [Phase 238]: Deletion is allowlist-driven and reporting-by-default — one literal tag name per invocation from `.planning/decisions/003-tag-delete-list.tsv`, never a glob or prefix; `--apply` is required to mutate; every row carries a `pre_delete_sha`. **No `git gc`, `reflog expire` or `prune` may be run** — those SHAs are Phase 245's forward-feed and the deleted objects must stay reachable.
 - [Phase 238]: A green `CI (observe)` RUN is not proof that the drift job ran. Its guard is `github.event.workflow_run.event != 'pull_request'`, so observe runs triggered by PR-event CI runs skip the job while still reporting green — two such runs sat at this phase's head SHA during UAT. Only the run triggered by the `push` CI executes it; verification must read the JOB's conclusion and its stdout line.
+- [Phase 239]: Wave-0 SC-3 instrument built before any template edit: expected-removed-set containment classifier replaces the unfireable syntactic comment-only test, checked against a frozen 141-record pre-sweep expected set (139 union-token lines + 2 anchored merge-site neighbours, never a blanket radius).
 
 ### Pending Todos
 
@@ -672,9 +673,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T18:05:09.880Z
-Stopped at: Phase 239 context gathered (assumptions mode)
-Resume file: .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-CONTEXT.md
+Last session: 2026-09-17T19:15:24.216Z
+Stopped at: Completed 239-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -859,3 +860,4 @@ Resume file: .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-
 | Phase 237 P03 | 8min | 2 tasks | 2 files |
 | Phase 237 P06 | ~2h | 3 tasks | 7 files |
 | Phase 238 P06 | 41 min | 3 tasks | 5 files |
+| Phase 239 P01 | 25min | 3 tasks | 6 files |
