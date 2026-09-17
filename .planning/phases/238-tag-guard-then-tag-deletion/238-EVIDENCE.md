@@ -18,9 +18,9 @@ be revisited and, if the guard lands, corrected.
 | [BEFORE-RULESET-STATE](#before-ruleset-state) | The live ruleset list before any write in this phase | `gh api repos/szTheory/sigra/rulesets` | captured |
 | [BEFORE-TAG-INVENTORY](#before-tag-inventory) | Local and remote tag partition, four classes, zero unclassified | `git tag`, `git ls-remote --tags origin`, per-class regex counts | captured |
 | [BEFORE-RULESET-FEASIBILITY-PROBE](#before-ruleset-feasibility-probe) | Tier-1 and Tier-2 probe request/response pairs, the selected tier | `gh api -X POST` / `-X DELETE` against `repos/szTheory/sigra/rulesets`, disabled enforcement, deleted same task | captured |
-| [AFTER-RULESET-ACTIVE](#after-ruleset-active) | The live `tag-namespace` ruleset, active, matching the selected tier's shape | `gh api repos/szTheory/sigra/rulesets/{id}` | pending (238-02) |
-| [AFTER-SC1-REJECT-ACCEPT](#after-sc1-reject-accept) | Reject/accept proof against the active guard | live tag push probes | pending (238-02) |
-| [AFTER-DELETE-PROBE](#after-delete-probe) | Whether deleting an in-scope tag is blocked by the active guard | live delete of the accepted scratch tag | pending (238-02) |
+| [AFTER-RULESET-ACTIVE](#after-ruleset-active) | The live `tag-namespace` ruleset, active, matching the selected tier's shape | `gh api repos/szTheory/sigra/rulesets/{id}` | captured |
+| [AFTER-SC1-REJECT-ACCEPT](#after-sc1-reject-accept) | Reject/accept proof against the active guard | live tag push probes | captured |
+| [AFTER-DELETE-PROBE](#after-delete-probe) | Whether deleting an in-scope tag is blocked by the active guard | live delete of the accepted scratch tag | captured |
 | [AFTER-P19-RED](#after-p19-red) | The `p19` offline contract guard demonstrated RED against a known-bad fixture | `node --test scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` | pending (238-03) |
 | [AFTER-LOCAL-DELETE](#after-local-delete) | Local tag deletion set-equality against the keep-set | `git tag` + regex keep-set, post-delete | pending (238-04) |
 | [AFTER-REMOTE-DELETE](#after-remote-delete) | Remote tag deletion set-equality against the keep-set | `git ls-remote --tags origin` + regex keep-set, post-delete | pending (238-05) |
@@ -331,7 +331,60 @@ no credential material is present, nothing scrubbed beyond that (none present).
 
 ## AFTER-DELETE-PROBE
 
-Status: pending (238-02)
+Status: captured
+
+D-06's delete-deadlock question: does the live `tag-namespace` ruleset govern ref *deletion*, not
+just creation? Answered by deleting `v9.9.9-rulesettest` from origin — a tag inside the ruleset's
+include scope, so the delete attempt is itself the probe.
+
+```bash
+$ git push origin --delete v9.9.9-rulesettest
+To https://github.com/szTheory/sigra.git
+ - [deleted]           v9.9.9-rulesettest
+```
+
+Exit 0, no rejection. **Verdict: deletion is unaffected by this ruleset.** This is an
+**observation**, not an inference — the delete was actually attempted and actually succeeded; it
+was not assumed from the ruleset's rule types. Under Tier 2 the answer was structurally knowable
+in advance (the ruleset contains exactly one rule, of type `creation`; `deletion` is a
+[documented separate rule type](https://docs.github.com/en/rest/repos/rules) this ruleset does not
+carry), but per the plan's instruction the observation is recorded rather than the inference, and
+this line states plainly which one is being recorded: the observation.
+
+No enforcement flip was needed. Live enforcement value confirmed still `active` immediately after
+the delete:
+
+```bash
+$ gh api repos/szTheory/sigra/rulesets/23574716 --jq '.enforcement'
+active
+```
+
+**Consequence for 238-05:** 238-05 can run its remote deletion pass with enforcement left
+`active` throughout — true guard-first in the literal sense the phase title reads. No flip window
+is required, so there is no window to open or close.
+
+### Scratch tag cleanup (the only two refs this plan removes)
+
+```bash
+$ git tag -d v9.9.9-rulesettest
+Deleted tag 'v9.9.9-rulesettest' (was ba8a7b61)
+$ git tag -d v9.9
+Deleted tag 'v9.9' (was ba8a7b61)
+```
+
+Post-cleanup counts, read directly from the remote (never reconciled from local refs):
+
+```bash
+$ git tag | wc -l
+52
+$ git ls-remote --tags origin | sed 's#.*refs/tags/##' | grep -cv '\^{}'
+33
+```
+
+Both counts match `BEFORE-TAG-INVENTORY` exactly (52 local, 33 remote). Neither `v9.9` nor
+`v9.9.9-rulesettest` appears in `git tag` or `git ls-remote --tags origin`. No other ref was
+touched — the 18 local-only `v1.NN` tags, `archive/local-main-pre-235-recovery`, and all
+`phase-238-*` tags are untouched, left for 238-04/238-05's allowlist-driven deletion.
 
 ## AFTER-P19-RED
 
