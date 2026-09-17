@@ -476,10 +476,10 @@ defmodule Sigra.Install.Features.Core do
         plug :ensure_auth_settings_capability
       end
 
-      # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+      # Organization-aware pipelines (opt-in).
       # Apps that want to gate routes by active organization membership
       # pipe_through :require_org (any active membership) or
-      # :require_org_owner (owner role only). Phase 16 wires these to
+      # :require_org_owner (owner role only). Wires these to
       # the organization picker + switcher.
       pipeline :require_org do
         plug Sigra.Plug.RequireMembership, error_handler: #{web_module}.AuthErrorHandler
@@ -491,7 +491,7 @@ defmodule Sigra.Install.Features.Core do
           roles: [:owner]
       end
 
-      # MFA challenge (accessible with mfa_pending sessions, D-24)
+      # MFA challenge (accessible with mfa_pending sessions)
       scope "/users", #{web_module} do
         pipe_through [:browser, :require_mfa_capability]
     #{mfa_challenge_routes}
@@ -500,7 +500,7 @@ defmodule Sigra.Install.Features.Core do
       scope "/users", #{web_module} do
         pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-        # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
+        # Login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new
     #{live_routes}
         post "/log_in", SessionController, :create
