@@ -74,3 +74,7 @@ eval/autofix-state.json
 
 # secrets/local vars
 .env
+
+# GSD runtime: per-session milestone/phase lock (pid + session id, machine-local).
+# Never committed — it is process state, not planning state.
+.planning/milestone.lock
