@@ -313,7 +313,7 @@ now-unreachable code path.
 
 ```
 $ git worktree list
-/Users/jon/projects/sigra                         b6e889c4 [main]                                          ← LIVE
+<REPO_ROOT>                         b6e889c4 [main]                                          ← LIVE
 /private/tmp/sigra-chimeway-backport-62ceb46      b8d71e3a [fix/chimeway-opaque-recipient-backport-62ceb46]
 /private/tmp/sigra-chimeway-opaque-main           00000000 [fix/chimeway-opaque-recipient-main]            ← NULL HEAD
 /private/tmp/sigra-plan35.5RDe7U/candidate        a1f9e34a (detached HEAD)
@@ -820,7 +820,7 @@ This phase touches repo and remote state, so the categories are answered explici
 
 ## Project Constraints (from CLAUDE.md)
 
-Actionable directives extracted from `/Users/jon/projects/sigra/CLAUDE.md`, binding on the plan:
+Actionable directives extracted from `<REPO_ROOT>/CLAUDE.md`, binding on the plan:
 
 1. **GSD Workflow Enforcement** — "Before using Edit, Write, or other file-changing tools, start work through a GSD command." All 237 edits must run inside `/gsd-execute-phase`.
 2. **`mix ci` is the local gate** — "run `MIX_ENV=test mix ci` before pushing; root `mix test` misses formatting AND `test/example`" (334 tests vs 251).
@@ -917,19 +917,19 @@ Actionable directives extracted from `/Users/jon/projects/sigra/CLAUDE.md`, bind
 - `rg` sweeps with paired positive controls — §A.2, §E.1, §F.1
 
 ### Repo files read this session
-- `/Users/jon/projects/sigra/.planning/ROADMAP.md` (full)
-- `/Users/jon/projects/sigra/.planning/REQUIREMENTS.md` (`:19`, `:35`, `:41-43`, `:99`, `:109`, `:112-114`, `:132`)
-- `/Users/jon/projects/sigra/.planning/STATE.md` (`:1-55`)
-- `/Users/jon/projects/sigra/.planning/config.json`
-- `/Users/jon/projects/sigra/CLAUDE.md`
-- `/Users/jon/projects/sigra/.gitignore`, `.git/info/exclude`
-- `/Users/jon/projects/sigra/mix.exs` (`:180-232`)
-- `/Users/jon/projects/sigra/guides/introduction/code-walkthrough.md` (`:160-185`)
-- `/Users/jon/projects/sigra/.github/workflows/playwright-github-pages.yml` (full)
-- `/Users/jon/projects/sigra/scripts/ci/ensure-github-pages-legacy-branch.sh` (full)
-- `/Users/jon/projects/sigra/scripts/ci/prohibitions/p15-pages-publisher-seeds-before-boot.test.mjs` (`:1-20`)
-- `/Users/jon/projects/sigra/.planning/todos/pending/2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md` (full)
-- `/Users/jon/projects/sigra/lib/sigra/audit.ex` (`:1-20`), `lib/sigra/testing.ex` (`:1265-1285`), `lib/mix/tasks/sigra.fixture.rebless_golden.ex` (`:1-25`)
+- `<REPO_ROOT>/.planning/ROADMAP.md` (full)
+- `<REPO_ROOT>/.planning/REQUIREMENTS.md` (`:19`, `:35`, `:41-43`, `:99`, `:109`, `:112-114`, `:132`)
+- `<REPO_ROOT>/.planning/STATE.md` (`:1-55`)
+- `<REPO_ROOT>/.planning/config.json`
+- `<REPO_ROOT>/CLAUDE.md`
+- `<REPO_ROOT>/.gitignore`, `.git/info/exclude`
+- `<REPO_ROOT>/mix.exs` (`:180-232`)
+- `<REPO_ROOT>/guides/introduction/code-walkthrough.md` (`:160-185`)
+- `<REPO_ROOT>/.github/workflows/playwright-github-pages.yml` (full)
+- `<REPO_ROOT>/scripts/ci/ensure-github-pages-legacy-branch.sh` (full)
+- `<REPO_ROOT>/scripts/ci/prohibitions/p15-pages-publisher-seeds-before-boot.test.mjs` (`:1-20`)
+- `<REPO_ROOT>/.planning/todos/pending/2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md` (full)
+- `<REPO_ROOT>/lib/sigra/audit.ex` (`:1-20`), `lib/sigra/testing.ex` (`:1265-1285`), `lib/mix/tasks/sigra.fixture.rebless_golden.ex` (`:1-25`)
 
 ### Secondary (MEDIUM)
 - `guides/introduction/upgrading-to-v1.10.md`, `upgrading-to-v1.11.md`, `upgrading-to-v1.12.md`, `intermediate-production-path.md` — read via `rg -n` line output, not full-file reads
