@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: "`priv/templates/` Sweep + One Batched Re-bless"
 status: executing
-stopped_at: Completed 239-01-PLAN.md
-last_updated: "2026-09-17T19:15:24.259Z"
+stopped_at: Completed 239-02-PLAN.md
+last_updated: "2026-09-17T19:40:48.228Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
-state_head: 4512c462dce9b1d383087fec9a8e7ee3d61317f4
+state_head: 2b362456a8dc2fbce455d21344f97898960af22c
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 20
-  completed_plans: 17
+  completed_plans: 18
   percent: 30
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (`priv/templates/` Sweep + One Batched Re-bless) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-09-17 — Phase 239 execution started
 
@@ -471,6 +471,8 @@ Last activity: 2026-09-17 — Phase 239 execution started
 - [Phase 238]: Deletion is allowlist-driven and reporting-by-default — one literal tag name per invocation from `.planning/decisions/003-tag-delete-list.tsv`, never a glob or prefix; `--apply` is required to mutate; every row carries a `pre_delete_sha`. **No `git gc`, `reflog expire` or `prune` may be run** — those SHAs are Phase 245's forward-feed and the deleted objects must stay reachable.
 - [Phase 238]: A green `CI (observe)` RUN is not proof that the drift job ran. Its guard is `github.event.workflow_run.event != 'pull_request'`, so observe runs triggered by PR-event CI runs skip the job while still reporting green — two such runs sat at this phase's head SHA during UAT. Only the run triggered by the `push` CI executes it; verification must read the JOB's conclusion and its stdout line.
 - [Phase 239]: Wave-0 SC-3 instrument built before any template edit: expected-removed-set containment classifier replaces the unfireable syntactic comment-only test, checked against a frozen 141-record pre-sweep expected set (139 union-token lines + 2 anchored merge-site neighbours, never a blanket radius).
+- [Phase 239]: Extended Task 1's scope to fully clear its three exclusive files (auth.ex, reset_password_controller.ex, organization_switch_controller.ex) rather than leaving union-token residue no later task would visit.
+- [Phase 239]: Accepted one unavoidable 237-security-comment-diff-check.sh false positive on core/auth.ex:530 (IN-03 token format not in its tolerance regex) rather than editing the checker script, per D-16.
 
 ### Pending Todos
 
@@ -673,8 +675,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T19:15:24.216Z
-Stopped at: Completed 239-01-PLAN.md
+Last session: 2026-09-17T19:40:48.185Z
+Stopped at: Completed 239-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -861,3 +863,4 @@ Resume file: None
 | Phase 237 P06 | ~2h | 3 tasks | 7 files |
 | Phase 238 P06 | 41 min | 3 tasks | 5 files |
 | Phase 239 P01 | 25min | 3 tasks | 6 files |
+| Phase 239 P02 | 70min | 3 tasks | 47 files |
