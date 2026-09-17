@@ -74,3 +74,46 @@ outside the phase directory.
   belongs to Phase 241).
 - Plan 239-02 should cite the commit sha recorded above (the single one in this file's "Commit
   sha:" bullet) as the pre-sweep baseline sha when it reports SC-3.
+
+## SWEEP-COMMIT
+Status: DONE — commit 1 of the D-19 three-commit topology lands, provably confined to
+`priv/templates/`, driving the union grep to zero across all 119 tracked template files in all
+three generators.
+
+- Commit sha (hyphen-chunked to keep exactly one full 7-40-char hex token in this file, per the
+  239-01 SIGPIPE-avoidance fix — concatenate the segments to recover the 40-char sha):
+  `cafd9a-5328b5-f08f31-5a123f-d874d2-698831-7537`
+- Subject: `refactor(239): strip planning bookkeeping from priv/templates (SURF-01, SURF-03)`
+- Before/after union-token counts: **158 -> 0** across `priv/templates/` (46 files touched, 119
+  tracked template files enumerated by `git ls-files priv/templates`).
+- `git show --name-only --format= HEAD` at that commit lists exactly 46 paths, every one under
+  `priv/templates/`.
+- `git diff --name-only origin/main -- .github/` is empty — no `.github/` drift introduced.
+- `MIX_ENV=test mix compile --warnings-as-errors` is clean (no warning, no error) after the sweep.
+- All five D-03 deliberate exclusions (`policy.ex` TODO, `mfa_challenge_live.ex` XXXX-XXXX,
+  `sigra_auth.css` v1.46 compat prose, `scope.ex` UPGRADE-v1.2.md pointer, arity/version strings)
+  survive verbatim, confirmed by grep against the post-sweep tree.
+
+**Documented instrument limitation (not a regression):** `237-security-comment-diff-check.sh`
+(SC-5b), run against this commit's full diff, reports exactly one survivor:
+`core/auth.ex:530`'s pre-sweep line `# token clause so security signals are preserved (10.1
+IN-03). Tokens`. This is structural, not fixable by rewording: SC-5b's tolerance regex recognizes
+only `D-[0-9]{2}`, `SC-[0-9]+`, and `Phase [0-9]{1,3}` co-occurring on the SAME removed line as a
+rationale word — it does not recognize `IN-[0-9]{2}`. Any edit to this line necessarily marks the
+current HEAD text as "removed" in the diff (unified diff is line-granular), and that HEAD text
+already carries "security" + "IN-03" with no SC-5b-recognized token, regardless of what replaces
+it. The only tokens SC-5b would tolerate (`D-NN`, `SC-N`, `Phase N`, `.planning/`) are themselves
+union-grep tokens this phase must remove, so no rewording of the AFTER text can satisfy both
+instruments simultaneously for this one line. Per plan-level constraint D-16, `237-security-
+comment-diff-check.sh` was not modified to close this gap. Verified via three independent repro
+attempts (isolated single-file diff, six-file partial diff, full sweep-commit diff) — all three
+report the identical single survivor and no other. The rationale sentence "security signals are
+preserved" is intact in the AFTER text and `IN-03` is fully gone from the file, satisfying the
+plan's actual SURF-01/SURF-03 intent; only the SC-5b instrument's advisory tolerance-regex gap is
+unresolved, and it is advisory tooling per its own header ("deliberately NOT wired into any
+workflow or prohibitions glob"). A second near-identical case
+(`organizations/live/organization_settings_live.ex` "enumeration safety" / D-04 window merge) was
+found and avoided during execution by leaving the rationale-bearing line untouched and editing
+only the adjacent token-only line, keeping that one out of SC-5b's removed-line set entirely —
+demonstrating the fix is possible whenever the token and rationale word do not already share HEAD's
+one physical line, which is not the case for `auth.ex:530`.
