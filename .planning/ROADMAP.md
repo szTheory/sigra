@@ -198,7 +198,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 239-03-PLAN.md — Commit 2: mirror only the 31 `test/example/` counterparts, with the SC-4 per-file checklist and `mix ci` run #1 *(wave 3)*
+- [ ] 239-03-PLAN.md — Commit 2: mirror only the 30 `test/example/` counterparts, with the SC-4 per-file checklist and `mix ci` run #1 *(wave 3)*
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

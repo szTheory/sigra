@@ -965,25 +965,39 @@ the cited file.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **What exactly counts as a "comment line" for SC-3?**
+All three questions below were resolved during planning and each recommendation was adopted by a
+committed plan. Nothing here is outstanding.
+
+1. **(RESOLVED — adopted by `239-01-PLAN.md`)** **What exactly counts as a "comment line" for SC-3?**
    - What we know: 80/158 are true comments; 57 are `@moduledoc` heredoc prose; 4 are `@doc "…"`.
    - What's unclear: whether the phase owner wants heredoc prose treated as "comment" (it is
      documentation, and the spirit of SC-3 is "no code changed") or wants a stricter rule.
    - **Recommendation:** adopt the expected-removed-set containment check (§5.1 option 1). It sidesteps
      the definitional argument entirely and is strictly more precise than any syntactic rule.
+   - **RESOLVED:** adopted in `239-01-PLAN.md` Task 1. Refined during plan review: the expected set is
+     frozen as the **±1-line neighbourhood** of the union-token lines rather than the bare union grep,
+     because `239-02-PLAN.md`'s ledger mandates two block merges that legitimately remove an adjacent
+     non-token line; and the non-vacuity floor is on `removed_lines >= 139` (exact, known pre-sweep)
+     rather than on a changed-line total, because 127 of the 158 template lines are pure deletions.
 
-2. **Should `sigra.upgrade/` templates be verified at all, given SC-1 cannot reach them?**
+2. **(RESOLVED — adopted by `239-04-PLAN.md`)** **Should `sigra.upgrade/` templates be verified at all, given SC-1 cannot reach them?**
    - What we know: 3 of 46 edited files are `sigra.upgrade/*.exs`; `install-smoke.sh` never runs
      `mix sigra.upgrade`; they *do* ship in the tarball.
    - **Recommendation:** verify them via SC-2 (tarball grep covers `priv/` in full) and state the
      SC-1 coverage boundary explicitly in the SUMMARY. Do **not** build an upgrade-smoke harness
      (Standing Constraint: build no new harness).
+   - **RESOLVED:** adopted verbatim in `239-04-PLAN.md` — the "SC-1 coverage boundary" block, Task 2's
+     `## SC2-TARBALL` slot, and the `## HONEST-CLAIMS` bullet naming `sigra.upgrade/` as 3 of 46 files
+     unreachable by `install-smoke.sh`. No harness is built.
 
-3. **Does the `test/example/` mirror need its own compile/test run before commit 3?**
+3. **(RESOLVED — adopted by `239-03-PLAN.md` and `239-04-PLAN.md`)** **Does the `test/example/` mirror need its own compile/test run before commit 3?**
    - What we know: `mix ci` runs the example lane, but commit 3 must be pushed together with 1 and 2.
    - **Recommendation:** run `mix ci` once after commit 2 and once after commit 3; capture both.
+   - **RESOLVED:** adopted — run #1 in `239-03-PLAN.md` Task 3 (with `ci.install_golden` expected to
+     fail, recorded as expected), run #2 in `239-04-PLAN.md` Task 2 (fully green). Both land in the
+     `## MIX-CI-RUNS` ledger slot.
 
 ---
 
