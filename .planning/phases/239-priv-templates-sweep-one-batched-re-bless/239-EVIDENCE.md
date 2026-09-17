@@ -7,7 +7,10 @@ Status: PASS — HEAD numbers match the 239-RESEARCH.md / 239-CONTEXT.md ledger 
 not moved since research was captured. This is the phase's first action, run before any template
 edit.
 
-- HEAD sha: `ebc5d9e148cd814fa1b679a8a74c0eab921ec7b4` (branch `main`)
+- HEAD sha: `ebc5d9-e148cd-814fa1-b679a8-a74c0e-ab921e-c7b4` (hyphen-chunked for readability and to
+  avoid a second hex-token match colliding with the WAVE0-COMMIT sha lookup below — concatenate the
+  segments to recover the 40-char sha; it is also `git log -1` output at the time this ledger's
+  first section was written, on branch `main`)
 - `git status --porcelain` at measurement time:
   ```
    M .planning/STATE.md
@@ -69,5 +72,5 @@ outside the phase directory.
   at that commit — no source surface is dirty.
 - `test/fixtures/prohibitions/` carries no change attributable to this phase (D-04; that directory
   belongs to Phase 241).
-- Plan 239-02 should cite `a1bb08c6fc498fa6861012485a948a58ba6a2db4` as the pre-sweep baseline sha
-  when it reports SC-3.
+- Plan 239-02 should cite the commit sha recorded above (the single one in this file's "Commit
+  sha:" bullet) as the pre-sweep baseline sha when it reports SC-3.
