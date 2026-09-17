@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: "`priv/templates/` Sweep + One Batched Re-bless"
 status: executing
-stopped_at: Completed 239-02-PLAN.md
-last_updated: "2026-09-17T19:40:48.228Z"
+stopped_at: Completed 239-03-PLAN.md
+last_updated: "2026-09-17T20:27:16.241Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
-state_head: 2b362456a8dc2fbce455d21344f97898960af22c
+state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
   percent: 30
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (`priv/templates/` Sweep + One Batched Re-bless) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-09-17 — Phase 239 execution started
 
@@ -473,6 +473,8 @@ Last activity: 2026-09-17 — Phase 239 execution started
 - [Phase 239]: Wave-0 SC-3 instrument built before any template edit: expected-removed-set containment classifier replaces the unfireable syntactic comment-only test, checked against a frozen 141-record pre-sweep expected set (139 union-token lines + 2 anchored merge-site neighbours, never a blanket radius).
 - [Phase 239]: Extended Task 1's scope to fully clear its three exclusive files (auth.ex, reset_password_controller.ex, organization_switch_controller.ex) rather than leaving union-token residue no later task would visit.
 - [Phase 239]: Accepted one unavoidable 237-security-comment-diff-check.sh false positive on core/auth.ex:530 (IN-03 token format not in its tolerance regex) rather than editing the checker script, per D-16.
+- [Phase 239]: Resolved plan's temporal-ordering tension via a trailing evidence-recording commit (mirroring 239-01/239-02 precedent), keeping the mirror commit itself entirely test/example/-scoped — A commit cannot honestly record its own not-yet-created child commit's sha or not-yet-run mix ci results
+- [Phase 239]: Diagnosed the first mix ci run's 6 spurious Threadline failures as a cold-_build Code.ensure_compiled/1 ordering race, resolved via mix compile --force, not a lib/ regression — git log a1bb08c6..HEAD -- lib/ is empty; confirmed no source cause
 
 ### Pending Todos
 
@@ -675,8 +677,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T19:40:48.185Z
-Stopped at: Completed 239-02-PLAN.md
+Last session: 2026-09-17T20:27:16.206Z
+Stopped at: Completed 239-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -864,3 +866,4 @@ Resume file: None
 | Phase 238 P06 | 41 min | 3 tasks | 5 files |
 | Phase 239 P01 | 25min | 3 tasks | 6 files |
 | Phase 239 P02 | 70min | 3 tasks | 47 files |
+| Phase 239 P03 | 95min | 3 tasks | 31 files |
