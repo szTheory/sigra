@@ -603,8 +603,8 @@ defmodule <%= web_module %>.MFASettingsLive do
     form = to_form(%{"code" => code}, as: "enroll")
     socket = assign(socket, enroll_form: form)
 
-    # Auto-submit when 6 digits entered. Calls the confirm path
-    # directly instead of dispatching via
+    # Auto-submit when 6 digits entered:
+    # call the confirm path directly instead of dispatching via
     # `send(self(), …)`. The mailbox round-trip allowed a stale 6-digit
     # prefix to fire after the user typed a 7th character, wasting an
     # attempt against the MFA lockout counter.

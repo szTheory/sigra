@@ -1,7 +1,7 @@
 defmodule <%= web_module %>.OrganizationSettingsLive do
   @moduledoc """
-  Organization settings LiveView — three stacked sections on a single page:
-  General (rename), Slug (change with 7-day redirect + inline sudo),
+  Organization settings LiveView — three stacked sections on a single page
+  spanning General (rename), Slug (change with 7-day redirect + inline sudo),
   and Danger Zone (soft-delete with inline sudo + typed-confirm of org name).
 
   All destructive actions use progressive disclosure: closed state
