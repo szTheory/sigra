@@ -52,5 +52,22 @@ research ledger's numbers without adjustment.
   in scope") has a genuine zero baseline today, needing no carve-out or waiver.
 
 ## WAVE0-COMMIT
-Status: PENDING — filled in by Task 3 after the wave-0 artifacts (this ledger, the classifier, the
-frozen expected set, and the three fixtures) are committed.
+Status: DONE — the wave-0 instruments are committed and their commit provably touches nothing
+outside the phase directory.
+
+- Commit sha: `a1bb08c6fc498fa6861012485a948a58ba6a2db4`
+- Subject: `docs(239): wave-0 SC-3 classifier, frozen expected set, preflight ledger`
+- `git show --name-only --format= HEAD` (at that commit) lists exactly six paths, all under
+  `.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`:
+  - `239-EVIDENCE.md`
+  - `239-comment-only-diff-check.sh`
+  - `239-golden-expected.txt`
+  - `fixtures/239-golden-add-only-hunk.diff`
+  - `fixtures/239-golden-code-change.diff`
+  - `fixtures/239-golden-comment-only.diff`
+- `git diff --quiet HEAD -- priv/templates test/example test/fixtures .github mix.exs lib` exits 0
+  at that commit — no source surface is dirty.
+- `test/fixtures/prohibitions/` carries no change attributable to this phase (D-04; that directory
+  belongs to Phase 241).
+- Plan 239-02 should cite `a1bb08c6fc498fa6861012485a948a58ba6a2db4` as the pre-sweep baseline sha
+  when it reports SC-3.
