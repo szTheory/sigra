@@ -1,19 +1,19 @@
 {
   "id": 99999999,
   "name": "tag-namespace",
-  "target": "branch",
+  "target": "tag",
   "source_type": "Repository",
   "source": "szTheory/sigra",
-  "enforcement": "active",
+  "enforcement": "disabled",
   "conditions": {
     "ref_name": {
-      "exclude": [],
-      "include": ["refs/heads/main"]
+      "exclude": ["refs/tags/v*"],
+      "include": ["refs/tags/v*"]
     }
   },
   "rules": [
     {
-      "type": "deletion"
+      "type": "creation"
     }
   ],
   "node_id": "RRS_fixture_p19_altered",
