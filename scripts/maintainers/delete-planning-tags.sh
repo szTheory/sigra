@@ -61,8 +61,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEFAULT_ALLOWLIST="${ROOT}/.planning/decisions/003-tag-delete-list.tsv"
 
-KEEP_LOCAL_RE='^(v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?|archive/.*)$'
-KEEP_REMOTE_RE='^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'
+KEEP_LOCAL_RE='^(v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+-]+)?|archive/.*)$'
+KEEP_REMOTE_RE='^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+-]+)?$'
 EXPECTED_HEADER='tag	local	remote	class	pre_delete_sha	reason'
 NON_VACUITY_FLOOR=1
 
@@ -144,7 +144,7 @@ row_count=$(grep -c . "$ROWS" || true)
 [[ "$row_count" -ge 1 ]] || fail "allowlist_parsed_zero_rows: $ALLOWLIST yielded no data rows — the parse broke, this is not a pass"
 
 while IFS=$'\t' read -r tag _l _r _c _s _reason; do
-  [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]] && fail "allowlist_row_names_a_release_tag: $tag"
+  [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+-]+)?$ ]] && fail "allowlist_row_names_a_release_tag: $tag"
   case "$tag" in archive/*) fail "allowlist_row_names_an_archive_tag: $tag";; esac
 done < "$ROWS"
 
@@ -159,9 +159,13 @@ list_local() {
 }
 
 list_remote() {
-  git ls-remote --tags origin \
-    | sed 's#.*refs/tags/##' \
-    | grep -v '\^{}' > "$1" || true
+  # The transport failure and the legitimately-empty listing are different facts and must not
+  # share one exit status. `git ls-remote` runs alone so its status is its own; only the `grep -v`
+  # (which exits 1 on a tagless remote) is allowed to be swallowed.
+  local raw="${WORK}/remote-raw.txt"
+  git ls-remote --tags origin > "$raw" </dev/null \
+    || fail "remote_listing_failed: git ls-remote --tags origin exited non-zero (no ref was touched)"
+  sed 's#.*refs/tags/##' "$raw" | grep -v '\^{}' > "$1" || true
 }
 
 # ---------------------------------------------------------------------------
@@ -171,7 +175,7 @@ run_local_pass() {
   local deleted=0 absent=0 would=0
   while IFS=$'\t' read -r tag loc _rem _class _sha _reason; do
     [[ "$loc" == "yes" ]] || continue
-    if ! git rev-parse -q --verify "refs/tags/${tag}" >/dev/null 2>&1; then
+    if ! git rev-parse -q --verify "refs/tags/${tag}" >/dev/null 2>&1 </dev/null; then
       echo "  absent  ${tag} (already gone locally; skipped, not an error)"
       absent=$((absent + 1))
       continue
@@ -182,7 +186,7 @@ run_local_pass() {
       continue
     fi
     local out
-    if ! out=$(git tag -d "$tag" 2>&1); then
+    if ! out=$(git tag -d "$tag" 2>&1 </dev/null); then
       fail "local_delete_failed: ${tag}: ${out}"
     fi
     echo "  deleted ${tag}"
@@ -195,6 +199,13 @@ run_remote_pass() {
   git remote get-url origin >/dev/null 2>&1 || fail "no_origin_remote"
   local present="${WORK}/remote-present.txt"
   list_remote "$present"
+  # Same floor compare_side applies: an empty listing would relabel every remote row as the one
+  # permissible skip ("already gone on origin") and print a green receipt for a pass that read
+  # nothing. An empty parse is never a pass.
+  local n_present
+  n_present=$(grep -c . "$present" || true)
+  [[ "$n_present" -ge "$NON_VACUITY_FLOOR" ]] \
+    || fail "remote_listing_empty: the parse broke, this is not a pass"
   local deleted=0 absent=0 would=0
   while IFS=$'\t' read -r tag _loc rem _class _sha _reason; do
     [[ "$rem" == "yes" ]] || continue
@@ -209,7 +220,7 @@ run_remote_pass() {
       continue
     fi
     local out
-    if ! out=$(git push origin --delete "$tag" 2>&1); then
+    if ! out=$(git push origin --delete "$tag" 2>&1 </dev/null); then
       echo "$out" >&2
       echo "delete-planning-tags: if the rejection above is GH013 the tag-namespace ruleset governs deletion;" >&2
       echo "  238-02 observed that it does NOT (238-EVIDENCE.md AFTER-DELETE-PROBE, enforcement left active)," >&2

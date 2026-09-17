@@ -139,7 +139,19 @@ SemVer validator: `v1.2.3.4`, `v1.a.b`, `v1..` and `v...` each carry two dots, s
 takes them out of scope and they are admitted. It blocks the recurrence class (two-component
 milestone tags) and nothing more. The scope selector is fnmatch with `FNM_PATHNAME`, so `*` does not
 cross `/`: the `archive/`, `milestone/` and `proof/` namespaces are outside the rule entirely, and a
-future `phase-NNN-*` junk tag is **not** prevented by it.
+future `phase-NNN-*` junk tag is **not** prevented by it. The same `FNM_PATHNAME` rule cuts the
+other way on the nearest near-miss: `v1.4/notes` carries the `v` prefix but a `/`, so `refs/tags/v*`
+does not match it and the rule never applies — that name is creatable today. The sentence above
+("a tag name under the `v` prefix that does not carry three dot-separated segments cannot be
+created") is true only for names with no `/` in them.
+
+One asymmetry to know before you run the verify passes: the keep-set expressions in
+`scripts/maintainers/delete-planning-tags.sh` are **narrower** than what the ruleset permits. They
+admit three-component release tags (plus `archive/*`, locally) and nothing else. The `milestone/`
+and `proof/` namespaces are outside the ruleset and so creatable, but a tag in either one would be
+reported as drift by `verify-local`. That is deliberate — the verify pass is a set-equality check
+against a known keep-set, not a policy oracle — but if you adopt one of those namespaces, widen the
+expression in the same commit.
 
 **Do not delete this ruleset, do not add a bypass actor, and do not widen the `exclude` list.**
 `bypass_actors` is empty and rulesets carry no implicit admin bypass, so the rule binds the
