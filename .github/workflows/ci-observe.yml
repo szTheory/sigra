@@ -170,3 +170,52 @@ jobs:
             jq -r '.checks[]? | select(.verdict == "FAIL") | "::error::\(.name): \(.reason)"' docs-only-receipt.json
           fi
           exit "$RC"
+
+  # ---------------------------------------------------------------------------
+  # AFTER-MERGE, permanently. REL-01's live half (CONTEXT D-11): the `tag-namespace` ruleset
+  # has no git-side record except .github/rulesets/tag-namespace.json -- it is Settings-managed
+  # configuration. A deletion or field edit made directly in Settings leaves no diff and no
+  # review, and the offline `p19` guard on the pull_request lane can only assert the committed
+  # snapshot's OWN shape -- it cannot see whether the live object still matches it. This job is
+  # that missing live-vs-committed comparison.
+  #
+  # NOT A MERGE GATE: this job only observes and reports. It is never named in `ci-gate.needs`,
+  # per this file's own top-of-file boundary comment -- do not add it there.
+  # DEFAULT-BRANCH ONLY: `workflow_run` only ever executes the copy of THIS FILE that is on the
+  # default branch (see the file-level NOTE near the top of this file). This job therefore does
+  # nothing until it merges, and that half of REL-01 cannot be proven in-phase -- only observed
+  # for real starting on the first post-merge CI run.
+  # ---------------------------------------------------------------------------
+  tag_ruleset_drift:
+    name: Tag namespace ruleset drift (live vs committed, not a merge gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ github.event.workflow_run.event != 'pull_request' }}
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Two-step read, then diff against the committed snapshot
+        run: |
+          set -euo pipefail
+          ID=$(gh api "repos/${GITHUB_REPOSITORY}/rulesets" \
+                 --jq '[.[]|select(.name=="tag-namespace")][0].id')
+          if [ -z "$ID" ] || [ "$ID" = "null" ]; then
+            echo "::error::the tag-namespace ruleset is ABSENT from repos/${GITHUB_REPOSITORY}/rulesets -- REL-01's server-side guard has been silently removed"
+            exit 1
+          fi
+          gh api "repos/${GITHUB_REPOSITORY}/rulesets/${ID}" > live.json
+          # The comparison projection deliberately omits `bypass_actors`: GitHub returns that
+          # field only to callers with write access to the ruleset, so it is not comparable at
+          # this token's permission level (CONTEXT D-10) -- including it would compare an
+          # absent value against a committed one and always report drift.
+          jq -S '{target,enforcement,conditions,rules}' live.json > live-norm.json
+          jq -S '{target,enforcement,conditions,rules}' .github/rulesets/tag-namespace.json > want-norm.json
+          if ! diff -u want-norm.json live-norm.json; then
+            echo "::error::the live tag-namespace ruleset DRIFTED from the committed snapshot at .github/rulesets/tag-namespace.json"
+            exit 1
+          fi
+          echo "live tag-namespace ruleset (id ${ID}) matches the committed snapshot"
