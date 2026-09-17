@@ -185,7 +185,24 @@ Plans:
   4. Only the `test/example/` counterparts of templates actually edited are mirrored, recorded as an explicit per-file checklist in the phase SUMMARY, and the absent template↔example parity guard is filed as a todo (FUT-01) rather than built here.
   5. Load-bearing infrastructure is provably untouched: `git diff origin/main -- .github/` shows no `name:` change (a renamed required context never reports and PRs hang forever), and no `# SECURITY:`-class comment sentence is deleted.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 239-01-PLAN.md — Wave-0 SC-3 instrument: preflight union re-measure, frozen expected-removed golden set, and a falsifiable comment-only-diff classifier *(wave 1)*
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 239-02-PLAN.md — Commit 1: strip all 158 bookkeeping lines from `priv/templates/` — 127 plain strips, 31 rationale rewrites, 17 HEEx-sigil lines *(wave 2)*
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 239-03-PLAN.md — Commit 2: mirror only the 31 `test/example/` counterparts, with the SC-4 per-file checklist and `mix ci` run #1 *(wave 3)*
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 239-04-PLAN.md — Commit 3: the single batched re-bless, then SC-1/SC-2/SC-5 live observations, the D-24/D-25 todos, and the honesty ledger *(wave 4)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 
