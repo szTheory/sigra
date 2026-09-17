@@ -4,7 +4,7 @@ This page tracks **maintainer-facing** and **adopter-facing** expectations for t
 
 **v1.11** is intentionally small: triage log, upgrade continuity from **v1.10**, intro cross-links, and maintainer guidance on **when to pause full GSD milestone cycles** versus **Hex-only** patch releases. It does **not** ship full **SEED-002**, **SEED-001**, or **Lockspire** glue — those remain on their existing deferral triggers (**ADR 001**, seed docs).
 
-For the assumed “first production” feature bundle through **v1.10**, see **[v1.10 adopter scope](../../.planning/v1.10-ADOPTER-SCOPE.md)** and **[Adoption stabilization triage](../../.planning/v1.11-TRIAGE.md)**.
+The assumed “first production” feature bundle through **v1.10** is documented in the v1.10 adopter-scope and v1.11 adoption-stabilization-triage planning notes.
 
 ## After v1.10 (planning milestone)
 

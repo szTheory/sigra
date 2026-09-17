@@ -16,14 +16,62 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 - [x] **GREEN-01**: The `Generated admin Playwright smoke` failure is reproduced as a captured RED run before any fix is written (no traces exist today — `PLAYWRIGHT_RETRIES: 1` at `ci.yml:1460` is dead and `playwright.config.ts:59` hardcodes `retries: 0`).
 - [x] **GREEN-02**: The audit-filter navigation race is fixed in shipped `lib/` — `lib/sigra/admin/live/audit_index_live.ex` no longer runs a plain `<form method="get">` plus `<a href>` presets against `handle_params/3` with no `handle_event`. If root-cause fails, a **dated quarantine entry naming an owner** is recorded instead. Retry-wrapping is prohibited.
-- [ ] **GREEN-03**: GitHub Pages builds successfully on push — the legacy Jekyll builder no longer renders `main`'s repo root and fails on `guides/introduction/code-walkthrough.md:174`.
+- [x] **GREEN-03**: GitHub Pages builds successfully on push — the legacy Jekyll builder no longer renders `main`'s repo root and fails on `guides/introduction/code-walkthrough.md:174`.
 - [ ] **GREEN-04**: `ci-gate` is proven green on the affected job across n≥20 runs via `workflow_dispatch` (not 20 full pushes), captured at the final committed HEAD on a clean tree.
 - [ ] **GREEN-05**: Issue #231 is closed against that evidence, and `scripts/ci/ensure-github-pages-legacy-branch.sh` no longer reports success while silently swallowing a 403.
 
 ### Release namespace + cut the release (REL)
 
-- [ ] **REL-01**: A tag-name guard rejects any non-SemVer `v*` tag — a GitHub tag ruleset (server-side) plus a paired contract test — demonstrated **RED** against a known-bad tag name. Lands **before** any deletion.
-- [ ] **REL-02**: The 28 non-SemVer `v1.NN` planning tags and 11 `phase-238-*` tags are deleted local and remote from a **committed explicit allowlist**, never a glob. The delete set is asserted set-equal to the allowlist, the 12 three-component SemVer release tags and `archive/*` are untouched, and `gh release list` count is unchanged with zero untagged drafts.
+- [x] **REL-01**: A tag-name guard rejects any non-SemVer `v*` tag — a GitHub tag ruleset (server-side) plus a paired contract test — demonstrated **RED** against a known-bad tag name. Lands **before** any deletion.
+- [x] **REL-02**: The 28 non-SemVer `v1.NN` planning tags and 11 `phase-238-*` tags are deleted local and remote from a **committed explicit allowlist**, never a glob. The delete set is asserted set-equal to the allowlist, the 12 three-component SemVer release tags and `archive/*` are untouched, and `gh release list` count is unchanged with zero untagged drafts.
+
+> **Supersession — recorded 2026-09-17 (Phase 238).** REL-01's original text above is left
+> unedited and remains the record of what was asked for. What landed is narrower than its implied
+> granularity, and this note — not a quiet re-scope — is how that is recorded. The trigger is the
+> rule type read from the committed snapshot `.github/rulesets/tag-namespace.json`, which carries
+> exactly one rule, of type `creation`.
+>
+> **Delivered:** a live `tag-namespace` ruleset (`target: "tag"`, `enforcement: active`,
+> `bypass_actors: []`) whose single `creation` rule is scoped by
+> `ref_name.include: ["refs/tags/v*"]` minus `ref_name.exclude: ["refs/tags/v*.*.*"]`, paired with
+> the offline contract guard `scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs`,
+> demonstrated RED against the committed known-bad fixture, landed before the first deletion.
+> REL-01's **"server-side"** and its **paired contract test, demonstrated RED, before any
+> deletion** clauses are satisfied verbatim.
+>
+> **Why not the literal shape:** the Tier-1 mechanism, a `tag_name_pattern` rule, was rejected by
+> the live API with `HTTP 422 — Invalid rule 'tag_name_pattern'`. It is enterprise-gated on this
+> Free-tier repository. That was observed by live probe, not assumed.
+>
+> **What it does not cover:** server-side prevention at coarser granularity than a version pattern.
+> It blocks the two-component `vX.Y` recurrence class — the shape behind 28 of the 39 deleted tags
+> and both post-ADR-003 regressions — and admits four-segment and non-numeric shapes
+> (`v1.2.3.4`, `v1.a.b`, `v1..`, `v...`), each of which carries two dots and is therefore excluded
+> from scope. It is a shape guard, not a SemVer validator. Outside the `v` prefix it governs
+> nothing: the `archive/`, `milestone/` and `proof/` namespaces are out of scope entirely.
+>
+> **Two further locked artifacts are superseded by the same landed rule, and both are named here
+> because neither may be narrowed silently:**
+>
+> - **Phase 238 CONTEXT D-04**, whose text is absolute — the ruleset contains no `creation` rule
+>   and no `deletion` rule, ever. A `creation` rule is exactly what landed. D-04's stated objection
+>   was that such a rule would block release automation's own three-component tag push; the
+>   `exclude` list takes every three-segment release name out of the ruleset's scope, so that
+>   objection does not apply to this shape, and the exclusion was proven live rather than assumed.
+>   **D-04's second clause is untouched:** no `deletion` rule was built, so the delete-deadlock D-06
+>   exists to avoid is still avoided — an in-scope tag was observed deleting successfully.
+> - **ROADMAP Phase 238 SC-1**, which names the mechanism literally as an RE2 `tag_name_pattern`
+>   rule. That **mechanism clause is superseded**; it is false as written. SC-1's **observable
+>   outcome still holds and was observed live**: a two-component scratch name carries one dot, is
+>   not covered by the three-dot-segment exclusion, stays in scope, and its creation is refused,
+>   while a three-component release name is excluded and accepted. Mechanism and outcome are
+>   different claims; recording the satisfied one as if it settled the superseded one is exactly
+>   the quiet re-scope this note exists to prevent.
+>
+> The durable half of this supersession is the dated amendment in
+> `.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`. The two halves are one
+> record, not alternatives, and both land in Phase 238's commit range.
+
 - [ ] **REL-03**: Hex release `1.20.0` is retired with a message, verified by the Hex API `retirements` field containing `1.20.0`. Executed via `workflow_dispatch` under the existing `HEX_API_KEY` — **not** an interactive runbook.
 - [ ] **REL-04**: `https://hexdocs.pm/sigra/` serves 1.5.x documentation rather than `Sigra v1.20.0`, via `mix hex.publish docs --revert 1.20.0` (the *docs* revert, which is unlimited in time — never the release-tarball revert, whose window closed in 2026).
 - [ ] **REL-05**: An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision, and states plainly that retirement does **not** move `latest_stable_version` or change resolution. No artifact in this milestone may claim the retire fixed resolution.
@@ -32,15 +80,15 @@ This repo has three documented precedents of a green gate that verified nothing.
 ### Clean shipped surface (SURF)
 
 - [ ] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
-- [ ] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
+- [x] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
 - [ ] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one** batched `mix sigra.fixture.rebless_golden`, in separate commits. Only the `test/example/` counterparts of edited templates are mirrored.
 - [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`.
 
 ### Clean git working state (REPO)
 
-- [ ] **REPO-01**: `git status` is clean on a fresh checkout — `.gsd/` and GSD scratch files are gitignored, and the stray `sigra-*.tar` tarballs and tracked `.log`/screenshot artifacts are resolved.
-- [ ] **REPO-02**: The `doc/llms.txt` tracked-while-ignored conflict is resolved by a `!doc/llms.txt` **negation**, not deletion — its three live consumers (`phase_148_*`, `phase_149_*`, `scripts/ci/launch-pack-contract.sh`) keep passing under `mix ci`.
-- [ ] **REPO-03**: All 6 stashes are materialized as pushed refs and the 5 stale worktrees removed **before** any branch deletion. No `git gc` runs anywhere in this milestone.
+- [x] **REPO-01**: `git status` is clean on a fresh checkout — `.gsd/` and GSD scratch files are gitignored, and the stray `sigra-*.tar` tarballs and tracked `.log`/screenshot artifacts are resolved.
+- [x] **REPO-02**: The `doc/llms.txt` tracked-while-ignored conflict is resolved by a `!doc/llms.txt` **negation**, not deletion — its three live consumers (`phase_148_*`, `phase_149_*`, `scripts/ci/launch-pack-contract.sh`) keep passing under `mix ci`.
+- [x] **REPO-03**: All 6 stashes are materialized as pushed refs and the 5 stale worktrees removed **before** any branch deletion. No `git gc` runs anywhere in this milestone.
 - [ ] **REPO-04**: Stale local and remote branches are pruned, with every pre-prune SHA still `git cat-file -e`-resolvable, the documented safety refs kept (`ci/phase-235-16-source-complete`, `safety/local-main-before-release-cleanup-*`), and no open PR's head or base branch deleted.
 
 ### Drain the queue (QUEUE)
@@ -96,22 +144,22 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 |-------------|-------|--------|
 | GREEN-01 | Phase 236 | Complete |
 | GREEN-02 | Phase 236 | Complete |
-| GREEN-03 | Phase 237 | Pending |
+| GREEN-03 | Phase 237 | Complete |
 | GREEN-04 | Phase 240 | Pending |
 | GREEN-05 | Phase 240 | Pending |
-| REL-01 | Phase 238 | Pending |
-| REL-02 | Phase 238 | Pending |
+| REL-01 | Phase 238 | Complete (superseded — see the REL-01 note) |
+| REL-02 | Phase 238 | Complete |
 | REL-03 | Phase 242 | Pending |
 | REL-04 | Phase 242 | Pending |
 | REL-05 | Phase 242 | Pending |
 | REL-06 | Phase 242 | Pending |
 | SURF-01 | Phase 239 | Pending |
-| SURF-02 | Phase 237 | Pending |
+| SURF-02 | Phase 237 | Complete |
 | SURF-03 | Phase 239 | Pending |
 | SURF-04 | Phase 241 | Pending |
-| REPO-01 | Phase 237 | Pending |
-| REPO-02 | Phase 237 | Pending |
-| REPO-03 | Phase 237 | Pending |
+| REPO-01 | Phase 237 | Complete |
+| REPO-02 | Phase 237 | Complete |
+| REPO-03 | Phase 237 | Complete |
 | REPO-04 | Phase 245 | Pending |
 | QUEUE-01 | Phase 243 | Pending |
 | QUEUE-02 | Phase 244 | Pending |

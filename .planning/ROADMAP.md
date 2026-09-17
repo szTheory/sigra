@@ -70,7 +70,7 @@
 ## Phases
 
 - [x] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition (completed 2026-09-15)
-- [ ] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip
+- [x] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip (completed 2026-09-16)
 - [ ] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags
 - [ ] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree
 - [ ] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence
@@ -124,7 +124,16 @@ Plans:
   4. Nothing rendered on HexDocs carries planning bookkeeping: `@moduledoc`/`@doc` ranges in `lib/` are clean starting with `lib/sigra/audit.ex:5` (a dead `.planning/` link currently live in published docs), and `mix docs` runs **warning-free as a gate**, with every surviving `skip_undefined_reference_warnings_on` entry proven load-bearing by remove-and-retest.
   5. No `# SECURITY:`-class rationale is lost: the phase diff deletes no comment block matching `security|CSRF|enumeration|timing|scope|impersonation` — the bookkeeping token goes, the sentence stays.
 
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+
+- [x] 237-01-PLAN.md — reachable ignore negation, ignored agent scratch dir, regenerated docs index, clean fresh clone (REPO-01, REPO-02)
+- [x] 237-02-PLAN.md — record prior Pages config, repoint publish source, two live observations; de-fang the Liquid-crashing guide line (GREEN-03)
+- [x] 237-03-PLAN.md — sanitized worktree snapshot, prune 6 worktrees to 1; all 6 stashes left local and untouched, SC-3's stash half recorded deliberately unmet per D-09 (REPO-03)
+- [x] 237-04-PLAN.md — regex-class rationale-preservation check proven RED, then the 4 named dead planning references removed from `lib/` doc attributes (SURF-02)
+- [x] 237-05-PLAN.md — 3 dead guide links removed, suppression list earned down 9 -> 7, false comment corrected (SURF-02)
+- [x] 237-06-PLAN.md — evidence ledger at final committed HEAD, ratchet baseline, 2 required todos, `mix ci` gate (all five requirements)
 
 ### Phase 238: Tag Guard, Then Tag Deletion
 
@@ -139,7 +148,29 @@ Plans:
   4. `gh release list` returns the same release count before and after with **zero** drafts (`[.[]|select(.draft)]|length == 0`), and a published HexDocs "View source" link still resolves — proving no tag backing a GitHub Release or `mix.exs` `source_ref` was touched. Deletion runs local → verify → remote, never in one command.
   5. ADR 003 is amended with the deletion date, the path to the committed delete-list, and the prescribed `milestone/` + `proof/` namespaces for future non-release tags.
 
-**Plans**: TBD
+**Plans:** 6 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 238-01-PLAN.md — Authorize repo-settings writes, commit the pre-change ruleset record, and settle the Tier-1/Tier-2/Tier-3 ladder in one probe cycle
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 238-02-PLAN.md — Tracer: ruleset live and active, `v9.9` rejected / `v9.9.9-rulesettest` accepted, snapshot committed, guard born falsifiable, delete-governance probed
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 238-03-PLAN.md — Full `p19` contract assertions, committed known-bad fixture, recorded RED proof, ledger grammar enforced, live drift read on the observer lane
+- [ ] 238-04-PLAN.md — Committed 39-row delete allowlist with pre-deletion SHAs, and the dry-run-by-default deletion script with its edge behaviors proven on a scratch clone
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 238-05-PLAN.md — Execute deletion behind a one-way-door checkpoint: local pass, verify, remote pass, verify, and an untouched release surface
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 238-06-PLAN.md — Maintainer runbook subsections, ADR 003 amendment correcting guardrail 3, any REL-01 supersession, and the ledger closed at the final head
 
 ### Phase 239: `priv/templates/` Sweep + One Batched Re-bless
 
@@ -248,8 +279,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
-| 237. Clean Working Tree + Pages + `lib/` Docs | 0/? | Not started | - |
-| 238. Tag Guard, Then Tag Deletion | 0/? | Not started | - |
+| 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
+| 238. Tag Guard, Then Tag Deletion | 6/6 | Complete | 2026-09-17 |
 | 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |

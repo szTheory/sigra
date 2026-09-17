@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 237
-current_phase_name: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
-status: planning
-stopped_at: Phase 236 complete, ready to plan Phase 237
-last_updated: "2026-09-16T02:31:31.496Z"
-last_activity: 2026-09-15
-last_activity_desc: Phase 236 complete, transitioned to Phase 237
-state_head: b8a1587323ba4c334ca4f71eb4668eff416e300b
+current_phase: 238
+current_phase_name: Tag Guard, Then Tag Deletion
+status: executing
+stopped_at: Completed 238-06-PLAN.md
+last_updated: "2026-09-17T14:40:38.274Z"
+last_activity: 2026-09-17
+last_activity_desc: "Phase 238 complete (6/6 plans): tag guard, deletion, runbook, ADR amendment, supersession, ledger closed"
+state_head: f7a987528d3ec1a9e0ba196461bbc39170c97bd4
 progress:
   total_phases: 10
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 10
+  completed_phases: 2
+  total_plans: 16
+  completed_plans: 16
+  percent: 20
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 236 — Flake Root Cause — Reproduce, Name, Fix
+**Current focus:** Phase 238 — Tag Guard, Then Tag Deletion
 
 ## Current Position
 
-Phase: 237 — Clean Working Tree, Green Pages, Clean `lib/` Docs Surface
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
+Phase: 238 (Tag Guard, Then Tag Deletion) — COMPLETE (6/6 plans)
+Plan: 6 of 6 — all plans complete
+Status: Phase 238 execution complete (awaiting verification)
+Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-01 supersession, evidence ledger closed
 
 ### v1.48 phase map
 
@@ -457,6 +457,15 @@ Last activity: 2026-09-15 — Phase 236 complete, transitioned to Phase 237
 - [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
 - [Phase 236]: 236-03: p17 no-playwright-retry-wrapper guard added, observed RED against a committed known-bad fixture and GREEN against the real config; dead PLAYWRIGHT_RETRIES env key deleted from ci.yml. — ROADMAP SC-4/GREEN-02: retry-wrapping the flake into silence is prohibited; the guard makes that mechanical instead of prose-only.
 - [Phase 236]: Phase 236 plan 04: SC-3 GREEN evidence captured — 5 sequential pull_request CI runs all pass Generated admin Playwright smoke, and the 236-01 repro re-run unchanged against the fix produced 50/50 passes (was 41/50 pre-fix).
+- [Phase 237]: D-06 gitignore negation uses /doc/* + !/doc/llms.txt; verified with git check-ignore --no-index expecting exit 1
+- [Phase 237]: D-05 doc/llms.txt regenerated and committed so mix docs is idempotent on a fresh clone
+- [Phase 237]: 237-02: GitHub Pages repointed main -> gh-pages (D-07); prior setting committed as a literal revert value before the PUT
+- [Phase 237]: D-04 applied literally: SC-5's check subject is the regex class security|CSRF|enumeration|timing|scope|impersonation, never the dead # SECURITY: literal (zero occurrences repo-wide) — A guard on a zero-occurrence literal is a green gate that verifies nothing; the check is demonstrated RED on a committed fixture before being trusted
+- [Phase 237]: D-01 scope held to exactly 4 named dead .planning/ references in lib/ doc attributes; the other ~344 benign phase-mention hits are handed to Phase 241's p18 ratchet with a recorded 52-line baseline — A phase that rewrites 259 doc sites is verified only by counting, and count-only acceptance is rejected in this repo
+- [Phase 237]: D-03 applied: fixed 3 dead .planning/ links in upgrade guides before removing the 2 skip entries they justified (9->7), earning the reduction rather than declaring it — Remove-and-retest proved the 7 survivors load-bearing and the 4 dead-link warnings absent from the emptied-list capture
+- [Phase 237]: D-09 (inherited): SC-3 stash-archival half abandoned — all 6 stashes stay local, nothing pushed to public origin — 4/6 stashes carry ~2,018 lines of home-directory paths; push to public origin is irreversible with respect to content
+- [Phase 237]: git worktree prune alone only retired 3/5 stale worktrees; used git worktree remove (git-native, non-destructive) for the 2 live-but-unwanted checkouts — 2 entries had live valid checkout dirs not reachable by prune; plain remove for the clean one, --force for the unborn-branch one; no branch/commit lost
+- [Phase 237]: Phase 237 closed honestly: one evidence ledger re-observes all five requirements at final committed HEAD, the ratchet baseline (337/254/69) hands Phase 241 a starting number, and MIX_ENV=test mix ci is proven green only after diagnosing a real dep-off recompile bug (not by retrying blindly).
 
 ### Pending Todos
 
@@ -658,8 +667,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-16T01:23:51.365Z
-Stopped at: Phase 236 complete, ready to plan Phase 237
+Last session: 2026-09-17T14:40:38.237Z
+Stopped at: Completed 238-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -838,3 +847,10 @@ Resume file: None
 | Phase 236 P02 | 35min | 3 tasks | 3 files |
 | Phase 236 P03 | 55min | 3 tasks | 7 files |
 | Phase 236 P04 | 50 min | 3 tasks | 4 files |
+| Phase 237 P01 | 20m | 2 tasks | 2 files |
+| Phase 237 P02 | 20m | 2 tasks | 2 files |
+| Phase 237 P04 | 20 min | 3 tasks | 7 files |
+| Phase 237 P05 | 25 min | 3 tasks | 3 files |
+| Phase 237 P03 | 8min | 2 tasks | 2 files |
+| Phase 237 P06 | ~2h | 3 tasks | 7 files |
+| Phase 238 P06 | 41 min | 3 tasks | 5 files |
