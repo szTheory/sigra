@@ -4,14 +4,17 @@ Observed at commit: (this file's own commit is the first commit of this ledger; 
 observation below was captured live before this file was written, on a clean tree apart from
 this phase's own in-progress artifacts)
 
-A note on machine-enforcement, stated honestly per RESEARCH Pitfall 4: no committed guard reads
-this ledger at HEAD today — every evidence-reading guard in `scripts/ci/prohibitions/*.test.mjs`
-pins Phase 230's ledger (`.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md`)
-by literal path, not this one. The `## BEFORE-*` / `## AFTER-*` slot grammar below is repo
-**convention**, not yet a machine-enforced contract for this specific file. Plan 238-03 makes
-the claim true by having the `p19` guard assert this ledger's slot grammar as a secondary
-artifact (per RESEARCH's "Recommended" resolution to Pitfall 4), which is when this note should
-be revisited and, if the guard lands, corrected.
+A note on machine-enforcement, corrected per RESEARCH Pitfall 4's own resolution: this note
+previously stated that no committed guard reads this ledger. That is now FALSE, and this is the
+correction. `scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` (238-03 task 1/2) reads
+this file — via `readRepoFile(archiveAwareRelPath(...))`, as a SECONDARY artifact, never the
+substitutable subject — and asserts: the parse finds at least the 10 slots the table below
+declares; every slot heading matches the recognised uppercase `BEFORE-*`/`AFTER-*` grammar; every
+slot body opens with a `Status:` line at column one whose value begins with `captured` or
+`pending`; and every `captured` slot carries a fenced producing command. A malformed
+`238-EVIDENCE.md` now reddens `fast_checks` for the whole repo, exactly as `p12` does for
+`230-EVIDENCE.md`. The `## BEFORE-*` / `## AFTER-*` slot grammar below is machine-enforced for
+this file, not merely repo convention.
 
 | Slot | What it is | How captured | Status |
 |------|-----------|--------------|--------|
@@ -388,7 +391,80 @@ touched — the 18 local-only `v1.NN` tags, `archive/local-main-pre-235-recovery
 
 ## AFTER-P19-RED
 
-Status: pending (238-03)
+Status: captured
+
+The `p19` offline contract guard (`scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs`),
+proven RED via the fail-first protocol: its single substitutable subject
+(`GSD_PROHIB_SUBJECT`) pointed at the committed known-bad fixture
+`test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json`.
+
+### Substituted-subject run (RED)
+
+```bash
+$ GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json \
+    node --test --test-reporter=tap scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs
+TAP version 13
+# Subtest: floor: a non-object value produces a named message, not a silent pass
+ok 1 - floor: a non-object value produces a named message, not a silent pass
+# Subtest: floor: an object with no `target` field produces a named message
+ok 2 - floor: an object with no `target` field produces a named message
+# Subtest: floor: an object with an empty or missing `rules` array produces a named message
+ok 3 - floor: an object with an empty or missing `rules` array produces a named message
+# Subtest: the snapshot parse produced an object with a target field at all (non-vacuity floor)
+ok 4 - the snapshot parse produced an object with a target field at all (non-vacuity floor)
+# Subtest: the committed snapshot produces null (every asserted field matches the landed Tier-2 shape)
+not ok 5 - the committed snapshot produces null (every asserted field matches the landed Tier-2 shape)
+  ---
+  duration_ms: 0.347458
+  type: 'test'
+  location: '/Users/jon/projects/sigra/scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs:231:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the ruleset's `enforcement` is `disabled`, not `active` — the ruleset is present but disabled, which enforces nothing
+    + actual - expected
+
+    + "the ruleset's `enforcement` is `disabled`, not `active` — the ruleset is present but disabled, which enforces nothing"
+    - null
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual: "the ruleset's `enforcement` is `disabled`, not `active` — the ruleset is present but disabled, which enforces nothing"
+  operator: 'strictEqual'
+  ...
+# (tests 6-19 continue, all `ok` — this is the one test that substitutes the fixture)
+1..19
+# tests 19
+# pass 18
+# fail 1
+```
+
+Exit code: 1. `grep -c "not ok"` = 1 — exactly the substituted test failed, and its `error` names a
+drifted FIELD (`enforcement`, `disabled` vs `active`) — the shape checker, not a broken-parse
+floor. (The fixture also carries a second violation, `conditions.ref_name.exclude:
+["refs/tags/v*"]` no longer constraining the namespace; the pure checker returns on the first
+issue found, so this run surfaces `enforcement` first — both violations are independently
+reachable by mutating either field alone in the guard's own behavior tests, see task 1's `test(238-03)` commit.)
+
+### Unsubstituted run (GREEN — the committed snapshot, both directions recorded)
+
+```bash
+$ node --test --test-reporter=tap scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs
+TAP version 13
+# ... (19 subtests, all ok)
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+```
+
+Exit code: 0, 19/19 pass. Both directions confirm the same claim from opposite sides: the guard
+is falsifiable (RED against the known-bad fixture) and correct against the real, committed
+snapshot (GREEN unsubstituted).
 
 ## AFTER-LOCAL-DELETE
 
