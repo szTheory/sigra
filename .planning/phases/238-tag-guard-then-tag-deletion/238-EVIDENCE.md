@@ -25,8 +25,8 @@ this file, not merely repo convention.
 | [AFTER-SC1-REJECT-ACCEPT](#after-sc1-reject-accept) | Reject/accept proof against the active guard | live tag push probes | captured |
 | [AFTER-DELETE-PROBE](#after-delete-probe) | Whether deleting an in-scope tag is blocked by the active guard | live delete of the accepted scratch tag | captured |
 | [AFTER-P19-RED](#after-p19-red) | The `p19` offline contract guard demonstrated RED against a known-bad fixture | `node --test scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` | pending (238-03) |
-| [AFTER-LOCAL-DELETE](#after-local-delete) | Local tag deletion set-equality against the keep-set | `git tag` + regex keep-set, post-delete | pending (238-04) |
-| [AFTER-REMOTE-DELETE](#after-remote-delete) | Remote tag deletion set-equality against the keep-set | `git ls-remote --tags origin` + regex keep-set, post-delete | pending (238-05) |
+| [AFTER-LOCAL-DELETE](#after-local-delete) | Local tag deletion set-equality against the keep-set | `git tag` + regex keep-set, post-delete | captured (238-05) |
+| [AFTER-REMOTE-DELETE](#after-remote-delete) | Remote tag deletion set-equality against the keep-set | `git ls-remote --tags origin` + regex keep-set, post-delete | captured (238-05) |
 | [AFTER-RELEASE-SURFACE](#after-release-surface) | `gh release list` count unchanged, zero drafts, HexDocs source_ref still resolves | `gh api .../releases`, `curl` HexDocs | pending (238-06) |
 
 ---
@@ -417,7 +417,7 @@ not ok 5 - the committed snapshot produces null (every asserted field matches th
   ---
   duration_ms: 0.347458
   type: 'test'
-  location: '/Users/jon/projects/sigra/scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs:231:1'
+  location: 'scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs:231:1'
   failureType: 'testCodeFailure'
   error: |-
     the ruleset's `enforcement` is `disabled`, not `active` — the ruleset is present but disabled, which enforces nothing
@@ -468,11 +468,186 @@ snapshot (GREEN unsubstituted).
 
 ## AFTER-LOCAL-DELETE
 
-Status: pending (238-04)
+Status: captured
+
+The local deletion pass and its separate verification. Two invocations, never chained. Run by the
+operator on a clean tree at committed head `32a09c75`, with the Tier-2 ruleset already live and
+`p19` green — the guard landed before the first delete, as SC-2 requires.
+
+Absolute paths in the captured output below are rewritten to repository-relative form
+(`.planning/decisions/003-tag-delete-list.tsv`); this repository is public and home-directory
+prefixes are not committed. Nothing else is altered.
+
+### Pass 1 — local apply
+
+```bash
+$ bash scripts/maintainers/delete-planning-tags.sh local --apply
+delete-planning-tags: pass=local apply=1 allowlist=.planning/decisions/003-tag-delete-list.tsv rows=39
+  deleted phase-238-generated-auth-proof-68c9d632
+  deleted phase-238-generated-auth-proof-85cc3086
+  deleted phase-238-generated-auth-proof-325b3cfa
+  deleted phase-238-generated-auth-proof-526a1184
+  deleted phase-238-generated-auth-proof-655e402d
+  deleted phase-238-generated-auth-proof-ad1611d2
+  deleted phase-238-generated-auth-proof-c7e1171d
+  deleted phase-238-generated-auth-proof-c94add15
+  deleted phase-238-generated-auth-proof-d96e35ba
+  deleted phase-238-generated-auth-proof-e28499f8
+  deleted phase-238-generated-auth-proof-f824423f
+  deleted v1.0
+  deleted v1.1
+  deleted v1.3
+  deleted v1.4
+  deleted v1.5
+  deleted v1.6
+  deleted v1.7
+  deleted v1.8
+  deleted v1.9
+  deleted v1.10
+  deleted v1.12
+  deleted v1.14
+  deleted v1.15
+  deleted v1.16
+  deleted v1.17
+  deleted v1.21
+  deleted v1.25
+  deleted v1.26
+  deleted v1.27
+  deleted v1.28
+  deleted v1.29
+  deleted v1.30
+  deleted v1.31
+  deleted v1.33
+  deleted v1.34
+  deleted v1.35
+  deleted v1.47
+  deleted v1.48
+delete-planning-tags: local pass done — deleted=39 absent=0 would_delete=0
+```
+
+`deleted=39 absent=0` — every allowlist row was present and removed; no row was silently a no-op,
+and no ref outside the allowlist was passed to a delete invocation.
+
+### Pass 2 — local verification (separate invocation)
+
+```bash
+$ bash scripts/maintainers/delete-planning-tags.sh verify-local
+delete-planning-tags: pass=verify-local apply=0 allowlist=.planning/decisions/003-tag-delete-list.tsv rows=39
+delete-planning-tags: REPORTING ONLY — no ref will be touched (pass --apply to mutate)
+delete-planning-tags: local listing=13 keep-set=13 (keep expression: ^(v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?|archive/.*)$)
+delete-planning-tags: local set-equal to its regex-derived keep-set
+```
+
+Both operands derive from that one expression at compare time; no cardinality is written into the
+assertion. The `([-+][0-9A-Za-z.-]+)?` group is load-bearing — it admits the prerelease shape D-05
+contemplates, so a release candidate minted by the release automation mid-window is a keep-set
+member rather than a drift failure.
+
+### Independently observed surviving local set
+
+```bash
+$ git tag
+archive/local-main-pre-235-recovery
+v0.2.1
+v0.2.2
+v0.2.3
+v0.2.4
+v0.2.5
+v0.3.0
+v1.0.0
+v1.1.0
+v1.2.0
+v1.3.0
+v1.4.0
+v1.5.0
+```
+
+52 → 13. **`v1.0` is deleted and `v1.0.0` is intact**, as are `v1.1`/`v1.1.0`, `v1.3`/`v1.3.0`,
+`v1.4`/`v1.4.0`, `v1.5`/`v1.5.0`. This is the prefix-collision hazard REL-02 exists to prevent,
+observed on the real repository rather than only in the 238-04 scratch clone. It holds because
+every delete invocation took one literal name from an allowlist row; no glob was ever expanded.
 
 ## AFTER-REMOTE-DELETE
 
-Status: pending (238-05)
+Status: captured
+
+The remote deletion pass and its separate verification — the one-way act of this phase. Two further
+invocations, run after AFTER-LOCAL-DELETE completed, never chained with it or with each other.
+
+Paths in the captured output are rewritten to repository-relative form, as above.
+
+### Pass 3 — remote apply
+
+```bash
+$ bash scripts/maintainers/delete-planning-tags.sh remote --apply
+  ... (21 rows, tail shown)
+  deleted v1.21 (origin)
+  deleted v1.26 (origin)
+  deleted v1.28 (origin)
+  deleted v1.33 (origin)
+  deleted v1.48 (origin)
+delete-planning-tags: remote pass done — deleted=21 absent=0 would_delete=0
+```
+
+`deleted=21` matches exactly the rows flagged `remote=yes` in the allowlist — the 11 `phase-proof`
+tags plus `v1.1 v1.3 v1.4 v1.5 v1.14 v1.21 v1.26 v1.28 v1.33 v1.48`. The 18 local-only rows were
+never passed to a remote delete invocation, which matters because `git push origin --delete` on a
+local-only tag errors and would have aborted the pass.
+
+### Pass 4 — remote verification (separate invocation)
+
+```bash
+$ bash scripts/maintainers/delete-planning-tags.sh verify-remote
+delete-planning-tags: pass=verify-remote apply=0 allowlist=.planning/decisions/003-tag-delete-list.tsv rows=39
+delete-planning-tags: REPORTING ONLY — no ref will be touched (pass --apply to mutate)
+delete-planning-tags: remote listing=12 keep-set=12 (keep expression: ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$)
+delete-planning-tags: remote set-equal to its regex-derived keep-set
+```
+
+33 → 12. The remote expression deliberately differs from the local one: it omits the `archive/`
+alternative, because that namespace is local-only. Asserting the local expression against the
+remote would have been vacuously satisfiable in the wrong direction.
+
+### Release surface, read before and after from the REST releases route
+
+The count comes from `GET /repos/:owner/:repo/releases`, not from `gh release list` — the list
+command has no draft field to read, and inventing one would have produced a confident false zero.
+
+```bash
+$ gh api repos/szTheory/sigra/releases --paginate --jq '.[] | "\(.tag_name)\t\(.draft)"'
+```
+
+| | Before deletion | After deletion |
+|---|---|---|
+| Published releases | 12 | 12 |
+| Drafts | 0 | 0 |
+| Tag list | `v1.5.0 v1.4.0 v1.3.0 v1.2.0 v1.1.0 v1.0.0 v0.3.0 v0.2.5 v0.2.4 v0.2.3 v0.2.2 v0.2.1` | identical |
+
+A line-by-line `diff` of the two captures is empty. **Not one of the 39 allowlist rows backed a
+release** — every published release is a three-component tag, and no three-component tag is an
+allowlist row. That was asserted against the live route before the first delete, not inferred from
+the allowlist's own description of itself.
+
+### Published source link still resolves
+
+```bash
+$ git ls-remote --tags origin 'refs/tags/v1.4.0'
+cfc5e6b88e1e95403c488fc518fd6f5469a9b015	refs/tags/v1.4.0
+
+$ curl -s -o /dev/null -w "%{http_code}" https://github.com/szTheory/sigra/tree/v1.4.0
+200
+```
+
+The tag HexDocs' `source_ref` points adopters at still resolves on the remote and still serves a
+browsable tree. No tag backing a release or a documentation source reference was touched.
+
+### Reversibility, stated honestly
+
+The 39 deleted refs are gone from both sides. The objects remain reachable **by SHA only**, via the
+`pre_delete_sha` column of `.planning/decisions/003-tag-delete-list.tsv`, which is the forward-feed
+Phase 245 consumes before it prunes the branch holding the `phase-proof` tags. Until 245 runs, no
+garbage collection, reflog expiry or prune may run in this repository — that step, not this one, is
+what would make the deletion truly irreversible. No such command was run at any point in this phase.
 
 ## AFTER-RELEASE-SURFACE
 
