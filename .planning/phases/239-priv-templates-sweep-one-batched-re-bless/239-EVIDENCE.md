@@ -117,3 +117,83 @@ found and avoided during execution by leaving the rationale-bearing line untouch
 only the adjacent token-only line, keeping that one out of SC-5b's removed-line set entirely —
 demonstrating the fix is possible whenever the token and rationale word do not already share HEAD's
 one physical line, which is not the case for `auth.ex:530`.
+
+## MIRROR-COMMIT
+Status: DONE — commit 2 of the D-19 three-commit topology lands, provably confined to
+`test/example/`, mirroring the 30 counterparts of edited templates while leaving the four
+already-absent counterparts and the deliberately-unswept repo-wide remainder untouched.
+
+- Commit sha (hyphen-chunked to keep exactly one full 7-40-char hex token in this file, per the
+  239-01 SIGPIPE-avoidance fix — concatenate the segments to recover the 40-char sha):
+  `e69f4d-9b36a8-700d78-1039aa-1f4326-7b412c-d884`
+- Parent commit (the `.planning/` checklist + todo commit, immediately preceding, confirming the
+  D-19 commit ordering): `df04-e43a` (subject: `docs(239): SC-4 mirror checklist and pre-existing
+  example todo`)
+- Subject: `refactor(239): mirror template bookkeeping sweep into test/example counterparts
+  (SURF-03)`
+- `git show --name-only --format= HEAD` at that commit lists exactly 30 paths, every one under
+  `test/example/`.
+- `git diff --name-only origin/main -- .github/` is empty — no `.github/` drift introduced.
+- Repo-wide `test/example/` union-token count: **476 -> 366** (110 lines removed across the 30
+  mirrored counterparts; the remaining ~64-file / ~366-line surface is deliberately unswept per
+  SC-4's counterpart-only scope — see `239-MIRROR-CHECKLIST.md`'s scoping statement).
+- The four zero-token counterparts (`settings_live.ex`, `auth_error_handler.ex`,
+  `organization_invitation.ex`, the timestamped `create_organizations.exs` migration) are
+  confirmed unmodified (`git diff --quiet HEAD -- <path>` exits 0 for each).
+- `mix format --check-formatted` passes repo-wide; `MIX_ENV=test mix compile
+  --warnings-as-errors` inside `test/example/` is clean **except one pre-existing, unrelated
+  warning** — `SettingsLive`'s `~p"/dev/mailbox"` verified route has no matching route under
+  `MIX_ENV=test` (the route only exists when `dev_routes` is compile-time enabled, which is
+  `config/dev.exs`-only). Confirmed pre-existing via `git stash` reproducing the identical warning
+  against unmodified HEAD (`7a12-e2e2`) before any of this plan's edits existed; filed as a todo
+  (`.planning/todos/pending/2026-09-17-example-settings-live-dev-mailbox-verified-route-test-env.md`,
+  committed in `df04-e43a`) rather than fixed in-phase, per the v1.48 standing constraint
+  (found-while-cleaning -> new todo, never an in-phase fix) and because `settings_live.ex` is one
+  of this plan's four already-absent counterparts — touching it for an unrelated reason would blur
+  that row's own audit trail.
+
+## MIX-CI-RUNS
+Status: DONE (run #1) — the first of the two `mix ci` runs RESEARCH Open Question 3 calls for
+(the second runs after commit 3, in plan 239-04).
+
+- **Cold-build note (not a regression):** the first invocation of `MIX_ENV=test mix ci` on this
+  session's `_build` reported `33 doctests, 3 properties, 2606 tests, 6 failures` — all six
+  `(UndefinedFunctionError) function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined`.
+  `Sigra.Audit.Forwarders.Threadline` gates its own definition behind
+  `Code.ensure_compiled(Threadline) == {:module, Threadline}`; on a cold `_build` where the
+  optional `threadline` dependency compiles in the *same* run as `sigra` (visible in that run's own
+  log: `==> threadline / Compiling 83 files (.ex)` immediately preceding `==> sigra`), the guard
+  evaluates false before `threadline` is available, and the module is never defined. This is a
+  build-ordering artifact, not a code fault — `git log <wave-0-baseline-sha>..HEAD -- lib/` (see
+  the `## WAVE0-COMMIT` "Commit sha:" bullet for the baseline) is empty, so no `lib/` change in
+  this phase could have caused it. Running `MIX_ENV=test mix compile --force`
+  once (to prime the `_build` deterministically) and then re-running `MIX_ENV=test mix ci`
+  reproduced the clean, authoritative result below. Waves 1 and 2 (239-01, 239-02) both went green
+  the identical way.
+- **Authoritative run-#1 result** (`MIX_ENV=test mix compile --force` then `MIX_ENV=test mix ci`):
+  exit **0**.
+  - `mix format --check-formatted`: pass (no output, alias would have halted otherwise).
+  - `mix deps.get --check-locked`: pass (alias continued).
+  - `mix deps.unlock --check-unused`: pass (alias continued).
+  - `mix compile --warnings-as-errors`: pass (alias continued; root `lib/` only — `test/example/`
+    is a separate nested Mix project not compiled by this step).
+  - `mix test --exclude scaffold`: **33 doctests, 3 properties, 2606 tests, 0 failures, 12
+    skipped (22 excluded)**.
+  - `ci.install_golden` (`mix test test/sigra/install/features/passkeys_js_test.exs
+    test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs
+    test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs
+    test/upgrade_test.exs`): **65 tests, 0 failures (2599 excluded)**.
+  - `sigra.dep_off` (`scripts/ci/sigra-dep-off.sh`): guard step (`mix test --only
+    threadline_guard --no-deps-check`) and restore step (`mix deps.get --check-locked` +
+    `mix compile threadline`) both clean; script's own standalone run separately confirmed exit 0.
+- **Correction on how this run may be cited (do not over-claim):** `golden_diff_test.exs` carries
+  `@moduletag :scaffold`. `mix ci`'s earlier `test --exclude scaffold` step leaves an
+  `:excluded_tags` filter that leaks into the *same-VM* `ci.install_golden` invocation, so
+  `golden_diff_test`'s actual assertions did not run inside this `ci.install_golden` pass — proven
+  independently (standalone: `2 tests, 1 failure`; chained after `--exclude scaffold`: `0 tests,
+  0 failures (1 excluded)`). **This run is valid evidence for this plan's own scope (formatting,
+  deps-lock, compilation, the full non-scaffold test suite, and the dep-off guard) but is NOT
+  corroboration of golden-fixture drift state either way** — the golden fixture still mirrors the
+  pre-sweep templates (re-blessing is commit 3's job, owned by plan 239-04), and this run's
+  `ci.install_golden` pass neither confirms nor denies that; it simply didn't exercise the
+  `:scaffold`-tagged assertion this time.
