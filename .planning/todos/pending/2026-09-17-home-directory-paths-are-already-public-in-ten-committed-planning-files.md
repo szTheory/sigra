@@ -21,7 +21,7 @@ files:
 ## Problem
 
 `sigra` is a public repository. Ten committed planning files carry the literal absolute path
-`/Users/jon/...`, which discloses the operator's local account name. They are **already on
+`/Users/<username>/...`, which discloses the operator's local account name. They are **already on
 `origin/main`** — this is not a leak introduced by the phase 238 push, and the push-gate scrub
 that found them explicitly separated "already public" from "newly introduced".
 
