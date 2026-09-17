@@ -1,0 +1,142 @@
+# U='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'; T=$(git ls-files test/fixtures/install_golden/tree); s1=$(grep -nE "$U" $T | sed 's/^/T:/'); s2=""; for a in '17-UI-SPEC §Structural Invariants' '(D-04), not 403.'; do h=$(grep -rnF "$a" $T); while IFS=: read -r f n rest; do p=$(awk -v nr="$((n-1))" 'NR==nr' "$f"); s2="${s2}N:${f}:$((n-1)):${p}"$'\n'; done <<< "$h"; done; { printf '%s\n' "$s1"; printf '%s' "$s2"; } | awk -F: '{k=$2":"$3} $1=="T" {t[k]=1; print; next} !(k in t) {print}' | LC_ALL=C sort -u
+N:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:19:  "by construction, not by convention" defense locked in via
+N:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:20:  LV never mounts for them. Non-members receive 404 for enumeration safety
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex:409:    # 10.1 IN-05: verify_confirmation_code/3 does NOT read :secret_key_base
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex:509:  in a single transaction. Per D-29: caller creates new session after reset.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex:532:  # token clause so security signals are preserved (10.1 IN-03). Tokens
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex:534:  # fresh session after reset (D-29).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/audit_event.ex:49:  enforces the action regex (D-19), reserved action prefixes
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/audit_event.ex:50:  (D-17/D-18), metadata size cap (D-20), and forbidden metadata keys
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/audit_event.ex:51:  (D-23).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex:509:  ## Email Change Templates (D-09)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex:618:  ## Account Deletion Templates (D-21)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex:714:  ## Password Change Template (D-37)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex:788:  # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/organization.ex:26:    # D-01: personal-workspace flag (Phase 18). Library-managed, NOT exposed via cast/3.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/organization.ex:29:    # D-00: sticky origin owner (Phase 18). Library sets via put_change/3 in
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/organization_invitation.ex:14:  Phase 17 implements the full invitation flow (generation, email
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/organization_invitation.ex:50:  managed by the library's invitation flow logic (Phase 17).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/scope.ex:67:  active-organization transitions (Phase 14 D-15).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/user.ex:21:    # Account lifecycle fields (Phase 8)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/user_token.ex:28:  # B6 (Plan 10.1.1-03): session token helpers were REMOVED. Sessions now
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:16:       (membership-before-write — T-14-06 authz choke point).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:53:  # Phase 16 thin-wrapper delegates (settings page + members list)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:57:  # `change_role/3`. The wrappers below route the Phase 16 LiveView callers
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:59:  # configured @sigra_org_config. See .planning/phases/16-org-liveviews-switcher/
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:60:  # 16-CONTEXT.md D-10 / D-11 / D-16 for signatures.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:62:  # These call Sigra.Organizations functions added in Phase 16 Plan 01.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:65:  @doc "Rename an organization (D-10 — inline, no password required)."
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:75:  @doc "Update an organization's slug (D-11 — requires inline password + typed confirm)."
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:85:  @doc "Soft-delete an organization (D-11 — requires inline password + typed confirm)."
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:96:  # `use Sigra.Organizations` above (Phase 16 Plan 01). Do not redeclare them
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/organizations.ex:99:  @doc "Change a member's role with last-owner guard (D-18)."
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/components/org_switcher.ex:114:  # daisyUI badge variants per UI-SPEC §Color:
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/components/org_switcher.ex:131:  # `Sigra.Organizations.list_organizations_for_user/2` in Phase 16) or
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/components/org_switcher.ex:14:  convention (D-05 / ORG-UX-03).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/auth/sudo_controller.ex:11:  LiveView event) per D-21.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/auth/sudo_html.ex:7:  pattern per D-20 to D-23.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_controller.ex:24:        # Not in MFA pending state -- redirect appropriately (D-35)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex:128:      <% # Remaining attempts hint (D-38) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex:135:      <% # Cancel link (D-34) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex:163:      // Auto-submit TOTP when 6 digits entered (D-36)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex:25:      <% # Tab bar (D-21) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex:10:  organization ids return 404 for enumeration prevention (D-04).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex:5:  POST /organizations/switch — sensitive mutation via HTTP POST (D-05 /
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex:6:  ORG-UX-03). Body: `%{"organization_id" => id, "return_to" => local_path}`.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/reset_password_controller.ex:21:  regardless of whether the email exists (enumeration prevention, D-38).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/reset_password_controller.ex:53:  and auto-logs the user in (D-29).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/reset_password_controller.ex:61:        # 10.1 IN-03: pass the signed `token` (not the user struct) so the
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/reset_password_html.ex:72:  Never a dead end (D-07/D-30).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/session_html.ex:5:  Per Phase 10.1.1 D-12 / B9, the login page is a plain controller +
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex:131:    # 10.1 IN-06: call the confirm path directly when the user has typed a
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:20:  17-UI-SPEC §Structural Invariants and enforced by plan-checker grep.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:3:  Phase 17 D-06 — single unscoped LiveView handling invitation acceptance
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_challenge_live.ex:288:      <% # Remaining attempts hint (D-38) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_challenge_live.ex:295:      <% # Cancel link (D-34) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_challenge_live.ex:358:    # Auto-submit when 6 digits entered (D-36)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_settings_live.ex:525:      <% # Backup code grid (D-08) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_settings_live.ex:558:      <% # Acknowledgment checkbox (D-11) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_settings_live.ex:606:    # Auto-submit when 6 digits entered (D-36). 10.1 IN-06 follow-up:
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/mfa_settings_live.ex:85:          <% # Backup code status (D-15) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:157:        # D-20: modal stays open, inline error with exact UI-SPEC copy.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:15:      Phase 17 seam `pending-invitations-section` (currently an empty-state
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:183:  # ── Phase 17: Invite member flow ────────────────────────────────────────
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:20:      the form (D-20).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:21:    * Removal relies on the Plan 01 `remove_member/2` library Multi, which
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:23:      the same transaction (D-21 / SC-4 force-logout).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:25:      (D-22). Flop / sortable columns are a v1.2 concern.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:261:  # ── Phase 17: Revoke invitation flow ────────────────────────────────────
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:27:  ## Phase 17 seam
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:30:  currently renders an empty-state card. Phase 17 will replace the card body
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:32:  action above the table. Look for the `Phase 17 fills this section` HEEx
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:334:        # D-20: modal stays open, inline error with exact UI-SPEC copy.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:632:  # corresponding LiveView socket entry and this returns nil (T-16-05-03).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:633:  # The Plan 01 library also scopes mutations by organization_id so a foreign
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:637:    # list in `socket.assigns[:_members_by_id]` on first use. For the Phase 16
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:648:  # ── Phase 17 helpers ────────────────────────────────────────────────────
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:691:  # UI-SPEC §Color — role badge variants.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:8:  Phase 16 Plan 05 — implements ORG-UX-06 / ORG-UX-07 / ORG-UX-08 and decisions
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:9:  D-14, D-15, D-16, D-17, D-18, D-19, D-20, D-22, D-23. Generated by
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:117:      <%= # Danger zone (soft-delete) — D-10 red-zone treatment, D-11 inline sudo %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:11:  Sudo is collected inline (D-11): the form carries a `current_password`
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:15:  exact UI-SPEC copy `"That password is incorrect."` inline, without any
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:21:  (D-04), not 403.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:420:  # slug". This LV remaps those into the exact UI-SPEC copy shown to users
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:421:  # (UI-SPEC §Copywriting Contract Error States).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:4:  (D-10): General (rename), Slug (change with 7-day redirect + inline sudo),
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:505:  # Remap library-emitted slug error messages to the exact UI-SPEC copy.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:60:      <%= # General (rename) — D-10 %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:69:      <%= # Slug (progressive disclosure + sudo + typed-confirm + 7-day alias) — D-11, D-12 %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:7:  All destructive actions use progressive disclosure (D-12): closed state
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:11:      (also the post-signup destination via ORG-UX-09's zero-line
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:130:  # Branch B — zero memberships, 1+ pending invitations (Phase 17 wires)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:13:    * `([], [_|_])` — Branch B: pending invitations list (Phase 17
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:14:      wires Accept; Phase 16 renders Accept disabled)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:226:  # matches the UI-SPEC §Error States copy exactly.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex:5:  This is the Phase 14 `:no_active_org` redirect target (D-09), and it
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organizations_live/new.ex:8:  `/organizations`. Per D-07, the installer ships both the unified
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex:115:        # D-05: deliver confirmation email (B5 repair; helper exists at SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions/2)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/reset_password_live.ex:175:    # Real-time password strength feedback (D-34)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/reset_password_live.ex:8:    and strength meter (reuses Phase 2 registration pattern, D-34/D-50)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/reset_password_live.ex:93:        <% # Password strength indicator (reused from registration, D-34) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/settings_live.ex:107:        <%= # Password Section (D-45, D-60) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/settings_live.ex:159:        <%= # Deletion Section (D-30, D-57) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/settings_live.ex:66:      <%= # Force password change banner (D-58) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/settings_live.ex:77:        <%= # Email Section (D-59) %>
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:137:  # Phase 17 D-06: single unscoped InvitationAcceptLive at
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:169:    # "switch" as a slug (D-06).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:71:  # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:74:  # :require_org_owner (owner role only). Phase 16 wires these to
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:86:  # MFA challenge (accessible with mfa_pending sessions, D-24)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:97:    # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:32:  # config value is honored without recompiling this module. See Phase 10 D-09.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:340:  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:440:    - Auto-resends confirmation email (D-04)
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:470:        # D-04: auto-resend confirmation on blocked login attempt
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:506:  Per D-33: auto-inserted into authenticated pipeline by generator.
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:529:  Delegates to `Sigra.Plug.RequirePasswordChange` pattern (D-38).
+T:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/user_auth.ex:559:  page where they can cancel the deletion or sign out (D-15, T-8-15).
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:16:      # D-00: sticky origin owner (added Phase 18). Write-once on insert; :nilify_all so the org row survives owner account deletion.
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:18:      # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:25:    # Soft-deleted orgs release their slug for reclamation (D-09).
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:33:    # D-01 / D-03: at-most-one-personal-org-per-user. Structural invariant AND
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:34:    # insert-safety backstop for Sigra.Upgrade.Backfill (Plan 18-02). Postgres
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:73:    # Partial unique index: prevent duplicate pending invites per org+email (D-12).
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:86:    # canonical slug (Phase 16 D-13). Old-slug uniqueness is enforced
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_organizations.exs:99:    # IMMUTABLE-safe slug-alias uniqueness (Phase 17 Plan 08 — Phase 16 hotfix).
+T:test/fixtures/install_golden/tree/priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs:26:      # Account lifecycle fields (Phase 8)
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:514:  /* GATE-02 gap-closure, round 3 (corrected -- see round-4 fix note below):
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:515:     live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md) showed H2/P sharing one
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:522:     GATE-02 gap-closure, round 4 (regression fix): this rule's selector,
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:693:  /* GATE-02 gap-closure: .sigra-auth form is display:grid, so Phoenix 1.8's default
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:699:     do not re-litigate this; see 231-GAP-GATE02-SUMMARY.md for the verified mechanism
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:706:  /* GATE-02 gap-closure, round 2: live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md)
+T:test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:733:    min-width: 0; /* GATE-02/D-09: a grid/flex item's automatic min size is min-content (~20ch for an <input>), which width: 100% does not override -- see 231-02-DIAGNOSIS.md */
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:281:  # -- Account Lifecycle Fixtures (Phase 8) --
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:316:  # --- Scenario Fixtures (Phase 10, DX-03) ---
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:319:  # non-uniform map containing only the keys the scenario needs (D-04).
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:321:  # locked, unconfirmed) deliberately omit :conn (D-07).
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:347:  `:conn` is returned (D-07).
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:357:  Phase 6 transitions the session type from `"mfa_pending"` to
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:384:  `locked_at` set. No `:conn` — locked users cannot log in (D-07).
+T:test/fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex:393:  not yet confirmed per D-06). No `:conn` (D-07).
