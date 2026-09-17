@@ -1,6 +1,6 @@
 defmodule <%= web_module %>.InvitationAcceptLive do
   @moduledoc """
-  Phase 17 D-06 — single unscoped LiveView handling invitation acceptance
+  Single unscoped LiveView handling invitation acceptance
   across 7 render branches keyed on `@branch`:
 
     * `:signup`           — anonymous visitor with a valid, pending token
@@ -16,8 +16,7 @@ defmodule <%= web_module %>.InvitationAcceptLive do
   The `:mismatch` render branch contains ZERO `phx-click`/`phx-submit`
   accept controls. Even if every server-side guard regressed, there is
   no accept form in the rendered DOM to submit. This is the
-  "by construction, not by convention" defense locked in via
-  17-UI-SPEC §Structural Invariants and enforced by plan-checker grep.
+  "by construction, not by convention" defense.
 
   The `:invalid`, `:expired`, `:revoked`, and `:already_accepted`
   branches also render zero accept controls (defense in depth).

@@ -1,6 +1,6 @@
 defmodule <%= repo_module %>.Migrations.AddPersonalToOrganizations do
   @moduledoc """
-  Phase 18 D-01: add `personal` column + partial unique index
+  Adds a `personal` column + partial unique index
   enforcing at-most-one-personal-org-per-user.
 
   Runs AFTER `AddOwnerUserIdToOrganizations` — the partial unique
