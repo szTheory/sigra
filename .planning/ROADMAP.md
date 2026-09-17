@@ -71,7 +71,7 @@
 
 - [x] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition (completed 2026-09-15)
 - [x] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip (completed 2026-09-16)
-- [ ] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags
+- [x] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags (completed 2026-09-17)
 - [ ] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree
 - [ ] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence
 - [ ] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture
@@ -148,29 +148,29 @@ Plans:
   4. `gh release list` returns the same release count before and after with **zero** drafts (`[.[]|select(.draft)]|length == 0`), and a published HexDocs "View source" link still resolves — proving no tag backing a GitHub Release or `mix.exs` `source_ref` was touched. Deletion runs local → verify → remote, never in one command.
   5. ADR 003 is amended with the deletion date, the path to the committed delete-list, and the prescribed `milestone/` + `proof/` namespaces for future non-release tags.
 
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 1**
 
-- [ ] 238-01-PLAN.md — Authorize repo-settings writes, commit the pre-change ruleset record, and settle the Tier-1/Tier-2/Tier-3 ladder in one probe cycle
+- [x] 238-01-PLAN.md — Authorize repo-settings writes, commit the pre-change ruleset record, and settle the Tier-1/Tier-2/Tier-3 ladder in one probe cycle
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 238-02-PLAN.md — Tracer: ruleset live and active, `v9.9` rejected / `v9.9.9-rulesettest` accepted, snapshot committed, guard born falsifiable, delete-governance probed
+- [x] 238-02-PLAN.md — Tracer: ruleset live and active, `v9.9` rejected / `v9.9.9-rulesettest` accepted, snapshot committed, guard born falsifiable, delete-governance probed
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 238-03-PLAN.md — Full `p19` contract assertions, committed known-bad fixture, recorded RED proof, ledger grammar enforced, live drift read on the observer lane
-- [ ] 238-04-PLAN.md — Committed 39-row delete allowlist with pre-deletion SHAs, and the dry-run-by-default deletion script with its edge behaviors proven on a scratch clone
+- [x] 238-03-PLAN.md — Full `p19` contract assertions, committed known-bad fixture, recorded RED proof, ledger grammar enforced, live drift read on the observer lane
+- [x] 238-04-PLAN.md — Committed 39-row delete allowlist with pre-deletion SHAs, and the dry-run-by-default deletion script with its edge behaviors proven on a scratch clone
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 238-05-PLAN.md — Execute deletion behind a one-way-door checkpoint: local pass, verify, remote pass, verify, and an untouched release surface
+- [x] 238-05-PLAN.md — Execute deletion behind a one-way-door checkpoint: local pass, verify, remote pass, verify, and an untouched release surface
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 238-06-PLAN.md — Maintainer runbook subsections, ADR 003 amendment correcting guardrail 3, any REL-01 supersession, and the ledger closed at the final head
+- [x] 238-06-PLAN.md — Maintainer runbook subsections, ADR 003 amendment correcting guardrail 3, any REL-01 supersession, and the ledger closed at the final head
 
 ### Phase 239: `priv/templates/` Sweep + One Batched Re-bless
 
@@ -280,7 +280,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
 | 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
-| 238. Tag Guard, Then Tag Deletion | 6/6 | Complete | 2026-09-17 |
+| 238. Tag Guard, Then Tag Deletion | 6/6 | Complete    | 2026-09-17 |
 | 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |

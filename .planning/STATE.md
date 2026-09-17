@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 238
-current_phase_name: Tag Guard, Then Tag Deletion
-status: executing
-stopped_at: Completed 238-06-PLAN.md
-last_updated: "2026-09-17T14:40:38.274Z"
+current_phase: 239
+current_phase_name: "`priv/templates/` Sweep + One Batched Re-bless"
+status: planning
+stopped_at: Phase 238 complete, ready to plan Phase 239
+last_updated: "2026-09-17T17:54:46.619Z"
 last_activity: 2026-09-17
-last_activity_desc: "Phase 238 complete (6/6 plans): tag guard, deletion, runbook, ADR amendment, supersession, ledger closed"
-state_head: f7a987528d3ec1a9e0ba196461bbc39170c97bd4
+last_activity_desc: Phase 238 complete, transitioned to Phase 239
+state_head: 446bd12840d5002736f47061a2369d94d5156b89
 progress:
   total_phases: 10
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 16
   completed_plans: 16
-  percent: 20
+  percent: 30
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 238 (Tag Guard, Then Tag Deletion) — COMPLETE (6/6 plans)
-Plan: 6 of 6 — all plans complete
-Status: Phase 238 execution complete (awaiting verification)
-Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-01 supersession, evidence ledger closed
+Phase: 239 — `priv/templates/` Sweep + One Batched Re-bless
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-17 — Phase 238 complete, transitioned to Phase 239
 
 ### v1.48 phase map
 
@@ -466,6 +466,10 @@ Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-0
 - [Phase 237]: D-09 (inherited): SC-3 stash-archival half abandoned — all 6 stashes stay local, nothing pushed to public origin — 4/6 stashes carry ~2,018 lines of home-directory paths; push to public origin is irreversible with respect to content
 - [Phase 237]: git worktree prune alone only retired 3/5 stale worktrees; used git worktree remove (git-native, non-destructive) for the 2 live-but-unwanted checkouts — 2 entries had live valid checkout dirs not reachable by prune; plain remove for the clean one, --force for the unborn-branch one; no branch/commit lost
 - [Phase 237]: Phase 237 closed honestly: one evidence ledger re-observes all five requirements at final committed HEAD, the ratchet baseline (337/254/69) hands Phase 241 a starting number, and MIX_ENV=test mix ci is proven green only after diagnosing a real dep-off recompile bug (not by retrying blindly).
+- [Phase 238]: Tier 2 (fnmatch-excluded `creation` rule) selected over Tier 1 (`tag_name_pattern`) by observation, not preference — Tier 1 is enterprise-gated and was rejected live with `HTTP 422 Validation Failed` on this Free-tier repo. What shipped is a shape guard, not a SemVer validator: `v1.2.3.4`, `v1.a.b` and `v...` all carry two dots and fall in `exclude: refs/tags/v*.*.*`. REL-01 recorded as a dated supersession with the original wording left visible, not quietly narrowed.
+- [Phase 238]: The tag guard is deliberately paired and asymmetric — `p19` asserts the committed snapshot offline on every PR (no network on the merge-gating lane), while the live-vs-committed drift read runs only on the post-merge `workflow_run` observer lane. The drift job's jq projection omits `bypass_actors` on purpose: GitHub returns that field only to callers with write access, so asserting it at CI-token permission level would compare an absent value and always report drift. The bypass check moves to a documented operator step.
+- [Phase 238]: Deletion is allowlist-driven and reporting-by-default — one literal tag name per invocation from `.planning/decisions/003-tag-delete-list.tsv`, never a glob or prefix; `--apply` is required to mutate; every row carries a `pre_delete_sha`. **No `git gc`, `reflog expire` or `prune` may be run** — those SHAs are Phase 245's forward-feed and the deleted objects must stay reachable.
+- [Phase 238]: A green `CI (observe)` RUN is not proof that the drift job ran. Its guard is `github.event.workflow_run.event != 'pull_request'`, so observe runs triggered by PR-event CI runs skip the job while still reporting green — two such runs sat at this phase's head SHA during UAT. Only the run triggered by the `push` CI executes it; verification must read the JOB's conclusion and its stdout line.
 
 ### Pending Todos
 
@@ -473,6 +477,7 @@ Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-0
 
 ### Blockers/Concerns
 
+- **[Phase 238] The `tag_ruleset_drift` observer is trustworthy but noisy, and nothing asserts it ran.** Three tracked items in `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*`: (1) `set -euo pipefail` aborts at `ID=$(…)` before the job's own named `ABSENT` diagnostic can print, so the 404 it was written for surfaces as a raw non-zero exit; (2) the ruleset list is unpaginated (harmless at 2 rulesets, a false alarm past 30); (3) no assertion that the job executed rather than skipped. All three fail **closed** — false red or unlabelled red, never false green — so a deleted ruleset is still caught. Trust-and-noise, not a security hole. Unblocked now that the lane has executed once.
 - **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
 - [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
@@ -667,8 +672,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T14:40:38.237Z
-Stopped at: Completed 238-06-PLAN.md
+Last session: 2026-09-17T17:55:00.000Z
+Stopped at: Phase 238 complete, ready to plan Phase 239
 Resume file: None
 
 ## Operator Next Steps
