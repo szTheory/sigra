@@ -1,8 +1,14 @@
 # Phase 238 Evidence Ledger
 
-Observed at commit: (this file's own commit is the first commit of this ledger; every
-observation below was captured live before this file was written, on a clean tree apart from
-this phase's own in-progress artifacts)
+Observed at commit: 31380c75a77a3044ebb644e7b3f15537ca7fb281
+
+That is the head at which this ledger was closed: every slot below is `captured`, none is pending,
+and the working tree was clean when the final slot's observations were taken. The pin names the
+parent of the commit that writes this line, and it cannot name anything else — a file cannot carry
+the hash of the commit that introduces it. Two commits follow it in the phase: this one, and the
+`238-06` SUMMARY. Neither touches an observed subject; every subject in this ledger is either a live
+external system (the GitHub rulesets API, the GitHub releases API, origin's ref listing, HexDocs) or
+a committed artifact already frozen at the pinned head. 238-06-SUMMARY states the same pin.
 
 A note on machine-enforcement, corrected per RESEARCH Pitfall 4's own resolution: this note
 previously stated that no committed guard reads this ledger. That is now FALSE, and this is the
@@ -24,10 +30,10 @@ this file, not merely repo convention.
 | [AFTER-RULESET-ACTIVE](#after-ruleset-active) | The live `tag-namespace` ruleset, active, matching the selected tier's shape | `gh api repos/szTheory/sigra/rulesets/{id}` | captured |
 | [AFTER-SC1-REJECT-ACCEPT](#after-sc1-reject-accept) | Reject/accept proof against the active guard | live tag push probes | captured |
 | [AFTER-DELETE-PROBE](#after-delete-probe) | Whether deleting an in-scope tag is blocked by the active guard | live delete of the accepted scratch tag | captured |
-| [AFTER-P19-RED](#after-p19-red) | The `p19` offline contract guard demonstrated RED against a known-bad fixture | `node --test scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` | pending (238-03) |
+| [AFTER-P19-RED](#after-p19-red) | The `p19` offline contract guard demonstrated RED against a known-bad fixture | `node --test scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` | captured (238-03) |
 | [AFTER-LOCAL-DELETE](#after-local-delete) | Local tag deletion set-equality against the keep-set | `git tag` + regex keep-set, post-delete | captured (238-05) |
 | [AFTER-REMOTE-DELETE](#after-remote-delete) | Remote tag deletion set-equality against the keep-set | `git ls-remote --tags origin` + regex keep-set, post-delete | captured (238-05) |
-| [AFTER-RELEASE-SURFACE](#after-release-surface) | `gh release list` count unchanged, zero drafts, HexDocs source_ref still resolves | `gh api .../releases`, `curl` HexDocs | pending (238-06) |
+| [AFTER-RELEASE-SURFACE](#after-release-surface) | `gh release list` count unchanged, zero drafts, HexDocs source_ref still resolves | `gh api .../releases`, `curl` HexDocs | captured (238-06) |
 
 ---
 
@@ -651,4 +657,98 @@ what would make the deletion truly irreversible. No such command was run at any 
 
 ## AFTER-RELEASE-SURFACE
 
-Status: pending (238-06)
+Status: captured
+
+The final-state capture of the release surface, read after both deletion passes completed, on a
+clean tree at committed head 31380c75. This is deliberately **not** a duplicate of the before/after
+comparison already recorded inside `AFTER-REMOTE-DELETE` — that slot holds the two captures taken
+across the deletion window and their empty diff. This one records the surface as it stands now,
+which is what a later reader needs when asking "what does the repository actually look like after
+Phase 238".
+
+### Published releases and drafts, from the REST releases route
+
+The count comes from `GET /repos/:owner/:repo/releases`, not from `gh release list`, whose output
+carries no draft field — inventing one would have produced a confident false zero. This is the same
+instrument `AFTER-REMOTE-DELETE` used, so the two are comparable.
+
+```bash
+$ gh api repos/szTheory/sigra/releases --paginate --jq '.[] | "\(.tag_name)\t\(.draft)\t\(.prerelease)"'
+v1.5.0	false	false
+v1.4.0	false	false
+v1.3.0	false	false
+v1.2.0	false	false
+v1.1.0	false	false
+v1.0.0	false	false
+v0.3.0	false	false
+v0.2.5	false	false
+v0.2.4	false	false
+v0.2.3	false	false
+v0.2.2	false	false
+v0.2.1	false	false
+
+$ gh api repos/szTheory/sigra/releases --paginate --jq 'length'
+12
+
+$ gh api repos/szTheory/sigra/releases --paginate --jq '[.[]|select(.draft)]|length'
+0
+```
+
+12 published releases, 0 drafts — matching the pre-deletion capture in `AFTER-REMOTE-DELETE`
+exactly, in both count and tag list. Every release is backed by a three-component tag, and no
+three-component tag was an allowlist row.
+
+### Source-ref resolution
+
+`mix.exs:208` sets ExDoc's `source_ref: "v#{@version}"`, and `@version` is `1.5.0`, so the link
+HexDocs renders for the current package version points at `v1.5.0`. Both that tag and the one the
+previous release used still resolve on origin and still serve a browsable tree and blob:
+
+```bash
+$ git ls-remote --tags origin 'refs/tags/v1.5.0' 'refs/tags/v1.4.0'
+10904571ec65baf42e5fc3bae4170eeb87b109fe	refs/tags/v1.5.0
+cfc5e6b88e1e95403c488fc518fd6f5469a9b015	refs/tags/v1.4.0
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://github.com/szTheory/sigra/tree/v1.5.0
+200
+$ curl -s -o /dev/null -w '%{http_code}\n' https://github.com/szTheory/sigra/tree/v1.4.0
+200
+```
+
+Resolved end to end from the published documentation, which is the link an adopter actually clicks:
+
+```bash
+$ curl -sL https://hexdocs.pm/sigra/1.5.0/Sigra.html | grep -oE 'https://github.com/[A-Za-z]+/sigra/blob/v[0-9.]+/[^"]+' | head -1
+https://github.com/sztheory/sigra/blob/v1.5.0/lib/sigra.ex#L1
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://github.com/sztheory/sigra/blob/v1.5.0/lib/sigra.ex
+200
+```
+
+### One 404, and why it is not this phase's
+
+The *default* page HexDocs serves for this package is still the stray `1.20.0` build, and its
+"View source" link 404s:
+
+```bash
+$ curl -sL https://hexdocs.pm/sigra/Sigra.html | grep -oE 'https://github.com/[A-Za-z]+/sigra/blob/v[0-9.]+/[^"]+' | head -1
+https://github.com/sztheory/sigra/blob/v1.20.0/lib/sigra.ex#L1
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://github.com/sztheory/sigra/blob/v1.20.0/lib/sigra.ex
+404
+```
+
+This is recorded rather than omitted, and it is **not** caused by the deletion. No tag named
+`v1.20.0` has ever existed on this repository — the phantom Hex release was published from the
+two-component `v1.20` milestone tag, normalised by the old pipeline — so the link was already dead
+before Phase 238 ran, and `v1.20.0` appears in neither the keep-set nor the allowlist:
+
+```bash
+$ git ls-remote --tags origin 'refs/tags/v1.20*'
+$ grep -c '^v1\.20' .planning/decisions/003-tag-delete-list.tsv
+0
+```
+
+The live 404 is REL-04's subject (the HexDocs docs revert, Phase 242), not evidence of a tag this
+phase removed. Recording it here keeps the ledger from claiming a cleaner surface than the one that
+actually exists.
