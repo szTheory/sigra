@@ -135,7 +135,8 @@ if [[ "$*" == *"workflows/ci.yml/runs?"* ]]; then
 fi
 
 if [[ "$*" == *"/actions/runs/${DISPATCH_RUN_ID}" ]]; then
-  printf '{"head_sha":"%s"}\n' "${FAKE_HEAD_SHA:-deadbeef}"
+  printf '{"head_sha":"%s","created_at":"%s"}\n' \
+    "${FAKE_HEAD_SHA:-deadbeef}" "${FAKE_RUN_CREATED_AT:-2026-09-17T12:00:00Z}"
   exit 0
 fi
 
@@ -145,13 +146,23 @@ STUB_EOF
 chmod +x "$TMP/bin/gh"
 
 run_collector() {
-  # usage: run_collector <label> <output-path> [ENV=VAL ...]
+  # usage: [SELFTEST_MIN_RUNS=N|default] run_collector <label> <output-path> [ENV=VAL ...]
+  #
+  # The stub window holds two `main` runs, which is below the collector's compiled-in floor,
+  # so every ordinary call states the weaker floor explicitly. `SELFTEST_MIN_RUNS=default`
+  # appends nothing and is how the default-floor RED case is driven — which also proves the
+  # compiled-in default is greater than 2 without the self-test naming its value.
   local label="$1" out="$2"; shift 2
+  local min_runs="${SELFTEST_MIN_RUNS:-2}"
+  local extra=()
+  if [[ "$min_runs" != default ]]; then extra=(--min-main-runs "$min_runs"); fi
+  # D-6: bash 3.2 errors on "${arr[@]}" for an EMPTY array under `set -u`.
   ( cd "$TMP/repo" && env "$@" \
       FAKE_GH_LOG="$TMP/${label}.calls" \
       PATH="$TMP/bin:$PATH" \
       "$COLLECTOR" --output "$out" --run-id "$DISPATCH_RUN_ID" \
         --main-window-start "$WINDOW_START" --main-window-end "$WINDOW_END" \
+        ${extra[@]+"${extra[@]}"} \
       >"$TMP/${label}.out" 2>"$TMP/${label}.err" )
 }
 
@@ -179,6 +190,11 @@ jq -e '.sc2.caveat | test("example_unit_smoke") and test("nine-of-ten")' "$TMP/o
 check $? "ok: sc2.caveat names the example_unit_smoke nine-of-ten gap (D-10)"
 grep -q 'filter=latest&per_page=100&page=1' "$TMP/ok.calls"
 check $? "ok: every read passes filter=latest and per_page=100"
+jq -e '.sc2.min_runs == 2' "$TMP/out/ok.json" >/dev/null
+check $? "ok: the floor actually used is recorded in the receipt (D-1)"
+jq -e '.sc2.window.dispatch_run_created_at == "2026-09-17T12:00:00Z"
+       and (.sc2.window.binding | type == "string" and length > 0)' "$TMP/out/ok.json" >/dev/null
+check $? "ok: window records the dispatch run's created_at + the enforced binding (D-5)"
 
 # --- expected-failure helper --------------------------------------------------
 expect_fail() {
@@ -213,6 +229,37 @@ expect_fail sc2_smoke_job_renamed sc2_job_not_found "$TMP/out/sc2-smoke-renamed.
   FAKE_MODE=ok FAKE_SC2_MODE=smoke_renamed FAKE_HEAD_SHA="$REAL_HEAD"
 expect_fail sc2_gate_job_renamed sc2_job_not_found "$TMP/out/sc2-gate-renamed.json" \
   FAKE_MODE=ok FAKE_SC2_MODE=gate_renamed FAKE_HEAD_SHA="$REAL_HEAD"
+
+# --- SC-2 matched job with no conclusion (CR-01, second half) ------------------
+# A DIFFERENT token from the absent-job case above (D-2): a job that is present but still
+# queued/running means the capture ran too early; an absent job means the selector is wrong.
+expect_fail sc2_smoke_conclusion_null sc2_job_conclusion_null "$TMP/out/sc2-smoke-null.json" \
+  FAKE_MODE=ok FAKE_SC2_MODE=smoke_null FAKE_HEAD_SHA="$REAL_HEAD"
+expect_fail sc2_gate_conclusion_null sc2_job_conclusion_null "$TMP/out/sc2-gate-null.json" \
+  FAKE_MODE=ok FAKE_SC2_MODE=gate_null FAKE_HEAD_SHA="$REAL_HEAD"
+for null_label in sc2_smoke_conclusion_null sc2_gate_conclusion_null; do
+  if ! grep -q 'sc2_job_not_found' "$TMP/${null_label}.err"; then
+    ok "$null_label: does NOT collapse into the absent-job token (D-2)"
+  else
+    bad "$null_label: stderr names sc2_job_not_found — the two cases were collapsed"
+  fi
+done
+
+# --- degenerate `main` window (CR-02, first half) ------------------------------
+SELFTEST_MIN_RUNS=default expect_fail default_min_runs_floor insufficient_main_runs \
+  "$TMP/out/minruns.json" FAKE_MODE=ok FAKE_HEAD_SHA="$REAL_HEAD"
+SELFTEST_MIN_RUNS=0 expect_fail min_runs_malformed min_main_runs_malformed \
+  "$TMP/out/minruns-malformed.json" FAKE_MODE=ok FAKE_HEAD_SHA="$REAL_HEAD"
+
+# --- window unrelated to the dispatch run (CR-02, second half) -----------------
+expect_fail window_excludes_dispatch main_window_excludes_dispatch_run \
+  "$TMP/out/windowexcludes.json" FAKE_MODE=ok FAKE_HEAD_SHA="$REAL_HEAD" \
+  FAKE_RUN_CREATED_AT=2026-09-19T00:00:00Z
+if ! grep -q '/jobs?' "$TMP/window_excludes_dispatch.calls"; then
+  ok "window_excludes_dispatch: no collection call issued after the binding assertion"
+else
+  bad "window_excludes_dispatch: a /jobs? call was issued for an unbound window"
+fi
 
 expect_fail rate_limited rate_limit_too_low "$TMP/out/ratelimited.json" \
   FAKE_MODE=rate_limited FAKE_HEAD_SHA="$REAL_HEAD"

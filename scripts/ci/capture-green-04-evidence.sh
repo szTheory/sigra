@@ -49,13 +49,24 @@ CI_JOB_NAME="Generated admin Playwright smoke"
 CI_GATE_JOB_NAME="ci-gate"
 JOBS_FILTER="latest"
 MIN_LEGS=20
+# D-1 — the `main` window floor. SC-2's claim is "ci-gate is green across a REPRESENTATIVE
+# `main` window"; one or two runs cannot support that, so an unguarded near-empty window
+# would emit a clean receipt over a window it never really measured. 5 sits below the
+# shipped capture's 8 (so it does not retroactively invalidate the shipped method) and high
+# enough to refuse a degenerate window. A legitimately narrow window stays possible only via
+# an explicit --min-main-runs N, which forces the operator to STATE the weaker floor and
+# records it in the receipt, instead of the old silent pass.
+MIN_RUNS=5
 MAX_PAGES=10000
 SCHEMA_VERSION="sigra.green-04-evidence/v1"
+# D-5 — the binding is a COMPUTED fact, not caller prose. A free-text --window-derivation
+# argument would be a caller-authored claim inside a deliberately non-steerable collector.
+SC2_WINDOW_BINDING="the main window is bounded by the dispatch run: the dispatch run's created_at is asserted to fall within [start, end] inclusive, so the receipt cannot describe a window unrelated to the run being captured (D-5)."
 SC2_CAVEAT="example_unit_smoke is absent from the ten ci-gate.needs entries (ci.yml:1547-1557: changes, install_golden_contract, library_tests, library_tests_dep_off, install_smoke, upgrade_smoke, example_http_smoke, example_playwright_smoke, generated_admin_playwright_smoke, fast_checks) while being independently required by ruleset 14941512, so a ci-gate: success is a nine-of-ten claim, not a whole-gate claim (D-10). This phase discloses that caveat; it does not fix it."
 
 fail() { echo "capture-green-04-evidence: FAIL: $*" >&2; exit 1; }
 usage() {
-  echo "usage: $0 --output PATH --run-id ID --main-window-start UTC --main-window-end UTC" >&2
+  echo "usage: $0 --output PATH --run-id ID --main-window-start UTC --main-window-end UTC [--min-main-runs N]" >&2
   exit 2
 }
 
@@ -69,6 +80,7 @@ while [[ $# -gt 0 ]]; do
     --run-id) [[ $# -ge 2 ]] || usage; RUN_ID="$2"; shift 2 ;;
     --main-window-start) [[ $# -ge 2 ]] || usage; WINDOW_START="$2"; shift 2 ;;
     --main-window-end) [[ $# -ge 2 ]] || usage; WINDOW_END="$2"; shift 2 ;;
+    --min-main-runs) [[ $# -ge 2 ]] || usage; MIN_RUNS="$2"; shift 2 ;;
     *) echo "capture-green-04-evidence: FAIL: unknown_argument: $1" >&2; usage ;;
   esac
 done
@@ -77,6 +89,9 @@ done
 [[ "$WINDOW_START" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || fail "main_window_start_malformed"
 [[ "$WINDOW_END" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || fail "main_window_end_malformed"
 [[ "$WINDOW_START" < "$WINDOW_END" ]] || fail "main_window_inverted"
+# Validated here, alongside the other argument checks, so a malformed floor fires before the
+# gh preflight and therefore before any API call.
+[[ "$MIN_RUNS" =~ ^[1-9][0-9]*$ ]] || fail "min_main_runs_malformed"
 
 # ---------------------------------------------------------------------------
 # Preflight, in order, each fail-closed.
@@ -94,8 +109,21 @@ REMAINING="$(gh api rate_limit --jq '.resources.core.remaining')" || fail "rate_
 # whose head_sha is not the final committed HEAD, describes code that is not what shipped.
 [[ -z "$(git status --porcelain)" ]] || fail "dirty_tree"
 HEAD_SHA="$(git rev-parse HEAD)" || fail "head_sha_unreadable"
-RUN_HEAD_SHA="$(gh api "repos/${REPO}/actions/runs/${RUN_ID}" | jq -r '.head_sha')" || fail "dispatch_run_unreadable"
+RUN_META="$(gh api "repos/${REPO}/actions/runs/${RUN_ID}")" || fail "dispatch_run_unreadable"
+RUN_HEAD_SHA="$(printf '%s' "$RUN_META" | jq -r '.head_sha')" || fail "dispatch_run_unreadable"
 [[ "$RUN_HEAD_SHA" == "$HEAD_SHA" ]] || fail "evidence_run_head_sha_is_not_final_committed_head"
+
+# The header at :6-10 claims the `main` window is "bounded by the dispatch run". Until this
+# assertion existed that was a claim, not an invariant: any two well-formed timestamps were
+# accepted, so the receipt could pair SC-1 legs with an SC-2 window from an unrelated period.
+# Read from the SAME response as head_sha — no extra API call — and checked here in preflight,
+# so an unbound window costs zero collection calls.
+RUN_CREATED_AT="$(printf '%s' "$RUN_META" | jq -r '.created_at')" || fail "dispatch_run_unreadable"
+[[ "$RUN_CREATED_AT" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] \
+  || fail "dispatch_run_created_at_malformed"
+# Inclusive bounds; lexicographic compare is exact for fixed-width UTC `Z` ISO-8601.
+{ [[ ! "$RUN_CREATED_AT" < "$WINDOW_START" ]] && [[ ! "$RUN_CREATED_AT" > "$WINDOW_END" ]]; } \
+  || fail "main_window_excludes_dispatch_run: dispatch run ${RUN_ID} was created at ${RUN_CREATED_AT}, outside ${WINDOW_START}..${WINDOW_END}"
 
 TMPD="$(mktemp -d)"
 output_tmp=""
@@ -232,6 +260,13 @@ collect_pages "repos/${REPO}/actions/workflows/${CI_WORKFLOW}/runs?branch=main&c
 
 SC2_RUNS_FILE="$TMPD/sc2-runs.json"
 printf '%s\n' '[]' >"$SC2_RUNS_FILE"
+# Placed before the per-run loop so a refused window costs no further API calls. A window
+# yielding almost nothing is not a clean `main`; it is a window that was never measured.
+MAIN_RUN_COUNT="$(jq -s -r '[.[].body.workflow_runs[]] | length' "$SC2_RUNS_MANIFEST")"
+[[ "$MAIN_RUN_COUNT" =~ ^[0-9]+$ ]] || fail "main_run_count_malformed"
+(( MAIN_RUN_COUNT >= MIN_RUNS )) \
+  || fail "insufficient_main_runs: ${WINDOW_START}..${WINDOW_END} yielded ${MAIN_RUN_COUNT} main run(s), below the floor of ${MIN_RUNS}"
+
 MAIN_RUN_IDS="$(jq -s -r '[.[].body.workflow_runs[].id] | sort | .[]' "$SC2_RUNS_MANIFEST")"
 for main_run_id in $MAIN_RUN_IDS; do
   [[ "$main_run_id" =~ ^[0-9]+$ ]] || fail "main_run_id_malformed"
@@ -255,6 +290,19 @@ for main_run_id in $MAIN_RUN_IDS; do
     || fail "sc2_job_not_found: run ${main_run_id} matched 0 jobs for the ci-gate selector ${CI_GATE_JOB_NAME_RE}"
   (( smoke_matches > 0 )) \
     || fail "sc2_job_not_found: run ${main_run_id} matched 0 jobs for the generated-admin-smoke selector ${CI_JOB_NAME_RE}"
+
+  # D-2 — a DISTINCT token from sc2_job_not_found above. Mirrors leg_without_conclusion at
+  # :200-201: the job exists but is queued or still running, so the capture ran too early.
+  # Different cause, different operator response; collapsing the two would reintroduce
+  # exactly the conflation SC-1 already refuses.
+  jq -e --arg re "$CI_GATE_JOB_NAME_RE" \
+    '[.[] | select(.name | test($re))] | all((.conclusion | type) == "string" and (.conclusion | length) > 0)' \
+    "$jobs_all" >/dev/null \
+    || fail "sc2_job_conclusion_null: run ${main_run_id} has a matched ci-gate job with no conclusion"
+  jq -e --arg re "$CI_JOB_NAME_RE" \
+    '[.[] | select(.name | test($re))] | all((.conclusion | type) == "string" and (.conclusion | length) > 0)' \
+    "$jobs_all" >/dev/null \
+    || fail "sc2_job_conclusion_null: run ${main_run_id} has a matched generated-admin-smoke job with no conclusion"
 
   next="$TMPD/sc2-runs-next-${main_run_id}.json"
   jq -e \
@@ -296,6 +344,9 @@ jq -S -n \
   --arg window_start "$WINDOW_START" \
   --arg window_end "$WINDOW_END" \
   --arg caveat "$SC2_CAVEAT" \
+  --arg run_created_at "$RUN_CREATED_AT" \
+  --arg window_binding "$SC2_WINDOW_BINDING" \
+  --argjson min_runs "$MIN_RUNS" \
   --argjson dispatch_run_id "$RUN_ID" \
   --slurpfile legs "$SC1_LEGS" \
   --slurpfile runs "$SC2_RUNS_FILE" '
@@ -320,7 +371,13 @@ jq -S -n \
         branch: "main",
         job_name: $ci_job_name,
         jobs_filter: $jobs_filter,
-        window: {start: $window_start, end: $window_end},
+        window: {
+          start: $window_start,
+          end: $window_end,
+          dispatch_run_created_at: $run_created_at,
+          binding: $window_binding
+        },
+        min_runs: $min_runs,
         runs: $r,
         run_count: ($r | length),
         ci_gate_conclusions: {
