@@ -185,7 +185,7 @@ Plans:
   4. Only the `test/example/` counterparts of templates actually edited are mirrored, recorded as an explicit per-file checklist in the phase SUMMARY, and the absent template↔example parity guard is filed as a todo (FUT-01) rather than built here.
   5. Load-bearing infrastructure is provably untouched: `git diff origin/main -- .github/` shows no `name:` change (a renamed required context never reports and PRs hang forever), and no `# SECURITY:`-class comment sentence is deleted.
 
-**Plans**: 12 plans (4 executed + 8 gap-closure)
+**Plans**: 13 plans (8 executed + 5 gap-closure round 2)
 
 Plans:
 **Wave 1**
@@ -222,11 +222,11 @@ Plans:
 
 **Wave 9** *(gap closure round 2 — blocked on Wave 8 completion)*
 
-- [ ] 239-09-PLAN.md — Uncheck SURF-03, then the V3 vocabulary instrument (tracer): one definition, demonstrated RED on all three tiers with per-alternation live positive controls, before any edit lands *(wave 9)*
+- [ ] 239-09-PLAN.md — Uncheck SURF-03, then the V3 vocabulary instrument (tracer): one definition with fixed tier file lists and a committed triage allowlist (D-30), demonstrated RED on all three tiers with per-alternation live positive controls, before any edit lands *(wave 9)*
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 239-10-PLAN.md — D-27 narrows SC-2 to `lib/`+`priv/` and routes the packaged docs surface to Phase 241 SURF-04; D-28/D-29 recorded; SC-1 named to its measuring definition; WR-04 and IN-05 filed as todos *(wave 10)*
+- [ ] 239-10-PLAN.md — D-27 narrows SC-2 to `lib/`+`priv/` and routes the packaged docs surface to Phase 241 SURF-04; D-28/D-29/D-30 recorded; SC-1 named to its measuring definition; WR-04 and IN-05 filed as todos *(wave 10)*
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
@@ -234,7 +234,11 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 239-12-PLAN.md — Justify batch 3 (D-29), freeze the round-3 expected set, classifier RED then the third batched re-bless, re-prove every criterion live at final HEAD, re-check SURF-03 *(wave 12)*
+- [ ] 239-12-PLAN.md — Justify batch 3 (D-29), freeze the round-3 expected set, demonstrate the classifier RED, then the third batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 12)*
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
+- [ ] 239-13-PLAN.md — Re-prove every criterion live at final HEAD: three-tier V3 with per-alternation controls re-fired, the fixed-string proof on a freshly generated app, the tarball under the amended D-27 scope, `MIX_ENV=test mix ci`, SC-5 at two diff bases — then re-check SURF-03 last and alone *(wave 13)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 
