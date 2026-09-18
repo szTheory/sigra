@@ -4,15 +4,15 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
-status: verifying
-stopped_at: "Phase 239 executed 8/8 plans; verification gaps_found (3/5 SC) — SC-1/SC-2 partial, two bookkeeping sentences still ship to adopters. Next: /gsd-plan-phase 239 --gaps"
-last_updated: "2026-09-18T04:09:05.803Z"
-last_activity: 2026-09-17
-last_activity_desc: Phase 239 execution started
+status: ready to execute
+stopped_at: "Phase 239 gap-closure planned: plans 239-09 … 239-13 created, checker-passed on pass 3. Next: /gsd-execute-phase 239"
+last_updated: "2026-09-18T13:23:43.008Z"
+last_activity: 2026-09-18
+last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 24
+  total_plans: 29
   completed_plans: 23
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
-Plan: 8 of 8
-Status: verification-gaps
-Last activity: 2026-09-17 — Phase 239 execution started
+Phase: 239 (priv-templates-sweep-one-batched-re-bless) — READY TO EXECUTE (gap closure)
+Plan: 8 of 13 executed
+Status: ready to execute
+Last activity: 2026-09-18 — Phase 239 gap-closure plans 239-09 … 239-13 planned and checker-passed
 
 ### v1.48 phase map
 
