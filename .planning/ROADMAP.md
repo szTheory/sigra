@@ -252,7 +252,7 @@ Plans:
 
 **Wave 18** *(blocked on Wave 17 completion)*
 
-- [ ] 239-13-PLAN.md — Re-prove every criterion live at final HEAD: three-tier V3 with per-alternation controls re-fired, the fixed-string proof on a freshly generated app, the tarball under the amended D-27 scope, `MIX_ENV=test mix ci`, SC-5 at two diff bases — then re-check SURF-03 last and alone *(wave 18, re-sequenced from wave 13 then wave 16)*
+- [x] 239-13-PLAN.md — Re-prove every criterion live at final HEAD: three-tier V3 with per-alternation controls re-fired, the fixed-string proof on a freshly generated app, the tarball under the amended D-27 scope, `MIX_ENV=test mix ci`, SC-5 at two diff bases — then re-check SURF-03 last and alone *(wave 18, re-sequenced from wave 13 then wave 16)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 

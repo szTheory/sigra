@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: verifying
-stopped_at: Completed 239-16-PLAN.md
-last_updated: "2026-09-18T15:22:07.541Z"
+stopped_at: Completed 239-13-PLAN.md
+last_updated: "2026-09-18T15:33:24.604Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 32
-  completed_plans: 31
-  percent: 30
+  completed_plans: 32
+  percent: 40
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
 
@@ -497,6 +497,8 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase 239]: D-32 (239): the generated-app V3 claim is scoped to files mix sigra.install CREATED OR MODIFIED (injected files in scope), a rule borrowed from install_fixture.ex and frozen before the measurement it governs
 - [Phase ?]: 239-15: batch-4 re-bless 5f7ae9d7 carries the WR-01 retraction into the golden fixture; both classifier non-vacuity floors were zero this round and are disclosed with four compensating proofs rather than manufactured
 - [Phase 239]: D-33: generated-app V3 criterion matches allowlist records by (basename, literal)
+- [Phase 239]: 239-13: SURF-03 re-checked to [x] only after every closure criterion was re-observed live at final HEAD — three tiers clean under V3 with live controls, generated-app fixed-string proof 0/0/0, tarball 0 under lib+priv, mix ci green, SC-5 at two bases
+- [Phase 239]: 239-13: T-239-12-03 discharged on a real generated app (5 _test.exs, sigra_admin_policy_test.exs by name, *.exs control 6) rather than transferred
 
 ### Pending Todos
 
@@ -699,8 +701,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T15:22:07.519Z
-Stopped at: Completed 239-16-PLAN.md
+Last session: 2026-09-18T15:33:19.823Z
+Stopped at: Completed 239-13-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -900,3 +902,4 @@ Resume file: None
 | Phase 239 P14 | ~35m | 4 tasks | 6 files |
 | Phase 239 P15 | ~25m | 2 tasks | 4 files |
 | Phase 239 P16 | ~38m | 2 tasks | 3 files |
+| Phase 239 P13 | 55m | 3 tasks | 2 files |
