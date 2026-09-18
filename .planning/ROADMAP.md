@@ -248,7 +248,7 @@ Plans:
 
 **Wave 17** *(D-33 amendment — the wave-16 re-run of 239-13 halted a second time, 0/3 with no commits, on the generated-app V3 criterion; everything else at HEAD passed)*
 
-- [ ] 239-16-PLAN.md — Record D-33 (the generated-app V3 criterion excludes hits matching a committed allowlist record by **(basename, literal)**, so an already-triaged false positive is still recognised after it renders to a different path), prove its legitimacy from the commit graph, demonstrate it can still fail, and apply it surgically to `239-13-PLAN.md` *(wave 17)*
+- [x] 239-16-PLAN.md — Record D-33 (the generated-app V3 criterion excludes hits matching a committed allowlist record by **(basename, literal)**, so an already-triaged false positive is still recognised after it renders to a different path), prove its legitimacy from the commit graph, demonstrate it can still fail, and apply it surgically to `239-13-PLAN.md` *(wave 17)*
 
 **Wave 18** *(blocked on Wave 17 completion)*
 
