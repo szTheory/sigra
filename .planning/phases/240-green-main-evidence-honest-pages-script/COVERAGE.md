@@ -22,7 +22,7 @@ this gate exists to close.
 | `POST /repos/{repo}/issues/{n}/comments` | INTEGRATE | The #231 closure comment carrying the run ids, the live Pages payload and the explicit evidence window. |
 | `PATCH /repos/{repo}/issues/{n}` | INTEGRATE | `gh issue close 231`. |
 | `GET /repos/{repo}/actions/runs/{id}/artifacts` | OPT-OUT | The receipt's evidence is run ids and job conclusions; artifact blobs add bytes, not provenance, and the matrix legs' artifacts are retention-limited. |
-| `GET /repos/{repo}/actions/jobs/{id}/logs` | OPT-OUT | Log text is not the evidence surface — a job conclusion is; quoting log bodies into a public issue also widens the disclosure surface for no evidentiary gain. |
+| `GET /repos/{repo}/actions/jobs/{id}/logs` · `GET /repos/{repo}/actions/runs/{id}/logs` | OPT-OUT | Both log-download endpoints, one row. Log text is not the evidence surface — a job conclusion is; the collector calls neither, and quoting log bodies into a public issue also widens the disclosure surface for no evidentiary gain. |
 | `POST /repos/{repo}/actions/runs/{id}/rerun` (and `rerun-failed-jobs`) | OPT-OUT | A rerun would manufacture the n≥20 window rather than measure it; explicitly prohibited in `240-04-PLAN.md`. |
 | `POST /repos/{repo}/actions/runs/{id}/cancel` | OPT-OUT | Cancelling a leg produces exactly the null conclusion the collector is built to reject (`leg_without_conclusion`). |
 | `DELETE /repos/{repo}/actions/runs/{id}` | OPT-OUT | Deleting a run destroys the evidence this phase exists to produce. |

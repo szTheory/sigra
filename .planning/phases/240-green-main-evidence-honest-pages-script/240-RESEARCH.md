@@ -898,15 +898,21 @@ None of the 28 decisions is contradicted. Four items need the planner's explicit
 | A4 | Adding one `fast_checks` step to wire a shell self-test does not violate standing constraint 5 | §5 | Constraint 5 names `mix ci` and the prohibitions glob specifically, and 19 precedents exist; if a reviewer reads it more broadly, the self-test ships unwired with that stated |
 | A5 | The single-call `gh api -i` header/body split (`sed -n '/^\r\{0,1\}$/,$p'`) is portable across the `\r\n` forms `gh` emits | §4 | If it mis-splits, `jq` fails loudly on the body — fail-closed, not silent. The two-call alternative removes the risk at one extra request |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three were resolved at plan time and the resolutions are cited in the plans; each carries its
+resolution inline below.
 
 1. **Does the plan run `p12` against `240-EVIDENCE.md`, or leave the ledger unenforced?**
    - Known: p12 is hardcoded to the 230 path; `GSD_PROHIB_SUBJECT` can redirect it at runtime; generalising p12 is Phase 241's territory.
    - Unclear: whether a one-off redirected invocation counts as "enforced" for this phase's purposes.
    - Recommendation: run it as an evidence step, size the ledger to ≥4 slots / ≥3 captured, and file the "generalise p12 to a ledger glob" work against the existing todo rather than doing it here.
+   - **RESOLVED (recommendation accepted):** `240-03-PLAN.md` Task 3 authors a **six**-slot ledger and runs p12 under `GSD_PROHIB_SUBJECT` redirect; `240-04-PLAN.md` flips five slots to `captured` and re-runs it to green. Generalising p12 to a ledger glob stays with its existing todo.
 2. **One commit or two for the Pages script's two sites (D-16 vs D-18)?** Explicitly Claude's discretion. Recommendation: **two** — they have independent RED demonstrations (`get_403` vs `put_500`), and a bisect that lands between them still leaves a coherent script.
+   - **RESOLVED (recommendation accepted): two commits.** `240-01-PLAN.md` Task 1 owns the GET site and Task 2 owns the PUT site, and Task 2's action states the separate-commit requirement explicitly.
 3. **Keep or collapse the four `github.ref != 'refs/heads/main'` upload legs in the copy?**
    - Recommendation: **keep verbatim.** Byte-faithfulness is D-02's whole point, the dead legs cost nothing, and keeping them means the p20 parity guard needs no allowance beyond the artifact-name normalisation.
+   - **RESOLVED (recommendation accepted): keep verbatim.** Recorded in `240-02-PLAN.md`'s "Documented exceptions to D-02" section as resolved discretion; p20's only tolerated body difference is the `-${{ matrix.repeat }}` artifact-name suffix.
 
 ## Sources
 

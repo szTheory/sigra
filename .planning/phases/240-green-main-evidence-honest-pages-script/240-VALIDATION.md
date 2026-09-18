@@ -62,7 +62,7 @@ created: 2026-09-18
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/ci/ensure-github-pages-legacy-branch.test.sh` — GREEN-05, 9 stub modes (fake `gh` on PATH, per `capture-terminal-ratification-evidence.test.sh:60-125`)
+- [ ] `scripts/ci/ensure-github-pages-legacy-branch.test.sh` — GREEN-05, 10 stub modes (`get_200_already_gh_pages`, `get_404`, `get_403`, `get_500`, `build_type_workflow`, `no_token`, `put_204`, `put_403`, `put_422`, `put_500`) (fake `gh` on PATH, per `capture-terminal-ratification-evidence.test.sh:60-125`)
 - [ ] `scripts/ci/prohibitions/p20-green-04-evidence-step-parity.test.mjs` — GREEN-04 step-drift guard
 - [ ] `test/fixtures/prohibitions/p20-green-04-step-drift.yml` — GREEN-04 RED fixture (ROADMAP standing constraint 6)
 - [ ] `scripts/ci/capture-green-04-evidence.sh` + `scripts/ci/capture-green-04-evidence.test.sh` — GREEN-04
