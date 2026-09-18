@@ -6,7 +6,7 @@ current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: verifying
 stopped_at: Completed 239-15-PLAN.md
-last_updated: "2026-09-18T14:26:57.715Z"
+last_updated: "2026-09-18T15:13:50.192Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
@@ -496,6 +496,7 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase 239]: D-31 (239): the WR-01 moduledoc claim that mix sigra.install generates no tests is RETRACTED as false on the bytes — admin.ex:38-39 ships test/<otp_app>/sigra_admin_policy_test.exs into every adopter project
 - [Phase 239]: D-32 (239): the generated-app V3 claim is scoped to files mix sigra.install CREATED OR MODIFIED (injected files in scope), a rule borrowed from install_fixture.ex and frozen before the measurement it governs
 - [Phase ?]: 239-15: batch-4 re-bless 5f7ae9d7 carries the WR-01 retraction into the golden fixture; both classifier non-vacuity floors were zero this round and are disclosed with four compensating proofs rather than manufactured
+- [Phase 239]: D-33: generated-app V3 criterion matches allowlist records by (basename, literal)
 
 ### Pending Todos
 
