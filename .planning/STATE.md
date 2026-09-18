@@ -4,15 +4,15 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-status: planning
-stopped_at: "Completed 240-05-PLAN.md (GREEN-05; issue #231 closed)"
-last_updated: "2026-09-18T18:59:15.958Z"
+status: executing
+stopped_at: "Phase 241 planned (6 plans, waves 1-2; plan-checker BLOCK resolved). Not executed."
+last_updated: "2026-09-18T21:19:49.045Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
+last_activity_desc: Phase 241 planning complete (6 plans, waves 1-2); quick task 260918-lfq closed the three GREEN-04 collector todos
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 37
+  total_plans: 43
   completed_plans: 37
   percent: 50
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 240 — green-main-evidence-honest-pages-script
+**Current focus:** Phase 241 — retire-v1-47-s-dishonest-debt-adopter-leakage-guard
 
 ## Current Position
 
 Phase: 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-18 — Phase 240 complete, transitioned to Phase 241
+Plan: 6 planned, 0 executed
+Status: Ready to execute
+Last activity: 2026-09-18 — Phase 241 planned and plan-checked; awaiting execution
 
 ### v1.48 phase map
 
