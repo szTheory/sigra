@@ -77,7 +77,7 @@ therefore has no counterpart path to mirror into by construction, not by omissio
 | priv/templates/sigra.install/core/token_controller.ex | no counterpart (delivered by injection) |
 | priv/templates/sigra.install/core/api_token_created_email.ex | no counterpart (delivered by injection) |
 | priv/templates/sigra.install/organizations/router_injection.ex | no counterpart (delivered by injection) |
-| priv/templates/sigra.install/sigra.upgrade/data_migration.exs | no counterpart (delivered by injection) |
+| priv/templates/sigra.upgrade/data_migration.exs | no counterpart (delivered by injection) |
 | priv/templates/sigra.upgrade/alter_add_personal.exs | no counterpart (delivered by injection) |
 | priv/templates/sigra.upgrade/alter_add_owner_user_id.exs | no counterpart (delivered by injection) |
 | priv/templates/sigra.gen.oauth/oauth_settings_live.ex | no counterpart (delivered by injection) |
