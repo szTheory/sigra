@@ -85,7 +85,8 @@ run instead of the job is exactly the misattribution this window was measured to
 list** while being independently required by ruleset `14941512`. So `ci-gate: success` in this
 window means nine of the ten required contexts passed and the tenth was never aggregated into the
 gate. That gap is disclosed here and is **not** fixed by this work; it is owned by its own tracked
-todo. (`Example unit smoke (ExUnit + ConnTest)` did in fact conclude `success` on run
+todo (`.planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md`).
+(`Example unit smoke (ExUnit + ConnTest)` did in fact conclude `success` on run
 `35377012499` — but that is a separate observation, not something `ci-gate` aggregated.)
 
 ### The Pages publisher can no longer report success while the site stays broken
