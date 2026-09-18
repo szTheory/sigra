@@ -271,7 +271,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 240-01-PLAN.md — Honest Pages script: status-line reads on both lenient sites, a 10-mode fake-`gh` self-test, and that self-test wired into `fast_checks` *(wave 1)*
+- [x] 240-01-PLAN.md — Honest Pages script: status-line reads on both lenient sites, a 10-mode fake-`gh` self-test, and that self-test wired into `fast_checks` *(wave 1)*
 - [ ] 240-02-PLAN.md — `green-04-evidence.yml` dispatch-only n≥20 matrix plus the `p20` step-parity guard and its committed RED fixture *(wave 1)*
 
 **Wave 2** *(blocked on Wave 1 completion)*

@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 240
-current_phase_name: Green-Main Evidence + Honest Pages Script
+current_phase_name: green-main-evidence-honest-pages-script
 status: executing
-stopped_at: Phase 240 planned (5 plans, checker-passed, ready to execute)
-last_updated: "2026-09-18T17:03:03.672Z"
+stopped_at: Completed 240-01-PLAN.md
+last_updated: "2026-09-18T17:31:21.019Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 37
-  completed_plans: 32
+  completed_plans: 33
   percent: 40
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 240 — Green-Main Evidence + Honest Pages Script
-Plan: Not started
+Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-09-18 — Phase 240 planned (5 plans, 2 checker iterations, all gates green)
+Last activity: 2026-09-18 — Phase 240 execution started
 
 ### v1.48 phase map
 
@@ -499,6 +499,7 @@ Last activity: 2026-09-18 — Phase 240 planned (5 plans, 2 checker iterations, 
 - [Phase 239]: D-33: generated-app V3 criterion matches allowlist records by (basename, literal)
 - [Phase 239]: 239-13: SURF-03 re-checked to [x] only after every closure criterion was re-observed live at final HEAD — three tiers clean under V3 with live controls, generated-app fixed-string proof 0/0/0, tarball 0 under lib+priv, mix ci green, SC-5 at two bases
 - [Phase 239]: 239-13: T-239-12-03 discharged on a real generated app (5 _test.exs, sigra_admin_policy_test.exs by name, *.exs control 6) rather than transferred
+- [Phase ?]: Pages script branches on the gh api -i status line; PUT-403 is the only tolerated non-2xx (D-19), everything else exits 1
 
 ### Pending Todos
 
@@ -701,9 +702,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T16:35:51.582Z
-Stopped at: Phase 240 context gathered (assumptions mode)
-Resume file: .planning/phases/240-green-main-evidence-honest-pages-script/240-CONTEXT.md
+Last session: 2026-09-18T17:31:20.997Z
+Stopped at: Completed 240-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -903,3 +904,4 @@ Resume file: .planning/phases/240-green-main-evidence-honest-pages-script/240-CO
 | Phase 239 P15 | ~25m | 2 tasks | 4 files |
 | Phase 239 P16 | ~38m | 2 tasks | 3 files |
 | Phase 239 P13 | 55m | 3 tasks | 2 files |
+| Phase 240 P01 | 50m | 3 tasks | 4 files |
