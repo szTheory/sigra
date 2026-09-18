@@ -1502,12 +1502,41 @@ bookkeeping batch 2 removes. The V2 widening and the `239-REVIEW.md` findings th
 edit list did not exist until after batch 1 had landed and been reviewed. Folding was not merely
 inconvenient; the edits were **not yet derivable**.
 
-### Batch 3 — the round-2 gap-closure template edits *(SLOT UNFILLED — `BATCH-3-JUSTIFICATION-PENDING`)*
+### Batch 3 — the V3-vocabulary sweep and the WR-01 repair *(written by plan 239-12, BEFORE batch 3's re-bless ran)*
 
-`BATCH-3-JUSTIFICATION-PENDING` — this slot is deliberately empty at plan 239-10's close. **Plan
-239-12 fills it before its re-bless runs**, replacing this marker line with the batch's composition
-and its not-foldable argument. A re-bless that runs while this marker is still present is a D-29
-violation, and the marker string is greppable precisely so that can be checked mechanically.
+**Composition — the two template edits, named.** Batch 3 is the two-file sweep committed as
+`7eee6b00` (`refactor(239): remove residual plan vocabulary and repair the false safety claim in
+priv/templates (SURF-01, SURF-03)`), mirrored into `test/example/` by `8dc2ecc4`:
+
+| Edit | Template file | What changed |
+|---|---|---|
+| WR-01 + WR-02 | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` | The `@moduledoc` sentence `That absence is asserted by a test, not merely conventional` replaced with prose true in an adopter's project, and the comment line `# The plan-checker greps this function body and asserts zero matches.` deleted in full |
+| WR-03 | `priv/templates/sigra.install/organizations/live/organization_members_live.ex` | The pagination bullet gains its terminator; `Flop / sortable columns are a v1.2 concern.` deleted |
+
+Five removed template lines in total (`git diff 74e6a148..HEAD -- priv/templates/`), rendering into
+**2** golden files.
+
+**Why not foldable into batch 2.** Both edits were derived from findings that did not exist when
+batch 2 was composed. WR-01 is a `239-REVIEW.md` finding and WR-02/WR-03 are the two sentences in
+`239-VERIFICATION.md`'s SC-1 `gaps:` block — both documents were produced **after** batch 2's
+re-bless commit `265f7195`, as the gap-closure review of the work batch 2 landed. Beyond the
+chronology, batch 2's edit list was derived from the V2 definition, and V2 is an *identifier* regex
+that is structurally incapable of matching either sentence: they carry no identifier of any shape V2
+knows (§ `## VOCABULARY-LEDGER` (a) states the mechanism). Closing them required the V3 vocabulary
+class, which plan 239-09 defined after batch 2 had landed. The edits were not merely inconvenient to
+fold — under the definition in force at batch 2 they were **not detectable**, and therefore not
+derivable.
+
+**Running count of re-bless commits, with shas (D-29 auditability).** Before batch 3: **2**.
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 (closure) |
+| 3 | recorded in § `## REBLESS-COMMIT-3` — a commit cannot carry its own sha | 239-12 |
+
+After batch 3 the phase carries **3** re-bless commits, one per batch, which is SC-3 as amended by
+D-26 and bounded by D-29.
 
 
 ## BATCH-3-SWEEP-COMMIT
@@ -1859,3 +1888,156 @@ both flagged sites because a prior plan's enumeration missed `:175`:
 | `:175-179` | `# Dev-only routes for local manual testing — Swoosh local-mailbox preview at /dev/mailbox …` | **n/a — carries no batch-3 text.** Already de-bookkept by plan 239-07 (see § `## MIRROR-CHECKLIST` C-1). No V3 hit at the mirror commit. Not edited. |
 
 Neither site is in this batch's edit set, and the router does not appear in either commit.
+
+
+## REFREEZE-LEDGER-3
+
+*(Written by plan 239-12, extending § `## REFREEZE-LEDGER` rather than interleaving with it —
+this file's append-only chronological convention. Rounds 1 and 2 live in that section; round 3
+lives here.)*
+
+Status: PASS — the round-3 expected-removed set is frozen, committed **before** batch 3's re-bless,
+and the ordering is readable from `git log` rather than taken on trust.
+
+### (a) Why a third expected set is required
+
+Round 2's set (`239-golden-expected-2.txt`, 47 records across 7 paths) was generated against the
+golden tree as it stood before re-bless `265f7195`, and every one of its 47 records names a line that
+re-bless removed. Those lines no longer exist in the tree, so round 2's set cannot contain round 3's
+removals: reusing it would fail containment on every line of the new diff while simultaneously
+failing its own `removed_lines >= 4` `T:` floor against a 5-line diff drawn from different files. A
+third set is the only non-circular option, exactly as it was at round 2.
+
+### (b) Counts
+
+| Record class | Count |
+|---|---|
+| `T:` (golden-tree lines matched by V3 at the pre-re-bless HEAD) | **2** |
+| `N:` (prose repairs V3 cannot match, located by literal anchor) | **3** |
+| Total records | **5** |
+| Distinct golden paths across all records | **2** |
+
+The 2 `T:` records are the two sentences named in `239-VERIFICATION.md`'s SC-1 `gaps:` block — the
+`plan-checker` comment line and the `v1.2 concern` release-sequencing sentence. They are the same 2
+hits the V3 instrument reports as `hits_outside_allowlist=2` on the `golden` tier at this plan's
+base, which is why that tier was the one tier still RED after plan 239-11.
+
+### (c) The literal-anchor list — 5 anchors, 5 records, accounted for exactly
+
+The anchors are **not** a blanket radius and **not** derived from the diff they validate. Each anchor
+is a line REMOVED from an edited template by batch 3's own template-edit commit `7eee6b00`
+(`git diff 74e6a148..HEAD -- priv/templates/`), searched verbatim with `grep -nF` **only inside that
+template's own golden counterpart** (basename match; neither of batch 3's two files is one of the two
+documented renames). An anchor matching nothing in its counterpart contributes no record.
+
+| # | Anchor (template line removed by `7eee6b00`) | Template | Record class |
+|---|---|---|---|
+| 1 | `"by construction, not by convention" defense. That absence is asserted by a` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 2 | `test, not merely conventional — do not add accept controls to this branch.` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 3 | `# The plan-checker greps this function body and asserts zero matches.` | `organizations/live/invitation_accept_live.ex` | absorbed as `T:` (V3 matches it) |
+| 4 | ``* Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)` `` | `organizations/live/organization_members_live.ex` | `N:` |
+| 5 | `Flop / sortable columns are a v1.2 concern.` | `organizations/live/organization_members_live.ex` | absorbed as `T:` (V3 matches it) |
+
+**5 anchors → 3 `N:` + 2 absorbed `T:` = 5 records.** No anchor is unaccounted for and no record
+lacks an anchor. The generating command is written verbatim into the file's `#`-prefixed header line
+(round-2 shape with V3 substituted for V2 and `BASE=74e6a148`), so the set is reproducible from the
+file alone.
+
+### (d) The freeze is git-provable, not prose-provable
+
+The freeze commit's own sha and the re-bless sha cannot be written by the commits they name (a commit
+cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/`
+and may carry nothing else). Both are recorded, with their `git merge-base --is-ancestor` result, in
+§ `## REBLESS-COMMIT-3` below, written in this plan's final documentation commit.
+
+What is asserted here and checkable at any later HEAD: the freeze commit lists exactly three paths —
+`239-golden-expected-3.txt`, `fixtures/239-golden-rebless3-code-change.diff`, `239-EVIDENCE.md` — and
+nothing under `test/fixtures/install_golden/`.
+
+### (e) The floor: two different runs, two different jobs
+
+`GOLDEN_MIN_FILES` for round 3's **real** run is **2** — the exact count of distinct paths in
+`239-golden-expected-3.txt`. That is a real non-vacuity floor equal to the expected path count, not a
+disabled one. Batch 3 renders into 2 files, so round 1's hardcoded default of 30 (calibrated to a
+35-file diff) and round 2's 7 would both fail spuriously.
+
+The RED demonstration in (g) below deliberately runs with `GOLDEN_MIN_FILES=1`, and the two numbers
+are not a contradiction:
+
+| Run | Input | Floor | Why that floor |
+|---|---|---|---|
+| RED demonstration | `fixtures/239-golden-rebless3-code-change.diff` — a known-bad fixture built from the real diff shape with exactly one **code** line substituted | `1` | The fixture must fail on the altered code line, not on a file-count floor. Failing on the floor would prove nothing about the classifier's ability to detect a code line, which is the only thing this run measures. |
+| Real classification (Task 2) | the captured re-bless-3 working-tree diff | `2` (computed) | This is the run the floor exists to protect — a thin real diff waved through by a vacuous pass. The floor is **applied**, not disabled, on the run the acceptance criteria gate on. |
+
+The classifier itself is byte-unchanged in this round: `GOLDEN_MIN_FILES` was already parameterized by
+plan 239-08, and `git diff --name-only` for `239-comment-only-diff-check.sh` across this plan is
+empty.
+
+### (f) The precondition, recorded
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden --check` at the start of this plan exited **2**:
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+DRIFT DETECTED:
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex and …/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex differ
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex and …/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex differ
+```
+
+Exactly the 2 files batch 3 edits, and no others. A `--check` exit 0 here would have meant the
+template edits never reached generated output (or the fixture was hand-edited) and the plan would
+have halted.
+
+### (g) The classifier proven able to fail, before any of its greens are believed
+
+**RED — one code line altered in a real-shaped diff:**
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh \
+  fixtures/239-golden-rebless3-code-change.diff 239-golden-expected-3.txt
+```
+
+```
+changed_lines=10
+removed_lines=5
+files=2
+nonconforming=1
+nonconforming_removed=1
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=2
+FAIL: 1 nonconforming line(s)/path(s)/hunk(s) found:
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:-  defp render_mismatch(assigns) do
+```
+
+**exit 1**, and the output names the offending line. The known-bad fixture differs from the real
+captured diff by exactly one line (`diff` of the two files → `22c22`): the removed comment
+`#  The plan-checker greps this function body…` replaced by the removed code line
+`defp render_mismatch(assigns) do`.
+
+**Fail-closed on empty input, demonstrated live rather than cited:**
+
+```bash
+printf '' | GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh - 239-golden-expected-3.txt
+FAIL: empty diff input — refusing to report success on no input (fail-closed guard)
+```
+
+**exit 1**.
+
+**Guards still present at this plan's HEAD:**
+
+| Guard | Assertion |
+|---|---|
+| all four fail-closed messages | `grep -c 'refusing to report success'` → **4** |
+| `removed_lines` floor | `grep -c 'floor_removed="$expected_t_count"'` → **1** (literal unchanged) |
+| add-only-hunk class | `nonconforming_addonly_hunks` still one of the three summed violation classes |
+
+### (h) A dead-grep caught by its own control, in this plan
+
+The first attempt at the round-3 generator was pasted from round 2's **header line**, which carries an
+inline `#` comment between `BASE=…` and `V3=…`. Executed as a command, that `#` comments out the rest
+of the line and the generator produced **zero** records — indistinguishable from "the golden tree is
+already clean". The paired positive control (`grep -cE '\bdefmodule\b'` over the same 84-file list →
+non-zero on the `.ex` files) is what exposed it. This is the `unclassified` edge-probe's dead-grep
+case firing for real, for the second time in this phase, and the reason every zero here is paired
+with a control on the same surface.
