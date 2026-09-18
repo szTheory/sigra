@@ -27,6 +27,15 @@
 #      "not changing", no PUT.
 #   F: no_token -- GH_TOKEN and GITHUB_TOKEN unset -> exit 0, skip message,
 #      and ZERO gh calls logged (D-22 early exit preserved).
+#   G: put_204 -- GET 200 source.branch=main; PUT 204 No Content with an EMPTY
+#      body -> exit 0, "updated." The status line is the only signal, so this
+#      is the case a body-parsing implementation gets wrong (D-18).
+#   H: put_403 -- PUT 403 (all four channels) -> exit 0 with the documented
+#      pages:write-is-not-repo-admin message on STDERR, naming the manual
+#      Settings -> Pages remedy. The ONLY tolerated non-2xx status (D-19).
+#   I: put_422 -- PUT 422 -> exit 1 with the body echoed to stderr.
+#   J: put_500 -- PUT 500 -> exit 1 with the body echoed to stderr. This and
+#      case D are the SC-3 loud-RED demonstrations.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -239,6 +248,49 @@ if [[ "$RC" -eq 0 ]] \
   pass "Case F: no token -> exit 0, skip message, zero gh calls"
 else
   fail "Case F: exit=${RC} out=$(cat "$TMP/no_token.out") calls=$(cat "$TMP/no_token.calls")"
+fi
+
+# ---- Case G: put_204 -> exit 0, "updated.", no body parsing -----------------
+run_case put_204
+if [[ "$RC" -eq 0 ]] \
+  && grep -q 'updated\.' "$TMP/put_204.out" \
+  && [[ "$(count_pages_calls put_204 PUT)" -eq 1 ]] \
+  && ! grep -qi 'jq' "$TMP/put_204.err"; then
+  pass "Case G: PUT 204 No Content, empty body -> exit 0, updated., no jq parse"
+else
+  fail "Case G: exit=${RC} out=$(cat "$TMP/put_204.out") err=$(cat "$TMP/put_204.err")"
+fi
+
+# ---- Case H: put_403 -> the single tolerated non-2xx status (D-19) ----------
+run_case put_403
+if [[ "$RC" -eq 0 ]] \
+  && grep -q '403' "$TMP/put_403.err" \
+  && grep -q 'not repo-admin' "$TMP/put_403.err" \
+  && grep -q 'Settings' "$TMP/put_403.err" \
+  && ! grep -q 'updated\.' "$TMP/put_403.out"; then
+  pass "Case H: PUT 403 -> exit 0, documented not-repo-admin message on stderr"
+else
+  fail "Case H: exit=${RC} out=$(cat "$TMP/put_403.out") err=$(cat "$TMP/put_403.err")"
+fi
+
+# ---- Case I: put_422 -> loud exit 1 ----------------------------------------
+run_case put_422
+if [[ "$RC" -eq 1 ]] \
+  && grep -q "PUT /pages returned '422'" "$TMP/put_422.err" \
+  && grep -q 'Invalid request.' "$TMP/put_422.err"; then
+  pass "Case I: PUT 422 -> exit 1, status named, body echoed to stderr"
+else
+  fail "Case I: exit=${RC} err=$(cat "$TMP/put_422.err")"
+fi
+
+# ---- Case J: put_500 -> loud exit 1 (SC-3 RED demonstration) ---------------
+run_case put_500
+if [[ "$RC" -eq 1 ]] \
+  && grep -q "PUT /pages returned '500'" "$TMP/put_500.err" \
+  && grep -q 'Server Error' "$TMP/put_500.err"; then
+  pass "Case J: PUT 500 -> exit 1, status named, body echoed to stderr"
+else
+  fail "Case J: exit=${RC} err=$(cat "$TMP/put_500.err")"
 fi
 
 # ---- Summary -------------------------------------------------------------
