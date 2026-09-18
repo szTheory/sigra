@@ -280,6 +280,138 @@ so it needs a trustworthy gate.
   Implemented by plan 239-08 Task 4 in `.planning/ROADMAP.md` (Phase 239, Success Criterion 3) and
   `.planning/REQUIREMENTS.md` (SURF-03).
 
+### Gap-Closure Round 2 Decisions (plans 239-09 … 239-13)
+
+- **D-27 [user decision, gap-closure planning, 2026-09-18]:** SC-2 (and nothing else) is **amended**
+  to name `lib/` and `priv/` as the scope it asserts inside the extracted `mix hex.build` tarball.
+  The developer's choice is to **narrow the claim and route the surface**, not to clean it here.
+
+  Measurement behind it: `mix.exs:184` packages
+  `~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)`. `lib/` and `priv/` carry
+  **0** `.planning/` references at HEAD; `docs/`, `README.md` and `CHANGELOG.md` carry **58
+  occurrences across 32 lines in 6 files** (`CHANGELOG.md` 43/19, `docs/uat-ci-coverage.md` 7/6,
+  `docs/ga-evidence.md` 3/3, `docs/nyquist-posture-matrix.md` 3/2, `docs/audit-semantics.md` 1/1,
+  `README.md` 1/1). Those 58 are **deliberate**: real provenance links and maintainer prose — D-06
+  already argued this, and D-27 promotes that rationale from a discussion note into the criterion's
+  own text, so a re-verifier applying SC-2 literally at final HEAD reads the scoping instead of
+  re-deriving it.
+
+  Alternatives considered and **not taken**: (a) *strip `.planning/` paths out of the packaged
+  docs* — deletes real provenance links, and `CHANGELOG.md` is Phase 242's file (REL-05), so the
+  edit collides; (b) *drop `docs` from the Hex `files:` list* — removes documentation adopters
+  legitimately read in order to make a grep count fall, which is a worse artifact for a better
+  number.
+
+  A narrowing that silently deletes a finding is the same defect as a green gate that verified
+  nothing, so the narrowing is only legitimate because the finding keeps **two** owners: SURF-04's
+  requirement text now names the packaged-docs surface, and
+  `.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`
+  carries the measured per-file breakdown.
+
+  Reversibility: **costly**. Amending a locked criterion changes the phase's contract and a later
+  reader reasons from the amended text. Not one-way: the note states the original claim and what
+  changed, so the pre-amendment criterion is reconstructable from the criterion itself. No
+  `checkpoint:decision` is emitted, following the D-26 precedent — the developer made this call
+  during gap-closure planning.
+
+  Implemented by plan 239-10 Task 1 in `.planning/ROADMAP.md` (Phase 239, Success Criterion 2) and
+  `.planning/REQUIREMENTS.md` (the SURF-01 consistency note and the SURF-04 packaged-docs clause).
+
+- **D-28 [gap-closure planning, 2026-09-18]:** The twice-widened bookkeeping definition (V3) is
+  implemented in this closure as a **measurement instrument only** — defined, demonstrated RED on all
+  three tiers (`priv/templates/`, the SC-4 `test/example/` counterparts, the golden tree), recorded
+  in `239-EVIDENCE.md` § `## VOCABULARY-LEDGER`, and **wired into nothing**
+  (`grep -rn '239-v3-vocabulary-check' mix.exs .github scripts/ | wc -l` → 0). Phase 241's SURF-04
+  `p18` guard inherits it as its spec through
+  `.planning/todos/pending/2026-09-17-widened-bookkeeping-definition-for-surf-04-p18.md`, which plan
+  239-09 amended in place from V2 to V3.
+
+  Alternatives **not taken**: (a) *build the guard here* — forbidden by Standing Constraint 5 and
+  D-04 (Phase 239 builds no guard; Phase 241 owns the known-bad fixture and the RED demonstration);
+  (b) *do not widen at all, and instead restate SC-1 as "clean under the V2 identifier regex"* —
+  rejected, because it leaves intact the exact mechanism that hid the two residual sentences, so the
+  next vocabulary-class leak ships under a green measurement precisely as these two did. Restating
+  the criterion without widening the instrument buys honesty about the past at the cost of the
+  future.
+
+  Reversibility: **costly**. V3 is the instrument every later acceptance criterion in this closure is
+  measured against; reverting means re-deriving plans 239-11 … 239-13's measurements. Mitigated by
+  the keep/drop record in § `## VOCABULARY-LEDGER` (c).
+
+  Implemented by plan 239-09; SC-1 amended to name it by plan 239-10 Task 2; consumed by plans
+  239-11, 239-12 and 239-13.
+
+- **D-29 [gap-closure planning, 2026-09-18]:** Bound the D-26 residue with an **evidence obligation**,
+  not a restored count. D-26 amended SC-3 and SURF-03 from "exactly **one** batched re-bless for the
+  phase" to "**one batched re-bless per batch of template edits**". `239-VERIFICATION.md` names the
+  weakening exactly: *"one per batch is unbounded where exactly one was countable — nothing now caps
+  the number of re-bless commits a future phase can justify."*
+
+  D-29's rule: **every re-bless batch must be justified by name in `239-EVIDENCE.md` before that
+  batch's re-bless runs** — which template edits compose the batch, and why they could not have been
+  folded into the previous batch. The count stays auditable even though it is no longer fixed. The
+  durable home is `239-EVIDENCE.md` § `## BATCH-JUSTIFICATION`.
+
+  D-29 does **not** re-amend SC-3's prose and does **not** re-amend SURF-03's prose. It adds an
+  obligation recorded as a decision. Those criteria also carry the comment-only, commit-isolation,
+  `--check`-exit-0 and mirror clauses, and re-opening their text puts those clauses back in play.
+
+  *Reading hazard, recorded here so a later reader is not misled:* SURF-03's D-26 amendment justifies
+  itself with the clause "because the gap closure lands a **second** batch of template edits". After
+  batch 3 lands, that rationale clause under-describes the batch count. The clause describes the
+  **occasion** of the amendment, not a cap — the amended rule is "one batched re-bless per batch",
+  which is unbounded by construction, and that unboundedness is exactly why D-29 exists. The word is
+  deliberately **not** corrected in SURF-03's or SC-3's prose: correcting a rationale word is
+  cosmetic, and the edit would re-open clauses that are not.
+
+  Alternatives considered and **not taken**: (a) *restore a hard per-phase count* — rejected, it
+  re-creates the D-26 impasse the developer already resolved, and a hard count is what forces either
+  a golden tree that no longer matches a freshly generated app or a history rewrite; (b) *accept the
+  unboundedness silently* — rejected, that is the "documented deviation instead of an amendment"
+  shape D-26 itself already refused.
+
+  Reversibility: **reversible**. The obligation is a section in an evidence file; dropping it costs
+  nothing already committed.
+
+  Implemented by plan 239-10 Task 2 (the `## BATCH-JUSTIFICATION` section and the retrospective
+  batch-1/batch-2 rows); **discharged for batch 3 by plan 239-12**, which fills the batch-3 slot
+  before its re-bless runs.
+
+- **D-30 [gap-closure planning, 2026-09-18]:** *Copied verbatim in substance from `239-EVIDENCE.md`
+  § `## VOCABULARY-LEDGER` (k), where plan 239-09 states it, into the block plans 239-11 … 239-13
+  read for authority. A decision recorded only in EVIDENCE is not readable from here.*
+
+  **Statement.** The instrument's detection **width** and the criterion's asserted **surface** are
+  separate concerns. V3 stays maximally wide and is never narrowed, tuned, or hand-fitted so that the
+  current tree happens to pass it. What plans 239-11, 239-12 and 239-13 assert is
+  `hits_outside_allowlist = 0` — never `hits = 0` — over a tier file list and a per-line triage
+  allowlist that were **both committed before the RED demonstration ran**
+  (`.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv`), with the
+  raw `hits=` total printed alongside on every run. The `example` tier is asserted **only** over
+  SC-4's mirrored-counterpart surface; the unswept remainder of `test/example/` is a measured, named,
+  routed number this phase does not claim to clean — **482 V3-matching lines across 157 files** (over
+  344 scanned files), owned by **Phase 241 SURF-04** via
+  `.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`.
+
+  **Rationale.** A literal `hits = 0` criterion was arithmetically unreachable at this base: V2 alone
+  returns **1** hit in `priv/templates/` (an SVG `path d=` coordinate false positive that cannot be
+  edited without changing a brand mark's geometry) and **390** across `test/example/`; under V3 the
+  example remainder is **482**. A plan asserting `hits = 0` would either halt on its first verify or
+  be "resolved" under time pressure by hand-fitting the instrument — so the phase could never have
+  sealed, and the pressure to seal it would have landed on the instrument.
+
+  **Alternatives not taken.** (a) *Narrow V3 until the tree passes* — reinstates exactly the blind
+  spot the widening exists to remove, and is the V1→V2 failure repeating a third time. (b) *Sweep
+  `test/example/` repo-wide* — 4.3× over the SC-4 scope (`239-RESEARCH.md` § 1.6) and incompatible
+  with D-19's commit topology. (c) *Silently drop the false positive from the reported count* —
+  indistinguishable from the defect under repair; the hit is reported, marked `[ALLOWLISTED]` inline,
+  and still counted in `hits=`.
+
+  Reversibility: **costly** (same basis as D-28 — every later acceptance criterion in this closure is
+  measured against it).
+
+  Implemented by plan 239-09; consumed by plans 239-11, 239-12 and 239-13.
+
 ### Claude's Discretion
 
 - The exact rewritten wording of the 23 D-17 rationale-preserving comments, so long as the sentence

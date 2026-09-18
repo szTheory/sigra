@@ -1465,3 +1465,46 @@ form of the claim the evidence supports.
 **Reversibility:** reversible (the artifact is deletable and referenced by nothing executable).
 
 **Implemented by plan 239-09.**
+
+## BATCH-JUSTIFICATION
+
+**Obligation (D-29).** SC-3 and SURF-03 were amended by D-26 from "exactly **one** batched re-bless
+for the phase" to "**one batched re-bless per batch of template edits**". That is unbounded where the
+original was countable. D-29 bounds it without restoring a count: **every re-bless batch must be
+justified by name in this section — which template edits compose the batch, and why they could not
+have been folded into the previous batch — recorded *before* that batch's re-bless runs.** The count
+stays auditable even though it is no longer fixed.
+
+D-29 adds this obligation; it does **not** re-amend SC-3's or SURF-03's prose (see D-29 in
+`239-CONTEXT.md`, including the recorded reading hazard around SURF-03's "second batch" rationale
+clause).
+
+### Batch 1 — the original sweep *(retrospective justification, derived from § `## SWEEP-COMMIT` and § `## REBLESS-COMMIT`)*
+
+**Composition:** the 158 planning-bookkeeping lines stripped from 46 files under `priv/templates/`
+(commit subject `refactor(239): strip planning bookkeeping from priv/templates (SURF-01, SURF-03)`),
+plus the seven reflow-neighbour repairs in `2a34e1c8`, mirrored to their 30 `test/example/`
+counterparts.
+
+**Why not foldable into a previous batch:** there was no previous batch. This is the phase's first
+batch of template edits and the origin of the D-19 three-commit topology.
+
+### Batch 2 — the gap-closure template repairs *(retrospective justification, derived from § `## CLOSURE-TEMPLATE-COMMIT`, § `## CLOSURE-MIRROR-COMMIT` and § `## REFREEZE-LEDGER`)*
+
+**Composition:** every `FIX-239-06` row from § `## WIDENED-UNION-LEDGER` plus the seven
+`239-REVIEW.md` prose repairs in `priv/templates/`, mirrored to `test/example/` and re-blessed
+against the round-2 expected-removed set frozen in § `## REFREEZE-LEDGER` (47 records: 4 `T:`,
+43 `N:`, across 7 golden paths).
+
+**Why not foldable into batch 1:** batch 1's edits were derived from the V1 union regex, which was
+frozen at wave 0 and — as `239-VERIFICATION.md` records — is structurally incapable of matching the
+bookkeeping batch 2 removes. The V2 widening and the `239-REVIEW.md` findings that produced batch 2's
+edit list did not exist until after batch 1 had landed and been reviewed. Folding was not merely
+inconvenient; the edits were **not yet derivable**.
+
+### Batch 3 — the round-2 gap-closure template edits *(SLOT UNFILLED — `BATCH-3-JUSTIFICATION-PENDING`)*
+
+`BATCH-3-JUSTIFICATION-PENDING` — this slot is deliberately empty at plan 239-10's close. **Plan
+239-12 fills it before its re-bless runs**, replacing this marker line with the batch's composition
+and its not-foldable argument. A re-bless that runs while this marker is still present is a D-29
+violation, and the marker string is greppable precisely so that can be checked mechanically.
