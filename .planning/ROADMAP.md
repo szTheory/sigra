@@ -230,7 +230,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 239-11-PLAN.md — Batch-3 sweep: remove the two residual bookkeeping sentences and repair WR-01's false safety claim and WR-03's run-on in `priv/templates/`, then mirror into `test/example/` in a separate commit *(wave 11)*
+- [x] 239-11-PLAN.md — Batch-3 sweep: remove the two residual bookkeeping sentences and repair WR-01's false safety claim and WR-03's run-on in `priv/templates/`, then mirror into `test/example/` in a separate commit *(wave 11)*
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
