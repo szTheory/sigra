@@ -1,3 +1,4 @@
+completed: 2026-09-18
 ---
 created: 2026-09-18T19:10:00.000Z
 status: pending
