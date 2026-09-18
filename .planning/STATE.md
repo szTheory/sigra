@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
-stopped_at: Completed 239-04-PLAN.md — phase 239 implementation complete (4/4), awaiting verification
-last_updated: "2026-09-18T03:28:01.056Z"
+stopped_at: Completed 239-05-PLAN.md
+last_updated: "2026-09-18T03:43:33.181Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
 progress:
   total_phases: 10
-  completed_phases: 4
+  completed_phases: 3
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
-Plan: 1 of 4
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-09-17 — Phase 239 execution started
 
@@ -475,6 +475,9 @@ Last activity: 2026-09-17 — Phase 239 execution started
 - [Phase 239]: Accepted one unavoidable 237-security-comment-diff-check.sh false positive on core/auth.ex:530 (IN-03 token format not in its tolerance regex) rather than editing the checker script, per D-16.
 - [Phase 239]: Resolved plan's temporal-ordering tension via a trailing evidence-recording commit (mirroring 239-01/239-02 precedent), keeping the mirror commit itself entirely test/example/-scoped — A commit cannot honestly record its own not-yet-created child commit's sha or not-yet-run mix ci results
 - [Phase 239]: Diagnosed the first mix ci run's 6 spurious Threadline failures as a cold-_build Code.ensure_compiled/1 ordering race, resolved via mix compile --force, not a lib/ regression — git log a1bb08c6..HEAD -- lib/ is empty; confirmed no source cause
+- [Phase ?]: 239-05: V2 bookkeeping regex adds six alternations (the verifier's five plus `\b[Ww]ave [0-9]`); V1 certified priv/templates and the golden tree clean at 0 while V2 measures 5 and 4 — the instrument gap is a measured delta, not an assertion
+- [Phase ?]: 239-05: all three tasks land as ONE path-scoped commit per the plan's D-19 commit topology, overriding the executor's per-task commit default
+- [Phase ?]: 239-05: SURF-02 is marked [x] Complete in REQUIREMENTS.md but does not hold at HEAD (account.ex:16, audit.ex:7-14, put_active_organization.ex:9) — filed as a todo for the milestone owner, fix belongs to Phase 241's SURF-04 ratchet
 
 ### Pending Todos
 
@@ -677,8 +680,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T20:27:16.206Z
-Stopped at: Completed 239-04-PLAN.md — phase 239 implementation complete (4/4), awaiting verification
+Last session: 2026-09-18T03:43:21.812Z
+Stopped at: Completed 239-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -867,3 +870,4 @@ Resume file: None
 | Phase 239 P01 | 25min | 3 tasks | 6 files |
 | Phase 239 P02 | 70min | 3 tasks | 47 files |
 | Phase 239 P03 | 95min | 3 tasks | 31 files |
+| Phase 239 P05 | 35m | 3 tasks | 4 files |
