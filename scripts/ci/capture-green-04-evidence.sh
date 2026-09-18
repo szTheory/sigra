@@ -165,6 +165,11 @@ collect_pages() {
 # and would report an empty window as if it were a clean miss. Both regexes below are
 # anchored at both ends; the leg regex REQUIRES the ` (N)` suffix and yields `matrix_repeat`
 # from its named capture group, so the index is read from the same parse that selected it.
+#
+# SC-2 CARRIES THE SAME ANALOG (see the per-run guard below). Zero matches for either SC-2
+# selector is a REJECTED SHAPE, not an empty window: `first` over an empty selection returns
+# `null`, and a `null` conclusion is neither `"failure"` nor `"success"`, so an unguarded
+# zero-match run would be counted as clean by the very tally that is supposed to detect red.
 # ---------------------------------------------------------------------------
 regex_escape() { printf '%s' "$1" | sed 's/[][(){}.*+?^$|\\\/]/\\&/g'; }
 JOB_NAME_ESC="$(regex_escape "$JOB_NAME")"
@@ -237,6 +242,20 @@ for main_run_id in $MAIN_RUN_IDS; do
     [.[].body.workflow_runs[]] | map(select(.id == $rid)) | .[0]
     | {run_id: .id, url: .html_url, run_conclusion: .conclusion}
   ' "$SC2_RUNS_MANIFEST" >"$run_meta" || fail "main_run_metadata_missing_${main_run_id}"
+  # SC-2's analog of the SC-1 rejected-shape check at :192-196. An anchored selector that
+  # matches ZERO jobs is a SELECTOR BUG (a renamed or newly matrixed job), never an empty
+  # window — and `first` over an empty array yields `null`, which would flow silently into
+  # `flake_attributable_red_count` as if it were a clean, non-red run.
+  jobs_all="$TMPD/sc2-jobs-all-${main_run_id}.json"
+  jq -s -e '[.[].body.jobs[]] | map({name: .name, conclusion: .conclusion})' "$jobs_manifest" \
+    >"$jobs_all" || fail "main_run_jobs_unreadable_${main_run_id}"
+  gate_matches="$(jq -r --arg re "$CI_GATE_JOB_NAME_RE" '[.[] | select(.name | test($re))] | length' "$jobs_all")"
+  smoke_matches="$(jq -r --arg re "$CI_JOB_NAME_RE" '[.[] | select(.name | test($re))] | length' "$jobs_all")"
+  (( gate_matches > 0 )) \
+    || fail "sc2_job_not_found: run ${main_run_id} matched 0 jobs for the ci-gate selector ${CI_GATE_JOB_NAME_RE}"
+  (( smoke_matches > 0 )) \
+    || fail "sc2_job_not_found: run ${main_run_id} matched 0 jobs for the generated-admin-smoke selector ${CI_JOB_NAME_RE}"
+
   next="$TMPD/sc2-runs-next-${main_run_id}.json"
   jq -e \
     --slurpfile meta "$run_meta" \

@@ -53,6 +53,7 @@ JOB_NAME="Generated admin Playwright smoke (GREEN-04 repeat)"
 CI_JOB_NAME="Generated admin Playwright smoke"
 MODE="${FAKE_MODE:-ok}"
 SHAPE="${FAKE_JOB_NAME_SHAPE:-suffixed}"
+SC2="${FAKE_SC2_MODE:-ok}"
 LEGS="${FAKE_LEG_COUNT:-20}"
 TOTAL="${FAKE_TOTAL_COUNT:-$LEGS}"
 DISPATCH_RUN_ID="${FAKE_DISPATCH_RUN_ID:-35400000001}"
@@ -81,6 +82,29 @@ emit_legs() {
   printf ']}\n'
 }
 
+emit_main_jobs() {
+  # SINGLE GENERATOR for every SC-2 `main` payload, exactly as emit_legs is for SC-1. `ok`
+  # reproduces the shape the Actions API emits for a `main` ci.yml run; every other mode is a
+  # negative control produced by the SAME generator, so a guard can never be proven against a
+  # payload shape the API does not emit.
+  local main_id="$1"
+  local gate_name="ci-gate" smoke_name="$CI_JOB_NAME"
+  local gate_concl='"success"' smoke_concl='"success"'
+  case "$SC2" in
+    ok) ;;
+    # A matrixed/renamed smoke job: the anchored selector matches ZERO jobs.
+    smoke_renamed) smoke_name="Generated admin Playwright smoke (shard 1)" ;;
+    gate_renamed)  gate_name="ci-gate-v2" ;;
+    # Job present but still running/queued: conclusion is null, not a verdict.
+    smoke_null)    smoke_concl='null' ;;
+    gate_null)     gate_concl='null' ;;
+  esac
+  printf '{"total_count":3,"jobs":[{"id":%s,"run_id":%s,"name":"%s","conclusion":%s,"html_url":"https://x/1"},{"id":%s,"run_id":%s,"name":"%s","conclusion":%s,"html_url":"https://x/2"},{"id":%s,"run_id":%s,"name":"Admin eval render + probe","conclusion":"failure","html_url":"https://x/3"}]}\n' \
+    "$(( main_id + 1 ))" "$main_id" "$gate_name" "$gate_concl" \
+    "$(( main_id + 2 ))" "$main_id" "$smoke_name" "$smoke_concl" \
+    "$(( main_id + 3 ))" "$main_id"
+}
+
 PAGE="$(printf '%s' "$*" | sed -n 's/.*page=\([0-9][0-9]*\).*/\1/p')"
 
 if [[ "$*" == *"/runs/${DISPATCH_RUN_ID}/jobs?"* ]]; then
@@ -94,8 +118,7 @@ fi
 for main_id in "${MAIN_RUN_IDS[@]}"; do
   if [[ "$*" == *"/runs/${main_id}/jobs?"* ]]; then
     case "$PAGE" in
-      1) printf '{"total_count":3,"jobs":[{"id":%s,"run_id":%s,"name":"ci-gate","conclusion":"success","html_url":"https://x/1"},{"id":%s,"run_id":%s,"name":"%s","conclusion":"success","html_url":"https://x/2"},{"id":%s,"run_id":%s,"name":"Admin eval render + probe","conclusion":"failure","html_url":"https://x/3"}]}\n' \
-           "$(( main_id + 1 ))" "$main_id" "$(( main_id + 2 ))" "$main_id" "$CI_JOB_NAME" "$(( main_id + 3 ))" "$main_id" ;;
+      1) emit_main_jobs "$main_id" ;;
       *) printf '{"total_count":3,"jobs":[]}\n' ;;
     esac
     exit 0
@@ -182,6 +205,14 @@ expect_fail leg_in_progress leg_without_conclusion "$TMP/out/inprogress.json" \
   FAKE_MODE=leg_in_progress FAKE_HEAD_SHA="$REAL_HEAD"
 expect_fail head_mismatch evidence_run_head_sha_is_not_final_committed_head "$TMP/out/headmismatch.json" \
   FAKE_MODE=ok FAKE_HEAD_SHA=0000000000000000000000000000000000000000
+
+# --- SC-2 selector matched zero jobs (CR-01, first half) ----------------------
+# Both arms are driven by the same generator that produces the `ok` payload, so the RED is
+# observed against the shape the Actions API really emits.
+expect_fail sc2_smoke_job_renamed sc2_job_not_found "$TMP/out/sc2-smoke-renamed.json" \
+  FAKE_MODE=ok FAKE_SC2_MODE=smoke_renamed FAKE_HEAD_SHA="$REAL_HEAD"
+expect_fail sc2_gate_job_renamed sc2_job_not_found "$TMP/out/sc2-gate-renamed.json" \
+  FAKE_MODE=ok FAKE_SC2_MODE=gate_renamed FAKE_HEAD_SHA="$REAL_HEAD"
 
 expect_fail rate_limited rate_limit_too_low "$TMP/out/ratelimited.json" \
   FAKE_MODE=rate_limited FAKE_HEAD_SHA="$REAL_HEAD"
