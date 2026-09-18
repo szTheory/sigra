@@ -72,8 +72,12 @@ case "${get_status}" in
 }
 JSON
     echo "ensure-github-pages-legacy-branch: created."
-    # D-22: build-trigger swallow #1 -- reddening the publisher on a transient
-    # build-trigger failure is a red for a reason unrelated to the diff.
+    # D-22: build-trigger swallow #1 of 3 -- reddening the publisher on a
+    # transient build-trigger failure is the opposite of this milestone's "no
+    # red for a reason unrelated to the diff" posture, so all three stay
+    # lenient. (CONTEXT D-22 cites :31/:52 for the first two; those are the
+    # `exit 0` lines that follow -- the actual swallows were :30, :50 and :75
+    # in the pre-rewrite file.)
     gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
     exit 0
     ;;
@@ -118,14 +122,35 @@ cat >"${put_body}" <<'JSON'
   }
 }
 JSON
-if ! put_out=$(gh api "repos/${REPO}/pages" --method PUT --input "${put_body}" 2>&1); then
-  if echo "${put_out}" | grep -qE '403|Resource not accessible by integration'; then
-    echo "ensure-github-pages-legacy-branch: Pages API PUT returned 403 (default GITHUB_TOKEN often cannot change Pages source). gh-pages push already ran; set repo Pages → branch gh-pages / manually if needed." >&2
+# D-18: `-i` is required, not stylistic -- a successful PUT /pages returns
+# 204 No Content with an EMPTY body, so the status line is the only signal and
+# there is no JSON to parse; `--jq` is bypassed entirely on an error response.
+# `gh` exits 1 for ANY HTTP failure, so rc cannot discriminate 403 from 422
+# from 500. D-17: the prior form captured `2>&1` into one blob and tested it
+# with an unanchored regex for a bare 403, which matches inside a
+# documentation_url, a request id, a rate-limit number or a 500 body --
+# swallowing genuine unrelated failures as "expected 403, carry on".
+put_out="$(gh api -i "repos/${REPO}/pages" --method PUT --input "${put_body}" 2>/dev/null || true)"
+put_status="$(printf '%s' "${put_out}" | head -n 1 | awk '{print $2}')"
+case "${put_status}" in
+  204|200)
+    echo "ensure-github-pages-legacy-branch: updated."
+    ;;
+  403)
+    # D-19: the caller declares permissions {contents: write, pages: write}
+    # (playwright-github-pages.yml:36-38). `pages: write` permits REQUESTING a
+    # build but is not repo-admin, which is why a settings-source PUT
+    # legitimately 403s. This one status stays tolerable; every other status is
+    # now loud.
+    echo "ensure-github-pages-legacy-branch: Pages API PUT returned 403 (pages:write is not repo-admin). gh-pages push already ran; set Settings → Pages → branch gh-pages path / manually if needed." >&2
     exit 0
-  fi
-  echo "${put_out}" >&2
-  exit 1
-fi
-echo "ensure-github-pages-legacy-branch: updated."
+    ;;
+  *)
+    # An empty status means gh itself never ran: fail closed, never guess.
+    echo "ensure-github-pages-legacy-branch: PUT /pages returned '${put_status:-<no status line>}'." >&2
+    printf '%s\n' "${put_out}" >&2
+    exit 1
+    ;;
+esac
 # D-22: build-trigger swallow #3 -- see the note at the create arm.
 gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
