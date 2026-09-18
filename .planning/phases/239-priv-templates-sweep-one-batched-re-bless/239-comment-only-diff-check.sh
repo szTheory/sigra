@@ -130,7 +130,7 @@ fi
 # 2. files must be >= 30 (expected 35).
 
 floor_removed="$expected_t_count"
-floor_files=30
+floor_files="${GOLDEN_MIN_FILES:-30}"
 
 echo "changed_lines=${changed_lines}"
 echo "removed_lines=${removed_lines}"
