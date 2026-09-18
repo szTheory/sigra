@@ -5,8 +5,8 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: verifying
-stopped_at: Completed 239-08-PLAN.md
-last_updated: "2026-09-18T04:00:49.955Z"
+stopped_at: "Phase 239 executed 8/8 plans; verification gaps_found (3/5 SC) — SC-1/SC-2 partial, two bookkeeping sentences still ship to adopters. Next: /gsd-plan-phase 239 --gaps"
+last_updated: "2026-09-18T04:09:05.803Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
 progress:
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
 Plan: 8 of 8
-Status: Phase complete — ready for verification
+Status: verification-gaps
 Last activity: 2026-09-17 — Phase 239 execution started
 
 ### v1.48 phase map
