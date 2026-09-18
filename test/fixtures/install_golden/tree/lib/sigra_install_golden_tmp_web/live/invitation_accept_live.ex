@@ -18,8 +18,8 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
   no accept form in the rendered DOM to submit. This is the
   "by construction, not by convention" defense — do not add accept controls to
   this branch. Sigra's own suite asserts this absence in the shipped template;
-  `mix sigra.install` generates no tests, so if you customize this file, add an
-  equivalent assertion to your own test suite.
+  your generated project does not inherit that assertion, so if you customize
+  this file, add an equivalent assertion to your own test suite.
 
   The `:invalid`, `:expired`, `:revoked`, and `:already_accepted`
   branches also render zero accept controls (defense in depth).
