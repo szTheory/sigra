@@ -214,7 +214,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 239-07-PLAN.md — Mirror the router and layouts sweep into `test/example/`, converge every wording, correct the stale SC-4 checklist *(wave 7)*
+- [x] 239-07-PLAN.md — Mirror the router and layouts sweep into `test/example/`, converge every wording, correct the stale SC-4 checklist *(wave 7)*
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
