@@ -19,6 +19,18 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.5.1](https://github.com/szTheory/sigra/compare/v1.5.0...v1.5.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **branding:** add dark_logo_url and derive the dark accent by contrast ([#238](https://github.com/szTheory/sigra/issues/238)) ([fb11c8d](https://github.com/szTheory/sigra/commit/fb11c8d35611bb5707ca7dc675d5eeeda7e0e78a))
+* **chimeway:** decode magic-link tokens before lookup ([#237](https://github.com/szTheory/sigra/issues/237)) ([1afd37f](https://github.com/szTheory/sigra/commit/1afd37f01e4e5b3ffdc93fbf309a381107d51e84))
+* **chimeway:** emit opaque auth recipient references ([#236](https://github.com/szTheory/sigra/issues/236)) ([ea046ed](https://github.com/szTheory/sigra/commit/ea046ed5941e4eb5c52b311f5892d97fac10f1ea))
+* **chimeway:** emit opaque recipient references ([ea046ed](https://github.com/szTheory/sigra/commit/ea046ed5941e4eb5c52b311f5892d97fac10f1ea))
+* **ci:** close the GREEN-04 collector's fail-open paths and run its self-test ([#248](https://github.com/szTheory/sigra/issues/248)) ([b9f2c4b](https://github.com/szTheory/sigra/commit/b9f2c4b5f4d5fbe9b796e4cd4407cc891af40cce))
+* **oauth:** publish validated provider evidence ([#223](https://github.com/szTheory/sigra/issues/223)) ([c6580d7](https://github.com/szTheory/sigra/commit/c6580d793710aaeef01a1f34d7000ead9ebcdcd2))
+
 ## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
 
 ### Added
