@@ -222,7 +222,7 @@ Plans:
 
 **Wave 9** *(gap closure round 2 — blocked on Wave 8 completion)*
 
-- [ ] 239-09-PLAN.md — Uncheck SURF-03, then the V3 vocabulary instrument (tracer): one definition with fixed tier file lists and a committed triage allowlist (D-30), demonstrated RED on all three tiers with per-alternation live positive controls, before any edit lands *(wave 9)*
+- [x] 239-09-PLAN.md — Uncheck SURF-03, then the V3 vocabulary instrument (tracer): one definition with fixed tier file lists and a committed triage allowlist (D-30), demonstrated RED on all three tiers with per-alternation live positive controls, before any edit lands *(wave 9)*
 
 **Wave 10** *(blocked on Wave 9 completion)*
 

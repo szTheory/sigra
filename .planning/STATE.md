@@ -4,16 +4,16 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
-status: ready to execute
-stopped_at: "Phase 239 gap-closure planned: plans 239-09 … 239-13 created, checker-passed on pass 3. Next: /gsd-execute-phase 239"
-last_updated: "2026-09-18T13:23:43.008Z"
+status: executing
+stopped_at: Completed 239-09-PLAN.md
+last_updated: "2026-09-18T13:31:13.846Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 29
-  completed_plans: 23
+  completed_plans: 25
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 239 (priv-templates-sweep-one-batched-re-bless) — READY TO EXECUTE (gap closure)
-Plan: 8 of 13 executed
-Status: ready to execute
-Last activity: 2026-09-18 — Phase 239 gap-closure plans 239-09 … 239-13 planned and checker-passed
+Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
+Plan: 2 of 13
+Status: Ready to execute
+Last activity: 2026-09-18 — Phase 239 execution started
 
 ### v1.48 phase map
 
@@ -485,6 +485,8 @@ Last activity: 2026-09-18 — Phase 239 gap-closure plans 239-09 … 239-13 plan
 - [Phase ?]: D-26 amendment applied: SC-3 and SURF-03 now read 'one batched re-bless per batch of template edits'
 - [Phase ?]: Round-2 expected-removed set frozen and committed BEFORE the re-bless, so the ordering is provable by git merge-base --is-ancestor rather than by prose
 - [Phase ?]: floor_files parameterized to GOLDEN_MIN_FILES (set to 7, the exact expected-path count) rather than disabled
+- [Phase 239]: D-30 (239-09): the V3 instrument's detection width and the criterion's asserted surface are separate — V3 stays maximally wide; the criterion asserts hits_outside_allowlist = 0 over pre-committed tier file lists, raw total always printed
+- [Phase 239]: D-28 (239-09): the widening ships as a measurement instrument only — Phase 241's SURF-04 p18 guard inherits V3 as its spec; Phase 239 builds no guard
 
 ### Pending Todos
 
@@ -687,8 +689,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T04:00:45.569Z
-Stopped at: Completed 239-08-PLAN.md
+Last session: 2026-09-18T13:31:09.989Z
+Stopped at: Completed 239-09-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -881,3 +883,4 @@ Resume file: None
 | Phase 239 P06 | 30m | 3 tasks | 8 files |
 | Phase 239 P07 | ~25m | 3 tasks | 8 files |
 | Phase 239 P08 | ~75m | 4 tasks | 12 files |
+| Phase 239 P09 | 34min | 2 tasks | 6 files |
