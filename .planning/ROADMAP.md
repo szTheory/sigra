@@ -185,7 +185,7 @@ Plans:
   4. Only the `test/example/` counterparts of templates actually edited are mirrored, recorded as an explicit per-file checklist in the phase SUMMARY, and the absent template↔example parity guard is filed as a todo (FUT-01) rather than built here.
   5. Load-bearing infrastructure is provably untouched: `git diff origin/main -- .github/` shows no `name:` change (a renamed required context never reports and PRs hang forever), and no `# SECURITY:`-class comment sentence is deleted.
 
-**Plans**: 8 plans (4 executed + 4 gap-closure)
+**Plans**: 12 plans (4 executed + 8 gap-closure)
 
 Plans:
 **Wave 1**
@@ -219,6 +219,22 @@ Plans:
 **Wave 8** *(blocked on Wave 7 completion)*
 
 - [x] 239-08-PLAN.md — Re-freeze the expected set, demonstrate the classifier RED, run the single closure re-bless, re-prove SC-1/SC-2/SC-5 under the widened definition *(wave 8)*
+
+**Wave 9** *(gap closure round 2 — blocked on Wave 8 completion)*
+
+- [ ] 239-09-PLAN.md — Uncheck SURF-03, then the V3 vocabulary instrument (tracer): one definition, demonstrated RED on all three tiers with per-alternation live positive controls, before any edit lands *(wave 9)*
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 239-10-PLAN.md — D-27 narrows SC-2 to `lib/`+`priv/` and routes the packaged docs surface to Phase 241 SURF-04; D-28/D-29 recorded; SC-1 named to its measuring definition; WR-04 and IN-05 filed as todos *(wave 10)*
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
+- [ ] 239-11-PLAN.md — Batch-3 sweep: remove the two residual bookkeeping sentences and repair WR-01's false safety claim and WR-03's run-on in `priv/templates/`, then mirror into `test/example/` in a separate commit *(wave 11)*
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
+- [ ] 239-12-PLAN.md — Justify batch 3 (D-29), freeze the round-3 expected set, classifier RED then the third batched re-bless, re-prove every criterion live at final HEAD, re-check SURF-03 *(wave 12)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 
