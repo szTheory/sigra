@@ -5,10 +5,10 @@ milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: Green-Main Evidence + Honest Pages Script
 status: executing
-stopped_at: Phase 240 context gathered (assumptions mode)
+stopped_at: Phase 240 planned (5 plans, checker-passed, ready to execute)
 last_updated: "2026-09-18T17:03:03.672Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
+last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
   completed_phases: 4
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 239 — priv-templates-sweep-one-batched-re-bless
+**Current focus:** Phase 240 — green-main-evidence-honest-pages-script
 
 ## Current Position
 
 Phase: 240 — Green-Main Evidence + Honest Pages Script
 Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-18 — Phase 239 complete, transitioned to Phase 240
+Last activity: 2026-09-18 — Phase 240 planned (5 plans, 2 checker iterations, all gates green)
 
 ### v1.48 phase map
 
