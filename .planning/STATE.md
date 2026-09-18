@@ -6,7 +6,7 @@ current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
 stopped_at: Completed 239-12-PLAN.md
-last_updated: "2026-09-18T13:44:50.727Z"
+last_updated: "2026-09-18T14:01:36.261Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
@@ -492,6 +492,7 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase 239]: D-28 amendment (239-10): SC-1 now names V3 as the definition its 'planning bookkeeping' half is measured under — a widening, since V3 strictly contains the V2 regex the failed pass used
 - [Phase 239]: Plan 239-12 ran the re-bless twice (capture, restore path-scoped, commit) — SC-3/D-26 counts commits not runs; the two captures are byte-identical
 - [Phase 239]: GOLDEN_MIN_FILES=2 (expected-set distinct-path count) on the real round-3 classification; 1 only for the single-hunk RED demonstration — both numbers recorded together
+- [Phase 239]: Phase 239 reopened for a batch-4 closure (239-13 halted on a false adopter-shipped claim)
 
 ### Pending Todos
 
