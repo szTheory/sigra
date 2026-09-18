@@ -128,7 +128,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
     form = to_form(%{"code" => code}, as: "confirmation")
     socket = assign(socket, form: form)
 
-    # 10.1 IN-06: call the confirm path directly when the user has typed a
+    # Call the confirm path directly when the user has typed a
     # full 6-digit code instead of dispatching via `send(self(), …)`. The
     # mailbox round-trip allowed a stale 6-digit prefix to fire after the
     # user typed a 7th character, wasting an attempt against the rate

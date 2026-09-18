@@ -82,7 +82,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
             </button>
           </div>
 
-          <% # Backup code status (D-15) %>
           <div class="sigra-auth-stack sigra-auth-stack--2">
             <%= cond do %>
               <% @backup_remaining == 0 -> %>
@@ -522,7 +521,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         </:subtitle>
       </.header>
 
-      <% # Backup code grid (D-08) %>
       <div class="sigra-auth-section">
         <ol class="sigra-auth-code-list" aria-label="One-time backup codes">
           <li :for={code <- @backup_codes}>
@@ -555,7 +553,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         </button>
       </div>
 
-      <% # Acknowledgment checkbox (D-11) %>
       <div>
         <label class="sigra-auth-check-row">
           <input
@@ -603,7 +600,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     form = to_form(%{"code" => code}, as: "enroll")
     socket = assign(socket, enroll_form: form)
 
-    # Auto-submit when 6 digits entered (D-36). 10.1 IN-06 follow-up:
+    # Auto-submit when 6 digits entered:
     # call the confirm path directly instead of dispatching via
     # `send(self(), …)`. The mailbox round-trip allowed a stale 6-digit
     # prefix to fire after the user typed a 7th character, wasting an
