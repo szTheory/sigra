@@ -1,21 +1,21 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
-current_phase_name: "`priv/templates/` Sweep + One Batched Re-bless"
+current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
 stopped_at: Completed 239-04-PLAN.md — phase 239 implementation complete (4/4), awaiting verification
-last_updated: "2026-09-17T20:27:16.241Z"
+last_updated: "2026-09-18T01:59:46.984Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
-state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 20
-  completed_plans: 19
-  percent: 30
+  completed_plans: 20
+  percent: 40
+state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
 
 # Project State
@@ -26,13 +26,13 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 239 — `priv/templates/` Sweep + One Batched Re-bless
+**Current focus:** Phase 239 — priv-templates-sweep-one-batched-re-bless
 
 ## Current Position
 
-Phase: 239 (`priv/templates/` Sweep + One Batched Re-bless) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
+Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 239
 Last activity: 2026-09-17 — Phase 239 execution started
 
 ### v1.48 phase map
