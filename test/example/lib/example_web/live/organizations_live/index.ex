@@ -10,8 +10,8 @@ defmodule ExampleWeb.OrganizationsLive.Index do
     * `([], [])` — Branch A: zero-state hero + inline create form
       (also the post-signup destination via the zero-line
       registration path)
-    * `([], [_|_])` — Branch B: pending invitations list (wires Accept;
-      renders Accept disabled until then)
+    * `([], [_|_])` — Branch B: pending invitations list with an Accept
+      action for each invitation
     * `([_|_], _)` — Branch C: picker with per-row switch forms
 
   Edit freely — this file is your code.

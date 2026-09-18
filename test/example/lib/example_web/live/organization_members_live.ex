@@ -9,9 +9,10 @@ defmodule ExampleWeb.OrganizationMembersLive do
 
   ## Architecture
 
-    * Two LiveView streams: `@streams.members` (populated on mount) and the
-      `pending-invitations-section` seam (currently an empty-state
-      card with a HEEx comment marker).
+    * Two LiveView streams: `@streams.members` (populated on mount) and
+      `@streams.pending_invitations`, rendered in the
+      `pending-invitations-section` `<section>`, which falls back to an
+      empty-state card when `@pending_count == 0`.
     * Row mutations (role change, remove) funnel through native `<dialog
       class="vt-modal">` confirmation modals. The modal stays open when the
       server returns `{:error, :last_owner}` and renders an inline error above
@@ -20,15 +21,14 @@ defmodule ExampleWeb.OrganizationMembersLive do
       purges `user_sessions` rows scoped to the removed user + this org inside
       the same transaction (force-logout).
     * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`
-      only. Flop / sortable columns are a v1.2 concern.
+      Flop / sortable columns are a v1.2 concern.
 
   ## Pending invitations seam
 
   The `pending-invitations-section` `<section>` below the members table
-  currently renders an empty-state card. This section will later gain
-  a populated `@streams.pending_invitations` and add an "Invite member"
-  action above the table. Look for the `this section` HEEx
-  comment to find the fill-in point.
+  renders a populated `@streams.pending_invitations` table, or an empty-state
+  card when `@pending_count == 0`. The "Invite member" action sits above the
+  table.
   """
   use ExampleWeb, :live_view
 

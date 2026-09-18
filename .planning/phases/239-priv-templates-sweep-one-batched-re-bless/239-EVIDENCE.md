@@ -667,3 +667,81 @@ afterward. `MIX_ENV=test mix sigra.fixture.rebless_golden --check` exits **2** w
 `DRIFT DETECTED:` — the correct state, proving the template edits do reach generated output and that
 plan 239-08's single re-bless has real work to carry. `MIX_ENV=test mix compile --warnings-as-errors`
 exits 0 with no output.
+
+## CLOSURE-MIRROR-COMMIT
+
+Status: RECORDED — plan 239-07, the `test/example/` mirror of the closure batch. Parent `60bac0bb`.
+
+### (a) V2 re-measure with a live positive control
+
+V2 is the widened union regex frozen in § `WIDENED-UNION-LEDGER` (used verbatim, not retyped).
+
+| Surface | V2 count | Reading |
+|---|---|---|
+| `test/example/lib/example_web/router.ex` + `…/components/layouts.ex` (the two files Task 1 edited) | **0** | the assertion |
+| `test/example/lib/example/demo/seeds.ex`, `…/lib/example/sigra_admin_policy.ex`, `…/lib/example_web/live/admin/design_gallery_live.ex` (IN-05 example-only, deliberately unswept) | **28** | the positive control — V2 is live on this tree, so the 0 above is a measurement and not a dead grep |
+| the four files Task 2 converged | **0** | — |
+
+A zero on both rows would have meant the grep was dead and the first number proved nothing. It is
+not: the same regex, the same tree, the same invocation shape returns 28 on the files this plan is
+prohibited from touching.
+
+**Measured departure from the plan's anticipated fix list (Rule 2, recorded not smoothed).** The
+first V2 run over the two Task-1 files returned **1**, not 0: `router.ex:175`
+`# Dev-only routes for local UAT — …` carries `\bUAT\b`. That alternation entered V2 in 239-05 and
+is exactly the token 239-05 removed from `login_html.ex`; the site is on a file this plan was
+already editing, and leaving it would have falsified this plan's own `V2 → 0` truth. Rewritten to
+`# Dev-only routes for local manual testing — Swoosh local-mailbox preview at / # /dev/mailbox`,
+meaning preserved (the next line still reads "so manual testers can inspect rendered emails"). It is
+example-only: no template or golden counterpart exists, so nothing diverges by fixing it here.
+
+### (b) Per-sentence convergence, namespace-normalized
+
+Method: extract the `@moduledoc` body from both trees, substitute `<%= web_module %>` → `ExampleWeb`,
+`<%= app_module %>` → `Example`, `<%= context_module %>` → `Example.Accounts`, then diff.
+
+| Sentence group | Template | Example | Verdict |
+|---|---|---|---|
+| WR-03 / WR-04 / IN-01 / IN-02 — members seam + Architecture bullets | `organizations/live/organization_members_live.ex` | `lib/example_web/live/organization_members_live.ex` | **MATCH** (prose identical; the sole residual delta is the demo app's own CSS class `vt-modal` vs `modal`, a pre-existing mini-brand substitution of the same class as the namespace substitution, on a line this phase did not touch) |
+| WR-05 — Branch B | `organizations/live/organizations_live/index.ex` | `lib/example_web/live/organizations_live/index.ex` | **MATCH** |
+| IN-04 + `during UAT` — login moduledoc | `core/login_html.ex` | `lib/example_web/controllers/session_html.ex` (renamed, D-21) | **MATCH** |
+| IN-03(b) — `:mismatch` invariant note | `organizations/live/invitation_accept_live.ex` | `lib/example_web/live/invitation_accept_live.ex` | **MATCH** |
+| WR-07 — MFA auto-submit comment | `core/mfa_settings_live.ex` | `lib/example_web/live/mfa_settings_live.ex` | **MATCH** (no edit — see (c)) |
+
+Every row reads MATCH after normalization. No sentence ships in two wordings.
+
+### (c) Confirmed no-edit dispositions (recorded, never a phantom edit)
+
+| File | Confirming evidence | Disposition |
+|---|---|---|
+| `test/example/lib/example_web/live/mfa_settings_live.ex` | `diff <(sed -n '606,610p' priv/templates/sigra.install/core/mfa_settings_live.ex) <(sed -n '631,635p' <example>)` → identical, exit 0 | already converged — 239-06 adopted the example's wording into the template |
+| `test/example/lib/example/accounts/organization_invitation.ex` | `sed -n '2p'` → `  @moduledoc false` | no counterpart sentence for WR-06 to converge into |
+
+Neither file appears in `git diff --name-only` for this commit.
+
+### (d) `sigra_auth.css` closure row asserted, not assumed
+
+`grep -c 'min-width: 0' test/example/priv/static/assets/sigra_auth.css` → **3** (live control).
+`grep -cE '30518012012|30518015684|re-litigate' test/example/priv/static/assets/sigra_auth.css` → **0**.
+The example's CSS is a different, shorter build-free file with none of the three swept comment
+blocks. No mirror edit; the file is absent from this commit.
+
+### (e) IN-03(a) no-counterpart search
+
+`grep -rc 'phishing defense — prevents inviter/org spoofing' test/example/` → **0 files**, against a
+live control of **2** files under `test/example/` matching `phishing`. The example's
+`lib/example/accounts/emails.ex` carries its own longer, differently-structured phishing rationale
+(pre-existing, untouched), which is not the IN-03(a) parenthetical. D-22 holds for the closure batch.
+
+### (f) Scope proofs
+
+```
+$ git diff --name-only origin/main -- .github/
+(empty — 0 lines)
+```
+
+`MIX_ENV=test mix compile --warnings-as-errors` exits **0** with no output, run after Task 1 and
+again after Task 2. `git show --name-only --format= HEAD` lists only paths under `test/example/` and
+`.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`; `git status --porcelain` is clean
+afterward. No route, pipeline, plug, `attr` name, `default:`, import, or function head moved — the
+full `git diff` for the two Task-1 files is 7 changed comment/`doc:` hunks and nothing else.

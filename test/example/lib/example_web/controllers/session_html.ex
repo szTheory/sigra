@@ -4,9 +4,9 @@ defmodule ExampleWeb.SessionHTML do
 
   The login page is a plain controller +
   HEEx template in BOTH `--live` and `--no-live` installs. LiveView's
-  LiveView form submission attributes were swallowing the browser form
-  submit during UAT. With no LiveView process on the page, the browser
-  performs a real HTTP POST to `SessionController.create/2`.
+  form-submission attributes were swallowing the browser form submit.
+  With no LiveView process on the page, the browser performs a real
+  HTTP POST to `SessionController.create/2`.
 
   Two separate form assigns (`@form` and `@magic_link_form`) isolate
   validation/flash state so an error on one form does not corrupt the

@@ -6,7 +6,7 @@ defmodule ExampleWeb.Layouts do
   use ExampleWeb, :html
 
   import ExampleWeb.Components.AdminShell
-  # Phase 16 D-27: organization switcher function component.
+  # Organization switcher function component.
   import ExampleWeb.Components.OrgSwitcher
   import ExampleWeb.Components.DemoBar
 
@@ -49,7 +49,7 @@ defmodule ExampleWeb.Layouts do
 
   attr :user_organizations, :list,
     default: [],
-    doc: "list of {organization, role} tuples for the current user (Phase 16 D-26)"
+    doc: "list of {organization, role} tuples for the current user"
 
   attr :wide, :boolean, default: false
   slot :inner_block, required: true
