@@ -1539,6 +1539,13 @@ After batch 3 the phase carries **3** re-bless commits, one per batch, which is 
 D-26 and bounded by D-29.
 
 
+### Batch 4 — the WR-01 retraction *(SLOT UNFILLED — `BATCH-4-JUSTIFICATION-PENDING`)*
+
+`BATCH-4-JUSTIFICATION-PENDING` — this slot is deliberately empty at plan 239-14's close. **Plan
+239-15 fills it before its re-bless runs**, replacing this marker line with the batch's composition
+and its not-foldable argument. A re-bless that runs while this marker is still present is a D-29
+violation, and the marker string is greppable precisely so that can be checked mechanically.
+
 ## BATCH-3-SWEEP-COMMIT
 
 Status: PASS — the two residual bookkeeping sentences named in `239-VERIFICATION.md`'s SC-1 `gaps:`
@@ -2189,3 +2196,146 @@ plan 239-13.
 - **T-239-12-03 not discharged here.** The two observations the WR-01 replacement rests on are
   re-made against a freshly generated app in plan 239-13 Task 1, with a `*.exs` positive control on
   the same tree. Carried across the plan boundary by name so it cannot be lost.
+
+
+## GENERATED-APP-SCOPE
+
+Frozen by plan 239-14 Task 1, **before** the measurement it governs runs. That measurement is plan
+239-13's generated-app V3 criterion over a freshly generated app's `lib/` and `priv/`. The decision
+this section implements is **D-32** in `239-CONTEXT.md`.
+
+### (a) The rule, verbatim, with its derivation source
+
+> **the files `mix sigra.install` created or modified**
+
+The rule is **borrowed, not invented**, and it **pre-dates this phase**. It is already implemented in
+this repo by the golden fixture itself:
+
+| Source | Line | What it does |
+|---|---|---|
+| `test/support/install_fixture.ex` | `:89` | `baseline_paths = snapshot_paths(app_dir)` — snapshots the app **before** the install |
+| `test/support/install_fixture.ex` | `:304-305` | `@spec snapshot_paths(Path.t()) :: %{String.t() => binary()}` / `def snapshot_paths(app_dir) do` |
+| `test/support/install_fixture.ex` | `:332-333` | `@spec normalize_tree(Path.t(), %{String.t() => binary()}) :: [{String.t(), binary()}]` / `def normalize_tree(app_dir, baseline \\ %{}) do` |
+| `test/support/install_fixture.ex` | `:360-364` | the byte-identity drop, under the in-source comment quoted below |
+
+```
+      # Drop files that are byte-identical to the pre-install baseline. Only
+      # files sigra.install created or modified contribute to the golden
+      # snapshot.
+      if Map.get(baseline, rel) == hash do
+        []
+```
+
+The rule is **content-independent**: it names authorship, never matching text, so it cannot be tuned
+to make a particular hit disappear. That is what distinguishes it from the `T-239-09-02` shape this
+phase already refused.
+
+### (b) The under-inclusiveness trap, named so it cannot be walked into again
+
+`mix sigra.install` does not only **create** files. It also **injects into `phx.new`-authored ones**.
+
+| Source | Line (re-derived live at batch-4 execution) | Content |
+|---|---|---|
+| `lib/sigra/install/injection.ex` | `:15` | `` (e.g. `"lib/my_app_web/router.ex"`). `` — the canonical `:target` in the `:target` field's own doc |
+| `lib/sigra/install/features/core.ex` | `:350` | `# These %Injection{} records describe the router/config/runtime.exs edits` |
+| `lib/sigra/install/features/core.ex` | `:525-526` | first `%Injection{}` record, `target: Path.join(["lib", "#{otp_app}_web", "router.ex"])` |
+| `lib/sigra/install/features/core.ex` | `:794` | `runtime_config = Path.join(["config", "runtime.exs"])` |
+
+**None of those paths appears in any `{:eex, …}` target map.** A scope derived from the target maps
+alone would therefore put a Sigra-authored bookkeeping line injected into `router.ex` **outside** the
+measurement *and* outside the halt clause in (f) — because `router.ex` would not count as in scope at
+all. That is the `T-239-09-02` shape arriving through the back door. The **created-or-modified** rule
+is what closes it: `router.ex` is modified, therefore in scope, therefore such a line is caught by the
+measurement directly.
+
+### (c) Which of the two admissible derivations was used
+
+**The union derivation (the minimum admissible fallback) was used, not the live created-or-modified
+diff.** Reason: computing the live diff requires a scaffolded app (`mix phx.new` + `mix sigra.install`
++ Postgres), and that scaffolded app belongs to **plan 239-13**. Plan 239-14's environment
+preconditions state plainly that a task here needing one has drifted into 239-13's scope.
+
+The union is: **every `{:eex, …}` / copy / text target AND every `%Injection{}` `:target`** across
+`lib/sigra/install/features/`. The target maps alone are **inadmissible**.
+
+```
+/usr/bin/grep -rn '{:eex,\|{:copy,\|{:text,' lib/sigra/install/features/*.ex | wc -l   ->  90
+  (per file: admin.ex 16, core.ex 49, organizations.ex 21, passkeys.ex 4 — non-empty per file,
+   its own positive control)
+<same> | /usr/bin/grep -o 'Path.join(\[[^]]*\])' | sort -u | wc -l                     ->  78 distinct create-target shapes
+/usr/bin/grep -rn -A1 '%Injection{' lib/sigra/install/features/*.ex | /usr/bin/grep -c 'target:'  ->  21 injection targets
+```
+
+Cross-check against the created-or-modified diff already materialized in this repo:
+`git ls-files test/fixtures/install_golden/tree | wc -l` -> **84** paths, which is a
+created-or-modified diff produced by (a) for one concrete app. The union above and that 84-path diff
+are two derivations of the same rule; the 84-path diff is **not** substituted for a generated app
+here (T-239-14-02) — it is cited only as evidence that the rule was already in force.
+
+### (d) The operative path-pattern set
+
+A generated app's paths are parameterised by `otp_app` and the web module, so the scope is a set of
+**patterns**, not literals. `<app>` = the `otp_app` string, `<web>` = `"#{otp_app}_web"`,
+`<ctx>` = the auth context slug chosen at install.
+
+**Created (in scope):**
+
+```
+lib/<app>/<ctx>/*.ex                  lib/<app>/{mailer,organizations,vault,sigra_admin_access,sigra_admin_policy}.ex
+lib/<app>/<ctx>.ex                    lib/<app>/<ctx>/platform_admin_grant.ex
+lib/<web>/user_auth.ex                lib/<web>/auth_error_handler.ex
+lib/<web>/components/{admin_shell,org_switcher,sigra_auth_components}.ex
+lib/<web>/controllers/**/*.ex         lib/<web>/live/**/*.ex
+lib/mix/tasks/sigra.admin.*.ex
+priv/static/assets/{sigra_admin,sigra_auth}.css
+priv/static/images/sigra-logo-primary{,-dark}.svg
+priv/repo/migrations/<timestamp>_*.exs
+test/support/{conn_case_helpers.ex,fixtures/auth_fixtures.ex}
+test/<app>/sigra_admin_policy_test.exs
+assets/js/{passkey_browser,passkey_hooks}.js
+```
+
+**Modified by injection (in scope — this is the (b) trap closed):**
+
+```
+lib/<web>/router.ex                   lib/<web>/components/layouts.ex
+lib/<web>/auth_error_handler.ex       lib/<app>/application.ex
+config/config.exs                     config/test.exs                config/runtime.exs
+test/support/conn_case.ex             assets/js/app.js               assets/package.json
+mix.exs
+```
+
+### (e) The excluded class, named
+
+`phx.new`-authored files that the installer **neither created nor modified**. Specifically, the V2
+alternation `\b[0-9]{3}-[0-9]{2}\b` firing on **SVG coordinate pairs** in
+`lib/<web>/controllers/page_html/home.html.heex` and `priv/static/images/logo.svg` — the **identical
+false-positive class** already dispositioned `FALSE-POSITIVE — SVG path coordinates` for
+`priv/templates/sigra.gen.oauth/oauth_html.ex` in `239-v3-allowlist.tsv`.
+
+Disposition, stated explicitly rather than left to be inferred from an absent owner: upstream Phoenix
+content, **no adopter-facing Sigra surface, therefore no Sigra remediation owner**. This is not
+D-27's packaged-docs case, which is Sigra-authored and was routed to Phase 241 SURF-04.
+
+Corroborating evidence that this class is already out of scope at the golden tier
+(zeroes paired with live positive controls on the same surface):
+
+```
+git ls-files test/fixtures/install_golden/tree | wc -l                                          -> 84
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'page_html/home.html.heex'    ->  0
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'priv/static/images/logo.svg' ->  0
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c '\.ex$'                       -> 68   [positive control]
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -n 'router.ex'                   -> 67:…/lib/sigra_install_golden_tmp_web/router.ex   [positive control]
+```
+
+### (f) HALT CLAUSE — binding on plan 239-13
+
+At measurement time plan 239-13 **must**:
+
+1. enumerate the actual excluded hits **by path and per-file count**, never report a scoped number
+   alone; and
+2. **HALT** if any excluded path turns out to be one `mix sigra.install` created **or modified**.
+
+That halt clause is what keeps the scoping from being able to hide a real finding — and it only works
+because the rule counts **injected** files as in scope. An excluded path that the installer touched is
+a stop-the-line event, not a caveat.

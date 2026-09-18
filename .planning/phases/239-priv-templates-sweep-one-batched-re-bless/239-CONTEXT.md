@@ -412,6 +412,190 @@ so it needs a trustworthy gate.
 
   Implemented by plan 239-09; consumed by plans 239-11, 239-12 and 239-13.
 
+- **D-31 [batch-4 closure planning, 2026-09-18]:** **The WR-01 replacement prose that plan 239-11
+  wrote and plan 239-12 blessed into the golden fixture is RETRACTED as false on the bytes.**
+
+  **Statement.** The `@moduledoc` sentence shipped in
+  `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` read
+  `` `mix sigra.install` generates no tests, so if you customize this file, add an equivalent
+  assertion to your own test suite. `` The first clause asserts an **absence of installer-emitted
+  tests**. That assertion is false. `lib/sigra/install/features/admin.ex:38-39` carries the map entry
+
+  ```
+  {:eex, "admin/policy_test.exs",
+   Path.join(["test", otp_app, "sigra_admin_policy_test.exs"])},
+  ```
+
+  so a freshly generated app has `test/<otp_app>/sigra_admin_policy_test.exs` on disk carrying a real
+  assertion. The sentence ships, verbatim, to every adopter.
+
+  **The measurement behind it (re-derived live at batch-4 execution, not cited from an earlier plan).**
+  `/usr/bin/grep -rn 'test\.exs' lib/sigra/install/features/` returns **3** hits, non-empty — the
+  enumeration's own positive control, since an empty result here would mean a broken command rather
+  than an installer that writes no tests:
+
+  ```
+  lib/sigra/install/features/core.ex:605:      target: Path.join(["config", "test.exs"]),
+  lib/sigra/install/features/admin.ex:38:      {:eex, "admin/policy_test.exs",
+  lib/sigra/install/features/admin.ex:39:       Path.join(["test", otp_app, "sigra_admin_policy_test.exs"])},
+  ```
+
+  Classified rather than counted: the `core.ex:605` hit is a `config/test.exs` **injection** target
+  and is not a test file at all; the `admin.ex:38-39` pair is one wrapped tuple and is the **sole
+  `_test.exs` creation target** in the installer. One creation target is enough to falsify an absence
+  claim.
+
+  **The repair is a retraction, not a re-verification.** The corrected prose makes **no claim about
+  installer output**. What survives are two clauses, each separately checkable:
+  (i) *Sigra's own suite asserts this absence in the shipped template* — `T19` at
+  `test/example/test/example_web/live/invitation_accept_live_test.exs:582`, inside
+  `describe "structural invariant (Jetstream #907 static check)"`, whose subject is the shipped
+  template path built at `:584-595` (`Path.join([File.cwd!(), "..", "..", "priv", "templates",
+  "sigra.install", "organizations", "live", "invitation_accept_live.ex"]) |> Path.expand()`);
+  (ii) *your generated project does not inherit that assertion* — T19's basename
+  `invitation_accept_live_test.exs` is not among the enumerated `_test.exs` creation targets above,
+  the only one of which is `sigra_admin_policy_test.exs`.
+
+  **Why plan 239-11's observation looked right — name the mechanism, not just the error.** It was
+  made against `test/fixtures/install_golden/tree/test/`, which holds three `support/*.ex` modules and
+  no `_test.exs` at all, because the golden fixture does not snapshot generated `test/*_test.exs`
+  paths. A committed snapshot was substituted for a generated app: the same evidence shape measuring a
+  different thing. Threat row `T-239-12-03` exists to catch exactly that substitution, and it did —
+  plan 239-13 halted on it with 0/3 tasks and no commits.
+
+  **Consequence for `T-239-12-03` (the re-basing).** Plan 239-13's first supporting observation is
+  re-based. Where it required a count of **zero** `_test.exs` files in the generated app's `test/`
+  tree, it now requires **`>= 1`** with `test/<otp_app>/sigra_admin_policy_test.exs` named — the live
+  falsification of the retracted claim on the artifact an adopter actually gets — paired, unchanged,
+  with the `*.exs` positive control on that same tree so an empty result cannot pass as a measurement.
+  The threat row is still discharged in 239-13, by the opposite observation. **This consequence is not
+  left to be inferred from this file:** Task 4 of plan 239-14 applies it to `239-13-PLAN.md`'s text
+  directly, because that plan's acceptance criteria currently require the `0`, and an executor must
+  never be put in the position of choosing between its own acceptance criteria and a decision file.
+  Loading CONTEXT.md has never been the delivery vehicle in this phase — 239-13 cites D-27 and D-30
+  because its text was revised to cite them (`c994139a`, then `1e132e74`).
+
+  **Alternatives considered and not taken.** (a) *Keep the sentence and add a caveat* — a caveat on a
+  false sentence still ships a false sentence to every adopter. (b) *Delete the whole paragraph* —
+  removes a real, checkable safety note from the file the Jetstream #907 structural defense lives in,
+  trading a false claim for a missing one. (c) *Re-verify the claim against a generated app and keep
+  it if true* — it is not true, and re-verifying inside batch 4 would require the scaffolded app that
+  belongs to plan 239-13.
+
+  Reversibility: **reversible** — prose in two source files, git-revertable; the golden fixture does
+  not carry the correction until plan 239-15's re-bless.
+
+  Implemented by plan 239-14 Tasks 2, 3 and 4; consumed by plans 239-15 and 239-13.
+
+- **D-32 [batch-4 closure planning, 2026-09-18]:** **The generated-app V3 claim is scoped to the files
+  `mix sigra.install` created or modified.** The `phx.new`-authored remainder is out of scope and
+  enumerated, never cleaned and never silently dropped.
+
+  **Statement.** Plan 239-13's V3 criterion over a freshly generated app's `lib/` and `priv/` is
+  measured over **the files `mix sigra.install` created or modified**. The excluded class is named:
+  `phx.new`-authored files that the installer neither created nor modified — specifically the V2
+  alternation `\b[0-9]{3}-[0-9]{2}\b` firing on SVG coordinate pairs in
+  `lib/<app>_web/controllers/page_html/home.html.heex` and `priv/static/images/logo.svg`, the
+  identical false-positive class already dispositioned for `oauth_html.ex` in `239-v3-allowlist.tsv`.
+
+  **Why option (a), a new allowlist entry, was not taken: it is mechanically impossible, not merely
+  less attractive.** `239-v3-vocabulary-check.sh:164` computes
+  `UNION="$( { tier_file_list priv-templates; tier_file_list example; tier_file_list golden; } 2>/dev/null )"`
+  and `:169` raises
+
+  ```
+  FAIL: allowlist entry '…' is exercised by none of the three named tiers — refusing to report success on an allowlist entry that escapes its own control (fail-closed guard)
+  ```
+
+  with **exit 3** for any entry whose path is absent from that union. Demonstrated **live** at batch-4
+  execution against a scratch copy of the allowlist held outside the repo working tree and deleted
+  immediately (never committed, never replacing the real file):
+
+  ```
+  cp 239-v3-allowlist.tsv <scratch>/scratch-allowlist.tsv
+  printf 'lib/demo_web/controllers/page_html/home.html.heex\t<literal>\tSCRATCH-ONLY probe entry, never committed\n' >> <scratch>/scratch-allowlist.tsv
+  awk -F'\t' 'NF>=2' <scratch>/scratch-allowlist.tsv | wc -l     ->  3
+  V3_ALLOWLIST=<scratch>/scratch-allowlist.tsv 239-v3-vocabulary-check.sh priv-templates
+  FAIL: allowlist entry 'lib/demo_web/controllers/page_html/home.html.heex' is exercised by none of the three named tiers — refusing to report success on an allowlist entry that escapes its own control (fail-closed guard)
+  EXIT=3
+  ```
+
+  **The parse was controlled before the exit code was interpreted.** The allowlist reader splits on
+  `IFS=$'\t'` and `continue`s any row whose second field is empty, so a row written with spaces
+  instead of a literal tab parses as a comment and the run exits **0** — which would read as a live
+  falsification of a decision that is in fact true. `awk -F'\t' 'NF>=2'` returned **3** on the scratch
+  copy against **2** on the committed original (both counts include the tab-separated `# path	literal	reason`
+  header, which also parses with `NF>=2`; plan 239-14 predicted `2` for the scratch copy by counting
+  data rows only — an off-by-one in the plan's arithmetic, not in the control's intent, which is to
+  prove the appended row is tab-separated: `3 = 2 baseline lines + 1 appended row`). Only with that
+  control in hand does the exit code mean anything.
+
+  **Consequence:** a non-tier allowlist path makes **every** tier run exit 3, so an entry added to
+  make a generated-app measurement pass would break the three-tier measurement plans 239-11, 239-12
+  and 239-13 all depend on. Repairing that would require editing the instrument, which D-30 forbids
+  outright.
+
+  **The rule is borrowed, not invented.** *"The files `mix sigra.install` created or modified"* is
+  already implemented in this repo, by the golden fixture itself: `test/support/install_fixture.ex:89`
+  snapshots the app with `snapshot_paths/1` before the install, and `normalize_tree/2` (`:333`) drops
+  every path byte-identical to that baseline at `:360-364`, under the in-source comment *"Drop files
+  that are byte-identical to the pre-install baseline. Only files sigra.install created or modified
+  contribute to the golden snapshot."* D-32 does not author a scope; it names the one this phase has
+  been measuring with since before the phase existed.
+
+  **Why this is not a goalpost move — two checkable facts, not two arguments.**
+  (a) **The phase has already been scoping this way, under a rule frozen long before the halting
+  probe.** `git ls-files test/fixtures/install_golden/tree | wc -l` -> **84**;
+  `git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'page_html/home.html.heex'` -> **0**
+  and `… | /usr/bin/grep -c 'priv/static/images/logo.svg'` -> **0**, while
+  `… | /usr/bin/grep -n 'router.ex'` ->
+  `67:test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex` (the two zeroes are
+  paired with that non-zero hit and with `… | /usr/bin/grep -c '\.ex$'` -> **68** as live positive
+  controls on the same surface). The golden tier — this phase's primary generated-output surface,
+  clean under V3 since plan 239-09 — therefore **already** excludes the `phx.new` remainder and
+  **already** includes the injected files, by the created-or-modified rule above. Scoping the
+  generated-app run by created-or-modified **aligns** it with the scope the phase has used throughout;
+  leaving it unscoped is what would be the anomaly.
+  (b) **The generated-app V3 run is a supplement to SC-1, not SC-1.** SC-1's measured form as amended
+  by D-28 already reads: *"the half is clean when V3 reports **zero hits outside** the committed
+  per-line triage allowlist `…/239-v3-allowlist.tsv` over the tier file lists frozen in
+  `## VOCABULARY-LEDGER`, with the raw `hits=` total recorded alongside"* — that is, over the three
+  tiers. Plan 239-13's generated-app V3 run is an additional check layered on top of that named form,
+  so scoping a supplement is a materially smaller act than narrowing a criterion.
+
+  Contrast both facts explicitly with the `T-239-09-02` shape this phase already refused: a
+  measurement retrofitted **after** seeing its result. Stated plainly: the excluded class **was**
+  surfaced by the live probe that halted plan 239-13. The honesty of this record does not depend on
+  pretending otherwise; it depends on the rule being **content-independent** — it names authorship,
+  not matching text, so it cannot be tuned to make a particular hit disappear — on the rule being
+  borrowed from a commit far older than this phase, and on its being **frozen in
+  `239-EVIDENCE.md` § `## GENERATED-APP-SCOPE` before the measurement it governs runs**, which is
+  plan 239-13's.
+
+  **The finding keeps an owner.** Following the D-27 precedent, the excluded hits are enumerated by
+  path and per-file count in § `## GENERATED-APP-SCOPE` at measurement time with their class named.
+  Their disposition, stated explicitly rather than left to be inferred from an absent owner: they are
+  upstream Phoenix content, no adopter-facing Sigra surface, and therefore get **no Sigra remediation
+  owner** — unlike D-27's packaged-docs finding, which is Sigra-authored and was routed to Phase 241
+  SURF-04. The scoping cannot hide a real finding because § `## GENERATED-APP-SCOPE` carries a **halt
+  clause**: plan 239-13 must enumerate the actual excluded hits and stop if any excluded path turns
+  out to be one the installer created or modified.
+
+  **Alternatives considered and not taken.** (a) *Retrofit the allowlist inside plan 239-13* —
+  forbidden by D-30 and mechanically impossible as demonstrated above. (b) *Edit the instrument's
+  union guard to permit non-tier entries* — the guard exists precisely to stop an entry escaping its
+  own control, and D-30 freezes the file. (c) *Drop the generated-app V3 measurement entirely* — it is
+  a real signal, and dropping a measurement because it is inconvenient is the defect this closure
+  exists to repair; the scoped measurement is kept and the remainder is reported.
+
+  Reversibility: **costly** — it amends a criterion plan 239-13 measures against, and a later reader
+  reasons from the amended text. Not one-way: the pre-amendment claim (an unscoped V3 run over the
+  whole generated `lib/` and `priv/`) is stated inside this decision, so the original is
+  reconstructable from the record. No `checkpoint:decision` is emitted, following the D-26 and D-27
+  precedent for gap-closure criterion amendments.
+
+  Implemented by plan 239-14 Task 1's § `## GENERATED-APP-SCOPE` freeze; consumed by plan 239-13.
+
 ### Claude's Discretion
 
 - The exact rewritten wording of the 23 D-17 rationale-preserving comments, so long as the sentence
