@@ -185,7 +185,7 @@ Plans:
   4. Only the `test/example/` counterparts of templates actually edited are mirrored, recorded as an explicit per-file checklist in the phase SUMMARY, and the absent template↔example parity guard is filed as a todo (FUT-01) rather than built here.
   5. Load-bearing infrastructure is provably untouched: `git diff origin/main -- .github/` shows no `name:` change (a renamed required context never reports and PRs hang forever), and no `# SECURITY:`-class comment sentence is deleted.
 
-**Plans**: 13 plans (8 executed + 5 gap-closure round 2)
+**Plans**: 15 plans (8 executed + 5 gap-closure round 2 + 2 batch-4 reopen)
 
 Plans:
 **Wave 1**
@@ -238,7 +238,17 @@ Plans:
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 239-13-PLAN.md — Re-prove every criterion live at final HEAD: three-tier V3 with per-alternation controls re-fired, the fixed-string proof on a freshly generated app, the tarball under the amended D-27 scope, `MIX_ENV=test mix ci`, SC-5 at two diff bases — then re-check SURF-03 last and alone *(wave 13)*
+**Wave 14** *(batch-4 reopen — plan 239-13 halted on a blocking-human gate with 0/3 tasks and no commits; it is re-sequenced to run AFTER waves 14-15)*
+
+- [ ] 239-14-PLAN.md — Record D-31 (retract the false installer-test claim; re-base `T-239-12-03`) and D-32 (scope the generated-app V3 run to the files `sigra.install` created or modified), freeze that scope, correct the template moduledoc, mirror into `test/example/`, and apply D-31 surgically to `239-13-PLAN.md` *(wave 14)*
+
+**Wave 15** *(blocked on Wave 14 completion)*
+
+- [ ] 239-15-PLAN.md — Justify batch 4 (D-29), freeze the round-4 expected set, demonstrate the classifier RED, then the fourth batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 15)*
+
+**Wave 16** *(blocked on Wave 15 completion)*
+
+- [ ] 239-13-PLAN.md — Re-prove every criterion live at final HEAD: three-tier V3 with per-alternation controls re-fired, the fixed-string proof on a freshly generated app, the tarball under the amended D-27 scope, `MIX_ENV=test mix ci`, SC-5 at two diff bases — then re-check SURF-03 last and alone *(wave 16, re-sequenced from wave 13)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 
@@ -334,7 +344,7 @@ Plans:
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
 | 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
 | 238. Tag Guard, Then Tag Deletion | 6/6 | Complete    | 2026-09-17 |
-| 239. `priv/templates/` Sweep + Re-bless | 0/? | Not started | - |
+| 239. `priv/templates/` Sweep + Re-bless | 12/15 | In progress (batch-4 reopen) | - |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
