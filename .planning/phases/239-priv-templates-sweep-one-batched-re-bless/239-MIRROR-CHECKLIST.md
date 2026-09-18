@@ -157,3 +157,28 @@ hand-maintained generated-app mirror that already drifts behind `priv/templates/
 `reference_installer_template_drift.md`); this plan's job was narrowly to keep the 30 direct
 counterparts of the swept templates from contradicting the sweep, not to bring the whole
 hand-maintained tree into alignment.
+
+
+## Batch-3 gap-closure round (plan 239-11, 2026-09-18) — appended, not a rewrite
+
+Appended in the style plan 239-07 established: prior rows and the plan-239-07 correction block are
+byte-unchanged; this block only adds. Accurate as of parent commit `74e6a148` and the two commits
+this plan adds on top of it (sweep `7eee6b00`, mirror recorded in `239-11-SUMMARY.md`).
+
+| Template (batch-3 edit) | Disposition |
+|---|---|
+| `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` (239-11, WR-01 + WR-02/SC-1 gap 1) | **Mirrored →** `test/example/lib/example_web/live/invitation_accept_live.ex`. Two regions mirrored: the four-line `@moduledoc` WR-01 replacement (net **+2** lines, replacing 2) and the deletion of the `plan-checker` comment line (net **−1**). Counterpart line located by reading the file, not by copying the template's `:326` — it sat at `:332` before the moduledoc replacement and at `:334` after. Post-substitution diff of both changed regions: **empty**. `grep -cF 'generates no tests'` → **1**; `grep -cF 'DO NOT add an accept button here'` → **1**; `grep -cF 'Jetstream #907 / CVE-2026-1529'` → **1**. |
+| `priv/templates/sigra.install/organizations/live/organization_members_live.ex` (239-11, WR-03/SC-1 gap 2) | **Mirrored →** `test/example/lib/example_web/live/organization_members_live.ex`. One region mirrored: the `## Architecture` pagination bullet gains its terminator and the `v1.2 concern` sentence is deleted (net **−1** line, 1 line modified). Post-substitution diff of the changed bullet: **empty**. One residual difference in the wider `## Architecture` block — `class="modal"` vs `class="vt-modal"` — is **pre-existing demo-app `vt-*` brand drift**, reproduced identically at base `74e6a148`, outside every region this batch changed, and deliberately not reconciled here. |
+
+### Router re-derivation — enumeration confirmed against the bytes, not inherited
+
+A prior plan's enumeration missed a sixth router site, so both flagged sites in
+`test/example/lib/example_web/router.ex` were re-read at this commit rather than carried forward:
+
+| Site | Disposition |
+|---|---|
+| `:103` — `# Login page is a plain controller, not a LiveView.` | **n/a — carries no batch-3 text.** Mechanism-only; no plan vocabulary; no V3 hit. Not edited by this batch. |
+| `:175-179` — the dev-only Swoosh mailbox-preview comment block | **n/a — carries no batch-3 text.** Already de-bookkept by plan 239-07 (C-1 above); no V3 hit at this commit. Not edited by this batch. |
+
+The batch-3 edit set is therefore exactly the two counterpart files above. The router is absent from
+both of this plan's commits.

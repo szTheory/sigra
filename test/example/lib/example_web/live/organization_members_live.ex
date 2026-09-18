@@ -20,8 +20,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
     * Removal relies on the `remove_member/2` library Multi, which
       purges `user_sessions` rows scoped to the removed user + this org inside
       the same transaction (force-logout).
-    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`
-      Flop / sortable columns are a v1.2 concern.
+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`.
 
   ## Pending invitations seam
 

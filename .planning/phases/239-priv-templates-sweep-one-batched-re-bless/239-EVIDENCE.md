@@ -1508,3 +1508,354 @@ inconvenient; the edits were **not yet derivable**.
 239-12 fills it before its re-bless runs**, replacing this marker line with the batch's composition
 and its not-foldable argument. A re-bless that runs while this marker is still present is a D-29
 violation, and the marker string is greppable precisely so that can be checked mechanically.
+
+
+## BATCH-3-SWEEP-COMMIT
+
+Status: PASS — the two residual bookkeeping sentences named in `239-VERIFICATION.md`'s SC-1 `gaps:`
+block are gone from `priv/templates/`, `WR-01`'s false safety claim is replaced with prose that is
+true in an adopter's project, `WR-03`'s unterminated bullet is repaired, and the two tiers this plan
+owns report `hits_outside_allowlist=0` under the V3 definition that plan 239-09 demonstrated RED on
+exactly these tiers. The instrument and its allowlist are byte-unchanged (D-30) — the green was
+produced by editing the surface.
+
+Sweep commit: **`7eee6b00`** (`priv/templates/` only). Mirror commit: recorded in
+`239-11-SUMMARY.md` (a commit cannot carry its own sha).
+
+### (a) The two edits, before and after — `invitation_accept_live.ex`
+
+**WR-01 — `@moduledoc`, the `## Structural Jetstream #907 defense` section (`:19-20` at base).**
+
+Before:
+
+```
+  "by construction, not by convention" defense. That absence is asserted by a
+  test, not merely conventional — do not add accept controls to this branch.
+```
+
+After:
+
+```
+  "by construction, not by convention" defense — do not add accept controls to
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  `mix sigra.install` generates no tests, so if you customize this file, add an
+  equivalent assertion to your own test suite.
+```
+
+**WR-02 / SC-1 gap item 1 — the comment block above `defp render_mismatch/1` (`:326` at base).**
+Deleted in full, one line:
+
+```
+  # The plan-checker greps this function body and asserts zero matches.
+```
+
+**Surviving constraint line, quoted as the proof that the reason was not removed with the
+bookkeeping** (the block as it stands at the sweep commit):
+
+```
+  # STRUCTURAL INVARIANT (Jetstream #907 / CVE-2026-1529):
+  # This function MUST NOT contain any phx-click="accept..." or
+  # phx-submit="accept..." or form action targeting an accept endpoint.
+  # DO NOT add an accept button here even "for convenience" — the entire
+  # point of this branch is that the accept action does not exist in the
+  # rendered DOM for a mismatched visitor.
+```
+
+The `DO NOT add an accept button here` imperative and the `Jetstream #907 / CVE-2026-1529`
+attribution both survive verbatim. What was deleted named an internal tool; what survives states the
+constraint and why it exists.
+
+### (b) The edit, before and after — `organization_members_live.ex`
+
+**WR-03 / SC-1 gap item 2 — the `## Architecture` pagination bullet (`:23-24` at base).**
+
+Before:
+
+```
+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`
+      Flop / sortable columns are a v1.2 concern.
+```
+
+After:
+
+```
+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`.
+```
+
+Surviving constraint: the bullet still states the pagination mechanism (`LIMIT 100` + `Load more`
+via `stream_insert(..., at: -1)`) in full. The deleted sentence stated only *when Sigra intends to
+add Flop*, which is a Sigra release-sequencing fact and not a constraint on the adopter's code.
+
+### (c) The two observations the WR-01 replacement rests on — re-run here, not cited
+
+**Observation 1 — `T19`'s subject is the template path, never the adopter's copy.**
+
+```bash
+sed -n '570,600p' test/example/test/example_web/live/invitation_accept_live_test.exs
+```
+
+```elixir
+    test "T19: mismatch_branch source has zero phx-click=\"accept...\" and zero phx-submit=\"accept...\"" do
+      path =
+        Path.join([
+          File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+          "organizations", "live", "invitation_accept_live.ex"
+        ])
+        |> Path.expand()
+```
+
+The subject is `priv/templates/.../invitation_accept_live.ex`. It is a Sigra-repo test over the
+shipped template.
+
+**Observation 2 — the generated app's whole `test/` tree contains zero `_test.exs` files.**
+
+```bash
+ls -R test/fixtures/install_golden/tree/test/
+```
+
+```
+support
+support/conn_case.ex
+support/conn_case_helpers.ex
+support/fixtures/auth_fixtures.ex
+```
+
+Three support modules, zero `_test.exs`. An adopter receives no test that asserts this invariant,
+which is exactly what the replacement prose now says.
+
+### (d) Named-string check — independent of every regex under examination
+
+Run at the sweep commit on a clean tree. Every grep is `/usr/bin/grep` explicitly (the interactive
+shell resolves `grep` to a `ugrep` wrapper), and the file list is fed via `git ls-files -z | xargs -0`
+because this shell does **not** word-split an unquoted `$(git ls-files …)` — a first attempt that
+relied on splitting produced `0`/`0` with a **dead control of 0**, i.e. a false negative caught only
+because the control was paired. The numbers below are the re-run with a live control.
+
+```bash
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -lF 'defmodule'                      # control
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -nF 'The plan-checker greps this function body and asserts zero matches.'
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -nF 'Flop / sortable columns are a v1.2 concern.'
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -lF 'DO NOT add an accept button here'   # second live control
+```
+
+| Measurement | Value | Reading |
+|---|---|---|
+| Sentence 1 (`The plan-checker greps …`) over `priv/templates/` | **0** | gone |
+| Sentence 2 (`Flop / sortable columns are a v1.2 concern.`) over `priv/templates/` | **0** | gone |
+| Control: files containing `defmodule` on the same file list | **97** | the grep is live |
+| Control: files containing `DO NOT add an accept button here` | **1** | a string that *does* exist still matches — the zeros above are real negatives |
+
+### (e) V3 tier result — the GREEN half of plan 239-09's RED/GREEN pair
+
+```bash
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-vocabulary-check.sh priv-templates
+```
+
+```
+tier=priv-templates
+hits=1
+allowlisted=1
+hits_outside_allowlist=0
+control_defmodule=98
+files_measured=119
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 …
+exit 0
+```
+
+| Tier | At plan 239-09 (RED) | At the sweep commit | Reading |
+|---|---|---|---|
+| `priv-templates` | `hits=3 allowlisted=1 hits_outside_allowlist=2` exit 1 | `hits=1 allowlisted=1 hits_outside_allowlist=0` exit 0 | **RED → GREEN** |
+
+The raw `hits=1` is reported, not rounded away: it is the allowlisted SVG-coordinate false positive
+in `sigra.gen.oauth/oauth_html.ex:54`, dispositioned by name in § `## VOCABULARY-LEDGER`. The
+criterion is `hits_outside_allowlist=0`, and the raw total is what keeps the allowlist honest.
+
+`control_defmodule=98` is non-zero, so the zero is a measurement and not an empty file list. Exit `3`
+(the instrument cannot answer) was never returned at any point in this plan.
+
+### (f) The instrument and the allowlist are byte-unchanged (D-30)
+
+```bash
+git diff --name-only 74e6a148..HEAD -- \
+  .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-vocabulary-check.sh \
+  .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv
+```
+
+Empty across both of this plan's commits. Neither file appears in `git status --short` at any point.
+No allowlist row was added: the tier went green because two sentences were deleted from the surface.
+
+### (g) Region-extraction criteria — asserted non-empty before being trusted
+
+The `sed` range is anchored on `^  ## Structural Jetstream #907 defense$` (one space after `##`, as
+it exists in the file) through `^  ## Route$`, and its length is asserted before any grep over it.
+
+| Check | Value |
+|---|---|
+| `region_lines` (length assertion, must be ≥ 5) | **11** |
+| flattened region contains `generates no tests` | **1** |
+| flattened region contains `your own test suite` | **1** |
+| flattened region contains `asserted by a test` | **0** |
+| flattened region contains `merely conventional` | **0** |
+| flattened region contains `do not add accept controls to this branch` | **1** |
+
+The two `0` rows are run over the region flattened with `tr '\n' ' ' | tr -s ' '`, because the false
+claim spanned a line break and a single-line grep could not have expressed its absence. The
+imperative survives the rewrite; only the false enforcement claim was removed.
+
+`organization_members_live.ex`: the `@moduledoc` line containing `stream_insert` now ends in `.` —
+`sed -n '1,35p' … | /usr/bin/grep -n 'stream_insert' | /usr/bin/grep -c '\.$'` → **1**.
+
+### (h) No executable line moved — every changed line classified
+
+`git show HEAD -- priv/templates` yields nine `+`/`-` content lines, classified individually:
+
+| Line | Classification |
+|---|---|
+| `-  "by construction, not by convention" defense. That absence is asserted by a` | inside `@moduledoc """` heredoc |
+| `-  test, not merely conventional — do not add accept controls to this branch.` | inside `@moduledoc """` heredoc |
+| `+  "by construction, not by convention" defense — do not add accept controls to` | inside `@moduledoc """` heredoc |
+| `+  this branch. Sigra's own suite asserts this absence in the shipped template;` | inside `@moduledoc """` heredoc |
+| ``+  `mix sigra.install` generates no tests, so if you customize this file, add an`` | inside `@moduledoc """` heredoc |
+| `+  equivalent assertion to your own test suite.` | inside `@moduledoc """` heredoc |
+| `-  # The plan-checker greps this function body and asserts zero matches.` | `#` comment (after leading whitespace) |
+| ``-    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)` `` | inside `@moduledoc """` heredoc |
+| `-      Flop / sortable columns are a v1.2 concern.` | inside `@moduledoc """` heredoc |
+| ``+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`.`` | inside `@moduledoc """` heredoc |
+
+No function head, guard, pattern, pipeline, route, plug, `attr` name, or `default:` appears in the
+diff. `defp render_mismatch(assigns) do` and its `~H` body are byte-unchanged.
+
+### (i) Formatter — the plan's check was inapplicable by construction; the repo's contract was run instead
+
+`mix format --check-formatted priv/templates/.../organization_members_live.ex` **cannot** pass on a
+template file and never could: templates carry EEx placeholders in Elixir syntax positions and are
+not parseable Elixir.
+
+```
+** (SyntaxError) invalid syntax found on …/organization_members_live.ex:1:13:
+  1 │ defmodule <%= web_module %>.OrganizationMembersLive do
+```
+
+`.formatter.exs` accordingly does **not** list `priv/templates` in its `inputs:` — the exclusion is
+deliberate and pre-dates this phase. The meaningful check is the one `mix ci` actually runs, over the
+repo's configured inputs:
+
+```bash
+mix format --check-formatted        # exit 0
+```
+
+Exit `0` at the sweep commit. Recorded as a deviation rather than silently substituted.
+
+### (j) SC-5 security-comment classifier (D-16 — run, never edited)
+
+```bash
+git diff -- priv/templates > <scratch>/239-11-sweep.diff
+.planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-security-comment-diff-check.sh <scratch>/239-11-sweep.diff
+```
+
+```
+examined_removed_lines=5
+exit 0
+```
+
+Over the **combined** sweep+mirror diff (`git diff HEAD~1` at the mirror commit): `examined_removed_lines=10`, exit `0`. The script file is byte-unchanged — it does not appear in
+`git status --short` or in either commit's `--name-only`.
+
+### (k) Commit scope
+
+```bash
+git show --name-only --format= 7eee6b00
+```
+
+```
+priv/templates/sigra.install/organizations/live/invitation_accept_live.ex
+priv/templates/sigra.install/organizations/live/organization_members_live.ex
+```
+
+Exactly two paths. Nothing under `test/`, `lib/`, `.github/`, or `.planning/`.
+`git diff --name-only 74e6a148..7eee6b00 -- test/fixtures/install_golden/ .github/` is empty.
+
+### (l) Mirror — `test/example/`, the second commit (D-19)
+
+The same two edits applied to the two SC-4 counterparts, located by **reading the files**, not by
+copying line numbers: after the four-line `@moduledoc` replacement the `plan-checker` line sat at
+`:334` in the example tier (it was at `:332` before the replacement, and at `:326` in the template) —
+a line number copied across tiers would have deleted the wrong line.
+
+**Post-substitution tier equality, asserted per changed region rather than claimed.** The template
+side is passed through `sed -e 's/<%= web_module %>/ExampleWeb/g' -e 's/<%= app_module %>/Example/g'`
+and diffed against the same region in the example copy:
+
+| Region | Command | Result |
+|---|---|---|
+| `## Structural Jetstream #907 defense` → `## Route` | `diff <(sed -n '/^  ## Structural Jetstream #907 defense$/,/^  ## Route$/p' <tmpl> \| sub) <(sed -n '…' <ex>)` | **empty** |
+| `# STRUCTURAL INVARIANT (Jetstream #907` → `defp render_mismatch` | same shape | **empty** |
+| the changed pagination bullet | `diff <(grep -n stream_insert <tmpl> \| cut -d: -f2-) <(… <ex>)` | **empty** |
+
+One residual difference exists in the *wider* `## Architecture` block — `class="modal"` (template)
+vs `class="vt-modal"` (example) — and it is **pre-existing, not introduced here**: the identical
+one-line diff is reproduced at the plan's base commit `74e6a148` with
+`diff <(git show "74e6a148:<tmpl>" | sed -n '/^  ## Architecture$/,/^  ## Pending invitations seam$/p' | sub) <(git show "74e6a148:<ex>" | sed -n '…')`.
+It is the demo app's `vt-*` brand-class drift, outside every region this batch changed. Recorded
+rather than reconciled; this plan changes no CSS class.
+
+**Fixed-string check over the WHOLE of `test/example/`** — a different and wider claim than the V3
+criterion below, deliberately not conflated with it:
+
+| Measurement | Value |
+|---|---|
+| Sentence 1 over `git ls-files test/example` | **0** |
+| Sentence 2 over `git ls-files test/example` | **0** |
+| Control: files containing `defmodule` on the same list | **156** |
+| Control: files containing `DO NOT add an accept button here` | **1** |
+| `grep -cF 'generates no tests' <example invitation file>` | **1** |
+| `grep -cF 'DO NOT add an accept button here' <example invitation file>` | **1** |
+| `grep -cF 'Jetstream #907 / CVE-2026-1529' <example invitation file>` | **1** |
+
+**V3 `example` tier — SCOPED, and the scope is restated so the zero cannot be misread:**
+
+```
+tier=example
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=2
+files_measured=2
+exit 0
+```
+
+`files_measured=2`. This is the two SC-4 counterparts fixed in plan 239-09's tier list — **not**
+`git ls-files test/example`. The unswept remainder of `test/example/` was measured by plan 239-09 at
+**482 lines across 157 files** (mostly `priv/playwright/` tooling) and is routed to **Phase 241
+SURF-04**. This zero says nothing about that remainder.
+
+**Golden tier — still RED, which is the expected state:**
+
+```
+tier=golden
+hits=2  allowlisted=0  hits_outside_allowlist=2  control_defmodule=78  files_measured=84
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:326:   # The plan-checker greps this function body and asserts zero matches.
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:24:       Flop / sortable columns are a v1.2 concern.
+exit 1
+```
+
+The golden tier is stale by **exactly this batch** — the two hits are the two sentences this plan
+removed from the other two tiers, and nothing else. Plan 239-12's single re-bless closes it (D-09).
+A golden `hits_outside_allowlist=0` here would have meant the fixture was hand-edited; it was not,
+and `git diff --name-only 74e6a148..HEAD -- test/fixtures/` is empty across both commits.
+
+**Three-tier state at the mirror commit:** template **==** example, golden stale by batch 3. That is
+precisely the state plan 239-12 expects to find.
+
+`mix format --check-formatted` on both edited example files: exit **0** (these *are* in
+`.formatter.exs` `inputs:`, unlike the templates).
+
+**Router re-derivation (not inherited).** `test/example/lib/example_web/router.ex` was re-read at
+both flagged sites because a prior plan's enumeration missed `:175`:
+
+| Site | Text | Disposition |
+|---|---|---|
+| `:103` | `# Login page is a plain controller, not a LiveView.` | **n/a — carries no batch-3 text.** Mechanism-only comment, no plan vocabulary, no V3 hit. Not edited. |
+| `:175-179` | `# Dev-only routes for local manual testing — Swoosh local-mailbox preview at /dev/mailbox …` | **n/a — carries no batch-3 text.** Already de-bookkept by plan 239-07 (see § `## MIRROR-CHECKLIST` C-1). No V3 hit at the mirror commit. Not edited. |
+
+Neither site is in this batch's edit set, and the router does not appear in either commit.
