@@ -1087,3 +1087,381 @@ bytes, never on the source tree. SURF-03 — `priv/templates/` carries no undisp
 under V2; the closure landed as one sweep commit plus one batched re-bless in separate commits, with
 the `test/example/` counterparts of edited templates mirrored (plan 239-07), under the amended
 criterion. Both are marked complete at this HEAD on that evidence and on nothing else.
+
+---
+
+## VOCABULARY-LEDGER
+
+*(Written by gap-closure plan 239-09. Placed after `## WIDENED-UNION-LEDGER`, at the end of the
+ledger, following this file's chronological convention — the same way plan 239-08 extended
+`## HONEST-CLAIMS` by appending rather than by interleaving.)*
+
+Status: **RED on all three tiers, as required.** V3 is defined, committed as a runnable phase
+artifact, and demonstrated RED at this plan's HEAD before a single template byte is edited.
+`hits_outside_allowlist` = **2 / 2 / 2** on `priv-templates` / `example` / `golden`, each with a
+non-zero paired `control_defmodule`, and the two sentences named in `239-VERIFICATION.md`'s SC-1
+`gaps:` block appear by `path:line:` in all three. The instrument is wired into nothing
+(Standing Constraint 5, D-04).
+
+### (a) V3, verbatim
+
+V3 is V2 — copied mechanically out of § `WIDENED-UNION-LEDGER` (a), never retyped — plus one
+appended vocabulary class. **Why V2 could not see the leak**, restated as a mechanism: V2 matches
+plan *identifiers* (`D-12`, `239-05`, 10-digit run ids, `UAT`). The two residual sentences are plan
+*vocabulary* — `The plan-checker greps this function body…` and `Flop / sortable columns are a v1.2
+concern.` — and contain no identifier of any shape V2 knows. That is V1's blind spot one class up.
+
+```
+\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]|\b[Pp]lan[- ]checker\b|\bthis phase\b|\bthe plan\b|v[0-9]+\.[0-9]+ concern|\bgap[- ]closure\b|\bre-?bless\b|\bROADMAP\b|SUMMARY\.md
+```
+
+The eight appended alternations, isolated (the V2 -> V3 delta):
+
+```
+\b[Pp]lan[- ]checker\b|\bthis phase\b|\bthe plan\b|v[0-9]+\.[0-9]+ concern|\bgap[- ]closure\b|\bre-?bless\b|\bROADMAP\b|SUMMARY\.md
+```
+
+**Strictly-wider check — which check was used: substring containment.** V3 is constructed in
+`239-v3-vocabulary-check.sh` as `V3="${V2}|${V3_VOCAB}"`, so every V2 alternation survives verbatim
+by construction. The script does not take that on trust: it asserts it at runtime and fails closed
+(exit 3, `refusing to report success on a definition that is not strictly wider`) if it ever stops
+holding.
+
+```bash
+case "$V3" in *"$V2"*) echo "V2_IS_SUBSTRING_OF_V3" ;; *) echo "NOT_WIDER" ;; esac
+# => V2_IS_SUBSTRING_OF_V3
+```
+
+### (b) Per-alternation live positive controls — every added alternation, a named surface, a non-zero count
+
+A dead alternation produces a reassuring zero and is indistinguishable from a clean surface. Each
+of the eight additions therefore carries its own control on a surface where it is known to fire.
+All eight returned non-zero; **no alternation is dead, and none was dropped.**
+
+| # | Alternation | Control surface | Count |
+|---|---|---|---|
+| 1 | `\b[Pp]lan[- ]checker\b` | `239-VERIFICATION.md` | **4** |
+| 2 | `\bthis phase\b` | `239-CONTEXT.md` | **4** |
+| 3 | `\bthe plan\b` | `239-09-PLAN.md` | **2** |
+| 4 | `v[0-9]+\.[0-9]+ concern` | `239-VERIFICATION.md` | **3** |
+| 5 | `\bgap[- ]closure\b` | `.planning/ROADMAP.md` | **4** |
+| 6 | `\bre-?bless\b` | `.planning/ROADMAP.md` | **4** |
+| 7 | `\bROADMAP\b` | `.planning/ROADMAP.md` | **13** |
+| 8 | `SUMMARY\.md` | `.planning/ROADMAP.md` | **1** |
+
+Command shape (phase paths abbreviated to `$P`; brace group + `|| true` so a zero is a value, not a
+fatal status — SAFETY RULESET 3):
+
+```bash
+P=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+{ grep -cE '\b[Pp]lan[- ]checker\b' "$P/239-VERIFICATION.md" || true; }   # => 4
+{ grep -cE '\bthis phase\b'          "$P/239-CONTEXT.md"      || true; }   # => 4
+{ grep -cE '\bthe plan\b'            "$P/239-09-PLAN.md"      || true; }   # => 2
+{ grep -cE 'v[0-9]+\.[0-9]+ concern' "$P/239-VERIFICATION.md" || true; }   # => 3
+{ grep -cE '\bgap[- ]closure\b'      .planning/ROADMAP.md     || true; }   # => 4
+{ grep -cE '\bre-?bless\b'           .planning/ROADMAP.md     || true; }   # => 4
+{ grep -cE '\bROADMAP\b'             .planning/ROADMAP.md     || true; }   # => 13
+{ grep -cE 'SUMMARY\.md'             .planning/ROADMAP.md     || true; }   # => 1
+```
+
+### (c) Recall pass — keep/drop record, a reason on every row
+
+Each candidate was grepped over `.planning/ROADMAP.md`, over `.planning/phases/` (is it live GSD
+vocabulary at all?) and over the three tiers (what does it actually catch on shipped surface?). A
+dropped candidate with no recorded reason would be a silent narrowing of the instrument, so every
+row below carries its disposition explicitly — including the three that catch nothing on any
+shipped tier today.
+
+| Candidate | `.planning/phases/` | priv/templates | golden | test/example (whole tree) | Disposition |
+|---|---|---|---|---|---|
+| `\b[Pp]lan[- ]checker\b` | 21 | 1 | 1 | 1 | **KEEP** — this is the SC-1 gap's first sentence. Case-folded initial and the spaced variant both included because GSD prose uses both. |
+| `\bthis phase\b` | 304 | 0 | 0 | 0 | **KEEP** — heavily live planning vocabulary (304 lines). Zero on every shipped tier today, which is exactly the state a guard should preserve: it is a tripwire for the next leak, not a finder of an existing one. Its control (b#2) proves it is not dead. |
+| `\bthe plan\b` | 214 | 0 | 0 | 1 | **KEEP** — live vocabulary and already present once in the unswept `test/example/` remainder, so it is not hypothetical. Known false-positive risk on ordinary English ("the plan the user selected"); accepted, because triage is per-hit and the allowlist exists for precisely that case. |
+| `v[0-9]+\.[0-9]+ concern` | 19 | 1 | 1 | 1 | **KEEP** — this is the SC-1 gap's second sentence. Deliberately anchored on the word `concern` rather than on `v1.2` alone: a bare version number is legitimate in adopter-facing prose, roadmap *sequencing* is not. |
+| `\bgap[- ]closure\b` | 35 | 0 | 0 | 1 | **KEEP** — live in the ROADMAP (4) and already leaking once into the example remainder. |
+| `\bre-?bless\b` | 614 | 0 | 0 | 0 | **KEEP** — the single most-used internal term in this phase (614 lines) and meaningless in an adopter project. Tripwire, same as `this phase`. |
+| `\bROADMAP\b` | 235 | 0 | 0 | 0 | **KEEP** — uppercase-anchored so it cannot fire on the ordinary English word "roadmap" in adopter-facing marketing prose; `\bROADMAP\b` is the GSD artifact name. |
+| `SUMMARY\.md` | 121 | 0 | 0 | 2 | **KEEP** — a GSD artifact filename; already leaking twice into the example remainder. |
+
+**Dropped: none.** Every seeded candidate is live vocabulary with a non-zero control. Adding an
+alternation is cheap (a per-hit triage row and, if genuinely a false positive, one allowlist entry);
+dropping one silently re-creates V1's blind spot, which is the defect under repair.
+
+**Recorded instrument limitation, not smoothed over.** V3 is still line-based and still
+case-sensitive where GSD prose is not: review finding **IN-06**'s lowercase `post plan 04` matches
+no V3 alternation (proof in § (j)). That is a *vocabulary class V3 still misses*, recorded here as
+a direct input to Phase 241's `p18` spec rather than quietly absorbed.
+
+### (d) Tier file lists — FIXED HERE, before the RED ran, consumed unchanged by plans 239-11/12/13
+
+| Tier | File list | Files at this HEAD |
+|---|---|---|
+| `priv-templates` | `git ls-files priv/templates` | 119 |
+| `example` | **scoped** — two literal paths, enumerated in the script, never a glob or a tree walk | 2 |
+| `golden` | `git ls-files test/fixtures/install_golden/tree` | 84 |
+
+The `example` tier's two paths:
+
+```
+test/example/lib/example_web/live/invitation_accept_live.ex
+test/example/lib/example_web/live/organization_members_live.ex
+```
+
+**Why the `example` tier is scoped, in plain words.** SC-4 governs the mirror and says only the
+`test/example/` counterparts of edited templates are mirrored. Those two files are the counterparts
+plan 239-11 edits, so they are the whole of this phase's contract inside `test/example/`. Nothing
+else in that tree is inside the contract. Sweeping it repo-wide measures 4.3x over the D-19/SC-4
+scope (`239-RESEARCH.md` § 1.6), cannot fit plan 239-11's fixed two-file commit scope, and collides
+with surfaces this milestone has not cleared. **The unswept remainder is therefore a measured,
+named, routed number that this phase explicitly does not claim to clean — see § (i).** The script
+enforces the scoping structurally: it contains no tree walk over that directory at all.
+
+### (e) The allowlist, verbatim, with its per-entry reason and both controls
+
+`239-v3-allowlist.tsv` — tab-separated, columns `path`, `literal`, `reason`. Exactly **one** record
+at this HEAD, and it is dispositioned here **by name, at this plan's time**, not discovered later at
+plan 239-11's time:
+
+| path | literal (fragment) | reason |
+|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex` | `M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0` | FALSE-POSITIVE — SVG path coordinates. |
+
+The V2 alternation `\b[0-9]{3}-[0-9]{2}\b` fires on the numeric coordinate pair `373-12` inside the
+Facebook-logo `<path d="…">` geometry at line 54. Confirmed by isolating the match:
+
+```bash
+grep -oE '\b[0-9]{3}-[0-9]{2}\b' priv/templates/sigra.gen.oauth/oauth_html.ex   # => 373-12 (x2)
+```
+
+It is not prose, is not bookkeeping, and is not editable without changing a brand mark's rendered
+geometry. Already dispositioned FALSE-POSITIVE by plan 239-08's ledger and confirmed by
+`239-VERIFICATION.md`; this entry is that disposition made machine-readable. The stored literal is
+a fragment of the path geometry only — deliberately not the `fill=` attribute, because this repo is
+public and brand hex values are not written into phase artifacts.
+
+**Matching key.** A hit is suppressed only when its path equals the entry's `path` **and** its line
+text contains the entry's `literal`. Never a line number (lines shift; the EEx header alone offsets
+template line numbers by 2 against the golden tree), never a path alone (that would blanket a whole
+file). Keying on (path, literal) is what stops an entry from silently starting to cover something
+new.
+
+**Per-entry non-vacuity control — scoped to the run that exercises it.** For every entry whose
+`path` is in the file list being measured, the script asserts the literal is still found at that
+path AND that the line still matches V3; a failure is fail-closed exit 3. The entry above is
+exercised by the `priv-templates` run, where it passed (its hit is reported and marked
+`[ALLOWLISTED]`, visible rather than removed). It is **not exercised** by the `example` or `golden`
+runs, whose file lists do not contain that path — and that is correctly *not* a vacuity failure.
+The scoping is mandatory, not a convenience: a tier-blind control demanding every entry be present
+in every tier's file list would fail closed on two of three tiers before either could report a
+result, and the RED demonstration this whole closure rests on could never have run.
+
+**Companion union check — so no entry escapes its control everywhere.** Computed once over the
+union of the three named tier file lists, independent of which tier is being measured:
+
+| Entry path | In `priv-templates`? | In `example`? | In `golden`? | Exercised by ≥1 tier |
+|---|---|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex` | **yes** | no | no | **PASS** |
+
+An entry exercised by no tier is fail-closed exit 3. Both halves are demonstrated live in § (g),
+not asserted.
+
+### (f) The RED demonstration — all three tiers, at this plan's HEAD, in one pass
+
+```bash
+d=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+for t in priv-templates example golden; do "$d/239-v3-vocabulary-check.sh" "$t"; echo "rc=$?"; done
+```
+
+| Tier | `hits` (raw) | `allowlisted` | `hits_outside_allowlist` | `control_defmodule` | files | exit |
+|---|---|---|---|---|---|---|
+| `priv-templates` | **3** | 1 | **2** | **98** | 119 | **1** |
+| `example` (SC-4 counterparts) | **2** | 0 | **2** | **2** | 2 | **1** |
+| `golden` | **2** | 0 | **2** | **78** | 84 | **1** |
+
+Every tier is RED, every tier's paired positive control is alive, and the raw `hits=` total is
+printed on every run alongside the criterion, so the allowlist never hides a number.
+
+**The two SC-1 sentences, by `path:line:`, matched against `239-VERIFICATION.md`'s `gaps:` block
+rather than by eye. Neither is allowlisted.**
+
+| Tier | Sentence 1 (`The plan-checker greps this function body…`) | Sentence 2 (`…a v1.2 concern.`) |
+|---|---|---|
+| `priv-templates` | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex:326` | `priv/templates/sigra.install/organizations/live/organization_members_live.ex:24` |
+| `example` | `test/example/lib/example_web/live/invitation_accept_live.ex:332` | `test/example/lib/example_web/live/organization_members_live.ex:24` |
+| `golden` | `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:326` | `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:24` |
+
+The `gaps:` block names line 326 and line 24 for the template and golden tiers; both agree exactly.
+The `example` counterpart sits at 332 rather than 326 (the example file carries six extra lines
+ahead of it), which is why matching is keyed on (path, text) and never on a line number.
+
+If V3 could not see these today, its zero tomorrow would mean nothing. That is the falsification
+the whole closure rests on, and it is now on the record.
+
+### (g) Fail-closed, demonstrated live rather than asserted
+
+Exit **1** means *the surface is dirty*. Exit **3** means *the instrument cannot answer*. They are
+deliberately distinct: if they shared a code, a broken script would be indistinguishable from a
+demonstrated RED — the same failure shape this closure repairs everywhere else. Every consuming
+verify in plans 239-11/12/13 treats exit 3 as a halt, never as a result.
+
+| # | Case | Command | Result |
+|---|---|---|---|
+| 1 | usage error | `239-v3-vocabulary-check.sh` (no args) | exit **2**, usage line |
+| 2 | empty file list | `239-v3-vocabulary-check.sh --files` | exit **3**, `FAIL: empty file list — refusing to report success on no input (fail-closed guard)` |
+| 3 | vacuous allowlist entry, on the tier that exercises it | allowlist copied with its literal corrupted to `ZZZ-NOT-PRESENT-ZZZ…`, run against `priv-templates` | exit **3**, `FAIL: refusing to report success on a vacuous allowlist entry: priv/templates/sigra.gen.oauth/oauth_html.ex :: ZZZ-NOT-PRESENT-ZZZ…` |
+| 4 | allowlist entry exercised by no tier | allowlist copied with its path changed to `priv/NOT/A/TIER/path.ex` | exit **3**, `FAIL: allowlist entry 'priv/NOT/A/TIER/path.ex' is exercised by none of the three named tiers — refusing to report success on an allowlist entry that escapes its own control (fail-closed guard)` |
+| 5 | **scoping proof** — the same corrupted-literal copy as #3, run against the `example` tier, which does **not** exercise that entry | same copy, `example` tier | exit **1** (a real RED result, not a halt) — proving the control is scoped to the runs that exercise an entry, and does not fail closed on tiers that do not |
+
+Cases 3, 4 and 5 use temporary copies under `/tmp`; **neither corrupted copy is committed**. The
+committed `239-v3-allowlist.tsv` is the single-record file in § (e).
+
+### (h) Per-hit triage — every V3 hit over the three scoped tiers, exactly one disposition
+
+Seven hits, seven rows (3 + 2 + 2, matching § (f)). No row is deleted to reduce a count: the raw
+total stays visible alongside the triaged one, always.
+
+| # | Tier | `path:line` | Text | Disposition |
+|---|---|---|---|---|
+| 1 | priv-templates | `.../sigra.gen.oauth/oauth_html.ex:54` | SVG `<path d="…">` geometry | **FALSE-POSITIVE** — SVG coordinate pair `373-12`. Allowlisted (§ e). Survives the closure. |
+| 2 | priv-templates | `.../organizations/live/invitation_accept_live.ex:326` | `# The plan-checker greps this function body and asserts zero matches.` | **BOOKKEEPING → plan 239-11 work list.** Sigra-internal GSD tooling; has no existence in an adopter's project (review finding WR-02). |
+| 3 | priv-templates | `.../organizations/live/organization_members_live.ex:24` | `Flop / sortable columns are a v1.2 concern.` | **BOOKKEEPING → plan 239-11 work list.** Sigra's internal roadmap sequencing inside an adopter-owned moduledoc. |
+| 4 | example | `test/example/lib/example_web/live/invitation_accept_live.ex:332` | same as #2 | **BOOKKEEPING → MIRRORS `invitation_accept_live.ex` (plan 239-11 mirror commit, SC-4).** |
+| 5 | example | `test/example/lib/example_web/live/organization_members_live.ex:24` | same as #3 | **BOOKKEEPING → MIRRORS `organization_members_live.ex` (plan 239-11 mirror commit, SC-4).** |
+| 6 | golden | `.../install_golden/tree/.../invitation_accept_live.ex:326` | same as #2 | **BOOKKEEPING → cleared by the batched re-bless (plan 239-12).** Generator output; never hand-edited (D-09). |
+| 7 | golden | `.../install_golden/tree/.../organization_members_live.ex:24` | same as #3 | **BOOKKEEPING → cleared by the batched re-bless (plan 239-12).** |
+
+Raw vs outside-allowlist, side by side: `priv-templates` 3 / 2 · `example` 2 / 2 · `golden` 2 / 2.
+
+**Recall backstop — every hit was reviewed, not only the two known ones.** The `priv-templates` V3
+pass reported **3** hits; all 3 are in the table above, and the third (#1) is the pre-existing SVG
+false positive rather than a newly found leak. V3 found **no bookkeeping in `priv/templates/` beyond
+the two sentences `239-VERIFICATION.md` already named** — reported as a measurement under a named,
+versioned definition, not as "clean".
+
+**Triage is bounded to the three scoped tiers, deliberately.** Row-by-row triage of the unswept
+`test/example/` remainder is not in this plan's budget, cannot fit plan 239-11's fixed two-file
+commit scope, and would collide with D-19's commit topology and SC-4's counterpart-only mirror
+rule. It is handled as a measured, routed number instead — next section.
+
+### (i) The unswept `test/example/` remainder — measured, named, routed, not dropped
+
+```bash
+REM=$(git ls-files test/example \
+  | grep -vxF -e 'test/example/lib/example_web/live/invitation_accept_live.ex' \
+              -e 'test/example/lib/example_web/live/organization_members_live.ex')
+{ grep -HnE "$V3" $REM || true; } | grep -c '.'                      # => 482   lines
+{ grep -HnE "$V3" $REM || true; } | cut -d: -f1 | sort -u | wc -l     # => 157   files
+```
+
+**Measured: 482 lines across 157 files, over 344 scanned files, at this plan's base.** V2 over the
+same set returns 480, so the vocabulary class adds 2 there.
+
+**This differs materially from the plan's expected order of magnitude (~392 lines across ~67 files)
+and is reported rather than smoothed.** The difference is in both directions and is structural: the
+line count is ~1.2x the estimate, but the *file* count is 2.3x it, and the heavyweights are not the
+ones the plan anticipated. The top contributors measured are Playwright test tooling, not
+application code:
+
+| File | Lines |
+|---|---|
+| `test/example/priv/playwright/lib/eval/probes.ts` | 38 |
+| `test/example/priv/playwright/tests/admin-checkpoints.spec.ts` | 33 |
+| `test/example/priv/playwright/tests/admin-eval.spec.ts` | 29 |
+| `test/example/lib/example/demo/seeds.ex` | 18 |
+| `test/example/priv/playwright/playwright.config.ts` | 17 |
+| `test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts` | 16 |
+| `test/example/priv/playwright/tests/admin-design.spec.ts` | 15 |
+| `test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts` | 14 |
+| `test/example/priv/playwright/tests/organizations.spec.ts` | 12 |
+| `test/example/test/example_web/live/organization_members_live_test.exs` | 11 |
+
+The plan predicted `seeds.ex`, `personas.ex`, `design_gallery_live.ex`, `config/*.exs` and
+`README.md`; only `seeds.ex` appears in the measured top ten. The bulk sits in
+`test/example/priv/playwright/` — test tooling that is **not** adopter-shipped, which is a
+materially different (and lower-severity) surface than the estimate implied. That distinction is
+itself useful to the Phase 241 owner and would have been lost by reporting the expected number.
+
+Routed to `.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`,
+owner **Phase 241 SURF-04**.
+
+### (j) IN-06 — routed by finding, because V3 cannot measure it. Proven, not assumed.
+
+Review finding **IN-06** is `test/example/priv/playwright/tests/golden-path.spec.ts:59`, a lowercase
+plan reference inside a test-tooling comment (`// The login page is a plain controller (post plan
+04). …`), example-only and not adopter-shipped.
+
+```bash
+239-v3-vocabulary-check.sh --files test/example/priv/playwright/tests/golden-path.spec.ts
+# => hits=6 ; line 59 is NOT among them
+{ grep -nE "$V3" test/example/priv/playwright/tests/golden-path.spec.ts || true; } | grep -c '^59:'
+# => 0
+```
+
+V3 reports 6 hits in that file and **line 59 is not one of them**: `plan 04` is lowercase, so
+neither V2's `\bPlan [0-9]{2}\b` identifier alternation nor any V3 vocabulary alternation fires on
+it. A measurement-based routing would have missed this finding entirely. It is therefore named by
+ID and `file:line` in the remainder todo, by hand — and, more importantly, recorded here as
+**evidence of a vocabulary class V3 still misses**, which makes it a real input to Phase 241's `p18`
+spec rather than a low-severity line to drop. IN-06 is the only review finding with no disposition
+elsewhere in this closure (IN-01 … IN-04 are explicitly deferred in plan 239-11; IN-05 is filed by
+plan 239-10), so without this record it would be invisible to `/gsd-execute-phase`.
+
+*(The single-file invocation above exits **3**, not 1 — `control_defmodule=0` on a TypeScript file,
+so the paired positive control is inapplicable and the instrument correctly refuses to report a
+verdict. The hit list is still printed, which is what the line-59 measurement is read from. The
+fail-closed guard behaving this way on an off-tier file list is the guard working, not a defect.)*
+
+### (k) D-30 — the instrument's detection WIDTH and the criterion's asserted SURFACE are separate
+
+**Statement.** V3 stays maximally wide and is never narrowed, tuned, or hand-fitted so that the
+current tree happens to pass it. What the criterion in plans 239-11, 239-12 and 239-13 asserts is
+`hits_outside_allowlist = 0` — never `hits = 0` — over a tier file list and a per-line triage
+allowlist that were both committed *before* the RED demonstration ran, with the raw `hits=` total
+printed alongside on every run. The `example` tier is asserted only over SC-4's mirrored-counterpart
+surface; the unswept remainder of `test/example/` is a measured, named, routed number this phase
+does not claim to clean.
+
+**Rationale.** At this plan's base a literal `hits = 0` criterion is arithmetically unreachable: V2
+alone returns **1** hit in `priv/templates/` (an SVG coordinate false positive that cannot be edited
+without changing a brand mark's geometry) and **390** across `test/example/`; under V3 the example
+remainder is **482**. A plan asserting `hits = 0` would either halt on its first verify or be
+"resolved" under time pressure by hand-fitting V3 or bolting on an undocumented exclusion — which is
+precisely the goalpost-move `T-239-09-02` exists to prevent. Separating width from asserted surface
+keeps the instrument honest *and* the criterion reachable.
+
+**Alternatives not taken.**
+(a) *Narrow V3 until the tree passes* — rejected: it reinstates exactly the blind spot the widening
+exists to remove, and it is the V1→V2 failure repeating a third time.
+(b) *Sweep `test/example/` repo-wide* — rejected: 4.3x over the SC-4 scope (`239-RESEARCH.md`
+§ 1.6), incompatible with plan 239-11's two-file commit scope and D-19's commit topology.
+(c) *Silently drop the false positive from the reported count* — rejected: prohibited by this plan's
+own prohibitions, and indistinguishable from the defect under repair. The hit is reported, marked
+`[ALLOWLISTED]` inline, and counted in `hits=`.
+
+**Reversibility:** costly. V3 is the instrument every later acceptance criterion in this closure is
+measured against, and Phase 241's `p18` guard inherits it; reverting means re-deriving the
+measurements in plans 239-11, 239-12 and 239-13. Mitigated by the keep/drop record in § (c), which
+lets a later reader reconstruct the derivation rather than inherit it on trust.
+
+**Implemented by plan 239-09.**
+
+### (l) D-28 — the widening is implemented as a measurement instrument only; Phase 241 owns mechanization
+
+**Statement.** This closure implements the widening as a *measurement instrument only*. V3 is
+defined, demonstrated and recorded here as a phase artifact wired into nothing, and Phase 241's
+SURF-04 `p18` guard inherits it as its spec. Standing Constraint 5 and D-04 both forbid building the
+guard in Phase 239.
+
+Proof that nothing is wired:
+
+```bash
+grep -rn '239-v3-vocabulary-check' mix.exs .github scripts/ 2>/dev/null | wc -l   # => 0
+```
+
+**Note.** Plan **239-10** is where SC-1's wording is amended to name the definition it is measured
+under, so the criterion stops over-claiming — "clean" becomes "clean under V3", which is the only
+form of the claim the evidence supports.
+
+**Reversibility:** reversible (the artifact is deletable and referenced by nothing executable).
+
+**Implemented by plan 239-09.**
