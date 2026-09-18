@@ -44,13 +44,17 @@ Out of scope (named, deliberately not fixed here):
   `phase_233_library_economics_contract_test.exs` asserts that exact list via `ci_legs/1`; it is
   **re-run as evidence**, not modified. `mix.exs:55` (`elixirc_paths(:test)` includes `test/support`)
   is why the module compiles at all and is unaffected by removing one file from that tree.
-- **D-03:** The ADR must name the **parked `235.1` branch** as an affected consumer. The v1.47
+- **D-03 (widened by research):** The ADR must name **all ten** cross-refs carrying live non-support
+  consumers of `SIGRA_EXUNIT_TIMING_PATH` — not only the parked `235.1` branch but the
+  `gsd/phase-232-playwright-economics` branch family as well. The v1.47
   re-wiring commits live there; a later cherry-pick would compile against a deleted module and red
   `compile --warnings-as-errors` for a reason unrelated to its own diff.
-- **D-04:** The ADR's home and numbering is **resolved by the planner before Task 1**, not assumed.
-  No `docs/adr/` or `.planning/adr/` directory was located during analysis, yet `MEMORY.md` cites an
-  "ADR 003" for the Hex-retire footgun. Find the existing convention and follow it; do not invent a
-  second one.
+- **D-04 (RESOLVED by research 2026-09-18):** ADRs live at `.planning/decisions/NNN-slug.md`. The
+  "ADR 003" `MEMORY.md` cites is `003-hex-release-versioning-no-tag-derived-publish.md` (confirmed via
+  `PROJECT.md:196`). **This phase writes 004.** Convention: `# ADR NNN: ...` H1 plus bold
+  `**Status:** / **Date:** / **Context:**` lines, no YAML frontmatter; amendments are made in place with
+  a dated strikethrough retraction (`003:35-40` is the live example). `PITFALLS.md:303` already
+  prescribes both the number and the content. No guard asserts ADR numbering.
 - **D-05:** SC-1 requires a green `mix ci`, but this repo currently has **6 environmental
   `Sigra.Audit.Forwarders.ThreadlineTest` failures** (`Threadline.attach/1 undefined`) that are
   unrelated to this phase and confirmed green in CI at the same commit. The green claim is made
@@ -75,15 +79,21 @@ Out of scope (named, deliberately not fixed here):
   no-topology-change fence. The RED is mechanized instead by a scripted `bash -c` run recorded in
   EVIDENCE.
 - **D-09 (operator decision, 2026-09-18):** The `235-FAST-01-REMEDIATION.json` dependency is
-  **retired**. The two receipt tests are deleted and the ADR records that git history plus the
-  `239`-style evidence files are the tamper record. Rationale: the receipt asserts a sha256 **of
+  **retired**. The two receipt tests **in `phase_233_library_economics_contract_test.exs`** are deleted and the ADR
+  records that git history plus the `239`-style evidence files are the tamper record. **The
+  `235-FAST-01-REMEDIATION.json` file itself is NOT deleted** (see D-10). Rationale: the receipt asserts a sha256 **of
   `phase_233_library_economics_contract_test.exs` itself** — the very file SC-2 rewrites — and nothing
   recomputes it, so after the rewrite the receipt is silently false while its test stays green. That is
   the exact defect class SC-2 exists to remove. Loss is bounded: the JSON is committed and the repo is
   public, so tampering remains visible in `git log`.
-- **D-10:** Before deleting, the planner **sweeps `scripts/` for any other reader** of
-  `235-FAST-01-REMEDIATION.json`. Analysis covered the test and the `Sigra.Test.PlanningPaths.phase_file/2`
-  indirection but did not sweep scripts. If a reader exists, this becomes a two-file change.
+- **D-10 (RESOLVED by research — a reader EXISTS):** `scripts/ci/capture-fast-01-gap-closure.sh:42`
+  reads the JSON via `jq`, and `phase_235_fast_01_gap_closure_contract_test.exs:35` reads it too.
+  **Only `phase_233`'s dependency is retired; the JSON file stays.** D-09 is safe because the collector
+  verifies `file_digests` at the immutable cutoff SHA `54c33e90...` via `git show "$CUTOFF_SHA:$file"`
+  (`capture-fast-01-gap-closure.sh:40`), **not at HEAD** — so rewriting `phase_233` cannot break it.
+  **Trap:** deleting the two receipt tests without also deleting the now-unused private helpers
+  `timing_consistent?/1` (`:196-210`) and `duration_seconds/2` (`:212-216`) reds `mix ci` leg 4
+  (`compile --warnings-as-errors`).
 
 ### C. DEBT-03 — the honest-skip parity guard (SC-3)
 
@@ -92,10 +102,13 @@ Out of scope (named, deliberately not fixed here):
 - **D-12:** The guard is named `p21-honest-skip-parity.test.mjs` so the `ci.yml` prohibitions glob
   picks it up with zero workflow edits. `.github/ci-skip-manifest.tsv`'s header cites the
   **unprefixed** path twice, so the header is updated to the chosen name either way.
-- **D-13 (scope fence, load-bearing):** The guard asserts **only** structural parity: every manifest
-  `id` resolves to a `^  <id>:` in `ci.yml`; every `kind=step` row's `parent_job_id` also appears as a
-  `kind=job` row; every `display_name` appears adjacent to its id; and every row's id+parent appears in
-  `MAINTAINING.md`'s honest-skip section. It **must not** parse the `gate` column's `${{ }}` expressions
+- **D-13 (scope fence, load-bearing — NARROWED by research):** `p10-no-undocumented-demotion.test.mjs`
+  **already implements three of the four legs** (`:72` id-resolves, `:90` step-parent, `:101`
+  display-name), including hardcoded handling for the two edge cases a fresh implementation would trip
+  on: `example_playwright_shard`'s `${{ matrix.seam }}` templated name (`:103-105`) and `install_smoke`'s
+  intervening comment lines (`:107`). **`p21` therefore implements ONLY the MAINTAINING.md leg** and
+  delegates the rest to `p10` in prose. Duplicating them would add a second owner of the same assertion —
+  itself a v1.47-shaped defect. `p21` **must not** parse the `gate` column's `${{ }}` expressions
   semantically — that is where a parity guard becomes a YAML-expression evaluator and rots into a
   second screenshot that reds on every unrelated `ci.yml` edit.
 - **D-14:** The guard **must not assert `ci-gate.needs` membership**. `example_unit_smoke` is a
@@ -106,9 +119,15 @@ Out of scope (named, deliberately not fixed here):
   unrelated prose. The real rot is around **`MAINTAINING.md:263-269, 280, 322`**: it places
   `design_gallery_snapshots` "inside `example_playwright_smoke`" when `ci.yml` has it inside
   `example_playwright_shard`, and it cites an `Aggregate Playwright step outcomes` step with **zero**
-  grep hits in `ci.yml`. The plan re-locates by content; it does not trust the cited line numbers.
-- **D-16:** The RED is observed on the **manifest ↔ MAINTAINING.md leg against HEAD's committed
-  `MAINTAINING.md`**, before any doc edit. Write the guard, watch it fail, then correct the doc — in
+  grep hits in `ci.yml`. The plan re-locates by content; it does not trust the cited line numbers. **D-15 is accurate but
+  incomplete** — research found two further rots it does not name: `:263` quotes the wrong step display
+  name (the real step is `Aggregate every Playwright shard result` at `ci.yml:1395`), and `:278-282`
+  lists `example_playwright_smoke` as docs_only-step-gated when at HEAD it is a pure one-step aggregator.
+- **D-16 (the RED is located):** Research confirmed legs 1 and 2 pass 16/16 and 1/1 at HEAD; the
+  MAINTAINING.md leg has **exactly one RED — `example_playwright_shard` has zero occurrences anywhere in
+  `MAINTAINING.md`** (independently reproduced by the orchestrator: `grep -c` returns 0), firing on the
+  id-row and step-parent sub-checks simultaneously. That is the free, uncontrived RED. It is observed
+  against HEAD's committed `MAINTAINING.md`, before any doc edit. Write the guard, watch it fail, then correct the doc — in
   that order. A guard authored after the doc is fixed has never been seen failing.
 - **D-17:** The guard is offline-only — no `gh`, no token, no network — matching the standing
   constraint the whole `p*` family respects.
@@ -128,7 +147,12 @@ Out of scope (named, deliberately not fixed here):
   SC-4 says to prove the guard by "unpinning **one of its four**" — pick line 63 or 111 and the guard
   stays green even after the universe is widened, and DEBT-04 ships "closed" with half the composite
   action's supply-chain surface invisible. The regex is relaxed to `^\s*(?:-\s+)?uses:` and **the
-  relaxation itself is proven by a fixture**.
+  relaxation itself is proven by a fixture**. **Blast radius measured, not assumed:** the relaxation
+  newly matches exactly **7 lines** (`release-please.yml:88,157,285`; `hex-publish.yml:100,217`;
+  `action.yml:63,111`), **all 40-hex-pinned with valid `# vN.N.N` comments — zero would fail**. Inventory
+  grows 7 -> 16. The blast radius is bounded because the universe is an explicit file list, not a
+  `.github/workflows/` glob. **Caution:** `phase_234:12-22` asserts `@release_workflows` is *exactly*
+  two entries — add a **separate** universe, do not widen that one in place.
 - **D-20:** The two-directional proof uses a **committed known-bad fixture plus subject indirection**,
   never a mutation of the live `action.yml`. A fixture copy with one ref replaced by a floating tag
   gives RED; HEAD's real `action.yml` gives GREEN; both runs are scripted, recorded in EVIDENCE with
@@ -164,11 +188,28 @@ Out of scope (named, deliberately not fixed here):
   genuine — the fixture does go red — but it proves one assertion, not the two it declares."
 - **D-26:** The `priv/templates/` clean-side assertion needs a **real positive control**. Only 1
   V3-matching line exists there at HEAD, so a zero is otherwise indistinguishable from an empty file
-  list. `p03-no-green-on-empty-grep` is the in-repo precedent.
+  list. `p03-no-green-on-empty-grep` is the in-repo precedent. **Trap:** that single hit is an **allowlisted
+  false positive** — `\b[0-9]{3}-[0-9]{2}\b` firing on the coordinate `373-12` inside an SVG path in a
+  committed third-party brand mark. A `p18` that hard-fails without porting the allowlist **reds at HEAD
+  on a logo**.
 - **D-27 (stale citation — re-locate by content):** SC-5 cites `ci.yml:393` for the prohibitions glob.
   At HEAD the `run:` line is **`ci.yml:408`**. Naming the guard `p18-*.test.mjs` under
   `scripts/ci/prohibitions/` is what earns zero-workflow-edit pickup; the `mix ci` alias has no node
   leg, so a `.mjs` guard cannot enter `mix ci` by construction.
+
+- **D-28 (added by research — counter definitions must be stated in writing):** The three counters do
+  **not** share one vocabulary, and the plan must say so explicitly or a reader will assume V3 throughout.
+  **R1** uses the narrower `237-docs-attribute-scan.py` token set (which is where 337 comes from); **R2**
+  uses V3; **R3** is the literal string `.planning/`. V3 is committed runnably at
+  `.planning/phases/239-*/239-v3-vocabulary-check.sh` and is effectively `p18`'s written spec (allowlist
+  keyed on `(path, literal)`, `control_defmodule` positive control, four fail-closed exit-3 paths,
+  distinct exit 1 vs 3).
+- **D-29 (added by research — decide before committing a baseline):** The two V3 widenings the folded
+  todo describes (lowercase plan refs such as `post plan 04`, and cross-line phrases) would **move R2
+  above 220**. Adopt or decline them **before** the baseline is committed, never after.
+- **D-30 (added by research):** `237-docs-attribute-scan.py` is committed, reusable, and frontmattered
+  `owner: Phase 241` — but it is **Python and `fast_checks` has no `setup-python`**. Port R1's scan to JS
+  for the guard; keep the Python run as a cross-check that the port reproduces 337.
 
 ### Claude's Discretion
 
