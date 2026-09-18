@@ -72,7 +72,7 @@
 - [x] **Phase 236: Flake Root Cause — Reproduce, Name, Fix** - Manufacture a RED, name the root cause, fix it in shipped `lib/` (not a retry wrapper), and mechanize the prohibition (completed 2026-09-15)
 - [x] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip (completed 2026-09-16)
 - [x] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags (completed 2026-09-17)
-- [ ] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree
+- [x] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree (completed 2026-09-18)
 - [ ] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence
 - [ ] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture
 - [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
@@ -348,7 +348,7 @@ Plans:
 | 236. Flake Root Cause | 4/4 | Complete    | 2026-09-15 |
 | 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
 | 238. Tag Guard, Then Tag Deletion | 6/6 | Complete    | 2026-09-17 |
-| 239. `priv/templates/` Sweep + Re-bless | 15/16 | In progress (D-33 amendment) | - |
+| 239. `priv/templates/` Sweep + Re-bless | 16/16 | Complete    | 2026-09-18 |
 | 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
