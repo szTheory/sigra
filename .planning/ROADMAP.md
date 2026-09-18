@@ -218,7 +218,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 239-08-PLAN.md — Re-freeze the expected set, demonstrate the classifier RED, run the single closure re-bless, re-prove SC-1/SC-2/SC-5 under the widened definition *(wave 8)*
+- [x] 239-08-PLAN.md — Re-freeze the expected set, demonstrate the classifier RED, run the single closure re-bless, re-prove SC-1/SC-2/SC-5 under the widened definition *(wave 8)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 

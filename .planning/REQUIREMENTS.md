@@ -79,9 +79,9 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 ### Clean shipped surface (SURF)
 
-- [ ] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
+- [x] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
 - [x] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
-- [ ] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one batched re-bless per batch of template edits** (`mix sigra.fixture.rebless_golden`), in separate commits — amended from "**one** batched" per D-26, because the gap closure lands a second batch of template edits; each run stays single, fixture-scoped, comment-only and alone in its commit. Only the `test/example/` counterparts of edited templates are mirrored.
+- [x] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one batched re-bless per batch of template edits** (`mix sigra.fixture.rebless_golden`), in separate commits — amended from "**one** batched" per D-26, because the gap closure lands a second batch of template edits; each run stays single, fixture-scoped, comment-only and alone in its commit. Only the `test/example/` counterparts of edited templates are mirrored.
 - [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`.
 
 ### Clean git working state (REPO)
@@ -153,9 +153,9 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | REL-04 | Phase 242 | Pending |
 | REL-05 | Phase 242 | Pending |
 | REL-06 | Phase 242 | Pending |
-| SURF-01 | Phase 239 | Pending |
+| SURF-01 | Phase 239 | Complete |
 | SURF-02 | Phase 237 | Complete |
-| SURF-03 | Phase 239 | Pending |
+| SURF-03 | Phase 239 | Complete |
 | SURF-04 | Phase 241 | Pending |
 | REPO-01 | Phase 237 | Complete |
 | REPO-02 | Phase 237 | Complete |

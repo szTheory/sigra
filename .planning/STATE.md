@@ -4,9 +4,9 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
-status: executing
-stopped_at: Completed 239-07-PLAN.md
-last_updated: "2026-09-18T03:50:59.593Z"
+status: verifying
+stopped_at: Completed 239-08-PLAN.md
+last_updated: "2026-09-18T04:00:49.955Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
 progress:
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-17 — Phase 239 execution started
 
 ### v1.48 phase map
@@ -482,6 +482,9 @@ Last activity: 2026-09-17 — Phase 239 execution started
 - [Phase ?]: 239-06: residual V2 on priv/templates recorded as the measured 2 (pre-dispositioned FALSE-POSITIVE SVG geometry), not rounded to 0
 - [Phase ?]: 239-07: the generated golden tree is the wording authority for a mirrored comment — never a third, freshly invented wording
 - [Phase ?]: 239-07: a confirmed no-edit disposition is recorded in the mirror ledger instead of a phantom edit (mfa_settings_live.ex, organization_invitation.ex)
+- [Phase ?]: D-26 amendment applied: SC-3 and SURF-03 now read 'one batched re-bless per batch of template edits'
+- [Phase ?]: Round-2 expected-removed set frozen and committed BEFORE the re-bless, so the ordering is provable by git merge-base --is-ancestor rather than by prose
+- [Phase ?]: floor_files parameterized to GOLDEN_MIN_FILES (set to 7, the exact expected-path count) rather than disabled
 
 ### Pending Todos
 
@@ -684,8 +687,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T03:50:54.191Z
-Stopped at: Completed 239-07-PLAN.md
+Last session: 2026-09-18T04:00:45.569Z
+Stopped at: Completed 239-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -877,3 +880,4 @@ Resume file: None
 | Phase 239 P05 | 35m | 3 tasks | 4 files |
 | Phase 239 P06 | 30m | 3 tasks | 8 files |
 | Phase 239 P07 | ~25m | 3 tasks | 8 files |
+| Phase 239 P08 | ~75m | 4 tasks | 12 files |
