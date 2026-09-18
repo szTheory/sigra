@@ -13,9 +13,12 @@
 # generator with the shape flipped — so the harness can never drift into proving a payload
 # shape the Actions API never produces.
 #
-# NOT WIRED INTO ci.yml, deliberately: neither capture-fast-01-remeasurement.test.sh nor
-# capture-terminal-ratification-evidence.test.sh has a CI caller either. This collector is
-# operator-invoked once, on a clean tree at the final committed HEAD.
+# WIRED INTO ci.yml's `fast_checks` job, which is what makes these assertions load-bearing:
+# a fail-closed guard that no CI job ever exercises is a guard that can regress silently. The
+# self-test is hermetic (stub `gh` on PATH, throwaway git repo — no token, no network, no
+# Postgres), so it costs `fast_checks` nothing but a bash invocation. The COLLECTOR itself is
+# still operator-invoked once, on a clean tree at the final committed HEAD; only this
+# self-test runs in CI.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
