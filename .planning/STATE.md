@@ -5,8 +5,8 @@ milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: Green-Main Evidence + Honest Pages Script
 status: planning
-stopped_at: Completed 239-13-PLAN.md
-last_updated: "2026-09-18T15:43:46.875Z"
+stopped_at: Phase 240 context gathered (assumptions mode)
+last_updated: "2026-09-18T16:35:51.604Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
@@ -701,9 +701,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T15:33:19.823Z
-Stopped at: Completed 239-13-PLAN.md
-Resume file: None
+Last session: 2026-09-18T16:35:51.582Z
+Stopped at: Phase 240 context gathered (assumptions mode)
+Resume file: .planning/phases/240-green-main-evidence-honest-pages-script/240-CONTEXT.md
 
 ## Operator Next Steps
 
