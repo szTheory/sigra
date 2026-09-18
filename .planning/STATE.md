@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
-stopped_at: Completed 239-11-PLAN.md
-last_updated: "2026-09-18T13:38:48.060Z"
+stopped_at: Completed 239-12-PLAN.md
+last_updated: "2026-09-18T13:44:50.727Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 29
-  completed_plans: 27
+  completed_plans: 28
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
-Plan: 4 of 13
+Plan: 5 of 13
 Status: Ready to execute
 Last activity: 2026-09-18 — Phase 239 execution started
 
@@ -490,6 +490,8 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase 239]: D-27 (239-10): SC-2 narrowed to the tarball's lib/+priv/ — the claim narrows, the packaged docs surface (58 .planning/ occurrences) is routed to Phase 241 SURF-04 plus a todo, not cleaned and not dropped
 - [Phase 239]: D-29 (239-10): the D-26 unbounded-re-bless residue is bounded by a per-batch evidence obligation in 239-EVIDENCE.md § BATCH-JUSTIFICATION, without re-amending SC-3 or SURF-03 prose
 - [Phase 239]: D-28 amendment (239-10): SC-1 now names V3 as the definition its 'planning bookkeeping' half is measured under — a widening, since V3 strictly contains the V2 regex the failed pass used
+- [Phase 239]: Plan 239-12 ran the re-bless twice (capture, restore path-scoped, commit) — SC-3/D-26 counts commits not runs; the two captures are byte-identical
+- [Phase 239]: GOLDEN_MIN_FILES=2 (expected-set distinct-path count) on the real round-3 classification; 1 only for the single-hunk RED demonstration — both numbers recorded together
 
 ### Pending Todos
 
@@ -692,8 +694,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T13:38:48.045Z
-Stopped at: Completed 239-11-PLAN.md
+Last session: 2026-09-18T13:44:50.542Z
+Stopped at: Completed 239-12-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -889,3 +891,4 @@ Resume file: None
 | Phase 239 P09 | 34min | 2 tasks | 6 files |
 | Phase 239 P10 | 22 | 3 tasks | 7 files |
 | Phase 239 P11 | 25m | 2 tasks | 6 files |
+| Phase 239 P12 | ~35m | 2 tasks | 5 files |

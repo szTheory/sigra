@@ -2041,3 +2041,151 @@ already clean". The paired positive control (`grep -cE '\bdefmodule\b'` over the
 non-zero on the `.ex` files) is what exposed it. This is the `unclassified` edge-probe's dead-grep
 case firing for real, for the second time in this phase, and the reason every zero here is paired
 with a control on the same surface.
+
+
+## REBLESS-COMMIT-3
+
+*(Written by plan 239-12 in its final documentation commit — neither the freeze commit nor the
+path-scoped re-bless commit can carry these shas.)*
+
+Status: PASS — one batched re-bless, classifier RED then GREEN, `--check` exit 0 on a clean tree, and
+the `golden` tier's RED/GREEN pair closed under the frozen instrument.
+
+### (a) Commit topology — the D-19 ordering, proven from the graph
+
+```
+freeze commit (round-3 expected set + known-bad fixture + evidence) : 4f94278f
+re-bless commit (batch 3)                                           : 87581665
+
+$ git merge-base --is-ancestor 4f94278f 87581665      → exit 0   (shas distinct)
+$ git log --format=%H 4f94278f..HEAD -- test/fixtures/install_golden | wc -l
+1
+$ git show --name-only --format= 87581665 | grep -cv '^test/fixtures/install_golden/'
+0
+$ git show --name-only --format= 4f94278f | grep -c 'test/fixtures/install_golden/'
+0
+```
+
+Exactly one new commit touches the golden fixture; it touches nothing else; and the freeze that
+defines what "comment-only" means for this batch is a strict ancestor of it. The phase now carries
+**3** re-bless commits — `38c9bd9a` (batch 1), `265f7195` (batch 2), `87581665` (batch 3) — one per
+batch, each justified by name in § `## BATCH-JUSTIFICATION` before it ran.
+
+### (b) The re-bless run
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden`, run once, batched, never per-file:
+
+```
+Totals:
+  added:     0
+  modified:  2
+  removed:   0
+
+MODIFIED (2):
+  tree/lib/sigra_install_golden_tmp_web/live (2)
+    …/live/invitation_accept_live.ex
+    …/live/organization_members_live.ex
+```
+
+The task does not stage or commit (`rebless_golden.ex:19-20`); staging was by path
+(`git add test/fixtures/install_golden`) and nothing else.
+
+### (c) The diff was classified BEFORE anything was staged — full output, verbatim
+
+```bash
+GOLDEN_MIN_FILES=2 ./239-comment-only-diff-check.sh <captured-diff> 239-golden-expected-3.txt
+```
+
+```
+changed_lines=10
+removed_lines=5
+files=2
+nonconforming=0
+nonconforming_removed=0
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=2
+```
+
+**exit 0.** Not summarized — this is the whole output, all three sub-counters included.
+
+**The floor was cleared, not disabled** (the backstop truth): `GOLDEN_MIN_FILES` was **2**, the exact
+distinct-path count of `239-golden-expected-3.txt`; the reported `files` was **2**; the expected set's
+distinct-path count is **2**. `removed_lines=5` against a `removed_lines_floor=2` derived from the
+set's 2 `T:` records. All five removed lines are in the frozen set; `nonconforming_removed=0` is a
+containment result, not an empty-input artifact — the same classifier returned `nonconforming=1` on
+the known-bad fixture minutes earlier (§ `## REFREEZE-LEDGER-3` (g)).
+
+**Determinism, recorded:** the re-bless was run twice — once before the freeze commit to capture the
+diff shape the known-bad fixture is built from (working tree then restored with a path-scoped
+`git checkout -- test/fixtures/install_golden`), and once after it for the commit. The two captured
+diffs are byte-identical (`diff` → no output). **One** re-bless *commit*; re-runs before commit are
+explicitly permitted and are what let the known-bad fixture be built from a real diff shape.
+
+### (d) `--check` exit 0 on the clean tree after the commit
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode.)
+```
+
+**exit 0**, and `git diff --quiet` succeeded afterwards (check mode wrote nothing into the working
+tree). This is the only local proof that the committed golden tree equals real generated output; it
+is what keeps the fixture admissible as generated-app evidence, and it independently covers D-13's
+independent-drift hazard because `--check` compares `STDOUT.txt` by byte equality on its own line
+(`rebless_golden.ex:115-140`).
+
+### (e) `STDOUT.txt` re-checked under V3 as an explicit number, not assumed nil
+
+| Measurement | Value |
+|---|---|
+| V3 hits in `test/fixtures/install_golden/STDOUT.txt` | **0** |
+| positive control (`sigra`) on the same file | **83** |
+| file length | 186 lines |
+
+The zero is paired with a live control on the same surface, so "clean" is distinguishable from "the
+grep did not run".
+
+### (f) The `golden` tier's RED/GREEN pair, closed
+
+```
+tier=golden
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=78
+files_measured=84
+```
+
+**exit 0.** Plan 239-09 opened this pair at `hits_outside_allowlist=2` on the same tier, same
+definition, same allowlist; plan 239-11 closed the other two tiers and left this one RED by exactly
+batch 3. The raw `hits=` total is **0**, so the allowlist is hiding nothing here, and
+`control_defmodule=78` over `files_measured=84` proves the instrument ran. Exit 3 (instrument cannot
+answer) was never raised.
+
+**The green came from the surface moving, not the measurement.** Across this entire plan
+(`4f94278f~1..HEAD`), `git diff --name-only` for `239-v3-vocabulary-check.sh` and
+`239-v3-allowlist.tsv` is **empty** — D-30 holds. `239-comment-only-diff-check.sh` is likewise
+byte-unchanged in round 3.
+
+### (g) Nothing else moved
+
+`git diff --name-only 4f94278f~1..HEAD -- .github/ lib/ priv/ test/example/` is **empty**. `.github/`
+is read-only in this plan (D-23) and no `name:` line was touched. SC-5's two-base re-proof belongs to
+plan 239-13.
+
+### (h) What this plan deliberately did NOT do
+
+- **No `MIX_ENV=test mix ci`.** The full gate, the fixed-string proof on a freshly generated app, the
+  tarball under the D-27 scope, SC-5's re-proof, and the three-tier re-confirmation at final HEAD are
+  plan 239-13's, by declared plan boundary rather than by omission.
+- **No `install_golden_contract` CI claim.** This phase pushes nothing; the Actions clause stays a
+  recorded ship-time deferral, extended in plan 239-13's `## HONEST-CLAIMS`.
+- **SURF-03 not re-checked.** It reads `[ ]` at this plan's final HEAD
+  (`grep -c '^- \[ \] \*\*SURF-03\*\*' .planning/REQUIREMENTS.md` → **1**, with 3 total `SURF-03`
+  mentions as the control). Plan 239-13 re-checks it last and alone, after the live observations. A
+  checkbox flipped on expectation rather than observation is the SURF-02 false-complete defect this
+  phase already filed a todo about.
+- **T-239-12-03 not discharged here.** The two observations the WR-01 replacement rests on are
+  re-made against a freshly generated app in plan 239-13 Task 1, with a `*.exs` positive control on
+  the same tree. Carried across the plan boundary by name so it cannot be lost.

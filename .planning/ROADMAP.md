@@ -234,7 +234,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 239-12-PLAN.md — Justify batch 3 (D-29), freeze the round-3 expected set, demonstrate the classifier RED, then the third batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 12)*
+- [x] 239-12-PLAN.md — Justify batch 3 (D-29), freeze the round-3 expected set, demonstrate the classifier RED, then the third batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 12)*
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
