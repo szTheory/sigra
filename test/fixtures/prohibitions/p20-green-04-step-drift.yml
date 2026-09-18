@@ -1,0 +1,212 @@
+# KNOWN-BAD fixture for P20 (240-02-PLAN.md task 2).
+#
+# Structurally a valid copy of .github/workflows/green-04-evidence.yml: it keeps the job id
+# `green_04_evidence_repeat`, the full services block, the matrix, and twelve of the thirteen
+# steps — so the guard's non-vacuity floor PASSES (both sides still parse to a non-empty
+# step list and both still invoke scripts/ci/admin-acceptance-smoke.sh --test all) and the red
+# comes from the clause under test rather than from an empty parse.
+#
+# THE INJECTED DEFECT: the `Install Playwright browsers` step
+# (`npx playwright install --with-deps chromium webkit`) has been DELETED. This is the most
+# consequential possible drift from ci.yml:1401-1533 — the acceptance smoke would still "run",
+# against no browsers at all — which is precisely the sibling-harness failure mode D-02 names:
+# twenty green runs of a job that is no longer the lane say nothing about the lane that reds
+# ci-gate.
+#
+# DO NOT "FIX" THIS FILE. It is a negative control, not a workflow; it is never dispatched.
+# GREEN-04 evidence workflow (Phase 240, plan 240-02).
+#
+# SOURCE OF TRUTH: the single job below is a byte-faithful copy of the
+# `generated_admin_playwright_smoke` job at ci.yml:1401-1533. D-02 states the
+# premise plainly: any drift makes the proof worthless. Twenty green runs of a
+# SIBLING harness say nothing about the lane that reds `ci-gate`.
+#
+# ENFORCED BY: scripts/ci/prohibitions/p20-green-04-evidence-step-parity.test.mjs
+# That guard compares this job's step list, step names and load-bearing command
+# substrings against ci.yml:1401-1533 on every PR, and was observed RED against
+# test/fixtures/prohibitions/p20-green-04-step-drift.yml in the commit it was
+# born. A comment alone is the "green gate that verified nothing" pattern this
+# milestone exists to remove; the guard is what makes the copy provably a copy.
+#
+# THREE MANDATORY EXCEPTIONS to byte-faithfulness, each with its reason:
+#
+#   1. ARTIFACT NAMES carry a `-${{ matrix.repeat }}` suffix (all four upload
+#      steps; ci.yml:1497, :1506, :1518, :1527 carry the bare names).
+#      Reason: `actions/upload-artifact` at the pinned v7 major ERRORS on a
+#      duplicate artifact name within one run, so a literal copy under a 20-leg
+#      matrix fails on leg 2.
+#
+#   2. `needs: release_ref_guard` (ci.yml:1421) IS OMITTED.
+#      Reason: that job does not exist in this workflow and an unresolvable
+#      `needs:` is a workflow-validation error. Its role — restricting when the
+#      job runs — is replaced by D-01's JOB-level
+#      `if: github.ref == 'refs/heads/main'`, following the precedent at
+#      fast-01-remeasurement-evidence.yml:11.
+#
+#   3. The workflow-level `concurrency` block (ci.yml:53-55) IS OMITTED ENTIRELY.
+#      Reason: its group key references `github.event.pull_request.number`, which
+#      is meaningless on a dispatch-only workflow, and `cancel-in-progress: true`
+#      would let a second dispatch kill an in-flight 20-leg matrix. Both existing
+#      dispatch-only evidence workflows omit it for the same reason.
+#
+# Resolved discretion (RESEARCH OQ3): the four `github.ref != 'refs/heads/main'`
+# upload legs are kept VERBATIM even though the job-level `if` makes them dead.
+# Byte-faithfulness is D-02's whole point, the dead legs cost nothing, and
+# keeping them means p20 needs no allowance beyond the artifact-name suffix.
+name: GREEN-04 evidence (n>=20 repeat)
+
+on:
+  workflow_dispatch:
+
+# Least privilege (ASVS V4, T-240-02b): this job reads the repo and runs a
+# smoke. It never writes repository state. No id-token, no attestations, no
+# actions: write.
+permissions:
+  contents: read
+
+jobs:
+  green_04_evidence_repeat:
+    name: Generated admin Playwright smoke (GREEN-04 repeat)
+    # THE JOB-NAME CONTRACT. Because this job carries BOTH a `name:` and a
+    # `strategy.matrix`, the Actions API does not report the bare name above.
+    # ci.yml:556-560 records the rule: "A bare matrix on a named job emits
+    # `Library tests (1)`/`(2)` — never a bare `Library tests`". So
+    # `GET /runs/{id}/jobs` returns twenty jobs named
+    # `Generated admin Playwright smoke (GREEN-04 repeat) (1)` … ` (20)`.
+    # A collector selecting on byte equality with the bare name harvests ZERO
+    # legs. Every downstream selector MUST be a prefix / anchored regex of the
+    # form `^<name> \((\d+)\)$` and read N from the suffix.
+    #
+    # The distinct name is also load-bearing in the other direction: it
+    # guarantees a harvest can never accidentally ingest a real ci.yml job.
+    #
+    # D-01: this is the whole shape — a new dispatch-only evidence workflow
+    # with a JOB-level ref guard and a 20-leg repeat matrix. The live ci.yml
+    # job is neither given a matrix nor renamed.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      # D-04: `max-parallel: 5` is LOAD-BEARING, not cosmetic. GitHub's
+      # concurrent-job ceiling is per-ACCOUNT, not per-repo, and public repos
+      # get no exemption (Free = 20, Pro = 40). An unset `max-parallel` means
+      # "take everything available", so a bare 20-wide matrix would consume
+      # 100% of a Free budget and queue every job of any concurrently
+      # triggered PR behind this matrix. 5 leaves 15 slots free on either
+      # tier; wall clock is 4 sequential waves.
+      max-parallel: 5
+      # D-07: bounded, known cost. ci.yml:1401-1407 records this job's
+      # measured duration as 3.73m (230-EVIDENCE.md), so 20 repeats is roughly
+      # 75-100 runner-minutes in ONE operator-triggered dispatch — a one-off
+      # spend, never a recurring PR-lane cost.
+      matrix:
+        repeat: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Run generated admin acceptance smoke
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
+        # seam runs the full acceptance target (`--test all` — both the
+        # desktop/mobile shell and the denial-response assertions) so
+        # generated-host admin parity stays explicit and narrow rather
+        # than collapsing into a single monolithic verification job.
+        run: scripts/ci/admin-acceptance-smoke.sh --test all
+      - name: Collect curated generated-host admin screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer PNGs for the generated-host
+        # admin checkpoints live alongside the example-app bundle so
+        # reviewers can diff generated vs example parity with the same
+        # artifact naming convention.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint. See the matching block in the example_playwright
+            # _smoke job for the full rationale. Visible src_count pairs
+            # "expected" with ls -la's "collected" under this step's log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated generated-host admin screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      # D-19, D-22: green-run generated-host reviewer bundle scoped to this
+      # dedicated admin parity job. Always uploaded so the Playwright HTML
+      # report and curated PNGs are available without needing the richer
+      # diagnostic bundle on successful runs.
+      #
+      # D-23: branch-aware retention expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file.
+      - name: Upload generated admin review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-report-${{ matrix.repeat }}
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 14
+      - name: Upload generated admin review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-report-${{ matrix.repeat }}
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 7
+      # D-21, D-24: failure bundle publishes test-results/ so retained
+      # video (selective `retain-on-failure` on the `admin-generated`
+      # project), traces, and failure screenshots are published alongside
+      # the HTML report only when this job fails — keeping the seam's
+      # successful-run artifact policy lightweight per D-22.
+      - name: Upload generated admin failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-failure-diagnostics-${{ matrix.repeat }}
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload generated admin failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-failure-diagnostics-${{ matrix.repeat }}
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7

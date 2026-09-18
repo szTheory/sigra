@@ -34,3 +34,25 @@ this gate exists to close.
 | `GET /repos/{repo}/actions/permissions` · `/actions/permissions/workflow` | OPT-OUT | Repo-admin scope the caller does not hold; the phase's least-privilege posture is asserted by the workflow's declared `permissions:` block, not by querying settings. |
 | `POST /repos/{repo}/issues` (create) · `/labels` | OPT-OUT | The missing `release-lane-rot` label is a named-not-fixed adjacent defect owned by its own pending todo (D-28, ROADMAP standing constraint 4). |
 | `GET /repos/{repo}/actions/runs/{id}/attempts/{n}` | OPT-OUT | `filter` is set explicitly to `latest`; superseded attempts are out of the declared window by construction, and reading them would blur which attempt the verdict describes. |
+
+## Reconciliation against the implemented collector (plan 240-03, Task 3)
+
+Re-read after `scripts/ci/capture-green-04-evidence.sh` was authored (commit `6b2064f6`) and its
+self-test landed (commit `941d679d`). The collector issues exactly four distinct external reads,
+enumerated from the script rather than from this table:
+
+| endpoint as called | call site |
+|---|---|
+| `GET /rate_limit` | `gh api rate_limit --jq '.resources.core.remaining'` — the single fail-closed preflight (`rate_limit_too_low`). |
+| `GET /repos/szTheory/sigra/actions/runs/{RUN_ID}` | the D-13 `head_sha` read. |
+| `GET /repos/szTheory/sigra/actions/runs/{id}/jobs?filter=latest` | twice — once for the SC-1 dispatch legs, once per `main` run for SC-2. |
+| `GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs?branch=main&created=<start>..<end>` | the SC-2 `main` window. |
+
+All four already carried an `INTEGRATE` row above; **no row was added and no row moved to
+`OPT-OUT`** as a result of this reconciliation. Every `OPT-OUT` row above still carries its reason.
+
+Two endpoints listed as `INTEGRATE` are deliberately **not** called by this collector because they
+belong to other plans in this phase, not because they were subtracted:
+`POST /repos/{repo}/actions/workflows/{file}/dispatches` (operator, plan 240-04) and the four
+Pages endpoints plus the three issue endpoints (plan 240-01 / 240-04). `INTEGRATE` is a phase-level
+decision, not a per-script one.
