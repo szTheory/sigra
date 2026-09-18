@@ -16,8 +16,10 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
   The `:mismatch` render branch contains ZERO `phx-click`/`phx-submit`
   accept controls. Even if every server-side guard regressed, there is
   no accept form in the rendered DOM to submit. This is the
-  "by construction, not by convention" defense. That absence is asserted by a
-  test, not merely conventional — do not add accept controls to this branch.
+  "by construction, not by convention" defense — do not add accept controls to
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  `mix sigra.install` generates no tests, so if you customize this file, add an
+  equivalent assertion to your own test suite.
 
   The `:invalid`, `:expired`, `:revoked`, and `:already_accepted`
   branches also render zero accept controls (defense in depth).
@@ -323,7 +325,6 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
   # STRUCTURAL INVARIANT (Jetstream #907 / CVE-2026-1529):
   # This function MUST NOT contain any phx-click="accept..." or
   # phx-submit="accept..." or form action targeting an accept endpoint.
-  # The plan-checker greps this function body and asserts zero matches.
   # DO NOT add an accept button here even "for convenience" — the entire
   # point of this branch is that the accept action does not exist in the
   # rendered DOM for a mismatched visitor.
