@@ -182,3 +182,24 @@ A prior plan's enumeration missed a sixth router site, so both flagged sites in
 
 The batch-3 edit set is therefore exactly the two counterpart files above. The router is absent from
 both of this plan's commits.
+
+
+## Batch-4 closure round (plan 239-14, 2026-09-18) — appended, not a rewrite
+
+Appended in the style plan 239-11 established: prior rows and blocks are byte-unchanged; this block
+only adds. Accurate as of parent commit `baa01104` and the two source commits plan 239-14 adds on top
+of it (template `7592e760`, mirror recorded in `239-14-SUMMARY.md`).
+
+Batch 4 is a **retraction**: plan 239-11's WR-01 replacement asserted `mix sigra.install` generates no
+tests, which is false on the bytes (`lib/sigra/install/features/admin.ex:38-39` maps
+`admin/policy_test.exs` to `test/<otp_app>/sigra_admin_policy_test.exs`). D-31 retracts it; the
+corrected prose makes no claim about installer output at all.
+
+| Template (batch-4 edit) | Disposition |
+|---|---|
+| `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` (239-14, WR-01 retraction / D-31) | **Mirrored →** `test/example/lib/example_web/live/invitation_accept_live.ex`. One region mirrored: the closing two lines of the `## Structural Jetstream #907 defense` paragraph (2 removed, 2 added; paragraph line count **8 → 8**, unchanged). Counterpart line numbers **re-derived by reading the file**, never copied from the template and never cited from plans 239-11 or 239-12, whose numbers the batch-3 re-bless `87581665` invalidated: the defense heading at `:14`, the anchor line at `:19`, the retracted clause at `:21` pre-edit, and the invariant comment at `:331`/`:334` against the template's `:325`/`:328`. Post-substitution diff of the changed region (`sed -n '16,23p'` from each tier): **empty**. `/usr/bin/grep -cF 'mix sigra.install` generates no tests'` → **0** with a live positive control `/usr/bin/grep -cF 'by construction, not by convention'` → **1** on the same file; `/usr/bin/grep -cF 'does not inherit that assertion'` → **1**; `/usr/bin/grep -cF 'DO NOT add an accept button here'` → **1**; `/usr/bin/grep -cF 'Jetstream #907 / CVE-2026-1529'` → **1**. |
+
+No other template was edited by batch 4, so no other counterpart is in scope. The batch-4 edit set is
+exactly the one counterpart file above; `test/fixtures/install_golden/`, `.github/` and
+`.planning/REQUIREMENTS.md` are absent from both of plan 239-14's source commits. Full per-command
+evidence is in `239-EVIDENCE.md` § `## BATCH-4-SWEEP-COMMIT`.

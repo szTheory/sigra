@@ -2339,3 +2339,240 @@ At measurement time plan 239-13 **must**:
 That halt clause is what keeps the scoping from being able to hide a real finding — and it only works
 because the rule counts **injected** files as in scope. An excluded path that the installer touched is
 a stop-the-line event, not a caveat.
+
+
+## BATCH-4-SWEEP-COMMIT
+
+Status: PASS — the false installer-test claim WR-01 shipped is retracted from both source tiers, every
+surviving clause of the corrected prose carries a recorded command that could have falsified it, and
+the two security-carrying lines are byte-intact. Written by plan 239-14 Task 3.
+
+### (a) The template edit — commit `7592e760`
+
+`refactor(239): retract the false installer-test claim from the invitation moduledoc (SURF-01, SURF-03)`
+
+One path only:
+
+```
+git show --name-only --format= 7592e760
+priv/templates/sigra.install/organizations/live/invitation_accept_live.ex
+```
+
+**Before (the retracted clause, `@moduledoc` lines 21-23):**
+
+```
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  `mix sigra.install` generates no tests, so if you customize this file, add an
+  equivalent assertion to your own test suite.
+```
+
+**After (lines 21-23, re-derived by reading the file):**
+
+```
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  your generated project does not inherit that assertion, so if you customize
+  this file, add an equivalent assertion to your own test suite.
+```
+
+Paragraph line count `sed -n '16,23p' <file> | wc -l` -> **8** before and **8** after. Unchanged.
+Nothing outside the paragraph moved.
+
+### (b) The mirror edit — `test/example/lib/example_web/live/invitation_accept_live.ex`
+
+Counterpart line numbers **re-derived by reading the file**, never copied from the template and never
+cited from plans 239-11 or 239-12 (every line number in their evidence was invalidated by the batch-3
+re-bless `87581665`):
+
+```
+/usr/bin/grep -nF 'Structural Jetstream #907 defense' <counterpart>   -> 14:  ## Structural Jetstream #907 defense
+/usr/bin/grep -nF 'by construction, not by convention' <counterpart>  -> 19:  "by construction, not by convention" defense — do not add accept controls to
+/usr/bin/grep -nF 'mix sigra.install` generates no tests' <counterpart> -> 21: (the retracted clause, pre-edit)
+/usr/bin/grep -nF 'DO NOT add an accept button here' <counterpart>    -> 334
+/usr/bin/grep -nF 'Jetstream #907 / CVE-2026-1529' <counterpart>      -> 331
+```
+
+The invariant-comment counterpart sits at `:331`/`:334` against the template's `:325`/`:328` — the
+tiers' numbering genuinely differs, which is why no template line number was reused.
+
+**Changed-region equality proven, not asserted.** Both tiers' substituted paragraphs extracted and
+diffed:
+
+```
+sed -n '16,23p' priv/templates/sigra.install/organizations/live/invitation_accept_live.ex > <a>
+sed -n '16,23p' test/example/lib/example_web/live/invitation_accept_live.ex               > <b>
+diff <a> <b>            ->   (no output)   DIFF_EXIT=0
+```
+
+Empty. No difference outside the changed region surfaced, so there is no pre-existing drift to record
+here (contrast plan 239-11's `class="modal"` vs `class="vt-modal"` case).
+
+### (c) The three claim checks, per tier, each zero paired with a live positive control
+
+| Check | Command (fixed-string, `/usr/bin/grep` explicit) | template | counterpart |
+|---|---|---|---|
+| claim (iii): retracted clause gone | `` /usr/bin/grep -cF '`mix sigra.install` generates no tests' `` | **0** | **0** |
+| positive control, same file | `/usr/bin/grep -cF 'by construction, not by convention'` | **1** | **1** |
+| corrected sentence present once | `/usr/bin/grep -cF 'does not inherit that assertion'` | **1** | **1** |
+| imperative byte-intact | `/usr/bin/grep -cF 'DO NOT add an accept button here'` | **1** | **1** |
+| attribution byte-intact | `/usr/bin/grep -cF 'Jetstream #907 / CVE-2026-1529'` | **1** | **1** |
+
+**Claim (i) — *Sigra's own suite asserts this absence in the shipped template*.** Re-confirmed live in
+the **nested example app**, not the root `test/` tree:
+
+```
+/usr/bin/grep -rn 'T19:' test/example/test/
+test/example/test/example_web/live/organization_members_live_test.exs:318:    test "T19: open_role_modal …"
+test/example/test/example_web/live/invitation_accept_live_test.exs:582:    test "T19: mismatch_branch source has zero phx-click=\"accept...\" and zero phx-submit=\"accept...\"" do
+```
+
+`test/example/test/example_web/live/invitation_accept_live_test.exs:581` opens
+`describe "structural invariant (Jetstream #907 static check)"`; `:582` is T19. Its subject is the
+**shipped template path**, built at `:584-595`:
+
+```
+      path =
+        Path.join([
+          File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+          "organizations", "live", "invitation_accept_live.ex"
+        ])
+        |> Path.expand()
+      source = File.read!(path)
+```
+
+That the subject is the template path is also exactly what makes clause (ii) true.
+
+**Claim (ii) — *your generated project does not inherit that assertion*.** T19's basename is not among
+the installer's `_test.exs` creation targets:
+
+```
+/usr/bin/grep -rn 'test\.exs' lib/sigra/install/features/ > <enum>
+/usr/bin/grep -cF 'invitation_accept_live_test.exs' <enum>   ->  0
+wc -l < <enum>                                               ->  3   [positive control: the enumeration is real]
+```
+
+Classification of the 3 (D-31): `core.ex:605` is a `config/test.exs` **injection** target and is not a
+test file; `admin.ex:38-39` is **one wrapped tuple** and the sole `_test.exs` **creation** target,
+`test/<otp_app>/sigra_admin_policy_test.exs`. An empty enumeration here would be a broken command, not
+a finding — which is the whole subject of this batch.
+
+### (d) V3 tier results, each with its scoping
+
+**`priv-templates` tier — exit 0:**
+
+```
+tier=priv-templates
+hits=1
+allowlisted=1
+hits_outside_allowlist=0
+control_defmodule=98
+files_measured=119
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]  <path d="M24 12.073c0-6.627-…" fill="#1877F2"/>
+```
+
+Raw `hits=` **1**, allowlisted **1**, outside **0**, live control **98**. The one hit is the committed
+`FALSE-POSITIVE — SVG path coordinates` entry.
+
+**`example` tier — exit 0:**
+
+```
+tier=example
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=2
+files_measured=2
+```
+
+**Scoping, without which this number overstates the claim (D-30):** the `example` tier is
+`239-v3-vocabulary-check.sh`'s **two-file SC-4 counterpart list**
+(`EXAMPLE_COUNTERPART_1/2` at `:88-89`) — `invitation_accept_live.ex` and
+`organization_members_live.ex` — **never all of `test/example/`**, whose measured
+**482 V3-matching lines across 157 files** remainder stays routed to **Phase 241 SURF-04**.
+`files_measured=2` is that scope made visible in the output.
+
+The instrument and the allowlist are byte-unchanged across this plan.
+
+### (e) Format results
+
+```
+mix format --check-formatted                                                   -> exit 0   (repo-configured)
+mix format --check-formatted test/example/lib/example_web/live/invitation_accept_live.ex -> exit 0
+```
+
+**Standing substitution, recorded as plan 239-11 did:** `mix format --check-formatted` over
+`priv/templates/` is **inapplicable by construction** — templates carry EEx placeholders in Elixir
+syntax positions and `.formatter.exs` deliberately excludes the directory. The repo-configured run is
+substituted for it. The `test/example/` counterpart **is** in `.formatter.exs` `inputs:` and was
+additionally checked individually.
+
+### (f) Changed-line classification
+
+Both commits' `+`/`-` content lines, in full:
+
+```
+-  `mix sigra.install` generates no tests, so if you customize this file, add an
+-  equivalent assertion to your own test suite.
++  your generated project does not inherit that assertion, so if you customize
++  this file, add an equivalent assertion to your own test suite.
+```
+
+Two removed, two added, **per tier**. Every one of them is `@moduledoc` prose. **No function head, no
+guard, no route, no plug, no `attr`, no `default:`** among them. The
+`DO NOT add an accept button here even "for convenience"` imperative and the
+`Jetstream #907 / CVE-2026-1529` attribution appear in **neither** the `+` nor the `-` lines of either
+commit.
+
+### (g) Task-4 sub-entry — the four `T-239-12-03` amendments to `239-13-PLAN.md`
+
+Applied by plan 239-14 Task 4 in its own path-scoped commit (`239-13-PLAN.md` alone), under **D-31**.
+Recorded here so the amendment is auditable without a diff-archaeology pass. Sites located by
+re-reading the file.
+
+**Site 1 — `must_haves.truths` entry (`:41`).**
+*Before:* `… the generated `test/` tree contains 0 `_test.exs` files (with a non-zero `*.exs` positive
+control on that same tree, so an empty result cannot mean a wrong path), and T19's subject is
+re-confirmed to be the template path.`
+*After:* requires **at least one** `_test.exs` file with `test/<otp_app>/sigra_admin_policy_test.exs`
+named, cites `as amended by D-31`, and retains the `*.exs` positive control verbatim.
+
+**Site 2 — Task 1 action rationale paragraph (`:189-194`).**
+*Before:* argued from the prose *being blessed into the fixture* — *"The prose being blessed into the
+fixture tells every adopter that `mix sigra.install` generates no tests, so the claim is measured on
+the artifact the adopter actually gets"*. That sentence appeals to a claim plan 239-15's re-bless
+removes from every tier, so after batch 4 it argues from a sentence that no longer exists.
+*After:* argues from the **retraction itself** — the claim was retracted as false on the bytes
+(`admin.ex:38-39`), and the observation is made to **falsify** it live on the artifact the adopter
+actually gets, which is what discharges `T-239-12-03` rather than transferring it.
+
+**Site 3 — Task 1 action first bullet (`:196-199`).**
+*Before:* `find <generated-app>/test -name '*_test.exs' | wc -l` required to return a count of zero.
+*After:* required to return **`>= 1`**, with `sigra_admin_policy_test.exs` located by name, cited
+`as amended by D-31`, and the `*.exs` positive control **retained unchanged** — the control is as
+necessary for a `>= 1` as it was for the original count, because it is what stops an empty result
+passing as a measurement.
+
+**Site 4 — Task 1 acceptance criterion (`:221`).**
+*Before:* the `T-239-12-03 discharged, not transferred` criterion required the same count of zero.
+*After:* the same inversion as Site 3, with the installer-emitted path named and the positive control
+retained.
+
+Everything else in `239-13-PLAN.md` is **byte-identical**: its three-tier V3 run, its fixed-string
+proof, its tarball check, `MIX_ENV=test mix ci`, SC-5 and the SURF-03 re-check are untouched — those
+are the closure's live observations and pre-empting or softening any of them is exactly what plan
+239-14 must not do. The frontmatter re-sequencing (`wave: 16` / `depends_on: ["239-15"]`), applied at
+batch-4 planning time, was **asserted** as a precondition, not re-applied.
+
+### (h) What this batch deliberately did NOT do
+
+- `test/fixtures/install_golden/` is untouched. The golden fixture is left **stale by exactly this
+  batch**, which is the state plan 239-15 requires; it is reached only through
+  `MIX_ENV=test mix sigra.fixture.rebless_golden` (D-09).
+- `.planning/REQUIREMENTS.md` is untouched and **SURF-03 stays `[ ]`**. Only plan 239-13 re-checks it,
+  last and alone.
+- `.github/` is untouched (D-23).
+- `239-v3-vocabulary-check.sh` and `239-v3-allowlist.tsv` are byte-unchanged (D-30). The fail-closed
+  exit-3 demonstration behind D-32 ran against a scratch copy held outside the repo working tree and
+  deleted immediately.
+- The batch-4 justification slot is **open, not filled** — § `## BATCH-JUSTIFICATION` carries
+  `BATCH-4-JUSTIFICATION-PENDING`, which plan 239-15 discharges in the commit immediately before its
+  re-bless (D-29).
