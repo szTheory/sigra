@@ -1,6 +1,6 @@
 ---
 created: 2026-07-30T00:00:00.000Z
-status: pending
+status: completed
 title: "admin-generated.spec.ts's Actor-filter assertion times out — a genuine URL race, distinct from the duplicate-action_prefix bug"
 area: admin-ui
 files:
@@ -80,3 +80,52 @@ adopters) and `test/example/priv/playwright/**`. A future phase that owns admin-
 Playwright reliability should triage this alongside the sibling
 `2026-07-18-admin-audit-impersonation-filter-not-applying.md` finding, since both touch the same
 filter-form URL-patch mechanism.
+
+## Resolved — 2026-09-18 (Phase 240, plan 240-05; fix landed in Phase 236)
+
+**Corrected coordinates.** The `files:` entry and the line citations above are stale and were
+never accurate at the time this todo was read back. Per **Phase 236's** `236-CONTEXT.md` D-06 and
+D-07 (`.planning/phases/236-flake-root-cause-reproduce-name-fix/236-CONTEXT.md`):
+
+- The LiveView is `lib/sigra/admin/live/audit_index_live.ex`. The `lib/sigra/admin/live/audit_live.ex`
+  named in this todo's `files:` list **does not exist** and never did (its siblings are
+  `audit_index_live.ex` and `audit_user_live.ex`).
+- The failing assertion is `test/example/priv/playwright/tests/admin-generated.spec.ts:459`, not
+  `:454-458`. The test starts at `:427`.
+- The `getByRole("button", {name: "Apply filters"}).click()` quoted in the "What" section above
+  is **not what the spec does at HEAD**. It uses `actorFilter.press("Enter")` at `:458`, changed by
+  commit `2a96d72f` ("ci: authenticate Playwright once, then shard", #168) *after* this todo was
+  filed on 2026-07-30. A fix written against the button click would have edited a line that is not
+  there.
+
+Phase 240's governing decision for this closure is **D-26** (`240-CONTEXT.md`), which exists
+precisely so this todo is not closed against a description that was never true. Note that
+`240-CONTEXT.md`'s own D-06 is an unrelated recorded rejected alternative — the corrected
+coordinates come from **236**-CONTEXT, not 240-CONTEXT.
+
+**The fix.** Phase 236 (D-08) made `AuditIndexLive` the sole owner of its URL: the filter form
+keeps `method="get"` and gains `phx-submit="apply_filters"` (`audit_index_live.ex:96`), a new
+`handle_event("apply_filters", …)` normalizes and whitelists params and returns
+`push_patch` to a local path (`audit_index_live.ex:56-62`), and `handle_params/3` stays the one
+and only loader. The race described above — the URL staying pinned to the prior preset's query
+string while `toHaveURL` polled — was the form submission and the URL patch racing each other.
+
+**Phase 240 evidence.** Measured at the job level, never at the run level:
+
+- **SC-1, n = 20.** `workflow_dispatch` run `35377050754` of `green-04-evidence.yml` on `main`
+  (head_sha `abec92c4b33005e21b550a2f899fe1d1e0f817a1`) ran twenty repeat legs of
+  `Generated admin Playwright smoke`. All twenty concluded `success`;
+  `sc1.leg_count = 20`, `sc1.verdict = pass`. This is the lane that carries
+  `admin-generated.spec.ts`. Twenty consecutive greens is the opposite of the
+  sticky-within-run signature recorded in the Evidence table above.
+- **SC-2, the `main` window.** Over `2026-09-16T03:29:55Z..2026-09-18T18:11:54Z` (runs
+  `35052017063`, `35056270436`, `35182589738`, `35246681580`, `35307612410`, `35365693716`,
+  `35373550987`, `35377012499`), `ci_gate_conclusions` is
+  `{"success": 8, "failure": 0, "skipped": 0}` and `flake_attributable_red_count` — `main` runs
+  whose `Generated admin Playwright smoke` job concluded `failure` — is **zero**.
+
+Receipt: `.planning/phases/240-green-main-evidence-honest-pages-script/240-GREEN-04-EVIDENCE.json`.
+Ledger: `.planning/phases/240-green-main-evidence-honest-pages-script/240-EVIDENCE.md`.
+
+The claim is bounded to those run ids and that window; it is not a claim that this assertion can
+never flake again.
