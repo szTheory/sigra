@@ -3253,3 +3253,528 @@ fixed-string proof, which references no allowlist), L207-219 and L236 (`T-239-12
 D-31), L312-315 (the evidence-record instruction), L375-376 (threat rows), and L392-393 (the
 `<verification>` section, which covers only the three tiers and the fixed-string proof — confirmed by
 reading it, not assumed). There is no third site.
+
+## BATCH-3-CLOSURE-OUTCOME
+
+*(Written by plan 239-13, the closure's last plan. The section keeps the name plan 239-13's
+acceptance criteria fixed for it — `BATCH-3-CLOSURE-OUTCOME` — even though the phase has since
+landed a fourth batch: the name is a contract with the plan's own verify, not a claim about batch
+count. Its content covers the closure **through batch 4**, and the re-bless count recorded in (k)
+says so explicitly.)*
+
+**Every number below was produced by a command run at the final committed HEAD
+`3230d212` (`docs(239-16): complete the D-33 criterion amendment plan`) on a clean tree
+(`git status --porcelain` empty before and after every measurement), with `/usr/bin/grep` invoked
+explicitly wherever a count is load-bearing, and every zero paired with a live positive control on
+the same surface. Nothing here is inherited from a SUMMARY.** The only commits that follow the
+measurement HEAD are this evidence record and the SURF-03 re-check, neither of which is compiled or
+tested by `mix ci`.
+
+**Public-repo redaction (SAFETY RULESET 6).** The `oauth_html.ex:54` hit text printed by the
+instrument ends in a `fill=` attribute carrying a brand hex value. Every quotation of that record
+below elides the attribute as `… fill="…"/>`, following § `## VOCABULARY-LEDGER` (e), which stores
+only the path geometry fragment for the same reason. The generated app and the unpacked tarball
+lived under tmp paths; they are recorded by basename (`<tmp>/tmp_app`) and repo-relative path, never
+by an absolute home path.
+
+### (a) Three-tier V3 at final HEAD — GREEN, against plan 239-09's RED under the same definition
+
+```bash
+d=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+for t in priv-templates example golden; do "$d/239-v3-vocabulary-check.sh" "$t"; echo "rc=$?"; done
+```
+
+| Tier | `hits` (raw) | `allowlisted` | `hits_outside_allowlist` | `control_defmodule` | `files_measured` | exit | plan 239-09 RED (§ VOCABULARY-LEDGER (f)) |
+|---|---|---|---|---|---|---|---|
+| `priv-templates` | **1** | 1 | **0** | **98** | 119 | **0** | outside **2**, exit 1 |
+| `example` (SC-4 counterparts) | **0** | 0 | **0** | **2** | 2 | **0** | outside **2**, exit 1 |
+| `golden` | **0** | 0 | **0** | **78** | 84 | **0** | outside **2**, exit 1 |
+
+The RED/GREEN pair is complete per tier: the same instrument, the same frozen tier file lists and the
+same committed allowlist (D-30) reported `hits_outside_allowlist=2` on each of these three tiers at
+plan 239-09's HEAD and reports `0` here, with each tier's paired positive control alive on both
+readings. No tier returned exit 3; had one, it would have been a halt, never a result.
+
+The single raw `priv-templates` hit is the allowlisted SVG-coordinate false positive dispositioned by
+name in § `## VOCABULARY-LEDGER` (e) and (h#1), reported inline rather than removed from the count:
+
+```
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 …" fill="…"/>
+```
+
+**The `example` tier's zero, stated with its scope in the same sentence:** it is a claim about
+**SC-4's two mirrored-counterpart files and nothing else** (D-30) — `files_measured=2`, the two paths
+enumerated literally in the instrument — and it is **not** a claim about all of `test/example/`. The
+unswept remainder of that tree was re-measured live at this HEAD rather than restated from the
+ledger, and it is unchanged:
+
+```bash
+REM=$(git ls-files test/example | /usr/bin/grep -vxF \
+  -e 'test/example/lib/example_web/live/invitation_accept_live.ex' \
+  -e 'test/example/lib/example_web/live/organization_members_live.ex')   # 344 files scanned
+#   V3-matching lines -> 482 ; distinct files -> 157
+```
+
+**482 V3-matching lines across 157 files, over 344 scanned files** — byte-identical to the figure
+§ `## VOCABULARY-LEDGER` (i) recorded, and owned by **Phase 241 SURF-04** via
+`.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`.
+This phase does not claim to have cleaned it.
+
+### (b) Per-alternation positive controls, re-fired live at final HEAD — none dead
+
+A zero from a clean surface and a zero from an alternation that quietly stopped matching are the same
+observation without this table. All eight fire; none is dead, none was dropped.
+
+| # | Alternation | Control surface | Count at this HEAD | § VOCABULARY-LEDGER (b) |
+|---|---|---|---|---|
+| 1 | `\b[Pp]lan[- ]checker\b` | `239-VERIFICATION.md` | **4** | 4 |
+| 2 | `\bthis phase\b` | `239-CONTEXT.md` | **11** | 4 |
+| 3 | `\bthe plan\b` | `239-09-PLAN.md` | **2** | 2 |
+| 4 | `v[0-9]+\.[0-9]+ concern` | `239-VERIFICATION.md` | **3** | 3 |
+| 5 | `\bgap[- ]closure\b` | `.planning/ROADMAP.md` | **4** | 4 |
+| 6 | `\bre-?bless\b` | `.planning/ROADMAP.md` | **6** | 4 |
+| 7 | `\bROADMAP\b` | `.planning/ROADMAP.md` | **13** | 13 |
+| 8 | `SUMMARY\.md` | `.planning/ROADMAP.md` | **1** | 1 |
+
+Rows 2 and 6 read **higher** than plan 239-09's, because `239-CONTEXT.md` gained D-31/D-32/D-33 and
+the ROADMAP gained re-bless prose since. The criterion is non-zero, not equality; the two increases
+are reported rather than smoothed, and **no alternation returned zero, so no instrument regression is
+reported**. Commands (brace group + `|| true`, SAFETY RULESET 3), with `/usr/bin/grep` explicit:
+
+```bash
+P=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+{ /usr/bin/grep -cE '\b[Pp]lan[- ]checker\b' "$P/239-VERIFICATION.md" || true; }   # => 4
+{ /usr/bin/grep -cE '\bthis phase\b'          "$P/239-CONTEXT.md"      || true; }   # => 11
+{ /usr/bin/grep -cE '\bthe plan\b'            "$P/239-09-PLAN.md"      || true; }   # => 2
+{ /usr/bin/grep -cE 'v[0-9]+\.[0-9]+ concern' "$P/239-VERIFICATION.md" || true; }   # => 3
+{ /usr/bin/grep -cE '\bgap[- ]closure\b'      .planning/ROADMAP.md     || true; }   # => 4
+{ /usr/bin/grep -cE '\bre-?bless\b'           .planning/ROADMAP.md     || true; }   # => 6
+{ /usr/bin/grep -cE '\bROADMAP\b'             .planning/ROADMAP.md     || true; }   # => 13
+{ /usr/bin/grep -cE 'SUMMARY\.md'             .planning/ROADMAP.md     || true; }   # => 1
+```
+
+### (c) The freshly generated app — the vehicle, and its preconditions
+
+```bash
+$ MIX_ENV=test mix sigra.fixture.rebless_golden --check
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode).
+CHECK_RC=0
+
+$ env -u PGPORT -u PGHOST ASDF_ERLANG_VERSION=28.5 ASDF_ELIXIR_VERSION=1.19.5-otp-28 \
+    GITHUB_WORKSPACE=$(pwd) TMP_APP_DIR=<tmp>/tmp_app bash scripts/ci/install-smoke.sh
+…
+==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean
+SMOKE_RC=0
+```
+
+`--check` exit **0** re-confirms at this HEAD (not cited from plan 239-12) that the golden tree is
+byte-equal to a freshly generated install, which is the only thing that makes the golden tier
+admissible as generated-output evidence. `install-smoke.sh` exit **0** end-to-end — `mix phx.new`
+1.8.8, `mix sigra.install --yes Accounts User users`, `mix compile --warnings-as-errors`,
+`ecto.create` + `ecto.migrate`, `mix sigra.gen.oauth --providers google,github`, and its own
+generated-app probe suite (3 tests, 0 failures).
+
+**Environment note, recorded because two prior waves lost time to it and it is not a Sigra defect.**
+`PGHOST`/`PGPORT` were explicitly unset and the Homebrew Postgres on `localhost:5432`
+(`postgres`/`postgres`) was used. With `PGPORT` exported from `tmp/db.env`, Postgrex honours it as a
+default while the generated `config/dev.exs` hardcodes `hostname: "localhost"`, so `ecto.create`
+lands the database on the Dockerized test Postgres and `ecto.migrate` cannot reach it. An environment
+interaction, not a finding.
+
+Generated app size: **87 files under `lib/`, 21 under `priv/`** (108 total).
+
+### (d) SC-1, falsified independently of V1, V2 and V3 — fixed-string grep on the generated app
+
+The two sentences removed by plan 239-11, taken verbatim from `239-VERIFICATION.md`'s SC-1 `gaps:`
+block (lines 35 and 37), grepped **fixed-string** (`-F`, no regex of any kind) over the generated
+app's `lib/` and `priv/` — the artifact an adopter actually gets, never the golden fixture:
+
+```bash
+A=<tmp>/tmp_app
+{ /usr/bin/grep -rnF -- 'The plan-checker greps this function body and asserts zero matches.' "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rnF -- 'Flop / sortable columns are a v1.2 concern.'                          "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rnF -- 'generates no tests'                                                   "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rn  'defmodule'                                                               "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+```
+
+| Measurement | Result |
+|---|---|
+| Sentence 1 — `The plan-checker greps this function body and asserts zero matches.` | **0** |
+| Sentence 2 — `Flop / sortable columns are a v1.2 concern.` | **0** |
+| The D-31-retracted clause — `generates no tests` | **0** |
+| **Positive control** — `defmodule` lines on that same generated tree | **94** |
+
+A second, sharper control than `defmodule`: the **replacement** prose is present at the expected
+generated path, so the three zeroes above cannot mean the grep was pointed at a tree that does not
+contain the file under test —
+
+```
+<app>/lib/tmp_app_web/live/invitation_accept_live.ex:21:  your generated project does not inherit that assertion, so if you customize
+```
+
+**This criterion references no regex this phase put on trial.** V1, V2 and V3 are all instruments
+under examination here; a goal falsifiable only by the instrument validating it is not falsifiable.
+The `generates no tests` row is the D-31 retraction checked on generated bytes as well — the false
+sentence reaches no adopter from this HEAD.
+
+### (e) The D-32 generated-app scope, computed live, with its excluded class enumerated
+
+The scope frozen in § `## GENERATED-APP-SCOPE` is *the files `mix sigra.install` created or
+modified*. It was computed here by the rule's own mechanism rather than from the pattern list: a
+**bare `phx.new` baseline app scaffolded with the identical name and flags**
+(`mix phx.new tmp_app --no-install --no-dashboard --database postgres`, 24 files under `lib/`+`priv/`),
+then per-path byte comparison (`cmp -s`) against the installed app — exactly
+`test/support/install_fixture.ex:360-364`'s byte-identity drop, applied to a real app.
+
+| Class | Count |
+|---|---|
+| Generated app files under `lib/` + `priv/` | **108** |
+| **In scope** — created or modified by `mix sigra.install` | **88** |
+| **Excluded** — `phx.new`-authored, byte-identical to the pre-install baseline | **20** |
+
+**The 20 excluded paths, enumerated in full (D-32 (f) requirement 1 — never a scoped number alone):**
+
+```
+lib/tmp_app.ex                                        lib/tmp_app_web/controllers/page_html.ex
+lib/tmp_app/mailer.ex                                 lib/tmp_app_web/controllers/page_html/home.html.heex
+lib/tmp_app/repo.ex                                   lib/tmp_app_web/gettext.ex
+lib/tmp_app_web.ex                                    lib/tmp_app_web/telemetry.ex
+lib/tmp_app_web/components/core_components.ex         priv/gettext/en/LC_MESSAGES/errors.po
+lib/tmp_app_web/components/layouts/root.html.heex     priv/gettext/errors.pot
+lib/tmp_app_web/controllers/error_html.ex             priv/repo/migrations/.formatter.exs
+lib/tmp_app_web/controllers/error_json.ex             priv/repo/seeds.exs
+lib/tmp_app_web/controllers/page_controller.ex        priv/static/favicon.ico
+                                                      priv/static/images/logo.svg
+                                                      priv/static/robots.txt
+```
+
+V3 over that excluded set: `hits=5`, `control_defmodule=11` (live), `files_measured=20`, exit 1 —
+an **enumeration run, not a criterion run**. Per-file counts:
+
+| Excluded path | V3 hits | Class |
+|---|---|---|
+| `lib/<web>/controllers/page_html/home.html.heex` | **4** | `\b[0-9]{3}-[0-9]{2}\b` on SVG `<path d="…">` coordinate pairs |
+| `priv/static/images/logo.svg` | **1** | same class |
+
+Both files and both counts are exactly the class D-32 (e) named in advance. Disposition, unchanged:
+upstream Phoenix content, no adopter-facing Sigra surface, therefore **no Sigra remediation owner** —
+deliberately unlike D-27's Sigra-authored packaged-docs finding, which is routed to Phase 241 SURF-04.
+
+**D-32 (f) HALT CLAUSE, evaluated rather than assumed.** Each of the 20 excluded paths was re-tested
+against the baseline: `excluded_paths_touched_by_installer=0`. No excluded path is one
+`mix sigra.install` created or modified, so the halt clause does not trip. Had any differed, this
+plan would have stopped: an excluded path the installer touched is a stop-the-line event, not a
+caveat.
+
+### (f) V3 over the generated app, graded as amended by D-33 — surviving = 0
+
+Run in `--files` mode over the **88 in-scope paths** from (e), against the unmodified committed
+allowlist:
+
+```
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=83
+files_measured=88
+<app>/lib/tmp_app_web/controllers/oauth_html.ex:54:       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 …" fill="…"/>
+V3_INSCOPE_RC=1
+```
+
+`allowlisted=0` is the D-33 matching-key artifact in the open: the committed record is keyed on
+`priv/templates/sigra.gen.oauth/oauth_html.ex`, and the rendered counterpart arrives at
+`lib/<web>/controllers/oauth_html.ex` — a different string carrying identical bytes at the identical
+line 54. The instrument is correct and unmodified; the criterion is the thing D-33 amended.
+
+**Parse control before any result was interpreted** (a row written with spaces instead of a tab
+parses as a comment and would silently exempt nothing while looking like it exempted something):
+
+```bash
+awk -F'\t' 'NF>=2' .planning/phases/239-…/239-v3-allowlist.tsv | wc -l     # => 2  (header + the single record)
+```
+
+**The D-33 derivation, run verbatim as transcribed in § `## D-33-CRITERION-AMENDMENT` (6):**
+
+```
+EXCLUDED  oauth_html.ex:54
+excluded=1 surviving=0
+```
+
+- **Excluded records, listed by name and count — never summarised as a number:** exactly one,
+  `oauth_html.ex:54`, whose hit text contains the committed record's literal as a fixed-string
+  substring and whose basename equals the committed record's basename.
+- **Surviving records: none.** `hits_outside_allowlist = 0` after the `(basename, literal)`
+  exclusion, which is the criterion as amended by D-33. Had any record survived, it would have been
+  a finding and this plan would have halted rather than reclassified it.
+- **The live-control requirement is retained and met:** `control_defmodule=83` on that same explicit
+  88-file list. The exclusion makes it *easier*, not harder, for a zero to mean nothing, so the
+  control matters more here, not less.
+- No exit 3 was returned on any run. An exit 3 would have been an instrument failure and a halt.
+
+Plan 239-16 proved this criterion can still fail (Probe A left a genuine bookkeeping line surviving
+inside a scratch `oauth_html.ex`; Probes B and C showed a matching literal alone and a matching
+basename alone each buy no exemption). The GREEN above is therefore a result, not a tautology.
+
+### (g) WR-01's two supporting observations, re-made here — `T-239-12-03` DISCHARGED
+
+Made against the freshly generated app at `<tmp>/tmp_app` from (c) — **not** against
+`test/fixtures/install_golden/tree/test/`, and **not** cited from plan 239-11's SUMMARY. The
+substitution of a committed snapshot for a generated app is the exact defect `T-239-12-03` exists to
+catch, and it is what caught it: the retracted claim survived only because the golden fixture
+snapshots no generated `_test.exs` path at all.
+
+```bash
+A=<tmp>/tmp_app
+find "$A/test" -name '*_test.exs' | wc -l                  # => 5
+find "$A/test" -name 'sigra_admin_policy_test.exs'         # => test/tmp_app/sigra_admin_policy_test.exs
+find "$A/test" -name '*.exs' | wc -l                       # => 6   [positive control, same tree]
+```
+
+| Observation (as amended by D-31) | Required | Measured |
+|---|---|---|
+| `_test.exs` files in the generated `test/` tree | **>= 1** (inverted from the retracted `0`) | **5** |
+| `test/<otp_app>/sigra_admin_policy_test.exs` present by name | present | **present** — `test/tmp_app/sigra_admin_policy_test.exs` |
+| **Positive control** — `*.exs` under that same `test/` path | **>= 1** | **6** |
+
+The five, enumerated and classified, because a bare count would hide which of them the *installer*
+authored:
+
+| Path | Author |
+|---|---|
+| `test/tmp_app/sigra_admin_policy_test.exs` | **`mix sigra.install`** — `lib/sigra/install/features/admin.ex:38-39` |
+| `test/tmp_app_web/controllers/error_html_test.exs` | `phx.new` |
+| `test/tmp_app_web/controllers/error_json_test.exs` | `phx.new` |
+| `test/tmp_app_web/controllers/page_controller_test.exs` | `phx.new` |
+| `test/generated_capability_gate_probe_test.exs` | `scripts/ci/install-smoke.sh` (its own probe, appended after install) |
+
+One installer-created `_test.exs` target is enough to falsify an absence claim, and it is on disk in
+a real generated app. The control returning **6** is what makes the counts measurements rather than a
+wrong path returning a comfortable number.
+
+**T19's subject re-confirmed to be the template path, read in place:**
+`test/example/test/example_web/live/invitation_accept_live_test.exs:581-595`, inside
+`describe "structural invariant (Jetstream #907 static check)"`, builds
+
+```elixir
+path = Path.join([File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+                  "organizations", "live", "invitation_accept_live.ex"]) |> Path.expand()
+```
+
+— i.e. `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex`, a **template**
+path, not a generated-app path. Both surviving clauses of the corrected prose therefore hold on the
+bytes: Sigra's own suite asserts the invariant against the shipped template, and the adopter's
+generated project does not inherit that assertion (T19's basename
+`invitation_accept_live_test.exs` is not among the five above).
+
+**Threat row `T-239-12-03` is DISCHARGED**, on the generated-app tree named above, by the observation
+D-31 inverted — not transferred forward.
+
+### (h) The tarball under the amended D-27 scope
+
+```bash
+$ mix hex.build --unpack        # => "Saved to sigra-1.5.0" ; HEXBUILD_RC=0
+$ cd sigra-1.5.0
+$ { /usr/bin/grep -rn '\.planning/' lib priv || true; } | /usr/bin/grep -c .     # => 0
+$ { /usr/bin/grep -rl 'defmodule'  lib priv || true; } | /usr/bin/grep -c .      # => 258   [positive control]
+$ find lib priv -type f | wc -l                                                  # => 282   [positive control]
+```
+
+**SC-2 as amended by D-27 holds: 0 `.planning/` references under the tarball's `lib/` and `priv/`**,
+paired with two live controls on that same unpacked tree (258 files containing `defmodule`, 282 files
+total) so the zero cannot mean an empty or wrong directory.
+
+**Out-of-scope surface, enumerated per file rather than claimed absent** (D-27's whole point — a
+narrowing that silently deletes a finding is the same defect as a green gate that verified nothing):
+
+| Packaged file | `.planning/` occurrences | matching lines |
+|---|---|---|
+| `CHANGELOG.md` | 43 | 19 |
+| `docs/uat-ci-coverage.md` | 7 | 6 |
+| `docs/ga-evidence.md` | 3 | 3 |
+| `docs/nyquist-posture-matrix.md` | 3 | 2 |
+| `docs/audit-semantics.md` | 1 | 1 |
+| `README.md` | 1 | 1 |
+| `mix.exs` | 0 | 0 |
+| **Total** | **58** | **32** across **6** files |
+
+**Reconciliation against the figure plan 239-10 recorded: exact, in both labels.** D-27 and
+`.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`
+record **58 occurrences across 32 matching lines in 6 files**, with the identical per-file split. The
+re-measurement reproduces all three numbers and every row, so there is no difference to reconcile —
+and the two labels are kept distinct here, because "58" is the **occurrence** count and "32" the
+**matching-line** count, and collapsing them is how a number drifts.
+
+Owners, named rather than left to inference: **Phase 241 SURF-04** (whose requirement text names the
+packaged-docs surface) plus the plan-239-10 todo above. This surface is deliberate provenance and
+maintainer prose; it is routed, not cleaned here.
+
+**Residue (REPO-01).** `--unpack` wrote no new `.tar`; the unpacked `sigra-1.5.0/` was deleted
+immediately and `git status --porcelain` is empty. Two **pre-existing** archives, `sigra-0.1.0.tar`
+(dated Apr 18) and `sigra-0.2.0.tar` (Apr 19), sit in the repo root; both are **gitignored**
+(`.gitignore:27 sigra-*.tar`, confirmed by `git check-ignore -v`), predate this phase by months, and
+were **not created or touched by this plan**. They are reported rather than deleted: removing
+untracked files this plan did not author is outside its scope, and being gitignored they cannot reach
+a commit, which is the risk REPO-01 exists to prevent. Recorded here so a later reader sees them as a
+known pre-existing condition rather than as this closure's residue — the task verify's literal
+`ls -d sigra-*.tar sigra-*/` clause passes only because the non-matching `sigra-*/` glob makes `ls`
+exit non-zero, so its pass is **not** the evidence for this paragraph; the `check-ignore` and
+timestamp readings above are.
+
+### (i) The gate — RED once from a stale `_build`, diagnosed, recovered with zero source changes, GREEN
+
+**Run 1 — RED, `MIX_CI_RC=2`.** Six failures, all in `Sigra.Audit.Forwarders.ThreadlineTest`, all the
+same shape:
+
+```
+** (UndefinedFunctionError) function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined
+   (module Sigra.Audit.Forwarders.Threadline is not available)
+33 doctests, 3 properties, 2606 tests, 6 failures, 12 skipped (22 excluded)
+```
+
+This is the **documented plan-239-08 signature**, byte for byte: a local `_build` holding a sigra beam
+compiled before the `:threadline` dep existed. Diagnosed before anything was edited, exactly as this
+plan's SAFETY RULESET requires.
+
+**Recovery — the documented one, no source change:**
+
+```bash
+$ git status --porcelain      # => empty  (before)
+$ MIX_ENV=test mix deps.compile threadline --force && MIX_ENV=test mix compile --force
+… Generated threadline app / Compiling 178 files (.ex) / Generated sigra app      RECOVER_RC=0
+$ git status --porcelain      # => empty  (after)
+$ git diff --name-only | wc -l   # => 0    source files changed across the recovery
+```
+
+**Run 2 — GREEN, `MIX_CI_RUN2_RC=0`:**
+
+```
+33 doctests, 3 properties, 2606 tests, 0 failures, 12 skipped (22 excluded)
+65 tests, 0 failures (2599 excluded)          [the threadline_guard lane]
+```
+
+`MIX_ENV=test mix ci` — never root `mix test` (Standing Constraint 3) — is
+`format --check-formatted`, `deps.get --check-locked`, `deps.unlock --check-unused`,
+`compile --warnings-as-errors`, `test --exclude scaffold`, `ci.install_golden`, `sigra.dep_off`
+(`mix.exs:149-157`). All of it exits 0 at the final committed HEAD on a clean tree. **Zero source
+files were changed to turn the red green** — the prohibition against fixing source to chase a build
+artifact holds on the bytes, not on assertion.
+
+### (j) SC-5, re-proven at two deliberately chosen diff bases
+
+SC-5's own text names `origin/main`. At this HEAD `origin/main` is **89 commits behind local `main`**
+(`git rev-list --count origin/main..HEAD` → 89; `239-VERIFICATION.md` recorded 37, and that figure is
+now stale — reported, not restated), so that diff spans far more than this closure. Both widths were
+therefore run: the criterion's, and the closure's. A renamed required status context never reports
+and every PR hangs forever (D-23), so this is checked at both widths rather than at whichever is
+convenient.
+
+| Base | Which | `git diff --name-only <base> -- .github/` | `git diff <base> -- .github/ \| grep '^[+-].*name:'` | Positive control (same base, no pathspec) |
+|---|---|---|---|---|
+| `origin/main` (`6b03af05`) | **the criterion's** | **0 lines** | **0 lines** | 189 changed paths |
+| `d65e6eb8` — plan-239-08 HEAD | **the closure's** | **0 lines** | **0 lines** | 40 changed paths |
+| `1a85508e` — plan 239-08's evidence commit | corroborating | **0 lines** | — | — |
+
+The two controls are load-bearing: each base *does* produce a large diff, so the `.github/` zeroes
+mean the pathspec matched nothing changed, not that the diff itself was empty. A third control,
+`git ls-files .github | /usr/bin/grep -c .` → **14**, shows the pathspec addresses a non-empty tree.
+No file under `.github/` was edited by this plan, and no `name:` line moved at either width.
+
+**`237-security-comment-diff-check.sh` over the full closure diff:**
+
+```bash
+$ git diff d65e6eb8 HEAD -- lib/ priv/ test/example/ test/fixtures/ > <scratch>/closure.diff
+    # 8021 bytes, 21 raw removed lines
+$ .planning/phases/237-…/237-security-comment-diff-check.sh <scratch>/closure.diff
+examined_removed_lines=15
+CLASSIFIER_RC=0
+```
+
+Exit **0** with `examined_removed_lines=15` > 0 — live across the closure's removed lines rather than
+vacuously passing on nothing. The single documented structural survivor (round 1's `core/auth.ex`
+`IN-03` tolerance gap, § `## HONEST-CLAIMS`) does not appear here: that removal belongs to the round-1
+sweep diff and is not inside `d65e6eb8..HEAD`. The instrument limitation itself is unchanged and
+stays filed as
+`.planning/todos/pending/2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md`
+for Phase 241's `p18`. The script is byte-unchanged:
+`git diff --name-only -- <the script>` → 0 paths, and the same against `origin/main` → 0 paths.
+
+### (k) Instruments byte-unchanged, and the re-bless count
+
+```bash
+$ git diff --quiet -- .planning/phases/239-…/239-v3-vocabulary-check.sh \
+                      .planning/phases/239-…/239-v3-allowlist.tsv        # => exit 0
+```
+
+Neither `239-v3-vocabulary-check.sh`, `239-v3-allowlist.tsv`,
+`239-comment-only-diff-check.sh` nor `237-security-comment-diff-check.sh` appears in any commit of
+plan 239-13 (D-16, D-30). **The closure's final green comes from the surface, never from the
+measurement** — which is the only reason the green is worth anything, given that this is the plan
+where a red instrument would create maximum pressure to adjust it.
+
+**Re-bless commits for the phase: 4, one per batch** — SC-3 as amended by D-26 and bounded by D-29,
+carried from § `## BATCH-JUSTIFICATION`:
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 |
+| 3 | `87581665` | 239-12 |
+| 4 | `5f7ae9d7` | 239-15 |
+
+Each batch carries its own by-name justification in § `## BATCH-JUSTIFICATION`, written before that
+batch's re-bless ran. The count is unbounded by construction under D-26 and **auditable** under D-29;
+recording it here keeps the number visible rather than derivable.
+
+### (l) What this plan did NOT establish
+
+Deferrals are extended in the `## HONEST-CLAIMS` block that follows, each with an owner. The four
+`edge_coverage_assumptions` rows this plan carries (`unclassified`, `empty`, `ordering`, `adjacency`)
+remain **surfaced, not resolved**: every zero above is paired with a same-surface positive control,
+the per-alternation controls were re-fired live, the instrument fails closed on an empty tier and
+distinguishes exit 3 from exit 1, and the evidence-before-checkbox ordering is asserted by commit
+scope rather than by tooling — but none of those mitigations classifies the probe rows themselves.
+
+## HONEST-CLAIMS (extended by plan 239-13 — the five items below are additions, not restatements)
+
+**1. The `install_golden_contract` Actions clause is STILL a ship-time deferral — nothing here
+upgrades it.** SC-3's remaining clause asks for a green `install_golden_contract` GitHub Actions run.
+**This plan pushed nothing, so no Actions verdict exists to read, and none is claimed anywhere in its
+commits.** The honest local substitutes are named and they are real: `MIX_ENV=test mix ci` exit 0
+(§ (i) above) and `mix sigra.fixture.rebless_golden --check` exit 0 (§ (c)). A local proxy reported
+as a CI verdict would be a fabricated green that no one ran; the clause closes at ship time, not here.
+
+**2. The tarball `lib/` bookkeeping baseline is still deferred to Phase 241 SURF-04's monotonic
+ratchet.** Plan 239-08 measured 475 V2-matching bookkeeping lines across 84 files inside the
+tarball's `lib/`. This plan did not re-measure or reduce that baseline; SC-2 as amended by D-27 is
+about `.planning/` **paths**, which are at 0 under `lib/`+`priv/` (§ (h)). SURF-04 explicitly does
+not target zero for v1.48. Related and unchanged: everything this phase fixed reaches adopters only
+at the **next publish** — the 1.5.0 currently on Hex still carries the pre-sweep bytes.
+
+**3. The packaged-docs `.planning/` surface is routed by D-27, not cleaned.** 58 occurrences across
+32 matching lines in 6 files ship inside the tarball's `docs/`, `README.md` and `CHANGELOG.md`,
+enumerated per file in § (h). Deliberate provenance links and maintainer prose. Two owners, so the
+narrowing cannot swallow the finding: **Phase 241 SURF-04**'s requirement text, and
+`.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`.
+
+**4. The `test/example/` remainder outside SC-4's counterpart scope is routed by D-30, not cleaned —
+and the `example` tier's zero is never a claim about it.** Re-measured live at this HEAD:
+**482 V3-matching lines across 157 files, over 344 scanned files**, the bulk in
+`test/example/priv/playwright/` test tooling that is not adopter-shipped. Owner **Phase 241 SURF-04**
+via `.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`.
+Review finding **IN-06** (`golden-path.spec.ts:59`, a lowercase `plan 04` that **no** V3 alternation
+matches) is named in that todo by hand, because it is a vocabulary class V3 still misses — recorded
+as a direct input to the `p18` spec rather than absorbed into a count.
+
+**5. FUT-01 — the template↔example parity guard — is still filed and unbuilt.**
+`.planning/todos/pending/2026-09-17-fut-01-template-example-parity-guard.md`. `--check` exit 0 is the
+only mechanism that proves template↔golden equality by generation; **template↔example equality has no
+mechanism at all** and is maintained by the hand-written mirror checklist. The `adjacency` edge-probe
+row stays unresolved for exactly this reason.
+
+**Additionally, and unchanged by this plan:** `SURF-02` remains marked `[x]` in `REQUIREMENTS.md`
+while not holding at HEAD (Phase 237's, filed as
+`.planning/todos/pending/2026-09-17-surf-02-marked-complete-but-does-not-hold-at-head.md`). This plan
+neither fixed it nor silently unchecked it — and it is the precise defect shape that is why SURF-03's
+re-check below is committed **last and alone**, after the evidence that justifies it.
