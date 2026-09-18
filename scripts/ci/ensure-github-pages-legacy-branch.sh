@@ -5,19 +5,64 @@
 #
 # Env: GITHUB_REPOSITORY=owner/name, GH_TOKEN or GITHUB_TOKEN (pages:write).
 # Skips if build_type is already workflow (Actions-sourced Pages).
+#
+# ---------------------------------------------------------------------------
+# SC-3 ↔ D-19 reconciliation (Phase 240 / GREEN-05). Read this before changing
+# the error posture below, or the implementation will look like it contradicts
+# its own success criterion.
+#
+# ROADMAP SC-3 says this script must "fail loudly on a 403". D-19 keeps the
+# **PUT**-403 tolerable. Both are right about different things. SC-3's real
+# defect is that a 403 was **indistinguishable from every other failure** — the
+# same grep arm swallowed a 500, a 422, a rate limit and a network blip. The
+# fix makes the PUT-403 a single named, commented arm (justified: the caller
+# declares `pages: write`, not repo-admin, at playwright-github-pages.yml:36-38)
+# and makes **every other status** exit 1. The RED demonstration SC-3 asks for
+# is therefore the `*)` arm firing on a 500/422, **plus** the GET-side 403 now
+# exiting 1 instead of silently POST-creating — not the PUT-403 path.
+#
+# Response-shape source of truth: `240-RESEARCH.md §4` records the live-probed
+# `gh api -i` behaviour at gh 2.95.0 (status line as stdout line 1 with the
+# wire version literally `HTTP/2.0`; headers; a blank line; the JSON body on
+# stdout; `gh: <msg> (HTTP <code>)` on stderr; exit 1 for ANY HTTP failure).
+# There is no in-repo analog for that idiom — `grep -rn 'gh api -i' scripts/`
+# returned nothing when this was written. The hermetic proof of every arm below
+# lives in the sibling `ensure-github-pages-legacy-branch.test.sh`.
+# ---------------------------------------------------------------------------
 
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
 export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+# D-22: no credential is not a failure -- the publisher must not redden for a
+# reason unrelated to the diff.
 if [[ -z "${GH_TOKEN}" ]]; then
   echo "ensure-github-pages-legacy-branch: no GH_TOKEN/GITHUB_TOKEN; skip."
   exit 0
 fi
 
-if ! pages_json=$(gh api "repos/${REPO}/pages" 2>/dev/null); then
-  echo "ensure-github-pages-legacy-branch: no Pages site yet; creating legacy gh-pages / ..."
-  gh api "repos/${REPO}/pages" --method POST --input - <<'JSON'
+# D-16: on a PUBLIC repo GET /pages needs no admin, so 404 genuinely means
+# "no Pages site configured" -- GitHub's 404-masking-403 policy covers private
+# resources only. Live-probed across 8 public repos (240-RESEARCH.md §4):
+# microsoft/TypeScript, rust-lang/rust and github/docs answer 404, while
+# elixir-lang, phoenixframework/phoenix, twbs/bootstrap, facebook/react and
+# jekyll/jekyll answer 200 to a non-admin prober.
+# D-15: anything that is neither 200 nor 404 is a real failure and must be
+# loud. The prior `if ! pages_json=$(gh api ... 2>/dev/null)` form treated
+# 403/422/500/rate-limit/network-blip alike as "no site yet" and fell through
+# to POST-create. `gh` exits 1 for every HTTP failure, so rc cannot
+# discriminate; only the status line can.
+get_out="$(gh api -i "repos/${REPO}/pages" 2>/dev/null || true)"
+get_status="$(printf '%s' "${get_out}" | head -n 1 | awk '{print $2}')"
+case "${get_status}" in
+  200)
+    # Split the body off after the header separator, tolerating a \r-terminated
+    # blank line.
+    pages_json="$(printf '%s' "${get_out}" | sed -n '/^\r\{0,1\}$/,$p' | tail -n +2)"
+    ;;
+  404)
+    echo "ensure-github-pages-legacy-branch: no Pages site yet; creating legacy gh-pages / ..."
+    gh api "repos/${REPO}/pages" --method POST --input - <<'JSON'
 {
   "build_type": "legacy",
   "source": {
@@ -26,10 +71,19 @@ if ! pages_json=$(gh api "repos/${REPO}/pages" 2>/dev/null); then
   }
 }
 JSON
-  echo "ensure-github-pages-legacy-branch: created."
-  gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
-  exit 0
-fi
+    echo "ensure-github-pages-legacy-branch: created."
+    # D-22: build-trigger swallow #1 -- reddening the publisher on a transient
+    # build-trigger failure is a red for a reason unrelated to the diff.
+    gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
+    exit 0
+    ;;
+  *)
+    # An empty status means gh itself never ran: fail closed, never guess.
+    echo "ensure-github-pages-legacy-branch: GET /pages returned '${get_status:-<no status line>}'; refusing to guess." >&2
+    printf '%s\n' "${get_out}" >&2
+    exit 1
+    ;;
+esac
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "ensure-github-pages-legacy-branch: jq not found; cannot inspect Pages config." >&2
@@ -47,6 +101,7 @@ fi
 
 if [[ "$branch" == "gh-pages" && "$path" == "/" ]]; then
   echo "ensure-github-pages-legacy-branch: already gh-pages /"
+  # D-22: build-trigger swallow #2 -- see the note at the create arm.
   gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
   exit 0
 fi
@@ -72,4 +127,5 @@ if ! put_out=$(gh api "repos/${REPO}/pages" --method PUT --input "${put_body}" 2
   exit 1
 fi
 echo "ensure-github-pages-legacy-branch: updated."
+# D-22: build-trigger swallow #3 -- see the note at the create arm.
 gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
