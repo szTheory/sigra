@@ -73,7 +73,7 @@
 - [x] **Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface** - The zero-coupling Lane-0 batch: gitignore, stashes, worktrees, stray artifacts, the Pages fix, and the HexDocs-rendering doc strip (completed 2026-09-16)
 - [x] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags (completed 2026-09-17)
 - [x] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree (completed 2026-09-18)
-- [ ] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence
+- [x] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence (completed 2026-09-18)
 - [ ] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture
 - [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
 - [ ] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
@@ -367,7 +367,7 @@ Plans:
 | 237. Clean Working Tree + Pages + `lib/` Docs | 6/6 | Complete    | 2026-09-16 |
 | 238. Tag Guard, Then Tag Deletion | 6/6 | Complete    | 2026-09-17 |
 | 239. `priv/templates/` Sweep + Re-bless | 16/16 | Complete    | 2026-09-18 |
-| 240. Green-Main Evidence + Honest Pages Script | 0/? | Not started | - |
+| 240. Green-Main Evidence + Honest Pages Script | 5/5 | Complete    | 2026-09-18 |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |

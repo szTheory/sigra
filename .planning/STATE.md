@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 240
-current_phase_name: green-main-evidence-honest-pages-script
-status: verifying
+current_phase: 241
+current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
+status: planning
 stopped_at: "Completed 240-05-PLAN.md (GREEN-05; issue #231 closed)"
-last_updated: "2026-09-18T18:32:12.843Z"
+last_updated: "2026-09-18T18:59:15.958Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
-Last activity: 2026-09-18 — Phase 240 execution started
+Phase: 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-18 — Phase 240 complete, transitioned to Phase 241
 
 ### v1.48 phase map
 
