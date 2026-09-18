@@ -396,3 +396,159 @@ artifact hand-copying a subset.
 - `2026-09-17-ci-change-detector-omits-sigra-upgrade-and-gen-oauth.md`
 - `2026-09-17-fut-01-template-example-parity-guard.md`
 - `2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md`
+
+## WIDENED-UNION-LEDGER
+Status: PASS — surface counts under V2 at final committed HEAD: `priv/templates/` **4**,
+`test/fixtures/install_golden/tree/` **4**, `test/fixtures/install_golden/STDOUT.txt` **0** (total
+**8** triage rows). Disposition counts: `FIX-239-06` **3**, `FALSE-POSITIVE` **1**,
+`OUT-OF-SCOPE` **0**, `MIRRORS-<template>` **4**. V1 returned **0** on all three surfaces — the
+instrument gap is a measured 0→8 delta, not an assertion. The widened net found **1 beyond the
+GAP-1 enumeration** (`sigra_auth.css:696`, plan ID `231-02`), and it is inside `priv/templates/`, so
+it joins plan 239-06's fix list without widening the phase.
+
+### (a) V2, verbatim
+
+Built by extending the frozen V1 string from `## PREFLIGHT-UNION-LEDGER` — never retyped from
+memory — with six appended alternations after `\bB[0-9]\b`. The first five are the verifier's named
+requirement; `\b[Ww]ave [0-9]` is added because GSD wave numbering is the same class of internal
+bookkeeping and the verifier's own wider-net command already used it.
+
+```
+\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]
+```
+
+The six appended alternations, isolated:
+
+```
+\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]
+```
+
+**Why V1 could not see the leak** (239-VERIFICATION.md's second gap, restated as a mechanism):
+V1's plan-ID alternation is `[0-9]{3}-[A-Z0-9-]+\.md`, which requires a trailing `.md`, so the bare
+plan ID `231-02` in `sigra_auth.css:696` is structurally unmatchable. V1 has no alternation at all
+for `round N`, for 10-digit GitHub Actions run IDs, or for `UAT`.
+
+### (b) Per-alternation positive controls
+
+Every zero in this ledger is paired with a control on a surface where the pattern is known to fire,
+so a later zero on `priv/templates/` is a real negative and not a dead alternation. All six controls
+returned non-zero; no alternation is dead.
+
+| # | Alternation | Control command | Count |
+|---|---|---|---|
+| 1 | `\b[0-9]{3}-[0-9]{2}\b` | `grep -cE '\b[0-9]{3}-[0-9]{2}\b' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **10** |
+| 2 | `\b[Rr]ound[s]?[ -][0-9]` | `grep -cE '\b[Rr]ound[s]?[ -][0-9]' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **4** |
+| 3 | `\b[Rr]uns? [0-9]{9,}` | `grep -cE '\b[Rr]uns? [0-9]{9,}' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **2** |
+| 4 | `actions/runs/[0-9]+` | `grep -cE 'actions/runs/[0-9]+' .planning/seeds/SEED-006-admin-design-gallery-ci-baseline-recapture.md` | **3** |
+| 5 | `\bUAT\b` | `grep -cE '\bUAT\b' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **9** |
+| 6 | `\b[Ww]ave [0-9]` | `grep -cE '\b[Ww]ave [0-9]' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-EVIDENCE.md` | **2** |
+
+Alternation 4's control is `SEED-006` rather than `239-VERIFICATION.md`: the verification report
+cites run IDs as bare numbers, not as GitHub URLs, so it returns 0 there. Recording the surface that
+does fire is the point of the control — a 0 on the first candidate surface is an unsuitable control,
+not a dead alternation, and the distinction is only visible because the control was run.
+
+**Instrument limitation, recorded rather than smoothed over:** these are line-based greps. In
+`sigra_auth.css` the phrase `after rounds\n     1-2.` is split across lines 514-515, so alternation 2
+does not match it even though it is exactly the bookkeeping the alternation targets. Line 519's
+`Live multi-run CI evidence` (`multi-run` has no digit after it) and line 698's `do not re-litigate
+this` likewise match nothing. All three sit **inside** the two comment blocks already dispositioned
+`FIX-239-06` below, which 239-06 rewrites as whole blocks, so nothing is lost — but a future
+`p18` guard built on line-based matching inherits this gap.
+
+### (c) V1 ↔ V2 delta on the two surfaces V1 certified clean
+
+```bash
+V1='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'
+V2="${V1}"'|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]'
+# brace group + `|| true` inside every substitution: a zero-match grep is a
+# measurement, not a fatal status under `set -eo pipefail` (SAFETY RULESET 1).
+{ grep -nE "$V1" $(git ls-files priv/templates) || true; } | wc -l
+{ grep -nE "$V2" $(git ls-files priv/templates) || true; } | wc -l
+{ grep -nE "$V1" $(git ls-files test/fixtures/install_golden/tree) || true; } | wc -l
+{ grep -nE "$V2" $(git ls-files test/fixtures/install_golden/tree) || true; } | wc -l
+```
+
+| Surface | V1 lines | V2 lines (pre-fix) | V2 lines (final HEAD) |
+|---|---|---|---|
+| `priv/templates/` | **0** | **5** | **4** |
+| `test/fixtures/install_golden/tree/` | **0** | **4** | **4** |
+| `test/fixtures/install_golden/STDOUT.txt` | **0** | **0** | **0** |
+
+The pre-fix column is the measurement taken before this plan's `login_html.ex` edit; the final
+column is the same measurement at the committed HEAD. The golden tree is unchanged by this plan by
+design — it is generator output and clears only at plan 239-08's single re-bless (D-09).
+
+`STDOUT.txt` is recorded at **0** rather than omitted: D-13 names it as an independent-drift hazard
+distinct from `tree/`, and it stays measured-nil under the wider net.
+
+**Paired positive control for the `priv/templates/` measurement** (a green grep over an empty file
+list would be indistinguishable from a clean tree otherwise):
+
+```bash
+{ grep -lE "$V2" $(git ls-files priv/templates) || true; } | wc -l   # => 2   (files with hits)
+{ grep -lc defmodule $(git ls-files priv/templates) || true; } | wc -l  # => 97  (greppable files)
+```
+
+### (d) Generated-app observation — the leak closed, on generated bytes
+
+The claim is made on the literal bytes an adopter receives, never on `priv/templates/` (D-15,
+Standing Constraint 1). `scripts/ci/install-smoke.sh` scaffolded a fresh Phoenix 1.8.8 app, added
+Sigra as a path dep, ran `mix sigra.install --yes Accounts User users` and `mix sigra.gen.oauth`,
+and compiled `--warnings-as-errors` (`SMOKE_EXIT=0`).
+
+```bash
+ASDF_ERLANG_VERSION=28.5 ASDF_ELIXIR_VERSION=1.19.5-otp-28 \
+  TMP_APP_DIR=/tmp/sigra_239_05_app GITHUB_WORKSPACE=$(pwd) scripts/ci/install-smoke.sh
+{ grep -rhE '\bUAT\b' /tmp/sigra_239_05_app/lib /tmp/sigra_239_05_app/priv || true; } | wc -l
+# => 0
+{ grep -rhc 'defmodule' /tmp/sigra_239_05_app/lib /tmp/sigra_239_05_app/priv || true; } | paste -sd+ - | bc
+# => 94   (across 93 files — the paired positive control; the tree is real, not empty)
+rm -rf /tmp/sigra_239_05_app
+```
+
+The generated `lib/sigra_239_05_app_web/controllers/session_html.ex` moduledoc reads
+`… LiveView's form-submission attributes were swallowing the browser form submit. With no LiveView
+process on the page, the browser performs a real HTTP POST to \`SessionController.create/2\`.` —
+`during UAT` gone, the IN-04 `LiveView's / LiveView` duplication collapsed, the causal claim intact.
+The scratch app was removed (REPO-01).
+
+### (e) Per-hit triage — every V2 hit, exactly one disposition
+
+One row per V2 hit across all three surfaces; 4 + 4 + 0 = 8 rows, matching the `Status:` counts.
+
+| path:line | matched alternation | line text (trimmed) | disposition |
+|---|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex:54` | `\b[0-9]{3}-[0-9]{2}\b` (matched `373-12`) | `<path d="M24 12.073c0-6.627-5.373-12c0 …" fill="#1877F2"/>` | **FALSE-POSITIVE** — SVG `path d=` geometry data in the Facebook provider button; `5.373-12` is two floating-point path coordinates, not a plan ID. Not text, not a comment, not editable prose. |
+| `priv/templates/sigra.install/core/sigra_auth.css:524` | `\b[Rr]ound[s]?[ -][0-9]` (`round-3`) | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | **FIX-239-06** — review-round history inside the `:508-533` comment block (GAP-1). |
+| `priv/templates/sigra.install/core/sigra_auth.css:531` | `\b[Rr]uns? [0-9]{9,}` (`runs 30518012012`) and `\b[Rr]ound[s]?[ -][0-9]` (`round-3`) | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | **FIX-239-06** — live GitHub Actions run IDs inside the same `:508-533` block (GAP-1). |
+| `priv/templates/sigra.install/core/sigra_auth.css:696` | `\b[0-9]{3}-[0-9]{2}\b` (`231-02`) | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | **FIX-239-06** — a bare Sigra plan ID inside the `:689-698` comment block (GAP-1). **This is the hit V1 was structurally blind to.** |
+| `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/session_html.ex:8` | `\bUAT\b` | `submit during UAT. With no LiveView process on the page, the browser` | **MIRRORS-`priv/templates/sigra.install/core/login_html.ex`** (D-21 rename mapping) — source fixed in this plan's Task 1; the fixture clears at plan 239-08's single re-bless. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:524` | `\b[Rr]ound[s]?[ -][0-9]` | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:531` | `\b[Rr]uns? [0-9]{9,}`, `\b[Rr]ound[s]?[ -][0-9]` | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:696` | `\b[0-9]{3}-[0-9]{2}\b` | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+
+Every golden-tree hit resolves to a source template. **No orphan golden hit exists**, so the
+stop-the-line condition (a golden hit with no source template, which would mean the fixture is not
+generator output) did not fire.
+
+Hand-editing the golden tree is forbidden (D-09); a golden hit is only ever fixed in its source
+template.
+
+### (f) Overflow rule
+
+Stated verbatim so a later reader cannot infer a looser one:
+
+> If the `FIX-239-06` set is larger than the GAP-1 enumeration (the two `sigra_auth.css` comment
+> blocks), every extra row is added to plan 239-06's fix list and the count is recorded in the
+> SUMMARY as "widened net found N beyond the verifier's enumeration". If any extra row requires work
+> outside `priv/templates/` and `test/example/` — a `lib/` source edit, a `.github/` edit, a schema
+> or behaviour change — do NOT fix it: **record it as `OUT-OF-SCOPE`, file it as a todo per Standing
+> Constraint 4, and say so in the SUMMARY — never widen the phase.** The widened net is allowed to
+> find more; it is not allowed to silently widen the phase.
+
+Applied here: the `FIX-239-06` set is `{:524, :531, :696}`, a **superset** of GAP-1's two blocks
+(`:508-533` contributes `:524` and `:531`; `:689-698` contributes `:696`). The overflow is
+`sigra_auth.css:696` — **1 beyond the verifier's enumeration**, and it lives inside
+`priv/templates/`, so 239-06 absorbs it with no scope change. No row required work outside
+`priv/templates/`/`test/example/`, so no `OUT-OF-SCOPE` todo was triggered by the triage itself.
