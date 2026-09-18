@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: green-main-evidence-honest-pages-script
 status: executing
-stopped_at: Completed 240-01-PLAN.md
-last_updated: "2026-09-18T17:31:21.019Z"
+stopped_at: Completed 240-02-PLAN.md
+last_updated: "2026-09-18T17:37:42.046Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 37
-  completed_plans: 33
+  completed_plans: 34
   percent: 40
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-09-18 — Phase 240 execution started
 
@@ -500,6 +500,9 @@ Last activity: 2026-09-18 — Phase 240 execution started
 - [Phase 239]: 239-13: SURF-03 re-checked to [x] only after every closure criterion was re-observed live at final HEAD — three tiers clean under V3 with live controls, generated-app fixed-string proof 0/0/0, tarball 0 under lib+priv, mix ci green, SC-5 at two bases
 - [Phase 239]: 239-13: T-239-12-03 discharged on a real generated app (5 _test.exs, sigra_admin_policy_test.exs by name, *.exs control 6) rather than transferred
 - [Phase ?]: Pages script branches on the gh api -i status line; PUT-403 is the only tolerated non-2xx (D-19), everything else exits 1
+- [Phase ?]: p20 step-parity guard enforces D-02 byte-faithfulness mechanically rather than by comment
+- [Phase ?]: Artifact-name normalisation is scoped to upload-step BODIES (with.name:), not step names — the step names are byte-identical on both sides
+- [Phase ?]: GREEN-04 requirement deliberately NOT marked complete by plan 02: it is shared with plans 03 and 04, and the n>=20 capture has not happened yet
 
 ### Pending Todos
 
@@ -702,8 +705,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T17:31:20.997Z
-Stopped at: Completed 240-01-PLAN.md
+Last session: 2026-09-18T17:37:30.980Z
+Stopped at: Completed 240-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -905,3 +908,4 @@ Resume file: None
 | Phase 239 P16 | ~38m | 2 tasks | 3 files |
 | Phase 239 P13 | 55m | 3 tasks | 2 files |
 | Phase 240 P01 | 50m | 3 tasks | 4 files |
+| Phase 240 P02 | 35m | 3 tasks | 3 files |
