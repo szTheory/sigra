@@ -13,7 +13,7 @@ defmodule Example.Organizations do
   `Sigra.Plug.PutActiveOrganization.call/2`, which:
 
     1. Verifies the current user is a member of the target organization
-       (membership-before-write — T-14-06 authz choke point).
+       (membership-before-write — the authz choke point).
     2. Writes the organization id to the session row via the configured
        `Sigra.SessionStore`.
     3. Updates `conn.private[:sigra_session]` and
@@ -49,8 +49,8 @@ defmodule Example.Organizations do
 
   @doc false
   def __build_invite_url__(encoded_token) do
-    # Phase 17 Plan 07 — points at the unscoped InvitationAcceptLive
-    # route shipped in this plan's router_injection.ex update.
+    # Points at the unscoped InvitationAcceptLive
+    # route shipped in router_injection.ex.
     ExampleWeb.Endpoint.url() <> "/invitations/" <> encoded_token <> "/accept"
   end
 
@@ -78,19 +78,18 @@ defmodule Example.Organizations do
   end
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Phase 16 thin-wrapper delegates (settings page + members list)
+  # Thin-wrapper delegates (settings page + members list)
   #
   # `use Sigra.Organizations` above already injects thin delegators for
   # `list_organizations_for_user/1`, `remove_member/2`, and a 3-arg
-  # `change_role/3`. The wrappers below route the Phase 16 LiveView callers
+  # `change_role/3`. The wrappers below route the LiveView callers
   # (settings page + members list) through Sigra.Organizations with the
-  # configured @sigra_org_config. See .planning/phases/16-org-liveviews-switcher/
-  # 16-CONTEXT.md D-10 / D-11 / D-16 for signatures.
+  # configured @sigra_org_config.
   #
-  # These call Sigra.Organizations functions added in Phase 16 Plan 01.
+  # These call Sigra.Organizations functions.
   # ──────────────────────────────────────────────────────────────────────────
 
-  @doc "Rename an organization (D-10 — inline, no password required)."
+  @doc "Rename an organization (inline, no password required)."
   def rename_organization(scope, params),
     do:
       Sigra.Organizations.rename_organization(
@@ -100,7 +99,7 @@ defmodule Example.Organizations do
         params
       )
 
-  @doc "Update an organization's slug (D-11 — requires inline password + typed confirm)."
+  @doc "Update an organization's slug (requires inline password + typed confirm)."
   def update_slug(scope, params),
     do:
       Sigra.Organizations.update_slug(
@@ -110,7 +109,7 @@ defmodule Example.Organizations do
         params
       )
 
-  @doc "Soft-delete an organization (D-11 — requires inline password + typed confirm)."
+  @doc "Soft-delete an organization (requires inline password + typed confirm)."
   def soft_delete_organization(scope, params),
     do:
       Sigra.Organizations.soft_delete_organization(
@@ -121,10 +120,10 @@ defmodule Example.Organizations do
       )
 
   # `list_members_with_activity/2` and `count_members/1` are injected by
-  # `use Sigra.Organizations` above (Phase 16 Plan 01). Do not redeclare them
+  # `use Sigra.Organizations` above. Do not redeclare them
   # here — same-arity duplicates collide because both sites declare defaults.
 
-  @doc "Change a member's role with last-owner guard (D-18)."
+  @doc "Change a member's role with last-owner guard."
   def change_member_role(scope, membership, new_role),
     do: Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
 

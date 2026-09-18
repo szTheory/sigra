@@ -2,16 +2,16 @@ defmodule ExampleWeb.OrganizationsLive.Index do
   @moduledoc """
   Unified organizations landing LiveView at `/organizations`.
 
-  This is the Phase 14 `:no_active_org` redirect target (D-09), and it
+  This is the `:no_active_org` redirect target, and it
   funnels every "user lands without a usable active org" flow into a
   single mount with three render branches keyed on
   `{memberships, pending_invitations}`:
 
     * `([], [])` — Branch A: zero-state hero + inline create form
-      (also the post-signup destination via ORG-UX-09's zero-line
+      (also the post-signup destination via the zero-line
       registration path)
-    * `([], [_|_])` — Branch B: pending invitations list (Phase 17
-      wires Accept; Phase 16 renders Accept disabled)
+    * `([], [_|_])` — Branch B: pending invitations list with an Accept
+      action for each invitation
     * `([_|_], _)` — Branch C: picker with per-row switch forms
 
   Edit freely — this file is your code.

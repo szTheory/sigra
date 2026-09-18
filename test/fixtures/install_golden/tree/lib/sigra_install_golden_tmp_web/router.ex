@@ -68,10 +68,10 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     plug :ensure_auth_settings_capability
   end
 
-  # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+  # Opt-in organization-aware pipelines.
   # Apps that want to gate routes by active organization membership
   # pipe_through :require_org (any active membership) or
-  # :require_org_owner (owner role only). Phase 16 wires these to
+  # :require_org_owner (owner role only). These wire into
   # the organization picker + switcher.
   pipeline :require_org do
     plug Sigra.Plug.RequireMembership, error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
@@ -83,7 +83,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
       roles: [:owner]
   end
 
-  # MFA challenge (accessible with mfa_pending sessions, D-24)
+  # MFA challenge (accessible with mfa_pending sessions)
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :require_mfa_capability]
 
@@ -94,7 +94,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
+    # Login page is a plain controller, not a LiveView.
     get "/log_in", SessionController, :new
 
     live "/register", RegistrationLive
@@ -134,7 +134,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   end
 
 
-  # Phase 17 D-06: single unscoped InvitationAcceptLive at
+  # Single unscoped InvitationAcceptLive at
   # /invitations/:token/accept. This route MUST remain outside any
   # `:require_authenticated` pipeline so both anonymous visitors
   # (signup branch) and signed-in visitors (accept / mismatch branch)
@@ -166,7 +166,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     # POST /organizations/switch MUST be defined before the scoped block
     # below so Phoenix's definition-order matching doesn't interpret
-    # "switch" as a slug (D-06).
+    # "switch" as a slug.
     post "/organizations/switch", OrganizationSwitchController, :update
 
     live_session :organizations_unscoped,

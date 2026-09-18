@@ -1,21 +1,21 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 238
-current_phase_name: Tag Guard, Then Tag Deletion
-status: executing
-stopped_at: Completed 238-06-PLAN.md
-last_updated: "2026-09-17T14:40:38.274Z"
-last_activity: 2026-09-17
-last_activity_desc: "Phase 238 complete (6/6 plans): tag guard, deletion, runbook, ADR amendment, supersession, ledger closed"
-state_head: f7a987528d3ec1a9e0ba196461bbc39170c97bd4
+current_phase: 240
+current_phase_name: Green-Main Evidence + Honest Pages Script
+status: planning
+stopped_at: Completed 239-13-PLAN.md
+last_updated: "2026-09-18T15:43:46.875Z"
+last_activity: 2026-09-18
+last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
-  completed_phases: 2
-  total_plans: 16
-  completed_plans: 16
-  percent: 20
+  completed_phases: 4
+  total_plans: 32
+  completed_plans: 32
+  percent: 40
+state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 238 — Tag Guard, Then Tag Deletion
+**Current focus:** Phase 239 — priv-templates-sweep-one-batched-re-bless
 
 ## Current Position
 
-Phase: 238 (Tag Guard, Then Tag Deletion) — COMPLETE (6/6 plans)
-Plan: 6 of 6 — all plans complete
-Status: Phase 238 execution complete (awaiting verification)
-Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-01 supersession, evidence ledger closed
+Phase: 240 — Green-Main Evidence + Honest Pages Script
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-18 — Phase 239 complete, transitioned to Phase 240
 
 ### v1.48 phase map
 
@@ -466,6 +466,39 @@ Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-0
 - [Phase 237]: D-09 (inherited): SC-3 stash-archival half abandoned — all 6 stashes stay local, nothing pushed to public origin — 4/6 stashes carry ~2,018 lines of home-directory paths; push to public origin is irreversible with respect to content
 - [Phase 237]: git worktree prune alone only retired 3/5 stale worktrees; used git worktree remove (git-native, non-destructive) for the 2 live-but-unwanted checkouts — 2 entries had live valid checkout dirs not reachable by prune; plain remove for the clean one, --force for the unborn-branch one; no branch/commit lost
 - [Phase 237]: Phase 237 closed honestly: one evidence ledger re-observes all five requirements at final committed HEAD, the ratchet baseline (337/254/69) hands Phase 241 a starting number, and MIX_ENV=test mix ci is proven green only after diagnosing a real dep-off recompile bug (not by retrying blindly).
+- [Phase 238]: Tier 2 (fnmatch-excluded `creation` rule) selected over Tier 1 (`tag_name_pattern`) by observation, not preference — Tier 1 is enterprise-gated and was rejected live with `HTTP 422 Validation Failed` on this Free-tier repo. What shipped is a shape guard, not a SemVer validator: `v1.2.3.4`, `v1.a.b` and `v...` all carry two dots and fall in `exclude: refs/tags/v*.*.*`. REL-01 recorded as a dated supersession with the original wording left visible, not quietly narrowed.
+- [Phase 238]: The tag guard is deliberately paired and asymmetric — `p19` asserts the committed snapshot offline on every PR (no network on the merge-gating lane), while the live-vs-committed drift read runs only on the post-merge `workflow_run` observer lane. The drift job's jq projection omits `bypass_actors` on purpose: GitHub returns that field only to callers with write access, so asserting it at CI-token permission level would compare an absent value and always report drift. The bypass check moves to a documented operator step.
+- [Phase 238]: Deletion is allowlist-driven and reporting-by-default — one literal tag name per invocation from `.planning/decisions/003-tag-delete-list.tsv`, never a glob or prefix; `--apply` is required to mutate; every row carries a `pre_delete_sha`. **No `git gc`, `reflog expire` or `prune` may be run** — those SHAs are Phase 245's forward-feed and the deleted objects must stay reachable.
+- [Phase 238]: A green `CI (observe)` RUN is not proof that the drift job ran. Its guard is `github.event.workflow_run.event != 'pull_request'`, so observe runs triggered by PR-event CI runs skip the job while still reporting green — two such runs sat at this phase's head SHA during UAT. Only the run triggered by the `push` CI executes it; verification must read the JOB's conclusion and its stdout line.
+- [Phase 239]: Wave-0 SC-3 instrument built before any template edit: expected-removed-set containment classifier replaces the unfireable syntactic comment-only test, checked against a frozen 141-record pre-sweep expected set (139 union-token lines + 2 anchored merge-site neighbours, never a blanket radius).
+- [Phase 239]: Extended Task 1's scope to fully clear its three exclusive files (auth.ex, reset_password_controller.ex, organization_switch_controller.ex) rather than leaving union-token residue no later task would visit.
+- [Phase 239]: Accepted one unavoidable 237-security-comment-diff-check.sh false positive on core/auth.ex:530 (IN-03 token format not in its tolerance regex) rather than editing the checker script, per D-16.
+- [Phase 239]: Resolved plan's temporal-ordering tension via a trailing evidence-recording commit (mirroring 239-01/239-02 precedent), keeping the mirror commit itself entirely test/example/-scoped — A commit cannot honestly record its own not-yet-created child commit's sha or not-yet-run mix ci results
+- [Phase 239]: Diagnosed the first mix ci run's 6 spurious Threadline failures as a cold-_build Code.ensure_compiled/1 ordering race, resolved via mix compile --force, not a lib/ regression — git log a1bb08c6..HEAD -- lib/ is empty; confirmed no source cause
+- [Phase ?]: 239-05: V2 bookkeeping regex adds six alternations (the verifier's five plus `\b[Ww]ave [0-9]`); V1 certified priv/templates and the golden tree clean at 0 while V2 measures 5 and 4 — the instrument gap is a measured delta, not an assertion
+- [Phase ?]: 239-05: all three tasks land as ONE path-scoped commit per the plan's D-19 commit topology, overriding the executor's per-task commit default
+- [Phase ?]: 239-05: SURF-02 is marked [x] Complete in REQUIREMENTS.md but does not hold at HEAD (account.ex:16, audit.ex:7-14, put_active_organization.ex:9) — filed as a todo for the milestone owner, fix belongs to Phase 241's SURF-04 ratchet
+- [Phase ?]: 239-06: a third sigra_auth.css CI-evidence comment block (:705) cleaned alongside the two enumerated blocks — V2 could never flag it
+- [Phase ?]: 239-06: residual V2 on priv/templates recorded as the measured 2 (pre-dispositioned FALSE-POSITIVE SVG geometry), not rounded to 0
+- [Phase ?]: 239-07: the generated golden tree is the wording authority for a mirrored comment — never a third, freshly invented wording
+- [Phase ?]: 239-07: a confirmed no-edit disposition is recorded in the mirror ledger instead of a phantom edit (mfa_settings_live.ex, organization_invitation.ex)
+- [Phase ?]: D-26 amendment applied: SC-3 and SURF-03 now read 'one batched re-bless per batch of template edits'
+- [Phase ?]: Round-2 expected-removed set frozen and committed BEFORE the re-bless, so the ordering is provable by git merge-base --is-ancestor rather than by prose
+- [Phase ?]: floor_files parameterized to GOLDEN_MIN_FILES (set to 7, the exact expected-path count) rather than disabled
+- [Phase 239]: D-30 (239-09): the V3 instrument's detection width and the criterion's asserted surface are separate — V3 stays maximally wide; the criterion asserts hits_outside_allowlist = 0 over pre-committed tier file lists, raw total always printed
+- [Phase 239]: D-28 (239-09): the widening ships as a measurement instrument only — Phase 241's SURF-04 p18 guard inherits V3 as its spec; Phase 239 builds no guard
+- [Phase 239]: D-27 (239-10): SC-2 narrowed to the tarball's lib/+priv/ — the claim narrows, the packaged docs surface (58 .planning/ occurrences) is routed to Phase 241 SURF-04 plus a todo, not cleaned and not dropped
+- [Phase 239]: D-29 (239-10): the D-26 unbounded-re-bless residue is bounded by a per-batch evidence obligation in 239-EVIDENCE.md § BATCH-JUSTIFICATION, without re-amending SC-3 or SURF-03 prose
+- [Phase 239]: D-28 amendment (239-10): SC-1 now names V3 as the definition its 'planning bookkeeping' half is measured under — a widening, since V3 strictly contains the V2 regex the failed pass used
+- [Phase 239]: Plan 239-12 ran the re-bless twice (capture, restore path-scoped, commit) — SC-3/D-26 counts commits not runs; the two captures are byte-identical
+- [Phase 239]: GOLDEN_MIN_FILES=2 (expected-set distinct-path count) on the real round-3 classification; 1 only for the single-hunk RED demonstration — both numbers recorded together
+- [Phase 239]: Phase 239 reopened for a batch-4 closure (239-13 halted on a false adopter-shipped claim)
+- [Phase 239]: D-31 (239): the WR-01 moduledoc claim that mix sigra.install generates no tests is RETRACTED as false on the bytes — admin.ex:38-39 ships test/<otp_app>/sigra_admin_policy_test.exs into every adopter project
+- [Phase 239]: D-32 (239): the generated-app V3 claim is scoped to files mix sigra.install CREATED OR MODIFIED (injected files in scope), a rule borrowed from install_fixture.ex and frozen before the measurement it governs
+- [Phase ?]: 239-15: batch-4 re-bless 5f7ae9d7 carries the WR-01 retraction into the golden fixture; both classifier non-vacuity floors were zero this round and are disclosed with four compensating proofs rather than manufactured
+- [Phase 239]: D-33: generated-app V3 criterion matches allowlist records by (basename, literal)
+- [Phase 239]: 239-13: SURF-03 re-checked to [x] only after every closure criterion was re-observed live at final HEAD — three tiers clean under V3 with live controls, generated-app fixed-string proof 0/0/0, tarball 0 under lib+priv, mix ci green, SC-5 at two bases
+- [Phase 239]: 239-13: T-239-12-03 discharged on a real generated app (5 _test.exs, sigra_admin_policy_test.exs by name, *.exs control 6) rather than transferred
 
 ### Pending Todos
 
@@ -473,6 +506,7 @@ Last activity: 2026-09-17 — 238-06 complete: runbook, ADR 003 amendment, REL-0
 
 ### Blockers/Concerns
 
+- **[Phase 238] The `tag_ruleset_drift` observer is trustworthy but noisy, and nothing asserts it ran.** Three tracked items in `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*`: (1) `set -euo pipefail` aborts at `ID=$(…)` before the job's own named `ABSENT` diagnostic can print, so the 404 it was written for surfaces as a raw non-zero exit; (2) the ruleset list is unpaginated (harmless at 2 rulesets, a false alarm past 30); (3) no assertion that the job executed rather than skipped. All three fail **closed** — false red or unlabelled red, never false green — so a deleted ruleset is still caught. Trust-and-noise, not a security hole. Unblocked now that the lane has executed once.
 - **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
 - [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
 - **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
@@ -667,8 +701,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-17T14:40:38.237Z
-Stopped at: Completed 238-06-PLAN.md
+Last session: 2026-09-18T15:33:19.823Z
+Stopped at: Completed 239-13-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -854,3 +888,18 @@ Resume file: None
 | Phase 237 P03 | 8min | 2 tasks | 2 files |
 | Phase 237 P06 | ~2h | 3 tasks | 7 files |
 | Phase 238 P06 | 41 min | 3 tasks | 5 files |
+| Phase 239 P01 | 25min | 3 tasks | 6 files |
+| Phase 239 P02 | 70min | 3 tasks | 47 files |
+| Phase 239 P03 | 95min | 3 tasks | 31 files |
+| Phase 239 P05 | 35m | 3 tasks | 4 files |
+| Phase 239 P06 | 30m | 3 tasks | 8 files |
+| Phase 239 P07 | ~25m | 3 tasks | 8 files |
+| Phase 239 P08 | ~75m | 4 tasks | 12 files |
+| Phase 239 P09 | 34min | 2 tasks | 6 files |
+| Phase 239 P10 | 22 | 3 tasks | 7 files |
+| Phase 239 P11 | 25m | 2 tasks | 6 files |
+| Phase 239 P12 | ~35m | 2 tasks | 5 files |
+| Phase 239 P14 | ~35m | 4 tasks | 6 files |
+| Phase 239 P15 | ~25m | 2 tasks | 4 files |
+| Phase 239 P16 | ~38m | 2 tasks | 3 files |
+| Phase 239 P13 | 55m | 3 tasks | 2 files |

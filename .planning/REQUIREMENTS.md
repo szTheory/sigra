@@ -79,10 +79,12 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 ### Clean shipped surface (SURF)
 
-- [ ] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
+- [x] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
+  - *Audit note (plan 239-09):* SURF-01 stays `[x]` while SURF-03 is unchecked because SURF-01's own wording is narrowly scoped to `.planning/` path references in `lib/` and `priv/templates/`, verified on a freshly generated app and on the built `mix hex.build` tarball — both measure zero at HEAD per the Requirements Coverage row of `.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md`, whereas SURF-03's broader "no planning bookkeeping" claim is falsified by that same report's SC-1 gap.
+  - *Consistency note (plan 239-10, D-27) — SURF-01 vs. the amended SC-2:* the two texts describe the same surface, quoted here side by side rather than left to inference. Amended ROADMAP **SC-2** (Phase 239): "The `mix hex.build` **tarball**, extracted, greps clean for `.planning/` paths **under `lib/` and `priv/`** — the source tree is never the thing that is asserted." **SURF-01** (unchanged by this plan): "Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree." SURF-01 names `lib/` and `priv/templates/` as the *scope* and the tarball as the *verification vehicle*; SC-2 now names `lib/` and `priv/` as the asserted region inside that vehicle. `priv/templates/` ⊂ `priv/`, so SC-2 is the wider of the two and SURF-01 cannot pass while SC-2 fails. SURF-01's requirement sentence is byte-unchanged — it was already the narrower and correct wording, which is exactly why `239-VERIFICATION.md` rates SURF-01 satisfied while SC-2 failed.
 - [x] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
-- [ ] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one** batched `mix sigra.fixture.rebless_golden`, in separate commits. Only the `test/example/` counterparts of edited templates are mirrored.
-- [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`.
+- [x] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one batched re-bless per batch of template edits** (`mix sigra.fixture.rebless_golden`), in separate commits — amended from "**one** batched" per D-26, because the gap closure lands a second batch of template edits; each run stays single, fixture-scoped, comment-only and alone in its commit. Only the `test/example/` counterparts of edited templates are mirrored.
+- [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`. **Packaged-docs surface (added by plan 239-10 per D-27):** `mix.exs`'s Hex `files:` list (`mix.exs:184` — `~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)`) packages `docs/`, `README.md` and `CHANGELOG.md`, so those files sit inside the artifact an adopter downloads; the SURF-04 ratchet covers that packaged-docs surface alongside the inline `lib/` comment ratchet it already covers. Measured at Phase 239's close: **58** `.planning/` occurrences across 32 lines in 6 files. Routed here by Phase 239's SC-2 amendment — see `.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`.
 
 ### Clean git working state (REPO)
 
@@ -153,9 +155,9 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | REL-04 | Phase 242 | Pending |
 | REL-05 | Phase 242 | Pending |
 | REL-06 | Phase 242 | Pending |
-| SURF-01 | Phase 239 | Pending |
+| SURF-01 | Phase 239 | Complete |
 | SURF-02 | Phase 237 | Complete |
-| SURF-03 | Phase 239 | Pending |
+| SURF-03 | Phase 239 | Complete |
 | SURF-04 | Phase 241 | Pending |
 | REPO-01 | Phase 237 | Complete |
 | REPO-02 | Phase 237 | Complete |
