@@ -21,7 +21,7 @@ defmodule <%= web_module %>.OrganizationMembersLive do
       purges `user_sessions` rows scoped to the removed user + this org inside
       the same transaction (force-logout).
     * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`
-      Flop / sortable columns are a v1.2 concern.
+      only. Flop / sortable columns are a v1.2 concern.
 
   ## Pending invitations seam
 

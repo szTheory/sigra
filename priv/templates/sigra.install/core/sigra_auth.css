@@ -695,7 +695,7 @@
      ALSO display:grid, so this un-contained grid-item ancestor still carries its
      automatic minimum width (min-content) even though 231-02's min-width: 0 already
      reached the leaf input/button. That leaf-only fix was insufficient on its own --
-     do not re-litigate this;
+     do not re-litigate this; this comment records the verified mechanism
      and the reflow failure payload (DIV.fieldset/LABEL/SPAN.label/INPUT/BUTTON sharing
      one identical right edge) that proves it. */
   .sigra-auth form :where(.fieldset, label) {
