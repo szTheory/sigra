@@ -224,3 +224,8 @@ single batched, comment-only-diff commit.
 the `*.exs` control retained, and its generated-app V3 run is governed by § `GENERATED-APP-SCOPE` —
 including the **halt clause**: enumerate the actual excluded hits, and stop if any excluded path turns
 out to be one the installer created **or modified**.
+
+## Self-Check: PASSED
+
+All five files and all five commits verified present at the final HEAD on a clean tree
+(Standing Constraint 2). No missing items.
