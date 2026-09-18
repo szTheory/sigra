@@ -226,7 +226,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 239-10-PLAN.md — D-27 narrows SC-2 to `lib/`+`priv/` and routes the packaged docs surface to Phase 241 SURF-04; D-28/D-29/D-30 recorded; SC-1 named to its measuring definition; WR-04 and IN-05 filed as todos *(wave 10)*
+- [x] 239-10-PLAN.md — D-27 narrows SC-2 to `lib/`+`priv/` and routes the packaged docs surface to Phase 241 SURF-04; D-28/D-29/D-30 recorded; SC-1 named to its measuring definition; WR-04 and IN-05 filed as todos *(wave 10)*
 
 **Wave 11** *(blocked on Wave 10 completion)*
 

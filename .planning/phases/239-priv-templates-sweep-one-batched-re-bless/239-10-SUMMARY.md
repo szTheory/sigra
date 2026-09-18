@@ -174,3 +174,8 @@ None. No file under `priv/`, `test/`, `lib/`, `.github/`, nor `CHANGELOG.md`, `R
 `mix.exs` was modified — `git diff --name-only HEAD~3 -- priv/ test/ lib/ .github/ CHANGELOG.md README.md docs/ mix.exs`
 returns nothing. All three new todos carry repo-relative paths and quoted repo content only, with no
 home-directory paths, adopter PII, or brand hex values (T-239-10-03 satisfied).
+
+## Self-Check: PASSED
+
+All four named artifacts exist on disk; all three task commits (`41c62dc6`, `2168498a`, `89de04a2`)
+resolve in `git log`.

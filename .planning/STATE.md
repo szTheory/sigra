@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
-stopped_at: Completed 239-09-PLAN.md
-last_updated: "2026-09-18T13:31:13.846Z"
+stopped_at: Completed 239-10-PLAN.md
+last_updated: "2026-09-18T13:34:55.187Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Ready to execute
 Last activity: 2026-09-18 — Phase 239 execution started
 
@@ -487,6 +487,9 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase ?]: floor_files parameterized to GOLDEN_MIN_FILES (set to 7, the exact expected-path count) rather than disabled
 - [Phase 239]: D-30 (239-09): the V3 instrument's detection width and the criterion's asserted surface are separate — V3 stays maximally wide; the criterion asserts hits_outside_allowlist = 0 over pre-committed tier file lists, raw total always printed
 - [Phase 239]: D-28 (239-09): the widening ships as a measurement instrument only — Phase 241's SURF-04 p18 guard inherits V3 as its spec; Phase 239 builds no guard
+- [Phase 239]: D-27 (239-10): SC-2 narrowed to the tarball's lib/+priv/ — the claim narrows, the packaged docs surface (58 .planning/ occurrences) is routed to Phase 241 SURF-04 plus a todo, not cleaned and not dropped
+- [Phase 239]: D-29 (239-10): the D-26 unbounded-re-bless residue is bounded by a per-batch evidence obligation in 239-EVIDENCE.md § BATCH-JUSTIFICATION, without re-amending SC-3 or SURF-03 prose
+- [Phase 239]: D-28 amendment (239-10): SC-1 now names V3 as the definition its 'planning bookkeeping' half is measured under — a widening, since V3 strictly contains the V2 regex the failed pass used
 
 ### Pending Todos
 
@@ -689,8 +692,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T13:31:09.989Z
-Stopped at: Completed 239-09-PLAN.md
+Last session: 2026-09-18T13:34:54.819Z
+Stopped at: Completed 239-10-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -884,3 +887,4 @@ Resume file: None
 | Phase 239 P07 | ~25m | 3 tasks | 8 files |
 | Phase 239 P08 | ~75m | 4 tasks | 12 files |
 | Phase 239 P09 | 34min | 2 tasks | 6 files |
+| Phase 239 P10 | 22 | 3 tasks | 7 files |
