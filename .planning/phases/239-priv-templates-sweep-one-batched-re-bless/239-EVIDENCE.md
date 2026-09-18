@@ -1539,12 +1539,47 @@ After batch 3 the phase carries **3** re-bless commits, one per batch, which is 
 D-26 and bounded by D-29.
 
 
-### Batch 4 — the WR-01 retraction *(SLOT UNFILLED — `BATCH-4-JUSTIFICATION-PENDING`)*
+### Batch 4 — the WR-01 retraction *(written by plan 239-15, BEFORE batch 4's re-bless ran)*
 
-`BATCH-4-JUSTIFICATION-PENDING` — this slot is deliberately empty at plan 239-14's close. **Plan
-239-15 fills it before its re-bless runs**, replacing this marker line with the batch's composition
-and its not-foldable argument. A re-bless that runs while this marker is still present is a D-29
-violation, and the marker string is greppable precisely so that can be checked mechanically.
+*(This slot was opened empty by plan 239-14 and carried a greppable pending marker until this
+paragraph replaced it. Plan 239-15's freeze commit — the commit carrying this text — is a strict
+ancestor of the batch-4 re-bless commit, proven by `git merge-base --is-ancestor` in
+§ `## REBLESS-COMMIT-4`, so "justified before it ran" is a property of the commit graph.)*
+
+**Composition — one template edit, named.** Batch 4 is the single `@moduledoc` retraction committed
+as `7592e760` (`refactor(239): retract the false installer-test claim from the invitation moduledoc
+(SURF-01, SURF-03)`), mirrored into `test/example/` by `a13c40bc`:
+
+| Edit | Template file | What changed |
+|---|---|---|
+| WR-01 retraction (D-31) | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` | The `@moduledoc` clause `` `mix sigra.install` generates no tests, so if you customize this file, add an / equivalent assertion to your own test suite. `` replaced by `your generated project does not inherit that assertion, so if you customize / this file, add an equivalent assertion to your own test suite.` |
+
+Two removed template lines in total (`git diff a253b8c1..HEAD -- priv/templates/`), rendering into
+**1** golden file. No other template path is touched by this batch.
+
+**Why not foldable into batch 3.** Batch 3 *is* what made batch 4 necessary. Batch 3's own WR-01
+repair introduced the claim batch 4 retracts — `` `mix sigra.install` generates no tests `` — and that
+claim is false on the bytes: `lib/sigra/install/features/admin.ex:38-39` maps
+`admin/policy_test.exs` into every adopter's `test/` tree as `sigra_admin_policy_test.exs`, one
+`_test.exs` creation target, and one is enough to falsify an absence claim. **An edit that corrects a
+prior batch cannot, by construction, have been folded into that batch** — the corrected text did not
+exist to be folded, and the defect being corrected was authored by the batch it would have to fold
+into. The chronology is consistent with that but is not the argument: the falsifying evidence, the
+installer's `_test.exs` target map, was not consulted until threat row `T-239-12-03` forced the
+observation to be re-made on a real generated app, which happened at plan 239-13's halt — after batch
+3 had already been blessed into the golden fixture by `87581665`.
+
+**Running count of re-bless commits, with shas (D-29 auditability).** Before batch 4: **3**.
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 (closure) |
+| 3 | `87581665` | 239-12 |
+| 4 | recorded in § `## REBLESS-COMMIT-4` — a commit cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/` | 239-15 |
+
+After batch 4 the phase carries **4** re-bless commits, one per batch, which is SC-3 as amended by
+D-26 and bounded by D-29.
 
 ## BATCH-3-SWEEP-COMMIT
 
@@ -2573,6 +2608,225 @@ batch-4 planning time, was **asserted** as a precondition, not re-applied.
 - `239-v3-vocabulary-check.sh` and `239-v3-allowlist.tsv` are byte-unchanged (D-30). The fail-closed
   exit-3 demonstration behind D-32 ran against a scratch copy held outside the repo working tree and
   deleted immediately.
-- The batch-4 justification slot is **open, not filled** — § `## BATCH-JUSTIFICATION` carries
-  `BATCH-4-JUSTIFICATION-PENDING`, which plan 239-15 discharges in the commit immediately before its
-  re-bless (D-29).
+- The batch-4 justification slot was left **open, not filled**, at plan 239-14's close — it carried a
+  greppable pending marker in § `## BATCH-JUSTIFICATION`. Plan 239-15 discharged it in the commit
+  immediately before its re-bless (D-29); the marker literal no longer appears anywhere in this file,
+  which is the mechanical form of that discharge.
+
+
+## REFREEZE-LEDGER-4
+
+*(Written by plan 239-15, extending § `## REFREEZE-LEDGER` and § `## REFREEZE-LEDGER-3` rather than
+interleaving with them — this file's append-only chronological convention. Round 4 lives here.)*
+
+Status: PASS — the round-4 expected-removed set is frozen, committed **before** batch 4's re-bless,
+and the ordering is readable from `git log` rather than taken on trust.
+
+### (a) Why a fourth expected set is required
+
+Round 3's set (`239-golden-expected-3.txt`, 5 records across 2 paths) was generated against the golden
+tree as it stood before re-bless `87581665`, and every one of its 5 records names a line that re-bless
+removed. Those lines no longer exist in the tree, so round 3's set cannot contain round 4's removals:
+reusing it would fail containment on both lines of the new diff. A fourth set is the only non-circular
+option, exactly as it was at rounds 2 and 3.
+
+### (b) Counts
+
+| Record class | Count |
+|---|---|
+| `T:` (golden-tree lines matched by V3 at the pre-re-bless HEAD) | **0** |
+| `N:` (prose retraction V3 cannot match, located by literal anchor) | **2** |
+| Total records | **2** |
+| Distinct golden paths across all records | **1** |
+
+The `T:` count is **0** and that is the expected outcome for this batch — see (f), where it is
+disclosed with its consequence rather than left to be discovered.
+
+### (c) The literal-anchor list — 2 anchors, 2 records, accounted for exactly
+
+The anchors are **not** a blanket radius and **not** derived from the diff they validate. Each anchor
+is a line REMOVED from an edited template by batch 4's own template-edit commit `7592e760`
+(`git diff a253b8c1..HEAD -- priv/templates/`), searched verbatim with `/usr/bin/grep -nF` **only
+inside that template's own golden counterpart** (basename match; `invitation_accept_live.ex` is not
+one of the two documented renames). An anchor matching nothing in its counterpart contributes no
+record.
+
+| # | Anchor (template line removed by `7592e760`) | Template | Record class |
+|---|---|---|---|
+| 1 | `` `mix sigra.install` generates no tests, so if you customize this file, add an `` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 2 | `equivalent assertion to your own test suite.` | `organizations/live/invitation_accept_live.ex` | `N:` |
+
+**2 anchors → 2 `N:` + 0 absorbed `T:` = 2 records.** No anchor is unaccounted for and no record lacks
+an anchor.
+
+**The generating command and its `BASE`.** `BASE=a253b8c1` — plan 239-14's decision commit
+(`docs(239): record D-31 and D-32 and freeze the generated-app measurement scope`), the last commit
+before the batch-4 template edit `7592e760`. Choosing that base makes the `N:` anchor set exactly the
+lines batch 4's template edit removed and nothing else. The command is written verbatim into the
+file's `#`-prefixed header block, so the set is reproducible from the file alone.
+
+Two bytes-level differences from round 3's generator, both recorded rather than silent:
+
+1. `BASE` substituted (`74e6a148` → `a253b8c1`).
+2. All **five** bare `grep` invocations replaced with `/usr/bin/grep`. This repo's interactive shell
+   resolves bare `grep` to a `ugrep` wrapper that can silently return zero — one of the three
+   confident false negatives already caught in this phase. Verified: `/usr/bin/grep -o '/usr/bin/grep'`
+   over the generator → **5**; a bare-`grep` residue grep over the same text → **0**.
+
+The command line itself carries **no inline `#`**. Round 2's header did, between `BASE=` and `V3=`;
+executed verbatim it commented the generator out and emitted zero records, which is indistinguishable
+from "the golden tree is already clean". The rationale prose for round 4 lives on its own `#` lines
+*above* the command line, never inside it.
+
+**The generator is not record-less, and the `T:` zero is controlled.** The `T:` pass ran over the
+committed golden tree file list and is proven live rather than assumed:
+
+```
+files_in_list      = 84
+v3_hits            = 0     [the T: pass result]
+control_defmodule  = 78    [positive control, same 84-file list, same /usr/bin/grep]
+```
+
+A `control_defmodule` of 78 over an 84-file list proves the grep read the tree; the `0` is therefore a
+finding about the tree, not a dead instrument. The generated file has **2** records
+(`/usr/bin/grep -cE '^(T|N):'` → 2), so it is not the empty-output shape a broken generator produces.
+
+### (d) The freeze is git-provable, not prose-provable
+
+The freeze commit's own sha and the re-bless sha cannot be written by the commits they name (a commit
+cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/`
+and may carry nothing else). Both are recorded, with their `git merge-base --is-ancestor` result, in
+§ `## REBLESS-COMMIT-4` below, written in this plan's final documentation commit.
+
+What is asserted here and checkable at any later HEAD: the freeze commit lists exactly three paths —
+`239-golden-expected-4.txt`, `fixtures/239-golden-rebless4-code-change.diff`, `239-EVIDENCE.md` — and
+nothing under `test/fixtures/install_golden/`.
+
+### (e) The floor: two different runs, two different jobs — and an arithmetic coincidence, named
+
+`GOLDEN_MIN_FILES` for round 4's **real** run is **1**, computed, not carried over:
+
+```
+cut -d: -f2 <the N:/T: records of 239-golden-expected-4.txt> | sort -u | wc -l   ->  1
+```
+
+That is the exact distinct-path count of `239-golden-expected-4.txt`: batch 4 renders into exactly one
+golden file, `…/live/invitation_accept_live.ex`. It is a **real** non-vacuity floor equal to the
+expected path count — not `0`, and not round 3's `2` nor round 1's hardcoded default of `30`, both of
+which would fail spuriously on a one-file batch.
+
+The RED demonstration in (h) below also runs with `GOLDEN_MIN_FILES=1`. **The two `1`s coincide
+arithmetically; neither is carried over from the other, and they do different jobs:**
+
+| Run | Input | Floor | Where the `1` comes from | Why that floor |
+|---|---|---|---|---|
+| RED demonstration | `fixtures/239-golden-rebless4-code-change.diff` — the real diff shape with exactly one **code** line substituted | `1` | a deliberate floor-bypass for a single-hunk fixture | The fixture must fail on the altered code line, not on a file-count floor. Failing on the floor would prove nothing about the classifier's ability to detect a code line, which is the only thing this run measures. |
+| Real classification (Task 2) | the captured re-bless-4 working-tree diff | `1` | the **measured** distinct-path count of the round-4 expected set | This is the run the floor exists to protect — a thin real diff waved through by a vacuous pass. The floor is **applied**, not disabled, on the run the acceptance criteria gate on. |
+
+By this plan's own standard — *a reused number is indistinguishable from a disabled floor* — the
+coincidence is stated here rather than left implicit. One value is measured from the expected set; the
+other is chosen for a one-hunk fixture. They are equal by arithmetic, because batch 4 touches one
+file.
+
+The classifier itself is byte-unchanged in this round: `GOLDEN_MIN_FILES` was already parameterized by
+plan 239-08.
+
+### (f) `expected_t_count = 0`: both non-vacuity floors are off this round — disclosed, not discovered
+
+The classifier's second floor is `floor_removed="$expected_t_count"`, the count of `T:` records.
+
+**Derivation:** `/usr/bin/grep -c '^T:' 239-golden-expected-4.txt` → **0**, which the classifier
+re-derives itself and prints as `removed_lines_floor=0` in every round-4 invocation below.
+
+**Why it is zero.** Batch 4's two removed lines are ordinary English prose — `` `mix sigra.install`
+generates no tests, so if you customize this file, add an `` and `equivalent assertion to your own
+test suite.` — and carry no identifier of any shape V3 matches: no `D-NN`, no `SC-N`, no `T-NNN-NN`,
+no `.md` filename, no phase or wave number, no plan-checker or re-bless token. That is the same
+structural fact that made batch 3's two sentences invisible to V2, one definition earlier. A regex
+over an identifier vocabulary cannot match a sentence that contains no identifier.
+
+**Consequence, stated plainly.** `GOLDEN_MIN_FILES=1` on a one-file batch and `floor_removed=0` mean
+**both** of the classifier's non-vacuity floors are effectively off for round 4. A round-4 record
+reporting `nonconforming=0` without disclosing that is inadmissible by this plan's own acceptance
+criteria, so it is disclosed here, before the green is reported.
+
+**What compensates — four proofs, none of which rests on either floor:**
+
+1. **The empty-input guard**, demonstrated live in (h): an empty diff exits 1 with `refusing to report
+   success`, so the degenerate case both floors would otherwise have caught is caught by a guard that
+   is independent of them.
+2. **The per-line containment classification** — keyed on (path, trimmed text), never on a count. This
+   is what actually proves the diff comment-and-docstring-only, and it is exactly as strong on a
+   2-line diff as on a 139-line one. It is also the thing proven able to fail, in (h).
+3. **`--check` exit 0** (§ `## REBLESS-COMMIT-4` (d)), which proves the committed tree equals real
+   generated output by scaffolding a fresh app and comparing bytes — the classifier plays no part in
+   it.
+4. **The golden-tier fixed-string zero with its live positive control** (§ `## REBLESS-COMMIT-4` (f)),
+   which is falsifiable without the classifier at all.
+
+**Residual, honestly.** With both floors at zero, the classifier **alone** could not distinguish this
+round's real diff from an empty one on floor arithmetic — only its empty-input guard and its
+containment body stand between the two, and only the three non-classifier proofs above make the round
+robust. That is why those are required this round rather than optional.
+
+### (g) The precondition, recorded
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden --check` at the start of this plan exited **2**:
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+DRIFT DETECTED:
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex and <tmp>/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex differ
+```
+
+Exactly the **1** file batch 4 edits renders into, and no others. A `--check` exit 0 here would have
+meant the template edit never reached generated output (or the fixture was hand-edited) and the plan
+would have halted.
+
+### (h) The classifier proven able to fail, before any of its greens are believed
+
+**RED — one code line altered in a real-shaped diff.** The known-bad fixture is the captured re-bless-4
+diff with exactly one removed **prose** line replaced by a removed **code** line
+(`defp render_mismatch(assigns) do`, a real head in the same golden file at `:331`).
+`diff <captured> <fixture>` → `10c10`, a single-line difference.
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh \
+  fixtures/239-golden-rebless4-code-change.diff 239-golden-expected-4.txt
+```
+
+```
+changed_lines=4
+removed_lines=2
+files=1
+nonconforming=1
+nonconforming_removed=1
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=0
+FAIL: 1 nonconforming line(s)/path(s)/hunk(s) found:
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:-  defp render_mismatch(assigns) do
+```
+
+**exit 1**, and the output names the offending line. Note `removed_lines_floor=0`: the failure came
+from the containment body, not from a floor — which is precisely the property (f) needs it to have.
+
+**Fail-closed on empty input, demonstrated live rather than cited:**
+
+```bash
+printf '' | GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh - 239-golden-expected-4.txt
+FAIL: empty diff input — refusing to report success on no input (fail-closed guard)
+```
+
+**exit 1**.
+
+**Guards still present at this plan's HEAD:**
+
+| Guard | Assertion |
+|---|---|
+| all four fail-closed messages | `/usr/bin/grep -c 'refusing to report success'` → **4** |
+| `removed_lines` floor | `/usr/bin/grep -c 'floor_removed="$expected_t_count"'` → **1** (literal unchanged) |
+| add-only-hunk class | `nonconforming_addonly_hunks` still one of the three summed violation classes |
+
+No line of `239-comment-only-diff-check.sh`, `239-v3-vocabulary-check.sh` or `239-v3-allowlist.tsv`
+was changed in this round (D-16, D-30).
