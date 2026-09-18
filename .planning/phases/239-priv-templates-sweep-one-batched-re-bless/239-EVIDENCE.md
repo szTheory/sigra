@@ -3014,3 +3014,242 @@ answer) was never raised in this plan.
 - **`scripts/ci/install-smoke.sh` not run, and no generated app greped.** The committed fixture was
   not substituted for a generated app anywhere in this plan; the fixture's admissibility rests on
   `--check` exit 0 and nothing else is claimed from it.
+
+## D-33-CRITERION-AMENDMENT
+
+Frozen by plan 239-16 Task 1, **before** plan 239-13's third run measures against it. Every command
+below was run at this plan's base HEAD on a clean tree, with `/usr/bin/grep` invoked explicitly and
+every zero paired with a live positive control on the same surface. No instrument file, no allowlist
+row and no source file was touched.
+
+### 1. The defect, re-derived
+
+The single committed record in `239-v3-allowlist.tsv` (`awk -F'\t' 'NF>=2 && $1 !~ /^#/'`, which
+returned **2** rows including the tab-separated header — the parse control, since a row written with
+spaces instead of a tab parses as a comment):
+
+```
+path    = priv/templates/sigra.gen.oauth/oauth_html.ex
+literal = M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0
+reason  = FALSE-POSITIVE — SVG path coordinates. The V2 alternation \b[0-9]{3}-[0-9]{2}\b fires on
+          the numeric coordinate pair 373-12 inside the Facebook-logo <path d="..."> geometry.
+```
+
+`239-v3-vocabulary-check.sh:217` — the `(path, literal)` key, quoted with its line number:
+
+```
+217:      if [ "$h_path" = "${AL_PATHS[$i]}" ]; then
+218:        case "$h_text" in
+219:          *"${AL_LITERALS[$i]}"*) marked=" [ALLOWLISTED]" ;;
+```
+
+An exact comparison of the **whole path**. The rendered counterpart lands at
+`lib/<app>_web/controllers/oauth_html.ex` — a different string carrying identical bytes — so the
+committed record cannot mark its own rendered counterpart. Matching-key artifact, not a surface
+finding.
+
+### 2. The literal is byte-identical across the rendering boundary
+
+```
+$ /usr/bin/grep -cF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex
+1
+$ /usr/bin/grep -c defmodule priv/templates/sigra.gen.oauth/oauth_html.ex        # live control, same file
+1
+$ /usr/bin/grep -nF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex | cut -d: -f1
+54
+$ sed -n '54p' priv/templates/sigra.gen.oauth/oauth_html.ex | cut -c1-120
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.
+```
+
+The template carries the literal at **line 54**; plan 239-13's halting probe reported the rendered hit
+at `lib/<app>_web/controllers/oauth_html.ex:54`. Same literal, same line number, same alternation.
+Not a paraphrase, not eyeballed — a difference of one character would make D-33 a new disposition
+wearing an old one's name.
+
+### 3. The bound, measured (not asserted)
+
+```
+$ git ls-files -z | xargs -0 /usr/bin/grep -lF -- '<literal>'
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-EVIDENCE.md      (this ledger)
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv (the record itself)
+priv/templates/sigra.gen.oauth/oauth_html.ex                                        (the sole tracked SOURCE file)
+
+$ git ls-files -z | xargs -0 /usr/bin/grep -lF -- 'defmodule Sigra' | /usr/bin/grep -c .    # live control, same command shape
+510
+```
+
+`(basename, literal)` is strictly **looser** than `(path, literal)`: a third file named
+`oauth_html.ex` carrying that literal would also be excluded. The measurement above is what bounds
+that — across the whole tracked tree the literal lives in exactly one source file, so the real blast
+radius is that file plus its rendered counterpart, both already triaged. Stated as a measured fact
+rather than a promise, which is this phase's own standard applied to its own reasoning.
+
+### 4. Why the replaced assumption survived every prior measurement
+
+```
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c oauth_html
+0
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c '\.ex$'       # live control, same list
+68
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'router\.ex$' # live control, same list
+1
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c .
+84
+```
+
+The golden fixture — the only prior stand-in for generated output — contains **zero** `oauth_html`
+files, while the install-smoke app installs the OAuth generator's output. The criterion's embedded
+assumption (*"no allowlist entry's path is expected in it"*) was therefore true of every tier ever
+measured and was never tested against a real generated app. An untested assumption, not a bar.
+
+### 5. The goalpost question, answered from the commit graph
+
+```
+$ git log -1 --format='%h %s' 1a85508e
+1a85508e docs(239): closure evidence — widened re-measure, second re-bless, SC-5 re-proof (SURF-01, SURF-03)
+$ git log -1 --format='%h %s' 23f3c711
+23f3c711 chore(239): define V3 vocabulary bookkeeping definition, demonstrated RED on all three tiers (SURF-01, SURF-03)
+
+$ git merge-base --is-ancestor 1a85508e 23f3c711 ; echo $?
+0
+$ git merge-base --is-ancestor 23f3c711 HEAD ; echo $?
+0
+```
+
+Plan 239-08's FALSE-POSITIVE disposition (`1a85508e`) precedes plan 239-09's allowlist record
+(`23f3c711`), which precedes this measurement. **D-33 changes only how an already-existing
+disposition is matched across a rendering boundary — never what counts as bookkeeping.**
+
+### 6. The derivation procedure (verbatim, runnable)
+
+```bash
+AL=.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv
+"$S" --files "${FILES[@]}" > out.txt 2>&1; rc=$?     # rc=3 is an instrument failure, never a result: HALT
+sed -n '/^files_measured=/,$p' out.txt | tail -n +2 | while IFS= read -r rec; do
+  [ -n "$rec" ] || continue
+  h_path="${rec%%:*}"; rest="${rec#*:}"; h_line="${rest%%:*}"; h_text="${rest#*:}"
+  h_base="$(basename "$h_path")"; hit_excluded=0
+  while IFS=$'\t' read -r a_path a_literal a_reason; do
+    case "$a_path" in ''|'#'*) continue ;; esac
+    [ -n "$a_literal" ] || continue
+    [ "$(basename "$a_path")" = "$h_base" ] || continue
+    printf '%s\n' "$h_text" | /usr/bin/grep -qF -- "$a_literal" && hit_excluded=1
+  done < "$AL"
+  if [ "$hit_excluded" = 1 ]; then echo "EXCLUDED  ${h_base}:${h_line}"
+  else echo "SURVIVING ${h_base}:${h_line}: ${h_text}"; fi
+done
+```
+
+Criterion met when SURVIVING is `0`. Any surviving record is a finding and the plan HALTS. The
+excluded records are listed **by name**, never summarised as a number. `control_defmodule >= 1` is
+still required on the same file list.
+
+### 7. The three probes — the amended criterion demonstrated able to fail
+
+Scratch surface built **outside the repo working tree** (recorded by basename as `<scratch>/…`, never
+by absolute path — public repo), parse-controlled before any result was interpreted, run against the
+**unmodified committed allowlist** in `--files` mode, deleted afterwards, never committed. Every
+scratch file carries a `defmodule` line, because `control_defmodule=0` raises the instrument's exit 3
+and yields no result at all.
+
+Parse control, before interpretation:
+
+```
+a/oauth_html.ex lines=4 defmodule=1 literal=1
+b/page_html.ex  lines=3 defmodule=1 literal=1
+c/oauth_html.ex lines=3 defmodule=1 literal=0
+```
+
+**Probe A — the criterion can still fail.** A scratch `oauth_html.ex` carrying BOTH the allowlisted
+literal AND a genuine V3-matching bookkeeping line:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/a/oauth_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=2
+allowlisted=0
+hits_outside_allowlist=2
+control_defmodule=1
+files_measured=1
+<scratch>/a/oauth_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..." />
+<scratch>/a/oauth_html.ex:3:   # gap-closure bookkeeping note, see SUMMARY.md
+--- D-33 exclusion derivation ---
+  EXCLUDED  oauth_html.ex:2
+  SURVIVING oauth_html.ex:3:   # gap-closure bookkeeping note, see SUMMARY.md
+  excluded=1 surviving=1
+```
+
+The exclusion removed the allowlisted literal and **left the bookkeeping line behind**. The amended
+criterion is **RED**, with the survivor named. This is the demonstration that matters: an exclusion
+rule that cannot leave anything behind certifies everything.
+
+**Probe B — the bound holds on basename.** The allowlisted literal under a DIFFERENT basename:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/b/page_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=1
+files_measured=1
+<scratch>/b/page_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..." />
+--- D-33 exclusion derivation ---
+  SURVIVING page_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..."
+  excluded=0 surviving=1
+```
+
+Not excluded. A matching literal alone cannot buy an exemption.
+
+**Probe C — the bound holds on literal.** Basename `oauth_html.ex`, a V3 hit that is NOT the
+allowlisted literal:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/c/oauth_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=1
+files_measured=1
+<scratch>/c/oauth_html.ex:2:   # ROADMAP entry still pending
+--- D-33 exclusion derivation ---
+  SURVIVING oauth_html.ex:2:   # ROADMAP entry still pending
+  excluded=0 surviving=1
+```
+
+Not excluded. A matching basename alone cannot buy an exemption.
+
+On every probe `files_measured=1` equalled the scratch file count and `control_defmodule=1` was live.
+No probe returned exit 3; exit 1 throughout means "the surface is dirty", which is exactly what these
+scratch surfaces were built to be.
+
+### 8. Cleanup and scope
+
+The scratch directory was deleted; `git status --porcelain` was empty afterwards.
+`239-v3-vocabulary-check.sh`, `239-v3-allowlist.tsv` and `239-comment-only-diff-check.sh` are
+byte-unchanged. `.planning/REQUIREMENTS.md` was not touched and **SURF-03 remains `[ ]`** — plan
+239-13 re-checks it last and alone. No `install-smoke.sh` run, no app scaffolded, no tarball built,
+no `mix ci`: every live external observation remains plan 239-13's.
+
+### 9. Sub-entry — the two amended sites in `239-13-PLAN.md` (plan 239-16 Task 2)
+
+The sites were located by exhaustive re-grep, not by line number. `/usr/bin/grep -nE
+'allowlist|generated app' 239-13-PLAN.md` returned **37** matching lines and
+`-cE 'generated-app|over the generated app'` a further **12**; every hit was classified. Exactly **two** are the generated-app V3
+criterion:
+
+- **Site 1 — the Task 1 action sentence (~L190):** *"Also run V3 over the generated app's `lib/` and
+  `priv/` and record the result with its control."*
+- **Site 2 — the Task 1 acceptance criterion (~L235):** the clause carrying the embedded assumption
+  *"no allowlist entry's path is expected in it"*.
+
+Classified and confirmed **not** further sites: L13 (frontmatter comment describing this very
+amendment), L38/39/46 (the three named tiers), L54 (golden-tree admissibility), L186 (the SC-1
+fixed-string proof, which references no allowlist), L207-219 and L236 (`T-239-12-03`, amended by
+D-31), L312-315 (the evidence-record instruction), L375-376 (threat rows), and L392-393 (the
+`<verification>` section, which covers only the three tiers and the fixed-string proof — confirmed by
+reading it, not assumed). There is no third site.

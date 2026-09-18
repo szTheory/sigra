@@ -596,6 +596,171 @@ so it needs a trustworthy gate.
 
   Implemented by plan 239-14 Task 1's § `## GENERATED-APP-SCOPE` freeze; consumed by plan 239-13.
 
+- **D-33 [batch-4 closure planning, 2026-09-18]:** **The generated-app V3 criterion matches committed
+  allowlist records by `(basename, literal)`, not by `(path, literal)`.** The criterion moves so the
+  frozen instrument does not have to.
+
+  **Statement.** Plan 239-13's V3 run over a freshly generated app asserts
+  `hits_outside_allowlist = 0` **after excluding hits whose `(basename, literal)` matches a committed
+  record in `239-v3-allowlist.tsv`**. The exception is enumerated by name and count — the excluded
+  records listed, never summarised as a number — and it carries a **halt clause**: any hit that is
+  *not* such a match is a finding, and the plan stops rather than reclassifying it. The instrument's
+  own `(path, literal)` key, its exit-3 fail-closed behaviour and its `control_defmodule` requirement
+  are all unchanged; the exclusion is applied by the executor to the instrument's *printed records*,
+  after the run.
+
+  **The pre-amendment criterion, quoted so the original is reconstructable from this record:**
+  *"V3 over the generated app's `lib/` and `priv/` returns `hits_outside_allowlist=0` with a non-zero
+  control, captured. This is run with an explicit file list rather than a named tier, so no allowlist
+  entry's path is expected in it; per plan 239-09's tier-scoped control, an entry absent from this
+  file list is simply not exercised here and must not fail the run closed. An exit `3` is an
+  instrument failure, never a result: halt."*
+
+  **The defect, re-derived live rather than cited.** The single committed allowlist record is
+
+  ```
+  path    = priv/templates/sigra.gen.oauth/oauth_html.ex
+  literal = M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0
+  ```
+
+  and `239-v3-vocabulary-check.sh:217` keys the `[ALLOWLISTED]` marking on
+
+  ```
+  if [ "$h_path" = "${AL_PATHS[$i]}" ]; then
+    case "$h_text" in *"${AL_LITERALS[$i]}"*) marked=" [ALLOWLISTED]" ;; esac
+  ```
+
+  — an exact string comparison of the whole path. The rendered counterpart arrives at
+  `lib/<app>_web/controllers/oauth_html.ex`, a different string carrying identical bytes, so the
+  record provably cannot match its own rendered counterpart. That is a matching-key artifact, not a
+  finding about the surface.
+
+  **The literal is byte-identical across the rendering boundary — checked, not eyeballed.**
+
+  ```
+  /usr/bin/grep -cF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex   ->  1
+  /usr/bin/grep -c defmodule       priv/templates/sigra.gen.oauth/oauth_html.ex   ->  1   (live control on the same file)
+  /usr/bin/grep -nF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex   ->  line 54
+  ```
+
+  The template carries the literal at **line 54**; plan 239-13's halting probe reported the rendered
+  hit at `lib/<app>_web/controllers/oauth_html.ex:**54**`. Same literal, same line number, same
+  alternation (`\b[0-9]{3}-[0-9]{2}\b` firing on the `373-12` coordinate pair inside the Facebook-logo
+  `<path d="…">` geometry). If the two literals differed even by whitespace this would be a new
+  disposition wearing an old one's name; they do not.
+
+  **The bound, measured rather than asserted.** Over the whole tracked tree, the literal appears in
+  exactly three files:
+
+  ```
+  git ls-files -z | xargs -0 /usr/bin/grep -lF -- '<literal>'
+    .planning/phases/239-…/239-EVIDENCE.md        (the ledger)
+    .planning/phases/239-…/239-v3-allowlist.tsv   (the record itself)
+    priv/templates/sigra.gen.oauth/oauth_html.ex  (the sole tracked SOURCE file)
+  git ls-files -z | xargs -0 /usr/bin/grep -lF -- 'defmodule Sigra' | /usr/bin/grep -c .   ->  510   (live control, same command shape)
+  ```
+
+  So the real blast radius of the exception is that one source file plus its rendered counterpart —
+  two files, both already triaged. `(basename, literal)` is strictly looser than `(path, literal)`:
+  a third file named `oauth_html.ex` carrying that same literal would also be excluded. That is the
+  honest statement of the bound, and the measurement above is what makes it a fact instead of a
+  promise. The literal half is what keeps it narrow: a basename alone buys nothing.
+
+  **Why the assumption being replaced was never a bar.** The criterion's embedded assumption — *no
+  allowlist entry's path is expected in it* — held at every tier ever measured because the golden
+  fixture, the only prior stand-in for generated output, contains **zero** `oauth_html` files, while
+  the install-smoke app installs the OAuth generator's output:
+
+  ```
+  git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c oauth_html   ->  0
+  git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c '\.ex$'      ->  68   (live control, same list)
+  git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'router\.ex$' -> 1    (live control, same list)
+  git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c .            ->  84
+  ```
+
+  The zeroes are paired with non-zero controls on the same list, so they cannot mean the list was
+  empty or the grep was dead. The assumption was **untested**, not a standard being lowered.
+
+  **Why this is not a goalpost move — answered from the commit graph, not argued.** The disposition
+  D-33 re-matches existed long before the measurement that falsified the criterion:
+
+  ```
+  1a85508e  docs(239): closure evidence — widened re-measure, second re-bless, SC-5 re-proof
+            (plan 239-08 — the FALSE-POSITIVE disposition of the 373-12 SVG-coordinate hit)
+  23f3c711  chore(239): define V3 vocabulary bookkeeping definition, demonstrated RED on all three tiers
+            (plan 239-09 — the allowlist record committed)
+
+  git merge-base --is-ancestor 1a85508e 23f3c711   ->  exit 0
+  git merge-base --is-ancestor 23f3c711 HEAD       ->  exit 0
+  ```
+
+  **Consequence, in one line: D-33 changes only *how an already-existing disposition is matched across
+  a rendering boundary* — never *what counts as bookkeeping*.** No hit becomes acceptable that was not
+  already dispositioned FALSE-POSITIVE by plan 239-08 and committed by plan 239-09.
+
+  **The derivation, as a runnable procedure over the instrument's printed records.** The instrument
+  prints one record per hit as `path:line:[ ALLOWLISTED] text` after the `files_measured=` line. For
+  each such record: take `basename(path)` and the hit `text`; the record is **excluded** only when
+  some committed allowlist row has that same basename AND that row's literal is a substring of the
+  hit text (fixed-string, `-F`, never a regex). Excluded and surviving records are listed separately
+  with counts:
+
+  ```bash
+  AL=.planning/phases/239-…/239-v3-allowlist.tsv
+  "$S" --files "${FILES[@]}" > out.txt 2>&1; rc=$?          # rc=3 is an instrument failure, never a result: halt
+  sed -n '/^files_measured=/,$p' out.txt | tail -n +2 | while IFS= read -r rec; do
+    [ -n "$rec" ] || continue
+    h_path="${rec%%:*}"; rest="${rec#*:}"; h_line="${rest%%:*}"; h_text="${rest#*:}"
+    h_base="$(basename "$h_path")"; hit_excluded=0
+    while IFS=$'\t' read -r a_path a_literal a_reason; do
+      case "$a_path" in ''|'#'*) continue ;; esac
+      [ -n "$a_literal" ] || continue
+      [ "$(basename "$a_path")" = "$h_base" ] || continue
+      printf '%s\n' "$h_text" | /usr/bin/grep -qF -- "$a_literal" && hit_excluded=1
+    done < "$AL"
+    if [ "$hit_excluded" = 1 ]; then echo "EXCLUDED  ${h_base}:${h_line}";
+    else echo "SURVIVING ${h_base}:${h_line}: ${h_text}"; fi
+  done
+  ```
+
+  The criterion is met when the SURVIVING count is `0`; any surviving record is a finding and the
+  plan halts. `control_defmodule` must still be `>= 1` on the same file list — the exclusion makes it
+  *easier*, not harder, for a zero to mean nothing.
+
+  **The amended criterion is demonstrated able to fail.** Three probes on a parse-controlled scratch
+  surface held outside the repo working tree, run in `--files` mode against the unmodified committed
+  allowlist, deleted afterwards, never committed. Full records in
+  `239-EVIDENCE.md` § `## D-33-CRITERION-AMENDMENT`. Summary: **Probe A** (scratch `oauth_html.ex`
+  carrying the allowlisted literal AND a genuine V3-matching bookkeeping line) — `hits=2`,
+  `control_defmodule=1`, `files_measured=1`; the exclusion removes exactly one and leaves
+  `surviving=1`, the criterion **RED** with the bookkeeping line named. **Probe B** (the allowlisted
+  literal under basename `page_html.ex`) — not excluded, `surviving=1`. **Probe C** (basename
+  `oauth_html.ex`, a `ROADMAP` hit that is not the allowlisted literal) — not excluded,
+  `surviving=1`. An exclusion rule that cannot leave anything behind certifies everything; this one
+  can, and both halves of its key were shown load-bearing independently.
+
+  **Alternatives considered and not taken.** (a) *Amend the allowlist's matching key inside
+  `239-v3-vocabulary-check.sh`, or add a rendered-path duplicate row to `239-v3-allowlist.tsv`* —
+  both are instrument edits. D-30 freezes all three instrument files and every plan since 239-09
+  asserts byte-equality against them; worse, a rendered-path row is in none of the three named tiers
+  and would raise the union guard at `:169` to **exit 3 on every tier run**, the mechanical
+  impossibility D-32 already demonstrated live. (b) *Drop or soften the generated-app V3
+  measurement* — it is a real signal, and dropping a measurement because it is inconvenient is the
+  goalpost move this phase has twice refused; the measurement is kept and only the matching changes.
+  (c) *Widen D-32's created-or-modified scope to cover the generated `oauth_html.ex`* — that file is
+  one `mix sigra.install` **created**, squarely inside D-32's scope, so excluding it there would put
+  a Sigra-authored file outside the measurement and hollow out D-32's own halt clause. Recorded here
+  so it is not re-proposed.
+
+  Reversibility: **costly** — it amends a criterion plan 239-13 measures against, and a later reader
+  reasons from the amended text, the same basis as D-27 and D-32. Not one-way: the pre-amendment
+  criterion including its embedded assumption is quoted verbatim above, so the original is
+  reconstructable from this record alone. No `checkpoint:decision` is emitted, following the
+  D-26 / D-27 / D-32 precedent for gap-closure criterion amendments.
+
+  Implemented by plan 239-16 Task 2 (the two-site amendment of `239-13-PLAN.md`); consumed by plan
+  239-13.
+
 ### Claude's Discretion
 
 - The exact rewritten wording of the 23 D-17 rationale-preserving comments, so long as the sentence
