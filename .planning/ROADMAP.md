@@ -280,7 +280,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 240-04-PLAN.md — Operator: merge, dispatch at final committed HEAD, capture SC-1/SC-2 into a canonical receipt, flip five ledger slots *(wave 3, operator)*
+- [x] 240-04-PLAN.md — Operator: merge, dispatch at final committed HEAD, capture SC-1/SC-2 into a canonical receipt, flip five ledger slots *(wave 3, operator)*
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

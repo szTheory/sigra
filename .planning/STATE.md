@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: green-main-evidence-honest-pages-script
 status: executing
-stopped_at: Completed 240-03-PLAN.md
-last_updated: "2026-09-18T17:44:34.172Z"
+stopped_at: Completed 240-04-PLAN.md
+last_updated: "2026-09-18T18:14:41.153Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 37
-  completed_plans: 35
+  completed_plans: 36
   percent: 40
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-09-18 — Phase 240 execution started
 
@@ -506,6 +506,9 @@ Last activity: 2026-09-18 — Phase 240 execution started
 - [Phase ?]: 240-03: bare-name detection uses an anchored regex, not `.name ==`, so the collector has zero byte-equality job selectors anywhere
 - [Phase ?]: 240-03: filter=latest reaches both /jobs endpoints via the JOBS_FILTER constant — one source of truth, explicitly chosen (D-11)
 - [Phase ?]: 240-03: the collector self-test is intentionally unwired from CI, matching both existing operator-invoked collectors
+- [Phase ?]: 240-04: main window bounds 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z chosen from the run list (oldest main ci.yml run at/after the 236 flake fix), recorded verbatim in the ledger
+- [Phase ?]: 240-04: the ledger flip is a post-evidence documentation commit — the receipt records head_sha abec92c4 + clean_tree at capture, so HEAD advancing afterwards does not invalidate the window (D-13)
+- [Phase ?]: 240-04: local mix ci Threadline failures waived as exogenous by operator decision; CI library-test jobs green at base, PR #246 and main run 35377012499
 
 ### Pending Todos
 
@@ -708,8 +711,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T17:44:29.032Z
-Stopped at: Completed 240-03-PLAN.md
+Last session: 2026-09-18T18:14:35.173Z
+Stopped at: Completed 240-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -913,3 +916,4 @@ Resume file: None
 | Phase 240 P01 | 50m | 3 tasks | 4 files |
 | Phase 240 P02 | 35m | 3 tasks | 3 files |
 | Phase 240 P03 | ~50m | 3 tasks | 4 files |
+| Phase 240 P04 | 25m | 3 tasks | 2 files |
