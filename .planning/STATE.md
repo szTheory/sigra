@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: green-main-evidence-honest-pages-script
-status: executing
-stopped_at: Completed 240-04-PLAN.md
-last_updated: "2026-09-18T18:14:41.153Z"
+status: verifying
+stopped_at: "Completed 240-05-PLAN.md (GREEN-05; issue #231 closed)"
+last_updated: "2026-09-18T18:32:12.843Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 37
-  completed_plans: 36
-  percent: 40
+  completed_plans: 37
+  percent: 50
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-18 — Phase 240 execution started
 
 ### v1.48 phase map
@@ -509,6 +509,8 @@ Last activity: 2026-09-18 — Phase 240 execution started
 - [Phase ?]: 240-04: main window bounds 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z chosen from the run list (oldest main ci.yml run at/after the 236 flake fix), recorded verbatim in the ledger
 - [Phase ?]: 240-04: the ledger flip is a post-evidence documentation commit — the receipt records head_sha abec92c4 + clean_tree at capture, so HEAD advancing afterwards does not invalidate the window (D-13)
 - [Phase ?]: 240-04: local mix ci Threadline failures waived as exogenous by operator decision; CI library-test jobs green at base, PR #246 and main run 35377012499
+- [Phase ?]: Phase 240 GREEN-05: issue #231 closed against a BOUNDED evidence window (runs 35377050754 + 8 main-window ids, 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z), never a permanence claim; notify_release_lane_rot may correctly re-file the same title (D-27).
+- [Phase ?]: Todos are closed against CORRECTED coordinates (D-26): the 2026-07-30 actor-filter todo cited a nonexistent audit_live.ex and stale :454-458; closure prose carries audit_index_live.ex and admin-generated.spec.ts:459 from Phase 236 CONTEXT D-06/D-07.
 
 ### Pending Todos
 
@@ -711,8 +713,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T18:14:35.173Z
-Stopped at: Completed 240-04-PLAN.md
+Last session: 2026-09-18T18:32:07.042Z
+Stopped at: Completed 240-05-PLAN.md (GREEN-05; issue #231 closed)
 Resume file: None
 
 ## Operator Next Steps
@@ -917,3 +919,4 @@ Resume file: None
 | Phase 240 P02 | 35m | 3 tasks | 3 files |
 | Phase 240 P03 | ~50m | 3 tasks | 4 files |
 | Phase 240 P04 | 25m | 3 tasks | 2 files |
+| Phase 240 P05 | ~35m | 4 tasks | 5 files |

@@ -166,7 +166,7 @@ is wrong. Generalising p12 to a ledger glob is Phase 241's call and is already o
 - **Recorded, not hidden:** the substitution is written into the `AFTER-ISSUE-231-CLOSED` slot
   alongside the exact commands, so the ledger's fenced block is what was actually run rather than
   what was planned.
-- **Commit:** `<ledger commit>`
+- **Commit:** `ac3b6b23`
 
 **2. [Task 4 / operator-authorized] One parenthetical added to the drafted comment before posting**
 

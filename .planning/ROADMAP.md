@@ -284,7 +284,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 240-05-PLAN.md — Operator: comment on + close #231 against the evidence, close both owning todos, flip the final ledger slot *(wave 4, operator)*
+- [x] 240-05-PLAN.md — Operator: comment on + close #231 against the evidence, close both owning todos, flip the final ledger slot *(wave 4, operator)*
 
 ### Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 

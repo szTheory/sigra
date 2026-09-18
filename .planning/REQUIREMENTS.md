@@ -18,7 +18,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 - [x] **GREEN-02**: The audit-filter navigation race is fixed in shipped `lib/` — `lib/sigra/admin/live/audit_index_live.ex` no longer runs a plain `<form method="get">` plus `<a href>` presets against `handle_params/3` with no `handle_event`. If root-cause fails, a **dated quarantine entry naming an owner** is recorded instead. Retry-wrapping is prohibited.
 - [x] **GREEN-03**: GitHub Pages builds successfully on push — the legacy Jekyll builder no longer renders `main`'s repo root and fails on `guides/introduction/code-walkthrough.md:174`.
 - [x] **GREEN-04**: `ci-gate` is proven green on the affected job across n≥20 runs via `workflow_dispatch` (not 20 full pushes), captured at the final committed HEAD on a clean tree.
-- [ ] **GREEN-05**: Issue #231 is closed against that evidence, and `scripts/ci/ensure-github-pages-legacy-branch.sh` no longer reports success while silently swallowing a 403.
+- [x] **GREEN-05**: Issue #231 is closed against that evidence, and `scripts/ci/ensure-github-pages-legacy-branch.sh` no longer reports success while silently swallowing a 403.
 
 ### Release namespace + cut the release (REL)
 
@@ -148,7 +148,7 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | GREEN-02 | Phase 236 | Complete |
 | GREEN-03 | Phase 237 | Complete |
 | GREEN-04 | Phase 240 | Complete |
-| GREEN-05 | Phase 240 | Pending |
+| GREEN-05 | Phase 240 | Complete |
 | REL-01 | Phase 238 | Complete (superseded — see the REL-01 note) |
 | REL-02 | Phase 238 | Complete |
 | REL-03 | Phase 242 | Pending |
