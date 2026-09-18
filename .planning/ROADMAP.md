@@ -185,7 +185,7 @@ Plans:
   4. Only the `test/example/` counterparts of templates actually edited are mirrored, recorded as an explicit per-file checklist in the phase SUMMARY, and the absent template↔example parity guard is filed as a todo (FUT-01) rather than built here.
   5. Load-bearing infrastructure is provably untouched: `git diff origin/main -- .github/` shows no `name:` change (a renamed required context never reports and PRs hang forever), and no `# SECURITY:`-class comment sentence is deleted.
 
-**Plans**: 4 plans
+**Plans**: 8 plans (4 executed + 4 gap-closure)
 
 Plans:
 **Wave 1**
@@ -203,6 +203,22 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [ ] 239-04-PLAN.md — Commit 3: the single batched re-bless, then SC-1/SC-2/SC-5 live observations, the D-24/D-25 todos, and the honesty ledger *(wave 4)*
+
+**Wave 5** *(gap closure — blocked on Wave 4 completion)*
+
+- [ ] 239-05-PLAN.md — Widen the bookkeeping definition, re-measure and triage the whole surface, close the `during UAT` leak, carry the definition forward to Phase 241 *(wave 5)*
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 239-06-PLAN.md — Strip the residual CI-run/plan-id bookkeeping from `sigra_auth.css` and repair the seven damaged adopter-facing sentences *(wave 6)*
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 239-07-PLAN.md — Mirror the router and layouts sweep into `test/example/`, converge every wording, correct the stale SC-4 checklist *(wave 7)*
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 239-08-PLAN.md — Re-freeze the expected set, demonstrate the classifier RED, run the single closure re-bless, re-prove SC-1/SC-2/SC-5 under the widened definition *(wave 8)*
 
 ### Phase 240: Green-Main Evidence + Honest Pages Script
 
