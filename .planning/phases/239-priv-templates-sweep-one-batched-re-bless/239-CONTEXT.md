@@ -254,6 +254,32 @@ so it needs a trustworthy gate.
 - **D-25:** FUT-01 (template↔example parity guard) is filed as a todo with the D-22 coverage-gap
   list attached as its diagnosis. Explicitly not built here.
 
+- **D-26 [user decision, gap-closure planning, 2026-09-17]:** SC-3 and SURF-03 are **amended** with a
+  one-clause carve-out: **one batched re-bless per batch of template edits**, rather than exactly one
+  for the phase. Rationale: the gap closure (plans 239-05 … 239-08) lands a second batch of template
+  edits, and a second batch of template edits cannot reach the golden fixture without a second
+  batched re-bless — the alternative is a golden tree that no longer matches a freshly generated app,
+  which is the failure SC-3 exists to prevent. The property SC-3 actually protects is preserved
+  unchanged: each re-bless is a single batched run, confined to `test/fixtures/install_golden/`, its
+  diff proven comment-only by a classifier demonstrated falsifiable first, in its own commit with
+  nothing else in it. What changes is only the phase-level count.
+
+  Three options were put to the developer — amend the criteria, rewrite history so one re-bless
+  commit remains, or proceed and record the deviation in `239-EVIDENCE.md` only. The developer chose
+  **amend**. Recording a deviation from a locked criterion in a downstream artifact does not amend
+  the criterion: a re-verifier applying SC-3 literally at final HEAD would see two re-bless commits
+  and could legitimately fail the phase a second time, after the full closure cost is spent. The
+  `239-EVIDENCE.md` record is kept as well — the amendment makes the criterion match reality, the
+  ledger keeps the audit trail. Both, not either.
+
+  Reversibility: **one-way-ish**. Amending a locked requirement changes the phase's contract and a
+  later reader reasons from the amended text. No `checkpoint:decision` is emitted for it — the
+  developer has already made this call, and re-asking an answered question at execution time would
+  stop the run for nothing.
+
+  Implemented by plan 239-08 Task 4 in `.planning/ROADMAP.md` (Phase 239, Success Criterion 3) and
+  `.planning/REQUIREMENTS.md` (SURF-03).
+
 ### Claude's Discretion
 
 - The exact rewritten wording of the 23 D-17 rationale-preserving comments, so long as the sentence
