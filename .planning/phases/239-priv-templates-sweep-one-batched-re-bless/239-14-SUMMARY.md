@@ -43,7 +43,7 @@ metrics:
 actuals:
   tokens: 12290
   tasks: 4
-  commits: 4
+  commits: 6
 ---
 
 # Phase 239 Plan 14: Batch-4 Retraction of the False Installer-Test Claim Summary

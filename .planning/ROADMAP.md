@@ -240,7 +240,7 @@ Plans:
 
 **Wave 14** *(batch-4 reopen — plan 239-13 halted on a blocking-human gate with 0/3 tasks and no commits; it is re-sequenced to run AFTER waves 14-15)*
 
-- [ ] 239-14-PLAN.md — Record D-31 (retract the false installer-test claim; re-base `T-239-12-03`) and D-32 (scope the generated-app V3 run to the files `sigra.install` created or modified), freeze that scope, correct the template moduledoc, mirror into `test/example/`, and apply D-31 surgically to `239-13-PLAN.md` *(wave 14)*
+- [x] 239-14-PLAN.md — Record D-31 (retract the false installer-test claim; re-base `T-239-12-03`) and D-32 (scope the generated-app V3 run to the files `sigra.install` created or modified), freeze that scope, correct the template moduledoc, mirror into `test/example/`, and apply D-31 surgically to `239-13-PLAN.md` *(wave 14)*
 
 **Wave 15** *(blocked on Wave 14 completion)*
 
