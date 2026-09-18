@@ -244,7 +244,7 @@ Plans:
 
 **Wave 15** *(blocked on Wave 14 completion)*
 
-- [ ] 239-15-PLAN.md — Justify batch 4 (D-29), freeze the round-4 expected set, demonstrate the classifier RED, then the fourth batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 15)*
+- [x] 239-15-PLAN.md — Justify batch 4 (D-29), freeze the round-4 expected set, demonstrate the classifier RED, then the fourth batched re-bless alone in its commit with `--check` exit 0 and the golden tier green *(wave 15)*
 
 **Wave 16** *(blocked on Wave 15 completion)*
 

@@ -4,16 +4,16 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
-status: executing
-stopped_at: Completed 239-14-PLAN.md
-last_updated: "2026-09-18T14:20:09.213Z"
+status: verifying
+stopped_at: Completed 239-15-PLAN.md
+last_updated: "2026-09-18T14:26:57.715Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 239 gap-closure planning complete (13 plans)
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 31
-  completed_plans: 29
+  completed_plans: 30
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
 Plan: 15 of 15
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-18 — Phase 239 execution started
 
 ### v1.48 phase map
@@ -495,6 +495,7 @@ Last activity: 2026-09-18 — Phase 239 execution started
 - [Phase 239]: Phase 239 reopened for a batch-4 closure (239-13 halted on a false adopter-shipped claim)
 - [Phase 239]: D-31 (239): the WR-01 moduledoc claim that mix sigra.install generates no tests is RETRACTED as false on the bytes — admin.ex:38-39 ships test/<otp_app>/sigra_admin_policy_test.exs into every adopter project
 - [Phase 239]: D-32 (239): the generated-app V3 claim is scoped to files mix sigra.install CREATED OR MODIFIED (injected files in scope), a rule borrowed from install_fixture.ex and frozen before the measurement it governs
+- [Phase ?]: 239-15: batch-4 re-bless 5f7ae9d7 carries the WR-01 retraction into the golden fixture; both classifier non-vacuity floors were zero this round and are disclosed with four compensating proofs rather than manufactured
 
 ### Pending Todos
 
@@ -697,8 +698,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T14:19:58.710Z
-Stopped at: Completed 239-14-PLAN.md
+Last session: 2026-09-18T14:26:53.508Z
+Stopped at: Completed 239-15-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -896,3 +897,4 @@ Resume file: None
 | Phase 239 P11 | 25m | 2 tasks | 6 files |
 | Phase 239 P12 | ~35m | 2 tasks | 5 files |
 | Phase 239 P14 | ~35m | 4 tasks | 6 files |
+| Phase 239 P15 | ~25m | 2 tasks | 4 files |
