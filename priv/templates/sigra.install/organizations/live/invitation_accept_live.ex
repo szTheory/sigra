@@ -16,7 +16,8 @@ defmodule <%= web_module %>.InvitationAcceptLive do
   The `:mismatch` render branch contains ZERO `phx-click`/`phx-submit`
   accept controls. Even if every server-side guard regressed, there is
   no accept form in the rendered DOM to submit. This is the
-  "by construction, not by convention" defense.
+  "by construction, not by convention" defense. That absence is asserted by a
+  test, not merely conventional — do not add accept controls to this branch.
 
   The `:invalid`, `:expired`, `:revoked`, and `:already_accepted`
   branches also render zero accept controls (defense in depth).

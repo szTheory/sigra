@@ -552,3 +552,118 @@ Applied here: the `FIX-239-06` set is `{:524, :531, :696}`, a **superset** of GA
 `sigra_auth.css:696` — **1 beyond the verifier's enumeration**, and it lives inside
 `priv/templates/`, so 239-06 absorbs it with no scope change. No row required work outside
 `priv/templates/`/`test/example/`, so no `OUT-OF-SCOPE` todo was triggered by the triage itself.
+
+## CLOSURE-TEMPLATE-COMMIT
+Status: PASS — every `FIX-239-06` row from `## WIDENED-UNION-LEDGER` is closed individually with a
+literal proving grep, the seven `239-REVIEW.md` prose repairs are applied in `priv/templates/`, and
+the commit is path-scoped. Residual V2 on `priv/templates/` is **2 occurrences on 1 line**, and that
+line is the row already dispositioned `FALSE-POSITIVE` in the ledger — real bookkeeping under V2 is
+**0**. Recorded as measured rather than as the plan's anticipated bare `0`, because the ledger's own
+disposition is what makes the 2 harmless, and rounding it to 0 would hide that dependency.
+
+### (a) V2 re-measure over `priv/templates/`, with its paired positive control
+
+```bash
+V1='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'
+V2="${V1}"'|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]'
+{ grep -hoE "$V2" $(git ls-files priv/templates) || true; } | wc -l           # -> 2
+{ grep -nE  "$V2" $(git ls-files priv/templates) || true; } | wc -l           # -> 1 line
+{ grep -lc  defmodule $(git ls-files priv/templates) || true; } | wc -l       # -> 97  (positive control)
+```
+
+| Measurement | Value | Reading |
+|---|---|---|
+| V2 occurrences over `priv/templates/` | **2** | both are `373-12`, from one SVG `path d=` coordinate pair |
+| V2 matching lines | **1** | `priv/templates/sigra.gen.oauth/oauth_html.ex:54` |
+| Of those, dispositioned `FALSE-POSITIVE` in `## WIDENED-UNION-LEDGER` | **1 line / 2 occurrences** | Facebook button geometry `…c0-6.373-5.373-12-12-12s…`, not a plan ID |
+| **Undispositioned V2 rows** | **0** | the stop-the-line condition did not fire |
+| Positive control: files containing `defmodule` on the same file list | **97** | the grep is live; the zero above is a real negative, not an empty file list |
+
+`sigra_auth.css` — the file this plan rewrote — now returns **0** under V2:
+`{ grep -hoE "$V2" priv/templates/sigra.install/core/sigra_auth.css || true; } | wc -l` -> `0`,
+paired with `grep -c 'min-width: 0' …` -> **12** on the same file.
+
+Unchanged by design: `test/fixtures/install_golden/tree/` still returns **4** under V2. Those four
+rows are `MIRRORS-<template>` and clear only at plan 239-08's single re-bless (D-09) — the golden
+tree is a generated snapshot and is deliberately not hand-edited here.
+
+### (b) Row-by-row closure record — one line per `FIX-239-06` row (no aggregate count)
+
+| # | Row (from `## WIDENED-UNION-LEDGER`) | Before | Proving grep (run at this commit) | Result |
+|---|---|---|---|---|
+| 1 | `sigra_auth.css:524` | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | `grep -cE '\b[Rr]ound[s]?[ -][0-9]' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 2 | `sigra_auth.css:531` | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | `grep -cE '30518012012\|30518015684\|actions/runs/' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 3 | `sigra_auth.css:696` | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | `grep -cE '\b[0-9]{3}-[0-9]{2}\b' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+
+Absorbed in the same block rewrites — the three lines the ledger recorded as a **line-based
+instrument gap** (V2 cannot match them, so they would have survived a green V2 forever):
+
+| # | Line | Before | Proving grep | Result |
+|---|---|---|---|---|
+| 4 | `sigra_auth.css:514-515` | `after rounds` / `1-2.` split across two lines | `grep -c 'after rounds' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 5 | `sigra_auth.css:514` | `/* Live multi-run CI evidence showed H2/P sharing one` | `grep -c 'Live multi-run CI evidence' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 6 | `sigra_auth.css:698` | `do not re-litigate this; this comment records the verified mechanism` | `grep -c 'do not re-litigate this' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 7 | `sigra_auth.css:705` | `/* Live multi-run CI evidence` (third block, outside the GAP-1 enumeration) | covered by row 5's grep | **0** |
+
+Mechanism-survived positive controls on the same file, so rows 1-7 are not a deletion:
+`grep -c 'min-width: 0'` -> **12**, `grep -c 'overflow-wrap'` -> **7**,
+`grep -cE 'automatic-minimum-size|automatic minimum'` -> **2**.
+
+### (c) Comment-containment proof for the `sigra_auth.css` diff (T-239-06-04)
+
+Two orthogonal assertions, both run over this commit's `git diff -U0` hunk headers (a header with no
+explicit count read as count = 1). Neither is a character-class grep over diff text.
+
+```
+masked_single_line_spans post=1 pre=1
+changed added_lines=20 removed_lines=26
+added:   [514,515,516,517,518,519,520,522,523,524,525,526,527,528,529,530,693,694,695,700]
+removed: [514,515,516,517,518,519,520,521,523,524,525,526,527,528,529,530,531,532,533,
+          696,697,698,699,700,705,706]
+ASSERTION_1 comment-range membership:        PASS   (post_set_size=50, pre_set_size=56)
+ASSERTION_2 empty non-comment remainder:     PASS
+```
+
+Assertion 1 masks every single-line `/* … */` span before the state machine runs, so the one line in
+this file that is simultaneously a declaration and a comment (`min-width: 0; /* … */`, near `:732`)
+cannot latch the machine open. Assertion 2 is independent of any post-edit-derived line set: it
+strips comment spans from each changed line's own text and requires the remainder to be whitespace.
+Assertion 2 is what would catch an edit to the declaration half of that mixed line, and what would
+catch an edit that drops a closing `*/` and thereby widens Assertion 1's own oracle. Plan 239-08's
+`239-comment-only-diff-check.sh` over the re-bless diff remains the phase-level backstop; neither
+check is trusted alone.
+
+### (d) SC-5 re-proof at this commit (D-16 — script run, never edited)
+
+```bash
+git diff -- priv/templates > /tmp/239-06.diff        # 187 diff lines
+.planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-security-comment-diff-check.sh /tmp/239-06.diff
+```
+
+```
+examined_removed_lines=45
+SC5_EXIT=0
+```
+
+`examined_removed_lines=45` is > 0, so a vacuous pass is mechanically excluded. The two rationale
+sites this plan touched were **strengthened**, not thinned: `organization_invitation_email.ex` now
+reads `(phishing defense — prevents inviter/org spoofing)`, and `invitation_accept_live.ex` carries
+a tool-agnostic `That absence is asserted by a test … do not add accept controls to this branch.`
+The claim is true at HEAD — `test/example/test/example_web/live/invitation_accept_live_test.exs:582`
+(T19) asserts the `render_mismatch/1` body contains no `phx-click="accept` / `phx-submit="accept`.
+The original `ZERO \`phx-click\`/\`phx-submit\`` invariant sentence is intact (`grep -c 'ZERO .phx-click'` -> **1**).
+
+### (e) `.github/` untouched (D-23, T-239-06-05)
+
+```bash
+git diff --name-only origin/main -- .github/ | wc -l    # -> 0
+```
+
+### (f) Commit scope and golden staleness
+
+`git show --name-only --format= HEAD` lists only paths under `priv/templates/` and
+`.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`; `git status --porcelain` is clean
+afterward. `MIX_ENV=test mix sigra.fixture.rebless_golden --check` exits **2** with
+`DRIFT DETECTED:` — the correct state, proving the template edits do reach generated output and that
+plan 239-08's single re-bless has real work to carry. `MIX_ENV=test mix compile --warnings-as-errors`
+exits 0 with no output.

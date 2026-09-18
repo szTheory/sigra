@@ -11,7 +11,7 @@
 #   * Every user-controllable field interpolation goes through
 #     html_escape_string/1 (XSS defense).
 #   * Subject line includes both inviter display name and org.name
-#     (phishing defense — spoofing).
+#     (phishing defense — prevents inviter/org spoofing).
 #   * Accept URL is HMAC-signed by the library
 #     (Sigra.Token.generate_invite_envelope/2); this template does not
 #     generate or validate it.
