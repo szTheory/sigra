@@ -2830,3 +2830,187 @@ FAIL: empty diff input — refusing to report success on no input (fail-closed g
 
 No line of `239-comment-only-diff-check.sh`, `239-v3-vocabulary-check.sh` or `239-v3-allowlist.tsv`
 was changed in this round (D-16, D-30).
+
+
+## REBLESS-COMMIT-4
+
+*(Written by plan 239-15 in its final documentation commit — neither the freeze commit nor the
+path-scoped re-bless commit can carry these shas.)*
+
+Status: PASS — one batched re-bless, classifier RED then GREEN, `--check` exit 0 on a clean tree, and
+the false installer-test claim provably gone from the tier that models an adopter's bytes.
+
+### (a) Commit topology — the D-19 ordering, proven from the graph
+
+```
+freeze commit (round-4 expected set + known-bad fixture + evidence) : b7113488
+re-bless commit (batch 4)                                           : 5f7ae9d7
+
+$ git merge-base --is-ancestor b7113488 5f7ae9d7      → exit 0   (shas distinct)
+$ git log --format=%H b7113488..HEAD -- test/fixtures/install_golden | wc -l
+1
+$ git show --name-only --format= 5f7ae9d7 | grep -cv '^test/fixtures/install_golden/'
+0
+$ git show --name-only --format= b7113488 | grep -c 'test/fixtures/install_golden/'
+0
+```
+
+Exactly one new commit touches the golden fixture; it touches nothing else — a single path,
+`tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex`; and the freeze that defines
+what "comment-only" means for this batch is a strict ancestor of it. The phase now carries **4**
+re-bless commits — `38c9bd9a` (batch 1), `265f7195` (batch 2), `87581665` (batch 3), `5f7ae9d7`
+(batch 4) — one per batch, each justified by name in § `## BATCH-JUSTIFICATION` before it ran.
+
+### (b) The re-bless run
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden`, run once, batched, never per-file:
+
+```
+Totals:
+  added:     0
+  modified:  1
+  removed:   0
+
+MODIFIED (1):
+  tree/lib/sigra_install_golden_tmp_web/live (1)
+    test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
+```
+
+The task does not stage or commit (`rebless_golden.ex:19-20`); staging was by path
+(`git add test/fixtures/install_golden`) and nothing else. No `Edit`, `Write` or `sed` touched any
+path under `test/fixtures/install_golden/` at any point in this plan (D-09).
+
+### (c) The diff was classified BEFORE anything was staged — full output, verbatim
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh <captured-diff> 239-golden-expected-4.txt
+```
+
+```
+changed_lines=4
+removed_lines=2
+files=1
+nonconforming=0
+nonconforming_removed=0
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=0
+```
+
+**exit 0.** Not summarized — this is the whole output, all three sub-counters included.
+
+**The file floor was cleared, not disabled** (the backstop truth): `GOLDEN_MIN_FILES` was **1**, the
+exact distinct-path count of `239-golden-expected-4.txt`; the reported `files` was **1**; the expected
+set's distinct-path count is **1** (`cut -d: -f2 … | sort -u | wc -l`). Both removed lines are in the
+frozen set; `nonconforming_removed=0` is a containment result, not an empty-input artifact — the same
+classifier returned `nonconforming=1` on the known-bad fixture minutes earlier
+(§ `## REFREEZE-LEDGER-4` (h)), and returned exit 1 on empty input.
+
+**`removed_lines_floor=0` is disclosed, not buried.** This round's expected set carries **zero** `T:`
+records, so the removed-lines floor is off, and with a one-file batch the file floor is at its
+minimum. § `## REFREEZE-LEDGER-4` (f) records the derivation, the reason, the four compensating proofs
+that do not depend on either floor, and the residual. This section's green must be read with that
+section, not apart from it.
+
+**Determinism, recorded:** the re-bless was run twice — once before the freeze commit to capture the
+diff shape the known-bad fixture is built from (working tree then restored with a path-scoped
+`git checkout -- test/fixtures/install_golden`, `git status --porcelain` empty afterwards), and once
+after it for the commit. The two captured diffs are byte-identical (`diff` → no output). **One**
+re-bless *commit*; re-runs before commit are explicitly permitted and are what let the known-bad
+fixture be built from a real diff shape.
+
+### (d) `--check` exit 0 on the clean tree after the commit
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode).
+```
+
+**exit 0**, and `git diff --quiet` succeeded afterwards (check mode wrote nothing into the working
+tree). This is the only local proof that the committed golden tree equals real generated output; it is
+what keeps the fixture admissible as generated-app evidence, and it independently covers D-13's
+independent-drift hazard because `--check` compares `STDOUT.txt` by byte equality on its own line
+(`rebless_golden.ex:115-140`).
+
+*(Recorded string discrepancy: plan 239-15's acceptance text quotes the success line as
+`OK: fixture is up-to-date (check mode.)`. The task actually prints
+`OK: fixture is up-to-date (check mode).` — the period is outside the parenthesis. The transposition
+is in the plan's prose, not in the task; the verbatim output above is the task's.)*
+
+### (e) `STDOUT.txt` re-checked under V3 as an explicit number, not assumed nil
+
+| Measurement | Value |
+|---|---|
+| V3 hits in `test/fixtures/install_golden/STDOUT.txt` | **0** |
+| positive control (`sigra`, fixed-string) on the same file | **83** |
+| file length | 186 lines |
+
+The zero is paired with a live control on the same surface, so "clean" is distinguishable from "the
+grep did not run". D-13's independent-drift hazard is re-checked, not assumed.
+
+### (f) The retraction reached the tier that models an adopter's bytes
+
+This is the tier where plan 239-12 blessed the false sentence in, so the zero carries a live control
+on the same tree beside it. All fixed-string, `/usr/bin/grep` explicit, over
+`test/fixtures/install_golden/tree`:
+
+| Measurement | Value |
+|---|---|
+| files containing `` `mix sigra.install` generates no tests `` (the retracted clause) | **0** |
+| files containing `by construction, not by convention` (live positive control, same tree) | **1** |
+| files containing `does not inherit that assertion` (the corrected clause) | **1** |
+
+Per-file, in the golden counterpart
+`tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex`:
+
+| Line | Count |
+|---|---|
+| `DO NOT add an accept button here` (the imperative) | **1** |
+| `Jetstream #907 / CVE-2026-1529` (the attribution) | **1** |
+| the retracted clause | **0** |
+| the corrected clause | **1** |
+
+The two security-carrying lines are byte-intact: the retraction did not collaterally damage the lines
+that carry the Jetstream #907 defense.
+
+### (g) The `golden` tier under V3, at this plan's final HEAD
+
+```
+tier=golden
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=78
+files_measured=84
+```
+
+**exit 0.** The raw `hits=` total is **0**, so the allowlist is hiding nothing here, and
+`control_defmodule=78` over `files_measured=84` proves the instrument ran. Exit 3 (instrument cannot
+answer) was never raised in this plan.
+
+**The green came from the surface moving, not the measurement.** Across this entire plan
+(`b7113488~1..HEAD`), `git diff --name-only` for `239-v3-vocabulary-check.sh`,
+`239-v3-allowlist.tsv` and `239-comment-only-diff-check.sh` is **empty** — D-16 and D-30 hold.
+
+### (h) Nothing else moved
+
+`git diff --name-only b7113488~1..HEAD -- .github/ .planning/REQUIREMENTS.md 239-13-PLAN.md` is
+**empty**. `.github/` is read-only in this plan (D-23) and no `name:` line was touched. Plan
+`239-13-PLAN.md` is byte-unchanged by this plan — its `T-239-12-03` amendment landed earlier, in plan
+239-14 Task 4 (`cc2f5c61`) — and it is still correctly sequenced behind this plan: `wave: 16`,
+`depends_on: ["239-15"]`.
+
+### (i) What this plan deliberately did NOT do
+
+- **No `MIX_ENV=test mix ci`.** The full gate, the fixed-string proof on a freshly generated app, the
+  tarball under the D-27 scope, SC-5's re-proof, and the three-tier re-confirmation at final HEAD are
+  plan 239-13's, by declared plan boundary rather than by omission.
+- **No `install_golden_contract` CI claim.** This phase pushes nothing; the Actions clause stays a
+  recorded ship-time deferral, to be extended in plan 239-13's `## HONEST-CLAIMS`.
+- **SURF-03 not re-checked.** It reads `[ ]` at this plan's final HEAD
+  (`/usr/bin/grep -c '^- \[ \] \*\*SURF-03\*\*' .planning/REQUIREMENTS.md` → **1**, with 3 total
+  `SURF-03` mentions as the control), and its roll-up row at `:160` still reads `Pending`. Plan 239-13
+  re-checks it last and alone, after the live observations.
+- **`scripts/ci/install-smoke.sh` not run, and no generated app greped.** The committed fixture was
+  not substituted for a generated app anywhere in this plan; the fixture's admissibility rests on
+  `--check` exit 0 and nothing else is claimed from it.
