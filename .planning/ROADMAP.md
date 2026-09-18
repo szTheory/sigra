@@ -266,7 +266,14 @@ Plans:
   3. `scripts/ci/ensure-github-pages-legacy-branch.sh` **fails loudly** on a 403 instead of logging and continuing — demonstrated red against a stubbed/denied API response — so the publisher job can no longer report success while the site stays broken.
   4. Issue **#231** is closed with a comment citing those run ids and the live Pages state, verified closed via `gh issue view 231`; the two owning todos (`2026-07-30-admin-generated-audit-presets-actor-filter-race.md`, `2026-07-29-github-pages-source-builds-main-root-not-gh-pages.md`) are closed with the same evidence.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 240-01-PLAN.md — Honest Pages script: status-line reads on both lenient sites, a 10-mode fake-`gh` self-test, and that self-test wired into `fast_checks` *(wave 1)*
+- [ ] 240-02-PLAN.md — `green-04-evidence.yml` dispatch-only n≥20 matrix plus the `p20` step-parity guard and its committed RED fixture *(wave 1)*
+- [ ] 240-03-PLAN.md — `capture-green-04-evidence.sh` + hermetic self-test, `COVERAGE.md`, and the six-slot `240-EVIDENCE.md` skeleton *(wave 2)*
+- [ ] 240-04-PLAN.md — Operator: merge, dispatch at final committed HEAD, capture SC-1/SC-2 into a canonical receipt, flip five ledger slots *(wave 3, operator)*
+- [ ] 240-05-PLAN.md — Operator: comment on + close #231 against the evidence, close both owning todos, flip the final ledger slot *(wave 4, operator)*
 
 ### Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 
