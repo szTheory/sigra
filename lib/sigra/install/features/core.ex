@@ -476,10 +476,10 @@ defmodule Sigra.Install.Features.Core do
         plug :ensure_auth_settings_capability
       end
 
-      # Organization-aware pipelines (opt-in).
+      # Opt-in organization-aware pipelines.
       # Apps that want to gate routes by active organization membership
       # pipe_through :require_org (any active membership) or
-      # :require_org_owner (owner role only). Wires these to
+      # :require_org_owner (owner role only). These wire into
       # the organization picker + switcher.
       pipeline :require_org do
         plug Sigra.Plug.RequireMembership, error_handler: #{web_module}.AuthErrorHandler
