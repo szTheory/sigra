@@ -276,7 +276,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 240-03-PLAN.md — `capture-green-04-evidence.sh` + hermetic self-test, `COVERAGE.md`, and the six-slot `240-EVIDENCE.md` skeleton *(wave 2)*
+- [x] 240-03-PLAN.md — `capture-green-04-evidence.sh` + hermetic self-test, `COVERAGE.md`, and the six-slot `240-EVIDENCE.md` skeleton *(wave 2)*
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

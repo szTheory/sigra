@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 240
 current_phase_name: green-main-evidence-honest-pages-script
 status: executing
-stopped_at: Completed 240-02-PLAN.md
-last_updated: "2026-09-18T17:37:42.046Z"
+stopped_at: Completed 240-03-PLAN.md
+last_updated: "2026-09-18T17:44:34.172Z"
 last_activity: 2026-09-18
 last_activity_desc: Phase 240 planning complete (5 plans, waves 1-4; waves 3-4 operator-gated)
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 37
-  completed_plans: 34
+  completed_plans: 35
   percent: 40
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 240 (green-main-evidence-honest-pages-script) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-09-18 — Phase 240 execution started
 
@@ -503,6 +503,9 @@ Last activity: 2026-09-18 — Phase 240 execution started
 - [Phase ?]: p20 step-parity guard enforces D-02 byte-faithfulness mechanically rather than by comment
 - [Phase ?]: Artifact-name normalisation is scoped to upload-step BODIES (with.name:), not step names — the step names are byte-identical on both sides
 - [Phase ?]: GREEN-04 requirement deliberately NOT marked complete by plan 02: it is shared with plans 03 and 04, and the n>=20 capture has not happened yet
+- [Phase ?]: 240-03: bare-name detection uses an anchored regex, not `.name ==`, so the collector has zero byte-equality job selectors anywhere
+- [Phase ?]: 240-03: filter=latest reaches both /jobs endpoints via the JOBS_FILTER constant — one source of truth, explicitly chosen (D-11)
+- [Phase ?]: 240-03: the collector self-test is intentionally unwired from CI, matching both existing operator-invoked collectors
 
 ### Pending Todos
 
@@ -705,8 +708,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T17:37:30.980Z
-Stopped at: Completed 240-02-PLAN.md
+Last session: 2026-09-18T17:44:29.032Z
+Stopped at: Completed 240-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -909,3 +912,4 @@ Resume file: None
 | Phase 239 P13 | 55m | 3 tasks | 2 files |
 | Phase 240 P01 | 50m | 3 tasks | 4 files |
 | Phase 240 P02 | 35m | 3 tasks | 3 files |
+| Phase 240 P03 | ~50m | 3 tasks | 4 files |
