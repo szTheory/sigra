@@ -210,7 +210,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 239-06-PLAN.md — Strip the residual CI-run/plan-id bookkeeping from `sigra_auth.css` and repair the seven damaged adopter-facing sentences *(wave 6)*
+- [x] 239-06-PLAN.md — Strip the residual CI-run/plan-id bookkeeping from `sigra_auth.css` and repair the seven damaged adopter-facing sentences *(wave 6)*
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

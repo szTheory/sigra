@@ -5,15 +5,15 @@ milestone_name: CLEAN-BASELINE
 current_phase: 239
 current_phase_name: priv-templates-sweep-one-batched-re-bless
 status: executing
-stopped_at: Completed 239-05-PLAN.md
-last_updated: "2026-09-18T03:43:33.181Z"
+stopped_at: Completed 239-06-PLAN.md
+last_updated: "2026-09-18T03:47:17.931Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 239 execution started
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 24
-  completed_plans: 21
+  completed_plans: 22
   percent: 30
 state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 239 (priv-templates-sweep-one-batched-re-bless) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-09-17 — Phase 239 execution started
 
@@ -478,6 +478,8 @@ Last activity: 2026-09-17 — Phase 239 execution started
 - [Phase ?]: 239-05: V2 bookkeeping regex adds six alternations (the verifier's five plus `\b[Ww]ave [0-9]`); V1 certified priv/templates and the golden tree clean at 0 while V2 measures 5 and 4 — the instrument gap is a measured delta, not an assertion
 - [Phase ?]: 239-05: all three tasks land as ONE path-scoped commit per the plan's D-19 commit topology, overriding the executor's per-task commit default
 - [Phase ?]: 239-05: SURF-02 is marked [x] Complete in REQUIREMENTS.md but does not hold at HEAD (account.ex:16, audit.ex:7-14, put_active_organization.ex:9) — filed as a todo for the milestone owner, fix belongs to Phase 241's SURF-04 ratchet
+- [Phase ?]: 239-06: a third sigra_auth.css CI-evidence comment block (:705) cleaned alongside the two enumerated blocks — V2 could never flag it
+- [Phase ?]: 239-06: residual V2 on priv/templates recorded as the measured 2 (pre-dispositioned FALSE-POSITIVE SVG geometry), not rounded to 0
 
 ### Pending Todos
 
@@ -680,8 +682,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T03:43:21.812Z
-Stopped at: Completed 239-05-PLAN.md
+Last session: 2026-09-18T03:47:17.917Z
+Stopped at: Completed 239-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -871,3 +873,4 @@ Resume file: None
 | Phase 239 P02 | 70min | 3 tasks | 47 files |
 | Phase 239 P03 | 95min | 3 tasks | 31 files |
 | Phase 239 P05 | 35m | 3 tasks | 4 files |
+| Phase 239 P06 | 30m | 3 tasks | 8 files |
