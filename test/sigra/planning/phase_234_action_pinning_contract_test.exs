@@ -8,6 +8,9 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   @release_please_path ".github/workflows/release-please.yml"
   @release_please_ref "45996ed1f6d02564a971a2fa1b5860e934307cf7"
   @forbidden_tag_object "0dfd8538845b8e92600d271a895a5372865d4062"
+  @composite_action_glob ".github/actions/*/action.yml"
+  @action_pattern ~r/^\s*(?:-\s+)?uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
+  @pre_relaxation_action_pattern ~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
 
   test "release-critical workflows are an explicit, live universe" do
     assert @release_workflows == [
@@ -25,9 +28,20 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     inventory = production_inventory()
 
     assert inventory != [],
-           "release action inventory is empty; the extractor must not silently pass"
+           "release and composite action inventory is empty; the extractor must not silently pass"
 
     assert_valid_inventory!(inventory)
+  end
+
+  test "composite actions are discovered from their own non-vacuous universe" do
+    paths = composite_action_paths()
+
+    assert paths != [],
+           "composite action glob #{@composite_action_glob} matched nothing; the discovery glob broke rather than the surface being clean"
+
+    for path <- paths do
+      assert File.exists?(path), "composite action #{path} is missing from the repository"
+    end
   end
 
   test "Release Please uses the reviewed dereferenced v5.0.0 commit" do
@@ -75,6 +89,28 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
            ) == []
   end
 
+  test "bare uses are visible only after the inventory regex relaxation" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-bare-uses.yml"
+    fixture = File.read!(fixture_path)
+
+    pre_relaxation_inventory =
+      action_inventory(fixture, fixture_path, @pre_relaxation_action_pattern)
+
+    refute Enum.any?(pre_relaxation_inventory, &(&1.action == "actions/cache@v6"))
+
+    relaxed_inventory = action_inventory(fixture, fixture_path)
+
+    assert Enum.any?(relaxed_inventory, &(&1.action == "actions/cache@v6"))
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(relaxed_inventory)
+      end
+
+    assert error.message =~ fixture_path <> ":63"
+    assert error.message =~ "non-immutable action ref"
+  end
+
   test "privileged Release Please boundaries remain byte-stable around the pin" do
     workflow = File.read!(@release_please_path)
 
@@ -92,7 +128,7 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   end
 
   defp production_inventory do
-    @release_workflows
+    (@release_workflows ++ composite_action_paths())
     |> Enum.flat_map(fn path ->
       path
       |> File.read!()
@@ -101,16 +137,27 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   end
 
   defp action_inventory(workflow, workflow_path) do
+    action_inventory(workflow, workflow_path, @action_pattern)
+  end
+
+  defp action_inventory(workflow, workflow_path, pattern) do
     workflow
     |> String.split("\n")
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {line, line_number} ->
-      case Regex.run(~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/, line) do
+      case Regex.run(pattern, line) do
         [_, action, comment] -> action_entry(workflow_path, line_number, action, comment)
         [_, action] -> action_entry(workflow_path, line_number, action, nil)
         nil -> []
       end
     end)
+  end
+
+  defp composite_action_paths do
+    case System.get_env("SIGRA_CONTRACT_SUBJECT") do
+      subject when is_binary(subject) and subject != "" -> [subject]
+      _ -> Path.wildcard(@composite_action_glob)
+    end
   end
 
   defp assert_valid_inventory!(inventory) do
