@@ -23,8 +23,8 @@ export const P18_DIRTY_SURFACE_PREFIX = 'P18 DIRTY SURFACE:';
 // doc-attribute scanner, while R2 owns V3 comment-line bookkeeping.
 export const DOC_RANGE_TOKEN_SOURCE = String.raw`\.planning/|\bPhase \d{1,3}\b|\bphase[-_]\d{1,3}\b|\bD-\d{2}\b|\bSC-\d\b|\bREQ-[A-Z0-9]|\bPitfall \d\b|\bINV-\d|-PLAN\.md|-CONTEXT\.md|-SUMMARY\.md|\btodos/\b`;
 export const DOC_RANGE_TOKEN_RE = new RegExp(DOC_RANGE_TOKEN_SOURCE, 'g');
-const DOC_RANGE_START_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"""/;
-const DOC_RANGE_ONELINE_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"/;
+const DOC_RANGE_START_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~[sS])?"""/;
+const DOC_RANGE_ONELINE_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~[sS])?"/;
 
 export class P18InstrumentFailure extends Error {
   constructor(message) {
