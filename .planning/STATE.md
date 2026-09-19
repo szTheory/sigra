@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 status: executing
-stopped_at: Completed 241-03-PLAN.md
-last_updated: "2026-09-19T15:16:00.494Z"
+stopped_at: Completed 241-04-PLAN.md
+last_updated: "2026-09-19T15:24:37.715Z"
 last_activity: 2026-09-19
 last_activity_desc: Phase 241 execution started
-state_head: 6c6c1e42c6bf81f855bb7b553104a8b9f98fb2dc
+state_head: 5b332e1c8f53bc8dc05d867548df0ef44dd90add
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 43
-  completed_plans: 39
+  completed_plans: 40
   percent: 50
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 241 (Retire v1.47's Dishonest Debt + Adopter-Leakage Guard) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-09-19 — Phase 241 execution started
 
@@ -515,6 +515,9 @@ Last activity: 2026-09-19 — Phase 241 execution started
 - [Phase 241]: p21 owns MAINTAINING.md parity only; p10 remains the single owner of ci.yml id, parent, and display-name legs.
 - [Phase 241]: Gate expressions and ci-gate.needs membership remain deliberately unasserted to avoid false scope expansion.
 - [Phase 241]: The inaccurate example_playwright_smoke step-gate manifest row is recorded as a pending todo, not silently changed.
+- [Phase 241]: D-18: Keep release workflows exactly two entries and discover composite action manifests through a separate glob.
+- [Phase 241]: D-19: Optional-dash uses regex plus two committed fixtures proves bare and dashed action pins independently.
+- [Phase 241]: D-20/D-21: Fixture subject indirection preserves the live action file; no stash-based mutation evidence.
 
 ### Pending Todos
 
@@ -718,8 +721,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-19T15:16:00.363Z
-Stopped at: Completed 241-03-PLAN.md
+Last session: 2026-09-19T15:24:37.583Z
+Stopped at: Completed 241-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -927,3 +930,4 @@ Resume file: None
 | Phase 240 P05 | ~35m | 4 tasks | 5 files |
 | Phase 241 P01 | 3min | 3 tasks | 4 files |
 | Phase 241 P03 | 12min | 3 tasks | 7 files |
+| Phase 241 P04 | 12min | 3 tasks | 6 files |
