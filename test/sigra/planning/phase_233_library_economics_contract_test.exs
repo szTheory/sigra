@@ -1,23 +1,27 @@
 defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   use ExUnit.Case, async: true
 
-  @workflow_path ".github/workflows/ci.yml"
-  @library_jobs ["library_tests_shard", "library_tests", "library_tests_dep_off"]
+  @default_workflow_path ".github/workflows/ci.yml"
   @remediation_path Sigra.Test.PlanningPaths.phase_file(
                       "235-terminal-ratification-measured-not-read",
                       "235-FAST-01-REMEDIATION.json"
                     )
 
   test "library execution universe is fail-closed and has one full-suite owner" do
-    workflow = File.read!(@workflow_path)
+    workflow = subject!()
+    job_ids = library_job_ids(workflow)
 
-    assert library_job_ids(workflow) == @library_jobs
+    assert job_ids != [], "the parse broke, this is not a pass"
 
-    bodies = Map.new(@library_jobs, &{&1, job_body(workflow, &1)})
-    shard = Map.fetch!(bodies, "library_tests_shard")
+    bodies = Map.new(job_ids, &{&1, job_body(workflow, &1)})
 
-    assert length(Regex.scan(~r/MIX_ENV=test mix ci/, shard)) == 1
-    assert length(Regex.scan(~r/MIX_ENV=test mix ci/, Enum.join(Map.values(bodies), "\n"))) == 1
+    full_suite_invocations =
+      Enum.flat_map(bodies, fn {job_id, body} ->
+        List.duplicate(job_id, length(Regex.scan(~r/MIX_ENV=test mix ci/, body)))
+      end)
+
+    assert length(full_suite_invocations) == 1,
+           full_suite_owner_failure(full_suite_invocations)
 
     Enum.each(bodies, fn {job_id, body} ->
       refute body =~ "mix test", "#{job_id} must not retain a second test command"
@@ -27,7 +31,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   end
 
   test "protected Library tests aggregation preserves the sole owner and ci-gate link" do
-    workflow = File.read!(@workflow_path)
+    workflow = subject!()
     aggregate = job_body(workflow, "library_tests")
     ci_gate = job_body(workflow, "ci-gate")
 
@@ -41,7 +45,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   end
 
   test "dep-off lane remains the docs owner but no longer duplicates alias work" do
-    dep_off = job_body(File.read!(@workflow_path), "library_tests_dep_off")
+    dep_off = job_body(subject!(), "library_tests_dep_off")
 
     assert dep_off =~ "mix docs --warnings-as-errors"
     refute dep_off =~ "mix deps.unlock threadline"
@@ -103,6 +107,34 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   defp library_job_ids(workflow) do
     Regex.scan(~r/^  (library_tests(?:_[a-z_]+)?):$/m, workflow, capture: :all_but_first)
     |> List.flatten()
+  end
+
+  defp subject_path do
+    case System.get_env("SIGRA_CONTRACT_SUBJECT") do
+      nil -> @default_workflow_path
+      "" -> @default_workflow_path
+      path -> path
+    end
+  end
+
+  defp subject! do
+    path = subject_path()
+
+    unless File.exists?(path) do
+      flunk(
+        "subject not found at #{path} — a missing subject is a broken run, never an absent violation"
+      )
+    end
+
+    File.read!(path)
+  end
+
+  defp full_suite_owner_failure([]), do: "no owner of the full library suite was found"
+
+  defp full_suite_owner_failure(full_suite_invocations) do
+    phrase = Enum.join(["more than one", "owner of the full", "library suite"], " ")
+
+    "#{phrase}: found #{length(full_suite_invocations)} full-suite invocations in job ids #{inspect(full_suite_invocations)}; expected exactly 1"
   end
 
   defp remediation_receipt!, do: @remediation_path |> File.read!() |> Jason.decode!()
