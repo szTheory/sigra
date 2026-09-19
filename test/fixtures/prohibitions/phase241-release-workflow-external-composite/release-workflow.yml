@@ -3,4 +3,4 @@ on:
   workflow_dispatch:
 jobs:
   release:
-    uses: ./test/fixtures/prohibitions/phase241-release-workflow-external-composite/release/bootstrap
+    uses: ./.github/actions/../release/bootstrap

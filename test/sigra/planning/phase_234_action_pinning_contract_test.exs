@@ -11,6 +11,8 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   @composite_action_glob ".github/actions/**/action.yml"
   @action_pattern ~r/^\s*(?:-\s+)?(?:uses|"uses"|'uses')\s*:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
   @pre_relaxation_action_pattern ~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
+  @flow_uses_pattern ~r/(?:\{|,)\s*(?:uses|"uses"|'uses')\s*:/
+  @block_scalar_uses_pattern ~r/^\s*(?:-\s+)?(?:uses|"uses"|'uses')\s*:\s*[>|][+-]?\s*(?:#.*)?$/
 
   test "release-critical workflows are an explicit, live universe" do
     assert @release_workflows == [
@@ -131,6 +133,34 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     assert error.message =~ "local action outside .github/actions"
   end
 
+  test "flow-mapping uses shapes fail closed until the inventory supports them" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-flow-uses.yml"
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+      end
+
+    assert error.message =~ fixture_path <> ":5"
+    assert error.message =~ "unsupported YAML uses shape"
+  end
+
+  test "block-scalar uses shapes fail closed until the inventory supports them" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-block-uses.yml"
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+      end
+
+    assert error.message =~ fixture_path <> ":5"
+    assert error.message =~ "unsupported YAML uses shape"
+  end
+
   test "bare uses are visible only after the inventory regex relaxation" do
     fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-bare-uses.yml"
     fixture = File.read!(fixture_path)
@@ -213,12 +243,22 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     |> String.split("\n")
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {line, line_number} ->
+      assert_supported_uses_shape!(workflow_path, line_number, line)
+
       case Regex.run(pattern, line) do
         [_, action, comment] -> action_entry(workflow_path, line_number, action, comment)
         [_, action] -> action_entry(workflow_path, line_number, action, nil)
         nil -> []
       end
     end)
+  end
+
+  defp assert_supported_uses_shape!(workflow_path, line_number, line) do
+    if Regex.match?(@flow_uses_pattern, line) or Regex.match?(@block_scalar_uses_pattern, line) do
+      flunk(
+        "#{workflow_path}:#{line_number} has unsupported YAML uses shape; refusing to silently omit it from the action-pinning inventory"
+      )
+    end
   end
 
   defp composite_action_paths(root \\ ".github/actions") do
@@ -245,24 +285,10 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     end
   end
 
-  defp action_entry(
-         _workflow_path,
-         _line_number,
-         "./.github/actions/" <> _local_action,
-         _comment
-       ),
-       do: []
-
-  defp action_entry(workflow_path, line_number, "./" <> local_action, comment) do
-    [
-      %{
-        workflow: workflow_path,
-        line: line_number,
-        action: "./" <> local_action,
-        ref: "",
-        comment: comment
-      }
-    ]
+  defp action_entry(workflow_path, line_number, "./" <> _local_action = action, comment) do
+    if local_action_inside_actions?(action),
+      do: [],
+      else: local_action_entry(workflow_path, line_number, action, comment)
   end
 
   defp action_entry(workflow_path, line_number, action, comment) do
@@ -281,5 +307,24 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
       _ ->
         [%{workflow: workflow_path, line: line_number, action: action, ref: "", comment: comment}]
     end
+  end
+
+  defp local_action_entry(workflow_path, line_number, "./" <> local_action, comment) do
+    [
+      %{
+        workflow: workflow_path,
+        line: line_number,
+        action: "./" <> local_action,
+        ref: "",
+        comment: comment
+      }
+    ]
+  end
+
+  defp local_action_inside_actions?(action) do
+    local_path = Path.expand(action)
+    actions_root = Path.expand(".github/actions")
+
+    local_path == actions_root or String.starts_with?(local_path, actions_root <> "/")
   end
 end
