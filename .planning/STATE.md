@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-status: executing
-stopped_at: Completed 241-02-PLAN.md
-last_updated: "2026-09-19T15:46:21.460Z"
+status: verifying
+stopped_at: Completed 241-06-PLAN.md
+last_updated: "2026-09-19T15:56:56.556Z"
 last_activity: 2026-09-19
 last_activity_desc: Phase 241 execution started
-state_head: 46a8b245804fb5308c9aa77ebeeee8668fff83b9
+state_head: a06e03504007e06cf03972013e9ffc5f1e9eaa59
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 43
-  completed_plans: 42
+  completed_plans: 43
   percent: 50
 ---
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 241 (Retire v1.47's Dishonest Debt + Adopter-Leakage Guard) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-19 — Phase 241 execution started
 
 ### v1.48 phase map
@@ -523,6 +523,8 @@ Last activity: 2026-09-19 — Phase 241 execution started
 - [Phase 241]: D-29 remains declined for p18: V3 is ported verbatim without widenings.
 - [Phase 241]: DEBT-02 resolves SIGRA_CONTRACT_SUBJECT at runtime so fixture injection cannot be stale after compilation.
 - [Phase 241]: DEBT-02 retains the archived FAST-01 JSON for its live cutoff-SHA readers while retiring the stale phase_233 self-digest assertions.
+- [Phase 241]: R1, R2, and R3 remain independent non-increase counters; no fused total can offset a regression.
+- [Phase 241]: D-29 declines v1.48 case-folding (R2 220→221) and block-aware widening; pending todo remains partially folded.
 
 ### Pending Todos
 
@@ -726,8 +728,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-19T15:46:21.370Z
-Stopped at: Completed 241-02-PLAN.md
+Last session: 2026-09-19T15:56:56.455Z
+Stopped at: Completed 241-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -938,3 +940,4 @@ Resume file: None
 | Phase 241 P04 | 12min | 3 tasks | 6 files |
 | Phase 241 P05 | 8m | 3 tasks | 7 files |
 | Phase 241 P02 | 5min | 3 tasks | 3 files |
+| Phase 241 P06 | 24m | 3 tasks | 10 files |
