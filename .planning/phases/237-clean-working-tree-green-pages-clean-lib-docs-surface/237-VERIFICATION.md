@@ -1,6 +1,6 @@
 ---
 phase: 237-clean-working-tree-green-pages-clean-lib-docs-surface
-verified: 2026-09-16T00:00:00Z
+verified: 2026-09-19T14:44:34Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -18,6 +18,7 @@ covered_files:
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-05-SUMMARY.md"
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-06-PLAN.md"
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-06-SUMMARY.md"
+  - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/COVERAGE.md"
   - "doc/llms.txt"
   - "guides/introduction/code-walkthrough.md"
   - "guides/introduction/upgrading-to-v1.10.md"
@@ -26,7 +27,7 @@ covered_files:
   - "lib/sigra/audit.ex"
   - "lib/sigra/testing.ex"
   - "mix.exs"
-covered_digest: "v1:sha256:a50b832ca67b8a7781df0efee6b6e95c4a4d7169f189aa11259b967e064e697c"
+covered_digest: "v1:sha256:7a6ad347b76e3731b127e2e36497a9271c832e62d3308b7f69594d5fb4151a79"
 behavior_unverified: 0
 overrides_applied: 2
 overrides:
@@ -59,10 +60,16 @@ advisory:
 # Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface — Verification Report
 
 **Phase Goal:** A maintainer who clones Sigra fresh sees a clean `git status`, a Pages check that is green because the site builds, and HexDocs pages that carry no internal planning bookkeeping.
-**Verified:** 2026-09-16
+**Verified:** 2026-09-19
 **Status:** passed (5/5, 2 via recorded decision overrides)
-**Re-verification:** No — initial verification
-**Verified at HEAD:** `b5c8b55e` (working tree clean except pre-existing untracked `.planning/milestone.lock`)
+**Re-verification:** Yes — automation-first refresh after summary and API-coverage reconciliation
+**Verified at HEAD:** `3dd5977d` (targeted product and live-service seams re-executed; scoped verification artifacts pending commit)
+
+The 2026-09-19 refresh replaced conversational UAT with 21 deterministic checks in
+`237-UAT.md`. It also added the seal-time GitHub API coverage matrix and reclassified four
+historical shared-tree commit counters as legacy metadata: their plan-specific hashes and prose
+remain intact, while they no longer pretend that an ever-growing `plan_head_before..HEAD` range
+is a stable per-plan ledger.
 
 Every observation below was **independently re-executed by the verifier** against the live
 codebase at `b5c8b55e` — not read out of a SUMMARY. Where an absence is claimed, a positive
