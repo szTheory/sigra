@@ -2,11 +2,64 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
   use ExampleWeb.ConnCase, async: false
 
   import Example.AccountsFixtures
+  import Phoenix.LiveViewTest
 
   alias Example.Accounts.AuditEvent
   alias Example.Repo
 
   describe "Phase 30 admin audit explorer contracts" do
+    test "filter submit stays in LiveView, patches the URL, and reloads filtered rows", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      matching_actor =
+        user_fixture(%{email: "matching-audit@example.com", display_name: "Matching Actor"})
+
+      other_actor =
+        user_fixture(%{email: "other-audit@example.com", display_name: "Other Actor"})
+
+      insert_audit_event(%{
+        action: "admin.impersonation.start",
+        actor_id: matching_actor.id,
+        effective_user_id: matching_actor.id,
+        target_id: matching_actor.id
+      })
+
+      insert_audit_event(%{
+        action: "admin.impersonation.start",
+        actor_id: other_actor.id,
+        effective_user_id: other_actor.id,
+        target_id: other_actor.id
+      })
+
+      {:ok, view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live(~p"/admin/audit")
+
+      assert html =~ "Matching Actor"
+      assert html =~ "Other Actor"
+
+      view
+      |> form("form[phx-submit='apply_filters']", %{"actor" => matching_actor.id})
+      |> render_submit()
+
+      expected_query =
+        URI.encode_query(%{
+          "actor" => matching_actor.id,
+          "order_by" => "inserted_at",
+          "order_direction" => "desc",
+          "page_size" => "25"
+        })
+
+      assert_patch(view, "/admin/audit?#{expected_query}")
+
+      html = render(view)
+      assert html =~ "Matching Actor"
+      refute html =~ "Other Actor"
+    end
+
     test "global explorer preserves URL-driven filters across sort and pagination links", %{
       conn: conn
     } do
