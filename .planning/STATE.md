@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 status: executing
-stopped_at: Completed 241-04-PLAN.md
-last_updated: "2026-09-19T15:24:37.715Z"
+stopped_at: Completed 241-05-PLAN.md
+last_updated: "2026-09-19T15:33:36.782Z"
 last_activity: 2026-09-19
 last_activity_desc: Phase 241 execution started
-state_head: 5b332e1c8f53bc8dc05d867548df0ef44dd90add
+state_head: 0c529dfc2d5e6abcdbf0bba79c00ae3bc03ad03a
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 43
-  completed_plans: 40
+  completed_plans: 41
   percent: 50
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 241 (Retire v1.47's Dishonest Debt + Adopter-Leakage Guard) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-09-19 — Phase 241 execution started
 
@@ -518,6 +518,9 @@ Last activity: 2026-09-19 — Phase 241 execution started
 - [Phase 241]: D-18: Keep release workflows exactly two entries and discover composite action manifests through a separate glob.
 - [Phase 241]: D-19: Optional-dash uses regex plus two committed fixtures proves bare and dashed action pins independently.
 - [Phase 241]: D-20/D-21: Fixture subject indirection preserves the live action file; no stash-based mutation evidence.
+- [Phase 241]: D-23: p18 planning paths use a literal .planning/ detector, not V3.
+- [Phase 241]: D-26: p18 allowlists the SVG coordinate false positive by (path, literal).
+- [Phase 241]: D-29 remains declined for p18: V3 is ported verbatim without widenings.
 
 ### Pending Todos
 
@@ -721,8 +724,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-19T15:24:37.583Z
-Stopped at: Completed 241-04-PLAN.md
+Last session: 2026-09-19T15:33:36.650Z
+Stopped at: Completed 241-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -931,3 +934,4 @@ Resume file: None
 | Phase 241 P01 | 3min | 3 tasks | 4 files |
 | Phase 241 P03 | 12min | 3 tasks | 7 files |
 | Phase 241 P04 | 12min | 3 tasks | 6 files |
+| Phase 241 P05 | 8m | 3 tasks | 7 files |

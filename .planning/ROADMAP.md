@@ -306,7 +306,7 @@ Plans:
 - [ ] 241-02-PLAN.md — rewrite `phase_233` to assert the single-owner guarantee, RED-first on a committed known-bad `ci.yml` (DEBT-02, wave 2)
 - [ ] 241-03-PLAN.md — write `p21-honest-skip-parity.test.mjs`, observe it RED on HEAD's `MAINTAINING.md`, then correct the doc and the manifest citation (DEBT-03, wave 1)
 - [ ] 241-04-PLAN.md — composite-action universe + bare-`uses:` regex relaxation, both directions proven by two fixtures (DEBT-04, wave 1)
-- [ ] 241-05-PLAN.md — `p18` hard-fail classes 1-2 (`.planning/` paths, `priv/templates/` bookkeeping) over a ported fail-closed helper (SURF-04, wave 1)
+- [x] 241-05-PLAN.md — `p18` hard-fail classes 1-2 (`.planning/` paths, `priv/templates/` bookkeeping) over a ported fail-closed helper (SURF-04, wave 1)
 - [ ] 241-06-PLAN.md — `p18` doc-range hard-fail + the three-counter monotonic-decrease ratchet with three independent REDs (SURF-04, wave 2)
 
 Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393` are **stale**. The real rot is in the honest-skip section (five rots, two unnamed by D-15) and the prohibitions glob `run:` was at `ci.yml:408` at planning HEAD. Every coordinate is re-located by content at execution time.
