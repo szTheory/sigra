@@ -27,6 +27,8 @@ const DELEGATED_P10_TESTS = [
 const rows = parseSkipManifest(readRepoFile('.github/ci-skip-manifest.tsv'));
 const maintaining = readSubject('MAINTAINING.md');
 const p10 = readRepoFile('scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs');
+const ACTIVE_IDS_START = '<!-- honest-skip-active-ids:start -->';
+const ACTIVE_IDS_END = '<!-- honest-skip-active-ids:end -->';
 
 function honestSkipSection(text) {
   const heading = /^### Honest-skip set after Phase 230[^\n]*$/m.exec(text);
@@ -44,7 +46,36 @@ function honestSkipSection(text) {
   return section;
 }
 
+function documentedActiveIds(section) {
+  const start = section.indexOf(ACTIVE_IDS_START);
+  const end = section.indexOf(ACTIVE_IDS_END);
+  assert.ok(
+    start >= 0 && end > start,
+    'MAINTAINING.md has no delimited active honest-skip id list — the documentation inventory locator broke, this is not a pass.',
+  );
+
+  const entries = section.slice(start + ACTIVE_IDS_START.length, end)
+    .split('\n')
+    .map((line) => /^\s*-\s+`([^`]+)`\s*$/.exec(line))
+    .filter(Boolean)
+    .map((match) => match[1]);
+
+  assert.ok(entries.length > 0, 'MAINTAINING.md active honest-skip id list is empty — this is not a pass.');
+  assert.equal(
+    new Set(entries).size,
+    entries.length,
+    'MAINTAINING.md active honest-skip id list has duplicate entries — it is not a reliable inventory.',
+  );
+  return new Set(entries);
+}
+
+function expectedActiveIds(rows) {
+  return new Set(rows.flatMap((row) => row.kind === 'step' ? [row.id, row.parentJobId] : [row.id]));
+}
+
 const section = honestSkipSection(maintaining);
+const documentedIds = documentedActiveIds(section);
+const expectedIds = expectedActiveIds(rows);
 
 test('the manifest and honest-skip section are non-vacuously available', () => {
   assert.ok(
@@ -57,22 +88,20 @@ test('the manifest and honest-skip section are non-vacuously available', () => {
   );
 });
 
-test('every manifest id is documented in the honest-skip section', () => {
-  for (const row of rows) {
-    assert.ok(
-      section.includes(row.id),
-      `manifest row \`${row.id}\` column \`id\` requires \`${row.id}\` in MAINTAINING.md's honest-skip section, but it is missing.`,
-    );
-  }
-});
+test('the active honest-skip inventory exactly matches manifest ids and required step parents', () => {
+  const missing = [...expectedIds].filter((id) => !documentedIds.has(id));
+  const stale = [...documentedIds].filter((id) => !expectedIds.has(id));
 
-test('every step parent is documented in the honest-skip section', () => {
-  for (const row of rows.filter((candidate) => candidate.kind === 'step')) {
-    assert.ok(
-      section.includes(row.parentJobId),
-      `manifest row \`${row.id}\` column \`parent_job_id\` requires \`${row.parentJobId}\` in MAINTAINING.md's honest-skip section, but it is missing.`,
-    );
-  }
+  assert.deepEqual(
+    missing,
+    [],
+    `MAINTAINING.md active honest-skip ids omit manifest ids or required step parents: ${missing.join(', ')}`,
+  );
+  assert.deepEqual(
+    stale,
+    [],
+    `MAINTAINING.md documents stale active honest-skip ids absent from the manifest: ${stale.join(', ')}`,
+  );
 });
 
 test('p10 continues to own the three delegated ci.yml parity legs', () => {

@@ -239,6 +239,29 @@ GATE-05 builds its before/after coverage inventory. Every entry names the constr
 step id) and its literal gating condition, verified against the shipped `ci.yml` at the commit
 this section was written.
 
+The active identifiers are maintained as a small machine-readable inventory below. It is
+deliberately separate from the historical explanation that follows: the p21 parity guard
+requires this list to equal the current manifest ids, including each step's parent job.
+
+<!-- honest-skip-active-ids:start -->
+- `install_matrix`
+- `upgrade_smoke`
+- `passkeys_manual_fallback_smoke`
+- `passkeys_opt_out_smoke`
+- `nightly_probe`
+- `admin_design_recapture`
+- `admin_checkpoint_recapture`
+- `notify_release_lane_rot`
+- `admin_eval_render`
+- `design_gallery_snapshots`
+- `example_playwright_shard`
+- `library_tests_dep_off`
+- `example_unit_smoke`
+- `install_smoke`
+- `example_http_smoke`
+- `example_playwright_smoke`
+<!-- honest-skip-active-ids:end -->
+
 **Tier A — event-gated, pre-existing (Phase 196).** `install_matrix`, `upgrade_smoke`,
 `passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `nightly_probe`, plus the two
 recapture lanes (`admin_design_recapture`, `admin_checkpoint_recapture`) and
