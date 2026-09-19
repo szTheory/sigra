@@ -1,30 +1,12 @@
 name: Fixture CI
 
 jobs:
-  library_tests_shard:
-    name: Library tests shard
+  library_tests:
+    name: Library tests
     steps:
       - run: MIX_ENV=test mix ci
 
-  library_tests:
-    name: Library tests
-    needs: [library_tests_shard]
-    if: always()
+  library_tests-canary_2:
+    name: Library tests canary
     steps:
-      - env:
-          SHARD: ${{ needs.library_tests_shard.result }}
-        run: |
-          if [[ "$SHARD" != "success" ]]; then
-            exit 1
-          fi
-          MIX_ENV=test mix ci
-
-  library_tests_dep_off:
-    name: Library tests (dep-off)
-    steps:
-      - run: mix docs --warnings-as-errors
-
-  ci-gate:
-    needs:
-      - library_tests
-      - library_tests_dep_off
+      - run: MIX_ENV=test mix ci

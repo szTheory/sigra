@@ -38,6 +38,14 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     end)
   end
 
+  test "library job parser includes the complete hyphen-and-digit suffix grammar" do
+    fixture_path = "test/fixtures/prohibitions/phase241-library-economics-two-owners.yml"
+    workflow = File.read!(fixture_path)
+
+    assert library_job_ids(workflow) == ["library_tests", "library_tests-canary_2"]
+    assert job_body(workflow, "library_tests-canary_2") =~ "MIX_ENV=test mix ci"
+  end
+
   test "scaffold modules have one explicit ci.install_golden receiver and are excluded from broad test" do
     mix_exs = File.read!("mix.exs")
     expected_paths = canonical_scaffold_paths()
@@ -66,7 +74,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   end
 
   defp library_job_ids(workflow) do
-    Regex.scan(~r/^  (library_tests(?:_[a-z_]+)?):$/m, workflow, capture: :all_but_first)
+    Regex.scan(~r/^  (library_tests[A-Za-z0-9_-]*):$/m, workflow, capture: :all_but_first)
     |> List.flatten()
   end
 
@@ -158,7 +166,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
   end
 
   defp job_body(workflow, job_id) do
-    pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [a-zA-Z0-9_]+:).*(?:\n|\z))*)/m
+    pattern = ~r/^  #{Regex.escape(job_id)}:\n(?<body>(?:(?!^  [A-Za-z0-9_-]+:).*(?:\n|\z))*)/m
 
     case Regex.named_captures(pattern, workflow) do
       %{"body" => body} -> body
