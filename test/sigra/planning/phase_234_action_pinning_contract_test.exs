@@ -8,7 +8,7 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   @release_please_path ".github/workflows/release-please.yml"
   @release_please_ref "45996ed1f6d02564a971a2fa1b5860e934307cf7"
   @forbidden_tag_object "0dfd8538845b8e92600d271a895a5372865d4062"
-  @composite_action_glob ".github/actions/*/action.yml"
+  @composite_action_glob ".github/actions/**/action.yml"
   @action_pattern ~r/^\s*(?:-\s+)?uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
   @pre_relaxation_action_pattern ~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
 
@@ -42,6 +42,26 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     for path <- paths do
       assert File.exists?(path), "composite action #{path} is missing from the repository"
     end
+  end
+
+  test "nested composite action manifests are discovered and pinned" do
+    fixture_root = "test/fixtures/prohibitions/phase241-nested-composite-unpinned"
+    fixture_path = fixture_root <> "/release/bootstrap/action.yml"
+
+    assert composite_action_paths(fixture_root) == [fixture_path]
+
+    inventory =
+      fixture_path
+      |> File.read!()
+      |> action_inventory(fixture_path)
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(inventory)
+      end
+
+    assert error.message =~ fixture_path <> ":7"
+    assert error.message =~ "non-immutable action ref"
   end
 
   test "Release Please uses the reviewed dereferenced v5.0.0 commit" do
@@ -153,10 +173,10 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     end)
   end
 
-  defp composite_action_paths do
-    case System.get_env("SIGRA_CONTRACT_SUBJECT") do
-      subject when is_binary(subject) and subject != "" -> [subject]
-      _ -> Path.wildcard(@composite_action_glob)
+  defp composite_action_paths(root \\ ".github/actions") do
+    case {root, System.get_env("SIGRA_CONTRACT_SUBJECT")} do
+      {".github/actions", subject} when is_binary(subject) and subject != "" -> [subject]
+      _ -> Path.wildcard(Path.join(root, "**/action.yml"))
     end
   end
 
