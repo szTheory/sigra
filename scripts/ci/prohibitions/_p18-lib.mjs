@@ -6,8 +6,8 @@
 // the raw hit count. Do not tune this expression to a clean tree.
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { relative, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { REPO_ROOT } from './_lib.mjs';
@@ -17,6 +17,14 @@ export const BOOKKEEPING_V3_SOURCE = String.raw`\.planning/|[Pp]hase[ -][0-9]+|\
 export const BOOKKEEPING_V3_RE = new RegExp(BOOKKEEPING_V3_SOURCE);
 export const P18_INSTRUMENT_FAILURE_PREFIX = 'P18 INSTRUMENT FAILURE:';
 export const P18_DIRTY_SURFACE_PREFIX = 'P18 DIRTY SURFACE:';
+
+// Ported verbatim from 237-docs-attribute-scan.py. This intentionally is not
+// the V3 vocabulary: R1's historical baseline is defined by this narrower
+// doc-attribute scanner, while R2 owns V3 comment-line bookkeeping.
+export const DOC_RANGE_TOKEN_SOURCE = String.raw`\.planning/|\bPhase \d{1,3}\b|\bphase[-_]\d{1,3}\b|\bD-\d{2}\b|\bSC-\d\b|\bREQ-[A-Z0-9]|\bPitfall \d\b|\bINV-\d|-PLAN\.md|-CONTEXT\.md|-SUMMARY\.md|\btodos/\b`;
+export const DOC_RANGE_TOKEN_RE = new RegExp(DOC_RANGE_TOKEN_SOURCE, 'g');
+const DOC_RANGE_START_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"""/;
+const DOC_RANGE_ONELINE_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"/;
 
 export class P18InstrumentFailure extends Error {
   constructor(message) {
@@ -71,6 +79,96 @@ function subjectOverrideFiles() {
 
 export function filesForTier(tier) {
   return subjectOverrideFiles() ?? tierFiles(tier);
+}
+
+function docRangeFiles(relDir) {
+  const injected = subjectOverrideFiles();
+  if (injected) return injected;
+
+  const root = resolve(REPO_ROOT, relDir);
+  if (!existsSync(root)) {
+    throw new P18InstrumentFailure(`doc-range root does not exist: ${relDir}`);
+  }
+
+  const ex = [];
+  const exs = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const absolutePath = join(dir, entry.name);
+      if (entry.isDirectory()) walk(absolutePath);
+      else if (entry.isFile() && entry.name.endsWith('.ex')) ex.push(absolutePath);
+      else if (entry.isFile() && entry.name.endsWith('.exs')) exs.push(absolutePath);
+    }
+  };
+  walk(root);
+  // Python's glob order is every sorted *.ex followed by every sorted *.exs.
+  return [...ex.sort(), ...exs.sort()].map((path) => relative(REPO_ROOT, path));
+}
+
+/**
+ * Faithful synchronous port of 237-docs-attribute-scan.py's state machine.
+ * The opening and closing heredoc lines are deliberately counted.
+ */
+export function docRangeScan(relDir) {
+  const files = docRangeFiles(relDir);
+  if (files.length === 0) {
+    throw new P18InstrumentFailure('doc-range walker found no Elixir files — refusing to report success on no input');
+  }
+
+  let totalHits = 0;
+  let docRanges = 0;
+  const sites = new Set();
+  const filesHit = new Set();
+  const tokenHits = new Map();
+
+  for (const path of files) {
+    const lines = readMeasuredFile(path).split('\n');
+    let inBlock = false;
+    for (const [offset, line] of lines.entries()) {
+      const lineNumber = offset + 1;
+      const countMatches = () => {
+        for (const match of line.matchAll(DOC_RANGE_TOKEN_RE)) {
+          totalHits += 1;
+          sites.add(`${path}:${lineNumber}`);
+          filesHit.add(path);
+          tokenHits.set(match[0], (tokenHits.get(match[0]) ?? 0) + 1);
+        }
+      };
+
+      if (!inBlock) {
+        if (DOC_RANGE_START_RE.test(line)) {
+          docRanges += 1;
+          inBlock = true;
+          countMatches();
+          continue;
+        }
+        if (DOC_RANGE_ONELINE_RE.test(line) && !line.includes('"""')) {
+          docRanges += 1;
+          countMatches();
+        }
+        continue;
+      }
+
+      if (line.includes('"""')) {
+        inBlock = false;
+        countMatches();
+        continue;
+      }
+      countMatches();
+    }
+  }
+
+  return {
+    totalHits,
+    docRanges,
+    distinctSites: sites.size,
+    distinctFiles: filesHit.size,
+    tokenHits,
+  };
+}
+
+export function docRangeTotal(relDir) {
+  return docRangeScan(relDir).totalHits;
 }
 
 export function loadAllowlist(relPath = 'scripts/ci/prohibitions/p18-allowlist.tsv') {
