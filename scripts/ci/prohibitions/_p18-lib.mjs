@@ -182,11 +182,11 @@ export function loadAllowlist(relPath = 'scripts/ci/prohibitions/p18-allowlist.t
     .map((line) => line.replace(/\r$/, ''))
     .filter((line) => line !== '' && !line.startsWith('#'))
     .map((line) => {
-      const [path, literal, reason] = line.split('\t');
-      if (!path || !literal || !reason) {
+      const [path, match, index, anchor, reason] = line.split('\t');
+      if (!path || !match || !index || !anchor || !reason || !/^\d+$/.test(index)) {
         throw new P18InstrumentFailure(`malformed allowlist row: ${line}`);
       }
-      return { path, literal, reason };
+      return { path, match, index: Number(index), anchor, reason };
     });
 
   if (entries.length === 0) {
@@ -217,14 +217,34 @@ function validateAllowlist(entries, measuredFiles) {
     if (measuredSet.has(entry.path)) {
       const covered = readMeasuredFile(entry.path)
         .split('\n')
-        .some((line) => line.includes(entry.literal) && BOOKKEEPING_V3_RE.test(line));
+        .some((line) => line.includes(entry.anchor) && bookkeepingMatches(line).some(
+          (hit) => hit.match === entry.match && hit.index === entry.index,
+        ));
       if (!covered) {
         throw new P18InstrumentFailure(
-          `vacuous allowlist entry: ${entry.path} :: ${entry.literal}`,
+          `vacuous allowlist entry: ${entry.path} :: ${entry.match}@${entry.index} :: ${entry.anchor}`,
         );
       }
     }
   }
+}
+
+/** Return every bookkeeping token on a line, not merely whether the line matched. */
+export function bookkeepingMatches(line, pattern = BOOKKEEPING_V3_RE) {
+  const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
+  return [...line.matchAll(new RegExp(pattern.source, flags))].map((match) => ({
+    match: match[0],
+    index: match.index,
+  }));
+}
+
+export function allowlistedBookkeepingHit(path, text, hit, allowlist) {
+  return allowlist.some(
+    (entry) => entry.path === path
+      && entry.match === hit.match
+      && entry.index === hit.index
+      && text.includes(entry.anchor),
+  );
 }
 
 export function scanBookkeeping(tier, options = {}) {
@@ -243,9 +263,9 @@ export function scanBookkeeping(tier, options = {}) {
     const text = readMeasuredFile(path);
     for (const [offset, line] of text.split('\n').entries()) {
       if (/defmodule/.test(line)) controlDefmodule += 1;
-      if (detection.test(line)) {
-        const allowlisted = allowlist.some((entry) => entry.path === path && line.includes(entry.literal));
-        hits.push({ path, line: offset + 1, text: line, allowlisted });
+      for (const match of bookkeepingMatches(line, detection)) {
+        const allowlisted = allowlistedBookkeepingHit(path, line, match, allowlist);
+        hits.push({ path, line: offset + 1, text: line, ...match, allowlisted });
       }
     }
   }
