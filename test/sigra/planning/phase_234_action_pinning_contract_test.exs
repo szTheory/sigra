@@ -27,8 +27,8 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   test "every third-party release action is immutable and version-annotated" do
     inventory = production_inventory()
 
-    assert inventory != [],
-           "release and composite action inventory is empty; the extractor must not silently pass"
+    assert length(inventory) >= 16,
+           "release and composite action inventory shrank below its 16-entry floor; the extractor may be silently missing action references"
 
     assert_valid_inventory!(inventory)
   end
