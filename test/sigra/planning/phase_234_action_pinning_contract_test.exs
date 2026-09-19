@@ -9,7 +9,7 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   @release_please_ref "45996ed1f6d02564a971a2fa1b5860e934307cf7"
   @forbidden_tag_object "0dfd8538845b8e92600d271a895a5372865d4062"
   @composite_action_glob ".github/actions/**/action.yml"
-  @action_pattern ~r/^\s*(?:-\s+)?uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
+  @action_pattern ~r/^\s*(?:-\s+)?(?:uses|"uses"|'uses')\s*:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
   @pre_relaxation_action_pattern ~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
 
   test "release-critical workflows are an explicit, live universe" do
@@ -129,6 +129,32 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
 
     assert error.message =~ fixture_path <> ":63"
     assert error.message =~ "non-immutable action ref"
+  end
+
+  test "quoted and space-before-colon uses keys remain pinned" do
+    fixtures = [
+      {"quoted key", "test/fixtures/prohibitions/phase241-composite-unpinned-quoted-uses.yml", 6},
+      {"space-before-colon key",
+       "test/fixtures/prohibitions/phase241-composite-unpinned-space-before-colon-uses.yml", 6}
+    ]
+
+    for {name, fixture_path, line} <- fixtures do
+      inventory =
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+
+      assert Enum.any?(inventory, &(&1.action == "actions/checkout@v4")),
+             "#{name} fixture must expose its third-party action to the inventory"
+
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          assert_valid_inventory!(inventory)
+        end
+
+      assert error.message =~ fixture_path <> ":#{line}"
+      assert error.message =~ "non-immutable action ref"
+    end
   end
 
   test "privileged Release Please boundaries remain byte-stable around the pin" do
