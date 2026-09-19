@@ -147,12 +147,36 @@ Finished in 16.1 seconds (16.1s async, 0.00s sync)
 6 tests, 0 failures
 ```
 
-## Honest full-suite claim
+## Final-HEAD contributor-CI evidence contract
 
-The full-suite claim for SC-1 is made against **CI** at this phase's final committed HEAD; it is
-not a local-green claim. A local `MIX_ENV=test mix ci` currently carries 6 environmental
-`Sigra.Audit.Forwarders.ThreadlineTest` failures (`Threadline.attach/1 undefined`) that are
-unrelated to this plan and are green in CI at the same commit. Those tests are **not** excluded
-from the suite, and no `--exclude` is added; the failure mode is named instead of hidden.
+The previous local failure diagnosis was a stale generated-build state, not an environmental
+exception and not an exclusion candidate. When Threadline had been compiled before Sigra, the
+focused suite reported six undefined `Sigra.Audit.Forwarders.Threadline.attach/1` calls. The
+reproducible repair is a fresh test build:
 
-**CI run URL:** `PENDING — filled at phase verification` (this plan does not push).
+```sh
+MIX_ENV=test mix clean
+MIX_ENV=test mix test test/sigra/audit/forwarders/threadline_test.exs
+MIX_ENV=test mix ci
+```
+
+At the Plan 241-08 execution head, the clean build compiled 177 Sigra files and all six focused
+`Sigra.Audit.Forwarders.ThreadlineTest` cases passed before the exact, unfiltered contributor
+alias ran. No test is renamed, waived, or excluded.
+
+The authoritative external success artifact is not a mutable markdown URL. It is one fenced JSON
+receipt with schema version `sigra.phase-241-final-head/1` posted to the evidence pull request by
+`scripts/ci/capture-phase-241-final-head.sh`. It is valid only when all of these facts are exact:
+
+- the receipt `head_sha`, the evidence PR head, and the local frozen candidate SHA are identical;
+- the Actions run is the `ci.yml` `pull_request` run at that SHA and has concluded `success`;
+- job `Library tests shard` and its `Run contributor CI gate` step both concluded `success`;
+- the `Library tests` aggregator concluded `success`; and
+- job `Fast checks (milestone/installer/contracts/snapshot/ledger guards)` and its
+  `Phase 230 prohibition guards` step both concluded `success`.
+
+The collector exhausts the latest-jobs pagination, refuses duplicate/missing/null/failed required
+jobs or steps, observes the core API rate-limit floor before collection, and atomically writes the
+same validated JSON it publishes. A rate-limit, API, or CI failure never receives a success
+marker; it receives only a durable diagnostic comment and leaves the phase blocked. This contract
+intentionally makes no external-success claim before that receipt exists.
