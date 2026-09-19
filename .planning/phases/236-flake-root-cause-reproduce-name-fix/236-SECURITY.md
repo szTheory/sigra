@@ -1,8 +1,8 @@
 ---
 phase: "236"
 slug: "flake-root-cause-reproduce-name-fix"
-status: blocked
-threats_open: 2
+status: verified
+threats_open: 0
 asvs_level: 1
 created: "2026-09-19"
 ---
@@ -24,7 +24,7 @@ created: "2026-09-19"
 |-----------|----------|-----------|----------|-------------|------------|--------|
 | T-236-01 | Information Disclosure | Evidence docs | medium | mitigate | Secret-value scan | closed |
 | T-236-02 | Tampering | Playwright config | medium | mitigate | Retry/trace contract | closed |
-| T-236-03 | Repudiation | Evidence provenance | high | mitigate | Phase-236 ledger must pass a provenance guard | open |
+| T-236-03 | Repudiation | Evidence provenance | high | mitigate | Dual-ledger `p12` provenance guard | closed |
 | T-236-04 | Denial of Service | Local reproduction | low | accept | Local Postgres/port contention is bounded | open — below high threshold |
 | T-236-05 | Tampering | Filter parameters | high | mitigate | `Map.take/2` allowlist | closed |
 | T-236-06 | Tampering | Patch target | high | mitigate | Scope-derived local paths only | closed |
@@ -36,7 +36,7 @@ created: "2026-09-19"
 | T-236-12 | Elevation of Privilege | CI workflow | high | mitigate | One-line retry deletion with contracts | closed |
 | T-236-13 | Tampering | Fixture isolation | medium | mitigate | Fixture is non-imported text only | closed |
 | T-236-14 | Denial of Service | Fast checks | low | accept | Sub-second runtime addition | open — below high threshold |
-| T-236-15 | Repudiation | Five-run GREEN claim | high | mitigate | Phase-236-aware provenance guard | open |
+| T-236-15 | Repudiation | Five-run GREEN claim | high | mitigate | Phase-236-aware provenance guard | closed |
 | T-236-16 | Spoofing | GitHub run identity | high | mitigate | Live event/SHA/job verification | closed |
 | T-236-17 | Tampering | CI repeat history | medium | mitigate | Completed non-cancelled run verification | closed |
 | T-236-18 | Information Disclosure | Merge diff | medium | mitigate | Credential/adopter scan | closed |
@@ -52,16 +52,17 @@ No accepted risks. The low-severity entries remain documented but are not accept
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-09-19 | 20 | 13 | 7 (2 blocking) | gsd-security-auditor |
+| 2026-09-19 | 20 | 15 | 5 (0 blocking) | Phase 236-05 automated matrix |
 
 ## Blocking Findings
 
-`T-236-03` and `T-236-15` share one root cause: the existing `p12-run-id-provenance` test is hard-coded to Phase 230. Phase 236's RED/GREEN ledger is therefore live-verifiable but not covered by the declared mechanical provenance control. The required remediation is a Phase-236-aware or safely generalized guard that makes the ledger pass in CI without weakening the Phase 230 contract.
+`T-236-03` and `T-236-15` were closed by the dual-ledger `p12-run-id-provenance` guard. Its default invocation validates both Phase 230 and Phase 236 ledgers; clean substitutions pass, and each committed malformed fixture fails for a named provenance violation. The guard is offline and continues to run through the existing Fast checks prohibition glob.
 
 ## Sign-Off
 
 - [x] All threats have a disposition
-- [ ] Blocking mitigations verified
-- [ ] `threats_open: 0` confirmed
-- [ ] `status: verified` set in frontmatter
+- [x] Blocking mitigations verified
+- [x] `threats_open: 0` confirmed
+- [x] `status: verified` set in frontmatter
 
-**Approval:** blocked pending automated provenance-guard remediation
+**Approval:** verified 2026-09-19 by the Phase 236-05 automated provenance matrix
