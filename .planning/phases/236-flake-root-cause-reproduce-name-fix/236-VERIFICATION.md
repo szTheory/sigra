@@ -1,143 +1,163 @@
 ---
 phase: 236-flake-root-cause-reproduce-name-fix
-verified: 2026-09-15T22:40:00Z
+verified: 2026-09-19T22:13:09Z
 status: passed
-score: 5/5 must-haves verified (SC-2 closed by accepted override)
+score: 5/5 must-haves verified
+covered_files:
+  - .github/workflows/ci.yml
+  - .planning/REQUIREMENTS.md
+  - .planning/ROADMAP.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-SUMMARY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-02-PLAN.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-02-SUMMARY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-03-PLAN.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-03-SUMMARY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-04-PLAN.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-04-SUMMARY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-05-PLAN.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-05-SUMMARY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-DIAGNOSIS.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-SECURITY.md
+  - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-UAT.md
+  - .planning/research/STACK.md
+  - lib/sigra/admin/live/audit_index_live.ex
+  - scripts/ci/prohibitions/p12-run-id-provenance.test.mjs
+  - scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs
+  - test/example/test/example_web/live/admin_audit_index_live_test.exs
+  - test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md
+  - test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts
+  - test/sigra/planning/phase_236_audit_url_ownership_test.exs
+  - test/sigra/planning/phase_236_evidence_provenance_guard_test.exs
+  - test/sigra/planning/phase_236_retry_wrapper_prohibition_test.exs
+covered_digest: "v1:sha256:aacb60ca9cfa834fcdc360898e40d5bde7532961fb8f01c136e75d53b2530ad2"
+behavior_unverified: 0
+overrides_applied: 1
 overrides:
   - must_have: "If it is the product race, /admin/audit has exactly one owner of its URL: no plain <form method=\"get\"> / <a href> competing against handle_params/3 in lib/sigra/admin/live/audit_index_live.ex"
-    reason: "D-30 scope boundary: the chip-remove and prev/next anchors are rendered by lib/sigra/admin/components.ex, shared with the two D-30-excluded views; converting them drags user-audit-*.png x3 and the users-index baselines into a PNG recapture lane that ROADMAP standing constraint 7 forbids in v1.48. Export CSV is a controller download that must remain a document navigation. The unconverted anchors are not on the failing test's path. Residue tracked in .planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md."
-    accepted_by: "szTheory"
-    accepted_at: "2026-09-15T23:05:00Z"
-covered_files:
-  - ".github/workflows/ci.yml"
-  - ".planning/REQUIREMENTS.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-SUMMARY.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-02-PLAN.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-02-SUMMARY.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-03-PLAN.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-03-SUMMARY.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-04-PLAN.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-04-SUMMARY.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-DIAGNOSIS.md"
-  - ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
-  - "lib/sigra/admin/live/audit_index_live.ex"
-  - "scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
-  - "test/example/test/example_web/live/admin_audit_index_live_test.exs"
-  - "test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts"
-  - "test/sigra/planning/phase_236_audit_url_ownership_test.exs"
-  - "test/sigra/planning/phase_236_retry_wrapper_prohibition_test.exs"
-covered_digest: "v1:sha256:226111694e613864afb0b1d9b4675268d7ff84e1ba71954817eb1a8f85ecb814"
-behavior_unverified: 0
-overrides_applied: 0
-deferred:
-  - truth: "`main`'s aggregate gate observed green / non-flipping on main itself"
-    addressed_in: "Phase 240 (GREEN-04)"
-    evidence: "ROADMAP scope discipline: 'Green evidence: n≥20 via workflow_dispatch on the single affected job'; Phase 240 SC-4 explicitly owns closing .planning/todos/pending/2026-07-30-admin-generated-audit-presets-actor-filter-race.md against n≥20 green-main evidence. Phase 236 deliberately carries n=5 on the PR."
-  - truth: "`ci-gate` run-level conclusion is green"
-    addressed_in: "Out-of-scope todo (v1.48 REQUIREMENTS rollover debt)"
-    evidence: ".planning/todos/pending/2026-09-15-phase-235-fast-01-contract-tests-stale-post-v148-rollover.md — CI log for run 35034938082 shard job 104601822192 shows exactly 3 failures of 2606, all phase_235_fast_01_* contract tests; ROADMAP standing constraint 4 routes found-while-cleaning to a todo."
-human_verification: []
+    reason: "D-30 scope boundary: the chip-remove and prev/next anchors are rendered by lib/sigra/admin/components.ex, shared with the two D-30-excluded views; converting them opens the forbidden PNG recapture lane. Export CSV remains a controller document navigation. Residue is tracked in .planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md."
+    accepted_by: szTheory
+    accepted_at: 2026-09-15T23:05:00Z
+re_verification:
+  previous_status: passed
+  previous_score: 5/5
+  gaps_closed:
+    - "T-236-03: Phase 236 RED provenance is now guarded by p12 in Fast checks."
+    - "T-236-15: the five-run GREEN claim is now guarded by p12 in Fast checks."
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 236: Flake Root Cause — Reproduce, Name, Fix — Verification Report
 
 **Phase Goal:** `main`'s aggregate gate stops flipping red on an unchanged SHA — because the `Generated admin Playwright smoke` failure has a named, fixed cause, not because it was retried into silence.
-**Verified:** 2026-09-15
-**Status:** passed (5/5 verified; zero human UAT required)
-**Re-verification:** Yes — 2026-09-19 automation-first refresh
-**Branch verified:** `gsd/phase-236-flake-root-cause` @ `b8a15873` (phase base `160de093`)
+
+**Verified:** 2026-09-19T22:13:09Z
+**Status:** passed
+**Verification mode:** Initial-mode refresh: the preceding report had no `gaps:` block. This report independently includes the subsequent 236-05 provenance closure.
 
 ## Goal Achievement
 
-### Observable Truths (ROADMAP Success Criteria)
+### Observable Truths
 
-| # | Truth | Status | Evidence (independently re-derived) |
-|---|-------|--------|-------------------------------------|
-| SC-1 | A captured RED exists for the `toHaveURL` assertion, recorded with run id / artifact path; no fix accepted without it | ✓ VERIFIED | `gh run view 35004420339` → `conclusion: failure`, `event: push`, `headBranch: main`, `headSha cc4835c5`. `gh api .../jobs/104500542292` → `Generated admin Playwright smoke`, `conclusion: failure`. I pulled the raw job log myself: `Received string: "http://localhost:4017/admin/audit?action_prefix=admin.impersonation&order_by=inserted_at&order_direction=desc&outcome=failure"` at `admin-generated.spec.ts:459:22`. The verbatim string in the ledger is not fabricated. Local trace exists at `.gsd/scratch/phase236-evidence/trace.zip`, 2,005,798 bytes — byte count matches the ledger claim exactly. **Line numbers: BOTH documents are right** — `:428` is the `test(` declaration and `:459` is the `toHaveURL` assertion; verified directly against the spec file. |
-| SC-1b | The received URL discriminates D-05's three branches and the diagnosis cites which | ✓ VERIFIED | `actor=` is *absent* from the received URL (not present-and-empty) → D-05 branch **(a)**. Re-derived from the raw CI log, not from the SUMMARY. `236-DIAGNOSIS.md:3` states "Named cause: product race." |
-| SC-2 | Written differential names harness race / DB collision / product race and rules out the other two; if product race, `/admin/audit` has exactly ONE owner of its URL; behaviour-preserving in rendered classes/layout | ✓ VERIFIED (accepted scope override) | Differential present with named rule-outs at `236-DIAGNOSIS.md:88` (harness race), `:111` (DB collision), `:122` (value-wipe). The CI-wired example-host test now submits the real `phx-submit` form, asserts the URL patch, and proves `handle_params/3` reloads only the filtered rows. The accepted D-30 override preserves the controller download and names shared-component residue in a durable todo. |
-| SC-3 | The affected job, dispatched repeatedly against the fix, passes every repeat, and the Criterion-1 reproduction no longer reproduces — both from the Actions API | ✓ VERIFIED | I ran `gh run view <id> --json jobs` on all five ids myself: `Generated admin Playwright smoke` = `success` on 35029916498, 35030710957, 35031404780, 35032086557, 35034938082. All five `event: pull_request`, none `cancelled` (proving genuine sequencing under `cancel-in-progress: true`). Repro half: five batch logs under `.gsd/scratch/phase236-04-afterfix/` each report `10 passed`, 50/50 total, `grep -c toHaveURL` = 0 failures per log (pre-fix was 41/50 failures). |
-| SC-4 | A retry wrapper fails a `scripts/ci/prohibitions/*.test.mjs` guard, demonstrated RED against a committed known-bad fixture; and `PLAYWRIGHT_RETRIES: 1` is wired or deleted | ✓ VERIFIED | I ran the guard myself: `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts node --test …p17….test.mjs` → **exit 1** with the named message "a `retries` value is read from `process.env` — recovering a failed attempt … masks the isolation evidence a flake investigation depends on". Same guard against the real config → **exit 0**. Full glob `node --test scripts/ci/prohibitions/*.test.mjs` → **71/71 pass**, no guard-number collision (p01–p17, SURF-04 correctly reserved as `p18`). `grep -c PLAYWRIGHT_RETRIES .github/workflows/ci.yml` = **0** with positive control `grep -c PLAYWRIGHT_` = **8** (the search ran; silence is a finding, not an artifact). Non-vacuity floors present at guard `:104` (`retries:` line must parse) and `:112` (≥10 spec files). `mix.exs` untouched (0 files in diff) — no `mix ci` topology change. |
-| SC-5 | If root cause genuinely fails, a dated quarantine entry naming an owner in `.github/ci-skip-manifest.tsv` | ✓ N/A — correctly not triggered | Root cause did NOT fail (SC-1/2/3 all carried). `git log --diff-filter=A -- .github/ci-skip-manifest.tsv` → created `16622ade` (v1.47), and `git log 160de093..HEAD -- .github/ci-skip-manifest.tsv` → **empty**: the file predates this phase and was not touched. Plan 236-04 explicitly prohibited building the schema amendment under branch (a) — prohibition honored. Existence is not a violation; provenance checked. |
+| # | Truth | Status | Evidence |
+| --- | --- | --- | --- |
+| 1 | A captured RED exists for the `toHaveURL` assertion before the fix. | ✓ VERIFIED | Live GitHub log for run `35004420339`, job `104500542292`, shows the failing `admin-generated.spec.ts:459` `toHaveURL` assertion and an `actor=`-absent received URL. The recorded local trace is present, 2,005,798 bytes, and `unzip -t` reports no archive errors. |
+| 2 | The differential names and fixes the cause without competing URL ownership on the failing path. | ✓ VERIFIED (accepted scope override) | `236-DIAGNOSIS.md` names a product race, rules out harness and DB alternatives, and records D-05 branch (a). `AuditIndexLive` has `phx-submit`, six patch links, a whitelisted `handle_event`, and no I/O outside `handle_params/3`; the LiveView contract test exercises submit → patch → filtered rows. The accepted D-30 exception is retained above. |
+| 3 | The affected job repeatedly passes after the fix and the reproduction no longer reproduces. | ✓ VERIFIED | GitHub API now reports `Generated admin Playwright smoke: success` for all five recorded PR runs (`35029916498`, `35030710957`, `35031404780`, `35032086557`, `35034938082`), all completed. The five retained after-fix batch logs each report `10 passed`, and p12 preserves the run-backed claim. |
+| 4 | Retry masking is mechanically rejected and the dead retry environment variable is gone. | ✓ VERIFIED | p17 passes on the real surface, fails its committed known-bad fixture with the named `process.env` retry message, and is reached by CI's Fast checks glob. The parsed ExUnit contract proves `PLAYWRIGHT_RETRIES` is absent while the target job's remaining environment persists. |
+| 5 | Quarantine is used only if the root cause cannot be fixed. | ✓ VERIFIED — N/A contingency | The product-race fix and repeated target-job evidence hold. No phase change added a quarantine row; the fallback did not trigger. |
 
-**Score:** 5/5 truths verified (SC-2 closed by accepted override and a CI-wired behavioral seam test).
+**Score:** 5/5 roadmap truths verified (0 present-but-behavior-unverified).
 
-### Required Artifacts
+## Required Artifacts
 
 | Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `lib/sigra/admin/live/audit_index_live.ex` | 6 `patch={}` conversions, `phx-submit`, `handle_event/3`, whitelist | ✓ VERIFIED | `grep -c 'patch={'` = 6 at :78, :85, :143, :164, :177, :202. `phx-submit="apply_filters"` at :96. `handle_event("apply_filters", …)` at :56 doing `index_path |> append_query(Map.take(params, @filter_param_keys)) |> push_patch`. `handle_params/3` at :25 is still the **sole** loader (`Explorer.list_events` appears only there); `handle_event` does zero I/O. `phx-change` count = **0** (D-09 honored). |
-| `@filter_param_keys` whitelist | Must cover exactly the form's `name=` attributes (D-14) | ✓ VERIFIED | Form emits `name=` for: action_prefix, actor, effective_user, from, order_by, order_direction, outcome, page_size, to (9). Whitelist at :53 is the same 9 keys, no more, no less. `cursor` deliberately absent (documented). |
-| `scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` | Guard, observed RED | ✓ VERIFIED | Exit 1 / exit 0 re-observed by this verifier, not taken from SUMMARY. |
-| `test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts` | Committed known-bad fixture (constraint 6) | ✓ VERIFIED | Present and tracked; drives the RED above. |
-| `test/sigra/planning/phase_236_audit_url_ownership_test.exs` + `…retry_wrapper_prohibition_test.exs` | ExUnit source contracts | ✓ VERIFIED | `mix test` on both → **17 tests, 0 failures**. |
-| `236-EVIDENCE.md` | Parses under `parseEvidenceSlots`, p12 grammar | ✓ VERIFIED | Parsed by invoking `parseEvidenceSlots` from `scripts/ci/prohibitions/_lib.mjs` **directly against this phase's ledger** (NOT by running p12, which hardcodes phase 230's ledger at `:26` and would prove nothing here). Result: 3 slots — BEFORE-FLAKE-RED, AFTER-P17-GUARD-OBSERVED, AFTER-FIX-GREEN — each with a conforming `Status:` line carrying real run ids. Empty-doc positive control correctly threw `…the parse broke, this is not a pass`. |
-| `236-DIAGNOSIS.md` | Differential with cited rule-outs | ✓ VERIFIED | Sections 3, 4, 5 rule out harness race, DB collision, value-wipe with cited observations. |
-| Deferral todo | D-30 residue survives archival | ✓ VERIFIED | `.planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md` names `audit_user_live.ex:98`, `users_index_live.ex:126`, AND the three unconverted `/admin/audit` anchors (`components.ex:378-380`, `:841`, `:859`) with the recapture cost spelled out. |
+| --- | --- | --- | --- |
+| `236-EVIDENCE.md` | Durable RED/GREEN provenance | ✓ VERIFIED | Exactly three captured slots; default p12 validates all run IDs, producing commands, and in-slot corroboration. |
+| `236-DIAGNOSIS.md` | Falsifiable differential diagnosis | ✓ VERIFIED | Names product race and documents branch (a) plus evidence-based rule-outs. |
+| `audit_index_live.ex` | Single owner for failing-path URL transitions | ✓ VERIFIED | Substantive LiveView implementation; behavioral seam test passes. |
+| `p17-no-playwright-retry-wrapper.test.mjs` + fixture | Fail-first retry prohibition | ✓ VERIFIED | Clean control passes; committed bad fixture exits 1 for the intended violation. |
+| `p12-run-id-provenance.test.mjs` + Phase 236 fixture | Dual-ledger provenance enforcement | ✓ VERIFIED | Default run: 12/12; both malformed ledger fixtures fail specifically for missing run provenance. |
+| `phase_236_*_test.exs` contracts | Independent ownership, retry, and provenance checks | ✓ VERIFIED | 22 targeted ExUnit tests pass. |
+| `236-SECURITY.md` | Authoritative closure of T-236-03/T-236-15 | ✓ VERIFIED | `status: verified`, `threats_open: 0`, both rows closed, and all required sign-off markers pass the deterministic closure check. |
 
-### Key Link Verification
+## Key Link Verification
 
-| From | To | Via | Status |
-|------|-----|-----|--------|
-| `handle_event("apply_filters")` | `handle_params/3` | `index_path/1` → `append_query/2` → `push_patch(to:)` | ✓ WIRED — single loader preserved |
-| `@filter_param_keys` | patched URL | `Map.take/2` (ASVS V5 control) | ✓ WIRED — whitelist applied before URL construction; no raw param map reaches the URL |
-| `push_patch` target | local path only | `index_path(socket.assigns.admin_scope)` | ✓ WIRED — never a full URL/host; scope-resolved |
-| `ci.yml:393` glob | `p17-*.test.mjs` | `node --test scripts/ci/prohibitions/*.test.mjs` | ✓ WIRED — zero workflow edits needed; p17 present among the 17 discovered guards |
-| `lib/` fix | generated hosts | admin LiveViews are lib-owned | ✓ WIRED — `find` confirms exactly ONE `audit_index_live.ex` in the repo (no `priv/templates/` or `test/example/` copy to drift) |
+| From | To | Via | Status | Details |
+| --- | --- | --- | --- | --- |
+| Filter form | `handle_params/3` | `handle_event` → `index_path` → `append_query(Map.take(...))` → `push_patch` | ✓ WIRED | `handle_event` builds only a scope-local path; `handle_params` is the sole `Explorer.list_events` loader. |
+| `@filter_param_keys` | rendered filtered result | `Map.take/2` and patched URL | ✓ WIRED | The LiveView test submits an actor, observes `assert_patch`, then observes only that actor's row. |
+| p17/p12 guards | Fast checks | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | ✓ WIRED | Exact glob remains in `.github/workflows/ci.yml`; full local glob passed 112/112. |
+| Phase 236 ledger | p12 default table | `PHASE_236_LEDGER` / `DEFAULT_LEDGER_SPECS` | ✓ WIRED | Default p12 run validates Phase 230 and Phase 236, each with its own floors. |
+| Security closure | provenance controls | T-236-03/T-236-15 closure after p12 and ExUnit contracts | ✓ WIRED | Deterministic security-closure check passes. |
 
-### Behavioral Spot-Checks
+## Data-Flow Trace (Level 4)
+
+| Artifact | Data Variable | Source | Produces Real Data | Status |
+| --- | --- | --- | --- | --- |
+| `AuditIndexLive` | `@rows`, `@meta`, `@current_params` | `handle_params/3` → `Explorer.list_events` → audit query/presenter | Inserted test audit events render through the connected LiveView; submit removes the non-matching row. | ✓ FLOWING |
+
+## Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
-|----------|---------|--------|--------|
-| p17 reds on known-bad | `GSD_PROHIB_SUBJECT=…fixture node --test …p17….mjs` | exit 1, named message | ✓ PASS |
-| p17 greens on real config | `node --test …p17….mjs` | exit 0 | ✓ PASS |
-| Whole prohibition suite | `node --test scripts/ci/prohibitions/*.test.mjs` | 71 pass / 0 fail | ✓ PASS |
-| Phase contract tests | `MIX_ENV=test mix test …phase_236_*` | 17 tests, 0 failures | ✓ PASS |
-| LiveView submit/patch/reload seam | `(cd test/example && MIX_ENV=test mix test test/example_web/live/admin_audit_index_live_test.exs)` | 5 tests, 0 failures | ✓ PASS |
-| Evidence ledger parses | `parseEvidenceSlots` invoked directly on `236-EVIDENCE.md` | 3 slots, control throws | ✓ PASS |
-| SC-3 job conclusions | `gh run view <5 ids> --json jobs` | success ×5 | ✓ PASS |
-| SC-1 RED log verbatim | `gh api .../jobs/104500542292/logs` | received URL matches ledger byte-for-byte | ✓ PASS |
+| --- | --- | --- | --- |
+| Recorded CI RED | `gh run view 35004420339 --log --job 104500542292` | Exact `toHaveURL` / received URL at line 459 observed. | ✓ PASS |
+| Five CI target-job repeats | `gh run view` for all five recorded IDs | All target jobs completed `success`; Fast checks also `success`. | ✓ PASS |
+| Dual-ledger p12 default | `node --test --test-reporter=tap ...p12...` | 12/12 pass. | ✓ PASS |
+| p12 clean substitutions | `GSD_PROHIB_SUBJECT=... node --test ...p12...` | Archived Phase 230 and live Phase 236 ledgers each pass 6/6. | ✓ PASS |
+| p12 negative controls | Both committed malformed-ledger substitutions | Both exit 1 with named missing-run provenance failures, not parse floors. | ✓ PASS |
+| p17 clean and negative controls | p17 default and fixture substitution | Clean 5/5; fixture exits 1 with the named `process.env` retry failure. | ✓ PASS |
+| All prohibition guards | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 112/112 pass. | ✓ PASS |
+| Phase source contracts | `MIX_ENV=test mix test` for three Phase 236 modules | 22 tests, 0 failures. | ✓ PASS |
+| Connected filter behavior | `cd test/example && MIX_ENV=test mix test test/example_web/live/admin_audit_index_live_test.exs` | 5 tests, 0 failures; exercises submit, patch, and reloaded rows. | ✓ PASS |
+| Render-preservation guard | `bash scripts/ci/snapshot-canary-guard.sh --base origin/main` | PASS; zero changed slugs. | ✓ PASS |
 
-### Requirements Coverage
+## Probe Execution
 
-| Requirement | Source Plan | Status | Evidence |
-|-------------|-------------|--------|----------|
-| GREEN-01 (failure reproduced as captured RED before any fix) | 236-01, 236-04 | ✓ SATISFIED | Real CI run `35004420339` + local trace.zip; commit order confirms repro-before-fix: `f400fa15`/`34291dcd` (236-01 RED capture) precede `e3b61df6` (the `lib/` fix). |
-| GREEN-02 (audit-filter navigation race fixed in shipped `lib/`; retry-wrapping prohibited) | 236-02, 236-03, 236-04 | ✓ SATISFIED (with the D-30 residue above) | `audit_index_live.ex` no longer runs a bare `<form method="get">` + `<a href>` presets against `handle_params/3` with no `handle_event`; p17 mechanizes the retry-wrap prohibition. |
+SKIPPED — no Phase 236 `probe-*.sh` path is declared or present. The phase's runnable controls are the targeted ExUnit, Node, shell, and GitHub API checks above.
 
-No ORPHANED requirements: `grep` of REQUIREMENTS.md maps only GREEN-01/GREEN-02 to Phase 236, and both are claimed by plans.
+## Requirements Coverage
 
-### Anti-Patterns Found
+| Requirement | Source Plans | Description | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| GREEN-01 | 236-01, 236-04, 236-05 | Capture and retain a falsifiable RED before accepting the fix. | ✓ SATISFIED | Direct CI log, valid local trace, branch-(a) diagnosis, and CI-wired p12 provenance checks. |
+| GREEN-02 | 236-02, 236-03, 236-04, 236-05 | Fix the URL ownership race and prohibit retry masking. | ✓ SATISFIED | Connected LiveView behavioral test, repeated CI target-job green evidence, p17 fail-first fixture, and parsed workflow contract. |
+
+No orphaned Phase 236 requirements: `REQUIREMENTS.md` maps only GREEN-01 and GREEN-02, and every plan declares one or both.
+
+### Decision Coverage
+
+`check.decision-coverage-verify` reports **26/26** trackable CONTEXT decisions honored; no decision is missing from the shipped artifacts.
+
+### Test Quality Audit
+
+| Test File | Linked Requirement | Active | Skipped | Circular | Assertion Level | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| `phase_236_audit_url_ownership_test.exs` | GREEN-02 | 9 | 0 | No | Value/source contract | Pass — supplemented by the connected LiveView behavioral test. |
+| `admin_audit_index_live_test.exs` | GREEN-02 | 5 | 0 | No | Behavioral | Pass — real SQL-backed inserted events, URL patch, and rendered result assertions. |
+| p17/p12 Node guards | GREEN-01/02 | 17 | 0 | No | Value + negative control | Pass — external fixtures fail on the intended checks. |
+| `phase_236_evidence_provenance_guard_test.exs` | GREEN-01/02 | 5 | 0 | No | Value/source contract | Pass — direct Node execution independently supplies the runtime proof. |
+
+Disabled tests on requirements: 0. Circular patterns: 0. Insufficient assertions: 0.
+
+## Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| — | — | `TBD`/`FIXME`/`XXX` scan over all 6 changed source files (positive control: `grep -c 'def '` = 4 on the same lib file, so the search demonstrably ran) | — | **None found.** No debt-marker blocker. |
+| --- | --- | --- | --- | --- |
+| `.planning/research/STACK.md` | 195, 201, 204, 269 | Historical prose still describes deleted `PLAYWRIGHT_RETRIES: 1` as current. | ⚠️ Warning | Documentation is misleading, though `.github/workflows/ci.yml`, p17, and the parsed ExUnit contract prove the variable is absent. This does not weaken the shipped enforcement. |
+| Phase implementation files | — | `TBD` / `FIXME` / `XXX` debt-marker scan | — | None found. `placeholder=` is a user-facing input attribute; p17's `return null` is the deliberate clean result of a pure checker. |
 
-### Notes / Info (not gaps)
+## Human Verification
 
-1. **The aggregate `ci-gate` is still red on all five SC-3 runs** — but for a *deterministic, named, out-of-scope* reason, not a flake. I pulled the shard log for run 35034938082 (job 104601822192) myself: `33 doctests, 3 properties, 2606 tests, 3 failures` — all three in `phase_235_fast_01_*_contract_test.exs`. That is the v1.48 REQUIREMENTS-rollover debt already todo-filed. It does NOT count against this phase, but it does mean the phase goal's *headline* ("`main`'s aggregate gate stops flipping red") is not yet directly observable: the fix is unmerged, and the gate is red for another cause. The part of the goal this phase owns — "the failure has a named, fixed cause, not retried into silence" — is fully achieved and proven.
-2. **Evidence durability.** The SC-1 local `trace.zip` and the SC-3 batch logs live under untracked `.gsd/scratch/`. The ledger acknowledges this and anchors on the durable CI run/artifact instead. The local artifacts will not survive a scratch clean.
-3. **SC-3 run 5 headSha** (`620991620…` = commit `62099162`) is the final *committed* HEAD at capture time; the three commits after it (`19d900fa`, `63d01d3e`, `b8a15873`) are the evidence/bookkeeping docs themselves. Standing constraint 2 is satisfied in the only way it can be.
-4. **Orchestrator deviation is disclosed, not absorbed.** `236-04-SUMMARY.md:148-158` records the split explicitly (orchestrator drove branch/PR/five empty commits; executor independently re-verified via a second `gh` invocation under `bash -c`, and did the repro half and Tasks 2-3).
-5. **ROADMAP bookkeeping lag:** the four `236-0N-PLAN.md` checkboxes and the Phase 236 line in ROADMAP.md are still `- [ ]`, while REQUIREMENTS.md already marks GREEN-01/02 `Complete`. Normal `phase.complete` bookkeeping, noted for the orchestrator.
-6. **Prohibitions all honored** (re-derived, not trusted): `git diff --name-only 160de093..HEAD` over `components.ex`, `audit_user_live.ex`, `users_index_live.ex`, `admin-generated.spec.ts`, `mix.exs` → **0 files**. Zero `.png` changed. `phx-change` absent. The 2026-07-30 actor-filter-race todo correctly left `pending` (Phase 240 owns closure). Two todos correctly moved to `resolved/` as renames.
+N/A — all phase acceptance criteria, including the user-visible LiveView transition, were exercised by deterministic automated contracts and direct GitHub API evidence. No behavior-dependent truth remains unexercised.
 
-### Gaps Summary
+## Gaps Summary
 
-No blocking gaps. One partial: SC-2's absolutist wording vs the D-30-narrowed delivery. The behaviour SC-2 exists to protect — the failing test's path on `/admin/audit` — is fixed, and that fix is proven green on five real CI runs and 50/50 local repeats. What remains unconverted is three shared-component anchors (plus a controller download that must stay a document navigation), deliberately excluded to avoid opening the PNG recapture lane that ROADMAP standing constraint 7 forbids, and tracked in a filed todo. This is a decision for the developer, not a defect.
-
-**This looks intentional.** To accept the deviation, add to this file's frontmatter:
-
-```yaml
-overrides:
-  - must_have: "If it is the product race, /admin/audit has exactly one owner of its URL: no plain <form method=\"get\"> / <a href> competing against handle_params/3 in lib/sigra/admin/live/audit_index_live.ex"
-    reason: "D-30 scope boundary: the chip-remove and prev/next anchors are rendered by lib/sigra/admin/components.ex, shared with the two D-30-excluded views; converting them drags user-audit-*.png ×3 and the users-index baselines into a PNG recapture lane that ROADMAP standing constraint 7 forbids in v1.48. Export CSV is a controller download that must remain a document navigation. Residue tracked in .planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md."
-    accepted_by: "<name>"
-    accepted_at: "<ISO timestamp>"
-```
+No blocking gaps. The aggregate run conclusion remained `failure` on the five repeat runs for separately tracked Phase 235 contract-test debt, but the affected `Generated admin Playwright smoke` job was independently `success` on every run. That is not a retry-derived green and does not contradict the Phase 236 success criteria. The one accepted D-30 residual URL-navigation scope exception remains documented and todo-backed.
 
 ---
 
-_Verified: 2026-09-15_
-_Verifier: Claude (gsd-verifier)_
+_Verified: 2026-09-19T22:13:09Z_
+_Verifier: Codex (gsd-verifier)_
