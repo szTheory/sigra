@@ -1,21 +1,21 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 status: executing
-stopped_at: "Phase 241 planned (6 plans, waves 1-2; plan-checker BLOCK resolved). Not executed."
-last_updated: "2026-09-18T21:19:49.045Z"
-last_activity: 2026-09-18
-last_activity_desc: Phase 241 planning complete (6 plans, waves 1-2); quick task 260918-lfq closed the three GREEN-04 collector todos
+stopped_at: Completed 241-01-PLAN.md
+last_updated: "2026-09-19T15:07:15.338Z"
+last_activity: 2026-09-19
+last_activity_desc: Phase 241 execution started
+state_head: e035a42edd034fba31e973354f9b99054d2d72d3
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 43
-  completed_plans: 37
+  completed_plans: 38
   percent: 50
-state_head: 0f24144c0b8871c13cf6b2a0d417daf3929a576e
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 241 — retire-v1-47-s-dishonest-debt-adopter-leakage-guard
+**Current focus:** Phase 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
 
 ## Current Position
 
-Phase: 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-Plan: 6 planned, 0 executed
+Phase: 241 (Retire v1.47's Dishonest Debt + Adopter-Leakage Guard) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-09-18 — Phase 241 planned and plan-checked; awaiting execution
+Last activity: 2026-09-19 — Phase 241 execution started
 
 ### v1.48 phase map
 
@@ -511,6 +511,7 @@ Last activity: 2026-09-18 — Phase 241 planned and plan-checked; awaiting execu
 - [Phase ?]: 240-04: local mix ci Threadline failures waived as exogenous by operator decision; CI library-test jobs green at base, PR #246 and main run 35377012499
 - [Phase ?]: Phase 240 GREEN-05: issue #231 closed against a BOUNDED evidence window (runs 35377050754 + 8 main-window ids, 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z), never a permanence claim; notify_release_lane_rot may correctly re-file the same title (D-27).
 - [Phase ?]: Todos are closed against CORRECTED coordinates (D-26): the 2026-07-30 actor-filter todo cited a nonexistent audit_live.ex and stale :454-458; closure prose carries audit_index_live.ex and admin-generated.spec.ts:459 from Phase 236 CONTEXT D-06/D-07.
+- [Phase 241]: ADR 004 records TEST-01/TEST-02 supersession: the mix ci topology has exactly one full-library-suite owner, while all ten historical timing-path consumer refs are explicitly recorded.
 
 ### Pending Todos
 
@@ -714,8 +715,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-18T18:32:07.042Z
-Stopped at: Completed 240-05-PLAN.md (GREEN-05; issue #231 closed)
+Last session: 2026-09-19T15:07:15.203Z
+Stopped at: Completed 241-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -921,3 +922,4 @@ Resume file: None
 | Phase 240 P03 | ~50m | 3 tasks | 4 files |
 | Phase 240 P04 | 25m | 3 tasks | 2 files |
 | Phase 240 P05 | ~35m | 4 tasks | 5 files |
+| Phase 241 P01 | 3min | 3 tasks | 4 files |
