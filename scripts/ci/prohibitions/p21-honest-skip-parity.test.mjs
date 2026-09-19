@@ -57,13 +57,16 @@ test('the manifest and honest-skip section are non-vacuously available', () => {
   );
 });
 
-test('every manifest id and step parent is documented in the honest-skip section', () => {
+test('every manifest id is documented in the honest-skip section', () => {
   for (const row of rows) {
     assert.ok(
       section.includes(row.id),
       `manifest row \`${row.id}\` column \`id\` requires \`${row.id}\` in MAINTAINING.md's honest-skip section, but it is missing.`,
     );
   }
+});
+
+test('every step parent is documented in the honest-skip section', () => {
   for (const row of rows.filter((candidate) => candidate.kind === 'step')) {
     assert.ok(
       section.includes(row.parentJobId),
