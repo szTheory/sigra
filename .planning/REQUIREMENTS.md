@@ -104,7 +104,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 - [x] **DEBT-01**: TEST-01/02 supersession by the single-owner `mix ci` design is recorded as an ADR, and the orphaned `Sigra.CI.ExUnitTimingFormatter` plus its test are deleted.
 - [ ] **DEBT-02**: `test/sigra/planning/phase_233_library_economics_contract_test.exs` no longer asserts the regression is correct; its replacement is demonstrated **RED** against a committed known-bad fixture before being accepted.
-- [ ] **DEBT-03**: `.github/ci-skip-manifest.tsv` no longer cites the nonexistent `scripts/ci/prohibitions/honest-skip-parity.test.mjs` — either the guard is written and enforces manifest ↔ `ci.yml` ↔ `MAINTAINING.md` parity, or the false claim is removed. `MAINTAINING.md:172-178,231` is corrected to describe the actual HEAD shard topology.
+- [x] **DEBT-03**: `.github/ci-skip-manifest.tsv` no longer cites the nonexistent `scripts/ci/prohibitions/honest-skip-parity.test.mjs` — either the guard is written and enforces manifest ↔ `ci.yml` ↔ `MAINTAINING.md` parity, or the false claim is removed. `MAINTAINING.md:172-178,231` is corrected to describe the actual HEAD shard topology.
 - [ ] **DEBT-04**: `.github/actions/example-playwright-boot/action.yml` is covered by the action-pinning supply-chain guard (`action_entry/4` currently returns `[]` for local `"./"` actions, making it invisible in both directions).
 
 ## Deferred to a Future Milestone
@@ -169,7 +169,7 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | QUEUE-04 | Phase 243 | Pending |
 | DEBT-01 | Phase 241 | Complete |
 | DEBT-02 | Phase 241 | Pending |
-| DEBT-03 | Phase 241 | Pending |
+| DEBT-03 | Phase 241 | Complete |
 | DEBT-04 | Phase 241 | Pending |
 
 **Coverage:**
