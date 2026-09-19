@@ -23,39 +23,8 @@ export const P18_DIRTY_SURFACE_PREFIX = 'P18 DIRTY SURFACE:';
 // doc-attribute scanner, while R2 owns V3 comment-line bookkeeping.
 export const DOC_RANGE_TOKEN_SOURCE = String.raw`\.planning/|\bPhase \d{1,3}\b|\bphase[-_]\d{1,3}\b|\bD-\d{2}\b|\bSC-\d\b|\bREQ-[A-Z0-9]|\bPitfall \d\b|\bINV-\d|-PLAN\.md|-CONTEXT\.md|-SUMMARY\.md|\btodos/\b`;
 export const DOC_RANGE_TOKEN_RE = new RegExp(DOC_RANGE_TOKEN_SOURCE, 'g');
-const DOC_ATTRIBUTE_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(.+)$/;
-const SIGIL_CLOSING_DELIMITERS = Object.freeze({
-  '"': '"',
-  "'": "'",
-  '/': '/',
-  '|': '|',
-  '(': ')',
-  '[': ']',
-  '{': '}',
-  '<': '>',
-});
-
-function docRangeOpening(line) {
-  const attribute = line.match(DOC_ATTRIBUTE_RE);
-  if (!attribute) return null;
-
-  const value = attribute[2].trimStart();
-  const heredoc = value.match(/^(?:~[sS])?"""/);
-
-  if (heredoc) {
-    const rest = value.slice(heredoc[0].length);
-    return { closingDelimiter: rest.includes('"""') ? null : '"""' };
-  }
-
-  if (value.startsWith('"')) return { closingDelimiter: null };
-
-  const sigil = value.match(/^~[sS](["'\/|([{<])/);
-  if (!sigil) return null;
-
-  const closingDelimiter = SIGIL_CLOSING_DELIMITERS[sigil[1]];
-  const rest = value.slice(sigil[0].length);
-  return { closingDelimiter: rest.includes(closingDelimiter) ? null : closingDelimiter };
-}
+const DOC_RANGE_START_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"""/;
+const DOC_RANGE_ONELINE_RE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"/;
 
 export class P18InstrumentFailure extends Error {
   constructor(message) {
@@ -154,7 +123,7 @@ export function docRangeScan(relDir) {
 
   for (const path of files) {
     const lines = readMeasuredFile(path).split('\n');
-    let closingDelimiter = null;
+    let inBlock = false;
     for (const [offset, line] of lines.entries()) {
       const lineNumber = offset + 1;
       const countMatches = () => {
@@ -166,18 +135,29 @@ export function docRangeScan(relDir) {
         }
       };
 
-      if (closingDelimiter === null) {
-        const opening = docRangeOpening(line);
-        if (!opening) continue;
+      if (!inBlock) {
+        if (DOC_RANGE_START_RE.test(line)) {
+          inBlock = true;
+          docRanges += 1;
+          countMatches();
+          continue;
+        }
+        if (DOC_RANGE_ONELINE_RE.test(line) && !line.includes('"""')) {
+          docRanges += 1;
+          countMatches();
+          continue;
+        }
+      } else {
+        if (line.includes('"""')) {
+          inBlock = false;
+          countMatches();
+          continue;
+        }
 
-        docRanges += 1;
-        closingDelimiter = opening.closingDelimiter;
         countMatches();
         continue;
       }
 
-      countMatches();
-      if (line.includes(closingDelimiter)) closingDelimiter = null;
     }
   }
 
