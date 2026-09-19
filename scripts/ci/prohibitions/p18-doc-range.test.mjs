@@ -9,11 +9,16 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   docRangeScan,
+  docRangeTotal,
   P18InstrumentFailure,
 } from './_p18-lib.mjs';
+
+const PARITY_MANIFEST_PATH = 'test/fixtures/prohibitions/p18-doc-range-parity.tsv';
+const RATCHET_BASELINE_PATH = 'scripts/ci/prohibitions/p18-ratchet-baseline.tsv';
 
 const HARD_FAIL_TOKENS = [
   ['planning directory', /\.planning\//g],
@@ -34,6 +39,43 @@ function hardFailViolations(result) {
     }
   }
   return violations;
+}
+
+function parityRows() {
+  const lines = readFileSync(PARITY_MANIFEST_PATH, 'utf8')
+    .split('\n')
+    .map((line) => line.replace(/\r$/, ''))
+    .filter((line) => line !== '' && !line.startsWith('#'));
+  const [header, ...rows] = lines;
+
+  assert.equal(
+    header,
+    'subject\texpected_total_hits\treference',
+    'P18 D-30 PARITY: manifest header must name subject, expected_total_hits, and reference',
+  );
+
+  return rows.map((row) => {
+    const [subject, expectedTotalHits, reference] = row.split('\t');
+    assert.ok(
+      subject && /^\d+$/.test(expectedTotalHits ?? '') && reference,
+      `P18 D-30 PARITY: malformed manifest row ${JSON.stringify(row)}`,
+    );
+    return { subject, expectedTotalHits: Number(expectedTotalHits), reference };
+  });
+}
+
+function r1Baseline() {
+  const row = readFileSync(RATCHET_BASELINE_PATH, 'utf8')
+    .split('\n')
+    .map((line) => line.replace(/\r$/, ''))
+    .find((line) => line.startsWith('R1\t'));
+  const [, baseline] = row?.split('\t') ?? [];
+
+  assert.ok(
+    /^\d+$/.test(baseline ?? ''),
+    'P18 D-30 PARITY: R1 baseline row must contain a numeric baseline',
+  );
+  return Number(baseline);
 }
 
 test('tracked lib/ doc ranges contain no zero-at-HEAD planning-artifact tokens', () => {
@@ -61,32 +103,35 @@ test('doc-range walker distinguishes an instrument failure from a dirty surface'
   assert.ok(P18InstrumentFailure);
 });
 
-test('lowercase string sigil doc ranges are scanned for hard-fail tokens', () => {
-  const fixture = 'test/fixtures/prohibitions/p18-doc-range-lowercase-sigil.ex';
-  const previousSubject = process.env.GSD_PROHIB_SUBJECT;
-  process.env.GSD_PROHIB_SUBJECT = fixture;
+test('D-30 parity manifest pins every accepted and rejected fixture to Phase-237 totals', () => {
+  const rows = parityRows();
+  assert.equal(rows.length, 4, 'P18 D-30 PARITY: manifest must cover all four fixture subjects');
+  const mismatches = [];
 
-  try {
-    const result = docRangeScan('lib');
-    assert.equal(result.docRanges, 2, 'fixture must include normal and lowercase-sigil doc ranges');
-    assert.deepEqual(hardFailViolations(result), ['planning directory=.planning/ (1)']);
-  } finally {
-    if (previousSubject === undefined) delete process.env.GSD_PROHIB_SUBJECT;
-    else process.env.GSD_PROHIB_SUBJECT = previousSubject;
+  for (const { subject, expectedTotalHits, reference } of rows) {
+    const previousSubject = process.env.GSD_PROHIB_SUBJECT;
+    process.env.GSD_PROHIB_SUBJECT = `test/fixtures/prohibitions/${subject}`;
+
+    try {
+      const result = docRangeScan('lib');
+      if (result.totalHits !== expectedTotalHits) {
+        mismatches.push(
+          `${subject} expected ${expectedTotalHits} token hit(s) from ${reference}, got ${result.totalHits}`,
+        );
+      }
+    } finally {
+      if (previousSubject === undefined) delete process.env.GSD_PROHIB_SUBJECT;
+      else process.env.GSD_PROHIB_SUBJECT = previousSubject;
+    }
   }
+
+  assert.deepEqual(mismatches, [], `P18 D-30 PARITY: ${mismatches.join('; ')}`);
 });
 
-test('non-quote and paired string sigil doc ranges are scanned for hard-fail tokens', () => {
-  const fixture = 'test/fixtures/prohibitions/p18-doc-range-delimited-sigils.ex';
-  const previousSubject = process.env.GSD_PROHIB_SUBJECT;
-  process.env.GSD_PROHIB_SUBJECT = fixture;
-
-  try {
-    const result = docRangeScan('lib');
-    assert.equal(result.docRanges, 3, 'fixture must include normal, pipe, and paired doc ranges');
-    assert.deepEqual(hardFailViolations(result), ['planning directory=.planning/ (2)']);
-  } finally {
-    if (previousSubject === undefined) delete process.env.GSD_PROHIB_SUBJECT;
-    else process.env.GSD_PROHIB_SUBJECT = previousSubject;
-  }
+test('D-30 parity compares the real doc-range total to the committed R1 baseline', () => {
+  assert.equal(
+    docRangeTotal('lib'),
+    r1Baseline(),
+    'P18 D-30 PARITY: real lib/ total must equal the R1 baseline row',
+  );
 });
