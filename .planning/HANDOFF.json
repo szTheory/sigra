@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-19T13:49:07.171Z",
+  "phase": "241",
+  "phase_name": "retire-v1-47-s-dishonest-debt-adopter-leakage-guard",
+  "phase_dir": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard",
+  "plan": 1,
+  "task": 1,
+  "total_tasks": 18,
+  "status": "paused",
+  "completed_tasks": [],
+  "remaining_tasks": [
+    {"id": 1, "plan": "241-01", "wave": 1, "requirement": "DEBT-01", "name": "End-to-end — sweep, record, delete, prove clean", "status": "not_started"},
+    {"id": 2, "plan": "241-01", "wave": 1, "requirement": "DEBT-01", "name": "Prove the alias and the compile are untouched", "status": "not_started"},
+    {"id": 3, "plan": "241-01", "wave": 1, "requirement": "DEBT-01", "name": "Record the SC-1 evidence, including the honest green claim", "status": "not_started"},
+    {"id": 4, "plan": "241-03", "wave": 1, "requirement": "DEBT-03", "name": "End-to-end — write p21, observe it RED against HEAD's doc, commit it red", "status": "not_started"},
+    {"id": 5, "plan": "241-03", "wave": 1, "requirement": "DEBT-03", "name": "Correct the doc, observe GREEN, and commit a fixture that re-proves the RED forever", "status": "not_started"},
+    {"id": 6, "plan": "241-03", "wave": 1, "requirement": "DEBT-03", "name": "Retire the false citation in both copies, and record the dispositions", "status": "not_started"},
+    {"id": 7, "plan": "241-04", "wave": 1, "requirement": "DEBT-04", "name": "End-to-end — widen the universe, relax the regex, red on the bare-uses fixture", "status": "not_started"},
+    {"id": 8, "plan": "241-04", "wave": 1, "requirement": "DEBT-04", "name": "Prove the universe half independently, and floor the inventory numerically", "status": "not_started"},
+    {"id": 9, "plan": "241-04", "wave": 1, "requirement": "DEBT-04", "name": "Record the evidence and annotate the todo as partially closed", "status": "not_started"},
+    {"id": 10, "plan": "241-05", "wave": 1, "requirement": "SURF-04", "name": "End-to-end — port the spec into a shared helper and ship the .planning/ hard-fail", "status": "not_started"},
+    {"id": 11, "plan": "241-05", "wave": 1, "requirement": "SURF-04", "name": "The priv/templates/ bookkeeping hard-fail, with the allowlist that keeps it honest", "status": "not_started"},
+    {"id": 12, "plan": "241-05", "wave": 1, "requirement": "SURF-04", "name": "Prove independent reachability and the fail-closed controls, then record it", "status": "not_started"},
+    {"id": 13, "plan": "241-02", "wave": 2, "requirement": "DEBT-02", "name": "End-to-end — substitutable subject, derived invariant, RED on a committed fixture", "status": "not_started"},
+    {"id": 14, "plan": "241-02", "wave": 2, "requirement": "DEBT-02", "name": "Finish the rewrite and retire the receipt dependency with its helpers", "status": "not_started"},
+    {"id": 15, "plan": "241-02", "wave": 2, "requirement": "DEBT-02", "name": "Record the SC-2 evidence and the retired-receipt disposition", "status": "not_started"},
+    {"id": 16, "plan": "241-06", "wave": 2, "requirement": "SURF-04", "name": "End-to-end — port the doc-range extractor, hard-fail its zero-at-HEAD class, cross-check the port", "status": "not_started"},
+    {"id": 17, "plan": "241-06", "wave": 2, "requirement": "SURF-04", "name": "The three-counter ratchet, with three independently reachable REDs", "status": "not_started"},
+    {"id": 18, "plan": "241-06", "wave": 2, "requirement": "SURF-04", "name": "Record the evidence, the declined widenings, and close SURF-04", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Push to main is blocked by a repository ruleset. Every change — including docs-only — must land via PR + squash merge.", "type": "external", "workaround": "gh pr create ... && gh pr merge N --squash --delete-branch"},
+    {"description": "Worktree isolation auto-degrades (worktree.base-check returns shouldDegrade: fork-ref-unknown). Execution is sequential on the main working tree: no worktrees, no git stash.", "type": "technical", "workaround": "Run waves sequentially; pin wave-1 plan ordering explicitly."},
+    {"description": "241-03 Task 1 deliberately commits p21 RED against HEAD's doc; Task 2 corrects the doc to green. A run interrupted between them leaves main red.", "type": "technical", "workaround": "Do not pause mid-plan inside 241-03. Complete Tasks 1+2 in one go, or revert the red commit."},
+    {"description": "Local mix ci has 6 environmental Sigra.Audit.Forwarders.ThreadlineTest failures (Threadline.attach/1 undefined) unrelated to this phase and green in CI at the same commit.", "type": "technical", "workaround": "Do NOT gate on a clean local mix ci. Compare against CI at the same SHA."}
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {"action": "mix hex.retire sigra 1.20.0 invalid", "context": "Requires interactive Hex auth only the operator can do. Gates phase 242, NOT 241.", "blocking": false},
+    {"action": "Explicit go-ahead for /gsd-execute-phase 241", "context": "Planning was authorized; execution was explicitly held back as a materially larger commitment.", "blocking": true}
+  ],
+  "decisions": [
+    {"decision": "D-09/D-10 inverted during planning: retire the SC-2 receipt TESTS but do NOT delete the JSON file", "rationale": "A live reader exists at scripts/ci/capture-fast-01-gap-closure.sh:42; deleting the JSON would have broken it. Also requires deleting now-unused timing_consistent?/1 and duration_seconds/2 or compile --warnings-as-errors reds.", "phase": "241"},
+    {"decision": "D-11: write the DEBT-03 guard rather than delete the claim", "rationale": "User selection during discuss-phase.", "phase": "241"},
+    {"decision": "SC-4 and SC-5 split hard-fail from ratchet", "rationale": "Both were vacuously satisfiable as written. SC-4's regex requires a leading dash but 2 of its 4 uses: are bare; SC-5's doc-range tokens measure 337 at HEAD, so a literal hard-fail would red on landing.", "phase": "241"},
+    {"decision": "D-29: declined both V3 vocabulary widenings", "rationale": "Measured cost 220 -> 221, not worth it. NOT confirmed with the user — flagged as the one number that must not be committed wrong.", "phase": "241"},
+    {"decision": "Do not add to ci-gate.needs; FUT-03 stays deferred", "rationale": "Phase 241 absolute out-of-scope fence.", "phase": "241"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "Run /gsd-execute-phase 241 (wave 1 = plans 01, 03, 04, 05 — zero files_modified overlap; wave 2 = 02, 06). Pin wave-1 ordering explicitly because worktree isolation degrades to sequential-on-main.",
+  "context_notes": "Phase 241 is fully planned, plan-checked (both BLOCKs resolved), and NOT executed. main is clean at 417130bd. Six PRs landed in the prior session: #248 collector guards, #249 todos closed, #250 context, #251 research, #252 plans, #253 STATE reconcile. STATE.md reads status: executing / total_plans: 43 and is reconciled with reality. Three of the phase's own inputs carry stale coordinates already corrected in 241-CONTEXT.md: DEBT-03's MAINTAINING.md:172-178,231 is actually :263-269,280,322; SC-5's ci.yml:393 is :408; DEBT-04's action_entry/4 diagnosis is wrong (the real gap is the 2-entry @release_workflows)."
+}
