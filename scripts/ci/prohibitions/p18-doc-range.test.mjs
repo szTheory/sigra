@@ -75,3 +75,18 @@ test('lowercase string sigil doc ranges are scanned for hard-fail tokens', () =>
     else process.env.GSD_PROHIB_SUBJECT = previousSubject;
   }
 });
+
+test('non-quote and paired string sigil doc ranges are scanned for hard-fail tokens', () => {
+  const fixture = 'test/fixtures/prohibitions/p18-doc-range-delimited-sigils.ex';
+  const previousSubject = process.env.GSD_PROHIB_SUBJECT;
+  process.env.GSD_PROHIB_SUBJECT = fixture;
+
+  try {
+    const result = docRangeScan('lib');
+    assert.equal(result.docRanges, 3, 'fixture must include normal, pipe, and paired doc ranges');
+    assert.deepEqual(hardFailViolations(result), ['planning directory=.planning/ (2)']);
+  } finally {
+    if (previousSubject === undefined) delete process.env.GSD_PROHIB_SUBJECT;
+    else process.env.GSD_PROHIB_SUBJECT = previousSubject;
+  }
+});
