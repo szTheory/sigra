@@ -109,6 +109,28 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
            ) == []
   end
 
+  test "release workflows reject local composites outside .github/actions" do
+    fixture_root = "test/fixtures/prohibitions/phase241-release-workflow-external-composite"
+    workflow_path = fixture_root <> "/release-workflow.yml"
+    composite_path = fixture_root <> "/release/bootstrap/action.yml"
+
+    assert File.read!(composite_path) =~ "uses: actions/checkout@v4 # v4.2.2",
+           "known-bad composite fixture must retain the floating third-party action it models"
+
+    inventory =
+      workflow_path
+      |> File.read!()
+      |> action_inventory(workflow_path)
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(inventory)
+      end
+
+    assert error.message =~ workflow_path <> ":6"
+    assert error.message =~ "local action outside .github/actions"
+  end
+
   test "bare uses are visible only after the inventory regex relaxation" do
     fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-bare-uses.yml"
     fixture = File.read!(fixture_path)
@@ -208,6 +230,9 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
 
   defp assert_valid_inventory!(inventory) do
     for action <- inventory do
+      assert not String.starts_with?(action.action, "./"),
+             "#{action.workflow}:#{action.line} references local action outside .github/actions: #{inspect(action.action)}"
+
       assert action.ref =~ ~r/^[0-9a-f]{40}$/,
              "#{action.workflow}:#{action.line} has non-immutable action ref #{inspect(action.ref)}"
 
@@ -220,7 +245,25 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     end
   end
 
-  defp action_entry(_workflow_path, _line_number, "./" <> _local_action, _comment), do: []
+  defp action_entry(
+         _workflow_path,
+         _line_number,
+         "./.github/actions/" <> _local_action,
+         _comment
+       ),
+       do: []
+
+  defp action_entry(workflow_path, line_number, "./" <> local_action, comment) do
+    [
+      %{
+        workflow: workflow_path,
+        line: line_number,
+        action: "./" <> local_action,
+        ref: "",
+        comment: comment
+      }
+    ]
+  end
 
   defp action_entry(workflow_path, line_number, action, comment) do
     case String.split(action, "@", parts: 2) do
