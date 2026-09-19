@@ -130,7 +130,7 @@ function validateAllowlist(entries, measuredFiles) {
 }
 
 export function scanBookkeeping(tier, options = {}) {
-  const files = filesForTier(tier);
+  const files = options.files ?? filesForTier(tier);
   if (files.length === 0) {
     throw new P18InstrumentFailure('empty file list — refusing to report success on no input');
   }
