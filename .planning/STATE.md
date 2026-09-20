@@ -5,16 +5,16 @@ milestone_name: CLEAN-BASELINE
 current_phase: 242
 current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
 status: executing
-stopped_at: Phase 241 complete, ready to plan Phase 242
-last_updated: "2026-09-20T13:31:53.061Z"
-last_activity: 2026-09-19
-last_activity_desc: Phase 241 complete, transitioned to Phase 242
-state_head: 3ca3bfa60f9240b1b05b8bdda7802beda3dc032d
+stopped_at: Completed 242-01-PLAN.md
+last_updated: "2026-09-20T14:24:52.381Z"
+last_activity: 2026-09-20
+last_activity_desc: Phase 242 execution started
+state_head: 1737a9c2b195e717d633221e560b6905b77c7782
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 55
-  completed_plans: 46
+  completed_plans: 47
   percent: 60
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
+**Current focus:** Phase 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
 
 ## Current Position
 
-Phase: 242 (Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1) — READY TO EXECUTE
-Plan: Not started
+Phase: 242 (Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1) — EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-09-19 — Phase 241 complete, transitioned to Phase 242
+Last activity: 2026-09-20 — Phase 242 execution started
 
 ### v1.48 phase map
 
@@ -525,6 +525,7 @@ Last activity: 2026-09-19 — Phase 241 complete, transitioned to Phase 242
 - [Phase 241]: DEBT-02 retains the archived FAST-01 JSON for its live cutoff-SHA readers while retiring the stale phase_233 self-digest assertions.
 - [Phase 241]: R1, R2, and R3 remain independent non-increase counters; no fused total can offset a regression.
 - [Phase 241]: D-29 declines v1.48 case-folding (R2 220→221) and block-aware widening; pending todo remains partially folded.
+- [Phase 242]: Phase 242 Plan 01: remediation is dispatch-only and fixed to sigra 1.20.0; public evidence is sanitized and resolver homes are isolated.
 
 ### Pending Todos
 
@@ -728,8 +729,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-19T15:56:56.455Z
-Stopped at: Phase 241 complete, ready to plan Phase 242
+Last session: 2026-09-20T14:24:52.213Z
+Stopped at: Completed 242-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -941,3 +942,4 @@ Resume file: None
 | Phase 241 P05 | 8m | 3 tasks | 7 files |
 | Phase 241 P02 | 5min | 3 tasks | 3 files |
 | Phase 241 P06 | 24m | 3 tasks | 10 files |
+| Phase 242 P01 | 40min | 2 tasks | 7 files |
