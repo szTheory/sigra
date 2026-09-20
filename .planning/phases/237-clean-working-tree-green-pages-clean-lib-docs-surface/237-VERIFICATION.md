@@ -1,6 +1,6 @@
 ---
 phase: 237-clean-working-tree-green-pages-clean-lib-docs-surface
-verified: 2026-09-19T14:44:34Z
+verified: 2026-09-20T01:49:03Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -27,7 +27,7 @@ covered_files:
   - "lib/sigra/audit.ex"
   - "lib/sigra/testing.ex"
   - "mix.exs"
-covered_digest: "v1:sha256:7a6ad347b76e3731b127e2e36497a9271c832e62d3308b7f69594d5fb4151a79"
+covered_digest: "v1:sha256:3749c0c25849d6ef4350c096b877622e66937ba787ef66fde50faabff48d2dd9"
 behavior_unverified: 0
 overrides_applied: 2
 overrides:
@@ -63,7 +63,7 @@ advisory:
 **Verified:** 2026-09-19
 **Status:** passed (5/5, 2 via recorded decision overrides)
 **Re-verification:** Yes — automation-first refresh after summary and API-coverage reconciliation
-**Verified at HEAD:** `3dd5977d` (targeted product and live-service seams re-executed; scoped verification artifacts pending commit)
+**Verified at phase artifact HEAD:** `c20b0ce0` (targeted product and live-service seams re-executed; the automated UAT, coverage matrix, summaries, and this report landed atomically). No Phase 237 artifact has changed since that commit; this refresh reconciles the report timestamp with its same-commit summaries.
 
 The 2026-09-19 refresh replaced conversational UAT with 21 deterministic checks in
 `237-UAT.md`. It also added the seal-time GitHub API coverage matrix and reclassified four
