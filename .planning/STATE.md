@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 241
-current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-status: verifying
-stopped_at: Completed 241-06-PLAN.md
-last_updated: "2026-09-19T15:56:56.556Z"
+current_phase: 242
+current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+status: planning
+stopped_at: Phase 241 complete, ready to plan Phase 242
+last_updated: "2026-09-20T03:04:58.546Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 241 execution started
-state_head: a06e03504007e06cf03972013e9ffc5f1e9eaa59
+last_activity_desc: Phase 241 complete, transitioned to Phase 242
+state_head: f0945812a0e7b748f9c8f5b3bbb514ba83e677e0
 progress:
   total_phases: 10
-  completed_phases: 5
-  total_plans: 43
-  completed_plans: 43
-  percent: 50
+  completed_phases: 6
+  total_plans: 46
+  completed_plans: 46
+  percent: 60
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 241 (Retire v1.47's Dishonest Debt + Adopter-Leakage Guard) — EXECUTING
-Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-09-19 — Phase 241 execution started
+Phase: 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-19 — Phase 241 complete, transitioned to Phase 242
 
 ### v1.48 phase map
 
@@ -729,7 +729,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-19T15:56:56.455Z
-Stopped at: Completed 241-06-PLAN.md
+Stopped at: Phase 241 complete, ready to plan Phase 242
 Resume file: None
 
 ## Operator Next Steps

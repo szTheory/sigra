@@ -1,6 +1,6 @@
 ---
 phase: 236-flake-root-cause-reproduce-name-fix
-verified: 2026-09-19T22:13:09Z
+verified: 2026-09-20T03:06:32Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -31,7 +31,7 @@ covered_files:
   - test/sigra/planning/phase_236_audit_url_ownership_test.exs
   - test/sigra/planning/phase_236_evidence_provenance_guard_test.exs
   - test/sigra/planning/phase_236_retry_wrapper_prohibition_test.exs
-covered_digest: "v1:sha256:aacb60ca9cfa834fcdc360898e40d5bde7532961fb8f01c136e75d53b2530ad2"
+covered_digest: "v1:sha256:c6a82eb1b78c8321f84d70917752a5871fb62888bec593c3f31fb6343edbd371"
 behavior_unverified: 0
 overrides_applied: 1
 overrides:
