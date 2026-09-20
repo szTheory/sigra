@@ -1,6 +1,6 @@
 ---
 phase: 238-tag-guard-then-tag-deletion
-verified: 2026-09-19T15:05:00Z
+verified: 2026-09-20T03:01:57Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -28,7 +28,7 @@ covered_files:
   - "scripts/maintainers/delete-planning-tags.sh"
   - "test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json"
 
-covered_digest: "v1:sha256:0ab69eb17febf217fea8bb09c46587fe9528abb8f46d8cbab6a4e5d5dafdd5ef"
+covered_digest: "v1:sha256:b40597221fe11a21fe3f719d8ddb00a3d1d4abe3e63314f0b314df1b51de47fa"
 behavior_unverified: 0
 overrides_applied: 0
 behavior_unverified_items: []
@@ -38,9 +38,9 @@ human_verification: []
 # Phase 238: Tag Guard, Then Tag Deletion — Verification Report
 
 **Phase Goal:** The `v*` tag namespace means exactly one thing — a real release — and cannot be re-polluted by the next close flow.
-**Verified:** 2026-09-19T15:05:00Z
+**Verified:** 2026-09-20T03:01:57Z
 **Status:** passed
-**Re-verification:** Yes — automation-first refresh after the observer lane executed on `main`
+**Re-verification:** Yes — automation-first refresh against the current covered inputs; the guard suite is green (112/112), the known-bad p19 fixture remains red, local/remote keep-sets are equal, and the live ruleset projection remains identical to the committed snapshot
 **Mode:** standard (not MVP)
 
 ## Headline
