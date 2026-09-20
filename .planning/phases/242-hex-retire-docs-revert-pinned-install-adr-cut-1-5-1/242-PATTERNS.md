@@ -1,7 +1,7 @@
 # Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1 - Pattern Map
 
-**Mapped:** 2026-09-20  
-**Files analyzed:** 14 planned new/modified files  
+**Mapped:** 2026-09-20
+**Files analyzed:** 14 planned new/modified files
 **Analogs found:** 14 / 14 (all analogs below are tracked sources)
 
 ## File Classification
@@ -366,6 +366,6 @@ Phase 242's CHANGELOG fold is expected to decrease R3. Keep the counters indepen
 
 ## Metadata
 
-**Analog search scope:** `.github/workflows`, `scripts/ci`, `scripts/ci/prohibitions`, `test/sigra/planning`, `test/fixtures/prohibitions`, `.planning/decisions`, Phase 241 artifacts, release/docs sources  
-**Files scanned:** 19 tracked analogs plus Phase 242 context/research  
+**Analog search scope:** `.github/workflows`, `scripts/ci`, `scripts/ci/prohibitions`, `test/sigra/planning`, `test/fixtures/prohibitions`, `.planning/decisions`, Phase 241 artifacts, release/docs sources
+**Files scanned:** 19 tracked analogs plus Phase 242 context/research
 **Pattern extraction date:** 2026-09-20
