@@ -1,0 +1,74 @@
+name: Hex remediation for phantom sigra 1.20.0
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hex-remediate-phantom-sigra-1-20-0
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    name: Retire invalid release and revert its docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Install current Hex client
+        run: mix local.hex --force
+      - name: BEFORE public package observation
+        run: scripts/ci/hex-remediation-verify.sh capture before public-remediation-evidence/before.json
+      - name: Retire sigra 1.20.0 after observed state
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${HEX_API_KEY:-}" || { echo "HEX_API_KEY is unavailable" >&2; exit 1; }
+          retirements="$(jq -c '.package.retirements' public-remediation-evidence/before.json)"
+          if jq -e --arg version '1.20.0' 'any(.[]?; .version == $version and .reason == "invalid")' <<<"$retirements" >/dev/null; then
+            echo "Retirement already achieved; recording idempotent no-op."
+          elif mix hex.retire sigra 1.20.0 invalid 'Retired: use the supported ~> 1.5.0 requirement instead.' --yes; then
+            echo "Retirement command completed."
+          else
+            scripts/ci/hex-remediation-verify.sh capture after_retire public-remediation-evidence/after_retire.json
+            jq -e --arg version '1.20.0' 'any(.package.retirements[]?; .version == $version and .reason == "invalid")' public-remediation-evidence/after_retire.json >/dev/null || exit 1
+            echo "Retirement was achieved despite command error; no blind retry."
+          fi
+      - name: AFTER_RETIRE public package observation
+        run: scripts/ci/hex-remediation-verify.sh capture after_retire public-remediation-evidence/after_retire.json
+      - name: Revert only sigra 1.20.0 docs after observed state
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${HEX_API_KEY:-}" || { echo "HEX_API_KEY is unavailable" >&2; exit 1; }
+          if mix hex.publish docs --revert 1.20.0; then
+            echo "Docs-only revert command completed."
+          else
+            scripts/ci/hex-remediation-verify.sh classify-root public-remediation-evidence/hexdocs_root.json
+            echo "Docs root is already current after command error; no blind retry."
+          fi
+      - name: AFTER_DOCS_REVERT public package observation
+        run: scripts/ci/hex-remediation-verify.sh capture after_docs_revert public-remediation-evidence/after_docs_revert.json
+      - name: HEXDOCS_ROOT classification
+        run: scripts/ci/hex-remediation-verify.sh classify-root public-remediation-evidence/hexdocs_root.json
+      - name: RESOLVER_BROAD fresh proof
+        run: scripts/ci/hex-remediation-verify.sh resolver broad public-remediation-evidence/resolver_broad.json
+      - name: RESOLVER_SAFE fresh proof
+        run: scripts/ci/hex-remediation-verify.sh resolver safe public-remediation-evidence/resolver_safe.json
+      - name: Validate public remediation receipt
+        run: scripts/ci/hex-remediation-verify.sh validate public-remediation-evidence public-remediation-evidence/receipt.json
+      - name: Upload public remediation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hex-remediation-public-evidence
+          path: public-remediation-evidence
+          if-no-files-found: error
+          retention-days: 90
