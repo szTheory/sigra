@@ -339,19 +339,19 @@ The existing script defaults to 36 attempts and 10-second waits, fails on timeou
 | # | Claim | Section | Risk if Wrong |
 |---|---|---|---|
 | A1 | No OS-level registered state participates in this cloud-only remediation. | Runtime State Inventory | A hidden scheduled local workflow could retain obsolete manual instructions. |
-| A2 | The supported noninteractive contract is an API-write key in `HEX_API_KEY` plus the documented `mix hex.retire ... invalid --message ...` form; the protected key's actual authorization remains a fail-closed runtime assertion, never an interactive fallback. | Architecture Patterns | A permission or client-auth change blocks the one authorized run without permitting redispatch. |
+| A2 | The exact current Hex client behavior for an API key versus OTP/device-flow must be established by the actual protected workflow without exposing credentials. | Architecture Patterns | A previously valid noninteractive invocation could fail before mutation. |
 
-## Open Questions (resolved for execution)
+## Open Questions
 
-1. **(RESOLVED) Does the existing `HEX_API_KEY` complete both current Hex mutations without an OTP/device-flow prompt?**
-   - Established contract: Hex documents API-write keys through `HEX_API_KEY` for noninteractive CI, and the supported retirement form is `mix hex.retire sigra 1.20.0 invalid --message MESSAGE`; neither official task requires an interactive confirmation flag on that API-key path. [CITED: https://hex.pm/docs/publish] [CITED: https://hex.hexdocs.pm/Mix.Tasks.Hex.Retire.html]
-   - Historical evidence: run `35554955828` reached the protected retirement step with the key present and masked, then stopped because the client rejected the unsupported `--yes` option before any mutation. The landed correction at `907d875f` uses the documented `--message` form and its p22 assertion passed; this proves the command shape, not that the live protected key has permission for both writes. [VERIFIED: `ee61cfb3:.../242-03-SUMMARY.md`] [VERIFIED: `907d875f:.github/workflows/hex-remediate-phantom.yml`] [VERIFIED: `907d875f:scripts/ci/prohibitions/p22-hex-remediation.test.mjs`]
-   - Resolution and runtime gate: no design choice remains. Plan 10 first proves the corrected command and p22 contract from freshly fetched `origin/main`, then its one authorized dispatch tests the protected credential in situ. Any authorization error, OTP/device-flow prompt, or other nonzero mutation outcome is classified and halts with no interactive fallback, no evidence promotion, and no redispatch. Success may be claimed only from the validated public receipt.
+1. **Does the existing `HEX_API_KEY` complete both current Hex mutations without an OTP/device-flow prompt?**
+   - What we know: the existing release lanes pass the key as environment only, and Hex documents API-write keys for CI publishing. [VERIFIED: .github/workflows/release-please.yml:244-254] [CITED: https://hex.pm/docs/publish]
+   - What's unclear: client/credential-specific retire and docs-revert behavior cannot be proven without using the protected secret.
+   - Recommendation: add a no-echo preflight and let the dedicated workflow fail closed before committing evidence; do not add an interactive fallback.
 
-2. **(RESOLVED) What does HexDocs root routing do after the docs-only revert, and does the package API field change?**
-   - Established contract: Hex supports reverting hosted documentation independently with `mix hex.publish docs --revert 1.20.0`; this is distinct from the expired package-tarball revert. Hex does not document a guaranteed root-routing or package-metadata transition from that docs operation, so neither outcome is assumed. [CITED: https://hex.hexdocs.pm/Mix.Tasks.Hex.Publish.html]
-   - Historical evidence: run `35554955828` failed before AFTER_RETIRE, the docs revert, root classification, and final package observation, so it establishes no post-docs outcome. The corrected workflow instead records AFTER_RETIRE before the docs write, AFTER_DOCS_REVERT afterward, and a separate root classification. [VERIFIED: `ee61cfb3:.../242-03-SUMMARY.md`] [VERIFIED: `907d875f:.github/workflows/hex-remediate-phantom.yml`]
-   - Resolution and runtime gate: the behavior is intentionally an output of the one authorized dispatch, not an unresolved implementation decision or a pre-observed fact. Completion requires a schema-valid causal receipt whose root class is `current_1_5`, whose package projection retains the invalid `1.20.0` retirement, and whose observed `latest_stable_version` values are reported verbatim. An ambiguous root, missing/changed projection, validator disagreement, or failed independent public re-read halts without evidence promotion, inference, or redispatch.
+2. **What does HexDocs root routing do after the docs-only revert, and does the package API field change?**
+   - What we know: docs update/revert is independently permitted; current public API reports `latest_stable_version` `1.20.0` and `retirements` empty. [CITED: https://hex.hexdocs.pm/Mix.Tasks.Hex.Publish.html] [VERIFIED: live Hex API query, 2026-09-20]
+   - What's unclear: the root default is an observed hosting behavior, not a published contract for this phase.
+   - Recommendation: make the post-docs API projection and root HTML/title/source-link observation acceptance artifacts, and report exactly what they show.
 
 ## Environment Availability
 
