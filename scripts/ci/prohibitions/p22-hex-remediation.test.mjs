@@ -33,7 +33,7 @@ function violations(raw) {
   need(mutationSteps.length === 2, 'exactly two mutation steps are required');
   need(secretRefs.length === 2 && mutationSteps.every((step) => step.includes('secrets.HEX_API_KEY')) && steps.filter((step) => !mutationSteps.includes(step)).every((step) => !step.includes('HEX_API_KEY')), 'HEX_API_KEY must be scoped only to the two mutation step bodies');
   need(!/set\s+-[A-Za-z]*x/.test(workflow), 'shell tracing is forbidden in remediation workflow');
-  need(workflow.includes(`mix hex.retire sigra 1.20.0 invalid '${message}' --yes`) && /^[\x20-\x7E]{1,140}$/.test(message), 'retire command must have exact fixed ASCII target, reason, and bounded message');
+  need(workflow.includes(`mix hex.retire sigra 1.20.0 invalid --message '${message}'`) && /^[\x20-\x7E]{1,140}$/.test(message), 'retire command must have exact fixed ASCII target, reason, and bounded message');
   need(workflow.includes('mix hex.publish docs --revert 1.20.0') && !/mix\s+hex\.publish\s+--revert\b/.test(workflow), 'only the docs revert command class is allowed');
   need(workflow.indexOf('AFTER_RETIRE public package observation') > workflow.indexOf('Retire sigra 1.20.0 after observed state') && workflow.indexOf('Revert only sigra 1.20.0 docs after observed state') > workflow.indexOf('AFTER_RETIRE public package observation'), 'retirement must precede docs revert with a causal observation');
   need(/elif mix hex\.retire[\s\S]*?else[\s\S]*?capture after_retire/.test(workflow) && /if mix hex\.publish docs --revert 1\.20\.0; then[\s\S]*?else[\s\S]*?classify-root/.test(workflow), 'each mutation must read after error instead of blindly retrying');
