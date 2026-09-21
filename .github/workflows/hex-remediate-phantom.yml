@@ -33,7 +33,7 @@ jobs:
           retirements="$(jq -c '.package.retirements' public-remediation-evidence/before.json)"
           if jq -e --arg version '1.20.0' 'any(.[]?; .version == $version and .reason == "invalid")' <<<"$retirements" >/dev/null; then
             echo "Retirement already achieved; recording idempotent no-op."
-          elif mix hex.retire sigra 1.20.0 invalid 'Retired: use the supported ~> 1.5.0 requirement instead.' --yes; then
+          elif mix hex.retire sigra 1.20.0 invalid --message 'Retired: use the supported ~> 1.5.0 requirement instead.'; then
             echo "Retirement command completed."
           else
             scripts/ci/hex-remediation-verify.sh capture after_retire public-remediation-evidence/after_retire.json
