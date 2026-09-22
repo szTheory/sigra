@@ -324,7 +324,10 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   4. An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision and states that retirement moves neither `latest_stable_version` nor resolution.
   5. `sigra 1.5.1` is listed on the Hex API as a published release, cut from a gate observed green, with the `## Unreleased` CHANGELOG block folded into the release section **before** PR #224 merges, and `scripts/ci/release-post-publish-verify.sh` passing on the publish path.
 
-**Plans**: TBD
+**Plans**: 14 plans (Plans 06–09 are superseded by the user-authorized safety closeout; Plan 14 is pending)
+
+Plans:
+- [ ] 242-14-PLAN.md — Record the safety closeout, retire the unexecuted mutation/release path, and route any future registry work to a separately authorized phase.
 
 ### Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
 
