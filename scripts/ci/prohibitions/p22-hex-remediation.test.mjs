@@ -7,6 +7,7 @@ import { readRepoFile, readSubject, jobBlock, stripYamlComments } from './_lib.m
 const SUBJECT = '.github/workflows/hex-remediate-phantom.yml';
 const REQUIRED_SLOTS = ['before', 'after_retire', 'after_docs_revert', 'hexdocs_root', 'resolver_broad', 'resolver_safe'];
 const MUTATIONS = ['Retire sigra 1.20.0 after observed state', 'Revert only sigra 1.20.0 docs after observed state'];
+const DEPENDENCY_STEP = 'Fetch locked project dependencies';
 
 function stepBlocks(job) {
   return job.split(/(?=^ {6}- name: )/m).filter((block) => /^ {6}- name: /m.test(block));
@@ -22,6 +23,7 @@ function violations(raw) {
   const steps = stepBlocks(job);
   const actionRefs = [...raw.matchAll(/^\s*(?:-\s+)?uses: ([^\s]+)\s+# (v\d+\.\d+\.\d+)$/gm)];
   const mutationSteps = steps.filter((step) => MUTATIONS.some((name) => step.includes(`name: ${name}`)));
+  const dependencySteps = steps.filter((step) => step.includes(`name: ${DEPENDENCY_STEP}`));
   const secretRefs = [...workflow.matchAll(/secrets\.HEX_API_KEY/g)];
   const message = 'Retired: use the supported ~> 1.5.0 requirement instead.';
 
@@ -31,6 +33,7 @@ function violations(raw) {
   need(steps.length >= 10, 'step parse must locate the remediation sequence');
   need(actionRefs.length >= 3 && actionRefs.every(([, action, version]) => /@[0-9a-f]{40}$/.test(action) && /^v\d+\.\d+\.\d+$/.test(version)), 'actions must use immutable annotated SHA pins');
   need(mutationSteps.length === 2, 'exactly two mutation steps are required');
+  need(dependencySteps.length === 1 && dependencySteps[0].includes('mix deps.get --check-locked') && !dependencySteps[0].includes('HEX_API_KEY') && MUTATIONS.every((name) => workflow.indexOf(DEPENDENCY_STEP) < workflow.indexOf(name)), 'locked dependency setup must occur exactly once before either mutation without HEX_API_KEY');
   need(secretRefs.length === 2 && mutationSteps.every((step) => step.includes('secrets.HEX_API_KEY')) && steps.filter((step) => !mutationSteps.includes(step)).every((step) => !step.includes('HEX_API_KEY')), 'HEX_API_KEY must be scoped only to the two mutation step bodies');
   need(!/set\s+-[A-Za-z]*x/.test(workflow), 'shell tracing is forbidden in remediation workflow');
   need(workflow.includes(`mix hex.retire sigra 1.20.0 invalid --message '${message}'`) && /^[\x20-\x7E]{1,140}$/.test(message), 'retire command must have exact fixed ASCII target, reason, and bounded message');
@@ -64,4 +67,9 @@ test('broadened fixture reports fixed target, no-input, permission, and concurre
 test('unsafe-secret fixture reports secret scope, tracing, and docs-only revert drift', () => {
   const errors = violations(readRepoFile('test/fixtures/prohibitions/p22-hex-remediation-unsafe-secret.yml'));
   for (const expected of ['HEX_API_KEY must be scoped only to the two mutation step bodies', 'shell tracing is forbidden in remediation workflow', 'only the docs revert command class is allowed']) assert.ok(errors.includes(expected), `missing diagnostic: ${expected}`);
+});
+
+test('missing-deps fixture reports the dependency-before-mutation guard', () => {
+  const errors = violations(readRepoFile('test/fixtures/prohibitions/p22-hex-remediation-missing-deps.yml'));
+  assert.ok(errors.includes('locked dependency setup must occur exactly once before either mutation without HEX_API_KEY'));
 });
