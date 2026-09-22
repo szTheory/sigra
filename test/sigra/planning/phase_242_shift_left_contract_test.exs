@@ -16,6 +16,12 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
 
   defp root, do: Path.expand("../../..", __DIR__)
 
+  defp section(content, start_marker, end_marker) do
+    [_before, rest] = String.split(content, start_marker, parts: 2)
+    [section | _after] = String.split(rest, end_marker, parts: 2)
+    section
+  end
+
   test "public install snippets use the bounded maintained line" do
     Enum.each(@public_install_files, fn relative_path ->
       content = root() |> Path.join(relative_path) |> File.read!()
@@ -31,16 +37,31 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
   end
 
   test "public safety guidance makes no unproven registry or documentation repair claim" do
-    for relative_path <- ["CHANGELOG.md", "guides/introduction/troubleshooting-install.md"] do
-      content = root() |> Path.join(relative_path) |> File.read!()
+    changelog = root() |> Path.join("CHANGELOG.md") |> File.read!()
 
-      refute content =~ "1.20.0 is retired", "#{relative_path} claims an unproven retirement"
+    changelog_unreleased = section(changelog, "## Unreleased", "## [1.5.0]")
 
-      refute content =~ "warns that Sigra `1.20.0` is retired",
-             "#{relative_path} claims an unproven retirement warning"
+    troubleshooting =
+      root()
+      |> Path.join("guides/introduction/troubleshooting-install.md")
+      |> File.read!()
+      |> section("## Selecting the maintained dependency line", "## Upgrading between Sigra versions")
 
-      refute content =~ "current [Sigra HexDocs]",
-             "#{relative_path} claims an unproven HexDocs outcome"
+    assert changelog_unreleased =~ "does not claim a registry retirement, HexDocs revert, resolver"
+    assert Regex.match?(~r/does not depend on\s+registry metadata to rewrite an existing lockfile/s, troubleshooting)
+
+    for {name, content} <- [changelog: changelog_unreleased, troubleshooting: troubleshooting] do
+      refute Regex.match?(~r/1\.20\.0.{0,120}\bretir(?:ed|ement)\b/is, content),
+             "#{name} claims an unproven retirement"
+
+      refute Regex.match?(~r/\b(?:current|now)\b.{0,80}\bhexdocs\b/is, content),
+             "#{name} claims an unproven HexDocs outcome"
+
+      refute Regex.match?(~r/\b(?:registry|resolver|lockfile)\b.{0,80}\b(?:repair(?:ed)?|fix(?:ed)?)\b/is, content),
+             "#{name} claims an unproven resolver repair"
+
+      refute Regex.match?(~r/\b(?:1\.5\.1|release)\b.{0,80}\b(?:publish(?:ed)?|complet(?:ed|ion)|cut)\b/is, content),
+             "#{name} claims an unproven release outcome"
     end
   end
 end
