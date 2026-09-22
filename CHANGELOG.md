@@ -19,6 +19,12 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+- Installation guidance now uses `{:sigra, "~> 1.5.0"}` to select the maintained 1.5 line.
+- Sigra `1.20.0` is retired as an invalid release and warns existing broad dependency selections;
+  current root documentation explains the safe upgrade path.
+- This patch also restores current root documentation and includes maintenance and reliability
+  improvements for a more dependable release experience.
+
 ## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
 
 ### Added
