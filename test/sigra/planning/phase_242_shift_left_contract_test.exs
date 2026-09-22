@@ -29,4 +29,18 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
     refute File.exists?(Path.join(root(), ".github/workflows/hex-remediate-phantom.yml"))
     refute File.exists?(Path.join(root(), "scripts/ci/prohibitions/p22-hex-remediation.test.mjs"))
   end
+
+  test "public safety guidance makes no unproven registry or documentation repair claim" do
+    for relative_path <- ["CHANGELOG.md", "guides/introduction/troubleshooting-install.md"] do
+      content = root() |> Path.join(relative_path) |> File.read!()
+
+      refute content =~ "1.20.0 is retired", "#{relative_path} claims an unproven retirement"
+
+      refute content =~ "warns that Sigra `1.20.0` is retired",
+             "#{relative_path} claims an unproven retirement warning"
+
+      refute content =~ "current [Sigra HexDocs]",
+             "#{relative_path} claims an unproven HexDocs outcome"
+    end
+  end
 end
