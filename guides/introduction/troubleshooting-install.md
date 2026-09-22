@@ -32,6 +32,17 @@ Common failures when adding Sigra to a Phoenix 1.8+ app and how to fix them.
 
 **Fix:** Ensure CI starts Postgres and sets `PG*` (or your repo’s convention). Sigra’s own workflows use strict jobs — mirror the same services block for host apps.
 
+## Retirement warning for `1.20.0`
+
+**Symptom:** `mix deps.get` warns that Sigra `1.20.0` is retired, or your `mix.lock`
+already records that version.
+
+**Fix:** Use `{:sigra, "~> 1.5.0"}` in `mix.exs`. Remove or update only Sigra's stale
+lock entry through normal Mix dependency resolution, then run `mix deps.get` again.
+Retirement is advisory: it warns about an existing selection but does not rewrite a lockfile
+or make the version ineligible. See the current [Sigra HexDocs](https://hexdocs.pm/sigra/)
+for installation guidance.
+
 ## Upgrading between Sigra versions
 
 **Symptom:** You are on an older **`{:sigra, ...}`** line and want a safe bump.
