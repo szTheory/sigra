@@ -47,8 +47,32 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
       |> File.read!()
       |> section("## Selecting the maintained dependency line", "## Upgrading between Sigra versions")
 
-    assert changelog_unreleased =~ "does not claim a registry retirement, HexDocs revert, resolver"
-    assert Regex.match?(~r/does not depend on\s+registry metadata to rewrite an existing lockfile/s, troubleshooting)
+    assert String.trim(changelog_unreleased) ==
+             """
+             <!--
+             MAINTAINER WARNING — Release Please inserts each generated version section BELOW this
+             block, never into it. Anything written here must be folded by hand into the new version
+             section while the Release PR is still open. If it is not, these notes ship inside a
+             released package that still carries the \"Unreleased\" heading — and CHANGELOG.md is
+             packaged into the Hex tarball, so the mistake is permanent for that release.
+             -->
+
+             - Installation guidance now uses `{:sigra, \"~> 1.5.0\"}` to select the maintained 1.5 line.
+             - The bounded source guidance does not claim a registry retirement, HexDocs revert, resolver
+               observation, or release outcome.
+             """
+             |> String.trim()
+
+    assert String.trim(troubleshooting) ==
+             """
+             **Symptom:** Your `mix.lock` records a Sigra version outside the maintained 1.5 line.
+
+             **Fix:** Use `{:sigra, \"~> 1.5.0\"}` in `mix.exs`. Remove or update only Sigra's stale
+             lock entry through normal Mix dependency resolution, then run `mix deps.get` again.
+             The three-segment requirement constrains Mix to `>= 1.5.0 and < 1.6.0`; it does not depend on
+             registry metadata to rewrite an existing lockfile or resolver result.
+             """
+             |> String.trim()
 
     for {name, content} <- [changelog: changelog_unreleased, troubleshooting: troubleshooting] do
       refute Regex.match?(~r/1\.20\.0.{0,120}\bretir(?:ed|ement)\b/is, content),
