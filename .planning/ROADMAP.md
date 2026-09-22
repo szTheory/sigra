@@ -75,7 +75,7 @@
 - [x] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree (completed 2026-09-18)
 - [x] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence (completed 2026-09-18)
 - [ ] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture
-- [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
+- [x] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1 (completed 2026-09-22)
 - [ ] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
 - [ ] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
 - [ ] **Phase 245: Branch Prune — Local and Remote** - Destructive and PR-coupled, so it goes last, with every pre-prune SHA still resolvable afterward
@@ -302,6 +302,7 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
+
 - [ ] 241-01-PLAN.md — ADR 004 + delete the orphaned timing formatter, with the cross-ref consumer sweep recorded (DEBT-01, wave 1)
 - [ ] 241-02-PLAN.md — rewrite `phase_233` to assert the single-owner guarantee, RED-first on a committed known-bad `ci.yml` (DEBT-02, wave 2)
 - [ ] 241-03-PLAN.md — write `p21-honest-skip-parity.test.mjs`, observe it RED on HEAD's `MAINTAINING.md`, then correct the doc and the manifest citation (DEBT-03, wave 1)
@@ -326,6 +327,7 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 **Plans**: 14 plans (Plans 06–09 are superseded by the user-authorized safety closeout; Plan 14 completes the closeout)
 
 Plans:
+
 - [x] 242-14-PLAN.md — Record the safety closeout, retire the unexecuted mutation/release path, and route any future registry work to a separately authorized phase.
 
 ### Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
@@ -381,7 +383,7 @@ Plans:
 | 239. `priv/templates/` Sweep + Re-bless | 16/16 | Complete    | 2026-09-18 |
 | 240. Green-Main Evidence + Honest Pages Script | 5/5 | Complete    | 2026-09-18 |
 | 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |
-| 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
+| 242. Hex Retire + Docs Revert + Cut 1.5.1 | 10/10 | Complete    | 2026-09-22 |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |
 | 244. `@playwright/test` Bump, Alone | 0/? | Not started | - |
 | 245. Branch Prune | 0/? | Not started | - |
