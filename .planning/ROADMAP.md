@@ -311,28 +311,27 @@ Plans:
 
 Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393` are **stale**. The real rot is in the honest-skip section (five rots, two unnamed by D-15) and the prohibitions glob `run:` was at `ci.yml:408` at planning HEAD. Every coordinate is re-located by content at execution time.
 
-### Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+### Phase 242: Safety Closeout for Phantom Release Adoption
 
-**Goal**: An adopter landing on Sigra's Hex page reads current documentation, is warned about the phantom `1.20.0`, and can install a real release — and the project's own record states plainly what the retire did and did not fix.
-**Depends on**: Phase 240 (green-gate evidence), Phase 238 (namespace guard in place before release-please tags `v1.5.1`), Phase 239 (the tarball ships clean)
+**Goal**: An adopter receives a bounded, source-controlled `{:sigra, "~> 1.5.0"}` install path while the project record truthfully preserves the failed remediation evidence and makes no claim that Hex, HexDocs, or a release was repaired.
+**Depends on**: Phase 240 (green-gate evidence), Phase 238 (namespace guard), Phase 239 (the tarball ships clean)
 **Requirements**: REL-03, REL-04, REL-05, REL-06
 **Success Criteria** (what must be TRUE):
 
-  1. `GET https://hex.pm/api/packages/sigra` is captured as **committed pre/post artifacts**, and the post artifact's `retirements` field contains `1.20.0` with reason `invalid` — executed by a `workflow_dispatch` job under the existing `secrets.HEX_API_KEY` (the same non-interactive `api:write` path `hex-publish.yml:180-187` already uses), **not** an interactive operator runbook. The write key is never pasted into any plan, evidence file, or commit message — this is a public repo.
-  2. The milestone states the truth about resolution, positively asserted: `latest_stable_version` is **still `1.20.0`** post-retire, and in a clean `HEX_HOME` a `{:sigra, "~> 1.0"}` `mix deps.get` resolves `1.20.0` while printing `RETIRED!`, and `{:sigra, "~> 1.5"}` resolves 1.5.x cleanly. `HEX_IGNORE_RETIREMENTS` is never set — the warning *is* the proof. No artifact in this milestone claims the retire fixed resolution.
-  3. `https://hexdocs.pm/sigra/` serves **1.5.x** documentation instead of "Sigra v1.20.0" — title read live after `mix hex.publish docs --revert 1.20.0` (the *docs* revert, which has no time limit; the release-tarball revert's window closed in 2026-04 and is never attempted). Whether the docs revert also moves `latest_stable_version` is **measured** from the pre/post artifacts and reported, never assumed.
-  4. An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision and states that retirement moves neither `latest_stable_version` nor resolution.
-  5. `sigra 1.5.1` is listed on the Hex API as a published release, cut from a gate observed green, with the `## Unreleased` CHANGELOG block folded into the release section **before** PR #224 merges, and `scripts/ci/release-post-publish-verify.sh` passing on the publish path.
+  1. The dedicated phantom-remediation workflow and its p22 guard are absent from the repository, so no stale Phase 242 plan can dispatch a registry mutation.
+  2. The ten owned public installation snippets use `{:sigra, "~> 1.5.0"}` and the Phase 242 contract proves that bounded source surface.
+  3. Raw halt records for runs 35554955828, 35709493996, and 35714147650 are preserved with SHA-256 references; none is reported as a validated retirement, docs revert, resolver observation, or release receipt.
+  4. Plans 06–09 are superseded without execution. Any future registry mutation, HexDocs revert, or release work requires a separately scoped phase and fresh explicit authorization.
 
-**Plans**: 14 plans (Plans 06–09 are superseded by the user-authorized safety closeout; Plan 14 is pending)
+**Plans**: 14 plans (Plans 06–09 are superseded by the user-authorized safety closeout; Plan 14 completes the closeout)
 
 Plans:
-- [ ] 242-14-PLAN.md — Record the safety closeout, retire the unexecuted mutation/release path, and route any future registry work to a separately authorized phase.
+- [x] 242-14-PLAN.md — Record the safety closeout, retire the unexecuted mutation/release path, and route any future registry work to a separately authorized phase.
 
 ### Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
 
 **Goal**: The open-PR and todo backlog reflects live work only, with every merged bump's real version verified and nothing quietly fixed along the way.
-**Depends on**: Phase 242 (drain after the cut, so the release ships nothing that never ran a full green)
+**Depends on**: Phase 242 safety closeout; Phase 243 does not assume that a 1.5.1 release was cut.
 **Requirements**: QUEUE-01, QUEUE-03, QUEUE-04
 **Success Criteria** (what must be TRUE):
 

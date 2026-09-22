@@ -3,18 +3,18 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 242
-current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
-status: executing
-stopped_at: Completed 242-02-PLAN.md
-last_updated: "2026-09-21T01:51:50.132Z"
-last_activity: 2026-09-21
-last_activity_desc: Phase 242 Plan 02 merged fixed remediation infrastructure; continuation anchored at observed main merge
-state_head: 154dd679d0bd0fc18b5d2142c8633c3aa9822ec5
+current_phase_name: Safety Closeout for Phantom Release Adoption
+status: complete
+stopped_at: Completed 242-14-PLAN.md
+last_updated: "2026-09-22T20:32:18.339Z"
+last_activity: 2026-09-22
+last_activity_desc: Phase 242 reconciled with a bounded-install safety contract; registry and release outcomes remain unproven
+state_head: 15e3c2ea
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 43
-  completed_plans: 37
+  total_plans: 56
+  completed_plans: 44
   percent: 50
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+**Current focus:** Phase 243 — Drain the Queue; Phase 242 is closed as a safety reconciliation
 
 ## Current Position
 
-Phase: 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
-Plan: 3 of 9
-Status: Ready to execute
-Last activity: 2026-09-21 — Plan 02 merged fixed remediation infrastructure; continuation anchored at observed main merge
+Phase: 242 — Safety Closeout for Phantom Release Adoption
+Plan: 14 of 14
+Status: Complete as a safety closeout; no registry, HexDocs, resolver, or release outcome is claimed repaired
+Last activity: 2026-09-22 — Plan 14 preserved halt evidence, retained the bounded `{:sigra, "~> 1.5.0"}` contract, and superseded Plans 06–09
 
 ### v1.48 phase map
 
@@ -45,7 +45,7 @@ Last activity: 2026-09-21 — Plan 02 merged fixed remediation infrastructure; c
 | 239 | `priv/templates/` Sweep + One Batched Re-bless | SURF-01, SURF-03 |
 | 240 | Green-Main Evidence + Honest Pages Script | GREEN-04, GREEN-05 |
 | 241 | Retire v1.47's Dishonest Debt + Adopter-Leakage Guard | DEBT-01..04, SURF-04 |
-| 242 | Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1 | REL-03..06 |
+| 242 | Safety Closeout for Phantom Release Adoption | REL-03..06 (superseded/safety-closeout) |
 | 243 | Drain the Queue — Dependabot A/B, Stale PRs, Todo Triage | QUEUE-01, QUEUE-03, QUEUE-04 |
 | 244 | `@playwright/test` 1.59.1 → 1.62.1, Alone | QUEUE-02 |
 | 245 | Branch Prune — Local and Remote | REPO-04 |
