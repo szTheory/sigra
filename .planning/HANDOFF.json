@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-23T00:55:25.922Z",
+  "phase": "241",
+  "phase_name": "Retire v1.47's Dishonest Debt + Adopter-Leakage Guard",
+  "phase_dir": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard",
+  "plan": 1,
+  "task": 0,
+  "total_tasks": 18,
+  "status": "paused",
+  "completed_tasks": [],
+  "remaining_tasks": [
+    {"id": "241-01", "name": "ADR 004 and orphaned formatter removal", "status": "not_started"},
+    {"id": "241-03", "name": "honest-skip parity guard", "status": "not_started"},
+    {"id": "241-04", "name": "composite-action pinning coverage", "status": "not_started"},
+    {"id": "241-05", "name": "p18 initial hard-fail classes", "status": "not_started"},
+    {"id": "241-02", "name": "library-economics contract", "status": "blocked_by_241-01"},
+    {"id": "241-06", "name": "p18 doc-range and ratchet", "status": "blocked_by_241-05"}
+  ],
+  "blockers": [
+    {
+      "description": "Do not execute from /Users/jon/projects/sigra while it is on agent-241-08; it is a divergent agent worktree with user-owned .planning changes.",
+      "type": "technical",
+      "workaround": "Resume from /private/tmp/sigra-242-execution on branch phase-242-execution, or first explicitly integrate that branch into the intended checkout."
+    }
+  ],
+  "async_jobs": [
+    {
+      "manifest": ".planning/async-jobs/phase-242-wave-3-worktrees.json",
+      "job_id": "phase-242-wave-3-worktrees",
+      "backend": "GSD worktree manifest",
+      "status": "stale_unresolved",
+      "expected_artifacts": ["Phase 242 summaries and worktree state"],
+      "verification_command": "git -C /private/tmp/sigra-242-execution/.claude/worktrees/agent-p242-03 status --porcelain",
+      "resume_command": "Inspect the manifest and each listed worktree before cleanup; do not delete it blindly."
+    }
+  ],
+  "human_actions_pending": [],
+  "decisions": [
+    {
+      "decision": "Treat Phase 242 as closed safety reconciliation, not a registry, HexDocs, resolver, or 1.5.1-release success.",
+      "rationale": "242-VERIFICATION.md passes 4/4 and explicitly supersedes the unsafe external-mutation plans.",
+      "phase": "242"
+    },
+    {
+      "decision": "Resume with Phase 241 execution.",
+      "rationale": "All six Phase 241 plans are present and runnable; it is the next incomplete dependency-ready phase.",
+      "phase": "241"
+    }
+  ],
+  "uncommitted_files": [
+    " M .planning/state.json",
+    "?? .planning/async-jobs/"
+  ],
+  "next_action": "From /private/tmp/sigra-242-execution on phase-242-execution, inspect the listed stale async-job worktrees, then run $gsd-execute-phase 241.",
+  "context_notes": "Phase 242 has an independently verified safety closeout at c0accadf. Preserve the current agent-241-08 checkout and its changes; it diverges from the completed execution branch."
+}
