@@ -24,3 +24,10 @@ them:
 Net: the composite action Phase 232 created will silently rot. Add a
 `github-actions` Dependabot entry for `/.github/actions/example-playwright-boot` and widen
 the pin guard's file set.
+
+## Phase 241 disposition — partially closed
+
+Phase 241 closes the pinning-guard half: the guard now discovers composite actions, inventories
+both dashed and bare `uses:` lines, and rejects floating refs through independently committed
+fixtures. The Dependabot half remains pending. Adding that entry requires changing the contract
+that intentionally locks Dependabot to three entries, which is outside DEBT-04's authorized scope.
