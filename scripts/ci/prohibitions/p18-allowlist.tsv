@@ -1,0 +1,2 @@
+# path	literal	reason
+priv/templates/sigra.gen.oauth/oauth_html.ex	M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0	FALSE-POSITIVE — SVG path coordinates. The vocabulary's three-digit-hyphen-two-digit alternation fires on a numeric coordinate pair inside committed Facebook-logo geometry; it is not prose or bookkeeping.
