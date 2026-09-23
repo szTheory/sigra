@@ -20,10 +20,11 @@ const rows = parseSkipManifest(readRepoFile(MANIFEST));
 const maintaining = readSubject('MAINTAINING.md');
 
 function honestSkipSection(text) {
-  const match = text.match(
-    /^### Honest-skip set after Phase 230[\s\S]*?(?=^#### Accepted residuals introduced by Phase 230|\z)/m,
-  );
-  return match?.[0] ?? '';
+  const heading = /^### Honest-skip set after Phase 230.*$/m.exec(text);
+  if (!heading) return '';
+  const fromHeading = text.slice(heading.index);
+  const nextSubsection = /^#### /m.exec(fromHeading.slice(1));
+  return nextSubsection ? fromHeading.slice(0, nextSubsection.index + 1) : fromHeading;
 }
 
 const section = honestSkipSection(maintaining);
