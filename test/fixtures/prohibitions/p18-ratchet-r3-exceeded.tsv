@@ -1,0 +1,9 @@
+# Three independent monotonic-decrease counters; equal or lower passes, increases fail. Zero is explicitly not the target.
+# R1 — @moduledoc/@doc/@shortdoc/@typedoc ranges under lib/, Phase 237 scanner vocabulary. Command: node --input-type=module -e 'import {docRangeTotal} from "./scripts/ci/prohibitions/_p18-lib.mjs"; console.log(docRangeTotal("lib"))'
+# R2 — comment-only lines in tracked lib/ Elixir sources matching Phase 239 V3. Command: node --input-type=module -e 'import {libraryCommentBookkeepingLines} from "./scripts/ci/prohibitions/_p18-lib.mjs"; console.log(libraryCommentBookkeepingLines())'
+# R3 — literal .planning/ occurrences in the Hex-packaged docs/, README.md, CHANGELOG.md files. Command: node --input-type=module -e 'import {packagedPlanningPathOccurrences} from "./scripts/ci/prohibitions/_p18-lib.mjs"; console.log(packagedPlanningPathOccurrences())'
+# If R2 is lowered, re-run the separate non-overlapping lib/ security-rationale count (research baseline 52) and confirm it did not fall.
+# counter\tbaseline\tsurface
+R1	337	lib doc-attribute ranges
+R2	220	lib comment-only lines
+R3	57	packaged documentation literal paths

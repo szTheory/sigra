@@ -15,6 +15,17 @@ audit_acknowledged:
   at: 2026-09-17
 ---
 
+## Phase 241 disposition — partially folded (2026-09-23)
+
+The V3 vocabulary defined here is the specification ported verbatim into
+`scripts/ci/prohibitions/_p18-lib.mjs` and is used by the SURF-04 guards. The two proposed
+widenings are **declined for v1.48** (D-29): case-folding the plan-reference alternatives raises
+the `lib/` comment-line counter from 220 to 221 (one additional line; folding the entire
+vocabulary is an upper bound), and block-aware matching remains an unmeasured false-positive risk.
+The lowercase `plan` reference in `test/example/priv/playwright/tests/golden-path.spec.ts:59`
+survives because `test/example/` is outside the ratcheted surfaces. This todo remains pending for a
+future phase that can evaluate those widenings without changing the locked v1.48 definition.
+
 ## What
 
 Phase 241 SURF-04 builds a permanent `scripts/ci/prohibitions/p18-*.test.mjs` guard against

@@ -200,6 +200,93 @@ export function assertClean(result, className) {
   }
 }
 
+const DOC_RANGE_REGEX_SOURCE = String.raw`(\.planning/|\bPhase \d{1,3}\b|\bphase[-_]\d{1,3}\b|\bD-\d{2}\b|\bSC-\d\b|\bREQ-[A-Z0-9]|\bPitfall \d\b|\bINV-\d|-PLAN\.md|-CONTEXT\.md|-SUMMARY\.md|\btodos/\b)`;
+const DOC_RANGE_START = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"""/;
+const DOC_RANGE_ONELINE = /^\s*@(moduledoc|doc|shortdoc|typedoc)\s+(~S)?"/;
+
+function docRangeFiles(relDir) {
+  const injected = process.env.GSD_PROHIB_SUBJECT;
+  if (injected) {
+    const absolute = resolve(REPO_ROOT, injected);
+    if (!existsSync(absolute)) {
+      throw new InstrumentFailure(`subject not found at ${absolute} — missing subject is a broken run`);
+    }
+    return [repoRelative(absolute)];
+  }
+  return gitFiles(relDir).filter((file) => /\.exs?$/.test(file));
+}
+
+/** Port of the Phase 237 Python doc-attribute state machine. */
+export function docRangeMeasurement(relDir = 'lib', tokenSource = DOC_RANGE_REGEX_SOURCE) {
+  const files = docRangeFiles(relDir);
+  if (files.length === 0) throw new InstrumentFailure(`empty doc-range file list for ${relDir}`);
+  const tokenRegex = new RegExp(tokenSource, 'g');
+  let total = 0;
+  let ranges = 0;
+  const hits = [];
+
+  const countLine = (line, file, lineNumber) => {
+    const found = [...line.matchAll(tokenRegex)];
+    total += found.length;
+    for (const match of found) hits.push(`${file}:${lineNumber}: ${match[0]}`);
+  };
+
+  for (const file of files) {
+    const lines = readFileSync(resolve(REPO_ROOT, file), 'utf8').split('\n');
+    let inBlock = false;
+    for (const [index, line] of lines.entries()) {
+      if (!inBlock) {
+        if (DOC_RANGE_START.test(line)) {
+          ranges += 1;
+          inBlock = true;
+          countLine(line, file, index + 1);
+          continue;
+        }
+        if (DOC_RANGE_ONELINE.test(line) && !line.includes('"""')) {
+          ranges += 1;
+          countLine(line, file, index + 1);
+          continue;
+        }
+      } else if (line.includes('"""')) {
+        inBlock = false;
+        countLine(line, file, index + 1);
+        continue;
+      } else {
+        countLine(line, file, index + 1);
+      }
+      tokenRegex.lastIndex = 0;
+    }
+  }
+  return { total, ranges, filesMeasured: files.length, hits };
+}
+
+export function docRangeTotal(relDir = 'lib') {
+  return docRangeMeasurement(relDir).total;
+}
+
+const PACKAGED_DOC_FILES = ['docs', 'README.md', 'CHANGELOG.md'];
+export function packagedPlanningPathOccurrences() {
+  const files = gitFiles(...PACKAGED_DOC_FILES);
+  if (files.length === 0) throw new InstrumentFailure('empty packaged-doc file list');
+  return files.reduce((sum, file) => {
+    const matches = readFileSync(resolve(REPO_ROOT, file), 'utf8').match(/\.planning\//g) || [];
+    return sum + matches.length;
+  }, 0);
+}
+
+export function libraryCommentBookkeepingLines() {
+  const files = gitFiles('lib').filter((file) => /\.exs?$/.test(file));
+  if (files.length === 0) throw new InstrumentFailure('empty lib comment file list');
+  const vocabulary = new RegExp(BOOKKEEPING_REGEX_SOURCE);
+  let total = 0;
+  for (const file of files) {
+    for (const line of readFileSync(resolve(REPO_ROOT, file), 'utf8').split('\n')) {
+      if (/^\s*#/.test(line) && vocabulary.test(line)) total += 1;
+    }
+  }
+  return total;
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [tier = 'adopter-surface', vocabularySource = BOOKKEEPING_REGEX_SOURCE] = process.argv.slice(2);
   try {
