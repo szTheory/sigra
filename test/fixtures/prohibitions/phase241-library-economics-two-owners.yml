@@ -1,0 +1,13 @@
+jobs:
+  library_tests_first:
+    steps:
+      - name: Run the library suite
+        run: MIX_ENV=test mix ci
+      - name: Generate documentation
+        run: mix docs --warnings-as-errors
+  library_tests_second:
+    steps:
+      - name: Run the library suite
+        run: MIX_ENV=test mix ci
+  ci-gate:
+    needs: [library_tests_first, library_tests_second]
