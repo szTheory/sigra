@@ -58,6 +58,18 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
       html = render(view)
       assert html =~ "Matching Actor"
       refute html =~ "Other Actor"
+
+      # render_submit/2 waits for the LiveView event response, so this second
+      # identical submit proves idempotence after the repeated transition has
+      # actually completed rather than merely re-reading the existing DOM.
+      repeated_html =
+        view
+        |> form("form[phx-submit='apply_filters']", %{"actor" => matching_actor.id})
+        |> render_submit()
+
+      assert_patch(view, "/admin/audit?#{expected_query}")
+      assert repeated_html =~ "Matching Actor"
+      refute repeated_html =~ "Other Actor"
     end
 
     test "global explorer preserves URL-driven filters across sort and pagination links", %{

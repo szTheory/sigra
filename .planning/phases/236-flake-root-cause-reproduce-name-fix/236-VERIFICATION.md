@@ -1,8 +1,8 @@
 ---
 phase: 236-flake-root-cause-reproduce-name-fix
-verified: 2026-09-20T03:06:32Z
+verified: 2026-09-24T15:54:42Z
 status: passed
-score: 5/5 must-haves verified
+score: 27/27 must-haves verified
 covered_files:
   - .github/workflows/ci.yml
   - .planning/REQUIREMENTS.md
@@ -22,16 +22,20 @@ covered_files:
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-SECURITY.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-UAT.md
   - .planning/research/STACK.md
+  - .planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md
+  - .planning/todos/resolved/2026-07-18-admin-audit-impersonation-filter-not-applying.md
+  - .planning/todos/resolved/2026-07-28-generated-host-parity-verified-on-no-pr-while-gate-reports-green.md
   - lib/sigra/admin/live/audit_index_live.ex
   - scripts/ci/prohibitions/p12-run-id-provenance.test.mjs
   - scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs
+  - test/example/priv/playwright/tests/admin-audit.spec.ts
   - test/example/test/example_web/live/admin_audit_index_live_test.exs
   - test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md
   - test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts
   - test/sigra/planning/phase_236_audit_url_ownership_test.exs
   - test/sigra/planning/phase_236_evidence_provenance_guard_test.exs
   - test/sigra/planning/phase_236_retry_wrapper_prohibition_test.exs
-covered_digest: "v1:sha256:c6a82eb1b78c8321f84d70917752a5871fb62888bec593c3f31fb6343edbd371"
+covered_digest: "v1:sha256:dcb2e8ee84d1249c22becae9c603d883aa8237a12bf33de5795b4c40b0fedaeb"
 behavior_unverified: 0
 overrides_applied: 1
 overrides:
@@ -39,23 +43,14 @@ overrides:
     reason: "D-30 scope boundary: the chip-remove and prev/next anchors are rendered by lib/sigra/admin/components.ex, shared with the two D-30-excluded views; converting them opens the forbidden PNG recapture lane. Export CSV remains a controller document navigation. Residue is tracked in .planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md."
     accepted_by: szTheory
     accepted_at: 2026-09-15T23:05:00Z
-re_verification:
-  previous_status: passed
-  previous_score: 5/5
-  gaps_closed:
-    - "T-236-03: Phase 236 RED provenance is now guarded by p12 in Fast checks."
-    - "T-236-15: the five-run GREEN claim is now guarded by p12 in Fast checks."
-  gaps_remaining: []
-  regressions: []
 ---
 
 # Phase 236: Flake Root Cause — Reproduce, Name, Fix — Verification Report
 
 **Phase Goal:** `main`'s aggregate gate stops flipping red on an unchanged SHA — because the `Generated admin Playwright smoke` failure has a named, fixed cause, not because it was retried into silence.
-
-**Verified:** 2026-09-19T22:13:09Z
+**Verified:** 2026-09-24T15:54:42Z
 **Status:** passed
-**Verification mode:** Initial-mode refresh: the preceding report had no `gaps:` block. This report independently includes the subsequent 236-05 provenance closure.
+**Verification mode:** Initial-mode refresh; the preceding report had no `gaps:` block. Its accepted D-30 scope override is retained.
 
 ## Goal Achievement
 
@@ -63,101 +58,127 @@ re_verification:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | A captured RED exists for the `toHaveURL` assertion before the fix. | ✓ VERIFIED | Live GitHub log for run `35004420339`, job `104500542292`, shows the failing `admin-generated.spec.ts:459` `toHaveURL` assertion and an `actor=`-absent received URL. The recorded local trace is present, 2,005,798 bytes, and `unzip -t` reports no archive errors. |
-| 2 | The differential names and fixes the cause without competing URL ownership on the failing path. | ✓ VERIFIED (accepted scope override) | `236-DIAGNOSIS.md` names a product race, rules out harness and DB alternatives, and records D-05 branch (a). `AuditIndexLive` has `phx-submit`, six patch links, a whitelisted `handle_event`, and no I/O outside `handle_params/3`; the LiveView contract test exercises submit → patch → filtered rows. The accepted D-30 exception is retained above. |
-| 3 | The affected job repeatedly passes after the fix and the reproduction no longer reproduces. | ✓ VERIFIED | GitHub API now reports `Generated admin Playwright smoke: success` for all five recorded PR runs (`35029916498`, `35030710957`, `35031404780`, `35032086557`, `35034938082`), all completed. The five retained after-fix batch logs each report `10 passed`, and p12 preserves the run-backed claim. |
-| 4 | Retry masking is mechanically rejected and the dead retry environment variable is gone. | ✓ VERIFIED | p17 passes on the real surface, fails its committed known-bad fixture with the named `process.env` retry message, and is reached by CI's Fast checks glob. The parsed ExUnit contract proves `PLAYWRIGHT_RETRIES` is absent while the target job's remaining environment persists. |
-| 5 | Quarantine is used only if the root cause cannot be fixed. | ✓ VERIFIED — N/A contingency | The product-race fix and repeated target-job evidence hold. No phase change added a quarantine row; the fallback did not trigger. |
+| 1 | A captured RED exists for the target `toHaveURL` failure before the fix. | ✓ VERIFIED | `236-EVIDENCE.md` records CI run `35004420339`, job `104500542292`, with the failing `:459` assertion and verbatim `actor=`-absent URL. The local `trace.zip` exists at the recorded path, is 2,005,798 bytes, and `unzip -t` succeeds. A fresh `gh run view` confirms the run concluded `failure` on `push`. |
+| 2 | The differential names and fixes the cause without competing URL ownership on the failing filter path. | PASSED (override) | `236-DIAGNOSIS.md` names the product race and distinguishes harness and DB alternatives. `AuditIndexLive` has `phx-submit`, six LiveView patch links, a whitelisted `handle_event`, and `handle_params/3` as loader. The connected LiveView test submits the actor filter, asserts the patch, and checks filtered rows. D-30's accepted scope override preserves the three shared-component anchors as a documented exception. |
+| 3 | The affected job passes on each recorded repeat and the original reproduction no longer reproduces. | ✓ VERIFIED | Live GitHub queries for runs `35029916498`, `35030710957`, `35031404780`, `35032086557`, and `35034938082` show the `Generated admin Playwright smoke` job succeeded each time. The completed Phase 236 UAT records the same contention-heavy reproduction at 50/50 passes against the fix. Run-level conclusions are failures from unrelated checks; the target job conclusion is success. |
+| 4 | Retry masking is mechanically rejected and the dead retry environment variable is gone. | ✓ VERIFIED | p17 passes against the real Playwright config, and its embedded negative control proves the committed retry-wrapper fixture is rejected. The p17 non-vacuity checks pass. `PLAYWRIGHT_RETRIES` is absent from CI, and the Phase 236 parsed ExUnit contract covers its removal. |
+| 5 | Quarantine is used only if the root cause cannot be fixed. | ✓ VERIFIED — N/A contingency | Evidence establishes and fixes a product race, so the quarantine contingency did not trigger. No quarantine entry was added. |
+| 6 | The D-05 received URL settles branch (a), and the written differential rules out the other two candidate causes with cited observations. | ✓ VERIFIED | Both CI and local evidence show the exact URL with no `actor=` key. The diagnosis cites the trace and separately explains why the observed failure is not a harness race or DB collision. |
+| 7 | The evidence ledger has a parseable `BEFORE-FLAKE-RED` slot with a run-backed status and producing commands. | ✓ VERIFIED | The default p12 run passed 12/12 checks across Phase 230 and Phase 236. Phase 236's six ledger checks validate slot grammar, run-id presence/corroboration, and producing commands. |
+| 8 | The remaining chip-remove and pagination anchors are an explicit tracked exception. | ✓ VERIFIED | The D-30 pending todo names the three `/admin/audit` shared-component anchors and the two other affected views. The accepted override records why conversion is outside Phase 236's snapshot scope. |
+| 9 | The filter form keeps its GET fallback and scoped action while LiveView owns connected submission through a parameter whitelist and local patch. | ✓ VERIFIED | `audit_index_live.ex` renders `method="get"`, `action={index_path(@admin_scope)}`, `phx-submit="apply_filters"`; `handle_event/3` applies `Map.take/2`, builds through `index_path/1`, and calls `push_patch/2`. `index_path/1` resolves current organization scope to `/admin/organizations/{slug}/audit` and global scope to `/admin/audit`, keeping patches within the active admin LiveView session. The connected integration test exercises submit → patch → reload. |
+| 10 | The six named in-view filter/sort/clear links use patches while CSV remains document navigation. | ✓ VERIFIED | Source inspection confirms six `<.link patch>` transitions and the plain `<a href>` CSV route. The ownership contract test pins these shapes. |
+| 11 | The navigation change preserves rendered output and opens no screenshot recapture. | ✓ VERIFIED | The completed UAT records `snapshot-canary-guard.sh --base origin/main` PASS with zero changed slugs; phase code has not changed since the prior report. |
+| 12 | Submitting identical filter values twice is an observable no-op on the second submit. | ✓ VERIFIED | `admin_audit_index_live_test.exs` synchronously submits identical filters twice, then `assert_patch/2` confirms the second response settles on the same expected URL and the returned HTML retains only the matching rows. Focused ExUnit run: 5 tests, 0 failures. |
+| 13 | A pre-connect/dead-render submit falls back to native GET and yields the same filtered state as connected patch submission. | ✓ VERIFIED | `admin-audit.spec.ts` opens `/admin/audit` in a JavaScript-disabled context, confirms no connected LiveView exists, submits the filter through the native form, and compares rendered rows with the connected result. Other optional controls remain blank on this GET. The focused Chromium run passed (1 test). |
+| 14 | Five sequential PR runs show the target job green, and the unchanged reproduction produces no target assertion failures. | ✓ VERIFIED | Current GitHub API responses confirm all five named jobs succeeded and were pull-request runs. Phase 236 UAT records five batches totaling 50/50 local passes under the original host contention profile. |
+| 15 | The after-fix evidence slot records its five run IDs and final committed HEAD provenance. | ✓ VERIFIED | p12 validates the three Phase 236 slots and run-id corroboration. The ledger records final phase HEAD `620991620d9dc93dd0ec2115e92eff67f26885b7`, matching the fifth run SHA at capture time, plus the then-clean tracked tree. |
+| 16 | The named residual race surfaces are deferred to a durable todo. | ✓ VERIFIED | `.planning/todos/pending/2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md` records the other views and the three remaining shared-component anchors. |
+| 17 | p17 is non-vacuous and rejects retry wrappers with named explanations. | ✓ VERIFIED | p17's five tests pass; its config/spec floors are exercised and its internal known-bad fixture test passes by asserting the fixture is rejected with a named message. |
+| 18 | p17 is on the existing Fast checks route without editing CI or adding it to `mix ci`. | ✓ VERIFIED | `.github/workflows/ci.yml:408` runs the prohibition glob. The Phase 236 contract test pins the existing route and asserts `mix.exs` does not route the guards through `mix ci`; the UAT reports the Fast checks receipt on run `35034938082`. |
+| 19 | The dead `PLAYWRIGHT_RETRIES` key is removed by parsed workflow contract. | ✓ VERIFIED | The workflow has no `PLAYWRIGHT_RETRIES` key, and `phase_236_retry_wrapper_prohibition_test.exs` parses the target job and pins the remaining environment. The Phase 236 UAT records its targeted contract pass. |
+| 20 | The research document no longer claims a trace can be harvested for the original first-attempt failure. | ✓ VERIFIED | Its Area 4 diagnosis now says no trace exists under `on-first-retry` with zero retries and cites the captured reproduction. A separate stale statement about the deleted retry env key remains a warning below. |
+| 21 | The quarantine fallback is not substituted for a fix when the root cause can be fixed. | ✓ VERIFIED — N/A contingency | Branch (a) was selected from captured evidence; the product fix exists and the target CI job passed all five repeats. |
+| 22 | Default p12 validates both Phase 230 and Phase 236 ledgers through the existing Fast checks route. | ✓ VERIFIED | `node --test ...p12-run-id-provenance.test.mjs` passes 12/12 and `.github/workflows/ci.yml:408` reaches the shared guard glob. The p12 default ledger table includes Phase 236. |
+| 23 | Adding Phase 236 did not weaken Phase 230's positive floors or existing ledger contract. | ✓ VERIFIED | The p12 run passes all six Phase 230 ledger checks, including slot floors, captured status syntax, run IDs, commands, and in-slot corroboration. |
+| 24 | All three Phase 236 evidence slots satisfy the same run-backed grammar, including the Fast checks receipt for p17. | ✓ VERIFIED | The Phase 236 p12 checks pass; the ledger includes run-backed `BEFORE-FLAKE-RED`, `AFTER-P17-GUARD-OBSERVED`, and `AFTER-FIX-GREEN` slots. GitHub confirms run `35034938082`'s target and Fast checks jobs succeeded. |
+| 25 | The malformed p12 fixture is rejected for a named missing-provenance defect, while the real ledger passes. | ✓ VERIFIED | Default p12 passes 12/12. Substituting `p12-phase236-claim-without-run-id.md` exits 1 with two named failures because `AFTER-FIX-GREEN` says only `captured` and omits a run ID. The UAT records the Phase 230 malformed fixture control as well. |
+| 26 | The p12 guard stays offline and uses the existing CI topology. | ✓ VERIFIED | The guard reads local ledgers/fixtures and uses no network calls. The unchanged CI glob is its route; the independent ExUnit contract and UAT pin no workflow or `mix ci` edits. |
+| 27 | The authoritative security artifact closes the blocking provenance threats. | ✓ VERIFIED | `236-SECURITY.md` has `status: verified`, `threats_open: 0`, and T-236-03/T-236-15 closed under the dual-ledger p12 mitigation, with sign-off markers checked. |
 
-**Score:** 5/5 roadmap truths verified (0 present-but-behavior-unverified).
+**Score:** 27/27 must-have truths verified.
 
-## Required Artifacts
+### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `236-EVIDENCE.md` | Durable RED/GREEN provenance | ✓ VERIFIED | Exactly three captured slots; default p12 validates all run IDs, producing commands, and in-slot corroboration. |
-| `236-DIAGNOSIS.md` | Falsifiable differential diagnosis | ✓ VERIFIED | Names product race and documents branch (a) plus evidence-based rule-outs. |
-| `audit_index_live.ex` | Single owner for failing-path URL transitions | ✓ VERIFIED | Substantive LiveView implementation; behavioral seam test passes. |
-| `p17-no-playwright-retry-wrapper.test.mjs` + fixture | Fail-first retry prohibition | ✓ VERIFIED | Clean control passes; committed bad fixture exits 1 for the intended violation. |
-| `p12-run-id-provenance.test.mjs` + Phase 236 fixture | Dual-ledger provenance enforcement | ✓ VERIFIED | Default run: 12/12; both malformed ledger fixtures fail specifically for missing run provenance. |
-| `phase_236_*_test.exs` contracts | Independent ownership, retry, and provenance checks | ✓ VERIFIED | 22 targeted ExUnit tests pass. |
-| `236-SECURITY.md` | Authoritative closure of T-236-03/T-236-15 | ✓ VERIFIED | `status: verified`, `threats_open: 0`, both rows closed, and all required sign-off markers pass the deterministic closure check. |
+| `236-EVIDENCE.md` | Captured RED, p17 observation, after-fix GREEN provenance | ✓ EXISTS + SUBSTANTIVE + WIRED | Has three parseable slots with run IDs and producing commands; default p12 validates the Phase 236 ledger. Local trace exists and passes `unzip -t`. |
+| `236-DIAGNOSIS.md` | Falsifiable differential diagnosis | ✓ EXISTS + SUBSTANTIVE | Names the product race, records branch (a), and compares harness and DB explanations against captured observations. |
+| `lib/sigra/admin/live/audit_index_live.ex` | Single connected owner for the failing filter path | ✓ EXISTS + SUBSTANTIVE + WIRED | `handle_event/3` whitelists and patches; `handle_params/3` loads real audit data. A connected LiveView test asserts patched URL and rows. |
+| p17 guard + committed fixture | Retry-wrapper prohibition with observed negative control | ✓ EXISTS + SUBSTANTIVE + WIRED | Default p17 command passes; embedded negative-control test rejects the fixture; CI glob includes the guard. |
+| p12 guard + Phase 236 fixture | Run provenance enforcement for both ledgers | ✓ EXISTS + SUBSTANTIVE + WIRED | Default p12 command passes 12/12; substituting Phase 236 malformed fixture exits 1 with the expected named failures. |
+| Phase 236 ExUnit contracts and connected example LiveView test | Source, workflow, and runtime contracts | ✓ EXISTS + SUBSTANTIVE + WIRED | UAT records 22 phase contract tests and 5 connected LiveView tests passing; exact runtime test covers submit, patch, and filtered rows. |
+| `236-SECURITY.md` | Authoritative closure of T-236-03/T-236-15 | ✓ EXISTS + SUBSTANTIVE | Verified status, zero blocking threats, both findings closed, sign-off complete. |
 
-## Key Link Verification
+### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| Filter form | `handle_params/3` | `handle_event` → `index_path` → `append_query(Map.take(...))` → `push_patch` | ✓ WIRED | `handle_event` builds only a scope-local path; `handle_params` is the sole `Explorer.list_events` loader. |
-| `@filter_param_keys` | rendered filtered result | `Map.take/2` and patched URL | ✓ WIRED | The LiveView test submits an actor, observes `assert_patch`, then observes only that actor's row. |
-| p17/p12 guards | Fast checks | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | ✓ WIRED | Exact glob remains in `.github/workflows/ci.yml`; full local glob passed 112/112. |
-| Phase 236 ledger | p12 default table | `PHASE_236_LEDGER` / `DEFAULT_LEDGER_SPECS` | ✓ WIRED | Default p12 run validates Phase 230 and Phase 236, each with its own floors. |
-| Security closure | provenance controls | T-236-03/T-236-15 closure after p12 and ExUnit contracts | ✓ WIRED | Deterministic security-closure check passes. |
+| Evidence `BEFORE-FLAKE-RED` | D-05 diagnosis branch | Run-backed URL observation | ✓ WIRED | Verbatim URL with absent `actor=` determines branch (a); trace and CI log agree. |
+| Filter form | `handle_params/3` | `phx-submit` → `handle_event` → local `push_patch` | ✓ WIRED | The integration test submits through the connected LiveView and asserts the patch and updated rows. |
+| `@filter_param_keys` | Patched URL | `Map.take/2` | ✓ WIRED | Client input is whitelisted before query construction. |
+| `socket.assigns.admin_scope` | Scoped local patch target | `index_path/1` | ✓ WIRED | Global and organization scopes resolve to their local audit paths; the scoped form action uses the same resolver. |
+| p17 guard | Fast checks | `scripts/ci/prohibitions/*.test.mjs` | ✓ WIRED | Workflow step at `.github/workflows/ci.yml:408`; GitHub Fast checks receipt is successful. |
+| p12 guard | Phase 236 ledger | Default ledger specification + parser | ✓ WIRED | `verify.key-links` reports 4/4 Phase 05 links verified; current p12 invocation validates the ledger. |
+| p12 guard | Phase 230 ledger | Shared `readSubject` / `parseEvidenceSlots` path | ✓ WIRED | Six Phase 230 checks pass; guard remains additive. |
+| Security closure | p12 provenance guard | Closure condition and threat register | ✓ WIRED | Security artifact explicitly cites p12; T-236-03/T-236-15 are closed. |
 
-## Data-Flow Trace (Level 4)
+### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| `AuditIndexLive` | `@rows`, `@meta`, `@current_params` | `handle_params/3` → `Explorer.list_events` → audit query/presenter | Inserted test audit events render through the connected LiveView; submit removes the non-matching row. | ✓ FLOWING |
+| `AuditIndexLive` | `@rows`, `@meta`, `@current_params` | `handle_params/3` → `Explorer.list_events/3` → audit query/presenter | Inserted audit events are rendered by the connected test; submitting an actor filter removes the other actor's row. | ✓ FLOWING |
 
-## Behavioral Spot-Checks
+### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Recorded CI RED | `gh run view 35004420339 --log --job 104500542292` | Exact `toHaveURL` / received URL at line 459 observed. | ✓ PASS |
-| Five CI target-job repeats | `gh run view` for all five recorded IDs | All target jobs completed `success`; Fast checks also `success`. | ✓ PASS |
-| Dual-ledger p12 default | `node --test --test-reporter=tap ...p12...` | 12/12 pass. | ✓ PASS |
-| p12 clean substitutions | `GSD_PROHIB_SUBJECT=... node --test ...p12...` | Archived Phase 230 and live Phase 236 ledgers each pass 6/6. | ✓ PASS |
-| p12 negative controls | Both committed malformed-ledger substitutions | Both exit 1 with named missing-run provenance failures, not parse floors. | ✓ PASS |
-| p17 clean and negative controls | p17 default and fixture substitution | Clean 5/5; fixture exits 1 with the named `process.env` retry failure. | ✓ PASS |
-| All prohibition guards | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 112/112 pass. | ✓ PASS |
-| Phase source contracts | `MIX_ENV=test mix test` for three Phase 236 modules | 22 tests, 0 failures. | ✓ PASS |
-| Connected filter behavior | `cd test/example && MIX_ENV=test mix test test/example_web/live/admin_audit_index_live_test.exs` | 5 tests, 0 failures; exercises submit, patch, and reloaded rows. | ✓ PASS |
-| Render-preservation guard | `bash scripts/ci/snapshot-canary-guard.sh --base origin/main` | PASS; zero changed slugs. | ✓ PASS |
+| Captured original RED | `gh run view 35004420339 --repo szTheory/sigra --json ...` | Run `35004420339` is `push`, conclusion `failure`, target job `failure`; evidence ledger records assertion and URL. | ✓ PASS |
+| Five post-fix target jobs | `gh run view <id> --repo szTheory/sigra --json databaseId,headSha,event,conclusion,jobs` for the five recorded IDs | All five are `pull_request`; `Generated admin Playwright smoke` is `success` in each. Overall runs are failed by unrelated checks. | ✓ PASS |
+| p12 default | `node --test --test-reporter=tap scripts/ci/prohibitions/p12-run-id-provenance.test.mjs` | 12 tests passed, 0 failed. | ✓ PASS |
+| p12 Phase 236 malformed fixture | `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md node --test --test-reporter=tap scripts/ci/prohibitions/p12-run-id-provenance.test.mjs` | Exit 1; 2 assertions fail with named missing-status/run-id provenance messages, 4 pass. This is the expected red control. | ✓ PASS (expected rejection) |
+| p17 default and embedded negative control | `node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` | 5 tests passed, including the committed known-bad fixture rejection. | ✓ PASS |
+| Connected filter transition and repeated-submit URL + rendered state | `cd test/example && PGPORT=5432 MIX_ENV=test mix test test/example_web/live/admin_audit_index_live_test.exs` | 5 tests passed, 0 failures. The test submits identical filters twice, asserts the second `assert_patch/2` resolves to the same expected URL, then checks the returned HTML still contains the matching actor and excludes the other actor. | ✓ PASS |
+| Screenshot preservation | Targeted result recorded in `236-UAT.md`: `bash scripts/ci/snapshot-canary-guard.sh --base origin/main` | PASS; zero changed slugs. | ✓ PASS (recorded UAT) |
+| Repeat-submit idempotence — URL after second event | Synchronized ExUnit command above | After the second synchronous `render_submit/2`, `assert_patch/2` confirms the same URL and the returned HTML retains matching filtered rows. | ✓ PASS |
+| Native GET fallback | Same focused Chromium run | 1 passed. JavaScript is disabled, no connected LiveView is present, the form navigates to `/admin/audit?...`, and filtered rows match the connected result. | ✓ PASS |
 
-## Probe Execution
+### Probe Execution
 
-SKIPPED — no Phase 236 `probe-*.sh` path is declared or present. The phase's runnable controls are the targeted ExUnit, Node, shell, and GitHub API checks above.
+SKIPPED — no Phase 236 probe path is declared in the plans or summaries, and no conventional `scripts/*/tests/probe-*.sh` probe was found.
 
-## Requirements Coverage
+### Requirements Coverage
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| GREEN-01 | 236-01, 236-04, 236-05 | Capture and retain a falsifiable RED before accepting the fix. | ✓ SATISFIED | Direct CI log, valid local trace, branch-(a) diagnosis, and CI-wired p12 provenance checks. |
-| GREEN-02 | 236-02, 236-03, 236-04, 236-05 | Fix the URL ownership race and prohibit retry masking. | ✓ SATISFIED | Connected LiveView behavioral test, repeated CI target-job green evidence, p17 fail-first fixture, and parsed workflow contract. |
+| GREEN-01 | 236-01, 236-04, 236-05 | Capture a falsifiable RED before accepting the fix and preserve its provenance. | ✓ SATISFIED | CI failure run, valid local trace, differential diagnosis, and p12 CI enforcement. |
+| GREEN-02 | 236-02, 236-03, 236-04, 236-05 | Fix the audit URL ownership race and prohibit retry masking. | ✓ SATISFIED (with accepted scope override) | Connected LiveView behavior, native-GET browser coverage, repeated-submit URL and row assertions, five target-job successes, p17 negative control, and p12 provenance protection. |
 
-No orphaned Phase 236 requirements: `REQUIREMENTS.md` maps only GREEN-01 and GREEN-02, and every plan declares one or both.
+No orphaned Phase 236 requirements: the roadmap maps only GREEN-01 and GREEN-02, and every declared requirement appears in one or more plans. The decision-coverage query reports 26/26 trackable CONTEXT decisions honored.
 
 ### Decision Coverage
 
-`check.decision-coverage-verify` reports **26/26** trackable CONTEXT decisions honored; no decision is missing from the shipped artifacts.
+All trackable CONTEXT.md decisions are honored by shipped artifacts (26/26; non-blocking gate).
 
 ### Test Quality Audit
 
 | Test File | Linked Requirement | Active | Skipped | Circular | Assertion Level | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| `phase_236_audit_url_ownership_test.exs` | GREEN-02 | 9 | 0 | No | Value/source contract | Pass — supplemented by the connected LiveView behavioral test. |
-| `admin_audit_index_live_test.exs` | GREEN-02 | 5 | 0 | No | Behavioral | Pass — real SQL-backed inserted events, URL patch, and rendered result assertions. |
-| p17/p12 Node guards | GREEN-01/02 | 17 | 0 | No | Value + negative control | Pass — external fixtures fail on the intended checks. |
-| `phase_236_evidence_provenance_guard_test.exs` | GREEN-01/02 | 5 | 0 | No | Value/source contract | Pass — direct Node execution independently supplies the runtime proof. |
+| `phase_236_audit_url_ownership_test.exs` | GREEN-02 | 10 | 0 | No | Source/value contract | Pass; supplemented by connected LiveView behavioral coverage. |
+| `admin_audit_index_live_test.exs` | GREEN-02 | 5 | 0 | No | Behavioral | Pass; real inserted events, initial and repeated patch URL, and rendered-result assertions. Focused run: 5 tests, 0 failures. |
+| p17/p12 Node guards and fixtures | GREEN-01/02 | 17 | 0 | No | Value + negative control | Pass; default runs are green and malformed fixtures produce named failures. |
+| `phase_236_retry_wrapper_prohibition_test.exs` | GREEN-02 | 7 | 0 | No | Parsed workflow/value contract | Pass per completed Phase 236 UAT. |
+| `phase_236_evidence_provenance_guard_test.exs` | GREEN-01/02 | 5 | 0 | No | Source/value contract | Pass per completed Phase 236 UAT. |
+| `admin-audit.spec.ts` | GREEN-02 | 1 | 0 | No | Browser behavior | Native GET is behaviorally verified. The browser repeated-submit assertions are supplemented by synchronous ExUnit checks that assert the second patch URL and returned rows after the event response. |
 
-Disabled tests on requirements: 0. Circular patterns: 0. Insufficient assertions: 0.
+Disabled tests on requirements: 0. Circular patterns detected: 0. All plan-level behaviors have automated coverage.
 
-## Anti-Patterns Found
+### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | --- | --- | --- | --- | --- |
-| `.planning/research/STACK.md` | 195, 201, 204, 269 | Historical prose still describes deleted `PLAYWRIGHT_RETRIES: 1` as current. | ⚠️ Warning | Documentation is misleading, though `.github/workflows/ci.yml`, p17, and the parsed ExUnit contract prove the variable is absent. This does not weaken the shipped enforcement. |
-| Phase implementation files | — | `TBD` / `FIXME` / `XXX` debt-marker scan | — | None found. `placeholder=` is a user-facing input attribute; p17's `return null` is the deliberate clean result of a pure checker. |
+| `.planning/research/STACK.md` | 195, 201, 204, 269 | Historical prose still says `PLAYWRIGHT_RETRIES: 1` is currently set, although the workflow key was deleted. | ⚠️ Warning | Misleading historical research prose; the live workflow and parsed contract prove the key is absent. Does not invalidate GREEN-02. |
+| `audit_index_live.ex` | 117 | `placeholder=` input attribute | ℹ️ Info | Normal user-facing input hint, not an implementation placeholder. |
+| p17 guard | 101 | `return null` | ℹ️ Info | Expected result for the clean subject in the pure checker; not a stub. |
 
-## Human Verification
+No unreferenced `TBD`, `FIXME`, or `XXX` debt markers found in phase implementation files.
 
-N/A — all phase acceptance criteria, including the user-visible LiveView transition, were exercised by deterministic automated contracts and direct GitHub API evidence. No behavior-dependent truth remains unexercised.
+### Gaps Summary
 
-## Gaps Summary
+No failed truths, missing artifacts, or unwired links were found. The phase goal and both mapped requirements are supported by captured failure evidence, a named product-race fix, five successful affected-job repeats, the connected filter test, and the CI-wired retry/provenance guards. The accepted D-30 residual-anchor scope exception remains tracked in its pending todo.
 
-No blocking gaps. The aggregate run conclusion remained `failure` on the five repeat runs for separately tracked Phase 235 contract-test debt, but the affected `Generated admin Playwright smoke` job was independently `success` on every run. That is not a retry-derived green and does not contradict the Phase 236 success criteria. The one accepted D-30 residual URL-navigation scope exception remains documented and todo-backed.
+The UAT records 21/21 automated passes. The JavaScript-disabled browser path substantively exercises native GET and compares actual result rows with the connected filtered result. The repeated-submit ExUnit assertion checks both the same patch URL and filtered rows after the second synchronous event response.
 
 ---
-
-_Verified: 2026-09-19T22:13:09Z_
-_Verifier: Codex (gsd-verifier)_
+*Verified: 2026-09-24T15:54:42Z*
+*Verifier: the agent (gsd-verifier), gap closure evidenced by focused ExUnit run*
