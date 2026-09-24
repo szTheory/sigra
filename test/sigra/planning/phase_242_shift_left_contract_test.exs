@@ -45,7 +45,10 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
       root()
       |> Path.join("guides/introduction/troubleshooting-install.md")
       |> File.read!()
-      |> section("## Selecting the maintained dependency line", "## Upgrading between Sigra versions")
+      |> section(
+        "## Selecting the maintained dependency line",
+        "## Upgrading between Sigra versions"
+      )
 
     assert String.trim(changelog_unreleased) ==
              """
@@ -81,13 +84,22 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
       refute Regex.match?(~r/\b(?:current|now)\b.{0,80}\bhexdocs\b/is, content),
              "#{name} claims an unproven HexDocs outcome"
 
-      refute Regex.match?(~r/\bhexdocs\b.{0,40}\b(?:has|was|is|now|successfully)\b.{0,40}\brevert(?:ed)?\b/is, content),
+      refute Regex.match?(
+               ~r/\bhexdocs\b.{0,40}\b(?:has|was|is|now|successfully)\b.{0,40}\brevert(?:ed)?\b/is,
+               content
+             ),
              "#{name} claims an unproven HexDocs repair"
 
-      refute Regex.match?(~r/\b(?:registry|resolver|lockfile)\b.{0,80}\b(?:repair(?:ed)?|fix(?:ed)?)\b/is, content),
+      refute Regex.match?(
+               ~r/\b(?:registry|resolver|lockfile)\b.{0,80}\b(?:repair(?:ed)?|fix(?:ed)?)\b/is,
+               content
+             ),
              "#{name} claims an unproven resolver repair"
 
-      refute Regex.match?(~r/\b(?:1\.5\.1|release)\b.{0,80}\b(?:publish(?:ed)?|complet(?:ed|ion)|cut)\b/is, content),
+      refute Regex.match?(
+               ~r/\b(?:1\.5\.1|release)\b.{0,80}\b(?:publish(?:ed)?|complet(?:ed|ion)|cut)\b/is,
+               content
+             ),
              "#{name} claims an unproven release outcome"
 
       refute Regex.match?(~r/\b1\.5\.1\b.{0,80}\brelease(?:d)?\b/is, content),
