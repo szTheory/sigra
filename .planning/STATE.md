@@ -4,18 +4,18 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 241
 current_phase_name: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-status: planning
-stopped_at: Phase 242 complete, ready to plan Phase 241
-last_updated: "2026-09-22T23:34:01.980Z"
-last_activity: 2026-09-22
-last_activity_desc: Phase 242 complete, transitioned to Phase 241
+status: complete
+stopped_at: Phase 241 verified complete; Phase 243 is next and unplanned
+last_updated: "2026-09-24T00:13:26Z"
+last_activity: 2026-09-24
+last_activity_desc: Phase 241 full-suite CI passed and verification closed
 state_head: "0b1359751c02a5f6650afd14b64a2b027df92c42"
 progress:
   total_phases: 10
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 53
-  completed_plans: 47
-  percent: 60
+  completed_plans: 53
+  percent: 70
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 243 — Drain the Queue; Phase 242 is closed as a safety reconciliation
+**Current focus:** Phase 241 verified complete; Phase 243 — Drain the Queue is next
 
 ## Current Position
 
 Phase: 241 — Retire v1.47's Dishonest Debt + Adopter-Leakage Guard
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-22 — Phase 242 complete, transitioned to Phase 241
+Plan: 6 of 6 complete
+Status: Verified complete
+Last activity: 2026-09-24 — full-suite CI passed; verification status passed
 
 ### v1.48 phase map
 
@@ -716,16 +716,16 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-21T01:51:50.010Z
-Stopped at: Phase 242 complete, ready to plan Phase 241
+Last session: 2026-09-24T00:13:26Z
+Stopped at: Phase 241 verified complete; Phase 243 is next and unplanned
 Resume file: None
 
 ## Operator Next Steps
 
-- Review `.planning/ROADMAP.md` `# v1.48 CLEAN-BASELINE (active)`, then `/gsd-plan-phase 236`. Phases 237 and 238 can be planned and executed in parallel with 236.
+- Phase 241 is verified complete. Phase 243 is the next unplanned phase; use `$gsd-discuss-phase 243` or `$gsd-plan-phase 243` when authorized to begin it.
 - **TEST-01/TEST-02 is now scheduled, not open:** Phase 241 records the supersession as an ADR and deletes the orphaned `ExUnitTimingFormatter`, with the replacement guard demonstrated RED against a committed known-bad fixture.
 - **`example_unit_smoke` / `ci-gate.needs` is deliberately a todo, not a phase** (FUT-03) — filed in Phase 243's triage with the diagnosis attached.
-- **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
+- **TEST-01/TEST-02 were formally superseded in Phase 241.** ADR 004, the formatter retirement, and replacement single-owner contract are recorded in the Phase 241 evidence.
 - **Cheap, high-value:** add `example_unit_smoke` to `ci-gate.needs` and to `honest-skip-verdict.sh`'s lane set. It is a ruleset-required context absent from both, and `wait-for-ci-gate.sh` polls only the `ci-gate` job — so a red `example_unit_smoke` on a push to main does not currently stop a Hex publish.
 - Four further audit-surfaced findings are filed under `todos/pending/2026-09-15-*`.
 - **No git tag** — milestone tags were dropped after v1.35 (collision risk with the Hex package version).

@@ -104,8 +104,17 @@ Finished in 0.06 seconds (0.06s async, 0.00s sync)
 
 ## Honest full-suite claim (SC-1)
 
-The full-suite claim for SC-1 is made against **CI** at this phase's final committed HEAD; it is
-not a local `MIX_ENV=test mix ci` claim. A local full-suite run currently carries six environmental
-`Sigra.Audit.Forwarders.ThreadlineTest` failures (`Threadline.attach/1` undefined) unrelated to
-this phase. Those tests are **not** excluded from the suite and no `--exclude` was added; the
-failure is named rather than hidden. **CI run URL: PENDING — filled at phase verification.**
+The full-suite claim for SC-1 is made against **CI**, not a local `MIX_ENV=test mix ci` claim. A
+local full-suite run carries six environmental `Sigra.Audit.Forwarders.ThreadlineTest` failures
+(`Threadline.attach/1` undefined) unrelated to this phase. Those tests are **not** excluded from
+the suite and no `--exclude` was added; the local failure is named rather than hidden.
+
+**CI evidence:** [run 35936689143](https://github.com/szTheory/sigra/actions/runs/35936689143)
+completed successfully on attempt 1 for head SHA `8b7cd66379900596a922cf3882203b7fffd2cb5e`.
+The `Library tests shard`, aggregate `Library tests`, and `ci-gate` all passed; the full required
+PR checks, including install and browser lanes, passed as well. No retry was used within that run.
+
+The first CI run at `997d8a240456686e19b183c9fd7dabd387ff9c7f` stopped at `mix format
+--check-formatted` because the unrelated Phase 242 contract test was unformatted. The four
+formatter-only wraps in `test/sigra/planning/phase_242_shift_left_contract_test.exs` were applied
+in commit `8b7cd663`; the successful run above validates that resulting exact code head.
