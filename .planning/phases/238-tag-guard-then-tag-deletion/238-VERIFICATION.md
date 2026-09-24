@@ -1,6 +1,6 @@
 ---
 phase: 238-tag-guard-then-tag-deletion
-verified: 2026-09-20T03:01:57Z
+verified: 2026-09-24T20:43:47Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -28,7 +28,7 @@ covered_files:
   - "scripts/maintainers/delete-planning-tags.sh"
   - "test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json"
 
-covered_digest: "v1:sha256:b40597221fe11a21fe3f719d8ddb00a3d1d4abe3e63314f0b314df1b51de47fa"
+covered_digest: "v1:sha256:bbc84bd8700102574037891d34e631286ecf2335c6653bc47fdfffdbf1be442c"
 behavior_unverified: 0
 overrides_applied: 0
 behavior_unverified_items: []
@@ -38,9 +38,9 @@ human_verification: []
 # Phase 238: Tag Guard, Then Tag Deletion — Verification Report
 
 **Phase Goal:** The `v*` tag namespace means exactly one thing — a real release — and cannot be re-polluted by the next close flow.
-**Verified:** 2026-09-20T03:01:57Z
+**Verified:** 2026-09-24T20:43:47Z
 **Status:** passed
-**Re-verification:** Yes — automation-first refresh against the current covered inputs; the guard suite is green (112/112), the known-bad p19 fixture remains red, local/remote keep-sets are equal, and the live ruleset projection remains identical to the committed snapshot
+**Re-verification:** Yes — automation-first refresh against current covered inputs. The complete prohibitions suite is green (112/112), the known-bad p19 fixture remains red, local/remote keep-sets are equal, the read-only deletion pass is an idempotent no-op, the live ruleset projection matches the committed snapshot, and the post-merge observer job is successful.
 **Mode:** standard (not MVP)
 
 ## Headline
@@ -53,6 +53,16 @@ former SC-2 gap is closed by `CI (observe)` run `35249205910`: its tag-ruleset-d
 I found **no gap, no stub, no overclaim, and no unwired artifact.** Where the evidence ledger
 makes a claim, the live repository independently corroborates it — in two places by a mechanism
 the executor did not cite (see SC-3 below).
+
+### Latest automation refresh — 2026-09-24
+
+- `node --test scripts/ci/prohibitions/*.test.mjs` — **112/112 passed**, zero skipped.
+- `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json node --test scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` — **18 passed, 1 failed**, exit 1 as required by the negative control.
+- `bash scripts/maintainers/delete-planning-tags.sh verify-local` — **13/13 set-equal**; `verify-remote` — **12/12 set-equal**; default `local` reporting pass — **deleted=0, absent=39, would_delete=0**. These are read-only and leave local and remote refs untouched.
+- Live `GET /repos/szTheory/sigra/rulesets/23574716`, projected onto the committed contract fields, is byte-identical to `.github/rulesets/tag-namespace.json`.
+- `CI (observe)` run `35249205910` — run conclusion `success`; `Tag namespace drift` job conclusion `success`.
+- Live releases — **12**, drafts **0**; source link for `v1.5.0/mix.exs` — HTTP **200**.
+- The covered-input fingerprint changed because Phase 242 updated unrelated REL-03–REL-06 disposition text in `.planning/REQUIREMENTS.md`. Phase 238’s REL-01/REL-02 statements and roll-up remain unchanged and verified above; this refresh re-evaluated Phase 238 against the current requirements file.
 
 ---
 
@@ -205,7 +215,9 @@ unclaimed.
 |---|---|---|---|---|
 | — | — | — | — | **None.** `grep -nE "TBD\|FIXME\|XXX\|HACK\|PLACEHOLDER\|TODO"` across `p19-…test.mjs`, `delete-planning-tags.sh`, `tag-namespace.json`, the fixture and `MAINTAINING.md` returns no match. No unreferenced debt marker in any phase-modified file. |
 
-Working tree is clean (`git status --porcelain` empty). No stub, no empty return, no hollow prop,
+At the original Phase 238 close, the working tree was clean (`git status --porcelain` empty).
+This workspace is now dirty in later planning and documentation work; none of the Phase 238
+implementation artifacts listed above is modified. No stub, no empty return, no hollow prop,
 no hardcoded-empty data. Level 4 data-flow is not applicable — this phase renders no dynamic
 values; its "data source" is the live GitHub API, and both readers of it (the drift job and the
 operator projection in `MAINTAINING.md`) query it directly.
