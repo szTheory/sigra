@@ -24,11 +24,16 @@ setup_fixture() {
   local name="$1"
   local fixture="${TMP_ROOT}/${name}"
 
-  mkdir -p "${fixture}/scripts/ci" "${fixture}/bin" "${fixture}/_build/test/lib/threadline"
+  mkdir -p \
+    "${fixture}/scripts/ci" \
+    "${fixture}/bin" \
+    "${fixture}/_build/test/lib/threadline" \
+    "${fixture}/_build/test/lib/sigra/ebin"
   cp "${SCRIPT}" "${fixture}/scripts/ci/sigra-dep-off.sh"
   chmod +x "${fixture}/scripts/ci/sigra-dep-off.sh"
   printf '{:threadline, {:hex, :threadline, "1.0.0", "locked", [], [], "hexpm", "checksum"}}\n' > "${fixture}/mix.lock"
   printf 'original-build\n' > "${fixture}/_build/test/lib/threadline/.built"
+  printf 'forwarder-present\n' > "${fixture}/_build/test/lib/sigra/ebin/threadline-forwarder.beam"
 
   cat > "${fixture}/bin/mix" <<'STUB'
 #!/usr/bin/env bash
@@ -42,15 +47,17 @@ case "$*" in
     rm -rf _build/test/lib/threadline
     ;;
   "compile --warnings-as-errors --no-deps-check")
+    rm -f _build/test/lib/sigra/ebin/threadline-forwarder.beam
     [[ "${SIGRA_DEP_OFF_FORCE_FAILURE:-0}" != "1" ]] || exit 42
     ;;
   "test --only threadline_guard --no-deps-check")
     ;;
   "deps.get --check-locked")
     ;;
-  "compile threadline")
+  "compile --force --warnings-as-errors")
     mkdir -p _build/test/lib/threadline
     printf 'restored-build\n' > _build/test/lib/threadline/.built
+    printf 'forwarder-present\n' > _build/test/lib/sigra/ebin/threadline-forwarder.beam
     ;;
   *)
     echo "unexpected mix invocation: $*" >&2
@@ -66,7 +73,7 @@ run_case() {
   local name="$1"
   local expected_status="$2"
   local force_failure="$3"
-  local fixture lock_before lock_after status
+  local fixture lock_before lock_after status restored_forwarder
 
   fixture="$(setup_fixture "${name}")"
   lock_before="$(shasum -a 256 "${fixture}/mix.lock" | awk '{print $1}')"
@@ -91,6 +98,10 @@ run_case() {
   [[ -f "${fixture}/_build/test/lib/threadline/.built" ]] \
     && pass "${name}: threadline build marker restored" \
     || fail "${name}: threadline build marker missing after cleanup"
+  restored_forwarder="$(cat "${fixture}/_build/test/lib/sigra/ebin/threadline-forwarder.beam" 2>/dev/null || true)"
+  [[ "${restored_forwarder}" == "forwarder-present" ]] \
+    && pass "${name}: conditionally compiled Sigra forwarder restored" \
+    || fail "${name}: conditionally compiled Sigra forwarder missing after cleanup"
 }
 
 run_case success 0 0

@@ -23,14 +23,16 @@ restore() {
   mv -f "${restore_path}" "${LOCKFILE}" || restore_status=1
 
   # Each bare `mix` command starts a fresh Mix VM, so no mutated dependency cache
-  # survives from the deliberately destructive guard commands above.
+  # survives from the deliberately destructive guard commands above. Recompile
+  # the whole project after restoring the optional dep: the dep-off compile may
+  # have omitted Sigra modules conditionally defined behind Code.ensure_compiled/1.
   (
     cd "${ROOT}"
     MIX_ENV=test mix deps.get --check-locked
   ) || restore_status=1
   (
     cd "${ROOT}"
-    MIX_ENV=test mix compile threadline
+    MIX_ENV=test mix compile --force --warnings-as-errors
   ) || restore_status=1
 
   rm -rf "${SNAPSHOT_DIR}" || restore_status=1

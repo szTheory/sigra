@@ -101,6 +101,10 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     refute dep_off =~ "deps.clean threadline --build"
     assert File.regular?(Path.join(root(), "scripts/ci/sigra-dep-off.sh"))
     assert File.regular?(Path.join(root(), "scripts/ci/test-sigra-dep-off.sh"))
+
+    cleanup = read!("scripts/ci/sigra-dep-off.sh")
+    assert cleanup =~ "MIX_ENV=test mix compile --force --warnings-as-errors"
+    refute cleanup =~ "MIX_ENV=test mix compile threadline"
   end
 
   defp job_body(workflow, job_id) do
