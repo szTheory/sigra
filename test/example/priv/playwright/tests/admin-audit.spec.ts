@@ -114,10 +114,12 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByText('acting as').first()).toBeVisible();
 
-    // Repeating the same submit must preserve the connected URL and rendered
-    // rows. This exercises the second push_patch transition, not just the
+    // Repeating the same submit must preserve the connected filter and
+    // rendered rows. The form serializes its default ordering and page size,
+    // so compare the stable query contract instead of raw URL serialization.
+    // This exercises the second push_patch transition, not just the
     // source-level query construction.
-    const connectedAuditUrl = page.url();
+    const connectedAuditUrl = new URL(page.url());
     const connectedRows = await page
       .locator('#admin-audit-desktop-results tbody tr')
       .allInnerTexts();
@@ -126,7 +128,14 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
       .fill('admin.impersonation');
     await page.getByRole('button', { name: 'Apply filters' }).click();
     await waitForLiveViewReady(page);
-    await expect(page).toHaveURL(connectedAuditUrl);
+    await expect(page).toHaveURL((url) =>
+      url.pathname === connectedAuditUrl.pathname &&
+      url.searchParams.get('action_prefix') ===
+        connectedAuditUrl.searchParams.get('action_prefix') &&
+      url.searchParams.get('order_by') === 'inserted_at' &&
+      url.searchParams.get('order_direction') === 'desc' &&
+      url.searchParams.get('page_size') === '25',
+    );
     expect(
       await page.locator('#admin-audit-desktop-results tbody tr').allInnerTexts(),
     ).toEqual(connectedRows);

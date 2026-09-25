@@ -37,7 +37,12 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
   end
 
   test "safety closeout preserves raw halt evidence and makes no external success claim" do
-    phase_dir = Path.join(root(), ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1")
+    phase_dir =
+      Path.join(
+        root(),
+        ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1"
+      )
+
     closeout = phase_dir |> Path.join("242-SAFETY-CLOSEOUT.md") |> File.read!()
     requirements = root() |> Path.join(".planning/REQUIREMENTS.md") |> File.read!()
 
@@ -45,7 +50,9 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
       summary = phase_dir |> Path.join(filename) |> File.read!()
       actual_hash = :crypto.hash(:sha256, summary) |> Base.encode16(case: :lower)
 
-      assert actual_hash == expected_hash, "#{filename} no longer matches its recorded halt evidence"
+      assert actual_hash == expected_hash,
+             "#{filename} no longer matches its recorded halt evidence"
+
       assert closeout =~ expected_hash, "closeout does not link #{filename}'s raw evidence hash"
     end)
 
