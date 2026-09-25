@@ -1,13 +1,12 @@
 ---
 phase: 236-flake-root-cause-reproduce-name-fix
-verified: 2026-09-25T15:58:17Z
+verified: 2026-09-25T16:00:44Z
 status: passed
 score: 27/27 must-haves verified
 covered_files:
   - .github/workflows/ci.yml
   - .planning/REQUIREMENTS.md
   - .planning/ROADMAP.md
-  - .planning/STATE.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-SUMMARY.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-02-PLAN.md
@@ -36,7 +35,7 @@ covered_files:
   - test/sigra/planning/phase_236_audit_url_ownership_test.exs
   - test/sigra/planning/phase_236_evidence_provenance_guard_test.exs
   - test/sigra/planning/phase_236_retry_wrapper_prohibition_test.exs
-covered_digest: "v1:sha256:c7b97ea79f000d4e10b276415e415b1fa6b39b7056f2ec023fe6c56d1106f1f1"
+covered_digest: "v1:sha256:2302f8ede91dee0329bd6cc0fdbd0de9df98e87722bdc0908b16c9cf618413f6"
 behavior_unverified: 0
 overrides_applied: 1
 overrides:
@@ -56,7 +55,7 @@ advisory: []
 # Phase 236: Flake Root Cause — Reproduce, Name, Fix — Verification Report
 
 **Phase Goal:** `main`'s aggregate gate stops flipping red on an unchanged SHA — because the `Generated admin Playwright smoke` failure has a named, fixed cause, not because it was retried into silence.
-**Verified:** 2026-09-25T15:58:17Z
+**Verified:** 2026-09-25T16:00:44Z
 **Status:** passed
 **Verification mode:** Refresh after Phase 243 changed shared lifecycle records and the CI dependency-cache key. The previous report passed with no gaps; the accepted D-30 scope override is retained. Phase 236's own behavior and criteria were rechecked with current automated evidence.
 
@@ -194,5 +193,5 @@ No failed truths, missing artifacts, or unwired links were found. The phase goal
 The UAT records 21/21 items passing, with each checkpoint sourced to automated evidence. The JavaScript-disabled browser path substantively exercises native GET and compares actual result rows with the connected filtered result. The repeated-submit ExUnit assertion checks both the same patch URL and filtered rows after the second synchronous event response.
 
 ---
-*Verified: 2026-09-25T15:58:17Z*
+*Verified: 2026-09-25T16:00:44Z*
 *Verifier: goal-backward refresh against current phase scope, automated UAT evidence, freshly rerun ExUnit behavior, p12/p17 guards, and screenshot canary*
