@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 242
-current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
-status: executing
-stopped_at: Completed 242-01-PLAN.md
-last_updated: "2026-09-20T14:24:52.381Z"
-last_activity: 2026-09-20
-last_activity_desc: Phase 242 execution started
-state_head: 1737a9c2b195e717d633221e560b6905b77c7782
+current_phase: 243
+current_phase_name: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
+status: planning
+stopped_at: Phase 243 context gathered (assumptions mode)
+last_updated: "2026-09-25T02:16:06.927Z"
+last_activity: 2026-09-24
+last_activity_desc: Phase 242 complete, transitioned to Phase 243
+state_head: 6985352d5521210d6a3719327f8b81ee678a43e2
 progress:
   total_phases: 10
-  completed_phases: 6
-  total_plans: 55
-  completed_plans: 47
-  percent: 60
+  completed_phases: 7
+  total_plans: 54
+  completed_plans: 54
+  percent: 70
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+**Current focus:** Phase 242 safety closeout; refresh stale verification evidence before Phase 243
 
 ## Current Position
 
-Phase: 242 (Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1) — EXECUTING
-Plan: 2 of 9
-Status: Ready to execute
-Last activity: 2026-09-20 — Phase 242 execution started
+Phase: 243 — Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-24 — Phase 242 complete, transitioned to Phase 243
 
 ### v1.48 phase map
 
@@ -45,7 +45,7 @@ Last activity: 2026-09-20 — Phase 242 execution started
 | 239 | `priv/templates/` Sweep + One Batched Re-bless | SURF-01, SURF-03 |
 | 240 | Green-Main Evidence + Honest Pages Script | GREEN-04, GREEN-05 |
 | 241 | Retire v1.47's Dishonest Debt + Adopter-Leakage Guard | DEBT-01..04, SURF-04 |
-| 242 | Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1 | REL-03..06 |
+| 242 | Safety Closeout for Phantom Release Adoption | REL-03..06 (superseded/safety-closeout) |
 | 243 | Drain the Queue — Dependabot A/B, Stale PRs, Todo Triage | QUEUE-01, QUEUE-03, QUEUE-04 |
 | 244 | `@playwright/test` 1.59.1 → 1.62.1, Alone | QUEUE-02 |
 | 245 | Branch Prune — Local and Remote | REPO-04 |
@@ -729,13 +729,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-20T14:24:52.213Z
-Stopped at: Completed 242-01-PLAN.md
-Resume file: None
+Last session: 2026-09-25T02:16:06.605Z
+Stopped at: Phase 243 context gathered (assumptions mode)
+Resume file: .planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-CONTEXT.md
 
 ## Operator Next Steps
 
-- Review `.planning/ROADMAP.md` `# v1.48 CLEAN-BASELINE (active)`, then `/gsd-plan-phase 236`. Phases 237 and 238 can be planned and executed in parallel with 236.
+- Phase 236 verification now passes. GSD identifies Phase 237 as the first remaining stale verification after the shared requirements/roadmap reconciliation. Start with `$gsd-verify-work 237`, then follow GSD's stale-verification routing through Phases 238, 241, and 242 before Phase 243.
 - **TEST-01/TEST-02 is now scheduled, not open:** Phase 241 records the supersession as an ADR and deletes the orphaned `ExUnitTimingFormatter`, with the replacement guard demonstrated RED against a committed known-bad fixture.
 - **`example_unit_smoke` / `ci-gate.needs` is deliberately a todo, not a phase** (FUT-03) — filed in Phase 243's triage with the diagnosis attached.
 - **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
