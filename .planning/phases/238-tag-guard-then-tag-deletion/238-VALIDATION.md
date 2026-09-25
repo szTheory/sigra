@@ -15,7 +15,7 @@ updated: "2026-09-19"
 | Layer | Command / evidence | Current result |
 |-------|--------------------|----------------|
 | Unit / contract | `node --test --test-reporter=tap scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` | 19/19 pass |
-| Repo integration | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 93/93 pass |
+| Repo integration | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 112/112 pass (2026-09-25 re-run) |
 | Negative control | `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json node --test ...` | expected exit 1; named `enforcement` drift |
 | Maintainer seam | `delete-planning-tags.sh verify-local`; `verify-remote`; dry-run `local` | 13/13 local, 12/12 remote, 39 absent/no mutation |
 | Live settings seam | GitHub ruleset API compared with committed snapshot | empty field-scoped diff |
@@ -55,6 +55,20 @@ is recorded programmatically in `238-UAT.md`.
 | Gaps found | 1 stale post-merge observation |
 | Resolved | 1 |
 | Escalated | 0 |
+
+## Validation Audit 2026-09-25
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+All 23 coverage entries classify as automated after recording the post-merge observer run
+and the ledger commit-parent proof. The prohibitions suite passed 112/112; its known-bad
+fixture check returned the expected non-zero result; local and remote keep-set checks passed;
+the deletion dry run made no changes; and the live ruleset projection matched the committed
+snapshot. No manual-only verification remains.
 
 ## Sign-Off
 

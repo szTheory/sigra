@@ -1,6 +1,6 @@
 ---
 phase: 238-tag-guard-then-tag-deletion
-verified: 2026-09-24T20:43:47Z
+verified: 2026-09-25T16:48:26Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -28,7 +28,7 @@ covered_files:
   - "scripts/maintainers/delete-planning-tags.sh"
   - "test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json"
 
-covered_digest: "v1:sha256:bbc84bd8700102574037891d34e631286ecf2335c6653bc47fdfffdbf1be442c"
+covered_digest: "v1:sha256:b60c292ad9ca7c4f43ee09faa79147b6b2597b46baef44b3bbd6b17a2ece7144"
 behavior_unverified: 0
 overrides_applied: 0
 behavior_unverified_items: []
@@ -43,6 +43,18 @@ human_verification: []
 **Re-verification:** Yes — automation-first refresh against current covered inputs. The complete prohibitions suite is green (112/112), the known-bad p19 fixture remains red, local/remote keep-sets are equal, the read-only deletion pass is an idempotent no-op, the live ruleset projection matches the committed snapshot, and the post-merge observer job is successful.
 **Mode:** standard (not MVP)
 
+## Fresh automated re-check — 2026-09-25
+
+- The complete prohibitions suite passed **112/112**.
+- The committed bad-fixture negative control returned the expected nonzero result (18 checks passed; the contract check failed on the deliberately disabled fixture).
+- Local and remote deletion keep-set checks passed; the deletion script dry run reported **deleted=0, absent=39, would_delete=0**.
+- Live GitHub ruleset 23574716 projected onto the committed contract fields matched byte-for-byte. The releases API reports **12 published, 0 drafts**.
+- Current REQUIREMENTS changes affect Phases 242/243; Phase 238 REL-01/REL-02 descriptions and completion roll-up remain unchanged. The covered-input fingerprint is refreshed.
+
+## Automated resolution of former D6 checkpoint — 2026-09-25
+
+The D6 criterion is objectively proven: evidence-ledger close commit f7a987528d3ec1a9e0ba196461bbc39170c97bd4 has parent 31380c75a77a3044ebb644e7b3f15537ca7fb281, matching the recorded pin; it changes only 238-EVIDENCE.md; and a detached checkout of that commit is clean.
+The parent-pin substitute follows from Git commit semantics. No subjective product behavior or operator action remains. This resolves D6 automatically under .planning/VERIFICATION-POLICY.md.
 ## Headline
 
 The phase goal is achieved. All five Success Criteria are verified first-hand against the live
@@ -307,28 +319,7 @@ correctly scoped **out**:
 
 ### Human Verification Required
 
-#### 1. Confirm the `tag_ruleset_drift` observer job actually runs
-
-**Test:** After this phase's commits reach `main`, let one push to `main` complete a `CI` run.
-Open the `CI (observe)` workflow run and find the `Tag namespace ruleset drift (live vs committed,
-not a merge gate)` job.
-
-**Expected:** The job **executes** (not skipped by the `workflow_run.event != 'pull_request'`
-condition), resolves ruleset `tag-namespace`, and its field-scoped
-`jq -S '{target,enforcement,conditions,rules}'` diff against `.github/rulesets/tag-namespace.json`
-is empty → green.
-
-**Why human:** A `workflow_run` lane only ever executes the **default-branch** copy of its own
-file, so its first run is structurally impossible before merge. 238-03 and 238-06 both carry an
-explicit prohibition against claiming it proven in-phase — the phase was right not to claim it,
-and I am not going to claim it on the phase's behalf. Review finding IN-03 records two latent
-defects in the job (unpaginated ruleset list; a `set -euo pipefail` abort at the `ID=$(…)`
-assignment that pre-empts the job's own carefully worded `::error::…ABSENT` message on a transient
-API failure). **Both fail closed** — the worst case is a false red or an unlabelled red, never a
-false green — so a deleted ruleset would still be caught. This item is about confirming the lane
-works and is trustworthy, not about closing a silent hole.
-
----
+None. D5 was resolved from the recorded successful observer-job run, and D6 was resolved by deterministic Git-history and clean-checkout evidence.
 
 ### Gaps Summary
 
