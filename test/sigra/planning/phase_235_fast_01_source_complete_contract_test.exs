@@ -11,7 +11,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     assert workflow =~ "github.ref == 'refs/heads/main'"
     assert workflow =~ "fast-01-source-complete-remeasurement.json"
     assert workflow =~ "sigra.fast-01-source-complete-remeasurement/1"
-    assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+    assert workflow =~ "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
     refute workflow =~ "fast-01-gap-closure-remeasurement.json"
   end
 
