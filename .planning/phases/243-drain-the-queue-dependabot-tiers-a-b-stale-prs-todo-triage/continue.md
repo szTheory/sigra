@@ -7,9 +7,9 @@
 - Phase completion advanced `.planning/STATE.md` to Phase 244 (`@playwright/test` 1.59.1 → 1.62.1, alone; requirement QUEUE-02).
 - #213 remains untouched for Phase 244. Keep #219 as Phase 248 carryover and preserve stale PR branches.
 
-## Next command
+## Next step after context reset
 
-Run `$gsd-plan-phase 244`.
+Run `$gsd-verify-work 236`. The verification-status gate reports earlier verification as stale for Phases 236, 237, 238, 241, and 242; Phases 239, 240, and 243 pass. Follow GSD's routing through the stale verifications before starting Phase 244 planning. Once those gates pass, run `$gsd-plan-phase 244`.
 
 ## Workspace cautions
 
