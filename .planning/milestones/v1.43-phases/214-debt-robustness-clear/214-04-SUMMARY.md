@@ -41,11 +41,11 @@ status: complete
 
 ### Task 1: Chimeway.Repo config stanza (D-18)
 
-Added a new config block to `/Users/jon/projects/sigra/config/test.exs` that provides `Chimeway.Repo` with valid database connection parameters. `Chimeway.Application` unconditionally supervises `Chimeway.Repo` at boot — without a config stanza, the repo logs DB connection errors on every test run even though no Sigra test exercises it. The stanza uses the same `SIGRA_TEST_PG_*` env var convention as `Sigra.Test.PostgresRepo` and sets `pool: Ecto.Adapters.SQL.Sandbox` consistent with the test environment.
+Added a new config block to `/workspace/sigra/config/test.exs` that provides `Chimeway.Repo` with valid database connection parameters. `Chimeway.Application` unconditionally supervises `Chimeway.Repo` at boot — without a config stanza, the repo logs DB connection errors on every test run even though no Sigra test exercises it. The stanza uses the same `SIGRA_TEST_PG_*` env var convention as `Sigra.Test.PostgresRepo` and sets `pool: Ecto.Adapters.SQL.Sandbox` consistent with the test environment.
 
 ### Task 2: Conditional :upgrade exclusion (D-19/D-20)
 
-Updated `/Users/jon/projects/sigra/test/test_helper.exs` to insert a `phx_new_ok?` check before `ExUnit.start()`. The check shells out to `mix archive.list` and sets `ExUnit.configure(exclude: [:upgrade])` only when the `phx_new-1.8.8` archive is absent. This means:
+Updated `/workspace/sigra/test/test_helper.exs` to insert a `phx_new_ok?` check before `ExUnit.start()`. The check shells out to `mix archive.list` and sets `ExUnit.configure(exclude: [:upgrade])` only when the `phx_new-1.8.8` archive is absent. This means:
 - **Local dev without the archive:** upgrade tests gracefully skipped; zero spurious failures
 - **CI (where phx_new 1.8.8 is installed):** upgrade test runs normally — the exclusion is NOT triggered
 - **CLAUDE.md constraint honored:** no blanket `:postgres` exclusion; only `:upgrade` is conditionally excluded

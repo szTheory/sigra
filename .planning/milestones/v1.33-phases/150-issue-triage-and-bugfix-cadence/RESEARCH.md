@@ -152,9 +152,9 @@ None — existing test infrastructure covers all phase requirements, and there a
 ## Sources
 
 ### Primary (HIGH confidence)
-- `/Users/jon/projects/sigra/MAINTAINING.md` - Verified current runbook contents.
-- `/Users/jon/projects/sigra/.planning/v1.11-TRIAGE.md` - Verified 0 open issues and zero queued P0/P1 defects.
-- `/Users/jon/projects/sigra/lib/mix/tasks/sigra.upgrade.ex` - Verified the behavior and arguments of the upgrade task.
+- `/workspace/sigra/MAINTAINING.md` - Verified current runbook contents.
+- `/workspace/sigra/.planning/v1.11-TRIAGE.md` - Verified 0 open issues and zero queued P0/P1 defects.
+- `/workspace/sigra/lib/mix/tasks/sigra.upgrade.ex` - Verified the behavior and arguments of the upgrade task.
 
 ## Metadata
 

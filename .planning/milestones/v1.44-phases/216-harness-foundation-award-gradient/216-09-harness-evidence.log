@@ -184,7 +184,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.goto: Timeout 15000ms exceeded.
     Call log:
@@ -198,7 +198,7 @@ Running 153 tests using 1 worker
       322 |     await waitForLiveViewReady(page);
       323 |   });
       324 |
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-bee1c--bundle-board-mg-10-loading-admin-eval/test-failed-1.png
@@ -217,7 +217,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.goto: Timeout 15000ms exceeded.
     Call log:
@@ -231,8 +231,8 @@ Running 153 tests using 1 worker
       154 |   await waitForLiveViewReady(page);
       155 |   await page.fill('input[name="user[email]"]', email);
       156 |   await page.fill('input[name="user[password]"]', password);
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-d29d2-der-bundle-board-mg-1-error-admin-eval-mobile/test-failed-1.png
@@ -255,12 +255,12 @@ Running 153 tests using 1 worker
       510 |
       511 |   const targetSizeViolations = results.violations.filter(
       512 |     (v) => v.id === 'target-size',
-        at AxeBuilder.runPartialRecursive (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:315:39)
-        at AxeBuilder.analyze (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:245:39)
-        at probeTargetSize (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/probes.ts:509:19)
-        at runAllProbes (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/probes.ts:787:7)
-        at captureSurface (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:282:20)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
+        at AxeBuilder.runPartialRecursive (/workspace/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:315:39)
+        at AxeBuilder.analyze (/workspace/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:245:39)
+        at probeTargetSize (/workspace/sigra/test/example/priv/playwright/lib/eval/probes.ts:509:19)
+        at runAllProbes (/workspace/sigra/test/example/priv/playwright/lib/eval/probes.ts:787:7)
+        at captureSurface (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:282:20)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-cfd58-bundle-board-mg-6-populated-admin-eval-mobile/test-failed-1.png
@@ -279,7 +279,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.goto: Timeout 15000ms exceeded.
     Call log:
@@ -293,7 +293,7 @@ Running 153 tests using 1 worker
       322 |     await waitForLiveViewReady(page);
       323 |   });
       324 |
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-50fb9-nder-bundle-board-mg-6-zero-admin-eval-mobile/test-failed-1.png
@@ -315,8 +315,8 @@ Running 153 tests using 1 worker
       159 |     page.getByRole('button', { name: /Create an account/ }).click(),
       160 |   ]);
       161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-d5dec-r-bundle-board-mg-6-loading-admin-eval-mobile/test-failed-1.png
@@ -338,8 +338,8 @@ Running 153 tests using 1 worker
       159 |     page.getByRole('button', { name: /Create an account/ }).click(),
       160 |   ]);
       161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-3b4e9-der-bundle-board-mg-6-error-admin-eval-mobile/test-failed-1.png
@@ -358,7 +358,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
     Call log:
@@ -372,8 +372,8 @@ Running 153 tests using 1 worker
       143 |     state: 'attached',
       144 |   });
       145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
-        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
+        at waitForLiveViewReady (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-mobile/test-failed-1.png
@@ -392,7 +392,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.goto: Timeout 15000ms exceeded.
     Call log:
@@ -406,7 +406,7 @@ Running 153 tests using 1 worker
       322 |     await waitForLiveViewReady(page);
       323 |   });
       324 |
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:321:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-9f83f-er-bundle-board-mg-11-error-admin-eval-mobile/test-failed-1.png
@@ -428,9 +428,9 @@ Running 153 tests using 1 worker
       237 |     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       238 |     .analyze();
       239 |
-        at AxeBuilder.analyze (/Users/jon/projects/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:253:13)
-        at captureSurface (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:236:21)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
+        at AxeBuilder.analyze (/workspace/sigra/test/example/priv/playwright/node_modules/@axe-core/playwright/dist/index.js:253:13)
+        at captureSurface (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:236:21)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:361:9
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-71e28-bundle-board-mg-3-populated-admin-eval-dark/test-failed-1.png
@@ -449,7 +449,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
     Call log:
@@ -463,9 +463,9 @@ Running 153 tests using 1 worker
       143 |     state: 'attached',
       144 |   });
       145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
-        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at waitForLiveViewReady (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-58320-nder-bundle-board-mg-3-zero-admin-eval-dark/test-failed-1.png
@@ -484,7 +484,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
     Call log:
@@ -498,9 +498,9 @@ Running 153 tests using 1 worker
       143 |     state: 'attached',
       144 |   });
       145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
-        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at waitForLiveViewReady (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-78586-r-bundle-board-mg-3-loading-admin-eval-dark/test-failed-1.png
@@ -522,8 +522,8 @@ Running 153 tests using 1 worker
       159 |     page.getByRole('button', { name: /Create an account/ }).click(),
       160 |   ]);
       161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-24fb0-der-bundle-board-mg-3-error-admin-eval-dark/test-failed-1.png
@@ -542,7 +542,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
     Call log:
@@ -556,8 +556,8 @@ Running 153 tests using 1 worker
       143 |     state: 'attached',
       144 |   });
       145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
-        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
+        at waitForLiveViewReady (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:322:11
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-44cf9-nder-bundle-board-mg-7-zero-admin-eval-dark/test-failed-1.png
@@ -579,8 +579,8 @@ Running 153 tests using 1 worker
       159 |     page.getByRole('button', { name: /Create an account/ }).click(),
       160 |   ]);
       161 |   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:158:10)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-8e879-r-bundle-board-mg-7-loading-admin-eval-dark/test-failed-1.png
@@ -599,7 +599,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
     Call log:
@@ -613,9 +613,9 @@ Running 153 tests using 1 worker
       143 |     state: 'attached',
       144 |   });
       145 |   await page.evaluate(async () => { await (document as any).fonts.ready; });
-        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
+        at waitForLiveViewReady (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:142:14)
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:154:9)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-621d8-der-bundle-board-mg-7-error-admin-eval-dark/test-failed-1.png
@@ -634,7 +634,7 @@ Running 153 tests using 1 worker
       319 |     const adminEmail = adminEvalEmail(testInfo);
       320 |     await registerUser(page, adminEmail, TEST_PASSWORD);
       321 |     await page.goto('/admin/_design');
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:318:8
 
     TimeoutError: page.goto: Timeout 15000ms exceeded.
     Call log:
@@ -648,8 +648,8 @@ Running 153 tests using 1 worker
       154 |   await waitForLiveViewReady(page);
       155 |   await page.fill('input[name="user[email]"]', email);
       156 |   await page.fill('input[name="user[password]"]', password);
-        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
-        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
+        at registerUser (/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:153:14)
+        at /workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:320:11
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-eval-Admin-eval-—-re-c928a--bundle-board-mg-11-loading-admin-eval-dark/test-failed-1.png

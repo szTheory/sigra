@@ -44,7 +44,7 @@ Reconcile the deferred-items ledger for the v1.43 STABILIZE milestone close and 
 ### Automated Verification Result
 
 ```bash
-cd /Users/jon/projects/sigra
+cd /workspace/sigra
 # Script checked all 6 resolved + all 6 pending entries
 LEDGER_RECONCILED
 ```

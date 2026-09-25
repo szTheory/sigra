@@ -8,32 +8,98 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current Milestone: v1.48 CLEAN-BASELINE
+
+**Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
+code free of planning artifacts, and a release cut — so Sigra sits in a quiet, ready posture
+where the next milestone can start whenever we choose.
+
+**Thesis (post-1.0, maintenance-first):** Eleven consecutive feature/UI/CI milestones left a
+real baseline debt that no single phase owned. Evidence gathered 2026-09-15: `ci-gate` is
+intermittently red on `main` (the `Generated admin Playwright smoke` flake), which is the exact
+mechanism that silently stranded releases in v1.45; GitHub Pages fails on *every* push; Hex
+still resolves `{:sigra, "~> 1.0"}` to the phantom `1.20.0`; 28 planning tags share the tag
+namespace with real release tags — the literal ADR-003 footgun, still being fed (`v1.47`,
+`v1.48` were cut after the convention said stop); 171 planning-bookkeeping references sit in
+`lib/` and `priv/templates/`, five of them dead `.planning/` paths including one that ships
+into every adopter's project; and 18 PRs, 19 local branches, 31 remote branches, 3 stale
+worktrees and 6 stashes have accumulated unpruned. This milestone is explicitly NOT a feature
+or UI milestone. It pays the baseline down and cuts a release, so the next thesis-driven
+milestone starts from a clean, trustworthy floor.
+
+**Target features:**
+- **Green main, honestly** — root-cause the intermittent `Generated admin Playwright smoke`
+  flake (not a retry-wrap), fix the always-red `pages build`, close issue #231, and prove
+  `ci-gate` green across consecutive pushes with live-run evidence rather than assertion.
+- **Unambiguous release namespace + cut the release** — delete the 28 `v1.NN` planning tags
+  and 11 `phase-238-*` proof tags, add a CI guard that rejects any non-SemVer `v*` tag
+  (structurally closing ADR-003), retire the stray Hex `1.20.0` behind a gated operator step
+  with pre/post verification and a real `{:sigra, "~> 1.0"}` adopter-resolution proof, and
+  land the pending release.
+- **Clean shipped surface** — strip planning bookkeeping (`Phase NN`, `D-NN`, `NNN-NN`,
+  `.planning/` paths) from `lib/` and `priv/templates/`, prioritizing what renders on HexDocs
+  and what ships into adopter projects. Keep genuine design rationale; drop the bookkeeping.
+- **Clean git working state** — prune stale branches, worktrees and stashes; gitignore `.gsd/`
+  and GSD scratch; resolve the `doc/llms.txt` tracked-while-ignored conflict; drop stray
+  tracked artifacts.
+- **Drain the queue** — merge the 10 Dependabot bumps, close the 8 stale phase/recapture PRs,
+  and triage all 41 pending todos to keep / close / defer with recorded reasons.
+- **Retire v1.47's dishonest debt** — TEST-01/02 as a recorded supersession decision (delete
+  the orphaned `ExUnitTimingFormatter`, rewrite the contract test that currently blesses the
+  regression), repair the skip manifest's citation of a parity guard that does not exist plus
+  the `MAINTAINING.md` leg that rotted behind it, and bring Phase 232's composite action inside
+  the supply-chain guards.
+
+Phases continue from **236**. **Human-gated operator step** (inherent — Hex write-auth prompts
+interactively): `mix hex.retire sigra 1.20.0 invalid`, scoped as an explicit runbook step, not
+automation. **Explicitly out of scope:** the W-3/W-4 generated-auth runtime-proof lane (the
+intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` out of the repo,
+BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
+and any new feature work.
+
 ## Current State
 
-**Milestone v1.47 CI-EFFICIENCY is active.** Phases 230-234 are complete; Phase 235
-(Terminal Ratification — Measured, Not Read) is next. Phase 234 made `mix ci` the
-executable local/PR parity path, pinned the release-critical action surface, expanded
-Dependabot coverage, assigned every Playwright spec an executable owner, and closed
-the evidence ledger with an exact six-slot completion contract.
+**Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
+(230-235) cut PR wall-clock p50 from **27.3 minutes to 469 seconds (7m49s)** across n=52
+authenticated runs — inside the `<720s` target and roughly 3.5x faster than baseline. The
+nightly went from 0-pass/9-fail to an honest mix, `ci-gate` no longer counts `skipped` as
+pass, and every Playwright consumer boots through one shared composite action across five
+concurrent seams.
 
-Phase 231 revived the nightly with a measured live receipt: scheduled run `30607570671` passed
-on PR #125's merge SHA, replacing the milestone's 0-pass/9-fail baseline with a literal green run.
-The related Pages publisher is green, while its source-setting REST call is a separately filed
-repo-admin follow-up after the default workflow token received `403`.
+**It closed with two requirements unsatisfied, knowingly.** TEST-01 and TEST-02 are dead
+code at HEAD: `ExUnitTimingFormatter` and `SIGRA_EXUNIT_TIMING_PATH` have zero references in
+`.github/`, `scripts/`, or `mix.exs`. Phase 234-01 removed the wiring; the re-wiring commits
+live only on the parked 235.1 branch. The Phase 233 contract test was rewritten to *require*
+the replacement single-owner `mix ci` topology, so the guard now blesses the regression
+instead of catching it — which is why Phase 233 re-verified green and the close-out re-audit
+had to overrule it. The performance goal was met by that replacement design, so the
+requirements were accepted as debt rather than re-litigated under close-out pressure.
 
-**Hex is current again.** `sigra 1.4.0` published 2026-07-28 from tag `v1.4.0` at `cfc5e6b8`
-— the first release since `1.3.0`. The v1.46 changelog content was folded into the 1.4.0
-section before merge, so it ships as release notes rather than orphaned under `## Unreleased`.
-Two release-lane defects surfaced during that publish and were repaired in Phase 231:
-`gate-ci-green` now has a 75-minute job ceiling with 120 polling attempts, and the HARD-02
-`release-lane-rot` notifier self-heals its missing label. The stray
-`1.20.0` still outranks everything on Hex — the retire is blocked by Hex 2.5's OAuth token
-scopes (not ownership), so documented install lines are pinned `{:sigra, "~> 1.4.0"}` as a
-zero-auth workaround.
+**Hex publishing works; Hex *resolution* is still broken.** `sigra 1.5.0` is published
+and tagged `v1.5.0` — the series is contiguous through `1.0.0 → 1.5.0`, and PR #224
+(`chore(main): release 1.5.1`) is open and waiting. Two release-lane defects repaired in Phase
+231 hold: `gate-ci-green` has a 75-minute job ceiling with 120 polling attempts, and the
+HARD-02 `release-lane-rot` notifier self-heals its missing label. **But the stray `1.20.0` is
+still `latest_stable_version` on Hex and is not retired**, so `{:sigra, "~> 1.0"}` resolves to
+a phantom release; documented install lines are pinned as a zero-auth workaround. v1.48 takes
+the retire as a gated operator step.
 
 The adopted experience is now coherent end to end and proven from a fresh generated host —
 install → migrate → register/confirm → grant → login → `/admin` → audit filter → revoke →
 deny, with deterministic evidence in CI.
+
+**The release-tag namespace is now guarded server-side and cleaned (Phase 238, REL-01/REL-02).**
+GitHub tag ruleset `tag-namespace` is live and `active` with an empty bypass list:
+`include: refs/tags/v*`, `exclude: refs/tags/v*.*.*`, one `creation` rule — so a two-segment
+`v1.49` is rejected at push time while release-please's three-segment tags stay out of scope.
+39 planning tags (28 `v1.NN` + 11 `phase-238-*`) were deleted from a committed allowlist with
+each ref's pre-deletion SHA recorded; every GitHub Release still has a backing tag on origin.
+**Two bounded caveats, stated rather than smoothed over.** Tier 1 (`tag_name_pattern`, a true
+RE2 validator) is enterprise-gated and was rejected live with `HTTP 422` on this Free-tier repo,
+so what shipped is a **shape guard, not a SemVer validator** — `v1.2.3.4`, `v1.a.b` and `v...`
+all carry two dots and fall in the exclusion. And the guard is paired: `p19` asserts the
+committed snapshot offline on every PR, while the live-vs-committed drift read runs only on the
+post-merge `workflow_run` observer lane. That drift job first executed on 2026-09-17 and passed.
 
 **What the next milestone should probably weigh.** The v1.46 audit's clearest signal is
 that the auth-UI lane has thin *runtime* proof: exactly one generated auth surface (login,
@@ -43,9 +109,15 @@ defect the owner caught by eye survives one config flag away, and the fix shippe
 covered only one branch of a two-branch conditional. W-3 + W-4 (no axe run touches any
 `sigra-auth-*` surface) are the coherent core of a follow-on auth-UI proof milestone.
 
-Also outstanding and unrelated to UI: Hex currency. Last published release is `1.3.0`; the
-stray `1.20.0` still outranks it and the retire remains operator-deferred (ADR 003). The
-v1.46 changelog content is still under `## Unreleased`.
+**Baseline debt is the reason v1.48 exists.** Evidence gathered 2026-09-15: `ci-gate` is
+intermittently red on `main` via a flaky `Generated admin Playwright smoke`, which is the same
+mechanism that silently stranded releases in v1.45; `pages build` fails on every push; 28
+`v1.NN` planning tags share the tag namespace with real release tags (the ADR-003 footgun, and
+`v1.47`/`v1.48` were cut *after* the convention said stop); 171 planning-bookkeeping references
+sit in `lib/` and `priv/templates/`, five of them dead `.planning/` paths including one that
+ships into every adopter's project; and 18 PRs, 19 local branches, 31 remote branches, 3 stale
+worktrees and 6 stashes are unpruned. The W-3/W-4 auth-UI runtime-proof lane remains the
+intended milestone *after* this one.
 
 <details>
 <summary>v1.46 ADOPTER-EXPERIENCE — original milestone brief</summary>
@@ -64,9 +136,34 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 </details>
 
-## Current Milestone: v1.47 CI-EFFICIENCY
+## Latest Shipped Milestone: v1.47 CI-EFFICIENCY (shipped 2026-09-15 — override_closeout)
+
+Delivered across 6 phases (230-235): the design-gallery snapshot split that took the sole PR
+critical-path job off its heaviest step while keeping a11y assertions on every PR;
+`admin_eval_render` demoted off PR and given back a hard non-PR signal; a revived, honest
+nightly; a fail-closed honest-skip verdict that refuses to count an unmanifested `skipped`
+as a pass; one shared `example-playwright-boot` composite action behind five concurrent
+matrix seams converging on the unchanged protected context; SHA-pinned release workflows with
+mutation coverage and weekly Dependabot; `mix ci` as the executable local/PR parity path; and
+a sealed, signed, source-complete 52-run population closing FAST-01 alongside a fail-closed
+93-row GATE-05 ownership ledger.
+
+**21/24 requirements satisfied.** TEST-01/TEST-02 unsatisfied and TEST-03 partial (see
+Current State); 46 open artifacts acknowledged and deferred at close. Five audit-surfaced
+findings were filed as todos rather than fixed at close: the orphaned timing machinery, a
+skip-manifest citation of a parity guard that does not exist (plus the `MAINTAINING.md` leg
+that rotted behind it), the GATE-05 ledger's Playwright-only scope and its disagreement with
+the skip manifest, Phase 232's composite action sitting outside both supply-chain guards, and
+an isolated `admin_eval_render` red that notifies nobody.
+
+Full detail in `milestones/v1.47-ROADMAP.md`; findings in `milestones/v1.47-MILESTONE-AUDIT.md`.
+
+<details>
+<summary>v1.47 CI-EFFICIENCY — original milestone brief</summary>
 
 **Goal:** Cut PR wall-clock from ~29.5m to under 12m and make every remaining gate honest — by *executing* the already-written SEED-005 audit rather than re-running it.
+
+**Status:** Phase work complete — 6/6 phases and 67/67 plans finished. Phase 235 verified the authenticated source-complete FAST-01 result at n=52 / p50=469 seconds and preserved the independent 93-row GATE-05 ownership proof. Ready for milestone closeout.
 
 **Target features:**
 - **Reclaim the critical path** — design-gallery snapshots off the PR gate (a11y assertions stay), `admin_eval_render` demoted to non-PR, a `concurrency:` block, path filters, cached Playwright browsers, and `timeout-minutes` on every job.
@@ -78,7 +175,9 @@ Phases continue from **224**. Explicitly deferred: wholesale admin redesign, hos
 
 Phases continue from **230**. Explicitly deferred: credo, dialyzer and mix_audit as new gates; the `async: false` posture (contract-locked by `phase_153_infra_stability_contract_test.exs`); larger or self-hosted runners; and the Hex `1.20.0` retire.
 
-## Latest Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
+</details>
+
+## Previous Shipped Milestone: v1.46 ADOPTER-EXPERIENCE (shipped 2026-07-27 — override_closeout)
 
 Delivered across 6 phases (224–229): a host-owned persisted platform-admin grant with an
 explicit `mix sigra.admin.*` workflow replacing all first-user/email-domain inference;
@@ -589,6 +688,10 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — Phase 235
+- ✓ **FAST-01** — authenticated source-complete protected evidence verifies 52 eligible PR runs at a 469-second wall-clock p50, below the strict 720-second threshold, with literal terminal conclusions and immutable miss history.
+- ✓ **GATE-05** — the protected 93-row ownership ledger, receipts, contributor topology, and independent offline verifier remain exact while FAST-01 is reconciled.
+
 ### Validated — Phase 233
 - ✓ **TEST-01, TEST-02, TEST-03** — same-run ExUnit timing, measured deterministic two-shard balancing, unconditional scaffold-heavy receiver routing, retry-free PR evidence, and fail-closed live manifest reconciliation verified 16/16 in Phase 233.
 
@@ -1009,6 +1112,8 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | v1.39 idempotent fractal quality system (ledger + monotonic guard + scorecard) | A re-runnable design-system audit needs a forward-only ratchet: a quality-tier ledger per fractal-level item, a merge-blocking monotonic guard vs base ref, and a deterministic D1–D11 scorecard, so re-runs start from "current = ratified" and never regress. | ✓ Validated v1.39 (Phases 185–192) — ~35 ledger cells locked Tier 1; Phase 192 terminal gate proved forward-only vs origin/main |
 | v1.39 hand-rolled example-only `/admin/_design` gallery (no `phx_storybook` dep) | Auditing every component/group in every state/theme/width needs an isolated harness, but a storybook dependency would violate the minimal-deps constraint and isn't host-shippable. Build it in `test/example/` only, contract-guarded against ever being templated to the installer. | ✓ Validated v1.39 (Phase 185, INFRA-01) — gallery + `admin-design-{chromium,mobile,dark}` snapshot+axe lane |
 | A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
+| Source-complete signed evidence is the FAST-01 authority | Derived statistics cannot prove membership, chronology, pagination exhaustion, or preserved terminal outcomes; the signed raw source must replay exactly against the metrics instrument. | ✓ Validated Phase 235 — protected run `34350618761`, n=52, p50=469 seconds, exact offline replay |
+| FAST-01 reconciliation cannot reopen GATE-05 | Performance evidence and ownership evidence have separate protected receipts and verifiers, preventing a favorable performance result from weakening coverage ownership. | ✓ Validated Phase 235 — independent 93-row GATE-05 proof remained byte-stable and green |
 
 ## Evolution
 
@@ -1125,3 +1230,9 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-07-10 — `/gsd-new-milestone` opened **v1.45 RELEASE-CURRENCY** (phases continue from 221). Maintenance-first/post-1.0 lane chosen over an 11th UI milestone: **get Sigra current and trustworthy on Hex.** Root cause mapped: Hex is stuck at v1.1.0 because release-please auto-publish (`release-please.yml` → `hex-publish` job, gated on `gate-ci-green`) has been blocked since 2026-07-03 — `ci-gate` is red on every push to `main` from a **push/schedule-only, PR-invisible** `Upgrade smoke` `<.button type>` warning-as-error; v1.2.0 (#66) + v1.3.0 (#74) were cut + tagged + GitHub-released but silently never published. Four target features: (1) fix the `<.button type>` upgrade-smoke blocker (lib + installer template + example parity, golden re-bless) → `ci-gate` green; (2) publish v1.2.0 + v1.3.0 contiguous + retire stray `1.20.0` so `latest_stable` resolves to GA; (3) release-lane hardening so a red gate can't silently strand a release (Upgrade-smoke PR-visible/alerting + auto-publish fails loudly); (4) ship-honest generated-host debt (security-adjacent WR-01 installer `scope:` fix + golden re-bless, WR-02 copy, app.css corruption-guard false-negative, up.sh --help). Human-gated: `mix hex.retire` + publish dispatch (interactive Hex write-auth). Deferred: FEAT-01/02/03, SEED-005 CI-perf, further UI. Next: define REQUIREMENTS.md → roadmap.*
 
 *Last updated: 2026-08-02 — Phase **234 Hygiene, Supply Chain, and Contributor DX** complete (21/21 plans; verifier 7/7, status passed). `mix ci` is the executable contributor/PR parity path, release-critical actions and Dependabot coverage are fail-closed, every Playwright spec has an exact executable owner, SEED-006 evidence is ratified, and completion now admits exactly the six named evidence slots. The final gap also reblessed the generated `config/dev.exs` golden from stale Phoenix 1.8.7 scaffold bytes to the pinned `phx_new` 1.8.8 output. Phase 235 terminal ratification is next.*
+
+*Last updated: 2026-09-09 after Phase **235 Terminal Ratification — Measured, Not Read** completed (13/13 plans; verifier 11/11, UAT 2/2, Nyquist compliant, security threats open 0). Authenticated source-complete evidence closes FAST-01 at n=52 and p50=469 seconds; GATE-05 remains independently complete with its protected 93-row ownership proof. v1.47 is 6/6 phases and 67/67 plans complete, ready for `$gsd-complete-milestone v1.47`.*
+
+*Last updated: 2026-09-15 — `/gsd-new-milestone` opened **v1.48 CLEAN-BASELINE** (phases continue from 236). Housekeeping/release-readiness lane chosen over the W-3/W-4 auth-UI proof milestone, which is deliberately queued next. Evidence gathered this session: `ci-gate` intermittently red on `main` via a flaky `Generated admin Playwright smoke` (the v1.45 silent-strand mechanism recurring); `pages build` red on every push; Hex `latest_stable_version` still the phantom `1.20.0`, unretired, so `{:sigra, "~> 1.0"}` misresolves; 28 `v1.NN` planning tags + 11 `phase-238-*` proof tags polluting the release-tag namespace (ADR-003 footgun, still being fed); 171 planning-bookkeeping references in `lib/`+`priv/templates/`, 5 of them dead `.planning/` paths incl. one shipping to adopters; 18 open PRs, 19 local / 31 remote branches, 3 stale worktrees, 6 stashes, 41 pending todos. Six target features: (1) green main honestly; (2) unambiguous release namespace + cut the release, incl. gated Hex `1.20.0` retire; (3) clean shipped surface; (4) clean git working state; (5) drain the PR/todo queue; (6) retire v1.47's dishonest debt (TEST-01/02 supersession, fictional parity guard, composite-action supply-chain gap). Also corrected a stale Current State claim that `1.4.0` was latest — `v1.5.0` is live. Human-gated: `mix hex.retire sigra 1.20.0 invalid`. Out of scope: W-3/W-4 auth-UI runtime proof, admin/operator-UI iteration, `.planning/` pruning, BFG history slimming, all new features. Next: define REQUIREMENTS.md → roadmap.*
+
+*Last updated: 2026-09-17 after Phase **238 Tag Guard, Then Tag Deletion** completed (6/6 plans; verification passed, UAT 1/1, security threats_open 0 across a 35-entry register). REL-01 satisfied as a **supersession** — its "server-side ruleset + paired contract test, demonstrated RED, before any deletion" holds, but its implied SemVer-validator mechanism does not: Tier 1 `tag_name_pattern` is enterprise-gated and was rejected live (`HTTP 422`) on this Free-tier repo, so the landed Tier 2 `creation` rule with `exclude: refs/tags/v*.*.*` is a shape guard. REL-02 satisfied: 39 tags deleted from a committed allowlist (never a glob), one literal name per invocation, `pre_delete_sha` captured for every ref, release surface unchanged and zero untagged drafts. The last UAT item — whether the `tag_ruleset_drift` observer actually executes post-merge — was closed by evidence, not by eye: observe run `35249205910` ran the job green (`live tag-namespace ruleset (id 23574716) matches the committed snapshot`). Recorded trap: two earlier observe runs at the same head SHA reported the RUN green while the job was `skipped` (its guard is `workflow_run.event != 'pull_request'`), so a green run is not proof — only the job's own conclusion and stdout are. Carry-forward: `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*` now tracks three items — the unreachable `ABSENT` branch, the unpaginated ruleset list, and the absent assertion that the job ran; all three fail closed. **Never run `git gc`, `reflog expire` or `prune`** — the allowlist's `pre_delete_sha` column is Phase 245's forward-feed and the deleted objects must stay reachable by SHA. Phase 239 (`priv/templates/` sweep + one batched re-bless) is next.*

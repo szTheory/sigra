@@ -136,7 +136,7 @@ OPTIONAL day-group sub-headers (`sg-day-group`): SKIP for this task. It risks th
 Run `mix compile --warnings-as-errors` after editing — remove any now-unused private fn and fix warnings before finishing.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | tail -5 && cd test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres mix test test/example_web/live/admin_audit_index_live_test.exs 2>&1 | tail -15</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | tail -5 && cd test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres mix test test/example_web/live/admin_audit_index_live_test.exs 2>&1 | tail -15</automated>
   </verify>
   <done>Outcome is a `<select>` (Any/Success/Failure reflecting the param); from/to date inputs render; action_prefix stays free text echoing `admin.impersonation`; applied-filter chips + Clear all render when filters active; failure outcome renders as a risk-toned pill, success stays muted text; empty state keeps the title `No audit events match this view` and teaches recovery; `mix compile --warnings-as-errors` clean; `admin_audit_index_live_test.exs` green (3/3).</done>
 </task>
@@ -179,7 +179,7 @@ OPTIONAL day-group: SKIP (same rationale as Task 1).
 Run `mix compile --warnings-as-errors` and remove any unused private fn before finishing.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra && mix compile --warnings-as-errors 2>&1 | tail -5 && cd test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres mix test test/example_web/live/admin_audit_user_live_test.exs 2>&1 | tail -15</automated>
+    <automated>cd /workspace/sigra && mix compile --warnings-as-errors 2>&1 | tail -5 && cd test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres mix test test/example_web/live/admin_audit_user_live_test.exs 2>&1 | tail -15</automated>
   </verify>
   <done>Per-user Outcome is a `<select>`; a `to` date input is added alongside the existing `from`; action_prefix stays free text echoing `session`; chips + Clear all preserve return_to; failure outcome renders as a risk-toned pill; empty-state title `No audit events match this user view` preserved with a teaching body; return_to persists through chips/clear/export/pagination; `mix compile --warnings-as-errors` clean; `admin_audit_user_live_test.exs` green (2/2).</done>
 </task>
@@ -207,8 +207,8 @@ Run `mix compile --warnings-as-errors` and remove any unused private fn before f
 Full gate from `test/example` (both audit test files must stay green, honoring every ground-truth pin):
 
 ```
-cd /Users/jon/projects/sigra && mix compile --warnings-as-errors
-cd /Users/jon/projects/sigra/test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres \
+cd /workspace/sigra && mix compile --warnings-as-errors
+cd /workspace/sigra/test/example && PGHOST=127.0.0.1 PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres \
   mix test test/example_web/live/admin_audit_index_live_test.exs \
            test/example_web/live/admin_audit_user_live_test.exs
 ```

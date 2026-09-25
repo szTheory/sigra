@@ -74,7 +74,7 @@ Output: Five `.planning/*` files updated; a single per-task commit referencing c
 @.planning/phases/130-verification-and-release-readiness/130-VALIDATION.md
 
 <orchestrator_verified>
-The /gsd-quick orchestrator already ran the following at HEAD in `/Users/jon/projects/sigra` and confirmed the results:
+The /gsd-quick orchestrator already ran the following at HEAD in `/workspace/sigra` and confirmed the results:
 
 1. `mix docs --warnings-as-errors` -> exit code 0, stdout: `Generating docs...` followed by `View "html" docs at "doc/index.html"` and `View "markdown" docs at "doc/llms.txt"`. No warnings, no errors.
 2. `rg -n "Sigra.OAuth.callback" guides/ lib/` -> zero matches. The xrefs that 110a560 fixed are gone codebase-wide, not just at the two original lines.

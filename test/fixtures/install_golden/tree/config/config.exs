@@ -68,7 +68,9 @@ config :sigra_install_golden_tmp, :sigra_config,
   ],
   audit: [
     audit_schema: SigraInstallGoldenTmp.Accounts.AuditEvent
-  ]
+  ],
+  mfa: [enabled: true],
+  enterprise: [enabled: true]
 
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
@@ -82,6 +84,7 @@ config :sigra,
 # Sigra passkeys
 config :sigra_install_golden_tmp, :sigra_config,
   passkeys: [
+    enabled: true,
     rp_id: "localhost",
     rp_name: "SigraInstallGoldenTmp",
     origin: "http://localhost:4000",

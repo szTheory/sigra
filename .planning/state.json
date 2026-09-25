@@ -1,0 +1,63 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.48 — CLEAN-BASELINE",
+  "phases": [
+    {
+      "number": "236",
+      "name": "Flake Root Cause",
+      "status": "complete"
+    },
+    {
+      "number": "237",
+      "name": "Clean Working Tree + Pages + `lib/` Docs",
+      "status": "complete"
+    },
+    {
+      "number": "238",
+      "name": "Tag Guard, Then Tag Deletion",
+      "status": "complete"
+    },
+    {
+      "number": "239",
+      "name": "`priv/templates/` Sweep + Re-bless",
+      "status": "pending"
+    },
+    {
+      "number": "240",
+      "name": "Green-Main Evidence + Honest Pages Script",
+      "status": "pending"
+    },
+    {
+      "number": "241",
+      "name": "Debt Retirement + Leakage Guard",
+      "status": "pending"
+    },
+    {
+      "number": "242",
+      "name": "Hex Retire + Docs Revert + Cut 1.5.1",
+      "status": "pending"
+    },
+    {
+      "number": "243",
+      "name": "Queue Drain + Todo Triage",
+      "status": "pending"
+    },
+    {
+      "number": "244",
+      "name": "`@playwright/test` Bump, Alone",
+      "status": "pending"
+    },
+    {
+      "number": "245",
+      "name": "Branch Prune",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 239 of 10 · 30% · executing"
+  },
+  "updated_at": "2026-09-17T20:27:06.884Z"
+}

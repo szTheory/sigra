@@ -174,8 +174,9 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
       assert passkeys_source =~ "defp router_injection"
 
       for expected <- [
-            "pipe_through [:browser, :redirect_if_user_is_authenticated]",
-            "pipe_through [:browser, :require_authenticated, :require_sudo]",
+            "pipe_through [:browser, :require_mfa_capability, :require_passkeys_capability]",
+            "pipe_through [:browser, :require_passkeys_capability, :redirect_if_user_is_authenticated]",
+            "pipe_through [:browser, :require_passkeys_capability, :require_authenticated, :require_sudo]",
             "post \"/log_in/passkey\", SessionController, :complete_passkey",
             "post \"/log_in/passkey/options\", SessionController, :passkey_authentication_options",
             "post \"/settings/mfa/passkeys/options\", SessionController, :passkey_registration_options",
@@ -192,7 +193,9 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
       source = File.read!(@passkeys_router_template)
 
       [ordinary_scopes, after_sudo_pipe] =
-        String.split(source, "pipe_through [:browser, :require_authenticated, :require_sudo]",
+        String.split(
+          source,
+          "pipe_through [:browser, :require_passkeys_capability, :require_authenticated, :require_sudo]",
           parts: 2
         )
 

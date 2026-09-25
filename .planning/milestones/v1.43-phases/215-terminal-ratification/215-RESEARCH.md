@@ -130,7 +130,7 @@ Data-flow note: the **authoritative HEALTH-04 signal** is the GitHub Actions run
 **Example (the canonical invocation, verified live):**
 ```bash
 # Source: this session — the trustworthy release-signal command
-cd /Users/jon/projects/sigra
+cd /workspace/sigra
 source tmp/db.env 2>/dev/null   # dynamic ephemeral PG port; falls back to localhost:5432 if absent
 mix test                        # mix sets MIX_ENV=test itself
 # => 33 doctests, 3 properties, 2404 tests, 0 failures, 12 skipped (3 excluded)
@@ -198,7 +198,7 @@ mix test                        # mix sets MIX_ENV=test itself
 ### Objective 1 — library release signal (verified live)
 ```bash
 # Source: this session, on main, tmp/db.env loaded (port 58915)
-cd /Users/jon/projects/sigra && source tmp/db.env 2>/dev/null && mix test
+cd /workspace/sigra && source tmp/db.env 2>/dev/null && mix test
 # => Finished in 212.0 seconds (2.8s async, 209.1s sync)
 # => 33 doctests, 3 properties, 2404 tests, 0 failures, 12 skipped (3 excluded)
 ```
@@ -206,7 +206,7 @@ cd /Users/jon/projects/sigra && source tmp/db.env 2>/dev/null && mix test
 ### Objective 2 — example suite (verified live, CI-parity env)
 ```bash
 # Source: this session — mirrors CI example_unit_smoke lane exactly
-cd /Users/jon/projects/sigra/test/example
+cd /workspace/sigra/test/example
 export PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost   # CI uses localhost:5432
 MIX_ENV=test mix ecto.create && MIX_ENV=test mix ecto.migrate
 mix test --include example_app

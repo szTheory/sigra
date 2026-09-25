@@ -169,9 +169,11 @@ defp create(conn, %{"user" => user_params}, info) do
 
     {:error, :sso_required, %{organization_slug: slug}}
     when is_binary(slug) and slug != "" ->
+      query = %{routing_source: "local_policy"}
+
       conn
       |> put_flash(:error, "Your organization requires enterprise sign-in.")
-      |> redirect(to: ~p"/organizations/#{slug}/sso?#{%{routing_source: "local_policy"}}")
+      |> redirect(to: ~p"/organizations/#{slug}/sso?#{query}")
 
     _ ->
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.

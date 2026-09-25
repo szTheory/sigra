@@ -29,7 +29,7 @@ defmodule <%= web_module %>.UserAuth do
   ]
 
   # Resolve remember-me cookie options at RUNTIME so that the `:cookie_domain`
-  # config value is honored without recompiling this module. See Phase 10 D-09.
+  # config value is honored without recompiling this module.
   #
   # NOTE: `Sigra.Env.current/0` is used instead of `Mix.env/0` directly because
   # the `:mix` application is NOT included in production releases (`mix release`
@@ -343,7 +343,7 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 <%= if organizations? do %>
-  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
+  # Assigns `@user_organizations` to the socket for the
   # org switcher component. Wired into `live_session` entries by the
   # Sigra organizations router injection. Shape:
   # `[{%Organization{}, role}]` — presentation-only data; security
@@ -392,6 +392,28 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 
+  @doc "Fails closed when the generated MFA capability is disabled."
+  def ensure_mfa_capability(conn, _opts) do
+    if <%= context_module %>.mfa_capability_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
+  @doc "Fails closed when the generated passkey capability is disabled."
+  def ensure_passkeys_capability(conn, _opts) do
+    if <%= context_module %>.passkeys_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
+  @doc "Fails closed when every generated account-security capability is disabled."
+  def ensure_auth_settings_capability(conn, _opts) do
+    if <%= context_module %>.mfa_capability_enabled?() or
+         <%= context_module %>.passkeys_enabled?(),
+      do: conn,
+      else: capability_not_found(conn)
+  end
+
   @doc """
   Used for routes that require the user to be authenticated.
 
@@ -421,7 +443,7 @@ defmodule <%= web_module %>.UserAuth do
     - Allows request to continue
 
   When `:unconfirmed_access` is `:block`:
-    - Auto-resends confirmation email (D-04)
+    - Auto-resends confirmation email
     - Sets error flash and redirects to confirmation page
     - Halts the connection
 
@@ -451,7 +473,7 @@ defmodule <%= web_module %>.UserAuth do
         |> put_flash(:info, dgettext("sigra", "Please confirm your email. Check your inbox or request a new confirmation email."))
 
       unconfirmed_access_mode(opts) == :block ->
-        # D-04: auto-resend confirmation on blocked login attempt
+        # Auto-resend confirmation on blocked login attempt
         <%= context_module %>.deliver_user_confirmation_instructions(
           user,
           &url(conn, ~p"/users/confirm/#{&1}")
@@ -487,7 +509,7 @@ defmodule <%= web_module %>.UserAuth do
   redirects to the MFA challenge page. Delegates to `Sigra.Plug.RequireMFA`
   for the core check.
 
-  Per D-33: auto-inserted into authenticated pipeline by generator.
+  Auto-inserted into the authenticated pipeline by the generator.
   """
   def require_mfa(conn, _opts) do
     scope = conn.assigns[:current_scope]
@@ -510,7 +532,7 @@ defmodule <%= web_module %>.UserAuth do
   the settings page password section. The settings page itself is
   exempt from this check to avoid redirect loops.
 
-  Delegates to `Sigra.Plug.RequirePasswordChange` pattern (D-38).
+  Delegates to `Sigra.Plug.RequirePasswordChange` pattern.
 
   ## Usage
 
@@ -540,7 +562,7 @@ defmodule <%= web_module %>.UserAuth do
   Plug that checks if the user's account is scheduled for deletion.
 
   If the user has a non-nil `deleted_at`, redirects to the reactivation
-  page where they can cancel the deletion or sign out (D-15, T-8-15).
+  page where they can cancel the deletion or sign out.
 
   The reactivation page itself and log out are exempt so the redirect can't
   loop (the reactivation route lives in the same authenticated pipeline).
@@ -568,6 +590,12 @@ defmodule <%= web_module %>.UserAuth do
   # Exact request-path match so a redirect target inside the same pipeline
   # (settings, reactivation) and log out can't trap the user in a redirect loop.
   defp exempt_path?(conn, paths), do: conn.request_path in paths
+
+  defp capability_not_found(conn) do
+    conn
+    |> send_resp(:not_found, "Not Found")
+    |> halt()
+  end
 
   defp signed_in_path(_conn), do: ~p"/"
 end

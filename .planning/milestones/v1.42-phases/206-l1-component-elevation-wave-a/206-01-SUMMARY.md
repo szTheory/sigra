@@ -134,7 +134,7 @@ No new threat surface beyond what the plan's threat model already covers (T-206-
 
 ## Self-Check: PASSED
 
-- `/Users/jon/projects/sigra/scripts/ci/admin-css-conformance.sh` — FOUND
-- `/Users/jon/projects/sigra/scripts/ci/admin-css-conformance.test.sh` — FOUND
+- `/workspace/sigra/scripts/ci/admin-css-conformance.sh` — FOUND
+- `/workspace/sigra/scripts/ci/admin-css-conformance.test.sh` — FOUND
 - Commit `1c4af42d` — FOUND in git log
 - Commit `695d3752` — FOUND in git log

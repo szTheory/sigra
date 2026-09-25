@@ -131,8 +131,8 @@ No new network endpoints, auth paths, file access patterns, or schema changes in
 ## Self-Check
 
 All created files verified present and executable:
-- `/Users/jon/projects/sigra/scripts/ci/admin-token-completeness.sh` — present, executable
-- `/Users/jon/projects/sigra/scripts/ci/admin-token-completeness.test.sh` — present, executable
-- `/Users/jon/projects/sigra/scripts/ci/admin-css-conformance.sh` — modified, CHECK 3 present
+- `/workspace/sigra/scripts/ci/admin-token-completeness.sh` — present, executable
+- `/workspace/sigra/scripts/ci/admin-token-completeness.test.sh` — present, executable
+- `/workspace/sigra/scripts/ci/admin-css-conformance.sh` — modified, CHECK 3 present
 
 All three task commits verified in git log.

@@ -93,7 +93,7 @@ The existing `brandbook/favicon.svg` and both guide source files were unchanged.
   - simulated dark→light rerender failure: all 4 last-good SVGs remained byte-identical and wrappers retained their last successful theme.
 - Screenshots inspected: `/tmp/sigra-architecture-light.png`, `/tmp/sigra-architecture-dark-clean.png`, `/tmp/sigra-walkthrough-dark.png`, and `/tmp/sigra-architecture-fallback-dark.png`.
 - Automation session closed successfully.
-- `open -a "Google Chrome" "file:///Users/jon/projects/sigra/doc/architecture.html" "file:///Users/jon/projects/sigra/doc/code-walkthrough.html"` — exit 0. Because the existing Chrome instance did not surface new tabs from that LaunchServices request, an AppleScript fallback created both tabs in the front window and activated Architecture; a URL-only count verified exactly 2 matching visible tabs.
+- `open -a "Google Chrome" "file:///workspace/sigra/doc/architecture.html" "file:///workspace/sigra/doc/code-walkthrough.html"` — exit 0. Because the existing Chrome instance did not surface new tabs from that LaunchServices request, an AppleScript fallback created both tabs in the front window and activated Architecture; a URL-only count verified exactly 2 matching visible tabs.
 
 ## Decisions Made
 

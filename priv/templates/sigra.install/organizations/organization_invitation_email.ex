@@ -1,17 +1,17 @@
-# -- Organization Invitation (Phase 17 D-12) --
+# -- Organization Invitation --
 #
 # Standalone fragment mirroring api_token_created_email.ex shape. The
 # canonical copy of this function is merged into emails.ex at generator
 # time — this file is preserved as a reference snippet so developers
-# (and the phase-17 verifier) can locate the invitation-email logic
+# can locate the invitation-email logic
 # without scanning the full emails.ex template.
 #
 # Security notes:
 #
 #   * Every user-controllable field interpolation goes through
-#     html_escape_string/1 (XSS defense — T-17-10).
+#     html_escape_string/1 (XSS defense).
 #   * Subject line includes both inviter display name and org.name
-#     (phishing defense — T-17-10 spoofing).
+#     (phishing defense — prevents inviter/org spoofing).
 #   * Accept URL is HMAC-signed by the library
 #     (Sigra.Token.generate_invite_envelope/2); this template does not
 #     generate or validate it.

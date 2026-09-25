@@ -291,7 +291,7 @@ for (const scale of SCALES) {
 await browser.close();
 ```
 
-**Run from:** `cd /Users/jon/projects/sigra/test/example/priv/playwright && node ../../../../../scripts/brand/critique-render.mjs`
+**Run from:** `cd /workspace/sigra/test/example/priv/playwright && node ../../../../../scripts/brand/critique-render.mjs`
 
 **Important:** `playwright-core` (not `@playwright/test`) is the correct import for standalone use. It is already installed at `test/example/priv/playwright/node_modules/playwright-core`. The chromium-1223 browser binary is cached at `~/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/`.
 

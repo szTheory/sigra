@@ -2,11 +2,11 @@ defmodule <%= web_module %>.SessionHTML do
   @moduledoc """
   Controller-mode login templates.
 
-  Per Phase 10.1.1 D-12 / B9, the login page is a plain controller +
+  The login page is a plain controller +
   HEEx template in BOTH `--live` and `--no-live` installs. LiveView's
-  LiveView form submission attributes were swallowing the browser form
-  submit during UAT. With no LiveView process on the page, the browser
-  performs a real HTTP POST to `SessionController.create/2`.
+  form-submission attributes were swallowing the browser form submit.
+  With no LiveView process on the page, the browser performs a real
+  HTTP POST to `SessionController.create/2`.
 
   Two separate form assigns (`@form` and `@magic_link_form`) isolate
   validation/flash state so an error on one form does not corrupt the
@@ -74,7 +74,7 @@ defmodule <%= web_module %>.SessionHTML do
             <div class="sigra-auth-divider">{dgettext("sigra", "or use a password")}</div>
             <%%= password_form(assigns) %>
 
-            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <div :if={@enterprise_sign_in_enabled} class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
             <%%= enterprise_form(assigns) %>
           </div>
         </details>
@@ -93,7 +93,7 @@ defmodule <%= web_module %>.SessionHTML do
           <summary>{dgettext("sigra", "Other ways to sign in")}</summary>
           <div class="sigra-auth-stack sigra-auth-stack--6">
             <%%= password_form(assigns) %>
-            <div class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
+            <div :if={@enterprise_sign_in_enabled} class="sigra-auth-divider">{dgettext("sigra", "or use work sign-in")}</div>
             <%%= enterprise_form(assigns) %>
           </div>
         </details>
@@ -125,7 +125,7 @@ defmodule <%= web_module %>.SessionHTML do
 
   defp enterprise_form(assigns) do
     ~H"""
-    <section class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
+    <section :if={@enterprise_sign_in_enabled} class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
       <div class="sigra-auth-stack sigra-auth-stack--2">
         <h2 id="enterprise-sign-in-title">{dgettext("sigra", "Work sign-in")}</h2>
         <p>{dgettext("sigra", "Enter your work email. We'll continue to your organization's sign-in page when there is an exact active match.")}</p>

@@ -287,14 +287,12 @@ defmodule <%= web_module %>.MFAChallengeLive do
         </.form>
       </div>
 
-      <%% # Remaining attempts hint (D-38) %>
       <div :if={@active_method != "passkey"} aria-live="polite">
         <p class="sigra-auth-copy sigra-auth-copy--muted sigra-auth-copy--center">
           Enter the code from your authenticator app to continue.
         </p>
       </div>
 
-      <%% # Cancel link (D-34) %>
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link href={~p"/users/log_out"} method="delete">
           Cancel and sign out
@@ -357,7 +355,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
   def handle_event("validate_totp", %{"mfa" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code, "trust" => "false"}, as: "mfa")
 
-    # Auto-submit when 6 digits entered (D-36)
+    # Auto-submit when 6 digits entered
     if String.length(code) == 6 and Regex.match?(~r/^\d{6}$/, code) do
       send(self(), {:auto_verify_totp, code})
     end

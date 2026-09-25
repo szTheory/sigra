@@ -21,11 +21,13 @@ defmodule <%= web_module %>.TokenController do
 
   alias <%= context_module %>, as: Auth
 
+  plug :require_mfa_capability when action in [:mfa]
+
   @doc """
   Authenticates a user with email and password.
 
   Returns JWT access/refresh tokens on success, or `mfa_required: true`
-  if the user has MFA enabled (D-47).
+  if the user has MFA enabled.
   """
   def create(conn, %{"email" => email, "password" => password} = params) do
     scopes = params["scopes"] || []
@@ -36,7 +38,7 @@ defmodule <%= web_module %>.TokenController do
 
       user ->
         if Auth.mfa_enabled?(user) do
-          # D-47: MFA required for JWT login
+          # MFA required for JWT login
           config = Auth.sigra_config()
           mfa_token = Sigra.Token.generate_short_lived(config, user, "jwt_mfa", ttl: 300)
 
@@ -57,7 +59,7 @@ defmodule <%= web_module %>.TokenController do
   Refreshes JWT tokens using a refresh token.
 
   Implements refresh token rotation with family-based reuse detection.
-  If reuse is detected, all tokens in the family are revoked (D-41).
+  If reuse is detected, all tokens in the family are revoked.
   """
   def refresh(conn, %{"refresh_token" => refresh_token}) do
     config = Auth.sigra_config()
@@ -122,6 +124,17 @@ defmodule <%= web_module %>.TokenController do
   end
 
   # -- Private helpers --
+
+  defp require_mfa_capability(conn, _opts) do
+    if Auth.mfa_capability_enabled?() do
+      conn
+    else
+      conn
+      |> put_status(:not_found)
+      |> json(%{error: "mfa_unavailable"})
+      |> halt()
+    end
+  end
 
   defp issue_jwt_tokens(conn, user, scopes) do
     config = Auth.sigra_config()

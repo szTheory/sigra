@@ -2,11 +2,11 @@
 
 This page tracks **maintainer-facing** and **adopter-facing** expectations for the **planning milestone v1.10** (*adopter confidence for solo production*). SemVer for the **library** on Hex follows **`mix.exs`** and **`CHANGELOG.md`**; planning milestones are coordination labels in **`.planning/`** — not a second installable version axis (see **`CHANGELOG.md`** → *Planning milestones vs Hex releases*).
 
-For what “first production” is assumed to include in v1.10, see **[v1.10 adopter scope](../../.planning/v1.10-ADOPTER-SCOPE.md)**.
+For what “first production” is assumed to include in v1.10, see the v1.10 adopter-scope planning notes.
 
 ## After v1.9 (planning milestone)
 
-If you have not followed **v1.9** audit-atomicity work yet, read the archived roadmap **[v1.9 ROADMAP](../../.planning/milestones/v1.9-ROADMAP.md)** — **v1.10** builds on that shipped baseline without replacing **v1.8** / **v1.7** doc narratives.
+If you have not followed **v1.9** audit-atomicity work yet, note that **v1.10** builds on that shipped baseline without replacing **v1.8** / **v1.7** doc narratives.
 
 **v1.10** is intentionally docs-first: deployment and mail confidence, an intermediate production path, upgrade entry points, and explicit **non-goals** (Lockspire glue, full-library SEED-002) — not new auth primitives.
 

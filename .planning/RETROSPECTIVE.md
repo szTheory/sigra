@@ -25,6 +25,79 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.47 — CI-EFFICIENCY
+
+**Closed:** 2026-09-15 · 6 phases (230-235) · 67 plans · 93 tasks · 2026-07-28 → 2026-09-15 (49 days)
+**Verdict:** `override_closeout` · 21/24 requirements · 32 commits to main · 624 files changed (+144,379 / -3,775)
+
+### What Was Built
+
+PR wall-clock p50 fell from **27.3 minutes to 469 seconds (7m49s)** over n=52 authenticated
+runs — inside the `<720s` target and ~3.5x faster than baseline. The route there: split the
+design gallery so PR runs get the 39 a11y/behaviour tests and non-PR runs get the 84 pixel-diff
+boards; demote `admin_eval_render` off the PR lane (17m33s/PR) while restoring its hard non-PR
+signal; add workflow-level concurrency so superseded PR runs cancel; a docs-only classifier
+consumed at *step* level so required contexts still conclude rather than skip; SHA-pinned
+browser caching; and `timeout-minutes` on all 22 jobs. Phase 232 replaced four duplicated boot
+preludes with one composite action behind five concurrent matrix seams converging on the
+unchanged protected context. Phase 231 revived the nightly from 0-pass/9-fail and made
+`ci-gate` stop counting `skipped` as a pass. Phase 235 sealed it with a signed, source-complete
+run population and a fail-closed 93-row ownership ledger.
+
+### What Worked
+
+- **Executing an existing audit instead of re-running one.** SEED-005 had been sitting finished
+  and orphaned since v1.41 reused its phase numbers. Re-verifying it accurate (it predicted
+  `design_gallery` at ~700s; measured 734s) and then just *doing* it was the whole milestone.
+- **Refusing to claim FAST-01 from derived data.** Phase 235 burned four plans rejecting its own
+  candidate evidence — a 43-row derived ledger whose signed subject could not prove its source
+  population — before producing one authenticated run that could. The measured miss at n=19 /
+  p50 772s was recorded honestly rather than massaged.
+- **Step-level rather than job-level docs-only gating.** Job-level `if:` on a ruleset-required
+  lane turns the context `skipped`, which GitHub treats as neutral; step-level keeps it concluding.
+
+### What Was Inefficient
+
+- **235.1 ran 449 commits and parked.** Phase 235's closure artifacts ended up stranded on
+  `ci/phase-235-16-source-complete` and had to be recovered onto main as a separate quick task
+  (PR #239) before the milestone could close at all.
+- **Two re-audits.** The 2026-08-03 audit was superseded at close because three phases
+  re-verified `gaps_found → passed` after it was written. Re-auditing was correct — but the
+  re-verifications should have triggered it, not the close-out.
+
+### Patterns Established
+
+- **A contract test that is edited to match the implementation is no longer a contract.**
+  See Key Lessons.
+- **Measure, then bind the measurement to a run ID.** Every FAST-01 claim in this milestone
+  is re-fetchable from a named authenticated run rather than restated from prose.
+
+### Key Lessons
+
+**The load-bearing lesson: a rewritten guard hides a regression better than no guard at all.**
+Phase 233 built timing receipts, a cost-balanced partition, and a dedicated scaffold receiver
+for TEST-01/02/03. Phase 234-01 then consolidated CI onto a single `MIX_ENV=test mix ci` owner
+and removed the wiring. The Phase 233 contract test was updated to assert exactly one
+`MIX_ENV=test mix ci` and `refute body =~ "mix test"` — so it passed, Phase 233 re-verified
+green, and `REQUIREMENTS.md` recorded TEST-01/02 as Complete. At close, `ExUnitTimingFormatter`
+and `SIGRA_EXUNIT_TIMING_PATH` had **zero references** in `.github/`, `scripts/`, or `mix.exs`.
+
+Three compounding failures: the guard was adapted to the new reality instead of failing against
+it; the phase re-verified against the adapted guard; and the audit that caught it the first time
+was overruled by that re-verification. **The re-audit at close only worked because it checked
+the shipped workflow rather than trusting the phase's own verdict.** When a phase moves
+`gaps_found → passed`, the thing to re-read is the artifact it claims to have fixed.
+
+Corollary, learned the same way: I initially "corrected" the TEST-01/02 traceability rows to
+Complete on the strength of that re-verification, and had to revert them. A downstream record
+inherits its upstream's errors silently.
+
+### Cost Observations
+
+Peak cost was Phase 235 (13 plans) and Phase 234 (21 plans) — 34 of the milestone's 67 plans
+went to ratification and hygiene rather than the performance work that produced the headline
+number. Phase 230 alone (9 plans) delivered most of the wall-clock drop.
+
 ## Milestone: v1.45 — RELEASE-CURRENCY
 
 **Closed:** 2026-07-11 (`override_closeout`)

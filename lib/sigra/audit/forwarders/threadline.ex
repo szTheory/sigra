@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Threadline) do
+if Code.ensure_compiled(Threadline) == {:module, Threadline} do
   defmodule Sigra.Audit.Forwarders.Threadline do
     @moduledoc """
     Audit forwarder that ships committed Sigra audit rows to Threadline
@@ -12,9 +12,11 @@ if Code.ensure_loaded?(Threadline) do
 
     ## Dep-Off Safety (D-18, TL-04)
 
-    The entire `defmodule` is wrapped in `if Code.ensure_loaded?(Threadline) do`.
-    When `:threadline` is absent from `mix.lock`, this file compiles to a no-op
-    and the module simply does not exist. `Sigra.Application.attach_forwarders/0`
+    The entire `defmodule` is guarded by `Code.ensure_compiled/1`. This makes a
+    configured dependency available during incremental project
+    recompiles without requiring it to have already been loaded into the current
+    Mix VM. When `:threadline` is absent from `mix.lock`, this file compiles to a
+    no-op and the module simply does not exist. `Sigra.Application.attach_forwarders/0`
     skips the attach call and emits one `Logger.warning` via
     `maybe_warn_missing_forwarder_deps/0` (D-23). Noop is NOT automatically
     substituted — zero forwarding occurs in the degraded path.

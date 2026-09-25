@@ -406,7 +406,7 @@ defmodule <%= context_module %> do
   Rate-limited to 5 attempts per user per 15 minutes.
   """
   def confirm_user_by_code(%<%= schema_alias %>{} = user, code) when is_binary(code) do
-    # 10.1 IN-05: verify_confirmation_code/3 does NOT read :secret_key_base
+    # verify_confirmation_code/3 does NOT read :secret_key_base
     # (codes are hashed and looked up directly, no signed token round-trip).
     # Do not add it back unless the library signature changes.
     Sigra.Auth.verify_confirmation_code(Repo, code,
@@ -505,7 +505,7 @@ defmodule <%= context_module %> do
 
   Uses `Sigra.Auth.reset_password/4` which verifies the HMAC-signed token,
   updates the password, and invalidates all tokens (including sessions)
-  in a single transaction. Per D-29: caller creates new session after reset.
+  in a single transaction. The caller creates a new session after reset.
 
   ## Examples
 
@@ -527,9 +527,9 @@ defmodule <%= context_module %> do
   # HMAC signature rewind, audit log row, and telemetry events that the
   # signed-token clause above emits via `Sigra.Auth.reset_password/4`. Do
   # NOT call this from controllers; production flows must use the signed
-  # token clause so security signals are preserved (10.1 IN-03). Tokens
+  # token clause so security signals are preserved. Tokens
   # are invalidated in a single transaction so the caller can create a
-  # fresh session after reset (D-29).
+  # fresh session after reset.
   @doc false
   def reset_user_password(%<%= schema_alias %>{} = user, attrs) do
     Ecto.Multi.new()
@@ -551,6 +551,9 @@ defmodule <%= context_module %> do
   configuration to Sigra library functions.
   """
   def sigra_config do
+    runtime_config = Application.get_env(<%= inspect(otp_app) %>, :sigra_config, [])
+    legacy_config = Application.get_env(<%= inspect(otp_app) %>, :sigra, [])
+
     Sigra.Config.new!(
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
@@ -569,6 +572,16 @@ defmodule <%= context_module %> do
         threshold: 5,
         duration: 900
       ],
+      mfa: Keyword.get(runtime_config, :mfa, Keyword.get(legacy_config, :mfa, [])),
+      passkeys:
+        Keyword.get(runtime_config, :passkeys, Keyword.get(legacy_config, :passkeys, [])),
+      enterprise:
+        Keyword.get(
+          runtime_config,
+          :enterprise,
+          Keyword.get(legacy_config, :enterprise, [])
+        ),
+      oauth: Keyword.get(runtime_config, :oauth, Keyword.get(legacy_config, :oauth, [])),
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc.
@@ -660,6 +673,29 @@ defmodule <%= context_module %> do
   alias <%= context_module %>.UserPasskey
 <% end %>
 
+  @doc "Returns whether the generated MFA surface is available."
+  def mfa_capability_enabled? do
+    Sigra.Config.mfa_enabled?(sigra_config())
+  end
+
+  @doc "Returns whether the generated passkey surface is available."
+  def passkeys_enabled? do
+<%= if passkeys? do %>
+    Sigra.Config.passkeys_enabled?(sigra_config())
+<% else %>
+    false
+<% end %>
+  end
+
+  @doc "Returns whether generated enterprise/work-email discovery is available."
+  def enterprise_sign_in_enabled? do
+<%= if organizations? do %>
+    Sigra.Config.enterprise_enabled?(sigra_config())
+<% else %>
+    false
+<% end %>
+  end
+
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
     Sigra.MFA.enroll(sigra_config(), opts)
@@ -717,7 +753,7 @@ defmodule <%= context_module %> do
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
-    Sigra.MFA.enabled?(sigra_config(), user)
+    mfa_capability_enabled?() and Sigra.MFA.enabled?(sigra_config(), user)
   end
 
   @doc "Upgrade an MFA-pending Sigra session after second-factor verification."
@@ -727,10 +763,14 @@ defmodule <%= context_module %> do
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
-    Sigra.MFA.status(sigra_config(), user,
-      mfa_credential_schema: <%= context_module %>.UserMFACredential,
-      backup_code_schema: <%= context_module %>.UserBackupCode
-    )
+    if mfa_capability_enabled?() do
+      Sigra.MFA.status(sigra_config(), user,
+        mfa_credential_schema: <%= context_module %>.UserMFACredential,
+        backup_code_schema: <%= context_module %>.UserBackupCode
+      )
+    else
+      %{enabled: false, backup_codes_remaining: 0}
+    end
   end
 
 <%= if passkeys? do %>
@@ -738,12 +778,16 @@ defmodule <%= context_module %> do
 
   @doc "List passkeys for a user."
   def passkeys_for_user(user) do
-    Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+    if passkeys_enabled?(),
+      do: Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey),
+      else: []
   end
 
   @doc "Count passkeys for a user."
   def passkey_count_for_user(user) do
-    Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+    if passkeys_enabled?(),
+      do: Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey),
+      else: 0
   end
 
   @doc "Return the user-facing label for a passkey."
@@ -823,13 +867,14 @@ defmodule <%= context_module %> do
 
   @doc "Returns true when passkey-primary login is enabled."
   def passkey_primary_enabled?() do
-    case Application.fetch_env(<%= inspect(otp_app) %>, :passkey_primary_enabled) do
-      {:ok, bool} when is_boolean(bool) ->
-        bool
+    passkeys_enabled?() and
+      case Application.fetch_env(<%= inspect(otp_app) %>, :passkey_primary_enabled) do
+        {:ok, bool} when is_boolean(bool) ->
+          bool
 
-      _ ->
-        Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
-    end
+        _ ->
+          Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+      end
   end
 
   @doc "Returns true when a user may use passkey-primary login."

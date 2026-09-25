@@ -42,9 +42,9 @@ created: 2026-06-26
 | 202-01-02 | 01 | 1 | AUDIT-02 | — | N/A | compile | `mix compile --warnings-as-errors` | ✅ | ⬜ pending |
 | 202-01-03 | 01 | 1 | AUDIT-02 | — | N/A | compile | `mix compile --warnings-as-errors` | ✅ | ⬜ pending |
 | 202-02-01 | 02 | 2 | AUDIT-01 | T-202U-01 | `return_to` survives once; existing sanitizer preserved; GET-form contract | compile | `cd test/example && mix compile --warnings-as-errors` | ✅ | ⬜ pending |
-| 202-02-02 | 02 | 2 | AUDIT-01, AUDIT-02 | T-202U-02/03 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /Users/jon/projects/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 202-02-02 | 02 | 2 | AUDIT-01, AUDIT-02 | T-202U-02/03 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /workspace/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
 | 202-03-01 | 03 | 2 | AUDIT-01 | T-202I-03 | `<details>` disclosure; GET-form contract; HEEx auto-escape | compile | `cd test/example && mix compile --warnings-as-errors` | ✅ | ⬜ pending |
-| 202-03-02 | 03 | 2 | AUDIT-01, AUDIT-02 | T-202I-01/02 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /Users/jon/projects/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
+| 202-03-02 | 03 | 2 | AUDIT-01, AUDIT-02 | T-202I-01/02 | shared-component rewire; glossary-clean | compile+unit | `cd test/example && mix compile --warnings-as-errors && cd /workspace/sigra && mix test test/sigra/admin/glossary_test.exs` | ✅ | ⬜ pending |
 | 202-04-01 | 04 | 3 | AUDIT-02, AUDIT-03 | T-202T-01 | strict un-sliced 2-code guard (loud-fail vacuous pass) | e2e | `cd test/example/priv/playwright && npx playwright test admin-design.spec.ts --grep "content-equivalent"` | ✅ | ⬜ pending |
 | 202-04-02 | 04 | 3 | AUDIT-02 | T-202T-02 | deterministic pagination proof, no dev seeds | unit | `cd test/example && mix test test/example_web/live/admin_audit_index_live_test.exs` | ✅ | ⬜ pending |
 | 202-05-01 | 05 | 4 | AUDIT-03 | T-202R-01/02/03 | bare-`2` ledger ratchet; monotonic guard; CSS triple-copy parity | guard | `bash scripts/ci/quality-ledger-monotonic.sh --base origin/main` | ✅ | ⬜ pending |

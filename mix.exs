@@ -1,7 +1,7 @@
 defmodule Sigra.MixProject do
   use Mix.Project
 
-  @version "1.4.0"
+  @version "1.5.0"
   @source_url "https://github.com/sztheory/sigra"
 
   def project do
@@ -78,6 +78,7 @@ defmodule Sigra.MixProject do
         Assent.Strategy.Facebook,
         Assent.Strategy.Github,
         Assent.Strategy.Google,
+        Assent.Strategy.OIDC,
         Joken,
         Joken.Signer,
         Joken.Config,
@@ -126,6 +127,11 @@ defmodule Sigra.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
       {:stream_data, "~> 1.1", only: [:dev, :test]},
+      # Repository-only security override: Threadline releases through 0.9 still declare
+      # their optional Hackney edge as ~> 1.18, while tzdata 1.1.5 supports remediated 4.x.
+      # Keep this out of Sigra's runtime/package surface and remove it once Threadline's
+      # published constraint accepts Hackney 4.
+      {:hackney, "~> 4.7", only: [:dev, :test], runtime: false, override: true},
       # Postgres driver. Required at runtime when threadline (optional) is used;
       # also used by opt-in `:postgres` tagged tests (e.g. `test/sigra/audit/query_index_test.exs`)
       # that assert Query plans against a live Postgres repo. Excluded from default test runs
@@ -181,11 +187,10 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
-      # ExDoc only autolinks extras by basename; maintainer paths under `.planning/`
-      # are intentionally relative from this guide for repo navigation.
+      # ExDoc only autolinks extras by basename; the entries below suppress references
+      # the tool cannot resolve — hidden Application helpers and a behaviour callback
+      # (a `@callback`, not a public function ExDoc can autolink).
       skip_undefined_reference_warnings_on: [
-        "guides/introduction/upgrading-to-v1.10.md",
-        "guides/introduction/upgrading-to-v1.11.md",
         # Phase 131: hidden Application helpers referenced in moduledocs; suppressed pending
         # a @doc false / @moduledoc false strategy alignment in a future phase.
         "lib/sigra/audit/forwarder.ex",
@@ -231,6 +236,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.11.md",
         "guides/introduction/upgrading-to-v1.12.md",
         "guides/introduction/upgrading-to-v1.46.md",
+        "guides/introduction/upgrading-to-v1.5.md",
         "guides/introduction/upgrading-to-v1.0.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/introduction/migrating-from-phx-gen-auth.md",

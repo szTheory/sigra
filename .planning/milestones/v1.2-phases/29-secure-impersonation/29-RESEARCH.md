@@ -183,7 +183,7 @@ Audit attribution should stay a one-seam change in `Sigra.Audit.scope_fields/1`:
 mix deps.get
 ```
 
-**Version verification:** Phase 29 should not add packages; it should extend the repo-pinned Phoenix, LiveView, Ecto, and Flop stack already declared in [`mix.exs`](/Users/jon/projects/sigra/mix.exs). [VERIFIED: mix.exs]
+**Version verification:** Phase 29 should not add packages; it should extend the repo-pinned Phoenix, LiveView, Ecto, and Flop stack already declared in [`mix.exs`](/workspace/sigra/mix.exs). [VERIFIED: mix.exs]
 
 ## Architecture Patterns
 
@@ -420,7 +420,7 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 | Admin shell shows only a generic `"Special session"` badge. [VERIFIED: test/example/lib/example_web/components/admin_shell.ex] | Phase 29 should render dedicated impersonation identity plus end-session action across app and admin layouts. [VERIFIED: 29-CONTEXT.md] | Planned for Phase 29. [VERIFIED: 29-CONTEXT.md] | Operators keep visible state outside `/admin`. [ASSUMED] |
 
 **Deprecated/outdated:**
-- Generic `special_session` labeling in [`test/example/lib/example_web/components/admin_shell.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex) is too vague for a security boundary and should be replaced by explicit impersonation copy. [VERIFIED: test/example/lib/example_web/components/admin_shell.ex] [VERIFIED: 29-CONTEXT.md]
+- Generic `special_session` labeling in [`test/example/lib/example_web/components/admin_shell.ex`](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex) is too vague for a security boundary and should be replaced by explicit impersonation copy. [VERIFIED: test/example/lib/example_web/components/admin_shell.ex] [VERIFIED: 29-CONTEXT.md]
 
 ## Assumptions Log
 
@@ -458,7 +458,7 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 | Property | Value |
 |----------|-------|
 | Framework | ExUnit with Phoenix ConnCase and LiveViewTest. [VERIFIED: test/test_helper.exs] [VERIFIED: test/example/test/support/conn_case.ex] |
-| Config file | [`test/test_helper.exs`](/Users/jon/projects/sigra/test/test_helper.exs) and [`test/example/test/test_helper.exs`](/Users/jon/projects/sigra/test/example/test/test_helper.exs). [VERIFIED: repo grep] |
+| Config file | [`test/test_helper.exs`](/workspace/sigra/test/test_helper.exs) and [`test/example/test/test_helper.exs`](/workspace/sigra/test/example/test/test_helper.exs). [VERIFIED: repo grep] |
 | Quick run command | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/audit/log_safe_scope_test.exs test/sigra/live_view/admin_scope_test.exs test/sigra/plug/require_admin_access_test.exs` [VERIFIED: local repo layout] |
 | Full suite command | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test` [VERIFIED: CLAUDE.md] [VERIFIED: test/test_helper.exs] |
 
@@ -510,18 +510,18 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 ## Sources
 
 ### Primary (HIGH confidence)
-- [`lib/sigra/auth.ex`](/Users/jon/projects/sigra/lib/sigra/auth.ex) - existing session create/delete/sudo/MFA rotation behavior.
-- [`lib/sigra/session_stores/ecto.ex`](/Users/jon/projects/sigra/lib/sigra/session_stores/ecto.ex) - canonical persisted session row behavior.
-- [`lib/sigra/scope/hydration.ex`](/Users/jon/projects/sigra/lib/sigra/scope/hydration.ex) - single hydration seam.
-- [`lib/sigra/audit.ex`](/Users/jon/projects/sigra/lib/sigra/audit.ex) - current `scope_fields/1` attribution behavior.
-- [`lib/sigra/audit/query.ex`](/Users/jon/projects/sigra/lib/sigra/audit/query.ex) - current canonical audit filters.
-- [`lib/sigra/admin/authorizer.ex`](/Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex) and [`lib/sigra/admin/scope.ex`](/Users/jon/projects/sigra/lib/sigra/admin/scope.ex) - admin scope enforcement.
-- [`test/example/lib/example_web/user_auth.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex) - fixation-safe token swap and Plug/LiveView auth seams.
-- [`test/example/lib/example_web/router.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex) - current auth, sudo, admin, and passkey route boundaries.
-- [`test/example/lib/example_web/controllers/session_controller.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/session_controller.ex) - concrete sensitive controller endpoints that Phase 29 must fence.
-- [`test/example/lib/example/accounts.ex`](/Users/jon/projects/sigra/test/example/lib/example/accounts.ex) - direct-path generated wrappers for sensitive operations.
-- [`test/example/lib/example_web/components/layouts.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex) and [`test/example/lib/example_web/components/admin_shell.ex`](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex) - current visible shell seams.
-- [`test/example/lib/example/accounts/scope.ex`](/Users/jon/projects/sigra/test/example/lib/example/accounts/scope.ex) and [`test/example/lib/example/accounts/audit_event.ex`](/Users/jon/projects/sigra/test/example/lib/example/accounts/audit_event.ex) - reserved scope field and canonical audit columns.
+- [`lib/sigra/auth.ex`](/workspace/sigra/lib/sigra/auth.ex) - existing session create/delete/sudo/MFA rotation behavior.
+- [`lib/sigra/session_stores/ecto.ex`](/workspace/sigra/lib/sigra/session_stores/ecto.ex) - canonical persisted session row behavior.
+- [`lib/sigra/scope/hydration.ex`](/workspace/sigra/lib/sigra/scope/hydration.ex) - single hydration seam.
+- [`lib/sigra/audit.ex`](/workspace/sigra/lib/sigra/audit.ex) - current `scope_fields/1` attribution behavior.
+- [`lib/sigra/audit/query.ex`](/workspace/sigra/lib/sigra/audit/query.ex) - current canonical audit filters.
+- [`lib/sigra/admin/authorizer.ex`](/workspace/sigra/lib/sigra/admin/authorizer.ex) and [`lib/sigra/admin/scope.ex`](/workspace/sigra/lib/sigra/admin/scope.ex) - admin scope enforcement.
+- [`test/example/lib/example_web/user_auth.ex`](/workspace/sigra/test/example/lib/example_web/user_auth.ex) - fixation-safe token swap and Plug/LiveView auth seams.
+- [`test/example/lib/example_web/router.ex`](/workspace/sigra/test/example/lib/example_web/router.ex) - current auth, sudo, admin, and passkey route boundaries.
+- [`test/example/lib/example_web/controllers/session_controller.ex`](/workspace/sigra/test/example/lib/example_web/controllers/session_controller.ex) - concrete sensitive controller endpoints that Phase 29 must fence.
+- [`test/example/lib/example/accounts.ex`](/workspace/sigra/test/example/lib/example/accounts.ex) - direct-path generated wrappers for sensitive operations.
+- [`test/example/lib/example_web/components/layouts.ex`](/workspace/sigra/test/example/lib/example_web/components/layouts.ex) and [`test/example/lib/example_web/components/admin_shell.ex`](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex) - current visible shell seams.
+- [`test/example/lib/example/accounts/scope.ex`](/workspace/sigra/test/example/lib/example/accounts/scope.ex) and [`test/example/lib/example/accounts/audit_event.ex`](/workspace/sigra/test/example/lib/example/accounts/audit_event.ex) - reserved scope field and canonical audit columns.
 
 ### Secondary (MEDIUM confidence)
 - https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/2 - Phoenix route-scope reference used to confirm the controller-owned route recommendation. [CITED: https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/2]

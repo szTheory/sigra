@@ -59,8 +59,8 @@ This remains documentation configuration only. Reuse `brandbook/favicon.svg` byt
 @test/sigra/architecture_guides_contract_test.exs
 
 Reference behavior inspected locally:
-- `/Users/jon/projects/accrue/accrue/mix.exs` is the implementation model: it derives `dark`/`default` from `body.dark`, serializes rendering, observes body-class changes, remembers diagram source/theme, and rerenders existing diagrams without duplication.
-- `/Users/jon/projects/mailglass/mix.exs` confirms the same ExDoc favicon option/copy pattern and Mermaid `dark`/`default` choice.
+- `/Users/developer/projects/accrue/accrue/mix.exs` is the implementation model: it derives `dark`/`default` from `body.dark`, serializes rendering, observes body-class changes, remembers diagram source/theme, and rerenders existing diagrams without duplication.
+- `/Users/developer/projects/mailglass/mix.exs` confirms the same ExDoc favicon option/copy pattern and Mermaid `dark`/`default` choice.
 - Sigra's current hook already pins Mermaid 11.16.0 with SRI, sets `securityLevel: "strict"`, listens for `exdoc:loaded`, and hides source only after render success; preserve those guarantees.
 </context>
 
@@ -84,7 +84,7 @@ Refactor only the existing Mermaid head/body hooks, using Accrue's current hook 
 Extend `Sigra.ArchitectureGuidesContractTest` with focused assertions for the exact favicon path/file, SVG brand metadata/theme rule/colors, dark/default theme selection, body-class MutationObserver, serialized queue, stored source/theme, in-place rerender, and existing fallback-order/idempotence/security/EPUB guarantees. Keep failures actionable and do not overfit whitespace.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra &amp;&amp; source tmp/db.env &amp;&amp; mix test test/sigra/architecture_guides_contract_test.exs &amp;&amp; mix format --check-formatted mix.exs test/sigra/architecture_guides_contract_test.exs</automated>
+    <automated>cd /workspace/sigra &amp;&amp; source tmp/db.env &amp;&amp; mix test test/sigra/architecture_guides_contract_test.exs &amp;&amp; mix format --check-formatted mix.exs test/sigra/architecture_guides_contract_test.exs</automated>
   </verify>
   <done>The exact Sigra favicon is configured; Mermaid initializes and rerenders with `default`/`dark` as ExDoc changes; diagrams neither duplicate nor disappear on navigation/theme changes/failure; focused contracts, existing accessibility contracts, and scoped formatting pass; the SVG and guide sources are unchanged.</done>
 </task>
@@ -100,8 +100,8 @@ Use a file-access browser session for deterministic review. On architecture, ver
 Finally run macOS `open -a "Google Chrome"` with both absolute `file://` URLs so architecture and walkthrough appear as visible tabs for the user. Do not substitute a headless-only handoff. Do not commit ignored generated HTML/assets.
   </action>
   <verify>
-    <automated>cd /Users/jon/projects/sigra &amp;&amp; mix docs --warnings-as-errors &amp;&amp; test -f doc/assets/favicon.svg &amp;&amp; cmp brandbook/favicon.svg doc/assets/favicon.svg &amp;&amp; rg -q '&lt;link rel="icon" href="assets/favicon.svg" /&gt;' doc/architecture.html doc/code-walkthrough.html</automated>
-    Browser evidence: light and dark screenshots show four legible architecture diagrams; live theme toggle changes all four stored themes with no extra wrappers; round-trip ExDoc navigation still yields four; failure simulation leaves source readable. Then `open -a "Google Chrome" "file:///Users/jon/projects/sigra/doc/architecture.html" "file:///Users/jon/projects/sigra/doc/code-walkthrough.html"` returns successfully.
+    <automated>cd /workspace/sigra &amp;&amp; mix docs --warnings-as-errors &amp;&amp; test -f doc/assets/favicon.svg &amp;&amp; cmp brandbook/favicon.svg doc/assets/favicon.svg &amp;&amp; rg -q '&lt;link rel="icon" href="assets/favicon.svg" /&gt;' doc/architecture.html doc/code-walkthrough.html</automated>
+    Browser evidence: light and dark screenshots show four legible architecture diagrams; live theme toggle changes all four stored themes with no extra wrappers; round-trip ExDoc navigation still yields four; failure simulation leaves source readable. Then `open -a "Google Chrome" "file:///workspace/sigra/doc/architecture.html" "file:///workspace/sigra/doc/code-walkthrough.html"` returns successfully.
   </verify>
   <done>Docs build warning-free; both pages link the copied byte-identical favicon; four accessible diagrams are legible and non-duplicated in light/dark, navigation, and live theme changes; fallback remains readable; both pages are open as visible Google Chrome tabs; status contains only declared implementation/GSD artifacts and intentional ExDoc tracked regeneration.</done>
 </task>

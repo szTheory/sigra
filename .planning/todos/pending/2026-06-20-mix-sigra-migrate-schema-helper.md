@@ -4,9 +4,14 @@ status: pending
 title: mix sigra.migrate_schema helper to relocate existing tables between Postgres schemas
 area: installer
 files:
+
   - lib/mix/tasks/
   - priv/templates/sigra.install/core/migration.exs
+
 source: 2026-06-20 discussion (Phase 197 discuss-phase tail) — PG-schema isolation already shipped in v1.1.0; this is the additive migration-helper follow-on
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -23,6 +28,7 @@ mix sigra.migrate_schema <from_schema> <to_schema>
 ```
 
 that emits a migration (or runs one) which:
+
 - `CREATE SCHEMA IF NOT EXISTS <to_schema>`
 - `ALTER TABLE <from>.<each_sigra_table> SET SCHEMA <to_schema>` for every Sigra-owned
   table (users, user_tokens, user_sessions, user_mfa_credentials, user_backup_codes,

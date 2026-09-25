@@ -631,7 +631,7 @@ Copy this branch verbatim; do not "improve" by returning 403.
 - **Enumeration prevention invariant:** `{:error, :not_allowed}` maps to `:not_found` response, not `:forbidden`.
 
 ### File Created
-`/Users/jon/projects/sigra/.planning/phases/32-generated-installer-admin-surface-parity/32-PATTERNS.md`
+`/workspace/sigra/.planning/phases/32-generated-installer-admin-surface-parity/32-PATTERNS.md`
 
 ### Ready for Planning
 Pattern mapping complete. Planner can now reference analog patterns in PLAN.md files.

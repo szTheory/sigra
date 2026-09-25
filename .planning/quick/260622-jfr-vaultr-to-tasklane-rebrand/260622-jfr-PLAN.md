@@ -14,7 +14,7 @@ plainly distinct from auth. The demo stays a **pure auth showcase** (framing onl
 no product CRUD): `/app` + marketing copy honestly present this as "the account &
 security area of Tasklane." Orgs reframe as **workspaces**; roles/topology unchanged.
 
-Full approved plan: `/Users/jon/.claude/plans/i-got-an-error-eager-hamming.md`.
+Full approved plan: `/Users/developer/.claude/plans/i-got-an-error-eager-hamming.md`.
 
 ## Constraints
 - **Example-only.** Do NOT touch `priv/templates/**` (installer) or the Sigra

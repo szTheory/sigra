@@ -28,7 +28,7 @@
 
 Use a plain controller-owned POST flow for start/stop, not a LiveView event. The sudo controller is the strongest local precedent for a security-sensitive handoff that validates local `return_to`, mutates server-side session state, flashes, then redirects.
 
-**Controller-owned security flow** ([test/example/lib/example_web/controllers/auth/sudo_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L19)):
+**Controller-owned security flow** ([test/example/lib/example_web/controllers/auth/sudo_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L19)):
 ```elixir
 def new(conn, _params) do
   form = Phoenix.Component.to_form(%{"password" => ""}, as: "sudo")
@@ -39,7 +39,7 @@ def create(conn, %{"sudo" => %{"password" => password, "return_to" => return_to}
   user = conn.assigns.current_scope.user
 ```
 
-**Safe local-path redirect handling** ([test/example/lib/example_web/controllers/auth/sudo_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L27)):
+**Safe local-path redirect handling** ([test/example/lib/example_web/controllers/auth/sudo_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L27)):
 ```elixir
 case Sigra.Crypto.verify_password(password, user.hashed_password) do
   true ->
@@ -59,7 +59,7 @@ case Sigra.Crypto.verify_password(password, user.hashed_password) do
     |> redirect(to: safe_return_to)
 ```
 
-**Token swap pattern to reuse inside controller** ([test/example/lib/example_web/controllers/session_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/session_controller.ex#L237)):
+**Token swap pattern to reuse inside controller** ([test/example/lib/example_web/controllers/session_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/session_controller.ex#L237)):
 ```elixir
 return_to = get_session(conn, :mfa_return_to) || ~p"/"
 remember_me = get_session(conn, :mfa_remember_me) == true
@@ -90,7 +90,7 @@ end
 
 The session lifecycle code already owns token creation, deletion, sudo updates, active-org assignment, and audit emission. New impersonation helpers should live beside these functions.
 
-**Canonical session-create audit seam** ([lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1084)):
+**Canonical session-create audit seam** ([lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1084)):
 ```elixir
 scope =
   case config.scope_module do
@@ -106,7 +106,7 @@ Sigra.Audit.log_safe("session.create", scope,
 )
 ```
 
-**Delete / revoke call-site pattern** ([lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1182)):
+**Delete / revoke call-site pattern** ([lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1182)):
 ```elixir
 user_id = Keyword.get(opts, :user_id)
 scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
@@ -120,7 +120,7 @@ Sigra.Audit.log_safe("session.delete", scope,
 )
 ```
 
-**Bulk revoke pattern** ([lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1222)):
+**Bulk revoke pattern** ([lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1222)):
 ```elixir
 sessions = session_store.list_by_user(user_id, store_opts)
 {count, _} = session_store.delete_all_for_user(user_id, delete_opts)
@@ -135,7 +135,7 @@ if pubsub do
 end
 ```
 
-**Outcome-based audit action selection** ([lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1300)):
+**Outcome-based audit action selection** ([lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1300)):
 ```elixir
 action =
   case result do
@@ -164,7 +164,7 @@ Sigra.Audit.log_safe(action, scope,
 
 The planner should treat this module as the non-negotiable fixation-safe swap contract.
 
-**Renew before writing token** ([test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L58)):
+**Renew before writing token** ([test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L58)):
 ```elixir
 conn
 |> renew_session()
@@ -173,7 +173,7 @@ conn
 |> redirect(to: user_return_to || signed_in_path(conn))
 ```
 
-**Upgrade existing session token** ([test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L74)):
+**Upgrade existing session token** ([test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L74)):
 ```elixir
 def put_user_session_token(conn, token) when is_binary(token) do
   conn
@@ -182,7 +182,7 @@ def put_user_session_token(conn, token) when is_binary(token) do
 end
 ```
 
-**Renew implementation** ([test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L95)):
+**Renew implementation** ([test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L95)):
 ```elixir
 defp renew_session(conn) do
   delete_csrf_token()
@@ -203,7 +203,7 @@ end
 
 The codebase already keeps Plug and LiveView in lockstep by hydrating `current_scope` once, then mounting LiveViews through `on_mount`.
 
-**Plug-side current scope assignment** ([test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L150)):
+**Plug-side current scope assignment** ([test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L150)):
 ```elixir
 scope = user && Scope.for_user(user)
 
@@ -212,7 +212,7 @@ conn
 |> assign(:current_scope, scope)
 ```
 
-**LiveView-side current scope mount** ([test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L206)):
+**LiveView-side current scope mount** ([test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L206)):
 ```elixir
 def on_mount(:ensure_authenticated, _params, session, socket) do
   socket = mount_current_scope(socket, session)
@@ -227,7 +227,7 @@ def on_mount(:ensure_authenticated, _params, session, socket) do
 end
 ```
 
-**Single hydration seam** ([lib/sigra/scope/hydration.ex](/Users/jon/projects/sigra/lib/sigra/scope/hydration.ex#L1)):
+**Single hydration seam** ([lib/sigra/scope/hydration.ex](/workspace/sigra/lib/sigra/scope/hydration.ex#L1)):
 ```elixir
 Pure scope-hydration contract shared between `Sigra.Plug.LoadActiveOrganization`
 (Plug pipeline) and the generated `UserAuth.on_mount` callback (LiveView).
@@ -237,7 +237,7 @@ augmentation — impersonation (v1.2), feature flags, passkey context —
 extends this function.
 ```
 
-**Hydration implementation shape** ([lib/sigra/scope/hydration.ex](/Users/jon/projects/sigra/lib/sigra/scope/hydration.ex#L53)):
+**Hydration implementation shape** ([lib/sigra/scope/hydration.ex](/workspace/sigra/lib/sigra/scope/hydration.ex#L53)):
 ```elixir
 def hydrate(scope, _config, %Sigra.Session{active_organization_id: nil}) do
   {:ok, scope}
@@ -254,7 +254,7 @@ def hydrate(scope, config, %Sigra.Session{active_organization_id: org_id}) do
       end
 ```
 
-**Admin Plug / LiveView parity in router** ([test/example/lib/example_web/router.ex](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L61)):
+**Admin Plug / LiveView parity in router** ([test/example/lib/example_web/router.ex](/workspace/sigra/test/example/lib/example_web/router.ex#L61)):
 ```elixir
 pipeline :admin_global do
   plug Sigra.Plug.RequireAdminAccess,
@@ -282,7 +282,7 @@ live_session :admin_global,
 
 The reserved-field contract already exists.
 
-**Scope struct construction** ([lib/sigra/scope.ex](/Users/jon/projects/sigra/lib/sigra/scope.ex#L16)):
+**Scope struct construction** ([lib/sigra/scope.ex](/workspace/sigra/lib/sigra/scope.ex#L16)):
 ```elixir
 struct(scope_module,
   user: user,
@@ -292,7 +292,7 @@ struct(scope_module,
 )
 ```
 
-**Minimal audit-only scope builder** ([lib/sigra/scope.ex](/Users/jon/projects/sigra/lib/sigra/scope.ex#L46)):
+**Minimal audit-only scope builder** ([lib/sigra/scope.ex](/workspace/sigra/lib/sigra/scope.ex#L46)):
 ```elixir
 def from_opts(opts, user) when is_list(opts) do
   case Keyword.get(opts, :scope_module) do
@@ -312,7 +312,7 @@ end
 
 Phase 29 should extend the existing `scope_fields/1` seam instead of inventing a second actor/effective-user path.
 
-**Canonical scope-to-columns seam** ([lib/sigra/audit.ex](/Users/jon/projects/sigra/lib/sigra/audit.ex#L116)):
+**Canonical scope-to-columns seam** ([lib/sigra/audit.ex](/workspace/sigra/lib/sigra/audit.ex#L116)):
 ```elixir
 def log_safe(action, scope, opts) when is_binary(action) and is_list(opts) do
   scope_opts = scope_fields(scope)
@@ -321,7 +321,7 @@ def log_safe(action, scope, opts) when is_binary(action) and is_list(opts) do
 end
 ```
 
-**Exact diff point for impersonation** ([lib/sigra/audit.ex](/Users/jon/projects/sigra/lib/sigra/audit.ex#L146)):
+**Exact diff point for impersonation** ([lib/sigra/audit.ex](/workspace/sigra/lib/sigra/audit.ex#L146)):
 ```elixir
 defp scope_fields(%{user: user} = scope) do
   org = Map.get(scope, :active_organization)
@@ -344,7 +344,7 @@ end
 
 This is the strongest precedent for URL-driven admin detail pages, explicit `return_to`, and security-sensitive actions living on detail rather than list rows.
 
-**Detail-page state + `return_to` parsing** ([lib/sigra/admin/live/user_show_live.ex](/Users/jon/projects/sigra/lib/sigra/admin/live/user_show_live.ex#L23)):
+**Detail-page state + `return_to` parsing** ([lib/sigra/admin/live/user_show_live.ex](/workspace/sigra/lib/sigra/admin/live/user_show_live.ex#L23)):
 ```elixir
 def handle_params(%{"id" => user_id} = params, _uri, socket) do
   admin_scope = socket.assigns.admin_scope
@@ -359,7 +359,7 @@ def handle_params(%{"id" => user_id} = params, _uri, socket) do
 end
 ```
 
-**High-risk action confirmation shape** ([lib/sigra/admin/live/user_show_live.ex](/Users/jon/projects/sigra/lib/sigra/admin/live/user_show_live.ex#L59)):
+**High-risk action confirmation shape** ([lib/sigra/admin/live/user_show_live.ex](/workspace/sigra/lib/sigra/admin/live/user_show_live.ex#L59)):
 ```elixir
 case socket.assigns.confirm_action do
   %{type: :revoke_session, token: token} ->
@@ -371,7 +371,7 @@ case socket.assigns.confirm_action do
      |> put_flash(:info, "Session revoked.")}
 ```
 
-**URL-driven `return_to` guard** ([lib/sigra/admin/live/user_show_live.ex](/Users/jon/projects/sigra/lib/sigra/admin/live/user_show_live.ex#L243)):
+**URL-driven `return_to` guard** ([lib/sigra/admin/live/user_show_live.ex](/workspace/sigra/lib/sigra/admin/live/user_show_live.ex#L243)):
 ```elixir
 defp sanitize_return_to(path, admin_scope) when is_binary(path) do
   if String.starts_with?(path, ["/admin/users", "/admin/organizations/"]) do
@@ -382,7 +382,7 @@ defp sanitize_return_to(path, admin_scope) when is_binary(path) do
 end
 ```
 
-**Preserve context when pivoting paths** ([lib/sigra/admin/live/user_show_live.ex](/Users/jon/projects/sigra/lib/sigra/admin/live/user_show_live.ex#L259)):
+**Preserve context when pivoting paths** ([lib/sigra/admin/live/user_show_live.ex](/workspace/sigra/lib/sigra/admin/live/user_show_live.ex#L259)):
 ```elixir
 defp pivot_path(_admin_scope, user_id, organization, return_to) do
   path = "/admin/organizations/#{organization.organization_slug}/users/#{user_id}"
@@ -405,7 +405,7 @@ end
 
 This is the banner seam for persistent impersonation state. The shell is host-owned, but the condition comes from library-owned scope state.
 
-**Host-owned seam** ([test/example/lib/example_web/components/admin_shell.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex#L8)):
+**Host-owned seam** ([test/example/lib/example_web/components/admin_shell.ex](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex#L8)):
 ```elixir
 attr :admin_scope, :map, required: true
 attr :current_scope, :map, default: nil
@@ -413,7 +413,7 @@ slot :special_session
 slot :inner_block, required: true
 ```
 
-**Current special-session rendering point** ([test/example/lib/example_web/components/admin_shell.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex#L18)):
+**Current special-session rendering point** ([test/example/lib/example_web/components/admin_shell.ex](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex#L18)):
 ```elixir
 <span class={scope_chip_class(@admin_scope)}>{scope_label(@admin_scope)}</span>
 <%= if render_special_session?(@special_session, @current_scope) do %>
@@ -421,7 +421,7 @@ slot :inner_block, required: true
 <% end %>
 ```
 
-**Current impersonation detection hook** ([test/example/lib/example_web/components/admin_shell.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex#L139)):
+**Current impersonation detection hook** ([test/example/lib/example_web/components/admin_shell.ex](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex#L139)):
 ```elixir
 defp render_special_session?([], current_scope),
   do: not is_nil(special_session_label(current_scope))
@@ -429,7 +429,7 @@ defp render_special_session?([], current_scope),
 defp special_session_label(%{impersonating_from: %_{}}), do: "Special session"
 ```
 
-**Layout ownership seam** ([test/example/lib/example_web/components/layouts.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex#L91)):
+**Layout ownership seam** ([test/example/lib/example_web/components/layouts.ex](/workspace/sigra/test/example/lib/example_web/components/layouts.ex#L91)):
 ```elixir
 def admin(assigns) do
   ~H"""
@@ -448,7 +448,7 @@ def admin(assigns) do
 
 Phase 29 should rely on the already-established direct-path admin authorization boundary, not re-check scope only in LiveView.
 
-**Global/org authorization helpers** ([lib/sigra/admin/authorizer.ex](/Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex#L15)):
+**Global/org authorization helpers** ([lib/sigra/admin/authorizer.ex](/workspace/sigra/lib/sigra/admin/authorizer.ex#L15)):
 ```elixir
 def authorize_global!(%Scope{} = admin_scope) do
   if Scope.global?(admin_scope) do
@@ -461,7 +461,7 @@ def authorize_global!(%Scope{} = admin_scope) do
 end
 ```
 
-**Scoped query helper** ([lib/sigra/admin/authorizer.ex](/Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex#L49)):
+**Scoped query helper** ([lib/sigra/admin/authorizer.ex](/workspace/sigra/lib/sigra/admin/authorizer.ex#L49)):
 ```elixir
 def scope_query(queryable, %Scope{} = admin_scope) do
   query = Ecto.Queryable.to_query(queryable)
@@ -474,7 +474,7 @@ def scope_query(queryable, %Scope{} = admin_scope) do
       Sigra.Organizations.Query.for_org(query, admin_scope.organization_id)
 ```
 
-**Direct-path load before mutate** ([lib/sigra/admin/users/actions.ex](/Users/jon/projects/sigra/lib/sigra/admin/users/actions.ex#L9)):
+**Direct-path load before mutate** ([lib/sigra/admin/users/actions.ex](/workspace/sigra/lib/sigra/admin/users/actions.ex#L9)):
 ```elixir
 def revoke_session(config, %Scope{} = admin_scope, user_id, hashed_token)
     when is_binary(user_id) and is_binary(hashed_token) do
@@ -483,7 +483,7 @@ def revoke_session(config, %Scope{} = admin_scope, user_id, hashed_token)
 end
 ```
 
-**Scoped detail query** ([lib/sigra/admin/users/detail.ex](/Users/jon/projects/sigra/lib/sigra/admin/users/detail.ex#L96)):
+**Scoped detail query** ([lib/sigra/admin/users/detail.ex](/workspace/sigra/lib/sigra/admin/users/detail.ex#L96)):
 ```elixir
 query =
   case admin_scope do
@@ -509,7 +509,7 @@ query =
 
 There is no exact existing impersonation gate, so copy the guard-plug shape from `RequireSudo`.
 
-**Guard plug shape** ([lib/sigra/plug/require_sudo.ex](/Users/jon/projects/sigra/lib/sigra/plug/require_sudo.ex#L57)):
+**Guard plug shape** ([lib/sigra/plug/require_sudo.ex](/workspace/sigra/lib/sigra/plug/require_sudo.ex#L57)):
 ```elixir
 def call(conn, opts) do
   error_handler = Keyword.fetch!(opts, :error_handler)
@@ -540,7 +540,7 @@ end
 
 **Primary analog:** `test/example/lib/example_web/router.ex`
 
-**Existing sudo boundary** ([test/example/lib/example_web/router.ex](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L124)):
+**Existing sudo boundary** ([test/example/lib/example_web/router.ex](/workspace/sigra/test/example/lib/example_web/router.ex#L124)):
 ```elixir
 scope "/users", ExampleWeb do
   pipe_through [:browser, :require_authenticated]
@@ -549,7 +549,7 @@ scope "/users", ExampleWeb do
   post "/sudo", Auth.SudoController, :create
 ```
 
-**Admin route split** ([test/example/lib/example_web/router.ex](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L210)):
+**Admin route split** ([test/example/lib/example_web/router.ex](/workspace/sigra/test/example/lib/example_web/router.ex#L210)):
 ```elixir
 scope "/", alias: false do
   pipe_through [:browser, :require_authenticated, :admin_global]
@@ -569,7 +569,7 @@ end
 ## Shared Patterns
 
 ### 1. Controller-owned security-sensitive flows
-**Sources:** [test/example/lib/example_web/controllers/auth/sudo_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L19), [test/example/lib/example_web/controllers/session_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/session_controller.ex#L237)
+**Sources:** [test/example/lib/example_web/controllers/auth/sudo_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L19), [test/example/lib/example_web/controllers/session_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/session_controller.ex#L237)
 ```elixir
 session = conn.private[:sigra_session]
 ...
@@ -581,7 +581,7 @@ conn
 Apply to start/stop impersonation controllers.
 
 ### 2. Session rotation and token swapping
-**Source:** [test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L74)
+**Source:** [test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L74)
 ```elixir
 def put_user_session_token(conn, token) when is_binary(token) do
   conn
@@ -592,7 +592,7 @@ end
 Use for both impersonation start and restoration.
 
 ### 3. Plug + LiveView auth/scope parity
-**Sources:** [test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L150), [lib/sigra/scope/hydration.ex](/Users/jon/projects/sigra/lib/sigra/scope/hydration.ex#L1), [test/example/lib/example_web/router.ex](/Users/jon/projects/sigra/test/example/lib/example_web/router.ex#L214)
+**Sources:** [test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L150), [lib/sigra/scope/hydration.ex](/workspace/sigra/lib/sigra/scope/hydration.ex#L1), [test/example/lib/example_web/router.ex](/workspace/sigra/test/example/lib/example_web/router.ex#L214)
 ```elixir
 conn
 |> put_private(:sigra_session, session)
@@ -601,7 +601,7 @@ conn
 Keep impersonation state flowing through the same scope + hydration path on both sides.
 
 ### 4. Persistent shell/banner seam
-**Sources:** [test/example/lib/example_web/components/admin_shell.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/admin_shell.ex#L18), [test/example/lib/example_web/components/layouts.ex](/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex#L91)
+**Sources:** [test/example/lib/example_web/components/admin_shell.ex](/workspace/sigra/test/example/lib/example_web/components/admin_shell.ex#L18), [test/example/lib/example_web/components/layouts.ex](/workspace/sigra/test/example/lib/example_web/components/layouts.ex#L91)
 ```elixir
 <%= if render_special_session?(@special_session, @current_scope) do %>
   <span class="badge badge-outline">{special_session_label(@current_scope)}</span>
@@ -610,7 +610,7 @@ Keep impersonation state flowing through the same scope + hydration path on both
 Use this seam for a non-dismissable impersonation banner.
 
 ### 5. URL-driven `return_to` handling
-**Sources:** [lib/sigra/admin/live/user_show_live.ex](/Users/jon/projects/sigra/lib/sigra/admin/live/user_show_live.ex#L243), [test/example/lib/example_web/controllers/auth/sudo_controller.ex](/Users/jon/projects/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L32), [test/example/lib/example_web/user_auth.ex](/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex#L388)
+**Sources:** [lib/sigra/admin/live/user_show_live.ex](/workspace/sigra/lib/sigra/admin/live/user_show_live.ex#L243), [test/example/lib/example_web/controllers/auth/sudo_controller.ex](/workspace/sigra/test/example/lib/example_web/controllers/auth/sudo_controller.ex#L32), [test/example/lib/example_web/user_auth.ex](/workspace/sigra/test/example/lib/example_web/user_auth.ex#L388)
 ```elixir
 if String.starts_with?(path, ["/admin/users", "/admin/organizations/"]) do
   path
@@ -621,14 +621,14 @@ end
 Sanitize early, preserve through controller redirects, and fall back to scope-appropriate defaults.
 
 ### 6. Direct-path authorization and scoped queries
-**Sources:** [lib/sigra/admin/authorizer.ex](/Users/jon/projects/sigra/lib/sigra/admin/authorizer.ex#L49), [lib/sigra/admin/users/detail.ex](/Users/jon/projects/sigra/lib/sigra/admin/users/detail.ex#L96), [lib/sigra/admin/users/actions.ex](/Users/jon/projects/sigra/lib/sigra/admin/users/actions.ex#L9)
+**Sources:** [lib/sigra/admin/authorizer.ex](/workspace/sigra/lib/sigra/admin/authorizer.ex#L49), [lib/sigra/admin/users/detail.ex](/workspace/sigra/lib/sigra/admin/users/detail.ex#L96), [lib/sigra/admin/users/actions.ex](/workspace/sigra/lib/sigra/admin/users/actions.ex#L9)
 ```elixir
 user = Detail.load_user!(config, admin_scope, user_id)
 ```
 Authorize and scope the target before the impersonation mutation, not after.
 
 ### 7. Audit logging call-site patterns
-**Sources:** [lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1106), [lib/sigra/auth.ex](/Users/jon/projects/sigra/lib/sigra/auth.ex#L1325), [lib/sigra/audit.ex](/Users/jon/projects/sigra/lib/sigra/audit.ex#L135)
+**Sources:** [lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1106), [lib/sigra/auth.ex](/workspace/sigra/lib/sigra/auth.ex#L1325), [lib/sigra/audit.ex](/workspace/sigra/lib/sigra/audit.ex#L135)
 ```elixir
 Sigra.Audit.log_safe(action, scope,
   Keyword.merge(audit_opts,

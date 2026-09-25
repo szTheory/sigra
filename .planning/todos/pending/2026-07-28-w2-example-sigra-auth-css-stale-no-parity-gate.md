@@ -8,10 +8,15 @@ audit_finding: W-2
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [AUTHUI-01, AUTHUI-03, AUTHUI-04, EXPR-01]
 files:
+
   - test/example/priv/static/assets/sigra_auth.css
   - priv/templates/sigra.install/core/sigra_auth.css
   - test/sigra/install/features/admin_test.exs
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

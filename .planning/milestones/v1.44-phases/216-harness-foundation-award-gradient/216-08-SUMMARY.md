@@ -148,9 +148,9 @@ None — no new network endpoints, auth paths, file access patterns, or schema c
 - da99e976: `fix(216-08): W1 — align evidence-anchor-check to real emitter shape + D-22 class strings`
 
 **Files:**
-- `/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/probes.ts` ✓
-- `/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts` ✓
-- `/Users/jon/projects/sigra/scripts/ci/evidence-anchor-check.mjs` ✓
-- `/Users/jon/projects/sigra/scripts/ci/evidence-anchor-check.test.mjs` ✓
+- `/workspace/sigra/test/example/priv/playwright/lib/eval/probes.ts` ✓
+- `/workspace/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts` ✓
+- `/workspace/sigra/scripts/ci/evidence-anchor-check.mjs` ✓
+- `/workspace/sigra/scripts/ci/evidence-anchor-check.test.mjs` ✓
 
 ## Self-Check: PASSED

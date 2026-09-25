@@ -161,7 +161,7 @@ Two procedural notes, neither a change to plan content:
    automated greps already asserted.
 
 2. **Worktree allow-list assertion scoped down.** The working tree is a linked git worktree
-   (`.git` is a file → `/Users/jon/projects/sigra/.git/worktrees/v1.46-login-email-label`), but it
+   (`.git` is a file → `/workspace/sigra/.git/worktrees/v1.46-login-email-label`), but it
    is the operator's pre-existing worktree, not a GSD per-agent one — isolation was auto-degraded
    (`fork-ref-unknown`) and the orchestrator directed all commits to
    `post-release-1.4.0-bookkeeping`. Ran the substantive guards (cwd-drift sentinel, protected-ref

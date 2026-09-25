@@ -4,9 +4,14 @@ status: pending
 title: Generated login brand row breaks the product name mid-word at 320px/200%
 area: auth-ui
 files:
+
   - priv/templates/sigra.install/core/login_html.ex
   - priv/templates/sigra.install/core/sigra_auth.css
+
 source: 2026-07-27 Phase 229 PROOF-03 visual acceptance review
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

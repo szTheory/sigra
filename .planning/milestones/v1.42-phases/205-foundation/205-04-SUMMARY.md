@@ -139,7 +139,7 @@ accepted disposition in plan threat model).
 
 ## Self-Check: PASSED
 
-- `/Users/jon/projects/sigra/.planning/v1.42-IA-DIAGNOSTIC.md` — FOUND
+- `/workspace/sigra/.planning/v1.42-IA-DIAGNOSTIC.md` — FOUND
 - Commit `6f472b7e` — FOUND (git log confirms)
 - D-07 anti-collision guard: PASS (0 bare integers in column-4)
 - All 8 page names present: PASS

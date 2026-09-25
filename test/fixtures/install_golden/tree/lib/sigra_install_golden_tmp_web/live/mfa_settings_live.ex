@@ -33,6 +33,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
     {:ok,
      assign(socket,
+       mfa_capability_enabled: Auth.mfa_capability_enabled?(),
+       passkeys_enabled: Auth.passkeys_enabled?(),
        mfa_enabled: mfa_status.enabled,
        passkeys: passkeys,
        passkey_count: passkey_count,
@@ -61,6 +63,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     ~H"""
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
+      <%= if @mfa_capability_enabled do %>
       <%= if @mfa_enabled do %>
         <% # Surface 3: MFA Settings Card %>
         <section class="sigra-auth-section">
@@ -79,7 +82,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
             </button>
           </div>
 
-          <% # Backup code status (D-15) %>
           <div class="sigra-auth-stack sigra-auth-stack--2">
             <%= cond do %>
               <% @backup_remaining == 0 -> %>
@@ -242,9 +244,10 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
             </div>
         <% end %>
       <% end %>
+      <% end %>
 
 
-      <%= render_passkeys_section(assigns) %>
+      <%= if @passkeys_enabled, do: render_passkeys_section(assigns) %>
 
       </div>
     </.sigra_auth_page>
@@ -518,7 +521,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         </:subtitle>
       </.header>
 
-      <% # Backup code grid (D-08) %>
       <div class="sigra-auth-section">
         <ol class="sigra-auth-code-list" aria-label="One-time backup codes">
           <li :for={code <- @backup_codes}>
@@ -551,7 +553,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         </button>
       </div>
 
-      <% # Acknowledgment checkbox (D-11) %>
       <div>
         <label class="sigra-auth-check-row">
           <input
@@ -599,8 +600,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     form = to_form(%{"code" => code}, as: "enroll")
     socket = assign(socket, enroll_form: form)
 
-    # Auto-submit when 6 digits entered (D-36). 10.1 IN-06 follow-up:
-    # call the confirm path directly instead of dispatching via
+    # Auto-submit when 6 digits entered. Calls the confirm path
+    # directly instead of dispatching via
     # `send(self(), …)`. The mailbox round-trip allowed a stale 6-digit
     # prefix to fire after the user typed a 7th character, wasting an
     # attempt against the MFA lockout counter.

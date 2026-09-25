@@ -2,6 +2,7 @@
 # Sigra passkeys
 config :<%= otp_app %>, :sigra_config,
   passkeys: [
+    enabled: true,
     rp_id: "localhost",
     rp_name: "<%= app_name %>",
     origin: "http://localhost:4000",

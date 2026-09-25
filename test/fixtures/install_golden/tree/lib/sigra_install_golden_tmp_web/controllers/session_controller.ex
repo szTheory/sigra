@@ -30,6 +30,7 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
+      enterprise_sign_in_enabled: Auth.enterprise_sign_in_enabled?(),
       passkey_primary_enabled: Auth.passkey_primary_enabled?()
     )
   end
@@ -49,19 +50,25 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
   end
 
   def create(conn, %{"_action" => "enterprise", "user" => %{"email" => email}}) do
-    case SigraInstallGoldenTmp.Organizations.discover_enterprise_connection(email) do
-      {:ok, %{organization_slug: slug}} ->
-        conn
-        |> redirect(
-          to:
-            ~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"
-        )
+    if Auth.enterprise_sign_in_enabled?() do
+      case SigraInstallGoldenTmp.Organizations.discover_enterprise_connection(email) do
+        {:ok, %{organization_slug: slug}} ->
+          conn
+          |> redirect(
+            to:
+              ~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"
+          )
 
-      {:error, reason} ->
-        conn
-        |> put_flash(:error, enterprise_discovery_error(reason))
-        |> put_flash(:email, String.slice(email, 0, 160))
-        |> redirect(to: ~p"/users/log_in")
+        {:error, reason} ->
+          conn
+          |> put_flash(:error, enterprise_discovery_error(reason))
+          |> put_flash(:email, String.slice(email, 0, 160))
+          |> redirect(to: ~p"/users/log_in")
+      end
+    else
+      conn
+      |> send_resp(:not_found, "Not Found")
+      |> halt()
     end
   end
 
