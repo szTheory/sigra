@@ -1,24 +1,34 @@
-# Phase 243 handoff
+# Continue — Phase 244
 
-## Completed
+## Last action
 
-- Phase 243 plans 01–04 are complete. Goal verification passed all 5/5 roadmap success criteria with no human verification outstanding.
-- Verification report: `243-VERIFICATION.md`, committed as `ec7f6fb1` (`docs(phase-243): record goal verification`).
-- Phase 236 verification passed and its automated evidence is committed as `1d512e69`.
-- Phase 237 verification passed and its automated UAT/evidence refresh is committed as `8c5d1e03`.
-- Phase completion advanced `.planning/STATE.md` to Phase 244 (`@playwright/test` 1.59.1 → 1.62.1, alone; requirement QUEUE-02).
-- #213 remains untouched for Phase 244. Keep #219 as Phase 248 carryover and preserve stale PR branches.
+Phase 242 automated verification was refreshed and committed as `352940d5`. GSD now reports Phases 236–243 complete with passing verification; Phase 243 UAT is 9/9 and its goal verification is 5/5.
 
-## Next step after context reset
+## Next action
 
-Run `$gsd-verify-work 238`. Verification is fresh and passed for Phases 236, 237, 239, 240, and 243; stale verification remains for Phases 238, 241, and 242. Follow GSD's routing through those stale verifications before Phase 244 planning. Once they pass, run `$gsd-plan-phase 244`.
+Run `$gsd-discuss-phase 244` to gather assumptions for the Playwright upgrade. Phase 244 has no context or plans yet. Then run `$gsd-plan-phase 244`.
 
-Apply `.planning/VERIFICATION-POLICY.md` by default: replace human UAT with deterministic tests, integration/E2E/smoke checks, CI, and durable machine-readable evidence wherever feasible. Hand off only irreducible judgment, unavailable external actions, or decisions requiring operator authorization.
+## Why
 
-## Workspace cautions
+Phase 244 is the next roadmap phase and is explicitly scoped to PR #213 (`@playwright/test` 1.59.1 → 1.62.1). The discussion workflow is configured for assumptions mode.
 
-The root checkout contains pre-existing dirty edits and untracked Phase 242/243 artifacts. Preserve them; do not reset, clean, stash, broadly stage, or discard them. Phase 243's ROADMAP, STATE, and REQUIREMENTS transition updates remain uncommitted because those shared files contain unrelated existing edits.
+The phase requires recording pre/post Chromium browser revisions, measuring drift across the committed visual baselines on Ubuntu CI, and checking the Playwright cache key. Merge #213 only if measured drift is zero; otherwise defer it with the measurement. Do not open a recapture lane. After either outcome, verify `ci-gate` on main across all Playwright consumers.
 
-`.planning/STATE.md` is also still modified: its session continuity and operator next steps now record Phase 237 passing and Phase 238 as next. Keep that file's other transition edits intact. The Sigra test Postgres container was running during the Phase 237 checks; do not stop it as part of cleanup.
+## Open threads
 
-`REQUIREMENTS.md` has a known traceability warning: `SC-2` is in the body but missing from the Traceability table. Do not silently fold its repair into Phase 244 unless that phase owns the requirement.
+- Keep #219 as Phase 248 carryover.
+- Five verification windows and UAT/deferred debt remain tracked; inspect with `$gsd-audit-uat` when that is the intended scope.
+- `REQUIREMENTS.md` has a known traceability warning: SC-2 is in the body but missing from the Traceability table. Do not fold it into Phase 244 unless that phase owns it.
+
+## Do not
+
+- Do not merge #213 without the CI-native zero-drift evidence.
+- Do not recapture PNG baselines as part of Phase 244.
+- Do not prune branches before Phase 245.
+- The root working tree has substantial pre-existing dirty edits and untracked Phase 242/243 artifacts. Preserve them; do not reset, clean, stash, broadly stage, or discard them.
+
+## State note
+
+Older prose in `.planning/STATE.md` still recommends verification for Phases 238, 241, and 242. Live GSD status reports those phases passed, no phase execution is incomplete, and Phase 244 is next. `.planning/state.json` and `.planning/HANDOFF.json` now point to `$gsd-discuss-phase 244`.
+
+Apply `.planning/VERIFICATION-POLICY.md` by default: automate acceptance evidence and CI coverage where practical; hand off only irreducible judgment, unavailable external actions, or decisions requiring operator authorization.
