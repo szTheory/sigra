@@ -8,10 +8,15 @@ audit_finding: W-8
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [AUDIT-01, AUDIT-02]
 files:
+
   - lib/sigra/admin/live/audit_user_live.ex
   - test/example/priv/playwright/tests/admin-audit.spec.ts
   - test/example/priv/playwright/tests/admin-checkpoints.spec.ts
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

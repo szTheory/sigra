@@ -4,7 +4,9 @@ status: pending
 title: "Recapture jobs intermittently fail on a transient hex.pm mirror fetch (the Postgres FATAL line in the log is a red herring)"
 area: ci
 files:
+
   - .github/workflows/ci.yml
+
 severity: low
 source: >-
   Diagnosed by plan 231-11 from Phase 231's own dispatch history (12 observed
@@ -12,6 +14,9 @@ source: >-
   cause or a filed todo.
 owner: unassigned (repo maintainer to triage; low severity, does not block
   merges — recapture jobs are Tier-A, never in ci-gate.needs)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

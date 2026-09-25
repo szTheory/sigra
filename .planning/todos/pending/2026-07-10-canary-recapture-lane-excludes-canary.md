@@ -4,9 +4,14 @@ status: pending
 title: Exclude the impersonation-banner canary from the auto-recapture PR lane (recurring noise)
 area: ci
 files:
+
   - .github/workflows/ci.yml
   - scripts/ci/snapshot-canary-guard.sh
+
 source: 2026-07-10 v1.44 ship — each main-push opened a canary-only recapture PR (#75/#76/#77 closed).
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

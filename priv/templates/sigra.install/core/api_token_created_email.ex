@@ -1,4 +1,4 @@
-# -- API Token Notification (D-62) --
+# -- API Token Notification --
 
 @doc "Builds a notification email when a new API token is created."
 def api_token_created_email(user, token) do

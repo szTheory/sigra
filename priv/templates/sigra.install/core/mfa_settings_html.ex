@@ -45,7 +45,6 @@ defmodule <%= web_module %>.MFASettingsHTML do
             </.link>
           </div>
 
-          <%% # Backup code status (D-15) %>
           <div class="sigra-auth-stack sigra-auth-stack--2">
             <%%= cond do %>
               <%% @backup_remaining == 0 -> %>

@@ -2,16 +2,16 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.Index do
   @moduledoc """
   Unified organizations landing LiveView at `/organizations`.
 
-  This is the Phase 14 `:no_active_org` redirect target (D-09), and it
+  This is the `:no_active_org` redirect target, and it
   funnels every "user lands without a usable active org" flow into a
   single mount with three render branches keyed on
   `{memberships, pending_invitations}`:
 
     * `([], [])` — Branch A: zero-state hero + inline create form
-      (also the post-signup destination via ORG-UX-09's zero-line
+      (also the post-signup destination via the zero-line
       registration path)
-    * `([], [_|_])` — Branch B: pending invitations list (Phase 17
-      wires Accept; Phase 16 renders Accept disabled)
+    * `([], [_|_])` — Branch B: pending invitations list with an Accept
+      action for each invitation
     * `([_|_], _)` — Branch C: picker with per-row switch forms
 
   Edit freely — this file is your code.
@@ -127,7 +127,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.Index do
   end
 
   # ──────────────────────────────────────────────────────────────────────
-  # Branch B — zero memberships, 1+ pending invitations (Phase 17 wires)
+  # Branch B — zero memberships, 1+ pending invitations
   # ──────────────────────────────────────────────────────────────────────
   defp render_branch_b(assigns) do
     ~H"""
@@ -223,7 +223,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.Index do
   defp humanize_role(role), do: to_string(role)
 
   # Surface the first slug error verbatim so the inline field error text
-  # matches the UI-SPEC §Error States copy exactly.
+  # matches the expected copy exactly.
   defp create_error_flash(%Ecto.Changeset{} = changeset) do
     case Keyword.get(changeset.errors, :slug) do
       {"is reserved and cannot be used", _} -> "That slug is reserved. Try another."

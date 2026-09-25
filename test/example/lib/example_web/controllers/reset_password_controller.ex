@@ -18,7 +18,7 @@ defmodule ExampleWeb.ResetPasswordController do
 
   @doc """
   Processes the reset request. Always shows the same message
-  regardless of whether the email exists (enumeration prevention, D-38).
+  regardless of whether the email exists — enumeration prevention.
   """
   def create(conn, %{"user" => %{"email" => email}}) do
     if user = Example.Accounts.get_user_by_email(email) do
@@ -56,7 +56,7 @@ defmodule ExampleWeb.ResetPasswordController do
 
   @doc """
   Processes the password change. On success, invalidates all sessions
-  and auto-logs the user in (D-29).
+  and auto-logs the user in.
   """
   def update(conn, %{"token" => token, "user" => password_params}) do
     case Example.Accounts.get_user_by_reset_password_token(token) do
@@ -64,7 +64,7 @@ defmodule ExampleWeb.ResetPasswordController do
         render(conn, :expired)
 
       user ->
-        # 10.1 IN-03: pass the signed `token` (not the user struct) so the
+        # Pass the signed `token` (not the user struct) so the
         # reset routes through `Sigra.Auth.reset_password/4` — which rewinds
         # the HMAC signature, emits `[:sigra, :reset, :completed]` telemetry,
         # and writes the `auth.password_reset_complete` audit row. Passing a

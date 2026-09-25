@@ -16,3 +16,4 @@ unrelated `run:` blocks, confirmed present on `main` before this plan's changes
 None of these touch the `fast_checks` or `upgrade_smoke` jobs modified by Plan 01/02.
 Verified via `git stash` diff: identical warning set exists on the pre-plan baseline.
 Not fixed — out of scope for HARD-01 (upgrade-smoke resolver hardening).
+  status: acknowledged

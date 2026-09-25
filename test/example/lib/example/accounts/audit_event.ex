@@ -44,9 +44,8 @@ defmodule Example.Accounts.AuditEvent do
   Builds a changeset for an audit event.
 
   Delegates validation to `Sigra.Audit.Changeset.changeset/3` which
-  enforces the action regex (D-19), reserved action prefixes
-  (D-17/D-18), metadata size cap (D-20), and forbidden metadata keys
-  (D-23).
+  enforces the action regex, reserved action prefixes,
+  a metadata size cap, and forbidden metadata keys.
   """
   def changeset(event, attrs, opts \\ []) do
     Sigra.Audit.Changeset.changeset(event, attrs, opts)

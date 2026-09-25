@@ -45,6 +45,23 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
     end
   end
 
+  # The exact `name=` attributes the filter form serializes (six visible fields
+  # plus the three hidden inputs) — this is what makes the JS (push_patch) and
+  # no-JS (native GET) URLs identical by construction (D-14). `cursor` is
+  # deliberately absent: a new filter submit resets paging, matching
+  # preset_path/4's and sort_path/3's existing Map.delete("cursor").
+  @filter_param_keys ~w(actor effective_user action_prefix outcome from to page_size order_by order_direction)
+
+  @impl true
+  def handle_event("apply_filters", params, socket) do
+    path =
+      socket.assigns.admin_scope
+      |> index_path()
+      |> append_query(Map.take(params, @filter_param_keys))
+
+    {:noreply, push_patch(socket, to: path)}
+  end
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -57,23 +74,28 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
       </header>
 
       <nav class="sg-cluster" aria-label="Audit filter presets">
-        <a
-          href={preset_path(@admin_scope, @current_params, "outcome", "failure")}
+        <.link
+          patch={preset_path(@admin_scope, @current_params, "outcome", "failure")}
           class="sg-btn sg-btn--secondary sg-btn--sm"
           aria-current={param_value(@current_params, "outcome") == "failure" && "page"}
         >
           Failures
-        </a>
-        <a
-          href={preset_path(@admin_scope, @current_params, "action_prefix", "admin.impersonation")}
+        </.link>
+        <.link
+          patch={preset_path(@admin_scope, @current_params, "action_prefix", "admin.impersonation")}
           class="sg-btn sg-btn--secondary sg-btn--sm"
           aria-current={param_value(@current_params, "action_prefix") == "admin.impersonation" && "page"}
         >
           Impersonation
-        </a>
+        </.link>
       </nav>
 
-      <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
+      <form
+        method="get"
+        action={index_path(@admin_scope)}
+        phx-submit="apply_filters"
+        class="sg-filter-panel sg-stack"
+      >
         <div class="sg-form-grid sg-form-grid--cols">
           <label class="sg-field">
             <span class="sg-field-label">Actor</span>
@@ -118,7 +140,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
         <div class="sg-cluster">
           <button type="submit" class="sg-btn sg-btn--primary">Apply filters</button>
-          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost">Clear</a>
+          <.link patch={index_path(@admin_scope)} class="sg-btn sg-btn--ghost">Clear</.link>
           <a href={export_path(@admin_scope, @current_params)} class="sg-btn sg-btn--secondary">Export CSV</a>
         </div>
 
@@ -139,7 +161,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
             label={chip.label}
             remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
           />
-          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+          <.link patch={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</.link>
         </div>
       </section>
 
@@ -152,7 +174,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <table class="sg-table">
           <thead>
             <tr>
-              <th><a href={sort_path(@admin_scope, @current_params, "inserted_at")}>Occurred</a></th>
+              <th><.link patch={sort_path(@admin_scope, @current_params, "inserted_at")}>Occurred</.link></th>
               <th>Event</th>
               <th>Actor</th>
               <th class="sg-show-desktop">Outcome</th>
@@ -177,7 +199,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <%= if any_filter_active?(@current_params) do %>
           <p class="sg-muted sg-text-sm">No audit events match the active filters. Clear one or more to widen the timeline.</p>
           <div class="sg-cluster sg-cluster--center">
-            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
+            <.link patch={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</.link>
           </div>
         <% else %>
           <p class="sg-muted sg-text-sm">Audit events appear here as activity is recorded. Adjust the filters above to focus on a specific actor, outcome, or time range.</p>

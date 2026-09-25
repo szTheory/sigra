@@ -1,7 +1,21 @@
+---
+id: SEED-006
+status: implemented
+planted: 2026-06-19
+planted_during: v1.39 ship (PR #54)
+implemented_during: Phase 197 (Plans 03-05)
+implemented: 2026-09-15
+trigger_when: Triggered and delivered — Phase 197 restored the gallery gate with in-CI recapture
+scope: Medium
+---
+
 # SEED-006 — Re-gate the admin-design gallery: deterministic CI fonts + in-CI baseline recapture
 
-**Status:** OPEN (follow-up). Filed 2026-06-19 on the v1.39 ship (PR #54), immediately
-after demoting the gallery step to non-blocking.
+**Status:** DELIVERED — ADDRESSED by Phase 197 (Plans 03-05) and confirmed by the
+immutable gallery evidence recorded below; header closed 2026-09-15 during the v1.47
+close-out (the body already recorded ADDRESSED/DELIVERED while this header lagged).
+Filed 2026-06-19 on the v1.39 ship (PR #54), immediately after demoting the gallery step
+to non-blocking.
 **Priority:** Medium — restores a real visual gate that is currently `continue-on-error`.
 Not a correctness bug in shipped library code; it is test-infra/baseline drift.
 

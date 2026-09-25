@@ -3,7 +3,10 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @library_jobs ["library_tests_shard", "library_tests", "library_tests_dep_off"]
-  @remediation_path ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json"
+  @remediation_path Sigra.Test.PlanningPaths.phase_file(
+                      "235-terminal-ratification-measured-not-read",
+                      "235-FAST-01-REMEDIATION.json"
+                    )
 
   test "library execution universe is fail-closed and has one full-suite owner" do
     workflow = File.read!(@workflow_path)

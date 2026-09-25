@@ -23,7 +23,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
-      # Account lifecycle fields (Phase 8)
+      # Account lifecycle fields
       add :pending_email, :citext
       add :deleted_at, :utc_datetime
       add :scheduled_deletion_at, :utc_datetime
@@ -133,7 +133,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
-      # Account lifecycle fields (Phase 8)
+      # Account lifecycle fields
       add :pending_email, :string, size: 160
       add :deleted_at, :utc_datetime
       add :scheduled_deletion_at, :utc_datetime
@@ -230,7 +230,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
-      # Account lifecycle fields (Phase 8)
+      # Account lifecycle fields
       add :pending_email, :string, collate: :nocase
       add :deleted_at, :utc_datetime
       add :scheduled_deletion_at, :utc_datetime

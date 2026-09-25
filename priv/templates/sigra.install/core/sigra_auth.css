@@ -443,6 +443,38 @@
     opacity: 0.88;
   }
 
+  /* Theme-specific logo slots.
+     Only emitted when theme is "system" AND the light and dark themes resolve
+     different assets; a pinned theme renders one slot with no data attribute, so
+     these rules never apply to it. Each slot is independently an <img> or the
+     placeholder mark, which is why this is CSS toggling rather than <picture> --
+     <picture> cannot express "placeholder in light, logo in dark".
+
+     Both the placement and the doubled selectors are load-bearing. These rules must
+     sit AFTER .sigra-auth__mark, and must qualify the attribute with the element
+     class, because a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark
+     on specificity -- the later display:grid would win and the dark placeholder would
+     stay visible in light mode. */
+  .sigra-auth__logo[data-sigra-logo-slot="dark"],
+  .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="light"],
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="light"] {
+      display: none;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="dark"] {
+      display: block;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+      display: grid;
+    }
+  }
+
   .sigra-auth__product {
     min-width: 0;
     margin: 0;
@@ -479,27 +511,23 @@
     text-decoration: underline;
   }
 
-  /* GATE-02 gap-closure, round 3 (corrected -- see round-4 fix note below):
-     live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md) showed H2/P sharing one
-     identical right edge (321.4375px) as the last remaining offenders after rounds
-     1-2. Neither element had min-width: 0, so as grid items of a
-     single-implicit-column .sigra-auth-stack, both stretch to the shared column
-     track's width, which is itself floored by whichever sibling's own min-content is
-     largest (here, the <p> copy's longest unbreakable word). min-width: 0 lets each
-     item shrink.
-     GATE-02 gap-closure, round 4 (regression fix): this rule's selector,
+  /* H2 and P shared one identical right edge with the surrounding stack.
+     Neither had min-width: 0, so as grid items of a single-implicit-column
+     .sigra-auth-stack both stretch to the shared column track's width, which is
+     itself floored by whichever sibling's own min-content is largest (here, the
+     <p> copy's longest unbreakable word). min-width: 0 lets each item shrink.
+
+     Use `overflow-wrap: anywhere` here, NOT `break-word`: this rule's selector,
      `.sigra-auth p`, has higher specificity (0,1,1) than the pre-existing
-     `.sigra-auth__product` rule (0,1,0) below and appears later in the file, so an
-     initial round-3 draft that used `overflow-wrap: break-word` here silently
-     overrode that rule's `overflow-wrap: anywhere` for the wordmark <p>. Per the CSS
-     Text spec, `anywhere` (not `break-word`) is what participates in a flex/grid
-     item's automatic-minimum-size calculation -- `break-word` only affects actual
-     render-time wrapping, not intrinsic sizing -- so that override reintroduced an
-     un-contained min-content floor on the wordmark and produced a much larger,
-     bursty overflow (scrollWidth 445-473px vs innerWidth 320px, observed on live CI
-     runs 30518012012 and 30518015684 immediately after the round-3 commit, never
-     before it). Using `anywhere` here matches .sigra-auth__product's already-proven
-     value, so the cascade agrees everywhere instead of silently overriding it. */
+     `.sigra-auth__product` rule (0,1,0) below and appears later in the file, so
+     `break-word` here would silently override that rule's `overflow-wrap:
+     anywhere` for the wordmark <p>. Per the CSS Text spec, `anywhere` (not
+     `break-word`) is what participates in a flex/grid item's
+     automatic-minimum-size calculation -- `break-word` only affects actual
+     render-time wrapping, not intrinsic sizing -- so that override would
+     reintroduce an un-contained min-content floor on the wordmark. Using
+     `anywhere` here matches .sigra-auth__product's value, so the cascade agrees
+     everywhere instead of silently overriding it. */
   .sigra-auth h1,
   .sigra-auth h2,
   .sigra-auth h3,
@@ -658,21 +686,18 @@
     gap: 1rem;
   }
 
-  /* GATE-02 gap-closure: .sigra-auth form is display:grid, so Phoenix 1.8's default
+  /* .sigra-auth form is display:grid, so Phoenix 1.8's default
      <.input> core component's <div class="fieldset mb-2"> wrapper (and the <label>
      inside it) is itself a grid item of the form. DaisyUI's compiled .fieldset is
      ALSO display:grid, so this un-contained grid-item ancestor still carries its
-     automatic minimum width (min-content) even though 231-02's min-width: 0 already
-     reached the leaf input/button. That leaf-only fix was insufficient on its own --
-     do not re-litigate this; see 231-GAP-GATE02-SUMMARY.md for the verified mechanism
-     and the reflow failure payload (DIV.fieldset/LABEL/SPAN.label/INPUT/BUTTON sharing
-     one identical right edge) that proves it. */
+     automatic minimum width (min-content); the earlier leaf-level min-width: 0
+     reached only the input/button, which is why that leaf-only fix was
+     insufficient on its own. */
   .sigra-auth form :where(.fieldset, label) {
     min-width: 0;
   }
 
-  /* GATE-02 gap-closure, round 2: live multi-run CI evidence (231-GAP-GATE02-SUMMARY.md)
-     showed a residual, distinct overflow AFTER the grid-item containment fix above --
+  /* A residual, distinct overflow survives the grid-item containment fix above --
      SPAN.label (the field-label wrapper Phoenix's default <.input> core component
      renders) inherits DaisyUI's compiled .label utility class, which sets
      white-space: nowrap. At 320px / 32px root font (WCAG 1.4.4 2x zoom simulation), a
@@ -698,7 +723,7 @@
   .sigra-auth select,
   .sigra-auth .input {
     width: 100%;
-    min-width: 0; /* GATE-02/D-09: a grid/flex item's automatic min size is min-content (~20ch for an <input>), which width: 100% does not override -- see 231-02-DIAGNOSIS.md */
+    min-width: 0; /* A grid/flex item's automatic min size is min-content (~20ch for an <input>), which width: 100% does not override. */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);

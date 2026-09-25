@@ -22,7 +22,6 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         </:subtitle>
       </.header>
 
-      <%% # Tab bar (D-21) %>
       <div role="tablist" aria-label="Verification method">
         <div class="sigra-auth-tabs">
           <button
@@ -125,14 +124,12 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         </.form>
       </div>
 
-      <%% # Remaining attempts hint (D-38) %>
       <div aria-live="polite">
         <p class="sigra-auth-copy sigra-auth-copy--muted sigra-auth-copy--center">
           Enter the code from your authenticator app to continue.
         </p>
       </div>
 
-      <%% # Cancel link (D-34) %>
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link href={~p"/users/log_out"} method="delete">
           Cancel and sign out
@@ -160,7 +157,7 @@ defmodule <%= web_module %>.MFAChallengeHTML do
         });
       }
 
-      // Auto-submit TOTP when 6 digits entered (D-36)
+      // Auto-submit TOTP when 6 digits entered
       document.addEventListener('DOMContentLoaded', function() {
         var totpInput = document.getElementById('mfa_totp_code');
         if (totpInput) {
