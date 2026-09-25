@@ -1,0 +1,10 @@
+diff --git a/lib/example/synthetic_security_note.ex b/lib/example/synthetic_security_note.ex
+index 1111111..2222222 100644
+--- a/lib/example/synthetic_security_note.ex
++++ b/lib/example/synthetic_security_note.ex
+@@ -10,7 +10,6 @@ defmodule Example.SyntheticSecurityNote do
+   def verify(token) do
+-    # Constant-time comparison prevents timing attacks against the token check.
+     Example.Crypto.secure_compare(token, expected())
+   end
+ end

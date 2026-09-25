@@ -69,7 +69,7 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordHTML do
 
   @doc """
   Renders the expired/used token error page with a re-request button.
-  Never a dead end (D-07/D-30).
+  Never a dead end.
   """
   def expired(assigns) do
     ~H"""

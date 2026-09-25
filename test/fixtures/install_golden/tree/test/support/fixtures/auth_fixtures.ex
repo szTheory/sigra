@@ -278,7 +278,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
     %{user: user, credential: credential}
   end
 
-  # -- Account Lifecycle Fixtures (Phase 8) --
+  # -- Account Lifecycle Fixtures --
 
   @doc """
   Creates a user with account deletion scheduled.
@@ -313,12 +313,12 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
     )
   end
 
-  # --- Scenario Fixtures (Phase 10, DX-03) ---
+  # --- Scenario Fixtures ---
   #
   # Named wrappers composing the primitives above. Each returns a
-  # non-uniform map containing only the keys the scenario needs (D-04).
+  # non-uniform map containing only the keys the scenario needs.
   # Scenarios representing pre-login or blocked state (mfa_pending,
-  # locked, unconfirmed) deliberately omit :conn (D-07).
+  # locked, unconfirmed) deliberately omit :conn.
   #
   # These are UNIT-level helpers — they bypass real CSRF, rate limiting,
   # and session-renewal flows. Integration tests exercising auth gates
@@ -344,7 +344,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
   @doc """
   MFA-pending scenario. User has TOTP enrolled; session type is
   `"mfa_pending"`. Caller has NOT yet passed the challenge, so no
-  `:conn` is returned (D-07).
+  `:conn` is returned.
   """
   def mfa_pending_fixture(attrs \\ %{}) do
     mfa_pending_session_fixture(attrs)
@@ -354,7 +354,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
   MFA-complete scenario. User has TOTP enrolled AND has passed the
   challenge.
 
-  Phase 6 transitions the session type from `"mfa_pending"` to
+  This transitions the session type from `"mfa_pending"` to
   `"standard"` on successful verification rather than stamping a
   separate timestamp; this fixture therefore returns a post-transition
   standard session. Represents post-verification state only — real MFA
@@ -381,7 +381,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
 
   @doc """
   Locked scenario. User with `failed_login_attempts == 5` and
-  `locked_at` set. No `:conn` — locked users cannot log in (D-07).
+  `locked_at` set. No `:conn` — locked users cannot log in.
   """
   def locked_fixture(attrs \\ %{}) do
     user = attrs |> user_fixture() |> locked_user_fixture()
@@ -390,7 +390,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
 
   @doc """
   Unconfirmed scenario. User exists but `confirmed_at` is nil (email
-  not yet confirmed per D-06). No `:conn` (D-07).
+  not yet confirmed). No `:conn`.
   """
   def unconfirmed_fixture(attrs \\ %{}) do
     user = user_fixture(attrs)

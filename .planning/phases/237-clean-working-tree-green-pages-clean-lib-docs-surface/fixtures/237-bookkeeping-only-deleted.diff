@@ -1,0 +1,10 @@
+diff --git a/lib/example/synthetic_scope_note.ex b/lib/example/synthetic_scope_note.ex
+index 3333333..4444444 100644
+--- a/lib/example/synthetic_scope_note.ex
++++ b/lib/example/synthetic_scope_note.ex
+@@ -20,7 +20,6 @@ defmodule Example.SyntheticScopeNote do
+   def query(org_id) do
+-    # Organization scope enforced at the query boundary (D-99).
+     from(r in Example.Record, where: r.organization_id == ^org_id)
+   end
+ end

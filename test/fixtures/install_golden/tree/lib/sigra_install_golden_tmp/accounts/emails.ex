@@ -506,7 +506,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Email Change Templates (D-09)
+  ## Email Change Templates
 
   @doc "Builds a confirmation email sent to the NEW email address during email change."
   def email_change_confirmation_email(_user, new_email, url) do
@@ -615,7 +615,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Account Deletion Templates (D-21)
+  ## Account Deletion Templates
 
   @doc "Builds a deletion scheduled notification email."
   def deletion_scheduled_email(user, scheduled_date, cancel_url) do
@@ -711,7 +711,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Password Change Template (D-37)
+  ## Password Change Template
 
   @doc "Builds a password changed notification email with login details."
   def password_changed_email(user, details) do
@@ -785,7 +785,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
+  # -- Org-invite block --
   #
   # Canonical inline copy of the invitation email fragment shipped at
   # priv/templates/sigra.install/organizations/organization_invitation_email.ex.
@@ -1006,6 +1006,17 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
 
   defp maybe_reply_to(email, _branding), do: email
 
+  # Matches logo_url and ONLY logo_url. Do not add a dark_logo_url fallback here.
+  #
+  # dark_logo_url exists for hosts whose only asset is a reversed, near-white mark;
+  # such a host is expected to set dark_logo_url and leave logo_url unset on purpose.
+  # Falling back to the dark asset would paint that near-white mark onto the white
+  # email surface -- invisible, and worse than the wordmark below, because a blank
+  # space reads as a broken image rather than as a deliberate one.
+  #
+  # Transactional email renders on an effectively light surface whatever the reader's
+  # OS theme is, and prefers-color-scheme support across mail clients is too patchy to
+  # vary the asset on. So: light slot, or the wordmark. See Sigra.Branding.email_logo/1.
   defp email_logo_or_name(%{logo_url: logo_url, logo_alt: logo_alt}) when is_binary(logo_url) do
     """
     <img src="#{html_escape_string(logo_url)}" alt="#{html_escape_string(logo_alt)}" width="96" style="display: inline-block; max-width: 160px; height: auto;" />

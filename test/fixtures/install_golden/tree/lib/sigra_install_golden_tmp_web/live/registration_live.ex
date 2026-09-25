@@ -112,7 +112,7 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
 
     case SigraInstallGoldenTmp.Accounts.register_user(user_params) do
       {:ok, user} ->
-        # D-05: deliver confirmation email (B5 repair; helper exists at SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions/2)
+        # Deliver confirmation email (helper exists at SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
 
           if enroll_passkey do

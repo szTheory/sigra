@@ -21,7 +21,7 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeController do
         conn |> redirect(to: ~p"/users/log_in") |> halt()
 
       !match?(%{type: :mfa_pending}, conn.private[:sigra_session]) ->
-        # Not in MFA pending state -- redirect appropriately (D-35)
+        # Not in MFA pending state -- redirect appropriately
         conn |> redirect(to: ~p"/") |> halt()
 
       true ->

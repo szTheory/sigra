@@ -1,0 +1,134 @@
+# .planning/decisions/003-tag-delete-list.tsv — the explicit tag delete-set for ADR 003
+#
+# WHY THIS FILE EXISTS
+# Phase 238 deletes the non-SemVer planning tags that ADR 003 forbids. The delete set can
+# never be a glob: `v1.4*` matches BOTH `v1.4` (a planning tag, deleted here) and `v1.4.0`
+# (a three-component SemVer tag that backs a published GitHub Release and a published Hex
+# package). A prefix expansion at a delete call site would destroy a release-backing tag.
+# So the set is enumerated here, one row per tag, reviewed in the same diff as the script
+# that consumes it. Prose is a RENDERER of this file, not a second source of truth: the
+# runbook and the ADR amendment cite this path rather than restating the set.
+#
+# EXCLUSION, NEVER A ROW
+# Two namespaces are kept and are handled by EXCLUSION, never by a row here:
+#   - three-component SemVer releases  ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$
+#     (the optional prerelease/build suffix is deliberate: the release automation may mint
+#      a release-candidate tag during this phase's window — see 238-CONTEXT D-05)
+#   - the archive namespace            ^archive/
+# A row matching either expression is a bug, and scripts/maintainers/delete-planning-tags.sh
+# plus this plan's verification both reject it.
+#
+# CONSUMERS
+#   - scripts/maintainers/delete-planning-tags.sh   the only executor of this set; reads
+#                                                   one literal tag name per delete
+#                                                   invocation from the `tag` column
+#   - .planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md (ADR 003)
+#                                                   cites this path in its amendment; the
+#                                                   path is deliberately NOT under
+#                                                   .planning/phases/238-*/, because phase
+#                                                   directories move to
+#                                                   .planning/milestones/ at milestone close
+#                                                   and the citation must still resolve
+#   - Phase 245 (branch prune)                      consumes `pre_delete_sha`: the
+#                                                   phase-proof tags are held by a branch
+#                                                   245 lists among its prune candidates,
+#                                                   so this column names every object
+#                                                   before it stops being tag-reachable
+#
+# COLUMNS
+#   tag             the literal ref name under refs/tags, exactly as passed to one delete
+#   local           yes|no — present in `git tag` at capture time
+#   remote          yes|no — present in `git ls-remote --tags origin` at capture time.
+#                   Independent of `local`: the two sets differ, and a remote delete of a
+#                   local-only tag ERRORS, so the remote pass is driven by remote=yes only.
+#   class           planning-milestone | phase-proof
+#   pre_delete_sha  the COMMIT this tag resolves to, captured before any deletion
+#   reason          why this tag is in the delete set
+#
+# PRE-DELETION OBJECT CAPTURE
+#   git for-each-ref --format='%(refname:strip=2)%09%(objectname)%09%(*objectname)' refs/tags
+# Every one of the rows below is an ANNOTATED tag, so %(objectname) is a tag object and
+# %(*objectname) is the commit it wraps. `pre_delete_sha` carries the COMMIT — that is the
+# object Phase 245 must keep reachable. The tag-object names are recorded here so that
+# information is not lost with the refs:
+#   phase-238-generated-auth-proof-325b3cfa      tag  6f3a0cfac458ae96187b0dbbcb2880d3def4ffae -> 325b3cfae081971483517e8b9adae03d961d2c4d
+#   phase-238-generated-auth-proof-526a1184      tag  68f706f172782d94c0c4406a17ea37b2819ed626 -> 526a1184cb661f01c74a1ad8cef4295d0f2239d5
+#   phase-238-generated-auth-proof-655e402d      tag  ecdd5fccc8b06fdbae12d9294ec4658106b557c8 -> 655e402d28767a7042f5b9e165e996aedc68bc2d
+#   phase-238-generated-auth-proof-68c9d632      tag  05c07b844448df7424b0a9bffc67eaf2f9be44bf -> 68c9d632090310366af5d70d6063bddf498eae8c
+#   phase-238-generated-auth-proof-85cc3086      tag  d55be5b26192a2e6ab2e8a07340d0187620e59e7 -> 85cc308691d3830542af1f23670eab6ee22e2b49
+#   phase-238-generated-auth-proof-ad1611d2      tag  f8b9b6b8ddfca01799675e6839e80a6804528dc0 -> ad1611d277ff0fbbb1095adc6c2dac2f8c637a92
+#   phase-238-generated-auth-proof-c7e1171d      tag  62a24c910ec7b576495406cff90c1b88ee4cf5f5 -> c7e1171d77f1b94f2d3a372d6e6d8e20ba2b7936
+#   phase-238-generated-auth-proof-c94add15      tag  aeff1fafc8b17335be909d25cc935dc0a67422ce -> c94add15228b26ed207d1fd44fcc3bf175404df6
+#   phase-238-generated-auth-proof-d96e35ba      tag  afb7612c84211c28fc3154dec8e085355ff9a017 -> d96e35bad40083b70a3b4a87b55eb95cf0b1c252
+#   phase-238-generated-auth-proof-e28499f8      tag  28e7b37293e86f36644852778226a3987b605f74 -> e28499f848974d5b2e156fff9e66eec1d93304e1
+#   phase-238-generated-auth-proof-f824423f      tag  ebad69f2c2002c68cda9a5e14deee52d63814e89 -> f824423fedeaa6a3012ffa97704da33bb84f36c2
+#   v1.0                                         tag  2ed0decc611ed280cfc2f703da6cad53ebb81e3a -> a95e7c238c8d0fc083fa8addf8e6af27aab52967
+#   v1.1                                         tag  1409e8cad7c646c9f6db7f997efcd7238b714f1c -> 2280324d640a759ecf4111754f34d5ed76a0dfbd
+#   v1.10                                        tag  01d828e9578291efd5809d67274eb235261fe855 -> b8717e4ce2cfeccf5631dda41c52b1a4a0156b33
+#   v1.12                                        tag  a9484a20a9a0518bcd8d3d0174c546b142cec2b1 -> 36eed2060196157c8c9f3208c23843861ef2a770
+#   v1.14                                        tag  f18acfdf10eca1426702837d5aff3d790b63fcad -> a4bf2744192a0fb00673ee48d110e066a5c7dd99
+#   v1.15                                        tag  109067badd063489cca2303b04aacb9f5da8e0a9 -> 117012bf2a70ab2ba765659213cb6d03e2b22a0a
+#   v1.16                                        tag  e43b0fd69165fe2a2f89aa26f26145d1f6059271 -> 7aeef4d545733e169453924a9fd6cbaa47ef61d5
+#   v1.17                                        tag  54084f41afb1627d29eac0a156254d934f52dd63 -> 40cd660d494267237abcf315f481b27c06774cd4
+#   v1.21                                        tag  93085677bb515c3d363ebf4ec0373c7554467452 -> 72f455b3bf2f8a20d2d3c978bc2738a33d3b51cc
+#   v1.25                                        tag  91e8b21262f56794dcfc5fbe92becaf57bccc7d5 -> db9ebfcfd34304371bbc45846f0cdab8cada5419
+#   v1.26                                        tag  bff958dcd166bef277d08c719d7872e4e89771e3 -> 977d1d8b88781947c567077a5ce0a93384bb1e99
+#   v1.27                                        tag  1bdd0db88747640537179994163fb4bd8389fa8b -> d3605455b37692ea6808cdc933d1d3f723dc5ffd
+#   v1.28                                        tag  8b399ef5941c3633071b13cd3180db7cc38c00c5 -> fc9ef5ca9e05946e57507590f2f2200303e0f898
+#   v1.29                                        tag  ab56ef3ab9aaa5aa43803c214e77317bc52ffd8d -> bd67c56fb0af91caa9f69711d9a26fcc4318f625
+#   v1.3                                         tag  f3a71647c669ccd07ddd95f0aea74d0c2fd33d31 -> 26b65d482c0c83429a66fe4b8fc26bd619298b49
+#   v1.30                                        tag  d1bebe1feb26aa58d72b9bd34f110019b58eb7ef -> 2e2685d8c7892672087f5284b41a50da7867a9a6
+#   v1.31                                        tag  a107af1c3bab4ece6732cb650671a02f969c14c0 -> 1865a86804f796f7a605887d366f5fa7479b9cc0
+#   v1.33                                        tag  872c5f73fab2c75cfde609737616b25389d0df03 -> d5a587cf21df45c4b081fae58a5319344c8646a5
+#   v1.34                                        tag  127aef6d1e401aae255aa35bd9055485c5808d36 -> 76a07cf9765d1a4eda347e3927fcaba5492e7775
+#   v1.35                                        tag  bc1f656f5f971d4e0d2746e52d56b9b099fb95a6 -> 9df5d42dfc0ae5afcd23b2f64ae8e0cbf4d1f903
+#   v1.4                                         tag  d24910e0169a3d146ff2413d801909761f8dee32 -> dbe3e8809fddff2c2e90360f8cedf173b3032cbe
+#   v1.47                                        tag  2ecc144ead5edc3f04d68e37537c55d7744a2d5e -> 14a35cbe21d6aba3b69ee3c3ec6c036279fbfdd9
+#   v1.48                                        tag  d4c35a7f033d2e7ff9a3c7641b786c1d96bf9861 -> ef66ed2b082311774538ec74ece123394073f3cf
+#   v1.5                                         tag  91aa0bc8f068fe0c6d9697ee41551e062e3f0998 -> 6ac97097051fcd75ab7698dd2cdbfefa4a7b3e76
+#   v1.6                                         tag  8aa29d6c4b32282e771212d375740afe6a5e294d -> 5d8e7a7a6eeb91e1ee37f1523b3e1812619767a6
+#   v1.7                                         tag  1e36d5dd87a3a7dfb11c5c4d029a0f45e7beec13 -> 7d952596c188ec7e177cf5ca9b071ef38f8357c8
+#   v1.8                                         tag  dd918dfaeb9459a99d2250117951b0edd57edfd6 -> 07297f5013d587b01effcf75ce1af0b5b20b5512
+#   v1.9                                         tag  9538a67b4b3f71cd44e1c779f68d60215665f367 -> 787a0c535a364d8d6583fd1a2fd3f587cfb00ab2
+#
+# CAPTURED: 2026-09-17, from the live repository and the live origin.
+tag	local	remote	class	pre_delete_sha	reason
+phase-238-generated-auth-proof-68c9d632	yes	yes	phase-proof	68c9d632090310366af5d70d6063bddf498eae8c	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-85cc3086	yes	yes	phase-proof	85cc308691d3830542af1f23670eab6ee22e2b49	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-325b3cfa	yes	yes	phase-proof	325b3cfae081971483517e8b9adae03d961d2c4d	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-526a1184	yes	yes	phase-proof	526a1184cb661f01c74a1ad8cef4295d0f2239d5	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-655e402d	yes	yes	phase-proof	655e402d28767a7042f5b9e165e996aedc68bc2d	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-ad1611d2	yes	yes	phase-proof	ad1611d277ff0fbbb1095adc6c2dac2f8c637a92	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-c7e1171d	yes	yes	phase-proof	c7e1171d77f1b94f2d3a372d6e6d8e20ba2b7936	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-c94add15	yes	yes	phase-proof	c94add15228b26ed207d1fd44fcc3bf175404df6	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-d96e35ba	yes	yes	phase-proof	d96e35bad40083b70a3b4a87b55eb95cf0b1c252	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-e28499f8	yes	yes	phase-proof	e28499f848974d5b2e156fff9e66eec1d93304e1	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+phase-238-generated-auth-proof-f824423f	yes	yes	phase-proof	f824423fedeaa6a3012ffa97704da33bb84f36c2	proof tag from an EARLIER, differently-scoped Phase 238 (generated-auth runtime proof, Aug 2026); the number collides with the Phase 238 that created this file and they are unrelated. Held by branch gsd/238-generated-auth-runtime-proof-evidence, which Phase 245 lists among its prune candidates -- which is why pre_delete_sha exists.
+v1.0	yes	no	planning-milestone	a95e7c238c8d0fc083fa8addf8e6af27aab52967	GSD milestone close-out tag (2026-04-11); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.1	yes	yes	planning-milestone	2280324d640a759ecf4111754f34d5ed76a0dfbd	GSD milestone close-out tag (2026-04-16); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.3	yes	yes	planning-milestone	26b65d482c0c83429a66fe4b8fc26bd619298b49	GSD milestone close-out tag (2026-04-18); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.4	yes	yes	planning-milestone	dbe3e8809fddff2c2e90360f8cedf173b3032cbe	GSD milestone close-out tag (2026-04-21); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.5	yes	yes	planning-milestone	6ac97097051fcd75ab7698dd2cdbfefa4a7b3e76	GSD milestone close-out tag (2026-04-22); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.6	yes	no	planning-milestone	5d8e7a7a6eeb91e1ee37f1523b3e1812619767a6	GSD milestone close-out tag (2026-04-22); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.7	yes	no	planning-milestone	7d952596c188ec7e177cf5ca9b071ef38f8357c8	GSD milestone close-out tag (2026-04-23); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.8	yes	no	planning-milestone	07297f5013d587b01effcf75ce1af0b5b20b5512	GSD milestone close-out tag (2026-04-23); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.9	yes	no	planning-milestone	787a0c535a364d8d6583fd1a2fd3f587cfb00ab2	GSD milestone close-out tag (2026-04-23); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.10	yes	no	planning-milestone	b8717e4ce2cfeccf5631dda41c52b1a4a0156b33	GSD milestone close-out tag (2026-04-23); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.12	yes	no	planning-milestone	36eed2060196157c8c9f3208c23843861ef2a770	GSD milestone close-out tag (2026-04-24); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.14	yes	yes	planning-milestone	a4bf2744192a0fb00673ee48d110e066a5c7dd99	GSD milestone close-out tag (2026-04-24); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.15	yes	no	planning-milestone	117012bf2a70ab2ba765659213cb6d03e2b22a0a	GSD milestone close-out tag (2026-04-24); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.16	yes	no	planning-milestone	7aeef4d545733e169453924a9fd6cbaa47ef61d5	GSD milestone close-out tag (2026-04-24); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.17	yes	no	planning-milestone	40cd660d494267237abcf315f481b27c06774cd4	GSD milestone close-out tag (2026-04-24); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.21	yes	yes	planning-milestone	72f455b3bf2f8a20d2d3c978bc2738a33d3b51cc	GSD milestone close-out tag (2026-05-06); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.25	yes	no	planning-milestone	db9ebfcfd34304371bbc45846f0cdab8cada5419	GSD milestone close-out tag (2026-05-23); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.26	yes	yes	planning-milestone	977d1d8b88781947c567077a5ce0a93384bb1e99	GSD milestone close-out tag (2026-05-25); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.27	yes	no	planning-milestone	d3605455b37692ea6808cdc933d1d3f723dc5ffd	GSD milestone close-out tag (2026-05-26); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.28	yes	yes	planning-milestone	fc9ef5ca9e05946e57507590f2f2200303e0f898	GSD milestone close-out tag (2026-05-27); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.29	yes	no	planning-milestone	bd67c56fb0af91caa9f69711d9a26fcc4318f625	GSD milestone close-out tag (2026-05-28); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.30	yes	no	planning-milestone	2e2685d8c7892672087f5284b41a50da7867a9a6	GSD milestone close-out tag (2026-05-29); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.31	yes	no	planning-milestone	1865a86804f796f7a605887d366f5fa7479b9cc0	GSD milestone close-out tag (2026-05-31); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.33	yes	yes	planning-milestone	d5a587cf21df45c4b081fae58a5319344c8646a5	GSD milestone close-out tag (2026-06-02); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.34	yes	no	planning-milestone	76a07cf9765d1a4eda347e3927fcaba5492e7775	GSD milestone close-out tag (2026-06-05); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.35	yes	no	planning-milestone	9df5d42dfc0ae5afcd23b2f64ae8e0cbf4d1f903	GSD milestone close-out tag (2026-06-05); not a package version, and it pollutes the v1.* namespace ADR 003 reserves for Hex releases.
+v1.47	yes	no	planning-milestone	14a35cbe21d6aba3b69ee3c3ec6c036279fbfdd9	GSD milestone close-out tag; not a package version (ADR 003). Minted 2026-08-04, AFTER ADR 003 (2026-07-11) -- this is the recurrence this phase guards, and it is why ADR 003 guardrail 3's claim that tagging stopped at v1.35 needs correcting rather than merely extending.
+v1.48	yes	yes	planning-milestone	ef66ed2b082311774538ec74ece123394073f3cf	GSD milestone close-out tag; not a package version (ADR 003). Minted 2026-08-12, AFTER ADR 003 (2026-07-11) -- this is the recurrence this phase guards, and it is why ADR 003 guardrail 3's claim that tagging stopped at v1.35 needs correcting rather than merely extending.

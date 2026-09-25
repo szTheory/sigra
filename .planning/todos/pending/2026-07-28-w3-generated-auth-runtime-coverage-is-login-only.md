@@ -8,10 +8,15 @@ audit_finding: W-3
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [AUTHUI-02, AUTHUI-03, AUTHUI-04, PROOF-01]
 files:
+
   - test/example/priv/playwright/tests/admin-generated.spec.ts
   - test/sigra/install/auth_ui_contract_test.exs
   - scripts/ci/admin-acceptance-smoke.sh
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

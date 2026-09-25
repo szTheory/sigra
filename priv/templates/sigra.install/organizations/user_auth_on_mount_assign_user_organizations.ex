@@ -3,7 +3,7 @@
 
   Wired into `live_session` entries by the router injection. The switcher
   component reads this assign to render the list of orgs the current user
-  can switch into (D-26).
+  can switch into.
 
   Shape: `[{%Organization{}, role}]` — the list returned by
   `list_organizations_for_user/1`. This is presentation-only data; security

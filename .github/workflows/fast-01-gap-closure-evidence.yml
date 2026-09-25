@@ -29,15 +29,33 @@ jobs:
       - name: Capture post-remediation FAST-01 window
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash scripts/ci/capture-fast-01-gap-closure.sh --protected-output fast-01-gap-closure-remeasurement.json --endpoint "${{ steps.endpoint.outputs.value }}"
-      - name: Require a measured independent population
-        run: jq -e '.schema_version == "sigra.fast-01-gap-closure-remeasurement/v1" and .status == "measured" and .eligible_pr_run_count >= 10 and (.verdict == "pass" or .verdict == "miss")' fast-01-gap-closure-remeasurement.json
+        run: bash scripts/ci/capture-fast-01-gap-closure.sh --protected-output fast-01-source-complete-remeasurement.json --endpoint "${{ steps.endpoint.outputs.value }}"
+      - name: Require a source-complete measured population
+        run: |
+          jq -e '
+            .schema_version == "sigra.fast-01-source-complete-remeasurement/1" and
+            .status == "measured" and .eligible_pr_run_count >= 10 and
+            (.verdict == "pass" or .verdict == "miss") and
+            (.source_collection.pages | length) > 0 and
+            .source_collection.exhausted == true and
+            .source_collection.terminal_page == .source_collection.requested_pages[-1] and
+            .source_collection.pages[-1].returned_count == 0 and
+            (.instrument_receipt.command | contains("scripts/ci/ci-run-metrics.sh")) and
+            .instrument_receipt.output.runs == .runs and
+            (if .verdict == "miss" then
+              .binding_poles.median.run_id == .selected_poles.median_run_id and
+              .binding_poles.maximum.run_id == .selected_poles.maximum_run_id and
+              .binding_poles.median.exhausted == true and .binding_poles.maximum.exhausted == true and
+              .binding_poles.median.pages[-1].returned_count == 0 and
+              .binding_poles.maximum.pages[-1].returned_count == 0
+            else .binding_poles == null end)
+          ' fast-01-source-complete-remeasurement.json
       - name: Attest post-remediation provenance
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
         with:
-          subject-path: fast-01-gap-closure-remeasurement.json
+          subject-path: fast-01-source-complete-remeasurement.json
       - name: Upload post-remediation subject
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: fast-01-gap-closure-remeasurement
-          path: fast-01-gap-closure-remeasurement.json
+          name: fast-01-source-complete-remeasurement
+          path: fast-01-source-complete-remeasurement.json

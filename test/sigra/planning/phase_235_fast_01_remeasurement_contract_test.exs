@@ -5,7 +5,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
   @collector Path.join(@root, "scripts/ci/capture-fast-01-remeasurement.sh")
   @readiness Path.join(
                @root,
-               ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT-READINESS.json"
+               Sigra.Test.PlanningPaths.phase_file(
+                 "235-terminal-ratification-measured-not-read",
+                 "235-FAST-01-REMEASUREMENT-READINESS.json"
+               )
              )
   @workflow Path.join(@root, ".github/workflows/fast-01-remeasurement-evidence.yml")
 
@@ -17,7 +20,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
       File.read!(
         Path.join(
           @root,
-          ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+          Sigra.Test.PlanningPaths.phase_file(
+            "235-terminal-ratification-measured-not-read",
+            "235-TERMINAL-RATIFICATION.json"
+          )
         )
       )
       |> Jason.decode!()
@@ -43,7 +49,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
       File.read!(
         Path.join(
           @root,
-          ".planning/phases/235-terminal-ratification-measured-not-read/235-COVERAGE.md"
+          Sigra.Test.PlanningPaths.phase_file(
+            "235-terminal-ratification-measured-not-read",
+            "235-COVERAGE.md"
+          )
         )
       )
 
@@ -60,7 +69,7 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
     assert workflow =~ "eligible_pr_run_count >= 10"
     assert workflow =~ "--protected-output fast-01-remeasurement.json"
     refute ci =~ "fast-01-remeasurement-evidence.yml"
-    assert coverage =~ "fast-01-remeasurement-evidence.yml"
+    assert coverage =~ "Historical FAST-01 remeasurement"
     assert coverage =~ "one 60-second watcher"
   end
 end

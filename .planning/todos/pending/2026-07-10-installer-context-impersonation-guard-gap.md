@@ -5,8 +5,13 @@ resolves_phase: 223
 title: Port impersonation defense-in-depth to all sensitive ops in the installer context template
 area: security
 files:
+
   - priv/templates/sigra.install/core/auth.ex
   - test/example/lib/example/accounts.ex
+
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -45,6 +50,7 @@ half-fix at ship time.
 ## How
 
 Mirror the example twin op-by-op into the template `auth.ex`:
+
 1. For each guarded op above, add `opts \\ []` (or `details`) + a leading
    `with :ok <- forbid_sensitive_operation(opts, user, "<op>")` clause, matching the example.
 2. Ensure each generated LiveView/controller caller passes `scope: ...` and handles

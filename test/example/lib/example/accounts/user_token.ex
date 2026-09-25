@@ -23,7 +23,7 @@ defmodule Example.Accounts.UserToken do
     timestamps(type: :utc_datetime, updated_at: false)
   end
 
-  # B6 (Plan 10.1.1-03): session token helpers were REMOVED. Sessions now
+  # Session token helpers were REMOVED. Sessions now
   # live in the canonical `user_sessions` table managed by Sigra via
   # `Sigra.Auth.create_session/4` and the `Sigra.SessionStores.Ecto` store.
   # The `user_tokens` table is retained for confirmation / reset /

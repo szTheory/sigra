@@ -1,5 +1,60 @@
 # Milestones
 
+## v1.47 CI-EFFICIENCY (Shipped: 2026-09-15)
+
+**Phases completed:** 6 phases, 67 plans, 93 tasks
+
+**Key accomplishments:**
+
+- Committed `ci-run-metrics.sh` (single-run + windowed `gh`-backed CI measurement, hermetic self-test wired into `fast_checks`) and opened `230-EVIDENCE.md` with both BEFORE observed-run slots captured — the D-21 ordering constraint that every other Phase 230 plan's proof runs through.
+- Split `admin-design.spec.ts` into 28 `@snapshot`-tagged pixel-diff board tests plus a single untagged full-page WCAG 2.1/2.2 AA axe test per design project, pinned by a new ExUnit static contract test — coverage-neutral per the owner-ratified D-01 collapse.
+- Wired `ci.yml` so the PR lane's `design_gallery` step runs only the 39 accessibility/behaviour tests (`--grep-invert '@snapshot'`) while a new `design_gallery_snapshots` step runs the 84 pixel-diff board tests on push/schedule/dispatch, in-job so a regression still reds the ruleset-required "Example Playwright smoke (full lifecycle)" context — proven locally by Playwright `--list` reporting exactly 39 and 84, and pinned by three new ExUnit contract tests whose regression guards were manually confirmed to fire.
+- Single job-level `if:` demotes `admin_eval_render` off the PR lane (17m33s/PR), and a single workflow-level `concurrency:` block makes superseded PR runs cancel while every push/schedule/dispatch run sits in a structurally-unqueueable group of one.
+- Fail-open docs-only classifier consumed at step level by the four app-behaviour ruleset-required lanes, extracted into a hermetically self-tested script so FAST-05's `docs_only=true` branch (unobservable on any pre-merge PR) still has falsifiable in-phase evidence.
+- SHA-pinned, browser-set-scoped Playwright browser cache on `example_playwright_smoke` with an exact-hit-branched install, plus a hermetic `scripts/ci/playwright-cache-key-guard.sh` that fails `fast_checks` loudly if the cache key's version ever drifts from the resolved lockfile version.
+- Every one of ci.yml's 22 jobs now declares an explicit `timeout-minutes` sized at ~2x its live-measured duration, and a per-job-block ExUnit contract makes that completeness property enforceable so a future job cannot land without one.
+- `MAINTAINING.md` now carries a durable, verified-against-shipped-`ci.yml` three-tier enumeration of every construct that legitimately skips on a pull request after Phase 230, plus the two coverage-loss disclosures this phase introduces — living where Phase 231's GATE-03 and Phase 235's GATE-05 can find it after phase directories archive at milestone close.
+- Completed Phase 230's before/after evidence ledger with four real CI runs (AFTER-PR, AFTER-PR-WARM, AFTER-NONPR, AFTER-CANCEL) and two explicit post-merge obligations, proving FAST-06's cache behavior as an observed miss-then-hit pair rather than a single-run claim.
+- Extracted release-please.yml's inline ci-gate poll loop into `scripts/ci/wait-for-ci-gate.sh` with a testable CLI, raised the polling ceiling from 30 to 60 minutes (D-20), and proved the extraction end-to-end with a live invocation against a real completed push-to-main run (D-21).
+- Killed the "webfont race" hypothesis and the "stale viewport read" hypothesis (H1) with real instrumented CI evidence, named the actual offending selector from quoted job-log payloads, and shipped a one-line `min-width: 0` WCAG 1.4.10 containment fix that took the generated-host lane from ~38%-flaky-red to a confirmed green dispatched run.
+- `scripts/ci/notify-failure-issue.sh` now self-heals a missing `release-lane-rot` label before creating its tracking issue — fail-soft, so a denied `gh label create` can never again cost the HARD-02 loud signal the way it did on nightly run `30331796188`.
+- `admin_eval_render` now installs both chromium and webkit (matching its `admin-eval-mobile` iPhone-13/WebKit project), and the `probes.ts` ember-class check derives from `classList` instead of the SVG-unsafe `className`, closing the two diagnosed bugs that made every b1-b6 harness phase fail before it could even be observed.
+- Built `231-EVIDENCE.md` — one BEFORE-/AFTER- slot per success criterion plus a comprehensive per-lane nightly-equivalent disposition table showing zero currently-unaccounted-for reds, filed the two remaining undiagnosed defects (Actor-filter race, recapture hex.pm mirror flake), ran the pre-squash `[skip ci]` hygiene scan clean across 55 commits, confirmed the phase's true final commit fully green (`ci-gate: success`), and made the phase's final honest call: GATE-01 stays Pending because its literal text is a claim about a `schedule`-triggered run instance that has not yet happened, held even against exhaustive proxy evidence.
+- 231-02's single leaf-only `min-width: 0` fix was proven insufficient by live evidence: this task fixed the same grid-item-automatic-minimum-width mechanism at three more nested layers (fieldset/label, the DaisyUI `.label` span, and h1-h3/p), caught and fixed a self-introduced CSS-specificity regression along the way, and only declared the lane proven after the fourth round landed 8 consecutive green dispatched runs.
+- Each design-gallery render context now reuses one UI-authenticated, policy-valid Playwright session while preserving deterministic LiveView and Space Grotesk readiness.
+- The blocking evidence checkpoint was replaced by deterministic GitHub CLI inspection and passed without human approval.
+- PW-01 now has an ordered, re-fetchable GitHub-hosted receipt before any topology edit.
+- All four example-app Playwright consumers now use one composite action for toolchains, caches, compile, database lifecycle, seeds, browser installation, Phoenix boot, bounded readiness, and route warmup.
+- Five independently owned Playwright seams now execute as concurrent matrix jobs and converge on the unchanged protected `Example Playwright smoke (full lifecycle)` result.
+- GitHub-hosted runs prove five retry-free isolated shards overlap, converge on the exact protected context, and cover every applicable non-PR shared-boot consumer.
+- The ledger now separates the authentication-reuse measurement from shard economics and ties every Phase 232 requirement to final-head observed and structural proof.
+- Parallel ordinary library shards now preserve CLI output while emitting deterministic, same-run JSON timing receipts retained as CI artifacts.
+- A retry-free PR run now proves both ordinary library shards executed in parallel and supplies 217 deterministic per-file costs for later D-04 balancing.
+- The six expensive Phoenix scaffold tests now run in an unconditional Postgres-backed receiver, while the byte-identical `Library tests` required context rejects any non-success ordinary or scaffold result.
+- Two ordinary library workers now receive deterministic cost-balanced explicit path sets derived from the retry-free timing probe.
+- Release Please now executes the reviewed dereferenced v5.0.0 commit, protected by a fail-closed release-workflow action inventory with mutation coverage.
+- Weekly Dependabot coverage for Actions, Mix, and Playwright npm, backed by a hermetic contract that rejects YAML and filesystem drift.
+- Every live Playwright spec now has a machine-checked CI owner, and the two useful admin behavior orphans run explicitly in the retry-zero Chromium shard.
+- Immutable Release Please proof, honest Dependabot residuals, and a current 126-test gallery receipt close the GitHub-managed evidence boundary without reopening UI work.
+- Eight persistence-sensitive example migrations and admin LiveView tests now follow native Elixir formatting, with warnings-clean example compilation.
+- Formatter-clean enterprise, installer, doctor-task, and OAuth tests with focused execution proving existing assertions and generated golden bytes remain intact.
+- Phase 234 now machine-checks its exact evidence inventory and refuses a completion claim while Dependabot receipts and the golden fixture verification remain red.
+- DX-03 now has authenticated, strict-contract-validated Dependabot processing receipts for Actions, Mix, and Playwright npm dependencies.
+- Each live Playwright inventory spec now proves its own direct invocation or one of two exact, resolved harness mappings.
+- Phase completion now requires concrete six-slot evidence plus five exact command receipts bound to one reviewed SHA and a 30-minute UTC interval.
+- Completion now validates an exact six-slot evidence ledger, with the installer golden reblessed for Phoenix 1.8.8 scaffold output.
+- A fail-closed, inventory-pinned terminal ledger now maps all affected CI ownership across PR, push, and schedule while reserving FAST-01 claims for measured run data.
+- A sealed 19-run PR window measured a 772-second p50, honestly recording FAST-01 as a miss with re-fetchable binding-pole evidence.
+- Contributor topology and planning records now reconcile to the measured 19-run, 772-second FAST-01 miss, with one binding-pole residual and GATE-05 closed.
+- Terminal CI claims are now recomputed from retained runs, bound to canonical receipt bytes, closed to the exact ownership universe, and resistant to contradictory contributor prose.
+- One protected candidate attests 43 derived rows and stored p50 466 seconds, but FAST-01 remains open because the signed subject cannot independently prove the source population.
+- A replayable FAST-01 evidence producer is now on protected main with exact blob proof, while a scoped Hackney 4 migration restored the required security gate without dispatching a measurement.
+- Exactly one protected-main evidence run produced a signed, source-complete 52-run population whose authoritative wall p50 is 469 seconds and whose offline replay agrees exactly.
+- Authenticated run `34350618761` closes FAST-01 at n=52 and p50=469 seconds across every closeout record while the rejected derived candidate and GATE-05 proof remain intact.
+- A shared source-first validator now preserves every literal terminal conclusion, rejects lossy outcome maps, and keeps authenticated FAST-01 and protected GATE-05 proof independently green.
+
+---
+
 ## v1.46 ADOPTER-EXPERIENCE (Shipped: 2026-07-27 — override_closeout, 8 audit findings deferred)
 
 **Phases completed:** 6 of 6 (224–229), 6 plans. 15/15 requirements satisfied.

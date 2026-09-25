@@ -7,11 +7,6 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
   grouped by top-level directory so the operator can review what changed
   without eyeballing a 20+ file raw diff.
 
-  This automates the manual iex-driven runbook in
-  `.planning/phases/24-repair-phase-16-17-organizations-generator-templates/24-01-repair-phase-16-17-org-templates-PLAN.md:953-1025`
-  and the older runbook in
-  `.planning/phases/11-generator-feature-system/11-01-SUMMARY.md`.
-
   ## Usage
 
       MIX_ENV=test mix sigra.fixture.rebless_golden

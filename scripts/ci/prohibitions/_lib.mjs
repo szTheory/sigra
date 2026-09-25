@@ -23,7 +23,7 @@
 // test/sigra/planning/phase_230_ci_timeouts_test.exs: "the parse broke, this is not a
 // pass".
 
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,7 +33,38 @@ export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 
 export function subjectPath(defaultRelPath) {
   const injected = process.env.GSD_PROHIB_SUBJECT;
   if (injected && injected.length > 0) return resolve(injected);
-  return resolve(REPO_ROOT, defaultRelPath);
+  return resolve(REPO_ROOT, archiveAwareRelPath(defaultRelPath));
+}
+
+/**
+ * Milestone close-out MOVES phase directories from .planning/phases/<phase>/ to
+ * .planning/milestones/v<X.Y>-phases/<phase>/. A guard pinned to the live path
+ * therefore breaks the moment its milestone is archived -- which is exactly when
+ * its subject becomes immutable history and the guard matters most.
+ *
+ * Resolve the live path first, then fall back to the archived copy. Returns the
+ * original relative path when neither exists so the caller still reports a
+ * missing subject against the path the guard actually declares.
+ */
+export function archiveAwareRelPath(relPath) {
+  const prefix = '.planning/phases/';
+  if (!relPath.startsWith(prefix)) return relPath;
+  if (existsSync(resolve(REPO_ROOT, relPath))) return relPath;
+
+  const tail = relPath.slice(prefix.length);
+  const milestonesDir = resolve(REPO_ROOT, '.planning/milestones');
+  if (!existsSync(milestonesDir)) return relPath;
+
+  const buckets = readdirSync(milestonesDir)
+    .filter((name) => /^v[0-9.]+-phases$/.test(name))
+    .sort()
+    .reverse();
+
+  for (const bucket of buckets) {
+    const candidate = `.planning/milestones/${bucket}/${tail}`;
+    if (existsSync(resolve(REPO_ROOT, candidate))) return candidate;
+  }
+  return relPath;
 }
 
 export function readSubject(defaultRelPath) {

@@ -67,7 +67,7 @@ defmodule <%= context_module %>.Scope do
       recovery branch.
 
   This is the single authoritative scope-level write path for
-  active-organization transitions (Phase 14 D-15).
+  active-organization transitions.
   """
 <%= if organizations? do %>
   def put_active_organization(

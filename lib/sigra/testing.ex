@@ -1269,13 +1269,10 @@ defmodule Sigra.Testing do
 
   ## Signature note
 
-  This helper intentionally takes `(map, keyword)` — NOT `(repo, fields)`. See
-  the `deviations` field in
-  `.planning/phases/15-audit-integration/15-02-semantic-workers-credo-PLAN.md`
-  for the D-31 refinement rationale (the `(repo, fields)` shape from
-  CONTEXT.md would require synthesizing `:audit_schema` via process-dict
-  magic and would no longer be a "thin alias" — it would either duplicate
-  the implementation or hide required options).
+  This helper intentionally takes `(map, keyword)` — NOT `(repo, fields)`.
+  The `(repo, fields)` shape would require synthesizing `:audit_schema` via
+  process-dict magic and would no longer be a "thin alias" — it would either
+  duplicate the implementation or hide required options.
   """
   @doc since: "0.11.0"
   @spec assert_audit_logged(map(), keyword()) :: true

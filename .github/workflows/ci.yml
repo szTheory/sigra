@@ -259,6 +259,21 @@ jobs:
         # tracking-issue notifier is idempotent (create-once / comment-once) and
         # fail-closed on missing LABEL/TITLE/BODY. No real `gh` CLI or network call.
         run: bash scripts/ci/notify-failure-issue.test.sh
+      - name: Pages legacy-branch script self-test
+        # Phase 240 Plan 01 (GREEN-05/SC-3): hermetic proof that
+        # ensure-github-pages-legacy-branch.sh exits 1 on every non-2xx Pages API
+        # status except the one named, documented PUT-403, and never POST-creates
+        # a Pages site on a 403/500. PATH-shadowed fake `gh`; no network call.
+        run: bash scripts/ci/ensure-github-pages-legacy-branch.test.sh
+      - name: GREEN-04 evidence collector self-test
+        # Quick task 260918-lfq (CR-01/CR-02/SELFTEST-CI): hermetic proof that
+        # capture-green-04-evidence.sh fails CLOSED rather than emitting a clean
+        # receipt when an SC-2 job selector matches zero jobs, when a matched job
+        # has a null conclusion, when the `main` window is below the run floor, or
+        # when the window does not contain the dispatch run. Each token is observed
+        # RED against a stub payload that triggers it. Stub `gh` on PATH and a
+        # throwaway git repo: no token, no network, no Postgres.
+        run: bash scripts/ci/capture-green-04-evidence.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
@@ -314,7 +329,13 @@ jobs:
         # This is intentionally in required fast_checks: every PR and main push
         # revalidates the retained signature, policy, receipt digest, and
         # adversarial failure cases with networking disabled.
-        run: bash scripts/ci/verify-terminal-ratification-attestation-offline.sh
+        # The verifier is sha256-pinned by the phase 235 contract tests, so it
+        # cannot be edited to look in the archive; the shim gives it a staged
+        # ROOT instead and runs its exact reviewed bytes.
+        run: >-
+          bash scripts/ci/run-pinned-phase-verifier.sh
+          verify-terminal-ratification-attestation-offline.sh
+          235-terminal-ratification-measured-not-read
       - name: Docs-only classifier self-test
         # Phase 230 (FAST-05 / D-07): hermetic proof that the docs-only
         # classification rule is correct in both directions, plus the
@@ -1451,7 +1472,6 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
-          PLAYWRIGHT_RETRIES: 1
         # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
         # seam runs the full acceptance target (`--test all` — both the
         # desktop/mobile shell and the denial-response assertions) so

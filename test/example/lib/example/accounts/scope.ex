@@ -53,9 +53,9 @@ defmodule Example.Accounts.Scope do
   @doc """
   Assigns the active organization and membership to the scope.
 
-  Phase 16 adds this contract so `Sigra.Plug.LoadOrganizationFromSlug`
-  and `Sigra.Plug.PutActiveOrganization` can hydrate the per-request
-  scope struct through the host's scope module (D-03).
+  This contract lets `Sigra.Plug.LoadOrganizationFromSlug`
+  and `Sigra.Plug.PutActiveOrganization` hydrate the per-request
+  scope struct through the host's scope module.
   """
   def put_active_organization(%__MODULE__{} = scope, organization, membership) do
     %__MODULE__{scope | active_organization: organization, membership: membership}
