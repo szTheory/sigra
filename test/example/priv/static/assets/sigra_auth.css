@@ -140,6 +140,31 @@
   .sigra-auth__mark span:nth-child(2) { height: 1.7rem; opacity: 0.72; }
   .sigra-auth__mark span:nth-child(3) { height: 1rem; opacity: 0.88; }
 
+  /* Theme-specific logo slots. Mirrors the installer template.
+     Must sit AFTER .sigra-auth__mark and qualify the attribute with the element
+     class: a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark on
+     specificity, so the later display:grid would win and the dark placeholder would
+     stay visible in light mode. */
+  .sigra-auth__logo[data-sigra-logo-slot="dark"],
+  .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="light"],
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="light"] {
+      display: none;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__logo[data-sigra-logo-slot="dark"] {
+      display: block;
+    }
+
+    .sigra-auth[data-theme="system"] .sigra-auth__mark[data-sigra-logo-slot="dark"] {
+      display: grid;
+    }
+  }
+
   .sigra-auth__product {
     margin: 0;
     color: var(--sigra-auth-text);
@@ -172,7 +197,7 @@
   .sigra-auth h2,
   .sigra-auth h3,
   .sigra-auth p {
-    min-width: 0; /* GATE-02 gap-closure round 3/4: mirrors the template's h1-h3/p containment fix, corrected to overflow-wrap: anywhere so it does not override .sigra-auth__product's own overflow-wrap with a value the CSS spec treats as weaker for intrinsic sizing (231-GAP-GATE02-SUMMARY.md). */
+    min-width: 0; /* Mirrors the template's h1-h3/p containment fix, corrected to overflow-wrap: anywhere so it does not override .sigra-auth__product's own overflow-wrap with a value the CSS spec treats as weaker for intrinsic sizing. */
     overflow-wrap: anywhere;
   }
 
@@ -186,17 +211,17 @@
   .sigra-auth .w-full { width: 100%; }
   .sigra-auth form { display: grid; gap: 1rem; }
   .sigra-auth form :where(.fieldset, label) {
-    min-width: 0; /* GATE-02 gap-closure: mirrors the template's grid-item containment fix (231-GAP-GATE02-SUMMARY.md). */
+    min-width: 0; /* Mirrors the template's grid-item containment fix. */
   }
   .sigra-auth .label {
-    white-space: normal; /* GATE-02 gap-closure round 2: mirrors the template's nowrap-label fix (231-GAP-GATE02-SUMMARY.md). */
+    white-space: normal; /* Mirrors the template's nowrap-label fix. */
   }
 
   .sigra-auth input[type="email"],
   .sigra-auth input[type="password"],
   .sigra-auth input[type="text"] {
     width: 100%;
-    min-width: 0; /* GATE-02 / D-09: mirrors the template's reflow containment fix. */
+    min-width: 0; /* Mirrors the template's reflow containment fix. */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);

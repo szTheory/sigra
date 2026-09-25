@@ -2,8 +2,7 @@ defmodule Sigra.Audit do
   @moduledoc """
   Structured audit logging for Sigra.
 
-  See `.planning/phases/09-audit-logging/09-CONTEXT.md` for the 28 decisions
-  that shape this module. Summary:
+  Design summary:
 
   - Direct `Ecto.Multi` writes (D-01) — **not** telemetry subscribers (D-02)
   - Public API enforces reserved prefixes (D-17..D-18); internal

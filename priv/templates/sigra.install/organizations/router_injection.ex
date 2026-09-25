@@ -1,4 +1,4 @@
-  # Phase 17 D-06: single unscoped InvitationAcceptLive at
+  # Single unscoped InvitationAcceptLive at
   # /invitations/:token/accept. This route MUST remain outside any
   # `:require_authenticated` pipeline so both anonymous visitors
   # (signup branch) and signed-in visitors (accept / mismatch branch)
@@ -30,7 +30,7 @@
 
     # POST /organizations/switch MUST be defined before the scoped block
     # below so Phoenix's definition-order matching doesn't interpret
-    # "switch" as a slug (D-06).
+    # "switch" as a slug.
     post "/organizations/switch", OrganizationSwitchController, :update
 
     live_session :organizations_unscoped,

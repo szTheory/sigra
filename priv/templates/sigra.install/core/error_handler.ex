@@ -50,7 +50,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
     |> redirect(to: ~p"/organizations")
   end
 <% else %>
-  # Phase 24.1: under --no-organizations the /organizations route is
+  # Under --no-organizations the /organizations route is
   # not wired, so the :no_active_org branch is unreachable (it is only
   # produced by org-related plugs which are also omitted under
   # --no-organizations). Stub it to root so the behaviour is fully

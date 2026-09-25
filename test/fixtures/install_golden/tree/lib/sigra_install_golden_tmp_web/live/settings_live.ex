@@ -63,7 +63,6 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
         <:subtitle>Manage your email, password, and account.</:subtitle>
       </.header>
 
-      <%= # Force password change banner (D-58) %>
       <div
         :if={@force_password_change?}
         class="sigra-auth-notice sigra-auth-notice--warning"
@@ -74,7 +73,6 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       </div>
 
       <div class="sigra-auth-stack sigra-auth-stack--6">
-        <%= # Email Section (D-59) %>
         <section id="email" class="sigra-auth-section">
           <h2>Email address</h2>
           <p class="sigra-auth-copy sigra-auth-copy--muted">
@@ -104,7 +102,6 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
           <% end %>
         </section>
 
-        <%= # Password Section (D-45, D-60) %>
         <section id="password" class="sigra-auth-section">
           <h2>Password</h2>
           <%= if @has_password? do %>
@@ -156,7 +153,6 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
           <% end %>
         </section>
 
-        <%= # Deletion Section (D-30, D-57) %>
         <section id="delete" class="sigra-auth-section sigra-auth-notice--danger">
           <h2>Delete account</h2>
           <%= case @deletion_status do %>

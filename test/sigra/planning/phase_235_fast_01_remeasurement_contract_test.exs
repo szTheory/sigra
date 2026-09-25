@@ -5,7 +5,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
   @collector Path.join(@root, "scripts/ci/capture-fast-01-remeasurement.sh")
   @readiness Path.join(
                @root,
-               ".planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT-READINESS.json"
+               Sigra.Test.PlanningPaths.phase_file(
+                 "235-terminal-ratification-measured-not-read",
+                 "235-FAST-01-REMEASUREMENT-READINESS.json"
+               )
              )
   @workflow Path.join(@root, ".github/workflows/fast-01-remeasurement-evidence.yml")
 
@@ -17,7 +20,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
       File.read!(
         Path.join(
           @root,
-          ".planning/phases/235-terminal-ratification-measured-not-read/235-TERMINAL-RATIFICATION.json"
+          Sigra.Test.PlanningPaths.phase_file(
+            "235-terminal-ratification-measured-not-read",
+            "235-TERMINAL-RATIFICATION.json"
+          )
         )
       )
       |> Jason.decode!()
@@ -43,7 +49,10 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
       File.read!(
         Path.join(
           @root,
-          ".planning/phases/235-terminal-ratification-measured-not-read/235-COVERAGE.md"
+          Sigra.Test.PlanningPaths.phase_file(
+            "235-terminal-ratification-measured-not-read",
+            "235-COVERAGE.md"
+          )
         )
       )
 
@@ -55,12 +64,12 @@ defmodule Sigra.Planning.Phase235Fast01RemeasurementContractTest do
     assert workflow =~ "attestations: write"
     assert workflow =~ "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
     assert workflow =~ "fetch-depth: 0"
-    assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+    assert workflow =~ "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
     assert workflow =~ "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     assert workflow =~ "eligible_pr_run_count >= 10"
     assert workflow =~ "--protected-output fast-01-remeasurement.json"
     refute ci =~ "fast-01-remeasurement-evidence.yml"
-    assert coverage =~ "fast-01-remeasurement-evidence.yml"
+    assert coverage =~ "Historical FAST-01 remeasurement"
     assert coverage =~ "one 60-second watcher"
   end
 end

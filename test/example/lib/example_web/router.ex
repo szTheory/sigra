@@ -33,7 +33,7 @@ defmodule ExampleWeb.Router do
 
     get "/", PageController, :home
 
-    # Phase 17 D-06: single unscoped InvitationAcceptLive at
+    # Single unscoped InvitationAcceptLive at
     # /invitations/:token/accept. This route MUST remain outside any
     # `:require_authenticated_user` pipeline so both anonymous visitors
     # (signup branch) and signed-in visitors (accept / mismatch branch)
@@ -74,7 +74,7 @@ defmodule ExampleWeb.Router do
       organizations: Example.Organizations
   end
 
-  # MFA challenge (accessible with mfa_pending sessions, D-24)
+  # MFA challenge (accessible with mfa_pending sessions)
   scope "/users", ExampleWeb do
     pipe_through [:browser_passkey_options]
 
@@ -100,10 +100,7 @@ defmodule ExampleWeb.Router do
   scope "/users", ExampleWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    # Phase 10.1.1 B9: login page is a plain controller + HEEx render,
-    # NOT a LiveView. Keeping it outside the live_session ensures
-    # `Phoenix.Component.form/1` renders a plain `<form action=... method="post">`
-    # with no phx-submit interception.
+    # Login page is a plain controller, not a LiveView.
     get "/log_in", SessionController, :new
 
     live_session :redirect_if_user_is_authenticated,
@@ -175,7 +172,8 @@ defmodule ExampleWeb.Router do
     post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
   end
 
-  # Dev-only routes for local UAT — Swoosh local-mailbox preview at /dev/mailbox
+  # Dev-only routes for local manual testing — Swoosh local-mailbox preview at
+  # /dev/mailbox
   # so manual testers can inspect rendered emails (confirmation, password reset,
   # lockout, suspicious login, account lifecycle). Compile-only gate ensures
   # this scope is excluded from prod and test builds.
@@ -206,7 +204,7 @@ defmodule ExampleWeb.Router do
     end
   end
 
-  # Sigra organizations (Phase 16)
+  # Sigra organizations
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug,
       error_handler: ExampleWeb.AuthErrorHandler,
@@ -223,7 +221,7 @@ defmodule ExampleWeb.Router do
 
     # POST /organizations/switch MUST be defined before the scoped block
     # below so Phoenix's definition-order matching doesn't interpret
-    # "switch" as a slug (D-06).
+    # "switch" as a slug.
     post "/organizations/switch", OrganizationSwitchController, :update
 
     live_session :organizations_unscoped,

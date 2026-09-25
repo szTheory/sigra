@@ -4,11 +4,16 @@ status: pending
 title: "gate-ci-green's 30-minute polling ceiling is shorter than the push-to-main CI run it waits for, so it times out on a green release and blocks the automated Hex publish"
 area: release
 files:
+
   - .github/workflows/release-please.yml
   - .github/workflows/ci.yml
+
 severity: high
 source: 2026-07-28 quick task (post-release 1.4.0 bookkeeping) — diagnosed during the Sigra 1.4.0 Hex publish recovery
 resolves_phase: 231
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

@@ -1061,6 +1061,16 @@ defmodule Sigra.Admin.Components do
     doc: "data-testid for the email preview surface (used when not active)"
 
   def preview_pair(assigns) do
+    # The preview is theme-pinned via data-theme, so the logo resolves server-side
+    # here. The live auth screen cannot do this when theme is :system -- see the
+    # <picture> emission in the generated auth components.
+    assigns =
+      assign(
+        assigns,
+        :preview_logo,
+        Sigra.Branding.logo(assigns.profile, preview_theme(assigns.theme))
+      )
+
     ~H"""
     <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
       <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
@@ -1075,8 +1085,8 @@ defmodule Sigra.Admin.Components do
           <section class="sigra-auth__viewport">
             <div class="sigra-auth__panel">
               <div class="sigra-auth__brand">
-                <img :if={@profile.logo_url} src={@profile.logo_url} alt={@profile.logo_alt} class="sigra-auth__logo" />
-                <div :if={!@profile.logo_url} class="sigra-auth__mark" aria-hidden="true">
+                <img :if={@preview_logo} src={@preview_logo} alt={@profile.logo_alt} class="sigra-auth__logo" />
+                <div :if={!@preview_logo} class="sigra-auth__mark" aria-hidden="true">
                   <span></span><span></span><span></span>
                 </div>
                 <p class="sigra-auth__product">{@profile.product_name}</p>
@@ -1122,6 +1132,10 @@ defmodule Sigra.Admin.Components do
   # ---------------------------------------------------------------------------
   # Private helpers for audit_row/1, audit_table_row/1, audit_pagination_nav/1
   # ---------------------------------------------------------------------------
+
+  # Coerces the preview's string data-theme into the atom Sigra.Branding.logo/2 takes.
+  defp preview_theme("dark"), do: :dark
+  defp preview_theme(_), do: :light
 
   # Deterministic id for a branding form field ("branding-<name>" with "_" → "-").
   # Used by detail_input/1 to keep the <label for> and input id in sync.

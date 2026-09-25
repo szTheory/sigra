@@ -8,10 +8,15 @@ audit_finding: W-7
 audit_source: .planning/v1.46-MILESTONE-AUDIT.md
 requirements: [EXPR-01]
 files:
+
   - lib/sigra/admin/components.ex
   - priv/templates/sigra.install/core/sigra_auth.css
   - lib/sigra/admin/assets/sigra_admin.css
+
 source: 2026-07-28 v1.46 milestone audit (cross-phase integration check)
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

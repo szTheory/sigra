@@ -3,7 +3,7 @@
 // SEED-7: MFA backup regenerate panel + TOTP gate (flash proves handler path).
 
 import { test, expect } from '@playwright/test';
-import { authenticator } from 'otplib';
+import { generate } from 'otplib';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 
 const baseURL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
@@ -185,7 +185,7 @@ test.describe('GA UAT shift-left (SEED-6 / SEED-7)', () => {
       await page.locator('[data-testid="mfa-totp-secret"]').innerText()
     ).replace(/\s+/g, '');
     expect(secret).toBeTruthy();
-    const enrollCode = authenticator.generate(secret);
+    const enrollCode = await generate({ secret });
     await page.fill('#mfa_enroll_form input[name="enroll[code]"]', enrollCode);
     await expect(page.getByText(/save your backup codes/i).first()).toBeVisible();
 

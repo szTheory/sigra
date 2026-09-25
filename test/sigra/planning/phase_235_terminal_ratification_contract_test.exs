@@ -26,7 +26,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     assert workflow =~ "workflow_dispatch:"
     assert workflow =~ "refs/heads/main"
-    assert workflow =~ "actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373"
+    assert workflow =~ "actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8"
   end
 
   test "captured measurements require protected offline provenance" do
@@ -55,7 +55,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     verifier = File.read!("scripts/ci/verify-terminal-ratification-attestation-offline.sh")
 
     assert workflow =~ "bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh"
-    assert workflow =~ "bash scripts/ci/verify-terminal-ratification-attestation-offline.sh"
+
+    # The verifier is sha256-pinned below and by the gap-closure/source-complete
+    # contracts, so it cannot be edited to look in the milestone archive that
+    # close-out moves its evidence into. run-pinned-phase-verifier.sh stages a
+    # ROOT for it instead and runs its exact reviewed bytes; fast_checks must
+    # still invoke it on every PR and main push.
+    assert workflow =~ "bash scripts/ci/run-pinned-phase-verifier.sh"
+    assert workflow =~ "verify-terminal-ratification-attestation-offline.sh"
+    assert workflow =~ "235-terminal-ratification-measured-not-read"
     assert verifier =~ ~s(\"$GH_BIN\" attestation verify)
     refute verifier =~ ~r/\n\s+gh attestation verify/
   end
@@ -140,7 +148,10 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   test "complete ownership consumes the Phase 234 inventory without copying its lane model" do
     ledger = ledger!()
-    inventory = @inventory_path |> File.read!() |> Jason.decode!()
+
+    inventory =
+      @inventory_path |> Sigra.Test.PlanningPaths.resolve() |> File.read!() |> Jason.decode!()
+
     rows = ledger["ownership"]["rows"]
 
     assert ledger["ownership"]["source_inventory"] == %{
@@ -744,8 +755,15 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
   end
 
-  defp ledger!, do: @ledger_path |> File.read!() |> Jason.decode!()
-  defp protected_receipt!, do: @protected_receipt_path |> File.read!() |> Jason.decode!()
+  defp ledger!,
+    do: @ledger_path |> Sigra.Test.PlanningPaths.resolve() |> File.read!() |> Jason.decode!()
+
+  defp protected_receipt!,
+    do:
+      @protected_receipt_path
+      |> Sigra.Test.PlanningPaths.resolve()
+      |> File.read!()
+      |> Jason.decode!()
 
   defp validate_ledger!(ledger) do
     unless MapSet.new(Map.keys(ledger)) == @top_level_keys,
@@ -866,6 +884,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     expected_playwright_specs =
       @inventory_path
+      |> Sigra.Test.PlanningPaths.resolve()
       |> File.read!()
       |> Jason.decode!()
       |> Map.fetch!("specs")
@@ -975,7 +994,12 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   defp validate_ownership_receipts!(_), do: raise(ArgumentError, "ownership receipts")
 
   defp validate_ownership_semantics!(rows, workflow \\ File.read!(@workflow_path)) do
-    inventory = @inventory_path |> File.read!() |> Jason.decode!() |> Map.fetch!("specs")
+    inventory =
+      @inventory_path
+      |> Sigra.Test.PlanningPaths.resolve()
+      |> File.read!()
+      |> Jason.decode!()
+      |> Map.fetch!("specs")
 
     for row <- rows do
       expected = expected_ownership_row!(row, inventory)
@@ -1252,7 +1276,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   defp validate_protected_receipt!(ledger, receipt) do
     provenance = ledger["capture_endpoint"]["protected_provenance"]
-    receipt_bytes = File.read!(@protected_receipt_path)
+    receipt_bytes = File.read!(Sigra.Test.PlanningPaths.resolve(@protected_receipt_path))
 
     unless sha256_hex(receipt_bytes) == provenance["subject_sha256"],
       do: raise(ArgumentError, "protected receipt digest")
@@ -1997,6 +2021,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   defp expected_ownership_keys! do
     playwright_specs =
       @inventory_path
+      |> Sigra.Test.PlanningPaths.resolve()
       |> File.read!()
       |> Jason.decode!()
       |> Map.fetch!("specs")
@@ -2011,7 +2036,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   defp inventory_sha256! do
-    {output, 0} = System.cmd("shasum", ["-a", "256", @inventory_path])
+    {output, 0} =
+      System.cmd("shasum", ["-a", "256", Sigra.Test.PlanningPaths.resolve(@inventory_path)])
+
     output |> String.split() |> hd()
   end
 

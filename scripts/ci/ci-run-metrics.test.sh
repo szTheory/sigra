@@ -359,4 +359,68 @@ if [[ "$FAIL" -gt 0 ]]; then
 fi
 
 echo "ci-run-metrics.test: PASS"
+
+# ---- Source-complete wall-mode contract (Phase 235-16) ------------------
+echo "Test M: retained source pages are the authoritative wall-mode input"
+cat >"${TMPDIR_ROOT}/source-pages.json" <<'JSON'
+{
+  "resource":"GET /repos/szTheory/sigra/actions/workflows/ci.yml/runs",
+  "query":{"created":"2026-08-03T21:37:08Z..2026-08-04T01:00:00Z","per_page":100},
+  "requested_pages":[1,2],"terminal_page":2,"exhausted":true,
+  "pages":[
+    {"page":1,"returned_count":10,"runs":[
+      {"run_id":11,"url":"https://example.test/11","event":"pull_request","conclusion":"failure","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:07Z"},
+      {"run_id":10,"url":"https://example.test/10","event":"pull_request","conclusion":"success","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:07Z"},
+      {"run_id":12,"url":"https://example.test/12","event":"pull_request","conclusion":"cancelled","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:08Z"},
+      {"run_id":13,"url":"https://example.test/13","event":"pull_request","conclusion":"timed_out","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:09Z"},
+      {"run_id":14,"url":"https://example.test/14","event":"pull_request","conclusion":"neutral","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:10Z"},
+      {"run_id":15,"url":"https://example.test/15","event":"pull_request","conclusion":"skipped","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:11Z"},
+      {"run_id":16,"url":"https://example.test/16","event":"pull_request","conclusion":"stale","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:12Z"},
+      {"run_id":17,"url":"https://example.test/17","event":"pull_request","conclusion":"action_required","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:13Z"},
+      {"run_id":18,"url":"https://example.test/18","event":"pull_request","conclusion":"startup_failure","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:14Z"},
+      {"run_id":19,"url":"https://example.test/19","event":"pull_request","conclusion":"success","created_at":"2026-08-03T21:37:08Z","updated_at":"2026-08-03T21:49:15Z"}
+    ]},
+    {"page":2,"returned_count":0,"runs":[]}
+  ]
+}
+JSON
+set +e
+PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" --source-pages "${TMPDIR_ROOT}/source-pages.json" --mode wall --event pull_request --since 2026-08-03T21:37:08Z --until 2026-08-04T01:00:00Z --threshold 720 --format json >"${TMPDIR_ROOT}/source-out" 2>"${TMPDIR_ROOT}/source-err"
+RC_M=$?
+set -e
+if [[ "$RC_M" -eq 0 ]] && jq -e '
+  .eligible_pr_run_count == 10 and .statistics.p50_seconds == 723 and
+  .verdict == "miss" and .status == "measured" and
+  .runs[0].run_id == 10 and .runs[1].run_id == 11 and
+  .selected_poles.median_run_id == 15 and .selected_poles.maximum_run_id == 19
+' "${TMPDIR_ROOT}/source-out" >/dev/null; then
+  pass "source pages preserve all conclusions, boundary equality, and stable run-id ordering"
+else
+  fail "source mode exit=${RC_M} stderr=<$(cat "${TMPDIR_ROOT}/source-err")> output=<$(cat "${TMPDIR_ROOT}/source-out")>"
+fi
+
+echo "Test N: source chronology, completeness, duplicates, and strict threshold fail closed"
+SOURCE_FAULTS_OK=1
+for mutation in \
+  '.pages[0].runs[0].updated_at="2026-08-03T21:37:07Z"' \
+  '.requested_pages=[1,3]' \
+  '.pages[1].returned_count=1' \
+  '.pages[0].runs[1].run_id=.pages[0].runs[0].run_id' \
+  '.pages[0].runs[0].conclusion=""'; do
+  jq "$mutation" "${TMPDIR_ROOT}/source-pages.json" >"${TMPDIR_ROOT}/mutant.json"
+  if PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" --source-pages "${TMPDIR_ROOT}/mutant.json" --mode wall --event pull_request --since 2026-08-03T21:37:08Z --until 2026-08-04T01:00:00Z --threshold 720 --format json >/dev/null 2>&1; then SOURCE_FAULTS_OK=0; fi
+done
+if [[ "$SOURCE_FAULTS_OK" -eq 1 ]]; then pass "source-page faults rejected"; else fail "a source-page fault was accepted"; fi
+
+echo ""
+echo "----------------------------------------"
+echo "Results: ${PASS} passed, ${FAIL} failed"
+echo "----------------------------------------"
+
+if [[ "$FAIL" -gt 0 ]]; then
+  echo "ci-run-metrics.test: FAIL"
+  exit 1
+fi
+
+echo "ci-run-metrics.test: PASS"
 exit 0
