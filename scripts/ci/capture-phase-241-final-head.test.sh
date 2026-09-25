@@ -35,16 +35,26 @@ if [[ "$1" == api && "$2" == rate_limit ]]; then
   if [[ "$mode" == low_rate ]]; then echo '{"resources":{"core":{"remaining":250,"reset":1777777777}}}'; else echo '{"resources":{"core":{"remaining":251,"reset":1777777777}}}'; fi
   exit 0
 fi
+if [[ "$1" == api && ( "$mode" == http_403 || "$mode" == http_429 ) ]]; then
+  code="${mode#http_}"
+  echo "HTTP $code rate limit reset 1777777777" >&2
+  exit 1
+fi
+if [[ "$1" == api && "$2" == repos/szTheory/sigra/pulls/* ]]; then
+  pr_calls=0
+  [[ -f "$FAKE_PR_CALLS" ]] && pr_calls="$(cat "$FAKE_PR_CALLS")"
+  pr_calls=$((pr_calls + 1))
+  printf '%s\n' "$pr_calls" >"$FAKE_PR_CALLS"
+  sha="$FAKE_PR_HEAD_SHA"
+  [[ "$mode" == stale_pr_head || ( "$mode" == pr_advanced && "$pr_calls" -gt 1 ) ]] && sha=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  printf '{"number":456,"state":"closed","base":{"repo":{"full_name":"szTheory/sigra"}},"head":{"sha":"%s"}}\n' "$sha"
+  exit 0
+fi
 if [[ "$1" == pr && "$2" == comment ]]; then
   printf '%s\n' "$*" >>"$FAKE_COMMENT_LOG"
   exit 0
 fi
 if [[ "$1" != api ]]; then echo "unexpected gh call: $*" >&2; exit 1; fi
-if [[ "$mode" == http_403 || "$mode" == http_429 ]]; then
-  code="${mode#http_}"
-  echo "HTTP $code rate limit reset 1777777777" >&2
-  exit 1
-fi
 endpoint="$2"
 if [[ "$endpoint" == repos/szTheory/sigra/actions/runs/* && "$endpoint" != *'/jobs?'* ]]; then
   event=pull_request status=completed conclusion=success sha="$FAKE_HEAD_SHA"
@@ -70,7 +80,8 @@ if [[ "$endpoint" == *'/jobs?'* ]]; then
       printf '{"total_count":2,"jobs":[{"id":11,"run_id":123,"name":"Library tests shard","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/11","steps":[{"name":"Run contributor CI gate","status":"completed","conclusion":"success"}]},{"id":13,"run_id":123,"name":"Fast checks (milestone/installer/contracts/snapshot/ledger guards)","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/13","steps":[{"name":"Phase 230 prohibition guards","status":"completed","conclusion":"%s"}]}]}\n' "$fast_step"
     else
       total=3; [[ "$mode" == total_disagreement || "$mode" == duplicate_job ]] && total=4
-      printf '{"total_count":%s,"jobs":[{"id":11,"run_id":123,"name":"Library tests shard","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/11","steps":[{"name":"Run contributor CI gate","status":"completed","conclusion":"%s"}]},{"id":12,"run_id":123,"name":"Library tests","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/12","steps":[{"name":"Require the library suite owner to pass","status":"completed","conclusion":"success"}]},{"id":13,"run_id":123,"name":"Fast checks (milestone/installer/contracts/snapshot/ledger guards)","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/13","steps":[{"name":"Phase 230 prohibition guards","status":"completed","conclusion":"%s"}]}%s]}\n' "$total" "$owner_step" "$fast_step" "$extra"
+      aggregator_id=12; [[ "$mode" == duplicate_job_id ]] && aggregator_id=11
+      printf '{"total_count":%s,"jobs":[{"id":11,"run_id":123,"name":"Library tests shard","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/11","steps":[{"name":"Run contributor CI gate","status":"completed","conclusion":"%s"}]},{"id":%s,"run_id":123,"name":"Library tests","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/%s","steps":[{"name":"Require the library suite owner to pass","status":"completed","conclusion":"success"}]},{"id":13,"run_id":123,"name":"Fast checks (milestone/installer/contracts/snapshot/ledger guards)","status":"completed","conclusion":"success","html_url":"https://example.test/jobs/13","steps":[{"name":"Phase 230 prohibition guards","status":"completed","conclusion":"%s"}]}%s]}\n' "$total" "$owner_step" "$aggregator_id" "$aggregator_id" "$fast_step" "$extra"
     fi
     exit 0
   fi
@@ -88,7 +99,7 @@ run_collector() {
   local mode="$1" output="$2" comment="${3:-}"
   FAKE_MODE="$mode" FAKE_HEAD_SHA="$HEAD_SHA" FAKE_GH_LOG="$TMP/$mode.calls" FAKE_COMMENT_LOG="$TMP/$mode.comments" PATH="$TMP/bin:$PATH" \
     git -C "$TMP/repo" --work-tree="$TMP/repo" --git-dir="$TMP/repo/.git" status --porcelain >/dev/null
-  (cd "$TMP/repo" && FAKE_MODE="$mode" FAKE_HEAD_SHA="$HEAD_SHA" FAKE_GH_LOG="$TMP/$mode.calls" FAKE_COMMENT_LOG="$TMP/$mode.comments" PATH="$TMP/bin:$PATH" \
+  (cd "$TMP/repo" && FAKE_MODE="$mode" FAKE_HEAD_SHA="$HEAD_SHA" FAKE_PR_HEAD_SHA="$HEAD_SHA" FAKE_PR_CALLS="$TMP/$mode.pr-calls" FAKE_GH_LOG="$TMP/$mode.calls" FAKE_COMMENT_LOG="$TMP/$mode.comments" PATH="$TMP/bin:$PATH" \
     "$COLLECTOR" --run-id 123 --head-sha "$HEAD_SHA" --pr-number 456 --output "$output" $comment)
 }
 
@@ -101,15 +112,19 @@ check jq -e --arg sha "$HEAD_SHA" '
   .fast_checks.step.name == "Phase 230 prohibition guards" and .fast_checks.step.conclusion == "success"
 ' "$success"
 check grep -q 'pr comment 456' "$TMP/success.calls"
+check test "$(grep -c 'repos/szTheory/sigra/pulls/456' "$TMP/success.calls")" -eq 2
 check test "$(grep -c '/jobs?' "$TMP/success.calls")" -eq 2
 
 declare -A tokens=(
   [sha_mismatch]=run_head_sha_mismatch
+  [stale_pr_head]=pr_head_sha_mismatch
+  [pr_advanced]=pr_head_sha_mismatch
   [wrong_event]=run_event_not_pull_request
   [incomplete]=run_not_completed
   [null_conclusion]=run_conclusion_not_success
   [run_failure]=run_conclusion_not_success
   [duplicate_job]=required_job_not_unique_Library_tests
+  [duplicate_job_id]=jobs_identity_or_completion_invalid
   [missing_job]=required_job_missing_Library_tests
   [step_failure]=required_step_not_success_Phase_230_prohibition_guards
   [total_disagreement]=jobs_total_count_disagreement

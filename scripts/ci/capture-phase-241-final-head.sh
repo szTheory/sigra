@@ -74,6 +74,12 @@ RESET="$(jq -r '.resources.core.reset' <<<"$RATE_LIMIT")"
 [[ "$REMAINING" =~ ^[0-9]+$ && "$RESET" =~ ^[0-9]+$ ]] || fail "rate_limit_preflight_malformed"
 (( REMAINING > 250 )) || fail "rate_limit_too_low: remaining=${REMAINING} reset=${RESET}"
 
+PR="$(api pull_request "repos/${REPO}/pulls/${PR_NUMBER}")"
+jq -e 'type == "object"' <<<"$PR" >/dev/null || fail "pr_payload_malformed"
+[[ "$(jq -r '.number' <<<"$PR")" == "$PR_NUMBER" ]] || fail "pr_number_mismatch"
+[[ "$(jq -r '.base.repo.full_name' <<<"$PR")" == "$REPO" ]] || fail "pr_base_repository_mismatch"
+[[ "$(jq -r '.head.sha' <<<"$PR")" == "$HEAD_SHA" ]] || fail "pr_head_sha_mismatch"
+
 RUN="$(api run "repos/${REPO}/actions/runs/${RUN_ID}")"
 jq -e 'type == "object"' <<<"$RUN" >/dev/null || fail "run_payload_malformed"
 RUN_HEAD="$(jq -r '.head_sha' <<<"$RUN")"
@@ -114,7 +120,7 @@ ACTUAL="$(jq 'length' "$TMPD/jobs.json")"
 jq -e --argjson run "$RUN_ID" '
   all(.[]; (.id | type) == "number" and .run_id == $run and .status == "completed" and
     (.conclusion | type) == "string" and (.conclusion | length) > 0) and
-  ([.[].id] | unique | length == length)
+  (([.[].id] | unique | length) == ([.[].id] | length))
 ' "$TMPD/jobs.json" >/dev/null || fail "jobs_identity_or_completion_invalid"
 
 require_job() {
@@ -150,6 +156,14 @@ OWNER_STEP_FILE="$(require_step "$OWNER_FILE" "$LIBRARY_OWNER_STEP" Run_contribu
 AGGREGATOR_FILE="$(require_job "$LIBRARY_AGGREGATOR" Library_tests)"
 FAST_FILE="$(require_job "$FAST_CHECKS" Fast_checks)"
 FAST_STEP_FILE="$(require_step "$FAST_FILE" "$FAST_CHECKS_STEP" Phase_230_prohibition_guards)"
+
+# Recheck after collecting the run and jobs so a PR that advances during the
+# multi-request read cannot produce a receipt for a now-stale candidate.
+PR_FINAL="$(api pull_request_final "repos/${REPO}/pulls/${PR_NUMBER}")"
+jq -e 'type == "object"' <<<"$PR_FINAL" >/dev/null || fail "pr_payload_malformed"
+[[ "$(jq -r '.number' <<<"$PR_FINAL")" == "$PR_NUMBER" ]] || fail "pr_number_mismatch"
+[[ "$(jq -r '.base.repo.full_name' <<<"$PR_FINAL")" == "$REPO" ]] || fail "pr_base_repository_mismatch"
+[[ "$(jq -r '.head.sha' <<<"$PR_FINAL")" == "$HEAD_SHA" ]] || fail "pr_head_sha_mismatch"
 
 COLLECTED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 jq -S -n \
