@@ -506,7 +506,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Email Change Templates (D-09)
+  ## Email Change Templates
 
   @doc "Builds a confirmation email sent to the NEW email address during email change."
   def email_change_confirmation_email(_user, new_email, url) do
@@ -615,7 +615,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Account Deletion Templates (D-21)
+  ## Account Deletion Templates
 
   @doc "Builds a deletion scheduled notification email."
   def deletion_scheduled_email(user, scheduled_date, cancel_url) do
@@ -711,7 +711,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  ## Password Change Template (D-37)
+  ## Password Change Template
 
   @doc "Builds a password changed notification email with login details."
   def password_changed_email(user, details) do
@@ -785,7 +785,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
+  # -- Org-invite block --
   #
   # Canonical inline copy of the invitation email fragment shipped at
   # priv/templates/sigra.install/organizations/organization_invitation_email.ex.

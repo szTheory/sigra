@@ -436,7 +436,7 @@ defmodule Example.Accounts do
   Rate-limited to 5 attempts per user per 15 minutes.
   """
   def confirm_user_by_code(%User{} = user, code) when is_binary(code) do
-    # 10.1 IN-05: verify_confirmation_code/3 does NOT read :secret_key_base
+    # verify_confirmation_code/3 does NOT read :secret_key_base
     # (codes are hashed and looked up directly, no signed token round-trip).
     # Do not add it back unless the library signature changes.
     Sigra.Auth.verify_confirmation_code(Repo, code,
@@ -541,7 +541,7 @@ defmodule Example.Accounts do
 
   Uses `Sigra.Auth.reset_password/4` which verifies the HMAC-signed token,
   updates the password, and invalidates all tokens (including sessions)
-  in a single transaction. Per D-29: caller creates new session after reset.
+  in a single transaction. The caller creates a new session after reset.
 
   ## Examples
 
@@ -564,9 +564,9 @@ defmodule Example.Accounts do
   # HMAC signature rewind, audit log row, and telemetry events that the
   # signed-token clause above emits via `Sigra.Auth.reset_password/4`. Do
   # NOT call this from controllers; production flows must use the signed
-  # token clause so security signals are preserved (10.1 IN-03). Tokens
+  # token clause so security signals are preserved. Tokens
   # are invalidated in a single transaction so the caller can create a
-  # fresh session after reset (D-29).
+  # fresh session after reset.
   @doc false
   def reset_user_password(%User{} = user, attrs) do
     Ecto.Multi.new()

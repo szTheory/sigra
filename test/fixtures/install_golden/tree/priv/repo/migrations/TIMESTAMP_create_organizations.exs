@@ -13,16 +13,16 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
       add :name, :string, null: false, size: 255
       add :slug, :citext, null: false
       add :deleted_at, :utc_datetime
-      # D-00: sticky origin owner (added Phase 18). Write-once on insert; :nilify_all so the org row survives owner account deletion.
+      # Sticky origin owner. Write-once on insert; :nilify_all so the org row survives owner account deletion.
       add :owner_user_id, references(:users, Keyword.merge(@ref_opts, [type: :binary_id, on_delete: :nilify_all]))
-      # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
+      # Personal-workspace flag. Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
       add :personal, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end
 
     # Partial unique index: only enforce slug uniqueness for active orgs.
-    # Soft-deleted orgs release their slug for reclamation (D-09).
+    # Soft-deleted orgs release their slug for reclamation.
     create unique_index(:organizations, [:slug],
              Keyword.merge(@prefix_opts,
                where: "deleted_at IS NULL",
@@ -30,8 +30,8 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
              )
            )
 
-    # D-01 / D-03: at-most-one-personal-org-per-user. Structural invariant AND
-    # insert-safety backstop for Sigra.Upgrade.Backfill (Plan 18-02). Postgres
+    # At-most-one-personal-org-per-user. Structural invariant AND
+    # insert-safety backstop for Sigra.Upgrade.Backfill. Postgres
     # partial unique index — one row per owner_user_id where personal = true.
     create unique_index(:organizations, [:owner_user_id],
              Keyword.merge(@prefix_opts,
@@ -70,7 +70,7 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
       timestamps(type: :utc_datetime)
     end
 
-    # Partial unique index: prevent duplicate pending invites per org+email (D-12).
+    # Partial unique index: prevent duplicate pending invites per org+email.
     create unique_index(:organization_invitations, [:organization_id, :email],
              Keyword.merge(@prefix_opts,
                where: "accepted_at IS NULL AND revoked_at IS NULL",
@@ -83,7 +83,7 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
     # ── Organization Slug Aliases ──────────────────────────────────────
     # Tracks previous slugs for 7 days after a slug change so the
     # `LoadOrganizationFromSlug` plug can redirect old URLs to the
-    # canonical slug (Phase 16 D-13). Old-slug uniqueness is enforced
+    # canonical slug. Old-slug uniqueness is enforced
     # only while `expires_at > now()` so expired aliases can be
     # reclaimed by another organization.
     create table(:organization_slug_aliases, Keyword.merge(@prefix_opts, [primary_key: false])) do
@@ -96,7 +96,7 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
     end
 
     create index(:organization_slug_aliases, [:organization_id], @prefix_opts)
-    # IMMUTABLE-safe slug-alias uniqueness (Phase 17 Plan 08 — Phase 16 hotfix).
+    # IMMUTABLE-safe slug-alias uniqueness.
     # Postgres rejects `now()` inside partial index predicates because it is
     # STABLE, not IMMUTABLE — a host running `mix ecto.migrate` would see
     # `ERROR: functions in index predicate must be marked IMMUTABLE`.

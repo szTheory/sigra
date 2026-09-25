@@ -2,12 +2,12 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSwitchController do
   @moduledoc """
   Controller for switching the active organization for the current user.
 
-  POST /organizations/switch — sensitive mutation via HTTP POST (D-05 /
-  ORG-UX-03). Body: `%{"organization_id" => id, "return_to" => local_path}`.
+  POST /organizations/switch — sensitive mutation via HTTP POST.
+  Body: `%{"organization_id" => id, "return_to" => local_path}`.
 
   Membership-before-write is enforced by looking up the target organization
   through the current user's memberships only. Unknown or cross-tenant
-  organization ids return 404 for enumeration prevention (D-04).
+  organization ids return 404 for enumeration prevention.
 
   `return_to` is validated as a local path (leading `/`, not `//`) — the
   same pattern used by `SigraInstallGoldenTmpWeb.Auth.SudoController`. External

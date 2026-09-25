@@ -111,7 +111,7 @@ defmodule ExampleWeb.RegistrationLive do
 
     case Example.Accounts.register_user(user_params) do
       {:ok, user} ->
-        # D-05: deliver confirmation email (B5 repair; helper exists at Example.Accounts.deliver_user_confirmation_instructions/2)
+        # Deliver confirmation email (helper exists at Example.Accounts.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
           if enroll_passkey do
             url(socket, ~p"/users/confirm/#{token}?enroll_passkey=1")

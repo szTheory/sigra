@@ -88,7 +88,6 @@ defmodule ExampleWeb.MFASettingsLive do
               </button>
             </div>
 
-            <% # Backup code status (D-15) %>
             <div class="vt-stack">
               <%= cond do %>
                 <% @backup_remaining == 0 -> %>
@@ -553,7 +552,6 @@ defmodule ExampleWeb.MFASettingsLive do
         </div>
       </div>
 
-      <% # Backup code grid (D-08) %>
       <div class="vt-alert" style="display:block">
         <ol style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sg-space-3)">
           <li :for={code <- @backup_codes} style="text-align:center">
@@ -585,7 +583,6 @@ defmodule ExampleWeb.MFASettingsLive do
         </button>
       </div>
 
-      <% # Acknowledgment checkbox (D-11) %>
       <div>
         <label style="display:flex;align-items:center;gap:var(--sg-space-2);font-size:var(--sg-text-sm)">
           <input
@@ -631,8 +628,8 @@ defmodule ExampleWeb.MFASettingsLive do
     form = to_form(%{"code" => code}, as: "enroll")
     socket = assign(socket, enroll_form: form)
 
-    # Auto-submit when 6 digits entered (D-36). 10.1 IN-06 follow-up:
-    # call the confirm path directly instead of dispatching via
+    # Auto-submit when 6 digits entered. Calls the confirm path
+    # directly instead of dispatching via
     # `send(self(), …)`. The mailbox round-trip allowed a stale 6-digit
     # prefix to fire after the user typed a 7th character, wasting an
     # attempt against the MFA lockout counter.

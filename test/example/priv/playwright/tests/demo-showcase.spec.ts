@@ -1,10 +1,5 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
-// otplib: imported for future TOTP challenge integration. The example app
-// currently uses MFA as step-up auth (not login challenge per golden-path.spec.ts:141),
-// so authenticator.generate(DEMO_TOTP_B32) is not called at runtime. Retained
-// for documentation and quick activation if mfa.check_fn is added to sigra_config().
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { authenticator } from "otplib";
+// The example app uses MFA as step-up auth, so the TOTP helper is not needed here.
 import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
 
 // Phase 143 Plan 2: evaluator-facing demo showcase spec.
@@ -170,7 +165,7 @@ async function assertDemoScreenshot(
  * is available if a future change adds mfa.check_fn to the example app's
  * sigra_config, at which point the loginDemoAdmin function would need to
  * complete the TOTP challenge by clicking button[phx-click="show_totp"]
- * and filling #mfa_totp_code with authenticator.generate(DEMO_TOTP_B32).
+ * and filling #mfa_totp_code with generate({ secret: DEMO_TOTP_B32 }).
  *
  * Reference: golden-path.spec.ts:141 — "the example app uses MFA as step-up
  * auth (sudo mode), not as a login challenge."

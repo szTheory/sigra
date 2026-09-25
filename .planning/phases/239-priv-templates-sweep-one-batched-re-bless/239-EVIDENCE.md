@@ -1,0 +1,3780 @@
+# Phase 239 Evidence Ledger
+
+Slot-heading convention: `^## [A-Z0-9-]+$` heading, `Status:` line beneath (Phase 238 precedent).
+
+## PREFLIGHT-UNION-LEDGER
+Status: PASS — HEAD numbers match the 239-RESEARCH.md / 239-CONTEXT.md ledger exactly; the tree has
+not moved since research was captured. This is the phase's first action, run before any template
+edit.
+
+- HEAD sha: `ebc5d9-e148cd-814fa1-b679a8-a74c0e-ab921e-c7b4` (hyphen-chunked for readability and to
+  avoid a second hex-token match colliding with the WAVE0-COMMIT sha lookup below — concatenate the
+  segments to recover the 40-char sha; it is also `git log -1` output at the time this ledger's
+  first section was written, on branch `main`)
+- `git status --porcelain` at measurement time:
+  ```
+   M .planning/STATE.md
+   M .planning/state.json
+  ```
+  (only `.planning/` bookkeeping files modified — precondition for this task was verified met
+  before any measurement was taken)
+
+Union regex (one definition, per the plan's "The union regex" section):
+
+```
+\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b
+```
+
+Exact commands run and their output:
+
+```bash
+U='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'
+grep -nE "$U" $(git ls-files priv/templates) | wc -l    # => 158
+grep -lE "$U" $(git ls-files priv/templates) | wc -l    # => 46
+grep -nE "$U" $(git ls-files test/fixtures/install_golden/tree) | wc -l   # => 139
+grep -lE "$U" $(git ls-files test/fixtures/install_golden/tree) | wc -l   # => 35
+```
+
+Measured HEAD numbers:
+
+| Surface | Union lines | Union files |
+|---|---|---|
+| `priv/templates/` | **158** | **46** |
+| `test/fixtures/install_golden/tree/` (golden) | **139** | **35** |
+
+All four numbers match `239-RESEARCH.md` §2/§3 exactly. No divergence — the phase proceeds on the
+research ledger's numbers without adjustment.
+
+**Positively-asserted favourable context (not silently dropped):**
+
+- `test/fixtures/install_golden/STDOUT.txt` carries **zero** union-token lines today
+  (`grep -cE "$U" test/fixtures/install_golden/STDOUT.txt` => `0`). The D-13 independent-drift
+  hazard (STDOUT.txt drifting separately from `tree/`) is measured-nil for this phase's starting
+  point. This will be checked again, separately, in plan 239-04 after the sweep and re-bless land.
+- `git diff --name-only origin/main -- .github/` is **empty** (0 lines). SC-5a ("no `.github/` edit
+  in scope") has a genuine zero baseline today, needing no carve-out or waiver.
+
+## WAVE0-COMMIT
+Status: DONE — the wave-0 instruments are committed and their commit provably touches nothing
+outside the phase directory.
+
+- Commit sha: `a1bb08c6fc498fa6861012485a948a58ba6a2db4`
+- Subject: `docs(239): wave-0 SC-3 classifier, frozen expected set, preflight ledger`
+- `git show --name-only --format= HEAD` (at that commit) lists exactly six paths, all under
+  `.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`:
+  - `239-EVIDENCE.md`
+  - `239-comment-only-diff-check.sh`
+  - `239-golden-expected.txt`
+  - `fixtures/239-golden-add-only-hunk.diff`
+  - `fixtures/239-golden-code-change.diff`
+  - `fixtures/239-golden-comment-only.diff`
+- `git diff --quiet HEAD -- priv/templates test/example test/fixtures .github mix.exs lib` exits 0
+  at that commit — no source surface is dirty.
+- `test/fixtures/prohibitions/` carries no change attributable to this phase (D-04; that directory
+  belongs to Phase 241).
+- Plan 239-02 should cite the commit sha recorded above (the single one in this file's "Commit
+  sha:" bullet) as the pre-sweep baseline sha when it reports SC-3.
+
+## SWEEP-COMMIT
+Status: DONE — commit 1 of the D-19 three-commit topology lands, provably confined to
+`priv/templates/`, driving the union grep to zero across all 119 tracked template files in all
+three generators.
+
+- Commit sha (hyphen-chunked to keep exactly one full 7-40-char hex token in this file, per the
+  239-01 SIGPIPE-avoidance fix — concatenate the segments to recover the 40-char sha):
+  `cafd9a-5328b5-f08f31-5a123f-d874d2-698831-7537`
+- Subject: `refactor(239): strip planning bookkeeping from priv/templates (SURF-01, SURF-03)`
+- Before/after union-token counts: **158 -> 0** across `priv/templates/` (46 files touched, 119
+  tracked template files enumerated by `git ls-files priv/templates`).
+- `git show --name-only --format= HEAD` at that commit lists exactly 46 paths, every one under
+  `priv/templates/`.
+- `git diff --name-only origin/main -- .github/` is empty — no `.github/` drift introduced.
+- `MIX_ENV=test mix compile --warnings-as-errors` is clean (no warning, no error) after the sweep.
+- All five D-03 deliberate exclusions (`policy.ex` TODO, `mfa_challenge_live.ex` XXXX-XXXX,
+  `sigra_auth.css` v1.46 compat prose, `scope.ex` UPGRADE-v1.2.md pointer, arity/version strings)
+  survive verbatim, confirmed by grep against the post-sweep tree.
+
+**Documented instrument limitation (not a regression):** `237-security-comment-diff-check.sh`
+(SC-5b), run against this commit's full diff, reports exactly one survivor:
+`core/auth.ex:530`'s pre-sweep line `# token clause so security signals are preserved (10.1
+IN-03). Tokens`. This is structural, not fixable by rewording: SC-5b's tolerance regex recognizes
+only `D-[0-9]{2}`, `SC-[0-9]+`, and `Phase [0-9]{1,3}` co-occurring on the SAME removed line as a
+rationale word — it does not recognize `IN-[0-9]{2}`. Any edit to this line necessarily marks the
+current HEAD text as "removed" in the diff (unified diff is line-granular), and that HEAD text
+already carries "security" + "IN-03" with no SC-5b-recognized token, regardless of what replaces
+it. The only tokens SC-5b would tolerate (`D-NN`, `SC-N`, `Phase N`, `.planning/`) are themselves
+union-grep tokens this phase must remove, so no rewording of the AFTER text can satisfy both
+instruments simultaneously for this one line. Per plan-level constraint D-16, `237-security-
+comment-diff-check.sh` was not modified to close this gap. Verified via three independent repro
+attempts (isolated single-file diff, six-file partial diff, full sweep-commit diff) — all three
+report the identical single survivor and no other. The rationale sentence "security signals are
+preserved" is intact in the AFTER text and `IN-03` is fully gone from the file, satisfying the
+plan's actual SURF-01/SURF-03 intent; only the SC-5b instrument's advisory tolerance-regex gap is
+unresolved, and it is advisory tooling per its own header ("deliberately NOT wired into any
+workflow or prohibitions glob"). A second near-identical case
+(`organizations/live/organization_settings_live.ex` "enumeration safety" / D-04 window merge) was
+found and avoided during execution by leaving the rationale-bearing line untouched and editing
+only the adjacent token-only line, keeping that one out of SC-5b's removed-line set entirely —
+demonstrating the fix is possible whenever the token and rationale word do not already share HEAD's
+one physical line, which is not the case for `auth.ex:530`.
+
+## MIRROR-COMMIT
+Status: DONE — commit 2 of the D-19 three-commit topology lands, provably confined to
+`test/example/`, mirroring the 30 counterparts of edited templates while leaving the four
+already-absent counterparts and the deliberately-unswept repo-wide remainder untouched.
+
+- Commit sha (hyphen-chunked to keep exactly one full 7-40-char hex token in this file, per the
+  239-01 SIGPIPE-avoidance fix — concatenate the segments to recover the 40-char sha):
+  `e69f4d-9b36a8-700d78-1039aa-1f4326-7b412c-d884`
+- Parent commit (the `.planning/` checklist + todo commit, immediately preceding, confirming the
+  D-19 commit ordering): `df04-e43a` (subject: `docs(239): SC-4 mirror checklist and pre-existing
+  example todo`)
+- Subject: `refactor(239): mirror template bookkeeping sweep into test/example counterparts
+  (SURF-03)`
+- `git show --name-only --format= HEAD` at that commit lists exactly 30 paths, every one under
+  `test/example/`.
+- `git diff --name-only origin/main -- .github/` is empty — no `.github/` drift introduced.
+- Repo-wide `test/example/` union-token count: **476 -> 366** (110 lines removed across the 30
+  mirrored counterparts; the remaining ~64-file / ~366-line surface is deliberately unswept per
+  SC-4's counterpart-only scope — see `239-MIRROR-CHECKLIST.md`'s scoping statement).
+- The four zero-token counterparts (`settings_live.ex`, `auth_error_handler.ex`,
+  `organization_invitation.ex`, the timestamped `create_organizations.exs` migration) are
+  confirmed unmodified (`git diff --quiet HEAD -- <path>` exits 0 for each).
+- `mix format --check-formatted` passes repo-wide; `MIX_ENV=test mix compile
+  --warnings-as-errors` inside `test/example/` is clean **except one pre-existing, unrelated
+  warning** — `SettingsLive`'s `~p"/dev/mailbox"` verified route has no matching route under
+  `MIX_ENV=test` (the route only exists when `dev_routes` is compile-time enabled, which is
+  `config/dev.exs`-only). Confirmed pre-existing via `git stash` reproducing the identical warning
+  against unmodified HEAD (`7a12-e2e2`) before any of this plan's edits existed; filed as a todo
+  (`.planning/todos/pending/2026-09-17-example-settings-live-dev-mailbox-verified-route-test-env.md`,
+  committed in `df04-e43a`) rather than fixed in-phase, per the v1.48 standing constraint
+  (found-while-cleaning -> new todo, never an in-phase fix) and because `settings_live.ex` is one
+  of this plan's four already-absent counterparts — touching it for an unrelated reason would blur
+  that row's own audit trail.
+
+## MIX-CI-RUNS
+Status: DONE (run #1) — the first of the two `mix ci` runs RESEARCH Open Question 3 calls for
+(the second runs after commit 3, in plan 239-04).
+
+- **Cold-build note (not a regression):** the first invocation of `MIX_ENV=test mix ci` on this
+  session's `_build` reported `33 doctests, 3 properties, 2606 tests, 6 failures` — all six
+  `(UndefinedFunctionError) function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined`.
+  `Sigra.Audit.Forwarders.Threadline` gates its own definition behind
+  `Code.ensure_compiled(Threadline) == {:module, Threadline}`; on a cold `_build` where the
+  optional `threadline` dependency compiles in the *same* run as `sigra` (visible in that run's own
+  log: `==> threadline / Compiling 83 files (.ex)` immediately preceding `==> sigra`), the guard
+  evaluates false before `threadline` is available, and the module is never defined. This is a
+  build-ordering artifact, not a code fault — `git log <wave-0-baseline-sha>..HEAD -- lib/` (see
+  the `## WAVE0-COMMIT` "Commit sha:" bullet for the baseline) is empty, so no `lib/` change in
+  this phase could have caused it. Running `MIX_ENV=test mix compile --force`
+  once (to prime the `_build` deterministically) and then re-running `MIX_ENV=test mix ci`
+  reproduced the clean, authoritative result below. Waves 1 and 2 (239-01, 239-02) both went green
+  the identical way.
+- **Authoritative run-#1 result** (`MIX_ENV=test mix compile --force` then `MIX_ENV=test mix ci`):
+  exit **0**.
+  - `mix format --check-formatted`: pass (no output, alias would have halted otherwise).
+  - `mix deps.get --check-locked`: pass (alias continued).
+  - `mix deps.unlock --check-unused`: pass (alias continued).
+  - `mix compile --warnings-as-errors`: pass (alias continued; root `lib/` only — `test/example/`
+    is a separate nested Mix project not compiled by this step).
+  - `mix test --exclude scaffold`: **33 doctests, 3 properties, 2606 tests, 0 failures, 12
+    skipped (22 excluded)**.
+  - `ci.install_golden` (`mix test test/sigra/install/features/passkeys_js_test.exs
+    test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs
+    test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs
+    test/upgrade_test.exs`): **65 tests, 0 failures (2599 excluded)**.
+  - `sigra.dep_off` (`scripts/ci/sigra-dep-off.sh`): guard step (`mix test --only
+    threadline_guard --no-deps-check`) and restore step (`mix deps.get --check-locked` +
+    `mix compile threadline`) both clean; script's own standalone run separately confirmed exit 0.
+- **Correction on how this run may be cited (do not over-claim):** `golden_diff_test.exs` carries
+  `@moduletag :scaffold`. `mix ci`'s earlier `test --exclude scaffold` step leaves an
+  `:excluded_tags` filter that leaks into the *same-VM* `ci.install_golden` invocation, so
+  `golden_diff_test`'s actual assertions did not run inside this `ci.install_golden` pass — proven
+  independently (standalone: `2 tests, 1 failure`; chained after `--exclude scaffold`: `0 tests,
+  0 failures (1 excluded)`). **This run is valid evidence for this plan's own scope (formatting,
+  deps-lock, compilation, the full non-scaffold test suite, and the dep-off guard) but is NOT
+  corroboration of golden-fixture drift state either way** — the golden fixture still mirrors the
+  pre-sweep templates (re-blessing is commit 3's job, owned by plan 239-04), and this run's
+  `ci.install_golden` pass neither confirms nor denies that; it simply didn't exercise the
+  `:scaffold`-tagged assertion this time.
+
+## REBLESS-COMMIT
+Status: DONE — commit 3 of the D-19 three-commit topology lands, provably confined to
+`test/fixtures/install_golden/`, and the fixture is proven settled by both the `--check`
+contract and `ci.install_golden`.
+
+- **First run's classifier result was NOT clean** — `nonconforming=7` on the first
+  `MIX_ENV=test mix sigra.fixture.rebless_golden` run. All seven were comment-reflow side
+  effects of SWEEP-COMMIT's (cafd9a53) token removal shifting word-wrap onto an adjacent,
+  non-token line that `239-golden-expected.txt` never anticipated (built at wave 0, before
+  wave 2's actual edits landed). Per the plan's stop-the-line rule, each was diagnosed and the
+  responsible template edited so only the token-bearing line changes and every reflow-neighbour
+  line stays byte-identical to its pre-sweep text, then the fixture was `git checkout`'d and the
+  re-bless re-run. Fixed in commit `2a34e1c8` (`refactor(239): resolve re-bless reflow
+  neighbours in priv/templates`):
+  - `priv/templates/sigra.install/core/mfa_settings_live.ex:606-607`
+  - `priv/templates/sigra.install/organizations/live/organization_members_live.ex` (3 spots:
+    the "Generated by" attribution line, the Pagination bullet, and the Phase-17-seam
+    paragraph)
+  - `priv/templates/sigra.install/organizations/live/organization_settings_live.ex:3-4`
+  - `priv/templates/sigra.install/core/sigra_auth.css:697-700`
+- **A second, distinct gap surfaced after the reflow fixes**: `removed_lines=136`, three below
+  the 139 floor. `comm -23` against the expected T-set isolated exactly 4 missing router.ex
+  lines (expected lines 71, 74, 86, 97). Their source is **not** `priv/templates/` at all —
+  it's `lib/sigra/install/features/core.ex`'s `content = """ ... """` heredoc (lines 479, 482,
+  494, 503), the literal text this generator injects into a fresh app's router.ex.
+  SWEEP-COMMIT's scope was `priv/templates/` only, so this heredoc was never touched. SURF-01
+  (REQUIREMENTS.md:82) scopes the requirement to "**lib/ or priv/templates/**", so this is in
+  scope — it was fixed in commit `6fa3ead2` (`fix(239): sweep bookkeeping tokens from router.ex
+  heredoc in Sigra.Install.Features.Core`), touching only the 4 heredoc lines. Every other
+  union-token line elsewhere in `core.ex` (lines 12, 93, 176, 184, 197, 207, 219, 226, 236, 242,
+  247, 250, 285) is Sigra's own internal comment about the generator's own code structure,
+  outside any heredoc destined for a generated app, and was left untouched — confirmed by
+  reading the surrounding code (those lines sit in `@moduledoc`, `migrations/1`, and other
+  functions, never inside the `content = """ ... """` block that spans lines ~454-521).
+  **This is a deviation from the D-19 three-commit topology** (Rule 2/3: missing coverage
+  blocking both the re-bless floor and Task 2's generated-app grep) — committed separately,
+  ahead of the golden re-bless commit, not folded into it.
+- **Two of those neighbour-preserving rewrites damaged the prose they preserved.** The
+  constraint is real — in a merge site the only editable line is the token-bearing one, so when
+  that line also carries the sentence structure, byte-preserving the neighbours can leave the
+  sentence broken. Four sites survived intact; two did not, and one of those was a live
+  regression rather than a cosmetic one:
+  - `core/sigra_auth.css:698` — `do not re-litigate this;` was left dangling in front of the
+    untouched `and the reflow failure payload ... that proves it.` Repaired in `061c-1758` to
+    `... this comment records the verified mechanism`, which closes the sentence without
+    reintroducing the removed `231-GAP-GATE02-SUMMARY.md` reference and without inventing a
+    referent that does not exist.
+  - `organizations/live/organization_members_live.ex:24` — removing the `(D-22).` fragment also
+    removed the sentence terminator, running the pagination note into the Flop sentence.
+    Repaired in `061c-1758`; the line now opens `only.` Mirrored into `test/example` (SC-4).
+  - `lib/sigra/install/features/core.ex:479` — **regression, caught by `mix ci`, not by
+    inspection.** `6fa3ead2` rewrote `# Phase 14 Plan 03: organization-aware pipelines` as
+    `# Organization-aware pipelines`, and capitalising the word at sentence start put a literal
+    `Organization` into the module's own source. That breaks the Pitfall X-1 isolation invariant
+    at `test/sigra/install/features/core_test.exs:309`, which refutes `~r/\bOrganization\b/`
+    against `core.ex`. Repaired in `e4e0-3980` to `# Opt-in organization-aware pipelines.`
+    (`core_test.exs`: 29 tests, 0 failures).
+  - `lib/sigra/install/features/core.ex:482` — `Phase 16 wires these to` became the subjectless
+    `Wires these to`, running into the untouched `# the organization picker + switcher.` Now
+    `These wire into`. Repaired in the same commit.
+
+  Every repaired line is itself a token-bearing line from the frozen expected set, so removed-line
+  containment is unchanged and no locked neighbour byte moved. Both repair commits touch zero
+  paths under `test/fixtures/install_golden/`, so Safety Rule 1 holds.
+- **Fourth and final rebless run** (after the two repair commits): `nonconforming=0`,
+  `removed_lines=140` (floor 139), `files=35` (floor 30), `changed_lines=258` — byte-identical
+  counters to the third run, which is the expected result since the repairs only re-word lines
+  that were already inside the expected removed set.
+- Commit sha (hyphen-chunked per the 239-01 SIGPIPE-avoidance convention — concatenate the
+  segments to recover the 40-char sha): `38c9bd-9ab462-78a431-516524-3dcf97-99e07e-863a`
+  (subject: `chore(239): re-bless install golden fixture after template bookkeeping sweep
+  (SURF-03)`).
+- `git show --name-only --format= HEAD` at that commit lists exactly 35 paths, every one under
+  `test/fixtures/install_golden/`.
+- `git log --oneline origin/main..HEAD -- test/fixtures/install_golden` returns exactly 1 line —
+  SC-3's single-commit requirement holds.
+- `test/fixtures/install_golden/STDOUT.txt` diffstat is empty at this commit — no swept comment
+  leaked into installer summary output; the D-13 independent-drift hazard stayed measured-nil.
+- `MIX_ENV=test mix sigra.fixture.rebless_golden --check` prints the literal `OK: fixture is
+  up-to-date (check mode).` and exits 0.
+- `MIX_ENV=test mix ci.install_golden` (standalone, not chained after `--exclude scaffold`, so
+  the `:scaffold`-tagged `golden_diff_test.exs` assertions actually execute this time — see the
+  `## MIX-CI-RUNS` entry above for why a chained run can't be trusted for this): **19 tests, 0
+  failures (3 excluded)**.
+- `mix archive` confirms `phx_new-1.8.8` — the D-14 precondition held throughout all three
+  rebless runs, so every byte-diff observed above is real drift, not an archive-version
+  artifact.
+
+## MIX-CI-RUNS (run #2, after commit 3)
+Status: DONE — green, with the same cold-`_build` ordering artifact as run #1 documented and
+distinguished from a real failure by a force-compile control.
+
+- **First invocation after the golden commit**: `MIX_ENV=test mix ci` exited 2 with
+  `2606 tests, 6 failures` — all six in `Sigra.Audit.Forwarders.ThreadlineTest`, the identical
+  set run #1 saw. Root cause is unchanged and is an artifact of `mix ci`'s own shape: the alias
+  ends with `sigra.dep_off`, which recompiles without optional deps and leaves `_build` in the
+  deps-off state for the *next* invocation. `Sigra.Audit.Forwarders.Threadline` sits behind
+  `if Code.ensure_compiled(Threadline) == {:module, Threadline}`, so it is absent on the
+  following cold run.
+- **An earlier invocation additionally failed `Sigra.DeliveryTest` "routes to :sync when Oban is
+  not supervised"** with a `KeyError` on `:user_id` in `Sigra.Delivery.build_job/3`. Same root
+  cause, same family: Oban is an optional dep, so `sigra.dep_off` changes which branch
+  `deliver_async/3` takes. Positive control that it is not this phase's doing:
+  `git log --oneline ebc5d9e1^..HEAD -- lib/sigra/delivery.ex test/sigra/delivery_test.exs`
+  returns nothing, while the same query against
+  `lib/sigra/install/features/core.ex` returns `6fa3ead2` — so the query was live and the
+  silence is a real absence, not a mistyped path.
+- **Control**: `MIX_ENV=test mix compile --force` (exit 0, 178 files) then
+  `MIX_ENV=test mix test --exclude scaffold` -> **exit 0, 33 doctests, 3 properties, 2606 tests,
+  0 failures, 12 skipped (22 excluded)**. Both failure families disappear on a warm build, which
+  is what distinguishes an ordering artifact from a regression.
+- **Full gate on a warm build**: `MIX_ENV=test mix ci` -> **exit 0**, `2606 tests, 0 failures`.
+- **Golden gate standalone** (not chained after `--exclude scaffold`, so the `:scaffold`-tagged
+  `golden_diff_test.exs` assertions actually execute): `MIX_ENV=test mix ci.install_golden` ->
+  **19 tests, 0 failures (3 excluded)**.
+- `MIX_ENV=test mix sigra.fixture.rebless_golden --check` prints the literal
+  `OK: fixture is up-to-date (check mode).` and exits 0.
+
+## HONEST-CLAIMS
+Status: DONE — including one gate recorded RED with its diagnosis rather than argued green.
+
+**SC-1 — freshly generated app (live external observation #1).**
+`scripts/ci/install-smoke.sh` scaffolded a fresh phx.new 1.8.8 app and ran `mix sigra.install`
+to completion (`Sigra authentication has been installed` printed once). Against the generated
+tree, never against the source tree:
+
+```
+SC1_planning_hits=0
+SC1_union_token_hits=0
+SC1_positive_control_defmodule_lines=78
+```
+
+The positive control is load-bearing: a zero-hit grep and a grep that never ran are the same
+observation without it. 79 files under `lib/`, 20 under `priv/`.
+
+The script's *later* `mix ecto.migrate` leg failed, and that failure is environmental, not a
+finding: `install-smoke.sh` is documented as requiring Postgres on `localhost:5432`, while this
+machine runs the Dockerized test Postgres on a dynamic port. The grep above is taken after
+`mix sigra.install` and does not depend on the database.
+
+**SC-2 — built tarball (live external observation #2).**
+`mix hex.build`, unpacked in a scratch directory (Safety Rule 8 — no `sigra-*.tar` or `sigra-*/`
+is left in the repo; verified after the fact). In scope: `grep -rn '\.planning/' lib priv` ->
+**0 hits**, with a positive control of 161 greppable files under `lib/`. Out of scope by design,
+enumerated rather than claimed absent: `docs/` 12, `README.md` 1, `CHANGELOG.md` 19, `mix.exs` 0
+— **32 total**, matching the figure the plan predicted.
+
+The honest claim is that `lib/` and `priv/` are clean. The whole tarball is not, by design, and
+the published 1.5.0 on Hex still carries the leak — that reaches adopters only at 1.5.1.
+
+**SC-3 `install_golden_contract` job clause — ship-time deferral.**
+SC-3's remaining clause asks for a green `install_golden_contract` Actions run. This phase pushes
+nothing, so no Actions verdict exists to read. Recorded as an explicit deferral to ship time
+rather than left silently unobserved or asserted from a local proxy.
+
+**SC-5b — `237-security-comment-diff-check.sh`: RED, with the failure diagnosed and filed.**
+
+Against the full phase diff (`git diff a1bb08c6 HEAD -- lib/ priv/ test/example/ test/fixtures/`)
+the classifier **exits 1**. It flags one line, appearing in three mirrored locations
+(`priv/templates/.../core/auth.ex`, `test/example/.../accounts.ex`, and the golden fixture):
+
+```
+-  # token clause so security signals are preserved (10.1 IN-03). Tokens
++  # token clause so security signals are preserved. Tokens
+```
+
+This is a classifier scope mismatch, not a lost rationale. The script's tolerated-token set is
+`\b(D-[0-9]{2}|SC-[0-9]+|Phase [0-9]{1,3})\b|\.planning/`. This repository's actual bookkeeping
+definition — the frozen union regex in `## PREFLIGHT-UNION-LEDGER` above — is wider and includes
+`IN-[0-9]{2}`. So `IN-03` **is** a bookkeeping token by the phase's own definition and **is not**
+by the script's, and the line reads to the script as security rationale deleted with nothing
+justifying it.
+
+The rationale is intact. The comment at `priv/templates/sigra.install/core/auth.ex:526-532` still
+reads, in full: *"Legacy API accepting a user struct. Test-only helper — bypasses the HMAC
+signature rewind, audit log row, and telemetry events that the signed-token clause above emits
+via `Sigra.Auth.reset_password/4`. Do NOT call this from controllers; production flows must use
+the signed token clause so security signals are preserved. Tokens are invalidated in a single
+transaction so the caller can create a fresh session after reset."* Only the citations
+`(10.1 IN-03)` and `(D-29)` left.
+
+**Positive control** — the same script over the same diff with the `auth.ex`/`accounts.ex`
+mirrors excluded: `examined_removed_lines=409`, **exit 0**. So the check was live across 409
+removed lines and this one line family is its sole trip.
+
+Not fixed here, for two independent reasons that point the same way: D-16 pins the script as
+unmodifiable, and Standing Constraint 4 makes found-while-cleaning a todo. Filed as
+`2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md`, with the suggestion
+that Phase 241's `p18` ratchet own a single shared token definition instead of each phase
+artifact hand-copying a subset.
+
+**`.github/` untouched.** `git diff --name-only origin/main -- .github/` returns 0 paths, and
+`git diff origin/main -- .github/` contains 0 changed `name:` lines.
+
+**Todos filed, none fixed in-phase** (Standing Constraint 4), each with its diagnosis attached:
+- `2026-09-17-ci-change-detector-omits-sigra-upgrade-and-gen-oauth.md`
+- `2026-09-17-fut-01-template-example-parity-guard.md`
+- `2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md`
+
+## WIDENED-UNION-LEDGER
+Status: PASS — surface counts under V2 at final committed HEAD: `priv/templates/` **4**,
+`test/fixtures/install_golden/tree/` **4**, `test/fixtures/install_golden/STDOUT.txt` **0** (total
+**8** triage rows). Disposition counts: `FIX-239-06` **3**, `FALSE-POSITIVE` **1**,
+`OUT-OF-SCOPE` **0**, `MIRRORS-<template>` **4**. V1 returned **0** on all three surfaces — the
+instrument gap is a measured 0→8 delta, not an assertion. The widened net found **1 beyond the
+GAP-1 enumeration** (`sigra_auth.css:696`, plan ID `231-02`), and it is inside `priv/templates/`, so
+it joins plan 239-06's fix list without widening the phase.
+
+### (a) V2, verbatim
+
+Built by extending the frozen V1 string from `## PREFLIGHT-UNION-LEDGER` — never retyped from
+memory — with six appended alternations after `\bB[0-9]\b`. The first five are the verifier's named
+requirement; `\b[Ww]ave [0-9]` is added because GSD wave numbering is the same class of internal
+bookkeeping and the verifier's own wider-net command already used it.
+
+```
+\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]
+```
+
+The six appended alternations, isolated:
+
+```
+\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]
+```
+
+**Why V1 could not see the leak** (239-VERIFICATION.md's second gap, restated as a mechanism):
+V1's plan-ID alternation is `[0-9]{3}-[A-Z0-9-]+\.md`, which requires a trailing `.md`, so the bare
+plan ID `231-02` in `sigra_auth.css:696` is structurally unmatchable. V1 has no alternation at all
+for `round N`, for 10-digit GitHub Actions run IDs, or for `UAT`.
+
+### (b) Per-alternation positive controls
+
+Every zero in this ledger is paired with a control on a surface where the pattern is known to fire,
+so a later zero on `priv/templates/` is a real negative and not a dead alternation. All six controls
+returned non-zero; no alternation is dead.
+
+| # | Alternation | Control command | Count |
+|---|---|---|---|
+| 1 | `\b[0-9]{3}-[0-9]{2}\b` | `grep -cE '\b[0-9]{3}-[0-9]{2}\b' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **10** |
+| 2 | `\b[Rr]ound[s]?[ -][0-9]` | `grep -cE '\b[Rr]ound[s]?[ -][0-9]' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **4** |
+| 3 | `\b[Rr]uns? [0-9]{9,}` | `grep -cE '\b[Rr]uns? [0-9]{9,}' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **2** |
+| 4 | `actions/runs/[0-9]+` | `grep -cE 'actions/runs/[0-9]+' .planning/seeds/SEED-006-admin-design-gallery-ci-baseline-recapture.md` | **3** |
+| 5 | `\bUAT\b` | `grep -cE '\bUAT\b' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md` | **9** |
+| 6 | `\b[Ww]ave [0-9]` | `grep -cE '\b[Ww]ave [0-9]' .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-EVIDENCE.md` | **2** |
+
+Alternation 4's control is `SEED-006` rather than `239-VERIFICATION.md`: the verification report
+cites run IDs as bare numbers, not as GitHub URLs, so it returns 0 there. Recording the surface that
+does fire is the point of the control — a 0 on the first candidate surface is an unsuitable control,
+not a dead alternation, and the distinction is only visible because the control was run.
+
+**Instrument limitation, recorded rather than smoothed over:** these are line-based greps. In
+`sigra_auth.css` the phrase `after rounds\n     1-2.` is split across lines 514-515, so alternation 2
+does not match it even though it is exactly the bookkeeping the alternation targets. Line 519's
+`Live multi-run CI evidence` (`multi-run` has no digit after it) and line 698's `do not re-litigate
+this` likewise match nothing. All three sit **inside** the two comment blocks already dispositioned
+`FIX-239-06` below, which 239-06 rewrites as whole blocks, so nothing is lost — but a future
+`p18` guard built on line-based matching inherits this gap.
+
+### (c) V1 ↔ V2 delta on the two surfaces V1 certified clean
+
+```bash
+V1='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'
+V2="${V1}"'|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]'
+# brace group + `|| true` inside every substitution: a zero-match grep is a
+# measurement, not a fatal status under `set -eo pipefail` (SAFETY RULESET 1).
+{ grep -nE "$V1" $(git ls-files priv/templates) || true; } | wc -l
+{ grep -nE "$V2" $(git ls-files priv/templates) || true; } | wc -l
+{ grep -nE "$V1" $(git ls-files test/fixtures/install_golden/tree) || true; } | wc -l
+{ grep -nE "$V2" $(git ls-files test/fixtures/install_golden/tree) || true; } | wc -l
+```
+
+| Surface | V1 lines | V2 lines (pre-fix) | V2 lines (final HEAD) |
+|---|---|---|---|
+| `priv/templates/` | **0** | **5** | **4** |
+| `test/fixtures/install_golden/tree/` | **0** | **4** | **4** |
+| `test/fixtures/install_golden/STDOUT.txt` | **0** | **0** | **0** |
+
+The pre-fix column is the measurement taken before this plan's `login_html.ex` edit; the final
+column is the same measurement at the committed HEAD. The golden tree is unchanged by this plan by
+design — it is generator output and clears only at plan 239-08's single re-bless (D-09).
+
+`STDOUT.txt` is recorded at **0** rather than omitted: D-13 names it as an independent-drift hazard
+distinct from `tree/`, and it stays measured-nil under the wider net.
+
+**Paired positive control for the `priv/templates/` measurement** (a green grep over an empty file
+list would be indistinguishable from a clean tree otherwise):
+
+```bash
+{ grep -lE "$V2" $(git ls-files priv/templates) || true; } | wc -l   # => 2   (files with hits)
+{ grep -lc defmodule $(git ls-files priv/templates) || true; } | wc -l  # => 97  (greppable files)
+```
+
+### (d) Generated-app observation — the leak closed, on generated bytes
+
+The claim is made on the literal bytes an adopter receives, never on `priv/templates/` (D-15,
+Standing Constraint 1). `scripts/ci/install-smoke.sh` scaffolded a fresh Phoenix 1.8.8 app, added
+Sigra as a path dep, ran `mix sigra.install --yes Accounts User users` and `mix sigra.gen.oauth`,
+and compiled `--warnings-as-errors` (`SMOKE_EXIT=0`).
+
+```bash
+ASDF_ERLANG_VERSION=28.5 ASDF_ELIXIR_VERSION=1.19.5-otp-28 \
+  TMP_APP_DIR=/tmp/sigra_239_05_app GITHUB_WORKSPACE=$(pwd) scripts/ci/install-smoke.sh
+{ grep -rhE '\bUAT\b' /tmp/sigra_239_05_app/lib /tmp/sigra_239_05_app/priv || true; } | wc -l
+# => 0
+{ grep -rhc 'defmodule' /tmp/sigra_239_05_app/lib /tmp/sigra_239_05_app/priv || true; } | paste -sd+ - | bc
+# => 94   (across 93 files — the paired positive control; the tree is real, not empty)
+rm -rf /tmp/sigra_239_05_app
+```
+
+The generated `lib/sigra_239_05_app_web/controllers/session_html.ex` moduledoc reads
+`… LiveView's form-submission attributes were swallowing the browser form submit. With no LiveView
+process on the page, the browser performs a real HTTP POST to \`SessionController.create/2\`.` —
+`during UAT` gone, the IN-04 `LiveView's / LiveView` duplication collapsed, the causal claim intact.
+The scratch app was removed (REPO-01).
+
+### (e) Per-hit triage — every V2 hit, exactly one disposition
+
+One row per V2 hit across all three surfaces; 4 + 4 + 0 = 8 rows, matching the `Status:` counts.
+
+| path:line | matched alternation | line text (trimmed) | disposition |
+|---|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex:54` | `\b[0-9]{3}-[0-9]{2}\b` (matched `373-12`) | `<path d="M24 12.073c0-6.627-5.373-12c0 …" fill="#1877F2"/>` | **FALSE-POSITIVE** — SVG `path d=` geometry data in the Facebook provider button; `5.373-12` is two floating-point path coordinates, not a plan ID. Not text, not a comment, not editable prose. |
+| `priv/templates/sigra.install/core/sigra_auth.css:524` | `\b[Rr]ound[s]?[ -][0-9]` (`round-3`) | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | **FIX-239-06** — review-round history inside the `:508-533` comment block (GAP-1). |
+| `priv/templates/sigra.install/core/sigra_auth.css:531` | `\b[Rr]uns? [0-9]{9,}` (`runs 30518012012`) and `\b[Rr]ound[s]?[ -][0-9]` (`round-3`) | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | **FIX-239-06** — live GitHub Actions run IDs inside the same `:508-533` block (GAP-1). |
+| `priv/templates/sigra.install/core/sigra_auth.css:696` | `\b[0-9]{3}-[0-9]{2}\b` (`231-02`) | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | **FIX-239-06** — a bare Sigra plan ID inside the `:689-698` comment block (GAP-1). **This is the hit V1 was structurally blind to.** |
+| `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/controllers/session_html.ex:8` | `\bUAT\b` | `submit during UAT. With no LiveView process on the page, the browser` | **MIRRORS-`priv/templates/sigra.install/core/login_html.ex`** (D-21 rename mapping) — source fixed in this plan's Task 1; the fixture clears at plan 239-08's single re-bless. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:524` | `\b[Rr]ound[s]?[ -][0-9]` | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:531` | `\b[Rr]uns? [0-9]{9,}`, `\b[Rr]ound[s]?[ -][0-9]` | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+| `test/fixtures/install_golden/tree/priv/static/assets/sigra_auth.css:696` | `\b[0-9]{3}-[0-9]{2}\b` | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | **MIRRORS-`priv/templates/sigra.install/core/sigra_auth.css`** — fixed in 239-06, clears at 239-08. |
+
+Every golden-tree hit resolves to a source template. **No orphan golden hit exists**, so the
+stop-the-line condition (a golden hit with no source template, which would mean the fixture is not
+generator output) did not fire.
+
+Hand-editing the golden tree is forbidden (D-09); a golden hit is only ever fixed in its source
+template.
+
+### (f) Overflow rule
+
+Stated verbatim so a later reader cannot infer a looser one:
+
+> If the `FIX-239-06` set is larger than the GAP-1 enumeration (the two `sigra_auth.css` comment
+> blocks), every extra row is added to plan 239-06's fix list and the count is recorded in the
+> SUMMARY as "widened net found N beyond the verifier's enumeration". If any extra row requires work
+> outside `priv/templates/` and `test/example/` — a `lib/` source edit, a `.github/` edit, a schema
+> or behaviour change — do NOT fix it: **record it as `OUT-OF-SCOPE`, file it as a todo per Standing
+> Constraint 4, and say so in the SUMMARY — never widen the phase.** The widened net is allowed to
+> find more; it is not allowed to silently widen the phase.
+
+Applied here: the `FIX-239-06` set is `{:524, :531, :696}`, a **superset** of GAP-1's two blocks
+(`:508-533` contributes `:524` and `:531`; `:689-698` contributes `:696`). The overflow is
+`sigra_auth.css:696` — **1 beyond the verifier's enumeration**, and it lives inside
+`priv/templates/`, so 239-06 absorbs it with no scope change. No row required work outside
+`priv/templates/`/`test/example/`, so no `OUT-OF-SCOPE` todo was triggered by the triage itself.
+
+## CLOSURE-TEMPLATE-COMMIT
+Status: PASS — every `FIX-239-06` row from `## WIDENED-UNION-LEDGER` is closed individually with a
+literal proving grep, the seven `239-REVIEW.md` prose repairs are applied in `priv/templates/`, and
+the commit is path-scoped. Residual V2 on `priv/templates/` is **2 occurrences on 1 line**, and that
+line is the row already dispositioned `FALSE-POSITIVE` in the ledger — real bookkeeping under V2 is
+**0**. Recorded as measured rather than as the plan's anticipated bare `0`, because the ledger's own
+disposition is what makes the 2 harmless, and rounding it to 0 would hide that dependency.
+
+### (a) V2 re-measure over `priv/templates/`, with its paired positive control
+
+```bash
+V1='\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b'
+V2="${V1}"'|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]'
+{ grep -hoE "$V2" $(git ls-files priv/templates) || true; } | wc -l           # -> 2
+{ grep -nE  "$V2" $(git ls-files priv/templates) || true; } | wc -l           # -> 1 line
+{ grep -lc  defmodule $(git ls-files priv/templates) || true; } | wc -l       # -> 97  (positive control)
+```
+
+| Measurement | Value | Reading |
+|---|---|---|
+| V2 occurrences over `priv/templates/` | **2** | both are `373-12`, from one SVG `path d=` coordinate pair |
+| V2 matching lines | **1** | `priv/templates/sigra.gen.oauth/oauth_html.ex:54` |
+| Of those, dispositioned `FALSE-POSITIVE` in `## WIDENED-UNION-LEDGER` | **1 line / 2 occurrences** | Facebook button geometry `…c0-6.373-5.373-12-12-12s…`, not a plan ID |
+| **Undispositioned V2 rows** | **0** | the stop-the-line condition did not fire |
+| Positive control: files containing `defmodule` on the same file list | **97** | the grep is live; the zero above is a real negative, not an empty file list |
+
+`sigra_auth.css` — the file this plan rewrote — now returns **0** under V2:
+`{ grep -hoE "$V2" priv/templates/sigra.install/core/sigra_auth.css || true; } | wc -l` -> `0`,
+paired with `grep -c 'min-width: 0' …` -> **12** on the same file.
+
+Unchanged by design: `test/fixtures/install_golden/tree/` still returns **4** under V2. Those four
+rows are `MIRRORS-<template>` and clear only at plan 239-08's single re-bless (D-09) — the golden
+tree is a generated snapshot and is deliberately not hand-edited here.
+
+### (b) Row-by-row closure record — one line per `FIX-239-06` row (no aggregate count)
+
+| # | Row (from `## WIDENED-UNION-LEDGER`) | Before | Proving grep (run at this commit) | Result |
+|---|---|---|---|---|
+| 1 | `sigra_auth.css:524` | `initial round-3 draft that used \`overflow-wrap: break-word\` here silently` | `grep -cE '\b[Rr]ound[s]?[ -][0-9]' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 2 | `sigra_auth.css:531` | `runs 30518012012 and 30518015684 immediately after the round-3 commit, never` | `grep -cE '30518012012\|30518015684\|actions/runs/' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 3 | `sigra_auth.css:696` | `automatic minimum width (min-content) even though 231-02's min-width: 0 already` | `grep -cE '\b[0-9]{3}-[0-9]{2}\b' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+
+Absorbed in the same block rewrites — the three lines the ledger recorded as a **line-based
+instrument gap** (V2 cannot match them, so they would have survived a green V2 forever):
+
+| # | Line | Before | Proving grep | Result |
+|---|---|---|---|---|
+| 4 | `sigra_auth.css:514-515` | `after rounds` / `1-2.` split across two lines | `grep -c 'after rounds' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 5 | `sigra_auth.css:514` | `/* Live multi-run CI evidence showed H2/P sharing one` | `grep -c 'Live multi-run CI evidence' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 6 | `sigra_auth.css:698` | `do not re-litigate this; this comment records the verified mechanism` | `grep -c 'do not re-litigate this' priv/templates/sigra.install/core/sigra_auth.css` | **0** |
+| 7 | `sigra_auth.css:705` | `/* Live multi-run CI evidence` (third block, outside the GAP-1 enumeration) | covered by row 5's grep | **0** |
+
+Mechanism-survived positive controls on the same file, so rows 1-7 are not a deletion:
+`grep -c 'min-width: 0'` -> **12**, `grep -c 'overflow-wrap'` -> **7**,
+`grep -cE 'automatic-minimum-size|automatic minimum'` -> **2**.
+
+### (c) Comment-containment proof for the `sigra_auth.css` diff (T-239-06-04)
+
+Two orthogonal assertions, both run over this commit's `git diff -U0` hunk headers (a header with no
+explicit count read as count = 1). Neither is a character-class grep over diff text.
+
+```
+masked_single_line_spans post=1 pre=1
+changed added_lines=20 removed_lines=26
+added:   [514,515,516,517,518,519,520,522,523,524,525,526,527,528,529,530,693,694,695,700]
+removed: [514,515,516,517,518,519,520,521,523,524,525,526,527,528,529,530,531,532,533,
+          696,697,698,699,700,705,706]
+ASSERTION_1 comment-range membership:        PASS   (post_set_size=50, pre_set_size=56)
+ASSERTION_2 empty non-comment remainder:     PASS
+```
+
+Assertion 1 masks every single-line `/* … */` span before the state machine runs, so the one line in
+this file that is simultaneously a declaration and a comment (`min-width: 0; /* … */`, near `:732`)
+cannot latch the machine open. Assertion 2 is independent of any post-edit-derived line set: it
+strips comment spans from each changed line's own text and requires the remainder to be whitespace.
+Assertion 2 is what would catch an edit to the declaration half of that mixed line, and what would
+catch an edit that drops a closing `*/` and thereby widens Assertion 1's own oracle. Plan 239-08's
+`239-comment-only-diff-check.sh` over the re-bless diff remains the phase-level backstop; neither
+check is trusted alone.
+
+### (d) SC-5 re-proof at this commit (D-16 — script run, never edited)
+
+```bash
+git diff -- priv/templates > /tmp/239-06.diff        # 187 diff lines
+.planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-security-comment-diff-check.sh /tmp/239-06.diff
+```
+
+```
+examined_removed_lines=45
+SC5_EXIT=0
+```
+
+`examined_removed_lines=45` is > 0, so a vacuous pass is mechanically excluded. The two rationale
+sites this plan touched were **strengthened**, not thinned: `organization_invitation_email.ex` now
+reads `(phishing defense — prevents inviter/org spoofing)`, and `invitation_accept_live.ex` carries
+a tool-agnostic `That absence is asserted by a test … do not add accept controls to this branch.`
+The claim is true at HEAD — `test/example/test/example_web/live/invitation_accept_live_test.exs:582`
+(T19) asserts the `render_mismatch/1` body contains no `phx-click="accept` / `phx-submit="accept`.
+The original `ZERO \`phx-click\`/\`phx-submit\`` invariant sentence is intact (`grep -c 'ZERO .phx-click'` -> **1**).
+
+### (e) `.github/` untouched (D-23, T-239-06-05)
+
+```bash
+git diff --name-only origin/main -- .github/ | wc -l    # -> 0
+```
+
+### (f) Commit scope and golden staleness
+
+`git show --name-only --format= HEAD` lists only paths under `priv/templates/` and
+`.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`; `git status --porcelain` is clean
+afterward. `MIX_ENV=test mix sigra.fixture.rebless_golden --check` exits **2** with
+`DRIFT DETECTED:` — the correct state, proving the template edits do reach generated output and that
+plan 239-08's single re-bless has real work to carry. `MIX_ENV=test mix compile --warnings-as-errors`
+exits 0 with no output.
+
+## CLOSURE-MIRROR-COMMIT
+
+Status: RECORDED — plan 239-07, the `test/example/` mirror of the closure batch. Parent `60bac0bb`.
+
+### (a) V2 re-measure with a live positive control
+
+V2 is the widened union regex frozen in § `WIDENED-UNION-LEDGER` (used verbatim, not retyped).
+
+| Surface | V2 count | Reading |
+|---|---|---|
+| `test/example/lib/example_web/router.ex` + `…/components/layouts.ex` (the two files Task 1 edited) | **0** | the assertion |
+| `test/example/lib/example/demo/seeds.ex`, `…/lib/example/sigra_admin_policy.ex`, `…/lib/example_web/live/admin/design_gallery_live.ex` (IN-05 example-only, deliberately unswept) | **28** | the positive control — V2 is live on this tree, so the 0 above is a measurement and not a dead grep |
+| the four files Task 2 converged | **0** | — |
+
+A zero on both rows would have meant the grep was dead and the first number proved nothing. It is
+not: the same regex, the same tree, the same invocation shape returns 28 on the files this plan is
+prohibited from touching.
+
+**Measured departure from the plan's anticipated fix list (Rule 2, recorded not smoothed).** The
+first V2 run over the two Task-1 files returned **1**, not 0: `router.ex:175`
+`# Dev-only routes for local UAT — …` carries `\bUAT\b`. That alternation entered V2 in 239-05 and
+is exactly the token 239-05 removed from `login_html.ex`; the site is on a file this plan was
+already editing, and leaving it would have falsified this plan's own `V2 → 0` truth. Rewritten to
+`# Dev-only routes for local manual testing — Swoosh local-mailbox preview at / # /dev/mailbox`,
+meaning preserved (the next line still reads "so manual testers can inspect rendered emails"). It is
+example-only: no template or golden counterpart exists, so nothing diverges by fixing it here.
+
+### (b) Per-sentence convergence, namespace-normalized
+
+Method: extract the `@moduledoc` body from both trees, substitute `<%= web_module %>` → `ExampleWeb`,
+`<%= app_module %>` → `Example`, `<%= context_module %>` → `Example.Accounts`, then diff.
+
+| Sentence group | Template | Example | Verdict |
+|---|---|---|---|
+| WR-03 / WR-04 / IN-01 / IN-02 — members seam + Architecture bullets | `organizations/live/organization_members_live.ex` | `lib/example_web/live/organization_members_live.ex` | **MATCH** (prose identical; the sole residual delta is the demo app's own CSS class `vt-modal` vs `modal`, a pre-existing mini-brand substitution of the same class as the namespace substitution, on a line this phase did not touch) |
+| WR-05 — Branch B | `organizations/live/organizations_live/index.ex` | `lib/example_web/live/organizations_live/index.ex` | **MATCH** |
+| IN-04 + `during UAT` — login moduledoc | `core/login_html.ex` | `lib/example_web/controllers/session_html.ex` (renamed, D-21) | **MATCH** |
+| IN-03(b) — `:mismatch` invariant note | `organizations/live/invitation_accept_live.ex` | `lib/example_web/live/invitation_accept_live.ex` | **MATCH** |
+| WR-07 — MFA auto-submit comment | `core/mfa_settings_live.ex` | `lib/example_web/live/mfa_settings_live.ex` | **MATCH** (no edit — see (c)) |
+
+Every row reads MATCH after normalization. No sentence ships in two wordings.
+
+### (c) Confirmed no-edit dispositions (recorded, never a phantom edit)
+
+| File | Confirming evidence | Disposition |
+|---|---|---|
+| `test/example/lib/example_web/live/mfa_settings_live.ex` | `diff <(sed -n '606,610p' priv/templates/sigra.install/core/mfa_settings_live.ex) <(sed -n '631,635p' <example>)` → identical, exit 0 | already converged — 239-06 adopted the example's wording into the template |
+| `test/example/lib/example/accounts/organization_invitation.ex` | `sed -n '2p'` → `  @moduledoc false` | no counterpart sentence for WR-06 to converge into |
+
+Neither file appears in `git diff --name-only` for this commit.
+
+### (d) `sigra_auth.css` closure row asserted, not assumed
+
+`grep -c 'min-width: 0' test/example/priv/static/assets/sigra_auth.css` → **3** (live control).
+`grep -cE '30518012012|30518015684|re-litigate' test/example/priv/static/assets/sigra_auth.css` → **0**.
+The example's CSS is a different, shorter build-free file with none of the three swept comment
+blocks. No mirror edit; the file is absent from this commit.
+
+### (e) IN-03(a) no-counterpart search
+
+`grep -rc 'phishing defense — prevents inviter/org spoofing' test/example/` → **0 files**, against a
+live control of **2** files under `test/example/` matching `phishing`. The example's
+`lib/example/accounts/emails.ex` carries its own longer, differently-structured phishing rationale
+(pre-existing, untouched), which is not the IN-03(a) parenthetical. D-22 holds for the closure batch.
+
+### (f) Scope proofs
+
+```
+$ git diff --name-only origin/main -- .github/
+(empty — 0 lines)
+```
+
+`MIX_ENV=test mix compile --warnings-as-errors` exits **0** with no output, run after Task 1 and
+again after Task 2. `git show --name-only --format= HEAD` lists only paths under `test/example/` and
+`.planning/phases/239-priv-templates-sweep-one-batched-re-bless/`; `git status --porcelain` is clean
+afterward. No route, pipeline, plug, `attr` name, `default:`, import, or function head moved — the
+full `git diff` for the two Task-1 files is 7 changed comment/`doc:` hunks and nothing else.
+
+
+## REFREEZE-LEDGER
+
+Status: PASS — the round-2 expected-removed set is frozen, committed **before** the re-bless, and the
+ordering is readable from `git log` rather than taken on trust.
+
+### (a) Why a second expected set is required
+
+`239-golden-expected.txt` (round 1) is 139 `T:` records plus 2 anchored `N:` records, and every one
+of those 139 lines is a V1 union-token line that the round-1 re-bless (`38c9bd9a`) already removed
+from the golden tree. Those lines no longer exist, so round 1's set cannot contain round 2's
+removals: reusing it would fail the containment check on every line of the new diff while
+simultaneously failing its own `removed_lines >= 139` floor. A second set is not a convenience — it
+is the only non-circular option.
+
+### (b) Counts
+
+| Record class | Count |
+|---|---|
+| `T:` (every golden-tree line matched by V2 at the pre-re-bless HEAD) | **4** |
+| `N:` (prose repairs V2 cannot match, located by literal anchor) | **43** |
+| Total records | **47** |
+| Distinct golden paths across all records | **7** |
+
+The 4 `T:` records are the `session_html.ex` `during UAT` line and the three `sigra_auth.css` lines
+(`round-3`, `runs 30518012012`, `231-02`) that § WIDENED-UNION-LEDGER triaged as `MIRRORS-<template>`.
+
+### (c) The literal-anchor list
+
+The anchors are **not** a blanket radius and **not** derived from the diff they validate. Each anchor
+is a line REMOVED from an edited template by the closure's own template-edit commits
+(`f3c7f700` = plan 239-05, `f11dfbe2` = plan 239-06; `git diff aa1372cb..HEAD -- priv/templates/`),
+searched verbatim with `grep -nF` **only inside that template's own golden counterpart** — basename
+match, with two documented renames: `core/login_html.ex` renders to
+`…_web/controllers/session_html.ex`, and `core/sigra_auth.css` renders to
+`priv/static/assets/sigra_auth.css`. An anchor that matches nothing in its counterpart contributes no
+record, and no anchor can spill into a file its template does not render into.
+
+**48 anchors → 43 `N:` records**, accounted for exactly:
+
+| Anchor group (template) | Anchors | `N:` records | Note |
+|---|---|---|---|
+| `core/login_html.ex` | 3 | 2 | the `during UAT` line is a `T:` record, not an `N:` |
+| `core/mfa_settings_live.ex` | 2 | 2 | `6 digits entered:` + the dispatch line |
+| `core/sigra_auth.css` | 26 | 23 | 3 absorbed as `T:` records (`round-3`, `runs …`, `231-02`) |
+| `organizations/live/invitation_accept_live.ex` | 1 | 1 | the `:mismatch` invariant sentence |
+| `organizations/live/organization_members_live.ex` | 10 | 10 | `Generated by` wrap, `this section` pointer, `will replace the card body`, `only.` |
+| `organizations/live/organizations_live/index.ex` | 2 | 2 | Branch B + the dangling `until then` |
+| `organizations/organization_invitation.ex` | 3 | 3 | `Implements the full invitation flow` |
+| `organizations/organization_invitation_email.ex` | 1 | 0 | **no golden counterpart** — the phishing parenthetical is not rendered into the golden tree, which is why 7 golden files drift, not 8 |
+| **Total** | **48** | **43** | 4 absorbed as `T:`, 1 with no counterpart |
+
+The generating command is written verbatim into the file's `#`-prefixed header line (round-1 shape,
+V2 substituted for V1, `BASE=aa1372cb`), so the set is reproducible from the file alone.
+
+### (d) The freeze is git-provable, not prose-provable
+
+```
+expected-set / classifier commit : 3c0aee2c8cc3c49f212523563fc3191342290836
+re-bless commit                  : 265f71955de44078b2f49f364e836ab7c6b7c8c4
+$ git merge-base --is-ancestor 3c0aee2c 265f7195   → exit 0   (and the two shas are distinct)
+$ git show --name-only --format= 3c0aee2c
+.planning/phases/239-…/239-comment-only-diff-check.sh
+.planning/phases/239-…/239-golden-expected-2.txt
+```
+
+Exactly two paths; nothing under `test/fixtures/install_golden/` appears in the freeze commit. The
+last commit to touch the golden fixture **before** the freeze was `38c9bd9a` (the round-1 re-bless),
+so the set was generated against an unmodified, committed golden tree.
+
+### (e) The one parameterized floor
+
+```
+-floor_files=30
++floor_files="${GOLDEN_MIN_FILES:-30}"
+```
+
+One changed line, and only that line (`git diff --stat` → `1 insertion(+), 1 deletion(-)`).
+`GOLDEN_MIN_FILES` was set to **7** for round 2 — the exact count of distinct paths in
+`239-golden-expected-2.txt`, so the floor stays a real non-vacuity floor rather than a disabled one.
+Round 1's hardcoded 30 was calibrated to a 35-file diff; round 2's batch renders into 7 files.
+
+**Unchanged, asserted by grep at the final HEAD:**
+
+| Guard | Assertion |
+|---|---|
+| empty-diff-input guard | `grep -c 'refusing to report success'` → **4** (all four fail-closed messages present) |
+| empty-expected-set guard | same count |
+| `removed_lines` floor | `grep -c 'floor_removed="$expected_t_count"'` → **1** (literal unchanged) |
+| add-only-hunk class | `nonconforming_addonly_hunks` still one of the three summed violation classes |
+
+### (f) The precondition, recorded
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden --check` at the start of this plan exited **2** with
+`DRIFT DETECTED:` on **7** golden files — the template edits from plans 239-05/239-06 had genuinely
+not reached the fixture. A `--check` exit 0 here would have meant the template edits never reached
+generated output, and the plan would have halted.
+
+---
+
+## CLOSURE-OUTCOME
+
+Status: PASS — one re-bless commit, classifier RED then GREEN, `--check` exit 0, V2 clean on the
+golden tree / a freshly generated app / the tarball's `priv/`, `mix ci` green with a recorded count,
+and SC-5 re-proven.
+
+### (a) Commit topology — stated plainly, not left for `git log` to reveal
+
+**The phase now carries TWO re-bless commits:** the original `38c9bd9a` (plan 239-04) and
+`265f7195` (this plan). The gap closure required a second batch of template edits, and a second
+batch cannot reach the golden fixture without a second batched run. This is not a deviation being
+argued for in a downstream ledger: **SC-3 (`.planning/ROADMAP.md`) and SURF-03
+(`.planning/REQUIREMENTS.md`) are now amended, per D-26, to read "one batched re-bless per batch of
+template edits"** — so the criterion a re-verifier applies at final HEAD is the criterion this
+closure satisfies. Each re-bless individually retains every property SC-3 protects: one batched run,
+confined to `test/fixtures/install_golden/`, diff proven comment-only by a classifier demonstrated
+falsifiable first, alone in its own commit.
+
+```
+$ git log --format=%H aa1372cb..HEAD -- test/fixtures/install_golden | wc -l
+1
+$ git show --name-only --format= 265f7195 | grep -vc '^test/fixtures/install_golden/'
+0            (7 paths listed, none outside the fixture directory)
+```
+
+### (b) Classifier RED — on a committed known-bad fixture, before any green was believed
+
+`fixtures/239-golden-rebless2-code-change.diff` (committed as `fca05dfc`) is the captured re-bless-2
+diff with exactly one removed line replaced by a real Elixir function head from the golden tree:
+
+```
+$ GOLDEN_MIN_FILES=7 239-comment-only-diff-check.sh fixtures/239-golden-rebless2-code-change.diff 239-golden-expected-2.txt
+changed_lines=88
+removed_lines=47
+files=7
+nonconforming=1
+nonconforming_removed=1
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=4
+FAIL: 1 nonconforming line(s)/path(s)/hunk(s) found:
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:-  def handle_event("open_remove_modal", %{"id" => id}, socket) do
+exit 1
+```
+
+### (c) Classifier GREEN — on the real captured diff, same expected set, same floor
+
+```
+$ GOLDEN_MIN_FILES=7 239-comment-only-diff-check.sh <scratch>/rebless2.diff 239-golden-expected-2.txt
+changed_lines=88
+removed_lines=47
+files=7
+nonconforming=0
+nonconforming_removed=0
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=4
+exit 0
+```
+
+`removed_lines=47` ≥ the `T:` record count (**4**) — the floor held rather than was bypassed — and
+equals the expected set's total record count exactly. `files=7` ≥ `GOLDEN_MIN_FILES=7`.
+
+**No `N:` record was added mid-task.** The expected set as committed in `3c0aee2c` classified the
+real diff green on its first and only run; nothing was widened to admit a line.
+
+### (d) `--check` after the commit
+
+```
+$ MIX_ENV=test mix sigra.fixture.rebless_golden --check
+OK: fixture is up-to-date (check mode).
+exit 0
+```
+
+**Measured departure from the plan's literal:** the plan (and this phase's earlier records) quote the
+line as `OK: fixture is up-to-date (check mode.)` with the period inside the parenthesis. The task's
+actual output is `OK: fixture is up-to-date (check mode).` — period outside
+(`rebless_golden.ex`). Recorded as measured rather than rounded to the quoted form; a criterion
+grepping the quoted string would return 0 and be unsatisfiable.
+
+### (e) V2 on the golden tree — with its positive control
+
+```
+golden_tree_V2_occurrences   = 0        (was 4 before this re-bless)
+golden_tree_defmodule_files  = 161      ← positive control: a clean tree, not an empty file list
+golden_tree_planning_hits    = 0
+STDOUT_V2_lines              = 0        (of 151 total lines — D-13's independent-drift hazard
+                                         re-checked under the widened net, not assumed still nil)
+```
+
+### (f) A freshly generated app — the bytes an adopter actually receives
+
+`TMP_APP_DIR=/tmp/sigra_239_08_app GITHUB_WORKSPACE=$(pwd) scripts/ci/install-smoke.sh` →
+`SMOKE_EXIT=0` (phx.new 1.8.8 pin asserted by the script, `mix sigra.install`, `mix sigra.gen.oauth`,
+compile `--warnings-as-errors`, 3 app tests green).
+
+```
+app_planning_occurrences = 0
+app_defmodule_files      = 201     ← positive control on the same generated tree
+app_V2_occurrences       = 10
+app_V2_lines_excluding_SVG_path_geometry = 0
+```
+
+**The 10 is recorded, not rounded to 0.** All ten fire one alternation, `\b[0-9]{3}-[0-9]{2}\b`, on
+SVG `path d=` float-coordinate pairs — `373-12`, `575-10`, `798-15`, `003-32`, `457-78`, `806-82`,
+`851-48` — in three files: `oauth_html.ex:54` (the Facebook button, already dispositioned
+`FALSE-POSITIVE` in § WIDENED-UNION-LEDGER) and two **stock Phoenix** files Sigra never authors or
+touches, `page_html/home.html.heex` and `priv/static/images/logo.svg`. Excluding SVG geometry lines,
+V2 returns **0**. The harmlessness of the 10 depends on that disposition; writing 0 would hide the
+dependency.
+
+**SC-1 coverage boundary, stated:** `install-smoke.sh` never runs `mix sigra.upgrade`, so the three
+`priv/templates/sigra.upgrade/` templates are structurally unreachable by this vehicle. They are
+covered by the tarball observation below, not by this one.
+
+Scratch app removed after measurement (REPO-01): `/tmp/sigra_239_08_app` no longer exists.
+
+### (g) The built tarball
+
+`mix hex.build` → `sigra-1.5.0.tar`, unpacked to scratch.
+
+```
+tarball lib+priv  '\.planning/'  = 0          ← the in-scope claim
+tarball priv      V2             = 2 occurrences, both SVG path geometry; non-SVG V2 lines = 0
+tarball lib       V2             = 634 occurrences / 475 lines / 84 files
+control: defmodule files in lib+priv          = 540
+```
+
+**Out-of-scope by design, enumerated rather than claimed absent:** `README.md` 3 V2 hits;
+`CHANGELOG.md` 390; `docs/` 37 across 6 files — `docs/ga-evidence.md`,
+`docs/launch/v1.0/announcement.md`, `docs/launch/v1.0/evidence.md`, `docs/uat-ci-coverage.md`,
+`docs/nyquist-posture-matrix.md`, `docs/audit-semantics.md`; and 58 `.planning/` mentions across
+`docs/` + `README.md` + `CHANGELOG.md`.
+
+**Phase 241 SURF-04 ratchet baseline: tarball `lib/` carries 475 V2-matching lines across 84 files.**
+Explicitly **not fixed here** — SURF-04 owns the monotonic-decrease ratchet, and Standing Constraint 5
+forbids this phase from building a guard. Recorded so the ratchet has a measured starting point
+rather than a guessed one.
+
+REPO-01: `sigra-1.5.0.tar` deleted and the unpacked directory removed immediately;
+`git status --porcelain` clean. Two gitignored tarballs from April 2026 (`sigra-0.1.0.tar`,
+`sigra-0.2.0.tar`) predate this phase entirely and were left untouched rather than silently swept.
+
+### (h) `MIX_ENV=test mix ci` — green, with the count
+
+```
+$ MIX_ENV=test mix ci          → exit 0
+33 doctests, 3 properties, 2606 tests, 0 failures, 12 skipped (22 excluded)
+65 tests, 0 failures (2599 excluded)        ← the test/example (--include example_app) leg
+```
+
+**First run recorded RED, and why it was not a finding.** The first `MIX_ENV=test mix ci` exited 2
+with 6 failures, all in `Sigra.Audit.Forwarders.ThreadlineTest`
+(`function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined`). Diagnosis:
+`lib/sigra/audit/forwarders/threadline.ex` wraps its entire `defmodule` in
+`if Code.ensure_compiled(Threadline) == {:module, Threadline}`, and the stale local `_build` held a
+sigra beam compiled while the `:threadline` dep was not yet present — the run's own log shows
+`threadline` being fetched and compiled *after* sigra. `MIX_ENV=test mix deps.compile threadline
+--force && mix compile --force` restored the module (`Code.ensure_loaded?/1` → `true`), and the
+re-run is the green above. Zero source files changed between the two runs; this closure touches no
+file under `lib/sigra/audit/`. Local `_build` staleness, not a regression.
+
+Run at the final code HEAD (`9acc49da`). The only commit that follows it is this evidence file
+itself, which `mix ci` does not compile or test.
+
+### (i) SC-5, re-proven after the closure
+
+```
+$ git diff --name-only origin/main -- .github/                     → 0 lines (empty)
+$ git diff origin/main -- .github/ | grep '^[+-].*name:'           → 0 lines (empty)
+$ 237-security-comment-diff-check.sh <full closure diff aa1372cb..HEAD>
+examined_removed_lines=136
+exit 0
+$ git diff --name-only origin/main -- .planning/phases/237-*/237-security-comment-diff-check.sh
+(empty — the instrument was run, never edited; D-16 holds)
+```
+
+`examined_removed_lines=136` > 0, so the check was live across the whole closure diff rather than
+vacuously passing on nothing. **The single structural survivor round 1 documented
+(`core/auth.ex:530`'s `IN-03` tolerance gap) does not reappear here** — that removal belongs to the
+round-1 sweep diff, and it is not inside `aa1372cb..HEAD`. The instrument limitation itself is
+unchanged and remains filed as
+`2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md` for Phase 241's `p18`.
+
+### (j) The SC-3 / SURF-03 amendment
+
+```
+$ sed -n '/^### Phase 239/,/^### Phase 240/p' .planning/ROADMAP.md \
+    | grep -ic 'batched re-bless per batch of template edits'          → 1
+$ grep -ic 'batched re-bless per batch of template edits' .planning/REQUIREMENTS.md   → 1
+$ grep -n '\*\*SURF-03\*\*:' .planning/REQUIREMENTS.md                 → line 84 (exactly one)
+$ grep -n 'batched re-bless per batch of template edits' .planning/REQUIREMENTS.md    → line 84
+$ grep -c 'D-26' .planning/ROADMAP.md / .planning/REQUIREMENTS.md      → 1 / 1
+```
+
+Per-commit properties survived the amendment: SC-3 still reads `only comment lines` (1 match) and
+still requires `separate commit` (1 match) inside the Phase 239 block, and SURF-03's mirror sentence
+is byte-identical (`grep -c 'counterparts of edited templates are mirrored'` → 1). The amendment
+commit `9acc49da` lists exactly `.planning/ROADMAP.md` and `.planning/REQUIREMENTS.md`.
+
+The SURF-03 `edge_coverage_assumptions` tension — "SURF-03 said one sweep plus one batched re-bless,
+and this closure adds a second re-bless commit" — is **resolved by this amendment**, not merely
+recorded next to it. The edge probe itself remains unclassified, so the assumption stays surfaced;
+what changed is that the re-interpretation it named is now the criterion's own text.
+
+---
+
+## HONEST-CLAIMS (extended by plan 239-08 — the four items below are additions, not restatements)
+
+**1. The `install_golden_contract` Actions clause is STILL a ship-time deferral.** SC-3's remaining
+clause asks for a green `install_golden_contract` GitHub Actions run. This closure pushes nothing, so
+no Actions verdict exists to read, and none is claimed. What is established locally is
+`MIX_ENV=test mix ci` exit 0 (count above) and `rebless_golden --check` exit 0. The Actions clause
+closes at ship time, not here.
+
+**2. The tarball `lib/` bookkeeping is measured and deferred, not fixed.** 475 V2-matching lines
+across 84 files ship inside `lib/` in the `mix hex.build` tarball. That is Phase 241 SURF-04's
+monotonic-decrease ratchet, and SURF-04 explicitly does not target zero for v1.48. Recorded here as
+the ratchet's measured baseline. Relatedly, the adopter-facing fixes this phase landed reach adopters
+only at the **next publish** — the published 1.5.0 on Hex still carries the pre-sweep bytes.
+
+**3. `SURF-02` is marked `[x]` in `REQUIREMENTS.md` but does not hold at HEAD.** Plan 239-05 filed
+`.planning/todos/pending/2026-09-17-surf-02-marked-complete-but-does-not-hold-at-head.md`. SURF-02
+belongs to Phase 237, not to Phase 239; this plan neither fixed it nor silently unchecked it. It is
+surfaced for the operator and left exactly as found.
+
+**4. Both edge-probe rows remain unresolved, carried forward as flagged assumptions.**
+*SURF-01* — the assumed edge is the dead-grep case; every zero in § CLOSURE-OUTCOME is paired with a
+positive control on the same surface and the same invocation, and the adopter-facing claims are made
+on generated and built bytes rather than on `priv/templates/`. Surfaced, not resolved.
+*SURF-03* — the assumed edge is commit topology; the tension is now resolved by the D-26 amendment
+(see § CLOSURE-OUTCOME (j)), but the edge probe itself still did not classify, so the assumption
+stays surfaced.
+
+**What this closure DOES establish, and the exact evidence:** SURF-01 — zero `.planning/` path
+references in a freshly generated app's `lib/` + `priv/` (control: 201 `defmodule` files) and in the
+`mix hex.build` tarball's `lib/` + `priv/` (control: 540 files), measured on generated and built
+bytes, never on the source tree. SURF-03 — `priv/templates/` carries no undispositioned bookkeeping
+under V2; the closure landed as one sweep commit plus one batched re-bless in separate commits, with
+the `test/example/` counterparts of edited templates mirrored (plan 239-07), under the amended
+criterion. Both are marked complete at this HEAD on that evidence and on nothing else.
+
+---
+
+## VOCABULARY-LEDGER
+
+*(Written by gap-closure plan 239-09. Placed after `## WIDENED-UNION-LEDGER`, at the end of the
+ledger, following this file's chronological convention — the same way plan 239-08 extended
+`## HONEST-CLAIMS` by appending rather than by interleaving.)*
+
+Status: **RED on all three tiers, as required.** V3 is defined, committed as a runnable phase
+artifact, and demonstrated RED at this plan's HEAD before a single template byte is edited.
+`hits_outside_allowlist` = **2 / 2 / 2** on `priv-templates` / `example` / `golden`, each with a
+non-zero paired `control_defmodule`, and the two sentences named in `239-VERIFICATION.md`'s SC-1
+`gaps:` block appear by `path:line:` in all three. The instrument is wired into nothing
+(Standing Constraint 5, D-04).
+
+### (a) V3, verbatim
+
+V3 is V2 — copied mechanically out of § `WIDENED-UNION-LEDGER` (a), never retyped — plus one
+appended vocabulary class. **Why V2 could not see the leak**, restated as a mechanism: V2 matches
+plan *identifiers* (`D-12`, `239-05`, 10-digit run ids, `UAT`). The two residual sentences are plan
+*vocabulary* — `The plan-checker greps this function body…` and `Flop / sortable columns are a v1.2
+concern.` — and contain no identifier of any shape V2 knows. That is V1's blind spot one class up.
+
+```
+\.planning/|[Pp]hase[ -][0-9]+|\bD-[0-9]{2}\b|\bPlan [0-9]{2}\b|[0-9]{3}-[A-Z0-9-]+\.md|[0-9]{2}-CONTEXT\.md|SC-[0-9]|ORG-UX-[0-9]{2}|GATE-0[0-9]|UI-SPEC|DX-[0-9]{2}|IN-[0-9]{2}|T-[0-9]+-[0-9]+|\bB[0-9]\b|\b[0-9]{3}-[0-9]{2}\b|\b[Rr]ound[s]?[ -][0-9]|\b[Rr]uns? [0-9]{9,}|actions/runs/[0-9]+|\bUAT\b|\b[Ww]ave [0-9]|\b[Pp]lan[- ]checker\b|\bthis phase\b|\bthe plan\b|v[0-9]+\.[0-9]+ concern|\bgap[- ]closure\b|\bre-?bless\b|\bROADMAP\b|SUMMARY\.md
+```
+
+The eight appended alternations, isolated (the V2 -> V3 delta):
+
+```
+\b[Pp]lan[- ]checker\b|\bthis phase\b|\bthe plan\b|v[0-9]+\.[0-9]+ concern|\bgap[- ]closure\b|\bre-?bless\b|\bROADMAP\b|SUMMARY\.md
+```
+
+**Strictly-wider check — which check was used: substring containment.** V3 is constructed in
+`239-v3-vocabulary-check.sh` as `V3="${V2}|${V3_VOCAB}"`, so every V2 alternation survives verbatim
+by construction. The script does not take that on trust: it asserts it at runtime and fails closed
+(exit 3, `refusing to report success on a definition that is not strictly wider`) if it ever stops
+holding.
+
+```bash
+case "$V3" in *"$V2"*) echo "V2_IS_SUBSTRING_OF_V3" ;; *) echo "NOT_WIDER" ;; esac
+# => V2_IS_SUBSTRING_OF_V3
+```
+
+### (b) Per-alternation live positive controls — every added alternation, a named surface, a non-zero count
+
+A dead alternation produces a reassuring zero and is indistinguishable from a clean surface. Each
+of the eight additions therefore carries its own control on a surface where it is known to fire.
+All eight returned non-zero; **no alternation is dead, and none was dropped.**
+
+| # | Alternation | Control surface | Count |
+|---|---|---|---|
+| 1 | `\b[Pp]lan[- ]checker\b` | `239-VERIFICATION.md` | **4** |
+| 2 | `\bthis phase\b` | `239-CONTEXT.md` | **4** |
+| 3 | `\bthe plan\b` | `239-09-PLAN.md` | **2** |
+| 4 | `v[0-9]+\.[0-9]+ concern` | `239-VERIFICATION.md` | **3** |
+| 5 | `\bgap[- ]closure\b` | `.planning/ROADMAP.md` | **4** |
+| 6 | `\bre-?bless\b` | `.planning/ROADMAP.md` | **4** |
+| 7 | `\bROADMAP\b` | `.planning/ROADMAP.md` | **13** |
+| 8 | `SUMMARY\.md` | `.planning/ROADMAP.md` | **1** |
+
+Command shape (phase paths abbreviated to `$P`; brace group + `|| true` so a zero is a value, not a
+fatal status — SAFETY RULESET 3):
+
+```bash
+P=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+{ grep -cE '\b[Pp]lan[- ]checker\b' "$P/239-VERIFICATION.md" || true; }   # => 4
+{ grep -cE '\bthis phase\b'          "$P/239-CONTEXT.md"      || true; }   # => 4
+{ grep -cE '\bthe plan\b'            "$P/239-09-PLAN.md"      || true; }   # => 2
+{ grep -cE 'v[0-9]+\.[0-9]+ concern' "$P/239-VERIFICATION.md" || true; }   # => 3
+{ grep -cE '\bgap[- ]closure\b'      .planning/ROADMAP.md     || true; }   # => 4
+{ grep -cE '\bre-?bless\b'           .planning/ROADMAP.md     || true; }   # => 4
+{ grep -cE '\bROADMAP\b'             .planning/ROADMAP.md     || true; }   # => 13
+{ grep -cE 'SUMMARY\.md'             .planning/ROADMAP.md     || true; }   # => 1
+```
+
+### (c) Recall pass — keep/drop record, a reason on every row
+
+Each candidate was grepped over `.planning/ROADMAP.md`, over `.planning/phases/` (is it live GSD
+vocabulary at all?) and over the three tiers (what does it actually catch on shipped surface?). A
+dropped candidate with no recorded reason would be a silent narrowing of the instrument, so every
+row below carries its disposition explicitly — including the three that catch nothing on any
+shipped tier today.
+
+| Candidate | `.planning/phases/` | priv/templates | golden | test/example (whole tree) | Disposition |
+|---|---|---|---|---|---|
+| `\b[Pp]lan[- ]checker\b` | 21 | 1 | 1 | 1 | **KEEP** — this is the SC-1 gap's first sentence. Case-folded initial and the spaced variant both included because GSD prose uses both. |
+| `\bthis phase\b` | 304 | 0 | 0 | 0 | **KEEP** — heavily live planning vocabulary (304 lines). Zero on every shipped tier today, which is exactly the state a guard should preserve: it is a tripwire for the next leak, not a finder of an existing one. Its control (b#2) proves it is not dead. |
+| `\bthe plan\b` | 214 | 0 | 0 | 1 | **KEEP** — live vocabulary and already present once in the unswept `test/example/` remainder, so it is not hypothetical. Known false-positive risk on ordinary English ("the plan the user selected"); accepted, because triage is per-hit and the allowlist exists for precisely that case. |
+| `v[0-9]+\.[0-9]+ concern` | 19 | 1 | 1 | 1 | **KEEP** — this is the SC-1 gap's second sentence. Deliberately anchored on the word `concern` rather than on `v1.2` alone: a bare version number is legitimate in adopter-facing prose, roadmap *sequencing* is not. |
+| `\bgap[- ]closure\b` | 35 | 0 | 0 | 1 | **KEEP** — live in the ROADMAP (4) and already leaking once into the example remainder. |
+| `\bre-?bless\b` | 614 | 0 | 0 | 0 | **KEEP** — the single most-used internal term in this phase (614 lines) and meaningless in an adopter project. Tripwire, same as `this phase`. |
+| `\bROADMAP\b` | 235 | 0 | 0 | 0 | **KEEP** — uppercase-anchored so it cannot fire on the ordinary English word "roadmap" in adopter-facing marketing prose; `\bROADMAP\b` is the GSD artifact name. |
+| `SUMMARY\.md` | 121 | 0 | 0 | 2 | **KEEP** — a GSD artifact filename; already leaking twice into the example remainder. |
+
+**Dropped: none.** Every seeded candidate is live vocabulary with a non-zero control. Adding an
+alternation is cheap (a per-hit triage row and, if genuinely a false positive, one allowlist entry);
+dropping one silently re-creates V1's blind spot, which is the defect under repair.
+
+**Recorded instrument limitation, not smoothed over.** V3 is still line-based and still
+case-sensitive where GSD prose is not: review finding **IN-06**'s lowercase `post plan 04` matches
+no V3 alternation (proof in § (j)). That is a *vocabulary class V3 still misses*, recorded here as
+a direct input to Phase 241's `p18` spec rather than quietly absorbed.
+
+### (d) Tier file lists — FIXED HERE, before the RED ran, consumed unchanged by plans 239-11/12/13
+
+| Tier | File list | Files at this HEAD |
+|---|---|---|
+| `priv-templates` | `git ls-files priv/templates` | 119 |
+| `example` | **scoped** — two literal paths, enumerated in the script, never a glob or a tree walk | 2 |
+| `golden` | `git ls-files test/fixtures/install_golden/tree` | 84 |
+
+The `example` tier's two paths:
+
+```
+test/example/lib/example_web/live/invitation_accept_live.ex
+test/example/lib/example_web/live/organization_members_live.ex
+```
+
+**Why the `example` tier is scoped, in plain words.** SC-4 governs the mirror and says only the
+`test/example/` counterparts of edited templates are mirrored. Those two files are the counterparts
+plan 239-11 edits, so they are the whole of this phase's contract inside `test/example/`. Nothing
+else in that tree is inside the contract. Sweeping it repo-wide measures 4.3x over the D-19/SC-4
+scope (`239-RESEARCH.md` § 1.6), cannot fit plan 239-11's fixed two-file commit scope, and collides
+with surfaces this milestone has not cleared. **The unswept remainder is therefore a measured,
+named, routed number that this phase explicitly does not claim to clean — see § (i).** The script
+enforces the scoping structurally: it contains no tree walk over that directory at all.
+
+### (e) The allowlist, verbatim, with its per-entry reason and both controls
+
+`239-v3-allowlist.tsv` — tab-separated, columns `path`, `literal`, `reason`. Exactly **one** record
+at this HEAD, and it is dispositioned here **by name, at this plan's time**, not discovered later at
+plan 239-11's time:
+
+| path | literal (fragment) | reason |
+|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex` | `M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0` | FALSE-POSITIVE — SVG path coordinates. |
+
+The V2 alternation `\b[0-9]{3}-[0-9]{2}\b` fires on the numeric coordinate pair `373-12` inside the
+Facebook-logo `<path d="…">` geometry at line 54. Confirmed by isolating the match:
+
+```bash
+grep -oE '\b[0-9]{3}-[0-9]{2}\b' priv/templates/sigra.gen.oauth/oauth_html.ex   # => 373-12 (x2)
+```
+
+It is not prose, is not bookkeeping, and is not editable without changing a brand mark's rendered
+geometry. Already dispositioned FALSE-POSITIVE by plan 239-08's ledger and confirmed by
+`239-VERIFICATION.md`; this entry is that disposition made machine-readable. The stored literal is
+a fragment of the path geometry only — deliberately not the `fill=` attribute, because this repo is
+public and brand hex values are not written into phase artifacts.
+
+**Matching key.** A hit is suppressed only when its path equals the entry's `path` **and** its line
+text contains the entry's `literal`. Never a line number (lines shift; the EEx header alone offsets
+template line numbers by 2 against the golden tree), never a path alone (that would blanket a whole
+file). Keying on (path, literal) is what stops an entry from silently starting to cover something
+new.
+
+**Per-entry non-vacuity control — scoped to the run that exercises it.** For every entry whose
+`path` is in the file list being measured, the script asserts the literal is still found at that
+path AND that the line still matches V3; a failure is fail-closed exit 3. The entry above is
+exercised by the `priv-templates` run, where it passed (its hit is reported and marked
+`[ALLOWLISTED]`, visible rather than removed). It is **not exercised** by the `example` or `golden`
+runs, whose file lists do not contain that path — and that is correctly *not* a vacuity failure.
+The scoping is mandatory, not a convenience: a tier-blind control demanding every entry be present
+in every tier's file list would fail closed on two of three tiers before either could report a
+result, and the RED demonstration this whole closure rests on could never have run.
+
+**Companion union check — so no entry escapes its control everywhere.** Computed once over the
+union of the three named tier file lists, independent of which tier is being measured:
+
+| Entry path | In `priv-templates`? | In `example`? | In `golden`? | Exercised by ≥1 tier |
+|---|---|---|---|---|
+| `priv/templates/sigra.gen.oauth/oauth_html.ex` | **yes** | no | no | **PASS** |
+
+An entry exercised by no tier is fail-closed exit 3. Both halves are demonstrated live in § (g),
+not asserted.
+
+### (f) The RED demonstration — all three tiers, at this plan's HEAD, in one pass
+
+```bash
+d=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+for t in priv-templates example golden; do "$d/239-v3-vocabulary-check.sh" "$t"; echo "rc=$?"; done
+```
+
+| Tier | `hits` (raw) | `allowlisted` | `hits_outside_allowlist` | `control_defmodule` | files | exit |
+|---|---|---|---|---|---|---|
+| `priv-templates` | **3** | 1 | **2** | **98** | 119 | **1** |
+| `example` (SC-4 counterparts) | **2** | 0 | **2** | **2** | 2 | **1** |
+| `golden` | **2** | 0 | **2** | **78** | 84 | **1** |
+
+Every tier is RED, every tier's paired positive control is alive, and the raw `hits=` total is
+printed on every run alongside the criterion, so the allowlist never hides a number.
+
+**The two SC-1 sentences, by `path:line:`, matched against `239-VERIFICATION.md`'s `gaps:` block
+rather than by eye. Neither is allowlisted.**
+
+| Tier | Sentence 1 (`The plan-checker greps this function body…`) | Sentence 2 (`…a v1.2 concern.`) |
+|---|---|---|
+| `priv-templates` | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex:326` | `priv/templates/sigra.install/organizations/live/organization_members_live.ex:24` |
+| `example` | `test/example/lib/example_web/live/invitation_accept_live.ex:332` | `test/example/lib/example_web/live/organization_members_live.ex:24` |
+| `golden` | `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:326` | `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:24` |
+
+The `gaps:` block names line 326 and line 24 for the template and golden tiers; both agree exactly.
+The `example` counterpart sits at 332 rather than 326 (the example file carries six extra lines
+ahead of it), which is why matching is keyed on (path, text) and never on a line number.
+
+If V3 could not see these today, its zero tomorrow would mean nothing. That is the falsification
+the whole closure rests on, and it is now on the record.
+
+### (g) Fail-closed, demonstrated live rather than asserted
+
+Exit **1** means *the surface is dirty*. Exit **3** means *the instrument cannot answer*. They are
+deliberately distinct: if they shared a code, a broken script would be indistinguishable from a
+demonstrated RED — the same failure shape this closure repairs everywhere else. Every consuming
+verify in plans 239-11/12/13 treats exit 3 as a halt, never as a result.
+
+| # | Case | Command | Result |
+|---|---|---|---|
+| 1 | usage error | `239-v3-vocabulary-check.sh` (no args) | exit **2**, usage line |
+| 2 | empty file list | `239-v3-vocabulary-check.sh --files` | exit **3**, `FAIL: empty file list — refusing to report success on no input (fail-closed guard)` |
+| 3 | vacuous allowlist entry, on the tier that exercises it | allowlist copied with its literal corrupted to `ZZZ-NOT-PRESENT-ZZZ…`, run against `priv-templates` | exit **3**, `FAIL: refusing to report success on a vacuous allowlist entry: priv/templates/sigra.gen.oauth/oauth_html.ex :: ZZZ-NOT-PRESENT-ZZZ…` |
+| 4 | allowlist entry exercised by no tier | allowlist copied with its path changed to `priv/NOT/A/TIER/path.ex` | exit **3**, `FAIL: allowlist entry 'priv/NOT/A/TIER/path.ex' is exercised by none of the three named tiers — refusing to report success on an allowlist entry that escapes its own control (fail-closed guard)` |
+| 5 | **scoping proof** — the same corrupted-literal copy as #3, run against the `example` tier, which does **not** exercise that entry | same copy, `example` tier | exit **1** (a real RED result, not a halt) — proving the control is scoped to the runs that exercise an entry, and does not fail closed on tiers that do not |
+
+Cases 3, 4 and 5 use temporary copies under `/tmp`; **neither corrupted copy is committed**. The
+committed `239-v3-allowlist.tsv` is the single-record file in § (e).
+
+### (h) Per-hit triage — every V3 hit over the three scoped tiers, exactly one disposition
+
+Seven hits, seven rows (3 + 2 + 2, matching § (f)). No row is deleted to reduce a count: the raw
+total stays visible alongside the triaged one, always.
+
+| # | Tier | `path:line` | Text | Disposition |
+|---|---|---|---|---|
+| 1 | priv-templates | `.../sigra.gen.oauth/oauth_html.ex:54` | SVG `<path d="…">` geometry | **FALSE-POSITIVE** — SVG coordinate pair `373-12`. Allowlisted (§ e). Survives the closure. |
+| 2 | priv-templates | `.../organizations/live/invitation_accept_live.ex:326` | `# The plan-checker greps this function body and asserts zero matches.` | **BOOKKEEPING → plan 239-11 work list.** Sigra-internal GSD tooling; has no existence in an adopter's project (review finding WR-02). |
+| 3 | priv-templates | `.../organizations/live/organization_members_live.ex:24` | `Flop / sortable columns are a v1.2 concern.` | **BOOKKEEPING → plan 239-11 work list.** Sigra's internal roadmap sequencing inside an adopter-owned moduledoc. |
+| 4 | example | `test/example/lib/example_web/live/invitation_accept_live.ex:332` | same as #2 | **BOOKKEEPING → MIRRORS `invitation_accept_live.ex` (plan 239-11 mirror commit, SC-4).** |
+| 5 | example | `test/example/lib/example_web/live/organization_members_live.ex:24` | same as #3 | **BOOKKEEPING → MIRRORS `organization_members_live.ex` (plan 239-11 mirror commit, SC-4).** |
+| 6 | golden | `.../install_golden/tree/.../invitation_accept_live.ex:326` | same as #2 | **BOOKKEEPING → cleared by the batched re-bless (plan 239-12).** Generator output; never hand-edited (D-09). |
+| 7 | golden | `.../install_golden/tree/.../organization_members_live.ex:24` | same as #3 | **BOOKKEEPING → cleared by the batched re-bless (plan 239-12).** |
+
+Raw vs outside-allowlist, side by side: `priv-templates` 3 / 2 · `example` 2 / 2 · `golden` 2 / 2.
+
+**Recall backstop — every hit was reviewed, not only the two known ones.** The `priv-templates` V3
+pass reported **3** hits; all 3 are in the table above, and the third (#1) is the pre-existing SVG
+false positive rather than a newly found leak. V3 found **no bookkeeping in `priv/templates/` beyond
+the two sentences `239-VERIFICATION.md` already named** — reported as a measurement under a named,
+versioned definition, not as "clean".
+
+**Triage is bounded to the three scoped tiers, deliberately.** Row-by-row triage of the unswept
+`test/example/` remainder is not in this plan's budget, cannot fit plan 239-11's fixed two-file
+commit scope, and would collide with D-19's commit topology and SC-4's counterpart-only mirror
+rule. It is handled as a measured, routed number instead — next section.
+
+### (i) The unswept `test/example/` remainder — measured, named, routed, not dropped
+
+```bash
+REM=$(git ls-files test/example \
+  | grep -vxF -e 'test/example/lib/example_web/live/invitation_accept_live.ex' \
+              -e 'test/example/lib/example_web/live/organization_members_live.ex')
+{ grep -HnE "$V3" $REM || true; } | grep -c '.'                      # => 482   lines
+{ grep -HnE "$V3" $REM || true; } | cut -d: -f1 | sort -u | wc -l     # => 157   files
+```
+
+**Measured: 482 lines across 157 files, over 344 scanned files, at this plan's base.** V2 over the
+same set returns 480, so the vocabulary class adds 2 there.
+
+**This differs materially from the plan's expected order of magnitude (~392 lines across ~67 files)
+and is reported rather than smoothed.** The difference is in both directions and is structural: the
+line count is ~1.2x the estimate, but the *file* count is 2.3x it, and the heavyweights are not the
+ones the plan anticipated. The top contributors measured are Playwright test tooling, not
+application code:
+
+| File | Lines |
+|---|---|
+| `test/example/priv/playwright/lib/eval/probes.ts` | 38 |
+| `test/example/priv/playwright/tests/admin-checkpoints.spec.ts` | 33 |
+| `test/example/priv/playwright/tests/admin-eval.spec.ts` | 29 |
+| `test/example/lib/example/demo/seeds.ex` | 18 |
+| `test/example/priv/playwright/playwright.config.ts` | 17 |
+| `test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts` | 16 |
+| `test/example/priv/playwright/tests/admin-design.spec.ts` | 15 |
+| `test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts` | 14 |
+| `test/example/priv/playwright/tests/organizations.spec.ts` | 12 |
+| `test/example/test/example_web/live/organization_members_live_test.exs` | 11 |
+
+The plan predicted `seeds.ex`, `personas.ex`, `design_gallery_live.ex`, `config/*.exs` and
+`README.md`; only `seeds.ex` appears in the measured top ten. The bulk sits in
+`test/example/priv/playwright/` — test tooling that is **not** adopter-shipped, which is a
+materially different (and lower-severity) surface than the estimate implied. That distinction is
+itself useful to the Phase 241 owner and would have been lost by reporting the expected number.
+
+Routed to `.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`,
+owner **Phase 241 SURF-04**.
+
+### (j) IN-06 — routed by finding, because V3 cannot measure it. Proven, not assumed.
+
+Review finding **IN-06** is `test/example/priv/playwright/tests/golden-path.spec.ts:59`, a lowercase
+plan reference inside a test-tooling comment (`// The login page is a plain controller (post plan
+04). …`), example-only and not adopter-shipped.
+
+```bash
+239-v3-vocabulary-check.sh --files test/example/priv/playwright/tests/golden-path.spec.ts
+# => hits=6 ; line 59 is NOT among them
+{ grep -nE "$V3" test/example/priv/playwright/tests/golden-path.spec.ts || true; } | grep -c '^59:'
+# => 0
+```
+
+V3 reports 6 hits in that file and **line 59 is not one of them**: `plan 04` is lowercase, so
+neither V2's `\bPlan [0-9]{2}\b` identifier alternation nor any V3 vocabulary alternation fires on
+it. A measurement-based routing would have missed this finding entirely. It is therefore named by
+ID and `file:line` in the remainder todo, by hand — and, more importantly, recorded here as
+**evidence of a vocabulary class V3 still misses**, which makes it a real input to Phase 241's `p18`
+spec rather than a low-severity line to drop. IN-06 is the only review finding with no disposition
+elsewhere in this closure (IN-01 … IN-04 are explicitly deferred in plan 239-11; IN-05 is filed by
+plan 239-10), so without this record it would be invisible to `/gsd-execute-phase`.
+
+*(The single-file invocation above exits **3**, not 1 — `control_defmodule=0` on a TypeScript file,
+so the paired positive control is inapplicable and the instrument correctly refuses to report a
+verdict. The hit list is still printed, which is what the line-59 measurement is read from. The
+fail-closed guard behaving this way on an off-tier file list is the guard working, not a defect.)*
+
+### (k) D-30 — the instrument's detection WIDTH and the criterion's asserted SURFACE are separate
+
+**Statement.** V3 stays maximally wide and is never narrowed, tuned, or hand-fitted so that the
+current tree happens to pass it. What the criterion in plans 239-11, 239-12 and 239-13 asserts is
+`hits_outside_allowlist = 0` — never `hits = 0` — over a tier file list and a per-line triage
+allowlist that were both committed *before* the RED demonstration ran, with the raw `hits=` total
+printed alongside on every run. The `example` tier is asserted only over SC-4's mirrored-counterpart
+surface; the unswept remainder of `test/example/` is a measured, named, routed number this phase
+does not claim to clean.
+
+**Rationale.** At this plan's base a literal `hits = 0` criterion is arithmetically unreachable: V2
+alone returns **1** hit in `priv/templates/` (an SVG coordinate false positive that cannot be edited
+without changing a brand mark's geometry) and **390** across `test/example/`; under V3 the example
+remainder is **482**. A plan asserting `hits = 0` would either halt on its first verify or be
+"resolved" under time pressure by hand-fitting V3 or bolting on an undocumented exclusion — which is
+precisely the goalpost-move `T-239-09-02` exists to prevent. Separating width from asserted surface
+keeps the instrument honest *and* the criterion reachable.
+
+**Alternatives not taken.**
+(a) *Narrow V3 until the tree passes* — rejected: it reinstates exactly the blind spot the widening
+exists to remove, and it is the V1→V2 failure repeating a third time.
+(b) *Sweep `test/example/` repo-wide* — rejected: 4.3x over the SC-4 scope (`239-RESEARCH.md`
+§ 1.6), incompatible with plan 239-11's two-file commit scope and D-19's commit topology.
+(c) *Silently drop the false positive from the reported count* — rejected: prohibited by this plan's
+own prohibitions, and indistinguishable from the defect under repair. The hit is reported, marked
+`[ALLOWLISTED]` inline, and counted in `hits=`.
+
+**Reversibility:** costly. V3 is the instrument every later acceptance criterion in this closure is
+measured against, and Phase 241's `p18` guard inherits it; reverting means re-deriving the
+measurements in plans 239-11, 239-12 and 239-13. Mitigated by the keep/drop record in § (c), which
+lets a later reader reconstruct the derivation rather than inherit it on trust.
+
+**Implemented by plan 239-09.**
+
+### (l) D-28 — the widening is implemented as a measurement instrument only; Phase 241 owns mechanization
+
+**Statement.** This closure implements the widening as a *measurement instrument only*. V3 is
+defined, demonstrated and recorded here as a phase artifact wired into nothing, and Phase 241's
+SURF-04 `p18` guard inherits it as its spec. Standing Constraint 5 and D-04 both forbid building the
+guard in Phase 239.
+
+Proof that nothing is wired:
+
+```bash
+grep -rn '239-v3-vocabulary-check' mix.exs .github scripts/ 2>/dev/null | wc -l   # => 0
+```
+
+**Note.** Plan **239-10** is where SC-1's wording is amended to name the definition it is measured
+under, so the criterion stops over-claiming — "clean" becomes "clean under V3", which is the only
+form of the claim the evidence supports.
+
+**Reversibility:** reversible (the artifact is deletable and referenced by nothing executable).
+
+**Implemented by plan 239-09.**
+
+## BATCH-JUSTIFICATION
+
+**Obligation (D-29).** SC-3 and SURF-03 were amended by D-26 from "exactly **one** batched re-bless
+for the phase" to "**one batched re-bless per batch of template edits**". That is unbounded where the
+original was countable. D-29 bounds it without restoring a count: **every re-bless batch must be
+justified by name in this section — which template edits compose the batch, and why they could not
+have been folded into the previous batch — recorded *before* that batch's re-bless runs.** The count
+stays auditable even though it is no longer fixed.
+
+D-29 adds this obligation; it does **not** re-amend SC-3's or SURF-03's prose (see D-29 in
+`239-CONTEXT.md`, including the recorded reading hazard around SURF-03's "second batch" rationale
+clause).
+
+### Batch 1 — the original sweep *(retrospective justification, derived from § `## SWEEP-COMMIT` and § `## REBLESS-COMMIT`)*
+
+**Composition:** the 158 planning-bookkeeping lines stripped from 46 files under `priv/templates/`
+(commit subject `refactor(239): strip planning bookkeeping from priv/templates (SURF-01, SURF-03)`),
+plus the seven reflow-neighbour repairs in `2a34e1c8`, mirrored to their 30 `test/example/`
+counterparts.
+
+**Why not foldable into a previous batch:** there was no previous batch. This is the phase's first
+batch of template edits and the origin of the D-19 three-commit topology.
+
+### Batch 2 — the gap-closure template repairs *(retrospective justification, derived from § `## CLOSURE-TEMPLATE-COMMIT`, § `## CLOSURE-MIRROR-COMMIT` and § `## REFREEZE-LEDGER`)*
+
+**Composition:** every `FIX-239-06` row from § `## WIDENED-UNION-LEDGER` plus the seven
+`239-REVIEW.md` prose repairs in `priv/templates/`, mirrored to `test/example/` and re-blessed
+against the round-2 expected-removed set frozen in § `## REFREEZE-LEDGER` (47 records: 4 `T:`,
+43 `N:`, across 7 golden paths).
+
+**Why not foldable into batch 1:** batch 1's edits were derived from the V1 union regex, which was
+frozen at wave 0 and — as `239-VERIFICATION.md` records — is structurally incapable of matching the
+bookkeeping batch 2 removes. The V2 widening and the `239-REVIEW.md` findings that produced batch 2's
+edit list did not exist until after batch 1 had landed and been reviewed. Folding was not merely
+inconvenient; the edits were **not yet derivable**.
+
+### Batch 3 — the V3-vocabulary sweep and the WR-01 repair *(written by plan 239-12, BEFORE batch 3's re-bless ran)*
+
+**Composition — the two template edits, named.** Batch 3 is the two-file sweep committed as
+`7eee6b00` (`refactor(239): remove residual plan vocabulary and repair the false safety claim in
+priv/templates (SURF-01, SURF-03)`), mirrored into `test/example/` by `8dc2ecc4`:
+
+| Edit | Template file | What changed |
+|---|---|---|
+| WR-01 + WR-02 | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` | The `@moduledoc` sentence `That absence is asserted by a test, not merely conventional` replaced with prose true in an adopter's project, and the comment line `# The plan-checker greps this function body and asserts zero matches.` deleted in full |
+| WR-03 | `priv/templates/sigra.install/organizations/live/organization_members_live.ex` | The pagination bullet gains its terminator; `Flop / sortable columns are a v1.2 concern.` deleted |
+
+Five removed template lines in total (`git diff 74e6a148..HEAD -- priv/templates/`), rendering into
+**2** golden files.
+
+**Why not foldable into batch 2.** Both edits were derived from findings that did not exist when
+batch 2 was composed. WR-01 is a `239-REVIEW.md` finding and WR-02/WR-03 are the two sentences in
+`239-VERIFICATION.md`'s SC-1 `gaps:` block — both documents were produced **after** batch 2's
+re-bless commit `265f7195`, as the gap-closure review of the work batch 2 landed. Beyond the
+chronology, batch 2's edit list was derived from the V2 definition, and V2 is an *identifier* regex
+that is structurally incapable of matching either sentence: they carry no identifier of any shape V2
+knows (§ `## VOCABULARY-LEDGER` (a) states the mechanism). Closing them required the V3 vocabulary
+class, which plan 239-09 defined after batch 2 had landed. The edits were not merely inconvenient to
+fold — under the definition in force at batch 2 they were **not detectable**, and therefore not
+derivable.
+
+**Running count of re-bless commits, with shas (D-29 auditability).** Before batch 3: **2**.
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 (closure) |
+| 3 | recorded in § `## REBLESS-COMMIT-3` — a commit cannot carry its own sha | 239-12 |
+
+After batch 3 the phase carries **3** re-bless commits, one per batch, which is SC-3 as amended by
+D-26 and bounded by D-29.
+
+
+### Batch 4 — the WR-01 retraction *(written by plan 239-15, BEFORE batch 4's re-bless ran)*
+
+*(This slot was opened empty by plan 239-14 and carried a greppable pending marker until this
+paragraph replaced it. Plan 239-15's freeze commit — the commit carrying this text — is a strict
+ancestor of the batch-4 re-bless commit, proven by `git merge-base --is-ancestor` in
+§ `## REBLESS-COMMIT-4`, so "justified before it ran" is a property of the commit graph.)*
+
+**Composition — one template edit, named.** Batch 4 is the single `@moduledoc` retraction committed
+as `7592e760` (`refactor(239): retract the false installer-test claim from the invitation moduledoc
+(SURF-01, SURF-03)`), mirrored into `test/example/` by `a13c40bc`:
+
+| Edit | Template file | What changed |
+|---|---|---|
+| WR-01 retraction (D-31) | `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` | The `@moduledoc` clause `` `mix sigra.install` generates no tests, so if you customize this file, add an / equivalent assertion to your own test suite. `` replaced by `your generated project does not inherit that assertion, so if you customize / this file, add an equivalent assertion to your own test suite.` |
+
+Two removed template lines in total (`git diff a253b8c1..HEAD -- priv/templates/`), rendering into
+**1** golden file. No other template path is touched by this batch.
+
+**Why not foldable into batch 3.** Batch 3 *is* what made batch 4 necessary. Batch 3's own WR-01
+repair introduced the claim batch 4 retracts — `` `mix sigra.install` generates no tests `` — and that
+claim is false on the bytes: `lib/sigra/install/features/admin.ex:38-39` maps
+`admin/policy_test.exs` into every adopter's `test/` tree as `sigra_admin_policy_test.exs`, one
+`_test.exs` creation target, and one is enough to falsify an absence claim. **An edit that corrects a
+prior batch cannot, by construction, have been folded into that batch** — the corrected text did not
+exist to be folded, and the defect being corrected was authored by the batch it would have to fold
+into. The chronology is consistent with that but is not the argument: the falsifying evidence, the
+installer's `_test.exs` target map, was not consulted until threat row `T-239-12-03` forced the
+observation to be re-made on a real generated app, which happened at plan 239-13's halt — after batch
+3 had already been blessed into the golden fixture by `87581665`.
+
+**Running count of re-bless commits, with shas (D-29 auditability).** Before batch 4: **3**.
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 (closure) |
+| 3 | `87581665` | 239-12 |
+| 4 | recorded in § `## REBLESS-COMMIT-4` — a commit cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/` | 239-15 |
+
+After batch 4 the phase carries **4** re-bless commits, one per batch, which is SC-3 as amended by
+D-26 and bounded by D-29.
+
+## BATCH-3-SWEEP-COMMIT
+
+Status: PASS — the two residual bookkeeping sentences named in `239-VERIFICATION.md`'s SC-1 `gaps:`
+block are gone from `priv/templates/`, `WR-01`'s false safety claim is replaced with prose that is
+true in an adopter's project, `WR-03`'s unterminated bullet is repaired, and the two tiers this plan
+owns report `hits_outside_allowlist=0` under the V3 definition that plan 239-09 demonstrated RED on
+exactly these tiers. The instrument and its allowlist are byte-unchanged (D-30) — the green was
+produced by editing the surface.
+
+Sweep commit: **`7eee6b00`** (`priv/templates/` only). Mirror commit: recorded in
+`239-11-SUMMARY.md` (a commit cannot carry its own sha).
+
+### (a) The two edits, before and after — `invitation_accept_live.ex`
+
+**WR-01 — `@moduledoc`, the `## Structural Jetstream #907 defense` section (`:19-20` at base).**
+
+Before:
+
+```
+  "by construction, not by convention" defense. That absence is asserted by a
+  test, not merely conventional — do not add accept controls to this branch.
+```
+
+After:
+
+```
+  "by construction, not by convention" defense — do not add accept controls to
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  `mix sigra.install` generates no tests, so if you customize this file, add an
+  equivalent assertion to your own test suite.
+```
+
+**WR-02 / SC-1 gap item 1 — the comment block above `defp render_mismatch/1` (`:326` at base).**
+Deleted in full, one line:
+
+```
+  # The plan-checker greps this function body and asserts zero matches.
+```
+
+**Surviving constraint line, quoted as the proof that the reason was not removed with the
+bookkeeping** (the block as it stands at the sweep commit):
+
+```
+  # STRUCTURAL INVARIANT (Jetstream #907 / CVE-2026-1529):
+  # This function MUST NOT contain any phx-click="accept..." or
+  # phx-submit="accept..." or form action targeting an accept endpoint.
+  # DO NOT add an accept button here even "for convenience" — the entire
+  # point of this branch is that the accept action does not exist in the
+  # rendered DOM for a mismatched visitor.
+```
+
+The `DO NOT add an accept button here` imperative and the `Jetstream #907 / CVE-2026-1529`
+attribution both survive verbatim. What was deleted named an internal tool; what survives states the
+constraint and why it exists.
+
+### (b) The edit, before and after — `organization_members_live.ex`
+
+**WR-03 / SC-1 gap item 2 — the `## Architecture` pagination bullet (`:23-24` at base).**
+
+Before:
+
+```
+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`
+      Flop / sortable columns are a v1.2 concern.
+```
+
+After:
+
+```
+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`.
+```
+
+Surviving constraint: the bullet still states the pagination mechanism (`LIMIT 100` + `Load more`
+via `stream_insert(..., at: -1)`) in full. The deleted sentence stated only *when Sigra intends to
+add Flop*, which is a Sigra release-sequencing fact and not a constraint on the adopter's code.
+
+### (c) The two observations the WR-01 replacement rests on — re-run here, not cited
+
+**Observation 1 — `T19`'s subject is the template path, never the adopter's copy.**
+
+```bash
+sed -n '570,600p' test/example/test/example_web/live/invitation_accept_live_test.exs
+```
+
+```elixir
+    test "T19: mismatch_branch source has zero phx-click=\"accept...\" and zero phx-submit=\"accept...\"" do
+      path =
+        Path.join([
+          File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+          "organizations", "live", "invitation_accept_live.ex"
+        ])
+        |> Path.expand()
+```
+
+The subject is `priv/templates/.../invitation_accept_live.ex`. It is a Sigra-repo test over the
+shipped template.
+
+**Observation 2 — the generated app's whole `test/` tree contains zero `_test.exs` files.**
+
+```bash
+ls -R test/fixtures/install_golden/tree/test/
+```
+
+```
+support
+support/conn_case.ex
+support/conn_case_helpers.ex
+support/fixtures/auth_fixtures.ex
+```
+
+Three support modules, zero `_test.exs`. An adopter receives no test that asserts this invariant,
+which is exactly what the replacement prose now says.
+
+### (d) Named-string check — independent of every regex under examination
+
+Run at the sweep commit on a clean tree. Every grep is `/usr/bin/grep` explicitly (the interactive
+shell resolves `grep` to a `ugrep` wrapper), and the file list is fed via `git ls-files -z | xargs -0`
+because this shell does **not** word-split an unquoted `$(git ls-files …)` — a first attempt that
+relied on splitting produced `0`/`0` with a **dead control of 0**, i.e. a false negative caught only
+because the control was paired. The numbers below are the re-run with a live control.
+
+```bash
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -lF 'defmodule'                      # control
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -nF 'The plan-checker greps this function body and asserts zero matches.'
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -nF 'Flop / sortable columns are a v1.2 concern.'
+git ls-files priv/templates -z | xargs -0 /usr/bin/grep -lF 'DO NOT add an accept button here'   # second live control
+```
+
+| Measurement | Value | Reading |
+|---|---|---|
+| Sentence 1 (`The plan-checker greps …`) over `priv/templates/` | **0** | gone |
+| Sentence 2 (`Flop / sortable columns are a v1.2 concern.`) over `priv/templates/` | **0** | gone |
+| Control: files containing `defmodule` on the same file list | **97** | the grep is live |
+| Control: files containing `DO NOT add an accept button here` | **1** | a string that *does* exist still matches — the zeros above are real negatives |
+
+### (e) V3 tier result — the GREEN half of plan 239-09's RED/GREEN pair
+
+```bash
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-vocabulary-check.sh priv-templates
+```
+
+```
+tier=priv-templates
+hits=1
+allowlisted=1
+hits_outside_allowlist=0
+control_defmodule=98
+files_measured=119
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 …
+exit 0
+```
+
+| Tier | At plan 239-09 (RED) | At the sweep commit | Reading |
+|---|---|---|---|
+| `priv-templates` | `hits=3 allowlisted=1 hits_outside_allowlist=2` exit 1 | `hits=1 allowlisted=1 hits_outside_allowlist=0` exit 0 | **RED → GREEN** |
+
+The raw `hits=1` is reported, not rounded away: it is the allowlisted SVG-coordinate false positive
+in `sigra.gen.oauth/oauth_html.ex:54`, dispositioned by name in § `## VOCABULARY-LEDGER`. The
+criterion is `hits_outside_allowlist=0`, and the raw total is what keeps the allowlist honest.
+
+`control_defmodule=98` is non-zero, so the zero is a measurement and not an empty file list. Exit `3`
+(the instrument cannot answer) was never returned at any point in this plan.
+
+### (f) The instrument and the allowlist are byte-unchanged (D-30)
+
+```bash
+git diff --name-only 74e6a148..HEAD -- \
+  .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-vocabulary-check.sh \
+  .planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv
+```
+
+Empty across both of this plan's commits. Neither file appears in `git status --short` at any point.
+No allowlist row was added: the tier went green because two sentences were deleted from the surface.
+
+### (g) Region-extraction criteria — asserted non-empty before being trusted
+
+The `sed` range is anchored on `^  ## Structural Jetstream #907 defense$` (one space after `##`, as
+it exists in the file) through `^  ## Route$`, and its length is asserted before any grep over it.
+
+| Check | Value |
+|---|---|
+| `region_lines` (length assertion, must be ≥ 5) | **11** |
+| flattened region contains `generates no tests` | **1** |
+| flattened region contains `your own test suite` | **1** |
+| flattened region contains `asserted by a test` | **0** |
+| flattened region contains `merely conventional` | **0** |
+| flattened region contains `do not add accept controls to this branch` | **1** |
+
+The two `0` rows are run over the region flattened with `tr '\n' ' ' | tr -s ' '`, because the false
+claim spanned a line break and a single-line grep could not have expressed its absence. The
+imperative survives the rewrite; only the false enforcement claim was removed.
+
+`organization_members_live.ex`: the `@moduledoc` line containing `stream_insert` now ends in `.` —
+`sed -n '1,35p' … | /usr/bin/grep -n 'stream_insert' | /usr/bin/grep -c '\.$'` → **1**.
+
+### (h) No executable line moved — every changed line classified
+
+`git show HEAD -- priv/templates` yields nine `+`/`-` content lines, classified individually:
+
+| Line | Classification |
+|---|---|
+| `-  "by construction, not by convention" defense. That absence is asserted by a` | inside `@moduledoc """` heredoc |
+| `-  test, not merely conventional — do not add accept controls to this branch.` | inside `@moduledoc """` heredoc |
+| `+  "by construction, not by convention" defense — do not add accept controls to` | inside `@moduledoc """` heredoc |
+| `+  this branch. Sigra's own suite asserts this absence in the shipped template;` | inside `@moduledoc """` heredoc |
+| ``+  `mix sigra.install` generates no tests, so if you customize this file, add an`` | inside `@moduledoc """` heredoc |
+| `+  equivalent assertion to your own test suite.` | inside `@moduledoc """` heredoc |
+| `-  # The plan-checker greps this function body and asserts zero matches.` | `#` comment (after leading whitespace) |
+| ``-    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)` `` | inside `@moduledoc """` heredoc |
+| `-      Flop / sortable columns are a v1.2 concern.` | inside `@moduledoc """` heredoc |
+| ``+    * Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)`.`` | inside `@moduledoc """` heredoc |
+
+No function head, guard, pattern, pipeline, route, plug, `attr` name, or `default:` appears in the
+diff. `defp render_mismatch(assigns) do` and its `~H` body are byte-unchanged.
+
+### (i) Formatter — the plan's check was inapplicable by construction; the repo's contract was run instead
+
+`mix format --check-formatted priv/templates/.../organization_members_live.ex` **cannot** pass on a
+template file and never could: templates carry EEx placeholders in Elixir syntax positions and are
+not parseable Elixir.
+
+```
+** (SyntaxError) invalid syntax found on …/organization_members_live.ex:1:13:
+  1 │ defmodule <%= web_module %>.OrganizationMembersLive do
+```
+
+`.formatter.exs` accordingly does **not** list `priv/templates` in its `inputs:` — the exclusion is
+deliberate and pre-dates this phase. The meaningful check is the one `mix ci` actually runs, over the
+repo's configured inputs:
+
+```bash
+mix format --check-formatted        # exit 0
+```
+
+Exit `0` at the sweep commit. Recorded as a deviation rather than silently substituted.
+
+### (j) SC-5 security-comment classifier (D-16 — run, never edited)
+
+```bash
+git diff -- priv/templates > <scratch>/239-11-sweep.diff
+.planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-security-comment-diff-check.sh <scratch>/239-11-sweep.diff
+```
+
+```
+examined_removed_lines=5
+exit 0
+```
+
+Over the **combined** sweep+mirror diff (`git diff HEAD~1` at the mirror commit): `examined_removed_lines=10`, exit `0`. The script file is byte-unchanged — it does not appear in
+`git status --short` or in either commit's `--name-only`.
+
+### (k) Commit scope
+
+```bash
+git show --name-only --format= 7eee6b00
+```
+
+```
+priv/templates/sigra.install/organizations/live/invitation_accept_live.ex
+priv/templates/sigra.install/organizations/live/organization_members_live.ex
+```
+
+Exactly two paths. Nothing under `test/`, `lib/`, `.github/`, or `.planning/`.
+`git diff --name-only 74e6a148..7eee6b00 -- test/fixtures/install_golden/ .github/` is empty.
+
+### (l) Mirror — `test/example/`, the second commit (D-19)
+
+The same two edits applied to the two SC-4 counterparts, located by **reading the files**, not by
+copying line numbers: after the four-line `@moduledoc` replacement the `plan-checker` line sat at
+`:334` in the example tier (it was at `:332` before the replacement, and at `:326` in the template) —
+a line number copied across tiers would have deleted the wrong line.
+
+**Post-substitution tier equality, asserted per changed region rather than claimed.** The template
+side is passed through `sed -e 's/<%= web_module %>/ExampleWeb/g' -e 's/<%= app_module %>/Example/g'`
+and diffed against the same region in the example copy:
+
+| Region | Command | Result |
+|---|---|---|
+| `## Structural Jetstream #907 defense` → `## Route` | `diff <(sed -n '/^  ## Structural Jetstream #907 defense$/,/^  ## Route$/p' <tmpl> \| sub) <(sed -n '…' <ex>)` | **empty** |
+| `# STRUCTURAL INVARIANT (Jetstream #907` → `defp render_mismatch` | same shape | **empty** |
+| the changed pagination bullet | `diff <(grep -n stream_insert <tmpl> \| cut -d: -f2-) <(… <ex>)` | **empty** |
+
+One residual difference exists in the *wider* `## Architecture` block — `class="modal"` (template)
+vs `class="vt-modal"` (example) — and it is **pre-existing, not introduced here**: the identical
+one-line diff is reproduced at the plan's base commit `74e6a148` with
+`diff <(git show "74e6a148:<tmpl>" | sed -n '/^  ## Architecture$/,/^  ## Pending invitations seam$/p' | sub) <(git show "74e6a148:<ex>" | sed -n '…')`.
+It is the demo app's `vt-*` brand-class drift, outside every region this batch changed. Recorded
+rather than reconciled; this plan changes no CSS class.
+
+**Fixed-string check over the WHOLE of `test/example/`** — a different and wider claim than the V3
+criterion below, deliberately not conflated with it:
+
+| Measurement | Value |
+|---|---|
+| Sentence 1 over `git ls-files test/example` | **0** |
+| Sentence 2 over `git ls-files test/example` | **0** |
+| Control: files containing `defmodule` on the same list | **156** |
+| Control: files containing `DO NOT add an accept button here` | **1** |
+| `grep -cF 'generates no tests' <example invitation file>` | **1** |
+| `grep -cF 'DO NOT add an accept button here' <example invitation file>` | **1** |
+| `grep -cF 'Jetstream #907 / CVE-2026-1529' <example invitation file>` | **1** |
+
+**V3 `example` tier — SCOPED, and the scope is restated so the zero cannot be misread:**
+
+```
+tier=example
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=2
+files_measured=2
+exit 0
+```
+
+`files_measured=2`. This is the two SC-4 counterparts fixed in plan 239-09's tier list — **not**
+`git ls-files test/example`. The unswept remainder of `test/example/` was measured by plan 239-09 at
+**482 lines across 157 files** (mostly `priv/playwright/` tooling) and is routed to **Phase 241
+SURF-04**. This zero says nothing about that remainder.
+
+**Golden tier — still RED, which is the expected state:**
+
+```
+tier=golden
+hits=2  allowlisted=0  hits_outside_allowlist=2  control_defmodule=78  files_measured=84
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:326:   # The plan-checker greps this function body and asserts zero matches.
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex:24:       Flop / sortable columns are a v1.2 concern.
+exit 1
+```
+
+The golden tier is stale by **exactly this batch** — the two hits are the two sentences this plan
+removed from the other two tiers, and nothing else. Plan 239-12's single re-bless closes it (D-09).
+A golden `hits_outside_allowlist=0` here would have meant the fixture was hand-edited; it was not,
+and `git diff --name-only 74e6a148..HEAD -- test/fixtures/` is empty across both commits.
+
+**Three-tier state at the mirror commit:** template **==** example, golden stale by batch 3. That is
+precisely the state plan 239-12 expects to find.
+
+`mix format --check-formatted` on both edited example files: exit **0** (these *are* in
+`.formatter.exs` `inputs:`, unlike the templates).
+
+**Router re-derivation (not inherited).** `test/example/lib/example_web/router.ex` was re-read at
+both flagged sites because a prior plan's enumeration missed `:175`:
+
+| Site | Text | Disposition |
+|---|---|---|
+| `:103` | `# Login page is a plain controller, not a LiveView.` | **n/a — carries no batch-3 text.** Mechanism-only comment, no plan vocabulary, no V3 hit. Not edited. |
+| `:175-179` | `# Dev-only routes for local manual testing — Swoosh local-mailbox preview at /dev/mailbox …` | **n/a — carries no batch-3 text.** Already de-bookkept by plan 239-07 (see § `## MIRROR-CHECKLIST` C-1). No V3 hit at the mirror commit. Not edited. |
+
+Neither site is in this batch's edit set, and the router does not appear in either commit.
+
+
+## REFREEZE-LEDGER-3
+
+*(Written by plan 239-12, extending § `## REFREEZE-LEDGER` rather than interleaving with it —
+this file's append-only chronological convention. Rounds 1 and 2 live in that section; round 3
+lives here.)*
+
+Status: PASS — the round-3 expected-removed set is frozen, committed **before** batch 3's re-bless,
+and the ordering is readable from `git log` rather than taken on trust.
+
+### (a) Why a third expected set is required
+
+Round 2's set (`239-golden-expected-2.txt`, 47 records across 7 paths) was generated against the
+golden tree as it stood before re-bless `265f7195`, and every one of its 47 records names a line that
+re-bless removed. Those lines no longer exist in the tree, so round 2's set cannot contain round 3's
+removals: reusing it would fail containment on every line of the new diff while simultaneously
+failing its own `removed_lines >= 4` `T:` floor against a 5-line diff drawn from different files. A
+third set is the only non-circular option, exactly as it was at round 2.
+
+### (b) Counts
+
+| Record class | Count |
+|---|---|
+| `T:` (golden-tree lines matched by V3 at the pre-re-bless HEAD) | **2** |
+| `N:` (prose repairs V3 cannot match, located by literal anchor) | **3** |
+| Total records | **5** |
+| Distinct golden paths across all records | **2** |
+
+The 2 `T:` records are the two sentences named in `239-VERIFICATION.md`'s SC-1 `gaps:` block — the
+`plan-checker` comment line and the `v1.2 concern` release-sequencing sentence. They are the same 2
+hits the V3 instrument reports as `hits_outside_allowlist=2` on the `golden` tier at this plan's
+base, which is why that tier was the one tier still RED after plan 239-11.
+
+### (c) The literal-anchor list — 5 anchors, 5 records, accounted for exactly
+
+The anchors are **not** a blanket radius and **not** derived from the diff they validate. Each anchor
+is a line REMOVED from an edited template by batch 3's own template-edit commit `7eee6b00`
+(`git diff 74e6a148..HEAD -- priv/templates/`), searched verbatim with `grep -nF` **only inside that
+template's own golden counterpart** (basename match; neither of batch 3's two files is one of the two
+documented renames). An anchor matching nothing in its counterpart contributes no record.
+
+| # | Anchor (template line removed by `7eee6b00`) | Template | Record class |
+|---|---|---|---|
+| 1 | `"by construction, not by convention" defense. That absence is asserted by a` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 2 | `test, not merely conventional — do not add accept controls to this branch.` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 3 | `# The plan-checker greps this function body and asserts zero matches.` | `organizations/live/invitation_accept_live.ex` | absorbed as `T:` (V3 matches it) |
+| 4 | ``* Pagination is `LIMIT 100` + "Load more" via `stream_insert(..., at: -1)` `` | `organizations/live/organization_members_live.ex` | `N:` |
+| 5 | `Flop / sortable columns are a v1.2 concern.` | `organizations/live/organization_members_live.ex` | absorbed as `T:` (V3 matches it) |
+
+**5 anchors → 3 `N:` + 2 absorbed `T:` = 5 records.** No anchor is unaccounted for and no record
+lacks an anchor. The generating command is written verbatim into the file's `#`-prefixed header line
+(round-2 shape with V3 substituted for V2 and `BASE=74e6a148`), so the set is reproducible from the
+file alone.
+
+### (d) The freeze is git-provable, not prose-provable
+
+The freeze commit's own sha and the re-bless sha cannot be written by the commits they name (a commit
+cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/`
+and may carry nothing else). Both are recorded, with their `git merge-base --is-ancestor` result, in
+§ `## REBLESS-COMMIT-3` below, written in this plan's final documentation commit.
+
+What is asserted here and checkable at any later HEAD: the freeze commit lists exactly three paths —
+`239-golden-expected-3.txt`, `fixtures/239-golden-rebless3-code-change.diff`, `239-EVIDENCE.md` — and
+nothing under `test/fixtures/install_golden/`.
+
+### (e) The floor: two different runs, two different jobs
+
+`GOLDEN_MIN_FILES` for round 3's **real** run is **2** — the exact count of distinct paths in
+`239-golden-expected-3.txt`. That is a real non-vacuity floor equal to the expected path count, not a
+disabled one. Batch 3 renders into 2 files, so round 1's hardcoded default of 30 (calibrated to a
+35-file diff) and round 2's 7 would both fail spuriously.
+
+The RED demonstration in (g) below deliberately runs with `GOLDEN_MIN_FILES=1`, and the two numbers
+are not a contradiction:
+
+| Run | Input | Floor | Why that floor |
+|---|---|---|---|
+| RED demonstration | `fixtures/239-golden-rebless3-code-change.diff` — a known-bad fixture built from the real diff shape with exactly one **code** line substituted | `1` | The fixture must fail on the altered code line, not on a file-count floor. Failing on the floor would prove nothing about the classifier's ability to detect a code line, which is the only thing this run measures. |
+| Real classification (Task 2) | the captured re-bless-3 working-tree diff | `2` (computed) | This is the run the floor exists to protect — a thin real diff waved through by a vacuous pass. The floor is **applied**, not disabled, on the run the acceptance criteria gate on. |
+
+The classifier itself is byte-unchanged in this round: `GOLDEN_MIN_FILES` was already parameterized by
+plan 239-08, and `git diff --name-only` for `239-comment-only-diff-check.sh` across this plan is
+empty.
+
+### (f) The precondition, recorded
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden --check` at the start of this plan exited **2**:
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+DRIFT DETECTED:
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex and …/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex differ
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex and …/tree/lib/sigra_install_golden_tmp_web/live/organization_members_live.ex differ
+```
+
+Exactly the 2 files batch 3 edits, and no others. A `--check` exit 0 here would have meant the
+template edits never reached generated output (or the fixture was hand-edited) and the plan would
+have halted.
+
+### (g) The classifier proven able to fail, before any of its greens are believed
+
+**RED — one code line altered in a real-shaped diff:**
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh \
+  fixtures/239-golden-rebless3-code-change.diff 239-golden-expected-3.txt
+```
+
+```
+changed_lines=10
+removed_lines=5
+files=2
+nonconforming=1
+nonconforming_removed=1
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=2
+FAIL: 1 nonconforming line(s)/path(s)/hunk(s) found:
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:-  defp render_mismatch(assigns) do
+```
+
+**exit 1**, and the output names the offending line. The known-bad fixture differs from the real
+captured diff by exactly one line (`diff` of the two files → `22c22`): the removed comment
+`#  The plan-checker greps this function body…` replaced by the removed code line
+`defp render_mismatch(assigns) do`.
+
+**Fail-closed on empty input, demonstrated live rather than cited:**
+
+```bash
+printf '' | GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh - 239-golden-expected-3.txt
+FAIL: empty diff input — refusing to report success on no input (fail-closed guard)
+```
+
+**exit 1**.
+
+**Guards still present at this plan's HEAD:**
+
+| Guard | Assertion |
+|---|---|
+| all four fail-closed messages | `grep -c 'refusing to report success'` → **4** |
+| `removed_lines` floor | `grep -c 'floor_removed="$expected_t_count"'` → **1** (literal unchanged) |
+| add-only-hunk class | `nonconforming_addonly_hunks` still one of the three summed violation classes |
+
+### (h) A dead-grep caught by its own control, in this plan
+
+The first attempt at the round-3 generator was pasted from round 2's **header line**, which carries an
+inline `#` comment between `BASE=…` and `V3=…`. Executed as a command, that `#` comments out the rest
+of the line and the generator produced **zero** records — indistinguishable from "the golden tree is
+already clean". The paired positive control (`grep -cE '\bdefmodule\b'` over the same 84-file list →
+non-zero on the `.ex` files) is what exposed it. This is the `unclassified` edge-probe's dead-grep
+case firing for real, for the second time in this phase, and the reason every zero here is paired
+with a control on the same surface.
+
+
+## REBLESS-COMMIT-3
+
+*(Written by plan 239-12 in its final documentation commit — neither the freeze commit nor the
+path-scoped re-bless commit can carry these shas.)*
+
+Status: PASS — one batched re-bless, classifier RED then GREEN, `--check` exit 0 on a clean tree, and
+the `golden` tier's RED/GREEN pair closed under the frozen instrument.
+
+### (a) Commit topology — the D-19 ordering, proven from the graph
+
+```
+freeze commit (round-3 expected set + known-bad fixture + evidence) : 4f94278f
+re-bless commit (batch 3)                                           : 87581665
+
+$ git merge-base --is-ancestor 4f94278f 87581665      → exit 0   (shas distinct)
+$ git log --format=%H 4f94278f..HEAD -- test/fixtures/install_golden | wc -l
+1
+$ git show --name-only --format= 87581665 | grep -cv '^test/fixtures/install_golden/'
+0
+$ git show --name-only --format= 4f94278f | grep -c 'test/fixtures/install_golden/'
+0
+```
+
+Exactly one new commit touches the golden fixture; it touches nothing else; and the freeze that
+defines what "comment-only" means for this batch is a strict ancestor of it. The phase now carries
+**3** re-bless commits — `38c9bd9a` (batch 1), `265f7195` (batch 2), `87581665` (batch 3) — one per
+batch, each justified by name in § `## BATCH-JUSTIFICATION` before it ran.
+
+### (b) The re-bless run
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden`, run once, batched, never per-file:
+
+```
+Totals:
+  added:     0
+  modified:  2
+  removed:   0
+
+MODIFIED (2):
+  tree/lib/sigra_install_golden_tmp_web/live (2)
+    …/live/invitation_accept_live.ex
+    …/live/organization_members_live.ex
+```
+
+The task does not stage or commit (`rebless_golden.ex:19-20`); staging was by path
+(`git add test/fixtures/install_golden`) and nothing else.
+
+### (c) The diff was classified BEFORE anything was staged — full output, verbatim
+
+```bash
+GOLDEN_MIN_FILES=2 ./239-comment-only-diff-check.sh <captured-diff> 239-golden-expected-3.txt
+```
+
+```
+changed_lines=10
+removed_lines=5
+files=2
+nonconforming=0
+nonconforming_removed=0
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=2
+```
+
+**exit 0.** Not summarized — this is the whole output, all three sub-counters included.
+
+**The floor was cleared, not disabled** (the backstop truth): `GOLDEN_MIN_FILES` was **2**, the exact
+distinct-path count of `239-golden-expected-3.txt`; the reported `files` was **2**; the expected set's
+distinct-path count is **2**. `removed_lines=5` against a `removed_lines_floor=2` derived from the
+set's 2 `T:` records. All five removed lines are in the frozen set; `nonconforming_removed=0` is a
+containment result, not an empty-input artifact — the same classifier returned `nonconforming=1` on
+the known-bad fixture minutes earlier (§ `## REFREEZE-LEDGER-3` (g)).
+
+**Determinism, recorded:** the re-bless was run twice — once before the freeze commit to capture the
+diff shape the known-bad fixture is built from (working tree then restored with a path-scoped
+`git checkout -- test/fixtures/install_golden`), and once after it for the commit. The two captured
+diffs are byte-identical (`diff` → no output). **One** re-bless *commit*; re-runs before commit are
+explicitly permitted and are what let the known-bad fixture be built from a real diff shape.
+
+### (d) `--check` exit 0 on the clean tree after the commit
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode.)
+```
+
+**exit 0**, and `git diff --quiet` succeeded afterwards (check mode wrote nothing into the working
+tree). This is the only local proof that the committed golden tree equals real generated output; it
+is what keeps the fixture admissible as generated-app evidence, and it independently covers D-13's
+independent-drift hazard because `--check` compares `STDOUT.txt` by byte equality on its own line
+(`rebless_golden.ex:115-140`).
+
+### (e) `STDOUT.txt` re-checked under V3 as an explicit number, not assumed nil
+
+| Measurement | Value |
+|---|---|
+| V3 hits in `test/fixtures/install_golden/STDOUT.txt` | **0** |
+| positive control (`sigra`) on the same file | **83** |
+| file length | 186 lines |
+
+The zero is paired with a live control on the same surface, so "clean" is distinguishable from "the
+grep did not run".
+
+### (f) The `golden` tier's RED/GREEN pair, closed
+
+```
+tier=golden
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=78
+files_measured=84
+```
+
+**exit 0.** Plan 239-09 opened this pair at `hits_outside_allowlist=2` on the same tier, same
+definition, same allowlist; plan 239-11 closed the other two tiers and left this one RED by exactly
+batch 3. The raw `hits=` total is **0**, so the allowlist is hiding nothing here, and
+`control_defmodule=78` over `files_measured=84` proves the instrument ran. Exit 3 (instrument cannot
+answer) was never raised.
+
+**The green came from the surface moving, not the measurement.** Across this entire plan
+(`4f94278f~1..HEAD`), `git diff --name-only` for `239-v3-vocabulary-check.sh` and
+`239-v3-allowlist.tsv` is **empty** — D-30 holds. `239-comment-only-diff-check.sh` is likewise
+byte-unchanged in round 3.
+
+### (g) Nothing else moved
+
+`git diff --name-only 4f94278f~1..HEAD -- .github/ lib/ priv/ test/example/` is **empty**. `.github/`
+is read-only in this plan (D-23) and no `name:` line was touched. SC-5's two-base re-proof belongs to
+plan 239-13.
+
+### (h) What this plan deliberately did NOT do
+
+- **No `MIX_ENV=test mix ci`.** The full gate, the fixed-string proof on a freshly generated app, the
+  tarball under the D-27 scope, SC-5's re-proof, and the three-tier re-confirmation at final HEAD are
+  plan 239-13's, by declared plan boundary rather than by omission.
+- **No `install_golden_contract` CI claim.** This phase pushes nothing; the Actions clause stays a
+  recorded ship-time deferral, extended in plan 239-13's `## HONEST-CLAIMS`.
+- **SURF-03 not re-checked.** It reads `[ ]` at this plan's final HEAD
+  (`grep -c '^- \[ \] \*\*SURF-03\*\*' .planning/REQUIREMENTS.md` → **1**, with 3 total `SURF-03`
+  mentions as the control). Plan 239-13 re-checks it last and alone, after the live observations. A
+  checkbox flipped on expectation rather than observation is the SURF-02 false-complete defect this
+  phase already filed a todo about.
+- **T-239-12-03 not discharged here.** The two observations the WR-01 replacement rests on are
+  re-made against a freshly generated app in plan 239-13 Task 1, with a `*.exs` positive control on
+  the same tree. Carried across the plan boundary by name so it cannot be lost.
+
+
+## GENERATED-APP-SCOPE
+
+Frozen by plan 239-14 Task 1, **before** the measurement it governs runs. That measurement is plan
+239-13's generated-app V3 criterion over a freshly generated app's `lib/` and `priv/`. The decision
+this section implements is **D-32** in `239-CONTEXT.md`.
+
+### (a) The rule, verbatim, with its derivation source
+
+> **the files `mix sigra.install` created or modified**
+
+The rule is **borrowed, not invented**, and it **pre-dates this phase**. It is already implemented in
+this repo by the golden fixture itself:
+
+| Source | Line | What it does |
+|---|---|---|
+| `test/support/install_fixture.ex` | `:89` | `baseline_paths = snapshot_paths(app_dir)` — snapshots the app **before** the install |
+| `test/support/install_fixture.ex` | `:304-305` | `@spec snapshot_paths(Path.t()) :: %{String.t() => binary()}` / `def snapshot_paths(app_dir) do` |
+| `test/support/install_fixture.ex` | `:332-333` | `@spec normalize_tree(Path.t(), %{String.t() => binary()}) :: [{String.t(), binary()}]` / `def normalize_tree(app_dir, baseline \\ %{}) do` |
+| `test/support/install_fixture.ex` | `:360-364` | the byte-identity drop, under the in-source comment quoted below |
+
+```
+      # Drop files that are byte-identical to the pre-install baseline. Only
+      # files sigra.install created or modified contribute to the golden
+      # snapshot.
+      if Map.get(baseline, rel) == hash do
+        []
+```
+
+The rule is **content-independent**: it names authorship, never matching text, so it cannot be tuned
+to make a particular hit disappear. That is what distinguishes it from the `T-239-09-02` shape this
+phase already refused.
+
+### (b) The under-inclusiveness trap, named so it cannot be walked into again
+
+`mix sigra.install` does not only **create** files. It also **injects into `phx.new`-authored ones**.
+
+| Source | Line (re-derived live at batch-4 execution) | Content |
+|---|---|---|
+| `lib/sigra/install/injection.ex` | `:15` | `` (e.g. `"lib/my_app_web/router.ex"`). `` — the canonical `:target` in the `:target` field's own doc |
+| `lib/sigra/install/features/core.ex` | `:350` | `# These %Injection{} records describe the router/config/runtime.exs edits` |
+| `lib/sigra/install/features/core.ex` | `:525-526` | first `%Injection{}` record, `target: Path.join(["lib", "#{otp_app}_web", "router.ex"])` |
+| `lib/sigra/install/features/core.ex` | `:794` | `runtime_config = Path.join(["config", "runtime.exs"])` |
+
+**None of those paths appears in any `{:eex, …}` target map.** A scope derived from the target maps
+alone would therefore put a Sigra-authored bookkeeping line injected into `router.ex` **outside** the
+measurement *and* outside the halt clause in (f) — because `router.ex` would not count as in scope at
+all. That is the `T-239-09-02` shape arriving through the back door. The **created-or-modified** rule
+is what closes it: `router.ex` is modified, therefore in scope, therefore such a line is caught by the
+measurement directly.
+
+### (c) Which of the two admissible derivations was used
+
+**The union derivation (the minimum admissible fallback) was used, not the live created-or-modified
+diff.** Reason: computing the live diff requires a scaffolded app (`mix phx.new` + `mix sigra.install`
++ Postgres), and that scaffolded app belongs to **plan 239-13**. Plan 239-14's environment
+preconditions state plainly that a task here needing one has drifted into 239-13's scope.
+
+The union is: **every `{:eex, …}` / copy / text target AND every `%Injection{}` `:target`** across
+`lib/sigra/install/features/`. The target maps alone are **inadmissible**.
+
+```
+/usr/bin/grep -rn '{:eex,\|{:copy,\|{:text,' lib/sigra/install/features/*.ex | wc -l   ->  90
+  (per file: admin.ex 16, core.ex 49, organizations.ex 21, passkeys.ex 4 — non-empty per file,
+   its own positive control)
+<same> | /usr/bin/grep -o 'Path.join(\[[^]]*\])' | sort -u | wc -l                     ->  78 distinct create-target shapes
+/usr/bin/grep -rn -A1 '%Injection{' lib/sigra/install/features/*.ex | /usr/bin/grep -c 'target:'  ->  21 injection targets
+```
+
+Cross-check against the created-or-modified diff already materialized in this repo:
+`git ls-files test/fixtures/install_golden/tree | wc -l` -> **84** paths, which is a
+created-or-modified diff produced by (a) for one concrete app. The union above and that 84-path diff
+are two derivations of the same rule; the 84-path diff is **not** substituted for a generated app
+here (T-239-14-02) — it is cited only as evidence that the rule was already in force.
+
+### (d) The operative path-pattern set
+
+A generated app's paths are parameterised by `otp_app` and the web module, so the scope is a set of
+**patterns**, not literals. `<app>` = the `otp_app` string, `<web>` = `"#{otp_app}_web"`,
+`<ctx>` = the auth context slug chosen at install.
+
+**Created (in scope):**
+
+```
+lib/<app>/<ctx>/*.ex                  lib/<app>/{mailer,organizations,vault,sigra_admin_access,sigra_admin_policy}.ex
+lib/<app>/<ctx>.ex                    lib/<app>/<ctx>/platform_admin_grant.ex
+lib/<web>/user_auth.ex                lib/<web>/auth_error_handler.ex
+lib/<web>/components/{admin_shell,org_switcher,sigra_auth_components}.ex
+lib/<web>/controllers/**/*.ex         lib/<web>/live/**/*.ex
+lib/mix/tasks/sigra.admin.*.ex
+priv/static/assets/{sigra_admin,sigra_auth}.css
+priv/static/images/sigra-logo-primary{,-dark}.svg
+priv/repo/migrations/<timestamp>_*.exs
+test/support/{conn_case_helpers.ex,fixtures/auth_fixtures.ex}
+test/<app>/sigra_admin_policy_test.exs
+assets/js/{passkey_browser,passkey_hooks}.js
+```
+
+**Modified by injection (in scope — this is the (b) trap closed):**
+
+```
+lib/<web>/router.ex                   lib/<web>/components/layouts.ex
+lib/<web>/auth_error_handler.ex       lib/<app>/application.ex
+config/config.exs                     config/test.exs                config/runtime.exs
+test/support/conn_case.ex             assets/js/app.js               assets/package.json
+mix.exs
+```
+
+### (e) The excluded class, named
+
+`phx.new`-authored files that the installer **neither created nor modified**. Specifically, the V2
+alternation `\b[0-9]{3}-[0-9]{2}\b` firing on **SVG coordinate pairs** in
+`lib/<web>/controllers/page_html/home.html.heex` and `priv/static/images/logo.svg` — the **identical
+false-positive class** already dispositioned `FALSE-POSITIVE — SVG path coordinates` for
+`priv/templates/sigra.gen.oauth/oauth_html.ex` in `239-v3-allowlist.tsv`.
+
+Disposition, stated explicitly rather than left to be inferred from an absent owner: upstream Phoenix
+content, **no adopter-facing Sigra surface, therefore no Sigra remediation owner**. This is not
+D-27's packaged-docs case, which is Sigra-authored and was routed to Phase 241 SURF-04.
+
+Corroborating evidence that this class is already out of scope at the golden tier
+(zeroes paired with live positive controls on the same surface):
+
+```
+git ls-files test/fixtures/install_golden/tree | wc -l                                          -> 84
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'page_html/home.html.heex'    ->  0
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'priv/static/images/logo.svg' ->  0
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c '\.ex$'                       -> 68   [positive control]
+git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -n 'router.ex'                   -> 67:…/lib/sigra_install_golden_tmp_web/router.ex   [positive control]
+```
+
+### (f) HALT CLAUSE — binding on plan 239-13
+
+At measurement time plan 239-13 **must**:
+
+1. enumerate the actual excluded hits **by path and per-file count**, never report a scoped number
+   alone; and
+2. **HALT** if any excluded path turns out to be one `mix sigra.install` created **or modified**.
+
+That halt clause is what keeps the scoping from being able to hide a real finding — and it only works
+because the rule counts **injected** files as in scope. An excluded path that the installer touched is
+a stop-the-line event, not a caveat.
+
+
+## BATCH-4-SWEEP-COMMIT
+
+Status: PASS — the false installer-test claim WR-01 shipped is retracted from both source tiers, every
+surviving clause of the corrected prose carries a recorded command that could have falsified it, and
+the two security-carrying lines are byte-intact. Written by plan 239-14 Task 3.
+
+### (a) The template edit — commit `7592e760`
+
+`refactor(239): retract the false installer-test claim from the invitation moduledoc (SURF-01, SURF-03)`
+
+One path only:
+
+```
+git show --name-only --format= 7592e760
+priv/templates/sigra.install/organizations/live/invitation_accept_live.ex
+```
+
+**Before (the retracted clause, `@moduledoc` lines 21-23):**
+
+```
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  `mix sigra.install` generates no tests, so if you customize this file, add an
+  equivalent assertion to your own test suite.
+```
+
+**After (lines 21-23, re-derived by reading the file):**
+
+```
+  this branch. Sigra's own suite asserts this absence in the shipped template;
+  your generated project does not inherit that assertion, so if you customize
+  this file, add an equivalent assertion to your own test suite.
+```
+
+Paragraph line count `sed -n '16,23p' <file> | wc -l` -> **8** before and **8** after. Unchanged.
+Nothing outside the paragraph moved.
+
+### (b) The mirror edit — `test/example/lib/example_web/live/invitation_accept_live.ex`
+
+Counterpart line numbers **re-derived by reading the file**, never copied from the template and never
+cited from plans 239-11 or 239-12 (every line number in their evidence was invalidated by the batch-3
+re-bless `87581665`):
+
+```
+/usr/bin/grep -nF 'Structural Jetstream #907 defense' <counterpart>   -> 14:  ## Structural Jetstream #907 defense
+/usr/bin/grep -nF 'by construction, not by convention' <counterpart>  -> 19:  "by construction, not by convention" defense — do not add accept controls to
+/usr/bin/grep -nF 'mix sigra.install` generates no tests' <counterpart> -> 21: (the retracted clause, pre-edit)
+/usr/bin/grep -nF 'DO NOT add an accept button here' <counterpart>    -> 334
+/usr/bin/grep -nF 'Jetstream #907 / CVE-2026-1529' <counterpart>      -> 331
+```
+
+The invariant-comment counterpart sits at `:331`/`:334` against the template's `:325`/`:328` — the
+tiers' numbering genuinely differs, which is why no template line number was reused.
+
+**Changed-region equality proven, not asserted.** Both tiers' substituted paragraphs extracted and
+diffed:
+
+```
+sed -n '16,23p' priv/templates/sigra.install/organizations/live/invitation_accept_live.ex > <a>
+sed -n '16,23p' test/example/lib/example_web/live/invitation_accept_live.ex               > <b>
+diff <a> <b>            ->   (no output)   DIFF_EXIT=0
+```
+
+Empty. No difference outside the changed region surfaced, so there is no pre-existing drift to record
+here (contrast plan 239-11's `class="modal"` vs `class="vt-modal"` case).
+
+### (c) The three claim checks, per tier, each zero paired with a live positive control
+
+| Check | Command (fixed-string, `/usr/bin/grep` explicit) | template | counterpart |
+|---|---|---|---|
+| claim (iii): retracted clause gone | `` /usr/bin/grep -cF '`mix sigra.install` generates no tests' `` | **0** | **0** |
+| positive control, same file | `/usr/bin/grep -cF 'by construction, not by convention'` | **1** | **1** |
+| corrected sentence present once | `/usr/bin/grep -cF 'does not inherit that assertion'` | **1** | **1** |
+| imperative byte-intact | `/usr/bin/grep -cF 'DO NOT add an accept button here'` | **1** | **1** |
+| attribution byte-intact | `/usr/bin/grep -cF 'Jetstream #907 / CVE-2026-1529'` | **1** | **1** |
+
+**Claim (i) — *Sigra's own suite asserts this absence in the shipped template*.** Re-confirmed live in
+the **nested example app**, not the root `test/` tree:
+
+```
+/usr/bin/grep -rn 'T19:' test/example/test/
+test/example/test/example_web/live/organization_members_live_test.exs:318:    test "T19: open_role_modal …"
+test/example/test/example_web/live/invitation_accept_live_test.exs:582:    test "T19: mismatch_branch source has zero phx-click=\"accept...\" and zero phx-submit=\"accept...\"" do
+```
+
+`test/example/test/example_web/live/invitation_accept_live_test.exs:581` opens
+`describe "structural invariant (Jetstream #907 static check)"`; `:582` is T19. Its subject is the
+**shipped template path**, built at `:584-595`:
+
+```
+      path =
+        Path.join([
+          File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+          "organizations", "live", "invitation_accept_live.ex"
+        ])
+        |> Path.expand()
+      source = File.read!(path)
+```
+
+That the subject is the template path is also exactly what makes clause (ii) true.
+
+**Claim (ii) — *your generated project does not inherit that assertion*.** T19's basename is not among
+the installer's `_test.exs` creation targets:
+
+```
+/usr/bin/grep -rn 'test\.exs' lib/sigra/install/features/ > <enum>
+/usr/bin/grep -cF 'invitation_accept_live_test.exs' <enum>   ->  0
+wc -l < <enum>                                               ->  3   [positive control: the enumeration is real]
+```
+
+Classification of the 3 (D-31): `core.ex:605` is a `config/test.exs` **injection** target and is not a
+test file; `admin.ex:38-39` is **one wrapped tuple** and the sole `_test.exs` **creation** target,
+`test/<otp_app>/sigra_admin_policy_test.exs`. An empty enumeration here would be a broken command, not
+a finding — which is the whole subject of this batch.
+
+### (d) V3 tier results, each with its scoping
+
+**`priv-templates` tier — exit 0:**
+
+```
+tier=priv-templates
+hits=1
+allowlisted=1
+hits_outside_allowlist=0
+control_defmodule=98
+files_measured=119
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]  <path d="M24 12.073c0-6.627-…" fill="#1877F2"/>
+```
+
+Raw `hits=` **1**, allowlisted **1**, outside **0**, live control **98**. The one hit is the committed
+`FALSE-POSITIVE — SVG path coordinates` entry.
+
+**`example` tier — exit 0:**
+
+```
+tier=example
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=2
+files_measured=2
+```
+
+**Scoping, without which this number overstates the claim (D-30):** the `example` tier is
+`239-v3-vocabulary-check.sh`'s **two-file SC-4 counterpart list**
+(`EXAMPLE_COUNTERPART_1/2` at `:88-89`) — `invitation_accept_live.ex` and
+`organization_members_live.ex` — **never all of `test/example/`**, whose measured
+**482 V3-matching lines across 157 files** remainder stays routed to **Phase 241 SURF-04**.
+`files_measured=2` is that scope made visible in the output.
+
+The instrument and the allowlist are byte-unchanged across this plan.
+
+### (e) Format results
+
+```
+mix format --check-formatted                                                   -> exit 0   (repo-configured)
+mix format --check-formatted test/example/lib/example_web/live/invitation_accept_live.ex -> exit 0
+```
+
+**Standing substitution, recorded as plan 239-11 did:** `mix format --check-formatted` over
+`priv/templates/` is **inapplicable by construction** — templates carry EEx placeholders in Elixir
+syntax positions and `.formatter.exs` deliberately excludes the directory. The repo-configured run is
+substituted for it. The `test/example/` counterpart **is** in `.formatter.exs` `inputs:` and was
+additionally checked individually.
+
+### (f) Changed-line classification
+
+Both commits' `+`/`-` content lines, in full:
+
+```
+-  `mix sigra.install` generates no tests, so if you customize this file, add an
+-  equivalent assertion to your own test suite.
++  your generated project does not inherit that assertion, so if you customize
++  this file, add an equivalent assertion to your own test suite.
+```
+
+Two removed, two added, **per tier**. Every one of them is `@moduledoc` prose. **No function head, no
+guard, no route, no plug, no `attr`, no `default:`** among them. The
+`DO NOT add an accept button here even "for convenience"` imperative and the
+`Jetstream #907 / CVE-2026-1529` attribution appear in **neither** the `+` nor the `-` lines of either
+commit.
+
+### (g) Task-4 sub-entry — the four `T-239-12-03` amendments to `239-13-PLAN.md`
+
+Applied by plan 239-14 Task 4 in its own path-scoped commit (`239-13-PLAN.md` alone), under **D-31**.
+Recorded here so the amendment is auditable without a diff-archaeology pass. Sites located by
+re-reading the file.
+
+**Site 1 — `must_haves.truths` entry (`:41`).**
+*Before:* `… the generated `test/` tree contains 0 `_test.exs` files (with a non-zero `*.exs` positive
+control on that same tree, so an empty result cannot mean a wrong path), and T19's subject is
+re-confirmed to be the template path.`
+*After:* requires **at least one** `_test.exs` file with `test/<otp_app>/sigra_admin_policy_test.exs`
+named, cites `as amended by D-31`, and retains the `*.exs` positive control verbatim.
+
+**Site 2 — Task 1 action rationale paragraph (`:189-194`).**
+*Before:* argued from the prose *being blessed into the fixture* — *"The prose being blessed into the
+fixture tells every adopter that `mix sigra.install` generates no tests, so the claim is measured on
+the artifact the adopter actually gets"*. That sentence appeals to a claim plan 239-15's re-bless
+removes from every tier, so after batch 4 it argues from a sentence that no longer exists.
+*After:* argues from the **retraction itself** — the claim was retracted as false on the bytes
+(`admin.ex:38-39`), and the observation is made to **falsify** it live on the artifact the adopter
+actually gets, which is what discharges `T-239-12-03` rather than transferring it.
+
+**Site 3 — Task 1 action first bullet (`:196-199`).**
+*Before:* `find <generated-app>/test -name '*_test.exs' | wc -l` required to return a count of zero.
+*After:* required to return **`>= 1`**, with `sigra_admin_policy_test.exs` located by name, cited
+`as amended by D-31`, and the `*.exs` positive control **retained unchanged** — the control is as
+necessary for a `>= 1` as it was for the original count, because it is what stops an empty result
+passing as a measurement.
+
+**Site 4 — Task 1 acceptance criterion (`:221`).**
+*Before:* the `T-239-12-03 discharged, not transferred` criterion required the same count of zero.
+*After:* the same inversion as Site 3, with the installer-emitted path named and the positive control
+retained.
+
+Everything else in `239-13-PLAN.md` is **byte-identical**: its three-tier V3 run, its fixed-string
+proof, its tarball check, `MIX_ENV=test mix ci`, SC-5 and the SURF-03 re-check are untouched — those
+are the closure's live observations and pre-empting or softening any of them is exactly what plan
+239-14 must not do. The frontmatter re-sequencing (`wave: 16` / `depends_on: ["239-15"]`), applied at
+batch-4 planning time, was **asserted** as a precondition, not re-applied.
+
+### (h) What this batch deliberately did NOT do
+
+- `test/fixtures/install_golden/` is untouched. The golden fixture is left **stale by exactly this
+  batch**, which is the state plan 239-15 requires; it is reached only through
+  `MIX_ENV=test mix sigra.fixture.rebless_golden` (D-09).
+- `.planning/REQUIREMENTS.md` is untouched and **SURF-03 stays `[ ]`**. Only plan 239-13 re-checks it,
+  last and alone.
+- `.github/` is untouched (D-23).
+- `239-v3-vocabulary-check.sh` and `239-v3-allowlist.tsv` are byte-unchanged (D-30). The fail-closed
+  exit-3 demonstration behind D-32 ran against a scratch copy held outside the repo working tree and
+  deleted immediately.
+- The batch-4 justification slot was left **open, not filled**, at plan 239-14's close — it carried a
+  greppable pending marker in § `## BATCH-JUSTIFICATION`. Plan 239-15 discharged it in the commit
+  immediately before its re-bless (D-29); the marker literal no longer appears anywhere in this file,
+  which is the mechanical form of that discharge.
+
+
+## REFREEZE-LEDGER-4
+
+*(Written by plan 239-15, extending § `## REFREEZE-LEDGER` and § `## REFREEZE-LEDGER-3` rather than
+interleaving with them — this file's append-only chronological convention. Round 4 lives here.)*
+
+Status: PASS — the round-4 expected-removed set is frozen, committed **before** batch 4's re-bless,
+and the ordering is readable from `git log` rather than taken on trust.
+
+### (a) Why a fourth expected set is required
+
+Round 3's set (`239-golden-expected-3.txt`, 5 records across 2 paths) was generated against the golden
+tree as it stood before re-bless `87581665`, and every one of its 5 records names a line that re-bless
+removed. Those lines no longer exist in the tree, so round 3's set cannot contain round 4's removals:
+reusing it would fail containment on both lines of the new diff. A fourth set is the only non-circular
+option, exactly as it was at rounds 2 and 3.
+
+### (b) Counts
+
+| Record class | Count |
+|---|---|
+| `T:` (golden-tree lines matched by V3 at the pre-re-bless HEAD) | **0** |
+| `N:` (prose retraction V3 cannot match, located by literal anchor) | **2** |
+| Total records | **2** |
+| Distinct golden paths across all records | **1** |
+
+The `T:` count is **0** and that is the expected outcome for this batch — see (f), where it is
+disclosed with its consequence rather than left to be discovered.
+
+### (c) The literal-anchor list — 2 anchors, 2 records, accounted for exactly
+
+The anchors are **not** a blanket radius and **not** derived from the diff they validate. Each anchor
+is a line REMOVED from an edited template by batch 4's own template-edit commit `7592e760`
+(`git diff a253b8c1..HEAD -- priv/templates/`), searched verbatim with `/usr/bin/grep -nF` **only
+inside that template's own golden counterpart** (basename match; `invitation_accept_live.ex` is not
+one of the two documented renames). An anchor matching nothing in its counterpart contributes no
+record.
+
+| # | Anchor (template line removed by `7592e760`) | Template | Record class |
+|---|---|---|---|
+| 1 | `` `mix sigra.install` generates no tests, so if you customize this file, add an `` | `organizations/live/invitation_accept_live.ex` | `N:` |
+| 2 | `equivalent assertion to your own test suite.` | `organizations/live/invitation_accept_live.ex` | `N:` |
+
+**2 anchors → 2 `N:` + 0 absorbed `T:` = 2 records.** No anchor is unaccounted for and no record lacks
+an anchor.
+
+**The generating command and its `BASE`.** `BASE=a253b8c1` — plan 239-14's decision commit
+(`docs(239): record D-31 and D-32 and freeze the generated-app measurement scope`), the last commit
+before the batch-4 template edit `7592e760`. Choosing that base makes the `N:` anchor set exactly the
+lines batch 4's template edit removed and nothing else. The command is written verbatim into the
+file's `#`-prefixed header block, so the set is reproducible from the file alone.
+
+Two bytes-level differences from round 3's generator, both recorded rather than silent:
+
+1. `BASE` substituted (`74e6a148` → `a253b8c1`).
+2. All **five** bare `grep` invocations replaced with `/usr/bin/grep`. This repo's interactive shell
+   resolves bare `grep` to a `ugrep` wrapper that can silently return zero — one of the three
+   confident false negatives already caught in this phase. Verified: `/usr/bin/grep -o '/usr/bin/grep'`
+   over the generator → **5**; a bare-`grep` residue grep over the same text → **0**.
+
+The command line itself carries **no inline `#`**. Round 2's header did, between `BASE=` and `V3=`;
+executed verbatim it commented the generator out and emitted zero records, which is indistinguishable
+from "the golden tree is already clean". The rationale prose for round 4 lives on its own `#` lines
+*above* the command line, never inside it.
+
+**The generator is not record-less, and the `T:` zero is controlled.** The `T:` pass ran over the
+committed golden tree file list and is proven live rather than assumed:
+
+```
+files_in_list      = 84
+v3_hits            = 0     [the T: pass result]
+control_defmodule  = 78    [positive control, same 84-file list, same /usr/bin/grep]
+```
+
+A `control_defmodule` of 78 over an 84-file list proves the grep read the tree; the `0` is therefore a
+finding about the tree, not a dead instrument. The generated file has **2** records
+(`/usr/bin/grep -cE '^(T|N):'` → 2), so it is not the empty-output shape a broken generator produces.
+
+### (d) The freeze is git-provable, not prose-provable
+
+The freeze commit's own sha and the re-bless sha cannot be written by the commits they name (a commit
+cannot carry its own sha, and the re-bless commit is path-scoped to `test/fixtures/install_golden/`
+and may carry nothing else). Both are recorded, with their `git merge-base --is-ancestor` result, in
+§ `## REBLESS-COMMIT-4` below, written in this plan's final documentation commit.
+
+What is asserted here and checkable at any later HEAD: the freeze commit lists exactly three paths —
+`239-golden-expected-4.txt`, `fixtures/239-golden-rebless4-code-change.diff`, `239-EVIDENCE.md` — and
+nothing under `test/fixtures/install_golden/`.
+
+### (e) The floor: two different runs, two different jobs — and an arithmetic coincidence, named
+
+`GOLDEN_MIN_FILES` for round 4's **real** run is **1**, computed, not carried over:
+
+```
+cut -d: -f2 <the N:/T: records of 239-golden-expected-4.txt> | sort -u | wc -l   ->  1
+```
+
+That is the exact distinct-path count of `239-golden-expected-4.txt`: batch 4 renders into exactly one
+golden file, `…/live/invitation_accept_live.ex`. It is a **real** non-vacuity floor equal to the
+expected path count — not `0`, and not round 3's `2` nor round 1's hardcoded default of `30`, both of
+which would fail spuriously on a one-file batch.
+
+The RED demonstration in (h) below also runs with `GOLDEN_MIN_FILES=1`. **The two `1`s coincide
+arithmetically; neither is carried over from the other, and they do different jobs:**
+
+| Run | Input | Floor | Where the `1` comes from | Why that floor |
+|---|---|---|---|---|
+| RED demonstration | `fixtures/239-golden-rebless4-code-change.diff` — the real diff shape with exactly one **code** line substituted | `1` | a deliberate floor-bypass for a single-hunk fixture | The fixture must fail on the altered code line, not on a file-count floor. Failing on the floor would prove nothing about the classifier's ability to detect a code line, which is the only thing this run measures. |
+| Real classification (Task 2) | the captured re-bless-4 working-tree diff | `1` | the **measured** distinct-path count of the round-4 expected set | This is the run the floor exists to protect — a thin real diff waved through by a vacuous pass. The floor is **applied**, not disabled, on the run the acceptance criteria gate on. |
+
+By this plan's own standard — *a reused number is indistinguishable from a disabled floor* — the
+coincidence is stated here rather than left implicit. One value is measured from the expected set; the
+other is chosen for a one-hunk fixture. They are equal by arithmetic, because batch 4 touches one
+file.
+
+The classifier itself is byte-unchanged in this round: `GOLDEN_MIN_FILES` was already parameterized by
+plan 239-08.
+
+### (f) `expected_t_count = 0`: both non-vacuity floors are off this round — disclosed, not discovered
+
+The classifier's second floor is `floor_removed="$expected_t_count"`, the count of `T:` records.
+
+**Derivation:** `/usr/bin/grep -c '^T:' 239-golden-expected-4.txt` → **0**, which the classifier
+re-derives itself and prints as `removed_lines_floor=0` in every round-4 invocation below.
+
+**Why it is zero.** Batch 4's two removed lines are ordinary English prose — `` `mix sigra.install`
+generates no tests, so if you customize this file, add an `` and `equivalent assertion to your own
+test suite.` — and carry no identifier of any shape V3 matches: no `D-NN`, no `SC-N`, no `T-NNN-NN`,
+no `.md` filename, no phase or wave number, no plan-checker or re-bless token. That is the same
+structural fact that made batch 3's two sentences invisible to V2, one definition earlier. A regex
+over an identifier vocabulary cannot match a sentence that contains no identifier.
+
+**Consequence, stated plainly.** `GOLDEN_MIN_FILES=1` on a one-file batch and `floor_removed=0` mean
+**both** of the classifier's non-vacuity floors are effectively off for round 4. A round-4 record
+reporting `nonconforming=0` without disclosing that is inadmissible by this plan's own acceptance
+criteria, so it is disclosed here, before the green is reported.
+
+**What compensates — four proofs, none of which rests on either floor:**
+
+1. **The empty-input guard**, demonstrated live in (h): an empty diff exits 1 with `refusing to report
+   success`, so the degenerate case both floors would otherwise have caught is caught by a guard that
+   is independent of them.
+2. **The per-line containment classification** — keyed on (path, trimmed text), never on a count. This
+   is what actually proves the diff comment-and-docstring-only, and it is exactly as strong on a
+   2-line diff as on a 139-line one. It is also the thing proven able to fail, in (h).
+3. **`--check` exit 0** (§ `## REBLESS-COMMIT-4` (d)), which proves the committed tree equals real
+   generated output by scaffolding a fresh app and comparing bytes — the classifier plays no part in
+   it.
+4. **The golden-tier fixed-string zero with its live positive control** (§ `## REBLESS-COMMIT-4` (f)),
+   which is falsifiable without the classifier at all.
+
+**Residual, honestly.** With both floors at zero, the classifier **alone** could not distinguish this
+round's real diff from an empty one on floor arithmetic — only its empty-input guard and its
+containment body stand between the two, and only the three non-classifier proofs above make the round
+robust. That is why those are required this round rather than optional.
+
+### (g) The precondition, recorded
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden --check` at the start of this plan exited **2**:
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+DRIFT DETECTED:
+Files test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex and <tmp>/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex differ
+```
+
+Exactly the **1** file batch 4 edits renders into, and no others. A `--check` exit 0 here would have
+meant the template edit never reached generated output (or the fixture was hand-edited) and the plan
+would have halted.
+
+### (h) The classifier proven able to fail, before any of its greens are believed
+
+**RED — one code line altered in a real-shaped diff.** The known-bad fixture is the captured re-bless-4
+diff with exactly one removed **prose** line replaced by a removed **code** line
+(`defp render_mismatch(assigns) do`, a real head in the same golden file at `:331`).
+`diff <captured> <fixture>` → `10c10`, a single-line difference.
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh \
+  fixtures/239-golden-rebless4-code-change.diff 239-golden-expected-4.txt
+```
+
+```
+changed_lines=4
+removed_lines=2
+files=1
+nonconforming=1
+nonconforming_removed=1
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=0
+FAIL: 1 nonconforming line(s)/path(s)/hunk(s) found:
+test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex:-  defp render_mismatch(assigns) do
+```
+
+**exit 1**, and the output names the offending line. Note `removed_lines_floor=0`: the failure came
+from the containment body, not from a floor — which is precisely the property (f) needs it to have.
+
+**Fail-closed on empty input, demonstrated live rather than cited:**
+
+```bash
+printf '' | GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh - 239-golden-expected-4.txt
+FAIL: empty diff input — refusing to report success on no input (fail-closed guard)
+```
+
+**exit 1**.
+
+**Guards still present at this plan's HEAD:**
+
+| Guard | Assertion |
+|---|---|
+| all four fail-closed messages | `/usr/bin/grep -c 'refusing to report success'` → **4** |
+| `removed_lines` floor | `/usr/bin/grep -c 'floor_removed="$expected_t_count"'` → **1** (literal unchanged) |
+| add-only-hunk class | `nonconforming_addonly_hunks` still one of the three summed violation classes |
+
+No line of `239-comment-only-diff-check.sh`, `239-v3-vocabulary-check.sh` or `239-v3-allowlist.tsv`
+was changed in this round (D-16, D-30).
+
+
+## REBLESS-COMMIT-4
+
+*(Written by plan 239-15 in its final documentation commit — neither the freeze commit nor the
+path-scoped re-bless commit can carry these shas.)*
+
+Status: PASS — one batched re-bless, classifier RED then GREEN, `--check` exit 0 on a clean tree, and
+the false installer-test claim provably gone from the tier that models an adopter's bytes.
+
+### (a) Commit topology — the D-19 ordering, proven from the graph
+
+```
+freeze commit (round-4 expected set + known-bad fixture + evidence) : b7113488
+re-bless commit (batch 4)                                           : 5f7ae9d7
+
+$ git merge-base --is-ancestor b7113488 5f7ae9d7      → exit 0   (shas distinct)
+$ git log --format=%H b7113488..HEAD -- test/fixtures/install_golden | wc -l
+1
+$ git show --name-only --format= 5f7ae9d7 | grep -cv '^test/fixtures/install_golden/'
+0
+$ git show --name-only --format= b7113488 | grep -c 'test/fixtures/install_golden/'
+0
+```
+
+Exactly one new commit touches the golden fixture; it touches nothing else — a single path,
+`tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex`; and the freeze that defines
+what "comment-only" means for this batch is a strict ancestor of it. The phase now carries **4**
+re-bless commits — `38c9bd9a` (batch 1), `265f7195` (batch 2), `87581665` (batch 3), `5f7ae9d7`
+(batch 4) — one per batch, each justified by name in § `## BATCH-JUSTIFICATION` before it ran.
+
+### (b) The re-bless run
+
+`MIX_ENV=test mix sigra.fixture.rebless_golden`, run once, batched, never per-file:
+
+```
+Totals:
+  added:     0
+  modified:  1
+  removed:   0
+
+MODIFIED (1):
+  tree/lib/sigra_install_golden_tmp_web/live (1)
+    test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
+```
+
+The task does not stage or commit (`rebless_golden.ex:19-20`); staging was by path
+(`git add test/fixtures/install_golden`) and nothing else. No `Edit`, `Write` or `sed` touched any
+path under `test/fixtures/install_golden/` at any point in this plan (D-09).
+
+### (c) The diff was classified BEFORE anything was staged — full output, verbatim
+
+```bash
+GOLDEN_MIN_FILES=1 ./239-comment-only-diff-check.sh <captured-diff> 239-golden-expected-4.txt
+```
+
+```
+changed_lines=4
+removed_lines=2
+files=1
+nonconforming=0
+nonconforming_removed=0
+nonconforming_files=0
+nonconforming_addonly_hunks=0
+removed_lines_floor=0
+```
+
+**exit 0.** Not summarized — this is the whole output, all three sub-counters included.
+
+**The file floor was cleared, not disabled** (the backstop truth): `GOLDEN_MIN_FILES` was **1**, the
+exact distinct-path count of `239-golden-expected-4.txt`; the reported `files` was **1**; the expected
+set's distinct-path count is **1** (`cut -d: -f2 … | sort -u | wc -l`). Both removed lines are in the
+frozen set; `nonconforming_removed=0` is a containment result, not an empty-input artifact — the same
+classifier returned `nonconforming=1` on the known-bad fixture minutes earlier
+(§ `## REFREEZE-LEDGER-4` (h)), and returned exit 1 on empty input.
+
+**`removed_lines_floor=0` is disclosed, not buried.** This round's expected set carries **zero** `T:`
+records, so the removed-lines floor is off, and with a one-file batch the file floor is at its
+minimum. § `## REFREEZE-LEDGER-4` (f) records the derivation, the reason, the four compensating proofs
+that do not depend on either floor, and the residual. This section's green must be read with that
+section, not apart from it.
+
+**Determinism, recorded:** the re-bless was run twice — once before the freeze commit to capture the
+diff shape the known-bad fixture is built from (working tree then restored with a path-scoped
+`git checkout -- test/fixtures/install_golden`, `git status --porcelain` empty afterwards), and once
+after it for the commit. The two captured diffs are byte-identical (`diff` → no output). **One**
+re-bless *commit*; re-runs before commit are explicitly permitted and are what let the known-bad
+fixture be built from a real diff shape.
+
+### (d) `--check` exit 0 on the clean tree after the commit
+
+```
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode).
+```
+
+**exit 0**, and `git diff --quiet` succeeded afterwards (check mode wrote nothing into the working
+tree). This is the only local proof that the committed golden tree equals real generated output; it is
+what keeps the fixture admissible as generated-app evidence, and it independently covers D-13's
+independent-drift hazard because `--check` compares `STDOUT.txt` by byte equality on its own line
+(`rebless_golden.ex:115-140`).
+
+*(Recorded string discrepancy: plan 239-15's acceptance text quotes the success line as
+`OK: fixture is up-to-date (check mode.)`. The task actually prints
+`OK: fixture is up-to-date (check mode).` — the period is outside the parenthesis. The transposition
+is in the plan's prose, not in the task; the verbatim output above is the task's.)*
+
+### (e) `STDOUT.txt` re-checked under V3 as an explicit number, not assumed nil
+
+| Measurement | Value |
+|---|---|
+| V3 hits in `test/fixtures/install_golden/STDOUT.txt` | **0** |
+| positive control (`sigra`, fixed-string) on the same file | **83** |
+| file length | 186 lines |
+
+The zero is paired with a live control on the same surface, so "clean" is distinguishable from "the
+grep did not run". D-13's independent-drift hazard is re-checked, not assumed.
+
+### (f) The retraction reached the tier that models an adopter's bytes
+
+This is the tier where plan 239-12 blessed the false sentence in, so the zero carries a live control
+on the same tree beside it. All fixed-string, `/usr/bin/grep` explicit, over
+`test/fixtures/install_golden/tree`:
+
+| Measurement | Value |
+|---|---|
+| files containing `` `mix sigra.install` generates no tests `` (the retracted clause) | **0** |
+| files containing `by construction, not by convention` (live positive control, same tree) | **1** |
+| files containing `does not inherit that assertion` (the corrected clause) | **1** |
+
+Per-file, in the golden counterpart
+`tree/lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex`:
+
+| Line | Count |
+|---|---|
+| `DO NOT add an accept button here` (the imperative) | **1** |
+| `Jetstream #907 / CVE-2026-1529` (the attribution) | **1** |
+| the retracted clause | **0** |
+| the corrected clause | **1** |
+
+The two security-carrying lines are byte-intact: the retraction did not collaterally damage the lines
+that carry the Jetstream #907 defense.
+
+### (g) The `golden` tier under V3, at this plan's final HEAD
+
+```
+tier=golden
+hits=0
+allowlisted=0
+hits_outside_allowlist=0
+control_defmodule=78
+files_measured=84
+```
+
+**exit 0.** The raw `hits=` total is **0**, so the allowlist is hiding nothing here, and
+`control_defmodule=78` over `files_measured=84` proves the instrument ran. Exit 3 (instrument cannot
+answer) was never raised in this plan.
+
+**The green came from the surface moving, not the measurement.** Across this entire plan
+(`b7113488~1..HEAD`), `git diff --name-only` for `239-v3-vocabulary-check.sh`,
+`239-v3-allowlist.tsv` and `239-comment-only-diff-check.sh` is **empty** — D-16 and D-30 hold.
+
+### (h) Nothing else moved
+
+`git diff --name-only b7113488~1..HEAD -- .github/ .planning/REQUIREMENTS.md 239-13-PLAN.md` is
+**empty**. `.github/` is read-only in this plan (D-23) and no `name:` line was touched. Plan
+`239-13-PLAN.md` is byte-unchanged by this plan — its `T-239-12-03` amendment landed earlier, in plan
+239-14 Task 4 (`cc2f5c61`) — and it is still correctly sequenced behind this plan: `wave: 16`,
+`depends_on: ["239-15"]`.
+
+### (i) What this plan deliberately did NOT do
+
+- **No `MIX_ENV=test mix ci`.** The full gate, the fixed-string proof on a freshly generated app, the
+  tarball under the D-27 scope, SC-5's re-proof, and the three-tier re-confirmation at final HEAD are
+  plan 239-13's, by declared plan boundary rather than by omission.
+- **No `install_golden_contract` CI claim.** This phase pushes nothing; the Actions clause stays a
+  recorded ship-time deferral, to be extended in plan 239-13's `## HONEST-CLAIMS`.
+- **SURF-03 not re-checked.** It reads `[ ]` at this plan's final HEAD
+  (`/usr/bin/grep -c '^- \[ \] \*\*SURF-03\*\*' .planning/REQUIREMENTS.md` → **1**, with 3 total
+  `SURF-03` mentions as the control), and its roll-up row at `:160` still reads `Pending`. Plan 239-13
+  re-checks it last and alone, after the live observations.
+- **`scripts/ci/install-smoke.sh` not run, and no generated app greped.** The committed fixture was
+  not substituted for a generated app anywhere in this plan; the fixture's admissibility rests on
+  `--check` exit 0 and nothing else is claimed from it.
+
+## D-33-CRITERION-AMENDMENT
+
+Frozen by plan 239-16 Task 1, **before** plan 239-13's third run measures against it. Every command
+below was run at this plan's base HEAD on a clean tree, with `/usr/bin/grep` invoked explicitly and
+every zero paired with a live positive control on the same surface. No instrument file, no allowlist
+row and no source file was touched.
+
+### 1. The defect, re-derived
+
+The single committed record in `239-v3-allowlist.tsv` (`awk -F'\t' 'NF>=2 && $1 !~ /^#/'`, which
+returned **2** rows including the tab-separated header — the parse control, since a row written with
+spaces instead of a tab parses as a comment):
+
+```
+path    = priv/templates/sigra.gen.oauth/oauth_html.ex
+literal = M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0
+reason  = FALSE-POSITIVE — SVG path coordinates. The V2 alternation \b[0-9]{3}-[0-9]{2}\b fires on
+          the numeric coordinate pair 373-12 inside the Facebook-logo <path d="..."> geometry.
+```
+
+`239-v3-vocabulary-check.sh:217` — the `(path, literal)` key, quoted with its line number:
+
+```
+217:      if [ "$h_path" = "${AL_PATHS[$i]}" ]; then
+218:        case "$h_text" in
+219:          *"${AL_LITERALS[$i]}"*) marked=" [ALLOWLISTED]" ;;
+```
+
+An exact comparison of the **whole path**. The rendered counterpart lands at
+`lib/<app>_web/controllers/oauth_html.ex` — a different string carrying identical bytes — so the
+committed record cannot mark its own rendered counterpart. Matching-key artifact, not a surface
+finding.
+
+### 2. The literal is byte-identical across the rendering boundary
+
+```
+$ /usr/bin/grep -cF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex
+1
+$ /usr/bin/grep -c defmodule priv/templates/sigra.gen.oauth/oauth_html.ex        # live control, same file
+1
+$ /usr/bin/grep -nF -- '<literal>' priv/templates/sigra.gen.oauth/oauth_html.ex | cut -d: -f1
+54
+$ sed -n '54p' priv/templates/sigra.gen.oauth/oauth_html.ex | cut -c1-120
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.
+```
+
+The template carries the literal at **line 54**; plan 239-13's halting probe reported the rendered hit
+at `lib/<app>_web/controllers/oauth_html.ex:54`. Same literal, same line number, same alternation.
+Not a paraphrase, not eyeballed — a difference of one character would make D-33 a new disposition
+wearing an old one's name.
+
+### 3. The bound, measured (not asserted)
+
+```
+$ git ls-files -z | xargs -0 /usr/bin/grep -lF -- '<literal>'
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-EVIDENCE.md      (this ledger)
+.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv (the record itself)
+priv/templates/sigra.gen.oauth/oauth_html.ex                                        (the sole tracked SOURCE file)
+
+$ git ls-files -z | xargs -0 /usr/bin/grep -lF -- 'defmodule Sigra' | /usr/bin/grep -c .    # live control, same command shape
+510
+```
+
+`(basename, literal)` is strictly **looser** than `(path, literal)`: a third file named
+`oauth_html.ex` carrying that literal would also be excluded. The measurement above is what bounds
+that — across the whole tracked tree the literal lives in exactly one source file, so the real blast
+radius is that file plus its rendered counterpart, both already triaged. Stated as a measured fact
+rather than a promise, which is this phase's own standard applied to its own reasoning.
+
+### 4. Why the replaced assumption survived every prior measurement
+
+```
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c oauth_html
+0
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c '\.ex$'       # live control, same list
+68
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c 'router\.ex$' # live control, same list
+1
+$ git ls-files test/fixtures/install_golden/tree | /usr/bin/grep -c .
+84
+```
+
+The golden fixture — the only prior stand-in for generated output — contains **zero** `oauth_html`
+files, while the install-smoke app installs the OAuth generator's output. The criterion's embedded
+assumption (*"no allowlist entry's path is expected in it"*) was therefore true of every tier ever
+measured and was never tested against a real generated app. An untested assumption, not a bar.
+
+### 5. The goalpost question, answered from the commit graph
+
+```
+$ git log -1 --format='%h %s' 1a85508e
+1a85508e docs(239): closure evidence — widened re-measure, second re-bless, SC-5 re-proof (SURF-01, SURF-03)
+$ git log -1 --format='%h %s' 23f3c711
+23f3c711 chore(239): define V3 vocabulary bookkeeping definition, demonstrated RED on all three tiers (SURF-01, SURF-03)
+
+$ git merge-base --is-ancestor 1a85508e 23f3c711 ; echo $?
+0
+$ git merge-base --is-ancestor 23f3c711 HEAD ; echo $?
+0
+```
+
+Plan 239-08's FALSE-POSITIVE disposition (`1a85508e`) precedes plan 239-09's allowlist record
+(`23f3c711`), which precedes this measurement. **D-33 changes only how an already-existing
+disposition is matched across a rendering boundary — never what counts as bookkeeping.**
+
+### 6. The derivation procedure (verbatim, runnable)
+
+```bash
+AL=.planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-v3-allowlist.tsv
+"$S" --files "${FILES[@]}" > out.txt 2>&1; rc=$?     # rc=3 is an instrument failure, never a result: HALT
+sed -n '/^files_measured=/,$p' out.txt | tail -n +2 | while IFS= read -r rec; do
+  [ -n "$rec" ] || continue
+  h_path="${rec%%:*}"; rest="${rec#*:}"; h_line="${rest%%:*}"; h_text="${rest#*:}"
+  h_base="$(basename "$h_path")"; hit_excluded=0
+  while IFS=$'\t' read -r a_path a_literal a_reason; do
+    case "$a_path" in ''|'#'*) continue ;; esac
+    [ -n "$a_literal" ] || continue
+    [ "$(basename "$a_path")" = "$h_base" ] || continue
+    printf '%s\n' "$h_text" | /usr/bin/grep -qF -- "$a_literal" && hit_excluded=1
+  done < "$AL"
+  if [ "$hit_excluded" = 1 ]; then echo "EXCLUDED  ${h_base}:${h_line}"
+  else echo "SURVIVING ${h_base}:${h_line}: ${h_text}"; fi
+done
+```
+
+Criterion met when SURVIVING is `0`. Any surviving record is a finding and the plan HALTS. The
+excluded records are listed **by name**, never summarised as a number. `control_defmodule >= 1` is
+still required on the same file list.
+
+### 7. The three probes — the amended criterion demonstrated able to fail
+
+Scratch surface built **outside the repo working tree** (recorded by basename as `<scratch>/…`, never
+by absolute path — public repo), parse-controlled before any result was interpreted, run against the
+**unmodified committed allowlist** in `--files` mode, deleted afterwards, never committed. Every
+scratch file carries a `defmodule` line, because `control_defmodule=0` raises the instrument's exit 3
+and yields no result at all.
+
+Parse control, before interpretation:
+
+```
+a/oauth_html.ex lines=4 defmodule=1 literal=1
+b/page_html.ex  lines=3 defmodule=1 literal=1
+c/oauth_html.ex lines=3 defmodule=1 literal=0
+```
+
+**Probe A — the criterion can still fail.** A scratch `oauth_html.ex` carrying BOTH the allowlisted
+literal AND a genuine V3-matching bookkeeping line:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/a/oauth_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=2
+allowlisted=0
+hits_outside_allowlist=2
+control_defmodule=1
+files_measured=1
+<scratch>/a/oauth_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..." />
+<scratch>/a/oauth_html.ex:3:   # gap-closure bookkeeping note, see SUMMARY.md
+--- D-33 exclusion derivation ---
+  EXCLUDED  oauth_html.ex:2
+  SURVIVING oauth_html.ex:3:   # gap-closure bookkeeping note, see SUMMARY.md
+  excluded=1 surviving=1
+```
+
+The exclusion removed the allowlisted literal and **left the bookkeeping line behind**. The amended
+criterion is **RED**, with the survivor named. This is the demonstration that matters: an exclusion
+rule that cannot leave anything behind certifies everything.
+
+**Probe B — the bound holds on basename.** The allowlisted literal under a DIFFERENT basename:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/b/page_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=1
+files_measured=1
+<scratch>/b/page_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..." />
+--- D-33 exclusion derivation ---
+  SURVIVING page_html.ex:2:   # <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 ..."
+  excluded=0 surviving=1
+```
+
+Not excluded. A matching literal alone cannot buy an exemption.
+
+**Probe C — the bound holds on literal.** Basename `oauth_html.ex`, a V3 hit that is NOT the
+allowlisted literal:
+
+```
+$ 239-v3-vocabulary-check.sh --files <scratch>/c/oauth_html.ex
+EXIT=1
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=1
+files_measured=1
+<scratch>/c/oauth_html.ex:2:   # ROADMAP entry still pending
+--- D-33 exclusion derivation ---
+  SURVIVING oauth_html.ex:2:   # ROADMAP entry still pending
+  excluded=0 surviving=1
+```
+
+Not excluded. A matching basename alone cannot buy an exemption.
+
+On every probe `files_measured=1` equalled the scratch file count and `control_defmodule=1` was live.
+No probe returned exit 3; exit 1 throughout means "the surface is dirty", which is exactly what these
+scratch surfaces were built to be.
+
+### 8. Cleanup and scope
+
+The scratch directory was deleted; `git status --porcelain` was empty afterwards.
+`239-v3-vocabulary-check.sh`, `239-v3-allowlist.tsv` and `239-comment-only-diff-check.sh` are
+byte-unchanged. `.planning/REQUIREMENTS.md` was not touched and **SURF-03 remains `[ ]`** — plan
+239-13 re-checks it last and alone. No `install-smoke.sh` run, no app scaffolded, no tarball built,
+no `mix ci`: every live external observation remains plan 239-13's.
+
+### 9. Sub-entry — the two amended sites in `239-13-PLAN.md` (plan 239-16 Task 2)
+
+The sites were located by exhaustive re-grep, not by line number. `/usr/bin/grep -nE
+'allowlist|generated app' 239-13-PLAN.md` returned **37** matching lines and
+`-cE 'generated-app|over the generated app'` a further **12**; every hit was classified. Exactly **two** are the generated-app V3
+criterion:
+
+- **Site 1 — the Task 1 action sentence (~L190):** *"Also run V3 over the generated app's `lib/` and
+  `priv/` and record the result with its control."*
+- **Site 2 — the Task 1 acceptance criterion (~L235):** the clause carrying the embedded assumption
+  *"no allowlist entry's path is expected in it"*.
+
+Classified and confirmed **not** further sites: L13 (frontmatter comment describing this very
+amendment), L38/39/46 (the three named tiers), L54 (golden-tree admissibility), L186 (the SC-1
+fixed-string proof, which references no allowlist), L207-219 and L236 (`T-239-12-03`, amended by
+D-31), L312-315 (the evidence-record instruction), L375-376 (threat rows), and L392-393 (the
+`<verification>` section, which covers only the three tiers and the fixed-string proof — confirmed by
+reading it, not assumed). There is no third site.
+
+## BATCH-3-CLOSURE-OUTCOME
+
+*(Written by plan 239-13, the closure's last plan. The section keeps the name plan 239-13's
+acceptance criteria fixed for it — `BATCH-3-CLOSURE-OUTCOME` — even though the phase has since
+landed a fourth batch: the name is a contract with the plan's own verify, not a claim about batch
+count. Its content covers the closure **through batch 4**, and the re-bless count recorded in (k)
+says so explicitly.)*
+
+**Every number below was produced by a command run at the final committed HEAD
+`3230d212` (`docs(239-16): complete the D-33 criterion amendment plan`) on a clean tree
+(`git status --porcelain` empty before and after every measurement), with `/usr/bin/grep` invoked
+explicitly wherever a count is load-bearing, and every zero paired with a live positive control on
+the same surface. Nothing here is inherited from a SUMMARY.** The only commits that follow the
+measurement HEAD are this evidence record and the SURF-03 re-check, neither of which is compiled or
+tested by `mix ci`.
+
+**Public-repo redaction (SAFETY RULESET 6).** The `oauth_html.ex:54` hit text printed by the
+instrument ends in a `fill=` attribute carrying a brand hex value. Every quotation of that record
+below elides the attribute as `… fill="…"/>`, following § `## VOCABULARY-LEDGER` (e), which stores
+only the path geometry fragment for the same reason. The generated app and the unpacked tarball
+lived under tmp paths; they are recorded by basename (`<tmp>/tmp_app`) and repo-relative path, never
+by an absolute home path.
+
+### (a) Three-tier V3 at final HEAD — GREEN, against plan 239-09's RED under the same definition
+
+```bash
+d=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+for t in priv-templates example golden; do "$d/239-v3-vocabulary-check.sh" "$t"; echo "rc=$?"; done
+```
+
+| Tier | `hits` (raw) | `allowlisted` | `hits_outside_allowlist` | `control_defmodule` | `files_measured` | exit | plan 239-09 RED (§ VOCABULARY-LEDGER (f)) |
+|---|---|---|---|---|---|---|---|
+| `priv-templates` | **1** | 1 | **0** | **98** | 119 | **0** | outside **2**, exit 1 |
+| `example` (SC-4 counterparts) | **0** | 0 | **0** | **2** | 2 | **0** | outside **2**, exit 1 |
+| `golden` | **0** | 0 | **0** | **78** | 84 | **0** | outside **2**, exit 1 |
+
+The RED/GREEN pair is complete per tier: the same instrument, the same frozen tier file lists and the
+same committed allowlist (D-30) reported `hits_outside_allowlist=2` on each of these three tiers at
+plan 239-09's HEAD and reports `0` here, with each tier's paired positive control alive on both
+readings. No tier returned exit 3; had one, it would have been a halt, never a result.
+
+The single raw `priv-templates` hit is the allowlisted SVG-coordinate false positive dispositioned by
+name in § `## VOCABULARY-LEDGER` (e) and (h#1), reported inline rather than removed from the count:
+
+```
+priv/templates/sigra.gen.oauth/oauth_html.ex:54: [ALLOWLISTED]       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 …" fill="…"/>
+```
+
+**The `example` tier's zero, stated with its scope in the same sentence:** it is a claim about
+**SC-4's two mirrored-counterpart files and nothing else** (D-30) — `files_measured=2`, the two paths
+enumerated literally in the instrument — and it is **not** a claim about all of `test/example/`. The
+unswept remainder of that tree was re-measured live at this HEAD rather than restated from the
+ledger, and it is unchanged:
+
+```bash
+REM=$(git ls-files test/example | /usr/bin/grep -vxF \
+  -e 'test/example/lib/example_web/live/invitation_accept_live.ex' \
+  -e 'test/example/lib/example_web/live/organization_members_live.ex')   # 344 files scanned
+#   V3-matching lines -> 482 ; distinct files -> 157
+```
+
+**482 V3-matching lines across 157 files, over 344 scanned files** — byte-identical to the figure
+§ `## VOCABULARY-LEDGER` (i) recorded, and owned by **Phase 241 SURF-04** via
+`.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`.
+This phase does not claim to have cleaned it.
+
+### (b) Per-alternation positive controls, re-fired live at final HEAD — none dead
+
+A zero from a clean surface and a zero from an alternation that quietly stopped matching are the same
+observation without this table. All eight fire; none is dead, none was dropped.
+
+| # | Alternation | Control surface | Count at this HEAD | § VOCABULARY-LEDGER (b) |
+|---|---|---|---|---|
+| 1 | `\b[Pp]lan[- ]checker\b` | `239-VERIFICATION.md` | **4** | 4 |
+| 2 | `\bthis phase\b` | `239-CONTEXT.md` | **11** | 4 |
+| 3 | `\bthe plan\b` | `239-09-PLAN.md` | **2** | 2 |
+| 4 | `v[0-9]+\.[0-9]+ concern` | `239-VERIFICATION.md` | **3** | 3 |
+| 5 | `\bgap[- ]closure\b` | `.planning/ROADMAP.md` | **4** | 4 |
+| 6 | `\bre-?bless\b` | `.planning/ROADMAP.md` | **6** | 4 |
+| 7 | `\bROADMAP\b` | `.planning/ROADMAP.md` | **13** | 13 |
+| 8 | `SUMMARY\.md` | `.planning/ROADMAP.md` | **1** | 1 |
+
+Rows 2 and 6 read **higher** than plan 239-09's, because `239-CONTEXT.md` gained D-31/D-32/D-33 and
+the ROADMAP gained re-bless prose since. The criterion is non-zero, not equality; the two increases
+are reported rather than smoothed, and **no alternation returned zero, so no instrument regression is
+reported**. Commands (brace group + `|| true`, SAFETY RULESET 3), with `/usr/bin/grep` explicit:
+
+```bash
+P=.planning/phases/239-priv-templates-sweep-one-batched-re-bless
+{ /usr/bin/grep -cE '\b[Pp]lan[- ]checker\b' "$P/239-VERIFICATION.md" || true; }   # => 4
+{ /usr/bin/grep -cE '\bthis phase\b'          "$P/239-CONTEXT.md"      || true; }   # => 11
+{ /usr/bin/grep -cE '\bthe plan\b'            "$P/239-09-PLAN.md"      || true; }   # => 2
+{ /usr/bin/grep -cE 'v[0-9]+\.[0-9]+ concern' "$P/239-VERIFICATION.md" || true; }   # => 3
+{ /usr/bin/grep -cE '\bgap[- ]closure\b'      .planning/ROADMAP.md     || true; }   # => 4
+{ /usr/bin/grep -cE '\bre-?bless\b'           .planning/ROADMAP.md     || true; }   # => 6
+{ /usr/bin/grep -cE '\bROADMAP\b'             .planning/ROADMAP.md     || true; }   # => 13
+{ /usr/bin/grep -cE 'SUMMARY\.md'             .planning/ROADMAP.md     || true; }   # => 1
+```
+
+### (c) The freshly generated app — the vehicle, and its preconditions
+
+```bash
+$ MIX_ENV=test mix sigra.fixture.rebless_golden --check
+==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture
+OK: fixture is up-to-date (check mode).
+CHECK_RC=0
+
+$ env -u PGPORT -u PGHOST ASDF_ERLANG_VERSION=28.5 ASDF_ELIXIR_VERSION=1.19.5-otp-28 \
+    GITHUB_WORKSPACE=$(pwd) TMP_APP_DIR=<tmp>/tmp_app bash scripts/ci/install-smoke.sh
+…
+==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean
+SMOKE_RC=0
+```
+
+`--check` exit **0** re-confirms at this HEAD (not cited from plan 239-12) that the golden tree is
+byte-equal to a freshly generated install, which is the only thing that makes the golden tier
+admissible as generated-output evidence. `install-smoke.sh` exit **0** end-to-end — `mix phx.new`
+1.8.8, `mix sigra.install --yes Accounts User users`, `mix compile --warnings-as-errors`,
+`ecto.create` + `ecto.migrate`, `mix sigra.gen.oauth --providers google,github`, and its own
+generated-app probe suite (3 tests, 0 failures).
+
+**Environment note, recorded because two prior waves lost time to it and it is not a Sigra defect.**
+`PGHOST`/`PGPORT` were explicitly unset and the Homebrew Postgres on `localhost:5432`
+(`postgres`/`postgres`) was used. With `PGPORT` exported from `tmp/db.env`, Postgrex honours it as a
+default while the generated `config/dev.exs` hardcodes `hostname: "localhost"`, so `ecto.create`
+lands the database on the Dockerized test Postgres and `ecto.migrate` cannot reach it. An environment
+interaction, not a finding.
+
+Generated app size: **87 files under `lib/`, 21 under `priv/`** (108 total).
+
+### (d) SC-1, falsified independently of V1, V2 and V3 — fixed-string grep on the generated app
+
+The two sentences removed by plan 239-11, taken verbatim from `239-VERIFICATION.md`'s SC-1 `gaps:`
+block (lines 35 and 37), grepped **fixed-string** (`-F`, no regex of any kind) over the generated
+app's `lib/` and `priv/` — the artifact an adopter actually gets, never the golden fixture:
+
+```bash
+A=<tmp>/tmp_app
+{ /usr/bin/grep -rnF -- 'The plan-checker greps this function body and asserts zero matches.' "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rnF -- 'Flop / sortable columns are a v1.2 concern.'                          "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rnF -- 'generates no tests'                                                   "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+{ /usr/bin/grep -rn  'defmodule'                                                               "$A/lib" "$A/priv" || true; } | /usr/bin/grep -c .
+```
+
+| Measurement | Result |
+|---|---|
+| Sentence 1 — `The plan-checker greps this function body and asserts zero matches.` | **0** |
+| Sentence 2 — `Flop / sortable columns are a v1.2 concern.` | **0** |
+| The D-31-retracted clause — `generates no tests` | **0** |
+| **Positive control** — `defmodule` lines on that same generated tree | **94** |
+
+A second, sharper control than `defmodule`: the **replacement** prose is present at the expected
+generated path, so the three zeroes above cannot mean the grep was pointed at a tree that does not
+contain the file under test —
+
+```
+<app>/lib/tmp_app_web/live/invitation_accept_live.ex:21:  your generated project does not inherit that assertion, so if you customize
+```
+
+**This criterion references no regex this phase put on trial.** V1, V2 and V3 are all instruments
+under examination here; a goal falsifiable only by the instrument validating it is not falsifiable.
+The `generates no tests` row is the D-31 retraction checked on generated bytes as well — the false
+sentence reaches no adopter from this HEAD.
+
+### (e) The D-32 generated-app scope, computed live, with its excluded class enumerated
+
+The scope frozen in § `## GENERATED-APP-SCOPE` is *the files `mix sigra.install` created or
+modified*. It was computed here by the rule's own mechanism rather than from the pattern list: a
+**bare `phx.new` baseline app scaffolded with the identical name and flags**
+(`mix phx.new tmp_app --no-install --no-dashboard --database postgres`, 24 files under `lib/`+`priv/`),
+then per-path byte comparison (`cmp -s`) against the installed app — exactly
+`test/support/install_fixture.ex:360-364`'s byte-identity drop, applied to a real app.
+
+| Class | Count |
+|---|---|
+| Generated app files under `lib/` + `priv/` | **108** |
+| **In scope** — created or modified by `mix sigra.install` | **88** |
+| **Excluded** — `phx.new`-authored, byte-identical to the pre-install baseline | **20** |
+
+**The 20 excluded paths, enumerated in full (D-32 (f) requirement 1 — never a scoped number alone):**
+
+```
+lib/tmp_app.ex                                        lib/tmp_app_web/controllers/page_html.ex
+lib/tmp_app/mailer.ex                                 lib/tmp_app_web/controllers/page_html/home.html.heex
+lib/tmp_app/repo.ex                                   lib/tmp_app_web/gettext.ex
+lib/tmp_app_web.ex                                    lib/tmp_app_web/telemetry.ex
+lib/tmp_app_web/components/core_components.ex         priv/gettext/en/LC_MESSAGES/errors.po
+lib/tmp_app_web/components/layouts/root.html.heex     priv/gettext/errors.pot
+lib/tmp_app_web/controllers/error_html.ex             priv/repo/migrations/.formatter.exs
+lib/tmp_app_web/controllers/error_json.ex             priv/repo/seeds.exs
+lib/tmp_app_web/controllers/page_controller.ex        priv/static/favicon.ico
+                                                      priv/static/images/logo.svg
+                                                      priv/static/robots.txt
+```
+
+V3 over that excluded set: `hits=5`, `control_defmodule=11` (live), `files_measured=20`, exit 1 —
+an **enumeration run, not a criterion run**. Per-file counts:
+
+| Excluded path | V3 hits | Class |
+|---|---|---|
+| `lib/<web>/controllers/page_html/home.html.heex` | **4** | `\b[0-9]{3}-[0-9]{2}\b` on SVG `<path d="…">` coordinate pairs |
+| `priv/static/images/logo.svg` | **1** | same class |
+
+Both files and both counts are exactly the class D-32 (e) named in advance. Disposition, unchanged:
+upstream Phoenix content, no adopter-facing Sigra surface, therefore **no Sigra remediation owner** —
+deliberately unlike D-27's Sigra-authored packaged-docs finding, which is routed to Phase 241 SURF-04.
+
+**D-32 (f) HALT CLAUSE, evaluated rather than assumed.** Each of the 20 excluded paths was re-tested
+against the baseline: `excluded_paths_touched_by_installer=0`. No excluded path is one
+`mix sigra.install` created or modified, so the halt clause does not trip. Had any differed, this
+plan would have stopped: an excluded path the installer touched is a stop-the-line event, not a
+caveat.
+
+### (f) V3 over the generated app, graded as amended by D-33 — surviving = 0
+
+Run in `--files` mode over the **88 in-scope paths** from (e), against the unmodified committed
+allowlist:
+
+```
+tier=explicit-file-list
+hits=1
+allowlisted=0
+hits_outside_allowlist=1
+control_defmodule=83
+files_measured=88
+<app>/lib/tmp_app_web/controllers/oauth_html.ex:54:       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 …" fill="…"/>
+V3_INSCOPE_RC=1
+```
+
+`allowlisted=0` is the D-33 matching-key artifact in the open: the committed record is keyed on
+`priv/templates/sigra.gen.oauth/oauth_html.ex`, and the rendered counterpart arrives at
+`lib/<web>/controllers/oauth_html.ex` — a different string carrying identical bytes at the identical
+line 54. The instrument is correct and unmodified; the criterion is the thing D-33 amended.
+
+**Parse control before any result was interpreted** (a row written with spaces instead of a tab
+parses as a comment and would silently exempt nothing while looking like it exempted something):
+
+```bash
+awk -F'\t' 'NF>=2' .planning/phases/239-…/239-v3-allowlist.tsv | wc -l     # => 2  (header + the single record)
+```
+
+**The D-33 derivation, run verbatim as transcribed in § `## D-33-CRITERION-AMENDMENT` (6):**
+
+```
+EXCLUDED  oauth_html.ex:54
+excluded=1 surviving=0
+```
+
+- **Excluded records, listed by name and count — never summarised as a number:** exactly one,
+  `oauth_html.ex:54`, whose hit text contains the committed record's literal as a fixed-string
+  substring and whose basename equals the committed record's basename.
+- **Surviving records: none.** `hits_outside_allowlist = 0` after the `(basename, literal)`
+  exclusion, which is the criterion as amended by D-33. Had any record survived, it would have been
+  a finding and this plan would have halted rather than reclassified it.
+- **The live-control requirement is retained and met:** `control_defmodule=83` on that same explicit
+  88-file list. The exclusion makes it *easier*, not harder, for a zero to mean nothing, so the
+  control matters more here, not less.
+- No exit 3 was returned on any run. An exit 3 would have been an instrument failure and a halt.
+
+Plan 239-16 proved this criterion can still fail (Probe A left a genuine bookkeeping line surviving
+inside a scratch `oauth_html.ex`; Probes B and C showed a matching literal alone and a matching
+basename alone each buy no exemption). The GREEN above is therefore a result, not a tautology.
+
+### (g) WR-01's two supporting observations, re-made here — `T-239-12-03` DISCHARGED
+
+Made against the freshly generated app at `<tmp>/tmp_app` from (c) — **not** against
+`test/fixtures/install_golden/tree/test/`, and **not** cited from plan 239-11's SUMMARY. The
+substitution of a committed snapshot for a generated app is the exact defect `T-239-12-03` exists to
+catch, and it is what caught it: the retracted claim survived only because the golden fixture
+snapshots no generated `_test.exs` path at all.
+
+```bash
+A=<tmp>/tmp_app
+find "$A/test" -name '*_test.exs' | wc -l                  # => 5
+find "$A/test" -name 'sigra_admin_policy_test.exs'         # => test/tmp_app/sigra_admin_policy_test.exs
+find "$A/test" -name '*.exs' | wc -l                       # => 6   [positive control, same tree]
+```
+
+| Observation (as amended by D-31) | Required | Measured |
+|---|---|---|
+| `_test.exs` files in the generated `test/` tree | **>= 1** (inverted from the retracted `0`) | **5** |
+| `test/<otp_app>/sigra_admin_policy_test.exs` present by name | present | **present** — `test/tmp_app/sigra_admin_policy_test.exs` |
+| **Positive control** — `*.exs` under that same `test/` path | **>= 1** | **6** |
+
+The five, enumerated and classified, because a bare count would hide which of them the *installer*
+authored:
+
+| Path | Author |
+|---|---|
+| `test/tmp_app/sigra_admin_policy_test.exs` | **`mix sigra.install`** — `lib/sigra/install/features/admin.ex:38-39` |
+| `test/tmp_app_web/controllers/error_html_test.exs` | `phx.new` |
+| `test/tmp_app_web/controllers/error_json_test.exs` | `phx.new` |
+| `test/tmp_app_web/controllers/page_controller_test.exs` | `phx.new` |
+| `test/generated_capability_gate_probe_test.exs` | `scripts/ci/install-smoke.sh` (its own probe, appended after install) |
+
+One installer-created `_test.exs` target is enough to falsify an absence claim, and it is on disk in
+a real generated app. The control returning **6** is what makes the counts measurements rather than a
+wrong path returning a comfortable number.
+
+**T19's subject re-confirmed to be the template path, read in place:**
+`test/example/test/example_web/live/invitation_accept_live_test.exs:581-595`, inside
+`describe "structural invariant (Jetstream #907 static check)"`, builds
+
+```elixir
+path = Path.join([File.cwd!(), "..", "..", "priv", "templates", "sigra.install",
+                  "organizations", "live", "invitation_accept_live.ex"]) |> Path.expand()
+```
+
+— i.e. `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex`, a **template**
+path, not a generated-app path. Both surviving clauses of the corrected prose therefore hold on the
+bytes: Sigra's own suite asserts the invariant against the shipped template, and the adopter's
+generated project does not inherit that assertion (T19's basename
+`invitation_accept_live_test.exs` is not among the five above).
+
+**Threat row `T-239-12-03` is DISCHARGED**, on the generated-app tree named above, by the observation
+D-31 inverted — not transferred forward.
+
+### (h) The tarball under the amended D-27 scope
+
+```bash
+$ mix hex.build --unpack        # => "Saved to sigra-1.5.0" ; HEXBUILD_RC=0
+$ cd sigra-1.5.0
+$ { /usr/bin/grep -rn '\.planning/' lib priv || true; } | /usr/bin/grep -c .     # => 0
+$ { /usr/bin/grep -rl 'defmodule'  lib priv || true; } | /usr/bin/grep -c .      # => 258   [positive control]
+$ find lib priv -type f | wc -l                                                  # => 282   [positive control]
+```
+
+**SC-2 as amended by D-27 holds: 0 `.planning/` references under the tarball's `lib/` and `priv/`**,
+paired with two live controls on that same unpacked tree (258 files containing `defmodule`, 282 files
+total) so the zero cannot mean an empty or wrong directory.
+
+**Out-of-scope surface, enumerated per file rather than claimed absent** (D-27's whole point — a
+narrowing that silently deletes a finding is the same defect as a green gate that verified nothing):
+
+| Packaged file | `.planning/` occurrences | matching lines |
+|---|---|---|
+| `CHANGELOG.md` | 43 | 19 |
+| `docs/uat-ci-coverage.md` | 7 | 6 |
+| `docs/ga-evidence.md` | 3 | 3 |
+| `docs/nyquist-posture-matrix.md` | 3 | 2 |
+| `docs/audit-semantics.md` | 1 | 1 |
+| `README.md` | 1 | 1 |
+| `mix.exs` | 0 | 0 |
+| **Total** | **58** | **32** across **6** files |
+
+**Reconciliation against the figure plan 239-10 recorded: exact, in both labels.** D-27 and
+`.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`
+record **58 occurrences across 32 matching lines in 6 files**, with the identical per-file split. The
+re-measurement reproduces all three numbers and every row, so there is no difference to reconcile —
+and the two labels are kept distinct here, because "58" is the **occurrence** count and "32" the
+**matching-line** count, and collapsing them is how a number drifts.
+
+Owners, named rather than left to inference: **Phase 241 SURF-04** (whose requirement text names the
+packaged-docs surface) plus the plan-239-10 todo above. This surface is deliberate provenance and
+maintainer prose; it is routed, not cleaned here.
+
+**Residue (REPO-01).** `--unpack` wrote no new `.tar`; the unpacked `sigra-1.5.0/` was deleted
+immediately and `git status --porcelain` is empty. Two **pre-existing** archives, `sigra-0.1.0.tar`
+(dated Apr 18) and `sigra-0.2.0.tar` (Apr 19), sit in the repo root; both are **gitignored**
+(`.gitignore:27 sigra-*.tar`, confirmed by `git check-ignore -v`), predate this phase by months, and
+were **not created or touched by this plan**. They are reported rather than deleted: removing
+untracked files this plan did not author is outside its scope, and being gitignored they cannot reach
+a commit, which is the risk REPO-01 exists to prevent. Recorded here so a later reader sees them as a
+known pre-existing condition rather than as this closure's residue — the task verify's literal
+`ls -d sigra-*.tar sigra-*/` clause passes only because the non-matching `sigra-*/` glob makes `ls`
+exit non-zero, so its pass is **not** the evidence for this paragraph; the `check-ignore` and
+timestamp readings above are.
+
+### (i) The gate — RED once from a stale `_build`, diagnosed, recovered with zero source changes, GREEN
+
+**Run 1 — RED, `MIX_CI_RC=2`.** Six failures, all in `Sigra.Audit.Forwarders.ThreadlineTest`, all the
+same shape:
+
+```
+** (UndefinedFunctionError) function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined
+   (module Sigra.Audit.Forwarders.Threadline is not available)
+33 doctests, 3 properties, 2606 tests, 6 failures, 12 skipped (22 excluded)
+```
+
+This is the **documented plan-239-08 signature**, byte for byte: a local `_build` holding a sigra beam
+compiled before the `:threadline` dep existed. Diagnosed before anything was edited, exactly as this
+plan's SAFETY RULESET requires.
+
+**Recovery — the documented one, no source change:**
+
+```bash
+$ git status --porcelain      # => empty  (before)
+$ MIX_ENV=test mix deps.compile threadline --force && MIX_ENV=test mix compile --force
+… Generated threadline app / Compiling 178 files (.ex) / Generated sigra app      RECOVER_RC=0
+$ git status --porcelain      # => empty  (after)
+$ git diff --name-only | wc -l   # => 0    source files changed across the recovery
+```
+
+**Run 2 — GREEN, `MIX_CI_RUN2_RC=0`:**
+
+```
+33 doctests, 3 properties, 2606 tests, 0 failures, 12 skipped (22 excluded)
+65 tests, 0 failures (2599 excluded)          [the threadline_guard lane]
+```
+
+`MIX_ENV=test mix ci` — never root `mix test` (Standing Constraint 3) — is
+`format --check-formatted`, `deps.get --check-locked`, `deps.unlock --check-unused`,
+`compile --warnings-as-errors`, `test --exclude scaffold`, `ci.install_golden`, `sigra.dep_off`
+(`mix.exs:149-157`). All of it exits 0 at the final committed HEAD on a clean tree. **Zero source
+files were changed to turn the red green** — the prohibition against fixing source to chase a build
+artifact holds on the bytes, not on assertion.
+
+### (j) SC-5, re-proven at two deliberately chosen diff bases
+
+SC-5's own text names `origin/main`. At this HEAD `origin/main` is **89 commits behind local `main`**
+(`git rev-list --count origin/main..HEAD` → 89; `239-VERIFICATION.md` recorded 37, and that figure is
+now stale — reported, not restated), so that diff spans far more than this closure. Both widths were
+therefore run: the criterion's, and the closure's. A renamed required status context never reports
+and every PR hangs forever (D-23), so this is checked at both widths rather than at whichever is
+convenient.
+
+| Base | Which | `git diff --name-only <base> -- .github/` | `git diff <base> -- .github/ \| grep '^[+-].*name:'` | Positive control (same base, no pathspec) |
+|---|---|---|---|---|
+| `origin/main` (`6b03af05`) | **the criterion's** | **0 lines** | **0 lines** | 189 changed paths |
+| `d65e6eb8` — plan-239-08 HEAD | **the closure's** | **0 lines** | **0 lines** | 40 changed paths |
+| `1a85508e` — plan 239-08's evidence commit | corroborating | **0 lines** | — | — |
+
+The two controls are load-bearing: each base *does* produce a large diff, so the `.github/` zeroes
+mean the pathspec matched nothing changed, not that the diff itself was empty. A third control,
+`git ls-files .github | /usr/bin/grep -c .` → **14**, shows the pathspec addresses a non-empty tree.
+No file under `.github/` was edited by this plan, and no `name:` line moved at either width.
+
+**`237-security-comment-diff-check.sh` over the full closure diff:**
+
+```bash
+$ git diff d65e6eb8 HEAD -- lib/ priv/ test/example/ test/fixtures/ > <scratch>/closure.diff
+    # 8021 bytes, 21 raw removed lines
+$ .planning/phases/237-…/237-security-comment-diff-check.sh <scratch>/closure.diff
+examined_removed_lines=15
+CLASSIFIER_RC=0
+```
+
+Exit **0** with `examined_removed_lines=15` > 0 — live across the closure's removed lines rather than
+vacuously passing on nothing. The single documented structural survivor (round 1's `core/auth.ex`
+`IN-03` tolerance gap, § `## HONEST-CLAIMS`) does not appear here: that removal belongs to the round-1
+sweep diff and is not inside `d65e6eb8..HEAD`. The instrument limitation itself is unchanged and
+stays filed as
+`.planning/todos/pending/2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md`
+for Phase 241's `p18`. The script is byte-unchanged:
+`git diff --name-only -- <the script>` → 0 paths, and the same against `origin/main` → 0 paths.
+
+### (k) Instruments byte-unchanged, and the re-bless count
+
+```bash
+$ git diff --quiet -- .planning/phases/239-…/239-v3-vocabulary-check.sh \
+                      .planning/phases/239-…/239-v3-allowlist.tsv        # => exit 0
+```
+
+Neither `239-v3-vocabulary-check.sh`, `239-v3-allowlist.tsv`,
+`239-comment-only-diff-check.sh` nor `237-security-comment-diff-check.sh` appears in any commit of
+plan 239-13 (D-16, D-30). **The closure's final green comes from the surface, never from the
+measurement** — which is the only reason the green is worth anything, given that this is the plan
+where a red instrument would create maximum pressure to adjust it.
+
+**Re-bless commits for the phase: 4, one per batch** — SC-3 as amended by D-26 and bounded by D-29,
+carried from § `## BATCH-JUSTIFICATION`:
+
+| Batch | Re-bless commit | Plan |
+|---|---|---|
+| 1 | `38c9bd9a` | 239-04 |
+| 2 | `265f7195` | 239-07 |
+| 3 | `87581665` | 239-12 |
+| 4 | `5f7ae9d7` | 239-15 |
+
+Each batch carries its own by-name justification in § `## BATCH-JUSTIFICATION`, written before that
+batch's re-bless ran. The count is unbounded by construction under D-26 and **auditable** under D-29;
+recording it here keeps the number visible rather than derivable.
+
+### (l) What this plan did NOT establish
+
+Deferrals are extended in the `## HONEST-CLAIMS` block that follows, each with an owner. The four
+`edge_coverage_assumptions` rows this plan carries (`unclassified`, `empty`, `ordering`, `adjacency`)
+remain **surfaced, not resolved**: every zero above is paired with a same-surface positive control,
+the per-alternation controls were re-fired live, the instrument fails closed on an empty tier and
+distinguishes exit 3 from exit 1, and the evidence-before-checkbox ordering is asserted by commit
+scope rather than by tooling — but none of those mitigations classifies the probe rows themselves.
+
+## HONEST-CLAIMS (extended by plan 239-13 — the five items below are additions, not restatements)
+
+**1. The `install_golden_contract` Actions clause is STILL a ship-time deferral — nothing here
+upgrades it.** SC-3's remaining clause asks for a green `install_golden_contract` GitHub Actions run.
+**This plan pushed nothing, so no Actions verdict exists to read, and none is claimed anywhere in its
+commits.** The honest local substitutes are named and they are real: `MIX_ENV=test mix ci` exit 0
+(§ (i) above) and `mix sigra.fixture.rebless_golden --check` exit 0 (§ (c)). A local proxy reported
+as a CI verdict would be a fabricated green that no one ran; the clause closes at ship time, not here.
+
+**2. The tarball `lib/` bookkeeping baseline is still deferred to Phase 241 SURF-04's monotonic
+ratchet.** Plan 239-08 measured 475 V2-matching bookkeeping lines across 84 files inside the
+tarball's `lib/`. This plan did not re-measure or reduce that baseline; SC-2 as amended by D-27 is
+about `.planning/` **paths**, which are at 0 under `lib/`+`priv/` (§ (h)). SURF-04 explicitly does
+not target zero for v1.48. Related and unchanged: everything this phase fixed reaches adopters only
+at the **next publish** — the 1.5.0 currently on Hex still carries the pre-sweep bytes.
+
+**3. The packaged-docs `.planning/` surface is routed by D-27, not cleaned.** 58 occurrences across
+32 matching lines in 6 files ship inside the tarball's `docs/`, `README.md` and `CHANGELOG.md`,
+enumerated per file in § (h). Deliberate provenance links and maintainer prose. Two owners, so the
+narrowing cannot swallow the finding: **Phase 241 SURF-04**'s requirement text, and
+`.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`.
+
+**4. The `test/example/` remainder outside SC-4's counterpart scope is routed by D-30, not cleaned —
+and the `example` tier's zero is never a claim about it.** Re-measured live at this HEAD:
+**482 V3-matching lines across 157 files, over 344 scanned files**, the bulk in
+`test/example/priv/playwright/` test tooling that is not adopter-shipped. Owner **Phase 241 SURF-04**
+via `.planning/todos/pending/2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md`.
+Review finding **IN-06** (`golden-path.spec.ts:59`, a lowercase `plan 04` that **no** V3 alternation
+matches) is named in that todo by hand, because it is a vocabulary class V3 still misses — recorded
+as a direct input to the `p18` spec rather than absorbed into a count.
+
+**5. FUT-01 — the template↔example parity guard — is still filed and unbuilt.**
+`.planning/todos/pending/2026-09-17-fut-01-template-example-parity-guard.md`. `--check` exit 0 is the
+only mechanism that proves template↔golden equality by generation; **template↔example equality has no
+mechanism at all** and is maintained by the hand-written mirror checklist. The `adjacency` edge-probe
+row stays unresolved for exactly this reason.
+
+**Additionally, and unchanged by this plan:** `SURF-02` remains marked `[x]` in `REQUIREMENTS.md`
+while not holding at HEAD (Phase 237's, filed as
+`.planning/todos/pending/2026-09-17-surf-02-marked-complete-but-does-not-hold-at-head.md`). This plan
+neither fixed it nor silently unchecked it — and it is the precise defect shape that is why SURF-03's
+re-check below is committed **last and alone**, after the evidence that justifies it.

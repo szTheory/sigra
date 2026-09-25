@@ -112,7 +112,7 @@ defmodule <%= web_module %>.RegistrationLive do
 
     case <%= context_module %>.register_user(user_params) do
       {:ok, user} ->
-        # D-05: deliver confirmation email (B5 repair; helper exists at <%= context_module %>.deliver_user_confirmation_instructions/2)
+        # Deliver confirmation email (helper exists at <%= context_module %>.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
 <%= if passkeys? do %>
           if enroll_passkey do

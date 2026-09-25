@@ -8,10 +8,10 @@
 //
 // TOTP alignment note: Sigra uses NimbleTOTP with its defaults (30s step,
 // SHA-1, 6 digits) — see lib/sigra/mfa.ex. otplib's `authenticator` defaults
-// match exactly, so no configuration is required.
+// are available through otplib v13's async generate({ secret }) API.
 
 import { test, expect } from '@playwright/test';
-import { authenticator } from 'otplib';
+import { generate } from 'otplib';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 
 test('full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge', async ({
@@ -95,7 +95,7 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   expect(secret).toBeTruthy();
 
   // Generate the current 6-digit code from the secret.
-  const enrollCode = authenticator.generate(secret);
+  const enrollCode = await generate({ secret });
 
   // MFASettingsLive's `validate_enroll` handler auto-calls
   // `do_confirm_enrollment` as soon as the code hits 6 digits — no submit

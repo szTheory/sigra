@@ -259,6 +259,21 @@ jobs:
         # tracking-issue notifier is idempotent (create-once / comment-once) and
         # fail-closed on missing LABEL/TITLE/BODY. No real `gh` CLI or network call.
         run: bash scripts/ci/notify-failure-issue.test.sh
+      - name: Pages legacy-branch script self-test
+        # Phase 240 Plan 01 (GREEN-05/SC-3): hermetic proof that
+        # ensure-github-pages-legacy-branch.sh exits 1 on every non-2xx Pages API
+        # status except the one named, documented PUT-403, and never POST-creates
+        # a Pages site on a 403/500. PATH-shadowed fake `gh`; no network call.
+        run: bash scripts/ci/ensure-github-pages-legacy-branch.test.sh
+      - name: GREEN-04 evidence collector self-test
+        # Quick task 260918-lfq (CR-01/CR-02/SELFTEST-CI): hermetic proof that
+        # capture-green-04-evidence.sh fails CLOSED rather than emitting a clean
+        # receipt when an SC-2 job selector matches zero jobs, when a matched job
+        # has a null conclusion, when the `main` window is below the run floor, or
+        # when the window does not contain the dispatch run. Each token is observed
+        # RED against a stub payload that triggers it. Stub `gh` on PATH and a
+        # throwaway git repo: no token, no network, no Postgres.
+        run: bash scripts/ci/capture-green-04-evidence.test.sh
       - name: Panel forced-floor check self-test
         # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
         # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output

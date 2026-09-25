@@ -1,9 +1,10 @@
 ---
 phase: 238-tag-guard-then-tag-deletion
 verified: 2026-09-17T16:40:00Z
-status: human_needed
+status: passed
 score: 4/5 must-haves verified
 covered_files:
+
   - ".github/rulesets/tag-namespace.json"
   - ".github/workflows/ci-observe.yml"
   - ".planning/REQUIREMENTS.md"
@@ -25,15 +26,18 @@ covered_files:
   - "scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs"
   - "scripts/maintainers/delete-planning-tags.sh"
   - "test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json"
+
 covered_digest: "v1:sha256:fdc11c85d6a8b6a58687d08e4c8ed06538b8cebd5da55258c5546b6259373a3f"
 behavior_unverified: 1
 overrides_applied: 0
 behavior_unverified_items:
+
   - truth: "SC-2 clause 3 — 'so deleting it in Settings is caught rather than silent.' The live-drift half of the paired guard (`tag_ruleset_drift` in `.github/workflows/ci-observe.yml:189`) is committed, correctly triggered, SHA-pinned, least-privileged and fail-closed by construction — but it has never executed, because a `workflow_run` lane only ever runs the default-branch copy of its own file. The offline half (`p19`) reads the committed snapshot, not the live API, so it cannot see a Settings deletion."
     test: "After this phase's commits reach `main`, let one push to `main` complete a `CI` run, then open the `tag_ruleset_drift` job in the `CI (observe)` workflow and confirm it ran and was green. Optionally re-check after any future ruleset edit."
     expected: "The job executes (not skipped), reads ruleset `tag-namespace` live, and its field-scoped `jq -S '{target,enforcement,conditions,rules}'` diff against `.github/rulesets/tag-namespace.json` is empty. A deleted ruleset must surface the `::error::the tag-namespace ruleset is ABSENT` line, not an unlabelled red."
     why_human: "The job's first execution is necessarily post-merge; no in-phase command can run it. 238-03 and 238-06 both carry an explicit prohibition against claiming it proven in-phase, and code review IN-03 records two latent defects (unpaginated ruleset list; a `set -e` abort that pre-empts the job's own named ABSENT message on a transient API failure), deferred to `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-has-never-run-and-has-two-latent-defects.md`. Both are fail-closed (false-red / unlabelled-red), never false-green — so this is a trust-and-noise question, not a silent-hole question."
 human_verification:
+
   - test: "After merge to `main`, confirm the `tag_ruleset_drift` job in `CI (observe)` actually executes and is green."
     expected: "Job runs (not skipped); live-vs-committed field-scoped diff empty."
     why_human: "A `workflow_run` lane only ever executes the default-branch copy of its own file; its first run cannot happen before merge."

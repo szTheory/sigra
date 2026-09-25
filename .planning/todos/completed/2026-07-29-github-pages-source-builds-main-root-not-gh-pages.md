@@ -1,6 +1,6 @@
 ---
 created: 2026-07-29T00:00:00.000Z
-status: pending
+status: completed
 title: "GitHub Pages still builds main's repo root instead of the gh-pages publish branch — workflow token receives 403"
 area: ci
 files:
@@ -97,3 +97,41 @@ retire (`.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`).
    `{"branch":"gh-pages","path":"/"}`.
 3. Trigger or await the next Pages build, confirm the deployment succeeds, then move this todo to
    `resolved/` with the run ID and final API response.
+
+## Owner action confirmed done — 2026-09-18 (Phase 240, plan 240-05)
+
+`gh api repos/szTheory/sigra/pages`, re-read live at issue-#231 closure time:
+
+```json
+{"url":"https://api.github.com/repos/szTheory/sigra/pages","status":"built","cname":null,"custom_404":false,"html_url":"https://sztheory.github.io/sigra/","build_type":"legacy","source":{"branch":"gh-pages","path":"/"},"public":true,"protected_domain_state":null,"pending_domain_unverified_at":null,"https_enforced":true}
+```
+
+`source` is now `{"branch":"gh-pages","path":"/"}` and `status` is `built` — not the
+`{"branch":"main","path":"/"}` / `errored` recorded in the 2026-07-31 post-merge verification
+above. Steps 1 and 2 of **Required owner action** are therefore satisfied: the repo admin has set
+Settings → Pages → Build and deployment to branch `gh-pages`, path `/`, and the site builds. This
+is a point-in-time read and expires; re-read it rather than quoting this block later.
+
+**Frontmatter correction.** Phase 237 moved this file into `.planning/todos/completed/` without
+updating its `status:` field, which still read `pending` at line 3 until this append. It now reads
+`completed`. Per Phase 240 **D-25** this closure is a verification plus evidence-append **in
+place** — the file was already under `completed/`, so no move was performed and none was needed.
+
+**The publisher can no longer report success while the site stays broken.** The half of this todo
+that was ours rather than the repo admin's — a script that swallowed the failure it was supposed
+to surface — is fixed. `scripts/ci/ensure-github-pages-legacy-branch.sh` previously treated any
+failure of `GET /repos/{repo}/pages` as "no Pages site configured" and fell through to the create
+arm, and matched the PUT-side 403 with an unanchored regex that could match a bare `403` anywhere
+in an unrelated error body. It now exits `1`, naming the status, on every non-2xx Pages response
+except the one documented case where the workflow's `pages: write` token is not repo-admin and the
+PUT legitimately 403s — that single arm stays tolerable and is commented as such
+(`ensure-github-pages-legacy-branch.sh:139-145`). Four stubbed RED transcripts —
+`FAKE_MODE=get_403`, `FAKE_MODE=get_500`, `FAKE_MODE=put_422`, `FAKE_MODE=put_500`, each exiting
+`1` — are recorded in `240-01-SUMMARY.md` and in the `AFTER-PAGES-LOUD-RED` slot of
+`.planning/phases/240-green-main-evidence-honest-pages-script/240-EVIDENCE.md`. The `get_500` body
+carries the bare digits `403` twice, once in the request id and once in the message; the old
+unanchored match would have read it as "expected 403, carry on".
+
+The script's hermetic self-test (`scripts/ci/ensure-github-pages-legacy-branch.test.sh`) is wired
+into `fast_checks` as the step `Pages legacy-branch script self-test`, green on PR run
+`35376244993` and on the `main` push run `35377012499` at HEAD `abec92c4`.
