@@ -4,6 +4,9 @@ status: pending
 severity: high
 phase: 234
 created: 2026-08-01
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 # Phase 234 PR parity receipt blocked

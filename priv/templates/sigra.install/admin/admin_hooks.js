@@ -418,7 +418,7 @@
       };
       document.addEventListener("keydown", this._onKeydown);
 
-      // Optional enhancement (D-08): clicking the overlay scrim (outside the
+      // Optional enhancement: clicking the overlay scrim (outside the
       // dialog panel) dispatches the Cancel click, same as pressing Escape.
       this._onOverlayClick = function (event) {
         try {

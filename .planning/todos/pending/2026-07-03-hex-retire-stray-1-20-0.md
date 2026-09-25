@@ -1,17 +1,24 @@
 ---
 created: 2026-07-03T00:00:00.000Z
 status: pending
-resolves_phase: 223
+resolves_phase: 242
 title: Retire stray Hex 1.20.0 so 1.1.0 is the resolved latest_stable
 area: release
 files:
+
   - milestones/v1.43-phases/214-debt-robustness-clear/214-05-SUMMARY.md
+
 source: 2026-07-03 v1.43 close — Jon deferred (no time now); manual/interactive step, cannot be automated
 deferred_again:
+
   - "2026-07-10 (Phase 221 close): nobody really using this yet"
   - "2026-07-11 (Phase 223 exec): Jon deferred indefinitely — no time, no adopters, don't stress it. Phase 223 paused on this step. Root cause captured in ADR 003."
+
 priority: low
 root_cause: ".planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md (tag-derived publish + milestone vX.Y namespace collision; footgun already structurally closed)"
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What
@@ -51,6 +58,7 @@ owner of the package. Programmatic retire via the device-flow token appears
 blocked (likely the known Hex OAuth-scope issue).
 
 Remaining path (untried by operator choice at 221 close):
+
 1. Mint an API **write** key on the web dashboard: https://hex.pm/dashboard/keys
    (Hex 2.5 has no CLI key-gen). Grant it API / write permission.
 2. Retire using that key via env override:

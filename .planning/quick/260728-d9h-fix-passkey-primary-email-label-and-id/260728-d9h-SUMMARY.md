@@ -7,6 +7,10 @@ deferred: 2026-07-28
 audit_finding: W-1
 tracked_at: .planning/todos/pending/2026-07-28-w1-passkey-primary-duplicate-email-label-and-id.md
 files_modified: []
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
+  status: deferred
 ---
 
 # Summary — planned, not executed (deliberately deferred)

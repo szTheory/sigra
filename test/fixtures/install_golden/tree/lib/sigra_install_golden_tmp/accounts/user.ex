@@ -18,7 +18,7 @@ defmodule SigraInstallGoldenTmp.Accounts.User do
     field :locked_at, :utc_datetime
     field :password_changed_at, :utc_datetime
 
-    # Account lifecycle fields (Phase 8)
+    # Account lifecycle fields
     field :pending_email, :string
     field :deleted_at, :utc_datetime
     field :scheduled_deletion_at, :utc_datetime

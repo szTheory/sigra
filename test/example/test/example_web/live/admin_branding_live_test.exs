@@ -94,10 +94,13 @@ defmodule ExampleWeb.AdminBrandingLiveTest do
       assert html =~ ~s(id="branding-product-name")
       refute html =~ ~s(aria-label="Help: Product name")
 
-      assert length(Regex.scan(~r/data-sg-field-help-trigger="true"/, html)) == 9
+      assert length(Regex.scan(~r/data-sg-field-help-trigger="true"/, html)) == 10
 
       assert html =~ ~s(aria-label="Help: Logo URL")
       assert html =~ ~s(aria-controls="branding-logo-url-help")
+
+      assert html =~ ~s(aria-label="Help: Dark theme logo URL")
+      assert html =~ ~s(aria-controls="branding-dark-logo-url-help")
 
       assert html =~
                "Shown on generated auth screens and email headers when set. Use an absolute URL that email clients can load."

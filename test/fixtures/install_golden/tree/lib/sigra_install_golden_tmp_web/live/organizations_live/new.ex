@@ -5,7 +5,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.New do
   Parallel to Branch A of `OrganizationsLive.Index` — same form fields,
   same live slug preview, same changeset error mapping — but rendered
   on its own page with a top-level header and a Cancel link back to
-  `/organizations`. Per D-07, the installer ships both the unified
+  `/organizations`. The installer ships both the unified
   landing LV AND a dedicated new route so hosts can link directly to
   `/organizations/new` without first landing on the picker.
 

@@ -10,7 +10,10 @@ CUTOFF="2026-08-03T21:37:08Z"
 CUTOFF_EPOCH="1785793028"
 MAX_PAGES=10000
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OLD_RECEIPT="$ROOT/.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEASUREMENT.json"
+# shellcheck source=scripts/ci/_phase-dir-resolve.sh
+. "$ROOT/scripts/ci/_phase-dir-resolve.sh"
+PHASE_DIR="$(resolve_phase_dir "$ROOT" "235-terminal-ratification-measured-not-read")"
+OLD_RECEIPT="$PHASE_DIR/235-FAST-01-REMEASUREMENT.json"
 
 usage() { echo "usage: $0 --readiness OUTPUT | --protected-output OUTPUT --endpoint UTC" >&2; exit 2; }
 fail() { echo "capture-fast-01-gap-closure: FAIL: $*" >&2; exit 1; }
@@ -36,7 +39,7 @@ git merge-base --is-ancestor "$CUTOFF_SHA" origin/main || fail "cutoff_not_on_or
 while IFS=$'\t' read -r file_name expected; do
   actual="$(git show "$CUTOFF_SHA:$file_name" | sha256)" || fail "cutoff_blob_missing_${file_name}"
   [[ "$actual" == "$expected" ]] || fail "cutoff_blob_digest_mismatch_${file_name}"
-done < <(jq -r '.file_digests | to_entries[] | "\(.key)\t\(.value)"' "$ROOT/.planning/phases/235-terminal-ratification-measured-not-read/235-FAST-01-REMEDIATION.json")
+done < <(jq -r '.file_digests | to_entries[] | "\(.key)\t\(.value)"' "$PHASE_DIR/235-FAST-01-REMEDIATION.json")
 
 DATE_BIN="/usr/bin/date"; [[ -x "$DATE_BIN" ]] || DATE_BIN="/bin/date"
 if [[ "$MODE" == readiness ]]; then ENDPOINT="$($DATE_BIN -u +%Y-%m-%dT%H:%M:%SZ)"; fi

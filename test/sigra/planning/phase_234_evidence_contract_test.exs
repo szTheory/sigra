@@ -1,8 +1,14 @@
 defmodule Sigra.Planning.Phase234EvidenceContractTest do
   use ExUnit.Case, async: true
 
-  @evidence_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-EVIDENCE.json"
-  @validation_path ".planning/phases/234-hygiene-supply-chain-and-contributor-dx/234-VALIDATION.md"
+  @evidence_path Sigra.Test.PlanningPaths.phase_file(
+                   "234-hygiene-supply-chain-and-contributor-dx",
+                   "234-EVIDENCE.json"
+                 )
+  @validation_path Sigra.Test.PlanningPaths.phase_file(
+                     "234-hygiene-supply-chain-and-contributor-dx",
+                     "234-VALIDATION.md"
+                   )
   @quick_run_paths [
     "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
     "test/sigra/planning/phase_233_library_economics_contract_test.exs",

@@ -4,12 +4,17 @@ status: pending
 title: "HARD-02's loud-failure signal never worked — notify-failure-issue.sh died because the release-lane-rot GitHub label did not exist, so zero tracking issues were ever created"
 area: release
 files:
+
   - scripts/ci/notify-failure-issue.sh
   - .github/workflows/release-please.yml
   - .github/workflows/ci.yml
+
 severity: high
 source: 2026-07-28 quick task (post-release 1.4.0 bookkeeping) — diagnosed during the Sigra 1.4.0 Hex publish recovery
 resolves_phase: 231
+audit_acknowledged:
+  milestone: v1.47
+  at: 2026-09-15
 ---
 
 ## What

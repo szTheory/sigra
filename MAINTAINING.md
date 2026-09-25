@@ -121,6 +121,97 @@ To verify the live list at any time: `gh api repos/szTheory/sigra/rulesets/14941
 > It is a path-scoped quality gate, not a merge-blocking required check — it flows into
 > `ci-gate` (the internal aggregator). The docs below explain its path triggers.
 
+### Tag namespace — the live `tag-namespace` ruleset (Phase 238)
+
+The `v*` git tag namespace is protected server-side by a second live ruleset, named
+**`tag-namespace`** (`target: "tag"`, `enforcement: active`). Like ruleset 14941512 above it is
+Settings-managed — GitHub is the system of record — and the committed snapshot at
+[`.github/rulesets/tag-namespace.json`](.github/rulesets/tag-namespace.json) is this repository's
+only record of what the live object is supposed to be. The offline contract guard
+`scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs` asserts that snapshot's shape on every
+`fast_checks` run, so an edit that silently relaxes the committed record reddens CI.
+
+What it enforces: one `creation` rule, scoped by `conditions.ref_name.include: ["refs/tags/v*"]`
+minus `conditions.ref_name.exclude: ["refs/tags/v*.*.*"]`. In plain terms a tag name under the `v`
+prefix that does **not** carry three dot-separated segments cannot be created — a two-component
+scratch name is refused, a three-component release tag is accepted. That is a *shape* guard, not a
+SemVer validator: `v1.2.3.4`, `v1.a.b`, `v1..` and `v...` each carry two dots, so the exclusion
+takes them out of scope and they are admitted. It blocks the recurrence class (two-component
+milestone tags) and nothing more. The scope selector is fnmatch with `FNM_PATHNAME`, so `*` does not
+cross `/`: the `archive/`, `milestone/` and `proof/` namespaces are outside the rule entirely, and a
+future `phase-NNN-*` junk tag is **not** prevented by it. The same `FNM_PATHNAME` rule cuts the
+other way on the nearest near-miss: `v1.4/notes` carries the `v` prefix but a `/`, so `refs/tags/v*`
+does not match it and the rule never applies — that name is creatable today. The sentence above
+("a tag name under the `v` prefix that does not carry three dot-separated segments cannot be
+created") is true only for names with no `/` in them.
+
+One asymmetry to know before you run the verify passes: the keep-set expressions in
+`scripts/maintainers/delete-planning-tags.sh` are **narrower** than what the ruleset permits. They
+admit three-component release tags (plus `archive/*`, locally) and nothing else. The `milestone/`
+and `proof/` namespaces are outside the ruleset and so creatable, but a tag in either one would be
+reported as drift by `verify-local`. That is deliberate — the verify pass is a set-equality check
+against a known keep-set, not a policy oracle — but if you adopt one of those namespaces, widen the
+expression in the same commit.
+
+**Do not delete this ruleset, do not add a bypass actor, and do not widen the `exclude` list.**
+`bypass_actors` is empty and rulesets carry no implicit admin bypass, so the rule binds the
+repository owner too — which is the entire point of it. Widening `exclude` to `refs/tags/v*` would
+leave a ruleset that is present, active, and enforces nothing.
+
+Read the live object. It is selected **by name**, not by id: the id is minted at creation time and
+is not a constant this document can carry, unlike the branch ruleset above, which is addressed by
+its numeric id.
+
+```bash
+gh api repos/szTheory/sigra/rulesets --jq '.[]|select(.name=="tag-namespace").id' | xargs -I{} gh api repos/szTheory/sigra/rulesets/{} --jq '{id,name,target,enforcement,include:.conditions.ref_name.include,exclude:.conditions.ref_name.exclude,rules:[.rules[].type],bypass_actor_count:(.bypass_actors|length)}'
+```
+
+**Operator-side bypass check — the CI guard deliberately cannot make this one.** GitHub returns
+`bypass_actors` only to a caller with write access to the ruleset, so at CI/anonymous permission
+level an empty list and a populated one are indistinguishable and asserting it there would be a
+vacuous green. `p19` therefore does not assert it at all. Only an operator running as the owner can
+meaningfully confirm that `bypass_actor_count` reads `0` in the projection above, and that emptiness
+is load-bearing: it is what binds the owner. Check it by hand whenever the ruleset is touched.
+
+**Honest caveat on the drift observer.** The live half of the drift read is the `tag_ruleset_drift`
+job in `.github/workflows/ci-observe.yml`. A `workflow_run` lane only ever executes the
+default branch copy of its workflow file, so that job begins reporting only after it merges to
+`main`;
+it was **not** proven working during the phase that added it, and nothing here may claim otherwise.
+Treat it as unproven until a run of it is observed on `main`.
+
+### Planning-tag deletion (Phase 238 — one-shot operator procedure)
+
+Phase 238 deleted the non-SemVer planning tags that ADR 003 forbids. The procedure is committed
+rather than folklore: the script is
+[`scripts/maintainers/delete-planning-tags.sh`](scripts/maintainers/delete-planning-tags.sh) and the
+delete set is the committed allowlist
+[`.planning/decisions/003-tag-delete-list.tsv`](.planning/decisions/003-tag-delete-list.tsv), one row
+per tag carrying its pre-deletion SHA. **The allowlist is the single oracle for which refs are in the
+set; this runbook cites it and never restates it.** Read the TSV if you need the names.
+
+Four separate invocations, in this order — never chained into one command, because a verification
+that runs in the same process as the mutation it checks is not an independent observation:
+
+1. `bash scripts/maintainers/delete-planning-tags.sh local --apply`
+2. `bash scripts/maintainers/delete-planning-tags.sh verify-local`
+3. `bash scripts/maintainers/delete-planning-tags.sh remote --apply`
+4. `bash scripts/maintainers/delete-planning-tags.sh verify-remote`
+
+**Reporting is the default; mutation requires `--apply`.** Run any pass without the flag and it
+reports, per row, exactly what it would do and why. That inverts the prevailing default of the other
+scripts in `scripts/maintainers/`, deliberately: every other one is reversible and this one is not.
+The verify passes are read-only either way, and each asserts set-equality against a keep-set derived
+from a regex at compare time, with no count hardcoded in the assertion. The local and remote keep
+expressions differ on purpose — the archive namespace is local-only and never reached origin.
+`--allowlist PATH` points the script at a fixture instead of the real data file, which is how its
+malformed-input behaviors are exercised.
+
+**This script is never wired into any CI lane.** Its value is the auditability of a one-shot
+destructive operation, not repetition; a recurring job running it would be a standing deletion
+hazard. It also runs no garbage collection, no reflog expiry and no prune, and neither should you
+while the recorded SHAs are still the only handle on the deleted objects.
+
 ### CI cadence — PR-fast vs nightly/main-broad (Phase 196)
 
 The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** introduced in Phase 196:

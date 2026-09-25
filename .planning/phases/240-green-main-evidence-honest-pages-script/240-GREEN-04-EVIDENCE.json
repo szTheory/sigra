@@ -1,0 +1,1208 @@
+{
+  "clean_tree": true,
+  "head_sha": "abec92c4b33005e21b550a2f899fe1d1e0f817a1",
+  "repository": "szTheory/sigra",
+  "sc1": {
+    "dispatch_run_id": 35377050754,
+    "job_name": "Generated admin Playwright smoke (GREEN-04 repeat)",
+    "jobs_filter": "latest",
+    "leg_count": 20,
+    "legs": [
+      {
+        "conclusion": "success",
+        "job_id": 105704082603,
+        "matrix_repeat": 1,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082603"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082678,
+        "matrix_repeat": 2,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082678"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082645,
+        "matrix_repeat": 3,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082645"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082720,
+        "matrix_repeat": 4,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082720"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082399,
+        "matrix_repeat": 5,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082399"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082855,
+        "matrix_repeat": 6,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082855"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082791,
+        "matrix_repeat": 7,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082791"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082676,
+        "matrix_repeat": 8,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082676"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082665,
+        "matrix_repeat": 9,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082665"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082865,
+        "matrix_repeat": 10,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082865"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082691,
+        "matrix_repeat": 11,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082691"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082937,
+        "matrix_repeat": 12,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082937"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082772,
+        "matrix_repeat": 13,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082772"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082699,
+        "matrix_repeat": 14,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082699"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704082851,
+        "matrix_repeat": 15,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704082851"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704083995,
+        "matrix_repeat": 16,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704083995"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704084418,
+        "matrix_repeat": 17,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704084418"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704084035,
+        "matrix_repeat": 18,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704084035"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704083987,
+        "matrix_repeat": 19,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704083987"
+      },
+      {
+        "conclusion": "success",
+        "job_id": 105704084166,
+        "matrix_repeat": 20,
+        "run_id": 35377050754,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377050754/job/105704084166"
+      }
+    ],
+    "verdict": "pass",
+    "workflow": "green-04-evidence.yml"
+  },
+  "sc2": {
+    "branch": "main",
+    "caveat": "example_unit_smoke is absent from the ten ci-gate.needs entries (ci.yml:1547-1557: changes, install_golden_contract, library_tests, library_tests_dep_off, install_smoke, upgrade_smoke, example_http_smoke, example_playwright_smoke, generated_admin_playwright_smoke, fast_checks) while being independently required by ruleset 14941512, so a ci-gate: success is a nine-of-ten claim, not a whole-gate claim (D-10). This phase discloses that caveat; it does not fix it.",
+    "ci_gate_conclusions": {
+      "failure": 0,
+      "skipped": 0,
+      "success": 8
+    },
+    "flake_attributable_red_count": 0,
+    "job_name": "Generated admin Playwright smoke",
+    "jobs_filter": "latest",
+    "run_count": 8,
+    "runs": [
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "failure",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "failure",
+        "run_id": 35052017063,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35052017063"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "success",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "success",
+        "run_id": 35056270436,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35056270436"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "success",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "success",
+        "run_id": 35182589738,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35182589738"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "success",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "success",
+        "run_id": 35246681580,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35246681580"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "success",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "success",
+        "run_id": 35307612410,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35307612410"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "failure",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "failure",
+        "run_id": 35365693716,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35365693716"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": "success",
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": "success",
+        "run_id": 35373550987,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35373550987"
+      },
+      {
+        "ci_gate_conclusion": "success",
+        "generated_admin_smoke_conclusion": "success",
+        "jobs": [
+          {
+            "conclusion": null,
+            "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Detect docs-only change"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example HTTP smoke (boot + curl critical routes)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_behavior)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (admin_checkpoints)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (demo_showcase)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (design_gallery)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright shard (non_admin_smoke)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example Playwright smoke (full lifecycle)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Example unit smoke (ExUnit + ConnTest)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Generated admin Playwright smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install golden + idempotency contract (subprocess harness)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-organizations)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install matrix (flag combinations) (--no-passkeys)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install smoke (fresh phx.new + sigra.install)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests (dep-off — Threadline absent)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Library tests shard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Nightly probe (forced-failure self-test)"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Notify on red ci-gate (release-lane-rot)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys manual fallback smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Passkeys opt-out smoke"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-checkpoint baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Recapture admin-design baselines (in-CI)"
+          },
+          {
+            "conclusion": "success",
+            "name": "Release ref guard"
+          },
+          {
+            "conclusion": "success",
+            "name": "Upgrade smoke (published source series -> local candidate)"
+          },
+          {
+            "conclusion": "success",
+            "name": "ci-gate"
+          }
+        ],
+        "run_conclusion": null,
+        "run_id": 35377012499,
+        "url": "https://github.com/szTheory/sigra/actions/runs/35377012499"
+      }
+    ],
+    "window": {
+      "end": "2026-09-18T18:11:54Z",
+      "start": "2026-09-16T03:29:55Z"
+    },
+    "workflow": "ci.yml"
+  },
+  "schema_version": "sigra.green-04-evidence/v1"
+}
