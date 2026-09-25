@@ -77,6 +77,8 @@ This repo has three documented precedents of a green gate that verified nothing.
 - [ ] **REL-05**: An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision, and states plainly that retirement does **not** move `latest_stable_version` or change resolution. No artifact in this milestone may claim the retire fixed resolution.
 - [ ] **REL-06**: Release **1.5.1** is cut and published to Hex from a green gate, with the `## Unreleased` CHANGELOG block folded into the release section before merge.
 
+> **Phase 242 safety-closeout disposition — 2026-09-22.** REL-03, REL-04, and REL-06 are superseded-not-satisfied: three bounded remediation dispatches did not produce a validated retirement, HexDocs revert, or 1.5.1 release receipt, and the remaining external actions were retired rather than retried. REL-05 is limited to the delivered source safeguard: owned public installation guidance uses `{:sigra, "~> 1.5.0"}` and a repository contract enforces it; this is not a claim that the registry was repaired, that an ADR was created, or that resolution changed. Any future registry mutation, docs revert, or release requires a separately scoped, explicitly authorized phase.
+
 ### Clean shipped surface (SURF)
 
 - [x] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
