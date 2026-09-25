@@ -123,7 +123,7 @@ Phase 243 is an operational queue-drain rather than a code feature. The importan
 - Phase gate: validate all phase evidence against roadmap criteria and confirm final evidence commit scope.
 
 ### Wave 0 Gaps
-- Add a phase-scoped validator for sorted inventory and disposition uniqueness, todo-only changed paths, PR closure evidence, and dependency/title/lockfile rows; keep it outside product CI unless independently justified.
+- None. Use the plan's scoped `jq`/shell checks and machine-readable receipts; do not add product CI or a new dependency for this operational phase.
 
 ## Sources
 
@@ -132,7 +132,7 @@ Phase 243 is an operational queue-drain rather than a code feature. The importan
 - `.planning/REQUIREMENTS.md` — QUEUE-01, QUEUE-03, QUEUE-04 requirement text.
 - `.planning/phases/243-*/243-CONTEXT.md` — decisions D-01 through D-10 and live surfaces.
 - `.planning/METHODOLOGY.md` — automation-first verification and evidence discipline.
-- `gh pr list` live output — open Dependabot PR identities observed 2026-09-24; execution must refresh.
+- `gh pr list` live output — open Dependabot PR identities and eight stale phase/recapture candidates (#211, #172, #124, #174, #219, #234, #261, #254) observed 2026-09-24; execution must refresh and reconcile each candidate before mutation.
 
 ### Secondary (MEDIUM confidence)
 - `prompts/elixir-oss-lib-ci-cd-best-practices-deep-research.md` — repository-specific CI and dependency maintenance lenses; advisory material, not authority over the locked phase contract.
