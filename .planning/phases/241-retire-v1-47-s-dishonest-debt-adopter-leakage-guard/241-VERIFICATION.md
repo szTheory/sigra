@@ -1,6 +1,6 @@
 ---
 phase: 241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard
-verified: 2026-09-20T03:06:37Z
+verified: 2026-09-25T17:10:52Z
 status: passed
 score: 43/43 must-haves verified
 covered_files:
@@ -9,6 +9,7 @@ covered_files:
   - .github/workflows/ci.yml
   - .planning/REQUIREMENTS.md
   - .planning/ROADMAP.md
+  - .planning/STATE.md
   - .planning/decisions/004-test-01-02-superseded-by-single-owner-mix-ci.md
   - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-EVIDENCE.md
   - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md
@@ -34,6 +35,8 @@ covered_files:
   - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-08-PLAN.md
   - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-08-SUMMARY.md
   - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-CONTEXT.md
+  - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/COVERAGE.md
+  - .planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-UAT.md
   - MAINTAINING.md
   - mix.exs
   - scripts/ci/capture-phase-241-final-head.sh
@@ -70,17 +73,16 @@ covered_files:
   - test/fixtures/prohibitions/phase241-release-workflow-external-composite/release/bootstrap/action.yml
   - test/sigra/planning/phase_233_library_economics_contract_test.exs
   - test/sigra/planning/phase_234_action_pinning_contract_test.exs
-covered_digest: "v1:sha256:51a28ab64cdaede7910b8202dfadafd72eb3ba281e5cb6529b85dff76c81139b"
+covered_digest: "v1:sha256:476aabf197c09c0ee7bdc9a56ff2da03bb7383ff6b205cd4eb759e0e228f5832"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
-  previous_status: gaps_found
-  previous_score: 41/43
-  gaps_closed:
-    - "The phase's mix ci success criterion is green at final HEAD."
-    - "R1's JavaScript doc-range scanner faithfully preserves the locked Phase-237 Python scanner surface."
+  previous_status: passed
+  previous_score: 43/43
+  gaps_closed: []
   gaps_remaining: []
   regressions: []
+advisory: []
 decision_coverage:
   honored: 30
   total: 30
@@ -90,9 +92,9 @@ decision_coverage:
 # Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard — Verification Report
 
 **Phase Goal:** Every guard in the repo that currently asserts nothing either asserts something real or is gone — and new adopter-visible leakage cannot land.
-**Verified:** 2026-09-20T03:06:37Z
+**Verified:** 2026-09-25T17:10:52Z
 **Status:** passed
-**Re-verification:** Yes — after gap closure
+**Re-verification:** Yes — refresh after shared milestone metadata changes; the prior gap-closure report passed 43/43.
 
 ## Goal Achievement
 
@@ -104,12 +106,12 @@ decision_coverage:
 | 2 | The replacement library-suite invariant is RED on a committed two-owner workflow and GREEN on the real workflow. | ✓ VERIFIED | Real-source contract: 5/5 green. Injected committed `phase241-library-economics-two-owners.yml` exits 2 and reports both `library_tests` and `library_tests-canary_2` as owners. |
 | 3 | The honest-skip guard predates the documentation correction, rejects a committed stale subject, and protects real documentation without workflow edits. | ✓ VERIFIED | The committed p21 suite is 3/3 green; injected stale fixture exits 1 with `retired_skip_lane`; phase history keeps guard commit `ffc23579` before documentation correction `f1e3563b`. |
 | 4 | Composite-action pins, including bare `uses:`, are visible in failure and success directions. | ✓ VERIFIED | `phase_234_action_pinning_contract_test.exs` is 13/13 green and includes actual bare, dashed, quoted, block, flow, and nested committed fixture assertions plus the real composite inventory. |
-| 5 | P18 blocks new planning leakage and independently ratchets R1/R2/R3 without workflow or `mix ci` topology changes. | ✓ VERIFIED | The existing `ci.yml` glob executes the suite; all 106 prohibition tests pass. Output confirms independent counters `R1=337`, `R2=220`, and `R3=58`, each equal to its own decrease-or-equal baseline. No phase diff touches `ci.yml` or `mix.exs`. |
+| 5 | P18 blocks new planning leakage and independently ratchets R1/R2/R3 without workflow or `mix ci` topology changes. | ✓ VERIFIED | The existing `ci.yml` glob executes the suite; current run `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` passes 112/112 tests. Output confirms independent counters `R1=337`, `R2=220`, and `R3=58`, each equal to its own decrease-or-equal baseline. No Phase 241 diff touches `ci.yml` or `mix.exs`. |
 | 6 | The JS R1 scanner is a faithful bounded Phase-237 scanner port, as D-30 requires. | ✓ VERIFIED | Direct oracle sweep: real `lib/` Python/JS/R1 = `337/337/337`; fixture totals are leak `1/1`, lowercase `0/0`, delimited `0/0`, accepted language `4/4`. The permanent Node suite is 4/4 green. |
 
 **Score:** 43/43 must-haves verified (0 present but behavior-unverified)
 
-The score carries forward the prior 41 verified original must-haves and closes both failed original truths with direct code, fixture, and final-SHA external evidence.
+The earlier gap-closure pass closed both failed truths. This refresh follows Phase 242's completion transition and current shared lifecycle-record reconciliation. The roadmap and requirements edits are confined to later phases/requirements; Phase 241's goal, criteria, requirements, implementation, and evidence remain unchanged. The API-coverage pre-gate initially flagged the phase's GitHub evidence collector; the new phase matrix enumerates all six real collector capabilities and passed the seal-time validator. Re-ran the complete prohibition suite: 112 tests passed, including the p18 counters and negative controls. UAT is complete at 18/18 passing machine-evidenced checks with no issues, pending items, skips, or human checkpoints. The existing roadmap plan-count discrepancy (6 listed versus 8 completed plans) remains non-blocking and is recorded below.
 
 ### Advisory (New Scope, Unevidenced)
 
@@ -123,10 +125,11 @@ None. The re-verification anti-pattern scan found no new-scope concern needing a
 | Phase-233 contract and fixture | Non-vacuous single-owner guarantee | ✓ VERIFIED | Runtime subject selection exists; real test is green and committed two-owner input fails for the asserted reason. |
 | P21 and stale-doc fixture | Offline MAINTAINING/manifest parity guard | ✓ VERIFIED | Substantive three-test suite reads committed manifest/p10 inputs; stale fixture failure was re-executed. |
 | Phase-234 contract and composite fixtures | Composite action pin inventory | ✓ VERIFIED | 13 active ExUnit cases exercise real inputs and controlled unpinned forms. |
-| P18 planning/template/doc guards and baselines | Three hard-fail classes and three independent ratchets | ✓ VERIFIED | Node test glob is wired in `ci.yml:408`, has 106 active passing cases, and reports non-vacuity/instrument-failure checks. |
+| P18 planning/template/doc guards and baselines | Three hard-fail classes and three independent ratchets | ✓ VERIFIED | Node test glob is wired in `ci.yml:408`, has 112 active passing cases in the current run, and reports non-vacuity/instrument-failure checks. |
 | `_p18-lib.mjs` and parity corpus | Exact D-30 scanner state machine | ✓ VERIFIED | The bounded `(~S)?` opener regex matches the Phase-237 Python grammar; Python and JS totals agree on every committed corpus subject. |
 | Final-head collector and hermetic test | Fail-closed receipt collector | ✓ VERIFIED | `capture-phase-241-final-head.test.sh`: 58 assertions, including identity, pagination, duplicate/missing job, failed-step, and rate-limit failure paths. |
 | Final evidence contract | Immutable same-SHA PR receipt | ✓ VERIFIED | PR #254's committed head is exactly `782328e…`; its schema `sigra.phase-241-final-head/1` comment was posted after that commit and names that same SHA. |
+| External API coverage contract | Complete, valid matrix for the phase's GitHub REST collector | ✓ VERIFIED | `COVERAGE.md` enumerates rate-limit, run, paginated jobs, required jobs/steps, and PR comment capabilities; seal-time validator reports 6 capabilities, 6 integrated, 0 opt-outs. |
 
 ## Key Link Verification
 
@@ -151,13 +154,16 @@ No rendered-data artifacts are in scope. Guards consume tracked repository files
 | Fresh Threadline build | `MIX_ENV=test mix clean && MIX_ENV=test mix test test/sigra/audit/forwarders/threadline_test.exs` | Compiled 177 files; 6 tests, 0 failures | ✓ PASS |
 | Final contributor CI | GitHub run `35466064602`, PR #254, SHA `782328e…` | `pull_request`, `completed`, `success`; named library job and step successful | ✓ PASS |
 | Final P18 CI pickup | Same run's Fast checks / `Phase 230 prohibition guards` | Job and named step both `success` | ✓ PASS |
-| Collector failure handling | `bash scripts/ci/capture-phase-241-final-head.test.sh` | 58 pass, 0 fail | ✓ PASS |
-| D-30 permanent parity | `node --test --test-reporter=tap scripts/ci/prohibitions/p18-doc-range.test.mjs` | 4 pass, 0 fail | ✓ PASS |
-| D-30 Python comparison | Direct temporary-directory oracle sweep | `337/337/337`; `1/1`, `0/0`, `0/0`, `4/4` | ✓ PASS |
+| Collector failure handling | `bash scripts/ci/capture-phase-241-final-head.test.sh` | Fresh run: 58 assertions passed, 0 failed. | ✓ PASS |
+| API coverage seal gate | `gsd_run check api-coverage.verify-pre "$PHASE_DIR" --raw` | Matrix present; 6 capabilities, 6 integrated, 0 opt-outs. | ✓ PASS |
+| Current prohibition regression suite | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | Fresh run: 112 passed, 0 failed, 0 skipped. | ✓ PASS |
+| Current Phase 233/234 contract regressions | `MIX_ENV=test mix test test/sigra/planning/phase_233_library_economics_contract_test.exs test/sigra/planning/phase_234_action_pinning_contract_test.exs` | 18 pass, 0 fail; local Postgres connection log noise did not affect either contract file | ✓ PASS |
+| D-30 permanent parity | `node --test --test-reporter=tap scripts/ci/prohibitions/p18-doc-range.test.mjs` | Fresh run: 4 passed, 0 failed. | ✓ PASS |
+| D-30 Python comparison | Direct temporary-directory oracle sweep | Fresh run: real `lib/` Python/JS/baseline `337/337/337`; leak `1/1`, lowercase `0/0`, delimited `0/0`, accepted-language `4/4`. | ✓ PASS |
 | DEBT-02 real and known-bad | Focused ExUnit plus injected committed fixture | Real 5/5 green; known-bad exit 2 with two-owner diagnostic | ✓ PASS / RED PROVEN |
 | DEBT-03 real and known-bad | P21 suite plus injected stale fixture | Real 3/3 green; stale fixture exit 1 with `retired_skip_lane` | ✓ PASS / RED PROVEN |
 | DEBT-04 real contract | `mix test test/sigra/planning/phase_234_action_pinning_contract_test.exs` | 13 pass, 0 fail | ✓ PASS |
-| SURF-04 full guard set | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 106 pass, 0 fail, 0 skipped | ✓ PASS |
+| SURF-04 full guard set | `node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs` | 112 pass, 0 fail, 0 skipped | ✓ PASS |
 
 ## Probe Execution
 
@@ -173,13 +179,17 @@ SKIPPED — no plan declares a `probe-*.sh` artifact and the repository has no c
 | DEBT-04 | 241-04 | ✓ SATISFIED | The 13-case contract verifies the real composite universe and controlled bare/dashed/quoted/nested bad inputs. |
 | SURF-04 | 241-05, 241-06, 241-07, 241-08 | ✓ SATISFIED | All P18 guards and independent ratchets pass locally and in final-SHA Fast checks; D-30 parity is directly confirmed against the Phase-237 oracle. |
 
+### Planning Metadata Reconciliation
+
+The Phase 241 roadmap entry still says “6 plans” and lists 241-01 through 241-06, while the phase directory contains eight plans. Plans 241-07 and 241-08 are gap-closure plans and are included in this verification's 43 must-haves and covered-file fingerprint. The roadmap goal, five success criteria, and five mapped requirements are unchanged; this plan-count discrepancy does not change the phase verdict.
+
 ## Test Quality Audit
 
 | Test files | Linked requirements | Active | Skipped | Circular | Assertion level | Verdict |
 | --- | --- | ---: | ---: | --- | --- | --- |
 | `phase_233_*`, `phase_234_*` | DEBT-01/02/04 | 18 | 0 | No | Behavioral fixture and value assertions | ✓ Sufficient |
 | `p21-*` | DEBT-03 | 3 | 0 | No | Behavioral parity assertions | ✓ Sufficient |
-| `p18-*` | SURF-04 | 106 glob total | 0 | No | Independent value/behavioral RED-GREEN assertions | ✓ Sufficient |
+| `p18-*` | SURF-04 | 112 glob total | 0 | No | Independent value/behavioral RED-GREEN assertions | ✓ Sufficient |
 | `capture-phase-241-final-head.test.sh` | DEBT-01, SURF-04 | 58 assertions | 0 | No | Identity, pagination, negative-path, and job/step assertions | ✓ Sufficient |
 
 No requirement-linked test contains a disabled-test marker. No test generates its expected fixture by importing the system under test; committed fixtures and the Phase-237 Python scanner are independent oracles.
@@ -206,5 +216,5 @@ None. The prior final-head-CI and scanner-parity gaps are closed. The frozen evi
 
 ---
 
-_Verified: 2026-09-19T20:49:11Z_
+_Verified: 2026-09-25T17:10:52Z_
 _Verifier: the agent (gsd-verifier)_
