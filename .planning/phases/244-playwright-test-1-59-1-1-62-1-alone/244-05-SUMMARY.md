@@ -11,9 +11,9 @@ provides:
   - Exact-SHA final-main consumer receipt in 244-PLAYWRIGHT-EVIDENCE.json
 affects: [QUEUE-02, Playwright CI evidence]
 actuals:
-  tokens: 8511.75
+  tokens: 8537.50
   tasks: 2
-  commits: 11
+  commits: 12
 tech-stack:
   added: []
   patterns: [paginated GitHub job and step validation, atomic evidence receipt]
@@ -51,7 +51,7 @@ metrics:
   completed: 2026-09-26
   status: complete
   plan_head_before: c006fd9cebc17b91693649713863ddf0cd30600d
-  commits: 11
+  commits: 12
 ---
 
 # Phase 244 Plan 05: Exact-Main Consumer Receipt Summary
