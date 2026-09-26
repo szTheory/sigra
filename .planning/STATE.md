@@ -5,11 +5,11 @@ milestone_name: CLEAN-BASELINE
 current_phase: 244
 current_phase_name: "`@playwright/test` 1.59.1 → 1.62.1, Alone"
 status: executing
-stopped_at: Phase 244 Plan 03 blocked at full mix ci gate after three failed attempts
-last_updated: "2026-09-26T16:58:22.536Z"
+stopped_at: Quick 260926-dzu complete; Phase 244 Plan 03 is blocked pending validated gate fixes reaching its working branch
+last_updated: "2026-09-26T17:22:12.609Z"
 last_activity: 2026-09-26
-last_activity_desc: Phase 244 Plan 03 blocked at full mix ci gate; see .planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md
-state_head: 9e193a389ab78a7c686c28feb76307a9302fd6bf
+last_activity_desc: Completed quick task 260926-dzu; Phase 242 retirement restored and exact mix ci passed; Phase 244 Plan 03 awaits local integration of the validated fixes
+state_head: ed68e2b91813c89a83b27720370eaa2ff3519088
 progress:
   total_phases: 10
   completed_phases: 8
@@ -32,8 +32,8 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 244 (`@playwright/test` 1.59.1 → 1.62.1, Alone) — EXECUTING
 Plan: 3 of 5
-Status: Plan 03 blocked at the required full mix ci gate; overall phase remains executing
-Last activity: 2026-09-26 — Completed quick task 260926-gzb: Phase 235 sandbox / Phase 232 cache-key repair; full mix ci passed in the disposable clone.
+Status: Plan 03 blocked pending integration of the gate-verified Phase 242/232 fixes into its working branch; full mix ci passed on the Quick branch; overall phase remains executing
+Last activity: 2026-09-26 — Completed quick task 260926-dzu: restored the four Phase 242 retirements; exact full mix ci passed before commit ed68e2b9. Phase 244 remains at Plan 3 of 5 pending local integration.
 
 ### v1.48 phase map
 
@@ -602,6 +602,7 @@ Last activity: 2026-09-26 — Completed quick task 260926-gzb: Phase 235 sandbox
 | 41 | Quick ID: 260915-vcq · Fixed the ROOT CAUSE of the 3 stale phase-235 FAST-01/GATE-05 contract-test failures blocking `mix ci`: `Sigra.Test.PlanningPaths.requirements/0` only fell back to the milestone archive when the live `.planning/REQUIREMENTS.md` was MISSING, but the v1.48 rollover REPLACED it wholesale rather than deleting it, so the fallback never fired. Added `requirements_for/1` (milestone-scoped resolver, `requirements/0` byte-unchanged) and repointed both contract test files at `requirements_for("v1.47")` — 24 tests, 0 failures, same count as before (no assertion dropped). Resolved the pending todo (option 2: repoint at archive, not retire). Reported, not fixed: 6 pre-existing `Sigra.Audit.Forwarders.ThreadlineTest` failures in the `sigra-dep-off` lane (stale optional-dep compile artifact, unrelated to this diff, recurred after the documented remediation attempt). | 2026-09-16 | — | complete ✓ | — |
 | 42 | Quick ID: 260918-lfq · Closed the three Phase 240 GREEN-04 collector follow-up todos as one change — collector now fails closed on a zero-match SC-2 job selector (`sc2_job_not_found`), a matched job with a null conclusion (`sc2_job_conclusion_null`, a deliberately distinct token), a `main` window below the run floor (`insufficient_main_runs`, default 5, overridable only via an explicit `--min-main-runs` recorded in the receipt), and a window not containing the dispatch run (`main_window_excludes_dispatch_run`); wired `capture-green-04-evidence.test.sh` into `ci.yml` `fast_checks`. Non-vacuity proven by mutation — neutering each of the 5 guards drives the suite red. Verified: self-test 62 pass / 0 fail (was 36/0), prohibitions 93/0, receipt strictly additive at `schema_version` v1. PR #248 (b9f2c4b5). | 2026-09-18 | — | complete ✓ | — |
 | 260926-gzb | Diagnose and resolve only the Phase 235 sandbox-exec failures and Phase 232 Playwright cache-key assertion recorded in .planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md so the full MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci gate passes. Preserve the four Phase 242 deletions. Do not update the Phase 244 branch or PR #283. | 2026-09-26 | 9e193a38 | Verified | [260926-gzb-diagnose-and-resolve-only-the-phase-235-](./quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/) |
+| 260926-dzu | Reapplied the four Phase 242 Plan 13 retirements in the disposable clone; exact full mix ci passed before commit ed68e2b9. Phase 244 remains at Plan 3 of 5 for resumption. | 2026-09-26 | ed68e2b9 | Verified | [260926-dzu-reconcile-the-phase-242-hex-workflow-con](./quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/) |
 
 ## Deferred Items
 
@@ -734,9 +735,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-26T14:47:44.571Z
-Stopped at: Phase 244 Plan 03 blocked at full mix ci gate after three failed attempts
-Resume file: .planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md
+Last session: 2026-09-26T17:22:12.271Z
+Stopped at: Quick 260926-dzu complete; Phase 244 Plan 03 is blocked pending validated gate fixes reaching its working branch
+Resume file: .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-PLAN.md
 
 ## Operator Next Steps
 
