@@ -63,6 +63,7 @@ async function provenanceFixture(directory) {
   };
   const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
   const manifestFile = path.join(directory, 'measurement.json');
+  await writeFile(manifestFile, manifestBytes);
   const sourceDir = path.join(directory, 'artifact-source');
   await mkdir(sourceDir);
   await writeFile(path.join(sourceDir, 'measurement.json'), manifestBytes);
@@ -96,7 +97,7 @@ async function provenanceFixture(directory) {
     run,
     artifact,
     files: {
-      manifest: await writeJson(directory, 'manifest.json', manifest),
+      manifest: manifestFile,
       run: await writeJson(directory, 'run.json', run),
       artifact: await writeJson(directory, 'artifact.json', artifact),
       archive,
@@ -485,9 +486,9 @@ test('structured run and artifact APIs bind the exact manifest bytes and archive
     ] });
     assert.notEqual(digestMismatch.status, 0, digestMismatch.stdout);
 
-    const alteredBytes = Buffer.from(await readFile(fixture.archive));
+    const alteredBytes = Buffer.from(await readFile(fixture.files.archive));
     alteredBytes[alteredBytes.length - 1] ^= 0xff;
-    await writeFile(fixture.archive, alteredBytes);
+    await writeFile(fixture.files.archive, alteredBytes);
     const archiveTamper = await verifyProvenance(fixture);
     assert.notEqual(archiveTamper.status, 0, archiveTamper.stdout);
   } finally {

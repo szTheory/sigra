@@ -19,6 +19,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   phase_244_playwright_measure:
@@ -116,3 +117,28 @@ jobs:
           path: ${{ runner.temp }}/phase-244-playwright-measurement/
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Bind the measurement to run and artifact API identity
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          SOURCE_SHA: ${{ github.sha }}
+          ARTIFACT_NAME: phase-244-playwright-measurement-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          evidence_dir="$RUNNER_TEMP/phase-244-api-provenance"
+          mkdir -p "$evidence_dir"
+          gh api "repos/szTheory/sigra/actions/runs/$RUN_ID" > "$evidence_dir/run.json"
+          gh api "repos/szTheory/sigra/actions/runs/$RUN_ID/artifacts?per_page=100" > "$evidence_dir/artifacts.json"
+          artifact_id=$(jq -er --arg name "$ARTIFACT_NAME" '[.artifacts[] | select(.name == $name and .expired == false)] | if length == 1 then .[0].id else error("expected exactly one unexpired measurement artifact") end' "$evidence_dir/artifacts.json")
+          gh api "repos/szTheory/sigra/actions/artifacts/$artifact_id/zip" > "$evidence_dir/artifact.zip"
+          cp "$RUNNER_TEMP/phase-244-playwright-measurement/measurement.json" "$evidence_dir/measurement.json"
+          node scripts/ci/measure-playwright-drift.mjs verify-provenance \
+            --manifest "$evidence_dir/measurement.json" \
+            --run-json "$evidence_dir/run.json" \
+            --artifact-json "$evidence_dir/artifacts.json" \
+            --artifact-zip "$evidence_dir/artifact.zip" \
+            --source-sha "$SOURCE_SHA" | tee "$evidence_dir/provenance.json"
+          echo '## Measurement API provenance' >> "$GITHUB_STEP_SUMMARY"
+          cat "$evidence_dir/provenance.json" >> "$GITHUB_STEP_SUMMARY"

@@ -112,6 +112,57 @@ function requireRunIdentity(manifest, sourceSha) {
   }
 }
 
+async function verifyProvenance(args) {
+  const manifestFile = argValue(args, '--manifest');
+  const runFile = argValue(args, '--run-json');
+  const artifactFile = argValue(args, '--artifact-json');
+  const archiveFile = argValue(args, '--artifact-zip');
+  const sourceSha = argValue(args, '--source-sha');
+  if (!manifestFile || !runFile || !artifactFile || !archiveFile || !sourceSha) {
+    throw new Error('verify-provenance requires --manifest, --run-json, --artifact-json, --artifact-zip, and --source-sha');
+  }
+  const [manifestBytes, runBytes, artifactBytes] = await Promise.all([
+    readFile(manifestFile), readFile(runFile, 'utf8'), readFile(artifactFile, 'utf8'),
+  ]);
+  const manifest = JSON.parse(manifestBytes.toString('utf8'));
+  const runRecord = JSON.parse(runBytes);
+  const artifactList = JSON.parse(artifactBytes);
+  requireRunIdentity(manifest, sourceSha);
+  if (!runRecord || typeof runRecord !== 'object' || Array.isArray(runRecord) ||
+      String(runRecord.id) !== String(manifest.run_id) || runRecord.name !== manifest.workflow_name ||
+      runRecord.path !== '.github/workflows/phase-244-playwright-measure.yml' || runRecord.event !== 'workflow_dispatch' ||
+      !/^phase-244\//.test(runRecord.head_branch ?? '') || runRecord.head_branch !== manifest.head_branch ||
+      runRecord.head_sha !== sourceSha || runRecord.head_sha !== manifest.source_sha ||
+      runRecord.status !== 'completed' || runRecord.conclusion !== 'success') {
+    throw new Error('structured workflow run identity does not match the completed measurement manifest');
+  }
+  if (!artifactList || !Array.isArray(artifactList.artifacts)) throw new Error('artifact API response must contain an artifacts array');
+  const matches = artifactList.artifacts.filter((artifact) => artifact?.name === manifest.artifact_identifier && artifact.expired !== true);
+  if (matches.length !== 1) throw new Error(`artifact API response has ${matches.length} unexpired exact-name matches; expected exactly one`);
+  const artifact = matches[0];
+  if (!Number.isSafeInteger(artifact.id) || artifact.id < 1 || String(artifact.workflow_run?.id) !== String(runRecord.id) ||
+      artifact.name !== manifest.artifact_identifier || !/^sha256:[0-9a-f]{64}$/.test(artifact.digest ?? '')) {
+    throw new Error('artifact API identity, run binding, or SHA-256 digest is missing or mismatched');
+  }
+  const archiveBytes = await readFile(archiveFile);
+  const archiveSha256 = createHash('sha256').update(archiveBytes).digest('hex');
+  if (artifact.digest !== `sha256:${archiveSha256}`) throw new Error('downloaded artifact archive digest does not match the artifact API digest');
+  const listing = run('unzip', ['-Z1', archiveFile]);
+  if (listing.status !== 0) throw new Error(`artifact archive cannot be listed: ${listing.stderr.trim()}`);
+  const names = listing.stdout.split(/\r?\n/).filter(Boolean);
+  if (names.filter((name) => name === 'measurement.json').length !== 1) {
+    throw new Error('artifact archive must contain exactly one root measurement.json');
+  }
+  const extracted = spawnSync('unzip', ['-p', archiveFile, 'measurement.json'], { maxBuffer: 16 * 1024 * 1024 });
+  if (extracted.error || extracted.status !== 0 || !Buffer.isBuffer(extracted.stdout)) {
+    throw new Error(`measurement.json could not be extracted from the artifact archive${extracted.error ? `: ${extracted.error.message}` : ''}`);
+  }
+  if (!extracted.stdout.equals(manifestBytes)) throw new Error('downloaded measurement bytes do not match the supplied manifest bytes exactly');
+  const manifestSha256 = createHash('sha256').update(extracted.stdout).digest('hex');
+  console.log(JSON.stringify({ valid: true, run_id: runRecord.id, head_sha: runRecord.head_sha, artifact_id: artifact.id,
+    artifact_name: artifact.name, artifact_digest: artifact.digest, manifest_sha256: manifestSha256 }));
+}
+
 async function verifyManifest(args) {
   const file = argValue(args, '--manifest');
   const sourceSha = argValue(args, '--source-sha');
@@ -472,6 +523,7 @@ async function listPngs(root) {
 
 async function main() {
   const [, , command, ...args] = process.argv;
+  if (command === 'verify-provenance') return await verifyProvenance(args);
   if (command === 'verify') return await verifyManifest(args);
   if (command === 'compare') return compare(args);
   if (command === 'build-manifest') return await buildManifest(args);
