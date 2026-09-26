@@ -77,4 +77,35 @@ node -e 'const fs=require("fs"); const p=process.argv[1]; const j=JSON.parse(fs.
 output="$(run_guard "$REFERENCE" "$TMP_ROOT/wrong-version" 1.62.1 || true)"
 expect_failure 'playwright version' "$output"
 
+RUNNER="$ROOT/scripts/ci/run-playwright-drift.sh"
+function_body() {
+  local function_name="$1"
+  awk -v function_name="$function_name" \
+    '$0 ~ "^" function_name "\\(\\) \\{" { inside=1 } inside { print } inside && /^}/ { exit }' "$RUNNER"
+}
+
+assert_guard_follows_install() {
+  local function_name="$1" body npm_line guard_line install_line
+  body="$(function_body "$function_name")"
+  [[ -n "$body" ]] || fail "runner wiring: missing $function_name function"
+  npm_line="$(grep -n -m1 'npm ci' <<< "$body" | cut -d: -f1 || true)"
+  guard_line="$(grep -n -m1 'verify-playwright-source-tree.sh' <<< "$body" | cut -d: -f1 || true)"
+  install_line="$(grep -n -m1 'npx playwright' <<< "$body" | cut -d: -f1 || true)"
+  [[ -n "$npm_line" ]] || fail "runner wiring: $function_name has no npm ci"
+  [[ -n "$guard_line" ]] || fail "runner wiring: $function_name does not invoke the source-tree guard"
+  [[ -n "$install_line" ]] || fail "runner wiring: $function_name has no subsequent Playwright command"
+  (( guard_line == npm_line + 1 )) || fail "runner wiring: $function_name guard must immediately follow npm ci"
+  (( guard_line < install_line )) || fail "runner wiring: $function_name reaches Playwright before the source-tree guard"
+}
+
+assert_guard_follows_install run_capture
+assert_guard_follows_install prepare_system_dependencies
+[[ "$(grep -c 'tar -xf - -C.*REFERENCE_TREE' "$RUNNER")" -eq 1 ]] || \
+  fail "runner wiring: expected one immutable measured-SHA reference archive"
+run_capture_body="$(function_body run_capture)"
+guard_line="$(grep -n 'verify-playwright-source-tree.sh' <<< "$run_capture_body" | cut -d: -f1 || true)"
+backup_line="$(grep -n '\.baseline-backup' <<< "$run_capture_body" | head -1 | cut -d: -f1 || true)"
+[[ -n "$backup_line" && "$guard_line" -lt "$backup_line" ]] || \
+  fail "runner wiring: snapshot backup must happen after the post-install guard"
+
 echo "verify-playwright-source-tree.test: all source-tree fixtures passed"
