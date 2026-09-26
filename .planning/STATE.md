@@ -3,19 +3,19 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 244
-current_phase_name: playwright-test-1-59-1-1-62-1-alone
+current_phase_name: " 1.59.1 → 1.62.1, Alone"
 status: executing
-stopped_at: Completed 244-05-PLAN.md
-last_updated: "2026-09-26T21:40:30.484Z"
+stopped_at: Completed 244-06-PLAN.md
+last_updated: "2026-09-26T22:22:31.134Z"
 last_activity: 2026-09-26
-last_activity_desc: Phase 244 execution started
-state_head: 79508ea21a5ad742d2b22eb712ef55bd80dc2cb9
+last_activity_desc: Phase 244 execution resumed (wave continue)
+state_head: 7373979e224e9b3e4f07411427567cdd6217a0ac
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 71
   completed_plans: 60
-  percent: 70
+  percent: 80
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 244 — `@playwright/test` 1.59.1 → 1.62.1, Alone
+**Current focus:** Phase 244 —  1.59.1 → 1.62.1, Alone
 
 ## Current Position
 
-Phase: 244 (playwright-test-1-59-1-1-62-1-alone) — READY TO EXECUTE
-Plan: 5 of 5
+Phase: 244 ( 1.59.1 → 1.62.1, Alone) — EXECUTING
+Plan: 7 of 8
 Status: Ready to execute
-Last activity: 2026-09-26 — Phase 244 execution started
+Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
 
 ### v1.48 phase map
 
@@ -530,6 +530,9 @@ Last activity: 2026-09-26 — Phase 244 execution started
 - [Phase 244]: Keep @playwright/test 1.62.1 isolated to the example Playwright tooling candidate and update all existing browser cache keys.
 - [Phase 244]: Proceed past the package legitimacy gate only after npm tarball integrity, attestation provenance, and Microsoft release identity agree.
 - [Phase 244]: Plan 244-05 requires every named final-main consumer step separately successful; GitHub workflow-dispatch route is attested because run API omits input fields.
+- [Phase 244]: Phase 244 Plan 06: drift remains a valid failure-conclusion measurement; only zero-drift runs count as successful provenance.
+- [Phase 244]: Phase 244 Plan 06: inaccessible classic required-status policy is retained as untrusted and makes eligibility false.
+- [Phase 244]: Phase 244 Plan 06: validate authorization objects structurally without depending on JSON key order.
 
 ### Pending Todos
 
@@ -736,8 +739,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-26T19:54:38.723Z
-Stopped at: Completed 244-05-PLAN.md
+Last session: 2026-09-26T22:21:45.458Z
+Stopped at: Completed 244-06-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -954,3 +957,4 @@ Resume file: None
 | Phase 244 P03 | 600m | 2 tasks | 7 files |
 | Phase 244 P04 | 5m | 2 tasks | 3 files |
 | Phase 244 P05 | 45min | 2 tasks | 3 files |
+| Phase 244 P6 | 31min | 2 tasks | 4 files |
