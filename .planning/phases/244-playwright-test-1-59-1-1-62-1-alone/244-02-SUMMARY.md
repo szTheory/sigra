@@ -104,7 +104,7 @@ status: complete
 2. **Task 1 GREEN: exact pixel inventory comparator and pinned identity** — `45e7b31b` (`feat`)
 3. **Task 3: isolated 1.62.1 candidate and cache guard** — `cffee948` (`feat`)
 
-**Plan metadata:** pending final docs commit.
+**Plan metadata:** `010a413a` (`docs: complete plan`).
 
 ## Verification
 
