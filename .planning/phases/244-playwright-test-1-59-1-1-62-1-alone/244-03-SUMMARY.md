@@ -32,7 +32,7 @@ key-decisions:
 requirements-completed: []
 duration: not recorded
 completed: 2026-09-26
-status: halted
+status: blocked
 ---
 
 # Phase 244 Plan 03: Paired Playwright Measurement Summary
@@ -63,6 +63,6 @@ status: halted
 
 ## Blocker and Next Steps
 
-Plan 03 is halted with `QUEUE-02` incomplete. The separate pending todo records the Phase 242 test/workflow contradiction; neither Phase 242 file was changed. Resolve that issue in separately scoped work, rerun `mix ci`, then push the corrected measurement harness, obtain same-SHA `fast_checks`, and dispatch a fresh paired run. Plans 04 and 05 depend on this evidence and remain unexecuted.
+Plan 03 is blocked with `QUEUE-02` incomplete. The separate pending todo records the Phase 242 test/workflow contradiction; neither Phase 242 file was changed. Resolve that issue in separately scoped work, rerun `mix ci`, then push the corrected measurement harness, obtain same-SHA `fast_checks`, and dispatch a fresh paired run. Plans 04 and 05 depend on this evidence and remain unexecuted.
 
 The corrected local commits and summary are in the disposable clone; the plan-owned source and evidence files have been synced into the shared checkout without changing its existing unrelated dirty files or Git index.
