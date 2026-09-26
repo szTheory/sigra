@@ -111,6 +111,36 @@ async function verifyProvenance(fixture, overrides = {}) {
   return command(overrides.args ?? args);
 }
 
+function authorizationFixture() {
+  const sha = SOURCE_SHA;
+  const baseSha = 'b'.repeat(40);
+  const contexts = [
+    { name: 'ci-gate', app: { id: 333 }, head_sha: sha, status: 'completed', conclusion: 'success' },
+    { name: 'Library tests', app: { id: 444 }, head_sha: sha, status: 'completed', conclusion: 'success' },
+  ];
+  return {
+    measurement: { source_sha: sha, run_id: '1234567890', verdict: 'zero-drift' },
+    provenance: { run_id: 1234567890, head_sha: sha, manifest_sha256: 'a'.repeat(64), artifact_id: 9876 },
+    pr: { number: 213, state: 'open', head: { sha, ref: 'phase-244/measurement' }, base: { ref: 'main', sha: baseSha }, mergeable: true, mergeable_state: 'clean' },
+    main: { sha: baseSha, name: 'main' },
+    head_ref: { object: { sha } },
+    rules: [{ type: 'required_status_checks', parameters: { required_status_checks: [{ context: 'ci-gate', integration_id: 333 }] } },
+      { type: 'workflows', parameters: { workflows: [{ path: '.github/workflows/ci.yml', ref: 'main', repository_id: 1, sha: 'c'.repeat(40) }] } }],
+    protection: { contexts: ['Library tests'], checks: [{ context: 'Library tests', app_id: 444 }] },
+    check_runs: { complete: true, total_count: contexts.length, pages: [{ check_runs: contexts }] },
+    statuses: { complete: true, total_count: 0, pages: [{ statuses: [] }] },
+    workflow_runs: { complete: true, total_count: 1, pages: [{ workflow_runs: [
+      { id: 8801, path: '.github/workflows/ci.yml', head_sha: sha, status: 'completed', conclusion: 'success' },
+    ] }] },
+    repository_id: 1,
+  };
+}
+
+async function evaluateAuthorization(record, directory) {
+  const input = await writeJson(directory, 'authorization.json', record);
+  return command(['evaluate-eligibility', '--authorization-json', input]);
+}
+
 function trackedInventory() {
   const result = command(['inventory', '--source-sha', SOURCE_SHA]);
   assert.equal(result.status, 0, result.stderr);
@@ -491,6 +521,52 @@ test('structured run and artifact APIs bind the exact manifest bytes and archive
     await writeFile(fixture.files.archive, alteredBytes);
     const archiveTamper = await verifyProvenance(fixture);
     assert.notEqual(archiveTamper.status, 0, archiveTamper.stdout);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('merge eligibility requires a current PR, base, complete policies, and exact successful checks', async (t) => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-eligibility-'));
+  try {
+    const valid = authorizationFixture();
+    const success = await evaluateAuthorization(valid, directory);
+    assert.equal(success.status, 0, success.stderr);
+    assert.match(success.stdout, /"merge_eligible":true/);
+
+    const rejects = [
+      ['measured drift', (r) => { r.measurement.verdict = 'drift'; }],
+      ['closed PR', (r) => { r.pr.state = 'closed'; }],
+      ['missing live head ref', (r) => { r.head_ref = null; }],
+      ['measured source and PR head mismatch', (r) => { r.pr.head.sha = 'd'.repeat(40); }],
+      ['stale base SHA', (r) => { r.main.sha = 'e'.repeat(40); }],
+      ['nonmergeable PR', (r) => { r.pr.mergeable = false; }],
+      ['nonclean merge state', (r) => { r.pr.mergeable_state = 'blocked'; }],
+      ['missing required result', (r) => { r.check_runs.pages[0].check_runs.pop(); r.check_runs.total_count -= 1; }],
+      ['duplicate required result', (r) => { r.check_runs.pages[0].check_runs.push(structuredClone(r.check_runs.pages[0].check_runs[0])); r.check_runs.total_count += 1; }],
+      ['failed required result', (r) => { r.check_runs.pages[0].check_runs[0].conclusion = 'failure'; }],
+      ['skipped required result', (r) => { r.check_runs.pages[0].check_runs[0].conclusion = 'skipped'; }],
+      ['wrong required result SHA', (r) => { r.check_runs.pages[0].check_runs[0].head_sha = 'f'.repeat(40); }],
+      ['incomplete check-run pagination', (r) => { r.check_runs.complete = false; }],
+      ['incomplete status pagination', (r) => { r.statuses.complete = false; }],
+      ['missing required workflow', (r) => { r.workflow_runs.pages[0].workflow_runs = []; r.workflow_runs.total_count = 0; }],
+      ['empty policy', (r) => { r.rules = []; r.protection = { contexts: [], checks: [] }; }],
+      ['unknown policy response', (r) => { r.rules = { message: 'not an array' }; }],
+      ['missing classic protection policy', (r) => { r.protection = null; }],
+    ];
+    for (const [label, mutate] of rejects) {
+      await t.test(`fails closed for ${label}`, async () => {
+        const record = structuredClone(valid);
+        mutate(record);
+        const result = await evaluateAuthorization(record, directory);
+        if (['empty policy', 'unknown policy response', 'missing classic protection policy'].includes(label)) {
+          assert.notEqual(result.status, 0, result.stdout);
+        } else {
+          assert.equal(result.status, 0, result.stderr);
+          assert.match(result.stdout, /"merge_eligible":false/);
+        }
+      });
+    }
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
