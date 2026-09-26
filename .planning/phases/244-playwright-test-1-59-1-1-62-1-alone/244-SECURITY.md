@@ -1,9 +1,9 @@
 ---
 phase: "244"
 slug: "playwright-test-1-59-1-1-62-1-alone"
-status: blocked
-threats_open: 3
-open_total: 4
+status: verified
+threats_open: 0
+open_total: 0
 asvs_level: 1
 block_on: high
 created: "2026-09-26"
@@ -12,7 +12,7 @@ updated: "2026-09-26"
 
 # Phase 244 — Security
 
-> Security enforcement is active. Eleven registered mitigations were verified; three high-severity mitigations remain open and block phase advancement. One medium-severity operational-control threat remains open below the configured blocking threshold. No risk was accepted or waived.
+> Security enforcement is active. All 15 registered mitigations were verified closed on 2026-09-26. No risk was accepted or waived.
 
 ## Trust Boundaries
 
@@ -34,21 +34,22 @@ updated: "2026-09-26"
 | T-244-04 | Tampering | npm upgrade | high | mitigate | Validate package identity and lockfile integrity against registry metadata and provenance before installation. | closed |
 | T-244-05 | Tampering | image comparator | high | mitigate | Pin/check Ubuntu ImageMagick identity and strictly parse comparator output with negative fixtures. | closed |
 | T-244-SC | Tampering | npm install | high | mitigate | Require verified registry signature, provenance, and official release identity before candidate installation. | closed |
-| T-244-06 | Spoofing | PR/check provenance | high | mitigate | Verify run ID, source SHA, PR number/head SHA, and a measurement-manifest digest against structured API fields. | open — blocking |
-| T-244-07 | Tampering | paired render roots | high | mitigate | Verify exact source-tree equality after installation, excluding only the explicitly allowed package/lock changes. | open — blocking |
+| T-244-06 | Spoofing | PR/check provenance | high | mitigate | Verify run ID, source SHA, PR number/head SHA, and a measurement-manifest digest against structured API fields. | closed |
+| T-244-07 | Tampering | paired render roots | high | mitigate | Verify exact source-tree equality after installation, excluding only the explicitly allowed package/lock changes. | closed |
 | T-244-08 | Repudiation | failed measurement | medium | mitigate | Preserve run identity, source SHA, per-image results, verdict, and diagnostics on failed measurements. | closed |
-| T-244-09 | Elevation of privilege | merge decision | high | mitigate | Require zero drift, a live authorized candidate, refreshed base, and successful current required checks before declaring merge eligibility. | open — blocking |
+| T-244-09 | Elevation of privilege | merge decision | high | mitigate | Require zero drift, a live authorized candidate, refreshed base, and successful current required checks before declaring merge eligibility. | closed |
 | T-244-10 | Repudiation | defer outcome | medium | mitigate | Persist disposition inputs, PR state, measurement result, and an actionable deferred follow-up. | closed |
 | T-244-11 | Spoofing | final run SHA | high | mitigate | Re-read main before and after collection and require the run SHA to match the unchanged main SHA. | closed |
 | T-244-12 | Tampering | API job/step list | high | mitigate | Exhaust pagination and require each named job and browser/aggregate step exactly once with successful completion. | closed |
-| T-244-13 | Denial of service | GitHub API quota | medium | mitigate | Use one CI watcher at 60-second intervals, preflight quota, and stop on 403/429. | open — below high threshold |
+| T-244-13 | Denial of service | GitHub API quota | medium | mitigate | Use one CI watcher at 60-second intervals, preflight quota, and stop on 403/429. | closed |
 
-### Open Threat Evidence
+### Resolved Gap Evidence
 
-- **T-244-06 (high):** `scripts/ci/measure-playwright-drift.mjs:61-73,417-430` validates embedded run/source identity and inventory paths, but does not verify structured GitHub API fields or persist/check a digest for the full measurement manifest. The committed evidence records run/SHA and PR/head fields without a full manifest digest (`244-PLAYWRIGHT-EVIDENCE.json:4-16,2055-2078`).
-- **T-244-07 (high):** `scripts/ci/run-playwright-drift.sh:37-58` starts both capture roots from the same source archive and validates the package trio, but does not compare source trees after installation/capture with only the package/lock change allowed.
-- **T-244-09 (high):** `scripts/ci/measure-playwright-drift.mjs:121-127,204-216` derives `merge_eligible` from the pixel verdict. It does not enforce the live PR/ref/base/current-check conditions required by the plan. The current nonzero-drift receipt safely defers the closed PR, but does not implement the zero-drift authorization guard (`244-PLAYWRIGHT-EVIDENCE.json:1814-1818,2050-2078`).
-- **T-244-13 (medium):** `scripts/ci/capture-phase-244-final-main.sh:36-38` preflights API quota and hard-stops on 403/429, and its receipt retains quota/reset information. The one-watcher/60-second interval requirement is not machine-recorded or enforced by the collector.
+- **T-244-04 and T-244-SC (high):** Plan 244-02's blocking checkpoint recorded a fresh `OK` before candidate installation. The tarball SHA-512 matched registry integrity; SLSA provenance matched the Microsoft Playwright v1.62.1 release workflow, tag, and commit; the publisher was GitHub Actions OIDC; and the Microsoft release signature was verified (`244-02-PLAN.md:70,75-76`; `244-02-SUMMARY.md:99-102`). A fresh `npm audit signatures` independently verified 51 registry signatures and 11 provenance attestations.
+- **T-244-06 (high):** Run/artifact and exact-manifest-byte checks are enforced in `scripts/ci/measure-playwright-drift.mjs`; the receipt records the provenance digest at `244-PLAYWRIGHT-EVIDENCE.json:2409,2416`; all 49 structured provenance/eligibility tests pass.
+- **T-244-07 (high):** `scripts/ci/verify-playwright-source-tree.sh` compares source trees and package transforms; `scripts/ci/run-playwright-drift.sh` invokes it after each install and before browser/capture work. Hermetic positive and negative fixtures pass.
+- **T-244-09 (high):** `scripts/ci/measure-playwright-drift.mjs` requires provenance, zero drift, current PR/head/base, and successful required checks. The current receipt correctly records `merge_eligible: false` because measured drift exists and PR #213 is closed; the offline receipt validator passes.
+- **T-244-13 (medium):** `scripts/ci/capture-phase-244-final-main.sh` records exactly one 60-second watcher, quota preflight above the 250-request threshold, and a no-retry stop policy for 403/429. The receipt for run `36266022766` validates, and the hard-stop fixtures pass.
 
 ## Accepted Risks Log
 
@@ -59,12 +60,13 @@ No accepted risks.
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-09-26 | 15 | 11 | 4 (3 blocking, 1 below threshold) | gsd-security-auditor |
+| 2026-09-26 | 15 | 15 | 0 | gsd-security-auditor |
 
 ## Sign-Off
 
 - [x] All threats have a disposition (`mitigate`).
 - [x] No risks were accepted.
-- [ ] `threats_open: 0` confirmed.
-- [ ] `status: verified` set in frontmatter.
+- [x] `threats_open: 0` confirmed.
+- [x] `status: verified` set in frontmatter.
 
-**Approval:** blocked — resolve T-244-06, T-244-07, and T-244-09, then rerun `$gsd-secure-phase 244`.
+**Approval:** secured — all 15 registered threats verified closed on 2026-09-26.
