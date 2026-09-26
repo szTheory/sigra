@@ -3,6 +3,40 @@ phase: 244-playwright-test-1-59-1-1-62-1-alone
 verified: 2026-09-26T20:41:21Z
 status: gaps_found
 score: 22/22 must-haves verified
+gaps:
+  - id: SEC-244-06
+    truth: Measurement evidence is accepted only when it is bound to the authentic completed run, exact source and PR head, and full manifest contents.
+    reason: The verifier trusts identity embedded in the manifest and does not cross-check structured GitHub run fields or bind a digest of the full manifest to that run.
+    artifacts:
+      - scripts/ci/measure-playwright-drift.mjs
+      - scripts/ci/measure-playwright-drift.test.mjs
+      - .github/workflows/phase-244-playwright-measure.yml
+      - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json
+    missing: Cross-check run ID, source SHA, PR/head identity, and full manifest digest against structured GitHub API data; persist and validate the digest in the receipt.
+  - id: SEC-244-07
+    truth: The paired browser captures differ only in the explicitly allowed Playwright package and lockfile entries.
+    reason: Both capture roots start from the same archive, but no post-install comparison detects unrelated source-tree changes.
+    artifacts:
+      - scripts/ci/run-playwright-drift.sh
+      - scripts/ci/measure-playwright-drift.test.mjs
+    missing: Add a deterministic post-install source-tree equality check that permits only the package and lockfile changes, with negative fixtures for unexpected changes.
+  - id: SEC-244-09
+    truth: Merge eligibility is true only for zero visual drift plus an authorized live candidate, matching base, and successful current required checks.
+    reason: The comparator derives merge_eligible from the pixel verdict without enforcing current PR, ref, base, or required-check authorization.
+    artifacts:
+      - scripts/ci/measure-playwright-drift.mjs
+      - scripts/ci/measure-playwright-drift.test.mjs
+      - .github/workflows/phase-244-playwright-measure.yml
+      - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json
+    missing: Make merge eligibility fail closed unless zero drift and live authorized PR/ref/base/current required-check conditions all match.
+  - id: SEC-244-13
+    truth: Run-scoped evidence records one CI watcher at a 60-second interval, quota preflight, and stop-on-403/429 behavior.
+    reason: The collector records quota data and the hard-stop logic exists, but watcher count and interval are not represented in machine-readable evidence.
+    artifacts:
+      - scripts/ci/capture-phase-244-final-main.sh
+      - scripts/ci/capture-phase-244-final-main.test.sh
+      - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json
+    missing: Persist run-scoped watcher count and interval alongside quota preflight and 403/429 hard-stop evidence, and validate those fields.
 covered_files:
   - .github/ci-skip-manifest.tsv
   - .github/workflows/ci.yml

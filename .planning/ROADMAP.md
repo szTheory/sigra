@@ -355,11 +355,24 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   4. Whichever branch is taken, `ci-gate` is observed green on `main` afterward across every Playwright consumer (`example_playwright_shard`, `example_playwright_smoke`, `generated_admin_playwright_smoke`), and no PNG baseline is committed in the same change as any other cause.
 
 **Plans**: 5 plans
+**Wave 1**
 
 - [x] 244-01-PLAN.md — Prove CI-native screenshot capture and complete inventory
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [x] 244-02-PLAN.md — Enforce exact pixels and prepare the isolated candidate
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [x] 244-03-PLAN.md — Measure both versions and preserve the result
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [x] 244-04-PLAN.md — Merge only on complete proof, otherwise defer #213
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [x] 244-05-PLAN.md — Capture exact-main-SHA consumer evidence
 
 ### Phase 245: Branch Prune — Local and Remote
