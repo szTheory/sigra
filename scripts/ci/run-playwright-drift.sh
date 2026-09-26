@@ -47,7 +47,8 @@ run_capture() {
     printf '{"@playwright/test":"%s","playwright":"%s","playwright-core":"%s"}\n' "$expected_version" "$expected_version" "$expected_version" > "$ARTIFACT_DIR/logs/${label}-package-trio.json"
     printf 'unverified\n' > "$ARTIFACT_DIR/logs/${label}-package-trio-status.txt"
     if [[ "$expected_version" == 1.59.1 ]]; then
-      npm install --package-lock-only --ignore-scripts --save-exact @playwright/test@1.59.1
+      npm install --package-lock-only --ignore-scripts --save-exact \
+        @playwright/test@1.59.1 playwright@1.59.1 playwright-core@1.59.1
     fi
     npm ci
     local package_version playwright_version core_version
