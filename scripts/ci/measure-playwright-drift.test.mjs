@@ -33,7 +33,7 @@ function validManifest(inventory) {
     scope: 'full',
     inventory: inventory.paths,
     rendered_paths: { render_a: inventory.paths, render_b: inventory.paths },
-    package_versions: { render_a: '1.59.1', render_b: '1.59.1' },
+    package_versions: { render_a: '1.59.1', render_b: '1.62.1' },
     chromium_revisions: { render_a: '1217', render_b: '1217' },
     comparator: { name: 'ImageMagick compare -metric AE -fuzz 0%', version: 'ImageMagick 6.9.12' },
     results: inventory.paths.map((snapshot) => ({
@@ -114,6 +114,18 @@ test('inventory-only verification accepts complete captures while preserving mea
   assert.match(exactResult.stderr, /verdict is drift/);
 });
 
+test('recorded outcome verification accepts drift but keeps it ineligible for merge', async () => {
+  const inventory = trackedInventory();
+  const manifest = validManifest(inventory);
+  manifest.results[0].changed_pixels = 1;
+  manifest.results[0].result = 'drift';
+  manifest.verdict = 'drift';
+  const result = await verifyWith({ measurement: manifest, decision_eligibility: { verdict: 'drift', merge_eligible: false } }, ['--validate-recorded-outcome']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /"verdict":"drift"/);
+  assert.match(result.stdout, /"merge_eligible":false/);
+});
+
 test('an incomplete capture path set fails closed', async () => {
   const inventory = trackedInventory();
   const manifest = validManifest(inventory);
@@ -163,6 +175,8 @@ test('measurement workflow is read-only and gated to explicit phase-244 branch d
   assert.match(MEASURE_WORKFLOW, /github\.ref_type == 'branch'/);
   assert.match(MEASURE_WORKFLOW, /startsWith\(github\.ref, 'refs\/heads\/phase-244\/'\)/);
   assert.doesNotMatch(MEASURE_WORKFLOW, /contents:\s*write/);
+  assert.match(MEASURE_WORKFLOW, /default:\s*full/);
+  assert.match(MEASURE_WORKFLOW, /RUNNER_IMAGE:\s*ubuntu-24\.04/);
 });
 
 async function tinyPng(directory, name, color) {
@@ -267,6 +281,57 @@ test('manifest records missing and extra renders against the source inventory', 
     assert.ok(manifest.extra_paths.render_b.includes(extraRelative));
     assert.notEqual(manifest.verdict, 'zero-drift');
     assert.notEqual(spawnSync('test', ['-f', compareMarker]).status, 0, 'inventory mismatch must stop before pixel comparison');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('one differing pixel leaves a nonzero workflow outcome and a verifiable drift manifest', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-pixel-manifest-'));
+  const inventory = trackedInventory();
+  const renderA = path.join(directory, 'a');
+  const renderB = path.join(directory, 'b');
+  const artifacts = path.join(directory, 'artifacts');
+  const versionFile = path.join(directory, 'comparator-version.txt');
+  try {
+    const png = await tinyPng(directory, 'pixel.png', 'white');
+    for (const root of [renderA, renderB]) {
+      for (const imagePath of inventory.paths) {
+        const destination = path.join(root, imagePath);
+        await mkdir(path.dirname(destination), { recursive: true });
+        await writeFile(destination, await readFile(png));
+      }
+    }
+    const changed = path.join(renderB, inventory.paths[0]);
+    assert.equal(spawnSync('convert', [changed, '-fill', 'black', '-draw', 'point 0,0', changed], { encoding: 'utf8' }).status, 0);
+    await writeFile(versionFile, 'ImageMagick 6.9.12\nimagemagick=8:6.9.12.98+dfsg1-5.2build2\n');
+    const inventoryFile = path.join(directory, 'inventory.json');
+    await writeFile(inventoryFile, JSON.stringify(inventory));
+    const manifestFile = path.join(directory, 'measurement.json');
+    const trioA = JSON.stringify({ '@playwright/test': '1.59.1', playwright: '1.59.1', 'playwright-core': '1.59.1' });
+    const trioB = JSON.stringify({ '@playwright/test': '1.62.1', playwright: '1.62.1', 'playwright-core': '1.62.1' });
+    const result = spawnSync(process.execPath, [SCRIPT, 'build-manifest', '--source-sha', SOURCE_SHA, '--run-id', '9876543210',
+      '--branch', 'phase-244/measurement', '--scope', 'full', '--inventory-file', inventoryFile,
+      '--render-a', renderA, '--render-b', renderB, '--artifact-dir', artifacts,
+      '--package-a', '1.59.1', '--package-b', '1.62.1', '--package-trio-a', trioA, '--package-trio-b', trioB,
+      '--package-trio-status-a', 'verified', '--package-trio-status-b', 'verified',
+      '--chromium-revision-a', '1217', '--chromium-revision-b', '1234', '--chromium-version-a', '147.0.7727.15', '--chromium-version-b', '151.0.7922.34',
+      '--browser-manifest-url-a', 'https://raw.githubusercontent.com/microsoft/playwright/v1.59.1/packages/playwright-core/browsers.json',
+      '--browser-manifest-url-b', 'https://raw.githubusercontent.com/microsoft/playwright/v1.62.1/packages/playwright-core/browsers.json',
+      '--browser-manifest-sha-a', 'a'.repeat(64), '--browser-manifest-sha-b', 'b'.repeat(64),
+      '--browser-manifest-status-a', 'verified', '--browser-manifest-status-b', 'verified',
+      '--runner-image', 'ubuntu-24.04', '--artifact-identifier', 'phase-244-run-9876543210',
+      '--run-url', 'https://github.com/szTheory/sigra/actions/runs/9876543210',
+      '--comparator-version-file', versionFile, '--expected-imagemagick-package', '8:6.9.12.98+dfsg1-5.2build2', '--output', manifestFile], {
+      cwd: ROOT, encoding: 'utf8',
+    });
+    assert.notEqual(result.status, 0, 'pixel drift must fail the measurement job');
+    const manifest = JSON.parse(await readFile(manifestFile, 'utf8'));
+    assert.equal(manifest.verdict, 'drift');
+    assert.ok(manifest.results.some((entry) => entry.changed_pixels > 0));
+    const verified = command(['verify', '--manifest', manifestFile, '--source-sha', SOURCE_SHA, '--validate-recorded-outcome']);
+    assert.equal(verified.status, 0, verified.stderr);
+    assert.match(verified.stdout, /"merge_eligible":false/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

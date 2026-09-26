@@ -71,8 +71,8 @@ function requireRunIdentity(manifest, sourceSha) {
   if (manifest.event !== 'workflow_dispatch' || typeof manifest.head_branch !== 'string' || !manifest.head_branch.startsWith('phase-244/')) {
     throw new Error('manifest is not bound to an authorized phase-244 workflow_dispatch branch');
   }
-  if (manifest.package_versions?.render_a !== '1.59.1' || manifest.package_versions?.render_b !== '1.59.1') {
-    throw new Error('manifest package versions must both identify the locked 1.59.1 baseline');
+  if (manifest.package_versions?.render_a !== '1.59.1' || manifest.package_versions?.render_b !== '1.62.1') {
+    throw new Error('manifest package versions must identify the 1.59.1 baseline and 1.62.1 candidate');
   }
   if (!/^\d+$/.test(String(manifest.chromium_revisions?.render_a ?? '')) ||
       !/^\d+$/.test(String(manifest.chromium_revisions?.render_b ?? ''))) {
@@ -82,19 +82,57 @@ function requireRunIdentity(manifest, sourceSha) {
       !manifest.comparator.version.includes('ImageMagick')) {
     throw new Error('manifest comparator identity is missing or malformed');
   }
+  if (manifest.schema_version >= 3) {
+    for (const side of ['render_a', 'render_b']) {
+      const version = side === 'render_a' ? '1.59.1' : '1.62.1';
+      const trio = manifest.package_trios?.[side];
+      const trioStatus = manifest.package_trio_statuses?.[side];
+      if (trioStatus === 'verified' && (!trio || trio['@playwright/test'] !== version || trio.playwright !== version || trio['playwright-core'] !== version)) {
+        throw new Error(`${side} package trio does not match ${version}`);
+      }
+      if (!['verified', 'unverified'].includes(trioStatus) || (trioStatus === 'unverified' && manifest.verdict !== 'inconclusive')) {
+        throw new Error(`${side} package trio status is missing or conflicts with the verdict`);
+      }
+      const browser = manifest.browser_manifests?.[side];
+      const browserStatus = manifest.browser_manifest_statuses?.[side];
+      if (!browser?.url?.includes(`/v${version}/packages/playwright-core/browsers.json`) ||
+          (browserStatus === 'verified' && !/^[0-9a-f]{64}$/.test(browser.sha256 ?? ''))) {
+        throw new Error(`${side} tagged browser manifest URL/hash is missing or malformed`);
+      }
+      if (!['verified', 'unverified'].includes(browserStatus) || (browserStatus === 'unverified' && manifest.verdict !== 'inconclusive')) {
+        throw new Error(`${side} browser manifest status is missing or conflicts with the verdict`);
+      }
+      if (browserStatus === 'verified' && (!/^[0-9a-f]{64}$/.test(browser.sha256 ?? '') || typeof manifest.chromium_versions?.[side] !== 'string' || !manifest.chromium_versions[side])) {
+        throw new Error(`${side} Chromium version is missing`);
+      }
+    }
+    if (!manifest.run_url?.includes(`/actions/runs/${manifest.run_id}`) || !manifest.runner?.image || !manifest.artifact_identifier) {
+      throw new Error('run URL, runner image, or artifact identifier is missing');
+    }
+  }
 }
 
 async function verifyManifest(args) {
   const file = argValue(args, '--manifest');
   const sourceSha = argValue(args, '--source-sha');
   if (!file || !sourceSha) throw new Error('verify requires --manifest and --source-sha');
-  const manifest = JSON.parse(await readFile(file, 'utf8'));
+  const parsed = JSON.parse(await readFile(file, 'utf8'));
+  const manifest = parsed.measurement ?? parsed;
+  if (parsed.measurement) {
+    const eligibility = parsed.decision_eligibility;
+    if (!eligibility || eligibility.verdict !== manifest.verdict || eligibility.merge_eligible !== (manifest.verdict === 'zero-drift')) {
+      throw new Error('phase evidence decision_eligibility conflicts with its measurement verdict');
+    }
+  }
   requireRunIdentity(manifest, sourceSha);
   const inventoryOnly = args.includes('--inventory-only');
-  if (!inventoryOnly && manifest.verdict !== 'zero-drift') throw new Error(`manifest verdict is ${manifest.verdict ?? 'missing'}`);
+  const validateOutcome = args.includes('--validate-recorded-outcome');
+  const outcomes = new Set(['zero-drift', 'drift', 'inconclusive']);
+  if (validateOutcome && !outcomes.has(manifest.verdict)) throw new Error(`manifest recorded outcome is invalid: ${manifest.verdict ?? 'missing'}`);
+  if (!inventoryOnly && !validateOutcome && manifest.verdict !== 'zero-drift') throw new Error(`manifest verdict is ${manifest.verdict ?? 'missing'}`);
   const expected = gitInventory(sourceSha);
   const expectCountArg = argValue(args, '--expect-count');
-  const expectCount = expectCountArg === undefined && args.includes('--inventory-only')
+  const expectCount = expectCountArg === undefined && (inventoryOnly || validateOutcome)
     ? expected.length
     : Number(expectCountArg);
   if (!Number.isInteger(expectCount) || expectCount < 1) throw new Error('--expect-count must be a positive integer');
@@ -104,13 +142,14 @@ async function verifyManifest(args) {
   if (!Array.isArray(manifest.inventory) || !samePaths(manifest.inventory, manifest.results.map((entry) => entry.path))) {
     throw new Error('manifest inventory and result paths do not match exactly');
   }
-  if (manifest.schema_version === 2) {
+  if (manifest.schema_version >= 2) {
     const inventoryHash = createHash('sha256').update(`${manifest.inventory.join('\n')}\n`).digest('hex');
     if (manifest.inventory_count !== manifest.inventory.length || manifest.inventory_sha256 !== inventoryHash) {
       throw new Error('manifest inventory count/hash does not match its path list');
     }
   }
-  if (args.includes('--inventory-only') && !samePaths(expected, manifest.inventory)) {
+  if ((inventoryOnly || validateOutcome) && manifest.scope !== 'full') throw new Error('recorded decision evidence must cover the full inventory');
+  if ((inventoryOnly || validateOutcome) && !samePaths(expected, manifest.inventory)) {
     throw new Error(`manifest path set differs from the ${expected.length}-path inventory at ${sourceSha}`);
   }
   if (!manifest.inventory.every((entry) => expected.includes(assertSafeInventoryPath(entry)))) {
@@ -118,32 +157,63 @@ async function verifyManifest(args) {
   }
   for (const entry of manifest.results) {
     assertSafeInventoryPath(entry.path);
-    const dimensionValid = manifest.schema_version === 2
+    const dimensionValid = manifest.schema_version >= 2
       ? Number.isInteger(entry.width_a) && entry.width_a > 0 && Number.isInteger(entry.height_a) && entry.height_a > 0 &&
         Number.isInteger(entry.width_b) && entry.width_b > 0 && Number.isInteger(entry.height_b) && entry.height_b > 0
       : Number.isInteger(entry.width) && entry.width > 0 && Number.isInteger(entry.height) && entry.height > 0;
     if (!dimensionValid && entry.result !== 'missing' && entry.result !== 'inconclusive') {
       throw new Error(`invalid dimensions for ${entry.path}`);
     }
-    if (manifest.verdict === 'zero-drift' && (!Number.isInteger(entry.changed_pixels) || entry.changed_pixels !== 0 || entry.result === 'dimension-mismatch')) {
+    const hasMeasuredPixels = Number.isSafeInteger(entry.changed_pixels) && entry.changed_pixels >= 0;
+    const nonPixelResult = ['missing', 'inconclusive', 'dimension-mismatch'].includes(entry.result);
+    if (!hasMeasuredPixels && !nonPixelResult) throw new Error(`pixel result is missing for ${entry.path}`);
+    const widthA = entry.width_a ?? entry.width;
+    const widthB = entry.width_b ?? entry.width;
+    const heightA = entry.height_a ?? entry.height;
+    const heightB = entry.height_b ?? entry.height;
+    if (manifest.verdict === 'zero-drift' && (!hasMeasuredPixels || entry.changed_pixels !== 0 || (entry.result && entry.result !== 'equal') || widthA !== widthB || heightA !== heightB)) {
 
       throw new Error(`comparison is not exact zero drift for ${entry.path}`);
     }
     if (!entry.render_a || !entry.render_b || !entry.diff) throw new Error(`render/diff artifact path missing for ${entry.path}`);
   }
-  if (args.includes('--inventory-only') && (
+  if (inventoryOnly && (
     !samePaths(expected, manifest.rendered_paths?.render_a ?? []) ||
     !samePaths(expected, manifest.rendered_paths?.render_b ?? [])
   )) {
     throw new Error('one or both rendered path sets differ from the complete tracked inventory');
   }
-  if (manifest.schema_version === 2 && manifest.verdict === 'zero-drift' && (
+  if (validateOutcome) {
+    for (const side of ['render_a', 'render_b']) {
+      const actual = manifest.rendered_paths?.[side];
+      if (!Array.isArray(actual)) throw new Error(`rendered path set is missing for ${side}`);
+      actual.forEach(assertSafeInventoryPath);
+      const missing = expected.filter((entry) => !actual.includes(entry));
+      const extra = actual.filter((entry) => !expected.includes(entry));
+      if (!samePaths(missing, manifest.missing_paths?.[side] ?? []) || !samePaths(extra, manifest.extra_paths?.[side] ?? [])) {
+        throw new Error(`${side} missing/extra diagnostics do not match its rendered path set`);
+      }
+    }
+  }
+  if (manifest.schema_version >= 2 && manifest.verdict === 'zero-drift' && (
     manifest.total_changed_pixels !== 0 || manifest.missing_paths?.render_a?.length || manifest.missing_paths?.render_b?.length ||
     manifest.extra_paths?.render_a?.length || manifest.extra_paths?.render_b?.length
   )) {
     throw new Error('zero-drift verdict has changed pixels or inventory differences');
   }
-  console.log(JSON.stringify({ valid: true, source_sha: sourceSha, run_id: manifest.run_id, paths: manifest.inventory.length }));
+  if (validateOutcome) {
+    const driftObserved = manifest.results.some((entry) => entry.result === 'drift' || entry.result === 'dimension-mismatch' || entry.changed_pixels > 0);
+    const uncertaintyObserved = manifest.results.some((entry) => ['missing', 'inconclusive'].includes(entry.result)) ||
+      manifest.diagnostics?.length > 0 || manifest.missing_paths?.render_a?.length > 0 || manifest.missing_paths?.render_b?.length > 0 ||
+      manifest.extra_paths?.render_a?.length > 0 || manifest.extra_paths?.render_b?.length > 0 ||
+      Object.values(manifest.package_trio_statuses ?? {}).some((status) => status !== 'verified') ||
+      Object.values(manifest.browser_manifest_statuses ?? {}).some((status) => status !== 'verified');
+    if (manifest.verdict === 'drift' && !driftObserved) throw new Error('drift verdict has no changed-pixel or dimension evidence');
+    if (manifest.verdict === 'inconclusive' && !uncertaintyObserved) throw new Error('inconclusive verdict has no diagnostic or incomplete result evidence');
+    if (manifest.verdict === 'zero-drift' && (driftObserved || uncertaintyObserved)) throw new Error('zero-drift verdict conflicts with its result data');
+  }
+  console.log(JSON.stringify({ valid: true, source_sha: sourceSha, run_id: manifest.run_id, paths: manifest.inventory.length,
+    verdict: manifest.verdict, merge_eligible: manifest.verdict === 'zero-drift' }));
 }
 
 function strictAeOutput(stderr) {
@@ -199,6 +269,21 @@ async function buildManifest(args) {
   const revisionB = argValue(args, '--chromium-revision-b');
   const packageA = argValue(args, '--package-a');
   const packageB = argValue(args, '--package-b');
+  const packageTrioA = JSON.parse(argValue(args, '--package-trio-a') ?? '{}');
+  const packageTrioB = JSON.parse(argValue(args, '--package-trio-b') ?? '{}');
+  const packageTrioStatusA = argValue(args, '--package-trio-status-a') ?? 'unverified';
+  const packageTrioStatusB = argValue(args, '--package-trio-status-b') ?? 'unverified';
+  const browserVersionA = argValue(args, '--chromium-version-a');
+  const browserVersionB = argValue(args, '--chromium-version-b');
+  const browserManifestUrlA = argValue(args, '--browser-manifest-url-a');
+  const browserManifestUrlB = argValue(args, '--browser-manifest-url-b');
+  const browserManifestShaA = argValue(args, '--browser-manifest-sha-a');
+  const browserManifestShaB = argValue(args, '--browser-manifest-sha-b');
+  const browserManifestStatusA = argValue(args, '--browser-manifest-status-a') ?? 'unverified';
+  const browserManifestStatusB = argValue(args, '--browser-manifest-status-b') ?? 'unverified';
+  const runnerImage = argValue(args, '--runner-image');
+  const artifactIdentifier = argValue(args, '--artifact-identifier');
+  const runUrl = argValue(args, '--run-url');
   const comparatorVersionFile = argValue(args, '--comparator-version-file');
   const captureStatusA = argValue(args, '--capture-status-a') ?? '0';
   const captureStatusB = argValue(args, '--capture-status-b') ?? '0';
@@ -273,6 +358,7 @@ async function buildManifest(args) {
       await copyFile(path.join(renderB, relativePath), absoluteB);
     } catch (error) {
       diagnostics.push(`could not copy render artifact for ${relativePath}: ${error.message}`);
+      results.push({ path: relativePath, width_a: null, height_a: null, width_b: null, height_b: null, changed_pixels: null, result: 'inconclusive', render_a: renderAFile, render_b: renderBFile, diff: diffFile });
       continue;
     }
     const dimensionsA = run(imageCommand('identify'), ['-format', '%w %h', absoluteA]);
@@ -327,13 +413,17 @@ async function buildManifest(args) {
   const extraA = actualA.filter((entry) => !expectedSet.includes(entry));
   const extraB = actualB.filter((entry) => !expectedSet.includes(entry));
   const inventoryHash = createHash('sha256').update(`${selected.join('\n')}\n`).digest('hex');
+  const provenanceIncomplete = [packageTrioStatusA, packageTrioStatusB, browserManifestStatusA, browserManifestStatusB].some((status) => status !== 'verified');
   const manifest = {
-    schema_version: 2,
+    schema_version: 3,
     workflow_name: 'Phase 244 Playwright measurement',
     event: 'workflow_dispatch',
     head_branch: branch,
     source_sha: sourceSha,
     run_id: runId,
+    run_url: runUrl ?? '',
+    runner: { image: runnerImage ?? 'unknown', os: process.env.RUNNER_OS ?? 'unknown' },
+    artifact_identifier: artifactIdentifier ?? '',
     scope,
     inventory: selected,
     inventory_count: selected.length,
@@ -342,18 +432,31 @@ async function buildManifest(args) {
     extra_paths: { render_a: extraA, render_b: extraB },
     rendered_paths: { render_a: actualA, render_b: actualB },
     package_versions: { render_a: packageA ?? 'unknown', render_b: packageB ?? 'unknown' },
+    package_trios: { render_a: packageTrioA, render_b: packageTrioB },
+    package_trio_statuses: { render_a: packageTrioStatusA, render_b: packageTrioStatusB },
     chromium_revisions: { render_a: revisionA ?? 'unknown', render_b: revisionB ?? 'unknown' },
+    chromium_versions: { render_a: browserVersionA ?? 'unknown', render_b: browserVersionB ?? 'unknown' },
+    browser_manifests: {
+      render_a: { url: browserManifestUrlA ?? '', sha256: browserManifestShaA ?? '' },
+      render_b: { url: browserManifestUrlB ?? '', sha256: browserManifestShaB ?? '' },
+    },
+    browser_manifest_statuses: { render_a: browserManifestStatusA, render_b: browserManifestStatusB },
     comparator: { name: 'ImageMagick compare -metric AE -fuzz 0%', package: `imagemagick=${expectedPackageVersion}`, version: comparatorVersion },
     results,
     total_changed_pixels: results.reduce((sum, entry) => sum + (Number.isSafeInteger(entry.changed_pixels) ? entry.changed_pixels : 0), 0),
     diagnostics: [
       ...(captureStatusA === '0' ? [] : [`render-a capture exited ${captureStatusA}`]),
       ...(captureStatusB === '0' ? [] : [`render-b capture exited ${captureStatusB}`]),
+      ...(packageTrioStatusA === 'verified' ? [] : ['render-a installed package trio is unverified']),
+      ...(packageTrioStatusB === 'verified' ? [] : ['render-b installed package trio is unverified']),
+      ...(browserManifestStatusA === 'verified' ? [] : ['render-a tagged browser manifest is unverified']),
+      ...(browserManifestStatusB === 'verified' ? [] : ['render-b tagged browser manifest is unverified']),
       ...diagnostics,
     ],
-    verdict: captureStatusA !== '0' || captureStatusB !== '0' || diagnostics.length > 0 || results.some((entry) => entry.result !== 'equal') || missingA.length > 0 || missingB.length > 0 || extraA.length > 0 || extraB.length > 0
-      ? 'inconclusive'
-      : results.some((entry) => entry.changed_pixels > 0) ? 'drift' : 'zero-drift',
+    verdict: !provenanceIncomplete && results.some((entry) => entry.result === 'drift' || entry.result === 'dimension-mismatch' || entry.changed_pixels > 0)
+      ? 'drift'
+      : provenanceIncomplete || captureStatusA !== '0' || captureStatusB !== '0' || diagnostics.length > 0 || results.some((entry) => entry.result !== 'equal') || missingA.length > 0 || missingB.length > 0 || extraA.length > 0 || extraB.length > 0
+        ? 'inconclusive' : 'zero-drift',
   };
   await writeFile(output, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
   if (manifest.verdict !== 'zero-drift') throw new Error(`measurement verdict is ${manifest.verdict}; see manifest and diff artifacts`);
