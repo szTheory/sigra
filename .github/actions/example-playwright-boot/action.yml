@@ -26,6 +26,18 @@ inputs:
     description: Whether to cache Playwright browser downloads.
     required: false
     default: "false"
+  skip-beam-setup:
+    description: Reuse a BEAM toolchain already installed by the caller.
+    required: false
+    default: "false"
+  otp-version:
+    description: OTP version to include in the cache key when setup is skipped.
+    required: false
+    default: ""
+  elixir-version:
+    description: Elixir version to include in the cache key when setup is skipped.
+    required: false
+    default: ""
   browser-cache-key:
     description: Exact browser cache key when cache-browsers is true.
     required: false
@@ -48,6 +60,7 @@ runs:
   steps:
     - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
       id: setup_beam
+      if: inputs.skip-beam-setup != 'true'
       with:
         version-file: .tool-versions
         version-type: strict
@@ -67,8 +80,8 @@ runs:
           test/example/_build
         # Phoenix validates endpoint configuration against the compile-time value.
         # Partition cached _build output by the PORT supplied to this consumer.
-        key: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ steps.setup_beam.outputs.otp-version }}-elixir${{ steps.setup_beam.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
-        restore-keys: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ steps.setup_beam.outputs.otp-version }}-elixir${{ steps.setup_beam.outputs.elixir-version }}-dev-
+        key: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+        restore-keys: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-
 
     - name: Fetch and compile example
       shell: bash
