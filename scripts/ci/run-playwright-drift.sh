@@ -30,18 +30,17 @@ printf '\nimagemagick=%s\n' "$imagemagick_package_version" >> "$ARTIFACT_DIR/com
 
 INVENTORY_JSON="$ARTIFACT_DIR/inventory.json"
 node "$ROOT/scripts/ci/measure-playwright-drift.mjs" inventory --source-sha "$SOURCE_SHA" > "$INVENTORY_JSON"
+REFERENCE_TREE="$(mktemp -d "$WORK_ROOT/measured-source-tree.XXXXXXXX")"
+git -C "$ROOT" archive --format=tar "$SOURCE_SHA" | tar -xf - -C "$REFERENCE_TREE"
 
 run_capture() {
   local label="$1" output_root="$2" browser_root="$3" base_url="$4" expected_version="$5"
-  local project
-  mkdir -p "$output_root" "$browser_root" "$output_root/.baseline-backup" || return $?
+  local project capture_status
+  mkdir -p "$output_root" "$browser_root" || return $?
   git -C "$ROOT" archive --format=tar "$SOURCE_SHA" | tar -xf - -C "$output_root" || return $?
-  while IFS= read -r -d '' snapshot_dir; do
-    mv "$snapshot_dir" "$output_root/.baseline-backup/" || return $?
-  done < <(find "$output_root/test/example/priv/playwright/tests" -mindepth 1 -maxdepth 1 -type d -name '*-snapshots' -print0)
 
   local package_dir="$output_root/test/example/priv/playwright"
-  (
+  if (
     set -euo pipefail
     cd "$package_dir"
     printf '{"@playwright/test":"%s","playwright":"%s","playwright-core":"%s"}\n' "$expected_version" "$expected_version" "$expected_version" > "$ARTIFACT_DIR/logs/${label}-package-trio.json"
@@ -51,6 +50,7 @@ run_capture() {
         @playwright/test@1.59.1 playwright@1.59.1 playwright-core@1.59.1
     fi
     npm ci
+    "$ROOT/scripts/ci/verify-playwright-source-tree.sh" "$REFERENCE_TREE" "$output_root" "$expected_version"
     local package_version playwright_version core_version
     package_version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
     playwright_version="$(node -p "require('./node_modules/playwright/package.json').version")"
@@ -58,6 +58,10 @@ run_capture() {
     [[ "$package_version" == "$expected_version" && "$playwright_version" == "$expected_version" && "$core_version" == "$expected_version" ]] || fail "expected consistent Playwright trio $expected_version, got @playwright/test=$package_version playwright=$playwright_version playwright-core=$core_version"
     printf '{"@playwright/test":"%s","playwright":"%s","playwright-core":"%s"}\n' "$package_version" "$playwright_version" "$core_version" > "$ARTIFACT_DIR/logs/${label}-package-trio.json"
     printf 'verified\n' > "$ARTIFACT_DIR/logs/${label}-package-trio-status.txt"
+    mkdir -p "$output_root/.baseline-backup"
+    while IFS= read -r -d '' snapshot_dir; do
+      mv "$snapshot_dir" "$output_root/.baseline-backup/"
+    done < <(find "$output_root/test/example/priv/playwright/tests" -mindepth 1 -maxdepth 1 -type d -name '*-snapshots' -print0)
     if [[ "$SCOPE" == full ]]; then
       PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install chromium webkit
     else
@@ -78,7 +82,15 @@ run_capture() {
           --project="$project" --update-snapshots=all --retries=0
       done
     fi
-  ) >"$ARTIFACT_DIR/logs/${label}-capture.log" 2>&1 || return $?
+  ) >"$ARTIFACT_DIR/logs/${label}-capture.log" 2>&1; then
+    return 0
+  else
+    capture_status=$?
+  fi
+  if grep -q 'verify-playwright-source-tree: FAIL:' "$ARTIFACT_DIR/logs/${label}-capture.log"; then
+    return 78
+  fi
+  return "$capture_status"
 }
 
 prepare_system_dependencies() {
@@ -95,6 +107,7 @@ prepare_system_dependencies() {
         @playwright/test@1.59.1 playwright@1.59.1 playwright-core@1.59.1
     fi
     npm ci
+    "$ROOT/scripts/ci/verify-playwright-source-tree.sh" "$REFERENCE_TREE" "$dependency_root" "$expected_version"
     local package_version playwright_version core_version
     package_version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
     playwright_version="$(node -p "require('./node_modules/playwright/package.json').version")"
@@ -120,8 +133,16 @@ browser_b="$WORK_ROOT/browsers-1.62.1"
 set +e
 run_capture render-a "$capture_a" "$browser_a" http://localhost:4001 1.59.1
 capture_a_status=$?
+if [[ "$capture_a_status" == 78 ]]; then
+  set -e
+  fail "render-a source-tree comparison failed; browser setup and capture stopped"
+fi
 run_capture render-b "$capture_b" "$browser_b" http://localhost:4002 1.62.1
 capture_b_status=$?
+if [[ "$capture_b_status" == 78 ]]; then
+  set -e
+  fail "render-b source-tree comparison failed; browser setup and capture stopped"
+fi
 set -e
 
 for version in 1.59.1 1.62.1; do
