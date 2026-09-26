@@ -10,7 +10,7 @@ updated: "2026-09-26"
 
 # Phase 244 — Validation Strategy
 
-> Every task from Plans 01–05 is mapped below to an executable check or to a retained external CI/package attestation. The measurement found real drift; validation passing means the fail-closed decision and evidence are verified, not that the package bump is merge-eligible.
+> Every task from Plans 01–08 is mapped below to an executable check or to a retained external CI/package attestation. The measurement found real drift; validation passing means the fail-closed decision and evidence are verified, not that the package bump is merge-eligible.
 
 ## Test Infrastructure
 
@@ -38,6 +38,12 @@ updated: "2026-09-26"
 | 244-04-02 | QUEUE-02: evidence decision matches live PR state and the measured drift; deferred todo is actionable. | `node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome`; live `gh pr view 213` state assertion from the plan's `jq -e` contract. | **PASS — JSON verifier passed; deferred evidence agrees with CLOSED/unmerged PR** |
 | 244-05-01 | QUEUE-02 / D1: collector rejects stale, missing, duplicate, skipped, malformed or docs-only job/step receipts. | `bash scripts/ci/capture-phase-244-final-main.test.sh` — success plus **10 fail-closed fixtures** and embedded-receipt verification. | **PASS — fixture suite green** |
 | 244-05-02 | QUEUE-02 / D2: one post-disposition exact-main run proves all required consumers and `ci-gate` individually successful, with main unchanged. | `bash scripts/ci/capture-phase-244-final-main.sh verify --receipt .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --main-sha 5a00b90d2314bc93f27aec4090b5928018743d1b`; run `36266022766`. | **PASS — receipt contract**; eight required jobs and seven consumer/browser steps passed at main SHA `5a00b90d2314bc93f27aec4090b5928018743d1b`. |
+| 244-06-01 | QUEUE-02 / SEC-244-06: structured workflow-run and artifact API identity binds the exact raw manifest bytes and digest. | `node --test scripts/ci/measure-playwright-drift.test.mjs` — provenance fixtures; live run `36262576391` and artifact provenance retained in `244-PLAYWRIGHT-EVIDENCE.json`. | **PASS — 49/49 contract suite**; manifest provenance independently retained. |
+| 244-06-02 | QUEUE-02 / SEC-244-09: merge eligibility requires zero drift, current authorized PR/head/base, complete nonempty policy, and exact successful checks. | `node --test scripts/ci/measure-playwright-drift.test.mjs`; `node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome`. | **PASS — 25 authorization fixtures**; recorded drift and closed PR remain ineligible. |
+| 244-07-01 | QUEUE-02 / SEC-244-07: paired install roots permit only the expected package manifest/lock transform and reject source mutations. | `bash scripts/ci/verify-playwright-source-tree.test.sh`; `node --test scripts/ci/verify-playwright-source-tree.test.mjs`. | **PASS — hermetic positive/negative fixtures**. |
+| 244-07-02 | QUEUE-02 / SEC-244-07: every install root is checked after `npm ci` and before browser setup/capture, against one measured-SHA reference. | Same source-tree fixture commands; shell runner wiring assertions in the fixture; `bash -n scripts/ci/run-playwright-drift.sh`. | **PASS — guards wired at install boundaries and syntax valid**. |
+| 244-08-01 | QUEUE-02 / SEC-244-13: final-main collection records one 60-second watcher after quota preflight and stops without retry on 403/429. | `bash scripts/ci/capture-phase-244-final-main.test.sh`; `node --test scripts/ci/capture-phase-244-final-main.test.mjs`; embedded watcher receipt in `244-PLAYWRIGHT-EVIDENCE.json`. | **PASS — quota, watcher, hard-stop and receipt fixtures**; run `36266022766` retained. |
+| 244-08-02 | QUEUE-02: complete local repository gate passes at final gap-code HEAD after Plans 06–08. | `244-GAP-CLOSURE-MIX-CI-LOG.txt`, command `MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci`, HEAD `1a607331ba688011c20a3d7447f8f7e1df7b72a8`. | **PASS — retry exit 0**; initial sandbox attempt exit 2 is also preserved. |
 
 ## Measurement and Disposition
 
@@ -48,9 +54,9 @@ updated: "2026-09-26"
 
 ## Sampling and Sign-Off
 
-- All **11 tasks** in Plans 01–05 have a verification mapping above; no new test file was needed because the existing comparator, cache, and receipt suites exercise the planned negative behaviors.
+- All **17 tasks** in Plans 01–08 have a verification mapping above. Existing focused suites exercise the planned negative behaviors; Plans 06–08 added test coverage during phase execution, and this audit needed no additional test files.
 - The successful comparator, cache, receipt, measurement and final-main checks were run during this audit. External CI/package claims are linked to their retained run/evidence identities.
 - No three consecutive tasks are left without automated validation. No watch-mode flags are used.
 - Human visual judgment cannot override the measured drift or make the candidate merge-eligible.
 
-**Nyquist status:** compliant for the planned fail-closed measurement, disposition and receipt behaviors. QUEUE-02's spec-less edge remains explicitly unresolved as described above.
+**Nyquist status:** compliant for the planned fail-closed measurement, provenance, disposition, and receipt behaviors across Plans 01–08. QUEUE-02's spec-less edge remains explicitly unresolved as described above; it is disclosed and is not asserted as a passed behavior.
