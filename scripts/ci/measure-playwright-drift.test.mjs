@@ -101,6 +101,19 @@ test('a complete same-source Ubuntu receipt verifies', async () => {
   assert.match(result.stdout, /"valid":true/);
 });
 
+test('inventory-only verification accepts complete captures while preserving measured drift', async () => {
+  const inventory = trackedInventory();
+  const manifest = validManifest(inventory);
+  manifest.results[0].changed_pixels = 11;
+  manifest.verdict = 'drift';
+  const inventoryResult = await verifyWith(manifest, ['--inventory-only']);
+  assert.equal(inventoryResult.status, 0, inventoryResult.stderr);
+  assert.match(inventoryResult.stdout, /"paths":115/);
+  const exactResult = await verifyWith(manifest, ['--expect-count', '115']);
+  assert.notEqual(exactResult.status, 0);
+  assert.match(exactResult.stderr, /verdict is drift/);
+});
+
 test('an incomplete capture path set fails closed', async () => {
   const inventory = trackedInventory();
   const manifest = validManifest(inventory);
@@ -128,7 +141,7 @@ test('any changed pixel prevents a zero-drift verdict', async () => {
   const inventory = trackedInventory();
   const manifest = validManifest(inventory);
   manifest.results[0].changed_pixels = 1;
-  const result = await verifyWith(manifest);
+  const result = await verifyWith(manifest, ['--expect-count', String(inventory.paths.length)]);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /not exact zero drift/);
 });

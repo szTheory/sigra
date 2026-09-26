@@ -84,7 +84,8 @@ async function verifyManifest(args) {
   if (!file || !sourceSha) throw new Error('verify requires --manifest and --source-sha');
   const manifest = JSON.parse(await readFile(file, 'utf8'));
   requireRunIdentity(manifest, sourceSha);
-  if (manifest.verdict !== 'zero-drift') throw new Error(`manifest verdict is ${manifest.verdict ?? 'missing'}`);
+  const inventoryOnly = args.includes('--inventory-only');
+  if (!inventoryOnly && manifest.verdict !== 'zero-drift') throw new Error(`manifest verdict is ${manifest.verdict ?? 'missing'}`);
   const expected = gitInventory(sourceSha);
   const expectCountArg = argValue(args, '--expect-count');
   const expectCount = expectCountArg === undefined && args.includes('--inventory-only')
@@ -108,7 +109,7 @@ async function verifyManifest(args) {
     if (!Number.isInteger(entry.width) || entry.width <= 0 || !Number.isInteger(entry.height) || entry.height <= 0) {
       throw new Error(`invalid dimensions for ${entry.path}`);
     }
-    if (!Number.isInteger(entry.changed_pixels) || entry.changed_pixels !== 0) {
+    if (!Number.isInteger(entry.changed_pixels) || (!inventoryOnly && entry.changed_pixels !== 0)) {
       throw new Error(`comparison is not exact zero drift for ${entry.path}`);
     }
     if (!entry.render_a || !entry.render_b || !entry.diff) throw new Error(`render/diff artifact path missing for ${entry.path}`);
