@@ -569,8 +569,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
-          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+          # Phase 243: isolate this build after the dep-off guard exposed stale conditional forwarder beams in the legacy prefix.
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-v2-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-v2-
       - name: Install Hex + Rebar
         run: |
           mix local.hex --force
