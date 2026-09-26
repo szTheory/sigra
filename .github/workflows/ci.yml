@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: ''
+      phase_244_final_main:
+        description: 'Run required Phase 244 final-main consumers without baseline recapture jobs.'
+        required: false
+        type: boolean
+        default: false
   schedule:
     # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
@@ -76,14 +81,30 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Require release tag ref for manual release evidence
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PHASE_244_FINAL_MAIN: ${{ inputs.phase_244_final_main }}
+          RECAPTURE_BRANCH: ${{ inputs.recapture_branch }}
+          FORCE_FAIL_PROBE: ${{ inputs.force_fail_probe }}
+          FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
+          REF: ${{ github.ref }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
             echo "Non-manual CI run; release-ref guard not applicable."
             exit 0
           fi
-          if [ -n "${{ github.event.inputs.recapture_branch }}" ]; then
-            echo "Recapture dispatch (recapture_branch=${{ github.event.inputs.recapture_branch }}); release-ref guard not applicable."
+          if [ "$PHASE_244_FINAL_MAIN" = "true" ]; then
+            if [ "$REF" = "refs/heads/main" ] && [ -z "$RECAPTURE_BRANCH" ] \
+              && [ "$FORCE_FAIL_PROBE" = "false" ] && [ "$FORCE_ROT_PROBE" = "false" ]; then
+              echo "Authorized Phase 244 final-main dispatch; recapture jobs remain excluded."
+              exit 0
+            fi
+            echo "Phase 244 final-main dispatch requires exact main, empty recapture input, and false probes."
+            exit 1
+          fi
+          if [ -n "$RECAPTURE_BRANCH" ]; then
+            echo "Recapture dispatch (recapture_branch=$RECAPTURE_BRANCH); release-ref guard not applicable."
             exit 0
           fi
           case "${GITHUB_REF}" in
@@ -1703,7 +1724,7 @@ jobs:
     name: Recapture admin-design baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
@@ -1941,7 +1962,7 @@ jobs:
     name: Recapture admin-checkpoint baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
