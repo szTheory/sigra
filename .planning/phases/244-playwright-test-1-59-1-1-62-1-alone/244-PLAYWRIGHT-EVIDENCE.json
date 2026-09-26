@@ -1867,12 +1867,22 @@
       "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
     },
     "generated_admin_playwright_smoke": {
-      "conclusion": "not present in latest main CI check set",
-      "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+      "conclusion": "success",
+      "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "run_id": "36220498815"
     },
     "latest_observation_run_id": "36264551736",
     "latest_observation_conclusion": "success",
-    "fast_checks_same_candidate_sha": "unavailable"
+    "fast_checks_same_candidate_sha": "unavailable",
+    "example_playwright_shards": {
+      "demo_showcase": "success",
+      "design_gallery": "success",
+      "non_admin_smoke": "success",
+      "admin_behavior": "success",
+      "admin_checkpoints": "success",
+      "run_id": "36220498815",
+      "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+    }
   },
   "historical_pr_213_run": {
     "id": "31229468400",
@@ -2074,6 +2084,14 @@
         "conclusion": "failure",
         "stale": true,
         "visual_proof": false
+      },
+      "main_generated_admin_playwright_smoke": "success",
+      "main_example_playwright_shards": {
+        "demo_showcase": "success",
+        "design_gallery": "success",
+        "non_admin_smoke": "success",
+        "admin_behavior": "success",
+        "admin_checkpoints": "success"
       }
     },
     "comment": {

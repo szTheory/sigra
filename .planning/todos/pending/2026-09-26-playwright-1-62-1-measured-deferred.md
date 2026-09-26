@@ -23,7 +23,7 @@ The complete paired measurement recorded real visual drift. PR #213 is closed an
 ## Evidence
 
 - PR #213: closed, unmerged, mergeability reported as conflicting; last recorded head SHA 9f5150bd3a000dc122e8c185bf06c102ac720667; the corresponding remote branch ref is absent.
-- Current main: 5a00b90d2314bc93f27aec4090b5928018743d1b. CI run 36220498815 has successful ci-gate and Example Playwright smoke checks on that SHA; latest CI observe run 36264551736 is successful.
+- Current main: 5a00b90d2314bc93f27aec4090b5928018743d1b. CI run 36220498815 has successful ci-gate, all five Example Playwright shards, Example Playwright smoke, and Generated admin Playwright smoke on that SHA; latest CI observe run 36264551736 is successful.
 - Measurement source SHA: 980812cba598781b0b95a763562aaafbd093afb8.
 - Measurement run: 36262576391 (https://github.com/szTheory/sigra/actions/runs/36262576391); artifact identifier: phase-244-playwright-measurement-36262576391.
 - Artifact verdict: drift. All 115 expected images were captured on both sides, with zero missing or extra paths. 30 images differed, totaling 380825 changed pixels.
