@@ -6,6 +6,7 @@ fail(){ echo "capture-phase-244-final-main: FAIL: $*" >&2; exit 1; }
 valid(){ jq -e --arg s "$2" --arg v "$SCHEMA" '
 def j: (.id|type)=="number" and (.run_id|type)=="number" and .status=="completed" and .conclusion=="success";
 def st($n): .step.name==$n and (.step.number|type)=="number" and .step.status=="completed" and .step.conclusion=="success";
+(if has("final_main_consumer_receipt") then .final_main_consumer_receipt else . end) |
 .schema_version==$v and .main_sha_before==$s and .main_sha_after==$s and .run.head_sha==$s and .run.status=="completed" and .run.conclusion=="success" and
 ((.run.event=="workflow_dispatch" and .run.head_branch=="main" and .run.path==".github/workflows/ci.yml" and .dispatch.route=="phase_244_final_main" and .dispatch.inputs=={phase_244_final_main:true,recapture_branch:"",force_fail_probe:false,force_rot_probe:false}) or (.run.event=="push" and .run.head_branch=="main")) and
 (.ci_gate|j) and .ci_gate.name=="ci-gate" and

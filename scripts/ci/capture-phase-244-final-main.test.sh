@@ -68,9 +68,11 @@ run_case(){ local c="$1" runsha="${2:-$MAIN_SHA}"; rm -f "$TMP/output/receipt.js
 [[ "$(run_case success)" == 0 ]] || { cat "$TMP/stderr" >&2; echo 'FAIL: success fixture' >&2; exit 1; }
 jq -e --arg sha "$MAIN_SHA" '.schema_version=="sigra.phase-244-final-main/1" and .main_sha_before==$sha and .main_sha_after==$sha and .run.head_sha==$sha and .ci_gate.conclusion=="success" and .example_playwright_shards.design_gallery.step.name=="Run design gallery behavior and snapshots"' "$TMP/output/receipt.json" >/dev/null
 "$COLLECTOR" verify --receipt "$TMP/output/receipt.json" --main-sha "$MAIN_SHA" >/dev/null
+jq -n --slurpfile r "$TMP/output/receipt.json" '{final_main_consumer_receipt:$r[0]}' >"$TMP/output/evidence.json"
+"$COLLECTOR" verify --receipt "$TMP/output/evidence.json" --main-sha "$MAIN_SHA" >/dev/null
 for c in missing_shard duplicate_shard duplicate_step missing_steps skipped_smoke failed_gate malformed_page docs_only advance_main total_mismatch; do
   [[ "$(run_case "$c")" != 0 ]] || { echo "FAIL: $c accepted" >&2; exit 1; }
   [[ ! -e "$TMP/output/receipt.json" ]] || { echo "FAIL: $c wrote receipt" >&2; exit 1; }
 done
 [[ "$(run_case wrong_sha bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)" != 0 ]] || { echo 'FAIL: wrong SHA accepted' >&2; exit 1; }
-echo "capture-phase-244-final-main.test: PASS (success + 10 fail-closed fixtures)"
+echo "capture-phase-244-final-main.test: PASS (success + 10 fail-closed fixtures and embedded-receipt verification)"
