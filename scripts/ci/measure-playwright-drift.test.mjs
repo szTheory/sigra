@@ -114,19 +114,28 @@ async function verifyProvenance(fixture, overrides = {}) {
 function authorizationFixture() {
   const sha = SOURCE_SHA;
   const baseSha = 'b'.repeat(40);
+  const measurement = { source_sha: sha, run_id: '1234567890', verdict: 'zero-drift', workflow_name: 'Phase 244 Playwright measurement',
+    event: 'workflow_dispatch', head_branch: 'phase-244/measurement', artifact_identifier: 'phase-244-playwright-measurement-1234567890' };
+  const measurementBytes = Buffer.from(JSON.stringify(measurement));
   const contexts = [
     { name: 'ci-gate', app: { id: 333 }, head_sha: sha, status: 'completed', conclusion: 'success' },
     { name: 'Library tests', app: { id: 444 }, head_sha: sha, status: 'completed', conclusion: 'success' },
   ];
   return {
-    measurement: { source_sha: sha, run_id: '1234567890', verdict: 'zero-drift' },
-    provenance: { run_id: 1234567890, head_sha: sha, manifest_sha256: 'a'.repeat(64), artifact_id: 9876 },
+    measurement,
+    measurement_raw_base64: measurementBytes.toString('base64'),
+    provenance: { run_id: 1234567890, head_sha: sha, manifest_sha256: createHash('sha256').update(measurementBytes).digest('hex'),
+      artifact_id: 9876, artifact_name: measurement.artifact_identifier, artifact_digest: `sha256:${'b'.repeat(64)}`,
+      run_identity: { id: 1234567890, name: 'Phase 244 Playwright measurement', path: '.github/workflows/phase-244-playwright-measure.yml',
+        event: 'workflow_dispatch', head_branch: 'phase-244/measurement', head_sha: sha, status: 'completed', conclusion: 'success' },
+      artifact_record: { id: 9876, name: measurement.artifact_identifier, digest: `sha256:${'b'.repeat(64)}`, expired: false,
+        workflow_run: { id: 1234567890, repository_id: 1, head_repository_id: 1, head_branch: 'phase-244/measurement', head_sha: sha } } },
     pr: { number: 213, state: 'open', head: { sha, ref: 'phase-244/measurement' }, base: { ref: 'main', sha: baseSha }, mergeable: true, mergeable_state: 'clean' },
     main: { sha: baseSha, name: 'main' },
     head_ref: { object: { sha } },
-    rules: [{ type: 'required_status_checks', parameters: { required_status_checks: [{ context: 'ci-gate', integration_id: 333 }] } },
-      { type: 'workflows', parameters: { workflows: [{ path: '.github/workflows/ci.yml', ref: 'main', repository_id: 1, sha: 'c'.repeat(40) }] } }],
-    protection: { contexts: ['Library tests'], checks: [{ context: 'Library tests', app_id: 444 }] },
+    rules: { complete: true, rules: [{ type: 'required_status_checks', parameters: { required_status_checks: [{ context: 'ci-gate', integration_id: 333 }] } },
+      { type: 'workflows', parameters: { workflows: [{ path: '.github/workflows/ci.yml', ref: 'main', repository_id: 1, sha: 'c'.repeat(40) }] } }] },
+    protection: { status: 200, response: { contexts: ['Library tests'], checks: [{ context: 'Library tests', app_id: 444 }] } },
     check_runs: { complete: true, total_count: contexts.length, pages: [{ check_runs: contexts }] },
     statuses: { complete: true, total_count: 0, pages: [{ statuses: [] }] },
     workflow_runs: { complete: true, total_count: 1, pages: [{ workflow_runs: [
@@ -302,6 +311,12 @@ test('measurement workflow is read-only and gated to explicit phase-244 branch d
   assert.doesNotMatch(MEASURE_WORKFLOW, /contents:\s*write/);
   assert.match(MEASURE_WORKFLOW, /default:\s*full/);
   assert.match(MEASURE_WORKFLOW, /RUNNER_IMAGE:\s*ubuntu-24\.04/);
+  assert.match(MEASURE_WORKFLOW, /actions:\s*read/);
+  assert.match(MEASURE_WORKFLOW, /checks:\s*read/);
+  assert.match(MEASURE_WORKFLOW, /pull-requests:\s*read/);
+  assert.match(MEASURE_WORKFLOW, /statuses:\s*read/);
+  assert.doesNotMatch(MEASURE_WORKFLOW, /permissions:[\s\S]*?(?:contents|pull-requests|checks|statuses):\s*write/);
+  assert.match(MEASURE_WORKFLOW, /Collect current PR and required-check authorization/);
 });
 
 test('full measurement installs both Playwright OS dependency sets before either capture', () => {
@@ -516,6 +531,21 @@ test('structured run and artifact APIs bind the exact manifest bytes and archive
     ] });
     assert.notEqual(digestMismatch.status, 0, digestMismatch.stdout);
 
+    const badRunBinding = structuredClone(fixture.artifact);
+    badRunBinding.artifacts[0].workflow_run.id += 1;
+    const badRunBindingFile = await writeJson(directory, 'bad-run-binding.json', badRunBinding);
+    const wrongArtifactRun = await verifyProvenance(fixture, { args: [
+      'verify-provenance', '--manifest', fixture.files.manifest, '--run-json', fixture.files.run,
+      '--artifact-json', badRunBindingFile, '--artifact-zip', fixture.files.archive, '--source-sha', SOURCE_SHA,
+    ] });
+    assert.notEqual(wrongArtifactRun.status, 0, wrongArtifactRun.stdout);
+
+    const changedManifest = Buffer.from(await readFile(fixture.files.manifest));
+    changedManifest[changedManifest.length - 2] ^= 0x01;
+    await writeFile(fixture.files.manifest, changedManifest);
+    const manifestMismatch = await verifyProvenance(fixture);
+    assert.notEqual(manifestMismatch.status, 0, manifestMismatch.stdout);
+
     const alteredBytes = Buffer.from(await readFile(fixture.files.archive));
     alteredBytes[alteredBytes.length - 1] ^= 0xff;
     await writeFile(fixture.files.archive, alteredBytes);
@@ -533,6 +563,24 @@ test('merge eligibility requires a current PR, base, complete policies, and exac
     const success = await evaluateAuthorization(valid, directory);
     assert.equal(success.status, 0, success.stderr);
     assert.match(success.stdout, /"merge_eligible":true/);
+    const evaluated = JSON.parse(success.stdout);
+    valid.decision_eligibility = {
+      policy: evaluated.policy,
+      policy_error: evaluated.policy_error,
+      results: evaluated.results,
+      merge_eligible: evaluated.merge_eligible,
+      reasons: evaluated.reasons,
+      inputs: evaluated.inputs,
+    };
+    const authorizationFile = await writeJson(directory, 'authorized-record.json', valid);
+    const offline = command(['verify-eligibility', '--authorization-json', authorizationFile]);
+    assert.equal(offline.status, 0, offline.stderr);
+    assert.match(offline.stdout, /"valid":true/);
+    const tamperedRecord = structuredClone(valid);
+    tamperedRecord.pr.state = 'closed';
+    const tamperedFile = await writeJson(directory, 'tampered-authorized-record.json', tamperedRecord);
+    const tampered = command(['verify-eligibility', '--authorization-json', tamperedFile]);
+    assert.notEqual(tampered.status, 0, tampered.stdout);
 
     const rejects = [
       ['measured drift', (r) => { r.measurement.verdict = 'drift'; }],
@@ -541,32 +589,52 @@ test('merge eligibility requires a current PR, base, complete policies, and exac
       ['measured source and PR head mismatch', (r) => { r.pr.head.sha = 'd'.repeat(40); }],
       ['stale base SHA', (r) => { r.main.sha = 'e'.repeat(40); }],
       ['nonmergeable PR', (r) => { r.pr.mergeable = false; }],
+      ['null mergeability', (r) => { r.pr.mergeable = null; }],
       ['nonclean merge state', (r) => { r.pr.mergeable_state = 'blocked'; }],
+      ['missing PR', (r) => { r.pr = null; }],
       ['missing required result', (r) => { r.check_runs.pages[0].check_runs.pop(); r.check_runs.total_count -= 1; }],
       ['duplicate required result', (r) => { r.check_runs.pages[0].check_runs.push(structuredClone(r.check_runs.pages[0].check_runs[0])); r.check_runs.total_count += 1; }],
       ['failed required result', (r) => { r.check_runs.pages[0].check_runs[0].conclusion = 'failure'; }],
       ['skipped required result', (r) => { r.check_runs.pages[0].check_runs[0].conclusion = 'skipped'; }],
       ['wrong required result SHA', (r) => { r.check_runs.pages[0].check_runs[0].head_sha = 'f'.repeat(40); }],
+      ['wrong required integration ID', (r) => { r.check_runs.pages[0].check_runs[1].app.id = 999; }],
+      ['duplicate combined-status result', (r) => { r.statuses.pages[0].statuses.push({ context: 'ci-gate', sha: SOURCE_SHA, state: 'success' }); r.statuses.total_count += 1; }],
       ['incomplete check-run pagination', (r) => { r.check_runs.complete = false; }],
       ['incomplete status pagination', (r) => { r.statuses.complete = false; }],
       ['missing required workflow', (r) => { r.workflow_runs.pages[0].workflow_runs = []; r.workflow_runs.total_count = 0; }],
-      ['empty policy', (r) => { r.rules = []; r.protection = { contexts: [], checks: [] }; }],
-      ['unknown policy response', (r) => { r.rules = { message: 'not an array' }; }],
+      ['empty policy', (r) => { r.rules.rules = []; r.protection.response = { contexts: [], checks: [] }; }],
+      ['unknown policy response', (r) => { r.rules = { complete: true, rules: [{ type: 'unknown' }] }; r.protection.response = { contexts: [], checks: [] }; }],
+      ['incomplete ruleset pagination', (r) => { r.rules.complete = false; }],
       ['missing classic protection policy', (r) => { r.protection = null; }],
+      ['malformed classic protection policy', (r) => { r.protection.response = { contexts: 'unknown', checks: [] }; }],
     ];
     for (const [label, mutate] of rejects) {
       await t.test(`fails closed for ${label}`, async () => {
         const record = structuredClone(valid);
         mutate(record);
         const result = await evaluateAuthorization(record, directory);
-        if (['empty policy', 'unknown policy response', 'missing classic protection policy'].includes(label)) {
-          assert.notEqual(result.status, 0, result.stdout);
-        } else {
-          assert.equal(result.status, 0, result.stderr);
-          assert.match(result.stdout, /"merge_eligible":false/);
+        if (['incomplete check-run pagination', 'incomplete status pagination'].includes(label)) {
+          assert.equal(result.status, 1);
+          assert.match(result.stderr, /API pages are missing or pagination is incomplete/);
+          return;
+        }
+        assert.equal(result.status, 0, result.stderr);
+        assert.match(result.stdout, /"merge_eligible":false/);
+        if (['empty policy', 'unknown policy response', 'missing classic protection policy', 'incomplete ruleset pagination', 'incomplete check-run pagination', 'incomplete status pagination'].includes(label)) {
+          assert.match(result.stdout, /required-check policy is untrusted/);
         }
       });
     }
+    await t.test('accepts complete multi-page check-run records', async () => {
+      const record = structuredClone(valid);
+      record.check_runs.pages = [
+        { check_runs: [record.check_runs.pages[0].check_runs[0]] },
+        { check_runs: [record.check_runs.pages[0].check_runs[1]] },
+      ];
+      const result = await evaluateAuthorization(record, directory);
+      assert.equal(result.status, 0, result.stderr);
+      assert.match(result.stdout, /"merge_eligible":true/);
+    });
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

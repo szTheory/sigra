@@ -20,6 +20,9 @@ on:
 permissions:
   contents: read
   actions: read
+  checks: read
+  pull-requests: read
+  statuses: read
 
 jobs:
   phase_244_playwright_measure:
@@ -119,7 +122,7 @@ jobs:
           retention-days: 30
 
       - name: Bind the measurement to run and artifact API identity
-        if: success()
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
@@ -142,3 +145,30 @@ jobs:
             --source-sha "$SOURCE_SHA" | tee "$evidence_dir/provenance.json"
           echo '## Measurement API provenance' >> "$GITHUB_STEP_SUMMARY"
           cat "$evidence_dir/provenance.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Collect current PR and required-check authorization
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          evidence_dir="$RUNNER_TEMP/phase-244-api-provenance"
+          node scripts/ci/measure-playwright-drift.mjs collect-authorization \
+            --manifest "$evidence_dir/measurement.json" \
+            --provenance-json "$evidence_dir/provenance.json" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$evidence_dir/authorization.json" | tee "$evidence_dir/eligibility.json"
+          node scripts/ci/measure-playwright-drift.mjs verify-eligibility \
+            --authorization-json "$evidence_dir/authorization.json" | tee -a "$evidence_dir/eligibility.json"
+          echo '## Current PR and required-check eligibility' >> "$GITHUB_STEP_SUMMARY"
+          cat "$evidence_dir/eligibility.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload API authorization evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase-244-authorization-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/phase-244-api-provenance/
+          if-no-files-found: error
+          retention-days: 30

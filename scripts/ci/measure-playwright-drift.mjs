@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 
 const SHA_RE = /^[0-9a-f]{40}$/;
 
@@ -133,7 +134,8 @@ async function verifyProvenance(args) {
       runRecord.path !== '.github/workflows/phase-244-playwright-measure.yml' || runRecord.event !== 'workflow_dispatch' ||
       !/^phase-244\//.test(runRecord.head_branch ?? '') || runRecord.head_branch !== manifest.head_branch ||
       runRecord.head_sha !== sourceSha || runRecord.head_sha !== manifest.source_sha ||
-      runRecord.status !== 'completed' || runRecord.conclusion !== 'success') {
+      runRecord.status !== 'completed' ||
+      runRecord.conclusion !== (manifest.verdict === 'zero-drift' ? 'success' : 'failure')) {
     throw new Error('structured workflow run identity does not match the completed measurement manifest');
   }
   if (!artifactList || !Array.isArray(artifactList.artifacts)) throw new Error('artifact API response must contain an artifacts array');
@@ -160,7 +162,296 @@ async function verifyProvenance(args) {
   if (!extracted.stdout.equals(manifestBytes)) throw new Error('downloaded measurement bytes do not match the supplied manifest bytes exactly');
   const manifestSha256 = createHash('sha256').update(extracted.stdout).digest('hex');
   console.log(JSON.stringify({ valid: true, run_id: runRecord.id, head_sha: runRecord.head_sha, artifact_id: artifact.id,
-    artifact_name: artifact.name, artifact_digest: artifact.digest, manifest_sha256: manifestSha256 }));
+    artifact_name: artifact.name, artifact_digest: artifact.digest, manifest_sha256: manifestSha256,
+    run_identity: { id: runRecord.id, name: runRecord.name, path: runRecord.path, event: runRecord.event,
+      head_branch: runRecord.head_branch, head_sha: runRecord.head_sha, status: runRecord.status, conclusion: runRecord.conclusion },
+    artifact_record: { id: artifact.id, name: artifact.name, digest: artifact.digest, expired: artifact.expired,
+      workflow_run: { id: artifact.workflow_run.id, repository_id: artifact.workflow_run.repository_id,
+        head_repository_id: artifact.workflow_run.head_repository_id, head_branch: artifact.workflow_run.head_branch,
+        head_sha: artifact.workflow_run.head_sha } } }));
+}
+
+function completePages(record, key) {
+  if (!record || record.complete !== true || !Array.isArray(record.pages) || record.pages.length === 0 ||
+      !Number.isSafeInteger(record.total_count) || record.total_count < 0) {
+    throw new Error(`${key} API pages are missing or pagination is incomplete`);
+  }
+  const items = [];
+  for (const page of record.pages) {
+    if (!page || !Array.isArray(page[key])) throw new Error(`${key} API page is malformed`);
+    items.push(...page[key]);
+  }
+  if (items.length !== record.total_count) throw new Error(`${key} API pagination total does not match all collected records`);
+  return items;
+}
+
+function requiredPolicy(input) {
+  if (!input.rules || input.rules.complete !== true || !Array.isArray(input.rules.rules)) {
+    throw new Error('active branch rules response is missing, malformed, or incompletely paginated');
+  }
+  let protectionError = null;
+  const protection = input.protection?.status === 200 ? input.protection.response : null;
+  if (input.protection?.status !== 200) protectionError = 'classic required-status-check protection response is missing or inaccessible';
+  if (protection && (typeof protection !== 'object' || Array.isArray(protection) ||
+      !Array.isArray(protection.contexts) || !Array.isArray(protection.checks))) {
+    protectionError = 'classic required-status-check protection response is malformed';
+  }
+  const checks = [];
+  const workflows = [];
+  const addCheck = (entry, source) => {
+    if (!entry || typeof entry.context !== 'string' || entry.context.length === 0) throw new Error(`${source} required check context is missing`);
+    const integrationId = entry.integration_id ?? entry.app_id ?? null;
+    if (integrationId !== null && (!Number.isSafeInteger(integrationId) || integrationId < 0)) throw new Error(`${source} required check integration ID is malformed`);
+    const existing = checks.find((item) => item.context === entry.context && item.integration_id === integrationId);
+    if (existing) existing.sources.push(source);
+    else checks.push({ context: entry.context, integration_id: integrationId, sources: [source] });
+  };
+  for (const context of protection?.contexts ?? []) addCheck({ context }, 'classic');
+  for (const check of protection?.checks ?? []) addCheck({ context: check?.context, app_id: check?.app_id }, 'classic');
+  for (const rule of input.rules.rules) {
+    if (!rule || typeof rule.type !== 'string') throw new Error('active branch rule entry is malformed');
+    if (rule.type === 'required_status_checks') {
+      const entries = rule.parameters?.required_status_checks;
+      if (!Array.isArray(entries)) throw new Error('active required-status-check rule is malformed');
+      for (const entry of entries) addCheck(entry, 'ruleset');
+    } else if (rule.type === 'workflows') {
+      const entries = rule.parameters?.workflows;
+      if (!Array.isArray(entries)) throw new Error('active required-workflow rule is malformed');
+      for (const entry of entries) {
+        if (!entry || typeof entry.path !== 'string' || !entry.path.startsWith('.github/workflows/') ||
+            typeof entry.ref !== 'string' || !entry.ref || !Number.isSafeInteger(entry.repository_id) ||
+            !SHA_RE.test(entry.sha ?? '')) throw new Error('active required-workflow identity is malformed');
+        if (entry.repository_id !== input.repository_id) throw new Error('required workflow belongs to another repository and cannot be verified by this collection');
+        const key = `${entry.repository_id}:${entry.path}:${entry.ref}:${entry.sha}`;
+        if (!workflows.some((item) => item.key === key)) workflows.push({ key, ...entry });
+      }
+    }
+  }
+  if (checks.length === 0 && workflows.length === 0) throw new Error('merged active required-check and required-workflow policy is empty or unknown');
+  return { status_checks: checks, workflows, error: protectionError };
+}
+
+function evaluateEligibility(input) {
+  const measurement = input?.measurement;
+  const provenance = input?.provenance;
+  if (!measurement || typeof measurement !== 'object' || !provenance || typeof provenance !== 'object') {
+    throw new Error('measurement and verified provenance records are required');
+  }
+  let policy;
+  let policyError = null;
+  try {
+    policy = requiredPolicy(input);
+    policyError = policy.error;
+  } catch (error) {
+    policyError = error.message;
+    policy = { status_checks: [], workflows: [], error: null };
+  }
+  const checkRuns = completePages(input.check_runs, 'check_runs');
+  const statuses = completePages(input.statuses, 'statuses');
+  const workflowRuns = completePages(input.workflow_runs, 'workflow_runs');
+  const sourceSha = measurement.source_sha;
+  let exactManifestValid = false;
+  if (typeof input.measurement_raw_base64 === 'string' && input.measurement_raw_base64) {
+    const rawManifest = Buffer.from(input.measurement_raw_base64, 'base64');
+    exactManifestValid = rawManifest.toString('base64') === input.measurement_raw_base64 &&
+      createHash('sha256').update(rawManifest).digest('hex') === provenance.manifest_sha256;
+    if (exactManifestValid) {
+      try {
+        exactManifestValid = JSON.stringify(JSON.parse(rawManifest.toString('utf8'))) === JSON.stringify(measurement);
+      } catch {
+        exactManifestValid = false;
+      }
+    }
+  }
+  const checks = policy.status_checks.map((required) => {
+    const candidates = [
+      ...checkRuns.filter((item) => item?.name === required.context),
+      ...statuses.filter((item) => item?.context === required.context),
+    ];
+    const passing = candidates.length === 1 &&
+      (required.integration_id === null || candidates[0]?.app?.id === required.integration_id) &&
+      (candidates[0].head_sha ?? candidates[0].sha) === sourceSha &&
+      (candidates[0].status === 'completed' && candidates[0].conclusion === 'success' || candidates[0].state === 'success');
+    return { ...required, matching_results: candidates.length, success: passing,
+      result_shas: candidates.map((item) => item.head_sha ?? item.sha ?? null) };
+  });
+  const requiredWorkflows = policy.workflows.map((required) => {
+    const candidates = workflowRuns.filter((runRecord) => runRecord?.path === required.path && runRecord?.head_sha === sourceSha);
+    const success = candidates.length === 1 && candidates[0].status === 'completed' && candidates[0].conclusion === 'success';
+    return { repository_id: required.repository_id, path: required.path, ref: required.ref, sha: required.sha,
+      matching_runs: candidates.length, success, run_ids: candidates.map((runRecord) => runRecord.id) };
+  });
+  const pr = input.pr;
+  const main = input.main;
+  const headRefSha = input.head_ref?.object?.sha ?? null;
+  const reasons = [];
+  if (policyError) reasons.push(`required-check policy is untrusted: ${policyError}`);
+  if (measurement.verdict !== 'zero-drift') reasons.push('measurement verdict is not zero-drift');
+  const runIdentity = provenance.run_identity;
+  const artifactRecord = provenance.artifact_record;
+  if (!exactManifestValid || !SHA_RE.test(sourceSha ?? '') || !SHA_RE.test(provenance.head_sha ?? '') || provenance.head_sha !== sourceSha ||
+      String(provenance.run_id) !== String(measurement.run_id) || !/^[0-9a-f]{64}$/.test(provenance.manifest_sha256 ?? '') ||
+      !Number.isSafeInteger(provenance.artifact_id) || provenance.artifact_id < 1 ||
+      provenance.artifact_name !== measurement.artifact_identifier ||
+      !/^sha256:[0-9a-f]{64}$/.test(provenance.artifact_digest ?? '') ||
+      !runIdentity || String(runIdentity.id) !== String(measurement.run_id) || runIdentity.head_sha !== sourceSha ||
+      runIdentity.status !== 'completed' || runIdentity.conclusion !== (measurement.verdict === 'zero-drift' ? 'success' : 'failure') ||
+      !artifactRecord || artifactRecord.id !== provenance.artifact_id || artifactRecord.name !== measurement.artifact_identifier ||
+      artifactRecord.digest !== provenance.artifact_digest || artifactRecord.expired === true ||
+      String(artifactRecord.workflow_run?.id) !== String(measurement.run_id) || artifactRecord.workflow_run?.head_sha !== sourceSha ||
+      artifactRecord.workflow_run?.head_branch !== measurement.head_branch ||
+      runIdentity.name !== measurement.workflow_name || runIdentity.path !== '.github/workflows/phase-244-playwright-measure.yml' ||
+      runIdentity.event !== 'workflow_dispatch' || runIdentity.head_branch !== measurement.head_branch)
+    reasons.push('measurement provenance is incomplete or mismatched');
+  if (!pr || pr.number !== 213 || pr.state !== 'open') reasons.push('authorized PR #213 is not open');
+  if (pr?.head?.sha !== sourceSha || !SHA_RE.test(pr?.head?.sha ?? '')) reasons.push('PR head does not match the measured source SHA');
+  if (!headRefSha || headRefSha !== pr?.head?.sha) reasons.push('live PR head ref is absent or mismatched');
+  if (pr?.base?.ref !== 'main' || main?.name !== 'main' || !SHA_RE.test(main?.sha ?? '') || pr?.base?.sha !== main.sha) reasons.push('PR base does not match the freshly fetched main SHA');
+  if (pr?.mergeable !== true || pr?.mergeable_state !== 'clean') reasons.push('PR mergeability is not explicitly clean');
+  if (checks.some((entry) => !entry.success)) reasons.push('one or more required status checks lack exactly one successful exact-head result');
+  if (requiredWorkflows.some((entry) => !entry.success)) reasons.push('one or more required workflows lack exactly one successful exact-head run');
+  return {
+    policy,
+    policy_error: policyError,
+    results: { status_checks: checks, workflows: requiredWorkflows },
+    merge_eligible: reasons.length === 0,
+    reasons,
+    inputs: {
+      measurement_run_id: measurement.run_id,
+      measured_source_sha: sourceSha,
+      manifest_sha256: provenance.manifest_sha256,
+      pr_number: pr?.number ?? null,
+      pr_state: pr?.state ?? null,
+      pr_head_sha: pr?.head?.sha ?? null,
+      live_head_ref_sha: headRefSha,
+      pr_base_sha: pr?.base?.sha ?? null,
+      main_sha: main?.sha ?? null,
+      mergeable: pr?.mergeable ?? null,
+      mergeable_state: pr?.mergeable_state ?? null,
+    },
+  };
+}
+
+async function evaluateEligibilityCommand(args) {
+  const inputFile = argValue(args, '--authorization-json');
+  if (!inputFile) throw new Error('evaluate-eligibility requires --authorization-json');
+  const result = evaluateEligibility(JSON.parse(await readFile(inputFile, 'utf8')));
+  console.log(JSON.stringify({ valid: true, merge_eligible: result.merge_eligible, reasons: result.reasons, policy_error: result.policy_error,
+    policy: result.policy, results: result.results, inputs: result.inputs }));
+}
+
+async function verifyEligibilityCommand(args) {
+  const inputFile = argValue(args, '--authorization-json');
+  if (!inputFile) throw new Error('verify-eligibility requires --authorization-json');
+  const record = JSON.parse(await readFile(inputFile, 'utf8'));
+  const evaluation = evaluateEligibility(record);
+  if (!isDeepStrictEqual(record.decision_eligibility, evaluation)) {
+    throw new Error('recorded decision_eligibility does not match the API-bound eligibility inputs');
+  }
+  console.log(JSON.stringify({ valid: true, merge_eligible: evaluation.merge_eligible, reasons: evaluation.reasons,
+    manifest_sha256: evaluation.inputs.manifest_sha256 }));
+}
+
+async function githubGet(pathname, optional404 = false) {
+  const token = process.env.GH_TOKEN;
+  if (!token) throw new Error('GH_TOKEN is required for GitHub API collection');
+  const response = await fetch(`https://api.github.com${pathname}`, {
+    method: 'GET',
+    headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' },
+  });
+  if ((response.status === 403 || response.status === 429)) {
+    throw new Error(`GitHub API returned HTTP ${response.status}; hard stop without retry`);
+  }
+  if (response.status === 404 && optional404) return { status: 404, data: null };
+  if (!response.ok) throw new Error(`GitHub API GET ${pathname} returned HTTP ${response.status}`);
+  try {
+    return { status: response.status, data: await response.json() };
+  } catch {
+    throw new Error(`GitHub API GET ${pathname} returned malformed JSON`);
+  }
+}
+
+async function collectPages(urlForPage, key) {
+  const pages = [];
+  let totalCount = null;
+  for (let page = 1; page <= 1000; page += 1) {
+    const { data } = await githubGet(urlForPage(page));
+    if (!data || !Array.isArray(data[key]) || !Number.isSafeInteger(data.total_count)) {
+      throw new Error(`${key} paginated API response is malformed`);
+    }
+    if (key === 'check_runs' && data.incomplete_results === true) throw new Error('check-runs API reported incomplete results');
+    if (totalCount === null) totalCount = data.total_count;
+    if (data.total_count !== totalCount) throw new Error(`${key} pagination total changed while collecting`);
+    pages.push({ [key]: data[key] });
+    if (data[key].length < 100) {
+      const actualCount = pages.reduce((sum, item) => sum + item[key].length, 0);
+      if (actualCount !== totalCount) throw new Error(`${key} pagination stopped before its reported total`);
+      return { complete: true, total_count: totalCount, pages };
+    }
+  }
+  throw new Error(`${key} pagination exceeded the 1000-page safety limit`);
+}
+
+async function collectRules() {
+  const rules = [];
+  for (let page = 1; page <= 1000; page += 1) {
+    const { data } = await githubGet(`/repos/szTheory/sigra/rules/branches/main?per_page=100&page=${page}`);
+    if (!Array.isArray(data)) throw new Error('active branch rules API response is malformed');
+    rules.push(...data);
+    if (data.length < 100) return { complete: true, rules, pages: page };
+  }
+  throw new Error('active branch rules pagination exceeded the 1000-page safety limit');
+}
+
+async function collectAuthorization(args) {
+  const measurementFile = argValue(args, '--manifest');
+  const provenanceFile = argValue(args, '--provenance-json');
+  const sourceSha = argValue(args, '--source-sha');
+  const outputFile = argValue(args, '--output');
+  if (!measurementFile || !provenanceFile || !sourceSha || !outputFile) {
+    throw new Error('collect-authorization requires --manifest, --provenance-json, --source-sha, and --output');
+  }
+  const [measurementBytes, provenanceText] = await Promise.all([
+    readFile(measurementFile), readFile(provenanceFile, 'utf8'),
+  ]);
+  const measurement = JSON.parse(measurementBytes.toString('utf8'));
+  const provenance = JSON.parse(provenanceText);
+  if (measurement.source_sha !== sourceSha || provenance.head_sha !== sourceSha) throw new Error('measurement, provenance, and requested source SHA differ');
+  const prReply = await githubGet('/repos/szTheory/sigra/pulls/213');
+  const mainReply = await githubGet('/repos/szTheory/sigra/branches/main');
+  const repositoryReply = await githubGet('/repos/szTheory/sigra');
+  const pr = prReply.data;
+  const main = { name: mainReply.data.name, sha: mainReply.data.commit?.sha };
+  if (typeof pr?.head?.ref !== 'string' || !pr.head.ref || !main.sha) throw new Error('PR head ref or fresh main branch SHA is missing');
+  const headPath = pr.head.ref.split('/').map(encodeURIComponent).join('/');
+  const headReply = await githubGet(`/repos/szTheory/sigra/git/ref/heads/${headPath}`, true);
+  const rules = await collectRules();
+  const protectionReply = await githubGet('/repos/szTheory/sigra/branches/main/protection/required_status_checks', true);
+  const checkRuns = await collectPages((page) => `/repos/szTheory/sigra/commits/${sourceSha}/check-runs?per_page=100&page=${page}`, 'check_runs');
+  const statuses = await collectPages((page) => `/repos/szTheory/sigra/commits/${sourceSha}/status?per_page=100&page=${page}`, 'statuses');
+  const workflowRuns = await collectPages((page) => `/repos/szTheory/sigra/actions/runs?head_sha=${sourceSha}&per_page=100&page=${page}`, 'workflow_runs');
+  const record = {
+    measurement,
+    measurement_raw_base64: measurementBytes.toString('base64'),
+    provenance,
+    pr,
+    main,
+    head_ref: headReply.data,
+    head_ref_status: headReply.status,
+    rules,
+    protection: { status: protectionReply.status, response: protectionReply.data },
+    check_runs: checkRuns,
+    statuses,
+    workflow_runs: workflowRuns,
+    repository_id: repositoryReply.data.id,
+    collected_at: new Date().toISOString(),
+  };
+  const evaluation = evaluateEligibility(record);
+  record.decision_eligibility = evaluation;
+  await writeFile(outputFile, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600 });
+  console.log(JSON.stringify({ valid: true, merge_eligible: evaluation.merge_eligible, reasons: evaluation.reasons,
+    inputs: evaluation.inputs, status_check_count: evaluation.policy.status_checks.length,
+    required_workflow_count: evaluation.policy.workflows.length }));
 }
 
 async function verifyManifest(args) {
@@ -171,8 +462,21 @@ async function verifyManifest(args) {
   const manifest = parsed.measurement ?? parsed;
   if (parsed.measurement) {
     const eligibility = parsed.decision_eligibility;
-    if (!eligibility || eligibility.verdict !== manifest.verdict || eligibility.merge_eligible !== (manifest.verdict === 'zero-drift')) {
+    if (!eligibility || eligibility.verdict !== manifest.verdict || typeof eligibility.merge_eligible !== 'boolean') {
       throw new Error('phase evidence decision_eligibility conflicts with its measurement verdict');
+    }
+    if (parsed.authorization) {
+      const derived = evaluateEligibility(parsed.authorization);
+      const authorizationMatches = isDeepStrictEqual(parsed.authorization.decision_eligibility, derived) &&
+        eligibility.merge_eligible === derived.merge_eligible &&
+        parsed.authorization.measurement.source_sha === manifest.source_sha &&
+        String(parsed.authorization.measurement.run_id) === String(manifest.run_id) &&
+        parsed.authorization.measurement.verdict === manifest.verdict;
+      if (!authorizationMatches) {
+        throw new Error('phase evidence authorization record does not match its measured result');
+      }
+    } else if (eligibility.merge_eligible) {
+      throw new Error('merge eligibility requires an offline-verifiable API authorization record');
     }
   }
   requireRunIdentity(manifest, sourceSha);
@@ -264,7 +568,7 @@ async function verifyManifest(args) {
     if (manifest.verdict === 'zero-drift' && (driftObserved || uncertaintyObserved)) throw new Error('zero-drift verdict conflicts with its result data');
   }
   console.log(JSON.stringify({ valid: true, source_sha: sourceSha, run_id: manifest.run_id, paths: manifest.inventory.length,
-    verdict: manifest.verdict, merge_eligible: manifest.verdict === 'zero-drift' }));
+    verdict: manifest.verdict, merge_eligible: parsed.decision_eligibility?.merge_eligible === true }));
 }
 
 function strictAeOutput(stderr) {
@@ -524,6 +828,9 @@ async function listPngs(root) {
 async function main() {
   const [, , command, ...args] = process.argv;
   if (command === 'verify-provenance') return await verifyProvenance(args);
+  if (command === 'evaluate-eligibility') return await evaluateEligibilityCommand(args);
+  if (command === 'verify-eligibility') return await verifyEligibilityCommand(args);
+  if (command === 'collect-authorization') return await collectAuthorization(args);
   if (command === 'verify') return await verifyManifest(args);
   if (command === 'compare') return compare(args);
   if (command === 'build-manifest') return await buildManifest(args);
