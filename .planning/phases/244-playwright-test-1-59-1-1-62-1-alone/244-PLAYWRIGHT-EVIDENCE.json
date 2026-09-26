@@ -2239,7 +2239,7 @@
       "run_id": 36266022766,
       "status": "completed"
     },
-    "collected_at": "2026-09-26T19:52:46Z",
+    "collected_at": "2026-09-26T22:52:15Z",
     "dispatch": {
       "inputs": {
         "force_fail_probe": false,
@@ -2353,7 +2353,15 @@
     "main_sha_before": "5a00b90d2314bc93f27aec4090b5928018743d1b",
     "rate_limit": {
       "core_remaining": 5000,
-      "core_reset": 1790455963
+      "core_reset": 1790466730,
+      "hard_stop_observed": false,
+      "hard_stop_statuses": [
+        403,
+        429
+      ],
+      "preflight_status": "passed",
+      "retry_count": 0,
+      "threshold": 250
     },
     "run": {
       "conclusion": "success",
@@ -2367,7 +2375,26 @@
       "path": ".github/workflows/ci.yml",
       "status": "completed"
     },
-    "schema_version": "sigra.phase-244-final-main/1"
+    "schema_version": "sigra.phase-244-final-main/1",
+    "watcher": {
+      "command": [
+        "gh",
+        "run",
+        "watch",
+        "36266022766",
+        "--repo",
+        "szTheory/sigra",
+        "--compact",
+        "--interval",
+        "60",
+        "--exit-status"
+      ],
+      "count": 1,
+      "interval_seconds": 60,
+      "outcome": "success",
+      "output_sha256": "630dad30e67cfa151d00c851278d14da0b46a2aaa7de4422095c25b19f593279",
+      "run_id": 36266022766
+    }
   },
   "queue_02_probe": {
     "spec_exists": false,
