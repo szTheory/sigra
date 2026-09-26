@@ -74,10 +74,10 @@
 - [x] **Phase 238: Tag Guard, Then Tag Deletion** - A server-side ruleset proven RED first, then allowlist-driven deletion of the 28 `v1.NN` + 11 `phase-238-*` tags (completed 2026-09-17)
 - [x] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree (completed 2026-09-18)
 - [x] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence (completed 2026-09-18)
-- [ ] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture
+- [x] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture (completed 2026-09-19)
 - [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
 - [ ] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
-- [ ] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
+- [x] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
 - [ ] **Phase 245: Branch Prune — Local and Remote** - Destructive and PR-coupled, so it goes last, with every pre-prune SHA still resolvable afterward
 
 ## Phase Details
@@ -302,12 +302,13 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 241-01-PLAN.md — ADR 004 + delete the orphaned timing formatter, with the cross-ref consumer sweep recorded (DEBT-01, wave 1)
-- [ ] 241-02-PLAN.md — rewrite `phase_233` to assert the single-owner guarantee, RED-first on a committed known-bad `ci.yml` (DEBT-02, wave 2)
-- [ ] 241-03-PLAN.md — write `p21-honest-skip-parity.test.mjs`, observe it RED on HEAD's `MAINTAINING.md`, then correct the doc and the manifest citation (DEBT-03, wave 1)
-- [ ] 241-04-PLAN.md — composite-action universe + bare-`uses:` regex relaxation, both directions proven by two fixtures (DEBT-04, wave 1)
-- [ ] 241-05-PLAN.md — `p18` hard-fail classes 1-2 (`.planning/` paths, `priv/templates/` bookkeeping) over a ported fail-closed helper (SURF-04, wave 1)
-- [ ] 241-06-PLAN.md — `p18` doc-range hard-fail + the three-counter monotonic-decrease ratchet with three independent REDs (SURF-04, wave 2)
+
+- [x] 241-01-PLAN.md — ADR 004 + delete the orphaned timing formatter, with the cross-ref consumer sweep recorded (DEBT-01, wave 1)
+- [x] 241-02-PLAN.md — rewrite `phase_233` to assert the single-owner guarantee, RED-first on a committed known-bad `ci.yml` (DEBT-02, wave 2)
+- [x] 241-03-PLAN.md — write `p21-honest-skip-parity.test.mjs`, observe it RED on HEAD's `MAINTAINING.md`, then correct the doc and the manifest citation (DEBT-03, wave 1)
+- [x] 241-04-PLAN.md — composite-action universe + bare-`uses:` regex relaxation, both directions proven by two fixtures (DEBT-04, wave 1)
+- [x] 241-05-PLAN.md — `p18` hard-fail classes 1-2 (`.planning/` paths, `priv/templates/` bookkeeping) over a ported fail-closed helper (SURF-04, wave 1)
+- [x] 241-06-PLAN.md — `p18` doc-range hard-fail + the three-counter monotonic-decrease ratchet with three independent REDs (SURF-04, wave 2)
 
 Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393` are **stale**. The real rot is in the honest-skip section (five rots, two unnamed by D-15) and the prohibitions glob `run:` was at `ci.yml:408` at planning HEAD. Every coordinate is re-located by content at execution time.
 
@@ -353,7 +354,13 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   3. PR #213 is merged **only if measured drift is exactly zero**; otherwise it is closed/deferred to a todo carrying the measurement, and **no recapture lane is opened** — visible either way in `gh pr view 213`.
   4. Whichever branch is taken, `ci-gate` is observed green on `main` afterward across every Playwright consumer (`example_playwright_shard`, `example_playwright_smoke`, `generated_admin_playwright_smoke`), and no PNG baseline is committed in the same change as any other cause.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+- [x] 244-01-PLAN.md — Prove CI-native screenshot capture and complete inventory
+- [x] 244-02-PLAN.md — Enforce exact pixels and prepare the isolated candidate
+- [x] 244-03-PLAN.md — Measure both versions and preserve the result
+- [x] 244-04-PLAN.md — Merge only on complete proof, otherwise defer #213
+- [x] 244-05-PLAN.md — Capture exact-main-SHA consumer evidence
 
 ### Phase 245: Branch Prune — Local and Remote
 
@@ -378,10 +385,10 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 | 238. Tag Guard, Then Tag Deletion | 6/6 | Complete    | 2026-09-17 |
 | 239. `priv/templates/` Sweep + Re-bless | 16/16 | Complete    | 2026-09-18 |
 | 240. Green-Main Evidence + Honest Pages Script | 5/5 | Complete    | 2026-09-18 |
-| 241. Debt Retirement + Leakage Guard | 0/? | Not started | - |
+| 241. Debt Retirement + Leakage Guard | 8/8 | Complete    | 2026-09-19 |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |
-| 244. `@playwright/test` Bump, Alone | 0/? | Not started | - |
+| 244. `@playwright/test` Bump, Alone | 5/5 | Complete | - |
 | 245. Branch Prune | 0/? | Not started | - |
 
 ## Requirement Coverage

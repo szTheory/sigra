@@ -1,0 +1,865 @@
+Resolving Hex dependencies...
+Resolution completed in 0.122s
+Unchanged:
+  argon2_elixir 4.1.3
+  asn1_compiler 0.1.1
+  assent 0.3.1
+  bcrypt_elixir 3.3.2
+  bunt 1.0.0
+  cbor 1.0.2
+  certifi 2.17.0
+  chimeway 1.0.0
+  cloak 1.1.4
+  cloak_ecto 1.3.0
+  comeonin 5.5.1
+  credo 1.7.19
+  db_connection 2.10.2
+  decimal 3.1.1
+  dialyxir 1.4.7
+  earmark_parser 1.4.44
+  ecto 3.14.2
+  ecto_sql 3.14.0
+  elixir_make 0.9.0
+  eqrcode 0.2.1
+  erlex 0.2.9
+  ex_doc 0.40.3
+  file_system 1.1.1
+  flop 0.26.6
+  flop_phoenix 0.26.3
+  h2 0.12.3
+  hackney 4.8.1
+  hammer 7.5.0
+  idna 7.1.0
+  jason 1.4.5
+  joken 2.6.2
+  jose 1.11.12
+  makeup 1.2.1
+  makeup_elixir 1.0.1
+  makeup_erlang 1.1.0
+  mime 2.0.7
+  mimerl 1.5.0
+  mox 1.2.0
+  nimble_csv 1.3.0
+  nimble_options 1.1.1
+  nimble_ownership 1.0.2
+  nimble_parsec 1.4.2
+  nimble_totp 1.0.0
+  oban 2.24.1
+  parse_trans 3.4.2
+  phoenix 1.8.15
+  phoenix_html 4.3.0
+  phoenix_live_view 1.2.12
+  phoenix_pubsub 2.3.0
+  phoenix_template 1.1.0
+  plug 1.20.3
+  plug_crypto 2.2.0
+  postgrex 0.22.4
+  quic 2.0.1
+  ssl_verify_fun 1.1.7
+  stream_data 1.3.0
+  swoosh 1.28.0
+  telemetry 1.4.2
+  threadline 0.9.0
+  tzdata 1.1.5
+  wax_ 0.7.0
+  websock 0.5.3
+  websock_adapter 0.6.0
+  webtransport 0.4.7
+  x509 0.9.2
+All dependencies have been fetched
+Running ExUnit with seed: 100067, max_cases: 36
+Excluding tags: [:scaffold, :upgrade]
+
+.....    warning: default values for the optional arguments in the private function base_attrs/1 are never used
+    │
+ 11 │   defp base_attrs(overrides \\ %{}) do
+    │        ~
+    │
+    └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+
+    warning: default values for the optional arguments in the private function test_config/1 are never used
+    │
+ 16 │   defp test_config(overrides \\ []) do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+
+.............................................................................................    warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+
+................    warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+
+...    warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+    │
+  1 │ defmodule Sigra.Test.UserSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+
+..................................................................    warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+    │
+  1 │ defmodule Sigra.Test.OAuthHelpers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+
+...................................................................    warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+    │
+ 32 │ defmodule Sigra.Test.MockUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+
+....    warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+    │
+ 44 │ defmodule Sigra.Test.MockIdentity do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+
+..................................................................................    warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+    │
+ 63 │ defmodule Sigra.Test.MockSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+
+    warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresCase do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+
+    warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                  ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                        ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                                    ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+.......................................................    warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+    │
+ 66 │ defmodule Sigra.Test.MockSessionStore do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+
+......................    warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+    │
+ 70 │ defmodule Sigra.Test.MockRepo do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+
+.........    warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.OrganizationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+
+..................................................    warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+    │
+  1 │ defmodule Sigra.Test.MultiStub do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+
+.........................................................................................
+10:38:19.647 [info] The function passed as a handler with ID "test-rate-limited" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...     warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+     │
+ 122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+
+...............................................    warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.EmailFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+
+..................     warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+     │
+ 167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+
+....    warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+    │
+  1 │ defmodule Sigra.Test.AuditEvent do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+
+...............................
+10:38:19.786 [warning] [Sigra] Hammer rate limiter unavailable, failing open
+........................
+10:38:19.808 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+...............     warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+     │
+ 196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+
+............................................................     warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+     │
+ 210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+
+.............    warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+    │
+  1 │ defmodule Sigra.MockRepo.Behaviour do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+
+...................................................
+10:38:19.970 [info] The function passed as a handler with ID "test-span-#Reference<0.167819954.1425801226.89130>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+....
+10:38:19.970 [info] The function passed as a handler with ID "test-event-#Reference<0.167819954.1425801224.95742>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.......................................
+10:38:20.030 [info] The function passed as a handler with ID "test-exception-#Reference<0.167819954.1425801220.94086>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+10:38:20.031 [info] The function passed as a handler with ID "test-event-defaults-#Reference<0.167819954.1425801220.94104>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+    warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.InvitationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+
+..............
+10:38:20.074 [info] [Sigra] jwt.generate.stop %{monotonic_time: -576460748947043459, duration: 101166} %{user_id: 42, telemetry_span_context: #Reference<0.167819954.1425801224.105958>}
+
+10:38:20.075 [info] [Sigra] jwt.verify.stop %{monotonic_time: -576460748946595959, duration: 64791} %{telemetry_span_context: #Reference<0.167819954.1425801224.105960>}
+..............................    warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+    │
+  1 │ defmodule Sigra.TestUserToken do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+
+.............................    warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+    │
+  1 │ defmodule Sigra.Test.PlanningPaths do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+
+
+
+  1) test authenticated strict pass is reconciled exactly into FAST-01 and its residual (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:169
+     ** (MatchError) no match of right hand side value:
+
+         {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+
+     code: {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:170: (test)
+
+............................................................................................................error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+
+
+  2) test semantic fixture parsing stays isolated from the authenticated default path (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:143
+     match (=) failed
+     code:  assert {"source_complete_offline_attestation_verified\n", 0} =
+              System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     left:  {"source_complete_offline_attestation_verified\n", 0}
+     right: {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:149: (test)
+
+....****...................    warning: function build_user/0 is unused
+    │
+ 47 │   defp build_user do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+
+......      warning: default values for the optional arguments in the private function build_session/1 are never used
+      │
+ 1121 │   defp build_session(overrides \\ %{}) do
+      │        ~
+      │
+      └─ test/sigra/auth_test.exs:1121:8: Sigra.AuthTest (module)
+
+........................................................................................................................................................................................................................................................................................    warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+    │
+  1 │ defmodule Sigra.Test.InstallFixture do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+
+.....................................................................................................
+
+  3) test five isolated retry-zero shards converge on the protected terminal result (Sigra.Planning.Phase232PlaywrightEconomicsTest)
+     test/sigra/planning/phase_232_playwright_economics_test.exs:107
+     Assertion with == failed
+     code:  assert length(Regex.scan(~r/browser_cache_key: playwright-chromium-1\.59\.1-v3/, shard)) == 2
+     left:  0
+     right: 2
+     stacktrace:
+       test/sigra/planning/phase_232_playwright_economics_test.exs:144: (test)
+
+........................................................................................................    warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+    │
+  1 │ defmodule Sigra.TestUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+
+.................................................................................................................................................................................................................................................................................................................    warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+
+    warning: default values for the optional arguments in the private function build_membership/1 are never used
+    │
+ 94 │   defp build_membership(attrs \\ %{}),
+    │        ~
+    │
+    └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+
+........................................................................
+10:38:21.225 [info] The function passed as a handler with ID "test-oauth-login" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...
+10:38:21.225 [info] The function passed as a handler with ID "test-oauth-register" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+......
+10:38:21.227 [error] OAuth callback for google: provider returned no email
+.....................................................********...................................................................................................
+[DX-02] getting-started.md reading estimate: 18.45 min total (2090 words / 10.45 min prose + 24 code blocks / 8.0 min skim)
+..................................................
+10:38:21.535 [error] OAuth callback for google: provider returned no email
+.
+10:38:21.535 [error] OAuth callback for google: provider returned no email
+.
+10:38:21.536 [error] OAuth UID/email mismatch: provider_uid provider_uid_123 maps to user 42 but email oauth@example.com belongs to user 99
+...........................................................................................................................
+10:38:21.713 [error] OAuth authorize_url failed for failing: %{reason: :provider_error}
+.....
+10:38:21.714 [error] OAuth callback for google: provider returned no email
+.........warning: Sigra.Test.OrgsTemplateCompile13.Repo.get_by/2 is undefined or private
+└─ nofile:141:10: Sigra.Test.OrgsTemplateCompile13.Organizations.get_auth_policy/1
+└─ nofile:225:23: Sigra.Test.OrgsTemplateCompile13.Organizations.local_auth_policy_for/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Accounts.OrganizationAuthPolicy.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:153:31: Sigra.Test.OrgsTemplateCompile13.Organizations.change_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.insert_or_update/1 is undefined or private
+└─ nofile:162:13: Sigra.Test.OrgsTemplateCompile13.Organizations.save_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.all/1 is undefined or private
+└─ nofile:179:13: Sigra.Test.OrgsTemplateCompile13.Organizations.list_auth_policy_exemptions/1
+└─ nofile:191:13: Sigra.Test.OrgsTemplateCompile13.Organizations.list_break_glass_candidates/1
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.transaction/1 is undefined or private
+└─ nofile:204:12: Sigra.Test.OrgsTemplateCompile13.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.rollback/1 is undefined or private
+└─ nofile:209:36: Sigra.Test.OrgsTemplateCompile13.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.delete_all/1 is undefined or private
+└─ nofile:281:15: Sigra.Test.OrgsTemplateCompile13.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Accounts.OrganizationAuthPolicyExemption.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:287:49: Sigra.Test.OrgsTemplateCompile13.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.insert/1 is undefined or private
+└─ nofile:288:22: Sigra.Test.OrgsTemplateCompile13.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile13.Repo.exists?/1 is undefined or private
+└─ nofile:302:10: Sigra.Test.OrgsTemplateCompile13.Organizations.break_glass_exempt?/2
+
+......................................................................................................................................................................................
+10:38:22.618 [info] The function passed as a handler with ID "backfill-done-12106" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...
+10:38:22.621 [info] The function passed as a handler with ID "backfill-test-20485" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+............................................................
+10:38:22.929 [info] The function passed as a handler with ID "audit-ms-rollback-22345" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+10:38:23.134 [info] The function passed as a handler with ID "audit-ms-21701" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.......................
+10:38:23.358 [info] The function passed as a handler with ID "test-forward-ok-1" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+10:38:23.363 [info] The function passed as a handler with ID "test-forward-error-3" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+10:38:23.363 [warning] [Sigra.Audit.Forwarders.Threadline] Caught exit: :boom
+.
+10:38:23.365 [info] The function passed as a handler with ID "test-forward-error-2" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+10:38:23.366 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: injected failure
+.
+10:38:23.368 [info] The function passed as a handler with ID "test-forward-error-4" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+10:38:23.368 [warning] [Sigra.Audit.Forwarders.Threadline] Caught throw: :nope
+.
+10:38:23.371 [info] The function passed as a handler with ID "test-forward-ok-6" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+10:38:23.375 [info] The function passed as a handler with ID "test-forward-error-5" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+10:38:23.375 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: forced Threadline failure
+.....................
+10:38:23.405 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.167819954.1425801217.257017>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+10:38:23.405 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.167819954.1425801217.257028>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..............................................
+Finished in 4.5 seconds (3.1s async, 1.4s sync)
+33 doctests, 3 properties, 2614 tests, 3 failures, 12 skipped (22 excluded)
+Unlocked deps:
+* threadline
+
+* Cleaning threadline
+Compiling 1 file (.ex)
+Generated sigra app
+Running ExUnit with seed: 970397, max_cases: 36
+Excluding tags: [:test, :upgrade]
+Including tags: [:threadline_guard]
+
+    warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+    │
+  1 │ defmodule Sigra.Test.InstallFixture do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+
+    warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+    │
+  1 │ defmodule Sigra.Test.AuditEvent do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+
+    warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+    │
+  1 │ defmodule Sigra.MockRepo.Behaviour do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+
+    warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                  ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                        ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                                    ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+    │
+  1 │ defmodule Sigra.TestUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+
+    warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+    │
+  1 │ defmodule Sigra.Test.PlanningPaths do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+
+    warning: default values for the optional arguments in the private function base_attrs/1 are never used
+    │
+ 11 │   defp base_attrs(overrides \\ %{}) do
+    │        ~
+    │
+    └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+
+    warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+    │
+  1 │ defmodule Sigra.TestUserToken do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+
+    warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresCase do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+
+    warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+    │
+  1 │ defmodule Sigra.Test.UserSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+
+.....    warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+
+......................    warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.OrganizationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+
+    warning: default values for the optional arguments in the private function test_config/1 are never used
+    │
+ 16 │   defp test_config(overrides \\ []) do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+
+.    warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+    │
+  1 │ defmodule Sigra.Test.MultiStub do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+
+....    warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+
+.      warning: default values for the optional arguments in the private function build_session/1 are never used
+      │
+ 1121 │   defp build_session(overrides \\ %{}) do
+      │        ~
+      │
+      └─ test/sigra/auth_test.exs:1121:8: Sigra.AuthTest (module)
+
+....    warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.InvitationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+
+..    warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+    │
+  1 │ defmodule Sigra.Test.OAuthHelpers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+
+    warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+    │
+ 32 │ defmodule Sigra.Test.MockUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+
+    warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+    │
+ 44 │ defmodule Sigra.Test.MockIdentity do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+
+    warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+    │
+ 63 │ defmodule Sigra.Test.MockSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+
+    warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+    │
+ 66 │ defmodule Sigra.Test.MockSessionStore do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+
+    warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+    │
+ 70 │ defmodule Sigra.Test.MockRepo do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+     │
+ 122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+
+    warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+     │
+ 167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+     │
+ 196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+     │
+ 210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+
+    warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.EmailFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+
+..
+10:38:27.456 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+.....    warning: function build_user/0 is unused
+    │
+ 47 │   defp build_user do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+
+    warning: default values for the optional arguments in the private function build_membership/1 are never used
+    │
+ 94 │   defp build_membership(attrs \\ %{}),
+    │        ~
+    │
+    └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+
+     warning: Sigra.Audit.Forwarders.Threadline.attach/1 is undefined (module Sigra.Audit.Forwarders.Threadline is not available or is yet to be defined)
+     │
+ 136 │     :ok = Threadline.attach(opts)
+     │                      ~
+     │
+     └─ test/sigra/audit/forwarders/threadline_test.exs:136:22: Sigra.Audit.Forwarders.ThreadlineTest.attach_threadline/1
+
+...................
+Finished in 1.9 seconds (1.8s async, 0.03s sync)
+65 tests, 0 failures (2607 excluded)
+Resolving Hex dependencies...
+Resolution completed in 0.118s
+Unchanged:
+  argon2_elixir 4.1.3
+  asn1_compiler 0.1.1
+  assent 0.3.1
+  bcrypt_elixir 3.3.2
+  bunt 1.0.0
+  cbor 1.0.2
+  certifi 2.17.0
+  chimeway 1.0.0
+  cloak 1.1.4
+  cloak_ecto 1.3.0
+  comeonin 5.5.1
+  credo 1.7.19
+  db_connection 2.10.2
+  decimal 3.1.1
+  dialyxir 1.4.7
+  earmark_parser 1.4.44
+  ecto 3.14.2
+  ecto_sql 3.14.0
+  elixir_make 0.9.0
+  eqrcode 0.2.1
+  erlex 0.2.9
+  ex_doc 0.40.3
+  file_system 1.1.1
+  flop 0.26.6
+  flop_phoenix 0.26.3
+  h2 0.12.3
+  hackney 4.8.1
+  hammer 7.5.0
+  idna 7.1.0
+  jason 1.4.5
+  joken 2.6.2
+  jose 1.11.12
+  makeup 1.2.1
+  makeup_elixir 1.0.1
+  makeup_erlang 1.1.0
+  mime 2.0.7
+  mimerl 1.5.0
+  mox 1.2.0
+  nimble_csv 1.3.0
+  nimble_options 1.1.1
+  nimble_ownership 1.0.2
+  nimble_parsec 1.4.2
+  nimble_totp 1.0.0
+  oban 2.24.1
+  parse_trans 3.4.2
+  phoenix 1.8.15
+  phoenix_html 4.3.0
+  phoenix_live_view 1.2.12
+  phoenix_pubsub 2.3.0
+  phoenix_template 1.1.0
+  plug 1.20.3
+  plug_crypto 2.2.0
+  postgrex 0.22.4
+  quic 2.0.1
+  ssl_verify_fun 1.1.7
+  stream_data 1.3.0
+  swoosh 1.28.0
+  telemetry 1.4.2
+  threadline 0.9.0
+  tzdata 1.1.5
+  wax_ 0.7.0
+  websock 0.5.3
+  websock_adapter 0.6.0
+  webtransport 0.4.7
+  x509 0.9.2
+All dependencies have been fetched
+==> threadline
+Compiling 87 files (.ex)
+Generated threadline app
+==> sigra
+Compiling 177 files (.ex)
+Generated sigra app
