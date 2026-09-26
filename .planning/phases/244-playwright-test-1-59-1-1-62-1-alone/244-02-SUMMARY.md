@@ -11,11 +11,11 @@ provides:
   - Isolated @playwright/test 1.62.1 candidate lock and cache-key checks
 affects: [phase-244 measurement, playwright-ci]
 actuals:
-  tokens: 13022
+  tokens: 18296
   tasks: 3
-  commits: 3
+  commits: 6
 plan_head_before: f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac
-commits: 3
+commits: 6
 tech-stack:
   added: [@playwright/test 1.62.1, ImageMagick package pin]
   patterns: [complete tracked image inventory validation, strict comparator identity and metric parsing]
@@ -67,7 +67,7 @@ coverage:
         ref: "bash scripts/ci/playwright-cache-key-guard.sh && npm --prefix test/example/priv/playwright ls @playwright/test playwright playwright-core --all"
         status: pass
     human_judgment: false
-duration: 22min
+duration: 31min
 completed: 2026-09-26
 status: complete
 ---
@@ -78,9 +78,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 22 min
+- **Duration:** 31 min
 - **Started:** 2026-09-26T12:13:22Z
-- **Completed:** 2026-09-26T12:34:41Z
+- **Completed:** 2026-09-26T12:44:35Z
 - **Tasks:** 3
 - **Files modified:** 10, including the deferred issue record
 
@@ -102,9 +102,10 @@ status: complete
 
 1. **Task 1 RED: comparator contract tests** — `5d27a884` (`test`)
 2. **Task 1 GREEN: exact pixel inventory comparator and pinned identity** — `45e7b31b` (`feat`)
-3. **Task 3: isolated 1.62.1 candidate and cache guard** — `cffee948` (`feat`)
+3. **Task 1 fix: stop pixel comparison when inventories disagree** — `905a7c19` (`fix`)
+4. **Task 3: isolated 1.62.1 candidate and cache guard** — `cffee948` (`feat`)
 
-**Plan metadata:** `010a413a` (`docs: complete plan`).
+**Plan metadata commits:** `010a413a` (`docs: complete plan`) and `01059571` (`docs: record plan metadata hash`).
 
 ## Verification
 
@@ -146,12 +147,21 @@ status: complete
 - **Found during:** Task 1
 - **Issue:** The existing workflow installed whichever ImageMagick package the Ubuntu image currently offered, so comparator identity was not fixed.
 - **Fix:** Pin package version `8:6.9.12.98+dfsg1-5.2build2`; record and reject mismatched installed package metadata.
+- **Source:** The [Ubuntu Noble package catalog](https://packages.ubuntu.com/noble/imagemagick) confirms that exact `imagemagick` package version.
 - **Files modified:** `.github/workflows/phase-244-playwright-measure.yml`, `scripts/ci/run-playwright-drift.sh`, `scripts/ci/measure-playwright-drift.mjs`
 - **Verification:** Focused comparator suite passed; the runtime enforces the package version before a measurement receipt can be accepted.
 - **Committed in:** `45e7b31b`
 
-**Total deviations:** 2 auto-fixed (Rule 1: 1, Rule 2: 1).
-**Impact on plan:** Both changes close comparator correctness and identity gaps required by the plan's exact-pixel trust boundary.
+**3. [Rule 1 - Fail-closed inventory handling] Stop before pixel comparison when either full render inventory differs from the tracked set.**
+- **Found during:** Task 1 final review
+- **Issue:** Missing/extra paths were recorded, but the comparator still processed the remaining expected images.
+- **Fix:** Mark expected paths inconclusive and skip all pixel comparisons until both render inventories match the source tree; added a test comparator that fails if invoked.
+- **Files modified:** `scripts/ci/measure-playwright-drift.mjs`, `scripts/ci/measure-playwright-drift.test.mjs`
+- **Verification:** `node --test scripts/ci/measure-playwright-drift.test.mjs` — 12 passed.
+- **Committed in:** `905a7c19`
+
+**Total deviations:** 3 auto-fixed (Rule 1: 2, Rule 2: 1).
+**Impact on plan:** All three changes close comparator correctness, inventory ordering, and identity gaps required by the plan's exact-pixel trust boundary.
 
 ## Issues Encountered
 
@@ -167,7 +177,7 @@ status: complete
 ## Self-Check: PASSED
 
 - Summary and deferred issue files exist in the phase directory.
-- All three task commits are present in the disposable clone's phase branch.
+- All four task commits are present in the disposable clone's phase branch.
 - No tracked Playwright PNG files were changed.
 
 ---
