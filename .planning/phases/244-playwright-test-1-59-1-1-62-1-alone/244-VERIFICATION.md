@@ -1,7 +1,7 @@
 ---
 phase: 244-playwright-test-1-59-1-1-62-1-alone
-verified: 2026-09-26T20:18:12Z
-status: passed
+verified: 2026-09-26T20:41:21Z
+status: gaps_found
 score: 22/22 must-haves verified
 covered_files:
   - .github/ci-skip-manifest.tsv
@@ -19,6 +19,7 @@ covered_files:
   - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md
   - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-05-PLAN.md
   - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-05-SUMMARY.md
+  - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-UAT.md
   - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json
   - .planning/todos/pending/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md
   - .planning/todos/pending/2026-09-26-playwright-1-62-1-measured-deferred.md
@@ -31,7 +32,7 @@ covered_files:
   - scripts/ci/run-playwright-drift.sh
   - test/example/priv/playwright/package-lock.json
   - test/example/priv/playwright/package.json
-covered_digest: "v1:sha256:b977d859ca518d980b70a765d6462fafda485f2b1fa8021166ebb1772a6ce847"
+covered_digest: "v1:sha256:a077bbb73c00cdad9a46b2a07ff2d0a004b32c406dcbd6dc4e38cc7e53a9fd13"
 behavior_unverified: 0
 overrides_applied: 0
 ---
@@ -39,8 +40,8 @@ overrides_applied: 0
 # Phase 244: Playwright 1.59.1 → 1.62.1, Alone — Verification Report
 
 **Phase Goal:** The Playwright bump either lands with provably zero visual consequence, or is deferred with a measurement — never merged on hope, and never dragging a recapture obligation into a non-UI milestone.
-**Verified:** 2026-09-26T20:18:12Z
-**Status:** passed
+**Verified:** 2026-09-26T20:41:21Z
+**Status:** gaps_found
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -53,7 +54,7 @@ The bump was deferred with a complete CI-native measurement. The measurement ide
 |---|---|---|---|
 | 1 | Roadmap: bundled browser revisions are recorded pre and post as a committed artifact. | ✓ VERIFIED | `244-PLAYWRIGHT-EVIDENCE.json`: tagged v1.59.1/v1.62.1 manifest URLs and SHA-256 values; Chromium revisions 1217/1234 and versions 147.0.7727.15/151.0.7922.34. |
 | 2 | Roadmap: drift is measured CI-native on Ubuntu across the committed corpus and the cache guard is checked. | ✓ VERIFIED | Measurement run 36262576391 is tied to source SHA `980812cba598781b0b95a763562aaafbd093afb8`, Ubuntu 24.04, 115 paths; cache guard passed for five keys. Measurement validator accepted the full inventory and drift result. |
-| 3 | Roadmap: PR #213 is merged only at exactly zero drift; otherwise it is deferred with evidence and no recapture lane. | ✓ VERIFIED | Recorded decision is `deferred_missing_live_candidate_with_measured_drift`; live `gh pr view 213` confirms CLOSED, unmerged, CONFLICTING; matching head ref query is empty. Deferred todo includes all 30 image deltas. |
+| 3 | Roadmap: PR #213 is merged only at exactly zero drift; otherwise it is deferred with evidence and no recapture lane. | ✓ VERIFIED | Evidence records `deferred_missing_live_candidate_with_measured_drift`; fresh `gh pr view 213` confirms CLOSED/unmerged/CONFLICTING and the direct Git ref query returns 404. Deferred todo includes all 30 image deltas. |
 | 4 | Roadmap: post-disposition `ci-gate` and every Playwright consumer are green on the same resulting main SHA, with no PNG recapture in the change. | ✓ VERIFIED | Run 36266022766 completed successfully at main SHA `5a00b90d2314bc93f27aec4090b5928018743d1b`; receipt validator passes and records gate, five browser steps, example smoke aggregation, and generated-admin harness. Live remote main still equals that SHA; diff against it has no tracked PNG changes. |
 | 5 | Plan 01 D-01: a committed PNG can be rendered and compared by a real Ubuntu run with source SHA and run ID. | ✓ VERIFIED | CI measurement receipt binds run 36262576391 and its downloadable artifact to the source SHA; Ubuntu 24.04. |
 | 6 | Plan 01 D-02: canonical tracked PNGs remain unchanged; render outputs stay in disposable output/artifact paths. | ✓ VERIFIED | `git diff --quiet 5a00b90d...HEAD -- 'test/example/priv/playwright/tests/*-snapshots/*.png'` succeeded; the measurement receipt lists separate render trees/artifacts. |
@@ -121,7 +122,7 @@ The bump was deferred with a complete CI-native measurement. The measurement ide
 | Live exact-main run and reference | `gh run view 36266022766 ...`; `gh api repos/szTheory/sigra/git/ref/heads/main` | successful dispatch on main; remote main equals `5a00b90d...` | ✓ PASS |
 | Canonical PNG changes | `git diff --quiet 5a00b90...HEAD -- 'test/example/priv/playwright/tests/*-snapshots/*.png'` | no tracked PNG changes | ✓ PASS |
 
-The full `MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci` regression gate was reported green at clean HEAD `b5c2c004b1d28c5ac91e1a812357523150ba3361`; it was not rerun during this verification.
+The focused verification commands were rerun in this pass: comparator/inventory suite 15/15, cache-key guard suite 8/8, and final-main collector suite 11/11 (one success fixture plus ten fail-closed cases). Both committed receipt validators pass: measurement run 36262576391 is valid for 115/115 paths with verdict `drift` and `merge_eligible: false`; final-main receipt run 36266022766 is valid at main SHA `5a00b90d2314bc93f27aec4090b5928018743d1b`. Live GitHub reads confirm PR #213 remains closed, its head ref is absent, and current main still equals the receipt SHA. The separate saved `244-03-MIX-CI-LOG.txt` is a sandbox-restricted attempt with two sandbox-exec failures; prior host-permission `mix ci` success at the verification metadata commit is recorded in the executor state, but `mix ci` was not rerun during this verifier pass.
 
 ## Probe Execution
 
@@ -143,14 +144,35 @@ All 9 trackable CONTEXT.md decisions are honored by shipped artifacts (`gsd-tool
 |---|---|---|---|---|
 | — | — | None found | — | Scanned phase implementation artifacts; no unresolved debt markers, placeholder implementations, disabled linked tests, or rendering stubs found. |
 
+### Test Quality Audit
+
+| Test File | Linked Req | Active | Skipped | Circular | Assertion Level | Verdict |
+|---|---|---:|---:|---|---|---|
+| `scripts/ci/measure-playwright-drift.test.mjs` | QUEUE-02 | 15 | 0 | No | Value/behavior | PASS |
+| `scripts/ci/playwright-cache-key-guard.test.sh` | QUEUE-02 | 8 | 0 | No | Value/behavior | PASS |
+| `scripts/ci/capture-phase-244-final-main.test.sh` | QUEUE-02 | 11 fixtures | 0 | No | Value/behavior | PASS |
+
+Disabled requirement tests: 0. Circular expected-value generation: 0. Insufficient assertions: 0. The comparator suite writes isolated manifests/PNG fixtures and compares against independently specified values; the collector suite uses fake structured API responses to test both acceptance and rejection paths.
+
 ## Human Verification Required
 
-None. The blocking package-legitimacy checkpoint has recorded fresh registry, tarball digest, provenance, and official-release identity as an OK result before candidate installation. The conditional PR-restoration checkpoint was not entered because the candidate PR is closed and its head branch is absent. Phase outcomes are covered by deterministic artifact and live CI evidence.
+None. This is a tooling/CI foundation phase with no user-facing UI behavior; its acceptance criteria are covered by deterministic fixtures, the completed Ubuntu measurement, and exact-SHA CI receipt. The package-legitimacy record contains registry metadata, tarball digest, provenance, and official-release identity. The conditional PR-restoration checkpoint was not entered: PR #213 is closed and its live branch ref is absent. The 8-item automation-first UAT is complete with 8 passed, 0 issues, and 0 pending.
+
+## Security Gate Gaps
+
+The plan-time STRIDE audit is recorded in `244-SECURITY.md`. Eleven of fifteen mitigations are closed. The following three high-severity gaps block Phase 244 completion; the medium-severity watcher evidence gap is also retained for closure. These findings do not change the 8/8 UAT results, but they prevent this report from remaining `passed`.
+
+| Gap ID | Threat | Severity | Root cause | Missing |
+|--------|--------|----------|------------|---------|
+| SEC-244-06 | T-244-06: measurement provenance | blocker | The measurement verifier trusts identity embedded in its manifest and does not cross-check the completed GitHub run's structured fields; the full manifest has no persisted digest bound to that run. | Verify run ID, source SHA, PR/head identity, and a full manifest digest against structured GitHub API data. |
+| SEC-244-07 | T-244-07: paired source trees | blocker | Both render roots start from the same archive, but no post-install equality check proves only the allowed package/lock files differ. | Add a deterministic post-install source-tree equality guard and negative fixtures for unexpected changes. |
+| SEC-244-09 | T-244-09: merge authorization | blocker | `merge_eligible` is derived from zero pixel drift alone; live candidate, base, and required-check conditions are not part of the executable decision. | Make merge eligibility fail closed unless zero drift and live authorized PR/ref/base/current required checks all match. |
+| SEC-244-13 | T-244-13: API quota operations | medium | Quota preflight and 403/429 handling exist, but watcher count/interval is not represented in machine-readable evidence. | Retain a run-scoped record proving one watcher, a 60-second interval, quota preflight, and stop-on-403/429 behavior. |
 
 ## Gaps Summary
 
-No blocking gaps. The upgrade did not merge: complete pixel measurement found real drift, and PR #213 remains closed with no live candidate. The measured defer path satisfies the phase goal. QUEUE-02's descriptor-less edge remains openly unresolved as required; no claim was made about its missing specification.
+Phase 244's measured defer path and current UAT are complete, but the security gate found three blocking high-severity gaps and one medium evidence gap. Do not transition the phase until the gap-closure plan resolves the security findings and fresh verification/security checks pass. The upgrade did not merge: complete pixel measurement found real drift, and PR #213 remains closed with no live candidate. QUEUE-02's descriptor-less edge remains explicitly `unclassified` and `unresolved` (applicable 1, resolved 0, unresolved 1); it is not counted as a successful probe. No tracked PNG baseline changed.
 
 ---
-_Verified: 2026-09-26T20:18:12Z_  
+_Verified: 2026-09-26T20:41:21Z_
 _Verifier: the agent (gsd-verifier)_

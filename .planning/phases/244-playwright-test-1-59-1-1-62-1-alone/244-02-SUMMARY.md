@@ -15,7 +15,10 @@ actuals:
   tasks: 3
   commits: 6
 plan_head_before: f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac
-commits: 6
+commits: 72
+commit_count_scope: "total commits reachable since plan_head_before immediately before the final verification metadata commit"
+plan_local_commits: 6
+commit_count_reconciled_at: 61d8b3e1d098a1ded70fa2fcb937ccb032a08d26
 tech-stack:
   added: [@playwright/test 1.62.1, ImageMagick package pin]
   patterns: [complete tracked image inventory validation, strict comparator identity and metric parsing]

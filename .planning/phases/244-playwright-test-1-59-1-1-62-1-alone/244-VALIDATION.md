@@ -1,75 +1,56 @@
 ---
 phase: "244"
 slug: "playwright-test-1-59-1-1-62-1-alone"
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-26"
+updated: "2026-09-26"
 ---
 
 # Phase 244 — Validation Strategy
 
-> Automated validation contract for the isolated Playwright package update. No human visual UAT is required: comparison must fail closed on any pixel drift and preserve machine-readable evidence.
-
----
+> Every task from Plans 01–05 is mapped below to an executable check or to a retained external CI/package attestation. The measurement found real drift; validation passing means the fail-closed decision and evidence are verified, not that the package bump is merge-eligible.
 
 ## Test Infrastructure
 
 | Property | Value |
 |----------|-------|
-| **Framework** | Playwright Test; focused Node/shell contract tests for inventory, comparator, cache guard, and receipt validation |
+| **Framework** | Node.js built-in test runner; shell contract fixtures; Playwright CI consumers |
 | **Config file** | `test/example/priv/playwright/playwright.config.ts` |
-| **Quick run command** | `bash scripts/ci/playwright-cache-key-guard.test.sh` plus the new focused measurement-harness tests (command to be fixed in the plan) |
-| **Full suite command** | Existing `example_playwright_shard` matrix, `example_playwright_smoke`, and `generated_admin_playwright_smoke` workflow jobs; exact commands remain owned by `.github/workflows/ci.yml` |
-| **Estimated runtime** | CI-dependent; measure and record from the workflow run |
-
----
-
-## Sampling Rate
-
-- **After every task commit:** Run the cache-key guard self-test and focused measurement/receipt contract tests.
-- **After every plan wave:** Run the exact-pixel measurement on Ubuntu for both package/browser versions, then relevant existing browser consumers.
-- **Before phase verification:** Require a committed measurement/decision artifact and, for the resulting main SHA, one successful workflow run containing every required consumer job individually.
-- **Max feedback latency:** Record measured CI duration; no unmeasured local screenshot run substitutes for Ubuntu evidence.
-
----
+| **Comparator command** | `node --test scripts/ci/measure-playwright-drift.test.mjs` |
+| **Cache contract command** | `bash scripts/ci/playwright-cache-key-guard.test.sh && bash scripts/ci/playwright-cache-key-guard.sh` |
+| **Final receipt command** | `bash scripts/ci/capture-phase-244-final-main.test.sh` and the collector's offline `verify` mode |
+| **External evidence** | GitHub Actions runs and npm registry signatures/attestations listed per task below |
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 244-01-01 | 01 | 0 | QUEUE-02 | — | Reject incomplete or unsafe screenshot paths; never modify committed baselines | unit/contract | New measurement-harness test command, fixed in plan | ❌ W0 | ⬜ pending |
-| 244-01-02 | 01 | 0 | QUEUE-02 | — | Reject missing/extra paths, dimensions mismatch, and any changed pixel; accept only exact equality | unit/contract | New comparator tests: equal, one-pixel drift, dimensions, missing and extra image cases | ❌ W0 | ⬜ pending |
-| 244-01-03 | 01 | 1 | QUEUE-02 | — | Render complete tracked PNG inventory using tagged browser revisions on the same Ubuntu source revision | CI integration | New CI measurement workflow/job; fail unless both output path sets match the committed inventory | ❌ W0 | ⬜ pending |
-| 244-01-04 | 01 | 1 | QUEUE-02 | T-244-01 | Validate structured GitHub job data and bind evidence to one exact SHA; do not accept skipped jobs | unit/integration | New receipt-validator tests for wrong SHA, missing job, skipped job, and all-success exact-SHA receipt | ❌ W0 | ⬜ pending |
-| 244-01-05 | 01 | 1 | QUEUE-02 | — | Preserve chromium and chromium-webkit cache families and update all versioned keys | shell contract | `bash scripts/ci/playwright-cache-key-guard.sh` and `bash scripts/ci/playwright-cache-key-guard.test.sh` | ✅ | ⬜ pending |
-| 244-01-06 | 01 | 2 | QUEUE-02 | — | Record merge/defer outcome and exact resulting-main SHA; no stale August checks count | CI integration | Receipt validator plus fresh GitHub status/check evidence on one resulting SHA | ❌ W0 | ⬜ pending |
+| Task ID | Requirement / behavior | Automated validation and evidence | Current result |
+|---------|------------------------|-----------------------------------|----------------|
+| 244-01-01 | QUEUE-02: one tracked image is rendered and compared on Ubuntu; identity binds workflow, SHA, package and browser. | Tracer run `36216570816`, source `f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac`; retained one-path manifest reports zero changed pixels and successful run. | **PASS — recorded CI evidence** |
+| 244-01-02 | QUEUE-02: full baseline inventory is rendered without changing canonical PNGs; missing/extra paths remain inconclusive. | Full-capture run `36220505738` records 115/115 paths at `abe9391bbc171b22a28fec4f69e073c272361c90`; inventory-only verification passed. The later paired run `36262576391` independently confirms 115 paths. `node --test scripts/ci/measure-playwright-drift.test.mjs` exercises incomplete/extra inventory failures. | **PASS — inventory verified**; original run concluded failure because its then-current exact-drift verifier also rejected measured drift. |
+| 244-02-01 | QUEUE-02 / D1: equality, pixel drift, dimensions, path inventory, comparator errors and malformed metrics fail or pass precisely. | `node --test scripts/ci/measure-playwright-drift.test.mjs` — **15 passed, 0 failed**. Includes identical pixels, one-pixel change, dimensions, missing/extra/traversal paths, unavailable comparator and malformed output. | **PASS — 15/15** |
+| 244-02-02 | QUEUE-02 / D2: candidate package identity, registry integrity, publisher provenance and official release identity are checked before install. | `npm_config_cache=/private/tmp/phase244-npm-cache npm view @playwright/test@1.62.1 version dist.tarball dist.integrity --json`; `npm_config_cache=/private/tmp/phase244-npm-cache npm audit signatures --prefix test/example/priv/playwright`. Metadata reports 1.62.1 and integrity `sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==`; npm reports 51 verified registry signatures and 11 verified attestations. Summary records tarball digest equality and Microsoft v1.62.1 signed release identity. | **PASS — live registry/signature check and recorded provenance audit** |
+| 244-02-03 | QUEUE-02 / D3: all five cache keys and both browser families match the 1.62.1 lock; package trio resolves consistently. | `bash scripts/ci/playwright-cache-key-guard.test.sh && bash scripts/ci/playwright-cache-key-guard.sh && npm --prefix test/example/priv/playwright ls @playwright/test playwright playwright-core --all` — **8/8 fixtures pass**, five keys match, and all three Playwright packages resolve to 1.62.1. | **PASS — scoped trio verified**. `npm ls` also prints an unrelated existing `@axe-core/playwright` range mismatch; it does not change the tested Playwright trio. |
+| 244-03-01 | QUEUE-02: paired same-SHA Ubuntu capture uses verified package/browser identities and fails closed on any drift or uncertainty. | `node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome`; run `36262576391`. | **PASS — valid evidence, 115 paths, drift, merge_eligible=false**. The workflow's nonzero conclusion represents the intended drift verdict. |
+| 244-03-02 | QUEUE-02: measurement decision and current PR identity are durably recorded; stale checks do not become visual proof. | The same manifest verifier above; retained run `36262573493` establishes candidate-SHA `fast_checks` and both cache guards. | **PASS — recorded decision and targeted CI**. Full PR CI separately failed at the out-of-scope `admin-audit.spec.ts:77` URL assertion. |
+| 244-04-01 | QUEUE-02: restore only a live candidate, otherwise defer; the closed/missing-head PR must not be reopened. | `gh pr view 213 --repo szTheory/sigra --json number,state,mergedAt,headRefName,headRefOid,mergeable`. Live result: CLOSED, unmerged, head ref absent from remote (as recorded), `CONFLICTING`; default defer selected. | **PASS — defer route observed** |
+| 244-04-02 | QUEUE-02: evidence decision matches live PR state and the measured drift; deferred todo is actionable. | `node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome`; live `gh pr view 213` state assertion from the plan's `jq -e` contract. | **PASS — JSON verifier passed; deferred evidence agrees with CLOSED/unmerged PR** |
+| 244-05-01 | QUEUE-02 / D1: collector rejects stale, missing, duplicate, skipped, malformed or docs-only job/step receipts. | `bash scripts/ci/capture-phase-244-final-main.test.sh` — success plus **10 fail-closed fixtures** and embedded-receipt verification. | **PASS — fixture suite green** |
+| 244-05-02 | QUEUE-02 / D2: one post-disposition exact-main run proves all required consumers and `ci-gate` individually successful, with main unchanged. | `bash scripts/ci/capture-phase-244-final-main.sh verify --receipt .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --main-sha 5a00b90d2314bc93f27aec4090b5928018743d1b`; run `36266022766`. | **PASS — receipt contract**; eight required jobs and seven consumer/browser steps passed at main SHA `5a00b90d2314bc93f27aec4090b5928018743d1b`. |
 
----
+## Measurement and Disposition
 
-## Wave 0 Requirements
+- Paired Ubuntu run `36262576391` captured the complete 115-image inventory. It found **30 changed images and 380,825 changed pixels**. The manifest is valid and correctly remains `drift` / `merge_eligible: false`.
+- PR #213 is CLOSED and unmerged. Evidence records a defer with a pending follow-up todo. The live read above agrees with that disposition.
+- Exact-main run `36266022766` passed after disposition. The offline receipt validator confirms its recorded required consumers against the unchanged main SHA.
+- QUEUE-02's descriptor-less edge probe remains explicitly `unclassified` / `unresolved` (`applicable: 1`, `resolved: 0`, `unresolved: 1`). This is intentionally unresolved product evidence; it is not counted as a passed behavior or silently waived.
 
-- [ ] Measurement harness tests for exact inventory equality, missing and extra paths, dimension mismatch, single-pixel drift, and zero drift.
-- [ ] Machine-readable measurement/decision manifest schema and validator.
-- [ ] Exact-SHA consumer receipt schema and validator that requires `ci-gate`, every shard, example smoke, and generated-admin smoke to conclude `success` in a single run; `skipped` is a failure.
-- [ ] Extend cache guard contract coverage to validate both browser-set key variants rather than relying on a first-match check.
-- [ ] Pin and verify the decoder/comparator used in the Ubuntu measurement environment; fail closed if unavailable.
+## Sampling and Sign-Off
 
----
+- All **11 tasks** in Plans 01–05 have a verification mapping above; no new test file was needed because the existing comparator, cache, and receipt suites exercise the planned negative behaviors.
+- The successful comparator, cache, receipt, measurement and final-main checks were run during this audit. External CI/package claims are linked to their retained run/evidence identities.
+- No three consecutive tasks are left without automated validation. No watch-mode flags are used.
+- Human visual judgment cannot override the measured drift or make the candidate merge-eligible.
 
-## Manual-Only Verifications
-
-All phase behaviors have automated verification. GitHub PR restoration or reopening is an execution-time external state decision: the plan must treat the already-closed PR as deferred unless an authorized live candidate is intentionally restored. No manual visual review can override a pixel difference or missing evidence.
-
----
-
-## Validation Sign-Off
-
-- [ ] All tasks have executable `<automated>` verification or Wave 0 dependencies.
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verification.
-- [ ] Wave 0 covers all MISSING references.
-- [ ] No watch-mode flags.
-- [ ] Feedback latency recorded from CI.
-- [ ] `nyquist_compliant: true` set in frontmatter after validation infrastructure exists and checks pass.
-
-**Approval:** pending
+**Nyquist status:** compliant for the planned fail-closed measurement, disposition and receipt behaviors. QUEUE-02's spec-less edge remains explicitly unresolved as described above.
