@@ -248,12 +248,17 @@ test('manifest records missing and extra renders against the source inventory', 
     await writeFile(extra, await readFile(png));
     await writeFile(versionFile, 'ImageMagick 6.9.12-98\nimagemagick=8:6.9.12.98+dfsg1-5.2build2\n');
     await writeFile(path.join(directory, 'inventory.json'), JSON.stringify(inventory));
+    const compareMarker = path.join(directory, 'compare-was-called');
+    const failIfCalled = path.join(directory, 'fail-if-called');
+    await writeFile(failIfCalled, `#!/bin/sh\nprintf called > '${compareMarker}'\nexit 2\n`, { mode: 0o755 });
     const output = path.join(directory, 'manifest.json');
     const result = spawnSync(process.execPath, [SCRIPT, 'build-manifest', '--source-sha', SOURCE_SHA, '--run-id', '1',
       '--branch', 'phase-244/test', '--scope', 'full', '--inventory-file', path.join(directory, 'inventory.json'),
       '--render-a', renderA, '--render-b', renderB, '--artifact-dir', artifacts, '--package-a', '1.59.1', '--package-b', '1.59.1',
       '--chromium-revision-a', '1', '--chromium-revision-b', '1', '--comparator-version-file', versionFile,
-      '--expected-imagemagick-package', '8:6.9.12.98+dfsg1-5.2build2', '--output', output], { cwd: ROOT, encoding: 'utf8' });
+      '--expected-imagemagick-package', '8:6.9.12.98+dfsg1-5.2build2', '--output', output], {
+      cwd: ROOT, encoding: 'utf8', env: { ...process.env, PHASE244_COMPARE_BIN: failIfCalled },
+    });
     assert.notEqual(result.status, 0, result.stdout);
     const manifest = JSON.parse(await readFile(output, 'utf8'));
     assert.equal(manifest.inventory_count, 115);
@@ -261,6 +266,7 @@ test('manifest records missing and extra renders against the source inventory', 
     assert.ok(manifest.missing_paths.render_a.includes(inventory.paths[0]));
     assert.ok(manifest.extra_paths.render_b.includes(extraRelative));
     assert.notEqual(manifest.verdict, 'zero-drift');
+    assert.notEqual(spawnSync('test', ['-f', compareMarker]).status, 0, 'inventory mismatch must stop before pixel comparison');
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

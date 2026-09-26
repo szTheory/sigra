@@ -242,6 +242,8 @@ async function buildManifest(args) {
     actualA = selected.filter((entry) => !missingPaths.has(entry));
     actualB = [...actualA];
   }
+  const inventoryMismatch = scope === 'full' &&
+    (!samePaths(fullInventory, actualA) || !samePaths(fullInventory, actualB));
 
   await mkdir(path.join(artifactDir, 'render-a'), { recursive: true });
   await mkdir(path.join(artifactDir, 'render-b'), { recursive: true });
@@ -256,6 +258,10 @@ async function buildManifest(args) {
     const absoluteDiff = path.join(artifactDir, diffFile);
     if (missingPaths.has(relativePath)) {
       results.push({ path: relativePath, width_a: null, height_a: null, width_b: null, height_b: null, changed_pixels: null, result: 'missing', render_a: renderAFile, render_b: renderBFile, diff: diffFile });
+      continue;
+    }
+    if (inventoryMismatch) {
+      results.push({ path: relativePath, width_a: null, height_a: null, width_b: null, height_b: null, changed_pixels: null, result: 'inconclusive', render_a: renderAFile, render_b: renderBFile, diff: diffFile });
       continue;
     }
     await mkdir(path.dirname(absoluteA), { recursive: true });
