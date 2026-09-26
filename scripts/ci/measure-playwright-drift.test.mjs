@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -15,6 +16,98 @@ const SOURCE_SHA = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding
 
 function command(args) {
   return spawnSync(process.execPath, [SCRIPT, ...args], { cwd: ROOT, encoding: 'utf8' });
+}
+
+async function writeJson(directory, name, value) {
+  const file = path.join(directory, name);
+  await writeFile(file, JSON.stringify(value));
+  return file;
+}
+
+async function provenanceFixture(directory) {
+  const manifest = {
+    schema_version: 3,
+    workflow_name: 'Phase 244 Playwright measurement',
+    event: 'workflow_dispatch',
+    head_branch: 'phase-244/measure-test',
+    source_sha: SOURCE_SHA,
+    run_id: '1234567890',
+    run_url: `https://github.com/szTheory/sigra/actions/runs/1234567890`,
+    runner: { image: 'ubuntu-24.04', os: 'Linux' },
+    artifact_identifier: 'phase-244-playwright-measurement-1234567890',
+    scope: 'full',
+    inventory: [],
+    inventory_count: 0,
+    inventory_sha256: '0'.repeat(64),
+    rendered_paths: { render_a: [], render_b: [] },
+    missing_paths: { render_a: [], render_b: [] },
+    extra_paths: { render_a: [], render_b: [] },
+    package_versions: { render_a: '1.59.1', render_b: '1.62.1' },
+    package_trios: {
+      render_a: { '@playwright/test': '1.59.1', playwright: '1.59.1', 'playwright-core': '1.59.1' },
+      render_b: { '@playwright/test': '1.62.1', playwright: '1.62.1', 'playwright-core': '1.62.1' },
+    },
+    package_trio_statuses: { render_a: 'verified', render_b: 'verified' },
+    chromium_revisions: { render_a: '1217', render_b: '1234' },
+    chromium_versions: { render_a: '147.0.7727.15', render_b: '151.0.7922.34' },
+    browser_manifests: {
+      render_a: { url: 'https://example.invalid/v1.59.1/packages/playwright-core/browsers.json', sha256: '1'.repeat(64) },
+      render_b: { url: 'https://example.invalid/v1.62.1/packages/playwright-core/browsers.json', sha256: '2'.repeat(64) },
+    },
+    browser_manifest_statuses: { render_a: 'verified', render_b: 'verified' },
+    comparator: { name: 'ImageMagick compare -metric AE -fuzz 0%', package: 'imagemagick=test', version: 'ImageMagick 6.9.12' },
+    results: [],
+    total_changed_pixels: 0,
+    diagnostics: [],
+    verdict: 'zero-drift',
+  };
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  const manifestFile = path.join(directory, 'measurement.json');
+  const sourceDir = path.join(directory, 'artifact-source');
+  await mkdir(sourceDir);
+  await writeFile(path.join(sourceDir, 'measurement.json'), manifestBytes);
+  const archive = path.join(directory, 'measurement.zip');
+  const zipped = spawnSync('zip', ['-q', '-r', archive, 'measurement.json'], { cwd: sourceDir, encoding: 'utf8' });
+  assert.equal(zipped.status, 0, zipped.stderr);
+  const archiveBytes = await readFile(archive);
+  const run = {
+    id: 1234567890,
+    name: 'Phase 244 Playwright measurement',
+    path: '.github/workflows/phase-244-playwright-measure.yml',
+    event: 'workflow_dispatch',
+    head_branch: 'phase-244/measure-test',
+    head_sha: SOURCE_SHA,
+    status: 'completed',
+    conclusion: 'success',
+  };
+  const artifact = {
+    total_count: 1,
+    artifacts: [{
+      id: 9876,
+      name: 'phase-244-playwright-measurement-1234567890',
+      expired: false,
+      digest: `sha256:${createHash('sha256').update(archiveBytes).digest('hex')}`,
+      workflow_run: { id: 1234567890 },
+    }],
+  };
+  return {
+    manifest,
+    manifestBytes,
+    run,
+    artifact,
+    files: {
+      manifest: await writeJson(directory, 'manifest.json', manifest),
+      run: await writeJson(directory, 'run.json', run),
+      artifact: await writeJson(directory, 'artifact.json', artifact),
+      archive,
+    },
+  };
+}
+
+async function verifyProvenance(fixture, overrides = {}) {
+  const args = ['verify-provenance', '--manifest', fixture.files.manifest, '--run-json', fixture.files.run,
+    '--artifact-json', fixture.files.artifact, '--artifact-zip', fixture.files.archive, '--source-sha', SOURCE_SHA];
+  return command(overrides.args ?? args);
 }
 
 function trackedInventory() {
@@ -344,6 +437,59 @@ test('one differing pixel leaves a nonzero workflow outcome and a verifiable dri
     const verified = command(['verify', '--manifest', manifestFile, '--source-sha', SOURCE_SHA, '--validate-recorded-outcome']);
     assert.equal(verified.status, 0, verified.stderr);
     assert.match(verified.stdout, /"merge_eligible":false/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('structured run and artifact APIs bind the exact manifest bytes and archive digest', async (t) => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-provenance-'));
+  try {
+    const fixture = await provenanceFixture(directory);
+    const accepted = await verifyProvenance(fixture);
+    assert.equal(accepted.status, 0, accepted.stderr);
+    assert.match(accepted.stdout, /"manifest_sha256":"[a-f0-9]{64}"/);
+    assert.match(accepted.stdout, /"artifact_id":9876/);
+
+    const rejected = [
+      ['run ID', (value) => { value.id += 1; }],
+      ['run conclusion', (value) => { value.conclusion = 'failure'; }],
+      ['workflow path', (value) => { value.path = '.github/workflows/other.yml'; }],
+      ['event', (value) => { value.event = 'push'; }],
+      ['branch', (value) => { value.head_branch = 'main'; }],
+      ['source SHA', (value) => { value.head_sha = 'f'.repeat(40); }],
+      ['run status', (value) => { value.status = 'in_progress'; }],
+    ];
+    for (const [label, mutate] of rejected) {
+      await t.test(`rejects mismatched ${label}`, async () => {
+        const fixtureDir = path.join(directory, label.replaceAll(' ', '-'));
+        await mkdir(fixtureDir);
+        const value = await provenanceFixture(fixtureDir);
+        const run = structuredClone(value.run);
+        mutate(run);
+        const runFile = await writeJson(fixtureDir, 'mutated-run.json', run);
+        const result = await verifyProvenance(value, { args: [
+          'verify-provenance', '--manifest', value.files.manifest, '--run-json', runFile,
+          '--artifact-json', value.files.artifact, '--artifact-zip', value.files.archive, '--source-sha', SOURCE_SHA,
+        ] });
+        assert.notEqual(result.status, 0, result.stdout);
+      });
+    }
+
+    const badArtifact = structuredClone(fixture.artifact);
+    badArtifact.artifacts[0].digest = `sha256:${'f'.repeat(64)}`;
+    const badArtifactFile = await writeJson(directory, 'bad-artifact.json', badArtifact);
+    const digestMismatch = await verifyProvenance(fixture, { args: [
+      'verify-provenance', '--manifest', fixture.files.manifest, '--run-json', fixture.files.run,
+      '--artifact-json', badArtifactFile, '--artifact-zip', fixture.files.archive, '--source-sha', SOURCE_SHA,
+    ] });
+    assert.notEqual(digestMismatch.status, 0, digestMismatch.stdout);
+
+    const alteredBytes = Buffer.from(await readFile(fixture.archive));
+    alteredBytes[alteredBytes.length - 1] ^= 0xff;
+    await writeFile(fixture.archive, alteredBytes);
+    const archiveTamper = await verifyProvenance(fixture);
+    assert.notEqual(archiveTamper.status, 0, archiveTamper.stdout);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
