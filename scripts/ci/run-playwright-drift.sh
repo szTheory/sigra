@@ -81,6 +81,37 @@ run_capture() {
   ) >"$ARTIFACT_DIR/logs/${label}-capture.log" 2>&1 || return $?
 }
 
+prepare_system_dependencies() {
+  local expected_version="$1" dependency_root package_dir
+  dependency_root="$WORK_ROOT/system-deps-${expected_version}"
+  mkdir -p "$dependency_root" || return $?
+  git -C "$ROOT" archive --format=tar "$SOURCE_SHA" | tar -xf - -C "$dependency_root" || return $?
+  package_dir="$dependency_root/test/example/priv/playwright"
+  (
+    set -euo pipefail
+    cd "$package_dir"
+    if [[ "$expected_version" == 1.59.1 ]]; then
+      npm install --package-lock-only --ignore-scripts --save-exact \
+        @playwright/test@1.59.1 playwright@1.59.1 playwright-core@1.59.1
+    fi
+    npm ci
+    local package_version playwright_version core_version
+    package_version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
+    playwright_version="$(node -p "require('./node_modules/playwright/package.json').version")"
+    core_version="$(node -p "require('./node_modules/playwright-core/package.json').version")"
+    [[ "$package_version" == "$expected_version" && "$playwright_version" == "$expected_version" && "$core_version" == "$expected_version" ]] || \
+      fail "system dependency setup expected Playwright trio $expected_version, got @playwright/test=$package_version playwright=$playwright_version playwright-core=$core_version"
+    npx playwright install-deps chromium webkit
+  ) >"$ARTIFACT_DIR/logs/system-deps-${expected_version}.log" 2>&1 || return $?
+}
+
+# Install the union of both package versions' browser OS dependencies before
+# either capture so the old and candidate passes see one identical VM image.
+if [[ "$SCOPE" == full ]]; then
+  prepare_system_dependencies 1.59.1
+  prepare_system_dependencies 1.62.1
+fi
+
 capture_a="$WORK_ROOT/render-a"
 capture_b="$WORK_ROOT/render-b"
 browser_a="$WORK_ROOT/browsers-1.59.1"

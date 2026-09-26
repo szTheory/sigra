@@ -2015,9 +2015,81 @@
     "subsequent_pushes": 0,
     "latest_local_mix_ci": {
       "command": "MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci",
+      "head_sha": "1d21497af5074dd0a1f99843dee8643d681787da",
       "conclusion": "failure",
-      "failing_test": "Sigra.Planning.Phase242ShiftLeftContractTest: retired Hex automation absence assertion conflicts with branch file .github/workflows/hex-remediate-phantom.yml",
-      "action": "left the unrelated Phase 242 test and workflow unchanged"
+      "exit_code": 2,
+      "previous_phase242_blocker": "resolved in local Quick commits ed68e2b9 and 142f607d; no Phase 242 change was made as part of Plan 03",
+      "failures": [
+        {
+          "test": "Sigra.Planning.Phase235Fast01SourceCompleteContractTest: semantic fixture parsing stays isolated from the authenticated default path",
+          "file": "test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:143",
+          "diagnostic": "sandbox-exec: sandbox_apply: Operation not permitted (exit 71)"
+        },
+        {
+          "test": "Sigra.Planning.Phase235Fast01SourceCompleteContractTest: authenticated strict pass is reconciled exactly into FAST-01 and its residual",
+          "file": "test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:169",
+          "diagnostic": "sandbox-exec: sandbox_apply: Operation not permitted (exit 71)"
+        }
+      ],
+      "suite_totals": "2614 tests, 2 failures, 12 skipped (22 excluded)",
+      "retained_log": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+      "host_permission_retry": {
+        "head_sha": "1d21497af5074dd0a1f99843dee8643d681787da",
+        "command": "MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci",
+        "conclusion": "success",
+        "exit_code": 0,
+        "execution": "orchestrator host-permission retry",
+        "note": "Prior sandboxed attempts failed only because nested sandbox-exec was prohibited; the host-permission gate passed."
+      }
     }
-  }
+  },
+  "latest_candidate_ci": {
+    "run_id": "36260684776",
+    "url": "https://github.com/szTheory/sigra/actions/runs/36260684776",
+    "head_sha": "1d21497af5074dd0a1f99843dee8643d681787da",
+    "event": "pull_request",
+    "conclusion": "failure",
+    "fast_checks": {
+      "conclusion": "success",
+      "job_id": "108455765872"
+    },
+    "cache_guard_steps": "both included in the successful Fast checks job",
+    "ci_gate": {
+      "conclusion": "failure",
+      "reason": "Example Playwright smoke aggregated the failed admin_behavior shard"
+    },
+    "failure": {
+      "test": "tests/admin-audit.spec.ts:77 global investigation and org-scoped per-user export keep filter semantics aligned",
+      "expected_url": "/admin/audit?action_prefix=admin.impersonation",
+      "actual_url": "/admin/audit?action_prefix=admin.impersonation&order_by=inserted_at&order_direction=desc&page_size=25",
+      "classification": "deterministic unrelated CI failure; outside Plan 03 scope"
+    }
+  },
+  "measurement_attempts": [
+    {
+      "run_id": "36260817610",
+      "url": "https://github.com/szTheory/sigra/actions/runs/36260817610",
+      "source_sha": "1d21497af5074dd0a1f99843dee8643d681787da",
+      "artifact_identifier": "phase-244-playwright-measurement-36260817610",
+      "verdict": "inconclusive",
+      "package_trio_statuses": {
+        "render_a": "verified",
+        "render_b": "verified"
+      },
+      "browser_manifest_statuses": {
+        "render_a": "verified",
+        "render_b": "verified"
+      },
+      "rendered_counts": {
+        "render_a": 78,
+        "render_b": 78
+      },
+      "inventory_count": 115,
+      "missing_counts": {
+        "render_a": 37,
+        "render_b": 37
+      },
+      "diagnostic": "mobile projects failed to launch because WebKit system libraries libgtk-4.so.1, libgraphene-1.0.so.0, and libevent-2.1.so.7 were absent; no pixel drift was established"
+    }
+  ]
 }

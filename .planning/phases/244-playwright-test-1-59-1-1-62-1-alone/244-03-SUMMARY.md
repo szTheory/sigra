@@ -19,6 +19,7 @@ tech-stack:
 key-files:
   created:
     - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json
+    - .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt
     - .planning/todos/pending/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md
   modified:
     - .github/workflows/phase-244-playwright-measure.yml
@@ -44,15 +45,20 @@ status: blocked
 - Captured and verifier-validated the Phase 244 evidence wrapper for workflow run [36244679787](https://github.com/szTheory/sigra/actions/runs/36244679787), source SHA `73858d810e2a5d87199c2b8d62540fbd5f3ccd90`.
 - Diagnosed the inconclusive measurement: the baseline render root resolved `@playwright/test` / `playwright` / `playwright-core` as `1.59.1 / 1.59.1 / 1.62.1`, so the run cannot establish visual drift.
 - Corrected the old-version lockfile transform locally in `ab24b285` to pin all three packages. The executor reports 14/14 measurement tests passing and a separate lockfile reproduction resolving the full baseline trio to `1.59.1`.
-- Refreshed PR and main evidence. PR #213 is closed and unmerged; its August 8 failure is historical cache-key evidence, not visual proof. Current main `5a00b90d…` has green `ci-gate` and Playwright smoke checks. Evidence PR #283 is open/draft/dirty at `73858d81…` with no checks, so same-SHA `fast_checks` evidence is unavailable.
-- Recorded the failed gate and initial push history in the evidence JSON. After the initial push, no further push or PR update was made.
+- The corrected run `36260817610` verified both package trios and tagged browser manifests, but remained inconclusive because the full matrix's mobile projects require WebKit system libraries absent from the measurement runner. The run rendered 78/115 images on each side; the missing 37 per side were mobile captures, so no pixel verdict is claimed.
+- Added a preflight that installs Chromium and WebKit OS dependencies for both exact Playwright versions before either render starts, ensuring the two passes share the same runner environment. Added a local contract test for this ordering.
+- Refreshed PR and main evidence. PR #213 is closed and unmerged; its August 8 failure is historical cache-key evidence, not visual proof. Current main `5a00b90d…` has green `ci-gate` and Playwright smoke checks. Before the branch update, evidence PR #283 was open/draft/dirty at `73858d81…` with no checks; it now points to `1d21497a…` and has same-SHA `fast_checks` proof.
+- PR #283 advanced to candidate SHA `1d21497a…`. Its same-SHA `fast_checks` job and both cache guard steps passed in run `36260684776`; overall `ci-gate` was red because the unrelated admin audit Playwright assertion expected the filtered URL without default ordering/page-size parameters.
+- Recorded the original post-failed-gate push and current CI run identities in the evidence JSON. The initial push violation remains disclosed; the branch update to `1d21497a…` followed the successful host-permission `mix ci` gate at that exact HEAD.
 
 ## Verification
 
-- `node --test scripts/ci/measure-playwright-drift.test.mjs` — 14 passed after the local baseline-trio correction.
+- `node --test scripts/ci/measure-playwright-drift.test.mjs` — 15 passed after baseline-trio and WebKit-dependency preflight changes.
 - Separate lockfile reproduction — all baseline Playwright package entries resolve to `1.59.1`.
 - Workflow run `36244679787` — **inconclusive**; the uploaded artifact confirms the mixed baseline trio and incomplete screenshot inventories.
-- `MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci` — **failed** in `Sigra.Planning.Phase242ShiftLeftContractTest`: its retired-Hex-workflow absence assertion conflicts with `.github/workflows/hex-remediate-phantom.yml` present on the refreshed branch.
+- Workflow run `36260817610` — **inconclusive**; all package/browser provenance checks passed, but the WebKit mobile projects could not launch because OS dependencies were missing. The artifact records 78/115 captures on each side; no pixel drift was established.
+- PR CI run `36260684776` on SHA `1d21497af5074dd0a1f99843dee8643d681787da` — `fast_checks` succeeded and contained both cache guards; the full run failed in the unrelated admin audit browser assertion and consequently `ci-gate`.
+- `MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci` — the exact command passed with exit 0 under the orchestrator's host-permission retry at clean HEAD `1d21497af5074dd0a1f99843dee8643d681787da`. Earlier sandboxed attempts failed because nested `sandbox-exec` was prohibited; their full log is preserved in `244-03-MIX-CI-LOG.txt`. The Phase 242 contract issue had already been resolved by separately scoped Quick commits.
 
 ## Task Commits
 
@@ -63,6 +69,6 @@ status: blocked
 
 ## Blocker and Next Steps
 
-Plan 03 is blocked with `QUEUE-02` incomplete. The separate pending todo records the Phase 242 test/workflow contradiction; neither Phase 242 file was changed. Resolve that issue in separately scoped work, rerun `mix ci`, then push the corrected measurement harness, obtain same-SHA `fast_checks`, and dispatch a fresh paired run. Plans 04 and 05 depend on this evidence and remain unexecuted.
+Plan 03 remains incomplete with `QUEUE-02` incomplete. The exact `mix ci` gate passed at `1d21497a`, and same-SHA `fast_checks` passed, but the paired measurement is inconclusive because the harness omitted required WebKit system dependencies. Validate the new preflight, run `mix ci` on the resulting clean commit, push only after it passes, then obtain same-SHA PR checks and run one corrected full paired measurement. Plans 04 and 05 depend on this evidence and remain unexecuted.
 
-The corrected local commits and summary are in the disposable clone; the plan-owned source and evidence files have been synced into the shared checkout without changing its existing unrelated dirty files or Git index.
+The Plan 03 summary, evidence JSON, and gate log are maintained in the disposable clone. They have not been copied into the primary checkout during this resumed execution.

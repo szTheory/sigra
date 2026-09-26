@@ -10,6 +10,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const SCRIPT = path.join(ROOT, 'scripts/ci/measure-playwright-drift.mjs');
 const CI = await readFile(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
 const MEASURE_WORKFLOW = await readFile(path.join(ROOT, '.github/workflows/phase-244-playwright-measure.yml'), 'utf8');
+const MEASURE_RUNNER = await readFile(path.join(ROOT, 'scripts/ci/run-playwright-drift.sh'), 'utf8');
 const SOURCE_SHA = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim();
 
 function command(args) {
@@ -177,6 +178,17 @@ test('measurement workflow is read-only and gated to explicit phase-244 branch d
   assert.doesNotMatch(MEASURE_WORKFLOW, /contents:\s*write/);
   assert.match(MEASURE_WORKFLOW, /default:\s*full/);
   assert.match(MEASURE_WORKFLOW, /RUNNER_IMAGE:\s*ubuntu-24\.04/);
+});
+
+test('full measurement installs both Playwright OS dependency sets before either capture', () => {
+  const prepareDeps = MEASURE_RUNNER.indexOf('prepare_system_dependencies 1.59.1');
+  const prepareCandidateDeps = MEASURE_RUNNER.indexOf('prepare_system_dependencies 1.62.1');
+  const captureA = MEASURE_RUNNER.indexOf('run_capture render-a');
+  const captureB = MEASURE_RUNNER.indexOf('run_capture render-b');
+  assert.ok(prepareDeps >= 0 && prepareCandidateDeps > prepareDeps);
+  assert.ok(captureA > prepareCandidateDeps && captureB > captureA);
+  assert.match(MEASURE_RUNNER, /npx playwright install-deps chromium webkit/);
+  assert.match(MEASURE_RUNNER, /union of both package versions' browser OS dependencies/);
 });
 
 async function tinyPng(directory, name, color) {
