@@ -5,11 +5,11 @@ milestone_name: CLEAN-BASELINE
 current_phase: 244
 current_phase_name: " 1.59.1 → 1.62.1, Alone"
 status: executing
-stopped_at: Completed 244-06-PLAN.md
-last_updated: "2026-09-26T22:22:31.134Z"
+stopped_at: Completed 244-07-PLAN.md
+last_updated: "2026-09-26T22:41:54.866Z"
 last_activity: 2026-09-26
 last_activity_desc: Phase 244 execution resumed (wave continue)
-state_head: 7373979e224e9b3e4f07411427567cdd6217a0ac
+state_head: 8b6e33dca5bf32c641d25b3261aa59348767e375
 progress:
   total_phases: 10
   completed_phases: 8
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 ## Current Position
 
 Phase: 244 ( 1.59.1 → 1.62.1, Alone) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
 
@@ -533,6 +533,8 @@ Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
 - [Phase 244]: Phase 244 Plan 06: drift remains a valid failure-conclusion measurement; only zero-drift runs count as successful provenance.
 - [Phase 244]: Phase 244 Plan 06: inaccessible classic required-status policy is retained as untrusted and makes eligibility false.
 - [Phase 244]: Phase 244 Plan 06: validate authorization objects structurally without depending on JSON key order.
+- [Phase 244]: Compare dependency manifests and lockfiles after normalizing only the Playwright trio, so unrelated edits remain detectable.
+- [Phase 244]: Share one measured-SHA archive across all install roots and compare each immediately after npm ci.
 
 ### Pending Todos
 
@@ -739,8 +741,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-26T22:21:45.458Z
-Stopped at: Completed 244-06-PLAN.md
+Last session: 2026-09-26T22:41:54.700Z
+Stopped at: Completed 244-07-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -958,3 +960,4 @@ Resume file: None
 | Phase 244 P04 | 5m | 2 tasks | 3 files |
 | Phase 244 P05 | 45min | 2 tasks | 3 files |
 | Phase 244 P6 | 31min | 2 tasks | 4 files |
+| Phase 244 P07 | 18min | 2 tasks | 4 files |
