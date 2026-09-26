@@ -354,7 +354,13 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   3. PR #213 is merged **only if measured drift is exactly zero**; otherwise it is closed/deferred to a todo carrying the measurement, and **no recapture lane is opened** — visible either way in `gh pr view 213`.
   4. Whichever branch is taken, `ci-gate` is observed green on `main` afterward across every Playwright consumer (`example_playwright_shard`, `example_playwright_smoke`, `generated_admin_playwright_smoke`), and no PNG baseline is committed in the same change as any other cause.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+- [x] 244-01-PLAN.md — Prove CI-native screenshot capture and complete inventory
+- [x] 244-02-PLAN.md — Enforce exact pixels and prepare the isolated candidate
+- [ ] 244-03-PLAN.md — Measure both versions and preserve the result
+- [ ] 244-04-PLAN.md — Merge only on complete proof, otherwise defer #213
+- [ ] 244-05-PLAN.md — Capture exact-main-SHA consumer evidence
 
 ### Phase 245: Branch Prune — Local and Remote
 
@@ -382,7 +388,7 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 | 241. Debt Retirement + Leakage Guard | 8/8 | Complete    | 2026-09-19 |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |
-| 244. `@playwright/test` Bump, Alone | 0/? | Not started | - |
+| 244. `@playwright/test` Bump, Alone | 2/5 | In Progress | - |
 | 245. Branch Prune | 0/? | Not started | - |
 
 ## Requirement Coverage

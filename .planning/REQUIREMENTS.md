@@ -96,7 +96,7 @@ This repo has three documented precedents of a green gate that verified nothing.
 ### Drain the queue (QUEUE)
 
 - [ ] **QUEUE-01**: Dependabot PRs are merged in tiers on a proven-green gate, with the **locked** versions in `mix.lock` / `package-lock.json` verified against PR titles — branch names are stale and lie (`hammer-7.4.1` is really →7.5.0; `oban-2.24.0` is really →2.24.1).
-- [ ] **QUEUE-02**: `@playwright/test` (#213) is handled **alone and last**; merged only if CI-native baseline drift measures zero across the ~115 committed PNGs, otherwise deferred to a todo with browser revisions recorded pre/post. No recapture lane is opened in this milestone.
+- [x] **QUEUE-02**: `@playwright/test` (#213) is handled **alone and last**; merged only if CI-native baseline drift measures zero across the ~115 committed PNGs, otherwise deferred to a todo with browser revisions recorded pre/post. No recapture lane is opened in this milestone.
 - [ ] **QUEUE-03**: The 8 stale phase/recapture PRs are closed with a stated reason each, **before** any branch prune (PR #211/#219's base is a prune candidate).
 - [ ] **QUEUE-04**: Every pending todo is triaged to exactly one of keep / close / defer with a reason; the triage commit's diff touches **only** `.planning/todos/`. Zero todos are fixed during triage.
 
@@ -164,7 +164,7 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | REPO-03 | Phase 237 | Complete |
 | REPO-04 | Phase 245 | Pending |
 | QUEUE-01 | Phase 243 | Pending |
-| QUEUE-02 | Phase 244 | Pending |
+| QUEUE-02 | Phase 244 | Complete |
 | QUEUE-03 | Phase 243 | Pending |
 | QUEUE-04 | Phase 243 | Pending |
 | DEBT-01 | Phase 241 | Complete |
