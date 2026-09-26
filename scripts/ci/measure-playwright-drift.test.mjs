@@ -139,7 +139,9 @@ function authorizationFixture() {
     check_runs: { complete: true, total_count: contexts.length, pages: [{ check_runs: contexts }] },
     statuses: { complete: true, total_count: 0, pages: [{ statuses: [] }] },
     workflow_runs: { complete: true, total_count: 1, pages: [{ workflow_runs: [
-      { id: 8801, path: '.github/workflows/ci.yml', head_sha: sha, status: 'completed', conclusion: 'success' },
+      { id: 8801, path: '.github/workflows/ci.yml@main', workflow_sha: 'c'.repeat(40), head_sha: sha,
+        repository: { id: 1, full_name: 'szTheory/sigra' },
+        status: 'completed', conclusion: 'success' },
     ] }] },
     repository_id: 1,
   };
@@ -531,6 +533,18 @@ test('structured run and artifact APIs bind the exact manifest bytes and archive
     ] });
     assert.notEqual(digestMismatch.status, 0, digestMismatch.stdout);
 
+    for (const expired of [undefined, null, 'false', true]) {
+      const malformedArtifact = structuredClone(fixture.artifact);
+      if (expired === undefined) delete malformedArtifact.artifacts[0].expired;
+      else malformedArtifact.artifacts[0].expired = expired;
+      const malformedArtifactFile = await writeJson(directory, `artifact-expired-${String(expired)}.json`, malformedArtifact);
+      const malformedExpiry = await verifyProvenance(fixture, { args: [
+        'verify-provenance', '--manifest', fixture.files.manifest, '--run-json', fixture.files.run,
+        '--artifact-json', malformedArtifactFile, '--artifact-zip', fixture.files.archive, '--source-sha', SOURCE_SHA,
+      ] });
+      assert.notEqual(malformedExpiry.status, 0, `accepted artifact expired=${String(expired)}`);
+    }
+
     const badRunBinding = structuredClone(fixture.artifact);
     badRunBinding.artifacts[0].workflow_run.id += 1;
     const badRunBindingFile = await writeJson(directory, 'bad-run-binding.json', badRunBinding);
@@ -576,6 +590,14 @@ test('merge eligibility requires a current PR, base, complete policies, and exac
     const offline = command(['verify-eligibility', '--authorization-json', authorizationFile]);
     assert.equal(offline.status, 0, offline.stderr);
     assert.match(offline.stdout, /"valid":true/);
+    for (const expired of [undefined, null, 'false', true]) {
+      const record = structuredClone(valid);
+      if (expired === undefined) delete record.provenance.artifact_record.expired;
+      else record.provenance.artifact_record.expired = expired;
+      const result = await evaluateAuthorization(record, directory);
+      assert.equal(result.status, 0, result.stderr);
+      assert.match(result.stdout, /"merge_eligible":false/, `accepted persisted artifact expired=${String(expired)}`);
+    }
     const tamperedRecord = structuredClone(valid);
     tamperedRecord.pr.state = 'closed';
     const tamperedFile = await writeJson(directory, 'tampered-authorized-record.json', tamperedRecord);
@@ -602,6 +624,10 @@ test('merge eligibility requires a current PR, base, complete policies, and exac
       ['incomplete check-run pagination', (r) => { r.check_runs.complete = false; }],
       ['incomplete status pagination', (r) => { r.statuses.complete = false; }],
       ['missing required workflow', (r) => { r.workflow_runs.pages[0].workflow_runs = []; r.workflow_runs.total_count = 0; }],
+      ['required workflow from another repository', (r) => { r.workflow_runs.pages[0].workflow_runs[0].repository.id = 2; }],
+      ['required workflow from another ref', (r) => { r.workflow_runs.pages[0].workflow_runs[0].path = '.github/workflows/ci.yml@release'; }],
+      ['required workflow with wrong definition SHA', (r) => { r.workflow_runs.pages[0].workflow_runs[0].workflow_sha = 'd'.repeat(40); }],
+      ['required workflow with no definition SHA evidence', (r) => { delete r.workflow_runs.pages[0].workflow_runs[0].workflow_sha; }],
       ['empty policy', (r) => { r.rules.rules = []; r.protection.response = { contexts: [], checks: [] }; }],
       ['unknown policy response', (r) => { r.rules = { complete: true, rules: [{ type: 'unknown' }] }; r.protection.response = { contexts: [], checks: [] }; }],
       ['incomplete ruleset pagination', (r) => { r.rules.complete = false; }],

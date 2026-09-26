@@ -139,8 +139,8 @@ async function verifyProvenance(args) {
     throw new Error('structured workflow run identity does not match the completed measurement manifest');
   }
   if (!artifactList || !Array.isArray(artifactList.artifacts)) throw new Error('artifact API response must contain an artifacts array');
-  const matches = artifactList.artifacts.filter((artifact) => artifact?.name === manifest.artifact_identifier && artifact.expired !== true);
-  if (matches.length !== 1) throw new Error(`artifact API response has ${matches.length} unexpired exact-name matches; expected exactly one`);
+  const matches = artifactList.artifacts.filter((artifact) => artifact?.name === manifest.artifact_identifier && artifact.expired === false);
+  if (matches.length !== 1) throw new Error(`artifact API response has ${matches.length} explicitly unexpired exact-name matches; expected exactly one`);
   const artifact = matches[0];
   if (!Number.isSafeInteger(artifact.id) || artifact.id < 1 || String(artifact.workflow_run?.id) !== String(runRecord.id) ||
       artifact.name !== manifest.artifact_identifier || !/^sha256:[0-9a-f]{64}$/.test(artifact.digest ?? '')) {
@@ -183,6 +183,29 @@ function completePages(record, key) {
   }
   if (items.length !== record.total_count) throw new Error(`${key} API pagination total does not match all collected records`);
   return items;
+}
+
+function splitWorkflowPathRef(value) {
+  if (typeof value !== 'string') return null;
+  const separator = value.lastIndexOf('@');
+  if (separator <= 0 || separator === value.length - 1) return null;
+  return { path: value.slice(0, separator), ref: value.slice(separator + 1) };
+}
+
+function workflowRefMatches(actual, expected) {
+  if (typeof actual !== 'string' || typeof expected !== 'string') return false;
+  if (actual === expected) return true;
+  const normalize = (value) => value.replace(/^refs\/(?:heads|tags)\//, '');
+  return normalize(actual) === normalize(expected);
+}
+
+function requiredWorkflowRunMatches(runRecord, required) {
+  if (runRecord?.repository?.id !== required.repository_id) return false;
+  const runPathRef = splitWorkflowPathRef(runRecord.path);
+  if (!runPathRef || runPathRef.path !== required.path || !workflowRefMatches(runPathRef.ref, required.ref)) return false;
+  // A run's head_sha identifies the checked commit, not the workflow file revision. Do not infer
+  // the required workflow SHA from it; missing definition-SHA evidence leaves this run unverified.
+  return runRecord.workflow_sha === required.sha;
 }
 
 function requiredPolicy(input) {
@@ -276,10 +299,20 @@ function evaluateEligibility(input) {
       result_shas: candidates.map((item) => item.head_sha ?? item.sha ?? null) };
   });
   const requiredWorkflows = policy.workflows.map((required) => {
-    const candidates = workflowRuns.filter((runRecord) => runRecord?.path === required.path && runRecord?.head_sha === sourceSha);
-    const success = candidates.length === 1 && candidates[0].status === 'completed' && candidates[0].conclusion === 'success';
+    const candidates = workflowRuns.filter((runRecord) => runRecord?.head_sha === sourceSha &&
+      runRecord?.repository?.id === required.repository_id &&
+      (() => {
+        const pathRef = splitWorkflowPathRef(runRecord.path);
+        return pathRef?.path === required.path && workflowRefMatches(pathRef.ref, required.ref);
+      })());
+    const exactIdentityRuns = candidates.filter((runRecord) => requiredWorkflowRunMatches(runRecord, required));
+    const identityVerified = candidates.length === 1 && exactIdentityRuns.length === 1;
+    const success = identityVerified && exactIdentityRuns[0].status === 'completed' && exactIdentityRuns[0].conclusion === 'success';
     return { repository_id: required.repository_id, path: required.path, ref: required.ref, sha: required.sha,
-      matching_runs: candidates.length, success, run_ids: candidates.map((runRecord) => runRecord.id) };
+      candidate_runs: candidates.length, matching_runs: exactIdentityRuns.length, identity_verified: identityVerified,
+      success, run_ids: exactIdentityRuns.map((runRecord) => runRecord.id),
+      workflow_shas: exactIdentityRuns.map((runRecord) => runRecord.workflow_sha),
+      unverified_run_ids: identityVerified ? [] : candidates.map((runRecord) => runRecord.id) };
   });
   const pr = input.pr;
   const main = input.main;
@@ -297,7 +330,7 @@ function evaluateEligibility(input) {
       !runIdentity || String(runIdentity.id) !== String(measurement.run_id) || runIdentity.head_sha !== sourceSha ||
       runIdentity.status !== 'completed' || runIdentity.conclusion !== (measurement.verdict === 'zero-drift' ? 'success' : 'failure') ||
       !artifactRecord || artifactRecord.id !== provenance.artifact_id || artifactRecord.name !== measurement.artifact_identifier ||
-      artifactRecord.digest !== provenance.artifact_digest || artifactRecord.expired === true ||
+      artifactRecord.digest !== provenance.artifact_digest || artifactRecord.expired !== false ||
       String(artifactRecord.workflow_run?.id) !== String(measurement.run_id) || artifactRecord.workflow_run?.head_sha !== sourceSha ||
       artifactRecord.workflow_run?.head_branch !== measurement.head_branch ||
       runIdentity.name !== measurement.workflow_name || runIdentity.path !== '.github/workflows/phase-244-playwright-measure.yml' ||
@@ -309,7 +342,8 @@ function evaluateEligibility(input) {
   if (pr?.base?.ref !== 'main' || main?.name !== 'main' || !SHA_RE.test(main?.sha ?? '') || pr?.base?.sha !== main.sha) reasons.push('PR base does not match the freshly fetched main SHA');
   if (pr?.mergeable !== true || pr?.mergeable_state !== 'clean') reasons.push('PR mergeability is not explicitly clean');
   if (checks.some((entry) => !entry.success)) reasons.push('one or more required status checks lack exactly one successful exact-head result');
-  if (requiredWorkflows.some((entry) => !entry.success)) reasons.push('one or more required workflows lack exactly one successful exact-head run');
+  if (requiredWorkflows.some((entry) => !entry.identity_verified)) reasons.push('one or more required workflows lack a verifiable repository/path/ref/SHA execution identity');
+  if (requiredWorkflows.some((entry) => entry.identity_verified && !entry.success)) reasons.push('one or more required workflows lack exactly one successful exact-head run');
   return {
     policy,
     policy_error: policyError,
