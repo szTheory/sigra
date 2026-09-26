@@ -59,6 +59,9 @@ jobs:
 
       - name: Boot example app for render A
         uses: ./.github/actions/example-playwright-boot
+        env:
+          INSTALL_DIR_FOR_OTP: ${{ runner.temp }}/phase-244-measure-a/otp
+          INSTALL_DIR_FOR_ELIXIR: ${{ runner.temp }}/phase-244-measure-a/elixir
         with:
           database-name: sigra_phase_244_measure_a
           app-port: '4001'
@@ -69,6 +72,9 @@ jobs:
 
       - name: Boot example app for render B
         uses: ./.github/actions/example-playwright-boot
+        env:
+          INSTALL_DIR_FOR_OTP: ${{ runner.temp }}/phase-244-measure-b/otp
+          INSTALL_DIR_FOR_ELIXIR: ${{ runner.temp }}/phase-244-measure-b/elixir
         with:
           database-name: sigra_phase_244_measure_b
           app-port: '4002'
