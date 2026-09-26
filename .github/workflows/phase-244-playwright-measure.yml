@@ -8,6 +8,14 @@ on:
         required: false
         type: boolean
         default: false
+      phase_244_scope:
+        description: 'Capture one tracer PNG or the complete committed corpus.'
+        required: true
+        type: choice
+        options:
+          - tracer
+          - full
+        default: tracer
 
 permissions:
   contents: read
@@ -54,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install --yes imagemagick
+          sudo apt-get install --yes imagemagick=8:6.9.12.98+dfsg1-5.2build2
           compare -version
 
       - name: Set up shared BEAM toolchain
@@ -95,7 +103,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-          PHASE244_CAPTURE_SCOPE: tracer
+          PHASE244_CAPTURE_SCOPE: ${{ inputs.phase_244_scope }}
         run: bash scripts/ci/run-playwright-drift.sh
 
       - name: Upload measurement artifacts and diagnostics
