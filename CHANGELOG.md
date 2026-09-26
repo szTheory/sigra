@@ -19,6 +19,33 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-09-26)
+
+
+### Features
+
+* **242-02:** rebase Hex remediation infrastructure candidate ([154dd67](https://github.com/szTheory/sigra/commit/154dd679d0bd0fc18b5d2142c8633c3aa9822ec5))
+* **244-01:** add guarded measurement dispatch routes ([9a8c1fe](https://github.com/szTheory/sigra/commit/9a8c1fee2d90b5716d03ca211c1e89dad0474c41))
+* **244-01:** enable full baseline capture scope ([20bd56b](https://github.com/szTheory/sigra/commit/20bd56be148f70bd03be336d4e017ccc6b2e042a))
+
+
+### Bug Fixes
+
+* **242:** use supported Hex retire syntax ([#256](https://github.com/szTheory/sigra/issues/256)) ([0826a06](https://github.com/szTheory/sigra/commit/0826a06d48b638c84af5db8984a1e8739f89cfaa))
+* **244-01:** install WebKit for mobile baseline renders ([6cc8259](https://github.com/szTheory/sigra/commit/6cc8259f4703a3a23fa74f7444948c5188a78d76))
+* **244-01:** install WebKit in isolated render roots ([227b944](https://github.com/szTheory/sigra/commit/227b944c724291cb530ce7d6bb2b09f70668bc87))
+* **244-01:** install WebKit system dependencies ([5a00b90](https://github.com/szTheory/sigra/commit/5a00b90d2314bc93f27aec4090b5928018743d1b))
+* **244-01:** isolate Erlang boot install paths ([cd0ea74](https://github.com/szTheory/sigra/commit/cd0ea74d7af0cfa823d0fa802d90ad710d14f348))
+* **244-01:** share BEAM setup across paired app boots ([c439727](https://github.com/szTheory/sigra/commit/c4397272b9a6541d37d5df52a56931009af88f23))
+* **branding:** add dark_logo_url and derive the dark accent by contrast ([#238](https://github.com/szTheory/sigra/issues/238)) ([fb11c8d](https://github.com/szTheory/sigra/commit/fb11c8d35611bb5707ca7dc675d5eeeda7e0e78a))
+* **chimeway:** decode magic-link tokens before lookup ([#237](https://github.com/szTheory/sigra/issues/237)) ([1afd37f](https://github.com/szTheory/sigra/commit/1afd37f01e4e5b3ffdc93fbf309a381107d51e84))
+* **chimeway:** emit opaque auth recipient references ([#236](https://github.com/szTheory/sigra/issues/236)) ([ea046ed](https://github.com/szTheory/sigra/commit/ea046ed5941e4eb5c52b311f5892d97fac10f1ea))
+* **chimeway:** emit opaque recipient references ([ea046ed](https://github.com/szTheory/sigra/commit/ea046ed5941e4eb5c52b311f5892d97fac10f1ea))
+* **ci:** close the GREEN-04 collector's fail-open paths and run its self-test ([#248](https://github.com/szTheory/sigra/issues/248)) ([b9f2c4b](https://github.com/szTheory/sigra/commit/b9f2c4b5f4d5fbe9b796e4cd4407cc891af40cce))
+* **ci:** fetch deps before Hex remediation ([#257](https://github.com/szTheory/sigra/issues/257)) ([b9f67c6](https://github.com/szTheory/sigra/commit/b9f67c65a2fe9425baac28e265c678f1cca74cea))
+* **oauth:** publish validated provider evidence ([#223](https://github.com/szTheory/sigra/issues/223)) ([c6580d7](https://github.com/szTheory/sigra/commit/c6580d793710aaeef01a1f34d7000ead9ebcdcd2))
+* **release:** shift Hex safety left ([#258](https://github.com/szTheory/sigra/issues/258)) ([2bbc8af](https://github.com/szTheory/sigra/commit/2bbc8afb874af79e05708c603bdc4876e108e40b))
+
 ## [1.5.0](https://github.com/szTheory/sigra/compare/v1.4.0...v1.5.0) (2026-08-31)
 
 ### Added
