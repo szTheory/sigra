@@ -11,9 +11,9 @@ provides:
   - Exact-SHA final-main consumer receipt in 244-PLAYWRIGHT-EVIDENCE.json
 affects: [QUEUE-02, Playwright CI evidence]
 actuals:
-  tokens: 11442
+  tokens: 8511.25
   tasks: 2
-  commits: 8
+  commits: 10
 tech-stack:
   added: []
   patterns: [paginated GitHub job and step validation, atomic evidence receipt]
@@ -51,7 +51,7 @@ metrics:
   completed: 2026-09-26
   status: complete
   plan_head_before: c006fd9cebc17b91693649713863ddf0cd30600d
-  commits: 8
+  commits: 10
 ---
 
 # Phase 244 Plan 05: Exact-Main Consumer Receipt Summary
@@ -75,7 +75,7 @@ metrics:
 
 ## Task Commits
 
-1. **Task 1: Reject stale, skipped or incomplete final-main CI receipts** - `37dbd974`, `f676dde3`, `7a23cf55`, `b05a5b35`, `62607bc8`, `d06ad5a6`
+1. **Task 1: Reject stale, skipped or incomplete final-main CI receipts** - `37dbd974`, `f676dde3`, `7a23cf55`, `b05a5b35`, `62607bc8`, `d06ad5a6`, `090fd897`
 2. **Task 2: Run final main CI and commit exact-SHA receipt** - `b9688271`
 
 ## Files Created/Modified
