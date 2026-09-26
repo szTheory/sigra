@@ -77,7 +77,7 @@
 - [x] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture (completed 2026-09-19)
 - [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
 - [ ] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
-- [ ] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
+- [x] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
 - [ ] **Phase 245: Branch Prune — Local and Remote** - Destructive and PR-coupled, so it goes last, with every pre-prune SHA still resolvable afterward
 
 ## Phase Details
@@ -360,7 +360,7 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 - [x] 244-02-PLAN.md — Enforce exact pixels and prepare the isolated candidate
 - [x] 244-03-PLAN.md — Measure both versions and preserve the result
 - [x] 244-04-PLAN.md — Merge only on complete proof, otherwise defer #213
-- [ ] 244-05-PLAN.md — Capture exact-main-SHA consumer evidence
+- [x] 244-05-PLAN.md — Capture exact-main-SHA consumer evidence
 
 ### Phase 245: Branch Prune — Local and Remote
 
@@ -388,7 +388,7 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 | 241. Debt Retirement + Leakage Guard | 8/8 | Complete    | 2026-09-19 |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |
-| 244. `@playwright/test` Bump, Alone | 2/5 | In Progress | - |
+| 244. `@playwright/test` Bump, Alone | 5/5 | Complete | - |
 | 245. Branch Prune | 0/? | Not started | - |
 
 ## Requirement Coverage
