@@ -79,7 +79,7 @@ jobs:
           app-port: '4001'
           base-url: http://localhost:4001
           server-log: /tmp/phase-244-measure-a-server.log
-          browsers: chromium
+          browsers: ${{ inputs.phase_244_scope == 'full' && 'chromium webkit' || 'chromium' }}
           warmup-paths: /users/register /users/log_in /admin
           skip-beam-setup: 'true'
           otp-version: ${{ steps.setup_beam.outputs.otp-version }}
@@ -92,7 +92,7 @@ jobs:
           app-port: '4002'
           base-url: http://localhost:4002
           server-log: /tmp/phase-244-measure-b-server.log
-          browsers: chromium
+          browsers: ${{ inputs.phase_244_scope == 'full' && 'chromium webkit' || 'chromium' }}
           warmup-paths: /users/register /users/log_in /admin
           skip-beam-setup: 'true'
           otp-version: ${{ steps.setup_beam.outputs.otp-version }}
