@@ -11,9 +11,9 @@ MAIN_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 cat >"$TMP/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ "$1" == watch ]]; then
+if [[ "$1" == run && "$2" == watch ]]; then
   printf 'watch %s\n' "$*" >>"$FAKE_CALLS"
-  [[ "$*" == "watch 123 --repo szTheory/sigra --compact --interval 60 --exit-status" ]] || { echo "unexpected watcher args: $*" >&2; exit 1; }
+  [[ "$*" == "run watch 123 --repo szTheory/sigra --compact --interval 60 --exit-status" ]] || { echo "unexpected watcher args: $*" >&2; exit 1; }
   case "$FAKE_WATCH_STATUS" in
     403) echo 'HTTP 403 rate limit exceeded' >&2; exit 1;;
     429) echo 'HTTP 429 rate limit exceeded' >&2; exit 1;;
@@ -83,6 +83,7 @@ if ! jq -e --arg sha "$MAIN_SHA" '.schema_version=="sigra.phase-244-final-main/1
   exit 1
 fi
 "$COLLECTOR" verify --receipt "$TMP/output/receipt.json" --main-sha "$MAIN_SHA" >/dev/null
+cp "$TMP/output/receipt.json" "$TMP/output/valid-receipt.json"
 jq -n --slurpfile r "$TMP/output/receipt.json" '{final_main_consumer_receipt:$r[0]}' >"$TMP/output/evidence.json"
 "$COLLECTOR" verify --receipt "$TMP/output/evidence.json" --main-sha "$MAIN_SHA" >/dev/null
 for c in missing_shard duplicate_shard duplicate_step missing_steps skipped_smoke failed_gate malformed_page docs_only advance_main total_mismatch; do
@@ -105,6 +106,17 @@ for c in api_403 api_429; do
   [[ "$(run_case "$c")" != 0 ]] || { echo "FAIL: $c accepted" >&2; exit 1; }
   [[ ! -e "$TMP/output/receipt.json" ]] || { echo "FAIL: $c wrote receipt" >&2; exit 1; }
   [[ "$(grep -c '^watch ' "$TMP/calls")" -eq 1 ]] || { echo "FAIL: $c watcher count" >&2; exit 1; }
-  [[ "$(grep -c '^api ' "$TMP/calls")" -eq 5 ]] || { echo "FAIL: $c made API request after hard stop" >&2; exit 1; }
+  [[ "$(grep -c '^api ' "$TMP/calls")" -eq 4 ]] || { echo "FAIL: $c made API request after hard stop" >&2; exit 1; }
+done
+for mutation in missing_watcher duplicate_watcher interval run_id missing_quota policy; do
+  case "$mutation" in
+    missing_watcher) jq 'del(.watcher)' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+    duplicate_watcher) jq '.watcher.count=2' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+    interval) jq '.watcher.interval_seconds=3' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+    run_id) jq '.watcher.run_id=124' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+    missing_quota) jq 'del(.rate_limit.core_remaining)' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+    policy) jq '.rate_limit.retry_count=1' "$TMP/output/valid-receipt.json" >"$TMP/output/malformed.json";;
+  esac
+  "$COLLECTOR" verify --receipt "$TMP/output/malformed.json" --main-sha "$MAIN_SHA" >/dev/null 2>&1 && { echo "FAIL: malformed $mutation receipt accepted" >&2; exit 1; }
 done
 echo "capture-phase-244-final-main.test: PASS (success + fail-closed, quota, watcher, API hard-stop and embedded-receipt fixtures)"

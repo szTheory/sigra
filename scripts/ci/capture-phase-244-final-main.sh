@@ -2,12 +2,17 @@
 set -euo pipefail
 REPO=szTheory/sigra
 SCHEMA=sigra.phase-244-final-main/1
+WATCH_INTERVAL=60
+RATE_LIMIT_THRESHOLD=250
 fail(){ echo "capture-phase-244-final-main: FAIL: $*" >&2; exit 1; }
 valid(){ jq -e --arg s "$2" --arg v "$SCHEMA" '
 def j: (.id|type)=="number" and (.run_id|type)=="number" and .status=="completed" and .conclusion=="success";
 def st($n): .step.name==$n and (.step.number|type)=="number" and .step.status=="completed" and .step.conclusion=="success";
 (if has("final_main_consumer_receipt") then .final_main_consumer_receipt else . end) |
 .schema_version==$v and .main_sha_before==$s and .main_sha_after==$s and .run.head_sha==$s and .run.status=="completed" and .run.conclusion=="success" and
+(.watcher|type)=="object" and .watcher.count==1 and .watcher.interval_seconds==60 and .watcher.run_id==.run.id and .watcher.outcome=="success" and
+.watcher.command==["gh","run","watch",(.run.id|tostring),"--repo","szTheory/sigra","--compact","--interval","60","--exit-status"] and (.watcher.output_sha256|type)=="string" and (.watcher.output_sha256|test("^[0-9a-f]{64}$")) and
+(.rate_limit|type)=="object" and .rate_limit.preflight_status=="passed" and (.rate_limit.core_remaining|type)=="number" and .rate_limit.core_remaining>250 and (.rate_limit.core_reset|type)=="number" and .rate_limit.threshold==250 and .rate_limit.hard_stop_statuses==[403,429] and .rate_limit.retry_count==0 and .rate_limit.hard_stop_observed==false and
 ((.run.event=="workflow_dispatch" and .run.head_branch=="main" and .run.path==".github/workflows/ci.yml" and .dispatch.route=="phase_244_final_main" and .dispatch.inputs=={phase_244_final_main:true,recapture_branch:"",force_fail_probe:false,force_rot_probe:false}) or (.run.event=="push" and .run.head_branch=="main")) and
 (.ci_gate|j) and .ci_gate.name=="ci-gate" and
 (.example_playwright_shards.admin_behavior|j) and .example_playwright_shards.admin_behavior.name=="Example Playwright shard (admin_behavior)" and (.example_playwright_shards.admin_behavior|st("Run admin behavior browser truth")) and
@@ -33,9 +38,20 @@ while (($#)); do case $1 in --run-id) id=$2;shift 2;; --route) route=$2;shift 2;
 [[ -d $(dirname "$out") ]] || fail output_directory_missing
 command -v gh >/dev/null || fail gh_not_found; command -v jq >/dev/null || fail jq_not_found
 t=$(mktemp -d); trap 'rm -rf "$t"' EXIT INT TERM
-api(){ if ! gh api "$2" >"$t/$1.out" 2>"$t/$1.err"; then msg=$(tr '\n' ' ' <"$t/$1.err"); [[ $msg =~ 403|429 ]] && fail "github_rate_limited_stop: $msg"; fail "github_api_request_failed_$1: $msg"; fi; cat "$t/$1.out"; }
+hard_stop_observed=false
+api(){ if ! gh api "$2" >"$t/$1.out" 2>"$t/$1.err"; then msg=$(tr '\n' ' ' <"$t/$1.err"); if [[ $msg =~ 403|429 ]]; then hard_stop_observed=true; fail "github_rate_limited_stop: $msg"; fi; fail "github_api_request_failed_$1: $msg"; fi; cat "$t/$1.out"; }
 rate=$(api rate_limit rate_limit); rem=$(jq -r '.resources.core.remaining // empty' <<<"$rate"); reset=$(jq -r '.resources.core.reset // empty' <<<"$rate")
-[[ $rem =~ ^[0-9]+$ && $reset =~ ^[0-9]+$ ]] || fail rate_limit_preflight_malformed; ((rem>250)) || fail "rate_limit_too_low: remaining=$rem reset=$reset"
+[[ $rem =~ ^[0-9]+$ && $reset =~ ^[0-9]+$ ]] || fail rate_limit_preflight_malformed; ((rem>RATE_LIMIT_THRESHOLD)) || fail "rate_limit_too_low: remaining=$rem reset=$reset"
+watcher_outcome=success
+if gh run watch "$id" --repo "$REPO" --compact --interval "$WATCH_INTERVAL" --exit-status >"$t/watch.out" 2>"$t/watch.err"; then
+  :
+else
+  watch_status=$?; watcher_outcome=failed; watcher_output=$(cat "$t/watch.out" "$t/watch.err" | tr '\n' ' ')
+  if [[ $watcher_output =~ 403|429 ]]; then hard_stop_observed=true; fail "github_rate_limited_stop: $watcher_output"; fi
+  fail "github_watcher_failed: exit=$watch_status"
+fi
+cat "$t/watch.out" "$t/watch.err" | tr -d '\r' | sed -E $'s/\033\\[[0-9;]*[[:alpha:]]//g' >"$t/watch.sanitized"
+if command -v sha256sum >/dev/null; then watcher_digest=$(sha256sum "$t/watch.sanitized" | awk '{print $1}'); else watcher_digest=$(shasum -a 256 "$t/watch.sanitized" | awk '{print $1}'); fi
 getmain(){ x=$(api ref "repos/$REPO/git/ref/heads/main"); jq -er '.object.sha|select(test("^[0-9a-f]{40}$"))' <<<"$x" || fail main_ref_malformed; }
 before=$(getmain); run=$(api run "repos/$REPO/actions/runs/$id"); jq -e 'type=="object" and (.id|type)=="number"' <<<"$run" >/dev/null || fail run_payload_malformed
 [[ $(jq -r .id <<<"$run") == "$id" && $(jq -r .head_sha <<<"$run") == "$before" ]] || fail run_identity_or_sha_mismatch
@@ -60,7 +76,7 @@ job 'Example Playwright smoke (full lifecycle)' smoke; step "$t/smoke" 'Aggregat
 job 'Generated admin Playwright smoke' generated; step "$t/generated" 'Run generated admin acceptance smoke' generatedstep
 after=$(getmain); [[ $after == "$before" ]] || fail main_sha_changed_during_collection
 collected=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-jq -n -S --arg collected "$collected" --arg schema "$SCHEMA" --arg before "$before" --arg after "$after" --slurpfile run "$t/run.json" --argjson gate "$(record "$t/gate")" --argjson admin "$(record "$t/admin" "$t/adminstep")" --argjson check "$(record "$t/checkpoints" "$t/checkpointstep")" --argjson design "$(record "$t/design" "$t/designstep")" --argjson nonadmin "$(record "$t/nonadmin" "$t/nonadminstep")" --argjson demo "$(record "$t/demo" "$t/demostep")" --argjson smoke "$(record "$t/smoke" "$t/smokestep")" --argjson generated "$(record "$t/generated" "$t/generatedstep")" --argjson rem "$rem" --argjson reset "$reset" '{schema_version:$schema,collected_at:$collected,main_sha_before:$before,main_sha_after:$after,dispatch:{route:"phase_244_final_main",inputs:{phase_244_final_main:true,recapture_branch:"",force_fail_probe:false,force_rot_probe:false}},run:($run[0]|{id,html_url,head_sha,head_branch,event,status,conclusion,created_at,path,inputs}),ci_gate:$gate,example_playwright_shards:{admin_behavior:$admin,admin_checkpoints:$check,design_gallery:$design,non_admin_smoke:$nonadmin,demo_showcase:$demo},example_playwright_smoke:$smoke,generated_admin_playwright_smoke:$generated,rate_limit:{core_remaining:$rem,core_reset:$reset}}' >"$t/receipt" || fail receipt_serialization_failed
+jq -n -S --arg collected "$collected" --arg schema "$SCHEMA" --arg before "$before" --arg after "$after" --arg watcher_digest "$watcher_digest" --arg watcher_outcome "$watcher_outcome" --argjson watcher_id "$id" --argjson run "$id" --slurpfile runfile "$t/run.json" --argjson gate "$(record "$t/gate")" --argjson admin "$(record "$t/admin" "$t/adminstep")" --argjson check "$(record "$t/checkpoints" "$t/checkpointstep")" --argjson design "$(record "$t/design" "$t/designstep")" --argjson nonadmin "$(record "$t/nonadmin" "$t/nonadminstep")" --argjson demo "$(record "$t/demo" "$t/demostep")" --argjson smoke "$(record "$t/smoke" "$t/smokestep")" --argjson generated "$(record "$t/generated" "$t/generatedstep")" --argjson rem "$rem" --argjson reset "$reset" --argjson threshold "$RATE_LIMIT_THRESHOLD" '{schema_version:$schema,collected_at:$collected,main_sha_before:$before,main_sha_after:$after,dispatch:{route:"phase_244_final_main",inputs:{phase_244_final_main:true,recapture_branch:"",force_fail_probe:false,force_rot_probe:false}},run:($runfile[0]|{id,html_url,head_sha,head_branch,event,status,conclusion,created_at,path,inputs}),watcher:{count:1,interval_seconds:60,run_id:$watcher_id,outcome:$watcher_outcome,command:["gh","run","watch",($watcher_id|tostring),"--repo","szTheory/sigra","--compact","--interval","60","--exit-status"],output_sha256:$watcher_digest},ci_gate:$gate,example_playwright_shards:{admin_behavior:$admin,admin_checkpoints:$check,design_gallery:$design,non_admin_smoke:$nonadmin,demo_showcase:$demo},example_playwright_smoke:$smoke,generated_admin_playwright_smoke:$generated,rate_limit:{preflight_status:"passed",core_remaining:$rem,core_reset:$reset,threshold:$threshold,hard_stop_statuses:[403,429],retry_count:0,hard_stop_observed:false}}' >"$t/receipt" || fail receipt_serialization_failed
 valid "$t/receipt" "$before" || fail receipt_self_validation_failed
 tmp=$(mktemp "$(dirname "$out")/.phase244.XXXXXX"); cp "$t/receipt" "$tmp"; mv -f "$tmp" "$out"
 echo "capture-phase-244-final-main: PASS: run $id at $before"
