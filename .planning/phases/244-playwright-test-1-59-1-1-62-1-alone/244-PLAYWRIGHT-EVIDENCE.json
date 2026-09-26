@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-09-26T18:50:00Z",
+  "recorded_at": "2026-09-26T19:04:12Z",
   "measurement": {
     "schema_version": 3,
     "workflow_name": "Phase 244 Playwright measurement",
     "event": "workflow_dispatch",
     "head_branch": "phase-244/measurement",
     "source_sha": "980812cba598781b0b95a763562aaafbd093afb8",
-    "run_id": "36262576391",
+    "run_id": 36262576391,
     "run_url": "https://github.com/szTheory/sigra/actions/runs/36262576391",
     "runner": {
       "image": "ubuntu-24.04",
@@ -1814,8 +1814,8 @@
   "decision_eligibility": {
     "verdict": "drift",
     "merge_eligible": false,
-    "candidate_available": true,
-    "final_pr_disposition": "deferred to Plan 04"
+    "candidate_available": false,
+    "final_pr_disposition": "deferred"
   },
   "current_candidate": {
     "branch": "phase-244/measurement",
@@ -1845,7 +1845,14 @@
     "head_branch": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
     "head_sha": "9f5150bd3a000dc122e8c185bf06c102ac720667",
     "base": "main",
-    "base_sha": "9b8a0344708fb829583e430b7ccd8b9359613de7"
+    "base_sha": "9b8a0344708fb829583e430b7ccd8b9359613de7",
+    "head_ref_exists": false,
+    "mergeable": "CONFLICTING",
+    "merge_state_status": "DIRTY",
+    "latest_check_run_id": "31229468400",
+    "latest_check_run_url": "https://github.com/szTheory/sigra/actions/runs/31229468400",
+    "latest_check_conclusion": "failure",
+    "latest_check_is_stale": true
   },
   "current_main": {
     "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
@@ -1860,10 +1867,10 @@
       "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
     },
     "generated_admin_playwright_smoke": {
-      "conclusion": "success",
+      "conclusion": "not present in latest main CI check set",
       "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
     },
-    "latest_observation_run_id": "36263033493",
+    "latest_observation_run_id": "36264551736",
     "latest_observation_conclusion": "success",
     "fast_checks_same_candidate_sha": "unavailable"
   },
@@ -2028,6 +2035,51 @@
       "cache_guards": "both passed in Fast checks",
       "ci_gate": "failure",
       "unrelated_failure": "tests/admin-audit.spec.ts:77 expected filtered audit URL without default ordering/page-size parameters"
+    }
+  },
+  "pr_disposition": {
+    "kind": "deferred",
+    "reason_code": "deferred_missing_live_candidate_with_measured_drift",
+    "decision_time": "2026-09-26T19:04:12Z",
+    "todo_path": ".planning/todos/pending/2026-09-26-playwright-1-62-1-measured-deferred.md",
+    "decision_inputs": {
+      "measurement_run_id": 36262576391,
+      "source_sha": "980812cba598781b0b95a763562aaafbd093afb8",
+      "artifact_identifier": "phase-244-playwright-measurement-36262576391",
+      "verdict": "drift",
+      "inventory_count": 115,
+      "changed_images": 30,
+      "total_changed_pixels": 380825,
+      "missing_paths": {
+        "render_a": 0,
+        "render_b": 0
+      },
+      "extra_paths": {
+        "render_a": 0,
+        "render_b": 0
+      },
+      "pr_number": 213,
+      "pr_state": "CLOSED",
+      "merged_at": null,
+      "head_sha": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "head_ref_exists": false,
+      "mergeable": "CONFLICTING",
+      "base_sha": "9b8a0344708fb829583e430b7ccd8b9359613de7",
+      "current_main_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "main_ci_run_id": "36220498815",
+      "main_ci_gate": "success",
+      "main_playwright_smoke": "success",
+      "historical_august_run": {
+        "id": "31229468400",
+        "conclusion": "failure",
+        "stale": true,
+        "visual_proof": false
+      }
+    },
+    "comment": {
+      "marker": "phase-244-playwright-measurement:36262576391",
+      "url": "https://github.com/szTheory/sigra/pull/213#issuecomment-5848998348",
+      "idempotent": true
     }
   }
 }
