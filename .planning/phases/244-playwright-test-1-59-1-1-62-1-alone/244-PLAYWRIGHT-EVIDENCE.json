@@ -2006,5 +2006,18 @@
       "render logs",
       "package trio diagnostics"
     ]
+  },
+  "delivery_guardrail": {
+    "initial_push": {
+      "sha": "73858d810e2a5d87199c2b8d62540fbd5f3ccd90",
+      "occurred_after_failed_mix_ci": true
+    },
+    "subsequent_pushes": 0,
+    "latest_local_mix_ci": {
+      "command": "MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci",
+      "conclusion": "failure",
+      "failing_test": "Sigra.Planning.Phase242ShiftLeftContractTest: retired Hex automation absence assertion conflicts with branch file .github/workflows/hex-remediate-phantom.yml",
+      "action": "left the unrelated Phase 242 test and workflow unchanged"
+    }
   }
 }
