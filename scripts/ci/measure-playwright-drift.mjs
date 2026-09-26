@@ -126,6 +126,7 @@ async function verifyManifest(args) {
       throw new Error(`invalid dimensions for ${entry.path}`);
     }
     if (manifest.verdict === 'zero-drift' && (!Number.isInteger(entry.changed_pixels) || entry.changed_pixels !== 0 || entry.result === 'dimension-mismatch')) {
+
       throw new Error(`comparison is not exact zero drift for ${entry.path}`);
     }
     if (!entry.render_a || !entry.render_b || !entry.diff) throw new Error(`render/diff artifact path missing for ${entry.path}`);
