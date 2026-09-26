@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -101,6 +101,19 @@ test('a complete same-source Ubuntu receipt verifies', async () => {
   assert.match(result.stdout, /"valid":true/);
 });
 
+test('inventory-only verification accepts complete captures while preserving measured drift', async () => {
+  const inventory = trackedInventory();
+  const manifest = validManifest(inventory);
+  manifest.results[0].changed_pixels = 11;
+  manifest.verdict = 'drift';
+  const inventoryResult = await verifyWith(manifest, ['--inventory-only']);
+  assert.equal(inventoryResult.status, 0, inventoryResult.stderr);
+  assert.match(inventoryResult.stdout, /"paths":115/);
+  const exactResult = await verifyWith(manifest, ['--expect-count', '115']);
+  assert.notEqual(exactResult.status, 0);
+  assert.match(exactResult.stderr, /verdict is drift/);
+});
+
 test('an incomplete capture path set fails closed', async () => {
   const inventory = trackedInventory();
   const manifest = validManifest(inventory);
@@ -128,7 +141,7 @@ test('any changed pixel prevents a zero-drift verdict', async () => {
   const inventory = trackedInventory();
   const manifest = validManifest(inventory);
   manifest.results[0].changed_pixels = 1;
-  const result = await verifyWith(manifest);
+  const result = await verifyWith(manifest, ['--expect-count', String(inventory.paths.length)]);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /not exact zero drift/);
 });
@@ -150,4 +163,105 @@ test('measurement workflow is read-only and gated to explicit phase-244 branch d
   assert.match(MEASURE_WORKFLOW, /github\.ref_type == 'branch'/);
   assert.match(MEASURE_WORKFLOW, /startsWith\(github\.ref, 'refs\/heads\/phase-244\/'\)/);
   assert.doesNotMatch(MEASURE_WORKFLOW, /contents:\s*write/);
+});
+
+async function tinyPng(directory, name, color) {
+  const file = path.join(directory, name);
+  const generated = spawnSync('convert', ['-size', '2x2', `xc:${color}`, file], { encoding: 'utf8' });
+  assert.equal(generated.status, 0, generated.stderr);
+  return file;
+}
+
+test('exact comparator accepts identical decoded pixels and reports a one-pixel difference', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-pixels-'));
+  try {
+    const whiteA = await tinyPng(directory, 'white-a.png', 'white');
+    const whiteB = await tinyPng(directory, 'white-b.png', 'white');
+    const changed = path.join(directory, 'changed.png');
+    assert.equal(spawnSync('convert', [whiteA, '-fill', 'black', '-draw', 'point 0,0', changed], { encoding: 'utf8' }).status, 0);
+    const equal = command(['compare', whiteA, whiteB, path.join(directory, 'equal.diff.png')]);
+    assert.equal(equal.status, 0, equal.stderr);
+    assert.match(equal.stdout, /"changed_pixels":0/);
+    const drift = command(['compare', whiteA, changed, path.join(directory, 'drift.diff.png')]);
+    assert.equal(drift.status, 1);
+    assert.match(drift.stdout, /"changed_pixels":(?:[1-9]\d*)/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('dimension mismatch is rejected before pixel comparison', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-dimensions-'));
+  try {
+    const one = await tinyPng(directory, 'one.png', 'white');
+    const two = path.join(directory, 'two.png');
+    assert.equal(spawnSync('convert', ['-size', '3x2', 'xc:white', two], { encoding: 'utf8' }).status, 0);
+    const result = command(['compare', one, two, path.join(directory, 'diff.png')]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /dimensions differ/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('malformed AE output and an unavailable comparator fail closed', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-comparator-'));
+  try {
+    const image = await tinyPng(directory, 'image.png', 'white');
+    const malformed = path.join(directory, 'malformed-compare');
+    await writeFile(malformed, '#!/bin/sh\nprintf "not-a-metric\\n" >&2\nexit 1\n', { mode: 0o755 });
+    const malformedResult = spawnSync(process.execPath, [SCRIPT, 'compare', image, image, path.join(directory, 'bad.diff.png')], {
+      cwd: ROOT, encoding: 'utf8', env: { ...process.env, PHASE244_COMPARE_BIN: malformed },
+    });
+    assert.notEqual(malformedResult.status, 0);
+    assert.match(malformedResult.stderr, /malformed/);
+    const unavailable = spawnSync(process.execPath, [SCRIPT, 'compare', image, image, path.join(directory, 'missing.diff.png')], {
+      cwd: ROOT, encoding: 'utf8', env: { ...process.env, PHASE244_COMPARE_BIN: path.join(directory, 'absent') },
+    });
+    assert.notEqual(unavailable.status, 0);
+    assert.match(unavailable.stderr, /ENOENT|not found/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('manifest records missing and extra renders against the source inventory', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'phase-244-inventory-'));
+  const inventory = trackedInventory();
+  const renderA = path.join(directory, 'a');
+  const renderB = path.join(directory, 'b');
+  const artifacts = path.join(directory, 'artifacts');
+  const versionFile = path.join(directory, 'comparator-version.txt');
+  try {
+    const png = await tinyPng(directory, 'pixel.png', 'white');
+    for (const root of [renderA, renderB]) {
+      for (const imagePath of inventory.paths) {
+        const destination = path.join(root, imagePath);
+        await mkdir(path.dirname(destination), { recursive: true });
+        await writeFile(destination, await readFile(png));
+      }
+    }
+    await rm(path.join(renderA, inventory.paths[0]));
+    const extraRelative = 'test/example/priv/playwright/tests/admin-checkpoints-snapshots/extra-admin-checkpoints-chromium.png';
+    const extra = path.join(renderB, extraRelative);
+    await mkdir(path.dirname(extra), { recursive: true });
+    await writeFile(extra, await readFile(png));
+    await writeFile(versionFile, 'ImageMagick 6.9.12-98\nimagemagick=8:6.9.12.98+dfsg1-5.2build2\n');
+    await writeFile(path.join(directory, 'inventory.json'), JSON.stringify(inventory));
+    const output = path.join(directory, 'manifest.json');
+    const result = spawnSync(process.execPath, [SCRIPT, 'build-manifest', '--source-sha', SOURCE_SHA, '--run-id', '1',
+      '--branch', 'phase-244/test', '--scope', 'full', '--inventory-file', path.join(directory, 'inventory.json'),
+      '--render-a', renderA, '--render-b', renderB, '--artifact-dir', artifacts, '--package-a', '1.59.1', '--package-b', '1.59.1',
+      '--chromium-revision-a', '1', '--chromium-revision-b', '1', '--comparator-version-file', versionFile,
+      '--expected-imagemagick-package', '8:6.9.12.98+dfsg1-5.2build2', '--output', output], { cwd: ROOT, encoding: 'utf8' });
+    assert.notEqual(result.status, 0, result.stdout);
+    const manifest = JSON.parse(await readFile(output, 'utf8'));
+    assert.equal(manifest.inventory_count, 115);
+    assert.match(manifest.inventory_sha256, /^[0-9a-f]{64}$/);
+    assert.ok(manifest.missing_paths.render_a.includes(inventory.paths[0]));
+    assert.ok(manifest.extra_paths.render_b.includes(extraRelative));
+    assert.notEqual(manifest.verdict, 'zero-drift');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
