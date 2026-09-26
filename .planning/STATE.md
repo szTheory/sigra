@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 242
-current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+current_phase: 243
+current_phase_name: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
 status: executing
-stopped_at: Completed 242-02-PLAN.md
-last_updated: "2026-09-21T01:51:50.132Z"
-last_activity: 2026-09-21
-last_activity_desc: Phase 242 Plan 02 merged fixed remediation infrastructure; continuation anchored at observed main merge
-state_head: 154dd679d0bd0fc18b5d2142c8633c3aa9822ec5
+stopped_at: Phase 243 context gathered (assumptions mode)
+last_updated: "2026-09-25T02:29:36.066Z"
+last_activity: 2026-09-24
+last_activity_desc: Phase 242 complete, transitioned to Phase 243
+state_head: b4f940d958642811e2aa073f0e15b49e58a825e2
 progress:
   total_phases: 10
-  completed_phases: 5
-  total_plans: 43
-  completed_plans: 37
-  percent: 50
+  completed_phases: 7
+  total_plans: 58
+  completed_plans: 54
+  percent: 70
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+**Current focus:** Phase 242 safety closeout; refresh stale verification evidence before Phase 243
 
 ## Current Position
 
-Phase: 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
-Plan: 3 of 9
+Phase: 243 (Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage) — READY TO EXECUTE
+Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-21 — Plan 02 merged fixed remediation infrastructure; continuation anchored at observed main merge
+Last activity: 2026-09-24 — Phase 242 complete, transitioned to Phase 243
 
 ### v1.48 phase map
 
@@ -45,7 +45,7 @@ Last activity: 2026-09-21 — Plan 02 merged fixed remediation infrastructure; c
 | 239 | `priv/templates/` Sweep + One Batched Re-bless | SURF-01, SURF-03 |
 | 240 | Green-Main Evidence + Honest Pages Script | GREEN-04, GREEN-05 |
 | 241 | Retire v1.47's Dishonest Debt + Adopter-Leakage Guard | DEBT-01..04, SURF-04 |
-| 242 | Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1 | REL-03..06 |
+| 242 | Safety Closeout for Phantom Release Adoption | REL-03..06 (superseded/safety-closeout) |
 | 243 | Drain the Queue — Dependabot A/B, Stale PRs, Todo Triage | QUEUE-01, QUEUE-03, QUEUE-04 |
 | 244 | `@playwright/test` 1.59.1 → 1.62.1, Alone | QUEUE-02 |
 | 245 | Branch Prune — Local and Remote | REPO-04 |
@@ -511,8 +511,21 @@ Last activity: 2026-09-21 — Plan 02 merged fixed remediation infrastructure; c
 - [Phase ?]: 240-04: local mix ci Threadline failures waived as exogenous by operator decision; CI library-test jobs green at base, PR #246 and main run 35377012499
 - [Phase ?]: Phase 240 GREEN-05: issue #231 closed against a BOUNDED evidence window (runs 35377050754 + 8 main-window ids, 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z), never a permanence claim; notify_release_lane_rot may correctly re-file the same title (D-27).
 - [Phase ?]: Todos are closed against CORRECTED coordinates (D-26): the 2026-07-30 actor-filter todo cited a nonexistent audit_live.ex and stale :454-458; closure prose carries audit_index_live.ex and admin-generated.spec.ts:459 from Phase 236 CONTEXT D-06/D-07.
-- [Phase 242]: Phase 242 Plan 02: observed squash merge 154dd679 is the continuation provenance anchor because repository policy disallows merge commits.
-- [Phase 242]: Phase 242 Plan 02: remediation workflow remains dispatch-only; REL-03 and REL-04 remain pending until separately authorized live evidence.
+- [Phase 241]: ADR 004 records TEST-01/TEST-02 supersession: the mix ci topology has exactly one full-library-suite owner, while all ten historical timing-path consumer refs are explicitly recorded.
+- [Phase 241]: p21 owns MAINTAINING.md parity only; p10 remains the single owner of ci.yml id, parent, and display-name legs.
+- [Phase 241]: Gate expressions and ci-gate.needs membership remain deliberately unasserted to avoid false scope expansion.
+- [Phase 241]: The inaccurate example_playwright_smoke step-gate manifest row is recorded as a pending todo, not silently changed.
+- [Phase 241]: D-18: Keep release workflows exactly two entries and discover composite action manifests through a separate glob.
+- [Phase 241]: D-19: Optional-dash uses regex plus two committed fixtures proves bare and dashed action pins independently.
+- [Phase 241]: D-20/D-21: Fixture subject indirection preserves the live action file; no stash-based mutation evidence.
+- [Phase 241]: D-23: p18 planning paths use a literal .planning/ detector, not V3.
+- [Phase 241]: D-26: p18 allowlists the SVG coordinate false positive by (path, literal).
+- [Phase 241]: D-29 remains declined for p18: V3 is ported verbatim without widenings.
+- [Phase 241]: DEBT-02 resolves SIGRA_CONTRACT_SUBJECT at runtime so fixture injection cannot be stale after compilation.
+- [Phase 241]: DEBT-02 retains the archived FAST-01 JSON for its live cutoff-SHA readers while retiring the stale phase_233 self-digest assertions.
+- [Phase 241]: R1, R2, and R3 remain independent non-increase counters; no fused total can offset a regression.
+- [Phase 241]: D-29 declines v1.48 case-folding (R2 220→221) and block-aware widening; pending todo remains partially folded.
+- [Phase 242]: Phase 242 Plan 01: remediation is dispatch-only and fixed to sigra 1.20.0; public evidence is sanitized and resolver homes are isolated.
 
 ### Pending Todos
 
@@ -716,13 +729,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-21T01:51:50.010Z
-Stopped at: Completed 242-02-PLAN.md
-Resume file: None
+Last session: 2026-09-25T02:16:06.605Z
+Stopped at: Phase 243 context gathered (assumptions mode)
+Resume file: .planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-CONTEXT.md
 
 ## Operator Next Steps
 
-- Review `.planning/ROADMAP.md` `# v1.48 CLEAN-BASELINE (active)`, then `/gsd-plan-phase 236`. Phases 237 and 238 can be planned and executed in parallel with 236.
+- Phase 236 verification now passes. GSD identifies Phase 237 as the first remaining stale verification after the shared requirements/roadmap reconciliation. Start with `$gsd-verify-work 237`, then follow GSD's stale-verification routing through Phases 238, 241, and 242 before Phase 243.
 - **TEST-01/TEST-02 is now scheduled, not open:** Phase 241 records the supersession as an ADR and deletes the orphaned `ExUnitTimingFormatter`, with the replacement guard demonstrated RED against a committed known-bad fixture.
 - **`example_unit_smoke` / `ci-gate.needs` is deliberately a todo, not a phase** (FUT-03) — filed in Phase 243's triage with the diagnosis attached.
 - **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
@@ -923,4 +936,10 @@ Resume file: None
 | Phase 240 P03 | ~50m | 3 tasks | 4 files |
 | Phase 240 P04 | 25m | 3 tasks | 2 files |
 | Phase 240 P05 | ~35m | 4 tasks | 5 files |
-| Phase 242 P02 | 11h | 2 tasks | 7 files |
+| Phase 241 P01 | 3min | 3 tasks | 4 files |
+| Phase 241 P03 | 12min | 3 tasks | 7 files |
+| Phase 241 P04 | 12min | 3 tasks | 6 files |
+| Phase 241 P05 | 8m | 3 tasks | 7 files |
+| Phase 241 P02 | 5min | 3 tasks | 3 files |
+| Phase 241 P06 | 24m | 3 tasks | 10 files |
+| Phase 242 P01 | 40min | 2 tasks | 7 files |

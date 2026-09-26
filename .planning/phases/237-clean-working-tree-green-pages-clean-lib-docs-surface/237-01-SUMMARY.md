@@ -34,8 +34,8 @@ actuals:
   tokens: 527
   tasks: 2
   commits: 2
-commits: 2
-plan_head_before: ab5c487d
+legacy_commits: 2
+legacy_plan_head_before: ab5c487d
 ---
 
 # Phase 237 Plan 01: Clean Working Tree Tracer Summary

@@ -8,6 +8,13 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Verification Default
+
+Shift verification left: automate phase acceptance criteria with deterministic tests and durable
+CI evidence wherever practical. Keep human verification and UAT for genuinely irreducible judgment
+or manual actions only. See [VERIFICATION-POLICY.md](VERIFICATION-POLICY.md) for the standing GSD
+policy.
+
 ## Current Milestone: v1.48 CLEAN-BASELINE
 
 **Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped

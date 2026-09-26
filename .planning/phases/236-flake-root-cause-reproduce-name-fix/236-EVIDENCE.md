@@ -3,7 +3,7 @@
 | Slot | What it is | How captured | Status |
 |------|-----------|--------------|--------|
 | [BEFORE-FLAKE-RED](#before-flake-red) | Deliberately manufactured RED of `admin-generated.spec.ts:459` (`toHaveURL(actor=...)`), corroborated by a real, unprompted CI failure of the identical assertion on the same day | Real GitHub Actions CI run `35004420339` (`gh run view` / `gh api .../logs`) plus a local `npx playwright test --repeat-each --trace=on` sweep against a scaffolded generated host under real CPU contention | captured (run `35004420339`) |
-| [AFTER-P17-GUARD-OBSERVED](#after-p17-guard-observed) | `p17-no-playwright-retry-wrapper.test.mjs` observed RED against a committed known-bad fixture and GREEN against the real config (standing constraint 6) | `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` (RED) then the same command without the env override (GREEN) | captured |
+| [AFTER-P17-GUARD-OBSERVED](#after-p17-guard-observed) | `p17-no-playwright-retry-wrapper.test.mjs` observed RED against a committed known-bad fixture and GREEN against the real config (standing constraint 6) | `GSD_PROHIB_SUBJECT=test/fixtures/prohibitions/p17-playwright-retry-wrapper.ts node --test --test-reporter=tap scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` (RED) then the same command without the env override (GREEN) | captured (run `35034938082`) |
 | [AFTER-FIX-GREEN](#after-fix-green) | Five sequential `pull_request` CI runs on the fix branch, each with `Generated admin Playwright smoke` = `success`, plus the plan 236-01 Path-A reproduction re-run unchanged against the fixed code — zero failures of the `:459` assertion | `gh run list --workflow CI --branch gsd/phase-236-flake-root-cause --event pull_request` + `gh run view <id> --json jobs`, and a local `npx playwright test --repeat-each=50 --trace=on` sweep under genuine host-OS CPU contention against the same locally scaffolded generated host as 236-01 | captured (runs `35029916498`, `35030710957`, `35031404780`, `35032086557`, `35034938082`) |
 
 ---
@@ -153,11 +153,28 @@ See `236-DIAGNOSIS.md` for the differential diagnosis.
 
 ## AFTER-P17-GUARD-OBSERVED
 
-Status: captured
+Status: captured (run `35034938082`)
 
 Per ROADMAP standing constraint 6 ("a guard never observed RED does not count"), both halves of
 `scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` were run and their exit codes
 recorded.
+
+### CI receipt — existing prohibition route
+
+Run `35034938082`'s exact `Fast checks (milestone/installer/contracts/snapshot/ledger guards)`
+job concluded `success`:
+
+```bash
+gh run view 35034938082 --repo szTheory/sigra --json jobs --jq '.jobs[] | select(.name == "Fast checks (milestone/installer/contracts/snapshot/ledger guards)") | {name, conclusion}'
+```
+
+```json
+{"conclusion":"success","name":"Fast checks (milestone/installer/contracts/snapshot/ledger guards)"}
+```
+
+This receipt proves that run `35034938082` passed the existing Fast checks prohibition glob,
+which includes p17. It proves the CI GREEN route; it does not replace the local known-bad RED
+observation recorded below.
 
 ### RED half — committed known-bad fixture substituted as the subject
 
