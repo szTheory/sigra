@@ -1,0 +1,95 @@
+name: Phase 244 Playwright measurement
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase_244_measure:
+        description: 'Run the read-only Playwright baseline measurement.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  phase_244_playwright_measure:
+    name: Phase 244 Playwright measurement
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase_244_measure == true && github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/phase-244/') }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - name: Reject unauthorized dispatch routes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MEASURE: ${{ inputs.phase_244_measure }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          [[ "$EVENT_NAME" == workflow_dispatch ]]
+          [[ "$MEASURE" == true ]]
+          [[ "$REF_TYPE" == branch ]]
+          [[ "$REF" == refs/heads/phase-244/* ]]
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '20'
+
+      - name: Install ImageMagick pixel comparator
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes imagemagick
+          compare -version
+
+      - name: Boot example app for render A
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: sigra_phase_244_measure_a
+          app-port: '4001'
+          base-url: http://localhost:4001
+          server-log: /tmp/phase-244-measure-a-server.log
+          browsers: chromium
+          warmup-paths: /users/register /users/log_in /admin
+
+      - name: Boot example app for render B
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: sigra_phase_244_measure_b
+          app-port: '4002'
+          base-url: http://localhost:4002
+          server-log: /tmp/phase-244-measure-b-server.log
+          browsers: chromium
+          warmup-paths: /users/register /users/log_in /admin
+
+      - name: Prepare measurement harness
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          PHASE244_CAPTURE_SCOPE: tracer
+        run: bash scripts/ci/run-playwright-drift.sh
+
+      - name: Upload measurement artifacts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase-244-playwright-measurement-${{ github.run_id }}
+          path: ${{ runner.temp }}/phase-244-playwright-measurement/
+          if-no-files-found: warn
+          retention-days: 30
