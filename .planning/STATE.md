@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 244
 current_phase_name: " 1.59.1 → 1.62.1, Alone"
-status: executing
-stopped_at: Completed 244-07-PLAN.md
-last_updated: "2026-09-26T22:41:54.866Z"
+status: verifying
+stopped_at: Completed 244-08-PLAN.md
+last_updated: "2026-09-26T22:58:29.366Z"
 last_activity: 2026-09-26
 last_activity_desc: Phase 244 execution resumed (wave continue)
-state_head: 8b6e33dca5bf32c641d25b3261aa59348767e375
+state_head: 8ad38a8874837c7e8f118c3b47c96655991c3487
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 71
-  completed_plans: 60
+  completed_plans: 61
   percent: 80
 ---
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 244 ( 1.59.1 → 1.62.1, Alone) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
 
 ### v1.48 phase map
@@ -535,6 +535,9 @@ Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
 - [Phase 244]: Phase 244 Plan 06: validate authorization objects structurally without depending on JSON key order.
 - [Phase 244]: Compare dependency manifests and lockfiles after normalizing only the Playwright trio, so unrelated edits remain detectable.
 - [Phase 244]: Share one measured-SHA archive across all install roots and compare each immediately after npm ci.
+- [Phase 244]: Record exactly one 60-second watcher for existing successful final-main run 36266022766 after quota preflight.
+- [Phase 244]: Use a Node node:test wrapper so shell fixture RED evidence passes the GSD TAP evidence gate.
+- [Phase 244]: Preserve full exact-head mix ci output at gap-code SHA 1a607331ba688011c20a3d7447f8f7e1df7b72a8, including the failed sandbox attempt and successful authorized retry.
 
 ### Pending Todos
 
@@ -741,8 +744,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-26T22:41:54.700Z
-Stopped at: Completed 244-07-PLAN.md
+Last session: 2026-09-26T22:58:29.184Z
+Stopped at: Completed 244-08-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -961,3 +964,4 @@ Resume file: None
 | Phase 244 P05 | 45min | 2 tasks | 3 files |
 | Phase 244 P6 | 31min | 2 tasks | 4 files |
 | Phase 244 P07 | 18min | 2 tasks | 4 files |
+| Phase 244 P08 | 11min | 2 tasks | 5 files |
