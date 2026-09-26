@@ -41,33 +41,34 @@ status: complete
 
 ## Accomplishments
 
-- Re-read PR #213 immediately before disposition. It remains closed and unmerged, its recorded last head is 9f5150bd3a000dc122e8c185bf06c102ac720667, the matching remote branch ref is absent, and GitHub reports CONFLICTING / DIRTY.
-- Refreshed current main as 5a00b90d2314bc93f27aec4090b5928018743d1b. CI run [36220498815](https://github.com/szTheory/sigra/actions/runs/36220498815) has successful ci-gate, all five Example Playwright shards, Example Playwright smoke, and Generated admin Playwright smoke on that SHA; latest CI observe run [36264551736](https://github.com/szTheory/sigra/actions/runs/36264551736) is successful.
+- Re-read PR #213 immediately before disposition. It remains closed and unmerged; its recorded last head is 9f5150bd3a000dc122e8c185bf06c102ac720667, the matching remote branch ref is absent, and GitHub reports CONFLICTING / DIRTY.
+- Refreshed current main as 5a00b90d2314bc93f27aec4090b5928018743d1b. CI run [36220498815](https://github.com/szTheory/sigra/actions/runs/36220498815) passed ci-gate, all five Example Playwright shards, Example Playwright smoke, and Generated admin Playwright smoke on that SHA. Latest CI observe run [36264551736](https://github.com/szTheory/sigra/actions/runs/36264551736) is successful.
 - Chose deferred_missing_live_candidate_with_measured_drift; no PR restoration or recreation was attempted.
-- Updated the phase evidence with the fresh PR/main/check identities, decision time, drift verdict, closed/unmerged state, missing-head fact, todo path, and comment URL. The run ID is stored as a number to match the plan structured jq check.
-- Created the pending deferred todo with package/browser identities, manifest URLs and SHA-256 values, all 30 changed-image paths and pixel counts, artifact location, current PR/main state, and an actionable future path.
+- Updated phase evidence with fresh PR/main/check identities, decision time, drift verdict, closed/unmerged state, missing-head fact, todo path, and comment URL. The run ID is stored as a number to satisfy the plan jq check.
+- Created a pending todo with package/browser identities, manifest URLs and SHA-256 values, all 30 changed-image paths and pixel counts, artifact location, current PR/main state, and the actionable future path.
 - Added one idempotent PR comment keyed by phase-244-playwright-measurement:36262576391: [comment 5848998348](https://github.com/szTheory/sigra/pull/213#issuecomment-5848998348). A structured read confirms exactly one matching comment.
-- Kept the August 8 run [31229468400](https://github.com/szTheory/sigra/actions/runs/31229468400) classified as stale failed cache-key evidence, not visual proof.
+- Kept August 8 run [31229468400](https://github.com/szTheory/sigra/actions/runs/31229468400) classified as stale failed cache-key evidence, not visual proof.
 
 ## Verification
 
-- node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome"��y��y� valid; 115 paths, verdict drift, merge eligibility false.
-- Plan disposition jq acceptance check"��y��y� passed against fresh gh pr view 213 output: the evidence says deferred and the live PR is CLOSED with no merge time.
-- Fresh PR branch-ref read �w^~)�t no matching remote branch ref. Fresh PR read+�u���T closed, unmerged, conflicting.
-- Main CI structured check read"��y��y� ci-gate and Example Playwright smoke succeeded on current main SHA 5a00b90d2314bc93f27aec4090b5928018743d1b.
-- git diff --check+�u���T passed.
+- `node scripts/ci/measure-playwright-drift.mjs verify --manifest .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json --source-sha 980812cba598781b0b95a763562aaafbd093afb8 --validate-recorded-outcome` - valid; 115 paths, verdict drift, merge eligibility false.
+- Plan disposition jq acceptance check passed against fresh `gh pr view 213` output: the evidence says deferred and the live PR is CLOSED with no merge time.
+- Fresh PR branch-ref read returned no matching remote branch ref. Fresh PR read says closed, unmerged, conflicting.
+- Main CI structured check read shows ci-gate, all five Playwright shards, Example Playwright smoke, and Generated admin Playwright smoke succeeded on current main SHA 5a00b90d2314bc93f27aec4090b5928018743d1b.
+- `git diff --check` passed.
 
 ## Task Commits
 
-- 61e50ad9+�u���T record closed missing-head PR disposition and create the measured-defer todo.
+- `61e50ad9` - record closed missing-head PR disposition and create the measured-defer todo.
+- `a1c73614` - capture the latest main consumer checks.
 
 ## Disposition
 
-Plan 04 is complete with PR #213 deferred. Requirement QUEUE-02 is satisfied through the specified measured-defer path, with no recapture lane opened. Plan 05 remains unexecuted; its main-consumer evidence is the next phase task.
+Plan 04 is complete with PR #213 deferred. Requirement QUEUE-02 is satisfied through the specified measured-defer path, with no recapture lane opened. Plan 05 remains unexecuted; its exact-main consumer receipt is the next task.
 
 ## Self-Check: PASSED
 
 - Evidence JSON and pending todo exist and are committed.
-- Commit 61e50ad9 is present.
+- Commits `61e50ad9` and `a1c73614` are present.
 - The disposition verifier accepts the current closed, unmerged PR state.
 - The run-keyed PR comment is present exactly once.
