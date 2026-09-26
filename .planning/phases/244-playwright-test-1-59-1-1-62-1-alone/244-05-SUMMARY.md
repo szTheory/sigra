@@ -13,7 +13,7 @@ affects: [QUEUE-02, Playwright CI evidence]
 actuals:
   tokens: 8537.50
   tasks: 2
-  commits: 12
+  commits: 13
 tech-stack:
   added: []
   patterns: [paginated GitHub job and step validation, atomic evidence receipt]
@@ -51,7 +51,7 @@ metrics:
   completed: 2026-09-26
   status: complete
   plan_head_before: c006fd9cebc17b91693649713863ddf0cd30600d
-  commits: 12
+  commits: 13
 ---
 
 # Phase 244 Plan 05: Exact-Main Consumer Receipt Summary
@@ -72,6 +72,7 @@ metrics:
 - Added fake-`gh` cases for success, wrong SHA, missing and duplicate shard, duplicate step, missing `steps[]`, skipped smoke, failed gate, malformed response, changed main, total mismatch, and docs-only skipped browser bodies.
 - Captured final-main run [36266022766](https://github.com/szTheory/sigra/actions/runs/36266022766), event `workflow_dispatch`, ref `main`, SHA `5a00b90d2314bc93f27aec4090b5928018743d1b`; all five shard browser steps, the example smoke aggregator, generated-admin harness, and `ci-gate` completed successfully. The complete run, including admin-eval, concluded success.
 - Added a distinct machine-readable receipt to `244-PLAYWRIGHT-EVIDENCE.json`; verified the recorded measurement, PR disposition, and eligibility sections remain unchanged. QUEUE-02's descriptor-less edge probe remains explicitly unclassified and unresolved (applicable 1, resolved 0, unresolved 1).
+- The required exact-head `MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci` passed at clean HEAD `82d0ca19` under host permissions (exit 0).
 
 ## Task Commits
 
