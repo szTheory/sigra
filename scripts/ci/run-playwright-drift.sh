@@ -47,7 +47,7 @@ run_capture() {
     [[ "$package_version" == 1.59.1 ]] || fail "expected locked Playwright 1.59.1, got $package_version"
     printf '%s\n' "$package_version" > "$ARTIFACT_DIR/logs/${label}-package-version.txt"
     if [[ "$SCOPE" == full ]]; then
-      PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install chromium webkit
+      PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install --with-deps chromium webkit
     else
       PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install chromium
     fi
@@ -72,9 +72,9 @@ run_capture() {
 capture_a="$WORK_ROOT/render-a"
 capture_b="$WORK_ROOT/render-b"
 set +e
-run_capture render-a "$capture_a" "$WORK_ROOT/browsers-a" http://localhost:4001
+run_capture render-a "$capture_a" "$WORK_ROOT/browsers" http://localhost:4001
 capture_a_status=$?
-run_capture render-b "$capture_b" "$WORK_ROOT/browsers-b" http://localhost:4002
+run_capture render-b "$capture_b" "$WORK_ROOT/browsers" http://localhost:4002
 capture_b_status=$?
 set -e
 
