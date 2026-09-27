@@ -15,10 +15,14 @@ on:
         options:
           - tracer
           - full
-        default: tracer
+        default: full
 
 permissions:
   contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+  statuses: read
 
 jobs:
   phase_244_playwright_measure:
@@ -62,7 +66,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install --yes imagemagick
+          sudo apt-get install --yes imagemagick=8:6.9.12.98+dfsg1-5.2build2
           compare -version
 
       - name: Set up shared BEAM toolchain
@@ -104,6 +108,8 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           PHASE244_CAPTURE_SCOPE: ${{ inputs.phase_244_scope }}
+          RUNNER_IMAGE: ubuntu-24.04
+          PHASE244_ARTIFACT_NAME: phase-244-playwright-measurement-${{ github.run_id }}
         run: bash scripts/ci/run-playwright-drift.sh
 
       - name: Upload measurement artifacts and diagnostics
@@ -113,4 +119,56 @@ jobs:
           name: phase-244-playwright-measurement-${{ github.run_id }}
           path: ${{ runner.temp }}/phase-244-playwright-measurement/
           if-no-files-found: warn
+          retention-days: 30
+
+      - name: Bind the measurement to run and artifact API identity
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          SOURCE_SHA: ${{ github.sha }}
+          ARTIFACT_NAME: phase-244-playwright-measurement-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          evidence_dir="$RUNNER_TEMP/phase-244-api-provenance"
+          mkdir -p "$evidence_dir"
+          gh api "repos/szTheory/sigra/actions/runs/$RUN_ID" > "$evidence_dir/run.json"
+          gh api "repos/szTheory/sigra/actions/runs/$RUN_ID/artifacts?per_page=100" > "$evidence_dir/artifacts.json"
+          artifact_id=$(jq -er --arg name "$ARTIFACT_NAME" '[.artifacts[] | select(.name == $name and .expired == false)] | if length == 1 then .[0].id else error("expected exactly one unexpired measurement artifact") end' "$evidence_dir/artifacts.json")
+          gh api "repos/szTheory/sigra/actions/artifacts/$artifact_id/zip" > "$evidence_dir/artifact.zip"
+          cp "$RUNNER_TEMP/phase-244-playwright-measurement/measurement.json" "$evidence_dir/measurement.json"
+          node scripts/ci/measure-playwright-drift.mjs verify-provenance \
+            --manifest "$evidence_dir/measurement.json" \
+            --run-json "$evidence_dir/run.json" \
+            --artifact-json "$evidence_dir/artifacts.json" \
+            --artifact-zip "$evidence_dir/artifact.zip" \
+            --source-sha "$SOURCE_SHA" | tee "$evidence_dir/provenance.json"
+          echo '## Measurement API provenance' >> "$GITHUB_STEP_SUMMARY"
+          cat "$evidence_dir/provenance.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Collect current PR and required-check authorization
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          evidence_dir="$RUNNER_TEMP/phase-244-api-provenance"
+          node scripts/ci/measure-playwright-drift.mjs collect-authorization \
+            --manifest "$evidence_dir/measurement.json" \
+            --provenance-json "$evidence_dir/provenance.json" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$evidence_dir/authorization.json" | tee "$evidence_dir/eligibility.json"
+          node scripts/ci/measure-playwright-drift.mjs verify-eligibility \
+            --authorization-json "$evidence_dir/authorization.json" | tee -a "$evidence_dir/eligibility.json"
+          echo '## Current PR and required-check eligibility' >> "$GITHUB_STEP_SUMMARY"
+          cat "$evidence_dir/eligibility.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload API authorization evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase-244-authorization-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/phase-244-api-provenance/
+          if-no-files-found: error
           retention-days: 30

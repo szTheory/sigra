@@ -107,6 +107,8 @@ still caught — they are trust-and-noise items, not security holes:
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-09-17 | 35 | 35 | 0 | /gsd-secure-phase (orchestrator, ASVS L1 short-circuit) |
+| 2026-09-19 | 35 | 35 | 0 | verify-work post-hook refresh; live ruleset diff and observer execution rechecked |
+| 2026-09-25 | 35 | 35 | 0 | verify-work post-hook; p19 and prohibitions suite, live ruleset projection, and observer run 35249205910 rechecked |
 
 ---
 

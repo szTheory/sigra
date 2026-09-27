@@ -101,8 +101,8 @@ coverage:
 duration: ~20min
 completed: 2026-09-16
 status: complete
-commits: 2
-plan_head_before: 8a105c9f9731745e51e2dae984bd57f64a1f7bdf
+legacy_commits: 2
+legacy_plan_head_before: 8a105c9f9731745e51e2dae984bd57f64a1f7bdf
 ---
 
 # Phase 237 Plan 04: SC-5 Regex-Class Check + Four Dead lib/ Doc References Summary

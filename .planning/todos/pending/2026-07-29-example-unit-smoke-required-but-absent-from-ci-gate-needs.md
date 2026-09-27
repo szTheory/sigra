@@ -1,7 +1,7 @@
 ---
 created: 2026-07-29T00:00:00.000Z
 status: pending
-title: "example_unit_smoke is one of the five ruleset-14941512-required checks, yet ci-gate.needs does not include it, so ci-gate can conclude success while that lane is red"
+title: "FUT-03: example_unit_smoke is ruleset-required but absent from ci-gate.needs"
 area: ci
 files:
 
@@ -14,6 +14,8 @@ audit_acknowledged:
   milestone: v1.47
   at: 2026-09-15
 ---
+
+## FUT-03 — required lane absent from the aggregate gate
 
 ## What
 

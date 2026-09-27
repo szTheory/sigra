@@ -1224,21 +1224,21 @@ jobs:
             base_url: http://localhost:4001
             server_log: /tmp/example-playwright-admin-behavior.log
             browsers: chromium
-            browser_cache_key: playwright-chromium-1.59.1-v3
+            browser_cache_key: playwright-chromium-1.62.1-v3
           - seam: admin_checkpoints
             database: sigra_admin_checkpoints
             port: "4002"
             base_url: http://localhost:4002
             server_log: /tmp/example-playwright-admin-checkpoints.log
             browsers: chromium webkit
-            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+            browser_cache_key: playwright-chromium-webkit-1.62.1-v3
           - seam: design_gallery
             database: sigra_design_gallery
             port: "4003"
             base_url: http://localhost:4003
             server_log: /tmp/example-playwright-design-gallery.log
             browsers: chromium webkit
-            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+            browser_cache_key: playwright-chromium-webkit-1.62.1-v3
           - seam: non_admin_smoke
             database: sigra_non_admin_smoke
             port: "4004"
@@ -1246,14 +1246,14 @@ jobs:
             server_log: /tmp/example-playwright-non-admin-smoke.log
             # This seam includes the `mobile` Playwright project, which uses WebKit.
             browsers: chromium webkit
-            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+            browser_cache_key: playwright-chromium-webkit-1.62.1-v3
           - seam: demo_showcase
             database: sigra_demo_showcase
             port: "4005"
             base_url: http://localhost:4005
             server_log: /tmp/example-playwright-demo-showcase.log
             browsers: chromium
-            browser_cache_key: playwright-chromium-1.59.1-v3
+            browser_cache_key: playwright-chromium-1.62.1-v3
     services:
       postgres:
         image: postgres:15
