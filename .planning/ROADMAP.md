@@ -401,7 +401,7 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 | 241. Debt Retirement + Leakage Guard | 8/8 | Complete    | 2026-09-19 |
 | 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
 | 243. Queue Drain + Todo Triage | 0/? | Not started | - |
-| 244. `@playwright/test` Bump, Alone | 5/5 | Complete | - |
+| 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
 | 245. Branch Prune | 0/? | Not started | - |
 
 ## Requirement Coverage

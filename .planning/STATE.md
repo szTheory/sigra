@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 244
-current_phase_name: " 1.59.1 → 1.62.1, Alone"
-status: verifying
-stopped_at: Completed 244-08-PLAN.md
-last_updated: "2026-09-26T22:58:29.366Z"
+current_phase: 242
+current_phase_name: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+status: planning
+stopped_at: Phase 244 complete, ready to plan Phase 242
+last_updated: "2026-09-27T00:09:04.832Z"
 last_activity: 2026-09-26
-last_activity_desc: Phase 244 execution resumed (wave continue)
-state_head: 8ad38a8874837c7e8f118c3b47c96655991c3487
+last_activity_desc: Phase 244 complete, transitioned to Phase 242
+state_head: cd9bf57651c772927362071d37899a7e4e20cbfb
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 71
   completed_plans: 61
-  percent: 80
+  percent: 70
 ---
 
 # Project State
@@ -30,10 +30,10 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 244 ( 1.59.1 → 1.62.1, Alone) — EXECUTING
-Plan: 8 of 8
-Status: Phase complete — ready for verification
-Last activity: 2026-09-26 — Phase 244 execution resumed (wave continue)
+Phase: 242 — Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-26 — Phase 244 complete, transitioned to Phase 242
 
 ### v1.48 phase map
 
@@ -745,7 +745,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-09-26T22:58:29.184Z
-Stopped at: Completed 244-08-PLAN.md
+Stopped at: Phase 244 complete, ready to plan Phase 242
 Resume file: None
 
 ## Operator Next Steps
