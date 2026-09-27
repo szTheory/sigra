@@ -16,6 +16,21 @@ Key constraints:
 - Retry transient failures once and automatically diagnose and repair deterministic failures. Never waive, auto-approve, or mark missing evidence as passed; block with durable diagnostics when a requirement cannot be proven automatically.
 - Do not use automation-first verification as authority to start unrelated phases or expand product scope.
 
+## GSD forward routing
+
+Before reporting the immediate next GSD command after a phase completes, identify the next
+roadmap phase and check its readiness with `init.plan-phase <n>` (or `init.execute-phase <n>` if
+it already has plans). Do not infer the forward route from the oldest stale verification report.
+
+- Treat `init.verify-work` selecting an old stale report as separate verification maintenance;
+  it does not by itself block planning the next phase.
+- Route backward to verification first only when the next phase's GSD readiness reports that
+  verification as a prerequisite blocker.
+- If the next roadmap phase is pending, has no plan, and its planner reports no prerequisite
+  blocker, recommend `$gsd-plan-phase <n>`. Report stale historical verification separately and
+  keep `.planning/STATE.md` and `.planning/state.json` aligned with that forward route.
+- Perform this check before writing a handoff or telling the user what to run.
+
 ## GitHub API usage
 
 - Use at most one CI watcher per workflow run. Never use the three-second `gh run watch` default; use `gh run watch <run-id> --repo szTheory/sigra --compact --interval 60 --exit-status`.
