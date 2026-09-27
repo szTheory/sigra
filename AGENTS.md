@@ -19,16 +19,19 @@ Key constraints:
 ## GSD forward routing
 
 Before reporting the immediate next GSD command after a phase completes, identify the next
-roadmap phase and check its readiness with `init.plan-phase <n>` (or `init.execute-phase <n>` if
-it already has plans). Do not infer the forward route from the oldest stale verification report.
+roadmap phase and check its readiness and context with `init.plan-phase <n>` (or
+`init.execute-phase <n>` if it already has plans). Do not infer the forward route from the oldest
+stale verification report.
 
 - Treat `init.verify-work` selecting an old stale report as separate verification maintenance;
   it does not by itself block planning the next phase.
 - Route backward to verification first only when the next phase's GSD readiness reports that
   verification as a prerequisite blocker.
 - If the next roadmap phase is pending, has no plan, and its planner reports no prerequisite
-  blocker, recommend `$gsd-plan-phase <n>`. Report stale historical verification separately and
-  keep `.planning/STATE.md` and `.planning/state.json` aligned with that forward route.
+  blocker, inspect its context/readiness: when `CONTEXT.md`/`RESEARCH.md` is absent, use
+  `$gsd-discuss-phase <n>` as the default forward command; when context exists, use
+  `$gsd-plan-phase <n>`. Report stale historical verification separately and keep
+  `.planning/STATE.md` and `.planning/state.json` aligned with that forward route.
 - Perform this check before writing a handoff or telling the user what to run.
 
 ## GitHub API usage
