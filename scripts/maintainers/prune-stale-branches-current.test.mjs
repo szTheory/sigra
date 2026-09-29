@@ -26,6 +26,19 @@ test("verify-prs recognizes explicit current-contract mode and rejects a missing
   assert.match(`${result.stdout}\n${result.stderr}`, /current_contract_(?:path|pair)_required/i);
 });
 
+test("local apply validates the current-contract pair before attempting a mutation", () => {
+  const result = spawnSync("bash", [
+    OPERATOR,
+    "local",
+    "--apply",
+    "--current-contract",
+    ".planning/current-contract.json",
+  ], { encoding: "utf8" });
+
+  assert.notEqual(result.status, 0, "a path without its immutable source commit must block");
+  assert.match(`${result.stdout}\n${result.stderr}`, /current_contract_commit_required/i);
+});
+
 test("captured current PR/ref contract verifies from committed bytes through the shell selector", () => {
   const root = mkdtempSync(join(tmpdir(), "sigra-current-contract-"));
   try {
