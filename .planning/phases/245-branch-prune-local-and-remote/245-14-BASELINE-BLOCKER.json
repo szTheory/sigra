@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 14,
+  "record_type": "execution_blocker",
+  "result": "halted",
+  "recorded_at": "2026-09-29T00:13:30Z",
+  "baseline_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+  "baseline_status": "unavailable",
+  "observations": [
+    {
+      "id": "local_commit_lookup",
+      "program": "git",
+      "argv": ["cat-file", "-t", "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5"],
+      "result": "object_missing"
+    },
+    {
+      "id": "origin_fetch",
+      "program": "git",
+      "argv": ["fetch", "--no-write-fetch-head", "--no-tags", "origin", "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5"],
+      "result": "rejected",
+      "detail": "upload-pack: not our ref"
+    },
+    {
+      "id": "github_commit_lookup",
+      "method": "GET",
+      "path": "/repos/szTheory/sigra/commits/9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "http_status": 422,
+      "detail": "No commit found for SHA"
+    }
+  ],
+  "audit_contract": {
+    "capture_live": "failed before capture because the pinned baseline is not a tree object",
+    "validate_audit_requires": [
+      "baseline commit",
+      "baseline state and evidence blob identities",
+      "the exact historical 11-key set",
+      "complete live inventory"
+    ],
+    "blocked_fallback": "verify-live cannot produce checked historical rows without the pinned source; validate-final rejects that incomplete result",
+    "supported_blocked_audit": false
+  },
+  "independent_live_reads": {
+    "github_user": "szTheory",
+    "repository": {
+      "full_name": "szTheory/sigra",
+      "private": false,
+      "default_branch": "main",
+      "permissions": null
+    },
+    "open_pull_request_numbers": [219, 224, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 283],
+    "note": "These current reads could not be bound to the unavailable immutable baseline and are not a validated identity audit."
+  },
+  "mutations": {
+    "pull_requests": "none",
+    "git_refs": "none",
+    "origin_main": "none",
+    "cleanup_operations": "none"
+  },
+  "dependent_plan_disposition": {
+    "plan": 16,
+    "status": "blocked_by_halted_plan_14"
+  },
+  "recovery": "Restore the exact baseline commit from a trusted source or replan the identity contract around an approved immutable baseline."
+}
