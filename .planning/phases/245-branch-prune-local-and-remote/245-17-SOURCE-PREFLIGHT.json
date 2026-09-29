@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "17",
+  "captured_at_utc": "2026-09-29T19:05:22Z",
+  "repository": {
+    "name_with_owner": "szTheory/sigra",
+    "url": "https://github.com/szTheory/sigra",
+    "checkout_root": "/Users/jon/projects/sigra",
+    "checkout_head": "edee9e9f060e4e93a460d4221879be82ccbe1000",
+    "path_git_version": "2.41.0",
+    "historical_baseline_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+    "historical_baseline_available": false
+  },
+  "sources": {
+    "checkout_git_object_access": {
+      "command": "git cat-file -e HEAD^{commit}",
+      "exit_code": 0,
+      "local_refs_enumerated": 129,
+      "direct_and_peeled_objects_checked": 129,
+      "missing_local_ref_objects": 0
+    },
+    "github_auth": {
+      "command": "gh auth status",
+      "exit_code": 0,
+      "authenticated": true
+    },
+    "github_core_rate_limit": {
+      "command": "gh api rate_limit --jq '.resources.core | {remaining, reset}'",
+      "exit_code": 0,
+      "remaining": 5000,
+      "reset_epoch": 1790712214,
+      "requests_allowed_by_project_threshold": true
+    },
+    "github_repository_identity": {
+      "command": "gh repo view szTheory/sigra --json nameWithOwner,url",
+      "exit_code": 0,
+      "name_with_owner": "szTheory/sigra",
+      "url": "https://github.com/szTheory/sigra"
+    },
+    "open_pr_cli": {
+      "command": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid",
+      "exit_code": 0,
+      "count": 13,
+      "unique_numbers": true,
+      "rows_well_formed": true
+    },
+    "open_pr_paginated_api": {
+      "command_template": "gh api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=N",
+      "exit_code": 0,
+      "pages_read": 1,
+      "final_page_count": 13,
+      "count": 13,
+      "explicit_final_page_observed": true,
+      "unique_numbers": true,
+      "rows_well_formed": true,
+      "unordered_number_head_base_name_set_matches_cli": true
+    },
+    "exact_origin_refs": {
+      "command": "git ls-remote --symref origin",
+      "exit_code": 0,
+      "row_count": 359,
+      "nonempty": true,
+      "well_formed": true,
+      "advertised_head_oid_present": true,
+      "advertised_head_symref_present": true,
+      "default_branch": "main"
+    }
+  },
+  "historical_records": {
+    "unavailable_baseline_is_not_used_as_current_evidence": true,
+    "historical_pr_mismatch_audit_remains_unresolved": true,
+    "cleanup_history_audit_remains_unresolved": true
+  },
+  "disposition": "ready",
+  "blocking_reasons": []
+}
