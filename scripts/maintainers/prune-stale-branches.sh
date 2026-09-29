@@ -81,6 +81,14 @@ USAGE
   exit 2
 }
 
+safe_repo_path() {
+  local value="$1"
+  [[ -n "$value" && "$value" != /* && "$value" != *$'\n'* && "$value" != *:* ]] \
+    || fail "unsafe_repository_path: $value"
+  [[ "/$value/" != *"/../"* && "/$value/" != *"//"* ]] \
+    || fail "unsafe_repository_path: $value"
+}
+
 [[ $# -gt 0 ]] || usage
 COMMAND="$1"; shift
 REPO="$SCRIPT_ROOT"
@@ -141,19 +149,33 @@ while (($#)); do
   esac
 done
 
+CURRENT_CONTRACT_MODE=0
+if [[ -n "$CURRENT_CONTRACT_COMMIT" || -n "$CURRENT_CONTRACT_PATH" ]]; then
+  CURRENT_CONTRACT_MODE=1
+  [[ -n "$CURRENT_CONTRACT_COMMIT" ]] || fail 'current_contract_commit_required'
+  [[ -n "$CURRENT_CONTRACT_PATH" ]] || fail 'current_contract_path_required'
+  safe_repo_path "$CURRENT_CONTRACT_PATH"
+  case "$COMMAND" in
+    verify-prs|verify-allowlist|local|remote|tracking|safety-publish) ;;
+    *) fail "current_contract_not_supported_for_${COMMAND}" ;;
+  esac
+  if [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then
+    (( APPLY == 0 )) || fail 'current_contract_fixture_forbidden_for_apply'
+    [[ "$COMMAND" == verify-prs || "$COMMAND" == verify-allowlist ]] || fail 'current_contract_fixture_read_only_verify_only'
+    safe_repo_path "$CURRENT_CONTRACT_FIXTURE"
+  fi
+elif [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then
+  fail 'current_contract_fixture_requires_current_contract'
+fi
+if (( CURRENT_CONTRACT_MODE )) && [[ -n "$PR_STATE_COMMIT" || -n "$IDENTITY_AUDIT" || -n "$INTEGRITY_OUTPUT" ]]; then
+  fail 'current_contract_historical_flags_mixed'
+fi
+
 command -v git >/dev/null 2>&1 || fail 'git_not_on_path'
 command -v awk >/dev/null 2>&1 || fail 'awk_not_on_path'
 command -v jq >/dev/null 2>&1 || fail 'jq_not_on_path'
 git -C "$REPO" rev-parse --show-toplevel >/dev/null 2>&1 || fail "not_a_git_repository: $REPO"
 REPO="$(git -C "$REPO" rev-parse --show-toplevel)"
-
-safe_repo_path() {
-  local value="$1"
-  [[ -n "$value" && "$value" != /* && "$value" != *$'\n'* && "$value" != *:* ]] \
-    || fail "unsafe_repository_path: $value"
-  [[ "/$value/" != *"/../"* && "/$value/" != *"//"* ]] \
-    || fail "unsafe_repository_path: $value"
-}
 
 valid_oid() { [[ "$1" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]; }
 valid_type() { [[ "$1" == commit || "$1" == tree || "$1" == blob || "$1" == tag ]]; }
@@ -171,6 +193,31 @@ read_committed_file() {
   require_commit "$commit" "$label"
   git -C "$REPO" show "${commit}:${path}" > "$destination" 2>/dev/null \
     || fail "${label}_not_in_committed_revision: ${commit}:${path}"
+}
+
+verify_current_contract() {
+  local stage="$1" side="${2:-}" ref="${3:-}" operation="${4:-}"
+  local allowlist_commit="$ALLOWLIST_COMMIT" allowlist_path="$ALLOWLIST_PATH"
+  (( CURRENT_CONTRACT_MODE )) || return 0
+  if [[ "$COMMAND" == safety-publish ]]; then
+    allowlist_commit="${SAFETY_COMMIT:-$ALLOWLIST_COMMIT}"
+    allowlist_path="$SAFETY_PATH"
+  fi
+  local args=(verify --repo "$REPO" --contract-commit "$CURRENT_CONTRACT_COMMIT" \
+    --contract "$CURRENT_CONTRACT_PATH" --stage "$stage")
+  if [[ -n "$allowlist_commit" || "$allowlist_path" != "$DEFAULT_ALLOWLIST" ]]; then
+    [[ -n "$allowlist_commit" ]] || fail 'current_allowlist_commit_required'
+    args+=(--allowlist-commit "$allowlist_commit" --allowlist "$allowlist_path")
+  elif [[ "$COMMAND" != verify-prs ]]; then
+    fail 'current_allowlist_commit_path_required'
+  fi
+  if [[ -n "$side" || -n "$ref" || -n "$operation" ]]; then
+    [[ -n "$side" && -n "$ref" && -n "$operation" ]] || fail 'current_operation_identity_incomplete'
+    args+=(--operation-side "$side" --operation-ref "$ref" --operation-kind "$operation")
+  fi
+  if [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE"); fi
+  node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-current.mjs" "${args[@]}" \
+    || fail "current_pr_ref_contract_blocked:${stage}:${side:-none}:${ref:-none}"
 }
 
 validate_snapshot_file() {
@@ -428,13 +475,15 @@ run_local_pass() {
     local readiness_commit="${READINESS_COMMIT:-$ALLOWLIST_COMMIT}"
     [[ -n "$readiness_commit" ]] || fail 'd01_readiness_commit_required'
     verify_readiness "$TMP_DIR/readiness.json"
-    [[ -n "$PR_STATE_COMMIT" ]] || fail 'pr_state_commit_required'
-    load_pr_state
-    assert_pr_baseline_unchanged
-    while IFS=$'\t' read -r side ref _oid _type _reason; do
-      [[ "$side" == local ]] || continue
-      assert_pr_ref_unprotected "$ref"
-    done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
+    if (( CURRENT_CONTRACT_MODE == 0 )); then
+      [[ -n "$PR_STATE_COMMIT" ]] || fail 'pr_state_commit_required'
+      load_pr_state
+      assert_pr_baseline_unchanged
+      while IFS=$'\t' read -r side ref _oid _type _reason; do
+        [[ "$side" == local ]] || continue
+        assert_pr_ref_unprotected "$ref"
+      done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
+    fi
   else
     printf 'prune-stale-branches: REPORTING ONLY — no ref will be touched (pass --apply to mutate)\n'
   fi
@@ -466,6 +515,7 @@ run_local_pass() {
       || fail "local_ref_no_longer_merged: $ref"
     observed_worktrees="$(git -C "$REPO" worktree list --porcelain | awk '$1 == "branch" { print $2 }' | sort | tr '\n' ',')"
     [[ "$observed_worktrees" == "$expected_worktrees" ]] || fail "local_worktree_set_changed_before_delete: $ref"
+    verify_current_contract boundary local "$ref" delete
     assert_deletion_ref_protected "$ref"
     [[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && -n "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" ]] \
       || fail 'shared_coordinator_lock_not_held_at_local_delete'
@@ -473,6 +523,7 @@ run_local_pass() {
       2>"$TMP_DIR/local-delete.stderr" </dev/null; then
       fail "local_expected_oid_delete_failed: $ref"
     fi
+    verify_current_contract after local "$ref" delete
     printf 'deleted local ref %s (%s)\n' "$ref" "$reason"
     deleted=$((deleted + 1))
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
@@ -970,9 +1021,13 @@ run_safety_publish() {
       load_preflight_receipt publish "$ref"
       first=0
     fi
-    assert_pr_baseline_unchanged
+    if (( CURRENT_CONTRACT_MODE )); then
+      verify_current_contract boundary safety-publish "$ref" publish
+    else
+      assert_pr_baseline_unchanged
+    fi
     preflight_check publish "$ref" >/dev/null 2>&1 || fail "fresh_publish_preflight_failed: $ref"
-    assert_pr_baseline_unchanged
+    if (( CURRENT_CONTRACT_MODE )); then verify_current_contract boundary safety-publish "$ref" publish; else assert_pr_baseline_unchanged; fi
     live="$(current_origin_identity "$ref" 2>/dev/null || true)"
     [[ -z "$live" ]] || fail "safety_ref_appeared_before_publish: $ref"
     if ! out="$(git -C "$REPO" -c gc.auto=0 -c maintenance.auto=false \
@@ -983,6 +1038,7 @@ run_safety_publish() {
     fi
     live="$(current_origin_identity "$ref")" || fail "safety_publish_readback_missing: $ref"
     [[ "$live" == "$oid"$'\t'"$type" ]] || fail "safety_publish_readback_mismatch: $ref"
+    verify_current_contract after safety-publish "$ref" publish
     printf 'published absent safety ref: %s (%s)\n' "$ref" "$reason"
   done < <(tail -n +2 "$TMP_DIR/safety-list.tsv")
   printf 'PASS: safety publication pass processed %s committed exact ref rows.\n' "$count"
@@ -992,16 +1048,16 @@ run_remote_pass() {
   local count side ref oid type reason live branch_name out current_oid current_type first=1
   verify_required_readiness
   origin_url_safe >/dev/null
-  load_pr_state
+  if (( CURRENT_CONTRACT_MODE == 0 )); then load_pr_state; fi
   load_allowlist
   load_snapshot
   count="$(validate_allowlist_file "$TMP_DIR/allowlist.tsv" remote)"
-  assert_pr_baseline_unchanged
+  if (( CURRENT_CONTRACT_MODE == 0 )); then assert_pr_baseline_unchanged; fi
   verify_safety
   while IFS=$'\t' read -r side ref oid type reason; do
     [[ "$side" == remote ]] || continue
     assert_snapshot_allowlist_identity remote "$ref" "$oid" "$type"
-    assert_pr_ref_unprotected "$ref"
+    if (( CURRENT_CONTRACT_MODE == 0 )); then assert_pr_ref_unprotected "$ref"; fi
     live="$(current_origin_identity "$ref" 2>/dev/null || true)"
     [[ -n "$live" ]] || { printf 'already absent: %s\n' "$ref"; continue; }
     IFS=$'\t' read -r current_oid current_type <<< "$live"
@@ -1013,7 +1069,8 @@ run_remote_pass() {
       first=0
     fi
     preflight_check delete "$ref" >/dev/null 2>&1 || fail "fresh_delete_preflight_failed: $ref"
-    assert_pr_baseline_unchanged
+    verify_current_contract boundary remote "$ref" delete
+    if (( CURRENT_CONTRACT_MODE == 0 )); then assert_pr_baseline_unchanged; fi
     verify_safety
     live="$(current_origin_identity "$ref")" || fail "remote_ref_disappeared_before_delete: $ref"
     [[ "$live" == "$oid"$'\t'"$type" ]] || fail "remote_ref_changed_before_delete: $ref"
@@ -1025,6 +1082,7 @@ run_remote_pass() {
       observed_identity="$(current_origin_identity "$ref" 2>/dev/null || printf absent)"
       fail "remote_delete_lease_rejected: ${ref} expected=${oid}/${type} observed=${observed_identity}: ${out}"
     fi
+    verify_current_contract after remote "$ref" delete
     if current_origin_identity "$ref" >/dev/null 2>&1; then fail "remote_delete_readback_still_present: $ref"; fi
     printf 'deleted origin ref %s (%s)\n' "$ref" "$reason"
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
@@ -1034,11 +1092,11 @@ run_remote_pass() {
 run_tracking_pass() {
   local count side ref oid type reason remote_ref live local_oid out symref_target
   verify_required_readiness
-  load_pr_state
+  if (( CURRENT_CONTRACT_MODE == 0 )); then load_pr_state; fi
   load_allowlist
   load_snapshot
   count="$(validate_allowlist_file "$TMP_DIR/allowlist.tsv" tracking)"
-  assert_pr_baseline_unchanged
+  if (( CURRENT_CONTRACT_MODE == 0 )); then assert_pr_baseline_unchanged; fi
   capture_origin_to_file "$TMP_DIR/live-origin.tsv"
   while IFS=$'\t' read -r side ref oid type reason; do
     [[ "$side" == tracking ]] || continue
@@ -1063,10 +1121,12 @@ run_tracking_pass() {
     fi
     symref_target="$(git -C "$REPO" symbolic-ref -q "$ref" 2>/dev/null || true)"
     [[ -z "$symref_target" ]] || fail "tracking_ref_became_symbolic: $ref"
+    verify_current_contract boundary tracking "$ref" delete
     assert_deletion_ref_protected "$ref"
     if ! out="$(git -C "$REPO" update-ref --no-deref -d "$ref" "$oid" 2>&1 </dev/null)"; then
       fail "tracking_ref_delete_failed: $ref"
     fi
+    verify_current_contract after tracking "$ref" delete
     printf 'deleted tracking ref %s with no-deref expected-old-OID guard\n' "$ref"
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
   printf 'PASS: exact tracking-ref pass processed %s committed rows.\n' "$count"
@@ -1075,6 +1135,11 @@ run_tracking_pass() {
 verify_allowlist() {
   local count side ref oid type reason origin_file="$TMP_DIR/origin-snapshot.tsv" default_ref protected_ref
   (( APPLY == 0 )) || fail 'apply_not_valid_for_verify_allowlist'
+  if (( CURRENT_CONTRACT_MODE )); then
+    verify_current_contract before
+    printf 'PASS: current committed allowlist matches pinned PR heads/bases and exact ref identities.\n'
+    return 0
+  fi
   load_snapshot
   load_allowlist
   load_safety_list
@@ -1256,6 +1321,9 @@ verify_prs() {
 
 TMP_DIR="$(mktemp -d)"
 trap cleanup EXIT
+if (( CURRENT_CONTRACT_MODE )) && [[ "$COMMAND" != verify-prs && "$COMMAND" != verify-allowlist ]]; then
+  verify_current_contract before
+fi
 if (( APPLY )); then
   case "$COMMAND" in
     local|remote|tracking|safety-publish) acquire_lock ;;

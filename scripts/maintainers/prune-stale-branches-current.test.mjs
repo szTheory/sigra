@@ -63,6 +63,13 @@ test("captured current PR/ref contract verifies from committed bytes through the
     run("git", ["-C", repo, "push", "-u", "origin", "feature/current-contract"]);
     const headOid = run("git", ["-C", repo, "rev-parse", "refs/heads/feature/current-contract"]);
     run("git", ["-C", repo, "switch", "main"]);
+    run("git", ["-C", repo, "branch", "stale/merged", mainOid]);
+    mkdirSync(join(repo, ".planning"));
+    const allowlistPath = ".planning/fixture-allowlist.tsv";
+    writeFileSync(join(repo, allowlistPath), `side\tref\toid\ttype\treason\nlocal\trefs/heads/stale/merged\t${mainOid}\tcommit\tmerged fixture branch\n`);
+    run("git", ["-C", repo, "add", allowlistPath]);
+    run("git", ["-C", repo, "commit", "-m", "pin exact fixture allowlist"]);
+    const allowlistCommit = run("git", ["-C", repo, "rev-parse", "HEAD"]);
 
     const prCli = [{
       number: 7,
@@ -84,13 +91,13 @@ test("captured current PR/ref contract verifies from committed bytes through the
     }));
 
     const contractPath = ".planning/current-contract.json";
-    mkdirSync(join(repo, ".planning"));
     const capture = run("node", [
       "scripts/maintainers/prune-stale-branches-current.mjs",
       "capture",
       "--repo", repo,
       "--output", join(repo, contractPath),
       "--source-fixture", sourceFixture,
+      "--pin-input", `${allowlistCommit}:${allowlistPath}`,
     ], { env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
     assert.match(capture, /captured/i);
     assert.ok(JSON.parse(readFileSync(join(repo, contractPath), "utf8")).open_prs.length === 1);
@@ -108,6 +115,49 @@ test("captured current PR/ref contract verifies from committed bytes through the
     ], { encoding: "utf8", env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
     assert.equal(verification.status, 0, verification.stderr);
     assert.match(verification.stdout, /current.*contract.*verified/i);
+    const allowlistVerification = spawnSync("bash", [
+      OPERATOR,
+      "verify-allowlist",
+      "--repo", repo,
+      "--current-contract-commit", contractCommit,
+      "--current-contract", contractPath,
+      "--allowlist-commit", allowlistCommit,
+      "--allowlist", allowlistPath,
+      "--current-contract-fixture", "fixture-github.json",
+    ], { encoding: "utf8", env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
+    assert.equal(allowlistVerification.status, 0, allowlistVerification.stderr);
+    assert.match(allowlistVerification.stdout, /current committed allowlist matches/i);
+
+    const boundary = spawnSync("node", [
+      "scripts/maintainers/prune-stale-branches-current.mjs", "verify",
+      "--repo", repo,
+      "--contract-commit", contractCommit,
+      "--contract", contractPath,
+      "--source-fixture", sourceFixture,
+      "--stage", "boundary",
+      "--allowlist-commit", allowlistCommit,
+      "--allowlist", allowlistPath,
+      "--operation-side", "local",
+      "--operation-ref", "refs/heads/stale/merged",
+      "--operation-kind", "delete",
+    ], { encoding: "utf8", env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
+    assert.equal(boundary.status, 0, boundary.stderr);
+    run("git", ["-C", repo, "update-ref", "--no-deref", "-d", "refs/heads/stale/merged", mainOid]);
+    const afterDelete = spawnSync("node", [
+      "scripts/maintainers/prune-stale-branches-current.mjs", "verify",
+      "--repo", repo,
+      "--contract-commit", contractCommit,
+      "--contract", contractPath,
+      "--source-fixture", sourceFixture,
+      "--stage", "after",
+      "--allowlist-commit", allowlistCommit,
+      "--allowlist", allowlistPath,
+      "--operation-side", "local",
+      "--operation-ref", "refs/heads/stale/merged",
+      "--operation-kind", "delete",
+    ], { encoding: "utf8", env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
+    assert.equal(afterDelete.status, 0, afterDelete.stderr);
+    run("git", ["-C", repo, "update-ref", "refs/heads/stale/merged", mainOid]);
 
     const verifyLive = (commit = contractCommit, path = contractPath) => spawnSync("bash", [
       OPERATOR,
@@ -134,6 +184,15 @@ test("captured current PR/ref contract verifies from committed bytes through the
     assert.match(renamedHead.stderr, /current_pr_head_name_changed:7/);
     fixture.cliPulls[0].headRefName = "feature/current-contract";
     fixture.pages[0][0].head.ref = "feature/current-contract";
+
+    fixture.cliPulls[0].baseRefName = "changed/base";
+    fixture.pages[0][0].base.ref = "changed/base";
+    writeFileSync(sourceFixture, JSON.stringify(fixture));
+    const renamedBase = verifyLive();
+    assert.notEqual(renamedBase.status, 0);
+    assert.match(renamedBase.stderr, /current_pr_base_name_changed:7/);
+    fixture.cliPulls[0].baseRefName = "main";
+    fixture.pages[0][0].base.ref = "main";
 
     fixture.cliPulls.push({ ...fixture.cliPulls[0], number: 8 });
     fixture.pages[0].push({ ...fixture.pages[0][0], number: 8 });
