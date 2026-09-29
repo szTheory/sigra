@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "source_commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+  "sources": [
+    {
+      "path": ".planning/state.json",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": "04977aab0515617418cfdb5760ee91d59de8e69d",
+      "index_blob_oid": "04977aab0515617418cfdb5760ee91d59de8e69d",
+      "worktree_blob_oid": "ea2455423cc5a3300bb73df9b3f9fd7d44e49d31",
+      "blocked_reasons": [
+        "source_worktree_differs_from_committed_blob"
+      ],
+      "worktree_sha256": "b9d705b0e6247fda42aa8e6593b56218436d8a48aae70b49892886604217d2cc",
+      "committed_sha256": "8539365b3459ddefafa8d5525d297fb855972529d086a500ae4148c3fa1b08bd"
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "27afab04762936687eea7d2d056774e12a95ff7b",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "c14e574a407162f70ac9a63ccea45e509e07492624443823709c415fb91c42d6",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+      "committed_sha256": null
+    },
+    {
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+      "commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+      "blob_oid": null,
+      "index_blob_oid": null,
+      "worktree_blob_oid": "85edb953186cc760759b2cb3fed23b3d432248fb",
+      "blocked_reasons": [
+        "source_missing_from_committed_tree"
+      ],
+      "worktree_sha256": "6944de367bb23581938fd6a3f7604378fb80e696ab11f9e7411005981b64db71",
+      "committed_sha256": null
+    }
+  ],
+  "checks": {
+    "phase_244_complete": {
+      "passed": false,
+      "actual": "pending"
+    },
+    "phase_244_verification_passed": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_gaps_empty": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_behavior_verified": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_final_main_head_stable": {
+      "passed": false,
+      "actual": {
+        "head_sha": null,
+        "main_sha_before": null,
+        "main_sha_after": null
+      }
+    },
+    "phase_244_final_main_run_success": {
+      "passed": false,
+      "actual": {
+        "id": null,
+        "status": null,
+        "conclusion": null
+      }
+    },
+    "phase_244_shard_set_exact": {
+      "passed": false,
+      "actual": []
+    },
+    "phase_244_ci_gate_identity": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_example_playwright_smoke_identity": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_generated_admin_playwright_smoke_identity": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_example_playwright_smoke_step": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_generated_admin_playwright_smoke_step": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_final_main_summary_run_id": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_final_main_summary_head": {
+      "passed": false,
+      "actual": null
+    },
+    "phase_244_final_main_summary_success": {
+      "passed": false,
+      "actual": false
+    },
+    "phase_244_pr_213_deferred": {
+      "passed": false,
+      "actual": {
+        "kind": null,
+        "reason_code": null,
+        "pr_number": null,
+        "state": null,
+        "merged_at": null,
+        "head_ref_exists": null
+      }
+    },
+    "phase_244_pr_213_summary_agrees": {
+      "passed": false,
+      "actual": {
+        "reason_code_present": false,
+        "closed_unmerged_present": false
+      }
+    },
+    "phase_242_todo_resolved": {
+      "passed": false,
+      "actual": null
+    },
+    "quick_gzb_complete": {
+      "passed": false,
+      "actual": null
+    },
+    "quick_gzb_source_commit_ancestor": {
+      "passed": false,
+      "actual": {
+        "recorded": null,
+        "resolved": null,
+        "ancestor": false
+      }
+    },
+    "quick_gzb_exact_gate_command": {
+      "passed": false,
+      "actual": false
+    },
+    "quick_gzb_retry_exit_zero": {
+      "passed": false,
+      "actual": false
+    },
+    "quick_gzb_log_linked": {
+      "passed": false,
+      "actual": false
+    },
+    "quick_gzb_log_complete": {
+      "passed": false,
+      "actual": {
+        "non_empty": false,
+        "main_suite": false,
+        "ci_suite": false
+      }
+    },
+    "quick_dzu_complete": {
+      "passed": false,
+      "actual": null
+    },
+    "quick_dzu_source_commit_ancestor": {
+      "passed": false,
+      "actual": {
+        "recorded": null,
+        "resolved": null,
+        "ancestor": false
+      }
+    }
+  },
+  "blocked_reasons": [
+    {
+      "code": "source_worktree_differs_from_committed_blob",
+      "source": ".planning/state.json",
+      "message": ".planning/state.json is missing, uncommitted, or dirty (source_worktree_differs_from_committed_blob)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "message": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+      "message": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "message": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+      "message": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+      "message": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "source_missing_from_committed_tree",
+      "source": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+      "message": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md is missing, uncommitted, or dirty (source_missing_from_committed_tree)."
+    },
+    {
+      "code": "phase_244_complete",
+      "source": ".planning/state.json",
+      "message": "The committed state must mark Phase 244 complete."
+    },
+    {
+      "code": "phase_244_verification_passed",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "message": "The committed Phase 244 verification status must be passed."
+    },
+    {
+      "code": "phase_244_gaps_empty",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "message": "The committed Phase 244 verification must have no remaining gaps."
+    },
+    {
+      "code": "phase_244_behavior_verified",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "message": "The committed Phase 244 verification must have zero behavior-unverified items."
+    },
+    {
+      "code": "phase_244_final_main_head_stable",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main run SHA must equal both before and after main SHAs."
+    },
+    {
+      "code": "phase_244_final_main_run_success",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main CI run must be completed successfully."
+    },
+    {
+      "code": "phase_244_shard_set_exact",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main receipt must contain exactly the five required Playwright shards."
+    },
+    {
+      "code": "phase_244_ci_gate_identity",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main consumer ci_gate must match the successful run identity."
+    },
+    {
+      "code": "phase_244_example_playwright_smoke_identity",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main consumer example_playwright_smoke must match the successful run identity."
+    },
+    {
+      "code": "phase_244_generated_admin_playwright_smoke_identity",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main consumer generated_admin_playwright_smoke must match the successful run identity."
+    },
+    {
+      "code": "phase_244_example_playwright_smoke_step",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main consumer example_playwright_smoke must record a completed successful consumer step."
+    },
+    {
+      "code": "phase_244_generated_admin_playwright_smoke_step",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "The final-main consumer generated_admin_playwright_smoke must record a completed successful consumer step."
+    },
+    {
+      "code": "phase_244_final_main_summary_run_id",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "message": "The final-main summary must state the evidence run ID."
+    },
+    {
+      "code": "phase_244_final_main_summary_head",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "message": "The final-main summary must state the evidence head SHA."
+    },
+    {
+      "code": "phase_244_final_main_summary_success",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "message": "The final-main summary must record that the evidence run succeeded."
+    },
+    {
+      "code": "phase_244_pr_213_deferred",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "message": "Phase 244 must record PR #213 as closed, unmerged, missing its head, and deferred for measured drift."
+    },
+    {
+      "code": "phase_244_pr_213_summary_agrees",
+      "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+      "message": "Phase 244 Plan 04 summary must record the same deferred PR #213 disposition."
+    },
+    {
+      "code": "phase_242_todo_resolved",
+      "source": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+      "message": "The linked Phase 242 blocker todo must be resolved."
+    },
+    {
+      "code": "quick_gzb_complete",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": "The linked 260926-gzb summary must be complete."
+    },
+    {
+      "code": "quick_gzb_source_commit_ancestor",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": "The linked 260926-gzb source commit must resolve and be an ancestor of the coherent source commit."
+    },
+    {
+      "code": "quick_gzb_exact_gate_command",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": "The linked 260926-gzb summary must state the exact full mix ci command."
+    },
+    {
+      "code": "quick_gzb_retry_exit_zero",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": "The linked 260926-gzb summary must record a successful retry with exit 0."
+    },
+    {
+      "code": "quick_gzb_log_linked",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "message": "The linked 260926-gzb summary must link its retained full output log."
+    },
+    {
+      "code": "quick_gzb_log_complete",
+      "source": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+      "message": "The retained 260926-gzb log must be non-empty and contain both successful test-suite sentinels."
+    },
+    {
+      "code": "quick_dzu_complete",
+      "source": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+      "message": "The linked 260926-dzu summary must be complete."
+    },
+    {
+      "code": "quick_dzu_source_commit_ancestor",
+      "source": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+      "message": "The linked 260926-dzu source commit must resolve and be an ancestor of the coherent source commit."
+    }
+  ],
+  "captured_at": "2026-09-29T20:55:37.217Z",
+  "d01_source_verified": false,
+  "independent_verification": {
+    "capture_command_exit": 0,
+    "capture_status": "blocked",
+    "verify_command_exit": 1,
+    "verify_status": "blocked",
+    "verified_against_commit": "15f1fb8305bbff81c98dc5686367ff52804c8319",
+    "source_sha256_policy": "SHA-256 identifies worktree bytes for diagnostics only; uncommitted bytes are not accepted as D-01 evidence.",
+    "reason_codes": [
+      "source_worktree_differs_from_committed_blob",
+      "source_missing_from_committed_tree",
+      "phase_244_complete",
+      "phase_244_verification_passed",
+      "phase_244_gaps_empty",
+      "phase_244_behavior_verified",
+      "phase_244_final_main_head_stable",
+      "phase_244_final_main_run_success",
+      "phase_244_shard_set_exact",
+      "phase_244_ci_gate_identity",
+      "phase_244_example_playwright_smoke_identity",
+      "phase_244_generated_admin_playwright_smoke_identity",
+      "phase_244_example_playwright_smoke_step",
+      "phase_244_generated_admin_playwright_smoke_step",
+      "phase_244_final_main_summary_run_id",
+      "phase_244_final_main_summary_head",
+      "phase_244_final_main_summary_success",
+      "phase_244_pr_213_deferred",
+      "phase_244_pr_213_summary_agrees",
+      "phase_242_todo_resolved",
+      "quick_gzb_complete",
+      "quick_gzb_source_commit_ancestor",
+      "quick_gzb_exact_gate_command",
+      "quick_gzb_retry_exit_zero",
+      "quick_gzb_log_linked",
+      "quick_gzb_log_complete",
+      "quick_dzu_complete",
+      "quick_dzu_source_commit_ancestor"
+    ]
+  },
+  "what_this_proves": "The available committed tree and required local-source provenance do not prove Phase 244 readiness. GitHub final-main run and job reads succeeded, but they do not replace the missing committed source set. No production refs were changed."
+}
