@@ -9,17 +9,17 @@
     "scope": "committed repository evidence only; no user-global transcripts or uncommitted worktree files",
     "commands": [
       {
-        "command": "git log --all --name-only --format= -- .planning .gsd scripts",
+        "query": "git log --all --name-only --format= -- .planning .gsd scripts",
         "exit_status": 0,
         "result": "searched all available refs for committed candidate paths"
       },
       {
-        "command": "git ls-tree -r --name-only HEAD",
+        "query": "git ls-tree -r --name-only HEAD",
         "exit_status": 0,
         "result": "enumerated committed HEAD paths"
       },
       {
-        "command": "rg --files .planning .gsd scripts",
+        "query": "rg --files .planning .gsd scripts",
         "exit_status": 0,
         "result": "enumerated scoped worktree paths for candidate discovery; uncommitted paths were excluded from evidence"
       }
