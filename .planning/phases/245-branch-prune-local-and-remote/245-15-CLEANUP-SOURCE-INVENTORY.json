@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "milestone": {
+    "version": "v1.48",
+    "first_phase": 236,
+    "last_phase": 245
+  },
+  "search_contract": {
+    "scope": "committed repository evidence only; no user-global transcripts or uncommitted worktree files",
+    "commands": [
+      {
+        "command": "git log --all --name-only --format= -- .planning .gsd scripts",
+        "exit_status": 0,
+        "result": "searched all available refs for committed candidate paths"
+      },
+      {
+        "command": "git ls-tree -r --name-only HEAD",
+        "exit_status": 0,
+        "result": "enumerated committed HEAD paths"
+      },
+      {
+        "command": "rg --files .planning .gsd scripts",
+        "exit_status": 0,
+        "result": "enumerated scoped worktree paths for candidate discovery; uncommitted paths were excluded from evidence"
+      }
+    ],
+    "candidate_path_query": "phase 236–245 evidence paths with log, command, history, event, operation, receipt, transcript, JSON/JSONL, TXT, or TAP indicators",
+    "boundary_method": "first committed phase plan and latest passed phase verification; where verification is not passed, inspect committed roadmap completion markers",
+    "trusted_recorder_contract": "existing validator's independently trusted Ed25519 recorder key, exact phase-window binding, contiguous sequence, event-chain digest, signature, and full-window coverage",
+    "committed_candidate_paths": [
+      {
+        "path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-golden-expected.txt",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "blob_oid": "aced68660515b67d6d98be07bcb72f2a989f509e",
+        "disposition": "excluded",
+        "reason": "Committed golden expected-output fixture, not a command-output log, operation record, or signed command-history stream."
+      },
+      {
+        "path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-golden-expected-2.txt",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "blob_oid": "a99b8a424817fbde997c2b78ac19b6f5ffd68733",
+        "disposition": "excluded",
+        "reason": "Committed golden expected-output fixture, not a command-output log, operation record, or signed command-history stream."
+      },
+      {
+        "path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-golden-expected-3.txt",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "blob_oid": "f37fb1d7cd2b39ac3462b6d33d8ac7fd965f6941",
+        "disposition": "excluded",
+        "reason": "Committed golden expected-output fixture, not a command-output log, operation record, or signed command-history stream."
+      },
+      {
+        "path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-golden-expected-4.txt",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "blob_oid": "fc6defa81b3424817e8319638a6d26e4ee2818bb",
+        "disposition": "excluded",
+        "reason": "Committed golden expected-output fixture, not a command-output log, operation record, or signed command-history stream."
+      },
+      {
+        "path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-GREEN-04-EVIDENCE.json",
+        "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+        "blob_oid": "7dea875e13a09a9835586bc89a01ce237e5fb835",
+        "disposition": "excluded",
+        "reason": "Committed evidence receipt has clean_tree, head_sha, sc1, and sc2 fields, but no command, operation_record, or source_kind history; it does not attest command coverage."
+      }
+    ],
+    "global_gaps": [
+      "No committed phase-scoped complete command-history stream was found for phases 236–245.",
+      "No independently trusted recorder key/attestation source was found that proves complete command coverage across any phase window.",
+      "The 245-15, earlier 245, and 244 candidate logs/receipts visible in the worktree are untracked and were excluded; they have no committed blob identity on HEAD.",
+      "Phase 244 has no passed verification or committed completion marker boundary; Phase 245 has no committed first-plan boundary in the available HEAD history and no passed verification."
+    ]
+  },
+  "phase_windows": [
+    {"phase":236,"start_commit_oid":"b6e889c42af9c0719e9e4b75da1f145ded95700e","start_committed_at":"2026-09-16T03:29:52.000Z","end_commit_oid":"1d512e69de12a3ae964f6a84c3ad43fa5da40d10","end_committed_at":"2026-09-25T16:01:00.000Z","boundary_disposition":"pinned"},
+    {"phase":237,"start_commit_oid":"6b03af0553a13d17db487f06927dc0b990b90e3c","start_committed_at":"2026-09-17T16:27:14.000Z","end_commit_oid":"8c5d1e03700b543333770ef6909c8b198883df22","end_committed_at":"2026-09-25T16:29:11.000Z","boundary_disposition":"pinned"},
+    {"phase":238,"start_commit_oid":"6b03af0553a13d17db487f06927dc0b990b90e3c","start_committed_at":"2026-09-17T16:27:14.000Z","end_commit_oid":"21947eb2a5fdf5b03ed2f99f100e96d88e6873ed","end_committed_at":"2026-09-25T16:53:48.000Z","boundary_disposition":"pinned"},
+    {"phase":239,"start_commit_oid":"bca3ad72ccfabd0e4b5fd109cc631832f6f446e7","start_committed_at":"2026-09-18T15:58:50.000Z","end_commit_oid":"bca3ad72ccfabd0e4b5fd109cc631832f6f446e7","end_committed_at":"2026-09-18T15:58:50.000Z","boundary_disposition":"pinned"},
+    {"phase":240,"start_commit_oid":"04e94a863bc70a85d1655ede1416a4c22e0f8ca6","start_committed_at":"2026-09-18T17:18:26.000Z","end_commit_oid":"491b1a0c19ac90eadea7d0e35a0fba62a5243126","end_committed_at":"2026-09-18T19:05:10.000Z","boundary_disposition":"pinned"},
+    {"phase":241,"start_commit_oid":"5ee912d0a81f1e682f1356b187209497eaafce51","start_committed_at":"2026-09-18T20:28:09.000Z","end_commit_oid":"ffbcdf8522bbd8c695d062691807f4ee50aa3e59","end_committed_at":"2026-09-25T17:13:54.000Z","boundary_disposition":"pinned"},
+    {"phase":242,"start_commit_oid":"a00b0494bd9a3670a794a6ea0f4144e674d9e345","start_committed_at":"2026-09-20T13:34:44.000Z","end_commit_oid":"352940d58a1f783ce9045b59f7b7494622474317","end_committed_at":"2026-09-25T13:22:48.000Z","boundary_disposition":"pinned"},
+    {"phase":243,"start_commit_oid":"161eb581b2a33e72e947f2a3510b54f55c5df319","start_committed_at":"2026-09-25T02:31:23.000Z","end_commit_oid":"ec7f6fb1db50e64c1116a628ebb85d67f1e3a306","end_committed_at":"2026-09-27T13:01:37.000Z","boundary_disposition":"pinned"},
+    {"phase":244,"start_commit_oid":"34176393dd706ac4411b4407f531904e0e1b5922","start_committed_at":"2026-09-26T01:38:24.000Z","end_commit_oid":null,"end_committed_at":null,"boundary_disposition":"missing_completion"},
+    {"phase":245,"start_commit_oid":null,"start_committed_at":null,"end_commit_oid":null,"end_committed_at":null,"boundary_disposition":"missing_start_and_completion"}
+  ],
+  "pairs": [
+    {"phase":236,"command_family":"git gc","phase_window_ref":236,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":236,"command_family":"git reflog expire","phase_window_ref":236,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":236,"command_family":"--prune=now","phase_window_ref":236,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":237,"command_family":"git gc","phase_window_ref":237,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":237,"command_family":"git reflog expire","phase_window_ref":237,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":237,"command_family":"--prune=now","phase_window_ref":237,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":238,"command_family":"git gc","phase_window_ref":238,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":238,"command_family":"git reflog expire","phase_window_ref":238,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":238,"command_family":"--prune=now","phase_window_ref":238,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":239,"command_family":"git gc","phase_window_ref":239,"sources":[],"disposition":"missing","reason":"Committed path searches found only golden expected-output fixtures, excluded as command history; no independently trusted full-window stream exists."},
+    {"phase":239,"command_family":"git reflog expire","phase_window_ref":239,"sources":[],"disposition":"missing","reason":"Committed path searches found only golden expected-output fixtures, excluded as command history; no independently trusted full-window stream exists."},
+    {"phase":239,"command_family":"--prune=now","phase_window_ref":239,"sources":[],"disposition":"missing","reason":"Committed path searches found only golden expected-output fixtures, excluded as command history; no independently trusted full-window stream exists."},
+    {"phase":240,"command_family":"git gc","phase_window_ref":240,"sources":[],"disposition":"missing","reason":"The committed GREEN-04 receipt has no command history fields and is not a recorder attestation; no full-window command source exists."},
+    {"phase":240,"command_family":"git reflog expire","phase_window_ref":240,"sources":[],"disposition":"missing","reason":"The committed GREEN-04 receipt has no command history fields and is not a recorder attestation; no full-window command source exists."},
+    {"phase":240,"command_family":"--prune=now","phase_window_ref":240,"sources":[],"disposition":"missing","reason":"The committed GREEN-04 receipt has no command history fields and is not a recorder attestation; no full-window command source exists."},
+    {"phase":241,"command_family":"git gc","phase_window_ref":241,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":241,"command_family":"git reflog expire","phase_window_ref":241,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":241,"command_family":"--prune=now","phase_window_ref":241,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":242,"command_family":"git gc","phase_window_ref":242,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":242,"command_family":"git reflog expire","phase_window_ref":242,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":242,"command_family":"--prune=now","phase_window_ref":242,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":243,"command_family":"git gc","phase_window_ref":243,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":243,"command_family":"git reflog expire","phase_window_ref":243,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":243,"command_family":"--prune=now","phase_window_ref":243,"sources":[],"disposition":"missing","reason":"Committed path searches found no eligible command-output log, operation record, or signed complete-history stream; independent full-window coverage is absent."},
+    {"phase":244,"command_family":"git gc","phase_window_ref":244,"sources":[],"disposition":"missing","reason":"Only untracked Phase 244 evidence/log candidates are present in the worktree; they have no committed blob identity, and no committed completion boundary exists."},
+    {"phase":244,"command_family":"git reflog expire","phase_window_ref":244,"sources":[],"disposition":"missing","reason":"Only untracked Phase 244 evidence/log candidates are present in the worktree; they have no committed blob identity, and no committed completion boundary exists."},
+    {"phase":244,"command_family":"--prune=now","phase_window_ref":244,"sources":[],"disposition":"missing","reason":"Only untracked Phase 244 evidence/log candidates are present in the worktree; they have no committed blob identity, and no committed completion boundary exists."},
+    {"phase":245,"command_family":"git gc","phase_window_ref":245,"sources":[],"disposition":"missing","reason":"Only untracked Phase 245 evidence/log candidates are present in the worktree; they have no committed blob identity, and phase start and completion boundaries are unavailable."},
+    {"phase":245,"command_family":"git reflog expire","phase_window_ref":245,"sources":[],"disposition":"missing","reason":"Only untracked Phase 245 evidence/log candidates are present in the worktree; they have no committed blob identity, and phase start and completion boundaries are unavailable."},
+    {"phase":245,"command_family":"--prune=now","phase_window_ref":245,"sources":[],"disposition":"missing","reason":"Only untracked Phase 245 evidence/log candidates are present in the worktree; they have no committed blob identity, and phase start and completion boundaries are unavailable."}
+  ]
+}
