@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": "245",
   "plan": "18",
-  "captured_at_utc": "2026-09-29T23:52:45Z",
+  "captured_at_utc": "2026-09-29T23:53:41Z",
   "repository": {
     "name_with_owner": "szTheory/sigra",
     "url": "https://github.com/szTheory/sigra",
@@ -116,7 +116,8 @@
       "D\ttest/fixtures/prohibitions/p22-hex-remediation-broadened.yml",
       "D\ttest/fixtures/prohibitions/p22-hex-remediation-unsafe-secret.yml",
       "M\ttest/sigra/planning/phase_232_playwright_economics_test.exs"
-    ]
+    ],
+    "source_effect_reconciliation_verified": true
   },
   "github": {
     "rate_limit": {
@@ -244,19 +245,20 @@
     "open_pr_cli_matches_paginated_api": true,
     "origin_transport_complete": true,
     "final_main_run_success": true,
-    "required_final_main_jobs_success": true
+    "required_final_main_jobs_success": true,
+    "gzb_upstream_commit_is_pr283_ancestor": true,
+    "dzu_upstream_commit_is_pr283_ancestor": true,
+    "dzu_follows_gzb_on_pr283": true
   },
-  "d01_source_verified": false,
+  "d01_source_verified": true,
   "historical_records": {
     "historical_pr_mismatch_audit_remains_unresolved": true,
     "cleanup_history_audit_remains_unresolved": true,
     "production_ref_mutation_performed": false,
     "plan_19_started": false
   },
-  "status": "blocked",
-  "reason_codes": [
-    "committed_readiness_artifact_verification_pending"
-  ],
+  "status": "ready",
+  "reason_codes": [],
   "readiness_capture": {
     "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs capture --repo . --output .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
     "exit_code": 0,
@@ -264,14 +266,23 @@
     "source_commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
     "source_count": 9,
     "predicate_count": 36,
-    "blocked_reasons": []
+    "blocked_reasons": [],
+    "verification": {
+      "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
+      "artifact_commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+      "exit_code": 0,
+      "status": "ready",
+      "valid": true,
+      "reasons": []
+    }
   },
   "helper_commands": {
     "capture": "node scripts/maintainers/prune-stale-branches-readiness.mjs capture --repo . --output .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
     "capture_exit": 0,
     "capture_status": "ready",
-    "verify": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit <readiness-evidence-commit>",
-    "verify_exit": null,
-    "verify_status": "pending_committed_receipt"
+    "verify": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
+    "verify_exit": 0,
+    "verify_status": "ready",
+    "artifact_commit": "d7243c193c40a30709edbe306d79038d2286e70e"
   }
 }
