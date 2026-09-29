@@ -70,6 +70,8 @@ Options:
   --current-contract-commit SHA  immutable commit containing the D-07 current contract
   --current-contract PATH        current contract path within that commit
   --current-contract-fixture PATH disposable GitHub source fixture (read-only verify-prs only)
+  --origin-snapshot-commit SHA  immutable commit containing the origin inventory
+  --candidate-ref FULL_REF      exact local candidate selected for admission
   --preflight-commit SHA    immutable commit containing an access preflight receipt
   --preflight PATH          preflight receipt path (defaults to the Phase 245 artifact)
   --identity-audit PATH     committed Phase 245 historical PR identity audit
@@ -110,6 +112,8 @@ INTEGRITY_OUTPUT=""
 CURRENT_CONTRACT_COMMIT=""
 CURRENT_CONTRACT_PATH=""
 CURRENT_CONTRACT_FIXTURE=""
+ORIGIN_SNAPSHOT_COMMIT=""
+CANDIDATE_REF=""
 PREFLIGHT_COMMIT=""
 PREFLIGHT_PATH="$DEFAULT_PREFLIGHT"
 OPERATION=""
@@ -139,6 +143,8 @@ while (($#)); do
     --current-contract-commit) (($# >= 2)) || fail 'current_contract_commit_flag_missing_value'; CURRENT_CONTRACT_COMMIT="$2"; shift 2 ;;
     --current-contract) (($# >= 2)) || fail 'current_contract_flag_missing_value'; CURRENT_CONTRACT_PATH="$2"; shift 2 ;;
     --current-contract-fixture) (($# >= 2)) || fail 'current_contract_fixture_flag_missing_value'; CURRENT_CONTRACT_FIXTURE="$2"; shift 2 ;;
+    --origin-snapshot-commit) (($# >= 2)) || fail 'origin_snapshot_commit_flag_missing_value'; ORIGIN_SNAPSHOT_COMMIT="$2"; shift 2 ;;
+    --candidate-ref) (($# >= 2)) || fail 'candidate_ref_flag_missing_value'; CANDIDATE_REF="$2"; shift 2 ;;
     --preflight-commit) (($# >= 2)) || fail 'preflight_commit_flag_missing_value'; PREFLIGHT_COMMIT="$2"; shift 2 ;;
     --preflight) (($# >= 2)) || fail 'preflight_flag_missing_value'; PREFLIGHT_PATH="$2"; shift 2 ;;
     --operation) (($# >= 2)) || fail 'operation_flag_missing_value'; OPERATION="$2"; shift 2 ;;
@@ -169,6 +175,14 @@ elif [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then
 fi
 if (( CURRENT_CONTRACT_MODE )) && [[ -n "$PR_STATE_COMMIT" || -n "$IDENTITY_AUDIT" || -n "$INTEGRITY_OUTPUT" ]]; then
   fail 'current_contract_historical_flags_mixed'
+fi
+if (( CURRENT_CONTRACT_MODE && APPLY )) && [[ "$COMMAND" == local ]]; then
+  [[ -n "$SNAPSHOT_COMMIT" && -n "$ORIGIN_SNAPSHOT_COMMIT" && -n "$ALLOWLIST_COMMIT" \
+    && -n "$READINESS_COMMIT" && -n "$CANDIDATE_REF" ]] || fail 'local_admission_committed_inputs_required'
+  safe_repo_path "$SNAPSHOT_PATH"
+  safe_repo_path "$ORIGIN_PATH"
+  safe_repo_path "$ALLOWLIST_PATH"
+  safe_repo_path "$READINESS_PATH"
 fi
 
 command -v git >/dev/null 2>&1 || fail 'git_not_on_path'
@@ -218,6 +232,24 @@ verify_current_contract() {
   if [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE"); fi
   node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-current.mjs" "${args[@]}" \
     || fail "current_pr_ref_contract_blocked:${stage}:${side:-none}:${ref:-none}"
+}
+
+verify_local_admission() {
+  local stage="$1" candidate="${2:-$CANDIDATE_REF}" output status=0 first_reason
+  local args=(verify --repo "$REPO" --stage "$stage"
+    --current-contract-commit "$CURRENT_CONTRACT_COMMIT" --current-contract "$CURRENT_CONTRACT_PATH"
+    --snapshot-commit "$SNAPSHOT_COMMIT" --snapshot "$SNAPSHOT_PATH"
+    --origin-snapshot-commit "$ORIGIN_SNAPSHOT_COMMIT" --origin-snapshot "$ORIGIN_PATH"
+    --allowlist-commit "$ALLOWLIST_COMMIT" --allowlist "$ALLOWLIST_PATH"
+    --readiness-commit "$READINESS_COMMIT" --readiness "$READINESS_PATH"
+    --candidate-ref "$candidate")
+  [[ -z "$CURRENT_CONTRACT_FIXTURE" ]] || args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE")
+  output="$(node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-admission.mjs" "${args[@]}" 2>&1)" || status=$?
+  if (( status != 0 )); then
+    first_reason="$(jq -r '.blocked_reasons[0].code // empty' <<< "$output" 2>/dev/null || true)"
+    [[ -n "$first_reason" ]] || first_reason="$(sed -n 's/^prune-stale-branches-admission: FAIL: //p' <<< "$output" | head -1)"
+    fail "local_admission_blocked:${first_reason:-unknown}"
+  fi
 }
 
 validate_snapshot_file() {
@@ -516,6 +548,7 @@ run_local_pass() {
     observed_worktrees="$(git -C "$REPO" worktree list --porcelain | awk '$1 == "branch" { print $2 }' | sort | tr '\n' ',')"
     [[ "$observed_worktrees" == "$expected_worktrees" ]] || fail "local_worktree_set_changed_before_delete: $ref"
     verify_current_contract boundary local "$ref" delete
+    if (( CURRENT_CONTRACT_MODE )); then verify_local_admission boundary "$ref"; fi
     assert_deletion_ref_protected "$ref"
     [[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && -n "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" ]] \
       || fail 'shared_coordinator_lock_not_held_at_local_delete'
@@ -1321,6 +1354,9 @@ verify_prs() {
 
 TMP_DIR="$(mktemp -d)"
 trap cleanup EXIT
+if (( CURRENT_CONTRACT_MODE && APPLY )) && [[ "$COMMAND" == local ]]; then
+  verify_local_admission admission
+fi
 if (( CURRENT_CONTRACT_MODE )) && [[ "$COMMAND" != verify-prs && "$COMMAND" != verify-allowlist ]]; then
   verify_current_contract before
 fi
