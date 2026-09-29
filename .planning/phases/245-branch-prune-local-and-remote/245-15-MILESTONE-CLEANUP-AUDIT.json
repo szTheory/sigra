@@ -1,0 +1,1711 @@
+{
+  "schema_version": 2,
+  "audit_id": "245-cleanup-history-2b0bb571-8471-4903-9eea-84ac13193860",
+  "generated_at": "2026-09-29T00:01:59.750Z",
+  "repository": "szTheory/sigra",
+  "milestone": {
+    "version": "v1.48",
+    "first_phase": 236,
+    "last_phase": 245
+  },
+  "policy": {
+    "command_families": [
+      "git gc",
+      "git reflog expire",
+      "--prune=now"
+    ],
+    "absence_requires_direct_complete_history": true,
+    "history_evidence_contract": "ed25519-recorder-attestation-v1",
+    "planning_prose_text_search_and_object_survival_are_not_absence_evidence": true,
+    "user_global_uncommitted_session_transcripts_admitted": false
+  },
+  "phase_windows": [
+    {
+      "phase": 236,
+      "name": "flake-root-cause-reproduce-name-fix",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+        "committed_at": "2026-09-16T03:29:52.000Z",
+        "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+        "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+        "committed_at": "2026-09-25T16:01:00.000Z",
+        "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+        "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 237,
+      "name": "clean-working-tree-green-pages-clean-lib-docs-surface",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+        "committed_at": "2026-09-17T16:27:14.000Z",
+        "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+        "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+        "committed_at": "2026-09-25T16:29:11.000Z",
+        "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+        "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 238,
+      "name": "tag-guard-then-tag-deletion",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+        "committed_at": "2026-09-17T16:27:14.000Z",
+        "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+        "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+        "committed_at": "2026-09-25T16:53:48.000Z",
+        "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+        "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 239,
+      "name": "priv-templates-sweep-one-batched-re-bless",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "committed_at": "2026-09-18T15:58:50.000Z",
+        "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+        "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+        "committed_at": "2026-09-18T15:58:50.000Z",
+        "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+        "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 240,
+      "name": "green-main-evidence-honest-pages-script",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+        "committed_at": "2026-09-18T17:18:26.000Z",
+        "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+        "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+        "committed_at": "2026-09-18T19:05:10.000Z",
+        "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+        "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 241,
+      "name": "retire-v1-47-s-dishonest-debt-adopter-leakage-guard",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+        "committed_at": "2026-09-18T20:28:09.000Z",
+        "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+        "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+        "committed_at": "2026-09-25T17:13:54.000Z",
+        "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+        "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 242,
+      "name": "hex-retire-docs-revert-pinned-install-adr-cut-1-5-1",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+        "committed_at": "2026-09-20T13:34:44.000Z",
+        "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+        "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "352940d58a1f783ce9045b59f7b7494622474317",
+        "committed_at": "2026-09-25T17:22:48.000Z",
+        "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-VERIFICATION.md",
+        "blob_oid": "83905b8a040b66155b3e9671b340162b7a8413d2"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 243,
+      "name": "drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+        "committed_at": "2026-09-25T02:31:23.000Z",
+        "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+        "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+      },
+      "end": {
+        "kind": "latest_passed_phase_verification",
+        "commit_oid": "ec7f6fb1db50e64c1116a628ebb85d67f1e3a306",
+        "committed_at": "2026-09-25T15:41:40.000Z",
+        "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-VERIFICATION.md",
+        "blob_oid": "bd36604693d31877b0474e709ff76fe7cd6c616a"
+      },
+      "boundary_gaps": []
+    },
+    {
+      "phase": 244,
+      "name": "playwright-test-1-59-1-1-62-1-alone",
+      "start": {
+        "kind": "first_committed_phase_plan",
+        "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+        "committed_at": "2026-09-26T01:38:24.000Z",
+        "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+        "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+      },
+      "end": null,
+      "boundary_gaps": [
+        "roadmap_completion_marker_boundary_unavailable"
+      ]
+    },
+    {
+      "phase": 245,
+      "name": "branch-prune-local-and-remote",
+      "start": null,
+      "end": null,
+      "boundary_gaps": [
+        "phase_start_boundary_unavailable",
+        "verification_not_passed:gaps_found"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "phase": 236,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 236,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 236,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 237,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 237,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 237,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 238,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 238,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 238,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 239,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 239,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 239,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 240,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 240,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 240,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 241,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 241,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 241,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 242,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "352940d58a1f783ce9045b59f7b7494622474317",
+          "committed_at": "2026-09-25T17:22:48.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-VERIFICATION.md",
+          "blob_oid": "83905b8a040b66155b3e9671b340162b7a8413d2"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 242,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "352940d58a1f783ce9045b59f7b7494622474317",
+          "committed_at": "2026-09-25T17:22:48.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-VERIFICATION.md",
+          "blob_oid": "83905b8a040b66155b3e9671b340162b7a8413d2"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 242,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "352940d58a1f783ce9045b59f7b7494622474317",
+          "committed_at": "2026-09-25T17:22:48.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-VERIFICATION.md",
+          "blob_oid": "83905b8a040b66155b3e9671b340162b7a8413d2"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 243,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ec7f6fb1db50e64c1116a628ebb85d67f1e3a306",
+          "committed_at": "2026-09-25T15:41:40.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-VERIFICATION.md",
+          "blob_oid": "bd36604693d31877b0474e709ff76fe7cd6c616a"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 243,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ec7f6fb1db50e64c1116a628ebb85d67f1e3a306",
+          "committed_at": "2026-09-25T15:41:40.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-VERIFICATION.md",
+          "blob_oid": "bd36604693d31877b0474e709ff76fe7cd6c616a"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 243,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ec7f6fb1db50e64c1116a628ebb85d67f1e3a306",
+          "committed_at": "2026-09-25T15:41:40.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-VERIFICATION.md",
+          "blob_oid": "bd36604693d31877b0474e709ff76fe7cd6c616a"
+        }
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": true,
+        "boundaries_available": true,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 244,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 244,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 244,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": true,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 245,
+      "command_family": "git gc",
+      "phase_window": {
+        "start": null,
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": false,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_start_boundary_unavailable",
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 245,
+      "command_family": "git reflog expire",
+      "phase_window": {
+        "start": null,
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": false,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_start_boundary_unavailable",
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    },
+    {
+      "phase": 245,
+      "command_family": "--prune=now",
+      "phase_window": {
+        "start": null,
+        "end": null
+      },
+      "status": "unknown",
+      "coverage": "missing",
+      "provenance": {
+        "direct_history_sources": [],
+        "source_coverage": {
+          "complete": false,
+          "covered_start": null,
+          "covered_end": null,
+          "proof": null
+        },
+        "completeness": {
+          "history_complete": false,
+          "full_window_covered": false,
+          "proof": null
+        }
+      },
+      "completeness": {
+        "phase_start_available": false,
+        "phase_end_available": false,
+        "boundaries_available": false,
+        "history_complete": false,
+        "full_window_covered": false,
+        "blockers": [
+          "phase_start_boundary_unavailable",
+          "phase_completion_boundary_unavailable",
+          "no_committed_direct_command_history_source"
+        ]
+      },
+      "observed_command_evidence": null,
+      "ambiguous_command_evidence": null
+    }
+  ],
+  "truth_status": "unresolved",
+  "uncovered_pairs": [
+    "236:git gc",
+    "236:git reflog expire",
+    "236:--prune=now",
+    "237:git gc",
+    "237:git reflog expire",
+    "237:--prune=now",
+    "238:git gc",
+    "238:git reflog expire",
+    "238:--prune=now",
+    "239:git gc",
+    "239:git reflog expire",
+    "239:--prune=now",
+    "240:git gc",
+    "240:git reflog expire",
+    "240:--prune=now",
+    "241:git gc",
+    "241:git reflog expire",
+    "241:--prune=now",
+    "242:git gc",
+    "242:git reflog expire",
+    "242:--prune=now",
+    "243:git gc",
+    "243:git reflog expire",
+    "243:--prune=now",
+    "244:git gc",
+    "244:git reflog expire",
+    "244:--prune=now",
+    "245:git gc",
+    "245:git reflog expire",
+    "245:--prune=now"
+  ],
+  "source_gaps": [
+    {
+      "phase": 236,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 237,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 238,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 239,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 240,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 241,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 242,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 243,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 244,
+      "gaps": [
+        "no committed direct command-history or operation-log source found",
+        "roadmap_completion_marker_boundary_unavailable"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 245,
+      "gaps": [
+        "no committed direct command-history or operation-log source found",
+        "phase start boundary unavailable",
+        "verification_not_passed:gaps_found"
+      ],
+      "available_sources": []
+    }
+  ],
+  "inventory_notes": [
+    "Only committed repository command-output logs and operation records are eligible provenance for this audit.",
+    "No supported, committed full-window GSD activity transcript was present in this checkout.",
+    "Uncommitted user-global session transcripts were excluded because they are not repository-pinned project command history."
+  ]
+}
