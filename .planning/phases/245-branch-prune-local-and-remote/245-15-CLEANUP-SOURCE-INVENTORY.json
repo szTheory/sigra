@@ -22,6 +22,16 @@
         "query": "rg --files .planning .gsd scripts",
         "exit_status": 0,
         "result": "enumerated scoped worktree paths for candidate discovery; uncommitted paths were excluded from evidence"
+      },
+      {
+        "query": "git log --all --name-only --format= -- .planning .gsd scripts | rg -i 'trusted.*key|recorder.*key|history.*key|ed25519|\\.pem$|\\.pub$'",
+        "exit_status": 1,
+        "result": "no committed recorder-key or trust-registry candidate path found across available refs"
+      },
+      {
+        "query": "git ls-tree -r --name-only HEAD | rg -i 'trusted.*key|recorder.*key|history.*key|ed25519|\\.pem$|\\.pub$'",
+        "exit_status": 1,
+        "result": "no committed HEAD recorder-key or trust-registry candidate path found"
       }
     ],
     "candidate_path_query": "phase 236–245 evidence paths with log, command, history, event, operation, receipt, transcript, JSON/JSONL, TXT, or TAP indicators",
@@ -66,7 +76,7 @@
     ],
     "global_gaps": [
       "No committed phase-scoped complete command-history stream was found for phases 236–245.",
-      "No independently trusted recorder key/attestation source was found that proves complete command coverage across any phase window.",
+      "No independently trusted recorder key/attestation source was found that proves complete command coverage across any phase window; committed path-name searches found no key or trust-registry candidate in available refs or HEAD.",
       "The 245-15, earlier 245, and 244 candidate logs/receipts visible in the worktree are untracked and were excluded; they have no committed blob identity on HEAD.",
       "Phase 244 has no passed verification or committed completion marker boundary; Phase 245 has no committed first-plan boundary in the available HEAD history and no passed verification."
     ]
