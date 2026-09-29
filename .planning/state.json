@@ -21,43 +21,43 @@
     {
       "number": "239",
       "name": "`priv/templates/` Sweep + Re-bless",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "240",
       "name": "Green-Main Evidence + Honest Pages Script",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "241",
       "name": "Debt Retirement + Leakage Guard",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "242",
-      "name": "Hex Retire + Docs Revert + Cut 1.5.1",
-      "status": "pending"
+      "name": "Safety Closeout for Phantom Release Adoption",
+      "status": "complete"
     },
     {
       "number": "243",
       "name": "Queue Drain + Todo Triage",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "244",
       "name": "`@playwright/test` Bump, Alone",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "245",
       "name": "Branch Prune",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 239 of 10 · 30% · executing"
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Resume after D-01 source provenance is committed",
+    "reason": "Plan 245-18 halted before snapshot capture because committed Phase 244 source provenance is unavailable; resume only after the required source evidence is available in a committed tree."
   },
-  "updated_at": "2026-09-17T20:27:06.884Z"
+  "updated_at": "2026-09-29T21:04:52Z"
 }
