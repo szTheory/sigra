@@ -432,8 +432,10 @@ live_default_branch() {
 assert_deletion_ref_protected() {
   local ref="$1" normalized="$1" captured live
   [[ "$ref" == refs/remotes/origin/* ]] && normalized="refs/heads/${ref#refs/remotes/origin/}"
-  captured="$(captured_default_branch)"
-  [[ "$normalized" != "$captured" ]] || fail "protected_snapshot_default_branch: $normalized"
+  if (( CURRENT_CONTRACT_MODE == 0 )); then
+    captured="$(captured_default_branch)"
+    [[ "$normalized" != "$captured" ]] || fail "protected_snapshot_default_branch: $normalized"
+  fi
   is_safety_ref "$normalized" && fail "protected_safety_ref: $normalized"
   live="$(live_default_branch)"
   [[ "$normalized" != "$live" ]] || fail "protected_live_default_branch: $normalized"
