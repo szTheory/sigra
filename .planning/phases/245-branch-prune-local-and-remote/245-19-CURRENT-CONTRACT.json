@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "szTheory/sigra",
   "checkout_root": "/Users/jon/projects/sigra",
-  "captured_at": "2026-09-30T16:26:30.265Z",
+  "captured_at": "2026-09-30T16:33:15.804Z",
   "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-  "capture_head_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+  "capture_head_oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
   "local_refs": [
     {
       "ref": "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch",
@@ -456,7 +456,7 @@
     },
     {
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+      "oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
       "type": "commit",
       "peeled_oid": null,
       "peeled_type": null,
@@ -4074,11 +4074,17 @@
       "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
       "blob": "1f9e14c17437b4566c06364363d14badbd102b84",
       "sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c"
+    },
+    {
+      "commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+      "blob": "16490b1afca4b0b899b69c18b4ff3c532c483176",
+      "sha256": "4f89e215f966b89d961409f1dadf56eb095b24a30f798599088eecd808363e78"
     }
   ],
   "evidence_transition": {
     "active_ref": "refs/heads/phase-244-playwright-measurement",
-    "captured_head_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+    "captured_head_oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
     "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
     "contract_paths": [
       ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
@@ -4089,16 +4095,16 @@
     ],
     "precommit_artifacts": {
       ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json": {
-        "blob": "7d98e9bfbb44a073fa54651e0e2d046fc757477d",
-        "sha256": "2f24cae91138677a939a21c7c6077abff81b43f7763c9f6081e3cde2e14d0970"
+        "blob": "245781a04ba81d7522d876b9ca778f15be15f4d1",
+        "sha256": "4a4d981874f103fb300db7f5ec85b1ce029234b5470b862f58fed0d30d5d01fe"
       },
       ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv": {
         "blob": "c68f2cdf4e9aaeda83a2e47bd21902ac9da832a2",
         "sha256": "c58bd225764b1f10a9bb15e19b0cdb2acd6e973a4f3d3a97812b3bc8ab610658"
       },
       ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json": {
-        "blob": "d6d21bfe3b8581fead54a86d48aa62d054e10b05",
-        "sha256": "f4985eb944487ef837a6f8714a1d4b22f7e2f899d58682fd23d5690f168db86b"
+        "blob": "e485815d20b40fa7a1b40bf692158dd8791e04a4",
+        "sha256": "10a8bf5e6141dc9a03c33a1980b8f3ed51974abb2d84f4ddb11e1301edc36a25"
       }
     },
     "final_child_path_sets": {

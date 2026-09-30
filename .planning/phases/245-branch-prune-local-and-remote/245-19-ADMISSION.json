@@ -4,11 +4,16 @@
   "plan": "19",
   "status": "prepared",
   "stage": "admission",
-  "captured_at": "2026-09-30T16:23:02.386Z",
+  "captured_at": "2026-09-30T16:32:51.244Z",
   "candidate_ref": "refs/heads/agent-241-08",
   "candidate_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
   "allowlist_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
   "production_mutations": 0,
+  "d01_readiness": {
+    "status": "ready",
+    "artifact_commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+    "source_commit": "511acbbbc54e604b9fad4be9853636b3cb9d78e9"
+  },
   "verify_inputs": {
     "current_contract": {
       "commit": "self",
@@ -27,8 +32,8 @@
       "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv"
     },
     "readiness": {
-      "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json"
+      "commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json"
     },
     "candidate_ref": "refs/heads/agent-241-08"
   }

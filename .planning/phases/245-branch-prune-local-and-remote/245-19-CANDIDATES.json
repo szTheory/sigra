@@ -5,14 +5,16 @@
   "outcome": "classified",
   "admission_status": "prepared",
   "classification_performed": true,
-  "captured_at": "2026-09-30T16:21:07.112Z",
+  "captured_at": "2026-09-30T16:31:34.558Z",
   "source_contract": {
     "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
     "active_ref": "refs/heads/phase-244-playwright-measurement",
-    "active_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+    "active_oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
     "local_ref_count": 129,
     "origin_ref_count": 357,
-    "open_pr_count": 13
+    "open_pr_count": 13,
+    "pinned_input_count": 7,
+    "fresh_readiness_source_commit": "511acbbbc54e604b9fad4be9853636b3cb9d78e9"
   },
   "safety_refs": [
     "refs/heads/ci/phase-235-16-source-complete",
@@ -40,6 +42,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-241-01-rescue",
           "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
@@ -54,6 +57,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-241-03-exec",
           "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
@@ -68,6 +72,7 @@
       "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "eligible",
           "ref": "refs/heads/agent-241-08",
           "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
@@ -82,6 +87,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-242-02-clean",
           "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
@@ -96,6 +102,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-242-02-continuation",
           "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
@@ -110,6 +117,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-242-14-closeout",
           "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
@@ -124,6 +132,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-exec-235-1-04-evidence",
           "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
@@ -138,6 +147,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-exec-235-1-12-evidence",
           "oid": "47f9578fc97edc63603953d446e79fac884326c3",
@@ -152,6 +162,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-exec-235-1-18-evidence",
           "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
@@ -166,6 +177,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/agent-exec-235-1-29-authority",
           "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
@@ -180,6 +192,7 @@
       "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "eligible",
           "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
           "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
@@ -194,6 +207,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
           "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
@@ -201,6 +215,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/chore/phase-88-uat-evidence",
           "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
@@ -215,6 +230,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
           "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
@@ -222,6 +238,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/chore/playwright-github-pages-ci",
           "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
@@ -236,6 +253,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/ci/phase-235-1-evidence",
           "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
@@ -243,6 +261,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
           "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
@@ -250,6 +269,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/ci/phase-235-1-evidence",
           "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
@@ -264,6 +284,7 @@
       "reason": "D-04 safety identity",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "protected",
           "ref": "refs/heads/ci/phase-235-16-source-complete",
           "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
@@ -271,6 +292,7 @@
           "reason": "D-04 safety identity"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "protected",
           "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
           "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
@@ -278,6 +300,7 @@
           "reason": "D-04 safety identity"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/ci/phase-235-16-source-complete",
           "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
@@ -292,6 +315,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/ci/phase-88-provenance",
           "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
@@ -299,6 +323,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/ci/phase-88-provenance",
           "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
@@ -313,6 +338,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
           "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
@@ -320,6 +346,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
           "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
@@ -334,6 +361,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
           "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
@@ -341,6 +369,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
           "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
@@ -355,6 +384,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
           "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
@@ -369,6 +399,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/hex/credo-1.7.19",
           "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
@@ -383,6 +414,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
           "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
@@ -397,6 +429,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
           "oid": "75b00619d287694ac55643584923011538933660",
@@ -411,6 +444,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
           "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
@@ -425,6 +459,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
           "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
@@ -439,6 +474,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/hex/mox-1.3.2",
           "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
@@ -453,6 +489,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/hex/oban-2.24.0",
           "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
@@ -467,6 +504,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
           "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
@@ -481,6 +519,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
           "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
@@ -495,6 +534,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
           "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
@@ -509,6 +549,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
           "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
@@ -523,6 +564,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
           "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
@@ -537,6 +579,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
           "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
@@ -551,6 +594,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
           "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
@@ -565,6 +609,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
           "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
@@ -579,6 +624,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
           "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
@@ -593,6 +639,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
           "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
@@ -607,6 +654,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
           "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
@@ -621,6 +669,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
           "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
@@ -635,6 +684,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/docs/230-phase-complete",
           "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
@@ -642,6 +692,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/docs/230-phase-complete",
           "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
@@ -649,6 +700,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/docs/230-phase-complete",
           "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
@@ -663,6 +715,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/docs/phase-240-planning",
           "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
@@ -670,6 +723,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/docs/phase-240-planning",
           "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
@@ -684,6 +738,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
           "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
@@ -691,6 +746,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/elevate-03-wave-v144-pr",
           "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
@@ -705,6 +761,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
           "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
@@ -712,6 +769,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
           "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
@@ -726,6 +784,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
           "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
@@ -740,6 +799,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
           "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
@@ -754,6 +814,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
           "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
@@ -768,6 +829,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
           "oid": "d949725a313a25bfab59350acd29c045df033cdc",
@@ -782,6 +844,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
           "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
@@ -796,6 +859,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/evidence/request-21-f061",
           "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
@@ -803,6 +867,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/evidence/request-21-f061",
           "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
@@ -810,6 +875,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/evidence/request-21-f061",
           "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
@@ -824,6 +890,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
           "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
@@ -831,6 +898,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
           "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
@@ -838,6 +906,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
           "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
@@ -852,6 +921,7 @@
       "reason": "tracking identity differs from the live origin branch; origin commit is unavailable locally for ancestry proof",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gh-pages",
           "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
@@ -859,6 +929,7 @@
           "reason": "tracking identity differs from the live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "blocked",
           "ref": "refs/heads/gh-pages",
           "oid": "dd671004a276c24fafa8ece80e341706085a999e",
@@ -873,6 +944,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd-reviewfix/247-29317",
           "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
@@ -887,6 +959,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
           "oid": "54749e55112ba0c6f7227233100dd330e9290001",
@@ -894,6 +967,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
           "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
@@ -901,6 +975,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
           "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
@@ -915,6 +990,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
           "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
@@ -929,6 +1005,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd/237-238-clean-baseline",
           "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
@@ -936,6 +1013,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
           "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
@@ -943,6 +1021,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/gsd/237-238-clean-baseline",
           "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
@@ -957,6 +1036,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "protected",
           "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
           "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
@@ -964,6 +1044,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "protected",
           "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
           "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
@@ -971,6 +1052,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
           "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
@@ -985,6 +1067,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd/phase-232-playwright-economics",
           "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
@@ -992,6 +1075,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
           "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
@@ -999,6 +1083,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/gsd/phase-232-playwright-economics",
           "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
@@ -1013,6 +1098,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
           "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
@@ -1027,6 +1113,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
           "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
@@ -1041,6 +1128,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-240-closeout",
           "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
@@ -1055,6 +1143,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
           "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
@@ -1069,6 +1158,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-241-context",
           "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
@@ -1083,6 +1173,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-241-plans",
           "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
@@ -1097,6 +1188,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/phase-241-research",
           "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
@@ -1111,6 +1203,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
           "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
@@ -1125,6 +1218,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
           "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
@@ -1139,6 +1233,7 @@
       "reason": "stale tracking ref is not proven safe to remove",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "blocked",
           "ref": "refs/remotes/origin/gsd/state-reconcile-241",
           "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
@@ -1153,6 +1248,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
           "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
@@ -1167,6 +1263,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "protected",
           "ref": "refs/heads/main",
           "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
@@ -1174,6 +1271,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "protected",
           "ref": "refs/remotes/origin/main",
           "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
@@ -1181,6 +1279,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/main",
           "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
@@ -1195,6 +1294,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/phase-241-ci-reconcile",
           "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
@@ -1209,6 +1309,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/phase-242-execution",
           "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
@@ -1216,6 +1317,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/phase-242-execution",
           "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
@@ -1223,6 +1325,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-242-execution",
           "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
@@ -1237,6 +1340,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
           "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
@@ -1244,6 +1348,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
           "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
@@ -1258,6 +1363,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/phase-242-safety-closeout",
           "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
@@ -1272,6 +1378,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-full-baseline-capture",
           "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
@@ -1286,6 +1393,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-full-webkit",
           "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
@@ -1300,6 +1408,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-measure-workflow-fix",
           "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
@@ -1314,9 +1423,10 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "protected",
           "ref": "refs/heads/phase-244-playwright-measurement",
-          "oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+          "oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
           "type": "commit",
           "reason": "active/default/open-PR head or base"
         }
@@ -1328,6 +1438,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-render-webkit-path",
           "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
@@ -1342,6 +1453,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-routing-pr",
           "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
@@ -1356,6 +1468,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-share-beam-setup",
           "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
@@ -1370,6 +1483,7 @@
       "reason": "remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/phase-244-webkit-deps",
           "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
@@ -1384,6 +1498,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "protected",
           "ref": "refs/remotes/origin/phase-244/measurement",
           "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
@@ -1391,6 +1506,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/phase-244/measurement",
           "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
@@ -1405,6 +1521,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/release-1.4.0-changelog",
           "oid": "86728ee1f74913338675786fd871e845904ad8a0",
@@ -1419,6 +1536,7 @@
       "reason": "active/default/open-PR head or base",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "protected",
           "ref": "refs/remotes/origin/release-please--branches--main",
           "oid": "70ba005a694540e488a2e705950c4135268642ad",
@@ -1426,6 +1544,7 @@
           "reason": "active/default/open-PR head or base"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/release-please--branches--main",
           "oid": "276e8c3fc504d2c0497d801083668267327fab84",
@@ -1440,6 +1559,7 @@
       "reason": "D-04 safety identity",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "protected",
           "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
           "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
@@ -1447,6 +1567,7 @@
           "reason": "D-04 safety identity"
         },
         "remote": {
+          "side": "remote",
           "classification": "protected",
           "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
           "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
@@ -1461,6 +1582,7 @@
       "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/v1.1-pr",
           "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
@@ -1468,6 +1590,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/v1.1-pr",
           "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
@@ -1482,6 +1605,7 @@
       "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement",
       "refs": {
         "tracking": {
+          "side": "tracking",
           "classification": "eligible",
           "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
           "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
@@ -1496,6 +1620,7 @@
       "reason": "local work is not proven merged into the active evidence ref",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/v1.47-closeout",
           "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
@@ -1510,6 +1635,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-03",
           "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
@@ -1517,6 +1643,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/worktree-agent-p242-03",
           "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
@@ -1524,6 +1651,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-03",
           "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
@@ -1538,6 +1666,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-11",
           "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
@@ -1545,6 +1674,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/worktree-agent-p242-11",
           "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
@@ -1552,6 +1682,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-11",
           "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
@@ -1566,6 +1697,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-13",
           "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
@@ -1573,6 +1705,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/worktree-agent-p242-13",
           "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
@@ -1580,6 +1713,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-13",
           "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
@@ -1594,6 +1728,7 @@
       "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
       "refs": {
         "local": {
+          "side": "local",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-artifacts",
           "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
@@ -1601,6 +1736,7 @@
           "reason": "local work is not proven merged into the active evidence ref"
         },
         "tracking": {
+          "side": "tracking",
           "classification": "keep",
           "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
           "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
@@ -1608,6 +1744,7 @@
           "reason": "tracking ref matches the current live origin branch"
         },
         "remote": {
+          "side": "remote",
           "classification": "keep",
           "ref": "refs/heads/worktree-agent-p242-artifacts",
           "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
@@ -1620,6 +1757,7 @@
   "candidate_rows": [
     {
       "side": "local",
+      "classification": "eligible",
       "ref": "refs/heads/agent-241-08",
       "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
       "type": "commit",
@@ -1627,6 +1765,7 @@
     },
     {
       "side": "tracking",
+      "classification": "eligible",
       "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
       "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
       "type": "commit",
@@ -1634,6 +1773,7 @@
     },
     {
       "side": "tracking",
+      "classification": "eligible",
       "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
