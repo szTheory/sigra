@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 21 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plans 20–21 repair the verifier and own fresh execution evidence; Plan 16 remains blocked by Plan 14.
+**Plans**: 22 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition before Plan 21 retries from the actual post-fetch state. Plan 16 remains blocked by Plan 14.
 
 Plans:
 **Wave 1**
@@ -463,7 +463,8 @@ Plans:
 - [x] 245-18-PLAN.md — Re-prove the Phase 244 prerequisite from available sources and commit a fresh immutable local/origin/PR snapshot (completed 2026-09-30; D-01 and all 488 direct/peeled objects verified)
 - [x] 245-19-PLAN.md — Superseded by Plan 20 after one admitted local deletion; its durable blocked receipt preserves the mutation and verifier failure, and its remaining actions must not be rerun
 - [x] 245-20-PLAN.md — Repair operation-readback and final-child verification with deterministic fixtures (plan wave 14; depends on 245-18)
-- [ ] 245-21-PLAN.md — Run fresh D-06 preflight, pin the current contract and reconcile only remaining admitted refs under object, PR, safety and coordinator gates (plan wave 15; depends on 245-20; REPO-04 stays open until all current postchecks pass)
+- [ ] 245-21-PLAN.md — Retry fresh D-06 preflight from the post-fetch baseline, then pin the current contract and reconcile only remaining admitted refs under object, PR, safety and coordinator gates (plan wave 16; depends on 245-20 and 245-22; the blocked receipt remains unchanged; REPO-04 stays open until all current postchecks pass)
+- [ ] 245-22-PLAN.md — Prove an exact-object fetch cannot update local refs or FETCH_HEAD in a disposable mapped-origin fixture and gate Plan 21's retry (plan wave 15; depends on 245-20; no production ref operation)
 
 ## Progress
 
