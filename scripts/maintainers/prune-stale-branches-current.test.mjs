@@ -22,7 +22,7 @@ function fixtureGit(repo, ...args) {
   return run(GIT_BIN, ["-C", repo, ...args]);
 }
 
-function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false } = {}) {
+function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false, trackingRefs = [] } = {}) {
   const repo = join(parentDir, "repo");
   mkdirSync(repo);
   run(GIT_BIN, ["init", "-q", "--initial-branch=main", repo]);
@@ -32,6 +32,7 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   fixtureGit(repo, "add", "seed.txt");
   fixtureGit(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture seed");
   const capturedHeadOid = fixtureGit(repo, "rev-parse", "HEAD");
+  for (const ref of trackingRefs) fixtureGit(repo, "update-ref", ref, capturedHeadOid);
   const contractPath = ".planning/phases/245-19-CURRENT-CONTRACT.json";
   const candidatesPath = ".planning/phases/245-19-CANDIDATES.json";
   const allowlistPath = ".planning/phases/245-19-BRANCH-DELETE-ALLOWLIST.tsv";
@@ -44,7 +45,9 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   }
   const evidenceBytes = {
     [candidatesPath]: Buffer.from('{"classification":"fixture"}\n'),
-    [allowlistPath]: Buffer.from("side\tref\toid\ttype\treason\nlocal\trefs/heads/fixture\t0000000000000000000000000000000000000000\tcommit\tfixture\n"),
+    [allowlistPath]: Buffer.from(trackingRefs.length
+      ? `side\tref\toid\ttype\treason\n${trackingRefs.map((ref) => `tracking\t${ref}\t${capturedHeadOid}\tcommit\tfixture tracking ref`).join("\n")}\n`
+      : "side\tref\toid\ttype\treason\nlocal\trefs/heads/fixture\t0000000000000000000000000000000000000000\tcommit\tfixture\n"),
     [admissionPath]: Buffer.from('{"status":"prepared"}\n'),
   };
   const precommitArtifacts = {};
@@ -61,7 +64,10 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
     checkout_root: repo,
     capture_head_ref: "refs/heads/main",
     capture_head_oid: capturedHeadOid,
-    local_refs: [{ ref: "refs/heads/main", oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null }],
+    local_refs: [
+      { ref: "refs/heads/main", oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null },
+      ...trackingRefs.map((ref) => ({ ref, oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null })),
+    ].sort((a, b) => a.ref.localeCompare(b.ref)),
     origin_refs: [],
     open_prs: [],
     evidence_transition: {
@@ -95,6 +101,23 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   return { repo, contract, contractPath, candidatesPath, allowlistPath, admissionPath, resultPath, postPath, summaryPath,
     contractCommit: fixtureGit(repo, "rev-parse", "HEAD") };
 }
+
+test("D-07 operation readback permits only cumulative committed tracking removals before a result child", () => {
+  const root = mkdtempSync(join(tmpdir(), "sigra-operation-readback-"));
+  try {
+    const refs = ["refs/remotes/origin/one", "refs/remotes/origin/two"];
+    const fixture = makeEvidenceFixture(root, { trackingRefs: refs });
+    fixtureGit(fixture.repo, "update-ref", "-d", refs[0], fixture.contract.capture_head_oid);
+    const result = inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "operation", {
+      allowlistRows: refs.map((ref) => ({ side: "tracking", ref, oid: fixture.contract.capture_head_oid, type: "commit" })),
+      appliedRefs: [refs[0]],
+    });
+    assert.equal(result.final_evidence_commit, null);
+    assert.deepEqual(result.applied_refs, [refs[0]]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function commitFinalEvidence(fixture, { extraPath = false, secondCommit = false, wrongParent = false } = {}) {
   if (wrongParent) {
