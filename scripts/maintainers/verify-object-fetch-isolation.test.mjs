@@ -22,6 +22,8 @@ test("configured origin fetch obtains the exact object without changing refs, sy
     assert.equal(result.symbolic_head_equal, true);
     assert.equal(result.fetch_head_equal, true);
     assert.equal(result.tracking_ref_equal, true);
+    assert.equal(result.tracking_baseline_equal, true);
+    assert.equal(result.old_tracking_oid, result.old_origin_gh_pages_oid);
     assert.equal(result.old_tracking_oid, result.tracking_oid_after);
   }
 });
