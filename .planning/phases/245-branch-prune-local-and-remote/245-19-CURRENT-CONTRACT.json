@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "szTheory/sigra",
   "checkout_root": "/Users/jon/projects/sigra",
-  "captured_at": "2026-09-30T16:33:15.804Z",
+  "captured_at": "2026-09-30T16:36:12.320Z",
   "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-  "capture_head_oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+  "capture_head_oid": "9ce66b2486c812d037d65a0a9595f0cc6ceeeaba",
   "local_refs": [
     {
       "ref": "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch",
@@ -456,7 +456,7 @@
     },
     {
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+      "oid": "9ce66b2486c812d037d65a0a9595f0cc6ceeeaba",
       "type": "commit",
       "peeled_oid": null,
       "peeled_type": null,
@@ -4084,7 +4084,7 @@
   ],
   "evidence_transition": {
     "active_ref": "refs/heads/phase-244-playwright-measurement",
-    "captured_head_oid": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+    "captured_head_oid": "9ce66b2486c812d037d65a0a9595f0cc6ceeeaba",
     "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
     "contract_paths": [
       ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
@@ -4095,16 +4095,16 @@
     ],
     "precommit_artifacts": {
       ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json": {
-        "blob": "245781a04ba81d7522d876b9ca778f15be15f4d1",
-        "sha256": "4a4d981874f103fb300db7f5ec85b1ce029234b5470b862f58fed0d30d5d01fe"
+        "blob": "01961ce1c3c76ce79417e0de2fbcc6747e798a13",
+        "sha256": "2727eb6f97e8111a938c080207adecc778b9edca7fe7612c2544092b055dcd4d"
       },
       ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv": {
-        "blob": "c68f2cdf4e9aaeda83a2e47bd21902ac9da832a2",
-        "sha256": "c58bd225764b1f10a9bb15e19b0cdb2acd6e973a4f3d3a97812b3bc8ab610658"
+        "blob": "6c2e3244b5743ec5530532de9535cdcb6b9605cf",
+        "sha256": "1f933adcfd523a9c757a8228cded3a3f2b9193345f5bfe6114ca67013172d8c4"
       },
       ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json": {
-        "blob": "e485815d20b40fa7a1b40bf692158dd8791e04a4",
-        "sha256": "10a8bf5e6141dc9a03c33a1980b8f3ed51974abb2d84f4ddb11e1301edc36a25"
+        "blob": "a57a4ec8b4cbed6c77b3d0ac9f7b8e2d385d2cf0",
+        "sha256": "232f269ec7e039c129ea66124da0316b8ee1a72a22d77c4307c6e1d17d86fda5"
       }
     },
     "final_child_path_sets": {
