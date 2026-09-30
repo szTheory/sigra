@@ -201,6 +201,18 @@ test("D-07 final result ref side and OID must match the committed allowlist disp
       allowlistRows,
       appliedRefs: [ref],
     }), /evidence_transition_result_mutation_side_mismatch/);
+
+    const oidRoot = mkdtempSync(join(root, "oid-") );
+    const oidFixture = makeEvidenceFixture(oidRoot, { trackingRefs: [ref] });
+    const expectedOid = oidFixture.contract.capture_head_oid;
+    fixtureGit(oidFixture.repo, "update-ref", "-d", ref, expectedOid);
+    commitFinalEvidence(oidFixture, { mutations: {
+      local_ref_deletions: [], tracking_ref_deletions: [{ ref, expected_oid: "f".repeat(40) }], remote_ref_deletions: [],
+    } });
+    assert.throws(() => inspectEvidenceTransition(oidFixture.repo, oidFixture.contractCommit, oidFixture.contractPath, oidFixture.contract, "after", {
+      allowlistRows: [{ side: "tracking", ref, oid: expectedOid, type: "commit" }],
+      appliedRefs: [ref],
+    }), /evidence_transition_result_mutation_oid_mismatch/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

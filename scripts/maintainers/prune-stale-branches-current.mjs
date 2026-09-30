@@ -308,15 +308,25 @@ function normalizeAppliedRefs(allowlistRows, appliedRefs) {
   return { applied, rows };
 }
 
-function resultAppliedRefs(result) {
+function resultAppliedRefs(result, allowlistByRef) {
   const mutations = result?.mutations;
   if (!mutations || typeof mutations !== "object" || Array.isArray(mutations)) fail("evidence_transition_result_mutations_missing");
   const refs = [];
-  for (const key of ["local_ref_deletions", "tracking_ref_deletions", "remote_ref_deletions"]) {
+  const expectedSide = {
+    local_ref_deletions: "local",
+    tracking_ref_deletions: "tracking",
+    remote_ref_deletions: "remote",
+  };
+  for (const key of Object.keys(expectedSide)) {
     if (!Array.isArray(mutations[key])) fail(`evidence_transition_result_mutations_invalid:${key}`);
     for (const item of mutations[key]) {
       if (typeof item?.ref !== "string") fail(`evidence_transition_result_mutation_ref_missing:${key}`);
-      refs.push(safeEvidencePath(item.ref, "evidence_transition_result_ref"));
+      const ref = safeEvidencePath(item.ref, "evidence_transition_result_ref");
+      const admitted = allowlistByRef.get(ref);
+      if (!admitted || admitted.side !== expectedSide[key]) fail(`evidence_transition_result_mutation_side_mismatch:${key}:${ref}`);
+      const expectedOid = item.expected_oid ?? item.oid;
+      if (expectedOid !== undefined && expectedOid !== admitted.oid) fail(`evidence_transition_result_mutation_oid_mismatch:${ref}`);
+      refs.push(ref);
     }
   }
   refs.sort();
@@ -420,7 +430,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
       }
     }
     if (stage === "after") {
-      const declared = resultAppliedRefs(parsedResult);
+      const declared = resultAppliedRefs(parsedResult, appliedRows);
       if (canonical(declared) !== canonical(applied)) fail("evidence_transition_result_applied_refs_mismatch");
     }
   }
